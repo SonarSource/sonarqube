@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { sanitize } from 'dompurify';
 import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
@@ -34,9 +36,9 @@ export default function HotspotViewerReviewHistoryTab(props: HotspotViewerReview
   return (
     <>
       {history.map((elt, i) => (
-        <React.Fragment key={`${elt.user.name}-${elt.date}`}>
+        <React.Fragment key={i}>
           {i > 0 && <hr />}
-          <div>
+          <div className="padded">
             <div className="display-flex-center">
               {elt.user.name && (
                 <>
@@ -56,6 +58,11 @@ export default function HotspotViewerReviewHistoryTab(props: HotspotViewerReview
                       {translate('hotspots.tabs.review_history.created')}
                     </span>
                   )}
+                  {elt.type === ReviewHistoryType.Comment && (
+                    <span className="little-spacer-left">
+                      {translate('hotspots.tabs.review_history.comment')}
+                    </span>
+                  )}
                   <span className="little-spacer-left little-spacer-right">-</span>
                 </>
               )}
@@ -64,13 +71,17 @@ export default function HotspotViewerReviewHistoryTab(props: HotspotViewerReview
 
             {elt.type === ReviewHistoryType.Diff && elt.diffs && (
               <div className="spacer-top">
-                {elt.diffs.map(diff => (
-                  <IssueChangelogDiff
-                    diff={diff}
-                    key={`${diff.key}-${diff.oldValue}-${diff.newValue}`}
-                  />
+                {elt.diffs.map((diff, i) => (
+                  <IssueChangelogDiff diff={diff} key={i} />
                 ))}
               </div>
+            )}
+
+            {elt.type === ReviewHistoryType.Comment && elt.html && (
+              <div
+                className="spacer-top markdown"
+                dangerouslySetInnerHTML={{ __html: sanitize(elt.html) }}
+              />
             )}
           </div>
         </React.Fragment>

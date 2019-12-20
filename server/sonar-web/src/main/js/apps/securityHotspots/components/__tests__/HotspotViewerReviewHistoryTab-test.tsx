@@ -44,6 +44,10 @@ function shallowRender(props?: Partial<HotspotViewerReviewHistoryTabProps>) {
             { key: 'test', oldValue: 'old', newValue: 'new' },
             { key: 'test-1', oldValue: 'old-1', newValue: 'new-1' }
           ]
+        }),
+        mockHotspotReviewHistoryElement({
+          type: ReviewHistoryType.Comment,
+          html: '<strong>bold text</strong>'
         })
       ]}
       {...props}

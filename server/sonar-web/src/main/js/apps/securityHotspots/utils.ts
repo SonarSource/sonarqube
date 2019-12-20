@@ -89,24 +89,37 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
       type: ReviewHistoryType.Creation,
       date: hotspot.creationDate,
       user: {
-        avatar: hotspot.author.avatar,
-        name: hotspot.author.name || hotspot.author.login,
-        active: hotspot.author.active
+        ...hotspot.authorUser,
+        name: hotspot.authorUser.name || hotspot.authorUser.login
       }
     });
   }
 
-  if (hotspot.changelog) {
+  if (hotspot.changelog && hotspot.changelog.length > 0) {
     history.push(
       ...hotspot.changelog.map(log => ({
         type: ReviewHistoryType.Diff,
         date: log.creationDate,
         user: {
+          active: log.isUserActive,
           avatar: log.avatar,
-          name: log.userName || log.user,
-          active: log.isUserActive
+          name: log.userName || log.user
         },
         diffs: log.diffs
+      }))
+    );
+  }
+
+  if (hotspot.comment && hotspot.comment.length > 0) {
+    history.push(
+      ...hotspot.comment.map(comment => ({
+        type: ReviewHistoryType.Comment,
+        date: comment.createdAt,
+        user: {
+          ...comment.user,
+          name: comment.user.name || comment.user.login
+        },
+        html: comment.htmlText
       }))
     );
   }

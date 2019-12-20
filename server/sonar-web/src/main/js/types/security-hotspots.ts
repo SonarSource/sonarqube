@@ -69,9 +69,12 @@ export interface RawHotspot {
 }
 
 export interface Hotspot {
-  assignee?: Pick<T.UserBase, 'active' | 'login' | 'name'>;
-  author: Pick<T.UserBase, 'active' | 'avatar' | 'login' | 'name'>;
-  changelog?: T.IssueChangelog[];
+  assignee?: string;
+  assigneeUser?: T.UserBase;
+  author: string;
+  authorUser: T.UserBase;
+  changelog: T.IssueChangelog[];
+  comment: HotspotComment[];
   component: T.Component;
   creationDate: string;
   key: string;
@@ -83,6 +86,7 @@ export interface Hotspot {
   status: string;
   textRange: T.TextRange;
   updateDate: string;
+  users: T.UserBase[];
 }
 
 export interface HotspotUpdateFields {
@@ -104,16 +108,28 @@ export interface HotspotRule {
   vulnerabilityProbability: RiskExposure;
 }
 
+export interface HotspotComment {
+  key: string;
+  htmlText: string;
+  markdown: string;
+  updatable: boolean;
+  createdAt: string;
+  login: string;
+  user: T.UserBase;
+}
+
 export interface ReviewHistoryElement {
   type: ReviewHistoryType;
   date: string;
   user: Pick<T.UserBase, 'active' | 'avatar' | 'name'>;
   diffs?: T.IssueChangelogDiff[];
+  html?: string;
 }
 
 export enum ReviewHistoryType {
   Creation,
-  Diff
+  Diff,
+  Comment
 }
 
 export interface HotspotSearchResponse {

@@ -31,12 +31,12 @@ it('should render correctly', () => {
     'unassigned'
   );
   expect(
-    shallowRender({ hotspot: mockHotspot({ assignee: mockUser({ active: false }) }) })
+    shallowRender({ hotspot: mockHotspot({ assigneeUser: mockUser({ active: false }) }) })
   ).toMatchSnapshot('deleted assignee');
   expect(
     shallowRender({
       hotspot: mockHotspot({
-        assignee: mockUser({ name: undefined, login: 'assignee_login' })
+        assigneeUser: mockUser({ name: undefined, login: 'assignee_login' })
       })
     })
   ).toMatchSnapshot('assignee without name');

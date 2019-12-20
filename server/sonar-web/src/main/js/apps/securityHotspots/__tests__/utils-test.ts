@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { mockHotspot, mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
+import { mockUser } from '../../../helpers/testMocks';
 import { ReviewHistoryType, RiskExposure } from '../../../types/security-hotspots';
 import { getHotspotReviewHistory, groupByCategory, mapRules, sortHotspots } from '../utils';
 
@@ -158,25 +159,56 @@ describe('getHotspotReviewHistory', () => {
         }
       ]
     };
+    const commentElement = {
+      key: 'comment-1',
+      createdAt: '2018-09-10',
+      htmlText: '<strong>TEST</strong>',
+      markdown: '*TEST*',
+      updatable: true,
+      login: 'dude-1',
+      user: mockUser({ login: 'dude-1' })
+    };
+    const commentElement1 = {
+      key: 'comment-2',
+      createdAt: '2018-09-11',
+      htmlText: '<strong>TEST</strong>',
+      markdown: '*TEST*',
+      updatable: true,
+      login: 'dude-2',
+      user: mockUser({ login: 'dude-2' })
+    };
     const hotspot = mockHotspot({
       creationDate: '2018-09-01',
-      changelog: [changelogElement]
+      changelog: [changelogElement],
+      comment: [commentElement, commentElement1]
     });
     const history = getHotspotReviewHistory(hotspot);
 
-    expect(history.length).toBe(2);
+    expect(history.length).toBe(4);
     expect(history[0]).toEqual(
       expect.objectContaining({
         type: ReviewHistoryType.Creation,
         date: hotspot.creationDate,
-        user: {
-          avatar: hotspot.author.avatar,
-          name: hotspot.author.name,
-          active: hotspot.author.active
-        }
+        user: hotspot.authorUser
       })
     );
     expect(history[1]).toEqual(
+      expect.objectContaining({
+        type: ReviewHistoryType.Comment,
+        date: commentElement.createdAt,
+        user: commentElement.user,
+        html: commentElement.htmlText
+      })
+    );
+    expect(history[2]).toEqual(
+      expect.objectContaining({
+        type: ReviewHistoryType.Comment,
+        date: commentElement1.createdAt,
+        user: commentElement1.user,
+        html: commentElement1.htmlText
+      })
+    );
+    expect(history[3]).toEqual(
       expect.objectContaining({
         type: ReviewHistoryType.Diff,
         date: changelogElement.creationDate,

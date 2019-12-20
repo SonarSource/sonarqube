@@ -50,10 +50,15 @@ export function mockRawHotspot(overrides: Partial<RawHotspot> = {}): RawHotspot 
 }
 
 export function mockHotspot(overrides?: Partial<Hotspot>): Hotspot {
+  const assigneeUser = mockUser({ login: 'assignee' });
+  const authorUser = mockUser({ login: 'author' });
   return {
-    assignee: mockUser(),
-    author: mockUser(),
+    assignee: 'assignee',
+    assigneeUser,
+    author: 'author',
+    authorUser,
     changelog: [],
+    comment: [],
     component: mockComponent({ qualifier: ComponentQualifier.File }),
     creationDate: '2013-05-13T17:55:41+0200',
     key: '01fc972e-2a3c-433e-bcae-0bd7f88f5123',
@@ -70,6 +75,7 @@ export function mockHotspot(overrides?: Partial<Hotspot>): Hotspot {
       endOffset: 83
     },
     updateDate: '2013-05-13T17:55:42+0200',
+    users: [assigneeUser, authorUser],
     ...overrides
   };
 }

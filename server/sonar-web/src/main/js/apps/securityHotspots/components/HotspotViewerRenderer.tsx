@@ -63,13 +63,13 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
             <span className="badge little-spacer-left">
               {translate('hotspot.status', hotspot.resolution || hotspot.status)}
             </span>
-            {hotspot.assignee && hotspot.assignee.name && (
+            {hotspot.assigneeUser && hotspot.assigneeUser.name && (
               <>
                 <span className="huge-spacer-left">{translate('assigned_to')}:</span>
                 <strong className="little-spacer-left">
-                  {hotspot.assignee.active
-                    ? hotspot.assignee.name
-                    : translateWithParameters('user.x_deleted', hotspot.assignee.name)}
+                  {hotspot.assigneeUser.active
+                    ? hotspot.assigneeUser.name
+                    : translateWithParameters('user.x_deleted', hotspot.assigneeUser.name)}
                 </strong>
               </>
             )}

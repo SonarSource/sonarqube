@@ -13,19 +13,22 @@ exports[`should render correctly 1`] = `
   highlightedSymbols={Array []}
   hotspot={
     Object {
-      "assignee": Object {
+      "assignee": "assignee",
+      "assigneeUser": Object {
         "active": true,
         "local": true,
-        "login": "john.doe",
+        "login": "assignee",
         "name": "John Doe",
       },
-      "author": Object {
+      "author": "author",
+      "authorUser": Object {
         "active": true,
         "local": true,
-        "login": "john.doe",
+        "login": "author",
         "name": "John Doe",
       },
       "changelog": Array [],
+      "comment": Array [],
       "component": Object {
         "breadcrumbs": Array [],
         "key": "my-project",
@@ -90,6 +93,20 @@ exports[`should render correctly 1`] = `
         "startOffset": 26,
       },
       "updateDate": "2013-05-13T17:55:42+0200",
+      "users": Array [
+        Object {
+          "active": true,
+          "local": true,
+          "login": "assignee",
+          "name": "John Doe",
+        },
+        Object {
+          "active": true,
+          "local": true,
+          "login": "author",
+          "name": "John Doe",
+        },
+      ],
     }
   }
   loading={true}

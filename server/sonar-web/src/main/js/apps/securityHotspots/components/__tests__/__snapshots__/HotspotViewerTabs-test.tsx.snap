@@ -26,7 +26,8 @@ exports[`should render correctly: empty tab 1`] = `
                   "type": 0,
                   "user": Object {
                     "active": true,
-                    "avatar": undefined,
+                    "local": true,
+                    "login": "author",
                     "name": "John Doe",
                   },
                 },
@@ -49,10 +50,10 @@ exports[`should render correctly: empty tab 1`] = `
     }
   />
   <div
-    className="boxed-group big-padded"
+    className="bordered"
   >
     <div
-      className="markdown"
+      className="markdown big-padded"
       dangerouslySetInnerHTML={
         Object {
           "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
@@ -94,7 +95,8 @@ exports[`should render correctly: fix 1`] = `
                   "type": 0,
                   "user": Object {
                     "active": true,
-                    "avatar": undefined,
+                    "local": true,
+                    "login": "author",
                     "name": "John Doe",
                   },
                 },
@@ -117,10 +119,10 @@ exports[`should render correctly: fix 1`] = `
     }
   />
   <div
-    className="boxed-group big-padded"
+    className="bordered"
   >
     <div
-      className="markdown"
+      className="markdown big-padded"
       dangerouslySetInnerHTML={
         Object {
           "__html": "<p>This a <strong>strong</strong> message about fixing !</p>",
@@ -164,7 +166,8 @@ exports[`should render correctly: review 1`] = `
                   "type": 0,
                   "user": Object {
                     "active": true,
-                    "avatar": undefined,
+                    "local": true,
+                    "login": "author",
                     "name": "John Doe",
                   },
                 },
@@ -187,7 +190,7 @@ exports[`should render correctly: review 1`] = `
     }
   />
   <div
-    className="boxed-group big-padded"
+    className="bordered"
   >
     <HotspotViewerReviewHistoryTab
       history={
@@ -197,7 +200,8 @@ exports[`should render correctly: review 1`] = `
             "type": 0,
             "user": Object {
               "active": true,
-              "avatar": undefined,
+              "local": true,
+              "login": "author",
               "name": "John Doe",
             },
           },
@@ -239,7 +243,8 @@ exports[`should render correctly: risk 1`] = `
                   "type": 0,
                   "user": Object {
                     "active": true,
-                    "avatar": undefined,
+                    "local": true,
+                    "login": "author",
                     "name": "John Doe",
                   },
                 },
@@ -262,10 +267,10 @@ exports[`should render correctly: risk 1`] = `
     }
   />
   <div
-    className="boxed-group big-padded"
+    className="bordered"
   >
     <div
-      className="markdown"
+      className="markdown big-padded"
       dangerouslySetInnerHTML={
         Object {
           "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
@@ -307,7 +312,8 @@ exports[`should render correctly: vulnerability 1`] = `
                   "type": 0,
                   "user": Object {
                     "active": true,
-                    "avatar": undefined,
+                    "local": true,
+                    "login": "author",
                     "name": "John Doe",
                   },
                 },
@@ -330,10 +336,10 @@ exports[`should render correctly: vulnerability 1`] = `
     }
   />
   <div
-    className="boxed-group big-padded"
+    className="bordered"
   >
     <div
-      className="markdown"
+      className="markdown big-padded"
       dangerouslySetInnerHTML={
         Object {
           "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",

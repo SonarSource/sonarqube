@@ -59,19 +59,22 @@ exports[`should render correctly 1`] = `
     <HotspotSnippetContainer
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "assignee",
             "name": "John Doe",
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -136,25 +139,42 @@ exports[`should render correctly 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
     <HotspotViewerTabs
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "assignee",
             "name": "John Doe",
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -219,6 +239,20 @@ exports[`should render correctly 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
@@ -285,19 +319,22 @@ exports[`should render correctly: anonymous user 1`] = `
     <HotspotSnippetContainer
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "assignee",
             "name": "John Doe",
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -362,25 +399,42 @@ exports[`should render correctly: anonymous user 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
     <HotspotViewerTabs
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "assignee",
             "name": "John Doe",
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -445,6 +499,20 @@ exports[`should render correctly: anonymous user 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
@@ -500,19 +568,22 @@ exports[`should render correctly: assignee without name 1`] = `
     <HotspotSnippetContainer
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": true,
             "local": true,
             "login": "assignee_login",
             "name": undefined,
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -577,25 +648,42 @@ exports[`should render correctly: assignee without name 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
     <HotspotViewerTabs
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": true,
             "local": true,
             "login": "assignee_login",
             "name": undefined,
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -660,6 +748,20 @@ exports[`should render correctly: assignee without name 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
@@ -726,19 +828,22 @@ exports[`should render correctly: deleted assignee 1`] = `
     <HotspotSnippetContainer
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": false,
             "local": true,
             "login": "john.doe",
             "name": "John Doe",
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -803,25 +908,42 @@ exports[`should render correctly: deleted assignee 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
     <HotspotViewerTabs
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": false,
             "local": true,
             "login": "john.doe",
             "name": "John Doe",
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -886,6 +1008,20 @@ exports[`should render correctly: deleted assignee 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
@@ -944,18 +1080,37 @@ exports[`should render correctly: unassigned 1`] = `
       >
         hotspot.status.FIXED
       </span>
+      <span
+        className="huge-spacer-left"
+      >
+        assigned_to
+        :
+      </span>
+      <strong
+        className="little-spacer-left"
+      >
+        John Doe
+      </strong>
     </div>
     <HotspotSnippetContainer
       hotspot={
         Object {
           "assignee": undefined,
-          "author": Object {
+          "assigneeUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -1020,6 +1175,20 @@ exports[`should render correctly: unassigned 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
@@ -1027,13 +1196,21 @@ exports[`should render correctly: unassigned 1`] = `
       hotspot={
         Object {
           "assignee": undefined,
-          "author": Object {
+          "assigneeUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -1098,6 +1275,20 @@ exports[`should render correctly: unassigned 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
@@ -1125,19 +1316,22 @@ exports[`should render correctly: user logged in 1`] = `
         <HotspotActions
           hotspot={
             Object {
-              "assignee": Object {
+              "assignee": "assignee",
+              "assigneeUser": Object {
                 "active": true,
                 "local": true,
-                "login": "john.doe",
+                "login": "assignee",
                 "name": "John Doe",
               },
-              "author": Object {
+              "author": "author",
+              "authorUser": Object {
                 "active": true,
                 "local": true,
-                "login": "john.doe",
+                "login": "author",
                 "name": "John Doe",
               },
               "changelog": Array [],
+              "comment": Array [],
               "component": Object {
                 "breadcrumbs": Array [],
                 "key": "my-project",
@@ -1202,6 +1396,20 @@ exports[`should render correctly: user logged in 1`] = `
                 "startOffset": 26,
               },
               "updateDate": "2013-05-13T17:55:42+0200",
+              "users": Array [
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "assignee",
+                  "name": "John Doe",
+                },
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "author",
+                  "name": "John Doe",
+                },
+              ],
             }
           }
           onSubmit={[MockFunction]}
@@ -1248,19 +1456,22 @@ exports[`should render correctly: user logged in 1`] = `
     <HotspotSnippetContainer
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "assignee",
             "name": "John Doe",
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -1325,25 +1536,42 @@ exports[`should render correctly: user logged in 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />
     <HotspotViewerTabs
       hotspot={
         Object {
-          "assignee": Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "assignee",
             "name": "John Doe",
           },
-          "author": Object {
+          "author": "author",
+          "authorUser": Object {
             "active": true,
             "local": true,
-            "login": "john.doe",
+            "login": "author",
             "name": "John Doe",
           },
           "changelog": Array [],
+          "comment": Array [],
           "component": Object {
             "breadcrumbs": Array [],
             "key": "my-project",
@@ -1408,6 +1636,20 @@ exports[`should render correctly: user logged in 1`] = `
             "startOffset": 26,
           },
           "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
         }
       }
     />

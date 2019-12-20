@@ -59,5 +59,27 @@ export function getSecurityHotspots(
 }
 
 export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<Hotspot> {
-  return getJSON('/api/hotspots/show', { hotspot: securityHotspotKey }).catch(throwGlobalError);
+  return getJSON('/api/hotspots/show', { hotspot: securityHotspotKey })
+    .then((response: Hotspot & { users: T.UserBase[] }) => {
+      const { users, ...hotspot } = response;
+
+      if (users) {
+        if (hotspot.assignee) {
+          hotspot.assigneeUser = users.find(u => u.login === hotspot.assignee) || {
+            active: true,
+            login: hotspot.assignee
+          };
+        }
+        hotspot.authorUser = users.find(u => u.login === hotspot.author) || {
+          active: true,
+          login: hotspot.author
+        };
+        hotspot.comment.forEach(c => {
+          c.user = users.find(u => u.login === c.login) || { active: true, login: c.login };
+        });
+      }
+
+      return hotspot;
+    })
+    .catch(throwGlobalError);
 }

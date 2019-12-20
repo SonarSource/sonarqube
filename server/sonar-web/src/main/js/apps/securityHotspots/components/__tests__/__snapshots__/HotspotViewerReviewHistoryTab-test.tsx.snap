@@ -2,7 +2,9 @@
 
 exports[`should render correctly 1`] = `
 <Fragment>
-  <div>
+  <div
+    className="padded"
+  >
     <div
       className="display-flex-center"
     >
@@ -31,7 +33,9 @@ exports[`should render correctly 1`] = `
     </div>
   </div>
   <hr />
-  <div>
+  <div
+    className="padded"
+  >
     <div
       className="display-flex-center"
     >
@@ -59,7 +63,9 @@ exports[`should render correctly 1`] = `
     </div>
   </div>
   <hr />
-  <div>
+  <div
+    className="padded"
+  >
     <div
       className="display-flex-center"
     >
@@ -69,7 +75,9 @@ exports[`should render correctly 1`] = `
     </div>
   </div>
   <hr />
-  <div>
+  <div
+    className="padded"
+  >
     <div
       className="display-flex-center"
     >
@@ -101,7 +109,7 @@ exports[`should render correctly 1`] = `
             "oldValue": "old",
           }
         }
-        key="test-old-new"
+        key="0"
       />
       <IssueChangelogDiff
         diff={
@@ -111,9 +119,47 @@ exports[`should render correctly 1`] = `
             "oldValue": "old-1",
           }
         }
-        key="test-1-old-1-new-1"
+        key="1"
       />
     </div>
+  </div>
+  <hr />
+  <div
+    className="padded"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <Connect(Avatar)
+        className="little-spacer-right"
+        name="John Doe"
+        size={20}
+      />
+      <strong>
+        John Doe
+      </strong>
+      <span
+        className="little-spacer-left"
+      >
+        hotspots.tabs.review_history.comment
+      </span>
+      <span
+        className="little-spacer-left little-spacer-right"
+      >
+        -
+      </span>
+      <DateTimeFormatter
+        date="2019-09-13T17:55:42+0200"
+      />
+    </div>
+    <div
+      className="spacer-top markdown"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<strong>bold text</strong>",
+        }
+      }
+    />
   </div>
 </Fragment>
 `;

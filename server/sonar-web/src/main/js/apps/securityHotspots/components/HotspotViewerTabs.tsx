@@ -84,10 +84,10 @@ export default function HotspotViewerTabs(props: HotspotViewerTabsProps) {
         selected={currentTabKey}
         tabs={tabs}
       />
-      <div className="boxed-group big-padded">
+      <div className="bordered">
         {typeof currentTab.content === 'string' ? (
           <div
-            className="markdown"
+            className="markdown big-padded"
             dangerouslySetInnerHTML={{ __html: sanitize(currentTab.content) }}
           />
         ) : (
