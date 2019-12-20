@@ -241,8 +241,7 @@ public class ChangeStatusActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto closedHotspot = dbTester.issues().insertHotspot(rule, project, file,
-      t -> t.setType(SECURITY_HOTSPOT).setStatus(STATUS_CLOSED));
+    IssueDto closedHotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
     userSessionRule.logIn();
     TestRequest request = actionTester.newRequest()
       .setParam("hotspot", closedHotspot.getKey())
@@ -271,7 +270,7 @@ public class ChangeStatusActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(ruleType);
-    IssueDto notAHotspot = dbTester.issues().insertIssue(IssueTesting.newIssue(rule, project, file).setType(ruleType));
+    IssueDto notAHotspot = dbTester.issues().insert(IssueTesting.newIssue(rule, project, file).setType(ruleType));
     userSessionRule.logIn();
     TestRequest request = newRequest(notAHotspot, status, resolution, NO_COMMENT);
 
@@ -295,8 +294,7 @@ public class ChangeStatusActionTest {
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(permission, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     Arrays.stream(validStatusAndResolutions())
       .forEach(o -> {
@@ -326,8 +324,7 @@ public class ChangeStatusActionTest {
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(permission, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     Arrays.stream(validStatusAndResolutions())
       .forEach(o -> {
@@ -359,8 +356,7 @@ public class ChangeStatusActionTest {
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     newRequest(hotspot, status, resolution, NO_COMMENT).execute().assertNoContent();
   }
@@ -372,8 +368,7 @@ public class ChangeStatusActionTest {
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     newRequest(hotspot, status, resolution, NO_COMMENT).execute().assertNoContent();
   }
@@ -385,8 +380,7 @@ public class ChangeStatusActionTest {
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(status).setResolution(resolution));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status).setResolution(resolution));
 
     newRequest(hotspot, status, resolution, NO_COMMENT).execute().assertNoContent();
 
@@ -403,8 +397,7 @@ public class ChangeStatusActionTest {
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ;
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW).setResolution(null));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(STATUS_TO_REVIEW).setResolution(null));
     when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
 
     newRequest(hotspot, STATUS_REVIEWED, resolution, NO_COMMENT).execute().assertNoContent();
@@ -449,10 +442,9 @@ public class ChangeStatusActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
-    ;
+
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_REVIEWED).setResolution(resolution));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(STATUS_REVIEWED).setResolution(resolution));
     when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
 
     newRequest(hotspot, STATUS_TO_REVIEW, null, NO_COMMENT).execute().assertNoContent();
@@ -498,10 +490,9 @@ public class ChangeStatusActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.logIn().registerComponents(project)
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
-    ;
+
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(currentStatus).setResolution(currentResolution));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(currentStatus).setResolution(currentResolution));
     when(transitionService.doTransition(any(), any(), any())).thenReturn(transitionDone);
     String comment = randomAlphabetic(12);
 
@@ -553,8 +544,7 @@ public class ChangeStatusActionTest {
       .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
     ;
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(status).setResolution(resolution));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status).setResolution(resolution));
     String comment = randomAlphabetic(12);
 
     newRequest(hotspot, status, resolution, comment).execute().assertNoContent();

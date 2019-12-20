@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.time.Period;
@@ -59,6 +60,9 @@ import static com.google.common.collect.Collections2.transform;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static org.sonar.api.issue.Issue.STATUSES;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
@@ -80,6 +84,10 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_
 public class IssueQueryFactory {
 
   public static final String UNKNOWN = "<UNKNOWN>";
+  public static final List<String> ISSUE_STATUSES = STATUSES.stream()
+    .filter(s -> !s.equals(STATUS_TO_REVIEW))
+    .filter(s -> !s.equals(STATUS_REVIEWED))
+    .collect(ImmutableList.toImmutableList());
   private static final ComponentDto UNKNOWN_COMPONENT = new ComponentDto().setUuid(UNKNOWN).setProjectUuid(UNKNOWN);
 
   private final DbClient dbClient;

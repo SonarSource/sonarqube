@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -44,6 +45,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -152,6 +154,18 @@ public class DeleteCommentActionTest {
 
     expectedException.expect(ForbiddenException.class);
     call(commentDto.getKey());
+  }
+
+  @Test
+  public void fail_when_hotspot() {
+    IssueDto hotspot = issueDbTester.insertHotspot();
+    UserDto user = dbTester.users().insertUser();
+    IssueChangeDto commentDto = issueDbTester.insertComment(hotspot, user, "please fix it");
+    loginAndAddProjectPermission(user, hotspot, USER);
+
+    assertThatThrownBy(() -> call(commentDto.getKey()))
+    .isInstanceOf(NotFoundException.class)
+    .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
   }
 
   @Test

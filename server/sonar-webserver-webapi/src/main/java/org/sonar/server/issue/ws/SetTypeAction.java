@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Date;
+import java.util.EnumSet;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -44,6 +45,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPE;
 
 public class SetTypeAction implements IssuesWsAction {
+  private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -89,7 +91,7 @@ public class SetTypeAction implements IssuesWsAction {
     action.createParam(PARAM_TYPE)
       .setDescription("New type")
       .setRequired(true)
-      .setPossibleValues(RuleType.names());
+      .setPossibleValues(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS);
   }
 
   @Override
@@ -106,10 +108,6 @@ public class SetTypeAction implements IssuesWsAction {
   private SearchResponseData setType(DbSession session, String issueKey, RuleType ruleType) {
     IssueDto issueDto = issueFinder.getByKey(session, issueKey);
     DefaultIssue issue = issueDto.toDefaultIssue();
-
-    if (SECURITY_HOTSPOT == issue.type()) {
-      throw new IllegalArgumentException("Changing type of a security hotspot is not permitted");
-    }
 
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 

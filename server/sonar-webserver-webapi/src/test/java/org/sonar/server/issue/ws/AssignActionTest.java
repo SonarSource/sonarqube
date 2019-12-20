@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -51,11 +52,13 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.tester.UserSessionRule.standalone;
@@ -202,6 +205,26 @@ public class AssignActionTest {
   }
 
   @Test
+  public void fail_when_trying_assign_to_hotspot() {
+    IssueDto hotspot = db.issues().insertHotspot(
+      h -> h
+        .setAssigneeUuid(PREVIOUS_ASSIGNEE)
+        .setCreatedAt(PAST).setIssueCreationTime(PAST)
+        .setUpdatedAt(PAST).setIssueUpdateTime(PAST)
+    );
+
+    setUserWithBrowsePermission(hotspot);
+    UserDto arthur = insertUser("arthur");
+
+    assertThatThrownBy(() -> ws.newRequest()
+      .setParam("issue", hotspot.getKey())
+      .setParam("assignee", arthur.getLogin())
+      .execute())
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
+  }
+
+  @Test
   public void fail_when_assignee_is_disabled() {
     IssueDto issue = newIssueWithBrowsePermission();
     db.users().insertUser(user -> user.setActive(false));
@@ -265,12 +288,16 @@ public class AssignActionTest {
   }
 
   private IssueDto newIssue(String assignee) {
+    return newIssue(assignee, CODE_SMELL);
+  }
+
+  private IssueDto newIssue(String assignee, RuleType ruleType) {
     return db.issues().insertIssue(
       issueDto -> issueDto
         .setAssigneeUuid(assignee)
         .setCreatedAt(PAST).setIssueCreationTime(PAST)
         .setUpdatedAt(PAST).setIssueUpdateTime(PAST)
-        .setType(CODE_SMELL));
+        .setType(ruleType));
   }
 
   private IssueDto newIssueWithBrowsePermission() {

@@ -76,19 +76,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
-import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
-import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.SECURITYHOTSPOT_ADMIN;
@@ -144,8 +142,8 @@ public class BulkChangeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -168,8 +166,8 @@ public class BulkChangeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setSeverity(MAJOR).setType(CODE_SMELL)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setSeverity(MAJOR).setType(CODE_SMELL)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -192,8 +190,8 @@ public class BulkChangeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setTags(asList("tag1", "tag2"))
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setTags(asList("tag1", "tag2"))
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -217,9 +215,9 @@ public class BulkChangeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     UserDto assignee = db.users().insertUser();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setAssigneeUuid(assignee.getUuid())
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setAssigneeUuid(assignee.getUuid())
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -243,8 +241,8 @@ public class BulkChangeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -268,15 +266,15 @@ public class BulkChangeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     UserDto oldAssignee = db.users().insertUser();
     UserDto userToAssign = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), userToAssign);
-    IssueDto issue1 = db.issues().insert(rule, project, file,
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file,
       i -> i.setAssigneeUuid(oldAssignee.getUuid()).setType(BUG).setSeverity(MINOR).setStatus(STATUS_OPEN).setResolution(null));
-    IssueDto issue2 = db.issues().insert(rule, project, file,
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file,
       i -> i.setAssigneeUuid(userToAssign.getUuid()).setType(CODE_SMELL).setSeverity(MAJOR).setStatus(STATUS_OPEN).setResolution(null));
-    IssueDto issue3 = db.issues().insert(rule, project, file,
+    IssueDto issue3 = db.issues().insertIssue(rule, project, file,
       i -> i.setAssigneeUuid(null).setType(VULNERABILITY).setSeverity(MAJOR).setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -304,8 +302,8 @@ public class BulkChangeActionTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -335,15 +333,13 @@ public class BulkChangeActionTest {
   }
 
   @Test
-  public void send_notification_on_hotspots() {
+  public void should_ignore_hotspots() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, SECURITYHOTSPOT_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setType(SECURITY_HOTSPOT)
-      .setStatus(STATUS_TO_REVIEW).setResolution(null));
+    IssueDto issue = db.issues().insertHotspot(project, file);
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issue.getKey()))
@@ -351,18 +347,8 @@ public class BulkChangeActionTest {
       .setSendNotifications(true)
       .build());
 
-    checkResponse(response, 1, 1, 0, 0);
-    verify(notificationManager).scheduleForSending(issueChangeNotificationCaptor.capture());
-    IssuesChangesNotificationBuilder builder = issuesChangesSerializer.from(issueChangeNotificationCaptor.getValue());
-    assertThat(builder.getIssues()).hasSize(1);
-    ChangedIssue changedIssue = builder.getIssues().iterator().next();
-    assertThat(changedIssue.getKey()).isEqualTo(issue.getKey());
-    assertThat(changedIssue.getNewStatus()).isEqualTo(STATUS_REVIEWED);
-    assertThat(changedIssue.getNewResolution()).hasValue(RESOLUTION_FIXED);
-    assertThat(changedIssue.getAssignee()).isEmpty();
-    assertThat(changedIssue.getRule()).isEqualTo(ruleOf(rule));
-    assertThat(builder.getChange()).isEqualTo(new UserChange(NOW, userOf(user)));
-    verifyPostProcessorCalled(file);
+    checkResponse(response, 0, 0, 0, 0);
+    verifyNoInteractions(notificationManager);
   }
 
   @Test
@@ -373,8 +359,8 @@ public class BulkChangeActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(BranchType.BRANCH));
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, branch, fileOnBranch, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, branch, fileOnBranch, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -410,8 +396,8 @@ public class BulkChangeActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature").setBranchType(branchType));
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, branch, fileOnBranch, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, branch, fileOnBranch, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -432,12 +418,12 @@ public class BulkChangeActionTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue1 = db.issues().insert(rule, project, file, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
-    IssueDto issue2 = db.issues().insert(rule, project, file, i -> i.setType(BUG)
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
-    IssueDto issue3 = db.issues().insert(rule, project, file, i -> i.setType(VULNERABILITY)
+    IssueDto issue3 = db.issues().insertIssue(rule, project, file, i -> i.setType(VULNERABILITY)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -469,13 +455,13 @@ public class BulkChangeActionTest {
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue1 = db.issues().insert(rule, project, file1, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file1, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
     // These 2 issues will be ignored as they are resolved, changing type is not possible
-    IssueDto issue2 = db.issues().insert(rule, project, file1, i -> i.setType(BUG)
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file1, i -> i.setType(BUG)
       .setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED));
-    IssueDto issue3 = db.issues().insert(rule, project, file2, i -> i.setType(BUG)
+    IssueDto issue3 = db.issues().insertIssue(rule, project, file2, i -> i.setType(BUG)
       .setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED));
 
     BulkChangeWsResponse response = call(builder()
@@ -503,13 +489,13 @@ public class BulkChangeActionTest {
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue1 = db.issues().insert(rule, project, file1, i -> i.setType(BUG).setSeverity(MINOR)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file1, i -> i.setType(BUG).setSeverity(MINOR)
       .setStatus(STATUS_OPEN).setResolution(null));
     // These 2 issues will be ignored as there's nothing to do
-    IssueDto issue2 = db.issues().insert(rule, project, file1, i -> i.setType(VULNERABILITY)
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file1, i -> i.setType(VULNERABILITY)
       .setStatus(STATUS_OPEN).setResolution(null));
-    IssueDto issue3 = db.issues().insert(rule, project, file2, i -> i.setType(VULNERABILITY)
+    IssueDto issue3 = db.issues().insertIssue(rule, project, file2, i -> i.setType(VULNERABILITY)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -537,13 +523,13 @@ public class BulkChangeActionTest {
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue1 = db.issues().insert(rule, project, file1, i -> i.setType(BUG).setSeverity(MINOR)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue1 = db.issues().insertIssue(rule, project, file1, i -> i.setType(BUG).setSeverity(MINOR)
       .setStatus(STATUS_OPEN).setResolution(null));
     // These 2 issues will be ignored as there's nothing to do
-    IssueDto issue2 = db.issues().insert(rule, project, file1, i -> i.setType(VULNERABILITY)
+    IssueDto issue2 = db.issues().insertIssue(rule, project, file1, i -> i.setType(VULNERABILITY)
       .setStatus(STATUS_OPEN).setResolution(null));
-    IssueDto issue3 = db.issues().insert(rule, project, file2, i -> i.setType(VULNERABILITY)
+    IssueDto issue3 = db.issues().insertIssue(rule, project, file2, i -> i.setType(VULNERABILITY)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -566,10 +552,10 @@ public class BulkChangeActionTest {
     userSession.logIn(user);
     ComponentDto project = db.components().insertPrivateProject();
     addUserProjectPermissions(user, project, USER, ISSUE_ADMIN);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, project, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
-    RuleDefinitionDto externalRule = db.rules().insert(r -> r.setIsExternal(true));
-    IssueDto externalIssue = db.issues().insert(externalRule, project, project, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, project, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
+    RuleDefinitionDto externalRule = db.rules().insertIssueRule(r -> r.setIsExternal(true));
+    IssueDto externalIssue = db.issues().insertIssue(externalRule, project, project, i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue.getKey(), externalIssue.getKey()))
@@ -586,13 +572,13 @@ public class BulkChangeActionTest {
     ComponentDto project1 = db.components().insertPrivateProject();
     addUserProjectPermissions(user, project1, USER, ISSUE_ADMIN);
     ComponentDto project2 = db.components().insertPrivateProject();
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto authorizedIssue = db.issues().insert(rule, project1, project1, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto authorizedIssue = db.issues().insertIssue(rule, project1, project1, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
     // User has not browse permission on these 2 issues
-    IssueDto notAuthorizedIssue1 = db.issues().insert(rule, project2, project2, i -> i.setType(BUG)
+    IssueDto notAuthorizedIssue1 = db.issues().insertIssue(rule, project2, project2, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
-    IssueDto notAuthorizedIssue2 = db.issues().insert(rule, project2, project2, i -> i.setType(BUG)
+    IssueDto notAuthorizedIssue2 = db.issues().insertIssue(rule, project2, project2, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -619,13 +605,13 @@ public class BulkChangeActionTest {
     addUserProjectPermissions(user, project1, USER, ISSUE_ADMIN);
     ComponentDto project2 = db.components().insertPrivateProject();
     addUserProjectPermissions(user, project2, USER);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto authorizedIssue1 = db.issues().insert(rule, project1, project1, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto authorizedIssue1 = db.issues().insertIssue(rule, project1, project1, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
     // User has not issue admin permission on these 2 issues
-    IssueDto notAuthorizedIssue1 = db.issues().insert(rule, project2, project2, i -> i.setType(BUG)
+    IssueDto notAuthorizedIssue1 = db.issues().insertIssue(rule, project2, project2, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
-    IssueDto notAuthorizedIssue2 = db.issues().insert(rule, project2, project2, i -> i.setType(BUG)
+    IssueDto notAuthorizedIssue2 = db.issues().insertIssue(rule, project2, project2, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     BulkChangeWsResponse response = call(builder()
@@ -651,13 +637,13 @@ public class BulkChangeActionTest {
     addUserProjectPermissions(user, project1, USER, ISSUE_ADMIN);
     ComponentDto project2 = db.components().insertPrivateProject();
     addUserProjectPermissions(user, project2, USER);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto authorizedIssue1 = db.issues().insert(rule, project1, project1, i -> i.setSeverity(MAJOR)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto authorizedIssue1 = db.issues().insertIssue(rule, project1, project1, i -> i.setSeverity(MAJOR)
       .setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL));
     // User has not issue admin permission on these 2 issues
-    IssueDto notAuthorizedIssue1 = db.issues().insert(rule, project2, project2, i -> i.setSeverity(MAJOR)
+    IssueDto notAuthorizedIssue1 = db.issues().insertIssue(rule, project2, project2, i -> i.setSeverity(MAJOR)
       .setStatus(STATUS_OPEN).setResolution(null).setType(BUG));
-    IssueDto notAuthorizedIssue2 = db.issues().insert(rule, project2, project2, i -> i.setSeverity(MAJOR)
+    IssueDto notAuthorizedIssue2 = db.issues().insertIssue(rule, project2, project2, i -> i.setSeverity(MAJOR)
       .setStatus(STATUS_OPEN).setResolution(null).setType(VULNERABILITY));
 
     BulkChangeWsResponse response = call(builder()
@@ -681,8 +667,8 @@ public class BulkChangeActionTest {
     userSession.logIn(user);
     ComponentDto project = db.components().insertPrivateProject();
     addUserProjectPermissions(user, project, USER);
-    RuleDefinitionDto rule = db.rules().insert();
-    IssueDto issue = db.issues().insert(rule, project, project, i -> i.setType(BUG)
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, project, i -> i.setType(BUG)
       .setStatus(STATUS_OPEN).setResolution(null));
 
     expectedException.expectMessage("At least one action must be provided");

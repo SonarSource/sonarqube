@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,7 +42,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -66,9 +64,7 @@ import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newIssue;
 
 @RunWith(DataProviderRunner.class)
 public class AddCommentActionTest {
@@ -143,8 +139,8 @@ public class AddCommentActionTest {
   public void fails_with_NotFoundException_if_issue_is_not_a_hotspot(RuleType ruleType) {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(ruleType);
-    IssueDto notAHotspot = dbTester.issues().insertIssue(newIssue(rule, project, file).setType(ruleType));
+    RuleDefinitionDto rule = dbTester.rules().insert(t -> t.setType(ruleType));
+    IssueDto notAHotspot = dbTester.issues().insertIssue(rule, project, file, i -> i.setType(ruleType));
     userSessionRule.logIn();
     TestRequest request = newRequest(notAHotspot, randomAlphabetic(12));
 
@@ -165,14 +161,14 @@ public class AddCommentActionTest {
   public void fails_with_NotFoundException_if_hotspot_is_closed() {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto notAHotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
+    RuleDefinitionDto rule = dbTester.rules().insertHotspotRule();
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
     userSessionRule.logIn();
-    TestRequest request = newRequest(notAHotspot, randomAlphabetic(12));
+    TestRequest request = newRequest(hotspot, randomAlphabetic(12));
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Hotspot '%s' does not exist", notAHotspot.getKey());
+      .hasMessage("Hotspot '%s' does not exist", hotspot.getKey());
   }
 
   @Test
@@ -180,7 +176,7 @@ public class AddCommentActionTest {
     ComponentDto project = dbTester.components().insertPrivateProject();
     userSessionRule.logIn().registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    RuleDefinitionDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     String comment = randomAlphabetic(12);
     TestRequest request = newRequest(hotspot, comment);
@@ -195,7 +191,7 @@ public class AddCommentActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.logIn().registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    RuleDefinitionDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     String comment = randomAlphabetic(12);
 
@@ -207,7 +203,7 @@ public class AddCommentActionTest {
     ComponentDto project = dbTester.components().insertPrivateProject();
     userSessionRule.logIn().registerComponents(project).addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    RuleDefinitionDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     String comment = randomAlphabetic(12);
 
@@ -222,7 +218,7 @@ public class AddCommentActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.logIn().registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    RuleDefinitionDto rule = dbTester.rules().insertHotspotRule();
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(currentStatus).setResolution(currentResolution));
     String comment = randomAlphabetic(12);
 
@@ -253,27 +249,10 @@ public class AddCommentActionTest {
     };
   }
 
-  private static IssueDto newHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {
-    return newIssue(rule, project, file).setType(SECURITY_HOTSPOT);
-  }
-
   private TestRequest newRequest(IssueDto hotspot, String comment) {
     return actionTester.newRequest()
       .setParam("hotspot", hotspot.getKey())
       .setParam("comment", comment);
-  }
-
-  private RuleDefinitionDto newRule(RuleType ruleType) {
-    return newRule(ruleType, t -> {
-    });
-  }
-
-  private RuleDefinitionDto newRule(RuleType ruleType, Consumer<RuleDefinitionDto> populate) {
-    RuleDefinitionDto ruleDefinition = RuleTesting.newRule()
-      .setType(ruleType);
-    populate.accept(ruleDefinition);
-    dbTester.rules().insert(ruleDefinition);
-    return ruleDefinition;
   }
 
 }

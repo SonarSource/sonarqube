@@ -74,10 +74,10 @@ public class TagsActionTest {
 
   @Test
   public void search_tags() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
-    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project);
 
@@ -88,10 +88,10 @@ public class TagsActionTest {
 
   @Test
   public void search_tags_by_query() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
-    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project);
 
@@ -104,15 +104,15 @@ public class TagsActionTest {
 
   @Test
   public void search_tags_by_organization() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     // Tags on issues of organization 1
     OrganizationDto organization1 = db.organizations().insert();
     ComponentDto project1 = db.components().insertPrivateProject(organization1);
-    db.issues().insert(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
     // Tags on issues of organization 2
     OrganizationDto organization2 = db.organizations().insert();
     ComponentDto project2 = db.components().insertPrivateProject(organization2);
-    db.issues().insert(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
+    db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
@@ -125,12 +125,12 @@ public class TagsActionTest {
 
   @Test
   public void search_tags_by_project() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project1 = db.components().insertPrivateProject(organization);
     ComponentDto project2 = db.components().insertPrivateProject(organization);
-    db.issues().insert(rule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
-    db.issues().insert(rule, project2, project2, issue -> issue.setTags(singletonList("tag2")));
+    db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
+    db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag2")));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
@@ -149,8 +149,8 @@ public class TagsActionTest {
     ComponentDto project = db.components().insertPrivateProject(organization);
     db.components().insertComponent(newProjectCopy(project, portfolio));
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
     issueIndexer.indexOnStartup(emptySet());
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
@@ -169,8 +169,8 @@ public class TagsActionTest {
     ComponentDto project = db.components().insertPrivateProject(organization);
     db.components().insertComponent(newProjectCopy(project, application));
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
     issueIndexer.indexOnStartup(emptySet());
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
@@ -184,10 +184,10 @@ public class TagsActionTest {
 
   @Test
   public void return_limited_size() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
-    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project);
 
@@ -200,11 +200,11 @@ public class TagsActionTest {
 
   @Test
   public void do_not_return_issues_without_permission() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
-    db.issues().insert(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
-    db.issues().insert(rule, project2, project2, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
+    db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
     issueIndexer.indexOnStartup(emptySet());
     // Project 2 is not visible to current user
     permissionIndexer.allowOnlyAnyone(project1);
@@ -216,15 +216,15 @@ public class TagsActionTest {
 
   @Test
   public void without_organization_parameter_is_cross_organization() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     // Tags on issues of organization 1
     OrganizationDto organization1 = db.organizations().insert();
     ComponentDto project1 = db.components().insertPrivateProject(organization1);
-    db.issues().insert(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
+    db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
     // Tags on issues of organization 2
     OrganizationDto organization2 = db.organizations().insert();
     ComponentDto project2 = db.components().insertPrivateProject(organization2);
-    db.issues().insert(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
+    db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
@@ -276,10 +276,10 @@ public class TagsActionTest {
 
   @Test
   public void json_example() {
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
-    db.issues().insert(rule, project, project, issue -> issue.setTags(asList("convention", "security")));
-    db.issues().insert(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("convention", "security")));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
     issueIndexer.indexOnStartup(emptySet());
     permissionIndexer.allowOnlyAnyone(project);
 

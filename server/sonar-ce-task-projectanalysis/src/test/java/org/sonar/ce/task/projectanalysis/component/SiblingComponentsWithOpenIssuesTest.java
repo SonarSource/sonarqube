@@ -80,22 +80,23 @@ public class SiblingComponentsWithOpenIssuesTest {
     RuleDefinitionDto rule = db.rules().insert();
 
     fileWithOneOpenIssueOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileWithOneOpenIssueOnBranch1Pr1));
+    db.issues().insert(rule, branch1pr1, fileWithOneOpenIssueOnBranch1Pr1);
 
     fileWithOneResolvedIssueOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileWithOneResolvedIssueOnBranch1Pr1).setStatus("RESOLVED"));
+    db.issues().insert(rule, branch1pr1, fileWithOneResolvedIssueOnBranch1Pr1, i -> i.setStatus("RESOLVED"));
 
     fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1).setStatus("RESOLVED"));
+    db.issues().insert(rule, branch1pr1, fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1);
+    db.issues().insert(rule, branch1pr1, fileWithOneOpenTwoResolvedIssuesOnBranch1Pr1, i -> i.setStatus("RESOLVED"));
 
     String fileKey = "file-x";
     fileXWithOneResolvedIssueOnBranch1Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr1, null)
       .setDbKey(fileKey + ":BRANCH:branch1pr1"));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr1, fileXWithOneResolvedIssueOnBranch1Pr1).setStatus("RESOLVED"));
+    db.issues().insert(rule, branch1pr1, fileXWithOneResolvedIssueOnBranch1Pr1, i -> i.setStatus("RESOLVED"));
+
     fileXWithOneResolvedIssueOnBranch1Pr2 = db.components().insertComponent(ComponentTesting.newFileDto(branch1pr2, null)
       .setDbKey(fileKey + ":BRANCH:branch1pr2"));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1pr2, fileXWithOneResolvedIssueOnBranch1Pr2).setStatus("RESOLVED"));
+    db.issues().insert(rule, branch1pr2, fileXWithOneResolvedIssueOnBranch1Pr2, i -> i.setStatus("RESOLVED"));
 
     branch2 = db.components().insertProjectBranch(project, b -> b.setKey("branch2"), b -> b.setBranchType(BranchType.BRANCH));
     ComponentDto branch2pr1 = db.components().insertProjectBranch(project,
@@ -104,11 +105,10 @@ public class SiblingComponentsWithOpenIssuesTest {
       b -> b.setMergeBranchUuid(branch2.uuid()));
 
     fileWithOneOpenIssueOnBranch2Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch2pr1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch2pr1, fileWithOneOpenIssueOnBranch2Pr1));
+    db.issues().insert(rule, branch2pr1, fileWithOneOpenIssueOnBranch2Pr1);
 
     fileWithOneResolvedIssueOnBranch2Pr1 = db.components().insertComponent(ComponentTesting.newFileDto(branch2pr1, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch2pr1, fileWithOneResolvedIssueOnBranch2Pr1).setStatus("RESOLVED"));
-
+    db.issues().insert(rule, branch2pr1, fileWithOneResolvedIssueOnBranch2Pr1, i -> i.setStatus("RESOLVED"));
     setRoot(branch1);
     underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
   }
@@ -168,8 +168,7 @@ public class SiblingComponentsWithOpenIssuesTest {
     RuleDefinitionDto rule = db.rules().insert();
 
     ComponentDto fileWithResolvedIssueOnPullrequest = db.components().insertComponent(ComponentTesting.newFileDto(pullRequest, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, pullRequest, fileWithResolvedIssueOnPullrequest).setStatus("RESOLVED"));
-
+    db.issues().insert(rule, pullRequest, fileWithResolvedIssueOnPullrequest, i -> i.setStatus("RESOLVED"));
     underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
 
     assertThat(underTest.getUuids(fileWithResolvedIssueOnPullrequest.getKey())).hasSize(1);
@@ -188,7 +187,7 @@ public class SiblingComponentsWithOpenIssuesTest {
     RuleDefinitionDto rule = db.rules().insert();
 
     ComponentDto fileWithResolvedIssueOnDerivedBranch = db.components().insertComponent(ComponentTesting.newFileDto(derivedBranch, null));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, derivedBranch, fileWithResolvedIssueOnDerivedBranch).setStatus("RESOLVED"));
+    db.issues().insert(rule, derivedBranch, fileWithResolvedIssueOnDerivedBranch, i -> i.setStatus("RESOLVED"));
 
     underTest = new SiblingComponentsWithOpenIssues(treeRootHolder, metadataHolder, db.getDbClient());
 

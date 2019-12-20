@@ -21,11 +21,14 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -46,12 +49,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class AuthorsAction implements IssuesWsAction {
 
+  private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
   private static final String PARAM_ORGANIZATION = "organization";
   private static final String PARAM_PROJECT = "project";
 
@@ -144,7 +148,9 @@ public class AuthorsAction implements IssuesWsAction {
       }
     });
     return issueIndex.searchAuthors(
-      issueQueryBuilder.build(),
+      issueQueryBuilder
+        .types(ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS.stream().map(Enum::name).collect(Collectors.toList()))
+        .build(),
       request.param(TEXT_QUERY),
       request.mandatoryParamAsInt(PAGE_SIZE));
   }

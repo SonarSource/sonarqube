@@ -36,10 +36,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
@@ -59,6 +59,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -67,9 +68,6 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newDto;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class SetSeverityActionTest {
 
@@ -92,15 +90,16 @@ public class SetSeverityActionTest {
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
-  private IssuesChangesNotificationSerializer issuesChangesSerializer =  new IssuesChangesNotificationSerializer();
+  private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private WsActionTester tester = new WsActionTester(new SetSeverityAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer),
+      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class), issueChangePostProcessor,
+      issuesChangesSerializer),
     responseWriter));
 
   @Test
   public void set_severity() {
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setSeverity(MAJOR));
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     call(issueDto.getKey(), MINOR);
@@ -118,7 +117,7 @@ public class SetSeverityActionTest {
 
   @Test
   public void insert_entry_in_changelog_when_setting_severity() {
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setSeverity(MAJOR));
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity(MAJOR));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     call(issueDto.getKey(), MINOR);
@@ -132,12 +131,22 @@ public class SetSeverityActionTest {
 
   @Test
   public void fail_if_bad_severity() {
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setSeverity("unknown"));
+    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setSeverity("unknown"));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'severity' (unknown) must be one of: [INFO, MINOR, MAJOR, CRITICAL, BLOCKER]");
     call(issueDto.getKey(), "unknown");
+  }
+
+  @Test
+  public void fail_NFE_if_hotspot() {
+    IssueDto hotspot = issueDbTester.insertHotspot(h -> h.setSeverity("CRITICAL"));
+    setUserWithBrowseAndAdministerIssuePermission(hotspot);
+
+    assertThatThrownBy(() -> call(hotspot.getKey(), "MAJOR"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
   }
 
   @Test
@@ -179,13 +188,6 @@ public class SetSeverityActionTest {
     ofNullable(issueKey).ifPresent(issue -> request.setParam("issue", issue));
     ofNullable(severity).ifPresent(value -> request.setParam("severity", value));
     return request.execute();
-  }
-
-  private IssueDto newIssue() {
-    RuleDto rule = dbTester.rules().insertRule(newRuleDto());
-    ComponentDto project = dbTester.components().insertMainBranch();
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    return newDto(rule, file, project);
   }
 
   private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {

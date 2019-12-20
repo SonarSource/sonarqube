@@ -45,7 +45,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -68,6 +67,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -79,8 +79,6 @@ import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newDto;
-import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 @RunWith(DataProviderRunner.class)
 public class SetTypeActionTest {
@@ -117,7 +115,7 @@ public class SetTypeActionTest {
   public void set_type(RuleType from, RuleType to) {
     long now = 1_999_777_234L;
     when(system2.now()).thenReturn(now);
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(from));
+    IssueDto issueDto = newIssueWithProject(from);
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     call(issueDto.getKey(), to.name());
@@ -139,7 +137,7 @@ public class SetTypeActionTest {
 
   @Test
   public void insert_entry_in_changelog_when_setting_type() {
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(CODE_SMELL));
+    IssueDto issueDto = newIssueWithProject(CODE_SMELL);
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     call(issueDto.getKey(), BUG.name());
@@ -153,12 +151,22 @@ public class SetTypeActionTest {
 
   @Test
   public void fail_if_bad_type_value() {
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(CODE_SMELL));
+    IssueDto issueDto = newIssueWithProject(CODE_SMELL);
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'type' (unknown) must be one of: [CODE_SMELL, BUG, VULNERABILITY, SECURITY_HOTSPOT]");
-    call(issueDto.getKey(), "unknown");
+    assertThatThrownBy(() -> call(issueDto.getKey(), "unknown"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'type' (unknown) must be one of: [CODE_SMELL, BUG, VULNERABILITY]");
+  }
+
+  @Test
+  public void fail_if_SECURITY_HOTSPOT_value() {
+    IssueDto issueDto = newIssueWithProject(CODE_SMELL);
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+
+    assertThatThrownBy(() -> call(issueDto.getKey(), "SECURITY_HOTSPOT"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Value of parameter 'type' (SECURITY_HOTSPOT) must be one of: [CODE_SMELL, BUG, VULNERABILITY]");
   }
 
   @Test
@@ -193,12 +201,12 @@ public class SetTypeActionTest {
   public void fail_NFE_if_trying_to_change_type_of_a_hotspot(RuleType type) {
     long now = 1_999_777_234L;
     when(system2.now()).thenReturn(now);
-    IssueDto issueDto = issueDbTester.insertHotspot();
-    setUserWithBrowseAndAdministerIssuePermission(issueDto);
+    IssueDto hotspot = issueDbTester.insertHotspot();
+    setUserWithBrowseAndAdministerIssuePermission(hotspot);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Issue with key '%s' does not exist", issueDto.getKey()));
-    call(issueDto.getKey(), type.name());
+    assertThatThrownBy(() -> call(hotspot.getKey(), type.name()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
   }
 
   @Test
@@ -218,11 +226,11 @@ public class SetTypeActionTest {
     return request.execute();
   }
 
-  private IssueDto newIssue() {
-    RuleDto rule = dbTester.rules().insertRule(newRuleDto());
+  private IssueDto newIssueWithProject(RuleType type) {
+    RuleDefinitionDto rule = dbTester.rules().insert();
     ComponentDto project = dbTester.components().insertMainBranch();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    return newDto(rule, file, project);
+    return issueDbTester.insert(rule, project, file, i -> i.setType(type));
   }
 
   private void setUserWithBrowseAndAdministerIssuePermission(IssueDto issueDto) {

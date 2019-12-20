@@ -86,6 +86,7 @@ import static org.sonar.api.issue.DefaultTransitions.RESOLVE_AS_REVIEWED;
 import static org.sonar.api.issue.DefaultTransitions.SET_AS_IN_REVIEW;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -146,7 +147,8 @@ public class BulkChangeAction implements IssuesWsAction {
         "Requires authentication.")
       .setSince("3.7")
       .setChangelog(
-        new Change("8.1", format("transitions '%s', '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY)),
+        new Change("8.2", "Security hotspots are no longer supported and will be ignored."),
+        new Change("8.2", format("transitions '%s', '%s' and '%s' are no more supported", SET_AS_IN_REVIEW, RESOLVE_AS_REVIEWED, OPEN_AS_VULNERABILITY)),
         new Change("6.3", "'actions' parameter is ignored"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("bulk_change-example.json"))
@@ -355,7 +357,10 @@ public class BulkChangeAction implements IssuesWsAction {
 
       List<String> issueKeys = request.mandatoryParamAsStrings(PARAM_ISSUES);
       checkArgument(issueKeys.size() <= MAX_LIMIT, "Number of issues is limited to %s", MAX_LIMIT);
-      List<IssueDto> allIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeys);
+      List<IssueDto> allIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeys)
+        .stream()
+        .filter(issueDto -> SECURITY_HOTSPOT.getDbConstant() != issueDto.getType())
+        .collect(Collectors.toList());
 
       List<ComponentDto> allProjects = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(MoreCollectors.toSet()));
       this.projectsByUuid = getAuthorizedProjects(allProjects).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
@@ -364,7 +369,7 @@ public class BulkChangeAction implements IssuesWsAction {
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()
-        .collect(uniqueIndex(ComponentDto::uuid, identity()));
+          .collect(uniqueIndex(ComponentDto::uuid, identity()));
       this.rulesByKey = dbClient.ruleDao().selectDefinitionByKeys(dbSession,
         issues.stream().map(DefaultIssue::ruleKey).collect(MoreCollectors.toSet())).stream()
         .collect(uniqueIndex(RuleDefinitionDto::getKey, identity()));

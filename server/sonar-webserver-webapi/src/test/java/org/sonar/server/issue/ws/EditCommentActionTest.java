@@ -19,15 +19,12 @@
  */
 package org.sonar.server.issue.ws;
 
-import java.util.Arrays;
-import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -49,6 +46,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -60,8 +58,6 @@ import static org.sonar.api.web.UserRole.USER;
 public class EditCommentActionTest {
 
   private static final long NOW = 10_000_000_000L;
-  private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Arrays.stream(RuleType.values())
-    .filter(ruleType -> RuleType.SECURITY_HOTSPOT != ruleType).toArray(RuleType[]::new);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -80,7 +76,7 @@ public class EditCommentActionTest {
     new EditCommentAction(system2, userSession, dbClient, new IssueFinder(dbClient, userSession), responseWriter));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(NOW);
   }
 
@@ -116,6 +112,19 @@ public class EditCommentActionTest {
     IssueChangeDto issueComment = dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey()).get();
     assertThat(issueComment.getChangeData()).isEqualTo("please have a look");
     assertThat(issueComment.getUpdatedAt()).isEqualTo(NOW);
+  }
+
+  @Test
+  public void fail_when_comment_is_for_hotspot() {
+    IssueDto hotspot = issueDbTester.insertHotspot();
+    UserDto user = dbTester.users().insertUser();
+    IssueChangeDto commentDto = issueDbTester.insertComment(hotspot, user, "please fix it");
+    UserDto another = dbTester.users().insertUser();
+    loginWithBrowsePermission(another, USER, hotspot);
+
+    assertThatThrownBy(() -> call(commentDto.getKey(), "please have a look"))
+    .isInstanceOf(NotFoundException.class)
+    .hasMessage("Issue with key '%s' does not exist", hotspot.getKey());
   }
 
   @Test
@@ -197,7 +206,7 @@ public class EditCommentActionTest {
 
   @Test
   public void fail_NFE_if_security_hotspots() {
-    IssueDto issueDto = issueDbTester.insertIssue(i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    IssueDto issueDto = issueDbTester.insertHotspot();
     UserDto user = dbTester.users().insertUser();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, user, "please fix it");
     loginWithBrowsePermission(user, CODEVIEWER, issueDto);
@@ -225,7 +234,7 @@ public class EditCommentActionTest {
   }
 
   private IssueDto newIssue() {
-    return issueDbTester.insertIssue(i -> i.setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]));
+    return issueDbTester.insertIssue();
   }
 
   private void loginWithBrowsePermission(UserDto user, String permission, IssueDto issueDto) {

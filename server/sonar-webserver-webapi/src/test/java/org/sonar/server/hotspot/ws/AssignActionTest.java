@@ -70,7 +70,6 @@ import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.issue.IssueTesting.newIssue;
 
 @RunWith(DataProviderRunner.class)
 public class AssignActionTest {
@@ -106,8 +105,7 @@ public class AssignActionTest {
   public void assign_hotspot_to_someone_for_public_project() {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     UserDto userDto = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(userDto).registerComponents(project);
@@ -124,8 +122,7 @@ public class AssignActionTest {
   public void assign_hotspot_to_me_for_public_project() {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     UserDto me = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(me).registerComponents(project);
@@ -141,8 +138,7 @@ public class AssignActionTest {
   public void assign_hotspot_to_someone_for_private_project() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), hotspot, project, UserRole.USER);
     UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project);
@@ -158,8 +154,7 @@ public class AssignActionTest {
   public void fail_if_assignee_does_not_have_access_for_private_project() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), hotspot, project, UserRole.USER);
     UserDto assignee = insertUser(randomAlphanumeric(15));
@@ -176,8 +171,7 @@ public class AssignActionTest {
     ComponentDto project = dbTester.components().insertPrivateProject();
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), hotspot, project, UserRole.USER);
 
@@ -193,8 +187,7 @@ public class AssignActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     UserDto userDto = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(userDto).registerComponents(project);
@@ -213,8 +206,7 @@ public class AssignActionTest {
   public void assign_twice_same_user_to_hotspot_does_not_reload() {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     UserDto userDto = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(userDto).registerComponents(project);
@@ -233,8 +225,7 @@ public class AssignActionTest {
   public void fail_if_assigning_to_not_existing_user() {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     UserDto userDto = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(userDto).registerComponents(project);
@@ -252,8 +243,7 @@ public class AssignActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
 
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(status));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status));
 
     UserDto userDto = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(userDto).registerComponents(project);
@@ -268,8 +258,7 @@ public class AssignActionTest {
   public void fail_if_assign_user_to_hotspot_for_OTHER_STATUSES_for_private_project(String status) {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(status));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file, h -> h.setStatus(status));
 
     UserDto userDto = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn(userDto).registerComponents(project);
@@ -292,8 +281,7 @@ public class AssignActionTest {
   public void fail_if_not_authenticated() {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     userSessionRule.anonymous();
 
@@ -308,8 +296,7 @@ public class AssignActionTest {
   public void fail_if_missing_browse_permission() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_TO_REVIEW));
+    IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
     UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), hotspot, project, UserRole.CODEVIEWER);
 
@@ -339,10 +326,10 @@ public class AssignActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(ruleType);
-    IssueDto issue = dbTester.issues().insertIssue(
-      newIssue(rule, project, file)
-        .setStatus(status)
-        .setType(ruleType));
+    IssueDto issue = dbTester.issues().insertIssue(rule, project, file, i -> i
+      .setStatus(status)
+      .setType(ruleType));
+
     UserDto me = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn().registerComponents(project);
 
@@ -372,8 +359,7 @@ public class AssignActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto issue = dbTester.issues().insertHotspot(rule, project, file,
-      t -> t.setStatus(STATUS_CLOSED).setType(SECURITY_HOTSPOT));
+    IssueDto issue = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
     UserDto me = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn().registerComponents(project);
 

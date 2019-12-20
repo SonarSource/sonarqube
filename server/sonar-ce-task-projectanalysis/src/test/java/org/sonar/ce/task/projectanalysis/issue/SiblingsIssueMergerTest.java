@@ -137,7 +137,7 @@ public class SiblingsIssueMergerTest {
 
   @Test
   public void do_nothing_if_no_new_issue() {
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
+    db.issues().insert(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
     copier.tryMerge(FILE_1, Collections.emptyList());
 
     verifyZeroInteractions(issueLifecycle);
@@ -145,7 +145,7 @@ public class SiblingsIssueMergerTest {
 
   @Test
   public void merge_confirmed_issues() {
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
+    db.issues().insert(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
     DefaultIssue newIssue = createIssue("issue2", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
 
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));
@@ -159,11 +159,11 @@ public class SiblingsIssueMergerTest {
   @Test
   public void prefer_more_recently_updated_issues() {
     Instant now = Instant.now();
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum")
+    db.issues().insert(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum")
       .setIssueUpdateDate(Date.from(now.plus(2, ChronoUnit.SECONDS))));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_OPEN).setLine(1).setChecksum("checksum")
+    db.issues().insert(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_OPEN).setLine(1).setChecksum("checksum")
       .setIssueUpdateDate(Date.from(now.plus(1, ChronoUnit.SECONDS))));
-    db.issues().insertIssue(IssueTesting.newIssue(rule, branch3Dto, fileOnBranch3Dto).setKee("issue3").setStatus(Issue.STATUS_OPEN).setLine(1).setChecksum("checksum")
+    db.issues().insert(IssueTesting.newIssue(rule, branch3Dto, fileOnBranch3Dto).setKee("issue3").setStatus(Issue.STATUS_OPEN).setLine(1).setChecksum("checksum")
       .setIssueUpdateDate(Date.from(now)));
     DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
 
@@ -179,7 +179,7 @@ public class SiblingsIssueMergerTest {
   public void lazy_load_changes() {
     UserDto user = db.users().insertUser();
     IssueDto issue = db.issues()
-      .insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
+      .insert(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
     db.issues().insertComment(issue, user, "A comment 2");
     db.issues().insertFieldDiffs(issue, FieldDiffs.parse("severity=BLOCKER|MINOR,assignee=foo|bar").setCreationDate(new Date()));
     DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, null, new Date());

@@ -60,6 +60,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -130,6 +131,16 @@ public class AddCommentActionTest {
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getIssueUpdateTime()).isEqualTo(NOW);
     assertThat(issueChangePostProcessor.wasCalled()).isFalse();
+  }
+
+  @Test
+  public void fail_if_add_comment_to_hotspot() {
+    IssueDto issueDto = issueDbTester.insertHotspot();
+    loginWithBrowsePermission(issueDto, USER);
+
+    assertThatThrownBy(() -> call(issueDto.getKey(), "please fix it"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Issue with key '%s' does not exist", issueDto.getKey());
   }
 
   @Test

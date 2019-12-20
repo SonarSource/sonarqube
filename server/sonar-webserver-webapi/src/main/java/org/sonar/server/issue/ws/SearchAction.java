@@ -67,7 +67,6 @@ import static java.util.stream.Collectors.toList;
 import static org.sonar.api.issue.Issue.RESOLUTIONS;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
-import static org.sonar.api.issue.Issue.STATUSES;
 import static org.sonar.api.issue.Issue.STATUS_IN_REVIEW;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
@@ -80,6 +79,7 @@ import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
 import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
+import static org.sonar.server.issue.index.IssueQueryFactory.ISSUE_STATUSES;
 import static org.sonar.server.issue.index.IssueQueryFactory.UNKNOWN;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
@@ -191,7 +191,7 @@ public class SearchAction implements IssuesWsAction {
       .setSince("3.6")
       .setChangelog(
         new Change("8.2", "'REVIEWED', 'TO_REVIEW' status param values are no longer supported"),
-        new Change("8.2", "Security hotspots are no longer returned"),
+        new Change("8.2", "Security hotspots are no longer returned as type 'SECURITY_HOTSPOT' is not supported anymore, use dedicated api/hotspots"),
         new Change("8.2", "response field 'fromHotspot' has been deprecated and is no more populated"),
         new Change("8.2", "Status 'IN_REVIEW' for Security Hotspots has been deprecated"),
         new Change("7.8", format("added new Security Hotspots statuses : %s, %s and %s", STATUS_TO_REVIEW, STATUS_IN_REVIEW, STATUS_REVIEWED)),
@@ -237,7 +237,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_STATUSES)
       .setDescription("Comma-separated list of statuses")
       .setExampleValue(STATUS_OPEN + "," + STATUS_REOPENED)
-      .setPossibleValues(getIssueStatuses());
+      .setPossibleValues(ISSUE_STATUSES);
     action.createParam(PARAM_RESOLUTIONS)
       .setDescription("Comma-separated list of resolutions")
       .setExampleValue(RESOLUTION_FIXED + "," + RESOLUTION_REMOVED)
@@ -310,10 +310,6 @@ public class SearchAction implements IssuesWsAction {
         "If this parameter is set to a truthy value, createdAfter must not be set and one component id or key must be provided.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
-  }
-
-  private static List<String> getIssueStatuses() {
-    return STATUSES.stream().filter(s -> !s.equals(STATUS_TO_REVIEW)).filter(s -> !s.equals(STATUS_REVIEWED)).collect(toList());
   }
 
   private static void addComponentRelatedParams(WebService.NewAction action) {
@@ -449,7 +445,7 @@ public class SearchAction implements IssuesWsAction {
 
   private void completeFacets(Facets facets, SearchRequest request, IssueQuery query) {
     addMandatoryValuesToFacet(facets, PARAM_SEVERITIES, Severity.ALL);
-    addMandatoryValuesToFacet(facets, PARAM_STATUSES, getIssueStatuses());
+    addMandatoryValuesToFacet(facets, PARAM_STATUSES, ISSUE_STATUSES);
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), RESOLUTIONS));
     addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
     addMandatoryValuesToFacet(facets, PARAM_MODULE_UUIDS, query.moduleUuids());

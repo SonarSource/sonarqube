@@ -33,10 +33,12 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueFinder;
@@ -48,6 +50,7 @@ import org.sonarqube.ws.Issues.ChangelogWsResponse;
 
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
@@ -84,7 +87,7 @@ public class ChangelogActionTest {
   @Test
   public void return_changelog() {
     UserDto user = insertUser();
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -104,7 +107,7 @@ public class ChangelogActionTest {
   @Test
   public void return_empty_changelog_when_not_member() {
     UserDto user = insertUser();
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addProjectPermission(USER, project, file);
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs().setUserUuid(user.getUuid()).setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date()));
@@ -138,7 +141,7 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_of_file_move_is_empty_when_files_does_not_exists() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -154,7 +157,7 @@ public class ChangelogActionTest {
   @Test
   public void return_changelog_on_user_without_email() {
     UserDto user = db.users().insertUser(UserTesting.newUserDto("john", "John", null));
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -170,7 +173,7 @@ public class ChangelogActionTest {
 
   @Test
   public void return_changelog_not_having_user() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -187,7 +190,7 @@ public class ChangelogActionTest {
 
   @Test
   public void return_changelog_on_none_existing_user() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -205,7 +208,7 @@ public class ChangelogActionTest {
   @Test
   public void return_changelog_on_deactivated_user() {
     UserDto user = db.users().insertDisabledUser();
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -224,7 +227,7 @@ public class ChangelogActionTest {
   @Test
   public void return_multiple_diffs() {
     UserDto user = insertUser();
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -242,7 +245,7 @@ public class ChangelogActionTest {
   @Test
   public void return_changelog_when_no_old_value() {
     UserDto user = insertUser();
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -257,7 +260,7 @@ public class ChangelogActionTest {
   @Test
   public void return_changelog_when_no_new_value() {
     UserDto user = insertUser();
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -272,7 +275,7 @@ public class ChangelogActionTest {
   @Test
   public void return_many_changelog() {
     UserDto user = insertUser();
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -288,7 +291,7 @@ public class ChangelogActionTest {
   @Test
   public void replace_technical_debt_key_by_effort() {
     UserDto user = insertUser();
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -302,7 +305,7 @@ public class ChangelogActionTest {
 
   @Test
   public void return_empty_changelog_when_no_changes_on_issue() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john").addProjectPermission(USER, project, file);
 
     ChangelogWsResponse result = call(issueDto.getKey());
@@ -312,7 +315,7 @@ public class ChangelogActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john").addProjectPermission(CODEVIEWER, project, file);
 
     expectedException.expect(ForbiddenException.class);
@@ -320,9 +323,19 @@ public class ChangelogActionTest {
   }
 
   @Test
+  public void fail_when_trying_to_get_changelog_of_hotspot() {
+    IssueDto issueDto = db.issues().insertHotspot();
+    userSession.logIn("john").addProjectPermission(USER, project, file);
+
+    assertThatThrownBy(() -> call(issueDto.getKey()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Issue with key '%s' does not exist", issueDto.getKey());
+  }
+
+  @Test
   public void test_example() {
     UserDto user = db.users().insertUser(newUserDto("john.smith", "John Smith", "john@smith.com"));
-    IssueDto issueDto = db.issues().insertIssue(newIssue());
+    IssueDto issueDto = insertNewIssue();
     userSession.logIn("john")
       .addMembership(db.getDefaultOrganization())
       .addProjectPermission(USER, project, file);
@@ -352,9 +365,9 @@ public class ChangelogActionTest {
     return request.executeProtobuf(ChangelogWsResponse.class);
   }
 
-  private IssueDto newIssue() {
-    RuleDto rule = db.rules().insertRule(newRuleDto());
-    return newDto(rule, file, project);
+  private IssueDto insertNewIssue() {
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    return db.issues().insertIssue(rule, project, file);
   }
 
   private UserDto insertUser() {

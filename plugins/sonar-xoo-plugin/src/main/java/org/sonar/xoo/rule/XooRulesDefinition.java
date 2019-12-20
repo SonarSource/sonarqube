@@ -178,8 +178,8 @@ public class XooRulesDefinition implements RulesDefinition {
         .addCwe(1, 89, 123, 863);
 
       oneVulnerabilityIssuePerModule
-        .addOwaspTop10(OwaspTop10.A1, OwaspTop10.A3)
-        .addCwe(1, 89, 123, 863);
+        .addOwaspTop10(OwaspTop10.A9, OwaspTop10.A10)
+        .addCwe(250, 564, 546, 943);
     }
 
     repo.done();

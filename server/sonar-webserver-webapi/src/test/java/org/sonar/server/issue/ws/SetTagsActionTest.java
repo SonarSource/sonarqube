@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,7 +38,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -99,7 +99,7 @@ public class SetTagsActionTest {
 
   @Test
   public void set_tags() {
-    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "bug", "todo");
@@ -113,7 +113,7 @@ public class SetTagsActionTest {
 
   @Test
   public void remove_existing_tags_when_value_is_not_set() {
-    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey());
@@ -125,7 +125,7 @@ public class SetTagsActionTest {
 
   @Test
   public void remove_existing_tags_when_value_is_empty_string() {
-    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "");
@@ -136,7 +136,7 @@ public class SetTagsActionTest {
 
   @Test
   public void set_tags_using_deprecated_key_param() {
-    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     ws.newRequest().setParam("key", issueDto.getKey()).setParam("tags", "bug").execute();
@@ -147,7 +147,7 @@ public class SetTagsActionTest {
 
   @Test
   public void tags_are_stored_as_lowercase() {
-    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "bug", "Convention");
@@ -158,7 +158,7 @@ public class SetTagsActionTest {
 
   @Test
   public void empty_tags_are_ignored() {
-    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "security", "", "convention");
@@ -169,7 +169,7 @@ public class SetTagsActionTest {
 
   @Test
   public void insert_entry_in_changelog_when_setting_tags() {
-    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "new-tag");
@@ -183,7 +183,7 @@ public class SetTagsActionTest {
 
   @Test
   public void fail_when_tag_use_bad_format() {
-    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = insertIssueForPublicProject(i -> i.setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -229,6 +229,14 @@ public class SetTagsActionTest {
     assertThat(pageSize.exampleValue()).isNotEmpty();
   }
 
+  @SafeVarargs
+  private final IssueDto insertIssueForPublicProject(Consumer<IssueDto>... consumers) {
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    ComponentDto project = db.components().insertMainBranch(newPublicProjectDto(db.getDefaultOrganization()));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    return db.issues().insertIssue(rule, project, file, consumers);
+  }
+
   private TestResponse call(@Nullable String issueKey, String... tags) {
     TestRequest request = ws.newRequest();
     ofNullable(issueKey).ifPresent(issue -> request.setParam("issue", issue));
@@ -236,13 +244,6 @@ public class SetTagsActionTest {
       request.setParam("tags", Arrays.stream(tags).collect(join(Joiner.on(","))));
     }
     return request.execute();
-  }
-
-  private IssueDto newIssue() {
-    RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertMainBranch(newPublicProjectDto(db.getDefaultOrganization()));
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    return IssueTesting.newIssue(rule, project, file);
   }
 
   private void logIn(IssueDto issueDto) {

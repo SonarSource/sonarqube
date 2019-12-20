@@ -85,9 +85,9 @@ public class AuthorsActionTest {
     String luke = "luke.skywalker";
     ComponentDto project = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(luke));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
     issueIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
@@ -102,9 +102,9 @@ public class AuthorsActionTest {
     String luke = "luke.skywalker";
     ComponentDto project = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(luke));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
     issueIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
@@ -126,9 +126,9 @@ public class AuthorsActionTest {
     ComponentDto project1 = db.components().insertPrivateProject(organization1);
     ComponentDto project2 = db.components().insertPrivateProject(organization2);
     permissionIndexer.allowOnlyAnyone(project1, project2);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
-    db.issues().insert(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
     issueIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization1);
 
@@ -156,9 +156,9 @@ public class AuthorsActionTest {
     ComponentDto project1 = db.components().insertPrivateProject(organization);
     ComponentDto project2 = db.components().insertPrivateProject(organization);
     permissionIndexer.allowOnlyAnyone(project1, project2);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
-    db.issues().insert(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
     issueIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
 
@@ -189,8 +189,8 @@ public class AuthorsActionTest {
     ComponentDto project = db.components().insertPrivateProject(organization);
     db.components().insertComponent(newProjectCopy(project, portfolio));
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(leia));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     issueIndexer.indexOnStartup(emptySet());
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
@@ -209,8 +209,8 @@ public class AuthorsActionTest {
     ComponentDto project = db.components().insertPrivateProject(defaultOrganization);
     db.components().insertComponent(newProjectCopy(project, application));
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(leia));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     issueIndexer.indexOnStartup(emptySet());
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(defaultOrganization);
@@ -229,9 +229,9 @@ public class AuthorsActionTest {
     OrganizationDto otherOrganization = db.organizations().insert();
     ComponentDto project2 = db.components().insertPrivateProject(otherOrganization);
     permissionIndexer.allowOnlyAnyone(project1, project2);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
-    db.issues().insert(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
     issueIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
@@ -249,10 +249,10 @@ public class AuthorsActionTest {
     String luke = "luke.skywalker";
     ComponentDto project = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(han));
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(luke));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(han));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
     issueIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
@@ -269,11 +269,11 @@ public class AuthorsActionTest {
   public void return_only_authors_from_issues_visible_by_current_user() {
     String leia = "leia.organa";
     String luke = "luke.skywalker";
-    RuleDefinitionDto rule = db.rules().insert();
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin(luke));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
     issueIndexer.indexOnStartup(emptySet());
     userSession.logIn(user).addMembership(db.getDefaultOrganization());
 
@@ -283,6 +283,21 @@ public class AuthorsActionTest {
     // User has no browse permission on project
     permissionIndexer.allowOnlyUser(project, user);
     assertThat(ws.newRequest().executeProtobuf(AuthorsResponse.class).getAuthorsList()).isNotEmpty();
+  }
+
+  @Test
+  public void should_ignore_authors_of_hotspot() {
+    String luke = "luke.skywalker";
+    ComponentDto project = db.components().insertPrivateProject();
+    permissionIndexer.allowOnlyAnyone(project);
+    db.issues().insertHotspot(project, project, issue -> issue
+      .setAuthorLogin(luke));
+    issueIndexer.indexOnStartup(emptySet());
+    userSession.logIn().addMembership(db.getDefaultOrganization());
+
+    AuthorsResponse result = ws.newRequest().executeProtobuf(AuthorsResponse.class);
+
+    assertThat(result.getAuthorsList()).isEmpty();
   }
 
   @Test
@@ -373,9 +388,9 @@ public class AuthorsActionTest {
   public void json_example() {
     ComponentDto project = db.components().insertPrivateProject();
     permissionIndexer.allowOnlyAnyone(project);
-    RuleDefinitionDto rule = db.rules().insert();
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin("luke.skywalker"));
-    db.issues().insert(rule, project, project, issue -> issue.setAuthorLogin("leia.organa"));
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("luke.skywalker"));
+    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("leia.organa"));
     issueIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(db.getDefaultOrganization());
 

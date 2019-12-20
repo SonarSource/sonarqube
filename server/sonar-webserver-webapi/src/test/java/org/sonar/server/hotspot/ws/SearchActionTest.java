@@ -1308,17 +1308,20 @@ public class SearchActionTest {
     List<IssueDto> hotspotsInLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> {
         long issueCreationDate = periodDate + ONE_MINUTE + (RANDOM.nextInt(300) * ONE_MINUTE);
-        return dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i).setIssueCreationTime(issueCreationDate));
+        return dbTester.issues().insertHotspot(rule, project, file,
+          t -> t.setLine(i).setIssueCreationTime(issueCreationDate));
       })
       .collect(toList());
     // included because
     List<IssueDto> atLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
-      .mapToObj(i -> dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i).setIssueCreationTime(periodDate)))
+      .mapToObj(i -> dbTester.issues().insertHotspot(rule, project, file,
+        t -> t.setType(SECURITY_HOTSPOT).setLine(i).setIssueCreationTime(periodDate)))
       .collect(toList());
     List<IssueDto> hotspotsBefore = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> {
         long issueCreationDate = periodDate - ONE_MINUTE - (RANDOM.nextInt(300) * ONE_MINUTE);
-        return dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i).setIssueCreationTime(issueCreationDate));
+        return dbTester.issues().insertHotspot(rule, project, file,
+          t -> t.setLine(i).setIssueCreationTime(issueCreationDate));
       })
       .collect(toList());
     indexIssues();

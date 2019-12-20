@@ -19,9 +19,7 @@
  */
 package org.sonar.db.issue;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Random;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Qualifiers;
@@ -42,8 +40,6 @@ import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class IssueTesting {
-  private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Arrays.stream(RuleType.values())
-    .filter(ruleType -> RuleType.SECURITY_HOTSPOT != ruleType).toArray(RuleType[]::new);
 
   private IssueTesting() {
     // only statics
@@ -56,7 +52,7 @@ public class IssueTesting {
     return new IssueDto()
       .setKee("uuid_" + randomAlphabetic(5))
       .setRule(rule)
-      .setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)])
+      .setType(RuleType.values()[nextInt(RuleType.values().length)])
       .setProject(project)
       .setComponent(file)
       .setStatus(Issue.STATUS_OPEN)
