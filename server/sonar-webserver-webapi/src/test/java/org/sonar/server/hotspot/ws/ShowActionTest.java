@@ -331,7 +331,9 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    User wsAssignee = response.getAssignee();
+    assertThat(response.getAssignee()).isEqualTo(assignee.getLogin());
+    assertThat(response.getUsersList()).hasSize(1);
+    User wsAssignee = response.getUsersList().iterator().next();
     assertThat(wsAssignee.getLogin()).isEqualTo(assignee.getLogin());
     assertThat(wsAssignee.getName()).isEqualTo(assignee.getName());
     assertThat(wsAssignee.getActive()).isEqualTo(assignee.isActive());
@@ -352,11 +354,12 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    assertThat(response.getAssignee().hasAvatar()).isFalse();
+    assertThat(response.getUsersList()).hasSize(1);
+    assertThat(response.getUsersList().iterator().next().hasAvatar()).isFalse();
   }
 
   @Test
-  public void returns_inactive_when_author_is_inactive() {
+  public void returns_inactive_when_assignee_is_inactive() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -369,7 +372,6 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    assertThat(response.getAssignee().getActive()).isFalse();
     assertThat(response.getUsersList()).hasSize(1);
     assertThat(response.getUsersList().iterator().next().getActive()).isFalse();
   }
@@ -388,12 +390,8 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    User wsAuthor = response.getAuthor();
-    assertThat(wsAuthor.getLogin()).isEqualTo(authorLogin);
-    assertThat(wsAuthor.hasName()).isFalse();
-    assertThat(wsAuthor.hasActive()).isFalse();
-    assertThat(wsAuthor.hasAvatar()).isFalse();
     assertThat(response.getUsersList()).isEmpty();
+    assertThat(response.getAuthor()).isEqualTo(authorLogin);
   }
 
   @Test
@@ -410,12 +408,7 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    User wsAuthor = response.getAuthor();
-    assertThat(wsAuthor.getLogin()).isEqualTo(author.getLogin());
-    assertThat(wsAuthor.getName()).isEqualTo(author.getName());
-    assertThat(wsAuthor.getActive()).isEqualTo(author.isActive());
-    assertThat(wsAuthor.getAvatar()).isEqualTo(avatarResolver.create(author));
-    assertThat(response.getUsersList()).hasSize(1);
+    assertThat(response.getAuthor()).isEqualTo(author.getLogin());
     User wsAuthorFromList = response.getUsersList().iterator().next();
     assertThat(wsAuthorFromList.getLogin()).isEqualTo(author.getLogin());
     assertThat(wsAuthorFromList.getName()).isEqualTo(author.getName());
@@ -437,7 +430,6 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    assertThat(response.getAuthor().hasAvatar()).isFalse();
     assertThat(response.getUsersList()).hasSize(1);
     assertThat(response.getUsersList().iterator().next().hasAvatar()).isFalse();
   }
@@ -456,7 +448,8 @@ public class ShowActionTest {
     Hotspots.ShowWsResponse response = newRequest(hotspot)
       .executeProtobuf(Hotspots.ShowWsResponse.class);
 
-    assertThat(response.getAuthor().getActive()).isFalse();
+    assertThat(response.getUsersList()).hasSize(1);
+    assertThat(response.getUsersList().iterator().next().getActive()).isFalse();
   }
 
   @DataProvider

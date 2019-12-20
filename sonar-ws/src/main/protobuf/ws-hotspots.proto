@@ -59,8 +59,8 @@ message ShowWsResponse {
   optional string resolution = 6;
   optional int32 line = 7;
   optional string message = 8;
-  optional sonarqube.ws.commons.User assignee = 9;
-  optional sonarqube.ws.commons.User author = 10;
+  optional string assignee = 9;
+  optional string author = 10;
   optional string creationDate = 11;
   optional string updateDate = 12;
   optional sonarqube.ws.commons.TextRange textRange = 13;

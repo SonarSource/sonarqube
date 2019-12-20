@@ -109,14 +109,12 @@ public class ShowAction implements HotspotsWsAction {
       RuleDefinitionDto rule = loadRule(dbSession, hotspot);
 
       ShowWsResponse.Builder responseBuilder = ShowWsResponse.newBuilder();
-      Common.User.Builder userBuilder = Common.User.newBuilder();
-      formatHotspot(responseBuilder, hotspot);
-      formatHotspotAuthorAndAssignee(responseBuilder, userBuilder, users, hotspot);
+      formatHotspot(responseBuilder, hotspot, users);
       formatComponents(components, responseBuilder);
       formatRule(responseBuilder, rule);
       formatTextRange(responseBuilder, hotspot);
       FormattingContext formattingContext = formatChangeLogAndComments(dbSession, hotspot, users, components, responseBuilder);
-      formatUsers(responseBuilder, userBuilder, users, formattingContext);
+      formatUsers(responseBuilder, users, formattingContext);
 
       writeProtobuf(responseBuilder.build(), request, response);
     }
@@ -137,7 +135,7 @@ public class ShowAction implements HotspotsWsAction {
     return new Users(assignee, author);
   }
 
-  private void formatHotspot(ShowWsResponse.Builder builder, IssueDto hotspot) {
+  private void formatHotspot(ShowWsResponse.Builder builder, IssueDto hotspot, Users users) {
     builder.setKey(hotspot.getKey());
     ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
     ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
@@ -145,16 +143,8 @@ public class ShowAction implements HotspotsWsAction {
     builder.setMessage(nullToEmpty(hotspot.getMessage()));
     builder.setCreationDate(formatDateTime(hotspot.getIssueCreationDate()));
     builder.setUpdateDate(formatDateTime(hotspot.getIssueUpdateDate()));
-  }
-
-  private void formatHotspotAuthorAndAssignee(ShowWsResponse.Builder responseBuilder,
-    Common.User.Builder userBuilder, Users users, IssueDto hotspot) {
-    users.getAssignee().map(t -> userFormatter.formatUser(userBuilder, t)).ifPresent(responseBuilder::setAssignee);
-
-    Common.User author = users.getAuthor()
-      .map(t -> userFormatter.formatUser(userBuilder, t))
-      .orElseGet(() -> userBuilder.clear().setLogin(nullToEmpty(hotspot.getAuthorLogin())).build());
-    responseBuilder.setAuthor(author);
+    users.getAssignee().map(UserDto::getLogin).ifPresent(builder::setAssignee);
+    Optional.ofNullable(hotspot.getAuthorLogin()).ifPresent(builder::setAuthor);
   }
 
   private void formatComponents(Components components, ShowWsResponse.Builder responseBuilder) {
@@ -199,7 +189,8 @@ public class ShowAction implements HotspotsWsAction {
     return formattingContext;
   }
 
-  private void formatUsers(ShowWsResponse.Builder responseBuilder, Common.User.Builder userBuilder, Users users, FormattingContext formattingContext) {
+  private void formatUsers(ShowWsResponse.Builder responseBuilder, Users users, FormattingContext formattingContext) {
+    Common.User.Builder userBuilder = Common.User.newBuilder();
     Stream.concat(
       Stream.of(users.getAssignee(), users.getAuthor())
         .filter(Optional::isPresent)
