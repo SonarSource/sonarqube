@@ -70,6 +70,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
@@ -232,6 +233,27 @@ public class ChangeStatusActionTest {
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Hotspot '%s' does not exist", key);
+  }
+
+  @Test
+  @UseDataProvider("validStatusAndResolutions")
+  public void fails_with_NotFoundException_if_hotspot_is_closed(String status, @Nullable String resolution) {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto closedHotspot = dbTester.issues().insertIssue(IssueTesting.newIssue(rule, project, file)
+      .setType(SECURITY_HOTSPOT).setStatus(STATUS_CLOSED));
+    userSessionRule.logIn();
+    TestRequest request = actionTester.newRequest()
+      .setParam("hotspot", closedHotspot.getKey())
+      .setParam("status", status);
+    if (resolution != null) {
+      request.setParam("resolution", resolution);
+    }
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Hotspot '%s' does not exist", closedHotspot.getKey());
   }
 
   @DataProvider

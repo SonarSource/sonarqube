@@ -42,7 +42,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -64,10 +63,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.issue.IssueTesting.newIssue;
 
 @RunWith(DataProviderRunner.class)
 public class AddCommentActionTest {
@@ -143,7 +144,7 @@ public class AddCommentActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(ruleType);
-    IssueDto notAHotspot = dbTester.issues().insertIssue(IssueTesting.newIssue(rule, project, file).setType(ruleType));
+    IssueDto notAHotspot = dbTester.issues().insertIssue(newIssue(rule, project, file).setType(ruleType));
     userSessionRule.logIn();
     TestRequest request = newRequest(notAHotspot, randomAlphabetic(12));
 
@@ -158,6 +159,21 @@ public class AddCommentActionTest {
       .filter(t -> t != RuleType.SECURITY_HOTSPOT)
       .map(t -> new Object[] {t})
       .toArray(Object[][]::new);
+  }
+
+  @Test
+  public void fails_with_NotFoundException_if_hotspot_is_closed() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto notAHotspot = dbTester.issues().insertIssue(newIssue(rule, project, file)
+      .setType(SECURITY_HOTSPOT).setStatus(STATUS_CLOSED));
+    userSessionRule.logIn();
+    TestRequest request = newRequest(notAHotspot, randomAlphabetic(12));
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Hotspot '%s' does not exist", notAHotspot.getKey());
   }
 
   @Test
@@ -239,7 +255,7 @@ public class AddCommentActionTest {
   }
 
   private static IssueDto newHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {
-    return IssueTesting.newIssue(rule, project, file).setType(SECURITY_HOTSPOT);
+    return newIssue(rule, project, file).setType(SECURITY_HOTSPOT);
   }
 
   private TestRequest newRequest(IssueDto hotspot, String comment) {

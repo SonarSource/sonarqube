@@ -66,6 +66,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUSES;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -246,7 +247,7 @@ public class AssignActionTest {
   }
 
   @Test
-  @UseDataProvider("allIssueStatusesExceptToReview")
+  @UseDataProvider("allIssueStatusesExceptToReviewAndClosed")
   public void fail_if_assign_user_to_hotspot_for_OTHER_STATUSES_for_public_project(String status) {
     ComponentDto project = dbTester.components().insertPublicProject();
 
@@ -263,7 +264,7 @@ public class AssignActionTest {
   }
 
   @Test
-  @UseDataProvider("allIssueStatusesExceptToReview")
+  @UseDataProvider("allIssueStatusesExceptToReviewAndClosed")
   public void fail_if_assign_user_to_hotspot_for_OTHER_STATUSES_for_private_project(String status) {
     ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
@@ -276,6 +277,15 @@ public class AssignActionTest {
     assertThatThrownBy(() -> executeRequest(hotspot, userSessionRule.getLogin(), null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Assignee can only be changed on Security Hotspots with status 'TO_REVIEW'");
+  }
+
+  @DataProvider
+  public static Object[][] allIssueStatusesExceptToReviewAndClosed() {
+    return STATUSES.stream()
+      .filter(status -> !STATUS_TO_REVIEW.equals(status))
+      .filter(status -> !STATUS_CLOSED.equals(status))
+      .map(status -> new Object[] {status})
+      .toArray(Object[][]::new);
   }
 
   @Test
@@ -328,27 +338,17 @@ public class AssignActionTest {
   public void fail_if_trying_to_assign_issue(RuleType ruleType, String status) {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-
     RuleDefinitionDto rule = newRule(ruleType);
     IssueDto issue = dbTester.issues().insertIssue(
       newIssue(rule, project, file)
         .setStatus(status)
         .setType(ruleType));
-
     UserDto me = insertUser(randomAlphanumeric(10));
     userSessionRule.logIn().registerComponents(project);
 
     assertThatThrownBy(() -> executeRequest(issue, me.getLogin(), null))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Hotspot '%s' does not exist", issue.getKey());
-  }
-
-  @DataProvider
-  public static Object[][] allIssueStatusesExceptToReview() {
-    return STATUSES.stream()
-      .filter(status -> !STATUS_TO_REVIEW.equals(status))
-      .map(status -> new Object[] {status})
-      .toArray(Object[][]::new);
   }
 
   @DataProvider
@@ -365,6 +365,23 @@ public class AssignActionTest {
       .stream()
       .map(elements -> new Object[] {elements.get(0), elements.get(1)})
       .toArray(Object[][]::new);
+  }
+
+  @Test
+  public void fail_with_NotFoundException_if_hotspot_is_closed() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto issue = dbTester.issues().insertIssue(
+      newIssue(rule, project, file)
+        .setStatus(STATUS_CLOSED)
+        .setType(SECURITY_HOTSPOT));
+    UserDto me = insertUser(randomAlphanumeric(10));
+    userSessionRule.logIn().registerComponents(project);
+
+    assertThatThrownBy(() -> executeRequest(issue, me.getLogin(), null))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Hotspot '%s' does not exist", issue.getKey());
   }
 
   private void verifyFieldSetters(UserDto assignee, @Nullable String comment) {

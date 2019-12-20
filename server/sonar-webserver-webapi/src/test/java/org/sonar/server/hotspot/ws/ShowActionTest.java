@@ -161,6 +161,20 @@ public class ShowActionTest {
   }
 
   @Test
+  public void fails_with_NotFoundException_if_issue_is_hotspot_is_called() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto notAHotspot = dbTester.issues().insertIssue(IssueTesting.newIssue(rule, project, file)
+      .setType(SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED));
+    TestRequest request = newRequest(notAHotspot);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Hotspot '%s' does not exist", notAHotspot.getKey());
+  }
+
+  @Test
   public void fails_with_ForbiddenException_if_project_is_private_and_not_allowed() {
     ComponentDto project = dbTester.components().insertPrivateProject();
     userSessionRule.registerComponents(project);
@@ -232,8 +246,7 @@ public class ShowActionTest {
     return new Object[][] {
       {Issue.STATUS_TO_REVIEW, null},
       {Issue.STATUS_REVIEWED, Issue.RESOLUTION_FIXED},
-      {Issue.STATUS_REVIEWED, Issue.RESOLUTION_SAFE},
-      {Issue.STATUS_CLOSED, Issue.RESOLUTION_REMOVED}
+      {Issue.STATUS_REVIEWED, Issue.RESOLUTION_SAFE}
     };
   }
 
