@@ -21,6 +21,7 @@ import * as React from 'react';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { List, ListRowProps } from 'react-virtualized/dist/commonjs/List';
 import { WindowScroller } from 'react-virtualized/dist/commonjs/WindowScroller';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { OnboardingContext } from '../../../app/components/OnboardingContext';
 import EmptySearch from '../../../components/common/EmptySearch';
 import { Query } from '../query';
@@ -74,16 +75,18 @@ export default class ProjectsList extends React.PureComponent<Props> {
     const project = this.props.projects[index];
     const height = this.getCardHeight();
     return (
-      <div key={key} style={{ ...style, height }}>
-        <ProjectCard
-          currentUser={this.props.currentUser}
-          handleFavorite={this.props.handleFavorite}
-          height={height}
-          key={project.key}
-          organization={this.props.organization}
-          project={project}
-          type={this.props.cardType}
-        />
+      <div key={key} role="row" style={{ ...style, height }}>
+        <div role="gridcell">
+          <ProjectCard
+            currentUser={this.props.currentUser}
+            handleFavorite={this.props.handleFavorite}
+            height={height}
+            key={project.key}
+            organization={this.props.organization}
+            project={project}
+            type={this.props.cardType}
+          />
+        </div>
       </div>
     );
   };
@@ -97,6 +100,7 @@ export default class ProjectsList extends React.PureComponent<Props> {
             {({ width }) => (
               <div>
                 <List
+                  aria-label={translate('project_plural')}
                   autoHeight={true}
                   height={height}
                   isScrolling={isScrolling}

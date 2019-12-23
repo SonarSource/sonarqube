@@ -1,19 +1,62 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders 1`] = `
-<div
-  className="projects-list"
->
-  <WindowScroller
-    onResize={[Function]}
+exports[`renders correctly: list element 1`] = `
+<div>
+  <List
+    aria-label="project_plural"
+    autoHeight={true}
+    estimatedRowSize={30}
+    height={200}
+    isScrolling={false}
+    noRowsRenderer={[Function]}
+    onRowsRendered={[Function]}
     onScroll={[Function]}
-    scrollElement={[Window]}
-    scrollingResetTimeInterval={150}
-    serverHeight={0}
-    serverWidth={0}
+    overscanIndicesGetter={[Function]}
+    overscanRowCount={2}
+    rowCount={2}
+    rowHeight={163}
+    rowRenderer={[Function]}
+    scrollToAlignment="auto"
+    scrollToIndex={-1}
+    scrollTop={0}
+    style={
+      Object {
+        "outline": "none",
+      }
+    }
+    width={200}
+  />
+</div>
+`;
+
+exports[`renders correctly: row element 1`] = `
+<div
+  role="row"
+  style={
+    Object {
+      "height": 143,
+    }
+  }
+>
+  <div
+    role="gridcell"
   >
-    <Component />
-  </WindowScroller>
+    <ProjectCard
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+        }
+      }
+      height={143}
+      project={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+        }
+      }
+      type="overall"
+    />
+  </div>
 </div>
 `;
 

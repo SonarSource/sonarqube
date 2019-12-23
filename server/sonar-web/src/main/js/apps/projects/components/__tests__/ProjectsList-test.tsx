@@ -19,10 +19,27 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ListRowProps } from 'react-virtualized';
+import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
+import { WindowScroller } from 'react-virtualized/dist/commonjs/WindowScroller';
 import ProjectsList from '../ProjectsList';
 
-it('renders', () => {
-  expect(shallowRender()).toMatchSnapshot();
+jest.mock('react-virtualized/dist/commonjs/AutoSizer');
+jest.mock('react-virtualized/dist/commonjs/WindowScroller');
+
+it('renders correctly', () => {
+  const wrapper = shallowRender();
+  expect(
+    wrapper
+      .find(WindowScroller)
+      .dive()
+      .find(AutoSizer)
+      .dive()
+  ).toMatchSnapshot('list element');
+
+  expect(
+    wrapper.instance().renderRow({ index: 0, key: 'foo-key', style: {} } as ListRowProps)
+  ).toMatchSnapshot('row element');
 });
 
 it('renders different types of "no projects"', () => {
@@ -32,7 +49,7 @@ it('renders different types of "no projects"', () => {
 });
 
 function shallowRender(props?: any) {
-  return shallow(
+  return shallow<ProjectsList>(
     <ProjectsList
       cardType="overall"
       currentUser={{ isLoggedIn: true }}
