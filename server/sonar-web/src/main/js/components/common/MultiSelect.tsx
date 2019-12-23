@@ -119,7 +119,7 @@ export default class MultiSelect extends React.PureComponent<Props, State> {
     }
   }
 
-  handleSelectChange = (item: string, selected: boolean) => {
+  handleSelectChange = (selected: boolean, item: string) => {
     if (selected) {
       this.onSelectItem(item);
     } else {

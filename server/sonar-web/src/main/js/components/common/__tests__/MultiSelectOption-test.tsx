@@ -19,31 +19,24 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import MultiSelectOption from '../MultiSelectOption';
-
-const props = {
-  element: 'mytag',
-  onSelectChange: () => {},
-  onHover: () => {},
-  renderLabel: (element: string) => element
-};
+import MultiSelectOption, { MultiSelectOptionProps } from '../MultiSelectOption';
 
 it('should render standard element', () => {
-  expect(shallow(<MultiSelectOption {...props} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default element');
+  expect(shallowRender({ selected: true })).toMatchSnapshot('selected element');
+  expect(shallowRender({ custom: true })).toMatchSnapshot('custom element');
+  expect(shallowRender({ active: true, selected: true })).toMatchSnapshot('active element');
+  expect(shallowRender({ disabled: true })).toMatchSnapshot('disabled element');
 });
 
-it('should render selected element', () => {
-  expect(shallow(<MultiSelectOption {...props} selected={true} />)).toMatchSnapshot();
-});
-
-it('should render custom element', () => {
-  expect(shallow(<MultiSelectOption {...props} custom={true} />)).toMatchSnapshot();
-});
-
-it('should render active element', () => {
-  expect(shallow(<MultiSelectOption {...props} active={true} selected={true} />)).toMatchSnapshot();
-});
-
-it('should render disabled element', () => {
-  expect(shallow(<MultiSelectOption {...props} disabled={true} />)).toMatchSnapshot();
-});
+function shallowRender(props: Partial<MultiSelectOptionProps> = {}) {
+  return shallow(
+    <MultiSelectOption
+      element="mytag"
+      onHover={jest.fn()}
+      onSelectChange={jest.fn()}
+      renderLabel={(element: string) => element}
+      {...props}
+    />
+  );
+}

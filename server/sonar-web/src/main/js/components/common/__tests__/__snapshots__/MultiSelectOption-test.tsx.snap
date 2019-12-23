@@ -1,92 +1,114 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render active element 1`] = `
-<li>
-  <a
+exports[`should render standard element: active element 1`] = `
+<li
+  onFocus={[Function]}
+  onMouseOver={[Function]}
+>
+  <Checkbox
+    checked={true}
     className="active"
-    href="#"
-    onClick={[Function]}
-    onFocus={[Function]}
-    onMouseOver={[Function]}
+    id="mytag"
+    onCheck={[MockFunction]}
+    thirdState={false}
   >
-    <i
-      className="icon-checkbox icon-checkbox-checked"
-    />
-     
-    mytag
-  </a>
+    <span
+      className="little-spacer-left"
+    >
+      mytag
+    </span>
+  </Checkbox>
 </li>
 `;
 
-exports[`should render custom element 1`] = `
-<li>
-  <a
+exports[`should render standard element: custom element 1`] = `
+<li
+  onFocus={[Function]}
+  onMouseOver={[Function]}
+>
+  <Checkbox
+    checked={false}
     className=""
-    href="#"
-    onClick={[Function]}
-    onFocus={[Function]}
-    onMouseOver={[Function]}
+    id="mytag"
+    onCheck={[MockFunction]}
+    thirdState={false}
   >
-    <i
-      className="icon-checkbox"
-    />
-     
-    + 
-    mytag
-  </a>
+    <span
+      aria-label="create_new_element: mytag"
+      className="little-spacer-left"
+    >
+      <span
+        aria-hidden={true}
+        className="little-spacer-right"
+      >
+        +
+      </span>
+      mytag
+    </span>
+  </Checkbox>
 </li>
 `;
 
-exports[`should render disabled element 1`] = `
-<li>
-  <a
+exports[`should render standard element: default element 1`] = `
+<li
+  onFocus={[Function]}
+  onMouseOver={[Function]}
+>
+  <Checkbox
+    checked={false}
+    className=""
+    id="mytag"
+    onCheck={[MockFunction]}
+    thirdState={false}
+  >
+    <span
+      className="little-spacer-left"
+    >
+      mytag
+    </span>
+  </Checkbox>
+</li>
+`;
+
+exports[`should render standard element: disabled element 1`] = `
+<li
+  onFocus={[Function]}
+  onMouseOver={[Function]}
+>
+  <Checkbox
+    checked={false}
     className="disabled"
-    href="#"
-    onClick={[Function]}
-    onFocus={[Function]}
-    onMouseOver={[Function]}
+    disabled={true}
+    id="mytag"
+    onCheck={[MockFunction]}
+    thirdState={false}
   >
-    <i
-      className="icon-checkbox icon-checkbox-invisible"
-    />
-     
-    mytag
-  </a>
+    <span
+      className="little-spacer-left"
+    >
+      mytag
+    </span>
+  </Checkbox>
 </li>
 `;
 
-exports[`should render selected element 1`] = `
-<li>
-  <a
+exports[`should render standard element: selected element 1`] = `
+<li
+  onFocus={[Function]}
+  onMouseOver={[Function]}
+>
+  <Checkbox
+    checked={true}
     className=""
-    href="#"
-    onClick={[Function]}
-    onFocus={[Function]}
-    onMouseOver={[Function]}
+    id="mytag"
+    onCheck={[MockFunction]}
+    thirdState={false}
   >
-    <i
-      className="icon-checkbox icon-checkbox-checked"
-    />
-     
-    mytag
-  </a>
-</li>
-`;
-
-exports[`should render standard element 1`] = `
-<li>
-  <a
-    className=""
-    href="#"
-    onClick={[Function]}
-    onFocus={[Function]}
-    onMouseOver={[Function]}
-  >
-    <i
-      className="icon-checkbox"
-    />
-     
-    mytag
-  </a>
+    <span
+      className="little-spacer-left"
+    >
+      mytag
+    </span>
+  </Checkbox>
 </li>
 `;

@@ -19,51 +19,47 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
-interface Props {
+export interface MultiSelectOptionProps {
   active?: boolean;
   custom?: boolean;
   disabled?: boolean;
   element: string;
-  onHover: (elem: string) => void;
-  onSelectChange: (elem: string, selected: boolean) => void;
+  onHover: (element: string) => void;
+  onSelectChange: (selected: boolean, element: string) => void;
   renderLabel: (element: string) => React.ReactNode;
   selected?: boolean;
 }
 
-export default class MultiSelectOption extends React.PureComponent<Props> {
-  handleSelect = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.currentTarget.blur();
+export default function MultiSelectOption(props: MultiSelectOptionProps) {
+  const { active, custom, disabled, element, selected } = props;
+  const onHover = () => props.onHover(element);
+  const className = classNames({ active, disabled });
+  const label = props.renderLabel(element);
 
-    if (!this.props.disabled) {
-      this.props.onSelectChange(this.props.element, !this.props.selected);
-    }
-  };
-
-  handleHover = () => this.props.onHover(this.props.element);
-
-  render() {
-    const { selected, disabled } = this.props;
-    const className = classNames('icon-checkbox', {
-      'icon-checkbox-checked': selected,
-      'icon-checkbox-invisible': disabled
-    });
-    const activeClass = classNames({ active: this.props.active, disabled });
-
-    return (
-      <li>
-        <a
-          className={activeClass}
-          href="#"
-          onClick={this.handleSelect}
-          onFocus={this.handleHover}
-          onMouseOver={this.handleHover}>
-          <i className={className} /> {this.props.custom && '+ '}
-          {this.props.renderLabel(this.props.element)}
-        </a>
-      </li>
-    );
-  }
+  return (
+    <li onFocus={onHover} onMouseOver={onHover}>
+      <Checkbox
+        checked={Boolean(selected)}
+        className={className}
+        disabled={disabled}
+        id={element}
+        onCheck={props.onSelectChange}>
+        {custom ? (
+          <span
+            aria-label={`${translate('create_new_element')}: ${label}`}
+            className="little-spacer-left">
+            <span aria-hidden={true} className="little-spacer-right">
+              +
+            </span>
+            {label}
+          </span>
+        ) : (
+          <span className="little-spacer-left">{label}</span>
+        )}
+      </Checkbox>
+    </li>
+  );
 }
