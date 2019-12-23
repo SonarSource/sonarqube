@@ -58,6 +58,10 @@ export function getSecurityHotspots(
   return getJSON('/api/hotspots/search', data).catch(throwGlobalError);
 }
 
+export function getSecurityHotspotList(hotspotKeys: string[]): Promise<HotspotSearchResponse> {
+  return getJSON('/api/hotspots/search', { hotspots: hotspotKeys.join() }).catch(throwGlobalError);
+}
+
 export function getSecurityHotspotDetails(securityHotspotKey: string): Promise<Hotspot> {
   return getJSON('/api/hotspots/show', { hotspot: securityHotspotKey })
     .then((response: Hotspot & { users: T.UserBase[] }) => {

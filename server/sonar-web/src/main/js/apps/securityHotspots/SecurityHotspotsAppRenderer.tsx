@@ -37,20 +37,35 @@ export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
   filters: HotspotFilters;
   hotspots: RawHotspot[];
+  isStaticListOfHotspots: boolean;
   loading: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
   onHotspotClick: (key: string) => void;
+  onShowAllHotspots: () => void;
   onUpdateHotspot: (hotspot: HotspotUpdate) => void;
   selectedHotspotKey?: string;
   securityCategories: T.StandardSecurityCategories;
 }
 
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
-  const { branchLike, hotspots, loading, securityCategories, selectedHotspotKey, filters } = props;
+  const {
+    branchLike,
+    hotspots,
+    isStaticListOfHotspots,
+    loading,
+    securityCategories,
+    selectedHotspotKey,
+    filters
+  } = props;
 
   return (
     <div id="security_hotspots">
-      <FilterBar onChangeFilters={props.onChangeFilters} filters={filters} />
+      <FilterBar
+        filters={filters}
+        isStaticListOfHotspots={isStaticListOfHotspots}
+        onChangeFilters={props.onChangeFilters}
+        onShowAllHotspots={props.onShowAllHotspots}
+      />
       <ScreenPositionHelper>
         {({ top }) => (
           <div className="wrapper" style={{ top }}>
@@ -84,6 +99,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                   <div className="sidebar">
                     <HotspotList
                       hotspots={hotspots}
+                      isStaticListOfHotspots={isStaticListOfHotspots}
                       onHotspotClick={props.onHotspotClick}
                       securityCategories={securityCategories}
                       selectedHotspotKey={selectedHotspotKey}

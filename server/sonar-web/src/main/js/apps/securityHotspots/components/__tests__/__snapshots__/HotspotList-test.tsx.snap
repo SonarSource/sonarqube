@@ -16,6 +16,22 @@ exports[`should render correctly 1`] = `
 </Fragment>
 `;
 
+exports[`should render correctly when the list of hotspot is static 1`] = `
+<Fragment>
+  <h1
+    className="hotspot-list-header bordered-bottom"
+  >
+    <SecurityHotspotIcon
+      className="spacer-right"
+    />
+    hotspots.list_title.0
+  </h1>
+  <ul
+    className="huge-spacer-bottom"
+  />
+</Fragment>
+`;
+
 exports[`should render correctly with hotspots 1`] = `
 <Fragment>
   <h1

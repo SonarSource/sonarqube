@@ -27,6 +27,10 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
+it('should render correctly when the list of hotspot is static', () => {
+  expect(shallowRender({ isStaticListOfHotspots: true })).toMatchSnapshot();
+});
+
 it('should render correctly with hotspots', () => {
   const hotspots = [
     mockRawHotspot({ key: 'h1', securityCategory: 'cat2' }),
@@ -54,6 +58,7 @@ function shallowRender(props: Partial<HotspotListProps> = {}) {
   return shallow(
     <HotspotList
       hotspots={[]}
+      isStaticListOfHotspots={false}
       onHotspotClick={jest.fn()}
       securityCategories={{}}
       selectedHotspotKey="h2"

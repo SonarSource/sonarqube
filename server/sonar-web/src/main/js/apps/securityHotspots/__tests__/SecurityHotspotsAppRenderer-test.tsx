@@ -22,6 +22,7 @@ import * as React from 'react';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { HotspotStatusFilter } from '../../../types/security-hotspots';
+import FilterBar from '../components/FilterBar';
 import SecurityHotspotsAppRenderer, {
   SecurityHotspotsAppRendererProps
 } from '../SecurityHotspotsAppRenderer';
@@ -49,13 +50,27 @@ it('should render correctly with hotspots', () => {
   ).toMatchSnapshot();
 });
 
+it('should properly propagate the "show all" call', () => {
+  const onShowAllHotspots = jest.fn();
+  const wrapper = shallowRender({ onShowAllHotspots });
+
+  wrapper
+    .find(FilterBar)
+    .props()
+    .onShowAllHotspots();
+
+  expect(onShowAllHotspots).toHaveBeenCalled();
+});
+
 function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
   return shallow(
     <SecurityHotspotsAppRenderer
       hotspots={[]}
+      isStaticListOfHotspots={true}
       loading={false}
       onChangeFilters={jest.fn()}
       onHotspotClick={jest.fn()}
+      onShowAllHotspots={jest.fn()}
       onUpdateHotspot={jest.fn()}
       securityCategories={{}}
       filters={{ assignedToMe: false, status: HotspotStatusFilter.TO_REVIEW }}

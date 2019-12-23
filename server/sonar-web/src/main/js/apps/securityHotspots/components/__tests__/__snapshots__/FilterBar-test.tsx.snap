@@ -1,5 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly when the list of hotspot is static 1`] = `
+<div
+  className="filter-bar display-flex-center"
+>
+  <a
+    id="show_all_hotspot"
+    onClick={[Function]}
+    role="link"
+    tabIndex={0}
+  >
+    hotspot.filters.show_all
+  </a>
+</div>
+`;
+
 exports[`should render correctly: anonymous 1`] = `
 <div
   className="filter-bar display-flex-center"

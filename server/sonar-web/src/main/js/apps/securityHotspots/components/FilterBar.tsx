@@ -28,7 +28,9 @@ import { HotspotFilters, HotspotStatusFilter } from '../../../types/security-hot
 export interface FilterBarProps {
   currentUser: T.CurrentUser;
   filters: HotspotFilters;
+  isStaticListOfHotspots: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
+  onShowAllHotspots: () => void;
 }
 
 const statusOptions: Array<{ label: string; value: string }> = [
@@ -48,34 +50,43 @@ const assigneeFilterOptions = [
 ];
 
 export function FilterBar(props: FilterBarProps) {
-  const { currentUser, filters } = props;
+  const { currentUser, filters, isStaticListOfHotspots } = props;
+
   return (
     <div className="filter-bar display-flex-center">
-      <h3 className="huge-spacer-right">{translate('hotspot.filters.title')}</h3>
+      {isStaticListOfHotspots ? (
+        <a id="show_all_hotspot" onClick={() => props.onShowAllHotspots()} role="link" tabIndex={0}>
+          {translate('hotspot.filters.show_all')}
+        </a>
+      ) : (
+        <>
+          <h3 className="huge-spacer-right">{translate('hotspot.filters.title')}</h3>
 
-      {isLoggedIn(currentUser) && (
-        <RadioToggle
-          className="huge-spacer-right"
-          name="assignee-filter"
-          onCheck={(value: AssigneeFilterOption) =>
-            props.onChangeFilters({ assignedToMe: value === AssigneeFilterOption.ME })
-          }
-          options={assigneeFilterOptions}
-          value={filters.assignedToMe ? AssigneeFilterOption.ME : AssigneeFilterOption.ALL}
-        />
+          {isLoggedIn(currentUser) && (
+            <RadioToggle
+              className="huge-spacer-right"
+              name="assignee-filter"
+              onCheck={(value: AssigneeFilterOption) =>
+                props.onChangeFilters({ assignedToMe: value === AssigneeFilterOption.ME })
+              }
+              options={assigneeFilterOptions}
+              value={filters.assignedToMe ? AssigneeFilterOption.ME : AssigneeFilterOption.ALL}
+            />
+          )}
+
+          <span className="spacer-right">{translate('status')}</span>
+          <Select
+            className="input-medium big-spacer-right"
+            clearable={false}
+            onChange={(option: { value: HotspotStatusFilter }) =>
+              props.onChangeFilters({ status: option.value })
+            }
+            options={statusOptions}
+            searchable={false}
+            value={filters.status}
+          />
+        </>
       )}
-
-      <span className="spacer-right">{translate('status')}</span>
-      <Select
-        className="input-medium big-spacer-right"
-        clearable={false}
-        onChange={(option: { value: HotspotStatusFilter }) =>
-          props.onChangeFilters({ status: option.value })
-        }
-        options={statusOptions}
-        searchable={false}
-        value={filters.status}
-      />
     </div>
   );
 }

@@ -17,9 +17,11 @@ exports[`should render correctly 1`] = `
     }
   }
   hotspots={Array []}
+  isStaticListOfHotspots={false}
   loading={true}
   onChangeFilters={[Function]}
   onHotspotClick={[Function]}
+  onShowAllHotspots={[Function]}
   onUpdateHotspot={[Function]}
   securityCategories={Object {}}
 />

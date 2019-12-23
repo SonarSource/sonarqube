@@ -29,6 +29,7 @@ import './HotspotList.css';
 
 export interface HotspotListProps {
   hotspots: RawHotspot[];
+  isStaticListOfHotspots: boolean;
   onHotspotClick: (key: string) => void;
   securityCategories: T.StandardSecurityCategories;
   selectedHotspotKey: string | undefined;
@@ -36,7 +37,13 @@ export interface HotspotListProps {
 }
 
 export default function HotspotList(props: HotspotListProps) {
-  const { hotspots, securityCategories, selectedHotspotKey, statusFilter } = props;
+  const {
+    hotspots,
+    isStaticListOfHotspots,
+    securityCategories,
+    selectedHotspotKey,
+    statusFilter
+  } = props;
 
   const groupedHotspots: Array<{
     risk: RiskExposure;
@@ -54,7 +61,10 @@ export default function HotspotList(props: HotspotListProps) {
     <>
       <h1 className="hotspot-list-header bordered-bottom">
         <SecurityHotspotIcon className="spacer-right" />
-        {translateWithParameters(`hotspots.list_title.${statusFilter}`, hotspots.length)}
+        {translateWithParameters(
+          isStaticListOfHotspots ? 'hotspots.list_title' : `hotspots.list_title.${statusFilter}`,
+          hotspots.length
+        )}
       </h1>
       <ul className="huge-spacer-bottom">
         {groupedHotspots.map(riskGroup => (

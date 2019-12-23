@@ -11,7 +11,9 @@ exports[`should render correctly 1`] = `
         "status": "TO_REVIEW",
       }
     }
+    isStaticListOfHotspots={true}
     onChangeFilters={[MockFunction]}
+    onShowAllHotspots={[MockFunction]}
   />
   <ScreenPositionHelper>
     <Component />
@@ -150,6 +152,7 @@ exports[`should render correctly with hotspots 1`] = `
                 },
               ]
             }
+            isStaticListOfHotspots={true}
             onHotspotClick={[MockFunction]}
             securityCategories={Object {}}
             statusFilter="TO_REVIEW"
@@ -231,6 +234,7 @@ exports[`should render correctly with hotspots 2`] = `
                 },
               ]
             }
+            isStaticListOfHotspots={true}
             onHotspotClick={[MockFunction]}
             securityCategories={Object {}}
             selectedHotspotKey="h2"

@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Location } from 'history';
 import * as React from 'react';
 import { addNoFooterPageClass, removeNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
-import { getSecurityHotspots } from '../../api/security-hotspots';
+import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
 import { withCurrentUser } from '../../components/hoc/withCurrentUser';
+import { Router } from '../../components/hoc/withRouter';
 import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { getStandards } from '../../helpers/security-standard';
 import { isLoggedIn } from '../../helpers/users';
@@ -43,9 +45,12 @@ interface Props {
   branchLike?: BranchLike;
   currentUser: T.CurrentUser;
   component: T.Component;
+  location: Location;
+  router: Router;
 }
 
 interface State {
+  hotspotKeys?: string[];
   hotspots: RawHotspot[];
   loading: boolean;
   securityCategories: T.StandardSecurityCategories;
@@ -79,7 +84,10 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(previous: Props) {
-    if (this.props.component.key !== previous.component.key) {
+    if (
+      this.props.component.key !== previous.component.key ||
+      this.props.location.query.hotspots !== previous.location.query.hotspots
+    ) {
       this.fetchInitialData();
     }
   }
@@ -115,8 +123,18 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   fetchSecurityHotspots() {
-    const { branchLike, component } = this.props;
+    const { branchLike, component, location } = this.props;
     const { filters } = this.state;
+
+    const hotspotKeys = location.query.hotspots
+      ? (location.query.hotspots as string).split(',')
+      : undefined;
+
+    this.setState({ hotspotKeys });
+
+    if (hotspotKeys && hotspotKeys.length > 0) {
+      return getSecurityHotspotList(hotspotKeys);
+    }
 
     const status =
       filters.status === HotspotStatusFilter.TO_REVIEW
@@ -187,18 +205,34 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     });
   };
 
+  handleShowAllHotspots = () => {
+    this.props.router.push({
+      ...this.props.location,
+      query: { ...this.props.location.query, hotspots: undefined }
+    });
+  };
+
   render() {
     const { branchLike } = this.props;
-    const { hotspots, loading, securityCategories, selectedHotspotKey, filters } = this.state;
+    const {
+      hotspotKeys,
+      hotspots,
+      loading,
+      securityCategories,
+      selectedHotspotKey,
+      filters
+    } = this.state;
 
     return (
       <SecurityHotspotsAppRenderer
         branchLike={branchLike}
         filters={filters}
         hotspots={hotspots}
+        isStaticListOfHotspots={Boolean(hotspotKeys && hotspotKeys.length > 0)}
         loading={loading}
         onChangeFilters={this.handleChangeFilters}
         onHotspotClick={this.handleHotspotClick}
+        onShowAllHotspots={this.handleShowAllHotspots}
         onUpdateHotspot={this.handleHotspotUpdate}
         securityCategories={securityCategories}
         selectedHotspotKey={selectedHotspotKey}

@@ -21,11 +21,16 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { addNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getSecurityHotspots } from '../../../api/security-hotspots';
+import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
 import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { getStandards } from '../../../helpers/security-standard';
-import { mockComponent, mockCurrentUser } from '../../../helpers/testMocks';
+import {
+  mockComponent,
+  mockCurrentUser,
+  mockLocation,
+  mockRouter
+} from '../../../helpers/testMocks';
 import {
   HotspotResolution,
   HotspotStatus,
@@ -34,13 +39,16 @@ import {
 import { SecurityHotspotsApp } from '../SecurityHotspotsApp';
 import SecurityHotspotsAppRenderer from '../SecurityHotspotsAppRenderer';
 
+beforeEach(() => jest.clearAllMocks());
+
 jest.mock('sonar-ui-common/helpers/pages', () => ({
   addNoFooterPageClass: jest.fn(),
   removeNoFooterPageClass: jest.fn()
 }));
 
 jest.mock('../../../api/security-hotspots', () => ({
-  getSecurityHotspots: jest.fn().mockResolvedValue({ hotspots: [], rules: [] })
+  getSecurityHotspots: jest.fn().mockResolvedValue({ hotspots: [], rules: [] }),
+  getSecurityHotspotList: jest.fn().mockResolvedValue({ hotspots: [], rules: [] })
 }));
 
 jest.mock('../../../helpers/security-standard', () => ({
@@ -82,6 +90,54 @@ it('should load data correctly', async () => {
   expect(wrapper.state().securityCategories).toBe(sonarsourceSecurity);
 
   expect(wrapper.state());
+});
+
+it('should load data correctly when hotspot key list is forced', async () => {
+  const sonarsourceSecurity = { cat1: { title: 'cat 1' } };
+  (getStandards as jest.Mock).mockResolvedValue({ sonarsourceSecurity });
+
+  const hotspots = [
+    mockRawHotspot({ key: 'test1' }),
+    mockRawHotspot({ key: 'test2' }),
+    mockRawHotspot({ key: 'test3' })
+  ];
+  const hotspotKeys = hotspots.map(h => h.key);
+  (getSecurityHotspotList as jest.Mock).mockResolvedValueOnce({
+    hotspots
+  });
+
+  const location = mockLocation({ query: { hotspots: hotspotKeys.join() } });
+  const router = mockRouter();
+  const wrapper = shallowRender({
+    location,
+    router
+  });
+
+  await waitAndUpdate(wrapper);
+  expect(getSecurityHotspotList).toBeCalledWith(hotspotKeys);
+  expect(wrapper.state().hotspotKeys).toEqual(hotspotKeys);
+  expect(wrapper.find(SecurityHotspotsAppRenderer).props().isStaticListOfHotspots).toBeTruthy();
+
+  // Reset
+  (getSecurityHotspots as jest.Mock).mockClear();
+  (getSecurityHotspotList as jest.Mock).mockClear();
+  wrapper
+    .find(SecurityHotspotsAppRenderer)
+    .props()
+    .onShowAllHotspots();
+  expect(router.push).toHaveBeenCalledWith({
+    ...location,
+    query: { ...location.query, hotspots: undefined }
+  });
+
+  // Simulate a new location
+  wrapper.setProps({
+    location: { ...location, query: { ...location.query, hotspots: undefined } }
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().hotspotKeys).toBeUndefined();
+  expect(getSecurityHotspotList).not.toHaveBeenCalled();
+  expect(getSecurityHotspots).toHaveBeenCalled();
 });
 
 it('should handle hotspot update', async () => {
@@ -153,6 +209,8 @@ function shallowRender(props: Partial<SecurityHotspotsApp['props']> = {}) {
       branchLike={branch}
       component={mockComponent()}
       currentUser={mockCurrentUser()}
+      location={mockLocation()}
+      router={mockRouter()}
       {...props}
     />
   );

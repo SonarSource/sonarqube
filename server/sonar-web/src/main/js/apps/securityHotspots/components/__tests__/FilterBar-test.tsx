@@ -30,6 +30,19 @@ it('should render correctly', () => {
   expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('logged-in');
 });
 
+it('should render correctly when the list of hotspot is static', () => {
+  const onShowAllHotspots = jest.fn();
+
+  const wrapper = shallowRender({
+    isStaticListOfHotspots: true,
+    onShowAllHotspots
+  });
+  expect(wrapper).toMatchSnapshot();
+
+  wrapper.find('a').simulate('click');
+  expect(onShowAllHotspots).toHaveBeenCalled();
+});
+
 it('should trigger onChange for status', () => {
   const onChangeFilters = jest.fn();
   const wrapper = shallowRender({ onChangeFilters });
@@ -60,7 +73,9 @@ function shallowRender(props: Partial<FilterBarProps> = {}) {
   return shallow(
     <FilterBar
       currentUser={mockCurrentUser()}
+      isStaticListOfHotspots={false}
       onChangeFilters={jest.fn()}
+      onShowAllHotspots={jest.fn()}
       filters={{ assignedToMe: false, status: HotspotStatusFilter.TO_REVIEW }}
       {...props}
     />
