@@ -136,8 +136,9 @@ exports[`should render correctly 1`] = `
               style={Object {}}
               to={
                 Object {
-                  "pathname": "/project/issues",
+                  "pathname": "/security_hotspots",
                   "query": Object {
+                    "assignedToMe": "false",
                     "id": "my-project",
                     "resolved": "false",
                     "types": "SECURITY_HOTSPOT",
@@ -269,8 +270,9 @@ exports[`should render correctly 1`] = `
               style={Object {}}
               to={
                 Object {
-                  "pathname": "/project/issues",
+                  "pathname": "/security_hotspots",
                   "query": Object {
+                    "assignedToMe": "false",
                     "id": "my-project",
                     "resolved": "false",
                     "sinceLeakPeriod": "true",

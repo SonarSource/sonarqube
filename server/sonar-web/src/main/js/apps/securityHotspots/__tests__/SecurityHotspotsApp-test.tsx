@@ -22,7 +22,7 @@ import * as React from 'react';
 import { addNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
-import { mockBranch } from '../../../helpers/mocks/branch-like';
+import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { getStandards } from '../../../helpers/security-standard';
 import {
@@ -138,6 +138,15 @@ it('should load data correctly when hotspot key list is forced', async () => {
   expect(wrapper.state().hotspotKeys).toBeUndefined();
   expect(getSecurityHotspotList).not.toHaveBeenCalled();
   expect(getSecurityHotspots).toHaveBeenCalled();
+});
+
+it('should set "leakperiod" filter according to context (branchlike & location query)', () => {
+  expect(shallowRender().state().filters.newCode).toBe(false);
+  expect(shallowRender({ branchLike: mockPullRequest() }).state().filters.newCode).toBe(true);
+  expect(
+    shallowRender({ location: mockLocation({ query: { newCode: 'true' } }) }).state().filters
+      .newCode
+  ).toBe(true);
 });
 
 it('should handle hotspot update', async () => {

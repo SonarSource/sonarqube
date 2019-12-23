@@ -23,7 +23,7 @@ import { addNoFooterPageClass, removeNoFooterPageClass } from 'sonar-ui-common/h
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
 import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 import { Router } from '../../components/hoc/withRouter';
-import { getBranchLikeQuery } from '../../helpers/branch-like';
+import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { getStandards } from '../../helpers/security-standard';
 import { isLoggedIn } from '../../helpers/users';
 import { BranchLike } from '../../types/branch-like';
@@ -71,7 +71,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       securityCategories: {},
       selectedHotspotKey: undefined,
       filters: {
-        assignedToMe: isLoggedIn(this.props.currentUser) ? true : false,
+        ...this.constructFiltersFromProps(props),
         status: HotspotStatusFilter.TO_REVIEW
       }
     };
@@ -90,11 +90,32 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     ) {
       this.fetchInitialData();
     }
+
+    if (
+      !isSameBranchLike(this.props.branchLike, previous.branchLike) ||
+      isLoggedIn(this.props.currentUser) !== isLoggedIn(previous.currentUser) ||
+      this.props.location.query.assignedToMe !== previous.location.query.assignedToMe ||
+      this.props.location.query.newCode !== previous.location.query.newCode
+    ) {
+      this.setState(({ filters }) => ({
+        filters: { ...this.constructFiltersFromProps, ...filters }
+      }));
+    }
   }
 
   componentWillUnmount() {
     removeNoFooterPageClass();
     this.mounted = false;
+  }
+
+  constructFiltersFromProps(props: Props): Pick<HotspotFilters, 'assignedToMe' | 'newCode'> {
+    return {
+      assignedToMe:
+        props.location.query.assignedToMe !== undefined
+          ? props.location.query.assignedToMe === 'true'
+          : isLoggedIn(props.currentUser),
+      newCode: isPullRequest(props.branchLike) || props.location.query.newCode === 'true'
+    };
   }
 
   handleCallFailure = () => {
@@ -153,6 +174,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       status,
       resolution,
       onlyMine: filters.assignedToMe,
+      sinceLeakPeriod: filters.newCode,
       ...getBranchLikeQuery(branchLike)
     });
   }

@@ -160,6 +160,18 @@ export default function enhance(ComposedComponent: React.ComponentType<ComposedP
         Object.assign(params, { sinceLeakPeriod: 'true' });
       }
 
+      if (metric.endsWith('security_hotspots')) {
+        return (
+          <Link
+            to={{
+              pathname: '/security_hotspots',
+              query: { ...params, id: component.key, assignedToMe: 'false' }
+            }}>
+            {formatMeasure(value, 'SHORT_INT')}
+          </Link>
+        );
+      }
+
       return (
         <Link to={getComponentIssuesUrl(component.key, params)}>
           {formatMeasure(value, 'SHORT_INT')}

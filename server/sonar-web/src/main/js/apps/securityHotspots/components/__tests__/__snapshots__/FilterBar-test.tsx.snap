@@ -52,6 +52,25 @@ exports[`should render correctly: anonymous 1`] = `
     searchable={false}
     value="TO_REVIEW"
   />
+  <Select
+    className="input-medium big-spacer-right"
+    clearable={false}
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "hotspot.filters.period.since_leak_period",
+          "value": true,
+        },
+        Object {
+          "label": "hotspot.filters.period.overall",
+          "value": false,
+        },
+      ]
+    }
+    searchable={false}
+    value={false}
+  />
 </div>
 `;
 
@@ -83,6 +102,65 @@ exports[`should render correctly: logged-in 1`] = `
     }
     value="all"
   />
+  <span
+    className="spacer-right"
+  >
+    status
+  </span>
+  <Select
+    className="input-medium big-spacer-right"
+    clearable={false}
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "hotspot.filters.status.to_review",
+          "value": "TO_REVIEW",
+        },
+        Object {
+          "label": "hotspot.filters.status.fixed",
+          "value": "FIXED",
+        },
+        Object {
+          "label": "hotspot.filters.status.safe",
+          "value": "SAFE",
+        },
+      ]
+    }
+    searchable={false}
+    value="TO_REVIEW"
+  />
+  <Select
+    className="input-medium big-spacer-right"
+    clearable={false}
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "hotspot.filters.period.since_leak_period",
+          "value": true,
+        },
+        Object {
+          "label": "hotspot.filters.period.overall",
+          "value": false,
+        },
+      ]
+    }
+    searchable={false}
+    value={false}
+  />
+</div>
+`;
+
+exports[`should render correctly: on Pull request 1`] = `
+<div
+  className="filter-bar display-flex-center"
+>
+  <h3
+    className="huge-spacer-right"
+  >
+    hotspot.filters.title
+  </h3>
   <span
     className="spacer-right"
   >

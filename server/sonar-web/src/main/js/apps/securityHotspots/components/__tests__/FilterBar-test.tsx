@@ -28,6 +28,7 @@ import { AssigneeFilterOption, FilterBar, FilterBarProps } from '../FilterBar';
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('anonymous');
   expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('logged-in');
+  expect(shallowRender({ onBranch: false })).toMatchSnapshot('on Pull request');
 });
 
 it('should render correctly when the list of hotspot is static', () => {
@@ -47,7 +48,10 @@ it('should trigger onChange for status', () => {
   const onChangeFilters = jest.fn();
   const wrapper = shallowRender({ onChangeFilters });
 
-  const { onChange } = wrapper.find(Select).props();
+  const { onChange } = wrapper
+    .find(Select)
+    .at(0)
+    .props();
 
   if (!onChange) {
     return fail("Select's onChange should be defined");
@@ -69,14 +73,35 @@ it('should trigger onChange for self-assigned toggle', () => {
   expect(onChangeFilters).toBeCalledWith({ assignedToMe: false });
 });
 
+it('should trigger onChange for leak period', () => {
+  const onChangeFilters = jest.fn();
+  const wrapper = shallowRender({ onChangeFilters });
+
+  const { onChange } = wrapper
+    .find(Select)
+    .at(1)
+    .props();
+
+  if (!onChange) {
+    return fail("Select's onChange should be defined");
+  }
+  onChange({ value: true });
+  expect(onChangeFilters).toBeCalledWith({ newCode: true });
+});
+
 function shallowRender(props: Partial<FilterBarProps> = {}) {
   return shallow(
     <FilterBar
       currentUser={mockCurrentUser()}
+      filters={{
+        assignedToMe: false,
+        newCode: false,
+        status: HotspotStatusFilter.TO_REVIEW
+      }}
       isStaticListOfHotspots={false}
+      onBranch={true}
       onChangeFilters={jest.fn()}
       onShowAllHotspots={jest.fn()}
-      filters={{ assignedToMe: false, status: HotspotStatusFilter.TO_REVIEW }}
       {...props}
     />
   );

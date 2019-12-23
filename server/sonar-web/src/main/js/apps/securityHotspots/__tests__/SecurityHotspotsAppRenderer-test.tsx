@@ -73,7 +73,11 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
       onShowAllHotspots={jest.fn()}
       onUpdateHotspot={jest.fn()}
       securityCategories={{}}
-      filters={{ assignedToMe: false, status: HotspotStatusFilter.TO_REVIEW }}
+      filters={{
+        assignedToMe: false,
+        newCode: false,
+        status: HotspotStatusFilter.TO_REVIEW
+      }}
       {...props}
     />
   );

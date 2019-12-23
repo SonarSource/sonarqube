@@ -26,6 +26,7 @@ import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
+import { isBranch } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
 import { HotspotFilters, HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
 import FilterBar from './components/FilterBar';
@@ -63,6 +64,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
       <FilterBar
         filters={filters}
         isStaticListOfHotspots={isStaticListOfHotspots}
+        onBranch={isBranch(branchLike)}
         onChangeFilters={props.onChangeFilters}
         onShowAllHotspots={props.onShowAllHotspots}
       />

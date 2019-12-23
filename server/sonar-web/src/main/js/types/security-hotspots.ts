@@ -47,6 +47,7 @@ export enum HotspotStatusOption {
 
 export interface HotspotFilters {
   assignedToMe: boolean;
+  newCode: boolean;
   status: HotspotStatusFilter;
 }
 

@@ -8,10 +8,12 @@ exports[`should render correctly 1`] = `
     filters={
       Object {
         "assignedToMe": false,
+        "newCode": false,
         "status": "TO_REVIEW",
       }
     }
     isStaticListOfHotspots={true}
+    onBranch={false}
     onChangeFilters={[MockFunction]}
     onShowAllHotspots={[MockFunction]}
   />

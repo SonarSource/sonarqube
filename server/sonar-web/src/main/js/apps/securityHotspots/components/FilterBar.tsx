@@ -29,6 +29,7 @@ export interface FilterBarProps {
   currentUser: T.CurrentUser;
   filters: HotspotFilters;
   isStaticListOfHotspots: boolean;
+  onBranch: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
   onShowAllHotspots: () => void;
 }
@@ -37,6 +38,11 @@ const statusOptions: Array<{ label: string; value: string }> = [
   { value: HotspotStatusFilter.TO_REVIEW, label: translate('hotspot.filters.status.to_review') },
   { value: HotspotStatusFilter.FIXED, label: translate('hotspot.filters.status.fixed') },
   { value: HotspotStatusFilter.SAFE, label: translate('hotspot.filters.status.safe') }
+];
+
+const periodOptions = [
+  { value: true, label: translate('hotspot.filters.period.since_leak_period') },
+  { value: false, label: translate('hotspot.filters.period.overall') }
 ];
 
 export enum AssigneeFilterOption {
@@ -50,7 +56,7 @@ const assigneeFilterOptions = [
 ];
 
 export function FilterBar(props: FilterBarProps) {
-  const { currentUser, filters, isStaticListOfHotspots } = props;
+  const { currentUser, filters, isStaticListOfHotspots, onBranch } = props;
 
   return (
     <div className="filter-bar display-flex-center">
@@ -85,6 +91,19 @@ export function FilterBar(props: FilterBarProps) {
             searchable={false}
             value={filters.status}
           />
+
+          {onBranch && (
+            <Select
+              className="input-medium big-spacer-right"
+              clearable={false}
+              onChange={(option: { value: boolean }) =>
+                props.onChangeFilters({ newCode: option.value })
+              }
+              options={periodOptions}
+              searchable={false}
+              value={filters.newCode}
+            />
+          )}
         </>
       )}
     </div>
