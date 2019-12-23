@@ -76,7 +76,7 @@ export default function ProjectCard({ project }: Props) {
                 overlay={translate('quality_gates.conditions.warning.tooltip')}
               />
             )}
-            <Level level={project.qualityGate} />
+            <Level aria-label={translate('quality_gates.status')} level={project.qualityGate} />
           </div>
         )}
       </aside>

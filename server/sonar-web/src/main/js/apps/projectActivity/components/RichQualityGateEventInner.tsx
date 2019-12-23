@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import Level from 'sonar-ui-common/components/ui/Level';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 
 export type RichQualityGateEvent = T.AnalysisEvent & Required<Pick<T.AnalysisEvent, 'qualityGate'>>;
@@ -83,13 +83,20 @@ export class RichQualityGateEventInner extends React.PureComponent<Props, State>
           <ul className="spacer-left spacer-top">
             {event.qualityGate.failing.map(project => (
               <li className="display-flex-center spacer-top" key={project.key}>
-                <Level className="spacer-right" level={event.qualityGate.status} small={true} />
+                <Level
+                  aria-label={translate('quality_gates.status')}
+                  className="spacer-right"
+                  level={event.qualityGate.status}
+                  small={true}
+                />
                 <div className="flex-1 text-ellipsis">
                   <Link
                     onClick={this.stopPropagation}
                     title={project.name}
                     to={getProjectUrl(project.key, project.branch)}>
-                    {project.name}
+                    <span aria-label={translateWithParameters('project_x', project.name)}>
+                      {project.name}
+                    </span>
                   </Link>
                 </div>
               </li>

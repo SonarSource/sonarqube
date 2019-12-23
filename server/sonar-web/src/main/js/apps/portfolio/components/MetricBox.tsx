@@ -31,13 +31,13 @@ import MainRating from './MainRating';
 import MeasuresButtonLink from './MeasuresButtonLink';
 import RatingFreshness from './RatingFreshness';
 
-interface Props {
+export interface MetricBoxProps {
   component: string;
   measures: T.Dict<string | undefined>;
   metricKey: string;
 }
 
-export default function MetricBox({ component, measures, metricKey }: Props) {
+export default function MetricBox({ component, measures, metricKey }: MetricBoxProps) {
   const keys = METRICS_PER_TYPE[metricKey];
   const rating = measures[keys.rating];
   const lastReliabilityChange = measures[keys.last_change];
@@ -90,8 +90,17 @@ export default function MetricBox({ component, measures, metricKey }: Props) {
                       ? translate('project_singular')
                       : translate('project_plural')}
                   </span>
-                </Link>{' '}
-                <Level level="ERROR" small={true} />
+                </Link>
+                <Level
+                  aria-label={
+                    Number(effort) === 1
+                      ? translate('portfolio.has_qg_status')
+                      : translate('portfolio.have_qg_status')
+                  }
+                  className="little-spacer-left"
+                  level="ERROR"
+                  small={true}
+                />
               </div>
             </>
           )

@@ -11,6 +11,7 @@ exports[`renders 1`] = `
       className="project-card-measure-inner"
     >
       <Level
+        aria-label="quality_gates.status"
         level="ERROR"
         small={true}
       />

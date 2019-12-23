@@ -17,19 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable sonarjs/no-duplicate-string */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import MetricBox from '../MetricBox';
+import MetricBox, { MetricBoxProps } from '../MetricBox';
 
 it('should render correctly', () => {
-  const measures = {
-    reliability_rating: '3',
-    last_change_on_reliability_rating: '{"date":"2017-01-02T00:00:00.000Z","value":2}',
-    reliability_rating_effort: '{"rating":3,"projects":1}'
-  };
-  expect(
-    shallow(<MetricBox component="foo" measures={measures} metricKey="reliability" />)
-  ).toMatchSnapshot();
+  expect(shallowRender({ metricKey: 'reliability' })).toMatchSnapshot();
 });
 
 it('should render correctly for releasability', () => {
@@ -38,19 +32,34 @@ it('should render correctly for releasability', () => {
     last_change_on_releasability_rating: '{"date":"2017-01-02T00:00:00.000Z","value":2}',
     releasability_effort: '5'
   };
-  expect(
-    shallow(<MetricBox component="foo" measures={measures} metricKey="releasability" />)
-  ).toMatchSnapshot();
+
+  expect(shallowRender({ measures })).toMatchSnapshot();
+  expect(shallowRender({ measures: { ...measures, releasability_effort: '1' } })).toMatchSnapshot();
 });
 
 it('should render correctly when no effort', () => {
-  const measures = {
-    releasability_rating: '2',
-    last_change_on_releasability_rating: '{"date":"2017-01-02T00:00:00.000Z","value":2}',
-    releasability_effort: '0'
-  };
-
   expect(
-    shallow(<MetricBox component="foo" measures={measures} metricKey="releasability" />)
+    shallowRender({
+      measures: {
+        releasability_rating: '2',
+        last_change_on_releasability_rating: '{"date":"2017-01-02T00:00:00.000Z","value":2}',
+        releasability_effort: '0'
+      }
+    })
   ).toMatchSnapshot();
 });
+
+function shallowRender(props: Partial<MetricBoxProps> = {}) {
+  return shallow(
+    <MetricBox
+      component="foo"
+      measures={{
+        reliability_rating: '3',
+        last_change_on_reliability_rating: '{"date":"2017-01-02T00:00:00.000Z","value":2}',
+        reliability_rating_effort: '{"rating":3,"projects":1}'
+      }}
+      metricKey="releasability"
+      {...props}
+    />
+  );
+}
