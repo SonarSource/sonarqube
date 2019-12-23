@@ -177,8 +177,8 @@ zip.doFirst {
 }
 // Check the size of the archive
 zip.doLast {
-  def minLength = 203000000
-  def maxLength = 212000000
+  def minLength = 212000000
+  def maxLength = 221000000
   def length = archiveFile.get().asFile.length()
   if (length < minLength)
     throw new GradleException("$archiveName size ($length) too small. Min is $minLength")
