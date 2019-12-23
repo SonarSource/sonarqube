@@ -43,8 +43,10 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<HotspotActionsFormRendererProps> = {}) {
   return shallow<HotspotActionsForm>(
     <HotspotActionsFormRenderer
+      comment="written comment"
       hotspotKey="key"
       onAssign={jest.fn()}
+      onChangeComment={jest.fn()}
       onSelectOption={jest.fn()}
       onSubmit={jest.fn()}
       selectedOption={HotspotStatusOptions.FIXED}

@@ -21,12 +21,15 @@ import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import MarkdownTips from '../../../components/common/MarkdownTips';
 import { HotspotStatusOptions } from '../../../types/security-hotspots';
 import HotspotAssigneeSelect from './HotspotAssigneeSelect';
 
 export interface HotspotActionsFormRendererProps {
+  comment: string;
   hotspotKey: string;
   onAssign: (user: T.UserActive) => void;
+  onChangeComment: (comment: string) => void;
   onSelectOption: (option: HotspotStatusOptions) => void;
   onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
   selectedOption: HotspotStatusOptions;
@@ -35,10 +38,10 @@ export interface HotspotActionsFormRendererProps {
 }
 
 export default function HotspotActionsFormRenderer(props: HotspotActionsFormRendererProps) {
-  const { selectedOption, submitting } = props;
+  const { comment, selectedOption, submitting } = props;
 
   return (
-    <form className="abs-width-400" onSubmit={props.onSubmit}>
+    <form className="abs-width-400 padded" onSubmit={props.onSubmit}>
       <h2>{translate('hotspots.form.title')}</h2>
       <div className="display-flex-column big-spacer-bottom">
         {renderOption({
@@ -63,6 +66,24 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
           <HotspotAssigneeSelect onSelect={props.onAssign} />
         </div>
       )}
+      <div className="display-flex-column big-spacer-bottom">
+        <label className="little-spacer-bottom">{translate('hotspots.form.comment')}</label>
+        <textarea
+          className="form-field fixed-width spacer-bottom"
+          autoFocus={true}
+          onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+            props.onChangeComment(event.currentTarget.value)
+          }
+          placeholder={
+            selectedOption === HotspotStatusOptions.SAFE
+              ? translate('hotspots.form.comment.placeholder')
+              : ''
+          }
+          rows={6}
+          value={comment}
+        />
+        <MarkdownTips />
+      </div>
       <div className="text-right">
         {submitting && <i className="spinner spacer-right" />}
         <SubmitButton disabled={submitting}>{translate('hotspots.form.submit')}</SubmitButton>

@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <form
-  className="abs-width-400"
+  className="abs-width-400 padded"
   onSubmit={[MockFunction]}
 >
   <h2>
@@ -65,6 +65,24 @@ exports[`should render correctly 1`] = `
         hotspots.status_option.ADDITIONAL_REVIEW.description
       </div>
     </div>
+  </div>
+  <div
+    className="display-flex-column big-spacer-bottom"
+  >
+    <label
+      className="little-spacer-bottom"
+    >
+      hotspots.form.comment
+    </label>
+    <textarea
+      autoFocus={true}
+      className="form-field fixed-width spacer-bottom"
+      onChange={[Function]}
+      placeholder=""
+      rows={6}
+      value="written comment"
+    />
+    <MarkdownTips />
   </div>
   <div
     className="text-right"
@@ -80,7 +98,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly: Submitting 1`] = `
 <form
-  className="abs-width-400"
+  className="abs-width-400 padded"
   onSubmit={[MockFunction]}
 >
   <h2>
@@ -143,6 +161,24 @@ exports[`should render correctly: Submitting 1`] = `
         hotspots.status_option.ADDITIONAL_REVIEW.description
       </div>
     </div>
+  </div>
+  <div
+    className="display-flex-column big-spacer-bottom"
+  >
+    <label
+      className="little-spacer-bottom"
+    >
+      hotspots.form.comment
+    </label>
+    <textarea
+      autoFocus={true}
+      className="form-field fixed-width spacer-bottom"
+      onChange={[Function]}
+      placeholder=""
+      rows={6}
+      value="written comment"
+    />
+    <MarkdownTips />
   </div>
   <div
     className="text-right"
@@ -161,7 +197,7 @@ exports[`should render correctly: Submitting 1`] = `
 
 exports[`should render correctly: safe option selected 1`] = `
 <form
-  className="abs-width-400"
+  className="abs-width-400 padded"
   onSubmit={[MockFunction]}
 >
   <h2>
@@ -226,6 +262,24 @@ exports[`should render correctly: safe option selected 1`] = `
     </div>
   </div>
   <div
+    className="display-flex-column big-spacer-bottom"
+  >
+    <label
+      className="little-spacer-bottom"
+    >
+      hotspots.form.comment
+    </label>
+    <textarea
+      autoFocus={true}
+      className="form-field fixed-width spacer-bottom"
+      onChange={[Function]}
+      placeholder="hotspots.form.comment.placeholder"
+      rows={6}
+      value="written comment"
+    />
+    <MarkdownTips />
+  </div>
+  <div
     className="text-right"
   >
     <SubmitButton
@@ -239,7 +293,7 @@ exports[`should render correctly: safe option selected 1`] = `
 
 exports[`should render correctly: user selected 1`] = `
 <form
-  className="abs-width-400"
+  className="abs-width-400 padded"
   onSubmit={[MockFunction]}
 >
   <h2>
@@ -312,6 +366,24 @@ exports[`should render correctly: user selected 1`] = `
     <HotspotAssigneeSelect
       onSelect={[MockFunction]}
     />
+  </div>
+  <div
+    className="display-flex-column big-spacer-bottom"
+  >
+    <label
+      className="little-spacer-bottom"
+    >
+      hotspots.form.comment
+    </label>
+    <textarea
+      autoFocus={true}
+      className="form-field fixed-width spacer-bottom"
+      onChange={[Function]}
+      placeholder=""
+      rows={6}
+      value="written comment"
+    />
+    <MarkdownTips />
   </div>
   <div
     className="text-right"

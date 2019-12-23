@@ -138,6 +138,10 @@ textarea.width-100 {
   max-width: 100%;
 }
 
+textarea.fixed-width {
+  resize: vertical;
+}
+
 select {
   height: var(--controlHeight);
   line-height: var(--controlHeight);

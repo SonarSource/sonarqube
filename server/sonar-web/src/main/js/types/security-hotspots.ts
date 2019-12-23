@@ -107,6 +107,7 @@ export interface HotspotSearchResponse {
 export interface HotspotSetStatusRequest {
   status: HotspotStatus;
   resolution?: HotspotResolution;
+  comment?: string;
 }
 
 export interface HotspotAssignRequest {

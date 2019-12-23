@@ -45,6 +45,12 @@ it('should handle option selection', () => {
   expect(wrapper.state().selectedOption).toBe(HotspotStatusOptions.SAFE);
 });
 
+it('should handle comment change', () => {
+  const wrapper = shallowRender();
+  wrapper.instance().handleCommentChange('new comment');
+  expect(wrapper.state().comment).toBe('new comment');
+});
+
 it('should handle submit', async () => {
   const onSubmit = jest.fn();
   const wrapper = shallowRender({ onSubmit });
@@ -63,19 +69,21 @@ it('should handle submit', async () => {
   expect(onSubmit).toBeCalled();
 
   // SAFE
-  wrapper.setState({ selectedOption: HotspotStatusOptions.SAFE });
+  wrapper.setState({ comment: 'commentsafe', selectedOption: HotspotStatusOptions.SAFE });
   await waitAndUpdate(wrapper);
   await wrapper.instance().handleSubmit({ preventDefault } as any);
   expect(setSecurityHotspotStatus).toBeCalledWith('key', {
+    comment: 'commentsafe',
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.SAFE
   });
 
   // FIXED
-  wrapper.setState({ selectedOption: HotspotStatusOptions.FIXED });
+  wrapper.setState({ comment: 'commentFixed', selectedOption: HotspotStatusOptions.FIXED });
   await waitAndUpdate(wrapper);
   await wrapper.instance().handleSubmit({ preventDefault } as any);
   expect(setSecurityHotspotStatus).toBeCalledWith('key', {
+    comment: 'commentFixed',
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.FIXED
   });
@@ -84,7 +92,10 @@ it('should handle submit', async () => {
 it('should handle assignment', async () => {
   const onSubmit = jest.fn();
   const wrapper = shallowRender({ onSubmit });
-  wrapper.setState({ selectedOption: HotspotStatusOptions.ADDITIONAL_REVIEW });
+  wrapper.setState({
+    comment: 'assignment comment',
+    selectedOption: HotspotStatusOptions.ADDITIONAL_REVIEW
+  });
   wrapper.instance().handleAssign(mockLoggedInUser({ login: 'userLogin' }));
   await waitAndUpdate(wrapper);
 
@@ -97,7 +108,8 @@ it('should handle assignment', async () => {
     status: HotspotStatus.TO_REVIEW
   });
   expect(assignSecurityHotspot).toBeCalledWith('key', {
-    assignee: 'userLogin'
+    assignee: 'userLogin',
+    comment: 'assignment comment'
   });
   expect(onSubmit).toBeCalled();
 });

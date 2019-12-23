@@ -34,6 +34,7 @@ interface Props {
 }
 
 interface State {
+  comment: string;
   selectedUser?: T.UserActive;
   selectedOption: HotspotStatusOptions;
   submitting: boolean;
@@ -41,6 +42,7 @@ interface State {
 
 export default class HotspotActionsForm extends React.Component<Props, State> {
   state: State = {
+    comment: '',
     selectedOption: HotspotStatusOptions.FIXED,
     submitting: false
   };
@@ -53,17 +55,27 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
     this.setState({ selectedUser });
   };
 
+  handleCommentChange = (comment: string) => {
+    this.setState({ comment });
+  };
+
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const { hotspotKey } = this.props;
-    const { selectedOption } = this.state;
+    const { comment, selectedOption, selectedUser } = this.state;
 
     const status =
       selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW
         ? HotspotStatus.TO_REVIEW
         : HotspotStatus.REVIEWED;
     const data: HotspotSetStatusRequest = { status };
+
+    // If reassigning, ignore comment for status update. It will be sent with the reassignment below
+    if (comment && !(selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW && selectedUser)) {
+      data.comment = comment;
+    }
+
     if (selectedOption !== HotspotStatusOptions.ADDITIONAL_REVIEW) {
       data.resolution = HotspotResolution[selectedOption];
     }
@@ -71,9 +83,8 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
     this.setState({ submitting: true });
     return setSecurityHotspotStatus(hotspotKey, data)
       .then(() => {
-        const { selectedUser } = this.state;
         if (selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW && selectedUser) {
-          return this.assignHotspot(selectedUser);
+          return this.assignHotspot(selectedUser, comment);
         }
         return null;
       })
@@ -85,22 +96,25 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
       });
   };
 
-  assignHotspot = (assignee: T.UserActive) => {
+  assignHotspot = (assignee: T.UserActive, comment: string) => {
     const { hotspotKey } = this.props;
 
     return assignSecurityHotspot(hotspotKey, {
-      assignee: assignee.login
+      assignee: assignee.login,
+      comment
     });
   };
 
   render() {
     const { hotspotKey } = this.props;
-    const { selectedOption, selectedUser, submitting } = this.state;
+    const { comment, selectedOption, selectedUser, submitting } = this.state;
 
     return (
       <HotspotActionsFormRenderer
+        comment={comment}
         hotspotKey={hotspotKey}
         onAssign={this.handleAssign}
+        onChangeComment={this.handleCommentChange}
         onSelectOption={this.handleSelectOption}
         onSubmit={this.handleSubmit}
         selectedOption={selectedOption}
