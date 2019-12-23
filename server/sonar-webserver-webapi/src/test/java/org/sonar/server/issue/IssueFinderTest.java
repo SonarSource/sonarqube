@@ -92,7 +92,7 @@ public class IssueFinderTest {
     RuleDto rule = ruleDbTester.insertRule(newRuleDto());
     ComponentDto project = componentDbTester.insertPrivateProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
-    return issueDbTester.insertIssue(newDto(rule, file, project));
+    return issueDbTester.insert(newDto(rule, file, project));
   }
 
   private void addProjectPermission(IssueDto issueDto, String permission) {

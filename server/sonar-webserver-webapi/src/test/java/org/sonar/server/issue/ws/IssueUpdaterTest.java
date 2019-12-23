@@ -273,7 +273,7 @@ public class IssueUpdaterTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = IssueTesting.newIssue(rule.getDefinition(), project, file);
-    DefaultIssue issue = db.issues().insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
+    DefaultIssue issue = db.issues().insert(issueDto).setSeverity(MAJOR).toDefaultIssue();
     UserDto changeAuthor = db.users().insertUser();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), changeAuthor.getUuid());
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
@@ -299,7 +299,7 @@ public class IssueUpdaterTest {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = IssueTesting.newIssue(rule.getDefinition(), project, file);
-    DefaultIssue issue = db.issues().insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
+    DefaultIssue issue = db.issues().insert(issueDto).setSeverity(MAJOR).toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "user_uuid");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 

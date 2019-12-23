@@ -161,17 +161,17 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fails_with_NotFoundException_if_issue_is_hotspot_is_called() {
+  public void fails_with_NotFoundException_if_issue_is_hotspot_is_closed() {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto notAHotspot = dbTester.issues().insertIssue(IssueTesting.newIssue(rule, project, file)
-      .setType(SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED));
-    TestRequest request = newRequest(notAHotspot);
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
+      t -> t.setStatus(Issue.STATUS_CLOSED));
+    TestRequest request = newRequest(hotspot);
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Hotspot '%s' does not exist", notAHotspot.getKey());
+      .hasMessage("Hotspot '%s' does not exist", hotspot.getKey());
   }
 
   @Test
@@ -180,7 +180,7 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     TestRequest request = newRequest(hotspot);
 
     assertThatThrownBy(request::execute)
@@ -194,7 +194,7 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -210,7 +210,7 @@ public class ShowActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -227,7 +227,7 @@ public class ShowActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(status).setResolution(resolution));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(status).setResolution(resolution));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -256,7 +256,7 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -275,8 +275,8 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setLocations(DbIssues.Locations.newBuilder().build()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
+      t -> t.setLocations(DbIssues.Locations.newBuilder().build()));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -292,8 +292,8 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setLocations(DbIssues.Locations.newBuilder()
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
+      t -> t.setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder()
           .setStartLine(startLine)
           .setEndLine(endLine)
@@ -320,8 +320,7 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAssigneeUuid(randomAlphabetic(10)));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setAssigneeUuid(randomAlphabetic(10)));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -337,8 +336,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     UserDto assignee = dbTester.users().insertUser();
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAssigneeUuid(assignee.getUuid()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setAssigneeUuid(assignee.getUuid()));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -360,8 +358,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     UserDto assignee = dbTester.users().insertUser(t -> t.setEmail(null));
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAssigneeUuid(assignee.getUuid()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setAssigneeUuid(assignee.getUuid()));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -378,8 +375,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     UserDto assignee = dbTester.users().insertUser(t -> t.setActive(false));
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAssigneeUuid(assignee.getUuid()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setAssigneeUuid(assignee.getUuid()));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -396,8 +392,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     String authorLogin = randomAlphabetic(10);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAuthorLogin(authorLogin));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setAuthorLogin(authorLogin));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -414,8 +409,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     UserDto author = dbTester.users().insertUser();
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAuthorLogin(author.getLogin()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setAuthorLogin(author.getLogin()));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -436,8 +430,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     UserDto author = dbTester.users().insertUser(t -> t.setEmail(null));
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAuthorLogin(author.getLogin()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setAuthorLogin(author.getLogin()));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -454,8 +447,7 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     UserDto author = dbTester.users().insertUser(t -> t.setActive(false));
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAuthorLogin(author.getLogin()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setAuthorLogin(author.getLogin()));
     mockChangelogAndCommentsFormattingContext();
 
     Hotspots.ShowWsResponse response = newRequest(hotspot)
@@ -482,8 +474,8 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setLocations(DbIssues.Locations.newBuilder()
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
+      t -> t.setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
@@ -507,8 +499,8 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT, t -> t.setSecurityStandards(standards));
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setLocations(DbIssues.Locations.newBuilder()
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
+      t -> t.setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
@@ -542,8 +534,8 @@ public class ShowActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, project, rule)
-      .setLocations(DbIssues.Locations.newBuilder()
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, project,
+      t -> t.setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
@@ -562,8 +554,8 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
     userSessionRule.registerComponents(project);
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(branch, file, rule)
-      .setLocations(DbIssues.Locations.newBuilder()
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, branch, file,
+      t -> t.setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
@@ -583,8 +575,8 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(pullRequest));
     userSessionRule.registerComponents(project);
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(pullRequest, file, rule)
-      .setLocations(DbIssues.Locations.newBuilder()
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, pullRequest, file,
+      t -> t.setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
     mockChangelogAndCommentsFormattingContext();
@@ -602,8 +594,8 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setLocations(DbIssues.Locations.newBuilder()
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
+      t -> t.setLocations(DbIssues.Locations.newBuilder()
         .setTextRange(DbCommons.TextRange.newBuilder().build())
         .build()));
     List<Common.Changelog> changelog = IntStream.range(0, 1 + new Random().nextInt(12))
@@ -639,7 +631,7 @@ public class ShowActionTest {
     userSessionRule.registerComponents(project);
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     FormattingContext formattingContext = mockChangelogAndCommentsFormattingContext();
     Set<UserDto> changeLogAndCommentsUsers = IntStream.range(0, 1 + RANDOM.nextInt(14))
       .mapToObj(i -> UserTesting.newUserDto())
@@ -665,9 +657,9 @@ public class ShowActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     UserDto author = dbTester.users().insertUser();
     UserDto assignee = dbTester.users().insertUser();
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAuthorLogin(author.getLogin())
-      .setAssigneeUuid(assignee.getUuid()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
+      t -> t.setAuthorLogin(author.getLogin())
+        .setAssigneeUuid(assignee.getUuid()));
     FormattingContext formattingContext = mockChangelogAndCommentsFormattingContext();
     Set<UserDto> changeLogAndCommentsUsers = IntStream.range(0, 1 + RANDOM.nextInt(14))
       .mapToObj(i -> UserTesting.newUserDto())
@@ -694,9 +686,9 @@ public class ShowActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     UserDto author = dbTester.users().insertUser();
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule)
-      .setAuthorLogin(author.getLogin())
-      .setAssigneeUuid(author.getUuid()));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file,
+      t -> t.setAuthorLogin(author.getLogin())
+        .setAssigneeUuid(author.getUuid()));
     FormattingContext formattingContext = mockChangelogAndCommentsFormattingContext();
     when(formattingContext.getUsers()).thenReturn(ImmutableSet.of(author));
 
@@ -741,10 +733,6 @@ public class ShowActionTest {
     } else {
       assertThat(wsComponent.getPullRequest()).isEqualTo(pullRequest);
     }
-  }
-
-  private static IssueDto newHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {
-    return IssueTesting.newIssue(rule, project, file).setType(SECURITY_HOTSPOT);
   }
 
   private TestRequest newRequest(IssueDto hotspot) {

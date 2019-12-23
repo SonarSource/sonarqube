@@ -37,10 +37,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.issue.AvatarResolverImpl;
-import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -74,7 +74,6 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
@@ -118,7 +117,7 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
-    IssueDto issue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    IssueDto issue = db.issues().insert(rule, project, projectFile);
     allowAnyoneOnProjects(project);
     indexIssues();
 
@@ -656,11 +655,11 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    IssueDto issue = db.issues().insertIssue(newIssue(rule, project, file));
+    IssueDto issue = db.issues().insert(rule, project, file);
 
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
-    IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
+    IssueDto branchIssue = db.issues().insert(rule, branch, branchFile);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();
 
@@ -694,10 +693,10 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
-    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    IssueDto projectIssue = db.issues().insert(rule, project, projectFile);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
-    IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
+    IssueDto branchIssue = db.issues().insert(rule, branch, branchFile);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();
 
@@ -718,10 +717,10 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
-    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    IssueDto projectIssue = db.issues().insert(rule, project, projectFile);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     ComponentDto pullRequestFile = db.components().insertComponent(newFileDto(pullRequest));
-    IssueDto pullRequestIssue = db.issues().insertIssue(newIssue(rule, pullRequest, pullRequestFile));
+    IssueDto pullRequestIssue = db.issues().insert(rule, pullRequest, pullRequestFile);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();
 
@@ -745,7 +744,7 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
-    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    IssueDto projectIssue = db.issues().insert(rule, project, projectFile);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();
 
@@ -769,10 +768,10 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
-    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    IssueDto projectIssue = db.issues().insert(rule, project, projectFile);
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
-    IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
+    IssueDto branchIssue = db.issues().insert(rule, branch, branchFile);
     allowAnyoneOnProjects(project);
     indexIssuesAndViews();
 
@@ -788,10 +787,10 @@ public class SearchActionComponentsTest {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto projectFile = db.components().insertComponent(newFileDto(project));
-    IssueDto projectIssue = db.issues().insertIssue(newIssue(rule, project, projectFile));
+    IssueDto projectIssue = db.issues().insert(rule, project, projectFile);
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto branchFile = db.components().insertComponent(newFileDto(branch));
-    IssueDto branchIssue = db.issues().insertIssue(newIssue(rule, branch, branchFile));
+    IssueDto branchIssue = db.issues().insert(rule, branch, branchFile);
     allowAnyoneOnProjects(project);
     indexIssues();
 

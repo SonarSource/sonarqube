@@ -20,8 +20,11 @@
 package org.sonar.db.issue;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
@@ -31,10 +34,14 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.stream;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 
 public class IssueDbTester {
+  private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Arrays.stream(RuleType.values())
+    .filter(ruleType -> SECURITY_HOTSPOT != ruleType).toArray(RuleType[]::new);
 
   private final DbTester db;
 
@@ -42,32 +49,153 @@ public class IssueDbTester {
     this.db = db;
   }
 
+  /**
+   * Inserts an issue or a security hotspot.
+   */
   @SafeVarargs
   public final IssueDto insert(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
     IssueDto issue = newIssue(rule, project, file);
     stream(populators).forEach(p -> p.accept(issue));
-    return insertIssue(issue);
+    return insert(issue);
   }
 
-  public IssueDto insertIssue(IssueDto issueDto) {
-    db.getDbClient().issueDao().insert(db.getSession(), issueDto);
-    db.commit();
-    return issueDto;
-  }
-
+  /**
+   * Inserts an issue or a security hotspot.
+   */
   @SafeVarargs
-  public final IssueDto insertIssue(Consumer<IssueDto>... populateIssueDto) {
-    return insertIssue(db.getDefaultOrganization(), populateIssueDto);
-  }
-
-  @SafeVarargs
-  public final IssueDto insertIssue(OrganizationDto organizationDto, Consumer<IssueDto>... populators) {
+  public final IssueDto insert(OrganizationDto organizationDto, Consumer<IssueDto>... populators) {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch(organizationDto);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issue = newIssue(rule, project, file);
     stream(populators).forEach(p -> p.accept(issue));
+    return insert(issue);
+  }
+
+  /**
+   * Inserts an issue or a security hotspot.
+   */
+  public IssueDto insert(IssueDto issue) {
+    db.getDbClient().issueDao().insert(db.getSession(), issue);
+    db.commit();
+    return issue;
+  }
+
+  /**
+   * Inserts an issue.
+   *
+   * @throws AssertionError if rule is a Security Hotspot
+   */
+  @SafeVarargs
+  public final IssueDto insertIssue(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+    assertThat(rule.getType())
+      .describedAs("rule must not be a Security Hotspot type")
+      .isNotEqualTo(SECURITY_HOTSPOT.getDbConstant());
+    IssueDto issue = newIssue(rule, project, file)
+      .setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
+    stream(populators).forEach(p -> p.accept(issue));
     return insertIssue(issue);
+  }
+
+  /**
+   * Inserts an issue.
+   *
+   * @throws AssertionError if issueDto is a Security Hotspot
+   */
+  public IssueDto insertIssue(IssueDto issueDto) {
+    assertThat(issueDto.getType())
+      .describedAs("Issue must not be a Security Hotspot")
+      .isNotEqualTo(SECURITY_HOTSPOT.getDbConstant());
+    return insert(issueDto);
+  }
+
+  /**
+   * Inserts an issue.
+   */
+  @SafeVarargs
+  public final IssueDto insertIssue(Consumer<IssueDto>... populateIssueDto) {
+    return insertIssue(db.getDefaultOrganization(), populateIssueDto);
+  }
+
+  /**
+   * Inserts an issue.
+   *
+   * @throws AssertionError if rule is not Security Hotspot
+   */
+  @SafeVarargs
+  public final IssueDto insertIssue(OrganizationDto organizationDto, Consumer<IssueDto>... populators) {
+    RuleDefinitionDto rule = db.rules().insertIssueRule();
+    ComponentDto project = db.components().insertMainBranch(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto issue = newIssue(rule, project, file)
+      .setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
+    stream(populators).forEach(p -> p.accept(issue));
+    return insertIssue(issue);
+  }
+
+  /**
+   * Inserts a Security Hotspot.
+   *
+   * @throws AssertionError if rule is not Security Hotspot
+   */
+  @SafeVarargs
+  public final IssueDto insertHotspot(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+    IssueDto issue = newIssue(rule, project, file)
+      .setType(SECURITY_HOTSPOT)
+      .setStatus(Issue.STATUS_TO_REVIEW)
+      .setResolution(null);
+    stream(populators).forEach(p -> p.accept(issue));
+    return insertHotspot(issue);
+  }
+
+  /**
+   * Inserts a Security Hotspot.
+   */
+  @SafeVarargs
+  public final IssueDto insertHotspot(ComponentDto project, ComponentDto file, Consumer<IssueDto>... populators) {
+    RuleDefinitionDto rule = db.rules().insertHotspotRule();
+    IssueDto issue = newIssue(rule, project, file)
+      .setType(SECURITY_HOTSPOT)
+      .setStatus(Issue.STATUS_TO_REVIEW)
+      .setResolution(null);
+    stream(populators).forEach(p -> p.accept(issue));
+    return insertHotspot(issue);
+  }
+
+  /**
+   * Inserts a Security Hotspot.
+   *
+   * @throws AssertionError if issueDto is not Security Hotspot
+   */
+  public IssueDto insertHotspot(IssueDto issueDto) {
+    assertThat(issueDto.getType())
+      .describedAs("IssueDto must have Security Hotspot type")
+      .isEqualTo(SECURITY_HOTSPOT.getDbConstant());
+    return insert(issueDto);
+  }
+
+  /**
+   * Inserts a Security Hotspot.
+   */
+  @SafeVarargs
+  public final IssueDto insertHotspot(Consumer<IssueDto>... populateIssueDto) {
+    return insertHotspot(db.getDefaultOrganization(), populateIssueDto);
+  }
+
+  /**
+   * Inserts a Security Hotspot.
+   */
+  @SafeVarargs
+  public final IssueDto insertHotspot(OrganizationDto organizationDto, Consumer<IssueDto>... populators) {
+    RuleDefinitionDto rule = db.rules().insertHotspotRule();
+    ComponentDto project = db.components().insertMainBranch(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto issue = newIssue(rule, project, file)
+      .setType(SECURITY_HOTSPOT)
+      .setStatus(Issue.STATUS_TO_REVIEW)
+      .setResolution(null);
+    stream(populators).forEach(p -> p.accept(issue));
+    return insertHotspot(issue);
   }
 
   @SafeVarargs

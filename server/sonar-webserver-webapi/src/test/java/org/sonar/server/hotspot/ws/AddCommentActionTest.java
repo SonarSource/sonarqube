@@ -166,8 +166,7 @@ public class AddCommentActionTest {
     ComponentDto project = dbTester.components().insertPublicProject();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto notAHotspot = dbTester.issues().insertIssue(newIssue(rule, project, file)
-      .setType(SECURITY_HOTSPOT).setStatus(STATUS_CLOSED));
+    IssueDto notAHotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(STATUS_CLOSED));
     userSessionRule.logIn();
     TestRequest request = newRequest(notAHotspot, randomAlphabetic(12));
 
@@ -182,7 +181,7 @@ public class AddCommentActionTest {
     userSessionRule.logIn().registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     String comment = randomAlphabetic(12);
     TestRequest request = newRequest(hotspot, comment);
 
@@ -197,7 +196,7 @@ public class AddCommentActionTest {
     userSessionRule.logIn().registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     String comment = randomAlphabetic(12);
 
     newRequest(hotspot, comment).execute().assertNoContent();
@@ -209,7 +208,7 @@ public class AddCommentActionTest {
     userSessionRule.logIn().registerComponents(project).addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     String comment = randomAlphabetic(12);
 
     newRequest(hotspot, comment).execute().assertNoContent();
@@ -224,7 +223,7 @@ public class AddCommentActionTest {
     userSessionRule.logIn().registerComponents(project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
-    IssueDto hotspot = dbTester.issues().insertIssue(newHotspot(project, file, rule).setStatus(currentStatus).setResolution(currentResolution));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, t -> t.setStatus(currentStatus).setResolution(currentResolution));
     String comment = randomAlphabetic(12);
 
     newRequest(hotspot, comment).execute().assertNoContent();

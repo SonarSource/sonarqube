@@ -99,7 +99,7 @@ public class SetTagsActionTest {
 
   @Test
   public void set_tags() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "bug", "todo");
@@ -113,7 +113,7 @@ public class SetTagsActionTest {
 
   @Test
   public void remove_existing_tags_when_value_is_not_set() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey());
@@ -125,7 +125,7 @@ public class SetTagsActionTest {
 
   @Test
   public void remove_existing_tags_when_value_is_empty_string() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "");
@@ -136,7 +136,7 @@ public class SetTagsActionTest {
 
   @Test
   public void set_tags_using_deprecated_key_param() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     ws.newRequest().setParam("key", issueDto.getKey()).setParam("tags", "bug").execute();
@@ -147,7 +147,7 @@ public class SetTagsActionTest {
 
   @Test
   public void tags_are_stored_as_lowercase() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "bug", "Convention");
@@ -158,7 +158,7 @@ public class SetTagsActionTest {
 
   @Test
   public void empty_tags_are_ignored() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "security", "", "convention");
@@ -169,7 +169,7 @@ public class SetTagsActionTest {
 
   @Test
   public void insert_entry_in_changelog_when_setting_tags() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     call(issueDto.getKey(), "new-tag");
@@ -183,7 +183,7 @@ public class SetTagsActionTest {
 
   @Test
   public void fail_when_tag_use_bad_format() {
-    IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
+    IssueDto issueDto = db.issues().insert(newIssue().setTags(singletonList("old-tag")));
     logIn(issueDto);
 
     expectedException.expect(IllegalArgumentException.class);

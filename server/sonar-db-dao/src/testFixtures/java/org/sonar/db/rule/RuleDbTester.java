@@ -19,8 +19,11 @@
  */
 package org.sonar.db.rule;
 
+import java.util.Arrays;
+import java.util.Random;
 import java.util.function.Consumer;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -28,11 +31,14 @@ import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.rule.RuleTesting.newDeprecatedRuleKey;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
 public class RuleDbTester {
+  private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOTS = Arrays.stream(RuleType.values())
+    .filter(ruleType -> SECURITY_HOTSPOT != ruleType).toArray(RuleType[]::new);
 
   private final DbTester db;
 
@@ -59,6 +65,64 @@ public class RuleDbTester {
     RuleDefinitionDto rule = newRule(key);
     populater.accept(rule);
     return insert(rule);
+  }
+
+  public RuleDefinitionDto insertIssueRule() {
+    return insert(newIssueRule());
+  }
+
+  public RuleDefinitionDto insertIssueRule(RuleKey key) {
+    return insert(newIssueRule(key));
+  }
+
+  @SafeVarargs
+  public final RuleDefinitionDto insertIssueRule(Consumer<RuleDefinitionDto>... populaters) {
+    RuleDefinitionDto rule = newIssueRule();
+    asList(populaters).forEach(populater -> populater.accept(rule));
+    return insert(rule);
+  }
+
+  public RuleDefinitionDto insertIssueRule(RuleKey key, Consumer<RuleDefinitionDto> populater) {
+    RuleDefinitionDto rule = newIssueRule(key);
+    populater.accept(rule);
+    return insert(rule);
+  }
+
+  private static RuleDefinitionDto newIssueRule(RuleKey key) {
+    return newRule(key).setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
+  }
+
+  private static RuleDefinitionDto newIssueRule() {
+    return newRule().setType(RULE_TYPES_EXCEPT_HOTSPOTS[new Random().nextInt(RULE_TYPES_EXCEPT_HOTSPOTS.length)]);
+  }
+
+  public RuleDefinitionDto insertHotspotRule() {
+    return insert(newHotspotRule());
+  }
+
+  public RuleDefinitionDto insertHotspotRule(RuleKey key) {
+    return insert(newHotspotRule(key));
+  }
+
+  @SafeVarargs
+  public final RuleDefinitionDto insertHotspotRule(Consumer<RuleDefinitionDto>... populaters) {
+    RuleDefinitionDto rule = newHotspotRule();
+    asList(populaters).forEach(populater -> populater.accept(rule));
+    return insert(rule);
+  }
+
+  public RuleDefinitionDto insertHotspotRule(RuleKey key, Consumer<RuleDefinitionDto> populater) {
+    RuleDefinitionDto rule = newHotspotRule(key);
+    populater.accept(rule);
+    return insert(rule);
+  }
+
+  private static RuleDefinitionDto newHotspotRule(RuleKey key) {
+    return newRule(key).setType(SECURITY_HOTSPOT);
+  }
+
+  private static RuleDefinitionDto newHotspotRule() {
+    return newRule().setType(SECURITY_HOTSPOT);
   }
 
   public RuleDefinitionDto insert(RuleDefinitionDto rule) {

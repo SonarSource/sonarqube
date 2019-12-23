@@ -854,7 +854,7 @@ public class SearchActionTest {
       })
       .collect(toList());
     Collections.shuffle(hotspots);
-    hotspots.forEach(t -> dbTester.issues().insertIssue(t));
+    hotspots.forEach(t -> dbTester.issues().insertHotspot(t));
     return hotspots.stream();
   }
 
@@ -1117,7 +1117,7 @@ public class SearchActionTest {
     String[] expectedHotspotKeys = hotspots.stream().map(IssueDto::getKey).toArray(String[]::new);
     // insert hotspots in random order
     Collections.shuffle(hotspots);
-    hotspots.forEach(dbTester.issues()::insertIssue);
+    hotspots.forEach(dbTester.issues()::insertHotspot);
     indexIssues();
 
     SearchWsResponse response = newRequest(project)
@@ -1150,7 +1150,7 @@ public class SearchActionTest {
     String[] expectedHotspotKeys = hotspots.stream().map(IssueDto::getKey).toArray(String[]::new);
     // insert hotspots in random order
     Collections.shuffle(hotspots);
-    hotspots.forEach(dbTester.issues()::insertIssue);
+    hotspots.forEach(dbTester.issues()::insertHotspot);
     indexIssues();
 
     SearchWsResponse response = newRequest(project)
@@ -1170,8 +1170,7 @@ public class SearchActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     int total = 436;
     List<IssueDto> hotspots = IntStream.range(0, total)
-      .mapToObj(i -> newHotspot(rule, project, file).setLine(i))
-      .map(i -> dbTester.issues().insertIssue(i))
+      .mapToObj(i -> dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i)))
       .collect(toList());
     indexIssues();
 
@@ -1213,8 +1212,7 @@ public class SearchActionTest {
 
   private void verifyPaging(ComponentDto project, ComponentDto file, RuleDefinitionDto rule, int total, int pageSize) {
     List<IssueDto> hotspots = IntStream.range(0, total)
-      .mapToObj(i -> newHotspot(rule, project, file).setLine(i).setKee("issue_" + i))
-      .map(i -> dbTester.issues().insertIssue(i))
+      .mapToObj(i -> dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i).setKee("issue_" + i)))
       .collect(toList());
     indexIssues();
 
@@ -1264,8 +1262,7 @@ public class SearchActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     List<IssueDto> hotspots = IntStream.range(0, 1 + RANDOM.nextInt(15))
-      .mapToObj(i -> newHotspot(rule, project, file).setLine(i))
-      .map(i -> dbTester.issues().insertIssue(i))
+      .mapToObj(i -> dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i)))
       .collect(toList());
     indexIssues();
 
@@ -1284,8 +1281,7 @@ public class SearchActionTest {
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
     int total = 1 + RANDOM.nextInt(20);
     List<IssueDto> hotspots = IntStream.range(0, total)
-      .mapToObj(i -> newHotspot(rule, project, file).setLine(i))
-      .map(i -> dbTester.issues().insertIssue(i))
+      .mapToObj(i -> dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i)))
       .collect(toList());
     Collections.shuffle(hotspots);
     List<IssueDto> selectedHotspots = hotspots.stream().limit(total == 1 ? 1 : 1 + RANDOM.nextInt(total - 1)).collect(toList());
@@ -1312,21 +1308,18 @@ public class SearchActionTest {
     List<IssueDto> hotspotsInLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> {
         long issueCreationDate = periodDate + ONE_MINUTE + (RANDOM.nextInt(300) * ONE_MINUTE);
-        return newHotspot(rule, project, file).setLine(i).setIssueCreationTime(issueCreationDate);
+        return dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i).setIssueCreationTime(issueCreationDate));
       })
-      .map(i -> dbTester.issues().insertIssue(i))
       .collect(toList());
     // included because
     List<IssueDto> atLeakPeriod = IntStream.range(0, 1 + RANDOM.nextInt(20))
-      .mapToObj(i -> newHotspot(rule, project, file).setLine(i).setIssueCreationTime(periodDate))
-      .map(i -> dbTester.issues().insertIssue(i))
+      .mapToObj(i -> dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i).setIssueCreationTime(periodDate)))
       .collect(toList());
     List<IssueDto> hotspotsBefore = IntStream.range(0, 1 + RANDOM.nextInt(20))
       .mapToObj(i -> {
         long issueCreationDate = periodDate - ONE_MINUTE - (RANDOM.nextInt(300) * ONE_MINUTE);
-        return newHotspot(rule, project, file).setLine(i).setIssueCreationTime(issueCreationDate);
+        return dbTester.issues().insertHotspot(rule, project, file, t -> t.setLine(i).setIssueCreationTime(issueCreationDate));
       })
-      .map(i -> dbTester.issues().insertIssue(i))
       .collect(toList());
     indexIssues();
 
@@ -1404,7 +1397,7 @@ public class SearchActionTest {
   }
 
   private IssueDto insertHotspot(RuleDefinitionDto rule, ComponentDto project, ComponentDto file, Consumer<IssueDto> consumer) {
-    return dbTester.issues().insertIssue(newHotspot(rule, project, file, consumer));
+    return dbTester.issues().insertHotspot(rule, project, file, consumer);
   }
 
   private static IssueDto newHotspot(RuleDefinitionDto rule, ComponentDto project, ComponentDto component) {

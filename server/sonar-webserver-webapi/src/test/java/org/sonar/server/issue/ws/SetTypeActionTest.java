@@ -192,7 +192,7 @@ public class SetTypeActionTest {
   public void fail_if_trying_to_change_type_of_a_hotspot(RuleType type) {
     long now = 1_999_777_234L;
     when(system2.now()).thenReturn(now);
-    IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(SECURITY_HOTSPOT));
+    IssueDto issueDto = issueDbTester.insertHotspot();
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
