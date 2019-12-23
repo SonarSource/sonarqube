@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { HotspotStatusFilters, RiskExposure } from '../../../../types/security-hotspots';
+import { HotspotStatusFilter, RiskExposure } from '../../../../types/security-hotspots';
 import HotspotList, { HotspotListProps } from '../HotspotList';
 
 it('should render correctly', () => {
@@ -57,7 +57,7 @@ function shallowRender(props: Partial<HotspotListProps> = {}) {
       onHotspotClick={jest.fn()}
       securityCategories={{}}
       selectedHotspotKey="h2"
-      statusFilter={HotspotStatusFilters.TO_REVIEW}
+      statusFilter={HotspotStatusFilter.TO_REVIEW}
       {...props}
     />
   );

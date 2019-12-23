@@ -27,7 +27,7 @@ import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
 import { BranchLike } from '../../types/branch-like';
-import { HotspotStatusFilters, HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
+import { HotspotFilters, HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
 import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
 import HotspotViewer from './components/HotspotViewer';
@@ -35,29 +35,22 @@ import './styles.css';
 
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
+  filters: HotspotFilters;
   hotspots: RawHotspot[];
   loading: boolean;
-  onChangeStatusFilter: (status: HotspotStatusFilters) => void;
+  onChangeFilters: (filters: Partial<HotspotFilters>) => void;
   onHotspotClick: (key: string) => void;
   onUpdateHotspot: (hotspot: HotspotUpdate) => void;
   selectedHotspotKey?: string;
   securityCategories: T.StandardSecurityCategories;
-  statusFilter: HotspotStatusFilters;
 }
 
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
-  const {
-    branchLike,
-    hotspots,
-    loading,
-    securityCategories,
-    selectedHotspotKey,
-    statusFilter
-  } = props;
+  const { branchLike, hotspots, loading, securityCategories, selectedHotspotKey, filters } = props;
 
   return (
     <div id="security_hotspots">
-      <FilterBar onChangeStatus={props.onChangeStatusFilter} statusFilter={statusFilter} />
+      <FilterBar onChangeFilters={props.onChangeFilters} filters={filters} />
       <ScreenPositionHelper>
         {({ top }) => (
           <div className="wrapper" style={{ top }}>
@@ -94,7 +87,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                       onHotspotClick={props.onHotspotClick}
                       securityCategories={securityCategories}
                       selectedHotspotKey={selectedHotspotKey}
-                      statusFilter={statusFilter}
+                      statusFilter={filters.status}
                     />
                   </div>
                   <div className="main">

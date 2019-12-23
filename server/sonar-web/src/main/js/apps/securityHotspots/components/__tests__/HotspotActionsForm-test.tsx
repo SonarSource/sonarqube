@@ -25,7 +25,7 @@ import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import {
   HotspotResolution,
   HotspotStatus,
-  HotspotStatusOptions
+  HotspotStatusOption
 } from '../../../../types/security-hotspots';
 import HotspotActionsForm from '../HotspotActionsForm';
 
@@ -40,9 +40,9 @@ it('should render correctly', () => {
 
 it('should handle option selection', () => {
   const wrapper = shallowRender();
-  expect(wrapper.state().selectedOption).toBe(HotspotStatusOptions.FIXED);
-  wrapper.instance().handleSelectOption(HotspotStatusOptions.SAFE);
-  expect(wrapper.state().selectedOption).toBe(HotspotStatusOptions.SAFE);
+  expect(wrapper.state().selectedOption).toBe(HotspotStatusOption.FIXED);
+  wrapper.instance().handleSelectOption(HotspotStatusOption.SAFE);
+  expect(wrapper.state().selectedOption).toBe(HotspotStatusOption.SAFE);
 });
 
 it('should handle comment change', () => {
@@ -54,7 +54,7 @@ it('should handle comment change', () => {
 it('should handle submit', async () => {
   const onSubmit = jest.fn();
   const wrapper = shallowRender({ onSubmit });
-  wrapper.setState({ selectedOption: HotspotStatusOptions.ADDITIONAL_REVIEW });
+  wrapper.setState({ selectedOption: HotspotStatusOption.ADDITIONAL_REVIEW });
   await waitAndUpdate(wrapper);
 
   const preventDefault = jest.fn();
@@ -69,7 +69,7 @@ it('should handle submit', async () => {
   expect(onSubmit).toBeCalled();
 
   // SAFE
-  wrapper.setState({ comment: 'commentsafe', selectedOption: HotspotStatusOptions.SAFE });
+  wrapper.setState({ comment: 'commentsafe', selectedOption: HotspotStatusOption.SAFE });
   await waitAndUpdate(wrapper);
   await wrapper.instance().handleSubmit({ preventDefault } as any);
   expect(setSecurityHotspotStatus).toBeCalledWith('key', {
@@ -79,7 +79,7 @@ it('should handle submit', async () => {
   });
 
   // FIXED
-  wrapper.setState({ comment: 'commentFixed', selectedOption: HotspotStatusOptions.FIXED });
+  wrapper.setState({ comment: 'commentFixed', selectedOption: HotspotStatusOption.FIXED });
   await waitAndUpdate(wrapper);
   await wrapper.instance().handleSubmit({ preventDefault } as any);
   expect(setSecurityHotspotStatus).toBeCalledWith('key', {
@@ -94,8 +94,9 @@ it('should handle assignment', async () => {
   const wrapper = shallowRender({ onSubmit });
   wrapper.setState({
     comment: 'assignment comment',
-    selectedOption: HotspotStatusOptions.ADDITIONAL_REVIEW
+    selectedOption: HotspotStatusOption.ADDITIONAL_REVIEW
   });
+
   wrapper.instance().handleAssign(mockLoggedInUser({ login: 'userLogin' }));
   await waitAndUpdate(wrapper);
 

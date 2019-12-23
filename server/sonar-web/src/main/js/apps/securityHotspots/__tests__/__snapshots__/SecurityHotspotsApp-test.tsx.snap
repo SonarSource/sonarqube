@@ -10,12 +10,17 @@ exports[`should render correctly 1`] = `
       "name": "branch-6.7",
     }
   }
+  filters={
+    Object {
+      "assignedToMe": false,
+      "status": "TO_REVIEW",
+    }
+  }
   hotspots={Array []}
   loading={true}
-  onChangeStatusFilter={[Function]}
+  onChangeFilters={[Function]}
   onHotspotClick={[Function]}
   onUpdateHotspot={[Function]}
   securityCategories={Object {}}
-  statusFilter="TO_REVIEW"
 />
 `;

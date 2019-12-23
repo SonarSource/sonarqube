@@ -25,13 +25,13 @@ import { getSecurityHotspots } from '../../../api/security-hotspots';
 import { mockBranch } from '../../../helpers/mocks/branch-like';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { getStandards } from '../../../helpers/security-standard';
-import { mockComponent } from '../../../helpers/testMocks';
+import { mockComponent, mockCurrentUser } from '../../../helpers/testMocks';
 import {
   HotspotResolution,
   HotspotStatus,
-  HotspotStatusFilters
+  HotspotStatusFilter
 } from '../../../types/security-hotspots';
-import SecurityHotspotsApp from '../SecurityHotspotsApp';
+import { SecurityHotspotsApp } from '../SecurityHotspotsApp';
 import SecurityHotspotsAppRenderer from '../SecurityHotspotsAppRenderer';
 
 jest.mock('sonar-ui-common/helpers/pages', () => ({
@@ -125,7 +125,7 @@ it('should handle status filter change', async () => {
   await waitAndUpdate(wrapper);
 
   // Set filter to SAFE:
-  wrapper.instance().handleChangeStatusFilter(HotspotStatusFilters.SAFE);
+  wrapper.instance().handleChangeFilters({ status: HotspotStatusFilter.SAFE });
 
   expect(getSecurityHotspots).toBeCalledWith(
     expect.objectContaining({ status: HotspotStatus.REVIEWED, resolution: HotspotResolution.SAFE })
@@ -136,7 +136,7 @@ it('should handle status filter change', async () => {
   expect(wrapper.state().hotspots[0]).toBe(hotspots2[0]);
 
   // Set filter to FIXED
-  wrapper.instance().handleChangeStatusFilter(HotspotStatusFilters.FIXED);
+  wrapper.instance().handleChangeFilters({ status: HotspotStatusFilter.FIXED });
 
   expect(getSecurityHotspots).toBeCalledWith(
     expect.objectContaining({ status: HotspotStatus.REVIEWED, resolution: HotspotResolution.FIXED })
@@ -149,6 +149,11 @@ it('should handle status filter change', async () => {
 
 function shallowRender(props: Partial<SecurityHotspotsApp['props']> = {}) {
   return shallow<SecurityHotspotsApp>(
-    <SecurityHotspotsApp branchLike={branch} component={mockComponent()} {...props} />
+    <SecurityHotspotsApp
+      branchLike={branch}
+      component={mockComponent()}
+      currentUser={mockCurrentUser()}
+      {...props}
+    />
   );
 }

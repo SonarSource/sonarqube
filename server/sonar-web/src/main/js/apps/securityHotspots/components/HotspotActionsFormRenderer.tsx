@@ -22,7 +22,7 @@ import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import MarkdownTips from '../../../components/common/MarkdownTips';
-import { HotspotStatusOptions } from '../../../types/security-hotspots';
+import { HotspotStatusOption } from '../../../types/security-hotspots';
 import HotspotAssigneeSelect from './HotspotAssigneeSelect';
 
 export interface HotspotActionsFormRendererProps {
@@ -30,9 +30,9 @@ export interface HotspotActionsFormRendererProps {
   hotspotKey: string;
   onAssign: (user: T.UserActive) => void;
   onChangeComment: (comment: string) => void;
-  onSelectOption: (option: HotspotStatusOptions) => void;
+  onSelectOption: (option: HotspotStatusOption) => void;
   onSubmit: (event: React.SyntheticEvent<HTMLFormElement>) => void;
-  selectedOption: HotspotStatusOptions;
+  selectedOption: HotspotStatusOption;
   selectedUser?: T.UserActive;
   submitting: boolean;
 }
@@ -45,22 +45,22 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
       <h2>{translate('hotspots.form.title')}</h2>
       <div className="display-flex-column big-spacer-bottom">
         {renderOption({
-          option: HotspotStatusOptions.FIXED,
+          option: HotspotStatusOption.FIXED,
           selectedOption,
           onClick: props.onSelectOption
         })}
         {renderOption({
-          option: HotspotStatusOptions.SAFE,
+          option: HotspotStatusOption.SAFE,
           selectedOption,
           onClick: props.onSelectOption
         })}
         {renderOption({
-          option: HotspotStatusOptions.ADDITIONAL_REVIEW,
+          option: HotspotStatusOption.ADDITIONAL_REVIEW,
           selectedOption,
           onClick: props.onSelectOption
         })}
       </div>
-      {selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW && (
+      {selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW && (
         <div className="form-field huge-spacer-left">
           <label>{translate('hotspots.form.assign_to')}</label>
           <HotspotAssigneeSelect onSelect={props.onAssign} />
@@ -75,7 +75,7 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
             props.onChangeComment(event.currentTarget.value)
           }
           placeholder={
-            selectedOption === HotspotStatusOptions.SAFE
+            selectedOption === HotspotStatusOption.SAFE
               ? translate('hotspots.form.comment.placeholder')
               : ''
           }
@@ -93,9 +93,9 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
 }
 
 function renderOption(params: {
-  option: HotspotStatusOptions;
-  onClick: (option: HotspotStatusOptions) => void;
-  selectedOption: HotspotStatusOptions;
+  option: HotspotStatusOption;
+  onClick: (option: HotspotStatusOption) => void;
+  selectedOption: HotspotStatusOption;
 }) {
   const { onClick, option, selectedOption } = params;
   return (

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
-import { HotspotStatusOptions } from '../../../../types/security-hotspots';
+import { HotspotStatusOption } from '../../../../types/security-hotspots';
 import HotspotActionsForm from '../HotspotActionsForm';
 import HotspotActionsFormRenderer, {
   HotspotActionsFormRendererProps
@@ -29,12 +29,12 @@ import HotspotActionsFormRenderer, {
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(shallowRender({ submitting: true })).toMatchSnapshot('Submitting');
-  expect(shallowRender({ selectedOption: HotspotStatusOptions.SAFE })).toMatchSnapshot(
+  expect(shallowRender({ selectedOption: HotspotStatusOption.SAFE })).toMatchSnapshot(
     'safe option selected'
   );
   expect(
     shallowRender({
-      selectedOption: HotspotStatusOptions.ADDITIONAL_REVIEW,
+      selectedOption: HotspotStatusOption.ADDITIONAL_REVIEW,
       selectedUser: mockLoggedInUser()
     })
   ).toMatchSnapshot('user selected');
@@ -49,7 +49,7 @@ function shallowRender(props: Partial<HotspotActionsFormRendererProps> = {}) {
       onChangeComment={jest.fn()}
       onSelectOption={jest.fn()}
       onSubmit={jest.fn()}
-      selectedOption={HotspotStatusOptions.FIXED}
+      selectedOption={HotspotStatusOption.FIXED}
       submitting={false}
       {...props}
     />

@@ -1,14 +1,73 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: anonymous 1`] = `
 <div
   className="filter-bar display-flex-center"
 >
   <h3
-    className="big-spacer-right"
+    className="huge-spacer-right"
   >
     hotspot.filters.title
   </h3>
+  <span
+    className="spacer-right"
+  >
+    status
+  </span>
+  <Select
+    className="input-medium big-spacer-right"
+    clearable={false}
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "hotspot.filters.status.to_review",
+          "value": "TO_REVIEW",
+        },
+        Object {
+          "label": "hotspot.filters.status.fixed",
+          "value": "FIXED",
+        },
+        Object {
+          "label": "hotspot.filters.status.safe",
+          "value": "SAFE",
+        },
+      ]
+    }
+    searchable={false}
+    value="TO_REVIEW"
+  />
+</div>
+`;
+
+exports[`should render correctly: logged-in 1`] = `
+<div
+  className="filter-bar display-flex-center"
+>
+  <h3
+    className="huge-spacer-right"
+  >
+    hotspot.filters.title
+  </h3>
+  <RadioToggle
+    className="huge-spacer-right"
+    disabled={false}
+    name="assignee-filter"
+    onCheck={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "hotspot.filters.assignee.assigned_to_me",
+          "value": "me",
+        },
+        Object {
+          "label": "hotspot.filters.assignee.all",
+          "value": "all",
+        },
+      ]
+    }
+    value="all"
+  />
   <span
     className="spacer-right"
   >

@@ -23,7 +23,7 @@ import {
   HotspotResolution,
   HotspotSetStatusRequest,
   HotspotStatus,
-  HotspotStatusOptions,
+  HotspotStatusOption,
   HotspotUpdateFields
 } from '../../../types/security-hotspots';
 import HotspotActionsFormRenderer from './HotspotActionsFormRenderer';
@@ -35,19 +35,19 @@ interface Props {
 
 interface State {
   comment: string;
+  selectedOption: HotspotStatusOption;
   selectedUser?: T.UserActive;
-  selectedOption: HotspotStatusOptions;
   submitting: boolean;
 }
 
 export default class HotspotActionsForm extends React.Component<Props, State> {
   state: State = {
     comment: '',
-    selectedOption: HotspotStatusOptions.FIXED,
+    selectedOption: HotspotStatusOption.FIXED,
     submitting: false
   };
 
-  handleSelectOption = (selectedOption: HotspotStatusOptions) => {
+  handleSelectOption = (selectedOption: HotspotStatusOption) => {
     this.setState({ selectedOption });
   };
 
@@ -66,24 +66,25 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
     const { comment, selectedOption, selectedUser } = this.state;
 
     const status =
-      selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW
+      selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW
         ? HotspotStatus.TO_REVIEW
         : HotspotStatus.REVIEWED;
+
     const data: HotspotSetStatusRequest = { status };
 
     // If reassigning, ignore comment for status update. It will be sent with the reassignment below
-    if (comment && !(selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW && selectedUser)) {
+    if (comment && !(selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW && selectedUser)) {
       data.comment = comment;
     }
 
-    if (selectedOption !== HotspotStatusOptions.ADDITIONAL_REVIEW) {
+    if (selectedOption !== HotspotStatusOption.ADDITIONAL_REVIEW) {
       data.resolution = HotspotResolution[selectedOption];
     }
 
     this.setState({ submitting: true });
     return setSecurityHotspotStatus(hotspotKey, data)
       .then(() => {
-        if (selectedOption === HotspotStatusOptions.ADDITIONAL_REVIEW && selectedUser) {
+        if (selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW && selectedUser) {
           return this.assignHotspot(selectedUser, comment);
         }
         return null;

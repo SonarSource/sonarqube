@@ -4,9 +4,14 @@ exports[`should render correctly 1`] = `
 <div
   id="security_hotspots"
 >
-  <FilterBar
-    onChangeStatus={[MockFunction]}
-    statusFilter="TO_REVIEW"
+  <Connect(withCurrentUser(FilterBar))
+    filters={
+      Object {
+        "assignedToMe": false,
+        "status": "TO_REVIEW",
+      }
+    }
+    onChangeFilters={[MockFunction]}
   />
   <ScreenPositionHelper>
     <Component />

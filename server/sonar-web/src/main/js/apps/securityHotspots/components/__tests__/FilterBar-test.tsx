@@ -19,32 +19,49 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import Select from 'sonar-ui-common/components/controls/Select';
-import { HotspotStatusFilters } from '../../../../types/security-hotspots';
-import FilterBar, { FilterBarProps } from '../FilterBar';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { HotspotStatusFilter } from '../../../../types/security-hotspots';
+import { AssigneeFilterOption, FilterBar, FilterBarProps } from '../FilterBar';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('anonymous');
+  expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('logged-in');
 });
 
-it('should trigger onChange', () => {
-  const onChangeStatus = jest.fn();
-  const wrapper = shallowRender({ onChangeStatus });
+it('should trigger onChange for status', () => {
+  const onChangeFilters = jest.fn();
+  const wrapper = shallowRender({ onChangeFilters });
 
   const { onChange } = wrapper.find(Select).props();
 
   if (!onChange) {
     return fail("Select's onChange should be defined");
   }
-  onChange({ value: HotspotStatusFilters.SAFE });
-  expect(onChangeStatus).toBeCalledWith(HotspotStatusFilters.SAFE);
+  onChange({ value: HotspotStatusFilter.SAFE });
+  expect(onChangeFilters).toBeCalledWith({ status: HotspotStatusFilter.SAFE });
+});
+
+it('should trigger onChange for self-assigned toggle', () => {
+  const onChangeFilters = jest.fn();
+  const wrapper = shallowRender({ currentUser: mockLoggedInUser(), onChangeFilters });
+
+  const { onCheck } = wrapper.find(RadioToggle).props();
+
+  if (!onCheck) {
+    return fail("RadioToggle's onCheck should be defined");
+  }
+  onCheck(AssigneeFilterOption.ALL);
+  expect(onChangeFilters).toBeCalledWith({ assignedToMe: false });
 });
 
 function shallowRender(props: Partial<FilterBarProps> = {}) {
   return shallow(
     <FilterBar
-      onChangeStatus={jest.fn()}
-      statusFilter={HotspotStatusFilters.TO_REVIEW}
+      currentUser={mockCurrentUser()}
+      onChangeFilters={jest.fn()}
+      filters={{ assignedToMe: false, status: HotspotStatusFilter.TO_REVIEW }}
       {...props}
     />
   );
