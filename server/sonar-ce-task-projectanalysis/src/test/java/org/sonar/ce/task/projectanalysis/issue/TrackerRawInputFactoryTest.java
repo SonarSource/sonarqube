@@ -20,11 +20,14 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import com.google.common.collect.Iterators;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
+import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -43,6 +46,7 @@ import org.sonar.core.issue.tracking.Input;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 import org.sonar.server.rule.CommonRuleKeys;
 
@@ -54,7 +58,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 
+@RunWith(DataProviderRunner.class)
 public class TrackerRawInputFactoryTest {
 
   private static final String FILE_UUID = "fake_uuid";
@@ -213,7 +220,8 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void load_external_issues_from_report() {
+  @UseDataProvider("ruleTypeAndStatusByIssueType")
+  public void load_external_issues_from_report(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
@@ -222,7 +230,7 @@ public class TrackerRawInputFactoryTest {
       .setRuleId("S001")
       .setSeverity(Constants.Severity.BLOCKER)
       .setEffort(20l)
-      .setType(ScannerReport.IssueType.SECURITY_HOTSPOT)
+      .setType(issueType)
       .build();
     reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
@@ -237,16 +245,27 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.line()).isEqualTo(2);
     assertThat(issue.effort()).isEqualTo(Duration.create(20l));
     assertThat(issue.message()).isEqualTo("the message");
-    assertThat(issue.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
+    assertThat(issue.type()).isEqualTo(expectedRuleType);
 
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
     assertThat(issue.tags()).isEmpty();
-    assertInitializedExternalIssue(issue);
+    assertInitializedExternalIssue(issue, expectedStatus);
+  }
+
+  @DataProvider
+  public static Object[][] ruleTypeAndStatusByIssueType() {
+    return new Object[][] {
+      {IssueType.CODE_SMELL, RuleType.CODE_SMELL, STATUS_OPEN},
+      {IssueType.BUG, RuleType.BUG, STATUS_OPEN},
+      {IssueType.VULNERABILITY, RuleType.VULNERABILITY, STATUS_OPEN},
+      {IssueType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT, STATUS_TO_REVIEW}
+    };
   }
 
   @Test
-  public void load_external_issues_from_report_with_default_effort() {
+  @UseDataProvider("ruleTypeAndStatusByIssueType")
+  public void load_external_issues_from_report_with_default_effort(IssueType issueType, RuleType expectedRuleType, String expectedStatus) {
     when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(Collections.singletonList("line"));
     ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
@@ -254,7 +273,7 @@ public class TrackerRawInputFactoryTest {
       .setEngineId("eslint")
       .setRuleId("S001")
       .setSeverity(Constants.Severity.BLOCKER)
-      .setType(ScannerReport.IssueType.BUG)
+      .setType(issueType)
       .build();
     reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
@@ -269,11 +288,12 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.line()).isEqualTo(2);
     assertThat(issue.effort()).isEqualTo(Duration.create(0l));
     assertThat(issue.message()).isEqualTo("the message");
+    assertThat(issue.type()).isEqualTo(expectedRuleType);
 
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
     assertThat(issue.tags()).isEmpty();
-    assertInitializedExternalIssue(issue);
+    assertInitializedExternalIssue(issue, expectedStatus);
   }
 
   @Test
@@ -372,23 +392,17 @@ public class TrackerRawInputFactoryTest {
   }
 
   private void assertInitializedIssue(DefaultIssue issue) {
-    assertThat(issue.projectKey()).isEqualTo(PROJECT.getKey());
-    assertThat(issue.componentKey()).isEqualTo(FILE.getKey());
-    assertThat(issue.componentUuid()).isEqualTo(FILE.getUuid());
-    assertThat(issue.resolution()).isNull();
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
-    assertThat(issue.key()).isNull();
-    assertThat(issue.authorLogin()).isNull();
+    assertInitializedExternalIssue(issue, STATUS_OPEN);
     assertThat(issue.effort()).isNull();
     assertThat(issue.effortInMinutes()).isNull();
   }
 
-  private void assertInitializedExternalIssue(DefaultIssue issue) {
+  private void assertInitializedExternalIssue(DefaultIssue issue, String expectedStatus) {
     assertThat(issue.projectKey()).isEqualTo(PROJECT.getKey());
     assertThat(issue.componentKey()).isEqualTo(FILE.getKey());
     assertThat(issue.componentUuid()).isEqualTo(FILE.getUuid());
     assertThat(issue.resolution()).isNull();
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(issue.status()).isEqualTo(expectedStatus);
     assertThat(issue.key()).isNull();
     assertThat(issue.authorLogin()).isNull();
   }

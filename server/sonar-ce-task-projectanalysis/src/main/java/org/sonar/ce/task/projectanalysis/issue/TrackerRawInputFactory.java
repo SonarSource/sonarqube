@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
@@ -51,6 +50,8 @@ import org.sonar.scanner.protocol.output.ScannerReport.IssueType;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 
 public class TrackerRawInputFactory {
   private static final long DEFAULT_EXTERNAL_ISSUE_EFFORT = 0l;
@@ -100,7 +101,7 @@ public class TrackerRawInputFactory {
 
       for (DefaultIssue commonRuleIssue : commonRuleEngine.process(component)) {
         if (issueFilter.accept(commonRuleIssue, component)) {
-          result.add(init(commonRuleIssue));
+          result.add(init(commonRuleIssue, STATUS_OPEN));
         }
       }
 
@@ -160,7 +161,7 @@ public class TrackerRawInputFactory {
 
     private DefaultIssue toIssue(LineHashSequence lineHashSeq, ScannerReport.Issue reportIssue) {
       DefaultIssue issue = new DefaultIssue();
-      init(issue);
+      init(issue, STATUS_OPEN);
       RuleKey ruleKey = RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey());
       issue.setRuleKey(ruleKey);
       if (reportIssue.hasTextRange()) {
@@ -202,7 +203,8 @@ public class TrackerRawInputFactory {
 
     private DefaultIssue toExternalIssue(LineHashSequence lineHashSeq, ScannerReport.ExternalIssue reportExternalIssue, Map<RuleKey, ScannerReport.AdHocRule> adHocRuleMap) {
       DefaultIssue issue = new DefaultIssue();
-      init(issue);
+      RuleType type = toRuleType(reportExternalIssue.getType());
+      init(issue, type == RuleType.SECURITY_HOTSPOT ? STATUS_TO_REVIEW : STATUS_OPEN);
 
       RuleKey ruleKey = RuleKey.of(RuleKey.EXTERNAL_RULE_REPO_PREFIX + reportExternalIssue.getEngineId(), reportExternalIssue.getRuleId());
       issue.setRuleKey(ruleKey);
@@ -235,7 +237,7 @@ public class TrackerRawInputFactory {
       }
       issue.setIsFromExternalRuleEngine(true);
       issue.setLocations(dbLocationsBuilder.build());
-      issue.setType(toRuleType(reportExternalIssue.getType()));
+      issue.setType(type);
 
       ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> toAdHocRule(reportExternalIssue, adHocRuleMap.get(issue.ruleKey())));
       return issue;
@@ -264,9 +266,9 @@ public class TrackerRawInputFactory {
       }
     }
 
-    private DefaultIssue init(DefaultIssue issue) {
+    private DefaultIssue init(DefaultIssue issue, String initialStatus) {
+      issue.setStatus(initialStatus);
       issue.setResolution(null);
-      issue.setStatus(Issue.STATUS_OPEN);
       issue.setComponentUuid(component.getUuid());
       issue.setComponentKey(component.getKey());
       issue.setProjectUuid(treeRootHolder.getRoot().getUuid());
