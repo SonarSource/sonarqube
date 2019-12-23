@@ -2,14 +2,16 @@
 
 exports[`should render with a caret on the right if update is allowed 1`] = `
 <span
+  aria-label="tags_list_x.foo, bar"
   className="tags-list"
-  title="foo, bar"
 >
   <TagsIcon
     className="text-middle"
   />
   <span
+    aria-hidden={true}
     className="text-ellipsis text-middle"
+    title="foo, bar"
   >
     foo, bar
   </span>
@@ -21,14 +23,16 @@ exports[`should render with a caret on the right if update is allowed 1`] = `
 
 exports[`should render with a list of tag 1`] = `
 <span
+  aria-label="tags_list_x.foo, bar"
   className="tags-list"
-  title="foo, bar"
 >
   <TagsIcon
     className="text-middle"
   />
   <span
+    aria-hidden={true}
     className="text-ellipsis text-middle"
+    title="foo, bar"
   >
     foo, bar
   </span>

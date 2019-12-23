@@ -21,6 +21,7 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import TagsIcon from 'sonar-ui-common/components/icons/TagsIcon';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import './TagsList.css';
 
 interface Props {
@@ -31,9 +32,13 @@ interface Props {
 
 export default function TagsList({ allowUpdate = false, className, tags }: Props) {
   return (
-    <span className={classNames('tags-list', className)} title={tags.join(', ')}>
+    <span
+      aria-label={translateWithParameters('tags_list_x', tags.join(', '))}
+      className={classNames('tags-list', className)}>
       <TagsIcon className="text-middle" />
-      <span className="text-ellipsis text-middle">{tags.join(', ')}</span>
+      <span aria-hidden={true} className="text-ellipsis text-middle" title={tags.join(', ')}>
+        {tags.join(', ')}
+      </span>
       {allowUpdate && <DropdownIcon className="text-middle" />}
     </span>
   );
