@@ -19,11 +19,7 @@
  */
 import { orderBy, without } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
-import NewsBox from 'sonar-ui-common/components/ui/NewsBox';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
@@ -31,22 +27,18 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import MultipleSelectionHint from '../../../components/facet/MultipleSelectionHint';
 import { ISSUE_TYPES } from '../../../helpers/constants';
-import { getCurrentUser, getCurrentUserSetting, Store } from '../../../store/rootReducer';
-import { setCurrentUserSetting } from '../../../store/users';
 import { formatFacetStat, Query } from '../utils';
 
 interface Props {
   fetching: boolean;
-  newsBoxDismissHotspots?: boolean;
   onChange: (changes: Partial<Query>) => void;
   onToggle: (property: string) => void;
   open: boolean;
-  setCurrentUserSetting: (setting: T.CurrentUserSetting) => void;
   stats: T.Dict<number> | undefined;
   types: string[];
 }
 
-export class TypeFacet extends React.PureComponent<Props> {
+export default class TypeFacet extends React.PureComponent<Props> {
   property = 'types';
 
   static defaultProps = {
@@ -75,10 +67,6 @@ export class TypeFacet extends React.PureComponent<Props> {
     this.props.onChange({ [this.property]: [] });
   };
 
-  handleDismiss = () => {
-    this.props.setCurrentUserSetting({ key: 'newsbox.dismiss.hotspots', value: 'true' });
-  };
-
   getStat(type: string) {
     const { stats } = this.props;
     return stats ? stats[type] : undefined;
@@ -87,10 +75,6 @@ export class TypeFacet extends React.PureComponent<Props> {
   isFacetItemActive(type: string) {
     return this.props.types.includes(type);
   }
-
-  stopPropagation = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-  };
 
   renderItem = (type: string) => {
     const active = this.isFacetItemActive(type);
@@ -105,23 +89,6 @@ export class TypeFacet extends React.PureComponent<Props> {
           <span className="display-flex-center">
             <IssueTypeIcon className="little-spacer-right" query={type} />{' '}
             {translate('issue.type', type)}
-            {type === 'SECURITY_HOTSPOT' && this.props.newsBoxDismissHotspots && (
-              <HelpTooltip
-                className="little-spacer-left"
-                overlay={
-                  <>
-                    <p>{translate('issues.hotspots.helper')}</p>
-                    <hr className="spacer-top spacer-bottom" />
-                    <Link
-                      onClick={this.stopPropagation}
-                      target="_blank"
-                      to="/documentation/user-guide/security-hotspots/">
-                      {translate('learn_more')}
-                    </Link>
-                  </>
-                }
-              />
-            )}
           </span>
         }
         onClick={this.handleItemClick}
@@ -132,11 +99,8 @@ export class TypeFacet extends React.PureComponent<Props> {
   };
 
   render() {
-    const { newsBoxDismissHotspots, types, stats = {} } = this.props;
+    const { types, stats = {} } = this.props;
     const values = types.map(type => translate('issue.type', type));
-
-    const showHotspotNewsBox =
-      types.includes('SECURITY_HOTSPOT') || (types.length === 0 && stats['SECURITY_HOTSPOT'] > 0);
 
     return (
       <FacetBox property={this.property}>
@@ -151,19 +115,9 @@ export class TypeFacet extends React.PureComponent<Props> {
 
         {this.props.open && (
           <>
-            <FacetItemsList>{ISSUE_TYPES.map(this.renderItem)}</FacetItemsList>
-            {!newsBoxDismissHotspots && showHotspotNewsBox && (
-              <NewsBox
-                onClose={this.handleDismiss}
-                title={translate('issue.type.SECURITY_HOTSPOT.plural')}>
-                <p>{translate('issues.hotspots.helper')}</p>
-                <p className="text-right spacer-top">
-                  <Link target="_blank" to="/documentation/user-guide/security-hotspots/">
-                    {translate('learn_more')}
-                  </Link>
-                </p>
-              </NewsBox>
-            )}
+            <FacetItemsList>
+              {ISSUE_TYPES.filter(t => t !== 'SECURITY_HOTSPOT').map(this.renderItem)}
+            </FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={types.length} />
           </>
         )}
@@ -171,15 +125,3 @@ export class TypeFacet extends React.PureComponent<Props> {
     );
   }
 }
-
-const mapStateToProps = (state: Store) => ({
-  newsBoxDismissHotspots:
-    !getCurrentUser(state).isLoggedIn ||
-    getCurrentUserSetting(state, 'newsbox.dismiss.hotspots') === 'true'
-});
-
-const mapDispatchToProps = {
-  setCurrentUserSetting
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(TypeFacet);

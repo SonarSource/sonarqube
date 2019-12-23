@@ -238,26 +238,14 @@ it('should fetch issues for component', async () => {
 it('should display the right facets open', () => {
   expect(
     shallowRender({
-      location: mockLocation({ query: { types: 'SECURITY_HOTSPOT' } })
-    }).state('openFacets')
-  ).toEqual({
-    owaspTop10: false,
-    sansTop25: false,
-    severities: false,
-    standards: true,
-    sonarsourceSecurity: true,
-    types: true
-  });
-  expect(
-    shallowRender({
-      location: mockLocation({ query: { types: 'BUGS,SECURITY_HOTSPOT' } })
+      location: mockLocation({ query: { types: 'BUGS' } })
     }).state('openFacets')
   ).toEqual({
     owaspTop10: false,
     sansTop25: false,
     severities: true,
-    standards: true,
-    sonarsourceSecurity: true,
+    standards: false,
+    sonarsourceSecurity: false,
     types: true
   });
   expect(
@@ -281,7 +269,6 @@ it('should correctly handle filter changes', () => {
   instance.handleFilterChange({ types: ['VULNERABILITY'] });
   expect(instance.state.openFacets).toEqual({
     types: true,
-    severities: true,
     sonarsourceSecurity: true,
     standards: true
   });
@@ -289,15 +276,6 @@ it('should correctly handle filter changes', () => {
   instance.handleFilterChange({ types: ['BUGS'] });
   expect(instance.state.openFacets).toEqual({
     types: true,
-    severities: true,
-    sonarsourceSecurity: true,
-    standards: true
-  });
-  instance.setState({ openFacets: { types: true } });
-  instance.handleFilterChange({ types: ['SECURITY_HOTSPOT'] });
-  expect(instance.state.openFacets).toEqual({
-    types: true,
-    severities: false,
     sonarsourceSecurity: true,
     standards: true
   });

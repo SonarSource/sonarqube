@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import { TypeFacet } from '../TypeFacet';
+import TypeFacet from '../TypeFacet';
 
 it('should render open by default', () => {
   expect(shallowRender({ types: ['VULNERABILITY', 'CODE_SMELL'] })).toMatchSnapshot();
@@ -45,7 +45,6 @@ it('should select a type', () => {
   const wrapper = shallowRender({ onChange });
   clickAndCheck('CODE_SMELL');
   clickAndCheck('VULNERABILITY', true, ['CODE_SMELL', 'VULNERABILITY']);
-  clickAndCheck('SECURITY_HOTSPOT');
 
   function clickAndCheck(type: string, multiple = false, expected = [type]) {
     wrapper
@@ -57,42 +56,12 @@ it('should select a type', () => {
   }
 });
 
-it('should display the hotspot newsbox', () => {
-  expect(shallowRender({ types: ['SECURITY_HOTSPOT'] }).find('NewsBox')).toMatchSnapshot();
-  expect(
-    shallowRender({ types: [] })
-      .find('NewsBox')
-      .exists()
-  ).toBe(true);
-});
-
-it('should display the hotspot tooltip helper only', () => {
-  let wrapper = shallowRender({ types: ['SECURITY_HOTSPOT'], newsBoxDismissHotspots: true });
-  expect(wrapper.find('NewsBox').exists()).toBe(false);
-  expect(
-    wrapper
-      .find(`FacetItemsList`)
-      .find(`FacetItem[value="SECURITY_HOTSPOT"]`)
-      .prop('name')
-  ).toMatchSnapshot();
-
-  wrapper = shallowRender({ types: ['BUGS'], newsBoxDismissHotspots: true });
-  expect(wrapper.find('NewsBox').exists()).toBe(false);
-  expect(
-    wrapper
-      .find(`FacetItemsList`)
-      .find(`FacetItem[value="SECURITY_HOTSPOT"]`)
-      .prop('name')
-  ).toMatchSnapshot();
-});
-
 function shallowRender(props: Partial<TypeFacet['props']> = {}) {
   return shallow(
     <TypeFacet
       fetching={false}
       onChange={jest.fn()}
       onToggle={jest.fn()}
-      setCurrentUserSetting={jest.fn()}
       stats={{ BUG: 0, VULNERABILITY: 2, CODE_SMELL: 5, SECURITY_HOTSPOT: 1 }}
       types={[]}
       {...props}

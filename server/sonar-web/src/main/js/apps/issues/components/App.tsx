@@ -73,7 +73,6 @@ import {
   saveMyIssues,
   scrollToIssue,
   serializeQuery,
-  shouldOpenSeverityFacet,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet,
@@ -164,7 +163,7 @@ export class App extends React.PureComponent<Props, State> {
       openFacets: {
         owaspTop10: shouldOpenStandardsChildFacet({}, query, 'owaspTop10'),
         sansTop25: shouldOpenStandardsChildFacet({}, query, 'sansTop25'),
-        severities: shouldOpenSeverityFacet({}, query),
+        severities: true,
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
         types: true
@@ -680,7 +679,6 @@ export class App extends React.PureComponent<Props, State> {
     this.setState(({ openFacets }) => ({
       openFacets: {
         ...openFacets,
-        severities: shouldOpenSeverityFacet(openFacets, changes),
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet(openFacets, changes),
         standards: shouldOpenStandardsFacet(openFacets, changes)
       }

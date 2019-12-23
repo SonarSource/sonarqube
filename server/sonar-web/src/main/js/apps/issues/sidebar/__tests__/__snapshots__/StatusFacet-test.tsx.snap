@@ -79,62 +79,6 @@ exports[`should render correctly 1`] = `
       tooltip="issue.status.RESOLVED"
       value="RESOLVED"
     />
-  </FacetItemsList>
-  <FacetItemsList
-    title="issue.type.SECURITY_HOTSPOT.plural"
-  >
-    <FacetItem
-      active={false}
-      disabled={false}
-      halfWidth={true}
-      key="TO_REVIEW"
-      loading={false}
-      name={
-        <StatusHelper
-          status="TO_REVIEW"
-        />
-      }
-      onClick={[Function]}
-      stat="150"
-      tooltip="issue.status.TO_REVIEW"
-      value="TO_REVIEW"
-    />
-    <FacetItem
-      active={false}
-      disabled={false}
-      halfWidth={true}
-      key="REVIEWED"
-      loading={false}
-      name={
-        <StatusHelper
-          status="REVIEWED"
-        />
-      }
-      onClick={[Function]}
-      stat="1.1short_number_suffix.k"
-      tooltip="issue.status.REVIEWED"
-      value="REVIEWED"
-    />
-    <FacetItem
-      active={false}
-      disabled={false}
-      halfWidth={true}
-      key="IN_REVIEW"
-      loading={false}
-      name={
-        <StatusHelper
-          status="IN_REVIEW"
-        />
-      }
-      onClick={[Function]}
-      stat="7"
-      tooltip="issue.status.IN_REVIEW"
-      value="IN_REVIEW"
-    />
-  </FacetItemsList>
-  <FacetItemsList
-    title="issues.issues_and_hotspots"
-  >
     <FacetItem
       active={false}
       disabled={false}
@@ -153,7 +97,7 @@ exports[`should render correctly 1`] = `
     />
   </FacetItemsList>
   <MultipleSelectionHint
-    options={8}
+    options={5}
     values={0}
   />
 </FacetBox>

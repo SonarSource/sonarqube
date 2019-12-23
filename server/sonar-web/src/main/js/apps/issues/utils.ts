@@ -273,13 +273,6 @@ export function scrollToIssue(issue: string, smooth = true) {
   }
 }
 
-export function shouldOpenSeverityFacet(openFacets: T.Dict<boolean>, query: Partial<Query>) {
-  return (
-    openFacets.severities ||
-    !(query.types && query.types.length === 1 && query.types[0] === 'SECURITY_HOTSPOT')
-  );
-}
-
 export function shouldOpenStandardsFacet(
   openFacets: T.Dict<boolean>,
   query: Partial<Query>
@@ -316,10 +309,7 @@ export function shouldOpenSonarSourceSecurityFacet(
 }
 
 function isFilteredBySecurityIssueTypes(query: Partial<Query>): boolean {
-  return (
-    query.types !== undefined &&
-    (query.types.includes('SECURITY_HOTSPOT') || query.types.includes('VULNERABILITY'))
-  );
+  return query.types !== undefined && query.types.includes('VULNERABILITY');
 }
 
 function isOneStandardChildFacetOpen(openFacets: T.Dict<boolean>, query: Partial<Query>): boolean {

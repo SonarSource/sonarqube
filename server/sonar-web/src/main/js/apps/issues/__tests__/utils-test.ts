@@ -20,7 +20,6 @@
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import {
   scrollToIssue,
-  shouldOpenSeverityFacet,
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
   shouldOpenStandardsFacet
@@ -62,34 +61,11 @@ describe('scrollToIssue', () => {
   });
 });
 
-describe('shouldOpenSeverityFacet', () => {
-  it('should open severity facet', () => {
-    expect(shouldOpenSeverityFacet({ severities: true }, { types: [] })).toBe(true);
-    expect(shouldOpenSeverityFacet({}, { types: [] })).toBe(true);
-    expect(shouldOpenSeverityFacet({}, { types: ['VULNERABILITY'] })).toBe(true);
-    expect(shouldOpenSeverityFacet({ severities: false }, { types: ['VULNERABILITY'] })).toBe(true);
-    expect(shouldOpenSeverityFacet({ severities: false }, { types: [] })).toBe(true);
-    expect(shouldOpenSeverityFacet({}, { types: ['BUGS', 'SECURITY_HOTSPOT'] })).toBe(true);
-    expect(shouldOpenSeverityFacet({ severities: true }, { types: ['SECURITY_HOTSPOT'] })).toBe(
-      true
-    );
-  });
-
-  it('should NOT open severity facet', () => {
-    expect(shouldOpenSeverityFacet({}, { types: ['SECURITY_HOTSPOT'] })).toBe(false);
-  });
-});
-
 describe('shouldOpenStandardsFacet', () => {
   it('should open standard facet', () => {
     expect(shouldOpenStandardsFacet({ standards: true }, { types: [] })).toBe(true);
     expect(shouldOpenStandardsFacet({ owaspTop10: true }, { types: [] })).toBe(true);
     expect(shouldOpenStandardsFacet({}, { types: ['VULNERABILITY'] })).toBe(true);
-    expect(shouldOpenStandardsFacet({}, { types: ['SECURITY_HOTSPOT'] })).toBe(true);
-    expect(shouldOpenStandardsFacet({}, { types: ['VULNERABILITY', 'SECURITY_HOTSPOT'] })).toBe(
-      true
-    );
-    expect(shouldOpenStandardsFacet({}, { types: ['BUGS', 'SECURITY_HOTSPOT'] })).toBe(true);
     expect(shouldOpenStandardsFacet({ standards: false }, { types: ['VULNERABILITY'] })).toBe(true);
   });
 
@@ -130,9 +106,6 @@ describe('shouldOpenStandardsChildFacet', () => {
     expect(shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, 'sansTop25')).toBe(
       false
     );
-    expect(
-      shouldOpenStandardsChildFacet({}, { types: ['SECURITY_HOTSPOT'] }, 'sonarsourceSecurity')
-    ).toBe(false);
     expect(
       shouldOpenStandardsChildFacet(
         {},

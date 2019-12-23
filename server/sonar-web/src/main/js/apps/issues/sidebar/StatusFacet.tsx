@@ -37,9 +37,7 @@ interface Props {
   statuses: string[];
 }
 
-const STATUSES = ['OPEN', 'CONFIRMED', 'REOPENED', 'RESOLVED'];
-const HOTSPOT_STATUSES = ['TO_REVIEW', 'REVIEWED', 'IN_REVIEW'];
-const COMMON_STATUSES = ['CLOSED'];
+const STATUSES = ['OPEN', 'CONFIRMED', 'REOPENED', 'RESOLVED', 'CLOSED'];
 
 export default class StatusFacet extends React.PureComponent<Props> {
   property = 'statuses';
@@ -111,12 +109,6 @@ export default class StatusFacet extends React.PureComponent<Props> {
           <>
             <FacetItemsList title={translate('issues')}>
               {STATUSES.map(this.renderItem)}
-            </FacetItemsList>
-            <FacetItemsList title={translate('issue.type.SECURITY_HOTSPOT.plural')}>
-              {HOTSPOT_STATUSES.map(this.renderItem)}
-            </FacetItemsList>
-            <FacetItemsList title={translate('issues.issues_and_hotspots')}>
-              {COMMON_STATUSES.map(this.renderItem)}
             </FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={statuses.length} />
           </>

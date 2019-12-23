@@ -1,98 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display the hotspot newsbox 1`] = `
-<NewsBox
-  onClose={[Function]}
-  title="issue.type.SECURITY_HOTSPOT.plural"
->
-  <p>
-    issues.hotspots.helper
-  </p>
-  <p
-    className="text-right spacer-top"
-  >
-    <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      target="_blank"
-      to="/documentation/user-guide/security-hotspots/"
-    >
-      learn_more
-    </Link>
-  </p>
-</NewsBox>
-`;
-
-exports[`should display the hotspot tooltip helper only 1`] = `
-<span
-  className="display-flex-center"
->
-  <IssueTypeIcon
-    className="little-spacer-right"
-    query="SECURITY_HOTSPOT"
-  />
-   
-  issue.type.SECURITY_HOTSPOT
-  <HelpTooltip
-    className="little-spacer-left"
-    overlay={
-      <React.Fragment>
-        <p>
-          issues.hotspots.helper
-        </p>
-        <hr
-          className="spacer-top spacer-bottom"
-        />
-        <Link
-          onClick={[Function]}
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          target="_blank"
-          to="/documentation/user-guide/security-hotspots/"
-        >
-          learn_more
-        </Link>
-      </React.Fragment>
-    }
-  />
-</span>
-`;
-
-exports[`should display the hotspot tooltip helper only 2`] = `
-<span
-  className="display-flex-center"
->
-  <IssueTypeIcon
-    className="little-spacer-right"
-    query="SECURITY_HOTSPOT"
-  />
-   
-  issue.type.SECURITY_HOTSPOT
-  <HelpTooltip
-    className="little-spacer-left"
-    overlay={
-      <React.Fragment>
-        <p>
-          issues.hotspots.helper
-        </p>
-        <hr
-          className="spacer-top spacer-bottom"
-        />
-        <Link
-          onClick={[Function]}
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          target="_blank"
-          to="/documentation/user-guide/security-hotspots/"
-        >
-          learn_more
-        </Link>
-      </React.Fragment>
-    }
-  />
-</span>
-`;
-
 exports[`should render open by default 1`] = `
 <FacetBox
   property="types"
@@ -176,28 +83,6 @@ exports[`should render open by default 1`] = `
       onClick={[Function]}
       stat="5"
       value="CODE_SMELL"
-    />
-    <FacetItem
-      active={false}
-      disabled={false}
-      halfWidth={false}
-      key="SECURITY_HOTSPOT"
-      loading={false}
-      name={
-        <span
-          className="display-flex-center"
-        >
-          <IssueTypeIcon
-            className="little-spacer-right"
-            query="SECURITY_HOTSPOT"
-          />
-           
-          issue.type.SECURITY_HOTSPOT
-        </span>
-      }
-      onClick={[Function]}
-      stat="1"
-      value="SECURITY_HOTSPOT"
     />
   </FacetItemsList>
   <MultipleSelectionHint
