@@ -15,7 +15,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for application when 
     }
   />
   <span
-    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
     title="master"
   >
     master
@@ -39,7 +39,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for application when 
     }
   />
   <span
-    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
     title="master"
   >
     master
@@ -62,7 +62,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for application when 
     }
   />
   <span
-    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
     title="master"
   >
     master
@@ -117,7 +117,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for project when bran
     }
   />
   <span
-    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
     title="master"
   >
     master
@@ -149,7 +149,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for project when ther
     }
   />
   <span
-    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
     title="master"
   >
     master
@@ -173,7 +173,7 @@ exports[`CurrentBranchLikeRenderer should render correctly for project when ther
     }
   />
   <span
-    className="spacer-left spacer-right flex-shrink text-ellipsis"
+    className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
     title="master"
   >
     master

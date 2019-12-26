@@ -104,7 +104,9 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
   return (
     <span className="display-flex-center flex-shrink text-ellipsis">
       <BranchLikeIcon branchLike={currentBranchLike} />
-      <span className="spacer-left spacer-right flex-shrink text-ellipsis" title={displayName}>
+      <span
+        className="spacer-left spacer-right flex-shrink text-ellipsis js-branch-like-name"
+        title={displayName}>
         {displayName}
       </span>
       {additionalIcon()}
