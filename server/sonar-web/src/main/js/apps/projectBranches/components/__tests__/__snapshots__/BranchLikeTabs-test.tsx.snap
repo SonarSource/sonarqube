@@ -3,6 +3,7 @@
 exports[`should render all tabs correctly 1`] = `
 <Fragment>
   <BoxedTabs
+    className="branch-like-tabs"
     onSelect={[Function]}
     selected={0}
     tabs={
@@ -107,6 +108,7 @@ exports[`should render all tabs correctly 1`] = `
 exports[`should render all tabs correctly 2`] = `
 <Fragment>
   <BoxedTabs
+    className="branch-like-tabs"
     onSelect={[Function]}
     selected={1}
     tabs={

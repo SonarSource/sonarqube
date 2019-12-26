@@ -46,7 +46,7 @@ exports[`should render correctly for branch 1`] = `
     />
   </td>
   <td
-    className="nowrap"
+    className="nowrap js-test-purge-toggle-container"
   >
     <BranchPurgeSetting
       branch={
@@ -150,7 +150,7 @@ exports[`should render correctly for main branch 1`] = `
     />
   </td>
   <td
-    className="nowrap"
+    className="nowrap js-test-purge-toggle-container"
   >
     <BranchPurgeSetting
       branch={

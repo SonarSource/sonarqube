@@ -33,7 +33,7 @@ export function App(props: AppProps) {
   const { branchLikes, component, onBranchesChange } = props;
 
   return (
-    <div className="page page-limited">
+    <div className="page page-limited" id="project-branch-like">
       <header className="page-header">
         <h1>{translate('project_branch_pull_request.page')}</h1>
         <LifetimeInformation />

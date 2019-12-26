@@ -111,7 +111,12 @@ export default class BranchLikeTabs extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <BoxedTabs onSelect={this.onTabSelect} selected={currentTab} tabs={TABS} />
+        <BoxedTabs
+          className="branch-like-tabs"
+          onSelect={this.onTabSelect}
+          selected={currentTab}
+          tabs={TABS}
+        />
 
         <BranchLikeTable
           branchLikes={branchLikesToDisplay}
