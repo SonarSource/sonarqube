@@ -118,7 +118,7 @@
     "style-loader": "0.23.1",
     "ts-jest": "24.0.2",
     "ts-loader": "5.3.3",
-    "typescript": "3.6.4",
+    "typescript": "3.7.4",
     "webpack": "4.29.6",
     "webpack-bundle-analyzer": "3.3.2",
     "webpack-dev-server": "3.2.1"
