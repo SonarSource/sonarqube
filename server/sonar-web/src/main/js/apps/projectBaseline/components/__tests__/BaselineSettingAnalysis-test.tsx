@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import BaselineSettingAnalysis, { Props } from '../components/BaselineSettingAnalysis';
+import BaselineSettingAnalysis, { Props } from '../BaselineSettingAnalysis';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();

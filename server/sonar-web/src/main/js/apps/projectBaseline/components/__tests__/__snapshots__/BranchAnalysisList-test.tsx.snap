@@ -1,0 +1,271 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <div
+    className="spacer-bottom"
+  >
+    baseline.analysis_from
+    <Select
+      autoBlur={true}
+      className="input-medium spacer-left"
+      clearable={false}
+      onChange={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "baseline.branch_analyses.ranges.30days",
+            "value": 30,
+          },
+          Object {
+            "label": "baseline.branch_analyses.ranges.allTime",
+            "value": 0,
+          },
+        ]
+      }
+      searchable={false}
+      value={0}
+    />
+  </div>
+  <div
+    className="branch-analysis-list-wrapper"
+  >
+    <div
+      className="bordered branch-analysis-list"
+      onScroll={[Function]}
+    >
+      <ul>
+        <li
+          key="noversion"
+        >
+          <ul
+            className="branch-analysis-days-list"
+          >
+            <li
+              className="branch-analysis-day"
+              data-day="2017-03-02"
+              key="1488322800000"
+            >
+              <div
+                className="branch-analysis-date"
+              >
+                <DateFormatter
+                  date={1488322800000}
+                  long={true}
+                />
+              </div>
+              <ul
+                className="branch-analysis-analyses-list"
+              >
+                <li
+                  className="branch-analysis"
+                  data-date="2017-03-02"
+                  key="4"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="branch-analysis-time spacer-right"
+                  >
+                    <TimeFormatter
+                      date="2017-03-02"
+                      long={false}
+                    >
+                      <Component />
+                    </TimeFormatter>
+                  </div>
+                  <div
+                    className="analysis-selection-button"
+                  >
+                    <i
+                      className="icon-radio"
+                    />
+                  </div>
+                </li>
+                <li
+                  className="branch-analysis"
+                  data-date="2017-03-02"
+                  key="3"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="branch-analysis-time spacer-right"
+                  >
+                    <TimeFormatter
+                      date="2017-03-02"
+                      long={false}
+                    >
+                      <Component />
+                    </TimeFormatter>
+                  </div>
+                  <Memo(Events)
+                    analysisKey="3"
+                    events={
+                      Array [
+                        Object {
+                          "category": "QUALITY_GATE",
+                          "description": "Lorem ipsum dolor sit amet",
+                          "key": "E11",
+                          "name": "Lorem ipsum",
+                          "qualityGate": Object {
+                            "failing": Array [
+                              Object {
+                                "branch": "master",
+                                "key": "foo",
+                                "name": "Foo",
+                              },
+                              Object {
+                                "branch": "feature/bar",
+                                "key": "bar",
+                                "name": "Bar",
+                              },
+                            ],
+                            "status": "ERROR",
+                            "stillFailing": true,
+                          },
+                        },
+                      ]
+                    }
+                    isFirst={false}
+                  />
+                  <div
+                    className="analysis-selection-button"
+                  >
+                    <i
+                      className="icon-radio"
+                    />
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li
+          key="E11"
+        >
+          <div
+            className="branch-analysis-version-badge"
+          >
+            <Tooltip
+              mouseEnterDelay={0.5}
+              overlay="version Lorem ipsum"
+            >
+              <span
+                className="badge"
+              >
+                Lorem ipsum
+              </span>
+            </Tooltip>
+          </div>
+          <ul
+            className="branch-analysis-days-list"
+          >
+            <li
+              className="branch-analysis-day"
+              data-day="2017-03-02"
+              key="1488322800000"
+            >
+              <div
+                className="branch-analysis-date"
+              >
+                <DateFormatter
+                  date={1488322800000}
+                  long={true}
+                />
+              </div>
+              <ul
+                className="branch-analysis-analyses-list"
+              >
+                <li
+                  className="branch-analysis"
+                  data-date="2017-03-02"
+                  key="2"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="branch-analysis-time spacer-right"
+                  >
+                    <TimeFormatter
+                      date="2017-03-02"
+                      long={false}
+                    >
+                      <Component />
+                    </TimeFormatter>
+                  </div>
+                  <Memo(Events)
+                    analysisKey="2"
+                    events={
+                      Array [
+                        Object {
+                          "category": "QUALITY_GATE",
+                          "description": "Lorem ipsum dolor sit amet",
+                          "key": "E11",
+                          "name": "Lorem ipsum",
+                          "qualityGate": Object {
+                            "failing": Array [
+                              Object {
+                                "branch": "master",
+                                "key": "foo",
+                                "name": "Foo",
+                              },
+                              Object {
+                                "branch": "feature/bar",
+                                "key": "bar",
+                                "name": "Bar",
+                              },
+                            ],
+                            "status": "ERROR",
+                            "stillFailing": true,
+                          },
+                        },
+                        Object {
+                          "category": "VERSION",
+                          "description": "Lorem ipsum dolor sit amet",
+                          "key": "E11",
+                          "name": "Lorem ipsum",
+                          "qualityGate": undefined,
+                        },
+                      ]
+                    }
+                    isFirst={false}
+                  />
+                  <div
+                    className="analysis-selection-button"
+                  >
+                    <i
+                      className="icon-radio"
+                    />
+                  </div>
+                </li>
+                <li
+                  className="branch-analysis"
+                  data-date="2017-03-02"
+                  key="1"
+                  onClick={[Function]}
+                >
+                  <div
+                    className="branch-analysis-time spacer-right"
+                  >
+                    <TimeFormatter
+                      date="2017-03-02"
+                      long={false}
+                    >
+                      <Component />
+                    </TimeFormatter>
+                  </div>
+                  <div
+                    className="analysis-selection-button"
+                  >
+                    <i
+                      className="icon-radio"
+                    />
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</Fragment>
+`;

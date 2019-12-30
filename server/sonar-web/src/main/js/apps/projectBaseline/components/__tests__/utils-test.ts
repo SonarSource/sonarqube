@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getSettingValue, validateSetting } from '../utils';
+import { getSettingValue, validateSetting } from '../../utils';
 
 describe('getSettingValue', () => {
   it('should work for Days', () => {

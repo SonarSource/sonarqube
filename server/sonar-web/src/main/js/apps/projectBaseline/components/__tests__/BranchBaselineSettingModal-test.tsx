@@ -20,11 +20,11 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockEvent, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { setNewCodePeriod } from '../../../api/newCodePeriod';
-import { mockMainBranch } from '../../../helpers/mocks/branch-like';
-import BranchBaselineSettingModal from '../components/BranchBaselineSettingModal';
+import { setNewCodePeriod } from '../../../../api/newCodePeriod';
+import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import BranchBaselineSettingModal from '../BranchBaselineSettingModal';
 
-jest.mock('../../../api/newCodePeriod', () => ({
+jest.mock('../../../../api/newCodePeriod', () => ({
   setNewCodePeriod: jest.fn().mockResolvedValue({})
 }));
 

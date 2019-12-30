@@ -19,17 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import BaselineSettingDays, { Props } from '../components/BaselineSettingDays';
+import BaselineSettingPreviousVersion, { Props } from '../BaselineSettingPreviousVersion';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ isChanged: true })).toMatchSnapshot();
-  expect(shallowRender({ isChanged: true, isValid: false })).toMatchSnapshot();
-});
-
-it('should not display input when not selected', () => {
-  const wrapper = shallowRender({ selected: false });
-  expect(wrapper.find('ValidationInput')).toHaveLength(0);
+  expect(shallowRender({ isDefault: true })).toMatchSnapshot();
 });
 
 it('should callback when clicked', () => {
@@ -40,30 +34,11 @@ it('should callback when clicked', () => {
     .find('RadioCard')
     .first()
     .simulate('click');
-  expect(onSelect).toHaveBeenCalledWith('NUMBER_OF_DAYS');
-});
-
-it('should callback when changing days', () => {
-  const onChangeDays = jest.fn();
-  const wrapper = shallowRender({ onChangeDays });
-
-  wrapper
-    .find('input')
-    .first()
-    .simulate('change', { currentTarget: { value: '23' } });
-  expect(onChangeDays).toHaveBeenCalledWith('23');
+  expect(onSelect).toHaveBeenCalledWith('PREVIOUS_VERSION');
 });
 
 function shallowRender(props: Partial<Props> = {}) {
   return shallow(
-    <BaselineSettingDays
-      days="28"
-      isChanged={false}
-      isValid={true}
-      onChangeDays={jest.fn()}
-      onSelect={jest.fn()}
-      selected={true}
-      {...props}
-    />
+    <BaselineSettingPreviousVersion onSelect={jest.fn()} selected={true} {...props} />
   );
 }

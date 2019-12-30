@@ -20,13 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
-import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
-import { mockComponent } from '../../../helpers/testMocks';
-import BranchBaselineSettingModal from '../components/BranchBaselineSettingModal';
-import BranchList from '../components/BranchList';
+import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../../api/newCodePeriod';
+import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../helpers/testMocks';
+import BranchBaselineSettingModal from '../BranchBaselineSettingModal';
+import BranchList from '../BranchList';
 
-jest.mock('../../../api/newCodePeriod', () => ({
+jest.mock('../../../../api/newCodePeriod', () => ({
   listBranchesNewCodePeriod: jest.fn().mockResolvedValue({ newCodePeriods: [] }),
   resetNewCodePeriod: jest.fn().mockResolvedValue(null)
 }));

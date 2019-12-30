@@ -19,9 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ProjectBaselineSelector, {
-  ProjectBaselineSelectorProps
-} from '../components/ProjectBaselineSelector';
+import ProjectBaselineSelector, { ProjectBaselineSelectorProps } from '../ProjectBaselineSelector';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
