@@ -74,9 +74,13 @@ export default class App extends React.PureComponent<Props> {
       fetchQualityGates({ organization: component.organization }),
       getGateForProject({ organization: component.organization, project: component.key })
     ]).then(
-      ([{ qualitygates: allGates }, gate]) => {
+      ([qualityGateList, gate]) => {
         if (this.mounted) {
-          this.setState({ allGates, gate, loading: false });
+          this.setState({
+            allGates: qualityGateList?.qualitygates,
+            gate,
+            loading: false
+          });
         }
       },
       () => {

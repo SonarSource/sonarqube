@@ -81,7 +81,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
             const newFormData = originalData || formData;
             return {
               formData: newFormData,
-              instances,
+              instances: instances || [],
               isValid: this.validateForm(newFormData),
               loading: false,
               originalData

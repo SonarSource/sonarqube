@@ -39,7 +39,7 @@ interface Props {
   optionClassName?: string;
   organization?: { key: string };
 
-  getFacetValueForOption?: (facet: Facet, option: Option) => void;
+  getFacetValueForOption?: (facet: Facet, option: Option) => number;
 
   halfWidth?: boolean;
   highlightUnder?: number;
