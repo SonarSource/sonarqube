@@ -9666,10 +9666,10 @@ prepend-http@^1.0.1:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/prepend-http/-/prepend-http-1.0.4.tgz#d4f4562b0ce3696e41ac52d0e002e57a635dc6dc"
   integrity sha1-1PRWKwzjaW5BrFLQ4ALlemNdxtw=
 
-prettier@1.16.4:
-  version "1.16.4"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/prettier/-/prettier-1.16.4.tgz#73e37e73e018ad2db9c76742e2647e21790c9717"
-  integrity sha1-c+N+c+AYrS25x2dC4mR+IXkMlxc=
+prettier@1.19.1:
+  version "1.19.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/prettier/-/prettier-1.19.1.tgz#f7d7f5ff8a9cd872a7be4ca142095956a60797cb"
+  integrity sha1-99f1/4qc2HKnvkyhQglZVqYHl8s=
 
 prettier@^1.16.0:
   version "1.18.2"

@@ -8144,10 +8144,10 @@ prepend-http@^2.0.0:
   resolved "https://repox.jfrog.io/repox/api/npm/npm/prepend-http/-/prepend-http-2.0.0.tgz#e92434bfa5ea8c19f41cdfd401d741a3c819d897"
   integrity sha1-6SQ0v6XqjBn0HN/UAddBo8gZ2Jc=
 
-prettier@1.16.4:
-  version "1.16.4"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/prettier/-/prettier-1.16.4.tgz#73e37e73e018ad2db9c76742e2647e21790c9717"
-  integrity sha1-c+N+c+AYrS25x2dC4mR+IXkMlxc=
+prettier@1.19.1:
+  version "1.19.1"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/prettier/-/prettier-1.19.1.tgz#f7d7f5ff8a9cd872a7be4ca142095956a60797cb"
+  integrity sha1-99f1/4qc2HKnvkyhQglZVqYHl8s=
 
 pretty-error@^2.0.2:
   version "2.1.1"

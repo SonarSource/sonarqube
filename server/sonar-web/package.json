@@ -108,7 +108,7 @@
     "postcss-calc": "7.0.1",
     "postcss-custom-properties": "8.0.10",
     "postcss-loader": "3.0.0",
-    "prettier": "1.16.4",
+    "prettier": "1.19.1",
     "raw-loader": "2.0.0",
     "react-dev-utils": "5.0.1",
     "react-error-overlay": "1.0.7",
