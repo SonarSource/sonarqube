@@ -31,7 +31,7 @@ There are 2 built-in rule profiles for JavaScript: `Sonar way` (default) and `So
 <!-- sonarqube -->
 ## Custom rules
 [[warning]]
-| ![](/images/exclamation.svg) This feature is deprecated
+| This feature is deprecated
 ### Overview
 
 The JavaScript Analyzer parses the source code, creates an Abstract Syntax Tree (AST) and then walks through the entire tree. A coding rule is a visitor that is able to visit nodes from this AST.
@@ -71,7 +71,8 @@ You can implement both `RulesDefinition` and `CustomRulesRepository` in a single
 #### Using DoubleDispatchVisitorCheck
 `DoubleDispatchVisitorCheck` extends `DoubleDispatchVisitor` which provide a set of methods to visit specific tree nodes (these methods' names start with `visit`). To explore a part of the AST, override the required method(s). For example, if you want to explore `if` statement nodes, override the `DoubleDispatchVisitor#visitIfStatement` method that will be called each time an `IfStatementTree` node is encountered in the AST.
 
-![](/images/exclamation.svg) When overriding a visit method, you must call the `super` method in order to allow the visitor to visit the rest of the tree.
+[[warning]]
+| When overriding a visit method, you must call the `super` method in order to allow the visitor to visit the rest of the tree.
 
 #### Using SubscriptionVisitorCheck
 `SubscriptionVisitorCheck` extends `SubscriptionVisitor`. To explore a part of the AST, override `SubscribtionVisitor#nodesToVisit()` by returning the list of the `Tree#Kind` of node you want to visit. For example, if you want to explore `if` statement nodes the method will return a list containing the element `Tree#Kind#IF_STATEMENT`.

@@ -96,7 +96,7 @@ Key | Description | Default
 <!-- sonarqube -->
 ### Deprecated
 [[danger]]
-| ![](/images/cross.svg) These parameters are listed for completeness, but are deprecated and should not be used in new analyses.
+| These parameters are listed for completeness, but are deprecated and should not be used in new analyses.
 
 Key | Description
 ---|----|--- 

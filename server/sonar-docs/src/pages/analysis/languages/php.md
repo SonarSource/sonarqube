@@ -63,7 +63,8 @@ Here are the step to follow:
 
 To explore a part of the AST, override a method from the PHPVisitorCheck. For example, if you want to explore "if statement" nodes, override [PHPVisitorCheck#visitIfStatement](https://github.com/SonarSource/sonar-php/blob/master/php-frontend/src/main/java/org/sonar/plugins/php/api/visitors/PHPVisitorCheck.java#L265) method that will be called each time an [ifStatementTree](https://github.com/SonarSource/sonar-php/blob/master/php-frontend/src/main/java/org/sonar/plugins/php/api/tree/statement/IfStatementTree.java) node is encountered in the AST.
 
-![](/images/exclamation.svg) When overriding a visit method, you must call the super method in order to allow the visitor to visit the children the node.
+[[warning]]
+| When overriding a visit method, you must call the super method in order to allow the visitor to visit the children the node.
 
 **Using `PHPSubscriptionCheck`**
 

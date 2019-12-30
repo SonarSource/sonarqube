@@ -91,7 +91,7 @@ Notes:
 You can ignore issues on certain components and for certain coding rules. To list a specific rule, use the fully qualified rule ID.
 
 [[info]]
-| ![](/images/info.svg) You can find the fully qualified rule ID on the Rule definition.
+| You can find the fully qualified rule ID on the Rule definition.
 
 Examples:
 

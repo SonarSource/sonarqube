@@ -24,7 +24,8 @@ SonarCloud currently does not trigger analyses automatically - this feature will
 
 After creating a project, the tutorial available on its homepage will guide you to find how to trigger an analysis.
 
-![Info](/images/info.svg) Remember that depending on which cloud solution you are using for your developments, you can rely on dedicated integrations to help you:
+[[info]]
+| Remember that depending on which cloud solution you are using for your developments, you can rely on dedicated integrations to help you:
 
 * [GitHub](/integrations/github/)
 * [Bitbucket Cloud](/integrations/bitbucketcloud/)

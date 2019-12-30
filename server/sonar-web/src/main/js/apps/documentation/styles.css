@@ -99,6 +99,29 @@
   padding: var(--gridSize) calc(2 * var(--gridSize));
 }
 
+.documentation-content.markdown .alert .custom-block-body {
+  padding-left: 24px;
+  background-position: left 6px;
+  background-repeat: no-repeat;
+}
+
+.documentation-content.markdown .alert-success .custom-block-body {
+  background-image: url(/images/check.svg);
+}
+
+.documentation-content.markdown .alert-info .custom-block-body {
+  background-image: url(/images/info.svg);
+}
+
+.documentation-content.markdown .alert-warning .custom-block-body {
+  background-image: url(/images/exclamation.svg);
+}
+
+.documentation-content.markdown .alert-error .custom-block-body,
+.documentation-content.markdown .alert-danger .custom-block-body {
+  background-image: url(/images/cross.svg);
+}
+
 .documentation-content.markdown .collapse-container {
   border: 1px solid var(--barBorderColor);
   border-radius: 2px;

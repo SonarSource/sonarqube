@@ -90,7 +90,7 @@ The `RuleKey` value can be one of the following:
   * [S2091](https://rules.sonarsource.com/csharp/RSPEC-2091): XPath Injection
 
 [[info]]
-| ![](/images/info.svg) The configuration works per rule. There is no way to share configuration between rules. 
+| The configuration works per rule. There is no way to share configuration between rules. 
 
 ## File Format
 

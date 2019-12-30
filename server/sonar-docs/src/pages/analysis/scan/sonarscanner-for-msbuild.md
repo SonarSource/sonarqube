@@ -110,7 +110,7 @@ Parameter|Description
 For detailed information about all available parameters, see [Analysis Parameters](/analysis/analysis-parameters/).
 
 [[warning]]
-| ![](/images/exclamation.svg) The "begin" step will modify your build like this:
+| The "begin" step will modify your build like this:
 | * the active `CodeAnalysisRuleSet` will be updated to match the SonarQube quality profile
 | * `WarningsAsErrors` will be turned off
 |

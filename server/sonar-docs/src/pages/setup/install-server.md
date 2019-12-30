@@ -12,9 +12,9 @@ Create an empty schema and a `sonarqube` user. Grant this `sonarqube` user permi
 
 ### Microsoft SQL Server
 
-![](/images/exclamation.svg) Collation **MUST** be case-sensitive (CS) and accent-sensitive (AS).
-
-![](/images/exclamation.svg) `READ_COMMITED_SNAPSHOT` **MUST** be set on the SonarQube database.
+[[warning]]
+| Collation **MUST** be case-sensitive (CS) and accent-sensitive (AS).  
+| `READ_COMMITED_SNAPSHOT` **MUST** be set on the SonarQube database.
 
 MS SQL database's shared lock strategy may impact SonarQube runtime. Making sure that `is_read_committed_snapshot_on` is set to `true` to prevent SonarQube from facing potential deadlocks under heavy loads. 
 

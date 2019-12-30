@@ -11,7 +11,7 @@ There are two ways to extend coding rules:
 If both are available, the Java API will be more fully-featured than what's available for XPath, and is generally preferable.
 
 [[info]]
-| ![](/images/info.svg) Before implementing a new coding rule, you should consider whether it is specific to your own context or might benefit others. If it might benefit others, you can propose it on the [Community Forum](https://community.sonarsource.com/). If there is shared interest, then it might be implemented for you directly in the related language plugin. It means less maintenance for you, and benefit to others.
+| Before implementing a new coding rule, you should consider whether it is specific to your own context or might benefit others. If it might benefit others, you can propose it on the [Community Forum](https://community.sonarsource.com/). If there is shared interest, then it might be implemented for you directly in the related language plugin. It means less maintenance for you, and benefit to others.
 
 ## Custom rule support by language
 Languages not listed here don't support custom rules

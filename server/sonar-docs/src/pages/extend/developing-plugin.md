@@ -253,7 +253,7 @@ public class ExamplePlugin implements Plugin {
 It is recommended not to call other components in constructors. Indeed, they may not be initialized at that time. Constructors should only be used for dependency injection.
 
 [[warning]]
-| ![](/images/exclamation.svg) Compilation does not fail if incorrect dependencies are defined, such as a scanner extension trying to call a web server extension. Still it will fail at runtime when plugin is loaded.
+| Compilation does not fail if incorrect dependencies are defined, such as a scanner extension trying to call a web server extension. Still it will fail at runtime when plugin is loaded.
 
 ### Third-party Libraries
 Plugins are executed in their own isolated classloaders. That allows the packaging and use of 3rd-party libraries without runtime conflicts with core internal libraries or other plugins. Note that since version 5.2, the SonarQube API does not bring transitive dependencies, except SLF4J. The libraries just have to be declared in the pom.xml with default scope "compile":
@@ -276,7 +276,7 @@ pom.xml
 Technically the libraries are packaged in the directory META-INF/lib of the generated JAR file. An alternative is to shade libraries, for example with maven-shade-plugin. That minimizes the size of the plugin .jar file by copying only the effective used classes.
 
 [[info]]
-| ![](/images/info.svg) The command `mvn dependency:tree` gives the list of all dependencies, including transitive ones.
+| The command `mvn dependency:tree` gives the list of all dependencies, including transitive ones.
 
 ### Configuration
 The core component [`org.sonar.api.config.Configuration`](http://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/config/Configuration.html) provides access to configuration. It deals with default values and decryption of values. It is available in all stacks (scanner, web server, Compute Engine). As recommended earlier, it must not be called from constructors.
@@ -334,7 +334,7 @@ public class ExamplePlugin implements Plugin {
 ```
 
 [[info]]
-| ![](/images/info.svg) Values of the properties suffixed with `.secured` are not available to non-authorized users (anonymous and users without project or global administration rights). `.secured` is needed for passwords, for instance.
+| Values of the properties suffixed with `.secured` are not available to non-authorized users (anonymous and users without project or global administration rights). `.secured` is needed for passwords, for instance.
 
 The annotation [`@org.sonar.api.Property`](http://javadocs.sonarsource.org/latest/apidocs/index.html?org/sonar/api/Property.html) can also be used on an extension to declare a property, but org.sonar.api.config.PropertyDefinition is preferred.
 ```

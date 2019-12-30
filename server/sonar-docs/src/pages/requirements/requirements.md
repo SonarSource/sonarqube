@@ -5,7 +5,8 @@ url: /requirements/requirements/
 ## Prerequisite
 The only prerequisite for running SonarQube is to have Java (Oracle JRE 11 or OpenJDK 11) installed on your machine.
 
-![](/images/exclamation.svg) **Note:** _On Mac OS X it is highly recommended to install Oracle JDK 11 instead of the corresponding Oracle JRE since the JRE installation does not fully set up your Java environment properly. See [this post](http://stackoverflow.com/questions/15624667/mac-osx-java-terminal-version-incorrect) for more information._
+[[warning]]
+| **Note:** _On Mac OS X it is highly recommended to install Oracle JDK 11 instead of the corresponding Oracle JRE since the JRE installation does not fully set up your Java environment properly. See [this post](http://stackoverflow.com/questions/15624667/mac-osx-java-terminal-version-incorrect) for more information._
 
 ## Hardware Requirements
 1. A small-scale (individual or small team) instance of the SonarQube server requires at least 2GB of RAM to run efficiently and 1GB of free RAM for the OS. If you are installing an instance for a large teams or Enterprise, please consider the additional recommendations below.

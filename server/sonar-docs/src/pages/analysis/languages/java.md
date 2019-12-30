@@ -33,7 +33,7 @@ Key | Value
 `sonar.java.test.libraries` | Comma-separated paths to files with third-party libraries (JAR or Zip files) used by your tests. (For example, this should include the junit jar). Wildcards can be used: `sonar.java.test.libraries=directory/**/*.jar`
 
 [[warning]]
-| ![](/images/exclamation.svg) Android users, Jack doesn't provide the required `.class` files.
+| Android users, Jack doesn't provide the required `.class` files.
 
 
 ## Turning issues off

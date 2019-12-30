@@ -31,13 +31,15 @@
   display: none;
 }
 
-.markdown-content .alert-error {
+.markdown-content .alert-error,
+.markdown-content .alert-danger {
   border-color: var(--alertBorderError);
   background-color: var(--alertBackgroundError);
   color: var(--alertTextError);
 }
 
-.markdown-content .alert-error .alert-icon {
+.markdown-content .alert-error .alert-icon,
+.markdown-content .alert-danger .alert-icon {
   border-color: var(--alertBorderError);
 }
 

@@ -536,7 +536,12 @@ a.search-result .note {
   margin: 0 -1em 1.5rem;
   padding: 1em;
   border: 1px solid #3e7fb7;
+  background-image: url(../images/info.svg);
   background-color: #edf6fc;
+  background-position: 10px 15px;
+  background-repeat: no-repeat;
+  background-size: 24px;
+  padding-left: 40px;
   color: #000;
   border-radius: 3px;
 }
@@ -563,6 +568,7 @@ a.search-result .note {
 .alert-danger {
   border-color: #d75a4a;
   background-color: #fcedec;
+  background-image: url(../images/cross.svg);
 }
 
 .alert-danger a {
@@ -578,14 +584,8 @@ a.search-result .note {
 
 .alert-warning {
   border-color: #c99916;
-  background: #ffefbc url(../images/alerts/danger.svg) no-repeat;
-  background-position: 10px 15px;
-  background-size: 24px;
-  padding-left: 40px;
-}
-
-.page-sidebar .alert-warning {
-  background-position: 10px 10px;
+  background-color: #ffefbc;
+  background-image: url(../images/alerts/danger.svg);
 }
 
 .alert-warning a {
@@ -602,6 +602,7 @@ a.search-result .note {
 .alert-success {
   border-color: #3ec92c;
   background-color: #ecfcf2;
+  background-image: url(../images/check.svg);
 }
 
 .alert-success a {

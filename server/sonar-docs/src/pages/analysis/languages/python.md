@@ -73,7 +73,8 @@ To get started a sample plugin can be found here: [python-custom-rules](https://
 
 To explore a part of the AST, override a method from the PythonCheckTree. For example, if you want to explore "if statement" nodes, override [PythonCheckTree#visitIfStatement](https://github.com/SonarSource/sonar-python/blob/39b6126e9fdef42b93004cf6cc5818e861051334/python-frontend/src/main/java/org/sonar/plugins/python/api/tree/BaseTreeVisitor.java#L56) method that will be called each time an [ifStatement](https://github.com/SonarSource/sonar-python/blob/master/python-frontend/src/main/java/org/sonar/plugins/python/api/tree/IfStatement.java) node is encountered in the AST.
 
-![](/images/exclamation.svg) When overriding a visit method, you must call the super method in order to allow the visitor to visit the children the node.
+[[warning]]
+| When overriding a visit method, you must call the super method in order to allow the visitor to visit the children the node.
 
 **Using `PythonSubscriptionCheck`**
 

@@ -259,13 +259,6 @@ There are four options:
 - success (green)
 - info (blue)
 
-You can also put icons inside messages:
-
-```
-[[danger]]
-| ![](/images/cross.svg) This is a **danger** message.
-```
-
 #### Iframes
 
 _Note: at this time, iframes are only supported for the static documentation, and will be stripped from the embedded documentation._

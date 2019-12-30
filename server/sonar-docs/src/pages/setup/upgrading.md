@@ -13,11 +13,12 @@ Example 2 : 6.2 -> 6.7, migration path is 6.2 -> 6.7.x LTS (where x is the lates
 
 This is a generic upgrade guide. Carefully read the [Release Upgrade Notes](/setup/upgrade-notes/) of your target version and of any intermediate version(s).
 
-![](/images/info.svg) **Planning to Upgrade to a Commercial Edition?**
-If you are moving to 6.7 LTS and installing a Commercial Edition, please read this [documentation](https://docs.sonarqube.org/display/SONARQUBE67/SonarSource+Editions).
+[[info]]
+| **Planning to Upgrade to a Commercial Edition?**  
+| If you are moving to 6.7 LTS and installing a Commercial Edition, please read this [documentation](https://docs.sonarqube.org/display/SONARQUBE67/SonarSource+Editions).
 
 [[warning]]
-| ![](/images/exclamation.svg) Before you start, back up your SonarQube Database. Upgrade problems are rare, but you'll want the backup if anything does happen.
+| Before you start, back up your SonarQube Database. Upgrade problems are rare, but you'll want the backup if anything does happen.
 
 1. Download and unzip the SonarQube distribution of your edition in a fresh directory, let's say `$NEW_SONARQUBE_HOME`
 2. Manually install the non-default plugins that are compatible with your version of SonarQube. Use the [Compatibility Matrix](https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix) to ensure that the versions you install are compatible with your server version. Note that the most recent versions of all SonarSource code analyzers available in your edition are installed by default. Simply copying plugins from the old server to the new is not recommended; incompatible or duplicate plugins could cause startup errors.

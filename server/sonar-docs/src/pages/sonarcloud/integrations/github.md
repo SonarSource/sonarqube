@@ -20,7 +20,8 @@ For GitHub repositories, there are 2 ways to have your code analyzed:
 With AutoScan, SonarCloud will autonomously pull your code and scan your default branch and your pull requests.
 Please read the ["AutoScan Beta Feature"](/autoscan/) documentation page to get the details.
 
-![](/images/exclamation.svg) This is currently a Beta feature which does not work for all languages and comes with limitations. 
+[[warning]]
+| This is currently a Beta feature which does not work for all languages and comes with limitations. 
 
 ### ... using your CI service
 

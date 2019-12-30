@@ -10,7 +10,7 @@ url: /integrations/vsts/
 You can connect to SonarCloud using your Azure DevOps account. On the [login page](/#sonarcloud#/sessions/new), just click on the "Log in with Azure DevOps" button.
 
 [[warning]]
-| ![Warning](/images/exclamation.svg) Only work and school Azure DevOps accounts are authorized to login on SonarCloud.
+| Only work and school Azure DevOps accounts are authorized to login on SonarCloud.
 
 ## Install the SonarCloud Azure DevOps extension
 
