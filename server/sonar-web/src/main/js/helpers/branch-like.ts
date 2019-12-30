@@ -94,7 +94,10 @@ export function isSameBranchLike(a: BranchLike | undefined, b: BranchLike | unde
 
 export function getBrancheLikesAsTree(branchLikes: BranchLike[]): BranchLikeTree {
   const mainBranch = branchLikes.find(isMainBranch);
-  const branches = orderBy(branchLikes.filter(isBranch).filter(b => !isMainBranch(b)), b => b.name);
+  const branches = orderBy(
+    branchLikes.filter(isBranch).filter(b => !isMainBranch(b)),
+    b => b.name
+  );
   const pullRequests = orderBy(branchLikes.filter(isPullRequest), b => b.key);
   const parentlessPullRequests = pullRequests.filter(
     pr => !pr.isOrphan && ![mainBranch, ...branches].find(b => !!b && b.name === pr.base)

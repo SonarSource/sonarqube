@@ -241,7 +241,4 @@ const mapDispatchToProps = {
   setCurrentUserSetting
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(GlobalNav);
+export default connect(mapStateToProps, mapDispatchToProps)(GlobalNav);

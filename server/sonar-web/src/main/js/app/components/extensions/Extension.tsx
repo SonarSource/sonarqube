@@ -118,11 +118,4 @@ export class Extension extends React.PureComponent<Props, State> {
 const mapStateToProps = (state: Store) => ({ currentUser: getCurrentUser(state) });
 const mapDispatchToProps = { onFail: addGlobalErrorMessage };
 
-export default injectIntl(
-  withRouter(
-    connect(
-      mapStateToProps,
-      mapDispatchToProps
-    )(Extension)
-  )
-);
+export default injectIntl(withRouter(connect(mapStateToProps, mapDispatchToProps)(Extension)));

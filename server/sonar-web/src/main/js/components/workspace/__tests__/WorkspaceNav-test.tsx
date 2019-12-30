@@ -34,7 +34,10 @@ it('should not render open rule', () => {
 });
 
 function shallowRender(props?: Partial<Props>) {
-  const components = [{ branchLike: undefined, key: 'foo' }, { branchLike: undefined, key: 'bar' }];
+  const components = [
+    { branchLike: undefined, key: 'foo' },
+    { branchLike: undefined, key: 'bar' }
+  ];
   const rules = [{ key: 'qux', organization: 'org' }];
   return shallow(
     <WorkspaceNav

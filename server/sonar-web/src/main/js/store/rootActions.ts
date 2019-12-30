@@ -36,13 +36,19 @@ import { receiveOrganizations } from './organizations';
 
 export function fetchLanguages() {
   return (dispatch: Dispatch) => {
-    getLanguages().then(languages => dispatch(receiveLanguages(languages)), () => {});
+    getLanguages().then(
+      languages => dispatch(receiveLanguages(languages)),
+      () => {}
+    );
   };
 }
 
 export function fetchMetrics() {
   return (dispatch: Dispatch) => {
-    getAllMetrics().then(metrics => dispatch(receiveMetrics(metrics)), () => {});
+    getAllMetrics().then(
+      metrics => dispatch(receiveMetrics(metrics)),
+      () => {}
+    );
   };
 }
 

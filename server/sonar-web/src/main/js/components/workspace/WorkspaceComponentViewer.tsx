@@ -138,7 +138,4 @@ export class WorkspaceComponentViewer extends React.PureComponent<Props> {
 
 const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(WorkspaceComponentViewer);
+export default connect(null, mapDispatchToProps)(WorkspaceComponentViewer);

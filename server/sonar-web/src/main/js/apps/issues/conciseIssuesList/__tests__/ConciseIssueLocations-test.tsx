@@ -51,7 +51,11 @@ it('should render one flow', () => {
 
 it('should render several flows', () => {
   const issue = {
-    flows: [[loc, loc, loc], [loc, loc], [loc, loc, loc]],
+    flows: [
+      [loc, loc, loc],
+      [loc, loc],
+      [loc, loc, loc]
+    ],
     secondaryLocations: []
   };
   expect(

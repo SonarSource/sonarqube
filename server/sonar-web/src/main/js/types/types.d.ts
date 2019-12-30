@@ -850,7 +850,7 @@ declare namespace T {
   }
 
   export type Standards = {
-    [key in StandardType]: T.Dict<{ title: string; description?: string }>
+    [key in StandardType]: T.Dict<{ title: string; description?: string }>;
   };
 
   export type StandardType = 'owaspTop10' | 'sansTop25' | 'cwe' | 'sonarsourceSecurity';

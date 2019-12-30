@@ -38,7 +38,10 @@ interface Props {
 export default class DetailsHeader extends React.PureComponent<Props> {
   handleActionRefresh = () => {
     const { refreshItem, refreshList } = this.props;
-    return Promise.all([refreshItem(), refreshList()]).then(() => {}, () => {});
+    return Promise.all([refreshItem(), refreshList()]).then(
+      () => {},
+      () => {}
+    );
   };
 
   handleSetAsDefaultClick = () => {

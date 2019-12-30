@@ -246,7 +246,11 @@ export default class ListStyleFacet<S> extends React.Component<Props<S>, State<S
 
     const sortedItems = this.props.getSortedItems
       ? this.props.getSortedItems()
-      : sortBy(Object.keys(stats), key => -stats[key], key => this.props.getFacetItemText(key));
+      : sortBy(
+          Object.keys(stats),
+          key => -stats[key],
+          key => this.props.getFacetItemText(key)
+        );
 
     const limitedList = this.state.showFullList
       ? sortedItems

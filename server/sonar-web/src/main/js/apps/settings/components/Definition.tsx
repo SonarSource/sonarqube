@@ -218,7 +218,4 @@ const mapDispatchToProps = {
   saveValue: saveValue as any
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Definition);
+export default connect(mapStateToProps, mapDispatchToProps)(Definition);

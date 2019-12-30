@@ -170,9 +170,7 @@ function removeExtraHeadings(content: string, headings: MarkdownHeading[]) {
     .filter(
       heading =>
         content.indexOf(
-          `<div class="custom-block collapse"><div class="custom-block-body"><h2>${
-            heading.value
-          }</h2>`
+          `<div class="custom-block collapse"><div class="custom-block-body"><h2>${heading.value}</h2>`
         ) < 0
     )
     .filter(heading => !heading.value || !heading.value.match(/Table of content/i))

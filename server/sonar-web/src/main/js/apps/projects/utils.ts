@@ -74,7 +74,10 @@ export const SORTING_SWITCH: T.Dict<string> = {
   new_lines: 'size'
 };
 
-export const VIEWS = [{ value: 'overall', label: 'overall' }, { value: 'leak', label: 'new_code' }];
+export const VIEWS = [
+  { value: 'overall', label: 'overall' },
+  { value: 'leak', label: 'new_code' }
+];
 
 export const VISUALIZATIONS = [
   'risk',

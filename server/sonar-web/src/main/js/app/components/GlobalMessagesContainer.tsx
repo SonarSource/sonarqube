@@ -28,7 +28,4 @@ const mapStateToProps = (state: Store) => ({
 
 const mapDispatchToProps = { closeGlobalMessage };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(GlobalMessages);
+export default connect(mapStateToProps, mapDispatchToProps)(GlobalMessages);

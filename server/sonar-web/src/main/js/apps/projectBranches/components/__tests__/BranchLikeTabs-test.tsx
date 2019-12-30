@@ -38,7 +38,7 @@ it('should render all tabs correctly', () => {
   expect(wrapper.state().currentTab).toBe(Tabs.Branch);
   expect(wrapper).toMatchSnapshot();
 
-  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as ((currentTab: Tabs) => void);
+  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (currentTab: Tabs) => void;
   onSelect(Tabs.PullRequest);
 
   expect(wrapper.state().currentTab).toBe(Tabs.PullRequest);

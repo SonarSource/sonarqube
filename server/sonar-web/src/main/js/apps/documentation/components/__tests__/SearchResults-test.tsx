@@ -32,7 +32,10 @@ jest.mock('lunr', () => ({
             simply: {
               title: { position: [[19, 5]] },
               text: {
-                position: [[15, 6], [28, 4]],
+                position: [
+                  [15, 6],
+                  [28, 4]
+                ],
                 tokenContext: ['is simply dummy', 'simply dummy text']
               }
             }
@@ -45,7 +48,13 @@ jest.mock('lunr', () => ({
           metadata: {
             simply: {
               title: { position: [[23, 4]] },
-              text: { position: [[111, 6], [118, 4]], tokenContext: ['keywords simply text'] }
+              text: {
+                position: [
+                  [111, 6],
+                  [118, 4]
+                ],
+                tokenContext: ['keywords simply text']
+              }
             }
           }
         }

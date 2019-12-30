@@ -429,7 +429,10 @@ export function mockIssue(withLocations = false, overrides: Partial<T.Issue> = {
   const loc = mockFlowLocation;
 
   if (withLocations) {
-    issue.flows = [[loc(), loc(), loc()], [loc(), loc()]];
+    issue.flows = [
+      [loc(), loc(), loc()],
+      [loc(), loc()]
+    ];
     issue.secondaryLocations = [loc(), loc()];
   }
 

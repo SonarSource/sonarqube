@@ -52,7 +52,9 @@ export default function OrganizationNavigationMeta({
         hasPrivateAccess(currentUser, organization, userOrganizations) && (
           <DocTooltip
             className="spacer-right"
-            doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/subscription-paid-plan.md')}>
+            doc={import(
+              /* webpackMode: "eager" */ 'Docs/tooltips/organizations/subscription-paid-plan.md'
+            )}>
             <div className="badge">{translate('organization.paid_plan.badge')}</div>
           </DocTooltip>
         )}

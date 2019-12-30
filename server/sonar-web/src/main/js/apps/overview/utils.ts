@@ -166,9 +166,9 @@ export function getThreshold(measures: T.MeasureEnhanced[], metricKey: string): 
 
     const condition = conditions.find(c => c.metric === metricKey);
     if (condition) {
-      return parseFloat((condition.level === 'ERROR'
-        ? condition.error
-        : condition.warning) as string);
+      return parseFloat(
+        (condition.level === 'ERROR' ? condition.error : condition.warning) as string
+      );
     }
   }
   return undefined;

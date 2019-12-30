@@ -76,7 +76,10 @@ function setLanguage(lang: string) {
   const langToLoad = lang || DEFAULT_LANGUAGE;
   // No need to load english (default) bundle, it's coming with react-intl
   if (langToLoad !== DEFAULT_LANGUAGE) {
-    return loadLocaleData(langToLoad).then(() => langToLoad, () => DEFAULT_LANGUAGE);
+    return loadLocaleData(langToLoad).then(
+      () => langToLoad,
+      () => DEFAULT_LANGUAGE
+    );
   } else {
     return DEFAULT_LANGUAGE;
   }

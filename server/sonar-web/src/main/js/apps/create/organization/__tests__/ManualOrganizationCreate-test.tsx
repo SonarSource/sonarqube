@@ -49,7 +49,10 @@ function shallowRender(props: Partial<ManualOrganizationCreate['props']> = {}) {
       onDone={jest.fn()}
       onUpgradeFail={jest.fn()}
       step={Step.OrganizationDetails}
-      subscriptionPlans={[{ maxNcloc: 100000, price: 10 }, { maxNcloc: 250000, price: 75 }]}
+      subscriptionPlans={[
+        { maxNcloc: 100000, price: 10 },
+        { maxNcloc: 250000, price: 75 }
+      ]}
       {...props}
     />
   );

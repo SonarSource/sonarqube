@@ -72,7 +72,9 @@ export default function MembersPageHeader(props: Props) {
               />
               <DocTooltip
                 className="spacer-left"
-                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/organizations/add-organization-member.md')}
+                doc={import(
+                  /* webpackMode: "eager" */ 'Docs/tooltips/organizations/add-organization-member.md'
+                )}
               />
             </div>
           )}

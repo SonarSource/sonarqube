@@ -122,9 +122,13 @@ function getDoc(visibility: T.Visibility, icon: JSX.Element | null, organization
     doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-private.md');
   } else if (icon) {
     if (actions.admin) {
-      doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-paid-org-admin.md');
+      doc = import(
+        /* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-paid-org-admin.md'
+      );
     } else {
-      doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-paid-org.md');
+      doc = import(
+        /* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-paid-org.md'
+      );
     }
   } else if (actions.admin) {
     doc = import(/* webpackMode: "eager" */ 'Docs/tooltips/project/visibility-public-admin.md');

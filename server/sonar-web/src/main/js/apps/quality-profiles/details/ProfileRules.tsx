@@ -57,8 +57,14 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
 
   state: State = {
     activatedTotal: null,
-    activatedByType: keyBy(TYPES.map(t => ({ val: t, count: null })), 'val'),
-    allByType: keyBy(TYPES.map(t => ({ val: t, count: null })), 'val'),
+    activatedByType: keyBy(
+      TYPES.map(t => ({ val: t, count: null })),
+      'val'
+    ),
+    allByType: keyBy(
+      TYPES.map(t => ({ val: t, count: null })),
+      'val'
+    ),
     compareToSonarWay: null,
     total: null
   };
@@ -192,7 +198,9 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
           {actions.copy && profile.isBuiltIn && (
             <div className="text-right big-spacer-top">
               <DocTooltip
-                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/activate-rules-in-built-in-profile.md')}>
+                doc={import(
+                  /* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/activate-rules-in-built-in-profile.md'
+                )}>
                 <Button className="disabled js-activate-rules">
                   {translate('quality_profiles.activate_more')}
                 </Button>

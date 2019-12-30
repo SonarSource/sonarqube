@@ -25,7 +25,10 @@ jest.mock('../A11yContext', () => ({
   A11yContext: {
     Consumer: ({ children }: any) => {
       return children({
-        links: [{ key: 'link1', label: 'Label 1' }, { key: 'link2', label: 'Label 2' }]
+        links: [
+          { key: 'link1', label: 'Label 1' },
+          { key: 'link2', label: 'Label 2' }
+        ]
       });
     }
   }

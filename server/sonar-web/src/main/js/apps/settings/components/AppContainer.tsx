@@ -131,7 +131,4 @@ const mapStateToProps = (state: Store) => ({
 
 const mapDispatchToProps = { fetchSettings: fetchSettings as any };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

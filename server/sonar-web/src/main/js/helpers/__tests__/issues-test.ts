@@ -108,7 +108,10 @@ it('orders secondary locations', () => {
       }
     ]
   } as any;
-  const components = [{ key: 'foo', name: 'src/foo.js' }, { key: 'bar', name: 'src/bar.js' }];
+  const components = [
+    { key: 'foo', name: 'src/foo.js' },
+    { key: 'bar', name: 'src/bar.js' }
+  ];
   expect(parseIssueFromResponse(issue, components).secondaryLocations).toEqual([
     {
       component: 'bar',

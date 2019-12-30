@@ -1185,9 +1185,4 @@ export class App extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
 
-export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps
-  )(App)
-);
+export default withRouter(connect(null, mapDispatchToProps)(App));

@@ -30,7 +30,10 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<ProfilesListHeader['props']> = {}) {
   return shallow(
     <ProfilesListHeader
-      languages={[{ key: 'js', name: 'JavaScript' }, { key: 'java', name: 'Java' }]}
+      languages={[
+        { key: 'js', name: 'JavaScript' },
+        { key: 'java', name: 'Java' }
+      ]}
       organization="foo"
       router={mockRouter()}
       {...props}

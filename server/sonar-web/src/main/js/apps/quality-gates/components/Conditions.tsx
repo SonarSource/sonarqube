@@ -158,7 +158,9 @@ export class Conditions extends React.PureComponent<Props> {
           <h3>{translate('quality_gates.conditions')}</h3>
           <DocTooltip
             className="spacer-left"
-            doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-conditions.md')}
+            doc={import(
+              /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-conditions.md'
+            )}
           />
         </header>
 

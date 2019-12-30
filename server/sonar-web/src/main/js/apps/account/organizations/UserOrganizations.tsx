@@ -110,7 +110,4 @@ const mapDispatchToProps = {
   fetchIfAnyoneCanCreateOrganizations: fetchIfAnyoneCanCreateOrganizations as any
 } as DispatchProps;
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(UserOrganizations);
+export default connect(mapStateToProps, mapDispatchToProps)(UserOrganizations);

@@ -64,7 +64,10 @@ export class AdminContainer extends React.PureComponent<Props, State> {
   }
 
   fetchNavigationSettings = () => {
-    getSettingsNavigation().then(r => this.props.setAdminPages(r.extensions), () => {});
+    getSettingsNavigation().then(
+      r => this.props.setAdminPages(r.extensions),
+      () => {}
+    );
   };
 
   fetchPendingPlugins = () => {
@@ -145,7 +148,4 @@ const mapStateToProps = (state: Store) => ({ appState: getAppState(state) });
 
 const mapDispatchToProps = { setAdminPages };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AdminContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer);

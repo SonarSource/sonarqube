@@ -33,7 +33,10 @@ const news: Props['news'] = [
     publicationDate: '2018-04-06',
     features: [
       {
-        categories: [{ color: '#ff0000', name: 'Java' }, { color: '#00ff00', name: 'Rules' }],
+        categories: [
+          { color: '#ff0000', name: 'Java' },
+          { color: '#00ff00', name: 'Rules' }
+        ],
         description: '10 new Java rules'
       },
       {

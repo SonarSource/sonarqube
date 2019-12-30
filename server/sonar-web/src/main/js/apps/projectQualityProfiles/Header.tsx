@@ -28,7 +28,9 @@ export default function Header() {
         <h1>{translate('project_quality_profiles.page')}</h1>
         <DocTooltip
           className="spacer-left"
-          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/quality-profile-projects.md')}
+          doc={import(
+            /* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/quality-profile-projects.md'
+          )}
         />
       </div>
       <div className="page-description">

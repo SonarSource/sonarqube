@@ -25,9 +25,15 @@ import { RuleDetailsIssues } from '../RuleDetailsIssues';
 
 jest.mock('../../../../api/issues', () => ({
   getFacet: jest.fn().mockResolvedValue({
-    facet: [{ count: 13, val: 'sample-key' }, { count: 5, val: 'example-key' }],
+    facet: [
+      { count: 13, val: 'sample-key' },
+      { count: 5, val: 'example-key' }
+    ],
     response: {
-      components: [{ key: 'sample-key', name: 'Sample' }, { key: 'example-key', name: 'Example' }],
+      components: [
+        { key: 'sample-key', name: 'Sample' },
+        { key: 'example-key', name: 'Example' }
+      ],
       paging: { total: 18 }
     }
   })

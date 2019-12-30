@@ -42,9 +42,10 @@ import {
 import { CreateOrganization } from '../CreateOrganization';
 
 jest.mock('../../../../api/billing', () => ({
-  getSubscriptionPlans: jest
-    .fn()
-    .mockResolvedValue([{ maxNcloc: 100000, price: 10 }, { maxNcloc: 250000, price: 75 }])
+  getSubscriptionPlans: jest.fn().mockResolvedValue([
+    { maxNcloc: 100000, price: 10 },
+    { maxNcloc: 250000, price: 75 }
+  ])
 }));
 
 jest.mock('../../../../api/alm-integration', () => ({

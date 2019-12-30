@@ -137,9 +137,13 @@ export class StartupModal extends React.PureComponent<Props, State> {
     if (
       isSonarCloud() &&
       this.props.currentUser.showOnboardingTutorial &&
-      !['/about', '/documentation', '/onboarding', '/projects/create', '/create-organization'].some(
-        path => this.props.location.pathname.startsWith(path)
-      )
+      ![
+        '/about',
+        '/documentation',
+        '/onboarding',
+        '/projects/create',
+        '/create-organization'
+      ].some(path => this.props.location.pathname.startsWith(path))
     ) {
       this.openOnboarding();
     }
@@ -170,7 +174,4 @@ const mapStateToProps = (state: Store): StateProps => ({
 
 const mapDispatchToProps: DispatchProps = { skipOnboarding };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(StartupModal));
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(StartupModal));

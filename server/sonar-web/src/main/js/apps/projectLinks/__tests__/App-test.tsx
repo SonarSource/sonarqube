@@ -25,12 +25,10 @@ import App from '../App';
 
 // import { getProjectLinks, createLink, deleteLink } from '../../api/projectLinks';
 jest.mock('../../../api/projectLinks', () => ({
-  getProjectLinks: jest
-    .fn()
-    .mockResolvedValue([
-      { id: '1', type: 'homepage', url: 'http://example.com' },
-      { id: '2', name: 'foo', type: 'foo', url: 'http://example.com/foo' }
-    ]),
+  getProjectLinks: jest.fn().mockResolvedValue([
+    { id: '1', type: 'homepage', url: 'http://example.com' },
+    { id: '2', name: 'foo', type: 'foo', url: 'http://example.com/foo' }
+  ]),
   createLink: jest
     .fn()
     .mockResolvedValue({ id: '3', name: 'bar', type: 'bar', url: 'http://example.com/bar' }),

@@ -118,9 +118,11 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
 
     for (const profile of profiles) {
       looper = looper.then(() =>
-        method({ ...data, organization: this.props.organization, targetKey: profile }).then(
-          response => this.processResponse(profile, response)
-        )
+        method({
+          ...data,
+          organization: this.props.organization,
+          targetKey: profile
+        }).then(response => this.processResponse(profile, response))
       );
     }
     return looper;

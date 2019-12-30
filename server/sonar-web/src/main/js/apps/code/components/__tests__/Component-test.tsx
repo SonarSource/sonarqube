@@ -36,7 +36,10 @@ function shallowRender(props: Partial<Component['props']> = {}) {
       component={mockComponentMeasure(false, {
         key: 'bar',
         name: 'Bar',
-        measures: [{ metric: 'bugs', value: '12' }, { metric: 'vulnerabilities', value: '1' }]
+        measures: [
+          { metric: 'bugs', value: '12' },
+          { metric: 'vulnerabilities', value: '1' }
+        ]
       })}
       metrics={[mockMetric({ key: 'bugs' }), mockMetric({ key: 'vulnerabilities' })]}
       rootComponent={mockComponentMeasure()}

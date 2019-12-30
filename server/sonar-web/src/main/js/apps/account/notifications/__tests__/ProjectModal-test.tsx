@@ -30,7 +30,10 @@ jest.mock('../../../../api/components', () => ({
     results: [
       {
         q: 'TRK',
-        items: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
+        items: [
+          { key: 'foo', name: 'Foo' },
+          { key: 'bar', name: 'Bar' }
+        ]
       },
       // this file should be ignored
       { q: 'FIL', items: [{ key: 'foo:file.js', name: 'file.js' }] }

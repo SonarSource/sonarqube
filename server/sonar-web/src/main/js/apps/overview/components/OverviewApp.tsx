@@ -338,7 +338,4 @@ const mapDispatchToProps = { fetchMetrics };
 
 const mapStateToProps = (state: Store) => ({ metrics: getMetrics(state) });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(OverviewApp);
+export default connect(mapStateToProps, mapDispatchToProps)(OverviewApp);

@@ -260,7 +260,4 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = { fetchOrganizations };
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(BackgroundTasksApp);
+export default connect(null, mapDispatchToProps)(BackgroundTasksApp);

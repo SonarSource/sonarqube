@@ -43,10 +43,20 @@ it('should have a correct domain with strings or numbers', () => {
   const wrapper = shallow(<Timeline after={range} history={history} />);
   expect(wrapper.find('LineChart').prop('domain')).toEqual([0, 360]);
 
-  wrapper.setProps({ history: [{ date, value: '360.33' }, { date, value: '39.54' }] });
+  wrapper.setProps({
+    history: [
+      { date, value: '360.33' },
+      { date, value: '39.54' }
+    ]
+  });
   expect(wrapper.find('LineChart').prop('domain')).toEqual([0, 360.33]);
 
-  wrapper.setProps({ history: [{ date, value: 360 }, { date, value: 39 }] });
+  wrapper.setProps({
+    history: [
+      { date, value: 360 },
+      { date, value: 39 }
+    ]
+  });
   expect(wrapper.find('LineChart').prop('domain')).toEqual([0, 360]);
 });
 

@@ -34,10 +34,7 @@ if (process.env.NODE_ENV === 'development') {
   composed.push(__REDUX_DEVTOOLS_EXTENSION__ ? __REDUX_DEVTOOLS_EXTENSION__() : (f: Function) => f);
 }
 
-const finalCreateStore = compose(
-  applyMiddleware(...middlewares),
-  ...composed
-)(createStore);
+const finalCreateStore = compose(applyMiddleware(...middlewares), ...composed)(createStore);
 
 export default function configureStore(rootReducer: RootReducer, initialState?: State) {
   return finalCreateStore(rootReducer, initialState);

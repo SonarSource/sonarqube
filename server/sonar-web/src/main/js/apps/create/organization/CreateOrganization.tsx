@@ -453,12 +453,5 @@ const mapDispatchToProps = {
 };
 
 export default whenLoggedIn(
-  withUserOrganizations(
-    withRouter(
-      connect(
-        null,
-        mapDispatchToProps
-      )(CreateOrganization)
-    )
-  )
+  withUserOrganizations(withRouter(connect(null, mapDispatchToProps)(CreateOrganization)))
 );

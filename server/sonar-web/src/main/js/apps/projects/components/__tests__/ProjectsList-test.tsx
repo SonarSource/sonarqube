@@ -39,7 +39,10 @@ function shallowRender(props?: any) {
       isFavorite={false}
       isFiltered={false}
       organization={undefined}
-      projects={[{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]}
+      projects={[
+        { key: 'foo', name: 'Foo' },
+        { key: 'bar', name: 'Bar' }
+      ]}
       {...props}
     />
   );

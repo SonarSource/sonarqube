@@ -331,8 +331,9 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
           <div className="measure measure-big">
             <span className="measure-name">{domain}</span>
           </div>
-          {sortBy(measures.filter(measure => measure.value !== undefined), measure =>
-            getLocalizedMetricName(measure.metric)
+          {sortBy(
+            measures.filter(measure => measure.value !== undefined),
+            measure => getLocalizedMetricName(measure.metric)
           ).map(measure => this.renderMeasure(measure))}
         </div>
       </div>

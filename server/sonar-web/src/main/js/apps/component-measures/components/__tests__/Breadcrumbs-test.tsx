@@ -24,13 +24,11 @@ import { getBreadcrumbs } from '../../../../api/components';
 import Breadcrumbs from '../Breadcrumbs';
 
 jest.mock('../../../../api/components', () => ({
-  getBreadcrumbs: jest
-    .fn()
-    .mockResolvedValue([
-      { key: 'anc1', name: 'Ancestor1' },
-      { key: 'anc2', name: 'Ancestor2' },
-      { key: 'bar', name: 'Bar' }
-    ])
+  getBreadcrumbs: jest.fn().mockResolvedValue([
+    { key: 'anc1', name: 'Ancestor1' },
+    { key: 'anc2', name: 'Ancestor2' },
+    { key: 'bar', name: 'Bar' }
+  ])
 }));
 
 const componentFoo = {

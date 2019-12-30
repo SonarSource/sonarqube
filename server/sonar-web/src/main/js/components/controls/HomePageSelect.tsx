@@ -84,10 +84,7 @@ const mapStateToProps = (state: Store): StateProps => ({
 
 const mapDispatchToProps: DispatchProps = { setHomePage };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HomePageSelect);
+export default connect(mapStateToProps, mapDispatchToProps)(HomePageSelect);
 
 function isSameHomePage(a: T.HomePage, b: T.HomePage) {
   return (

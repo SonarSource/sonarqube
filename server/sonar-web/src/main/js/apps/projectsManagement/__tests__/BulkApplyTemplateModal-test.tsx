@@ -51,7 +51,10 @@ it('bulk applies template to all results', async () => {
   wrapper.setState({
     loading: false,
     permissionTemplate: 'foo',
-    permissionTemplates: [{ id: 'foo', name: 'Foo' }, { id: 'bar', name: 'Bar' }]
+    permissionTemplates: [
+      { id: 'foo', name: 'Foo' },
+      { id: 'bar', name: 'Bar' }
+    ]
   });
   expect(wrapper).toMatchSnapshot();
 
@@ -78,7 +81,10 @@ it('bulk applies template to selected results', async () => {
   wrapper.setState({
     loading: false,
     permissionTemplate: 'foo',
-    permissionTemplates: [{ id: 'foo', name: 'Foo' }, { id: 'bar', name: 'Bar' }]
+    permissionTemplates: [
+      { id: 'foo', name: 'Foo' },
+      { id: 'bar', name: 'Bar' }
+    ]
   });
   expect(wrapper).toMatchSnapshot();
 

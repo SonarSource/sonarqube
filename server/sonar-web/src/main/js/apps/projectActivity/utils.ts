@@ -180,10 +180,10 @@ export function generateSeries(
 }
 
 export function splitSeriesInGraphs(series: Serie[], maxGraph: number, maxSeries: number) {
-  return flatMap(groupBy(series, serie => serie.type), type => chunk(type, maxSeries)).slice(
-    0,
-    maxGraph
-  );
+  return flatMap(
+    groupBy(series, serie => serie.type),
+    type => chunk(type, maxSeries)
+  ).slice(0, maxGraph);
 }
 
 export function getSeriesMetricType(series: Serie[]) {

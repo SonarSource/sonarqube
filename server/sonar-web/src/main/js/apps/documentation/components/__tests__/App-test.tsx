@@ -116,13 +116,11 @@ jest.mock('../../pages', () => {
 });
 
 jest.mock('../../../../api/plugins', () => ({
-  getInstalledPlugins: jest
-    .fn()
-    .mockResolvedValue([
-      { key: 'csharp', documentationPath: 'static/documentation.md' },
-      { key: 'vbnet', documentationPath: 'Sstatic/documentation.md' },
-      { key: 'vbnett', documentationPath: undefined }
-    ])
+  getInstalledPlugins: jest.fn().mockResolvedValue([
+    { key: 'csharp', documentationPath: 'static/documentation.md' },
+    { key: 'vbnet', documentationPath: 'Sstatic/documentation.md' },
+    { key: 'vbnett', documentationPath: undefined }
+  ])
 }));
 
 beforeEach(() => {

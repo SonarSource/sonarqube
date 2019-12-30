@@ -143,7 +143,9 @@ export class ReviewApp extends React.PureComponent<Props, State> {
                 {translate('overview.quality_gate')}
                 <DocTooltip
                   className="spacer-left"
-                  doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md')}
+                  doc={import(
+                    /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md'
+                  )}
                 />
               </h3>
               <LargeQualityGateBadge component={component} level={status} />
@@ -181,7 +183,9 @@ export class ReviewApp extends React.PureComponent<Props, State> {
                         branchLike={branchLike}
                         className="overview-domain-measure-value"
                         component={component}
-                        docTooltip={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md')}
+                        docTooltip={import(
+                          /* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md'
+                        )}
                         measures={measures}
                         type="SECURITY_HOTSPOT"
                       />
@@ -236,7 +240,4 @@ const mapStateToProps = (state: Store, { branchLike, component }: OwnProps) => {
 
 const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ReviewApp);
+export default connect(mapStateToProps, mapDispatchToProps)(ReviewApp);

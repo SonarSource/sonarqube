@@ -119,7 +119,4 @@ const mapStateToProps = (state: Store, ownProps: OwnProps) => ({
 
 const mapDispatchToProps = { fetchOrganization: fetchOrganization as any };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(OrganizationPage);
+export default connect(mapStateToProps, mapDispatchToProps)(OrganizationPage);

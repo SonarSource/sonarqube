@@ -98,7 +98,9 @@ export class VulnerabiltiesAndHotspots extends React.PureComponent<ComposedProps
               {getMetricName('security_hotspots')}
               <DocTooltip
                 className="little-spacer-left"
-                doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md')}
+                doc={import(
+                  /* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md'
+                )}
               />
             </div>
             {this.props.renderHistoryLink('security_hotspots')}

@@ -182,7 +182,4 @@ const mapDispatchToProps = {
   setCurrentUserSetting
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TypeFacet);
+export default connect(mapStateToProps, mapDispatchToProps)(TypeFacet);

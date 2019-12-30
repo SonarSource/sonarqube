@@ -54,7 +54,10 @@ it('should work with multiple extensions', () => {
     ...baseComponent,
     configuration: {
       showSettings: true,
-      extensions: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
+      extensions: [
+        { key: 'foo', name: 'Foo' },
+        { key: 'bar', name: 'Bar' }
+      ]
     },
     extensions: [
       { key: 'component-foo', name: 'ComponentFoo' },
@@ -77,7 +80,10 @@ it('should render correctly for security extensions', () => {
     ...baseComponent,
     configuration: {
       showSettings: true,
-      extensions: [{ key: 'securityreport/foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
+      extensions: [
+        { key: 'securityreport/foo', name: 'Foo' },
+        { key: 'bar', name: 'Bar' }
+      ]
     },
     extensions: [
       { key: 'securityreport/foo', name: 'ComponentFoo' },

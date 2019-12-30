@@ -99,7 +99,11 @@ export default class Facet extends React.PureComponent<Props> {
     const items =
       this.props.options ||
       (stats &&
-        sortBy(Object.keys(stats), key => -stats[key], key => renderTextName(key).toLowerCase()));
+        sortBy(
+          Object.keys(stats),
+          key => -stats[key],
+          key => renderTextName(key).toLowerCase()
+        ));
 
     return (
       <FacetBox

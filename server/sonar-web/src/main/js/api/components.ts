@@ -172,7 +172,10 @@ export function getComponentData(data: { component: string } & BranchParameters)
 export function doesComponentExists(
   data: { component: string } & BranchParameters
 ): Promise<boolean> {
-  return getComponentData(data).then(({ component }) => component !== undefined, () => false);
+  return getComponentData(data).then(
+    ({ component }) => component !== undefined,
+    () => false
+  );
 }
 
 export function getComponentShow(data: { component: string } & BranchParameters): Promise<any> {

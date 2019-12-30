@@ -40,9 +40,7 @@ script:
       <br />
       {`script:
   # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
-  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=${
-    props.projectKey
-  }`}
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=${props.projectKey}`}
     </>
   );
 

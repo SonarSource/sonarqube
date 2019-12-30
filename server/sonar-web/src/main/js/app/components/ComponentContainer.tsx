@@ -354,9 +354,4 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = { fetchOrganization, registerBranchStatus, requireAuthorization };
 
-export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps
-  )(ComponentContainer)
-);
+export default withRouter(connect(null, mapDispatchToProps)(ComponentContainer));

@@ -51,7 +51,4 @@ export class OnboardingPage extends React.PureComponent<Props> {
 
 const mapDispatchToProps = { skipOnboarding };
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(OnboardingPage);
+export default connect(null, mapDispatchToProps)(OnboardingPage);

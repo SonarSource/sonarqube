@@ -50,7 +50,10 @@ export default class MetaTags extends React.PureComponent<Props> {
     setProjectTags({
       project: this.props.component.key,
       tags: values.join(',')
-    }).then(() => this.props.onComponentChange({ tags: values }), () => {});
+    }).then(
+      () => this.props.onComponentChange({ tags: values }),
+      () => {}
+    );
   };
 
   render() {

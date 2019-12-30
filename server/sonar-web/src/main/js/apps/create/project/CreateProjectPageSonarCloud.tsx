@@ -180,10 +180,5 @@ export class CreateProjectPageSonarCloud extends React.PureComponent<
 const mapDispatchToProps = { skipOnboarding };
 
 export default whenLoggedIn(
-  withUserOrganizations(
-    connect(
-      null,
-      mapDispatchToProps
-    )(CreateProjectPageSonarCloud)
-  )
+  withUserOrganizations(connect(null, mapDispatchToProps)(CreateProjectPageSonarCloud))
 );

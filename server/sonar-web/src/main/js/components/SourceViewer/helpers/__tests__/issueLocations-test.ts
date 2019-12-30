@@ -39,8 +39,8 @@ describe('getLinearLocations', () => {
         { from: 0, line: 8, to: 56 }
       ]
     );
-    expect(getLinearLocations({ startLine: 6, startOffset: 0, endLine: 6, endOffset: 42 })).toEqual(
-      [{ from: 0, line: 6, to: 42 }]
-    );
+    expect(
+      getLinearLocations({ startLine: 6, startOffset: 0, endLine: 6, endOffset: 42 })
+    ).toEqual([{ from: 0, line: 6, to: 42 }]);
   });
 });

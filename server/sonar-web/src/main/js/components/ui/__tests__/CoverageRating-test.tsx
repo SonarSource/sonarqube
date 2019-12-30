@@ -30,7 +30,10 @@ it('should render with muted style', () => {
     shallowRender({ muted: true })
       .find('DonutChart')
       .prop('data')
-  ).toEqual([{ fill: '#b4b4b4', value: 25 }, { fill: '#f3f3f3', value: 75 }]);
+  ).toEqual([
+    { fill: '#b4b4b4', value: 25 },
+    { fill: '#f3f3f3', value: 75 }
+  ]);
 });
 
 it('should render with small size', () => {

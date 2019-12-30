@@ -106,7 +106,4 @@ const mapDispatchToProps = (dispatch: Function) => ({
     dispatch(onVisibilityChange(organization, visibility))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AppContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(AppContainer);

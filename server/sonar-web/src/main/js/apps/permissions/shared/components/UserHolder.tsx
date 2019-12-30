@@ -57,9 +57,10 @@ export default class UserHolder extends React.PureComponent<Props, State> {
   handleCheck = (_checked: boolean, permission?: string) => {
     if (permission !== undefined) {
       this.setState(state => ({ loading: [...state.loading, permission] }));
-      this.props
-        .onToggle(this.props.user, permission)
-        .then(() => this.stopLoading(permission), () => this.stopLoading(permission));
+      this.props.onToggle(this.props.user, permission).then(
+        () => this.stopLoading(permission),
+        () => this.stopLoading(permission)
+      );
     }
   };
 

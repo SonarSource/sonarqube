@@ -173,7 +173,4 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
 
 const mapDispatchToProps = { fetchOrganization };
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(SyncMemberForm);
+export default connect(null, mapDispatchToProps)(SyncMemberForm);

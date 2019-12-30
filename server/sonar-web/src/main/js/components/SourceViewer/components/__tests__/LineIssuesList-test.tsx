@@ -47,7 +47,10 @@ const issueBase: T.Issue = {
 };
 
 it('render issues list', () => {
-  const issues: T.Issue[] = [{ ...issueBase, key: 'foo' }, { ...issueBase, key: 'bar' }];
+  const issues: T.Issue[] = [
+    { ...issueBase, key: 'foo' },
+    { ...issueBase, key: 'bar' }
+  ];
   const onIssueClick = jest.fn();
   const wrapper = shallow(
     <LineIssuesList

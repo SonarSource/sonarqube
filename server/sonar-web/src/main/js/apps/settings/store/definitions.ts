@@ -55,8 +55,9 @@ export function getDefinitionsForCategory(state: State, category: string) {
 }
 
 export function getAllCategories(state: State) {
-  return uniqBy(getAllDefinitions(state).map(definition => definition.category), category =>
-    category.toLowerCase()
+  return uniqBy(
+    getAllDefinitions(state).map(definition => definition.category),
+    category => category.toLowerCase()
   );
 }
 

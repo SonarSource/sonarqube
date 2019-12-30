@@ -56,7 +56,10 @@ export function getTask(id: string, additionalFields?: string[]): Promise<T.Task
 }
 
 export function cancelTask(id: string): Promise<any> {
-  return post('/api/ce/cancel', { id }).then(() => getTask(id), () => getTask(id));
+  return post('/api/ce/cancel', { id }).then(
+    () => getTask(id),
+    () => getTask(id)
+  );
 }
 
 export function cancelAllTasks(): Promise<any> {

@@ -224,7 +224,9 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
                     </Button>
                     <DocTooltip
                       className="spacer-left"
-                      doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/rules/custom-rule-removal.md')}
+                      doc={import(
+                        /* webpackMode: "eager" */ 'Docs/tooltips/rules/custom-rule-removal.md'
+                      )}
                     />
                   </>
                 )}

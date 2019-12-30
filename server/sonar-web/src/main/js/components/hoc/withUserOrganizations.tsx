@@ -49,8 +49,5 @@ export function withUserOrganizations<P>(
     return { userOrganizations: getMyOrganizations(state) };
   }
 
-  return connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(Wrapper);
+  return connect(mapStateToProps, mapDispatchToProps)(Wrapper);
 }

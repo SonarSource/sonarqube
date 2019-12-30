@@ -52,9 +52,10 @@ function skipOnboardingAction() {
 
 export function skipOnboarding() {
   return (dispatch: Dispatch) =>
-    api
-      .skipOnboarding()
-      .then(() => dispatch(skipOnboardingAction()), () => dispatch(skipOnboardingAction()));
+    api.skipOnboarding().then(
+      () => dispatch(skipOnboardingAction()),
+      () => dispatch(skipOnboardingAction())
+    );
 }
 
 function setHomePageAction(homepage: T.HomePage) {

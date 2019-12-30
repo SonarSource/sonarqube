@@ -32,7 +32,7 @@ import InputForString from './InputForString';
 import InputForText from './InputForText';
 
 const typeMapping: {
-  [type in T.SettingType]?: React.ComponentType<DefaultSpecializedInputProps>
+  [type in T.SettingType]?: React.ComponentType<DefaultSpecializedInputProps>;
 } = {
   STRING: InputForString,
   TEXT: InputForText,

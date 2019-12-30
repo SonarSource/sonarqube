@@ -100,9 +100,13 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
       qualityProfile: profile.name,
       selected: 'deselected'
     };
-    return Promise.all([searchUsers(parameters), searchGroups(parameters)]).then(
-      ([usersResponse, groupsResponse]) => [...usersResponse.users, ...groupsResponse.groups]
-    );
+    return Promise.all([
+      searchUsers(parameters),
+      searchGroups(parameters)
+    ]).then(([usersResponse, groupsResponse]) => [
+      ...usersResponse.users,
+      ...groupsResponse.groups
+    ]);
   };
 
   handleValueChange = (selected: T.UserSelected | Group) => {

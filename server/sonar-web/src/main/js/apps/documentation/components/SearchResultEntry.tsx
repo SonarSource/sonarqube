@@ -96,7 +96,10 @@ export function SearchResultText({ result }: { result: SearchResult }) {
   }
 
   if (tokens.length === 0 && textHighlights && textHighlights.length > 0) {
-    tokens = highlightMarks(text, textHighlights.map(h => ({ from: h[0], to: h[0] + h[1] })));
+    tokens = highlightMarks(
+      text,
+      textHighlights.map(h => ({ from: h[0], to: h[0] + h[1] }))
+    );
   }
 
   if (tokens.length) {

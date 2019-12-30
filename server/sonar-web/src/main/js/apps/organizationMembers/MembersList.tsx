@@ -43,7 +43,11 @@ export default class MembersList extends React.PureComponent<Props> {
       return <div className="note">{translate('no_results')}</div>;
     }
 
-    const sortedMembers = sortBy(members, member => member.name, member => member.login);
+    const sortedMembers = sortBy(
+      members,
+      member => member.name,
+      member => member.login
+    );
     return (
       <div className="boxed-group boxed-group-inner">
         <table className="data zebra">

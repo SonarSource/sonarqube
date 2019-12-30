@@ -56,7 +56,10 @@ export default class RuleListItem extends React.PureComponent<Props> {
         organization: this.props.organization,
         rule: this.props.rule.key
       };
-      deactivateRule(data).then(() => this.props.onDeactivate(data.key, data.rule), () => {});
+      deactivateRule(data).then(
+        () => this.props.onDeactivate(data.key, data.rule),
+        () => {}
+      );
     }
   };
 

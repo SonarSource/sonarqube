@@ -28,7 +28,9 @@ export default function Header() {
         <h1>{translate('project_quality_gate.page')}</h1>
         <DocTooltip
           className="spacer-left"
-          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-projects.md')}
+          doc={import(
+            /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-projects.md'
+          )}
         />
       </div>
       <div className="page-description">{translate('project_quality_gate.page.description')}</div>

@@ -26,7 +26,10 @@ jest.mock(
   'Docs/EmbedDocsSuggestions.json',
   () => ({
     default: {
-      pageA: [{ link: '/foo', text: 'Foo' }, { link: '/bar', text: 'Bar', scope: 'sonarcloud' }],
+      pageA: [
+        { link: '/foo', text: 'Foo' },
+        { link: '/bar', text: 'Bar', scope: 'sonarcloud' }
+      ],
       pageB: [{ link: '/qux', text: 'Qux' }]
     }
   }),

@@ -81,7 +81,4 @@ const mapDispatchToProps = {
   setCurrentUserSetting
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SonarCloudNotifications);
+export default connect(mapStateToProps, mapDispatchToProps)(SonarCloudNotifications);

@@ -27,7 +27,10 @@ jest.mock('../../../../api/components', () => ({
     results: [
       {
         q: 'TRK',
-        items: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
+        items: [
+          { key: 'foo', name: 'Foo' },
+          { key: 'bar', name: 'Bar' }
+        ]
       },
       // this file should be ignored
       { q: 'FIL', items: [{ key: 'foo:file.js', name: 'file.js' }] }
@@ -44,7 +47,10 @@ const extraProps = {
   channel: 'channel1',
   type: 'type2'
 };
-const projects = [{ ...projectFoo, ...extraProps }, { ...projectBar, ...extraProps }];
+const projects = [
+  { ...projectFoo, ...extraProps },
+  { ...projectBar, ...extraProps }
+];
 
 it('should render projects', () => {
   const wrapper = shallowRender({

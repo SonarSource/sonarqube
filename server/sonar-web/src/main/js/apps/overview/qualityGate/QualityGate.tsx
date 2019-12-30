@@ -57,7 +57,9 @@ export default function QualityGate({ branchLike, component, measures }: Props) 
         <h2 className="overview-title">{translate('overview.quality_gate')}</h2>
         <DocTooltip
           className="spacer-left"
-          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md')}
+          doc={import(
+            /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md'
+          )}
         />
         {level && <Level className="big-spacer-left" level={level} />}
         {level === 'WARN' && (

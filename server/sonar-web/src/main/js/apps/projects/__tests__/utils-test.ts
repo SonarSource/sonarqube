@@ -26,12 +26,10 @@ jest.mock('../../../api/components', () => ({
 }));
 
 jest.mock('../../../api/measures', () => ({
-  getMeasuresForProjects: jest
-    .fn()
-    .mockResolvedValue([
-      { component: 'foo', metric: 'new_coverage', periods: [{ index: 1, value: '10' }] },
-      { component: 'bar', metric: 'languages', value: '20' }
-    ])
+  getMeasuresForProjects: jest.fn().mockResolvedValue([
+    { component: 'foo', metric: 'new_coverage', periods: [{ index: 1, value: '10' }] },
+    { component: 'bar', metric: 'languages', value: '20' }
+  ])
 }));
 
 jest.mock('../../../api/organizations', () => ({
@@ -118,7 +116,13 @@ describe('fetchProjects', () => {
       components,
       facets: [
         { property: 'new_coverage', values: [{ val: 'NO_DATA', count: 0 }] },
-        { property: 'languages', values: [{ val: 'css', count: 10 }, { val: 'js', count: 2 }] }
+        {
+          property: 'languages',
+          values: [
+            { val: 'css', count: 10 },
+            { val: 'js', count: 2 }
+          ]
+        }
       ],
       paging: { total: 2 }
     });
