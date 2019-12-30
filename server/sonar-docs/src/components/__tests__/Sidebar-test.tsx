@@ -72,7 +72,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<Sidebar['props']> = {}) {
   return shallow(
     <Sidebar
-      location={{ pathname: '/foo/baz/foo/bar' } as Location}
+      location={{ pathname: '/2.0/foo/baz/foo/bar' } as Location}
       pages={[
         {
           fields: {

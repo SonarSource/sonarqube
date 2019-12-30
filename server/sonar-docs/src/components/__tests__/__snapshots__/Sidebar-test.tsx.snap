@@ -105,7 +105,7 @@ exports[`should render correctly 1`] = `
         key="/foo/"
         location={
           Object {
-            "pathname": "/foo/baz/foo/bar",
+            "pathname": "/2.0/foo/baz/foo/bar",
           }
         }
         node={
@@ -123,7 +123,7 @@ exports[`should render correctly 1`] = `
         key="Foo subs"
         location={
           Object {
-            "pathname": "/foo/baz/foo/bar",
+            "pathname": "/2.0/foo/baz/foo/bar",
           }
         }
         openByDefault={true}
@@ -133,7 +133,7 @@ exports[`should render correctly 1`] = `
           key="Foo Baz subs"
           location={
             Object {
-              "pathname": "/foo/baz/foo/bar",
+              "pathname": "/2.0/foo/baz/foo/bar",
             }
           }
           openByDefault={true}
@@ -144,7 +144,7 @@ exports[`should render correctly 1`] = `
             key="Foo Baz Foo subs"
             location={
               Object {
-                "pathname": "/foo/baz/foo/bar",
+                "pathname": "/2.0/foo/baz/foo/bar",
               }
             }
             openByDefault={true}
@@ -157,7 +157,7 @@ exports[`should render correctly 1`] = `
         key="/bar/"
         location={
           Object {
-            "pathname": "/foo/baz/foo/bar",
+            "pathname": "/2.0/foo/baz/foo/bar",
           }
         }
         node={
@@ -175,7 +175,7 @@ exports[`should render correctly 1`] = `
         key="Bar subs"
         location={
           Object {
-            "pathname": "/foo/baz/foo/bar",
+            "pathname": "/2.0/foo/baz/foo/bar",
           }
         }
         openByDefault={false}

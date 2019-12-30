@@ -67,6 +67,7 @@ describe('getUrlsList', () => {
 describe('getOpenChainFromPath', () => {
   it('should correctly fetch the chain of open elements for a given path', () => {
     expect(getOpenChainFromPath('path/value/', navTree)).toEqual([navTree[0]]);
+    expect(getOpenChainFromPath('latest/path/value/', navTree)).toEqual([navTree[0]]);
     expect(getOpenChainFromPath('sub/child/path/3', navTree)).toEqual([
       navTree[1],
       (navTree as any)[1].children[1],
@@ -83,5 +84,7 @@ describe('testPathAgainstUrl', () => {
     expect(testPathAgainstUrl('path/foo', 'path/foo/')).toBe(true);
     expect(testPathAgainstUrl('/path/foo/', 'path/foo')).toBe(true);
     expect(testPathAgainstUrl('path/foo', '/path/foo/')).toBe(true);
+    expect(testPathAgainstUrl('/path/foo', '/1.0/path/foo/')).toBe(true);
+    expect(testPathAgainstUrl('/path/foo', '/latest/path/foo/')).toBe(true);
   });
 });

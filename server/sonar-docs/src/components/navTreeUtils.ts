@@ -85,10 +85,11 @@ export function isDocsNavigationExternalLink(
 }
 
 export function testPathAgainstUrl(path: string, url: string) {
+  return trimSlashes(url).replace(/^(latest|\d+\.\d+)\//, '') === trimSlashes(path);
+}
+
+function trimSlashes(string: string) {
   const leadingRegEx = /^\//;
   const trailingRegEx = /\/$/;
-  return (
-    path.replace(leadingRegEx, '').replace(trailingRegEx, '') ===
-    url.replace(leadingRegEx, '').replace(trailingRegEx, '')
-  );
+  return string.replace(leadingRegEx, '').replace(trailingRegEx, '');
 }
