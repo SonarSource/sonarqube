@@ -21,6 +21,7 @@ package org.sonar.server.hotspot.ws;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -49,6 +50,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -1350,6 +1352,46 @@ public class SearchActionTest {
         atLeakPeriod.stream())
         .map(IssueDto::getKey)
         .toArray(String[]::new));
+  }
+
+  @Test
+  public void verify_response_example() {
+    ComponentDto project = dbTester.components().insertPublicProject(componentDto -> componentDto
+      .setName("test-project")
+      .setLongName("test-project")
+      .setDbKey("com.sonarsource:test-project")
+    );
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto fileWithHotspot = dbTester.components().insertComponent(newFileDto(project)
+      .setDbKey("com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java")
+      .setName("FourthClass.java")
+      .setLongName("src/main/java/com/sonarsource/FourthClass.java")
+      .setPath("src/main/java/com/sonarsource/FourthClass.java")
+    );
+
+    long time = 1577976190000L;
+
+    IssueDto[] hotspots = IntStream.range(0, 3)
+      .mapToObj(i -> {
+        RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT)
+          .setSecurityStandards(Sets.newHashSet(SQCategory.WEAK_CRYPTOGRAPHY.getKey()));
+        return insertHotspot(rule, project, fileWithHotspot, issueDto -> issueDto.setKee("hotspot-" + i)
+          .setAssigneeUuid("assignee-uuid")
+          .setAuthorLogin("joe")
+          .setMessage("message-" +i)
+          .setLine(10 + i)
+          .setIssueCreationTime(time)
+          .setIssueUpdateTime(time)
+        );
+      })
+      .toArray(IssueDto[]::new);
+    indexIssues();
+
+    newRequest(project)
+      .execute()
+      .assertJson(actionTester.getDef().responseExampleAsString()
+        .replaceAll("default-organization", dbTester.getDefaultOrganization().getKey()));
   }
 
   private IssueDto insertHotspot(ComponentDto project, ComponentDto file, RuleDefinitionDto rule) {

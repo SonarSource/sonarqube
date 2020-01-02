@@ -1,0 +1,68 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 3
+  },
+  "hotspots": [
+    {
+      "key": "hotspot-0",
+      "component": "com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java",
+      "project": "com.sonarsource:test-project",
+      "securityCategory": "others",
+      "vulnerabilityProbability": "LOW",
+      "status": "TO_REVIEW",
+      "line": 10,
+      "message": "message-0",
+      "assignee": "assignee-uuid",
+      "author": "joe",
+      "creationDate": "2020-01-02T15:43:10+0100",
+      "updateDate": "2020-01-02T15:43:10+0100"
+    },
+    {
+      "key": "hotspot-1",
+      "component": "com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java",
+      "project": "com.sonarsource:test-project",
+      "securityCategory": "others",
+      "vulnerabilityProbability": "LOW",
+      "status": "TO_REVIEW",
+      "line": 11,
+      "message": "message-1",
+      "assignee": "assignee-uuid",
+      "author": "joe",
+      "creationDate": "2020-01-02T15:43:10+0100",
+      "updateDate": "2020-01-02T15:43:10+0100"
+    },
+    {
+      "key": "hotspot-2",
+      "component": "com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java",
+      "project": "com.sonarsource:test-project",
+      "securityCategory": "others",
+      "vulnerabilityProbability": "LOW",
+      "status": "TO_REVIEW",
+      "line": 12,
+      "message": "message-2",
+      "assignee": "assignee-uuid",
+      "author": "joe",
+      "creationDate": "2020-01-02T15:43:10+0100",
+      "updateDate": "2020-01-02T15:43:10+0100"
+    }
+  ],
+  "components": [
+    {
+      "organization": "default-organization",
+      "key": "com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java",
+      "qualifier": "FIL",
+      "name": "FourthClass.java",
+      "longName": "src/main/java/com/sonarsource/FourthClass.java",
+      "path": "src/main/java/com/sonarsource/FourthClass.java"
+    },
+    {
+      "organization": "default-organization",
+      "key": "com.sonarsource:test-project",
+      "qualifier": "TRK",
+      "name": "test-project",
+      "longName": "test-project"
+    }
+  ]
+}

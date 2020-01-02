@@ -157,8 +157,7 @@ public class SearchAction implements HotspotsWsAction {
       .setBooleanPossibleValues()
       .setRequired(false);
 
-    // FIXME add response example and test it
-    // action.setResponseExample()
+    action.setResponseExample(getClass().getResource("search-example.json"));
   }
 
   @Override
@@ -275,7 +274,7 @@ public class SearchAction implements HotspotsWsAction {
       .types(singleton(RuleType.SECURITY_HOTSPOT.name()))
       .sort(IssueQuery.SORT_HOTSPOTS)
       .asc(true)
-      .statuses(wsRequest.getStatus().map(Collections::singletonList).orElse(STATUSES));;
+      .statuses(wsRequest.getStatus().map(Collections::singletonList).orElse(STATUSES));
     project.ifPresent(p -> {
       builder.organizationUuid(p.getOrganizationUuid());
 
