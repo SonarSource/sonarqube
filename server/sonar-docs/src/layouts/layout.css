@@ -328,10 +328,18 @@ a.search-result .note {
 }
 
 .page-container .headings-container {
-  float: right;
   width: 200px;
-  border-left: 1px solid #cfd3d7;
+  float: right;
+  margin-top: 80px;
+}
+
+.page-container .headings-container-fixed {
+  position: fixed;
+  width: inherit;
   padding-left: 26px;
+  border-left: 1px solid #cfd3d7;
+  z-index: 100;
+  background: white;
 }
 
 .page-container .headings-container span {

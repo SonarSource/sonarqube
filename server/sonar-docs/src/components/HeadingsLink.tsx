@@ -21,7 +21,6 @@ import * as React from 'react';
 import { MarkdownHeading } from '../@types/graphql-types';
 import HeadingAnchor from './HeadingAnchor';
 
-const MINIMUM_TOP_MARGIN = 80;
 const HEADER_SCROLL_MARGIN = 100;
 
 interface Props {
@@ -31,7 +30,6 @@ interface Props {
 interface State {
   activeIndex: number;
   headers: MarkdownHeading[];
-  marginTop: number;
 }
 
 export default class HeadingsLink extends React.PureComponent<Props, State> {
@@ -43,18 +41,17 @@ export default class HeadingsLink extends React.PureComponent<Props, State> {
       activeIndex: -1,
       headers: props.headers.filter(
         h => h.depth === 2 && h.value && h.value.toLowerCase() !== 'table of contents'
-      ),
-      marginTop: MINIMUM_TOP_MARGIN
+      )
     };
   }
 
   componentDidMount() {
     document.addEventListener('scroll', this.scrollHandler, true);
-    this.scrollHandler();
   }
 
   componentWillReceiveProps(nextProps: Props) {
     this.setState({
+      activeIndex: -1,
       headers: nextProps.headers.filter(
         h => h.depth === 2 && h.value && h.value.toLowerCase() !== 'table of contents'
       )
@@ -65,6 +62,16 @@ export default class HeadingsLink extends React.PureComponent<Props, State> {
     document.removeEventListener('scroll', this.scrollHandler, true);
   }
 
+  scrollHandler = () => {
+    if (this.skipScrollingHandler) {
+      this.skipScrollingHandler = false;
+      return;
+    }
+
+    const scrollTop = window.pageYOffset || document.body.scrollTop;
+    this.highlightHeading(scrollTop);
+  };
+
   highlightHeading = (scrollTop: number) => {
     let headingIndex = 0;
     for (let i = 0; i < this.state.headers.length; i++) {
@@ -74,11 +81,7 @@ export default class HeadingsLink extends React.PureComponent<Props, State> {
       }
       headingIndex = i;
     }
-    const scrollLimit = document.body.scrollHeight - document.body.clientHeight;
-    this.setState({
-      activeIndex: headingIndex,
-      marginTop: Math.max(MINIMUM_TOP_MARGIN, Math.min(scrollTop, scrollLimit))
-    });
+    this.setState({ activeIndex: headingIndex });
     this.markH2(headingIndex + 1, false);
   };
 
@@ -99,16 +102,6 @@ export default class HeadingsLink extends React.PureComponent<Props, State> {
     }
   };
 
-  scrollHandler = () => {
-    if (this.skipScrollingHandler) {
-      this.skipScrollingHandler = false;
-      return;
-    }
-
-    const scrollTop = window.pageYOffset || document.body.scrollTop;
-    this.highlightHeading(scrollTop);
-  };
-
   clickHandler = (index: number) => {
     this.markH2(index, true);
   };
@@ -120,21 +113,23 @@ export default class HeadingsLink extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className="headings-container" style={{ marginTop: this.state.marginTop + 'px' }}>
-        <span>On this page</span>
-        <ul>
-          {headers.map((header, index) => {
-            return (
-              <HeadingAnchor
-                active={this.state.activeIndex === index}
-                clickHandler={this.clickHandler}
-                index={index + 1}
-                key={index}>
-                {header.value}
-              </HeadingAnchor>
-            );
-          })}
-        </ul>
+      <div className="headings-container">
+        <div className="headings-container-fixed">
+          <span>On this page</span>
+          <ul>
+            {headers.map((header, index) => {
+              return (
+                <HeadingAnchor
+                  active={this.state.activeIndex === index}
+                  clickHandler={this.clickHandler}
+                  index={index + 1}
+                  key={index}>
+                  {header.value}
+                </HeadingAnchor>
+              );
+            })}
+          </ul>
+        </div>
       </div>
     );
   }
