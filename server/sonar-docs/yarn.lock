@@ -4826,7 +4826,7 @@ gatsby-plugin-page-creator@^2.0.11:
     parse-filepath "^1.0.1"
     slash "^1.0.0"
 
-gatsby-plugin-polyfill-io@^1.1.0:
+gatsby-plugin-polyfill-io@1.1.0:
   version "1.1.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/gatsby-plugin-polyfill-io/-/gatsby-plugin-polyfill-io-1.1.0.tgz#61424c773ae123680e50b9a6692a4b939a1e6e13"
   integrity sha1-YUJMdzrhI2gOULmmaSpLk5oebhM=
