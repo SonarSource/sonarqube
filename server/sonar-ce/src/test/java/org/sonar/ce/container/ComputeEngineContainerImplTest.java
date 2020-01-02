@@ -122,7 +122,7 @@ public class ComputeEngineContainerImplTest {
       );
       assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
         CONTAINER_ITSELF
-          + 6 // MigrationConfigurationModule
+          + 7 // MigrationConfigurationModule
           + 16 // level 2
       );
       assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(

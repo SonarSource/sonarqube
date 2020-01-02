@@ -57,7 +57,7 @@ public class SetSettingAction implements UsersWsAction {
       .setRequired(true)
       .setMaximumLength(100)
       .setDescription("Setting key")
-      .setPossibleValues("notifications.optOut", UserUpdater.NOTIFICATIONS_READ_DATE, "newsbox.dismiss.hotspots");
+      .setPossibleValues("notifications.optOut", UserUpdater.NOTIFICATIONS_READ_DATE);
 
     action.createParam(PARAM_VALUE)
       .setRequired(true)
