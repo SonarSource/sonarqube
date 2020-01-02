@@ -28,6 +28,7 @@ public class DbVersion82 implements DbVersion {
     registry
       .add(3200, "Drop 'In Review' Security Hotspots status ", DropSecurityHotSpotsInReviewStatus.class)
       .add(3201, "Migrate Manual Vulnerabilities to Security Hotspots ", MigrateManualVulnerabilitiesToSecurityHotSpots.class)
-      .add(3202, "Remove 'newsbox.dismiss.hotspots' user property", RemoveNewsboxDismissHotspotsProperty.class);
+      .add(3202, "Remove 'newsbox.dismiss.hotspots' user property", RemoveNewsboxDismissHotspotsProperty.class)
+      .add(3203, "Ensure Security Hotspots have status TO_REVIEW", EnsureHotspotDefaultStatusIsToReview.class);
   }
 }
