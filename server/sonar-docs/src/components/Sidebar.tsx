@@ -78,7 +78,11 @@ export default class Sidebar extends React.PureComponent<Props, State> {
   }
 
   loadVersions() {
-    fetch('/DocsVersions.json')
+    const headers = new Headers([
+      ['Cache-Control', 'no-cache'],
+      ['Pragma', 'no-cache']
+    ]);
+    fetch('/DocsVersions.json', { headers })
       .then(response => response.json())
       .then(json => {
         this.setState({ loaded: true, versions: json });
