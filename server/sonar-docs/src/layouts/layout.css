@@ -493,8 +493,9 @@ a.search-result .note {
   font-size: 15px;
   margin: 0;
   padding: 4px 16px;
-  text-align: center;
+  text-align: left;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .version-select ul li:hover {

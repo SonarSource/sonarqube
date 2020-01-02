@@ -21,6 +21,7 @@ export type Dict<T> = { [key: string]: T };
 
 export interface DocVersion {
   current: boolean;
+  lts?: boolean;
   value: string;
 }
 

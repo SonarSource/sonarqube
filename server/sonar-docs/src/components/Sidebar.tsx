@@ -165,10 +165,16 @@ export default class Sidebar extends React.PureComponent<Props, State> {
 
   render() {
     const { versions } = this.state;
+    const { version } = this.props;
+
     const currentVersion = versions.find(v => v.current);
+    const ltsVersion = versions.find(v => v.lts);
+
     const selectedVersionValue =
-      currentVersion && this.props.version === 'latest' ? currentVersion.value : this.props.version;
+      currentVersion && version === 'latest' ? currentVersion.value : version;
     const isOnCurrentVersion = !currentVersion || selectedVersionValue === currentVersion.value;
+    const isOnLTSVersion = ltsVersion && version === ltsVersion.value;
+
     return (
       <div className="page-sidebar">
         <div className="sidebar-header">
@@ -176,7 +182,7 @@ export default class Sidebar extends React.PureComponent<Props, State> {
             <img
               alt="Continuous Code Quality"
               className="sidebar-logo"
-              src={`/${this.props.version}/images/SonarQubeIcon.svg`}
+              src={`/${version}/images/SonarQubeIcon.svg`}
               title="Continuous Code Quality"
               width="160"
             />
@@ -186,11 +192,10 @@ export default class Sidebar extends React.PureComponent<Props, State> {
             selectedVersionValue={selectedVersionValue}
             versions={versions}
           />
-          {this.state.loaded && !isOnCurrentVersion && (
+          {this.state.loaded && !isOnCurrentVersion && !isOnLTSVersion && (
             <div className="alert alert-warning">
-              This is an archived version of the doc for{' '}
-              <b>SonarQube version {this.props.version}</b>. <a href="/">See Documentation</a> for
-              current functionnality.
+              This is an archived version of the doc for <b>SonarQube version {version}</b>.{' '}
+              <a href="/">See Documentation</a> for current functionnality.
             </div>
           )}
         </div>
@@ -207,21 +212,21 @@ export default class Sidebar extends React.PureComponent<Props, State> {
             <DownloadIcon /> SonarQube
           </a>
           <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
-            <img alt="Community" src={`/${this.props.version}/images/community.svg`} /> Community
+            <img alt="Community" src={`/${version}/images/community.svg`} /> Community
           </a>
           <a
             className="icon-only"
             href="https://twitter.com/SonarQube"
             rel="noopener noreferrer"
             target="_blank">
-            <img alt="Twitter" src={`/${this.props.version}/images/twitter.svg`} />
+            <img alt="Twitter" src={`/${version}/images/twitter.svg`} />
           </a>
           <a
             className="icon-only"
             href="https://www.sonarqube.org/whats-new/"
             rel="noopener noreferrer"
             target="_blank">
-            <img alt="Product News" src={`/${this.props.version}/images/newspaper.svg`} />
+            <img alt="Product News" src={`/${version}/images/newspaper.svg`} />
             <span className="tooltip">Product News</span>
           </a>
         </div>
