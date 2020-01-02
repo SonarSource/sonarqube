@@ -19,6 +19,7 @@
  */
 /* eslint-disable react/jsx-sort-props */
 import { Location } from 'history';
+import { pick } from 'lodash';
 import * as React from 'react';
 import { render } from 'react-dom';
 import { HelmetProvider } from 'react-helmet-async';
@@ -67,7 +68,6 @@ import onboardingRoutes from '../../apps/tutorials/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
-import { isSonarCloud } from '../../helpers/system';
 import App from '../components/App';
 import GlobalContainer from '../components/GlobalContainer';
 import MigrationContainer from '../components/MigrationContainer';
@@ -87,6 +87,158 @@ const RouteWithChildRoutes = Route as React.ComponentClass<
   RouteProps & { childRoutes: RouteConfig }
 >;
 
+function renderRedirects() {
+  return (
+    <>
+      <Route
+        path="/account/issues"
+        onEnter={(_, replace) => {
+          replace({ pathname: '/issues', query: { myIssues: 'true', resolved: 'false' } });
+        }}
+      />
+
+      <Route
+        path="/codingrules"
+        onEnter={(_, replace) => {
+          replace(`/coding_rules${window.location.hash}`);
+        }}
+      />
+
+      <Route
+        path="/dashboard/index/:key"
+        onEnter={(nextState, replace) => {
+          replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
+        }}
+      />
+
+      <Route
+        path="/issues/search"
+        onEnter={(_, replace) => {
+          replace(`/issues${window.location.hash}`);
+        }}
+      />
+
+      <Redirect from="/admin" to="/admin/settings" />
+      <Redirect from="/background_tasks" to="/admin/background_tasks" />
+      <Redirect from="/component/index" to="/component" />
+      <Redirect from="/component_issues" to="/project/issues" />
+      <Redirect from="/dashboard/index" to="/dashboard" />
+      <Redirect
+        from="/documentation/analysis/languages/vb"
+        to="/documentation/analysis/languages/vbnet/"
+      />
+      <Redirect from="/governance" to="/portfolio" />
+      <Redirect from="/groups" to="/admin/groups" />
+      <Redirect from="/extension/governance/portfolios" to="/portfolios" />
+      <Redirect from="/metrics" to="/admin/custom_metrics" />
+      <Redirect from="/permission_templates" to="/admin/permission_templates" />
+      <Redirect from="/profiles/index" to="/profiles" />
+      <Redirect from="/projects_admin" to="/admin/projects_management" />
+      <Redirect from="/quality_gates/index" to="/quality_gates" />
+      <Redirect from="/roles/global" to="/admin/permissions" />
+      <Redirect from="/admin/roles/global" to="/admin/permissions" />
+      <Redirect from="/settings" to="/admin/settings" />
+      <Redirect from="/settings/encryption" to="/admin/settings/encryption" />
+      <Redirect from="/settings/index" to="/admin/settings" />
+      <Redirect from="/sessions/login" to="/sessions/new" />
+      <Redirect from="/system" to="/admin/system" />
+      <Redirect from="/system/index" to="/admin/system" />
+      <Redirect from="/view" to="/portfolio" />
+      <Redirect from="/users" to="/admin/users" />
+    </>
+  );
+}
+
+function renderComponentRoutes() {
+  return (
+    <Route component={lazyLoad(() => import('../components/ComponentContainer'))}>
+      <RouteWithChildRoutes path="code" childRoutes={codeRoutes} />
+      <RouteWithChildRoutes path="component_measures" childRoutes={componentMeasuresRoutes} />
+      <RouteWithChildRoutes path="dashboard" childRoutes={overviewRoutes} />
+      <RouteWithChildRoutes path="portfolio" childRoutes={portfolioRoutes} />
+      <RouteWithChildRoutes path="project/activity" childRoutes={projectActivityRoutes} />
+      <Route
+        path="project/extension/:pluginKey/:extensionKey"
+        component={lazyLoad(() => import('../components/extensions/ProjectPageExtension'))}
+      />
+      <Route
+        path="project/issues"
+        component={Issues}
+        onEnter={({ location: { query } }, replace) => {
+          if (query.types) {
+            if (query.types === 'SECURITY_HOTSPOT') {
+              replace({
+                pathname: '/security_hotspots',
+                query: { ...pick(query, ['id', 'branch', 'pullRequest']), assignedToMe: false }
+              });
+            } else {
+              query.types = query.types
+                .split(',')
+                .filter((type: string) => type !== 'SECURITY_HOTSPOT')
+                .join(',');
+            }
+          }
+        }}
+      />
+      <Route
+        path="security_hotspots"
+        component={lazyLoadComponent(() =>
+          import('../../apps/securityHotspots/SecurityHotspotsApp')
+        )}
+      />
+      <RouteWithChildRoutes path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
+      <RouteWithChildRoutes
+        path="project/quality_profiles"
+        childRoutes={projectQualityProfilesRoutes}
+      />
+      <Route component={lazyLoad(() => import('../components/ProjectAdminContainer'))}>
+        <RouteWithChildRoutes path="custom_measures" childRoutes={customMeasuresRoutes} />
+        <Route
+          path="project/admin/extension/:pluginKey/:extensionKey"
+          component={lazyLoad(() => import('../components/extensions/ProjectAdminPageExtension'))}
+        />
+        <RouteWithChildRoutes path="project/background_tasks" childRoutes={backgroundTasksRoutes} />
+        <RouteWithChildRoutes path="project/baseline" childRoutes={projectBaselineRoutes} />
+        <RouteWithChildRoutes path="project/branches" childRoutes={projectBranchesRoutes} />
+        <RouteWithChildRoutes path="project/settings" childRoutes={settingsRoutes} />
+        <RouteWithChildRoutes path="project_roles" childRoutes={projectPermissionsRoutes} />
+        <RouteWithChildRoutes path="project/webhooks" childRoutes={webhooksRoutes} />
+        <Route
+          path="project/deletion"
+          component={lazyLoad(() => import('../../apps/projectDeletion/App'))}
+        />
+        <Route
+          path="project/links"
+          component={lazyLoad(() => import('../../apps/projectLinks/App'))}
+        />
+        <Route path="project/key" component={lazyLoad(() => import('../../apps/projectKey/Key'))} />
+      </Route>
+    </Route>
+  );
+}
+
+function renderAdminRoutes() {
+  return (
+    <Route component={lazyLoad(() => import('../components/AdminContainer'))} path="admin">
+      <Route
+        path="extension/:pluginKey/:extensionKey"
+        component={lazyLoad(() => import('../components/extensions/GlobalAdminPageExtension'))}
+      />
+      <RouteWithChildRoutes path="background_tasks" childRoutes={backgroundTasksRoutes} />
+      <RouteWithChildRoutes path="custom_metrics" childRoutes={customMetricsRoutes} />
+      <RouteWithChildRoutes path="groups" childRoutes={groupsRoutes} />
+      <RouteWithChildRoutes path="permission_templates" childRoutes={permissionTemplatesRoutes} />
+      <RouteWithChildRoutes path="permissions" childRoutes={globalPermissionsRoutes} />
+      <RouteWithChildRoutes path="projects_management" childRoutes={projectsManagementRoutes} />
+      <RouteWithChildRoutes path="settings" childRoutes={settingsRoutes} />
+      <RouteWithChildRoutes path="system" childRoutes={systemRoutes} />
+      <RouteWithChildRoutes path="marketplace" childRoutes={marketplaceRoutes} />
+      <RouteWithChildRoutes path="users" childRoutes={usersRoutes} />
+      <RouteWithChildRoutes path="webhooks" childRoutes={webhooksRoutes} />
+    </Route>
+  );
+}
+
 export default function startReactApp(
   lang: string,
   currentUser?: T.CurrentUser,
@@ -103,61 +255,7 @@ export default function startReactApp(
         <IntlProvider defaultLocale={lang} locale={lang}>
           <ThemeProvider theme={theme}>
             <Router history={history} onUpdate={handleUpdate}>
-              <Route
-                path="/account/issues"
-                onEnter={(_, replace) => {
-                  replace({ pathname: '/issues', query: { myIssues: 'true', resolved: 'false' } });
-                }}
-              />
-
-              <Route
-                path="/codingrules"
-                onEnter={(_, replace) => {
-                  replace('/coding_rules' + window.location.hash);
-                }}
-              />
-
-              <Route
-                path="/dashboard/index/:key"
-                onEnter={(nextState, replace) => {
-                  replace({ pathname: '/dashboard', query: { id: nextState.params.key } });
-                }}
-              />
-
-              <Route
-                path="/issues/search"
-                onEnter={(_, replace) => {
-                  replace('/issues' + window.location.hash);
-                }}
-              />
-
-              <Redirect from="/admin" to="/admin/settings" />
-              <Redirect from="/background_tasks" to="/admin/background_tasks" />
-              <Redirect from="/component/index" to="/component" />
-              <Redirect from="/component_issues" to="/project/issues" />
-              <Redirect from="/dashboard/index" to="/dashboard" />
-              <Redirect
-                from="/documentation/analysis/languages/vb"
-                to="/documentation/analysis/languages/vbnet/"
-              />
-              <Redirect from="/governance" to="/portfolio" />
-              <Redirect from="/groups" to="/admin/groups" />
-              <Redirect from="/extension/governance/portfolios" to="/portfolios" />
-              <Redirect from="/metrics" to="/admin/custom_metrics" />
-              <Redirect from="/permission_templates" to="/admin/permission_templates" />
-              <Redirect from="/profiles/index" to="/profiles" />
-              <Redirect from="/projects_admin" to="/admin/projects_management" />
-              <Redirect from="/quality_gates/index" to="/quality_gates" />
-              <Redirect from="/roles/global" to="/admin/permissions" />
-              <Redirect from="/admin/roles/global" to="/admin/permissions" />
-              <Redirect from="/settings" to="/admin/settings" />
-              <Redirect from="/settings/encryption" to="/admin/settings/encryption" />
-              <Redirect from="/settings/index" to="/admin/settings" />
-              <Redirect from="/sessions/login" to="/sessions/new" />
-              <Redirect from="/system" to="/admin/system" />
-              <Redirect from="/system/index" to="/admin/system" />
-              <Redirect from="/view" to="/portfolio" />
-              <Redirect from="/users" to="/admin/users" />
+              {renderRedirects()}
 
               <Route
                 path="markdown/help"
@@ -180,9 +278,7 @@ export default function startReactApp(
 
                   <Route component={GlobalContainer}>
                     <RouteWithChildRoutes path="account" childRoutes={accountRoutes} />
-                    {!isSonarCloud() && (
-                      <RouteWithChildRoutes path="coding_rules" childRoutes={codingRulesRoutes} />
-                    )}
+                    <RouteWithChildRoutes path="coding_rules" childRoutes={codingRulesRoutes} />
                     <RouteWithChildRoutes path="documentation" childRoutes={documentationRoutes} />
                     <Route path="explore" component={Explore}>
                       <Route path="issues" component={ExploreIssues} />
@@ -196,14 +292,6 @@ export default function startReactApp(
                     />
                     <Route path="issues" component={IssuesPageSelector} />
                     <RouteWithChildRoutes path="onboarding" childRoutes={onboardingRoutes} />
-                    {isSonarCloud() && (
-                      <Route
-                        path="create-organization"
-                        component={lazyLoad(() =>
-                          import('../../apps/create/organization/CreateOrganization')
-                        )}
-                      />
-                    )}
                     <RouteWithChildRoutes path="organizations" childRoutes={organizationsRoutes} />
                     <RouteWithChildRoutes path="projects" childRoutes={projectsRoutes} />
                     <RouteWithChildRoutes path="quality_gates" childRoutes={qualityGatesRoutes} />
@@ -211,137 +299,12 @@ export default function startReactApp(
                       path="portfolios"
                       component={lazyLoad(() => import('../components/extensions/PortfoliosPage'))}
                     />
-                    {!isSonarCloud() && (
-                      <RouteWithChildRoutes path="profiles" childRoutes={qualityProfilesRoutes} />
-                    )}
+                    <RouteWithChildRoutes path="profiles" childRoutes={qualityProfilesRoutes} />
                     <RouteWithChildRoutes path="web_api" childRoutes={webAPIRoutes} />
 
-                    <Route component={lazyLoad(() => import('../components/ComponentContainer'))}>
-                      <RouteWithChildRoutes path="code" childRoutes={codeRoutes} />
-                      <RouteWithChildRoutes
-                        path="component_measures"
-                        childRoutes={componentMeasuresRoutes}
-                      />
-                      <RouteWithChildRoutes path="dashboard" childRoutes={overviewRoutes} />
-                      <RouteWithChildRoutes path="portfolio" childRoutes={portfolioRoutes} />
-                      <RouteWithChildRoutes
-                        path="project/activity"
-                        childRoutes={projectActivityRoutes}
-                      />
-                      <Route
-                        path="project/extension/:pluginKey/:extensionKey"
-                        component={lazyLoad(() =>
-                          import('../components/extensions/ProjectPageExtension')
-                        )}
-                      />
-                      <Route path="project/issues" component={Issues} />
-                      <Route
-                        path="security_hotspots"
-                        component={lazyLoadComponent(() =>
-                          import('../../apps/securityHotspots/SecurityHotspotsApp')
-                        )}
-                      />
-                      <RouteWithChildRoutes
-                        path="project/quality_gate"
-                        childRoutes={projectQualityGateRoutes}
-                      />
-                      <RouteWithChildRoutes
-                        path="project/quality_profiles"
-                        childRoutes={projectQualityProfilesRoutes}
-                      />
-                      <Route
-                        component={lazyLoad(() => import('../components/ProjectAdminContainer'))}>
-                        {!isSonarCloud() && (
-                          <RouteWithChildRoutes
-                            path="custom_measures"
-                            childRoutes={customMeasuresRoutes}
-                          />
-                        )}
-                        <Route
-                          path="project/admin/extension/:pluginKey/:extensionKey"
-                          component={lazyLoad(() =>
-                            import('../components/extensions/ProjectAdminPageExtension')
-                          )}
-                        />
-                        <RouteWithChildRoutes
-                          path="project/background_tasks"
-                          childRoutes={backgroundTasksRoutes}
-                        />
-                        <RouteWithChildRoutes
-                          path="project/baseline"
-                          childRoutes={projectBaselineRoutes}
-                        />
-                        <RouteWithChildRoutes
-                          path="project/branches"
-                          childRoutes={projectBranchesRoutes}
-                        />
-                        <RouteWithChildRoutes
-                          path="project/settings"
-                          childRoutes={settingsRoutes}
-                        />
-                        <RouteWithChildRoutes
-                          path="project_roles"
-                          childRoutes={projectPermissionsRoutes}
-                        />
-                        <RouteWithChildRoutes
-                          path="project/webhooks"
-                          childRoutes={webhooksRoutes}
-                        />
-                        <Route
-                          path="project/deletion"
-                          component={lazyLoad(() => import('../../apps/projectDeletion/App'))}
-                        />
-                        <Route
-                          path="project/links"
-                          component={lazyLoad(() => import('../../apps/projectLinks/App'))}
-                        />
-                        <Route
-                          path="project/key"
-                          component={lazyLoad(() => import('../../apps/projectKey/Key'))}
-                        />
-                      </Route>
-                    </Route>
+                    {renderComponentRoutes()}
 
-                    <Route
-                      component={lazyLoad(() => import('../components/AdminContainer'))}
-                      path="admin">
-                      <Route
-                        path="extension/:pluginKey/:extensionKey"
-                        component={lazyLoad(() =>
-                          import('../components/extensions/GlobalAdminPageExtension')
-                        )}
-                      />
-                      <RouteWithChildRoutes
-                        path="background_tasks"
-                        childRoutes={backgroundTasksRoutes}
-                      />
-                      <RouteWithChildRoutes
-                        path="custom_metrics"
-                        childRoutes={customMetricsRoutes}
-                      />
-                      {!isSonarCloud() && (
-                        <>
-                          <RouteWithChildRoutes path="groups" childRoutes={groupsRoutes} />
-                          <RouteWithChildRoutes
-                            path="permission_templates"
-                            childRoutes={permissionTemplatesRoutes}
-                          />
-                          <RouteWithChildRoutes
-                            path="permissions"
-                            childRoutes={globalPermissionsRoutes}
-                          />
-                          <RouteWithChildRoutes
-                            path="projects_management"
-                            childRoutes={projectsManagementRoutes}
-                          />
-                        </>
-                      )}
-                      <RouteWithChildRoutes path="settings" childRoutes={settingsRoutes} />
-                      <RouteWithChildRoutes path="system" childRoutes={systemRoutes} />
-                      <RouteWithChildRoutes path="marketplace" childRoutes={marketplaceRoutes} />
-                      <RouteWithChildRoutes path="users" childRoutes={usersRoutes} />
-                      <RouteWithChildRoutes path="webhooks" childRoutes={webhooksRoutes} />
-                    </Route>
+                    {renderAdminRoutes()}
                   </Route>
                   <Route
                     path="not_found"
