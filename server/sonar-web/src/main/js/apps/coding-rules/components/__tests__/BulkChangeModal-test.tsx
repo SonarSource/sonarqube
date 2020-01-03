@@ -19,23 +19,101 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockQualityProfile } from '../../../../helpers/testMocks';
+import { submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { bulkActivateRules, bulkDeactivateRules } from '../../../../api/quality-profiles';
+import { mockLanguage, mockQualityProfile } from '../../../../helpers/testMocks';
 import { Query } from '../../query';
 import BulkChangeModal from '../BulkChangeModal';
 
-it('render correctly', () => {
+jest.mock('../../../../api/quality-profiles', () => ({
+  bulkActivateRules: jest.fn().mockResolvedValue({ failed: 0, succeeded: 2 }),
+  bulkDeactivateRules: jest.fn().mockResolvedValue({ failed: 2, succeeded: 0 })
+}));
+
+beforeEach(jest.clearAllMocks);
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ profile: undefined })).toMatchSnapshot('no profile pre-selected');
+  expect(shallowRender({ action: 'deactivate' })).toMatchSnapshot('deactivate action');
   expect(
-    shallow(
-      <BulkChangeModal
-        action="activate"
-        languages={{ js: { key: 'js', name: 'JavaScript' } }}
-        onClose={jest.fn()}
-        organization="foo"
-        profile={mockQualityProfile()}
-        query={{ languages: ['js'] } as Query}
-        referencedProfiles={{ foo: mockQualityProfile() }}
-        total={42}
-      />
-    )
-  ).toMatchSnapshot();
+    shallowRender().setState({
+      results: [
+        { failed: 2, profile: 'foo', succeeded: 0 },
+        { failed: 0, profile: 'bar', succeeded: 2 }
+      ]
+    })
+  ).toMatchSnapshot('results');
+  expect(shallowRender().setState({ submitting: true })).toMatchSnapshot('submitting');
+  expect(shallowRender().setState({ finished: true })).toMatchSnapshot('finished');
 });
+
+it('should pre-select a profile if only 1 is available', () => {
+  const profile = mockQualityProfile({
+    actions: { edit: true },
+    isBuiltIn: false,
+    key: 'foo',
+    language: 'js'
+  });
+  const wrapper = shallowRender({ profile: undefined, referencedProfiles: { foo: profile } });
+  expect(wrapper.state().selectedProfiles).toEqual(['foo']);
+});
+
+it('should handle profile selection', () => {
+  const wrapper = shallowRender();
+  wrapper.instance().handleProfileSelect([{ value: 'foo' }, { value: 'bar' }]);
+  expect(wrapper.state().selectedProfiles).toEqual(['foo', 'bar']);
+});
+
+it('should handle form submission', async () => {
+  const wrapper = shallowRender({ profile: undefined });
+  wrapper.setState({ selectedProfiles: ['foo', 'bar'] });
+
+  // Activate.
+  submit(wrapper.find('form'));
+  await waitAndUpdate(wrapper);
+  expect(bulkActivateRules).toBeCalledWith(expect.objectContaining({ targetKey: 'foo' }));
+
+  await waitAndUpdate(wrapper);
+  expect(bulkActivateRules).toBeCalledWith(expect.objectContaining({ targetKey: 'bar' }));
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().results).toEqual([
+    { failed: 0, profile: 'foo', succeeded: 2 },
+    { failed: 0, profile: 'bar', succeeded: 2 }
+  ]);
+
+  // Deactivate.
+  wrapper.setProps({ action: 'deactivate' }).setState({ results: [] });
+  submit(wrapper.find('form'));
+  await waitAndUpdate(wrapper);
+  expect(bulkDeactivateRules).toBeCalledWith(expect.objectContaining({ targetKey: 'foo' }));
+
+  await waitAndUpdate(wrapper);
+  expect(bulkDeactivateRules).toBeCalledWith(expect.objectContaining({ targetKey: 'bar' }));
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().results).toEqual([
+    { failed: 2, profile: 'foo', succeeded: 0 },
+    { failed: 2, profile: 'bar', succeeded: 0 }
+  ]);
+});
+
+function shallowRender(props: Partial<BulkChangeModal['props']> = {}) {
+  return shallow<BulkChangeModal>(
+    <BulkChangeModal
+      action="activate"
+      languages={{ js: mockLanguage() }}
+      onClose={jest.fn()}
+      organization={undefined}
+      profile={mockQualityProfile()}
+      query={{ languages: ['js'] } as Query}
+      referencedProfiles={{
+        foo: mockQualityProfile({ key: 'foo' }),
+        bar: mockQualityProfile({ key: 'bar' })
+      }}
+      total={42}
+      {...props}
+    />
+  );
+}

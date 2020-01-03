@@ -194,10 +194,15 @@ export default class BulkChangeModal extends React.PureComponent<Props, State> {
   render() {
     const { action, profile, total } = this.props;
     const header =
-      // prettier-ignore
       action === 'activate'
-        ? `${translate('coding_rules.activate_in_quality_profile')} (${formatMeasure(total, 'INT')} ${translate('coding_rules._rules')})`
-        : `${translate('coding_rules.deactivate_in_quality_profile')} (${formatMeasure(total, 'INT')} ${translate('coding_rules._rules')})`;
+        ? `${translate('coding_rules.activate_in_quality_profile')} (${formatMeasure(
+            total,
+            'INT'
+          )} ${translate('coding_rules._rules')})`
+        : `${translate('coding_rules.deactivate_in_quality_profile')} (${formatMeasure(
+            total,
+            'INT'
+          )} ${translate('coding_rules._rules')})`;
 
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">

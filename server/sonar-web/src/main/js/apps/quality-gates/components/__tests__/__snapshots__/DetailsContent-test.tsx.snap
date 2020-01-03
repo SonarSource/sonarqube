@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: is default 1`] = `
+<div
+  className="layout-page-main-inner"
+>
+  <Connect(withAppState(Conditions))
+    conditions={Array []}
+    metrics={Object {}}
+    onAddCondition={[MockFunction]}
+    onRemoveCondition={[MockFunction]}
+    onSaveCondition={[MockFunction]}
+    qualityGate={
+      Object {
+        "id": 1,
+        "name": "qualitygate",
+      }
+    }
+  />
+  <div
+    className="quality-gate-section"
+    id="quality-gate-projects"
+  >
+    <header
+      className="display-flex-center spacer-bottom"
+    >
+      <h3>
+        quality_gates.projects
+      </h3>
+      <DocTooltip
+        className="spacer-left"
+        doc={Promise {}}
+      />
+    </header>
+    quality_gates.projects_for_default
+  </div>
+</div>
+`;
+
+exports[`should render correctly: is not default 1`] = `
+<div
+  className="layout-page-main-inner"
+>
+  <Connect(withAppState(Conditions))
+    conditions={Array []}
+    metrics={Object {}}
+    onAddCondition={[MockFunction]}
+    onRemoveCondition={[MockFunction]}
+    onSaveCondition={[MockFunction]}
+    qualityGate={
+      Object {
+        "id": 1,
+        "name": "qualitygate",
+      }
+    }
+  />
+  <div
+    className="quality-gate-section"
+    id="quality-gate-projects"
+  >
+    <header
+      className="display-flex-center spacer-bottom"
+    >
+      <h3>
+        quality_gates.projects
+      </h3>
+      <DocTooltip
+        className="spacer-left"
+        doc={Promise {}}
+      />
+    </header>
+    <Projects
+      key="1"
+      qualityGate={
+        Object {
+          "id": 1,
+          "name": "qualitygate",
+        }
+      }
+    />
+  </div>
+</div>
+`;

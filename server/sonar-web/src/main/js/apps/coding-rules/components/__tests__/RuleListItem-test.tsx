@@ -19,26 +19,68 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Link } from 'react-router';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { deactivateRule } from '../../../../api/quality-profiles';
 import { mockEvent, mockQualityProfile, mockRule } from '../../../../helpers/testMocks';
 import RuleListItem from '../RuleListItem';
 
-it('should render', () => {
-  expect(shallowRender()).toMatchSnapshot();
+jest.mock('../../../../api/quality-profiles', () => ({
+  deactivateRule: jest.fn().mockResolvedValue(null)
+}));
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({})).toMatchSnapshot('with activation');
 });
 
 it('should open rule', () => {
   const onOpen = jest.fn();
   const wrapper = shallowRender({ onOpen });
-  wrapper.find('Link').prop<Function>('onClick')(mockEvent({ button: 0 }));
+  wrapper.find(Link).simulate('click', mockEvent({ button: 0 }));
   expect(onOpen).toBeCalledWith('javascript:S1067');
 });
 
-it('should render deactivate button', () => {
-  const wrapper = shallowRender();
-  const instance = wrapper.instance();
+it('handle activation', () => {
+  const profile = mockQualityProfile();
+  const rule = mockRule();
+  const onActivate = jest.fn();
+  const wrapper = shallowRender({ onActivate, rule, selectedProfile: profile });
 
-  expect(instance.renderDeactivateButton('NONE')).toMatchSnapshot();
-  expect(instance.renderDeactivateButton('', 'coding_rules.need_extend_or_copy')).toMatchSnapshot();
+  wrapper.instance().handleActivate('MAJOR');
+  expect(onActivate).toBeCalledWith(profile.key, rule.key, {
+    severity: 'MAJOR',
+    inherit: 'NONE'
+  });
+});
+
+it('handle deactivation', async () => {
+  const profile = mockQualityProfile();
+  const rule = mockRule();
+  const onDeactivate = jest.fn();
+  const wrapper = shallowRender({ onDeactivate, rule, selectedProfile: profile });
+
+  wrapper.instance().handleDeactivate();
+  expect(deactivateRule).toBeCalledWith(
+    expect.objectContaining({
+      key: profile.key,
+      rule: rule.key
+    })
+  );
+  await waitAndUpdate(wrapper);
+  expect(onDeactivate).toBeCalledWith(profile.key, rule.key);
+});
+
+describe('#renderDeactivateButton', () => {
+  it('should render correctly', () => {
+    const wrapper = shallowRender();
+    const instance = wrapper.instance();
+
+    expect(instance.renderDeactivateButton('NONE')).toMatchSnapshot();
+    expect(
+      instance.renderDeactivateButton('', 'coding_rules.need_extend_or_copy')
+    ).toMatchSnapshot();
+  });
 });
 
 describe('renderActions', () => {
@@ -123,8 +165,8 @@ function shallowRender(props?: Partial<RuleListItem['props']>) {
       onDeactivate={jest.fn()}
       onFilterChange={jest.fn()}
       onOpen={jest.fn()}
-      organization="org"
-      rule={mockRule()}
+      organization={undefined}
+      rule={mockRule({ key: 'javascript:S1067' })}
       selected={false}
       {...props}
     />

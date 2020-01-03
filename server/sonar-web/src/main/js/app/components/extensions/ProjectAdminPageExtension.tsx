@@ -24,18 +24,22 @@ import { addGlobalErrorMessage } from '../../../store/globalMessages';
 import NotFound from '../NotFound';
 import Extension from './Extension';
 
-interface Props {
+export interface ProjectAdminPageExtensionProps {
   component: T.Component;
   location: Location;
   params: { extensionKey: string; pluginKey: string };
 }
 
-function ProjectAdminPageExtension(props: Props) {
-  const { extensionKey, pluginKey } = props.params;
-  const { component } = props;
+export function ProjectAdminPageExtension(props: ProjectAdminPageExtensionProps) {
+  const {
+    component,
+    params: { extensionKey, pluginKey }
+  } = props;
+
   const extension =
     component.configuration &&
     (component.configuration.extensions || []).find(p => p.key === `${pluginKey}/${extensionKey}`);
+
   return extension ? (
     <Extension extension={extension} options={{ component }} />
   ) : (

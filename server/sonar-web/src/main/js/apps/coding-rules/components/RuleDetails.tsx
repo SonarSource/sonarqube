@@ -76,8 +76,8 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  fetchRuleDetails = () =>
-    getRuleDetails({
+  fetchRuleDetails = () => {
+    return getRuleDetails({
       actives: true,
       key: this.props.ruleKey,
       organization: this.props.organization
@@ -93,6 +93,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
         }
       }
     );
+  };
 
   handleRuleChange = (ruleDetails: T.RuleDetails) => {
     if (this.mounted) {
@@ -119,8 +120,8 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
     });
   };
 
-  handleActivate = () =>
-    this.fetchRuleDetails().then(() => {
+  handleActivate = () => {
+    return this.fetchRuleDetails().then(() => {
       const { ruleKey, selectedProfile } = this.props;
       if (selectedProfile && this.state.actives) {
         const active = this.state.actives.find(active => active.qProfile === selectedProfile.key);
@@ -129,9 +130,10 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
         }
       }
     });
+  };
 
-  handleDeactivate = () =>
-    this.fetchRuleDetails().then(() => {
+  handleDeactivate = () => {
+    return this.fetchRuleDetails().then(() => {
       const { ruleKey, selectedProfile } = this.props;
       if (
         selectedProfile &&
@@ -141,11 +143,13 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
         this.props.onDeactivate(selectedProfile.key, ruleKey);
       }
     });
+  };
 
-  handleDelete = () =>
-    deleteRule({ key: this.props.ruleKey, organization: this.props.organization }).then(() =>
+  handleDelete = () => {
+    return deleteRule({ key: this.props.ruleKey, organization: this.props.organization }).then(() =>
       this.props.onDelete(this.props.ruleKey)
     );
+  };
 
   render() {
     const { ruleDetails } = this.state;

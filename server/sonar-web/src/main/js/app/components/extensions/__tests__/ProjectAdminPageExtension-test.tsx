@@ -17,47 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.sonarcloud-login-alert {
-  margin: 10vh auto 5vh auto;
-  width: 256px;
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { mockComponent, mockLocation } from '../../../../helpers/testMocks';
+import {
+  ProjectAdminPageExtension,
+  ProjectAdminPageExtensionProps
+} from '../ProjectAdminPageExtension';
 
-.sonarcloud-login-page {
-  margin-top: 15vh;
-  width: 216px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: calc(4 * var(--gridSize)) 20px;
-}
+it('should render correctly', () => {
+  expect(
+    shallowRender({
+      component: mockComponent({
+        configuration: { extensions: [{ key: 'foo/bar', name: 'Foo Bar' }] }
+      })
+    })
+  ).toMatchSnapshot('extension exists');
+  expect(shallowRender()).toMatchSnapshot('extension not found');
+});
 
-.sonarcloud-login-alert ~ .sonarcloud-login-page {
-  margin-top: 0;
-}
-
-.sonarcloud-login-page-large {
-  width: 300px;
-}
-
-.sonarcloud-login-title {
-  line-height: 1.5;
-  font-size: var(--bigFontSize);
-  font-weight: 300;
-  width: 135px;
-  margin: var(--gridSize) auto calc(3 * var(--gridSize));
-}
-
-.sonarcloud-oauth-providers.oauth-providers > ul {
-  width: 186px;
-}
-
-.sonarcloud-oauth-providers.oauth-providers > ul > li {
-  margin-bottom: var(--gridSize);
-}
-
-.sonarcloud-oauth-providers.oauth-providers .oauth-providers-help {
-  right: -22px;
-}
-
-.sonarcloud-login-cancel {
-  text-align: center;
+function shallowRender(props: Partial<ProjectAdminPageExtensionProps> = {}) {
+  return shallow(
+    <ProjectAdminPageExtension
+      component={mockComponent()}
+      location={mockLocation()}
+      params={{ extensionKey: 'bar', pluginKey: 'foo' }}
+      {...props}
+    />
+  );
 }

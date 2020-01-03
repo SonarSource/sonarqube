@@ -1,54 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`adds group 1`] = `
-<Modal
-  contentLabel="quality_profiles.grant_permissions_to_user_or_group"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      quality_profiles.grant_permissions_to_user_or_group
-    </h2>
-  </header>
-  <form
-    onSubmit={[Function]}
-  >
-    <div
-      className="modal-body"
-    >
-      <div
-        className="modal-field"
-      >
-        <label>
-          quality_profiles.search_description
-        </label>
-        <ProfilePermissionsFormSelect
-          onChange={[Function]}
-          onSearch={[Function]}
-        />
-      </div>
-    </div>
-    <footer
-      className="modal-foot"
-    >
-      <SubmitButton
-        disabled={true}
-      >
-        add_verb
-      </SubmitButton>
-      <ResetButtonLink
-        onClick={[MockFunction]}
-      >
-        cancel
-      </ResetButtonLink>
-    </footer>
-  </form>
-</Modal>
-`;
-
-exports[`adds group 2`] = `
+exports[`correctly adds groups 1`] = `
 <Modal
   contentLabel="quality_profiles.grant_permissions_to_user_or_group"
   onRequestClose={[MockFunction]}
@@ -77,60 +29,9 @@ exports[`adds group 2`] = `
           onSearch={[Function]}
           selected={
             Object {
-              "name": "lambda",
-            }
-          }
-        />
-      </div>
-    </div>
-    <footer
-      className="modal-foot"
-    >
-      <SubmitButton
-        disabled={false}
-      >
-        add_verb
-      </SubmitButton>
-      <ResetButtonLink
-        onClick={[MockFunction]}
-      >
-        cancel
-      </ResetButtonLink>
-    </footer>
-  </form>
-</Modal>
-`;
-
-exports[`adds group 3`] = `
-<Modal
-  contentLabel="quality_profiles.grant_permissions_to_user_or_group"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      quality_profiles.grant_permissions_to_user_or_group
-    </h2>
-  </header>
-  <form
-    onSubmit={[Function]}
-  >
-    <div
-      className="modal-body"
-    >
-      <div
-        className="modal-field"
-      >
-        <label>
-          quality_profiles.search_description
-        </label>
-        <ProfilePermissionsFormSelect
-          onChange={[Function]}
-          onSearch={[Function]}
-          selected={
-            Object {
-              "name": "lambda",
+              "id": 1,
+              "membersCount": 1,
+              "name": "Foo",
             }
           }
         />
@@ -157,7 +58,67 @@ exports[`adds group 3`] = `
 </Modal>
 `;
 
-exports[`adds user 1`] = `
+exports[`correctly adds users 1`] = `
+<Modal
+  contentLabel="quality_profiles.grant_permissions_to_user_or_group"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      quality_profiles.grant_permissions_to_user_or_group
+    </h2>
+  </header>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-body"
+    >
+      <div
+        className="modal-field"
+      >
+        <label>
+          quality_profiles.search_description
+        </label>
+        <ProfilePermissionsFormSelect
+          onChange={[Function]}
+          onSearch={[Function]}
+          selected={
+            Object {
+              "active": true,
+              "local": true,
+              "login": "john.doe",
+              "name": "John doe",
+              "selected": true,
+            }
+          }
+        />
+      </div>
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <i
+        className="spinner spacer-right"
+      />
+      <SubmitButton
+        disabled={true}
+      >
+        add_verb
+      </SubmitButton>
+      <ResetButtonLink
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </footer>
+  </form>
+</Modal>
+`;
+
+exports[`should render correctly: default 1`] = `
 <Modal
   contentLabel="quality_profiles.grant_permissions_to_user_or_group"
   onRequestClose={[MockFunction]}
@@ -205,7 +166,7 @@ exports[`adds user 1`] = `
 </Modal>
 `;
 
-exports[`adds user 2`] = `
+exports[`should render correctly: submitting 1`] = `
 <Modal
   contentLabel="quality_profiles.grant_permissions_to_user_or_group"
   onRequestClose={[MockFunction]}
@@ -232,64 +193,6 @@ exports[`adds user 2`] = `
         <ProfilePermissionsFormSelect
           onChange={[Function]}
           onSearch={[Function]}
-          selected={
-            Object {
-              "login": "luke",
-            }
-          }
-        />
-      </div>
-    </div>
-    <footer
-      className="modal-foot"
-    >
-      <SubmitButton
-        disabled={false}
-      >
-        add_verb
-      </SubmitButton>
-      <ResetButtonLink
-        onClick={[MockFunction]}
-      >
-        cancel
-      </ResetButtonLink>
-    </footer>
-  </form>
-</Modal>
-`;
-
-exports[`adds user 3`] = `
-<Modal
-  contentLabel="quality_profiles.grant_permissions_to_user_or_group"
-  onRequestClose={[MockFunction]}
->
-  <header
-    className="modal-head"
-  >
-    <h2>
-      quality_profiles.grant_permissions_to_user_or_group
-    </h2>
-  </header>
-  <form
-    onSubmit={[Function]}
-  >
-    <div
-      className="modal-body"
-    >
-      <div
-        className="modal-field"
-      >
-        <label>
-          quality_profiles.search_description
-        </label>
-        <ProfilePermissionsFormSelect
-          onChange={[Function]}
-          onSearch={[Function]}
-          selected={
-            Object {
-              "login": "luke",
-            }
-          }
         />
       </div>
     </div>

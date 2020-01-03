@@ -17,19 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Location } from 'history';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { getReturnUrl } from 'sonar-ui-common/helpers/urls';
 import { getIdentityProviders } from '../../../api/users';
-import { isSonarCloud } from '../../../helpers/system';
 import { doLogin } from '../../../store/rootActions';
 import Login from './Login';
-import LoginSonarCloud from './LoginSonarCloud';
 
 interface OwnProps {
-  location: {
-    hash?: string;
-    pathName: string;
+  location: Pick<Location, 'hash' | 'pathname' | 'query'> & {
     query: { advanced?: string; return_to?: string };
   };
 }
@@ -44,7 +41,7 @@ interface State {
   identityProviders?: T.IdentityProvider[];
 }
 
-class LoginContainer extends React.PureComponent<Props, State> {
+export class LoginContainer extends React.PureComponent<Props, State> {
   mounted = false;
 
   state: State = {};
@@ -52,11 +49,9 @@ class LoginContainer extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     getIdentityProviders().then(
-      identityProvidersResponse => {
+      ({ identityProviders }) => {
         if (this.mounted) {
-          this.setState({
-            identityProviders: identityProvidersResponse.identityProviders
-          });
+          this.setState({ identityProviders });
         }
       },
       () => {}
@@ -78,19 +73,9 @@ class LoginContainer extends React.PureComponent<Props, State> {
   render() {
     const { location } = this.props;
     const { identityProviders } = this.state;
+
     if (!identityProviders) {
       return null;
-    }
-
-    if (isSonarCloud()) {
-      return (
-        <LoginSonarCloud
-          identityProviders={identityProviders}
-          onSubmit={this.handleSubmit}
-          returnTo={getReturnUrl(location)}
-          showForm={location.query['advanced'] !== undefined}
-        />
-      );
     }
 
     return (

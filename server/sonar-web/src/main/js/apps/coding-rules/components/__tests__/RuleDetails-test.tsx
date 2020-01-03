@@ -17,32 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable sonarjs/no-duplicate-string */
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { updateRule } from '../../../../api/rules';
+import { deleteRule, getRuleDetails, updateRule } from '../../../../api/rules';
+import { mockQualityProfile } from '../../../../helpers/testMocks';
 import RuleDetails from '../RuleDetails';
 
-jest.mock('../../../../api/rules', () => ({
-  deleteRule: jest.fn(),
-  getRuleDetails: jest.fn().mockResolvedValue({
-    rule: getMockHelpers().mockRuleDetails(),
-    actives: [
-      {
-        qProfile: 'key',
-        inherit: 'NONE',
-        severity: 'MAJOR',
-        params: [],
-        createdAt: '2017-06-16T16:13:38+0200',
-        updatedAt: '2017-06-16T16:13:38+0200'
-      }
-    ]
-  }),
-  updateRule: jest.fn().mockResolvedValue({})
-}));
-
-const { mockQualityProfile } = getMockHelpers();
-const profile = mockQualityProfile();
+jest.mock('../../../../api/rules', () => {
+  const { mockRuleDetails } = jest.requireActual('../../../../helpers/testMocks');
+  return {
+    deleteRule: jest.fn().mockResolvedValue(null),
+    getRuleDetails: jest.fn().mockResolvedValue({
+      rule: mockRuleDetails(),
+      actives: [
+        {
+          qProfile: 'foo',
+          inherit: 'NONE',
+          severity: 'MAJOR',
+          params: [],
+          createdAt: '2017-06-16T16:13:38+0200',
+          updatedAt: '2017-06-16T16:13:38+0200'
+        }
+      ]
+    }),
+    updateRule: jest.fn().mockResolvedValue(null)
+  };
+});
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -50,18 +52,43 @@ beforeEach(() => {
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('loading');
+
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('loaded');
+
+  expect(getRuleDetails).toBeCalledWith(
+    expect.objectContaining({
+      actives: true,
+      key: 'squid:S1337'
+    })
+  );
+});
+
+it('should correctly handle prop changes', async () => {
+  const ruleKey = 'foo:bar';
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  jest.clearAllMocks();
+
+  wrapper.setProps({ ruleKey });
+  expect(getRuleDetails).toBeCalledWith(
+    expect.objectContaining({
+      actives: true,
+      key: ruleKey
+    })
+  );
 });
 
 it('should correctly handle tag changes', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
+
   wrapper.instance().handleTagsChange(['foo', 'bar']);
   const ruleDetails = wrapper.state('ruleDetails');
   expect(ruleDetails && ruleDetails.tags).toEqual(['foo', 'bar']);
   await waitAndUpdate(wrapper);
+
   expect(updateRule).toHaveBeenCalledWith({
     key: 'squid:S1337',
     organization: undefined,
@@ -69,16 +96,64 @@ it('should correctly handle tag changes', async () => {
   });
 });
 
-function getMockHelpers() {
-  // We use this little "force-requiring" instead of an import statement in
-  // order to prevent a hoisting race condition while mocking. If we want to use
-  // a mock helper in a Jest mock, we have to require it like this. Otherwise,
-  // we get errors like:
-  //     ReferenceError: testMocks_1 is not defined
-  return require.requireActual('../../../../helpers/testMocks');
-}
+it('should correctly handle rule changes', () => {
+  const wrapper = shallowRender();
+  const ruleChange = {
+    createdAt: '2019-02-01',
+    key: 'foo',
+    name: 'Foo',
+    repo: 'bar',
+    severity: 'MAJOR',
+    status: 'READY',
+    type: 'BUG' as T.RuleType
+  };
+
+  wrapper.instance().handleRuleChange(ruleChange);
+  expect(wrapper.state().ruleDetails).toBe(ruleChange);
+});
+
+it('should correctly handle activation', async () => {
+  const onActivate = jest.fn();
+  const wrapper = shallowRender({ onActivate });
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleActivate();
+  await waitAndUpdate(wrapper);
+  expect(onActivate).toBeCalledWith(
+    'foo',
+    'squid:S1337',
+    expect.objectContaining({
+      inherit: 'NONE',
+      severity: 'MAJOR'
+    })
+  );
+});
+
+it('should correctly handle deactivation', async () => {
+  const onDeactivate = jest.fn();
+  const selectedProfile = mockQualityProfile({ key: 'bar' });
+  const wrapper = shallowRender({ onDeactivate, selectedProfile });
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleDeactivate();
+  await waitAndUpdate(wrapper);
+  expect(onDeactivate).toBeCalledWith(selectedProfile.key, 'squid:S1337');
+});
+
+it('should correctly handle deletion', async () => {
+  const onDelete = jest.fn();
+  const wrapper = shallowRender({ onDelete });
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleDelete();
+  await waitAndUpdate(wrapper);
+  expect(deleteRule).toBeCalledWith(expect.objectContaining({ key: 'squid:S1337' }));
+  expect(onDelete).toBeCalledWith('squid:S1337');
+});
 
 function shallowRender(props: Partial<RuleDetails['props']> = {}) {
+  const profile = mockQualityProfile({ key: 'foo' });
+
   return shallow<RuleDetails>(
     <RuleDetails
       onActivate={jest.fn()}

@@ -62,7 +62,7 @@ exports[`should render correctly 1`] = `
         </tr>
       </thead>
       <tbody>
-        <ProfilesListRow
+        <Memo(ProfilesListRow)
           key="key"
           organization="foo"
           profile={
@@ -132,7 +132,7 @@ exports[`should render correctly 1`] = `
         </tr>
       </thead>
       <tbody>
-        <ProfilesListRow
+        <Memo(ProfilesListRow)
           key="key"
           organization="foo"
           profile={
@@ -223,7 +223,7 @@ exports[`should render correctly 2`] = `
         </tr>
       </thead>
       <tbody>
-        <ProfilesListRow
+        <Memo(ProfilesListRow)
           key="key"
           organization="foo"
           profile={

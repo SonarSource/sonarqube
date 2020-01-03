@@ -1,5 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`#renderDeactivateButton should render correctly 1`] = `
+<ConfirmButton
+  confirmButtonText="yes"
+  modalBody="coding_rules.deactivate.confirm"
+  modalHeader="coding_rules.deactivate"
+  onConfirm={[Function]}
+>
+  [Function]
+</ConfirmButton>
+`;
+
+exports[`#renderDeactivateButton should render correctly 2`] = `
+<Tooltip
+  overlay="coding_rules.need_extend_or_copy"
+>
+  <Button
+    className="coding-rules-detail-quality-profile-deactivate button-red"
+    disabled={true}
+  >
+    coding_rules.deactivate
+  </Button>
+</Tooltip>
+`;
+
 exports[`renderActions should disable the button when I am on a built-in profile 1`] = `
 <td
   className="coding-rule-table-meta-cell coding-rule-activation-actions"
@@ -26,7 +50,6 @@ exports[`renderActions should render the activate button 1`] = `
     className="coding-rules-detail-quality-profile-activate"
     modalHeader="coding_rules.activate_in_quality_profile"
     onDone={[Function]}
-    organization="org"
     profiles={
       Array [
         Object {
@@ -87,7 +110,7 @@ exports[`renderActions should render the deactivate button 1`] = `
 </td>
 `;
 
-exports[`should render 1`] = `
+exports[`should render correctly: default 1`] = `
 <div
   className="coding-rule"
   data-rule="javascript:S1067"
@@ -108,7 +131,7 @@ exports[`should render 1`] = `
               style={Object {}}
               to={
                 Object {
-                  "pathname": "/organizations/org/rules",
+                  "pathname": "/coding_rules",
                   "query": Object {
                     "open": "javascript:S1067",
                     "rule_key": "javascript:S1067",
@@ -187,26 +210,102 @@ exports[`should render 1`] = `
 </div>
 `;
 
-exports[`should render deactivate button 1`] = `
-<ConfirmButton
-  confirmButtonText="yes"
-  modalBody="coding_rules.deactivate.confirm"
-  modalHeader="coding_rules.deactivate"
-  onConfirm={[Function]}
+exports[`should render correctly: with activation 1`] = `
+<div
+  className="coding-rule"
+  data-rule="javascript:S1067"
 >
-  [Function]
-</ConfirmButton>
-`;
-
-exports[`should render deactivate button 2`] = `
-<Tooltip
-  overlay="coding_rules.need_extend_or_copy"
->
-  <Button
-    className="coding-rules-detail-quality-profile-deactivate button-red"
-    disabled={true}
+  <table
+    className="coding-rule-table"
   >
-    coding_rules.deactivate
-  </Button>
-</Tooltip>
+    <tbody>
+      <tr>
+        <td>
+          <div
+            className="coding-rule-title"
+          >
+            <Link
+              className="link-no-underline"
+              onClick={[Function]}
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/coding_rules",
+                  "query": Object {
+                    "open": "javascript:S1067",
+                    "rule_key": "javascript:S1067",
+                  },
+                }
+              }
+            >
+              Use foo
+            </Link>
+          </div>
+        </td>
+        <td
+          className="coding-rule-table-meta-cell"
+        >
+          <div
+            className="display-flex-center coding-rule-meta"
+          >
+            <span
+              className="display-inline-flex-center spacer-left note"
+            >
+              JavaScript
+            </span>
+            <Tooltip
+              overlay="coding_rules.type.tooltip.CODE_SMELL"
+            >
+              <span
+                className="display-inline-flex-center spacer-left note"
+              >
+                <IssueTypeIcon
+                  query="CODE_SMELL"
+                />
+                <span
+                  className="little-spacer-left text-middle"
+                >
+                  issue.type.CODE_SMELL
+                </span>
+              </span>
+            </Tooltip>
+            <TagsList
+              allowUpdate={false}
+              className="display-inline-flex-center note spacer-left"
+              tags={
+                Array [
+                  "x",
+                  "a",
+                  "b",
+                ]
+              }
+            />
+            <SimilarRulesFilter
+              onFilterChange={[MockFunction]}
+              rule={
+                Object {
+                  "key": "javascript:S1067",
+                  "lang": "js",
+                  "langName": "JavaScript",
+                  "name": "Use foo",
+                  "severity": "MAJOR",
+                  "status": "READY",
+                  "sysTags": Array [
+                    "a",
+                    "b",
+                  ],
+                  "tags": Array [
+                    "x",
+                  ],
+                  "type": "CODE_SMELL",
+                }
+              }
+            />
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 `;

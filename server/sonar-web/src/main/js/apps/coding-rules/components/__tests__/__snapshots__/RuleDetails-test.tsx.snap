@@ -1,12 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
-<div
-  className="coding-rule-details"
-/>
-`;
-
-exports[`should render correctly 2`] = `
+exports[`should render correctly: loaded 1`] = `
 <div
   className="coding-rule-details"
 >
@@ -103,7 +97,7 @@ exports[`should render correctly 2`] = `
             "createdAt": "2017-06-16T16:13:38+0200",
             "inherit": "NONE",
             "params": Array [],
-            "qProfile": "key",
+            "qProfile": "foo",
             "severity": "MAJOR",
             "updatedAt": "2017-06-16T16:13:38+0200",
           },
@@ -121,7 +115,7 @@ exports[`should render correctly 2`] = `
             "isBuiltIn": false,
             "isDefault": false,
             "isInherited": false,
-            "key": "key",
+            "key": "foo",
             "language": "js",
             "languageName": "JavaScript",
             "name": "name",
@@ -201,4 +195,10 @@ exports[`should render correctly 2`] = `
     />
   </DeferredSpinner>
 </div>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<div
+  className="coding-rule-details"
+/>
 `;

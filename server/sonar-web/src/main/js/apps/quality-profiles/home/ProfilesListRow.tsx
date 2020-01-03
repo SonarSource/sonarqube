@@ -29,113 +29,98 @@ import ProfileDate from '../components/ProfileDate';
 import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
 
-interface Props {
+export interface ProfilesListRowProps {
   organization: string | null;
   profile: Profile;
   updateProfiles: () => Promise<void>;
 }
 
-export default class ProfilesListRow extends React.PureComponent<Props> {
-  renderName() {
-    const { profile } = this.props;
-    const offset = 25 * (profile.depth - 1);
-    return (
-      <div className="display-flex-center" style={{ paddingLeft: offset }}>
-        <div>
-          <ProfileLink
-            language={profile.language}
-            name={profile.name}
-            organization={this.props.organization}>
-            {profile.name}
-          </ProfileLink>
+export function ProfilesListRow(props: ProfilesListRowProps) {
+  const { organization, profile } = props;
+
+  const offset = 25 * (profile.depth - 1);
+  const activeRulesUrl = getRulesUrl(
+    {
+      qprofile: profile.key,
+      activation: 'true'
+    },
+    organization
+  );
+  const deprecatedRulesUrl = getRulesUrl(
+    {
+      qprofile: profile.key,
+      activation: 'true',
+      statuses: 'DEPRECATED'
+    },
+    organization
+  );
+
+  return (
+    <tr
+      className="quality-profiles-table-row text-middle"
+      data-key={profile.key}
+      data-name={profile.name}>
+      <td className="quality-profiles-table-name text-middle">
+        <div className="display-flex-center" style={{ paddingLeft: offset }}>
+          <div>
+            <ProfileLink
+              language={profile.language}
+              name={profile.name}
+              organization={organization}>
+              {profile.name}
+            </ProfileLink>
+          </div>
+          {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
         </div>
-        {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
-      </div>
-    );
-  }
+      </td>
 
-  renderProjects() {
-    const { profile } = this.props;
-
-    if (profile.isDefault) {
-      return (
-        <DocTooltip
-          doc={import(
-            /* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/default-quality-profile.md'
-          )}>
-          <span className="badge">{translate('default')}</span>
-        </DocTooltip>
-      );
-    }
-
-    return <span>{profile.projectCount}</span>;
-  }
-
-  renderRules() {
-    const { profile } = this.props;
-
-    const activeRulesUrl = getRulesUrl(
-      {
-        qprofile: profile.key,
-        activation: 'true'
-      },
-      this.props.organization
-    );
-
-    const deprecatedRulesUrl = getRulesUrl(
-      {
-        qprofile: profile.key,
-        activation: 'true',
-        statuses: 'DEPRECATED'
-      },
-      this.props.organization
-    );
-
-    return (
-      <div>
-        {profile.activeDeprecatedRuleCount > 0 && (
-          <span className="spacer-right">
-            <Tooltip overlay={translate('quality_profiles.deprecated_rules')}>
-              <Link className="badge badge-error" to={deprecatedRulesUrl}>
-                {profile.activeDeprecatedRuleCount}
-              </Link>
-            </Tooltip>
-          </span>
+      <td className="quality-profiles-table-projects thin nowrap text-middle text-right">
+        {profile.isDefault ? (
+          <DocTooltip
+            doc={import(
+              /* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/default-quality-profile.md'
+            )}>
+            <span className="badge">{translate('default')}</span>
+          </DocTooltip>
+        ) : (
+          <span>{profile.projectCount}</span>
         )}
+      </td>
 
-        <Link to={activeRulesUrl}>{profile.activeRuleCount}</Link>
-      </div>
-    );
-  }
+      <td className="quality-profiles-table-rules thin nowrap text-middle text-right">
+        <div>
+          {profile.activeDeprecatedRuleCount > 0 && (
+            <span className="spacer-right">
+              <Tooltip overlay={translate('quality_profiles.deprecated_rules')}>
+                <Link className="badge badge-error" to={deprecatedRulesUrl}>
+                  {profile.activeDeprecatedRuleCount}
+                </Link>
+              </Tooltip>
+            </span>
+          )}
 
-  render() {
-    return (
-      <tr
-        className="quality-profiles-table-row text-middle"
-        data-key={this.props.profile.key}
-        data-name={this.props.profile.name}>
-        <td className="quality-profiles-table-name text-middle">{this.renderName()}</td>
-        <td className="quality-profiles-table-projects thin nowrap text-middle text-right">
-          {this.renderProjects()}
-        </td>
-        <td className="quality-profiles-table-rules thin nowrap text-middle text-right">
-          {this.renderRules()}
-        </td>
-        <td className="quality-profiles-table-date thin nowrap text-middle text-right">
-          <ProfileDate date={this.props.profile.rulesUpdatedAt} />
-        </td>
-        <td className="quality-profiles-table-date thin nowrap text-middle text-right">
-          <ProfileDate date={this.props.profile.lastUsed} />
-        </td>
-        <td className="quality-profiles-table-actions thin nowrap text-middle text-right">
-          <ProfileActions
-            fromList={true}
-            organization={this.props.organization}
-            profile={this.props.profile}
-            updateProfiles={this.props.updateProfiles}
-          />
-        </td>
-      </tr>
-    );
-  }
+          <Link to={activeRulesUrl}>{profile.activeRuleCount}</Link>
+        </div>
+      </td>
+
+      <td className="quality-profiles-table-date thin nowrap text-middle text-right">
+        <ProfileDate date={profile.rulesUpdatedAt} />
+      </td>
+
+      <td className="quality-profiles-table-date thin nowrap text-middle text-right">
+        <ProfileDate date={profile.lastUsed} />
+      </td>
+
+      <td className="quality-profiles-table-actions thin nowrap text-middle text-right">
+        <ProfileActions
+          fromList={true}
+          organization={organization}
+          profile={profile}
+          updateProfiles={props.updateProfiles}
+        />
+      </td>
+    </tr>
+  );
 }
+
+export default React.memo(ProfilesListRow);

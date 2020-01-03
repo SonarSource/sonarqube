@@ -23,7 +23,7 @@ import DocTooltip from '../../../components/docs/DocTooltip';
 import Conditions from './Conditions';
 import Projects from './Projects';
 
-interface Props {
+export interface DetailsContentProps {
   isDefault?: boolean;
   metrics: T.Dict<T.Metric>;
   organization?: string;
@@ -33,48 +33,48 @@ interface Props {
   qualityGate: T.QualityGate;
 }
 
-export default class DetailsContent extends React.PureComponent<Props> {
-  render() {
-    const { isDefault, metrics, organization, qualityGate } = this.props;
-    const conditions = qualityGate.conditions || [];
-    const actions = qualityGate.actions || ({} as any);
+export function DetailsContent(props: DetailsContentProps) {
+  const { isDefault, metrics, organization, qualityGate } = props;
+  const conditions = qualityGate.conditions || [];
+  const actions = qualityGate.actions || ({} as any);
 
-    return (
-      <div className="layout-page-main-inner">
-        <Conditions
-          canEdit={actions.manageConditions}
-          conditions={conditions}
-          metrics={metrics}
-          onAddCondition={this.props.onAddCondition}
-          onRemoveCondition={this.props.onRemoveCondition}
-          onSaveCondition={this.props.onSaveCondition}
-          organization={organization}
-          qualityGate={qualityGate}
-        />
+  return (
+    <div className="layout-page-main-inner">
+      <Conditions
+        canEdit={actions.manageConditions}
+        conditions={conditions}
+        metrics={metrics}
+        onAddCondition={props.onAddCondition}
+        onRemoveCondition={props.onRemoveCondition}
+        onSaveCondition={props.onSaveCondition}
+        organization={organization}
+        qualityGate={qualityGate}
+      />
 
-        <div className="quality-gate-section" id="quality-gate-projects">
-          <header className="display-flex-center spacer-bottom">
-            <h3>{translate('quality_gates.projects')}</h3>
-            <DocTooltip
-              className="spacer-left"
-              doc={import(
-                /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-projects.md'
-              )}
-            />
-          </header>
-          {isDefault ? (
-            translate('quality_gates.projects_for_default')
-          ) : (
-            <Projects
-              canEdit={actions.associateProjects}
-              // pass unique key to re-mount the component when the quality gate changes
-              key={qualityGate.id}
-              organization={organization}
-              qualityGate={qualityGate}
-            />
-          )}
-        </div>
+      <div className="quality-gate-section" id="quality-gate-projects">
+        <header className="display-flex-center spacer-bottom">
+          <h3>{translate('quality_gates.projects')}</h3>
+          <DocTooltip
+            className="spacer-left"
+            doc={import(
+              /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-projects.md'
+            )}
+          />
+        </header>
+        {isDefault ? (
+          translate('quality_gates.projects_for_default')
+        ) : (
+          <Projects
+            canEdit={actions.associateProjects}
+            // pass unique key to re-mount the component when the quality gate changes
+            key={qualityGate.id}
+            organization={organization}
+            qualityGate={qualityGate}
+          />
+        )}
       </div>
-    );
-  }
+    </div>
+  );
 }
+
+export default React.memo(DetailsContent);

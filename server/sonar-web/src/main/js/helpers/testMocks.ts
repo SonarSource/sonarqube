@@ -388,6 +388,15 @@ export function mockLoggedInUser(overrides: Partial<T.LoggedInUser> = {}): T.Log
   };
 }
 
+export function mockGroup(overrides: Partial<T.Group> = {}): T.Group {
+  return {
+    id: 1,
+    membersCount: 1,
+    name: 'Foo',
+    ...overrides
+  };
+}
+
 export function mockEvent(overrides = {}) {
   return {
     target: { blur() {} },
@@ -828,6 +837,18 @@ export function mockFlowLocation(overrides: Partial<T.FlowLocation> = {}): T.Flo
       endLine: 2,
       endOffset: 2
     },
+    ...overrides
+  };
+}
+
+export function mockIdentityProvider(
+  overrides: Partial<T.IdentityProvider> = {}
+): T.IdentityProvider {
+  return {
+    backgroundColor: '#000000',
+    iconPath: '/path/icon.svg',
+    key: 'github',
+    name: 'Github',
     ...overrides
   };
 }
