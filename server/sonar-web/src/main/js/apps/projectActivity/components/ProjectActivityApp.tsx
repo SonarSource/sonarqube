@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
@@ -56,7 +56,7 @@ export default function ProjectActivityApp(props: Props) {
   return (
     <div className="page page-limited" id="project-activity">
       <Suggestions suggestions="project_activity" />
-      <Helmet title={translate('project_activity.page')} />
+      <Helmet defer={false} title={translate('project_activity.page')} />
 
       <A11ySkipTarget anchor="activity_main" />
 

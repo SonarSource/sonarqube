@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -52,7 +52,7 @@ export class Account extends React.PureComponent<Props> {
     return (
       <div id="account-page">
         <Suggestions suggestions="account" />
-        <Helmet defaultTitle={title} titleTemplate={'%s - ' + title} />
+        <Helmet defaultTitle={title} defer={false} titleTemplate={`%s - ${title}`} />
         <A11ySkipTarget anchor="account_main" />
         <header className="account-header">
           <div className="account-container clearfix">

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { withRouter, WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { changeKey } from '../../api/components';
@@ -41,7 +41,7 @@ export class Key extends React.PureComponent<Props & WithRouterProps> {
     const { component } = this.props;
     return (
       <div className="page page-limited" id="project-key">
-        <Helmet title={translate('update_key.page')} />
+        <Helmet defer={false} title={translate('update_key.page')} />
         <header className="page-header">
           <h1 className="page-title">{translate('update_key.page')}</h1>
           <div className="page-description">{translate('update_key.page.description')}</div>

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { WithRouterProps } from 'react-router';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -120,7 +120,7 @@ class App extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
+        <Helmet defaultTitle={defaultTitle} defer={false} titleTemplate={`%s - ${defaultTitle}`} />
         <div className="layout-page" id="quality-gates-page">
           <Suggestions suggestions="quality_gates" />
 

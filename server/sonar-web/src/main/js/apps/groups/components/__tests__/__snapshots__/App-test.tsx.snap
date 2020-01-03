@@ -5,8 +5,8 @@ exports[`should render correctly 1`] = `
   <Suggestions
     suggestions="user_groups"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="user_groups.page"
   />
@@ -35,8 +35,8 @@ exports[`should render correctly 2`] = `
   <Suggestions
     suggestions="user_groups"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="user_groups.page"
   />

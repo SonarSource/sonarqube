@@ -4,8 +4,8 @@ exports[`should render correctly for SonarCloud 1`] = `
 <div
   className="layout-page"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="Lorem | documentation.page_title.sonarcloud"
   />
@@ -42,8 +42,8 @@ exports[`should render correctly for SonarQube 1`] = `
 <div
   className="layout-page"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="Lorem | documentation.page_title.sonarqube"
   >
@@ -51,7 +51,7 @@ exports[`should render correctly for SonarQube 1`] = `
       content="noindex nofollow"
       name="robots"
     />
-  </HelmetWrapper>
+  </Helmet>
   <ScreenPositionHelper
     className="layout-page-side-outer"
   >
@@ -168,7 +168,7 @@ exports[`should render correctly for SonarQube 2`] = `
 
 exports[`should show a 404 if the page doesn't exist 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defer={true}
     encodeSpecialCharacters={true}
     title="documentation.page_title.sonarcloud"
@@ -177,7 +177,7 @@ exports[`should show a 404 if the page doesn't exist 1`] = `
       content="noindex nofollow"
       name="robots"
     />
-  </HelmetWrapper>
+  </Helmet>
   <A11ySkipTarget
     anchor="documentation_main"
   />

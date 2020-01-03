@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import {
   associateProject,
@@ -131,7 +131,7 @@ export default class QualityProfiles extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <Suggestions suggestions="project_quality_profiles" />
-        <Helmet title={translate('project_quality_profiles.page')} />
+        <Helmet defer={false} title={translate('project_quality_profiles.page')} />
 
         <A11ySkipTarget anchor="profiles_main" />
 

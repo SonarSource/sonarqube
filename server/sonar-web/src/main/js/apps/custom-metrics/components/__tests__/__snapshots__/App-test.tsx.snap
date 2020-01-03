@@ -5,8 +5,8 @@ exports[`should work 1`] = `
   <Suggestions
     suggestions="custom_metrics"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="custom_metrics.page"
   />
@@ -27,8 +27,8 @@ exports[`should work 2`] = `
   <Suggestions
     suggestions="custom_metrics"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="custom_metrics.page"
   />

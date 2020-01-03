@@ -21,6 +21,7 @@ import { mount, shallow } from 'enzyme';
 import { Location } from 'history';
 import { times } from 'lodash';
 import * as React from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { get, remove } from 'sonar-ui-common/helpers/storage';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
@@ -312,7 +313,7 @@ it('should bind org and redirect to org home when coming from org binding', asyn
 });
 
 function mountRender(props: Partial<CreateOrganization['props']> = {}) {
-  return mount<CreateOrganization>(createComponent(props));
+  return mount<CreateOrganization>(<HelmetProvider>{createComponent(props)}</HelmetProvider>);
 }
 
 function shallowRender(props: Partial<CreateOrganization['props']> = {}) {

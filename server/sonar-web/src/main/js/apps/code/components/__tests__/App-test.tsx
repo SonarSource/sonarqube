@@ -48,7 +48,7 @@ beforeEach(() => {
 it('should have correct title for APP based component', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper.find('HelmetWrapper')).toMatchSnapshot();
+  expect(wrapper.find('Helmet')).toMatchSnapshot();
 });
 
 it('should have correct title for portfolio base component', async () => {
@@ -61,7 +61,7 @@ it('should have correct title for portfolio base component', async () => {
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper.find('HelmetWrapper')).toMatchSnapshot();
+  expect(wrapper.find('Helmet')).toMatchSnapshot();
 });
 
 it('should have correct title for project component', async () => {
@@ -74,7 +74,7 @@ it('should have correct title for project component', async () => {
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper.find('HelmetWrapper')).toMatchSnapshot();
+  expect(wrapper.find('Helmet')).toMatchSnapshot();
 });
 
 it('should refresh branch status if issues are updated', async () => {

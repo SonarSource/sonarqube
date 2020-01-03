@@ -7,9 +7,9 @@ exports[`should render correctly 1`] = `
   <Suggestions
     suggestions="account"
   />
-  <HelmetWrapper
+  <Helmet
     defaultTitle="my_account.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
     titleTemplate="%s - my_account.page"
   />

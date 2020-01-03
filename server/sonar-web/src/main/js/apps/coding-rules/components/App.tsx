@@ -20,7 +20,7 @@
 import * as key from 'keymaster';
 import { keyBy } from 'lodash';
 import * as React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
@@ -559,7 +559,7 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <>
         <Suggestions suggestions="coding_rules" />
-        <Helmet title={translate('coding_rules.page')}>
+        <Helmet defer={false} title={translate('coding_rules.page')}>
           <meta content="noindex" name="robots" />
         </Helmet>
         <div className="layout-page" id="coding-rules-page">

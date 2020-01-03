@@ -55,9 +55,7 @@ it('should work for WebAnalytics plugin', () => {
   const wrapper = shallowRender({ webAnalytics });
 
   expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('HelmetWrapper').prop('onChangeClientState')).toBe(
-    wrapper.instance().trackPage
-  );
+  expect(wrapper.find('Helmet').prop('onChangeClientState')).toBe(wrapper.instance().trackPage);
   expect(installScript).toBeCalledWith(webAnalytics, 'head');
   (getWebAnalyticsPageHandlerFromCache as jest.Mock).mockReturnValueOnce(pageChange);
 
@@ -72,9 +70,7 @@ it('should work for Google Tag Manager', () => {
   const push = jest.spyOn(dataLayer, 'push');
   const wrapper = shallowRender({ trackingIdGTM: '123' });
 
-  expect(wrapper.find('HelmetWrapper').prop('onChangeClientState')).toBe(
-    wrapper.instance().trackPage
-  );
+  expect(wrapper.find('Helmet').prop('onChangeClientState')).toBe(wrapper.instance().trackPage);
   expect(gtm).toBeCalled();
   expect(dataLayer).toHaveLength(0);
 

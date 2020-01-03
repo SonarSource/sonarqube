@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { checkSecretKey, generateSecretKey } from '../../../api/settings';
@@ -71,7 +71,7 @@ export default class EncryptionApp extends React.PureComponent<{}, State> {
     const { loading, secretKey, secretKeyAvailable } = this.state;
     return (
       <div className="page page-limited" id="encryption-page">
-        <Helmet title={translate('property.category.security.encryption')} />
+        <Helmet defer={false} title={translate('property.category.security.encryption')} />
         <header className="page-header">
           <h1 className="page-title">{translate('property.category.security.encryption')}</h1>
           <DeferredSpinner loading={loading} />

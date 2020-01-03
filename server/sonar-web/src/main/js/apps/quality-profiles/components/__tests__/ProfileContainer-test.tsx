@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { WithRouterProps } from 'react-router';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import ProfileHeader from '../../details/ProfileHeader';

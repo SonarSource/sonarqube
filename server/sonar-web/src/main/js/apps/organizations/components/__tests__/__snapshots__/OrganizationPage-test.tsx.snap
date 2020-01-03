@@ -19,9 +19,9 @@ Array [
 
 exports[`smoke test 1`] = `
 <div>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="Foo"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
     titleTemplate="%s - Foo"
   />

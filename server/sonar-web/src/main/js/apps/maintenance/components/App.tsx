@@ -19,7 +19,7 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -133,7 +133,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <Helmet defaultTitle={translate('maintenance.page')} />
+        <Helmet defaultTitle={translate('maintenance.page')} defer={false} />
         <div className="page-wrapper-simple" id="bd">
           <div
             className={classNames('page-simple', {

@@ -5,8 +5,8 @@ exports[`should render correctly 1`] = `
   className="page page-limited"
   id="project-permissions-page"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="permissions.page"
   />
@@ -88,8 +88,8 @@ exports[`should render correctly 2`] = `
   className="page page-limited"
   id="project-permissions-page"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="permissions.page"
   />

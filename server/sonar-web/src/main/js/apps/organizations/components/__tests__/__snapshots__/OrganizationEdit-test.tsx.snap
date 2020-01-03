@@ -4,8 +4,8 @@ exports[`smoke test 1`] = `
 <div
   className="page page-limited"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="organization.settings"
   />
@@ -164,8 +164,8 @@ exports[`smoke test 2`] = `
 <div
   className="page page-limited"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="organization.settings"
   />
@@ -324,8 +324,8 @@ exports[`smoke test 3`] = `
 <div
   className="page page-limited"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="organization.settings"
   />

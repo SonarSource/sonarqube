@@ -2,9 +2,9 @@
 
 exports[`should render correctly 1`] = `
 <div>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="layout.settings"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
     titleTemplate="%s - layout.settings"
   />

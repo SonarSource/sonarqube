@@ -8,8 +8,8 @@ exports[`should render correctly: loaded 1`] = `
     loading={false}
     timeout={200}
   >
-    <HelmetWrapper
-      defer={true}
+    <Helmet
+      defer={false}
       encodeSpecialCharacters={true}
       title="qualitygate"
     />

@@ -44,8 +44,8 @@ exports[`should render correctly 1`] = `
   <Suggestions
     suggestions="coding_rules"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="coding_rules.page"
   >
@@ -53,7 +53,7 @@ exports[`should render correctly 1`] = `
       content="noindex"
       name="robots"
     />
-  </HelmetWrapper>
+  </Helmet>
   <div
     className="layout-page"
     id="coding-rules-page"
@@ -98,8 +98,8 @@ exports[`should render correctly 2`] = `
   <Suggestions
     suggestions="coding_rules"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="coding_rules.page"
   >
@@ -107,7 +107,7 @@ exports[`should render correctly 2`] = `
       content="noindex"
       name="robots"
     />
-  </HelmetWrapper>
+  </Helmet>
   <div
     className="layout-page"
     id="coding-rules-page"

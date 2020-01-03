@@ -2,8 +2,8 @@
 
 exports[`should render with auto tab displayed 1`] = `
 <Fragment>
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="onboarding.create_organization.page.header"
     titleTemplate="%s"
@@ -92,8 +92,8 @@ exports[`should render with auto tab selected and manual disabled 1`] = `
 
 exports[`should render with auto tab selected and manual disabled 2`] = `
 <Fragment>
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="onboarding.create_organization.page.header"
     titleTemplate="%s"
@@ -218,8 +218,8 @@ exports[`should render with auto tab selected and manual disabled 2`] = `
 
 exports[`should render with manual tab displayed 1`] = `
 <Fragment>
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="onboarding.create_organization.page.header"
     titleTemplate="%s"
@@ -278,8 +278,8 @@ exports[`should render with organization bind page 1`] = `
 
 exports[`should render with organization bind page 2`] = `
 <Fragment>
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="onboarding.create_organization.page.header"
     titleTemplate="%s"
@@ -406,8 +406,8 @@ exports[`should render with organization bind page 2`] = `
 
 exports[`should switch tabs 1`] = `
 <Fragment>
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="onboarding.create_organization.page.header"
     titleTemplate="%s"

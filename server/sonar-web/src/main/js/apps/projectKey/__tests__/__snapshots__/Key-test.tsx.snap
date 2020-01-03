@@ -5,8 +5,8 @@ exports[`should render and change key 1`] = `
   className="page page-limited"
   id="project-key"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="update_key.page"
   />

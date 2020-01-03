@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { Location, withRouter } from '../../components/hoc/withRouter';
 import { gtm } from '../../helpers/analytics';
@@ -74,6 +74,7 @@ export class PageTracker extends React.Component<Props, State> {
     return (
       <Helmet
         defaultTitle={getInstance()}
+        defer={false}
         onChangeClientState={trackingIdGTM || webAnalytics ? this.trackPage : undefined}>
         {this.props.children}
       </Helmet>

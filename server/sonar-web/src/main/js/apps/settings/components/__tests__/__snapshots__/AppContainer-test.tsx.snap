@@ -8,8 +8,8 @@ exports[`should render analysis scope correctly 1`] = `
   <Suggestions
     suggestions="settings"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="settings.page"
   />
@@ -44,8 +44,8 @@ exports[`should render default view correctly 1`] = `
   <Suggestions
     suggestions="settings"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="settings.page"
   />
@@ -80,8 +80,8 @@ exports[`should render languages correctly 1`] = `
   <Suggestions
     suggestions="settings"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="settings.page"
   />
@@ -116,8 +116,8 @@ exports[`should render newCodePeriod correctly 1`] = `
   <Suggestions
     suggestions="settings"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="settings.page"
   />
@@ -150,8 +150,8 @@ exports[`should render pull request decoration binding correctly 1`] = `
   <Suggestions
     suggestions="settings"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="settings.page"
   />
@@ -186,8 +186,8 @@ exports[`should render pull request decoration correctly 1`] = `
   <Suggestions
     suggestions="settings"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="settings.page"
   />

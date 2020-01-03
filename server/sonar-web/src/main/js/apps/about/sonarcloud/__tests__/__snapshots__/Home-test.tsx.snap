@@ -47,7 +47,7 @@ exports[`should render 1`] = `
     <div
       className="page-container sc-page"
     >
-      <HelmetWrapper
+      <Helmet
         defer={true}
         encodeSpecialCharacters={true}
         title="SonarCloud | Clean Code, Rockstar Status"
@@ -56,7 +56,7 @@ exports[`should render 1`] = `
           content="Enhance your workflow with continuous code quality, SonarCloud automatically analyzes and decorates pull requests on GitHub, Bitbucket and Azure DevOps on major languages."
           name="description"
         />
-      </HelmetWrapper>
+      </Helmet>
       <FixedNavBar />
       <PageBackgroundHeader />
       <TopNavBar />

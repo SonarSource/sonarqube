@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { WithRouterProps } from 'react-router';
 import ProfileHeader from '../details/ProfileHeader';
 import { Profile } from '../types';
@@ -82,7 +82,7 @@ export default class ProfileContainer extends React.PureComponent<Props & WithRo
 
     return (
       <div id="quality-profile">
-        <Helmet title={profile.name} />
+        <Helmet defer={false} title={profile.name} />
         <ProfileHeader
           organization={organization}
           profile={profile}

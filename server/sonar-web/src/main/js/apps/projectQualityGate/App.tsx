@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   associateGateWithProject,
@@ -133,7 +133,7 @@ export default class App extends React.PureComponent<Props> {
     return (
       <div className="page page-limited" id="project-quality-gate">
         <Suggestions suggestions="project_quality_gate" />
-        <Helmet title={translate('project_quality_gate.page')} />
+        <Helmet defer={false} title={translate('project_quality_gate.page')} />
         <A11ySkipTarget anchor="qg_main" />
         <Header />
         {loading ? (

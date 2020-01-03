@@ -8,8 +8,8 @@ exports[`should render correctly 1`] = `
   <Suggestions
     suggestions="project_activity"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="project_activity.page"
   />

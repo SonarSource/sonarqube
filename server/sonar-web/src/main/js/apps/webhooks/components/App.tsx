@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createWebhook, deleteWebhook, searchWebhooks, updateWebhook } from '../../../api/webhooks';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
@@ -124,7 +124,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <>
         <Suggestions suggestions="webhooks" />
-        <Helmet title={translate('webhooks.page')} />
+        <Helmet defer={false} title={translate('webhooks.page')} />
 
         <div className="page page-limited">
           <PageHeader loading={loading}>

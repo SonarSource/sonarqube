@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getIdentityProviders, searchUsers } from '../../api/users';
@@ -120,7 +120,7 @@ export class UsersApp extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited" id="users-page">
         <Suggestions suggestions="users" />
-        <Helmet title={translate('users.page')} />
+        <Helmet defer={false} title={translate('users.page')} />
         <Header loading={loading} onUpdateUsers={this.fetchUsers} />
         <Search query={query} updateQuery={this.updateQuery} />
         <UsersList

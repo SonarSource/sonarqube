@@ -33,8 +33,8 @@ exports[`renders 1`] = `
   <Suggestions
     suggestions="projects"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
   />
@@ -179,8 +179,8 @@ exports[`renders 2`] = `
   <Suggestions
     suggestions="projects"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
   />
@@ -271,8 +271,8 @@ exports[`renders correctly empty organization 1`] = `
   <Suggestions
     suggestions="projects"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
   />
@@ -294,8 +294,8 @@ exports[`renders correctly empty organization 2`] = `
   <Suggestions
     suggestions="projects"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
   />
@@ -320,8 +320,8 @@ exports[`renders correctly empty organization 3`] = `
   <Suggestions
     suggestions="projects"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="projects.page"
   />

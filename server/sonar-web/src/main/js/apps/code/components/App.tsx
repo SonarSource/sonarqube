@@ -21,7 +21,7 @@ import * as classNames from 'classnames';
 import { Location } from 'history';
 import { debounce } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { InjectedRouter } from 'react-router';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
@@ -269,7 +269,10 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <Suggestions suggestions="code" />
-        <Helmet title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle} />
+        <Helmet
+          defer={false}
+          title={sourceViewer !== undefined ? sourceViewer.name : defaultTitle}
+        />
         <A11ySkipTarget anchor="code_main" />
 
         <Search

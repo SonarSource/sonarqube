@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { fetchQualityGate } from '../../../api/quality-gates';
@@ -138,7 +138,7 @@ export class Details extends React.PureComponent<Props, State> {
         <DeferredSpinner loading={loading} timeout={200}>
           {qualityGate && (
             <>
-              <Helmet title={qualityGate.name} />
+              <Helmet defer={false} title={qualityGate.name} />
               <DetailsHeader
                 onSetDefault={this.handleSetDefault}
                 organization={organization}

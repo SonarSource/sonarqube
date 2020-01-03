@@ -41,23 +41,9 @@ exports[`should render React extensions correctly 1`] = `
   }
 >
   <div>
-    <HelmetWrapper
-      defer={true}
-      encodeSpecialCharacters={true}
+    <Helmet
       title="Foo"
-    >
-      <SideEffect(NullComponent)
-        defer={true}
-        encodeSpecialCharacters={true}
-        title="Foo"
-      >
-        <NullComponent
-          defer={true}
-          encodeSpecialCharacters={true}
-          title="Foo"
-        />
-      </SideEffect(NullComponent)>
-    </HelmetWrapper>
+    />
     <div />
   </div>
 </Extension>
@@ -104,23 +90,9 @@ exports[`should render React extensions correctly 2`] = `
   }
 >
   <div>
-    <HelmetWrapper
-      defer={true}
-      encodeSpecialCharacters={true}
+    <Helmet
       title="Foo"
-    >
-      <SideEffect(NullComponent)
-        defer={true}
-        encodeSpecialCharacters={true}
-        title="Foo"
-      >
-        <NullComponent
-          defer={true}
-          encodeSpecialCharacters={true}
-          title="Foo"
-        />
-      </SideEffect(NullComponent)>
-    </HelmetWrapper>
+    />
     <div
       className="extension"
     />

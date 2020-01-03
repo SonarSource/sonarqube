@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 interface Props {
   organization?: { name: string };
@@ -27,5 +27,7 @@ interface Props {
 
 export default function OrganizationHelmet({ title, organization }: Props) {
   const defaultTitle = title + (organization ? ' - ' + organization.name : '');
-  return <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />;
+  return (
+    <Helmet defaultTitle={defaultTitle} defer={false} titleTemplate={`%s - ${defaultTitle}`} />
+  );
 }

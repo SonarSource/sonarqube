@@ -19,7 +19,7 @@
  */
 import { partition } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -45,7 +45,7 @@ export function Notifications(props: WithNotificationsProps) {
 
   return (
     <div className="account-body account-container">
-      <Helmet title={translate('my_account.notifications')} />
+      <Helmet defer={false} title={translate('my_account.notifications')} />
       <Alert variant="info">{translate('notification.dispatcher.information')}</Alert>
       <DeferredSpinner loading={loading}>
         {notifications && (

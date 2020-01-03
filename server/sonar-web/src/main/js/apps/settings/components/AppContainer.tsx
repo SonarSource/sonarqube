@@ -19,7 +19,7 @@
  */
 import { find } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -93,7 +93,7 @@ export class App extends React.PureComponent<Props & WithRouterProps, State> {
     return (
       <div className="page page-limited" id="settings-page">
         <Suggestions suggestions="settings" />
-        <Helmet title={translate('settings.page')} />
+        <Helmet defer={false} title={translate('settings.page')} />
 
         <PageHeader component={this.props.component} />
 

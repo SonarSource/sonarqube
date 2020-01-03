@@ -19,7 +19,7 @@
  */
 import { without } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import * as api from '../../../../api/permissions';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
@@ -371,7 +371,7 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <div className="page page-limited" id="project-permissions-page">
-        <Helmet title={translate('permissions.page')} />
+        <Helmet defer={false} title={translate('permissions.page')} />
 
         <PageHeader
           component={component}

@@ -20,7 +20,7 @@
 import * as key from 'keymaster';
 import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
@@ -1169,7 +1169,7 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div className="layout-page issues" id="issues-page">
         <Suggestions suggestions="issues" />
-        <Helmet title={openIssue ? openIssue.message : translate('issues.page')} />
+        <Helmet defer={false} title={openIssue ? openIssue.message : translate('issues.page')} />
 
         {this.renderSide(openIssue)}
 

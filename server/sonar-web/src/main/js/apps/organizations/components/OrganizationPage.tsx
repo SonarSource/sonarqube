@@ -19,7 +19,7 @@
  */
 import { Location } from 'history';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import NotFound from '../../../app/components/NotFound';
@@ -97,7 +97,11 @@ export class OrganizationPage extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        <Helmet defaultTitle={organization.name} titleTemplate={'%s - ' + organization.name} />
+        <Helmet
+          defaultTitle={organization.name}
+          defer={false}
+          titleTemplate={`%s - ${organization.name}`}
+        />
         <Suggestions suggestions="organization_space" />
         <OrganizationNavigation
           currentUser={this.props.currentUser}

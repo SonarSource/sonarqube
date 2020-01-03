@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Form from './Form';
 import Header from './Header';
@@ -30,7 +30,7 @@ interface Props {
 export default function App(props: Props) {
   return (
     <div className="page page-limited">
-      <Helmet title={translate('deletion.page')} />
+      <Helmet defer={false} title={translate('deletion.page')} />
       <Header component={props.component} />
       <Form component={props.component} />
     </div>

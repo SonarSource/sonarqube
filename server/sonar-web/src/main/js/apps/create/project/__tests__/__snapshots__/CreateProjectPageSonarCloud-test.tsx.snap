@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defer={true}
     encodeSpecialCharacters={true}
     title="onboarding.create_project.header"
@@ -31,7 +31,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly 2`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defer={true}
     encodeSpecialCharacters={true}
     title="onboarding.create_project.header"
@@ -103,7 +103,7 @@ exports[`should render correctly 2`] = `
 
 exports[`should render with Custom creation only 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defer={true}
     encodeSpecialCharacters={true}
     title="onboarding.create_project.header"
@@ -168,7 +168,7 @@ exports[`should render with Custom creation only 1`] = `
 
 exports[`should switch tabs 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defer={true}
     encodeSpecialCharacters={true}
     title="onboarding.create_project.header"

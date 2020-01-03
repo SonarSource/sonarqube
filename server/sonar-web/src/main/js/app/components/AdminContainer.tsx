@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getSettingsNavigation } from '../../api/nav';
@@ -120,7 +120,7 @@ export class AdminContainer extends React.PureComponent<Props, State> {
 
     return (
       <div>
-        <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
+        <Helmet defaultTitle={defaultTitle} defer={false} titleTemplate={`%s - ${defaultTitle}`} />
         <SettingsNav
           extensions={adminPages}
           fetchPendingPlugins={this.fetchPendingPlugins}

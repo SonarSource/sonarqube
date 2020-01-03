@@ -17,8 +17,8 @@ exports[`should render correctly 2`] = `
   <Suggestions
     suggestions="background_tasks"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="background_tasks.page"
   />

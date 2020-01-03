@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { withRouter, WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getSystemInfo } from '../../../api/system';
@@ -121,7 +121,7 @@ class App extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <Suggestions suggestions="system_info" />
-        <Helmet title={translate('system_info.page')} />
+        <Helmet defer={false} title={translate('system_info.page')} />
         <SystemUpgradeNotif />
         {sysInfoData && (
           <PageHeader

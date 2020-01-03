@@ -4,8 +4,8 @@ exports[`should render correctly 1`] = `
 <div
   className="account-body account-container"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="my_account.notifications"
   />
@@ -83,8 +83,8 @@ exports[`should render correctly 2`] = `
 <div
   className="account-body account-container"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="my_account.notifications"
   />
@@ -162,8 +162,8 @@ exports[`should render correctly 3`] = `
 <div
   className="account-body account-container"
 >
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="my_account.notifications"
   />

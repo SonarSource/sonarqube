@@ -28,8 +28,8 @@ exports[`should switch to source view if an issue is selected 1`] = `
   <Suggestions
     suggestions="issues"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="issues.page"
   />
@@ -370,8 +370,8 @@ exports[`should switch to source view if an issue is selected 2`] = `
   <Suggestions
     suggestions="issues"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="Reduce the number of conditional operators (4) used in the expression"
   />

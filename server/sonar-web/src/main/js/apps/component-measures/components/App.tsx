@@ -20,7 +20,7 @@
 import * as key from 'keymaster';
 import { debounce, keyBy } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import {
@@ -310,7 +310,7 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div id="component-measures">
         <Suggestions suggestions="component_measures" />
-        <Helmet title={this.getHelmetTitle(query, displayOverview, metric)} />
+        <Helmet defer={false} title={this.getHelmetTitle(query, displayOverview, metric)} />
 
         {measures.length > 0 ? (
           <div className="layout-page">

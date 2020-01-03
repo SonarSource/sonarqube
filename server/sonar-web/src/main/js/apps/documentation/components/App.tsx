@@ -21,7 +21,7 @@ import * as navigationTreeSonarCloud from 'Docs/../static/SonarCloudNavigationTr
 import * as navigationTreeSonarQube from 'Docs/../static/SonarQubeNavigationTree.json';
 import { DocNavigationItem } from 'Docs/@types/types';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -174,7 +174,9 @@ export default class App extends React.PureComponent<Props, State> {
 
     return (
       <div className="layout-page">
-        <Helmet title={isIndex || !page.title ? mainTitle : `${page.title} | ${mainTitle}`}>
+        <Helmet
+          defer={false}
+          title={isIndex || !page.title ? mainTitle : `${page.title} | ${mainTitle}`}>
           {!isSonarCloud() && <meta content="noindex nofollow" name="robots" />}
         </Helmet>
 

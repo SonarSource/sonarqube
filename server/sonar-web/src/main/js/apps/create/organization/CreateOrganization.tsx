@@ -21,7 +21,7 @@ import * as classNames from 'classnames';
 import * as differenceInMinutes from 'date-fns/difference_in_minutes';
 import { times } from 'lodash';
 import * as React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { withRouter, WithRouterProps } from 'react-router';
 import Tabs from 'sonar-ui-common/components/controls/Tabs';
@@ -425,7 +425,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
 
     return (
       <>
-        <Helmet title={header} titleTemplate="%s" />
+        <Helmet defer={false} title={header} titleTemplate="%s" />
         <div className="page page-limited huge-spacer-top huge-spacer-bottom">
           <A11ySkipTarget anchor="create_org_main" />
 

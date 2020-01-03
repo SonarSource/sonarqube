@@ -2,9 +2,9 @@
 
 exports[`Maintenance Page should render DB_MIGRATION_NEEDED status 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -63,9 +63,9 @@ exports[`Maintenance Page should render DB_MIGRATION_NEEDED status 1`] = `
 
 exports[`Maintenance Page should render DB_MIGRATION_RUNNING status 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -124,9 +124,9 @@ exports[`Maintenance Page should render DB_MIGRATION_RUNNING status 1`] = `
 
 exports[`Maintenance Page should render DOWN status 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -165,9 +165,9 @@ exports[`Maintenance Page should render DOWN status 1`] = `
 
 exports[`Maintenance Page should render OFFLINE status 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -206,9 +206,9 @@ exports[`Maintenance Page should render OFFLINE status 1`] = `
 
 exports[`Maintenance Page should render STARTING status 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -240,9 +240,9 @@ exports[`Maintenance Page should render STARTING status 1`] = `
 
 exports[`Maintenance Page should render UP status 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -281,9 +281,9 @@ exports[`Maintenance Page should render UP status 1`] = `
 
 exports[`Setup Page should render MIGRATION_FAILED state 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -311,9 +311,9 @@ exports[`Setup Page should render MIGRATION_FAILED state 1`] = `
 
 exports[`Setup Page should render MIGRATION_SUCCEEDED state 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -345,9 +345,9 @@ exports[`Setup Page should render MIGRATION_SUCCEEDED state 1`] = `
 
 exports[`Setup Page should render NO_MIGRATION state 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -379,9 +379,9 @@ exports[`Setup Page should render NO_MIGRATION state 1`] = `
 
 exports[`Setup Page should render NOT_SUPPORTED state 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -407,9 +407,9 @@ exports[`Setup Page should render NOT_SUPPORTED state 1`] = `
 
 exports[`Setup Page should start migration 1`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div
@@ -457,9 +457,9 @@ exports[`Setup Page should start migration 1`] = `
 
 exports[`Setup Page should start migration 2`] = `
 <Fragment>
-  <HelmetWrapper
+  <Helmet
     defaultTitle="maintenance.page"
-    defer={true}
+    defer={false}
     encodeSpecialCharacters={true}
   />
   <div

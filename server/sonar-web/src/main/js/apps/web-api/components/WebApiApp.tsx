@@ -19,7 +19,7 @@
  */
 import { maxBy } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { Link, withRouter, WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
@@ -158,7 +158,7 @@ export class WebApiApp extends React.PureComponent<Props, State> {
     return (
       <div className="layout-page">
         <Suggestions suggestions="api_documentation" />
-        <Helmet title={translate('api_documentation.page')} />
+        <Helmet defer={false} title={translate('api_documentation.page')} />
         <ScreenPositionHelper className="layout-page-side-outer">
           {({ top }) => (
             <div className="layout-page-side" style={{ top }}>

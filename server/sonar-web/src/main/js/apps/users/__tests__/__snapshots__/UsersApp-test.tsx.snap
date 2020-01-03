@@ -8,8 +8,8 @@ exports[`should render correctly 1`] = `
   <Suggestions
     suggestions="users"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="users.page"
   />
@@ -49,8 +49,8 @@ exports[`should render correctly 2`] = `
   <Suggestions
     suggestions="users"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="users.page"
   />

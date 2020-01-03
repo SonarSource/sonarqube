@@ -19,7 +19,7 @@
  */
 import { omitBy } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
@@ -364,7 +364,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
     return (
       <div className="layout-page projects-page" id="projects-page">
         <Suggestions suggestions="projects" />
-        <Helmet title={translate('projects.page')} />
+        <Helmet defer={false} title={translate('projects.page')} />
 
         {initialLoading ? (
           <div className="display-flex-space-around width-100 huge-spacer-top">

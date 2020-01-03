@@ -5,8 +5,8 @@ exports[`should be in loading status 1`] = `
   <Suggestions
     suggestions="webhooks"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="webhooks.page"
   />
@@ -31,8 +31,8 @@ exports[`should fetch webhooks and display them 1`] = `
   <Suggestions
     suggestions="webhooks"
   />
-  <HelmetWrapper
-    defer={true}
+  <Helmet
+    defer={false}
     encodeSpecialCharacters={true}
     title="webhooks.page"
   />

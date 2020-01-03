@@ -19,7 +19,7 @@
  */
 import { debounce, uniq } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -218,7 +218,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <Suggestions suggestions="background_tasks" />
-        <Helmet title={translate('background_tasks.page')} />
+        <Helmet defer={false} title={translate('background_tasks.page')} />
         <Header component={component} />
 
         <Stats

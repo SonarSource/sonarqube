@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { addMember, removeMember, searchMembers } from '../../api/organizations';
@@ -199,7 +199,7 @@ export default class OrganizationMembers extends React.PureComponent<Props, Stat
     const hasMemberSync = organization.alm && organization.alm.membersSync;
     return (
       <div className="page page-limited">
-        <Helmet title={translate('organization.members.page')} />
+        <Helmet defer={false} title={translate('organization.members.page')} />
         <Suggestions suggestions="organization_members" />
         <A11ySkipTarget anchor="members_main" />
         <MembersPageHeader

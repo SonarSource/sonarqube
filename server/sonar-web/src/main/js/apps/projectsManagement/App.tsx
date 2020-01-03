@@ -19,7 +19,7 @@
  */
 import { debounce, uniq, without } from 'lodash';
 import * as React from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -183,7 +183,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited" id="projects-management-page">
         <Suggestions suggestions="projects_management" />
-        <Helmet title={translate('projects_management')} />
+        <Helmet defer={false} title={translate('projects_management')} />
 
         <Header
           hasProvisionPermission={this.props.hasProvisionPermission}

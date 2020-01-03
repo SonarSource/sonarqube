@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -141,7 +141,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <>
         <Suggestions suggestions="user_groups" />
-        <Helmet title={translate('user_groups.page')} />
+        <Helmet defer={false} title={translate('user_groups.page')} />
         <div className="page page-limited" id="groups-page">
           <Header loading={loading} onCreate={this.handleCreate} />
 

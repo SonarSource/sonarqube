@@ -28,6 +28,10 @@ jest.mock('../../../../helpers/extensions', () => ({
   getExtensionStart: jest.fn().mockResolvedValue({})
 }));
 
+jest.mock('react-helmet-async', () => ({
+  Helmet: () => null
+}));
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
