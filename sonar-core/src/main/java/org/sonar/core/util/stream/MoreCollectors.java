@@ -55,7 +55,7 @@ public final class MoreCollectors {
   /**
    * A Collector into an {@link ImmutableList}.
    */
-  public static <T> Collector<T, List<T>, List<T>> toList() {
+  public static <T> Collector<T, List<T>, ImmutableList<T>> toList() {
     return Collector.of(
       ArrayList::new,
       List::add,
@@ -72,7 +72,7 @@ public final class MoreCollectors {
    * <p>Note: using this method with a parallel stream will likely not have the expected memory usage benefit as all
    * processing threads will use a List with a capacity large enough for the final size.</p>
    */
-  public static <T> Collector<T, List<T>, List<T>> toList(int expectedSize) {
+  public static <T> Collector<T, List<T>, ImmutableList<T>> toList(int expectedSize) {
     // use ArrayList rather than ImmutableList.Builder because initial capacity of builder can not be specified
     return Collector.of(
       () -> new ArrayList<>(expectedSize),
@@ -87,7 +87,7 @@ public final class MoreCollectors {
   /**
    * A Collector into an {@link ImmutableSet}.
    */
-  public static <T> Collector<T, Set<T>, Set<T>> toSet() {
+  public static <T> Collector<T, Set<T>, ImmutableSet<T>> toSet() {
     return Collector.of(
       HashSet::new,
       Set::add,
@@ -104,7 +104,7 @@ public final class MoreCollectors {
    * <p>Note: using this method with a parallel stream will likely not have the expected memory usage benefit as all
    * processing threads will use a Set with a capacity large enough for the final size.</p>
    */
-  public static <T> Collector<T, Set<T>, Set<T>> toSet(int expectedSize) {
+  public static <T> Collector<T, Set<T>, ImmutableSet<T>> toSet(int expectedSize) {
     // use HashSet rather than ImmutableSet.Builder because initial capacity of builder can not be specified
     return Collector.of(
       () -> new HashSet<>(expectedSize),
