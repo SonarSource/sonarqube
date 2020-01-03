@@ -94,8 +94,8 @@ public class ShowAction implements HotspotsWsAction {
       .setDescription("Key of the Security Hotspot")
       .setExampleValue(Uuids.UUID_EXAMPLE_03)
       .setRequired(true);
-    // FIXME add response example and test it
-    // action.setResponseExample()
+
+    action.setResponseExample(getClass().getResource("show-example.json"));
   }
 
   @Override

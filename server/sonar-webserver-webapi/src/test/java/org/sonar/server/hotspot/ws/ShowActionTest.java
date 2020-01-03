@@ -20,6 +20,7 @@
 package org.sonar.server.hotspot.ws;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -72,6 +73,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Common.Changelog.Diff;
 import org.sonarqube.ws.Common.User;
 import org.sonarqube.ws.Hotspots;
 
@@ -696,6 +698,69 @@ public class ShowActionTest {
     assertThat(response.getUsersList())
       .extracting(User::getLogin, User::getName, User::getActive)
       .containsOnly(tuple(author.getLogin(), author.getName(), author.isActive()));
+  }
+
+  @Test
+  public void verify_response_example() {
+    ComponentDto project = dbTester.components().insertPublicProject(componentDto -> componentDto
+      .setName("test-project")
+      .setLongName("test-project")
+      .setDbKey("com.sonarsource:test-project"));
+    userSessionRule.registerComponents(project);
+
+    ComponentDto file = dbTester.components().insertComponent(
+      newFileDto(project)
+        .setDbKey("com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java")
+        .setName("FourthClass.java")
+        .setLongName("src/main/java/com/sonarsource/FourthClass.java")
+        .setPath("src/main/java/com/sonarsource/FourthClass.java"));
+    UserDto author = dbTester.users().insertUser(u -> u.setLogin("joe")
+      .setName("Joe"));
+
+    long time = 1577976190000L;
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT, r -> r.setRuleKey("S4787")
+      .setRepositoryKey("java")
+      .setName("rule-name")
+      .setSecurityStandards(Sets.newHashSet(SQCategory.WEAK_CRYPTOGRAPHY.getKey())));
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file, h -> h
+      .setAssigneeUuid("assignee-uuid")
+      .setAuthorLogin("joe")
+      .setMessage("message")
+      .setLine(10)
+      .setIssueCreationTime(time)
+      .setIssueUpdateTime(time)
+      .setAuthorLogin(author.getLogin())
+      .setAssigneeUuid(author.getUuid())
+      .setKee("AW9mgJw6eFC3pGl94Wrf"));
+
+    List<Common.Changelog> changelog = IntStream.range(0, 3)
+      .mapToObj(i -> Common.Changelog.newBuilder()
+        .setUser("joe")
+        .setCreationDate("2020-01-02T14:44:55+0100")
+        .addDiffs(Diff.newBuilder().setKey("diff-key-" + i).setNewValue("new-value-" + i).setOldValue("old-value-" + i))
+        .setIsUserActive(true)
+        .setUserName("Joe")
+        .setAvatar("my-avatar")
+        .build())
+      .collect(Collectors.toList());
+    List<Common.Comment> comments = IntStream.range(0, 3)
+      .mapToObj(i -> Common.Comment.newBuilder()
+        .setKey("comment-" + i)
+        .setHtmlText("html text " + i)
+        .setLogin("Joe")
+        .setMarkdown("markdown " + i)
+        .setCreatedAt("2020-01-02T14:47:47+0100")
+        .build())
+      .collect(Collectors.toList());
+
+    mockChangelogAndCommentsFormattingContext();
+    when(issueChangeSupport.formatChangelog(any(), any())).thenReturn(changelog.stream());
+    when(issueChangeSupport.formatComments(any(), any(), any())).thenReturn(comments.stream());
+
+    newRequest(hotspot)
+      .execute()
+      .assertJson(actionTester.getDef().responseExampleAsString()
+        .replaceAll("default-organization", dbTester.getDefaultOrganization().getKey()));
   }
 
   private FormattingContext mockChangelogAndCommentsFormattingContext() {
