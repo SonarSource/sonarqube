@@ -6,11 +6,12 @@ exports[`renders background task error correctly 1`] = `
   variant="error"
 >
   <FormattedMessage
-    defaultMessage="component_navigation.status.failed"
-    id="component_navigation.status.failed"
+    defaultMessage="component_navigation.status.failed_X"
+    id="component_navigation.status.failed_X"
     values={
       Object {
         "branch": undefined,
+        "type": "background_task.type.",
         "url": undefined,
       }
     }
@@ -24,11 +25,12 @@ exports[`renders background task error correctly for a different branch/PR 1`] =
   variant="error"
 >
   <FormattedMessage
-    defaultMessage="component_navigation.status.failed_branch"
-    id="component_navigation.status.failed_branch"
+    defaultMessage="component_navigation.status.failed_branch_X"
+    id="component_navigation.status.failed_branch_X"
     values={
       Object {
         "branch": "my/branch",
+        "type": "background_task.type.",
         "url": undefined,
       }
     }
@@ -42,11 +44,12 @@ exports[`renders background task error correctly for a different branch/PR 2`] =
   variant="error"
 >
   <FormattedMessage
-    defaultMessage="component_navigation.status.failed_branch"
-    id="component_navigation.status.failed_branch"
+    defaultMessage="component_navigation.status.failed_branch_X"
+    id="component_navigation.status.failed_branch_X"
     values={
       Object {
         "branch": "650 - feature/my_pr",
+        "type": "background_task.type.",
         "url": undefined,
       }
     }
@@ -60,11 +63,12 @@ exports[`renders background task in progress info correctly 1`] = `
   variant="info"
 >
   <FormattedMessage
-    defaultMessage="component_navigation.status.in_progress"
-    id="component_navigation.status.in_progress"
+    defaultMessage="component_navigation.status.in_progress_X"
+    id="component_navigation.status.in_progress_X"
     values={
       Object {
         "branch": undefined,
+        "type": "background_task.type.",
         "url": undefined,
       }
     }
@@ -90,11 +94,12 @@ exports[`renders background task pending info correctly 1`] = `
   variant="info"
 >
   <FormattedMessage
-    defaultMessage="component_navigation.status.pending"
-    id="component_navigation.status.pending"
+    defaultMessage="component_navigation.status.pending_X"
+    id="component_navigation.status.pending_X"
     values={
       Object {
         "branch": undefined,
+        "type": "background_task.type.",
         "url": undefined,
       }
     }
@@ -108,11 +113,12 @@ exports[`renders background task pending info correctly for admin 1`] = `
   variant="info"
 >
   <FormattedMessage
-    defaultMessage="component_navigation.status.pending.admin"
-    id="component_navigation.status.pending.admin"
+    defaultMessage="component_navigation.status.pending_X.admin"
+    id="component_navigation.status.pending_X.admin"
     values={
       Object {
         "branch": undefined,
+        "type": "background_task.type.",
         "url": <Link
           onlyActiveOnIndex={false}
           style={Object {}}

@@ -36,9 +36,15 @@ interface Props {
 
 export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> {
   renderMessage(messageKey: string, status?: string, branch?: string) {
-    const { component } = this.props;
+    const { component, currentTask } = this.props;
     const canSeeBackgroundTasks =
       component.configuration && component.configuration.showBackgroundTasks;
+
+    let type;
+    if (currentTask && hasMessage('background_task.type', currentTask.type)) {
+      messageKey += '_X';
+      type = translate('background_task.type', currentTask.type);
+    }
 
     let url;
     if (canSeeBackgroundTasks) {
@@ -54,7 +60,7 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
       <FormattedMessage
         defaultMessage={translate(messageKey)}
         id={messageKey}
-        values={{ branch, url }}
+        values={{ branch, url, type }}
       />
     );
   }
