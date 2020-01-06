@@ -37,7 +37,6 @@ import {
 } from '../../types/security-hotspots';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
-import { sortHotspots } from './utils';
 
 const PAGE_SIZE = 500;
 
@@ -52,7 +51,10 @@ interface Props {
 interface State {
   hotspotKeys?: string[];
   hotspots: RawHotspot[];
+  hotspotsPageIndex: number;
+  hotspotsTotal?: number;
   loading: boolean;
+  loadingMore: boolean;
   securityCategories: T.StandardSecurityCategories;
   selectedHotspotKey: string | undefined;
   filters: HotspotFilters;
@@ -67,7 +69,9 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
     this.state = {
       loading: true,
+      loadingMore: false,
       hotspots: [],
+      hotspotsPageIndex: 1,
       securityCategories: {},
       selectedHotspotKey: undefined,
       filters: {
@@ -120,21 +124,20 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   handleCallFailure = () => {
     if (this.mounted) {
-      this.setState({ loading: false });
+      this.setState({ loading: false, loadingMore: false });
     }
   };
 
   fetchInitialData() {
     return Promise.all([getStandards(), this.fetchSecurityHotspots()])
-      .then(([{ sonarsourceSecurity }, response]) => {
+      .then(([{ sonarsourceSecurity }, { hotspots, paging }]) => {
         if (!this.mounted) {
           return;
         }
 
-        const hotspots = sortHotspots(response.hotspots, sonarsourceSecurity);
-
         this.setState({
           hotspots,
+          hotspotsTotal: paging.total,
           loading: false,
           securityCategories: sonarsourceSecurity,
           selectedHotspotKey: hotspots.length > 0 ? hotspots[0].key : undefined
@@ -143,7 +146,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       .catch(this.handleCallFailure);
   }
 
-  fetchSecurityHotspots() {
+  fetchSecurityHotspots(page = 1) {
     const { branchLike, component, location } = this.props;
     const { filters } = this.state;
 
@@ -169,7 +172,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
     return getSecurityHotspots({
       projectKey: component.key,
-      p: 1,
+      p: page,
       ps: PAGE_SIZE,
       status,
       resolution,
@@ -180,20 +183,18 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   reloadSecurityHotspotList = () => {
-    const { securityCategories } = this.state;
-
     this.setState({ loading: true });
 
     return this.fetchSecurityHotspots()
-      .then(response => {
+      .then(({ hotspots, paging }) => {
         if (!this.mounted) {
           return;
         }
 
-        const hotspots = sortHotspots(response.hotspots, securityCategories);
-
         this.setState({
           hotspots,
+          hotspotsPageIndex: 1,
+          hotspotsTotal: paging.total,
           loading: false,
           selectedHotspotKey: hotspots.length > 0 ? hotspots[0].key : undefined
         });
@@ -234,12 +235,34 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     });
   };
 
+  handleLoadMore = () => {
+    const { hotspots, hotspotsPageIndex: hotspotPages } = this.state;
+
+    this.setState({ loadingMore: true });
+
+    return this.fetchSecurityHotspots(hotspotPages + 1)
+      .then(({ hotspots: additionalHotspots }) => {
+        if (!this.mounted) {
+          return;
+        }
+
+        this.setState({
+          hotspots: [...hotspots, ...additionalHotspots],
+          hotspotsPageIndex: hotspotPages + 1,
+          loadingMore: false
+        });
+      })
+      .catch(this.handleCallFailure);
+  };
+
   render() {
     const { branchLike } = this.props;
     const {
       hotspotKeys,
       hotspots,
+      hotspotsTotal,
       loading,
+      loadingMore,
       securityCategories,
       selectedHotspotKey,
       filters
@@ -250,10 +273,13 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         branchLike={branchLike}
         filters={filters}
         hotspots={hotspots}
+        hotspotsTotal={hotspotsTotal}
         isStaticListOfHotspots={Boolean(hotspotKeys && hotspotKeys.length > 0)}
         loading={loading}
+        loadingMore={loadingMore}
         onChangeFilters={this.handleChangeFilters}
         onHotspotClick={this.handleHotspotClick}
+        onLoadMore={this.handleLoadMore}
         onShowAllHotspots={this.handleShowAllHotspots}
         onUpdateHotspot={this.handleHotspotUpdate}
         securityCategories={securityCategories}

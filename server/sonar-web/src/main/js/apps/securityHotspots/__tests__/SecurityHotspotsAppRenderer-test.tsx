@@ -39,12 +39,12 @@ it('should render correctly', () => {
 it('should render correctly with hotspots', () => {
   const hotspots = [mockRawHotspot({ key: 'h1' }), mockRawHotspot({ key: 'h2' })];
   expect(
-    shallowRender({ hotspots })
+    shallowRender({ hotspots, hotspotsTotal: 2 })
       .find(ScreenPositionHelper)
       .dive()
   ).toMatchSnapshot();
   expect(
-    shallowRender({ hotspots, selectedHotspotKey: 'h2' })
+    shallowRender({ hotspots, hotspotsTotal: 3, selectedHotspotKey: 'h2' })
       .find(ScreenPositionHelper)
       .dive()
   ).toMatchSnapshot();
@@ -65,19 +65,21 @@ it('should properly propagate the "show all" call', () => {
 function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
   return shallow(
     <SecurityHotspotsAppRenderer
-      hotspots={[]}
-      isStaticListOfHotspots={true}
-      loading={false}
-      onChangeFilters={jest.fn()}
-      onHotspotClick={jest.fn()}
-      onShowAllHotspots={jest.fn()}
-      onUpdateHotspot={jest.fn()}
-      securityCategories={{}}
       filters={{
         assignedToMe: false,
         newCode: false,
         status: HotspotStatusFilter.TO_REVIEW
       }}
+      hotspots={[]}
+      isStaticListOfHotspots={true}
+      loading={false}
+      loadingMore={false}
+      onChangeFilters={jest.fn()}
+      onHotspotClick={jest.fn()}
+      onLoadMore={jest.fn()}
+      onShowAllHotspots={jest.fn()}
+      onUpdateHotspot={jest.fn()}
+      securityCategories={{}}
       {...props}
     />
   );

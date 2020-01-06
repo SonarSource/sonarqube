@@ -25,6 +25,7 @@ import HotspotList, { HotspotListProps } from '../HotspotList';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ loadingMore: true })).toMatchSnapshot();
 });
 
 it('should render correctly when the list of hotspot is static', () => {
@@ -51,7 +52,8 @@ it('should render correctly with hotspots', () => {
       vulnerabilityProbability: RiskExposure.MEDIUM
     })
   ];
-  expect(shallowRender({ hotspots })).toMatchSnapshot();
+  expect(shallowRender({ hotspots })).toMatchSnapshot('no pagination');
+  expect(shallowRender({ hotspots, hotspotsTotal: 7 })).toMatchSnapshot('pagination');
 });
 
 function shallowRender(props: Partial<HotspotListProps> = {}) {
@@ -59,7 +61,9 @@ function shallowRender(props: Partial<HotspotListProps> = {}) {
     <HotspotList
       hotspots={[]}
       isStaticListOfHotspots={false}
+      loadingMore={false}
       onHotspotClick={jest.fn()}
+      onLoadMore={jest.fn()}
       securityCategories={{}}
       selectedHotspotKey="h2"
       statusFilter={HotspotStatusFilter.TO_REVIEW}

@@ -154,8 +154,11 @@ exports[`should render correctly with hotspots 1`] = `
                 },
               ]
             }
+            hotspotsTotal={2}
             isStaticListOfHotspots={true}
+            loadingMore={false}
             onHotspotClick={[MockFunction]}
+            onLoadMore={[MockFunction]}
             securityCategories={Object {}}
             statusFilter="TO_REVIEW"
           />
@@ -236,8 +239,11 @@ exports[`should render correctly with hotspots 2`] = `
                 },
               ]
             }
+            hotspotsTotal={3}
             isStaticListOfHotspots={true}
+            loadingMore={false}
             onHotspotClick={[MockFunction]}
+            onLoadMore={[MockFunction]}
             securityCategories={Object {}}
             selectedHotspotKey="h2"
             statusFilter="TO_REVIEW"

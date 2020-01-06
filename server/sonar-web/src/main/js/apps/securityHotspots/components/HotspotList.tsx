@@ -20,6 +20,7 @@
 import * as classNames from 'classnames';
 import { groupBy } from 'lodash';
 import * as React from 'react';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { HotspotStatusFilter, RawHotspot, RiskExposure } from '../../../types/security-hotspots';
@@ -29,8 +30,11 @@ import './HotspotList.css';
 
 export interface HotspotListProps {
   hotspots: RawHotspot[];
+  hotspotsTotal?: number;
   isStaticListOfHotspots: boolean;
+  loadingMore: boolean;
   onHotspotClick: (key: string) => void;
+  onLoadMore: () => void;
   securityCategories: T.StandardSecurityCategories;
   selectedHotspotKey: string | undefined;
   statusFilter: HotspotStatusFilter;
@@ -39,7 +43,9 @@ export interface HotspotListProps {
 export default function HotspotList(props: HotspotListProps) {
   const {
     hotspots,
+    hotspotsTotal,
     isStaticListOfHotspots,
+    loadingMore,
     securityCategories,
     selectedHotspotKey,
     statusFilter
@@ -58,7 +64,7 @@ export default function HotspotList(props: HotspotListProps) {
   }, [hotspots, securityCategories]);
 
   return (
-    <>
+    <div className="huge-spacer-bottom">
       <h1 className="hotspot-list-header bordered-bottom">
         <SecurityHotspotIcon className="spacer-right" />
         {translateWithParameters(
@@ -66,7 +72,7 @@ export default function HotspotList(props: HotspotListProps) {
           hotspots.length
         )}
       </h1>
-      <ul className="huge-spacer-bottom">
+      <ul className="big-spacer-bottom">
         {groupedHotspots.map(riskGroup => (
           <li className="big-spacer-bottom" key={riskGroup.risk}>
             <div className="hotspot-risk-header little-spacer-left">
@@ -90,6 +96,12 @@ export default function HotspotList(props: HotspotListProps) {
           </li>
         ))}
       </ul>
-    </>
+      <ListFooter
+        count={hotspots.length}
+        loadMore={!loadingMore ? props.onLoadMore : undefined}
+        loading={loadingMore}
+        total={hotspotsTotal}
+      />
+    </div>
   );
 }

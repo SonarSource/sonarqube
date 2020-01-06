@@ -47,12 +47,12 @@ jest.mock('sonar-ui-common/helpers/pages', () => ({
 }));
 
 jest.mock('../../../api/security-hotspots', () => ({
-  getSecurityHotspots: jest.fn().mockResolvedValue({ hotspots: [], rules: [] }),
+  getSecurityHotspots: jest.fn().mockResolvedValue({ hotspots: [], paging: { total: 0 } }),
   getSecurityHotspotList: jest.fn().mockResolvedValue({ hotspots: [], rules: [] })
 }));
 
 jest.mock('../../../helpers/security-standard', () => ({
-  getStandards: jest.fn()
+  getStandards: jest.fn().mockResolvedValue({ sonarsourceSecurity: { cat1: { title: 'cat 1' } } })
 }));
 
 const branch = mockBranch();
@@ -62,12 +62,12 @@ it('should render correctly', () => {
 });
 
 it('should load data correctly', async () => {
-  const sonarsourceSecurity = { cat1: { title: 'cat 1' } };
-  (getStandards as jest.Mock).mockResolvedValue({ sonarsourceSecurity });
-
   const hotspots = [mockRawHotspot()];
-  (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({
-    hotspots
+  (getSecurityHotspots as jest.Mock).mockResolvedValue({
+    hotspots,
+    paging: {
+      total: 1
+    }
   });
 
   const wrapper = shallowRender();
@@ -87,15 +87,14 @@ it('should load data correctly', async () => {
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().hotspots).toEqual(hotspots);
   expect(wrapper.state().selectedHotspotKey).toBe(hotspots[0].key);
-  expect(wrapper.state().securityCategories).toBe(sonarsourceSecurity);
+  expect(wrapper.state().securityCategories).toEqual({
+    cat1: { title: 'cat 1' }
+  });
 
   expect(wrapper.state());
 });
 
 it('should load data correctly when hotspot key list is forced', async () => {
-  const sonarsourceSecurity = { cat1: { title: 'cat 1' } };
-  (getStandards as jest.Mock).mockResolvedValue({ sonarsourceSecurity });
-
   const hotspots = [
     mockRawHotspot({ key: 'test1' }),
     mockRawHotspot({ key: 'test2' }),
@@ -149,11 +148,42 @@ it('should set "leakperiod" filter according to context (branchlike & location q
   ).toBe(true);
 });
 
+it('should handle loading more', async () => {
+  const hotspots = [mockRawHotspot({ key: '1' }), mockRawHotspot({ key: '2' })];
+  const hotspots2 = [mockRawHotspot({ key: '3' }), mockRawHotspot({ key: '4' })];
+  (getSecurityHotspots as jest.Mock)
+    .mockResolvedValueOnce({
+      hotspots,
+      paging: { total: 5 }
+    })
+    .mockResolvedValueOnce({
+      hotspots: hotspots2,
+      paging: { total: 5 }
+    });
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleLoadMore();
+
+  expect(wrapper.state().loadingMore).toBe(true);
+  expect(getSecurityHotspots).toBeCalledTimes(2);
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().loadingMore).toBe(false);
+  expect(wrapper.state().hotspotsPageIndex).toBe(2);
+  expect(wrapper.state().hotspotsTotal).toBe(5);
+  expect(wrapper.state().hotspots).toHaveLength(4);
+});
+
 it('should handle hotspot update', async () => {
   const key = 'hotspotKey';
   const hotspots = [mockRawHotspot(), mockRawHotspot({ key })];
-  (getSecurityHotspots as jest.Mock).mockResolvedValue({
-    hotspots
+  (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({
+    hotspots,
+    paging: { total: 2 }
   });
 
   const wrapper = shallowRender();
@@ -171,15 +201,24 @@ it('should handle hotspot update', async () => {
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.SAFE
   });
+
+  const previousState = wrapper.state();
+  wrapper.instance().handleHotspotUpdate({
+    key: 'unknown',
+    status: HotspotStatus.REVIEWED,
+    resolution: HotspotResolution.SAFE
+  });
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state()).toEqual(previousState);
 });
 
 it('should handle status filter change', async () => {
   const hotspots = [mockRawHotspot({ key: 'key1' })];
   const hotspots2 = [mockRawHotspot({ key: 'key2' })];
   (getSecurityHotspots as jest.Mock)
-    .mockResolvedValueOnce({ hotspots })
-    .mockResolvedValueOnce({ hotspots: hotspots2 })
-    .mockResolvedValueOnce({ hotspots: [] });
+    .mockResolvedValueOnce({ hotspots, paging: { total: 1 } })
+    .mockResolvedValueOnce({ hotspots: hotspots2, paging: { total: 1 } })
+    .mockResolvedValueOnce({ hotspots: [], paging: { total: 0 } });
 
   const wrapper = shallowRender();
 
