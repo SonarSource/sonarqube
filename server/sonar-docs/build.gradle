@@ -117,3 +117,15 @@ artifactoryPublish {
   publishPom = false
   publications(publishing.publications.docs)
 }
+
+def sources = fileTree(dir: "src") + fileTree(dir: "config") + fileTree(dir: "plugins") + file("gatsby-config.js") + file("gatsby-node.js")
+
+task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
+  source = sources
+}
+licenseMain.dependsOn licenseCheckWeb
+
+task licenseFormatWeb(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+  source = sources
+}
+licenseFormat.dependsOn licenseFormatWeb
