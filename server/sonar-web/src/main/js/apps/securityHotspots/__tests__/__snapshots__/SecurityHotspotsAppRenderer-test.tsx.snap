@@ -44,45 +44,39 @@ exports[`should render correctly 2`] = `
     <A11ySkipTarget
       anchor="security_hotspots_main"
     />
-    <DeferredSpinner
-      className="huge-spacer-left big-spacer-top"
-      loading={false}
-      timeout={100}
+    <div
+      className="display-flex-column display-flex-center"
     >
-      <div
-        className="display-flex-column display-flex-center"
+      <img
+        alt="hotspots.page"
+        className="huge-spacer-top"
+        height={166}
+        src="/images/hotspot-large.svg"
+      />
+      <h1
+        className="huge-spacer-top"
       >
-        <img
-          alt="hotspots.page"
-          className="huge-spacer-top"
-          height={166}
-          src="/images/hotspot-large.svg"
-        />
-        <h1
-          className="huge-spacer-top"
-        >
-          hotspots.no_hotspots.title
-        </h1>
-        <div
-          className="abs-width-400 text-center big-spacer-top"
-        >
-          hotspots.no_hotspots.description
-        </div>
-        <Link
-          className="big-spacer-top"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          target="_blank"
-          to={
-            Object {
-              "pathname": "/documentation/user-guide/security-hotspots/",
-            }
-          }
-        >
-          hotspots.learn_more
-        </Link>
+        hotspots.no_hotspots.title
+      </h1>
+      <div
+        className="abs-width-400 text-center big-spacer-top"
+      >
+        hotspots.no_hotspots.description
       </div>
-    </DeferredSpinner>
+      <Link
+        className="big-spacer-top"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to={
+          Object {
+            "pathname": "/documentation/user-guide/security-hotspots/",
+          }
+        }
+      >
+        hotspots.learn_more
+      </Link>
+    </div>
   </div>
 </div>
 `;
@@ -108,66 +102,60 @@ exports[`should render correctly with hotspots 1`] = `
     <A11ySkipTarget
       anchor="security_hotspots_main"
     />
-    <DeferredSpinner
-      className="huge-spacer-left big-spacer-top"
-      loading={false}
-      timeout={100}
+    <div
+      className="layout-page"
     >
       <div
-        className="layout-page"
+        className="sidebar"
       >
-        <div
-          className="sidebar"
-        >
-          <HotspotList
-            hotspots={
-              Array [
-                Object {
-                  "author": "Developer 1",
-                  "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                  "creationDate": "2013-05-13T17:55:39+0200",
-                  "key": "h1",
-                  "line": 81,
-                  "message": "'3' is a magic number.",
-                  "project": "com.github.kevinsawicki:http-request",
-                  "resolution": undefined,
-                  "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                  "securityCategory": "command-injection",
-                  "status": "TO_REVIEW",
-                  "updateDate": "2013-05-13T17:55:39+0200",
-                  "vulnerabilityProbability": "HIGH",
-                },
-                Object {
-                  "author": "Developer 1",
-                  "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                  "creationDate": "2013-05-13T17:55:39+0200",
-                  "key": "h2",
-                  "line": 81,
-                  "message": "'3' is a magic number.",
-                  "project": "com.github.kevinsawicki:http-request",
-                  "resolution": undefined,
-                  "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                  "securityCategory": "command-injection",
-                  "status": "TO_REVIEW",
-                  "updateDate": "2013-05-13T17:55:39+0200",
-                  "vulnerabilityProbability": "HIGH",
-                },
-              ]
-            }
-            hotspotsTotal={2}
-            isStaticListOfHotspots={true}
-            loadingMore={false}
-            onHotspotClick={[MockFunction]}
-            onLoadMore={[MockFunction]}
-            securityCategories={Object {}}
-            statusFilter="TO_REVIEW"
-          />
-        </div>
-        <div
-          className="main"
+        <HotspotList
+          hotspots={
+            Array [
+              Object {
+                "author": "Developer 1",
+                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+                "creationDate": "2013-05-13T17:55:39+0200",
+                "key": "h1",
+                "line": 81,
+                "message": "'3' is a magic number.",
+                "project": "com.github.kevinsawicki:http-request",
+                "resolution": undefined,
+                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+                "securityCategory": "command-injection",
+                "status": "TO_REVIEW",
+                "updateDate": "2013-05-13T17:55:39+0200",
+                "vulnerabilityProbability": "HIGH",
+              },
+              Object {
+                "author": "Developer 1",
+                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+                "creationDate": "2013-05-13T17:55:39+0200",
+                "key": "h2",
+                "line": 81,
+                "message": "'3' is a magic number.",
+                "project": "com.github.kevinsawicki:http-request",
+                "resolution": undefined,
+                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+                "securityCategory": "command-injection",
+                "status": "TO_REVIEW",
+                "updateDate": "2013-05-13T17:55:39+0200",
+                "vulnerabilityProbability": "HIGH",
+              },
+            ]
+          }
+          hotspotsTotal={2}
+          isStaticListOfHotspots={true}
+          loadingMore={false}
+          onHotspotClick={[MockFunction]}
+          onLoadMore={[MockFunction]}
+          securityCategories={Object {}}
+          statusFilter="TO_REVIEW"
         />
       </div>
-    </DeferredSpinner>
+      <div
+        className="main"
+      />
+    </div>
   </div>
 </div>
 `;
@@ -193,73 +181,67 @@ exports[`should render correctly with hotspots 2`] = `
     <A11ySkipTarget
       anchor="security_hotspots_main"
     />
-    <DeferredSpinner
-      className="huge-spacer-left big-spacer-top"
-      loading={false}
-      timeout={100}
+    <div
+      className="layout-page"
     >
       <div
-        className="layout-page"
+        className="sidebar"
       >
-        <div
-          className="sidebar"
-        >
-          <HotspotList
-            hotspots={
-              Array [
-                Object {
-                  "author": "Developer 1",
-                  "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                  "creationDate": "2013-05-13T17:55:39+0200",
-                  "key": "h1",
-                  "line": 81,
-                  "message": "'3' is a magic number.",
-                  "project": "com.github.kevinsawicki:http-request",
-                  "resolution": undefined,
-                  "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                  "securityCategory": "command-injection",
-                  "status": "TO_REVIEW",
-                  "updateDate": "2013-05-13T17:55:39+0200",
-                  "vulnerabilityProbability": "HIGH",
-                },
-                Object {
-                  "author": "Developer 1",
-                  "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                  "creationDate": "2013-05-13T17:55:39+0200",
-                  "key": "h2",
-                  "line": 81,
-                  "message": "'3' is a magic number.",
-                  "project": "com.github.kevinsawicki:http-request",
-                  "resolution": undefined,
-                  "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                  "securityCategory": "command-injection",
-                  "status": "TO_REVIEW",
-                  "updateDate": "2013-05-13T17:55:39+0200",
-                  "vulnerabilityProbability": "HIGH",
-                },
-              ]
-            }
-            hotspotsTotal={3}
-            isStaticListOfHotspots={true}
-            loadingMore={false}
-            onHotspotClick={[MockFunction]}
-            onLoadMore={[MockFunction]}
-            securityCategories={Object {}}
-            selectedHotspotKey="h2"
-            statusFilter="TO_REVIEW"
-          />
-        </div>
-        <div
-          className="main"
-        >
-          <HotspotViewer
-            hotspotKey="h2"
-            onUpdateHotspot={[MockFunction]}
-            securityCategories={Object {}}
-          />
-        </div>
+        <HotspotList
+          hotspots={
+            Array [
+              Object {
+                "author": "Developer 1",
+                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+                "creationDate": "2013-05-13T17:55:39+0200",
+                "key": "h1",
+                "line": 81,
+                "message": "'3' is a magic number.",
+                "project": "com.github.kevinsawicki:http-request",
+                "resolution": undefined,
+                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+                "securityCategory": "command-injection",
+                "status": "TO_REVIEW",
+                "updateDate": "2013-05-13T17:55:39+0200",
+                "vulnerabilityProbability": "HIGH",
+              },
+              Object {
+                "author": "Developer 1",
+                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+                "creationDate": "2013-05-13T17:55:39+0200",
+                "key": "h2",
+                "line": 81,
+                "message": "'3' is a magic number.",
+                "project": "com.github.kevinsawicki:http-request",
+                "resolution": undefined,
+                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+                "securityCategory": "command-injection",
+                "status": "TO_REVIEW",
+                "updateDate": "2013-05-13T17:55:39+0200",
+                "vulnerabilityProbability": "HIGH",
+              },
+            ]
+          }
+          hotspotsTotal={3}
+          isStaticListOfHotspots={true}
+          loadingMore={false}
+          onHotspotClick={[MockFunction]}
+          onLoadMore={[MockFunction]}
+          securityCategories={Object {}}
+          selectedHotspotKey="h2"
+          statusFilter="TO_REVIEW"
+        />
       </div>
-    </DeferredSpinner>
+      <div
+        className="main"
+      >
+        <HotspotViewer
+          hotspotKey="h2"
+          onUpdateHotspot={[MockFunction]}
+          securityCategories={Object {}}
+        />
+      </div>
+    </div>
   </div>
 </div>
 `;

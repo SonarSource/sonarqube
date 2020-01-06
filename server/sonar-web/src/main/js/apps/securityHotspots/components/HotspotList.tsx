@@ -73,7 +73,7 @@ export default function HotspotList(props: HotspotListProps) {
         )}
       </h1>
       <ul className="big-spacer-bottom">
-        {groupedHotspots.map(riskGroup => (
+        {groupedHotspots.map((riskGroup, groupIndex) => (
           <li className="big-spacer-bottom" key={riskGroup.risk}>
             <div className="hotspot-risk-header little-spacer-left">
               <span>{translate('hotspots.risk_exposure')}</span>
@@ -82,13 +82,14 @@ export default function HotspotList(props: HotspotListProps) {
               </div>
             </div>
             <ul>
-              {riskGroup.categories.map(cat => (
+              {riskGroup.categories.map((cat, catIndex) => (
                 <li className="spacer-bottom" key={cat.key}>
                   <HotspotCategory
-                    category={{ key: cat.key, title: cat.title }}
                     hotspots={cat.hotspots}
                     onHotspotClick={props.onHotspotClick}
                     selectedHotspotKey={selectedHotspotKey}
+                    startsExpanded={groupIndex === 0 && catIndex === 0}
+                    title={cat.title}
                   />
                 </li>
               ))}

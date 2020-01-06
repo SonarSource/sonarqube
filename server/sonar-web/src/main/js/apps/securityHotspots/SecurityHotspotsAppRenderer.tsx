@@ -81,54 +81,58 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 
             <A11ySkipTarget anchor="security_hotspots_main" />
 
-            <DeferredSpinner className="huge-spacer-left big-spacer-top" loading={loading}>
-              {hotspots.length === 0 ? (
-                <div className="display-flex-column display-flex-center">
-                  <img
-                    alt={translate('hotspots.page')}
-                    className="huge-spacer-top"
-                    height={166}
-                    src={`${getBaseUrl()}/images/hotspot-large.svg`}
-                  />
-                  <h1 className="huge-spacer-top">{translate('hotspots.no_hotspots.title')}</h1>
-                  <div className="abs-width-400 text-center big-spacer-top">
-                    {translate('hotspots.no_hotspots.description')}
-                  </div>
-                  <Link
-                    className="big-spacer-top"
-                    target="_blank"
-                    to={{ pathname: '/documentation/user-guide/security-hotspots/' }}>
-                    {translate('hotspots.learn_more')}
-                  </Link>
-                </div>
-              ) : (
-                <div className="layout-page">
-                  <div className="sidebar">
-                    <HotspotList
-                      hotspots={hotspots}
-                      hotspotsTotal={hotspotsTotal}
-                      isStaticListOfHotspots={isStaticListOfHotspots}
-                      loadingMore={loadingMore}
-                      onHotspotClick={props.onHotspotClick}
-                      onLoadMore={props.onLoadMore}
-                      securityCategories={securityCategories}
-                      selectedHotspotKey={selectedHotspotKey}
-                      statusFilter={filters.status}
+            {loading ? (
+              <DeferredSpinner className="huge-spacer-left big-spacer-top" />
+            ) : (
+              <>
+                {hotspots.length === 0 ? (
+                  <div className="display-flex-column display-flex-center">
+                    <img
+                      alt={translate('hotspots.page')}
+                      className="huge-spacer-top"
+                      height={166}
+                      src={`${getBaseUrl()}/images/hotspot-large.svg`}
                     />
+                    <h1 className="huge-spacer-top">{translate('hotspots.no_hotspots.title')}</h1>
+                    <div className="abs-width-400 text-center big-spacer-top">
+                      {translate('hotspots.no_hotspots.description')}
+                    </div>
+                    <Link
+                      className="big-spacer-top"
+                      target="_blank"
+                      to={{ pathname: '/documentation/user-guide/security-hotspots/' }}>
+                      {translate('hotspots.learn_more')}
+                    </Link>
                   </div>
-                  <div className="main">
-                    {selectedHotspotKey && (
-                      <HotspotViewer
-                        branchLike={branchLike}
-                        hotspotKey={selectedHotspotKey}
-                        onUpdateHotspot={props.onUpdateHotspot}
+                ) : (
+                  <div className="layout-page">
+                    <div className="sidebar">
+                      <HotspotList
+                        hotspots={hotspots}
+                        hotspotsTotal={hotspotsTotal}
+                        isStaticListOfHotspots={isStaticListOfHotspots}
+                        loadingMore={loadingMore}
+                        onHotspotClick={props.onHotspotClick}
+                        onLoadMore={props.onLoadMore}
                         securityCategories={securityCategories}
+                        selectedHotspotKey={selectedHotspotKey}
+                        statusFilter={filters.status}
                       />
-                    )}
+                    </div>
+                    <div className="main">
+                      {selectedHotspotKey && (
+                        <HotspotViewer
+                          branchLike={branchLike}
+                          hotspotKey={selectedHotspotKey}
+                          onUpdateHotspot={props.onUpdateHotspot}
+                          securityCategories={securityCategories}
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </DeferredSpinner>
+                )}
+              </>
+            )}
           </div>
         )}
       </ScreenPositionHelper>

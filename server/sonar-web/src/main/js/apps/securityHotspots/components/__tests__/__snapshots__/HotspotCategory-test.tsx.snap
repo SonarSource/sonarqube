@@ -83,8 +83,6 @@ exports[`should handle collapse and expand 2`] = `
 </div>
 `;
 
-exports[`should render correctly 1`] = `""`;
-
 exports[`should render correctly with hotspots 1`] = `
 <div
   className="hotspot-category HIGH"
@@ -164,3 +162,33 @@ exports[`should render correctly with hotspots 1`] = `
   </ul>
 </div>
 `;
+
+exports[`should render correctly with hotspots: collapsed 1`] = `
+<div
+  className="hotspot-category HIGH"
+>
+  <a
+    className="hotspot-category-header display-flex-space-between display-flex-center"
+    href="#"
+    onClick={[Function]}
+  >
+    <strong
+      className="flex-1"
+    >
+      Class Injection
+    </strong>
+    <span>
+      <span
+        className="counter-badge"
+      >
+        2
+      </span>
+      <ChevronDownIcon
+        className="big-spacer-left"
+      />
+    </span>
+  </a>
+</div>
+`;
+
+exports[`should render correctly: empty 1`] = `""`;

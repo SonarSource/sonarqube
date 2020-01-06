@@ -23,12 +23,13 @@ import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
 import HotspotCategory, { HotspotCategoryProps } from '../HotspotCategory';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('empty');
 });
 
 it('should render correctly with hotspots', () => {
   const hotspots = [mockRawHotspot({ key: 'h1' }), mockRawHotspot({ key: 'h2' })];
   expect(shallowRender({ hotspots })).toMatchSnapshot();
+  expect(shallowRender({ hotspots, startsExpanded: false })).toMatchSnapshot('collapsed');
 });
 
 it('should handle collapse and expand', () => {
@@ -46,10 +47,11 @@ it('should handle collapse and expand', () => {
 function shallowRender(props: Partial<HotspotCategoryProps> = {}) {
   return shallow(
     <HotspotCategory
-      category={{ key: 'class-injection', title: 'Class Injection' }}
       hotspots={[]}
       onHotspotClick={jest.fn()}
       selectedHotspotKey=""
+      startsExpanded={true}
+      title="Class Injection"
       {...props}
     />
   );

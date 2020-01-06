@@ -25,19 +25,17 @@ import { RawHotspot } from '../../../types/security-hotspots';
 import HotspotListItem from './HotspotListItem';
 
 export interface HotspotCategoryProps {
-  category: {
-    key: string;
-    title: string;
-  };
   hotspots: RawHotspot[];
   onHotspotClick: (key: string) => void;
   selectedHotspotKey: string | undefined;
+  startsExpanded: boolean;
+  title: string;
 }
 
 export default function HotspotCategory(props: HotspotCategoryProps) {
-  const { category, hotspots, selectedHotspotKey } = props;
+  const { hotspots, selectedHotspotKey, startsExpanded, title } = props;
 
-  const [expanded, setExpanded] = React.useState(true);
+  const [expanded, setExpanded] = React.useState(startsExpanded);
 
   if (hotspots.length < 1) {
     return null;
@@ -51,7 +49,7 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
         className="hotspot-category-header display-flex-space-between display-flex-center"
         href="#"
         onClick={() => setExpanded(!expanded)}>
-        <strong className="flex-1">{category.title}</strong>
+        <strong className="flex-1">{title}</strong>
         <span>
           <span className="counter-badge">{hotspots.length}</span>
           {expanded ? (
