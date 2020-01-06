@@ -18,50 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import { isSonarCloud } from '../../helpers/system';
 
-const routes = [
-  {
-    indexRoute: {
-      component: lazyLoad(() =>
-        isSonarCloud() ? import('./sonarcloud/Home') : import('./components/AboutApp')
-      )
-    },
-    childRoutes: isSonarCloud()
-      ? [
-          {
-            path: 'contact',
-            component: lazyLoad(() => import('./sonarcloud/Contact'))
-          },
-          {
-            path: 'pricing',
-            component: lazyLoad(() => import('./sonarcloud/Pricing'))
-          },
-          {
-            path: 'sq',
-            childRoutes: [
-              { indexRoute: { component: lazyLoad(() => import('./sonarcloud/SQHome')) } },
-              {
-                path: 'as-a-service',
-                component: lazyLoad(() => import('./sonarcloud/AsAService'))
-              },
-              {
-                path: 'branch-analysis-and-pr-decoration',
-                component: lazyLoad(() => import('./sonarcloud/BranchAnalysis'))
-              },
-              {
-                path: 'sonarlint-integration',
-                component: lazyLoad(() => import('./sonarcloud/SonarLintIntegration'))
-              },
-              {
-                path: 'vsts',
-                component: lazyLoad(() => import('./sonarcloud/AzureDevOps'))
-              }
-            ]
-          }
-        ]
-      : []
-  }
-];
+const routes = [{ indexRoute: { component: lazyLoad(() => import('./components/AboutApp')) } }];
 
 export default routes;
