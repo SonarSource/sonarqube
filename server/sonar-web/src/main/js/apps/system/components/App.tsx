@@ -46,7 +46,7 @@ interface State {
   sysInfoData?: T.SysInfoCluster | T.SysInfoStandalone;
 }
 
-class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true };
 

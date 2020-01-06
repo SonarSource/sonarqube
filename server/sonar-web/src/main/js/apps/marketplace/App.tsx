@@ -40,7 +40,7 @@ import Search from './Search';
 import './style.css';
 import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 
-export interface Props {
+interface Props {
   currentEdition?: EditionKey;
   fetchPendingPlugins: () => void;
   pendingPlugins: PluginPendingResult;
@@ -55,7 +55,7 @@ interface State {
   plugins: Plugin[];
 }
 
-class App extends React.PureComponent<Props, State> {
+export class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loadingPlugins: true, plugins: [] };
 

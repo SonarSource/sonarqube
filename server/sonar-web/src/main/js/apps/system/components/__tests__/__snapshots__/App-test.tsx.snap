@@ -1,0 +1,299 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: cluster sysinfo 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="system_info"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="system_info.page"
+  />
+  <SystemUpgradeNotif />
+  <PageHeader
+    isCluster={true}
+    loading={false}
+    logLevel="DEBUG"
+    onLogLevelChange={[Function]}
+    serverId="asd564-asd54a-5dsfg45"
+    showActions={true}
+    version="7.8"
+  />
+  <ClusterSysInfos
+    expandedCards={Array []}
+    sysInfoData={
+      Object {
+        "Application Nodes": Array [
+          Object {
+            "Compute Engine Database Connection": Object {
+              "Pool Active Connections": 0,
+              "Pool Initial Size": 0,
+            },
+            "Compute Engine JVM Properties": Object {
+              "file.encoding": "UTF-8",
+              "file.separator": "/",
+            },
+            "Compute Engine JVM State": Object {
+              "Free Memory (MB)": 78,
+              "Max Memory (MB)": 1024,
+            },
+            "Compute Engine Logging": Object {
+              "Logs Level": "INFO",
+            },
+            "Compute Engine Tasks": Object {
+              "In Progress": 0,
+              "Pending": 0,
+            },
+            "Health": "GREEN",
+            "Health Causes": Array [],
+            "Host": "10.0.0.0",
+            "Name": "server9.example.com",
+            "Plugins": Object {
+              "java": "5.13.0.17924 [SonarJava]",
+            },
+            "System": Object {
+              "Version": "7.8",
+            },
+            "Web Database Connection": Object {
+              "Pool Active Connections": 1,
+            },
+            "Web JVM Properties": Object {
+              "file.encoding": "UTF-8",
+              "file.separator": "/",
+            },
+            "Web JVM State": Object {
+              "Free Memory (MB)": 122,
+              "Max Memory (MB)": 1024,
+            },
+            "Web Logging": Object {
+              "Logs Level": "DEBUG",
+            },
+          },
+          Object {
+            "Compute Engine Database Connection": Object {
+              "Pool Active Connections": 0,
+              "Pool Initial Size": 0,
+            },
+            "Compute Engine JVM Properties": Object {
+              "file.encoding": "UTF-8",
+              "file.separator": "/",
+            },
+            "Compute Engine JVM State": Object {
+              "Free Memory (MB)": 89,
+              "Max Memory (MB)": 1024,
+            },
+            "Compute Engine Logging": Object {
+              "Logs Level": "INFO",
+            },
+            "Compute Engine Tasks": Object {
+              "In Progress": 0,
+              "Pending": 0,
+            },
+            "Health": "GREEN",
+            "Health Causes": Array [],
+            "Host": "10.0.0.0",
+            "Name": "server9.example.com",
+            "Plugins": Object {
+              "java": "5.13.0.17924 [SonarJava]",
+            },
+            "System": Object {
+              "Version": "7.8",
+            },
+            "Web Database Connection": Object {
+              "Pool Active Connections": 0,
+              "Pool Max Connections": 60,
+            },
+            "Web JVM Properties": Object {
+              "file.encoding": "UTF-8",
+              "file.separator": "/",
+            },
+            "Web JVM State": Object {
+              "Free Memory (MB)": 111,
+              "Max Memory (MB)": 1024,
+            },
+            "Web Logging": Object {
+              "Logs Level": "INFO",
+            },
+          },
+        ],
+        "Compute Engine Tasks": Object {
+          "Total In Progress": 0,
+          "Total Pending": 0,
+        },
+        "Database": Object {
+          "Database": "PostgreSQL",
+          "Database Version": "10.3",
+          "Driver": "PostgreSQL JDBC Driver",
+          "Driver Version": "42.2.5",
+          "URL": "jdbc:postgresql://localhost/sonar",
+          "Username": "sonar",
+        },
+        "Health": "GREEN",
+        "Health Causes": Array [],
+        "Search Indexes": Object {
+          "Index components - Docs": 30445,
+          "Index components - Shards": 10,
+        },
+        "Search Nodes": Array [
+          Object {
+            "Host": "10.0.0.0",
+            "Name": "server.example.com",
+            "Search State": Object {
+              "CPU Usage (%)": 0,
+              "Disk Available": "93 GB",
+            },
+          },
+          Object {
+            "Host": "10.0.0.0",
+            "Name": "server.example.com",
+            "Search State": Object {
+              "CPU Usage (%)": 0,
+              "Disk Available": "93 GB",
+            },
+          },
+          Object {
+            "Host": "10.0.0.0",
+            "Name": "server.example.com",
+            "Search State": Object {
+              "CPU Usage (%)": 0,
+              "Disk Available": "93 GB",
+            },
+          },
+        ],
+        "Search State": Object {
+          "Nodes": 3,
+          "State": "GREEN",
+        },
+        "Settings": Object {
+          "sonar.cluster.enabled": "true",
+          "sonar.cluster.node.name": "server9.example.com",
+        },
+        "Statistics": Object {
+          "ncloc": 989880,
+        },
+        "System": Object {
+          "High Availability": true,
+          "Server ID": "asd564-asd54a-5dsfg45",
+          "Version": "7.8",
+        },
+      }
+    }
+    toggleCard={[Function]}
+  />
+</div>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="system_info"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="system_info.page"
+  />
+  <SystemUpgradeNotif />
+</div>
+`;
+
+exports[`should render correctly: stand-alone sysinfo 1`] = `
+<div
+  className="page page-limited"
+>
+  <Suggestions
+    suggestions="system_info"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="system_info.page"
+  />
+  <SystemUpgradeNotif />
+  <PageHeader
+    isCluster={false}
+    loading={false}
+    logLevel="DEBUG"
+    onLogLevelChange={[Function]}
+    serverId="asd564-asd54a-5dsfg45"
+    showActions={true}
+    version="7.8"
+  />
+  <StandAloneSysInfos
+    expandedCards={Array []}
+    sysInfoData={
+      Object {
+        "Compute Engine Database Connection": Object {
+          "Pool Active Connections": 0,
+          "Pool Initial Size": 0,
+        },
+        "Compute Engine JVM Properties": Object {
+          "file.encoding": "UTF-8",
+          "file.separator": "/",
+        },
+        "Compute Engine JVM State": Object {
+          "Free Memory (MB)": 89,
+          "Max Memory (MB)": 1024,
+        },
+        "Compute Engine Logging": Object {
+          "Logs Dir": "/logs",
+          "Logs Level": "DEBUG",
+        },
+        "Compute Engine Tasks": Object {
+          "In Progress": 0,
+          "Pending": 0,
+        },
+        "Database": Object {
+          "Database": "PostgreSQL",
+          "Database Version": "10.3",
+          "Driver": "PostgreSQL JDBC Driver",
+          "Driver Version": "42.2.5",
+          "URL": "jdbc:postgresql://localhost/sonar",
+          "Username": "sonar",
+        },
+        "Health": "GREEN",
+        "Health Causes": Array [],
+        "Search Indexes": Object {
+          "Index components - Docs": 30445,
+          "Index components - Shards": 10,
+        },
+        "Search State": Object {
+          "Nodes": 3,
+          "State": "GREEN",
+        },
+        "Settings": Object {
+          "sonar.cluster.enabled": "true",
+          "sonar.cluster.node.name": "server9.example.com",
+        },
+        "System": Object {
+          "High Availability": false,
+          "Server ID": "asd564-asd54a-5dsfg45",
+          "Version": "7.8",
+        },
+        "Web Database Connection": Object {
+          "Pool Active Connections": 0,
+          "Pool Max Connections": 60,
+        },
+        "Web JVM Properties": Object {
+          "file.encoding": "UTF-8",
+          "file.separator": "/",
+        },
+        "Web JVM State": Object {
+          "Free Memory (MB)": 111,
+          "Max Memory (MB)": 1024,
+        },
+        "Web Logging": Object {
+          "Logs Dir": "/logs",
+          "Logs Level": "INFO",
+        },
+      }
+    }
+    toggleCard={[Function]}
+  />
+</div>
+`;

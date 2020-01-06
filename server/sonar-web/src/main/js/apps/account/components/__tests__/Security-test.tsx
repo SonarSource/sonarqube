@@ -17,30 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { connect } from 'react-redux';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getCurrentUser, Store } from '../../../store/rootReducer';
-import Password from './Password';
-import Tokens from './Tokens';
+import { mockLoggedInUser } from '../../../../helpers/testMocks';
+import { Security, SecurityProps } from '../Security';
 
-export interface SecurityProps {
-  user: T.LoggedInUser;
-}
-
-export function Security({ user }: SecurityProps) {
-  return (
-    <div className="account-body account-container">
-      <Helmet defer={false} title={translate('my_account.security')} />
-      <Tokens login={user.login} />
-      {user.local && <Password user={user} />}
-    </div>
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('local user');
+  expect(shallowRender({ user: mockLoggedInUser({ local: false }) })).toMatchSnapshot(
+    'non-local user'
   );
-}
-
-const mapStateToProps = (state: Store) => ({
-  user: getCurrentUser(state) as T.LoggedInUser
 });
 
-export default connect(mapStateToProps)(Security);
+function shallowRender(props: Partial<SecurityProps> = {}) {
+  return shallow(<Security user={mockLoggedInUser({ local: true })} {...props} />);
+}

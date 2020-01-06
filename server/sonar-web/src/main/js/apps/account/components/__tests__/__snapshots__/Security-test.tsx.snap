@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: local user 1`] = `
+<div
+  className="account-body account-container"
+>
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="my_account.security"
+  />
+  <Tokens
+    login="luke"
+  />
+  <Password
+    user={
+      Object {
+        "groups": Array [],
+        "isLoggedIn": true,
+        "local": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should render correctly: non-local user 1`] = `
+<div
+  className="account-body account-container"
+>
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="my_account.security"
+  />
+  <Tokens
+    login="luke"
+  />
+</div>
+`;
