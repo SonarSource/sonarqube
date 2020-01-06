@@ -101,5 +101,6 @@
       "name": "Joe",
       "active": true
     }
-  ]
+  ],
+  "canChangeStatus": true
 }

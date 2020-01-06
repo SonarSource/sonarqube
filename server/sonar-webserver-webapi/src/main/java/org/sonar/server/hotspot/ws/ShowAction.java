@@ -151,6 +151,7 @@ public class ShowAction implements HotspotsWsAction {
     responseBuilder
       .setProject(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getProject()))
       .setComponent(responseFormatter.formatComponent(Hotspots.Component.newBuilder(), components.getComponent()));
+    responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProject()));
   }
 
   private void formatRule(ShowWsResponse.Builder responseBuilder, RuleDefinitionDto ruleDefinitionDto) {

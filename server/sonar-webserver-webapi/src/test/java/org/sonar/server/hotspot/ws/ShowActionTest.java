@@ -220,6 +220,126 @@ public class ShowActionTest {
   }
 
   @Test
+  public void return_canChangeStatus_false_on_public_project_when_anonymous() {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getCanChangeStatus()).isFalse();
+  }
+
+  @Test
+  @UseDataProvider("allPublicProjectPermissionsButSECURITYHOTSPOT_ADMIN")
+  public void return_canChangeStatus_false_on_public_project_when_authenticated_without_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.logIn().registerComponents(project);
+    if (permission != null) {
+      userSessionRule.addProjectPermission(permission, project);
+    }
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getCanChangeStatus()).isFalse();
+  }
+
+  @Test
+  @UseDataProvider("allPublicProjectPermissionsButSECURITYHOTSPOT_ADMIN")
+  public void return_canChangeStatus_true_on_public_project_when_authenticated_with_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+    if (permission != null) {
+      userSessionRule.addProjectPermission(permission, project);
+    }
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getCanChangeStatus()).isTrue();
+  }
+
+  @DataProvider
+  public static Object[][] allPublicProjectPermissionsButSECURITYHOTSPOT_ADMIN() {
+    return new Object[][] {
+      {null}, // no permission
+      {UserRole.ADMIN},
+      {UserRole.SCAN},
+      {UserRole.ISSUE_ADMIN}
+    };
+  }
+
+  @Test
+  @UseDataProvider("allPrivateProjectPermissionsButSECURITYHOTSPOT_ADMIN_and_USER")
+  public void return_canChangeStatus_false_on_private_project_without_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule
+      .registerComponents(project)
+      .logIn()
+      .addProjectPermission(UserRole.USER, project);
+    if (permission != null) {
+      userSessionRule.addProjectPermission(permission, project);
+    }
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getCanChangeStatus()).isFalse();
+  }
+
+  @Test
+  @UseDataProvider("allPrivateProjectPermissionsButSECURITYHOTSPOT_ADMIN_and_USER")
+  public void return_canChangeStatus_false_on_private_project_with_SECURITYHOTSPOT_ADMIN_permission(@Nullable String permission) {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule
+      .registerComponents(project)
+      .logIn()
+      .addProjectPermission(UserRole.USER, project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
+    if (permission != null) {
+      userSessionRule.addProjectPermission(permission, project);
+    }
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getCanChangeStatus()).isTrue();
+  }
+
+  @DataProvider
+  public static Object[][] allPrivateProjectPermissionsButSECURITYHOTSPOT_ADMIN_and_USER() {
+    return new Object[][] {
+      {null}, // only USER permission
+      {UserRole.CODEVIEWER},
+      {UserRole.ADMIN},
+      {UserRole.SCAN},
+      {UserRole.ISSUE_ADMIN}
+    };
+  }
+
+  @Test
   @UseDataProvider("statusAndResolutionCombinations")
   public void returns_status_and_resolution(String status, @Nullable String resolution) {
     ComponentDto project = dbTester.components().insertPrivateProject();
@@ -706,7 +826,8 @@ public class ShowActionTest {
       .setName("test-project")
       .setLongName("test-project")
       .setDbKey("com.sonarsource:test-project"));
-    userSessionRule.registerComponents(project);
+    userSessionRule.registerComponents(project)
+      .addProjectPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
 
     ComponentDto file = dbTester.components().insertComponent(
       newFileDto(project)

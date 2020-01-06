@@ -23,6 +23,7 @@ import java.util.Date;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -65,6 +66,10 @@ public class HotspotWsSupport {
     userSession.checkComponentPermission(userRole, project);
 
     return project;
+  }
+
+  boolean canChangeStatus(ComponentDto project) {
+    return userSession.hasComponentPermission(UserRole.SECURITYHOTSPOT_ADMIN, project);
   }
 
   IssueChangeContext newIssueChangeContext() {
