@@ -22,12 +22,12 @@ import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import MarkdownTips from '../../../components/common/MarkdownTips';
-import { HotspotStatusOption } from '../../../types/security-hotspots';
+import { HotspotStatus, HotspotStatusOption } from '../../../types/security-hotspots';
 import HotspotAssigneeSelect from './HotspotAssigneeSelect';
 
 export interface HotspotActionsFormRendererProps {
   comment: string;
-  hotspotKey: string;
+  hotspotStatus: HotspotStatus;
   onAssign: (user: T.UserActive) => void;
   onChangeComment: (comment: string) => void;
   onSelectOption: (option: HotspotStatusOption) => void;
@@ -38,7 +38,7 @@ export interface HotspotActionsFormRendererProps {
 }
 
 export default function HotspotActionsFormRenderer(props: HotspotActionsFormRendererProps) {
-  const { comment, selectedOption, submitting } = props;
+  const { comment, hotspotStatus, selectedOption, submitting } = props;
 
   return (
     <form className="abs-width-400 padded" onSubmit={props.onSubmit}>
@@ -69,8 +69,8 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
       <div className="display-flex-column big-spacer-bottom">
         <label className="little-spacer-bottom">{translate('hotspots.form.comment')}</label>
         <textarea
-          className="form-field fixed-width spacer-bottom"
           autoFocus={true}
+          className="form-field fixed-width spacer-bottom"
           onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
             props.onChangeComment(event.currentTarget.value)
           }
@@ -86,7 +86,9 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
       </div>
       <div className="text-right">
         {submitting && <i className="spinner spacer-right" />}
-        <SubmitButton disabled={submitting}>{translate('hotspots.form.submit')}</SubmitButton>
+        <SubmitButton disabled={submitting}>
+          {translate('hotspots.form.submit', hotspotStatus)}
+        </SubmitButton>
       </div>
     </form>
   );

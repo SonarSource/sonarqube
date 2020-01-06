@@ -113,7 +113,10 @@ it('should load data correctly when hotspot key list is forced', async () => {
   });
 
   await waitAndUpdate(wrapper);
-  expect(getSecurityHotspotList).toBeCalledWith(hotspotKeys);
+  expect(getSecurityHotspotList).toBeCalledWith(hotspotKeys, {
+    projectKey: 'my-project',
+    branch: 'branch-6.7'
+  });
   expect(wrapper.state().hotspotKeys).toEqual(hotspotKeys);
   expect(wrapper.find(SecurityHotspotsAppRenderer).props().isStaticListOfHotspots).toBeTruthy();
 

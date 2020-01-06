@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { assignSecurityHotspot, setSecurityHotspotStatus } from '../../../api/security-hotspots';
 import {
+  Hotspot,
   HotspotResolution,
   HotspotSetStatusRequest,
   HotspotStatus,
@@ -29,7 +30,7 @@ import {
 import HotspotActionsFormRenderer from './HotspotActionsFormRenderer';
 
 interface Props {
-  hotspotKey: string;
+  hotspot: Hotspot;
   onSubmit: (data: HotspotUpdateFields) => void;
 }
 
@@ -62,7 +63,7 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
   handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const { hotspotKey } = this.props;
+    const { hotspot } = this.props;
     const { comment, selectedOption, selectedUser } = this.state;
 
     const status =
@@ -82,7 +83,7 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
     }
 
     this.setState({ submitting: true });
-    return setSecurityHotspotStatus(hotspotKey, data)
+    return setSecurityHotspotStatus(hotspot.key, data)
       .then(() => {
         if (selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW && selectedUser) {
           return this.assignHotspot(selectedUser, comment);
@@ -98,22 +99,22 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
   };
 
   assignHotspot = (assignee: T.UserActive, comment: string) => {
-    const { hotspotKey } = this.props;
+    const { hotspot } = this.props;
 
-    return assignSecurityHotspot(hotspotKey, {
+    return assignSecurityHotspot(hotspot.key, {
       assignee: assignee.login,
       comment
     });
   };
 
   render() {
-    const { hotspotKey } = this.props;
+    const { hotspot } = this.props;
     const { comment, selectedOption, selectedUser, submitting } = this.state;
 
     return (
       <HotspotActionsFormRenderer
         comment={comment}
-        hotspotKey={hotspotKey}
+        hotspotStatus={hotspot.status}
         onAssign={this.handleAssign}
         onChangeComment={this.handleCommentChange}
         onSelectOption={this.handleSelectOption}

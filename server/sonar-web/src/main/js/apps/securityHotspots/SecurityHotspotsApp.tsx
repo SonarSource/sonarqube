@@ -157,7 +157,10 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     this.setState({ hotspotKeys });
 
     if (hotspotKeys && hotspotKeys.length > 0) {
-      return getSecurityHotspotList(hotspotKeys);
+      return getSecurityHotspotList(hotspotKeys, {
+        projectKey: component.key,
+        ...getBranchLikeQuery(branchLike)
+      });
     }
 
     const status =

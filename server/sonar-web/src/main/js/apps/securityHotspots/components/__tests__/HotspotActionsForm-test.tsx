@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { assignSecurityHotspot, setSecurityHotspotStatus } from '../../../../api/security-hotspots';
+import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import {
   HotspotResolution,
@@ -128,6 +129,6 @@ it('should handle submit failure', async () => {
 
 function shallowRender(props: Partial<HotspotActionsForm['props']> = {}) {
   return shallow<HotspotActionsForm>(
-    <HotspotActionsForm hotspotKey="key" onSubmit={jest.fn()} {...props} />
+    <HotspotActionsForm hotspot={mockHotspot({ key: 'key' })} onSubmit={jest.fn()} {...props} />
   );
 }

@@ -53,7 +53,7 @@ export default function HotspotActions(props: HotspotActionsProps) {
   });
 
   return (
-    <div className="dropdown">
+    <div className="dropdown big-spacer-left flex-0">
       <Button onClick={() => setOpen(!open)}>
         {translate('hotspot.change_status', hotspot.status)}
         <DropdownIcon className="little-spacer-left" />
@@ -63,7 +63,7 @@ export default function HotspotActions(props: HotspotActionsProps) {
         <OutsideClickHandler onClickOutside={() => setOpen(false)}>
           <DropdownOverlay placement={PopupPlacement.BottomRight}>
             <HotspotActionsForm
-              hotspotKey={hotspot.key}
+              hotspot={hotspot}
               onSubmit={data => {
                 setOpen(false);
                 props.onSubmit(data);

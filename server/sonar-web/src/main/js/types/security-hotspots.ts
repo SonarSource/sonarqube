@@ -84,7 +84,7 @@ export interface Hotspot {
   project: T.Component;
   resolution?: string;
   rule: HotspotRule;
-  status: string;
+  status: HotspotStatus;
   textRange: T.TextRange;
   updateDate: string;
   users: T.UserBase[];

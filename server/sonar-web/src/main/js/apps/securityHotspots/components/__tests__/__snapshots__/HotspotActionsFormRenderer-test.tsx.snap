@@ -90,7 +90,7 @@ exports[`should render correctly 1`] = `
     <SubmitButton
       disabled={false}
     >
-      hotspots.form.submit
+      hotspots.form.submit.TO_REVIEW
     </SubmitButton>
   </div>
 </form>
@@ -189,7 +189,7 @@ exports[`should render correctly: Submitting 1`] = `
     <SubmitButton
       disabled={true}
     >
-      hotspots.form.submit
+      hotspots.form.submit.TO_REVIEW
     </SubmitButton>
   </div>
 </form>
@@ -285,7 +285,7 @@ exports[`should render correctly: safe option selected 1`] = `
     <SubmitButton
       disabled={false}
     >
-      hotspots.form.submit
+      hotspots.form.submit.TO_REVIEW
     </SubmitButton>
   </div>
 </form>
@@ -391,7 +391,7 @@ exports[`should render correctly: user selected 1`] = `
     <SubmitButton
       disabled={false}
     >
-      hotspots.form.submit
+      hotspots.form.submit.TO_REVIEW
     </SubmitButton>
   </div>
 </form>

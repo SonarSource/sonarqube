@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
-import { HotspotStatusOption } from '../../../../types/security-hotspots';
+import { HotspotStatus, HotspotStatusOption } from '../../../../types/security-hotspots';
 import HotspotActionsForm from '../HotspotActionsForm';
 import HotspotActionsFormRenderer, {
   HotspotActionsFormRendererProps
@@ -44,7 +44,7 @@ function shallowRender(props: Partial<HotspotActionsFormRendererProps> = {}) {
   return shallow<HotspotActionsForm>(
     <HotspotActionsFormRenderer
       comment="written comment"
-      hotspotKey="key"
+      hotspotStatus={HotspotStatus.TO_REVIEW}
       onAssign={jest.fn()}
       onChangeComment={jest.fn()}
       onSelectOption={jest.fn()}
