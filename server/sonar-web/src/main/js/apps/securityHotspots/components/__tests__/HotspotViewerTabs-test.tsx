@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
+import { mockUser } from '../../../../helpers/testMocks';
 import HotspotViewerTabs, { HotspotViewerTabsProps, Tabs } from '../HotspotViewerTabs';
 
 it('should render correctly', () => {
@@ -60,8 +61,26 @@ it('should render correctly', () => {
           vulnerabilityDescription: undefined
         })
       })
+    }).type()
+  ).toBeNull();
+
+  expect(
+    shallowRender({
+      hotspot: mockHotspot({
+        comment: [
+          {
+            createdAt: '2019-01-01',
+            htmlText: '<strong>test</strong>',
+            key: 'comment-key',
+            login: 'me',
+            markdown: '*test*',
+            updatable: false,
+            user: mockUser()
+          }
+        ]
+      })
     })
-  ).toMatchSnapshot('no tabs');
+  ).toMatchSnapshot('with comments or changelog element');
 });
 
 function shallowRender(props?: Partial<HotspotViewerTabsProps>) {

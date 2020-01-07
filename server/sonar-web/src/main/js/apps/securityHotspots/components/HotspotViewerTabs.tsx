@@ -62,11 +62,15 @@ export default function HotspotViewerTabs(props: HotspotViewerTabsProps) {
       label: (
         <>
           <span>{translate('hotspots.tabs.review_history')}</span>
-          <span className="counter-badge spacer-left">{hotspotReviewHistory.length}</span>
+          {hotspotReviewHistory.functionalCount > 0 && (
+            <span className="counter-badge spacer-left">
+              {hotspotReviewHistory.functionalCount}
+            </span>
+          )}
         </>
       ),
-      content: hotspotReviewHistory.length > 0 && (
-        <HotspotViewerReviewHistoryTab history={hotspotReviewHistory} />
+      content: hotspotReviewHistory.history.length > 0 && (
+        <HotspotViewerReviewHistoryTab history={hotspotReviewHistory.history} />
       )
     }
   ].filter(tab => Boolean(tab.content));

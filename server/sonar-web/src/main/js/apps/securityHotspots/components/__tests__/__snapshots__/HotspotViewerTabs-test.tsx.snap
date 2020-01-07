@@ -39,11 +39,6 @@ exports[`should render correctly: empty tab 1`] = `
             <span>
               hotspots.tabs.review_history
             </span>
-            <span
-              className="counter-badge spacer-left"
-            >
-              1
-            </span>
           </React.Fragment>,
         },
       ]
@@ -108,11 +103,6 @@ exports[`should render correctly: fix 1`] = `
             <span>
               hotspots.tabs.review_history
             </span>
-            <span
-              className="counter-badge spacer-left"
-            >
-              1
-            </span>
           </React.Fragment>,
         },
       ]
@@ -132,8 +122,6 @@ exports[`should render correctly: fix 1`] = `
   </div>
 </Fragment>
 `;
-
-exports[`should render correctly: no tabs 1`] = `""`;
 
 exports[`should render correctly: review 1`] = `
 <Fragment>
@@ -178,11 +166,6 @@ exports[`should render correctly: review 1`] = `
           "label": <React.Fragment>
             <span>
               hotspots.tabs.review_history
-            </span>
-            <span
-              className="counter-badge spacer-left"
-            >
-              1
             </span>
           </React.Fragment>,
         },
@@ -256,11 +239,6 @@ exports[`should render correctly: risk 1`] = `
             <span>
               hotspots.tabs.review_history
             </span>
-            <span
-              className="counter-badge spacer-left"
-            >
-              1
-            </span>
           </React.Fragment>,
         },
       ]
@@ -325,6 +303,81 @@ exports[`should render correctly: vulnerability 1`] = `
             <span>
               hotspots.tabs.review_history
             </span>
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <div
+    className="bordered"
+  >
+    <div
+      className="markdown big-padded"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+        }
+      }
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: with comments or changelog element 1`] = `
+<Fragment>
+  <BoxedTabs
+    onSelect={[Function]}
+    selected="risk"
+    tabs={
+      Array [
+        Object {
+          "content": "<p>This a <strong>strong</strong> message about risk !</p>",
+          "key": "risk",
+          "label": "hotspots.tabs.risk_description",
+        },
+        Object {
+          "content": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "key": "vulnerability",
+          "label": "hotspots.tabs.vulnerability_description",
+        },
+        Object {
+          "content": "<p>This a <strong>strong</strong> message about fixing !</p>",
+          "key": "fix",
+          "label": "hotspots.tabs.fix_recommendations",
+        },
+        Object {
+          "content": <HotspotViewerReviewHistoryTab
+            history={
+              Array [
+                Object {
+                  "date": "2013-05-13T17:55:41+0200",
+                  "type": 0,
+                  "user": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "author",
+                    "name": "John Doe",
+                  },
+                },
+                Object {
+                  "date": "2019-01-01",
+                  "html": "<strong>test</strong>",
+                  "type": 2,
+                  "user": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "john.doe",
+                    "name": "John Doe",
+                  },
+                },
+              ]
+            }
+          />,
+          "key": "review",
+          "label": <React.Fragment>
+            <span>
+              hotspots.tabs.review_history
+            </span>
             <span
               className="counter-badge spacer-left"
             >
@@ -342,7 +395,7 @@ exports[`should render correctly: vulnerability 1`] = `
       className="markdown big-padded"
       dangerouslySetInnerHTML={
         Object {
-          "__html": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+          "__html": "<p>This a <strong>strong</strong> message about risk !</p>",
         }
       }
     />

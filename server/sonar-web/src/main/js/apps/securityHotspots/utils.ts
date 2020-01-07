@@ -81,8 +81,14 @@ export function constructSourceViewerFile(
   };
 }
 
-export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[] {
+export function getHotspotReviewHistory(
+  hotspot: Hotspot
+): {
+  history: ReviewHistoryElement[];
+  functionalCount: number;
+} {
   const history: ReviewHistoryElement[] = [];
+  let functionalCount = 0;
 
   if (hotspot.creationDate) {
     history.push({
@@ -96,6 +102,7 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
   }
 
   if (hotspot.changelog && hotspot.changelog.length > 0) {
+    functionalCount += hotspot.changelog.length;
     history.push(
       ...hotspot.changelog.map(log => ({
         type: ReviewHistoryType.Diff,
@@ -111,6 +118,7 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
   }
 
   if (hotspot.comment && hotspot.comment.length > 0) {
+    functionalCount += hotspot.comment.length;
     history.push(
       ...hotspot.comment.map(comment => ({
         type: ReviewHistoryType.Comment,
@@ -124,5 +132,8 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
     );
   }
 
-  return sortBy(history, elt => elt.date);
+  return {
+    history: sortBy(history, elt => elt.date),
+    functionalCount
+  };
 }
