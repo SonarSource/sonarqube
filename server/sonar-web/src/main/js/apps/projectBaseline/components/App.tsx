@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
+import { debounce } from 'lodash';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
@@ -47,6 +50,7 @@ interface State {
   overrideGeneralSetting?: boolean;
   saving: boolean;
   selected?: T.NewCodePeriodSettingType;
+  success?: boolean;
 }
 
 const DEFAULT_GENERAL_SETTING: { type: T.NewCodePeriodSettingType } = {
@@ -60,6 +64,9 @@ export default class App extends React.PureComponent<Props, State> {
     loading: true,
     saving: false
   };
+
+  // We use debounce as we could have multiple save in less that 3sec.
+  resetSuccess = debounce(() => this.setState({ success: undefined }), 3000);
 
   componentDidMount() {
     this.mounted = true;
@@ -128,8 +135,10 @@ export default class App extends React.PureComponent<Props, State> {
         this.setState({
           saving: false,
           currentSetting: undefined,
-          selected: undefined
+          selected: undefined,
+          success: true
         });
+        this.resetSuccess();
       },
       () => {
         this.setState({ saving: false });
@@ -176,8 +185,10 @@ export default class App extends React.PureComponent<Props, State> {
           this.setState({
             saving: false,
             currentSetting: type,
-            currentSettingValue: value || undefined
+            currentSettingValue: value || undefined,
+            success: true
           });
+          this.resetSuccess();
         },
         () => {
           this.setState({ saving: false });
@@ -232,7 +243,8 @@ export default class App extends React.PureComponent<Props, State> {
       currentSettingValue,
       overrideGeneralSetting,
       saving,
-      selected
+      selected,
+      success
     } = this.state;
 
     return (
@@ -266,6 +278,13 @@ export default class App extends React.PureComponent<Props, State> {
                   selected={selected}
                 />
               )}
+
+              <div className={classNames('spacer-top', { invisible: saving || !success })}>
+                <span className="text-success">
+                  <AlertSuccessIcon className="spacer-right" />
+                  {translate('settings.state.saved')}
+                </span>
+              </div>
               {generalSetting && branchesEnabled && (
                 <div className="huge-spacer-top branch-baseline-selector">
                   <hr />
