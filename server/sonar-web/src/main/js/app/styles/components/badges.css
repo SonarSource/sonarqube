@@ -73,7 +73,8 @@ a.badge {
 .counter-badge {
   color: var(--badgeBlueColor);
   background-color: var(--badgeBlueBackground);
-  padding: calc(var(--gridSize) / 2) var(--gridSize);
+  font-size: var(--smallFontSize);
+  padding: 0.3em 0.8em;
   border-radius: 1em;
 }
 
