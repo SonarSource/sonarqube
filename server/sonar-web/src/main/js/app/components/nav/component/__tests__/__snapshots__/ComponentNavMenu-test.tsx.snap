@@ -516,23 +516,6 @@ exports[`should work for all qualifiers 2`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/security_hotspots",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      layout.security_hotspots
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
           "pathname": "/component_measures",
           "query": Object {
             "id": "foo",
@@ -645,23 +628,6 @@ exports[`should work for all qualifiers 3`] = `
       }
     >
       issues.page
-    </Link>
-  </li>
-  <li>
-    <Link
-      activeClassName="active"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/security_hotspots",
-          "query": Object {
-            "id": "foo",
-          },
-        }
-      }
-    >
-      layout.security_hotspots
     </Link>
   </li>
   <li>

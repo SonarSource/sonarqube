@@ -153,13 +153,15 @@ export class ComponentNavMenu extends React.PureComponent<Props> {
 
   renderSecurityHotspotsLink() {
     return (
-      <li>
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/security_hotspots', query: this.getQuery() }}>
-          {translate('layout.security_hotspots')}
-        </Link>
-      </li>
+      !this.isPortfolio() && (
+        <li>
+          <Link
+            activeClassName="active"
+            to={{ pathname: '/security_hotspots', query: this.getQuery() }}>
+            {translate('layout.security_hotspots')}
+          </Link>
+        </li>
+      )
     );
   }
 
