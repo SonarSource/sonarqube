@@ -59,10 +59,9 @@ export function BranchLikeNavigation(props: BranchLikeNavigationProps) {
 
   return (
     <span
-      className={classNames(
-        'big-spacer-left flex-shrink branch-like-navigation-toggler-container',
-        { dropdown: isMenuEnabled }
-      )}>
+      className={classNames('big-spacer-left flex-0 branch-like-navigation-toggler-container', {
+        dropdown: isMenuEnabled
+      })}>
       {isMenuEnabled ? (
         <Toggler
           onRequestClose={() => setIsMenuOpen(false)}

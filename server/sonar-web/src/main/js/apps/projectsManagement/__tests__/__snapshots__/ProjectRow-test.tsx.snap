@@ -14,7 +14,7 @@ exports[`renders 1`] = `
     />
   </td>
   <td
-    className="nowrap"
+    className="nowrap hide-overflow project-row-text-cell"
   >
     <Link
       className="link-with-icon"
@@ -32,10 +32,14 @@ exports[`renders 1`] = `
       <QualifierIcon
         qualifier="TRK"
       />
-       
-      <span>
-        Project
-      </span>
+      <Tooltip
+        overlay="Project"
+        placement="left"
+      >
+        <span>
+          Project
+        </span>
+      </Tooltip>
     </Link>
   </td>
   <td
@@ -52,18 +56,18 @@ exports[`renders 1`] = `
     />
   </td>
   <td
-    className="nowrap hide-overflow"
-    style={
-      Object {
-        "maxWidth": 400,
-      }
-    }
+    className="nowrap hide-overflow project-row-text-cell"
   >
-    <span
-      className="note"
+    <Tooltip
+      overlay="project"
+      placement="left"
     >
-      project
-    </span>
+      <span
+        className="note"
+      >
+        project
+      </span>
+    </Tooltip>
   </td>
   <td
     className="thin nowrap text-right"
@@ -110,7 +114,7 @@ exports[`renders 2`] = `
     />
   </td>
   <td
-    className="nowrap"
+    className="nowrap hide-overflow project-row-text-cell"
   >
     <Link
       className="link-with-icon"
@@ -128,10 +132,14 @@ exports[`renders 2`] = `
       <QualifierIcon
         qualifier="TRK"
       />
-       
-      <span>
-        Project
-      </span>
+      <Tooltip
+        overlay="Project"
+        placement="left"
+      >
+        <span>
+          Project
+        </span>
+      </Tooltip>
     </Link>
   </td>
   <td
@@ -148,18 +156,18 @@ exports[`renders 2`] = `
     />
   </td>
   <td
-    className="nowrap hide-overflow"
-    style={
-      Object {
-        "maxWidth": 400,
-      }
-    }
+    className="nowrap hide-overflow project-row-text-cell"
   >
-    <span
-      className="note"
+    <Tooltip
+      overlay="project"
+      placement="left"
     >
-      project
-    </span>
+      <span
+        className="note"
+      >
+        project
+      </span>
+    </Tooltip>
   </td>
   <td
     className="thin nowrap text-right"

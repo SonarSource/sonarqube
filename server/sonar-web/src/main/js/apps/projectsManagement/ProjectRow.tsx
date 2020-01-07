@@ -20,10 +20,12 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Project } from '../../api/components';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
 import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
+import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 
 interface Props {
@@ -48,11 +50,15 @@ export default class ProjectRow extends React.PureComponent<Props> {
           <Checkbox checked={selected} onCheck={this.handleProjectCheck} />
         </td>
 
-        <td className="nowrap">
+        <td className="nowrap hide-overflow project-row-text-cell">
           <Link
             className="link-with-icon"
             to={{ pathname: '/dashboard', query: { id: project.key } }}>
-            <QualifierIcon qualifier={project.qualifier} /> <span>{project.name}</span>
+            <QualifierIcon qualifier={project.qualifier} />
+
+            <Tooltip overlay={project.name} placement="left">
+              <span>{project.name}</span>
+            </Tooltip>
           </Link>
         </td>
 
@@ -65,8 +71,10 @@ export default class ProjectRow extends React.PureComponent<Props> {
           />
         </td>
 
-        <td className="nowrap hide-overflow" style={{ maxWidth: 400 }}>
-          <span className="note">{project.key}</span>
+        <td className="nowrap hide-overflow project-row-text-cell">
+          <Tooltip overlay={project.key} placement="left">
+            <span className="note">{project.key}</span>
+          </Tooltip>
         </td>
 
         <td className="thin nowrap text-right">

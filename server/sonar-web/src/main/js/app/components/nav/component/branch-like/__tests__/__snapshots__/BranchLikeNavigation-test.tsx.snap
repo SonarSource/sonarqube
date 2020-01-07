@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <span
-  className="big-spacer-left flex-shrink branch-like-navigation-toggler-container"
+  className="big-spacer-left flex-0 branch-like-navigation-toggler-container"
 >
   <Memo(CurrentBranchLike)
     branchesEnabled={false}
@@ -44,7 +44,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render the menu trigger if branches are enabled 1`] = `
 <span
-  className="big-spacer-left flex-shrink branch-like-navigation-toggler-container dropdown"
+  className="big-spacer-left flex-0 branch-like-navigation-toggler-container dropdown"
 >
   <Toggler
     onRequestClose={[Function]}
