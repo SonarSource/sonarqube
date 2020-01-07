@@ -47,7 +47,7 @@ export enum HotspotStatusOption {
 
 export interface HotspotFilters {
   assignedToMe: boolean;
-  newCode: boolean;
+  sinceLeakPeriod: boolean;
   status: HotspotStatusFilter;
 }
 

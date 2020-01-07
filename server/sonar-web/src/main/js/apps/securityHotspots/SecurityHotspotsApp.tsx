@@ -99,7 +99,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       !isSameBranchLike(this.props.branchLike, previous.branchLike) ||
       isLoggedIn(this.props.currentUser) !== isLoggedIn(previous.currentUser) ||
       this.props.location.query.assignedToMe !== previous.location.query.assignedToMe ||
-      this.props.location.query.newCode !== previous.location.query.newCode
+      this.props.location.query.sinceLeakPeriod !== previous.location.query.sinceLeakPeriod
     ) {
       this.setState(({ filters }) => ({
         filters: { ...this.constructFiltersFromProps, ...filters }
@@ -112,13 +112,13 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  constructFiltersFromProps(props: Props): Pick<HotspotFilters, 'assignedToMe' | 'newCode'> {
+  constructFiltersFromProps(
+    props: Props
+  ): Pick<HotspotFilters, 'assignedToMe' | 'sinceLeakPeriod'> {
     return {
-      assignedToMe:
-        props.location.query.assignedToMe !== undefined
-          ? props.location.query.assignedToMe === 'true'
-          : isLoggedIn(props.currentUser),
-      newCode: isPullRequest(props.branchLike) || props.location.query.newCode === 'true'
+      assignedToMe: props.location.query.assignedToMe === 'true' && isLoggedIn(props.currentUser),
+      sinceLeakPeriod:
+        isPullRequest(props.branchLike) || props.location.query.sinceLeakPeriod === 'true'
     };
   }
 
@@ -180,7 +180,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       status,
       resolution,
       onlyMine: filters.assignedToMe,
-      sinceLeakPeriod: filters.newCode,
+      sinceLeakPeriod: filters.sinceLeakPeriod,
       ...getBranchLikeQuery(branchLike)
     });
   }

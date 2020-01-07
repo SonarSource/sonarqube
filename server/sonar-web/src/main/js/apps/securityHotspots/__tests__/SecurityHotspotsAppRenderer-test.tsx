@@ -67,7 +67,7 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
     <SecurityHotspotsAppRenderer
       filters={{
         assignedToMe: false,
-        newCode: false,
+        sinceLeakPeriod: false,
         status: HotspotStatusFilter.TO_REVIEW
       }}
       hotspots={[]}

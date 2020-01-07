@@ -8,7 +8,7 @@ exports[`should render correctly 1`] = `
     filters={
       Object {
         "assignedToMe": false,
-        "newCode": false,
+        "sinceLeakPeriod": false,
         "status": "TO_REVIEW",
       }
     }

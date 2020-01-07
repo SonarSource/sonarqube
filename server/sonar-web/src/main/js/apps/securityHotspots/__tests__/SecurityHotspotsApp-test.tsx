@@ -29,6 +29,7 @@ import {
   mockComponent,
   mockCurrentUser,
   mockLocation,
+  mockLoggedInUser,
   mockRouter
 } from '../../../helpers/testMocks';
 import {
@@ -143,11 +144,30 @@ it('should load data correctly when hotspot key list is forced', async () => {
 });
 
 it('should set "leakperiod" filter according to context (branchlike & location query)', () => {
-  expect(shallowRender().state().filters.newCode).toBe(false);
-  expect(shallowRender({ branchLike: mockPullRequest() }).state().filters.newCode).toBe(true);
+  expect(shallowRender().state().filters.sinceLeakPeriod).toBe(false);
+  expect(shallowRender({ branchLike: mockPullRequest() }).state().filters.sinceLeakPeriod).toBe(
+    true
+  );
   expect(
-    shallowRender({ location: mockLocation({ query: { newCode: 'true' } }) }).state().filters
-      .newCode
+    shallowRender({ location: mockLocation({ query: { sinceLeakPeriod: 'true' } }) }).state()
+      .filters.sinceLeakPeriod
+  ).toBe(true);
+});
+
+it('should set "assigned to me" filter according to context (logged in & explicit location query)', () => {
+  expect(shallowRender().state().filters.assignedToMe).toBe(false);
+  expect(
+    shallowRender({ location: mockLocation({ query: { assignedToMe: 'true' } }) }).state().filters
+      .assignedToMe
+  ).toBe(false);
+  expect(shallowRender({ currentUser: mockLoggedInUser() }).state().filters.assignedToMe).toBe(
+    false
+  );
+  expect(
+    shallowRender({
+      location: mockLocation({ query: { assignedToMe: 'true' } }),
+      currentUser: mockLoggedInUser()
+    }).state().filters.assignedToMe
   ).toBe(true);
 });
 

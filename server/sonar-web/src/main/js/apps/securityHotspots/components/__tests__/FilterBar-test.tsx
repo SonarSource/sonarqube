@@ -86,7 +86,7 @@ it('should trigger onChange for leak period', () => {
     return fail("Select's onChange should be defined");
   }
   onChange({ value: true });
-  expect(onChangeFilters).toBeCalledWith({ newCode: true });
+  expect(onChangeFilters).toBeCalledWith({ sinceLeakPeriod: true });
 });
 
 function shallowRender(props: Partial<FilterBarProps> = {}) {
@@ -95,7 +95,7 @@ function shallowRender(props: Partial<FilterBarProps> = {}) {
       currentUser={mockCurrentUser()}
       filters={{
         assignedToMe: false,
-        newCode: false,
+        sinceLeakPeriod: false,
         status: HotspotStatusFilter.TO_REVIEW
       }}
       isStaticListOfHotspots={false}

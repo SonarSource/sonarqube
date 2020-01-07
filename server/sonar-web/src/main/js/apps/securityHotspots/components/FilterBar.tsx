@@ -97,11 +97,11 @@ export function FilterBar(props: FilterBarProps) {
               className="input-medium big-spacer-right"
               clearable={false}
               onChange={(option: { value: boolean }) =>
-                props.onChangeFilters({ newCode: option.value })
+                props.onChangeFilters({ sinceLeakPeriod: option.value })
               }
               options={periodOptions}
               searchable={false}
-              value={filters.newCode}
+              value={filters.sinceLeakPeriod}
             />
           )}
         </>
