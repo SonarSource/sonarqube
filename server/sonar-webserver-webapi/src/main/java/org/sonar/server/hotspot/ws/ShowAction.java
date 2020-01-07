@@ -135,7 +135,7 @@ public class ShowAction implements HotspotsWsAction {
     return new Users(assignee, author);
   }
 
-  private void formatHotspot(ShowWsResponse.Builder builder, IssueDto hotspot, Users users) {
+  private static void formatHotspot(ShowWsResponse.Builder builder, IssueDto hotspot, Users users) {
     builder.setKey(hotspot.getKey());
     ofNullable(hotspot.getStatus()).ifPresent(builder::setStatus);
     ofNullable(hotspot.getResolution()).ifPresent(builder::setResolution);
@@ -154,7 +154,7 @@ public class ShowAction implements HotspotsWsAction {
     responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProject()));
   }
 
-  private void formatRule(ShowWsResponse.Builder responseBuilder, RuleDefinitionDto ruleDefinitionDto) {
+  private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDefinitionDto ruleDefinitionDto) {
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(ruleDefinitionDto.getSecurityStandards());
     SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
     HotspotRuleDescription hotspotRuleDescription = HotspotRuleDescription.from(ruleDefinitionDto);

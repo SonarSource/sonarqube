@@ -20,6 +20,7 @@
 package org.sonar.server.hotspot.ws;
 
 import java.util.Objects;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ws.Request;
@@ -111,6 +112,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
     }
   }
 
+  @CheckForNull
   private static String resolutionParam(Request request, String newStatus) {
     String resolution = request.param(PARAM_RESOLUTION);
     checkArgument(STATUS_REVIEWED.equals(newStatus) || resolution == null,
@@ -122,7 +124,7 @@ public class ChangeStatusAction implements HotspotsWsAction {
     return resolution;
   }
 
-  private static boolean needStatusUpdate(IssueDto hotspot, String newStatus, String newResolution) {
+  private static boolean needStatusUpdate(IssueDto hotspot, String newStatus, @Nullable String newResolution) {
     return !(hotspot.getStatus().equals(newStatus) && Objects.equals(hotspot.getResolution(), newResolution));
   }
 

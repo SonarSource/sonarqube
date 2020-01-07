@@ -197,7 +197,7 @@ public class RuleIndexer implements ResilientIndexer {
     return Optional.of(bulkIndexer.stop());
   }
 
-  private RuleDoc ruleDocOf(RuleForIndexingDto dto) {
+  private static RuleDoc ruleDocOf(RuleForIndexingDto dto) {
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(dto.getSecurityStandards());
     if (!securityStandards.getIgnoredSQCategories().isEmpty()) {
       LOG.warn(

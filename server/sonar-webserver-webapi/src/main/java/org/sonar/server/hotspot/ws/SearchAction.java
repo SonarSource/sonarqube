@@ -346,7 +346,7 @@ public class SearchAction implements HotspotsWsAction {
     return responseBuilder.build();
   }
 
-  private void formatPaging(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
+  private static void formatPaging(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
     Paging paging = searchResponseData.getPaging();
     Common.Paging.Builder pagingBuilder = Common.Paging.newBuilder()
       .setPageIndex(paging.pageIndex())
@@ -356,7 +356,7 @@ public class SearchAction implements HotspotsWsAction {
     responseBuilder.setPaging(pagingBuilder.build());
   }
 
-  private void formatHotspots(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
+  private static void formatHotspots(SearchResponseData searchResponseData, SearchWsResponse.Builder responseBuilder) {
     List<IssueDto> orderedHotspots = searchResponseData.getOrderedHotspots();
     if (orderedHotspots.isEmpty()) {
       return;
