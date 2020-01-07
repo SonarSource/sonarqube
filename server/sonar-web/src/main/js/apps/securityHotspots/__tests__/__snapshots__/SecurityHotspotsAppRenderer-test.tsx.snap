@@ -23,64 +23,6 @@ exports[`should render correctly 1`] = `
 </div>
 `;
 
-exports[`should render correctly 2`] = `
-<div>
-  <div
-    className="wrapper"
-    style={
-      Object {
-        "top": 0,
-      }
-    }
-  >
-    <Suggestions
-      suggestions="security_hotspots"
-    />
-    <HelmetWrapper
-      defer={true}
-      encodeSpecialCharacters={true}
-      title="hotspots.page"
-    />
-    <A11ySkipTarget
-      anchor="security_hotspots_main"
-    />
-    <div
-      className="display-flex-column display-flex-center"
-    >
-      <img
-        alt="hotspots.page"
-        className="huge-spacer-top"
-        height={166}
-        src="/images/hotspot-large.svg"
-      />
-      <h1
-        className="huge-spacer-top"
-      >
-        hotspots.no_hotspots.title
-      </h1>
-      <div
-        className="abs-width-400 text-center big-spacer-top"
-      >
-        hotspots.no_hotspots.description
-      </div>
-      <Link
-        className="big-spacer-top"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        target="_blank"
-        to={
-          Object {
-            "pathname": "/documentation/user-guide/security-hotspots/",
-          }
-        }
-      >
-        hotspots.learn_more
-      </Link>
-    </div>
-  </div>
-</div>
-`;
-
 exports[`should render correctly with hotspots 1`] = `
 <div>
   <div
@@ -240,6 +182,109 @@ exports[`should render correctly with hotspots 2`] = `
           onUpdateHotspot={[MockFunction]}
           securityCategories={Object {}}
         />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: no hotspots 1`] = `
+<div>
+  <div
+    className="wrapper"
+    style={
+      Object {
+        "top": 0,
+      }
+    }
+  >
+    <Suggestions
+      suggestions="security_hotspots"
+    />
+    <HelmetWrapper
+      defer={true}
+      encodeSpecialCharacters={true}
+      title="hotspots.page"
+    />
+    <A11ySkipTarget
+      anchor="security_hotspots_main"
+    />
+    <div
+      className="display-flex-column display-flex-center huge-spacer-top"
+    >
+      <img
+        alt="hotspots.page"
+        className="huge-spacer-top"
+        height={100}
+        src="/images/hotspot-large.svg"
+      />
+      <h1
+        className="huge-spacer-top"
+      >
+        hotspots.no_hotspots.title
+      </h1>
+      <div
+        className="abs-width-400 text-center big-spacer-top"
+      >
+        hotspots.no_hotspots.description
+      </div>
+      <Link
+        className="big-spacer-top"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to={
+          Object {
+            "pathname": "/documentation/user-guide/security-hotspots/",
+          }
+        }
+      >
+        hotspots.learn_more
+      </Link>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: no hotspots with filters 1`] = `
+<div>
+  <div
+    className="wrapper"
+    style={
+      Object {
+        "top": 0,
+      }
+    }
+  >
+    <Suggestions
+      suggestions="security_hotspots"
+    />
+    <HelmetWrapper
+      defer={true}
+      encodeSpecialCharacters={true}
+      title="hotspots.page"
+    />
+    <A11ySkipTarget
+      anchor="security_hotspots_main"
+    />
+    <div
+      className="display-flex-column display-flex-center huge-spacer-top"
+    >
+      <img
+        alt="hotspots.page"
+        className="huge-spacer-top"
+        height={100}
+        src="/images/filter-large.svg"
+      />
+      <h1
+        className="huge-spacer-top"
+      >
+        hotspots.no_hotspots_for_filters.title
+      </h1>
+      <div
+        className="abs-width-400 text-center big-spacer-top"
+      >
+        hotspots.no_hotspots_for_filters.description
       </div>
     </div>
   </div>

@@ -30,10 +30,17 @@ import SecurityHotspotsAppRenderer, {
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(
+    shallowRender({
+      filters: { assignedToMe: true, sinceLeakPeriod: false, status: HotspotStatusFilter.TO_REVIEW }
+    })
+      .find(ScreenPositionHelper)
+      .dive()
+  ).toMatchSnapshot('no hotspots with filters');
+  expect(
     shallowRender()
       .find(ScreenPositionHelper)
       .dive()
-  ).toMatchSnapshot();
+  ).toMatchSnapshot('no hotspots');
 });
 
 it('should render correctly with hotspots', () => {
