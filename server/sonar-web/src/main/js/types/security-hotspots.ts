@@ -82,7 +82,7 @@ export interface Hotspot {
   line?: number;
   message: string;
   project: T.Component;
-  resolution?: string;
+  resolution?: HotspotResolution;
   rule: HotspotRule;
   status: HotspotStatus;
   textRange: T.TextRange;

@@ -27,6 +27,7 @@ import HotspotViewerReviewHistoryTab from './HotspotViewerReviewHistoryTab';
 
 export interface HotspotViewerTabsProps {
   hotspot: Hotspot;
+  onUpdateHotspot: () => void;
 }
 
 export enum Tabs {
@@ -70,7 +71,11 @@ export default function HotspotViewerTabs(props: HotspotViewerTabsProps) {
         </>
       ),
       content: hotspotReviewHistory.history.length > 0 && (
-        <HotspotViewerReviewHistoryTab history={hotspotReviewHistory.history} />
+        <HotspotViewerReviewHistoryTab
+          history={hotspotReviewHistory.history}
+          hotspot={hotspot}
+          onUpdateHotspot={props.onUpdateHotspot}
+        />
       )
     }
   ].filter(tab => Boolean(tab.content));
@@ -88,7 +93,7 @@ export default function HotspotViewerTabs(props: HotspotViewerTabsProps) {
         selected={currentTabKey}
         tabs={tabs}
       />
-      <div className="bordered">
+      <div className="bordered huge-spacer-bottom">
         {typeof currentTab.content === 'string' ? (
           <div
             className="markdown big-padded"

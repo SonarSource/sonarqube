@@ -45,6 +45,10 @@ export function setSecurityHotspotStatus(
   );
 }
 
+export function commentSecurityHotspot(hotspotKey: string, comment: string): Promise<void> {
+  return post('api/hotspots/add_comment', { hotspot: hotspotKey, comment }).catch(throwGlobalError);
+}
+
 export function getSecurityHotspots(
   data: {
     projectKey: string;

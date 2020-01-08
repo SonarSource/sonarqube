@@ -24,17 +24,20 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../../../components/issue/components/IssueChangelogDiff';
 import Avatar from '../../../components/ui/Avatar';
-import { ReviewHistoryElement, ReviewHistoryType } from '../../../types/security-hotspots';
+import { Hotspot, ReviewHistoryElement, ReviewHistoryType } from '../../../types/security-hotspots';
+import HotspotViewerReviewHistoryTabCommentBox from './HotspotViewerReviewHistoryTabCommentBox';
 
 export interface HotspotViewerReviewHistoryTabProps {
   history: ReviewHistoryElement[];
+  hotspot: Hotspot;
+  onUpdateHotspot: () => void;
 }
 
 export default function HotspotViewerReviewHistoryTab(props: HotspotViewerReviewHistoryTabProps) {
-  const { history } = props;
+  const { history, hotspot } = props;
 
   return (
-    <>
+    <div className="padded">
       {history.map((elt, i) => (
         <React.Fragment key={i}>
           {i > 0 && <hr />}
@@ -60,7 +63,7 @@ export default function HotspotViewerReviewHistoryTab(props: HotspotViewerReview
                   )}
                   {elt.type === ReviewHistoryType.Comment && (
                     <span className="little-spacer-left">
-                      {translate('hotspots.tabs.review_history.comment')}
+                      {translate('hotspots.tabs.review_history.comment.added')}
                     </span>
                   )}
                   <span className="little-spacer-left little-spacer-right">-</span>
@@ -86,6 +89,11 @@ export default function HotspotViewerReviewHistoryTab(props: HotspotViewerReview
           </div>
         </React.Fragment>
       ))}
-    </>
+      <hr />
+      <HotspotViewerReviewHistoryTabCommentBox
+        hotspot={hotspot}
+        onUpdateHotspot={props.onUpdateHotspot}
+      />
+    </div>
   );
 }

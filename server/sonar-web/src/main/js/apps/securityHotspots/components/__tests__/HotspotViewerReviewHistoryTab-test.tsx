@@ -19,20 +19,35 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockHotspotReviewHistoryElement } from '../../../../helpers/mocks/security-hotspots';
+import {
+  mockHotspot,
+  mockHotspotReviewHistoryElement
+} from '../../../../helpers/mocks/security-hotspots';
 import { mockUser } from '../../../../helpers/testMocks';
 import { ReviewHistoryType } from '../../../../types/security-hotspots';
 import HotspotViewerReviewHistoryTab, {
   HotspotViewerReviewHistoryTabProps
 } from '../HotspotViewerReviewHistoryTab';
+import HotspotViewerReviewHistoryTabCommentBox from '../HotspotViewerReviewHistoryTabCommentBox';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should propagate onHotspotUpdate correctly', () => {
+  const onUpdateHotspot = jest.fn();
+  const wrapper = shallowRender({ onUpdateHotspot });
+
+  wrapper
+    .find(HotspotViewerReviewHistoryTabCommentBox)
+    .props()
+    .onUpdateHotspot();
+  expect(onUpdateHotspot).toHaveBeenCalled();
+});
+
 function shallowRender(props?: Partial<HotspotViewerReviewHistoryTabProps>) {
-  return shallow(
+  return shallow<HotspotViewerReviewHistoryTabProps>(
     <HotspotViewerReviewHistoryTab
       history={[
         mockHotspotReviewHistoryElement({ user: mockUser({ avatar: 'with-avatar' }) }),
@@ -50,6 +65,8 @@ function shallowRender(props?: Partial<HotspotViewerReviewHistoryTabProps>) {
           html: '<strong>bold text</strong>'
         })
       ]}
+      hotspot={mockHotspot()}
+      onUpdateHotspot={jest.fn()}
       {...props}
     />
   );

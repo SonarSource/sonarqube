@@ -255,6 +255,7 @@ exports[`should render correctly 1`] = `
           ],
         }
       }
+      onUpdateHotspot={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -515,6 +516,7 @@ exports[`should render correctly: anonymous user 1`] = `
           ],
         }
       }
+      onUpdateHotspot={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -764,6 +766,7 @@ exports[`should render correctly: assignee without name 1`] = `
           ],
         }
       }
+      onUpdateHotspot={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -1024,6 +1027,7 @@ exports[`should render correctly: deleted assignee 1`] = `
           ],
         }
       }
+      onUpdateHotspot={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -1291,6 +1295,7 @@ exports[`should render correctly: unassigned 1`] = `
           ],
         }
       }
+      onUpdateHotspot={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -1652,6 +1657,7 @@ exports[`should render correctly: user logged in 1`] = `
           ],
         }
       }
+      onUpdateHotspot={[MockFunction]}
     />
   </div>
 </DeferredSpinner>

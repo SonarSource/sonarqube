@@ -33,7 +33,7 @@ export interface HotspotViewerRendererProps {
   currentUser: T.CurrentUser;
   hotspot?: Hotspot;
   loading: boolean;
-  onUpdateHotspot: (hotspot: HotspotUpdateFields) => void;
+  onUpdateHotspot: (data?: HotspotUpdateFields) => void;
   securityCategories: T.StandardSecurityCategories;
 }
 
@@ -75,7 +75,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
             )}
           </div>
           <HotspotSnippetContainer branchLike={branchLike} hotspot={hotspot} />
-          <HotspotViewerTabs hotspot={hotspot} />
+          <HotspotViewerTabs hotspot={hotspot} onUpdateHotspot={props.onUpdateHotspot} />
         </div>
       )}
     </DeferredSpinner>

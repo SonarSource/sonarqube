@@ -22,6 +22,7 @@ import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
 import { mockUser } from '../../../../helpers/testMocks';
+import HotspotViewerReviewHistoryTab from '../HotspotViewerReviewHistoryTab';
 import HotspotViewerTabs, { HotspotViewerTabsProps, Tabs } from '../HotspotViewerTabs';
 
 it('should render correctly', () => {
@@ -83,6 +84,26 @@ it('should render correctly', () => {
   ).toMatchSnapshot('with comments or changelog element');
 });
 
+it('should propagate onHotspotUpdate correctly', () => {
+  const onUpdateHotspot = jest.fn();
+  const wrapper = shallowRender({ onUpdateHotspot });
+
+  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: Tabs) => void;
+
+  if (!onSelect) {
+    fail('onSelect should be defined');
+  } else {
+    onSelect(Tabs.ReviewHistory);
+    wrapper
+      .find(HotspotViewerReviewHistoryTab)
+      .props()
+      .onUpdateHotspot();
+    expect(onUpdateHotspot).toHaveBeenCalled();
+  }
+});
+
 function shallowRender(props?: Partial<HotspotViewerTabsProps>) {
-  return shallow(<HotspotViewerTabs hotspot={mockHotspot()} {...props} />);
+  return shallow(
+    <HotspotViewerTabs hotspot={mockHotspot()} onUpdateHotspot={jest.fn()} {...props} />
+  );
 }
