@@ -24,16 +24,19 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.reflect.ConstructorUtils;
@@ -48,31 +51,27 @@ import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.cluster.routing.allocation.DiskThresholdSettings;
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
 import org.elasticsearch.common.network.NetworkModule;
-import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.util.BigArrays;
-import org.elasticsearch.common.util.PageCacheRecycler;
 import org.elasticsearch.discovery.DiscoveryModule;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
+import org.elasticsearch.http.BindHttpException;
+import org.elasticsearch.http.HttpTransportSettings;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.indices.breaker.CircuitBreakerService;
 import org.elasticsearch.indices.recovery.RecoverySettings;
 import org.elasticsearch.join.ParentJoinPlugin;
 import org.elasticsearch.node.InternalSettingsPreparer;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.plugins.NetworkPlugin;
-import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.node.NodeValidationException;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.threadpool.ThreadPool;
-import org.elasticsearch.transport.MockTcpTransport;
-import org.elasticsearch.transport.Transport;
+import org.elasticsearch.transport.Netty4Plugin;
 import org.junit.rules.ExternalResource;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.IndexDefinition.IndexDefinitionContext;
 import org.sonar.server.es.IndexType.IndexRelationType;
@@ -84,14 +83,21 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.server.es.Index.ALL_INDICES;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class EsTester extends ExternalResource {
+
+  private static final int MIN_PORT = 1;
+  private static final int MAX_PORT = 49151;
+  private static final int MIN_NON_ROOT_PORT = 1025;
+  private static final Logger LOG = Loggers.get(EsTester.class);
 
   static {
     System.setProperty("log4j.shutdownHookEnabled", "false");
@@ -356,49 +362,89 @@ public class EsTester extends ExternalResource {
     try {
       Path tempDir = Files.createTempDirectory("EsTester");
       tempDir.toFile().deleteOnExit();
-      Settings settings = Settings.builder()
-        .put(Environment.PATH_HOME_SETTING.getKey(), tempDir)
-        .put("node.name", "EsTester")
-        .put(NodeEnvironment.MAX_LOCAL_STORAGE_NODES_SETTING.getKey(), Integer.MAX_VALUE)
-        .put("logger.level", "INFO")
-        .put("action.auto_create_index", false)
-        // Default the watermarks to absurdly low to prevent the tests
-        // from failing on nodes without enough disk space
-        .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_LOW_DISK_WATERMARK_SETTING.getKey(), "1b")
-        .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_HIGH_DISK_WATERMARK_SETTING.getKey(), "1b")
-        .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_DISK_FLOOD_STAGE_WATERMARK_SETTING.getKey(), "1b")
-        // always reduce this - it can make tests really slow
-        .put(RecoverySettings.INDICES_RECOVERY_RETRY_DELAY_STATE_SYNC_SETTING.getKey(), TimeValue.timeValueMillis(20))
-        .put(NetworkModule.TRANSPORT_TYPE_KEY, "local")
-        .put(NetworkModule.HTTP_ENABLED.getKey(), false)
-        .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "single-node")
-        .build();
-      Node node = new Node(InternalSettingsPreparer.prepareEnvironment(settings, null),
-        ImmutableList.of(
-          CommonAnalysisPlugin.class,
-          // mock local transport plugin
-          MockTcpTransportPlugin.class,
-          // install ParentJoin plugin required to create field of type "join"
-          ParentJoinPlugin.class),
-        true) {
-        @Override
-        protected void registerDerivedNodeNameWithLogger(String nodeName) {
-          // nothing to do
+      int i = 10;
+      while (i > 0) {
+        int httpPort = getNextAvailable();
+        try {
+          Node node = startNode(tempDir, httpPort);
+          LOG.info("EsTester running ElasticSearch on HTTP port {}", httpPort);
+          return node;
+        } catch (BindHttpException e) {
+          i--;
         }
-      };
-      return node.start();
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start embedded Elasticsearch", e);
     }
+    throw new IllegalStateException("Failed to find an open port to connect EsTester's Elasticsearch instance after 10 attempts");
   }
 
-  public static final class MockTcpTransportPlugin extends Plugin implements NetworkPlugin {
-    @Override
-    public Map<String, Supplier<Transport>> getTransports(Settings settings, ThreadPool threadPool, PageCacheRecycler pageCacheRecycler,
-      CircuitBreakerService circuitBreakerService, NamedWriteableRegistry namedWriteableRegistry, NetworkService networkService) {
-      return Collections.singletonMap(
-        "local",
-        () -> new MockTcpTransport(settings, threadPool, BigArrays.NON_RECYCLING_INSTANCE, circuitBreakerService, namedWriteableRegistry, networkService));
+  private static Node startNode(Path tempDir, int httpPort) throws NodeValidationException {
+    Settings settings = Settings.builder()
+      .put(Environment.PATH_HOME_SETTING.getKey(), tempDir)
+      .put("node.name", "EsTester")
+      .put(NodeEnvironment.MAX_LOCAL_STORAGE_NODES_SETTING.getKey(), Integer.MAX_VALUE)
+      .put("logger.level", "INFO")
+      .put("action.auto_create_index", false)
+      // Default the watermarks to absurdly low to prevent the tests
+      // from failing on nodes without enough disk space
+      .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_LOW_DISK_WATERMARK_SETTING.getKey(), "1b")
+      .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_HIGH_DISK_WATERMARK_SETTING.getKey(), "1b")
+      .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_DISK_FLOOD_STAGE_WATERMARK_SETTING.getKey(), "1b")
+      // always reduce this - it can make tests really slow
+      .put(RecoverySettings.INDICES_RECOVERY_RETRY_DELAY_STATE_SYNC_SETTING.getKey(), TimeValue.timeValueMillis(20))
+      .put(NetworkModule.HTTP_ENABLED.getKey(), true)
+      .put(HttpTransportSettings.SETTING_HTTP_PORT.getKey(), httpPort)
+      .put(HttpTransportSettings.SETTING_HTTP_BIND_HOST.getKey(), "localhost")
+      .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "single-node")
+      .build();
+    Node node = new Node(InternalSettingsPreparer.prepareEnvironment(settings, null),
+      ImmutableList.of(
+        CommonAnalysisPlugin.class,
+        // Netty4Plugin provides http and tcp transport
+        Netty4Plugin.class,
+        // install ParentJoin plugin required to create field of type "join"
+        ParentJoinPlugin.class),
+      true) {
+      @Override
+      protected void registerDerivedNodeNameWithLogger(String nodeName) {
+        // nothing to do
+      }
+    };
+    return node.start();
+  }
+
+  public static int getNextAvailable() {
+    Random random = new Random();
+    int maxAttempts = 10;
+    int i = maxAttempts;
+    while (i > 0) {
+      int port = MIN_NON_ROOT_PORT + random.nextInt(MAX_PORT - MIN_NON_ROOT_PORT);
+      if (available(port)) {
+        return port;
+      }
+      i--;
+    }
+
+    throw new NoSuchElementException(format("Could not find an available port in %s attempts", maxAttempts));
+  }
+
+  private static boolean available(int port) {
+    checkArgument(validPort(port), "Invalid port: %s", port);
+
+    try (ServerSocket ss = new ServerSocket(port)) {
+      ss.setReuseAddress(true);
+      try (DatagramSocket ds = new DatagramSocket(port)) {
+        ds.setReuseAddress(true);
+      }
+      return true;
+    } catch (IOException var13) {
+      return false;
     }
   }
+
+  private static boolean validPort(int fromPort) {
+    return fromPort >= MIN_PORT && fromPort <= MAX_PORT;
+  }
+
 }
