@@ -40,14 +40,14 @@
 }
 
 #security_hotspots .sidebar {
-  flex: 1 0 30%;
+  flex: 0 0 300px;
   border-right: 1px solid var(--barBorderColor);
   height: 100%;
   overflow-y: auto;
 }
 
 #security_hotspots .main {
-  flex: 1 0 70%;
+  flex: 1 1 auto;
   overflow-y: auto;
   background-color: white;
 }
