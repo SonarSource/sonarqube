@@ -101,6 +101,7 @@ exports[`should render correctly 1`] = `
         </li>
       </ul>
     }
+    overlayPlacement="bottom-left"
   >
     <Button
       className="js-bulk-change"
