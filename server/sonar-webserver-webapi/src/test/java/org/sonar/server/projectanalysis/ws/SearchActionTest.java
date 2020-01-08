@@ -234,7 +234,7 @@ public class SearchActionTest {
   @Test
   public void return_analyses_of_application() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication(organization);
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     SnapshotDto secondAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(2_000_000L));
@@ -254,7 +254,7 @@ public class SearchActionTest {
   @Test
   public void return_definition_change_events_on_application_analyses() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication(organization);
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -280,7 +280,7 @@ public class SearchActionTest {
   @UseDataProvider("changedBranches")
   public void application_definition_change_with_branch(@Nullable String oldBranch, @Nullable String newBranch) {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication(organization);
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -303,7 +303,7 @@ public class SearchActionTest {
   @Test
   public void incorrect_eventcomponentchange_two_identical_changes_added_on_same_project() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication(organization);
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -333,7 +333,7 @@ public class SearchActionTest {
   @Test
   public void incorrect_eventcomponentchange_incorrect_category() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication(organization);
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -360,7 +360,7 @@ public class SearchActionTest {
   @Test
   public void incorrect_eventcomponentchange_three_component_changes_on_same_project() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication(organization);
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(newEvent(firstAnalysis).setName("").setUuid("E11").setCategory(DEFINITION_CHANGE.getLabel()));
@@ -392,7 +392,7 @@ public class SearchActionTest {
   @Test
   public void incorrect_quality_gate_information() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto application = db.components().insertApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication(organization);
     userSession.registerComponents(application);
     SnapshotDto firstAnalysis = db.components().insertSnapshot(newAnalysis(application).setCreatedAt(1_000_000L));
     EventDto event = db.events().insertEvent(

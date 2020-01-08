@@ -17,23 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
+package org.sonar.server.platform.db.migration.version.v81;
 
-import com.google.common.base.Splitter;
-import java.util.List;
-import javax.annotation.Nullable;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static com.google.common.base.Strings.nullToEmpty;
+public class DropTagsColumnFromComponentsTable extends DdlChange {
 
-public class DbTagsReader {
-  private static final char TAGS_SEPARATOR = ',';
-  private static final Splitter TAGS_SPLITTER = Splitter.on(TAGS_SEPARATOR).trimResults().omitEmptyStrings();
+  static final String TABLE = "components";
+  static final String COLUMN_TO_DROP = "tags";
 
-  private DbTagsReader() {
-    // prevent instantiation
+  public DropTagsColumnFromComponentsTable(Database db) {
+    super(db);
   }
 
-  public static List<String> readDbTags(@Nullable String tagsString) {
-    return TAGS_SPLITTER.splitToList(nullToEmpty(tagsString));
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE, COLUMN_TO_DROP).build());
   }
 }

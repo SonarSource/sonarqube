@@ -45,6 +45,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ws.SearchProjectsAction.RequestBuilder;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchProjectsRequest;
@@ -201,19 +202,16 @@ public class SearchProjectsActionTest {
     OrganizationDto organization2Dto = db.organizations().insert(dto -> dto.setKey("my-org-key-2").setName("Bar"));
 
     MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType("PERCENT"));
-    ComponentDto project1 = insertProject(organization1Dto, c -> c
-      .setDbKey(KEY_PROJECT_EXAMPLE_001)
-      .setName("My Project 1")
-      .setTagsString("finance, java"),
+    ComponentDto project1 = insertProject(organization1Dto,
+      c -> c.setDbKey(KEY_PROJECT_EXAMPLE_001).setName("My Project 1"),
+      p -> p.setTagsString("finance, java"),
       new Measure(coverage, c -> c.setValue(80d)));
-    ComponentDto project2 = insertProject(organization1Dto, c -> c
-      .setDbKey(KEY_PROJECT_EXAMPLE_002)
-      .setName("My Project 2"),
+    ComponentDto project2 = insertProject(organization1Dto,
+      c -> c.setDbKey(KEY_PROJECT_EXAMPLE_002).setName("My Project 2"),
       new Measure(coverage, c -> c.setValue(90d)));
-    ComponentDto project3 = insertProject(organization2Dto, c -> c
-      .setDbKey(KEY_PROJECT_EXAMPLE_003)
-      .setName("My Project 3")
-      .setTagsString("sales, offshore, java"),
+    ComponentDto project3 = insertProject(organization2Dto,
+      c -> c.setDbKey(KEY_PROJECT_EXAMPLE_003).setName("My Project 3"),
+      p -> p.setTagsString("sales, offshore, java"),
       new Measure(coverage, c -> c.setValue(20d)));
     addFavourite(project1);
 
@@ -372,9 +370,9 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
     MetricDto ratingMetric = db.measures().insertMetric(c -> c.setKey(newMetricKey).setValueType(INT.name()));
-    ComponentDto project1 = insertProject(organizationDto, new Measure(ratingMetric, c -> c.setVariation(1d)));
+    insertProject(organizationDto, new Measure(ratingMetric, c -> c.setVariation(1d)));
     ComponentDto project2 = insertProject(organizationDto, new Measure(ratingMetric, c -> c.setVariation(2d)));
-    ComponentDto project3 = insertProject(organizationDto, new Measure(ratingMetric, c -> c.setVariation(3d)));
+    insertProject(organizationDto, new Measure(ratingMetric, c -> c.setVariation(3d)));
 
     SearchProjectsWsResponse result = call(request.setFilter(newMetricKey + " = 2"));
 
@@ -385,9 +383,9 @@ public class SearchProjectsActionTest {
   public void filter_projects_by_tags() {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = insertProject(organizationDto, c -> c.setTags(asList("finance", "platform")));
-    ComponentDto project2 = insertProject(organizationDto, c -> c.setTags(singletonList("marketing")));
-    ComponentDto project3 = insertProject(organizationDto, c -> c.setTags(singletonList("offshore")));
+    ComponentDto project1 = insertProject(organizationDto, defaults(), p -> p.setTags(asList("finance", "platform")));
+    insertProject(organizationDto, defaults(), p -> p.setTags(singletonList("marketing")));
+    ComponentDto project3 = insertProject(organizationDto, defaults(), p -> p.setTags(singletonList("offshore")));
 
     SearchProjectsWsResponse result = call(request.setFilter("tags in (finance, offshore)"));
 
@@ -704,9 +702,9 @@ public class SearchProjectsActionTest {
   public void return_tags_facet() {
     userSession.logIn();
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProject(organization, c -> c.setTags(asList("finance", "platform")));
-    insertProject(organization, c -> c.setTags(singletonList("offshore")));
-    insertProject(organization, c -> c.setTags(singletonList("offshore")));
+    insertProject(organization, defaults(), p -> p.setTags(asList("finance", "platform")));
+    insertProject(organization, defaults(), p -> p.setTags(singletonList("offshore")));
+    insertProject(organization, defaults(), p -> p.setTags(singletonList("offshore")));
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(FILTER_TAGS)));
 
@@ -725,9 +723,9 @@ public class SearchProjectsActionTest {
   public void return_tags_facet_with_tags_having_no_project_if_tags_is_in_filter() {
     userSession.logIn();
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProject(organization, c -> c.setTags(asList("finance", "platform")));
-    insertProject(organization, c -> c.setTags(singletonList("offshore")));
-    insertProject(organization, c -> c.setTags(singletonList("offshore")));
+    insertProject(organization, defaults(), p -> p.setTags(asList("finance", "platform")));
+    insertProject(organization, defaults(), p -> p.setTags(singletonList("offshore")));
+    insertProject(organization, defaults(), p -> p.setTags(singletonList("offshore")));
 
     SearchProjectsWsResponse result = call(request.setFilter("tags = marketing").setFacets(singletonList(FILTER_TAGS)));
 
@@ -1182,12 +1180,16 @@ public class SearchProjectsActionTest {
   }
 
   private ComponentDto insertProject(OrganizationDto organizationDto, Measure... measures) {
-    return insertProject(organizationDto, c -> {
-    }, measures);
+    return insertProject(organizationDto, defaults(), defaults(), measures);
   }
 
-  private ComponentDto insertProject(OrganizationDto organizationDto, Consumer<ComponentDto> projectConsumer, Measure... measures) {
-    ComponentDto project = db.components().insertPublicProject(organizationDto, projectConsumer);
+  private ComponentDto insertProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentConsumer, Measure... measures) {
+    return insertProject(organizationDto, componentConsumer, defaults(), measures);
+  }
+
+  private ComponentDto insertProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentConsumer, Consumer<ProjectDto> projectConsumer,
+    Measure... measures) {
+    ComponentDto project = db.components().insertPublicProject(organizationDto, componentConsumer, projectConsumer);
     Arrays.stream(measures).forEach(m -> db.measures().insertLiveMeasure(project, m.metric, m.consumer));
     authorizationIndexerTester.allowOnlyAnyone(project);
     projectMeasuresIndexer.indexOnAnalysis(project.uuid());
@@ -1202,5 +1204,10 @@ public class SearchProjectsActionTest {
       this.metric = metric;
       this.consumer = consumer;
     }
+  }
+
+  private static <T> Consumer<T> defaults() {
+    return t -> {
+    };
   }
 }

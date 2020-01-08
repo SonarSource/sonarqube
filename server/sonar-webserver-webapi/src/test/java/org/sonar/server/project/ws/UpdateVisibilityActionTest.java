@@ -204,7 +204,7 @@ public class UpdateVisibilityActionTest {
     ComponentDto dir = ComponentTesting.newDirectory(project, "path");
     ComponentDto file = ComponentTesting.newFileDto(project);
     dbTester.components().insertComponents(module, dir, file);
-    ComponentDto application = dbTester.components().insertApplication(organization);
+    ComponentDto application = dbTester.components().insertPublicApplication(organization);
     ComponentDto portfolio = dbTester.components().insertView(organization);
     ComponentDto subView = ComponentTesting.newSubView(portfolio);
     ComponentDto projectCopy = newProjectCopy("foo", project, subView);

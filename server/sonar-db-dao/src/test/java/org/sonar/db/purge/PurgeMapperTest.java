@@ -94,7 +94,7 @@ public class PurgeMapperTest {
 
   @Test
   public void selectRootAndModulesOrSubviewsByProjectUuid_returns_application_with_specified_uuid() {
-    ComponentDto view = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto view = db.components().insertPublicApplication(db.getDefaultOrganization());
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
       .extracting(IdUuidPair::getUuid)

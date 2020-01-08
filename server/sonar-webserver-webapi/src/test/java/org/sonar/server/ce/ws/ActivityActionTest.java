@@ -326,7 +326,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_returns_application() {
-    ComponentDto apacheApp = db.components().insertApplication(db.getDefaultOrganization(), a -> a.setName("Apache App"));
+    ComponentDto apacheApp = db.components().insertPublicApplication(db.getDefaultOrganization(), a -> a.setName("Apache App"));
     db.components().insertSnapshot(apacheApp);
     logInAsSystemAdministrator();
     insertActivity("T2", apacheApp, SUCCESS);

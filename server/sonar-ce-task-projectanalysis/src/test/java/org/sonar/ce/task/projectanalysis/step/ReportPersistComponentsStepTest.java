@@ -640,18 +640,31 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
     return builder(PROJECT, 1).setUuid(project.uuid()).setKey(project.getDbKey()).setName(project.name());
   }
 
-  private ComponentDto prepareProject(Consumer<ComponentDto>... populators) {
+  private ComponentDto prepareProject() {
+    return prepareProject(defaults());
+  }
+
+  private ComponentDto prepareProject(Consumer<ComponentDto> populators) {
     ComponentDto dto = db.components().insertPrivateProject(db.organizations().insert(), populators);
     analysisMetadataHolder.setProject(Project.from(dto));
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
     return dto;
   }
 
-  private ComponentDto prepareBranch(String branchName, Consumer<ComponentDto>... populators) {
+  private ComponentDto prepareBranch(String branchName) {
+    return prepareBranch(branchName, defaults());
+  }
+
+  private ComponentDto prepareBranch(String branchName, Consumer<ComponentDto> populators) {
     ComponentDto dto = db.components().insertPrivateProject(db.organizations().insert(), populators);
     analysisMetadataHolder.setProject(Project.from(dto));
     analysisMetadataHolder.setBranch(new TestBranch(branchName));
     return dto;
+  }
+
+  private static <T> Consumer<T> defaults() {
+    return t -> {
+    };
   }
 
   private static class TestBranch implements Branch {

@@ -46,6 +46,7 @@ public class DbVersion81 implements DbVersion {
       .add(3114, "Rename table 'PROJECTS' to 'COMPONENTS'", RenameProjectsTableToComponents.class)
       .add(3115, "Add PROJECTS table", CreateProjectsTable.class)
       .add(3116, "Populate PROJECTS table", PopulateProjectsTable.class)
+      .add(3117, "Drop 'TAGS' column from COMPONENTS table", DropTagsColumnFromComponentsTable.class)
     ;
   }
 }

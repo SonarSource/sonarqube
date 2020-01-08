@@ -300,7 +300,7 @@ public class TreeActionTest {
 
   @Test
   public void response_is_empty_on_provisioned_projects() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization(), "project-uuid");
     logInWithBrowsePermission(project);
 
     TreeWsResponse response = ws.newRequest()

@@ -584,7 +584,7 @@ public class SuggestionsActionTest {
   public void should_only_provide_project_for_certain_qualifiers() {
     String query = randomAlphabetic(10);
 
-    ComponentDto app = db.components().insertApplication(organization, v -> v.setName(query));
+    ComponentDto app = db.components().insertPublicApplication(organization, v -> v.setName(query));
     ComponentDto view = db.components().insertView(organization, v -> v.setName(query));
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubView(view).setName(query));
     ComponentDto project = db.components().insertPrivateProject(organization, p -> p.setName(query));

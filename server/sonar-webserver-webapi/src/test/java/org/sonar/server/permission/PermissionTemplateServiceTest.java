@@ -356,7 +356,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void apply_template_on_applications() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto application = dbTester.components().insertApplication(organization);
+    ComponentDto application = dbTester.components().insertPublicApplication(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     GroupDto group = dbTester.users().insertGroup(organization);
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, ADMINISTER.getKey());
@@ -372,7 +372,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void apply_default_view_template_on_application() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto application = dbTester.components().insertApplication(organization);
+    ComponentDto application = dbTester.components().insertPublicApplication(organization);
     PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     PermissionTemplateDto appPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     PermissionTemplateDto portPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
@@ -390,7 +390,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void apply_project_default_template_on_application_when_no_application_default_template() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto application = dbTester.components().insertApplication(organization);
+    ComponentDto application = dbTester.components().insertPublicApplication(organization);
     PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     GroupDto group = dbTester.users().insertGroup(organization);
     dbTester.permissionTemplates().addGroupToTemplate(projectPermissionTemplate, group, PROVISION_PROJECTS.getKey());

@@ -25,12 +25,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -43,15 +41,12 @@ import org.sonar.db.RowNotFoundException;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.db.DaoUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.checkThatNotTooManyConditions;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
-import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 import static org.sonar.db.component.ComponentDto.generateBranchKey;
 import static org.sonar.db.component.ComponentDto.generatePullRequestKey;
 
@@ -373,10 +368,6 @@ public class ComponentDao implements Dao {
 
   public void update(DbSession session, ComponentUpdateDto component) {
     mapper(session).update(component);
-  }
-
-  public void updateTags(DbSession session, ComponentDto component) {
-    mapper(session).updateTags(component);
   }
 
   public void updateBEnabledToFalse(DbSession session, Collection<String> uuids) {

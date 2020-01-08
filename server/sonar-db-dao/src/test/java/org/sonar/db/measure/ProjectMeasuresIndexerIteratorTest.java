@@ -36,7 +36,9 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.measures.Metric.Level.ERROR;
@@ -62,7 +64,11 @@ public class ProjectMeasuresIndexerIteratorTest {
   @Test
   public void return_project_measure() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization, p -> p.setDbKey("Project-Key").setName("Project Name").setTagsString("platform,java"));
+    ComponentDto project = dbTester.components().insertPrivateProject(organization,
+      c -> c.setDbKey("Project-Key").setName("Project Name"),
+      p -> p.setTags(newArrayList("platform", "java")));
+    ProjectDto projectDto = dbTester.components().getProjectDto(project);
+
     SnapshotDto analysis = dbTester.components().insertSnapshot(project);
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
     MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
@@ -85,7 +91,9 @@ public class ProjectMeasuresIndexerIteratorTest {
   @Test
   public void return_project_measure_having_leak() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization, p -> p.setDbKey("Project-Key").setName("Project Name").setTagsString("platform,java"));
+    ComponentDto project = dbTester.components().insertPrivateProject(organization,
+      c -> c.setDbKey("Project-Key").setName("Project Name"),
+      p -> p.setTagsString("platform,java"));
     MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
     dbTester.measures().insertLiveMeasure(project, metric, m -> m.setVariation(10d));
 
@@ -207,7 +215,7 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void return_project_without_analysis() {
-    ComponentDto project = dbTester.components().insertPrivateProject(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
+    ComponentDto project = dbTester.components().insertPrivateProject(dbTester.organizations().insert());
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setLast(false));
     dbSession.commit();
 
@@ -220,7 +228,7 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   @Ignore
-  //TODO
+  // TODO
   public void does_not_return_non_active_projects() {
     OrganizationDto organization = dbTester.organizations().insert();
     // Disabled project

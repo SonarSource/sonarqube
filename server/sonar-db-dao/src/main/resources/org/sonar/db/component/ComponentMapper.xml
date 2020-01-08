@@ -15,7 +15,6 @@
     p.name as name,
     p.long_name as longName,
     p.description as description,
-    p.tags as tagsString,
     p.qualifier as qualifier,
     p.scope as scope,
     p.language as language,
@@ -583,7 +582,6 @@
       language,
       description,
       private,
-      tags,
       root_uuid,
       path,
       copy_component_uuid,
@@ -618,7 +616,6 @@
     #{language,jdbcType=VARCHAR},
     #{description,jdbcType=VARCHAR},
     #{isPrivate,jdbcType=BOOLEAN},
-    #{tagsString, jdbcType=VARCHAR},
     #{rootUuid,jdbcType=VARCHAR},
     #{path,jdbcType=VARCHAR},
     #{copyComponentUuid,jdbcType=VARCHAR},
@@ -638,13 +635,6 @@
     null
     )
   </insert>
-
-  <update id="updateTags" parameterType="Component" useGeneratedKeys="false">
-    update components set
-    tags = #{tagsString,jdbcType=VARCHAR}
-    where
-    uuid = #{uuid,jdbcType=VARCHAR}
-  </update>
 
   <update id="update" parameterType="org.sonar.db.component.ComponentUpdateDto" useGeneratedKeys="false">
     update components set

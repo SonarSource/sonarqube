@@ -381,12 +381,14 @@ public class ShowActionTest {
 
   private void insertJsonExampleComponentsAndSnapshots() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "AVIF98jgA3Ax6PH2efOW")
-      .setDbKey("com.sonarsource:java-markdown")
-      .setName("Java Markdown")
-      .setDescription("Java Markdown Project")
-      .setQualifier(Qualifiers.PROJECT)
-      .setTagsString("language, plugin"));
+    ComponentDto project = db.components().insertPrivateProject(organizationDto,
+      c -> c.setUuid("AVIF98jgA3Ax6PH2efOW")
+        .setProjectUuid("AVIF98jgA3Ax6PH2efOW")
+        .setDbKey("com.sonarsource:java-markdown")
+        .setName("Java Markdown")
+        .setDescription("Java Markdown Project")
+        .setQualifier(Qualifiers.PROJECT),
+      p -> p.setTagsString("language, plugin"));
     db.components().insertSnapshot(project, snapshot -> snapshot
       .setProjectVersion("1.1")
       .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0100").getTime())

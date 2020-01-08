@@ -141,4 +141,11 @@
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 
+  <update id="updateKey" parameterType="String">
+    update projects set
+    kee = #{newKey,jdbcType=VARCHAR}
+    where
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
+
 </mapper>

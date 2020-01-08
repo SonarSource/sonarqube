@@ -98,15 +98,11 @@ public class SetAction implements ProjectTagsWsAction {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
       userSession.checkProjectPermission(UserRole.ADMIN, project);
 
-      ComponentDto component = componentFinder.getByKey(dbSession, projectKey);
-
       project.setTags(tags);
       project.setUpdatedAt(system2.now());
       dbClient.projectDao().updateTags(dbSession, project);
 
       // FIXME we use the old table to index and also when returning generic components, so we still need to add it to the old table.
-      component.setTags(tags);
-      dbClient.componentDao().updateTags(dbSession, component);
       projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), PROJECT_TAGS_UPDATE);
     }
 

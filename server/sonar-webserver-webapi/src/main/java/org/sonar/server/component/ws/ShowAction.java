@@ -19,11 +19,14 @@
  */
 package org.sonar.server.component.ws;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,11 +36,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.ShowWsResponse;
 
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.component.ws.ComponentDtoToWsComponent.projectOrAppToWsComponent;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
@@ -48,6 +54,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SH
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 
 public class ShowAction implements ComponentsWsAction {
+  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -103,7 +110,7 @@ public class ShowAction implements ComponentsWsAction {
       Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.projectUuid());
       List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, component);
-      return buildResponse(component, organizationDto, ancestors, lastAnalysis);
+      return buildResponse(dbClient, dbSession, component, organizationDto, ancestors, lastAnalysis.orElse(null));
     }
   }
 
@@ -115,15 +122,37 @@ public class ShowAction implements ComponentsWsAction {
     return componentFinder.getByKeyAndOptionalBranchOrPullRequest(dbSession, componentKey, branch, pullRequest);
   }
 
-  private static ShowWsResponse buildResponse(ComponentDto component, OrganizationDto organizationDto, List<ComponentDto> orderedAncestors, Optional<SnapshotDto> lastAnalysis) {
+  private static ShowWsResponse buildResponse(DbClient dbClient, DbSession dbSession, ComponentDto component,
+    OrganizationDto organizationDto, List<ComponentDto> orderedAncestors,
+    @Nullable SnapshotDto lastAnalysis) {
     ShowWsResponse.Builder response = ShowWsResponse.newBuilder();
-    response.setComponent(componentDtoToWsComponent(component, organizationDto, lastAnalysis));
+    response.setComponent(toWsComponent(dbClient, dbSession, component, organizationDto, lastAnalysis));
+    addAncestorsToResponse(dbClient, dbSession, response, orderedAncestors, organizationDto, lastAnalysis);
+    return response.build();
+  }
 
+  private static void addAncestorsToResponse(DbClient dbClient, DbSession dbSession, ShowWsResponse.Builder response, List<ComponentDto> orderedAncestors,
+    OrganizationDto organizationDto,
+    @Nullable SnapshotDto lastAnalysis) {
     // ancestors are ordered from root to leaf, whereas it's the opposite in WS response
     int size = orderedAncestors.size() - 1;
     IntStream.rangeClosed(0, size).forEach(
-      index -> response.addAncestors(componentDtoToWsComponent(orderedAncestors.get(size - index), organizationDto, lastAnalysis)));
-    return response.build();
+      index -> response.addAncestors(toWsComponent(dbClient, dbSession, orderedAncestors.get(size - index), organizationDto, lastAnalysis)));
+  }
+
+  private static Components.Component.Builder toWsComponent(DbClient dbClient, DbSession dbSession, ComponentDto component, OrganizationDto organizationDto,
+    @Nullable SnapshotDto lastAnalysis) {
+    if (isProjectOrApp(component)) {
+      ProjectDto project = dbClient.projectDao().selectProjectOrAppByKey(dbSession, component.getKey())
+        .orElseThrow(() -> new IllegalStateException("Project is in invalid state."));
+      return projectOrAppToWsComponent(project, component, organizationDto, lastAnalysis);
+    } else {
+      return componentDtoToWsComponent(component, organizationDto, lastAnalysis);
+    }
+  }
+
+  private static boolean isProjectOrApp(ComponentDto component) {
+    return component.getMainBranchProjectUuid() == null && PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier());
   }
 
   private static Request toShowWsRequest(org.sonar.api.server.ws.Request request) {

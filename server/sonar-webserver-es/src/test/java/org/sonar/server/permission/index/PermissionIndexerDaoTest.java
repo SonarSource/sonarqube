@@ -83,7 +83,7 @@ public class PermissionIndexerDaoTest {
     privateProject2 = componentDbTester.insertPrivateProject(organization);
     view1 = componentDbTester.insertView(organization);
     view2 = componentDbTester.insertView(organization);
-    application = componentDbTester.insertApplication(organization);
+    application = componentDbTester.insertPublicApplication(organization);
     user1 = userDbTester.insertUser();
     user2 = userDbTester.insertUser();
     group = userDbTester.insertGroup(organization);

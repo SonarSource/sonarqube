@@ -83,7 +83,8 @@ public class SetActionTest {
 
   @Test
   public void reset_tags() {
-    project = db.components().insertPrivateProjectDto(p -> p.setTagsString("platform,scanner"));
+    project = db.components().insertPrivateProjectDto(c -> {
+    }, p -> p.setTagsString("platform,scanner"));
 
     call(project.getKey(), "");
 
@@ -92,7 +93,7 @@ public class SetActionTest {
 
   @Test
   public void override_existing_tags() {
-    project = db.components().insertPrivateProjectDto(p -> p.setTagsString("marketing,languages"));
+    project = db.components().insertPrivateProjectDto(c -> {}, p -> p.setTagsString("marketing,languages"));
 
     call(project.getKey(), "finance,offshore,platform");
 

@@ -40,7 +40,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -72,8 +71,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   // TODO filter on enabled projects
   private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.created_at, p.tags " +
     "FROM projects p " +
+    "LEFT OUTER JOIN components cp on p.uuid = cp.uuid " +
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
-    "WHERE p.qualifier=?";
+    "WHERE cp.enabled=? AND p.qualifier=?";
 
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 
@@ -131,9 +131,10 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       }
       PreparedStatement stmt = session.getConnection().prepareStatement(sql.toString());
       stmt.setBoolean(1, true);
-      stmt.setString(2, Qualifiers.PROJECT);
+      stmt.setBoolean(2, true);
+      stmt.setString(3, Qualifiers.PROJECT);
       if (projectUuid != null) {
-        stmt.setString(3, projectUuid);
+        stmt.setString(4, projectUuid);
       }
       return stmt;
     } catch (SQLException e) {

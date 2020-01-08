@@ -505,7 +505,7 @@ public class SearchActionComponentsTest {
   @Test
   public void ignore_application_without_browse_permission() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
     db.components().insertComponents(newProjectCopy("PC1", project, application));
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project);
@@ -522,7 +522,7 @@ public class SearchActionComponentsTest {
   @Test
   public void search_application_without_projects() {
     ComponentDto project = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project);
     allowAnyoneOnProjects(project, application);
@@ -539,7 +539,7 @@ public class SearchActionComponentsTest {
   public void search_by_application_and_by_leak() {
     Date now = new Date();
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
     // Project 1
     ComponentDto project1 = db.components().insertPublicProject();
     db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
@@ -570,7 +570,7 @@ public class SearchActionComponentsTest {
   public void search_by_application_and_project() {
     ComponentDto project1 = db.components().insertPublicProject();
     ComponentDto project2 = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     RuleDefinitionDto rule = db.rules().insertIssueRule();
@@ -593,7 +593,7 @@ public class SearchActionComponentsTest {
   public void search_by_application_and_project_and_leak() {
     Date now = new Date();
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
     // Project 1
     ComponentDto project1 = db.components().insertPublicProject();
     db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
@@ -625,7 +625,7 @@ public class SearchActionComponentsTest {
   public void search_by_application_and_by_leak_when_one_project_has_no_leak() {
     Date now = new Date();
     RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
     // Project 1
     ComponentDto project1 = db.components().insertPublicProject();
     db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));

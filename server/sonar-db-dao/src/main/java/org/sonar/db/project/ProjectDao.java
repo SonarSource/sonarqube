@@ -74,6 +74,10 @@ public class ProjectDao implements Dao {
     return mapper(session).selectByUuids(uuids);
   }
 
+  public void updateKey(DbSession session, String uuid, String newKey) {
+    mapper(session).updateKey(uuid, newKey);
+  }
+
   public void updateTags(DbSession session, ProjectDto project) {
     mapper(session).updateTags(project);
   }

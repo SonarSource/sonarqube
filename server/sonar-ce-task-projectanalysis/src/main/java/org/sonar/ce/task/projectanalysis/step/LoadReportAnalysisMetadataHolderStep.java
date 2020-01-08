@@ -37,8 +37,8 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin;
@@ -108,12 +108,13 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
         "Compute Engine task main component key is null. Project with UUID %s must have been deleted since report was uploaded. Can not proceed.",
         mainComponent.getUuid())));
     CeTask.Component component = mandatoryComponent(ceTask.getComponent());
-    String componentKey = component.getKey()
-      .orElseThrow(() -> MessageException.of(format(
+    if (!component.getKey().isPresent()) {
+      throw MessageException.of(format(
         "Compute Engine task component key is null. Project with UUID %s must have been deleted since report was uploaded. Can not proceed.",
-        component.getUuid())));
-    ComponentDto dto = toProject(reportMetadata.getProjectKey());
+        component.getUuid()));
+    }
 
+    ProjectDto dto = toProject(reportMetadata.getProjectKey());
     analysisMetadata.setProject(Project.from(dto));
     return () -> {
       if (!mainComponentKey.equals(reportMetadata.getProjectKey())) {
@@ -124,9 +125,6 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
       }
       if (!dto.getOrganizationUuid().equals(organization.getUuid())) {
         throw MessageException.of(format("Project is not in the expected organization: %s", organization.getKey()));
-      }
-      if (componentKey.equals(mainComponentKey) && dto.getMainBranchProjectUuid() != null) {
-        throw MessageException.of("Component should not reference a branch");
       }
     };
   }
@@ -222,9 +220,9 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     return Organization.from(organizationDto.get());
   }
 
-  private ComponentDto toProject(String projectKey) {
+  private ProjectDto toProject(String projectKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<ComponentDto> opt = dbClient.componentDao().selectByKey(dbSession, projectKey);
+      Optional<ProjectDto> opt = dbClient.projectDao().selectProjectByKey(dbSession, projectKey);
       checkState(opt.isPresent(), "Project with key '%s' can't be found", projectKey);
       return opt.get();
     }

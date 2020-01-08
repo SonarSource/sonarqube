@@ -24,6 +24,7 @@ import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ws.FilterParser.Criterion;
@@ -222,7 +224,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private SearchProjectsWsResponse handleForAnyOrganization(DbSession dbSession, SearchProjectsRequest request) {
     SearchResults searchResults = searchData(dbSession, request, null);
-    Set<String> organizationUuids = searchResults.projects.stream().map(ComponentDto::getOrganizationUuid).collect(toSet());
+    Set<String> organizationUuids = searchResults.projects.stream().map(ProjectDto::getOrganizationUuid).collect(toSet());
     Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
       .stream()
       .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
@@ -252,8 +254,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPage(request.getPage(), request.getPageSize()));
 
     List<String> projectUuids = esResults.getIds();
-    Ordering<ComponentDto> ordering = Ordering.explicit(projectUuids).onResultOf(ComponentDto::uuid);
-    List<ComponentDto> projects = ordering.immutableSortedCopy(dbClient.componentDao().selectByUuids(dbSession, projectUuids));
+    Ordering<ProjectDto> ordering = Ordering.explicit(projectUuids).onResultOf(ProjectDto::getUuid);
+    List<ProjectDto> projects = ordering.immutableSortedCopy(dbClient.projectDao().selectByUuids(dbSession, new HashSet<>(projectUuids)));
     Map<String, SnapshotDto> analysisByProjectUuid = getSnapshots(dbSession, request, projectUuids);
     return new SearchResults(projects, favoriteProjectUuids, esResults, analysisByProjectUuid, query);
   }
@@ -319,7 +321,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid) {
-    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
+    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
       userSession.isLoggedIn());
 
     Map<String, OrganizationDto> organizationsByUuidForAdditionalInfo = new HashMap<>();
@@ -426,7 +428,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     }
   }
 
-  private static class DbToWsComponent implements Function<ComponentDto, Component> {
+  private static class DbToWsComponent implements Function<ProjectDto, Component> {
     private final SearchProjectsRequest request;
     private final Component.Builder wsComponent;
     private final Map<String, OrganizationDto> organizationsByUuid;
@@ -445,19 +447,19 @@ public class SearchProjectsAction implements ComponentsWsAction {
     }
 
     @Override
-    public Component apply(ComponentDto dbComponent) {
-      String organizationUuid = dbComponent.getOrganizationUuid();
+    public Component apply(ProjectDto dbProject) {
+      String organizationUuid = dbProject.getOrganizationUuid();
       OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
       checkFound(organizationDto, "Organization with uuid '%s' not found", organizationUuid);
       wsComponent
         .clear()
         .setOrganization(organizationDto.getKey())
-        .setKey(dbComponent.getDbKey())
-        .setName(dbComponent.name())
-        .setVisibility(Visibility.getLabel(dbComponent.isPrivate()));
-      wsComponent.getTagsBuilder().addAllTags(dbComponent.getTags());
+        .setKey(dbProject.getKey())
+        .setName(dbProject.getName())
+        .setVisibility(Visibility.getLabel(dbProject.isPrivate()));
+      wsComponent.getTagsBuilder().addAllTags(dbProject.getTags());
 
-      SnapshotDto snapshotDto = analysisByProjectUuid.get(dbComponent.uuid());
+      SnapshotDto snapshotDto = analysisByProjectUuid.get(dbProject.getUuid());
       if (snapshotDto != null) {
         if (request.getAdditionalFields().contains(ANALYSIS_DATE)) {
           wsComponent.setAnalysisDate(formatDateTime(snapshotDto.getCreatedAt()));
@@ -468,7 +470,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       }
 
       if (isUserLoggedIn) {
-        wsComponent.setIsFavorite(favoriteProjectUuids.contains(dbComponent.uuid()));
+        wsComponent.setIsFavorite(favoriteProjectUuids.contains(dbProject.getUuid()));
       }
 
       return wsComponent.build();
@@ -476,14 +478,14 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private static class SearchResults {
-    private final List<ComponentDto> projects;
+    private final List<ProjectDto> projects;
     private final Set<String> favoriteProjectUuids;
     private final Facets facets;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
     private final ProjectMeasuresQuery query;
     private final int total;
 
-    private SearchResults(List<ComponentDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid,
+    private SearchResults(List<ProjectDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid,
       ProjectMeasuresQuery query) {
       this.projects = projects;
       this.favoriteProjectUuids = favoriteProjectUuids;

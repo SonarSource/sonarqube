@@ -138,7 +138,7 @@ public class ViewIndexerTest {
 
   @Test
   public void index_application() {
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 
@@ -153,7 +153,7 @@ public class ViewIndexerTest {
 
   @Test
   public void index_application_on_startup() {
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPrivateApplication(db.getDefaultOrganization());
     ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newProjectCopy("PC1", project, application));
 

@@ -196,7 +196,7 @@ public class ComponentActionTest {
   public void return_component_info_when_file_on_master() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org2"));
     db.qualityGates().createDefaultQualityGate(organization);
-    ComponentDto main = componentDbTester.insertPrivateProject(organization, p -> p.setName("Sample"), p -> p.setDbKey("sample"));
+    ComponentDto main = componentDbTester.insertPrivateProject(organization, p -> p.setName("Sample").setDbKey("sample"));
     userSession.addProjectPermission(UserRole.USER, main);
     init();
 

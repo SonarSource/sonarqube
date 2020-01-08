@@ -165,8 +165,7 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyUpdated(inactiveModule.getDbKey(), "your_project:root:inactive_module");
     assertComponentKeyUpdated(inactiveFile.getDbKey(), "your_project:root:module:src/InactiveFile.xoo");
     verify(projectLifeCycleListeners).onProjectsRekeyed(ImmutableSet.of(
-      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid(), emptyList()), "my_project")
-    ));
+      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid(), emptyList()), "my_project")));
   }
 
   @Test
@@ -182,8 +181,7 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyUpdated(module.getDbKey(), "your_project:root:module");
     assertComponentKeyUpdated(file.getDbKey(), "your_project:root:module:src/File.xoo");
     verify(projectLifeCycleListeners).onProjectsRekeyed(ImmutableSet.of(
-      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid(), emptyList()), "my_project")
-    ));
+      new RekeyedProject(new Project(project.uuid(), "your_project", project.name(), project.uuid(), emptyList()), "my_project")));
   }
 
   private void assertComponentKeyUpdated(String oldKey, String newKey) {

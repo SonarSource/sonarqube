@@ -30,7 +30,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
-import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -100,11 +99,11 @@ public class AnalysisStatusActionTest {
   public void json_example() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
     ComponentDto project = db.components().insertPrivateProject(organization,
-      p -> p.setUuid("AU_w74XMgAS1Hm6h4-Y-"),
-      p -> p.setProjectUuid("AU_w74XMgAS1Hm6h4-Y-"),
-      p -> p.setRootUuid("AU_w74XMgAS1Hm6h4-Y-"),
-      p -> p.setDbKey("com.github.kevinsawicki:http-request-parent"),
-      p -> p.setName("HttpRequest"));
+      p -> p.setUuid("AU_w74XMgAS1Hm6h4-Y-")
+        .setProjectUuid("AU_w74XMgAS1Hm6h4-Y-")
+        .setRootUuid("AU_w74XMgAS1Hm6h4-Y-")
+        .setDbKey("com.github.kevinsawicki:http-request-parent")
+        .setName("HttpRequest"));
 
     userSession.addProjectPermission(UserRole.USER, project);
 

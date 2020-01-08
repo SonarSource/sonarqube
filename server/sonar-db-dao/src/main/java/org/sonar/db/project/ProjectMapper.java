@@ -44,7 +44,9 @@ public interface ProjectMapper {
 
   List<ProjectDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
-  List<ProjectDto> selectByOrganizationUuid(String organizationUuid);
+  List<ProjectDto> selectByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
+
+  void updateKey(@Param("uuid") String uuid, @Param("newKey") String newKey);
 
   void updateTags(ProjectDto project);
 

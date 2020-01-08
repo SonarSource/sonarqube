@@ -129,6 +129,7 @@ public class ProjectQuery {
     private Boolean isPrivate;
     private Set<String> projectUuids;
     private Set<String> projectKeys;
+    private Set<String> qualifiers;
     private Long analyzedBefore;
     private Long anyBranchAnalyzedBefore;
     private Long anyBranchAnalyzedAfter;
@@ -155,6 +156,15 @@ public class ProjectQuery {
 
     public ProjectQuery.Builder setProjectKeys(@Nullable Set<String> projectKeys) {
       this.projectKeys = projectKeys;
+      return this;
+    }
+
+    public Set<String> getQualifiers() {
+      return qualifiers;
+    }
+
+    public ProjectQuery.Builder setQualifiers(Set<String> qualifiers) {
+      this.qualifiers = qualifiers;
       return this;
     }
 

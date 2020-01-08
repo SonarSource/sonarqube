@@ -26,6 +26,8 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
+import static java.util.Collections.emptyList;
+
 @Immutable
 public class Project {
 
@@ -44,7 +46,7 @@ public class Project {
   }
 
   public static Project from(ComponentDto project) {
-    return new Project(project.uuid(), project.getKey(), project.name(), project.description(), project.getTags());
+    return new Project(project.uuid(), project.getKey(), project.name(), project.description(), emptyList());
   }
 
   public static Project from(ProjectDto project) {

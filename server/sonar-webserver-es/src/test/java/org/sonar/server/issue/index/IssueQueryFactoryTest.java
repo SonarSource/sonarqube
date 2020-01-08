@@ -263,7 +263,7 @@ public class IssueQueryFactoryTest {
   public void application_search_project_issues() {
     ComponentDto project1 = db.components().insertPublicProject();
     ComponentDto project2 = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     userSession.registerComponents(application, project1, project2);
@@ -279,9 +279,9 @@ public class IssueQueryFactoryTest {
     ComponentDto project1 = db.components().insertPublicProject();
     SnapshotDto analysis1 = db.components().insertSnapshot(project1, s -> s.setPeriodDate(addDays(now, -14).getTime()));
     ComponentDto project2 = db.components().insertPublicProject();
-    SnapshotDto analysis2 = db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
+    db.components().insertSnapshot(project2, s -> s.setPeriodDate(null));
     ComponentDto project3 = db.components().insertPublicProject();
-    ComponentDto application = db.components().insertApplication(db.getDefaultOrganization());
+    ComponentDto application = db.components().insertPublicApplication(db.getDefaultOrganization());
     db.components().insertComponents(newProjectCopy("PC1", project1, application));
     db.components().insertComponents(newProjectCopy("PC2", project2, application));
     db.components().insertComponents(newProjectCopy("PC3", project3, application));

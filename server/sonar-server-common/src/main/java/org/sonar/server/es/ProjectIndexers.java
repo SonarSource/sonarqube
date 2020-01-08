@@ -37,6 +37,7 @@ public interface ProjectIndexers {
    */
   void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
 
+  //TODO remove?
   default void commitAndIndex(DbSession dbSession, Collection<ComponentDto> projectOrModules, ProjectIndexer.Cause cause) {
     Collection<String> projectUuids = projectOrModules.stream()
       .map(ComponentDto::projectUuid)

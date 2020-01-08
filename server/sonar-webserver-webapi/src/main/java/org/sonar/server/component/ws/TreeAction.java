@@ -29,10 +29,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Response;
@@ -48,6 +48,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
@@ -61,6 +62,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.component.ws.ComponentDtoToWsComponent.projectOrAppToWsComponent;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
@@ -96,6 +98,8 @@ public class TreeAction implements ComponentsWsAction {
   private final ResourceTypes resourceTypes;
   private final UserSession userSession;
   private final I18n i18n;
+
+  private static final Set<String> PROJECT_OR_APP_QUALIFIERS = ImmutableSortedSet.of(Qualifiers.PROJECT, Qualifiers.APP);
 
   public TreeAction(DbClient dbClient, ComponentFinder componentFinder, ResourceTypes resourceTypes, UserSession userSession, I18n i18n) {
     this.dbClient = dbClient;
@@ -182,7 +186,7 @@ public class TreeAction implements ComponentsWsAction {
 
       Map<String, ComponentDto> referenceComponentsByUuid = searchReferenceComponentsByUuid(dbSession, components);
 
-      return buildResponse(baseComponent, organizationDto, components, referenceComponentsByUuid,
+      return buildResponse(dbSession, baseComponent, organizationDto, components, referenceComponentsByUuid,
         Paging.forPageIndex(treeRequest.getPage()).withPageSize(treeRequest.getPageSize()).andTotal(total));
     }
   }
@@ -211,7 +215,7 @@ public class TreeAction implements ComponentsWsAction {
     userSession.checkComponentPermission(UserRole.USER, baseComponent);
   }
 
-  private static TreeWsResponse buildResponse(ComponentDto baseComponent, OrganizationDto organizationDto, List<ComponentDto> components,
+  private TreeWsResponse buildResponse(DbSession dbSession, ComponentDto baseComponent, OrganizationDto organizationDto, List<ComponentDto> components,
     Map<String, ComponentDto> referenceComponentsByUuid, Paging paging) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
@@ -220,17 +224,25 @@ public class TreeAction implements ComponentsWsAction {
       .setTotal(paging.total())
       .build();
 
-    response.setBaseComponent(toWsComponent(baseComponent, organizationDto, referenceComponentsByUuid));
+    response.setBaseComponent(toWsComponent(dbSession, baseComponent, organizationDto, referenceComponentsByUuid));
     for (ComponentDto dto : components) {
-      response.addComponents(toWsComponent(dto, organizationDto, referenceComponentsByUuid));
+      response.addComponents(toWsComponent(dbSession, dto, organizationDto, referenceComponentsByUuid));
     }
 
     return response.build();
   }
 
-  private static Components.Component.Builder toWsComponent(ComponentDto component, OrganizationDto organizationDto,
+  private Components.Component.Builder toWsComponent(DbSession dbSession, ComponentDto component, OrganizationDto organizationDto,
     Map<String, ComponentDto> referenceComponentsByUuid) {
-    Components.Component.Builder wsComponent = componentDtoToWsComponent(component, organizationDto, Optional.empty());
+
+    Components.Component.Builder wsComponent;
+    if (component.getMainBranchProjectUuid() == null && component.isRootProject() &&
+      PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier())) {
+      ProjectDto projectDto = componentFinder.getProjectOrApplicationByKey(dbSession, component.getKey());
+      wsComponent = projectOrAppToWsComponent(projectDto, component, organizationDto, null);
+    } else {
+      wsComponent = componentDtoToWsComponent(component, organizationDto, null);
+    }
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {

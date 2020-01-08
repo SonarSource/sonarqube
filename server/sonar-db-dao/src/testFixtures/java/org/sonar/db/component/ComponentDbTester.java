@@ -47,7 +47,7 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertProjectAndSnapshot(ComponentDto component) {
-    insertComponentAndBranchAndProject(component, null, noExtraConfiguration());
+    insertComponentAndBranchAndProject(component, null, defaults(), defaults(), defaults());
     return insertSnapshot(component);
   }
 
@@ -57,55 +57,72 @@ public class ComponentDbTester {
   }
 
   public ComponentDto insertComponent(ComponentDto component) {
-    return insertComponentImpl(component, null, noExtraConfiguration());
+    return insertComponentImpl(component, null, defaults());
   }
 
   public ComponentDto insertPrivateProject() {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()), true, noExtraConfiguration());
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()), true,
+      defaults(), defaults(), defaults());
   }
 
   public ProjectDto getProjectDto(ComponentDto project) {
-    return db.getDbClient().projectDao().selectByUuid(dbSession, project.uuid()).get();
+    return db.getDbClient().projectDao().selectByUuid(dbSession, project.uuid())
+      .orElseThrow(() -> new IllegalStateException("Project has invalid configuration"));
   }
 
   public ComponentDto insertPrivateProject(ComponentDto componentDto) {
-    return insertComponentAndBranchAndProject(componentDto, true, noExtraConfiguration());
+    return insertComponentAndBranchAndProject(componentDto, true);
   }
 
   public ComponentDto insertPublicProject() {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()), false, noExtraConfiguration());
+    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()), false);
   }
 
   public ComponentDto insertPublicProject(ComponentDto componentDto) {
-    return insertComponentAndBranchAndProject(componentDto, false, noExtraConfiguration());
+    return insertComponentAndBranchAndProject(componentDto, false);
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPrivateProject(Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()), true, null, dtoPopulators);
+  public final ComponentDto insertPrivateProject(Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()), true, defaults(),
+      dtoPopulator);
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPublicProject(Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()), false, null, dtoPopulators);
+  public final ComponentDto insertPrivateProject(Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()),
+      true, defaults(), componentDtoPopulator, projectDtoPopulator);
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto), true, null, dtoPopulators);
+  public final ComponentDto insertPublicProject(Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()), false, defaults(),
+      dtoPopulator);
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPublicProject(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(organizationDto), false, null, dtoPopulators);
+  public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentDtoPopulator) {
+    return insertPrivateProject(organizationDto, componentDtoPopulator, defaults());
+  }
+
+  public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentDtoPopulator,
+    Consumer<ProjectDto> projectDtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto), true, defaults(),
+      componentDtoPopulator, projectDtoPopulator);
+  }
+
+  public final ComponentDto insertPublicProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentDtoPopulator) {
+    return insertPublicProject(organizationDto, componentDtoPopulator, defaults());
+  }
+
+  public final ComponentDto insertPublicProject(OrganizationDto organizationDto, Consumer<ComponentDto> componentDtoPopulator,
+    Consumer<ProjectDto> projectDtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(organizationDto), false, defaults(), componentDtoPopulator,
+      projectDtoPopulator);
   }
 
   public ComponentDto insertPrivateProject(OrganizationDto organizationDto) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto), true, noExtraConfiguration());
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto), true);
   }
 
   public ComponentDto insertPublicProject(OrganizationDto organizationDto) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(organizationDto), false, noExtraConfiguration());
+    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(organizationDto), false);
   }
 
   public ProjectDto insertPublicProjectDto() {
@@ -123,9 +140,8 @@ public class ComponentDbTester {
     return getProjectDto(componentDto);
   }
 
-  @SafeVarargs
-  public final ProjectDto insertPublicProjectDto(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
-    ComponentDto componentDto = insertPublicProject(organization, dtoPopulators);
+  public final ProjectDto insertPublicProjectDto(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
+    ComponentDto componentDto = insertPublicProject(organization, dtoPopulator);
     return getProjectDto(componentDto);
   }
 
@@ -134,47 +150,52 @@ public class ComponentDbTester {
     return getProjectDto(componentDto);
   }
 
-  @SafeVarargs
-  public final ProjectDto insertPrivateProjectDto(Consumer<ComponentDto>... dtoPopulators) {
-    ComponentDto componentDto = insertPrivateProject(dtoPopulators);
+  public final ProjectDto insertPrivateProjectDto(Consumer<ComponentDto> componentDtoPopulator) {
+    return insertPrivateProjectDto(componentDtoPopulator, defaults());
+  }
+
+  public final ProjectDto insertPrivateProjectDto(Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
+    ComponentDto componentDto = insertPrivateProject(componentDtoPopulator, projectDtoPopulator);
     return getProjectDto(componentDto);
   }
 
   public ProjectDto insertPrivateProjectDto(OrganizationDto organization, Consumer<BranchDto> branchConsumer) {
-    ComponentDto componentDto = insertPrivateProjectWithCustomBranch(organization, branchConsumer);
+    ComponentDto componentDto = insertPrivateProjectWithCustomBranch(organization, branchConsumer, defaults());
     return getProjectDto(componentDto);
   }
 
   public ComponentDto insertPrivateProject(OrganizationDto organizationDto, String uuid) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto, uuid), true, noExtraConfiguration());
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto, uuid), true);
   }
 
   public ComponentDto insertPublicProject(OrganizationDto organizationDto, String uuid) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(organizationDto, uuid), false, noExtraConfiguration());
+    return insertComponentAndBranchAndProject(ComponentTesting.newPublicProjectDto(organizationDto, uuid), false);
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, String uuid, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto, uuid), true, null, dtoPopulators);
+  public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, String uuid, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto, uuid), true, defaults(), dtoPopulator);
   }
 
-  @SafeVarargs
+  public final ComponentDto insertPrivateProjectWithCustomBranch(OrganizationDto organizationDto, Consumer<BranchDto> branchPopulator) {
+    return insertPrivateProjectWithCustomBranch(organizationDto, branchPopulator, defaults());
+  }
+
   public final ComponentDto insertPrivateProjectWithCustomBranch(OrganizationDto organizationDto, Consumer<BranchDto> branchPopulator,
-    Consumer<ComponentDto>... componentPopulator) {
+    Consumer<ComponentDto> componentPopulator) {
     return insertComponentAndBranchAndProject(ComponentTesting.newPrivateProjectDto(organizationDto), true, branchPopulator, componentPopulator);
   }
 
   /**
-   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
    * @deprecated since 6.6
    */
   @Deprecated
   public ComponentDto insertView() {
-    return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization()), false, noExtraConfiguration());
+    return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization()), false);
   }
 
   /**
-   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
    * @deprecated since 6.6
    */
   public ComponentDto insertView(Consumer<ComponentDto> dtoPopulator) {
@@ -182,15 +203,15 @@ public class ComponentDbTester {
   }
 
   /**
-   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
    * @deprecated since 6.6
    */
   public ComponentDto insertView(OrganizationDto organizationDto) {
-    return insertComponentImpl(ComponentTesting.newView(organizationDto), false, noExtraConfiguration());
+    return insertComponentImpl(ComponentTesting.newView(organizationDto), false, defaults());
   }
 
   /**
-   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
    * @deprecated since 6.6
    */
   public ComponentDto insertView(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
@@ -198,106 +219,114 @@ public class ComponentDbTester {
   }
 
   /**
-   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
    * @deprecated since 6.6
    */
   public ComponentDto insertView(String uuid) {
-    return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization(), uuid), false, noExtraConfiguration());
+    return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization(), uuid), false, defaults());
   }
 
   /**
-   * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
+   * @see #insertPublicPortfolio(org.sonar.db.organization.OrganizationDto, java.util.function.Consumer)
    * @deprecated since 6.6
    */
   public ComponentDto insertView(OrganizationDto organizationDto, String uuid) {
-    return insertComponentImpl(ComponentTesting.newView(organizationDto, uuid), false, noExtraConfiguration());
+    return insertComponentImpl(ComponentTesting.newView(organizationDto, uuid), false, defaults());
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPublicPortfolio(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentImpl(ComponentTesting.newView(organization).setPrivate(false), false, dtoPopulators);
+  public final ComponentDto insertPublicPortfolio(OrganizationDto organization) {
+    return insertPublicPortfolio(organization, defaults());
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPrivatePortfolio(Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentImpl(ComponentTesting.newView(db.getDefaultOrganization()).setPrivate(true), true, dtoPopulators);
+  public final ComponentDto insertPublicPortfolio(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(ComponentTesting.newView(organization).setPrivate(false), false, dtoPopulator);
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPrivatePortfolio(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentImpl(ComponentTesting.newView(organization).setPrivate(true), true, dtoPopulators);
+  public final ComponentDto insertPrivatePortfolio() {
+    return insertPrivatePortfolio(db.getDefaultOrganization());
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPublicApplication(Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentImpl(ComponentTesting.newApplication(db.getDefaultOrganization()).setPrivate(false), false, dtoPopulators);
+  public final ComponentDto insertPrivatePortfolio(OrganizationDto organization) {
+    return insertPrivatePortfolio(organization, defaults());
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPublicApplication(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newApplication(organization).setPrivate(false), false, b -> {
-    }, dtoPopulators);
+  public final ComponentDto insertPrivatePortfolio(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(ComponentTesting.newView(organization).setPrivate(true), true, dtoPopulator);
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPrivateApplication(Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentImpl(ComponentTesting.newApplication(db.getDefaultOrganization()).setPrivate(true), true, dtoPopulators);
+  public final ComponentDto insertPublicApplication() {
+    return insertPublicApplication(db.getDefaultOrganization());
   }
 
-  @SafeVarargs
-  public final ComponentDto insertPrivateApplication(OrganizationDto organization, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newApplication(organization).setPrivate(true), true, b -> {
-    }, dtoPopulators);
+  public final ComponentDto insertPublicApplication(OrganizationDto organization) {
+    return insertPublicApplication(organization, defaults());
   }
 
-  /**
-   * @see #insertPublicApplication(OrganizationDto, Consumer[])
-   * @deprecated since 6.6
-   */
-  @SafeVarargs
-  public final ComponentDto insertApplication(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newApplication(organizationDto), false, b -> {
-    }, dtoPopulators);
+  public final ComponentDto insertPublicApplication(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newApplication(organization).setPrivate(false), false, defaults(), dtoPopulator);
   }
 
-  @SafeVarargs
-  public final ComponentDto insertSubView(ComponentDto view, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentAndBranchAndProject(ComponentTesting.newSubView(view), view.isPrivate(), null, dtoPopulators);
+  public final ComponentDto insertPrivateApplication() {
+    return insertPrivateApplication(db.getDefaultOrganization());
+  }
+  
+  public final ComponentDto insertPrivateApplication(OrganizationDto organization) {
+    return insertPrivateApplication(organization, defaults());
   }
 
-  private static <T> Consumer<T> noExtraConfiguration() {
-    return (t) -> {
-    };
+  public final ComponentDto insertPrivateApplication(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newApplication(organization).setPrivate(true), true, defaults(), dtoPopulator);
   }
 
-  @SafeVarargs
-  private final ComponentDto insertComponentAndBranchAndProject(ComponentDto component, @Nullable Boolean isPrivate, @Nullable Consumer<BranchDto> branchPopulator,
-    Consumer<ComponentDto>... dtoPopulators) {
-    insertComponentImpl(component, isPrivate, dtoPopulators);
+  public final ComponentDto insertSubView(ComponentDto view) {
+    return insertSubView(view, defaults());
+  }
+
+  public final ComponentDto insertSubView(ComponentDto view, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentAndBranchAndProject(ComponentTesting.newSubView(view), view.isPrivate(), defaults(), dtoPopulator);
+  }
+
+  private ComponentDto insertComponentAndBranchAndProject(ComponentDto component, @Nullable Boolean isPrivate, Consumer<BranchDto> branchPopulator,
+    Consumer<ComponentDto> componentDtoPopulator, Consumer<ProjectDto> projectDtoPopulator) {
+    insertComponentImpl(component, isPrivate, componentDtoPopulator);
 
     ProjectDto projectDto = toProjectDto(component, System2.INSTANCE.now());
+    projectDtoPopulator.accept(projectDto);
     dbClient.projectDao().insert(dbSession, projectDto);
 
     BranchDto branchDto = ComponentTesting.newBranchDto(component, BRANCH);
     branchDto.setExcludeFromPurge(true);
-
-    if (branchPopulator != null) {
-      branchPopulator.accept(branchDto);
-    }
+    branchPopulator.accept(branchDto);
     dbClient.branchDao().insert(dbSession, branchDto);
 
     db.commit();
     return component;
   }
 
-  @SafeVarargs
-  private final ComponentDto insertComponentImpl(ComponentDto component, @Nullable Boolean isPrivate, Consumer<ComponentDto>... dtoPopulators) {
-    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(component));
+  private ComponentDto insertComponentAndBranchAndProject(ComponentDto component, @Nullable Boolean isPrivate, Consumer<BranchDto> branchPopulator,
+    Consumer<ComponentDto> componentDtoPopulator) {
+    return insertComponentAndBranchAndProject(component, isPrivate, branchPopulator, componentDtoPopulator, defaults());
+  }
+
+  private ComponentDto insertComponentAndBranchAndProject(ComponentDto component, @Nullable Boolean isPrivate, Consumer<BranchDto> branchPopulator) {
+    return insertComponentAndBranchAndProject(component, isPrivate, branchPopulator, defaults());
+  }
+
+  private ComponentDto insertComponentAndBranchAndProject(ComponentDto component, @Nullable Boolean isPrivate) {
+    return insertComponentAndBranchAndProject(component, isPrivate, defaults());
+  }
+
+  private ComponentDto insertComponentImpl(ComponentDto component, @Nullable Boolean isPrivate, Consumer<ComponentDto> dtoPopulator) {
+    dtoPopulator.accept(component);
     checkState(isPrivate == null || component.isPrivate() == isPrivate, "Illegal modification of private flag");
     dbClient.componentDao().insert(dbSession, component);
     db.commit();
 
     return component;
+  }
+
+  private ComponentDto insertComponentImpl(ComponentDto component, @Nullable Boolean isPrivate) {
+    return insertComponentImpl(component, isPrivate, defaults());
   }
 
   public void insertComponents(ComponentDto... components) {
@@ -312,7 +341,7 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertSnapshot(ComponentDto componentDto) {
-    return insertSnapshot(componentDto, noExtraConfiguration());
+    return insertSnapshot(componentDto, defaults());
   }
 
   public SnapshotDto insertSnapshot(ComponentDto componentDto, Consumer<SnapshotDto> consumer) {
@@ -322,7 +351,7 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertSnapshot(BranchDto branchDto) {
-    return insertSnapshot(branchDto, noExtraConfiguration());
+    return insertSnapshot(branchDto, defaults());
   }
 
   public SnapshotDto insertSnapshot(BranchDto branchDto, Consumer<SnapshotDto> consumer) {
@@ -392,8 +421,11 @@ public class ComponentDbTester {
       .setPrivate(componentDto.isPrivate())
       .setDescription(componentDto.description())
       .setName(componentDto.name())
-      .setOrganizationUuid(componentDto.getOrganizationUuid())
-      .setTags(componentDto.getTags())
-      .setTagsString(componentDto.getTagsString());
+      .setOrganizationUuid(componentDto.getOrganizationUuid());
+  }
+
+  private static <T> Consumer<T> defaults() {
+    return t -> {
+    };
   }
 }

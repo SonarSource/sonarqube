@@ -743,11 +743,11 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_selected_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name").setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name").setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name").setOrganizationUuid(organization.getUuid()));
     OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name").setOrganizationUuid(organization2.getUuid()));
     ComponentDto branch = db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
@@ -772,11 +772,11 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_deselected_projects() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name").setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name").setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name").setOrganizationUuid(organization.getUuid()));
     OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name").setOrganizationUuid(organization2.getUuid()));
     ComponentDto branch = db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
@@ -800,11 +800,11 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_project_associations() {
-    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name").setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name").setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name").setOrganizationUuid(organization.getUuid()));
     OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name").setOrganizationUuid(organization2.getUuid()));
     ComponentDto branch = db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();

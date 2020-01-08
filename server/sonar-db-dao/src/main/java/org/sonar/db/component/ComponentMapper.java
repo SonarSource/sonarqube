@@ -156,8 +156,6 @@ public interface ComponentMapper {
 
   void delete(long componentId);
 
-  void updateTags(ComponentDto component);
-
   List<KeyWithUuidDto> selectAllSiblingComponentKeysHavingOpenIssues(@Param("referenceBranchUuid") String referenceBranchUuid,
     @Param("currentBranchUuid") String currentBranchUuid);
 

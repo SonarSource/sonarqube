@@ -26,6 +26,10 @@ import static org.apache.commons.lang.RandomStringUtils.randomAscii;
 
 public class SnapshotTesting {
 
+  private SnapshotTesting() {
+    // nothing to do
+  }
+
   public static SnapshotDto newAnalysis(ComponentDto rootComponent) {
     checkNotNull(rootComponent.uuid(), "Project UUID must be set");
     checkArgument(rootComponent.uuid().equals(rootComponent.projectUuid()), "Component is not a tree root");

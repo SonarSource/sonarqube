@@ -56,10 +56,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.source.FileSourceDto;
 
 import static com.google.common.collect.ImmutableSet.of;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -326,15 +324,15 @@ public class ComponentDaoTest {
     assertThat(underTest.selectByKeysAndBranches(db.getSession(), ImmutableMap.of(
       projectBranch.getKey(), projectBranch.getBranch(),
       applicationBranch.getKey(), applicationBranch.getBranch())))
-      .extracting(ComponentDto::getKey, ComponentDto::getBranch)
-      .containsExactlyInAnyOrder(
-        tuple(projectBranch.getKey(), "my_branch"),
-        tuple(applicationBranch.getKey(), "my_branch"));
+        .extracting(ComponentDto::getKey, ComponentDto::getBranch)
+        .containsExactlyInAnyOrder(
+          tuple(projectBranch.getKey(), "my_branch"),
+          tuple(applicationBranch.getKey(), "my_branch"));
     assertThat(underTest.selectByKeysAndBranches(db.getSession(), ImmutableMap.of(
       projectBranch.getKey(), "unknown",
       "unknown", projectBranch.getBranch())))
-      .extracting(ComponentDto::getDbKey)
-      .isEmpty();
+        .extracting(ComponentDto::getDbKey)
+        .isEmpty();
     assertThat(underTest.selectByKeysAndBranches(db.getSession(), Collections.emptyMap())).isEmpty();
   }
 
@@ -733,7 +731,7 @@ public class ComponentDaoTest {
     db.components().insertView(organization, "IJKL");
     ComponentDto view = db.components().insertView(organization, "EFGH");
     db.components().insertSubView(view, dto -> dto.setUuid("FGHI"));
-    ComponentDto application = db.components().insertApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication(organization);
 
     assertThat(underTest.selectAllViewsAndSubViews(dbSession)).extracting(UuidWithProjectUuidDto::getUuid)
       .containsExactlyInAnyOrder("ABCD", "EFGH", "FGHI", "IJKL", application.uuid());
@@ -759,7 +757,7 @@ public class ComponentDaoTest {
 
   @DataProvider
   public static Object[][] oneOrMoreProjects() {
-    return new Object[][]{
+    return new Object[][] {
       {1},
       {1 + new Random().nextInt(10)}
     };
@@ -988,7 +986,7 @@ public class ComponentDaoTest {
 
   @DataProvider
   public static Object[][] portfolioOrApplicationRootViewQualifier() {
-    return new Object[][]{
+    return new Object[][] {
       {Qualifiers.VIEW},
       {Qualifiers.APP},
     };
@@ -1003,8 +1001,11 @@ public class ComponentDaoTest {
     return lowestView;
   }
 
-  @SafeVarargs
-  private final ComponentDto insertView(OrganizationDto organization, String rootViewQualifier, Consumer<ComponentDto>... dtoPopulators) {
+  private ComponentDto insertView(OrganizationDto organization, String rootViewQualifier) {
+    return insertView(organization, rootViewQualifier, defaults());
+  }
+
+  private ComponentDto insertView(OrganizationDto organization, String rootViewQualifier, Consumer<ComponentDto> dtoPopulators) {
     ComponentDbTester tester = db.components();
     if (rootViewQualifier.equals(Qualifiers.VIEW)) {
       return random.nextBoolean() ? tester.insertPublicPortfolio(organization, dtoPopulators) : tester.insertPrivatePortfolio(organization, dtoPopulators);
@@ -1076,7 +1077,7 @@ public class ComponentDaoTest {
     ComponentDto file = db.components().insertComponent(newFileDto(module, directory));
     ComponentDto project2 = db.components().insertPrivateProject(organization);
     ComponentDto view = db.components().insertView(organization);
-    ComponentDto application = db.components().insertApplication(organization);
+    ComponentDto application = db.components().insertPublicApplication(organization);
     OrganizationDto otherOrganization = db.organizations().insert();
     ComponentDto projectOnOtherOrganization = db.components().insertPrivateProject(otherOrganization);
 
@@ -1189,8 +1190,7 @@ public class ComponentDaoTest {
       .containsExactly(
         project1.uuid(),
         project2.uuid(),
-        project3.uuid()
-      );
+        project3.uuid());
   }
 
   @Test
@@ -1397,16 +1397,6 @@ public class ComponentDaoTest {
         "b_module_uuid as \"bModuleUuid\", b_module_uuid_path as \"bModuleUuidPath\", b_name as \"bName\", " +
         "b_path as \"bPath\", b_qualifier as \"bQualifier\" " +
         "from components where uuid='" + uuid + "'");
-  }
-
-  @Test
-  public void update_tags() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setTags(emptyList()));
-
-    underTest.updateTags(dbSession, project.setTags(newArrayList("finance", "toto", "tutu")));
-    dbSession.commit();
-
-    assertThat(underTest.selectOrFailByKey(dbSession, project.getDbKey()).getTags()).containsOnly("finance", "toto", "tutu");
   }
 
   @Test
@@ -2000,6 +1990,11 @@ public class ComponentDaoTest {
 
   private void insertMeasure(double value, ComponentDto componentDto, MetricDto metric) {
     db.measures().insertLiveMeasure(componentDto, metric, m -> m.setValue(value));
+  }
+
+  private static <T> Consumer<T> defaults() {
+    return t -> {
+    };
   }
 
 }
