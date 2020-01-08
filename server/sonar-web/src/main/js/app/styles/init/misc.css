@@ -152,6 +152,18 @@ th.hide-overflow {
   padding-top: calc(var(--gridSize) / 2) !important;
 }
 
+.little-padded-right {
+  padding-right: calc(var(--gridSize) / 2) !important;
+}
+
+.little-padded-bottom {
+  padding-bottom: calc(var(--gridSize) / 2) !important;
+}
+
+.little-padded-left {
+  padding-left: calc(var(--gridSize) / 2) !important;
+}
+
 .big-padded-top {
   padding-top: calc(2 * var(--gridSize));
 }

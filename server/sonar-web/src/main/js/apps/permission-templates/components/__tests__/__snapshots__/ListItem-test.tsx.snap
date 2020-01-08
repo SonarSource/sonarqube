@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render correctly 1`] = `
+<tr
+  data-id="1"
+  data-name="test"
+>
+  <NameCell
+    template={
+      Object {
+        "createdAt": "2020-01-01",
+        "defaultFor": Array [],
+        "id": "1",
+        "name": "test",
+        "permissions": Array [],
+      }
+    }
+  />
+  <td
+    className="nowrap thin text-right text-top little-padding-left little-padding-right"
+  >
+    <withRouter(ActionsCell)
+      permissionTemplate={
+        Object {
+          "createdAt": "2020-01-01",
+          "defaultFor": Array [],
+          "id": "1",
+          "name": "test",
+          "permissions": Array [],
+        }
+      }
+      refresh={[Function]}
+      topQualifiers={Array []}
+    />
+  </td>
+</tr>
+`;

@@ -40,7 +40,7 @@ export default function ListItem(props: Props) {
 
       {permissions}
 
-      <td className="nowrap thin text-right">
+      <td className="nowrap thin text-right text-top little-padding-left little-padding-right">
         <ActionsCell
           organization={props.organization}
           permissionTemplate={props.template}

@@ -29,7 +29,7 @@ export interface Props {
 
 export default function UserListItemIdentity({ identityProvider, user }: Props) {
   return (
-    <td>
+    <td className="text-middle">
       <div>
         <strong className="js-user-name">{user.name}</strong>
         <span className="js-user-login note little-spacer-left">{user.login}</span>

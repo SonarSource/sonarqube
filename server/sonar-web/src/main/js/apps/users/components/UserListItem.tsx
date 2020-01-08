@@ -53,22 +53,22 @@ export default class UserListItem extends React.PureComponent<Props, State> {
 
     return (
       <tr>
-        <td className="thin nowrap">
+        <td className="thin nowrap text-middle">
           <Avatar hash={user.avatar} name={user.name} size={36} />
         </td>
         <UserListItemIdentity identityProvider={identityProvider} user={user} />
-        <td>
+        <td className="thin nowrap text-middle">
           <UserScmAccounts scmAccounts={user.scmAccounts || []} />
         </td>
-        <td>
+        <td className="thin nowrap text-middle">
           <DateFromNowHourPrecision date={user.lastConnectionDate} />
         </td>
         {!organizationsEnabled && (
-          <td>
+          <td className="thin nowrap text-middle">
             <UserGroups groups={user.groups || []} onUpdateUsers={onUpdateUsers} user={user} />
           </td>
         )}
-        <td>
+        <td className="thin nowrap text-middle">
           {user.tokensCount}
           <ButtonIcon
             className="js-user-tokens spacer-left button-small"
@@ -77,7 +77,7 @@ export default class UserListItem extends React.PureComponent<Props, State> {
             <BulletListIcon />
           </ButtonIcon>
         </td>
-        <td className="thin nowrap text-right">
+        <td className="thin nowrap text-right text-middle">
           <UserActions
             isCurrentUser={this.props.isCurrentUser}
             onUpdateUsers={onUpdateUsers}

@@ -32,7 +32,7 @@ export default function NameCell({ template, organization }: Props) {
     : '/permission_templates';
 
   return (
-    <td>
+    <td className="little-padding-left little-padding-right">
       <Link to={{ pathname, query: { id: template.id } }}>
         <strong className="js-name">{template.name}</strong>
       </Link>

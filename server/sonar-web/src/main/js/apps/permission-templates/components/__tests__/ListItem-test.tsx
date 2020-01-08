@@ -17,22 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.permissions-table .permission-column.selected {
-  background-color: #d9edf7;
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import ListItem from '../ListItem';
 
-.permissions-table .permission-column-inner {
-  width: 100px;
-}
+it('render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-.permissions-table .divider {
-  background: #fff;
-  padding: 16px 0;
-}
-.permissions-table .divider::after {
-  display: block;
-  content: '';
-  background: var(--barBorderColor);
-  height: 1px;
-  width: 100%;
+function shallowRender() {
+  return shallow(
+    <ListItem
+      key="1"
+      organization={undefined}
+      refresh={async () => {}}
+      template={{
+        id: '1',
+        createdAt: '2020-01-01',
+        name: 'test',
+        defaultFor: [],
+        permissions: []
+      }}
+      topQualifiers={[]}
+    />
+  );
 }
