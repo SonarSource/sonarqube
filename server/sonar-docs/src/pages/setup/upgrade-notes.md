@@ -3,6 +3,12 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 8.2 Upgrade Notes  
+**PostgreSQL 12.1 support**  
+SonarQube 8.2+ now support PostgreSQL 9.3 - 12.
+
+[Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15301)
+
 ## Release 8.1 Upgrade Notes  
 **Short-lived and Long-lived branches are now just branches**  
 The concept for branches is now simplified, with a single way to handle all of them. ([MMF-1786](https://jira.sonarsource.com/browse/MMF-1786)).

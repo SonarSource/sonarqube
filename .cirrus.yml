@@ -88,7 +88,7 @@ validate_task:
     memory: 10Gb
     additional_containers:
       - name: postgres
-        image: postgres:10.6
+        image: postgres:12.1
         port: 5432
         cpu: 1
         memory: 1Gb
@@ -118,7 +118,7 @@ qa_task:
     memory: 10Gb
     additional_containers:
       - name: postgres
-        image: postgres:10.6
+        image: postgres:12.1
         port: 5432
         cpu: 1
         memory: 1Gb
