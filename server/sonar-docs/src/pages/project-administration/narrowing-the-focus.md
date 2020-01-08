@@ -12,7 +12,7 @@ If {instance}'s results aren't relevant, no one will want to use it. That's why 
 * exclude files/directories from Duplications detection but analyze all other aspects
 * exclude files/directories from Coverage calculations but analyze all other aspects
 
-You can make these changes globally or at a project level. At both levels, the navigation path is  **Administration > General Settings > Analysis Scope**.
+You can make these changes globally or at a project level. At the global level, the navigation path is  **Administration > General Settings > Analysis Scope**. At the project level, the navigation path is **Project Settings > General Settings > Analysis Scope**
 
 ## Patterns
 

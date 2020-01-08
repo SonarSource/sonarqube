@@ -75,6 +75,6 @@ For example, adding the pattern `release/.*` would keep any branches named relea
 
 ### Managing inactive branches at a project level
 
-You can set a branch to **Keep when inactive** at the project level from from the **Branches** tab at **Administration > Branches and Pull Requests**. Here, you can also turn off protection for a branch so it will be deleted when it's inactive for the number of days that has been specified in the global settings at **Administration > General Settings > Housekeeping > Number of days before deleting inactive branches**. 
+You can set a branch to **Keep when inactive** at the project level from from the **Branches** tab at **Project Settings > Branches and Pull Requests**. Here, you can also turn off protection for a branch so it will be deleted when it's inactive for the number of days that has been specified in the global settings at **Administration > General Settings > Housekeeping > Number of days before deleting inactive branches**. 
 
 **Note:** The main branch is always protected from automatic deletion, even if it's inactive. This can't be changed.

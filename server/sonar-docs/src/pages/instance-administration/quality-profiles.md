@@ -7,7 +7,7 @@ url: /instance-administration/quality-profiles/
 
 **Quality Profiles** are a core component of {instance}, since they are where you define sets of [**Rules**](/user-guide/rules/) that when violated should raise issues on your codebase (example: Methods should not have a Cognitive Complexity higher than 15). Quality Profiles are defined for individual languages.
 
-To manage Quality Profiles, browse to the the [**Quality Profiles**](/#sonarqube#/profiles) page <!-- sonarcloud --> of your organization<!-- /sonarcloud --> where you'll find Quality Profiles grouped by language.
+To manage Quality Profiles, browse to the the [**Quality Profiles**](/#sonarqube#/profiles) page where you'll find Quality Profiles grouped by language.
 
 Ideally all of your projects will be measured with the same Quality Profiles, but that is not _always_ practical. In some cases, you may find that:
 

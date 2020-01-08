@@ -50,7 +50,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your project settings
 |
-| Go to **Administration > General Settings > Pull Request Decoration**, select your **Configuration Name**, and set your **Repository identifier**.
+| Go to **Project Settings > General Settings > Pull Request Decoration**, select your **Configuration Name**, and set your **Repository identifier**.
 
 [[collapse]]
 | ## Bitbucket Server
@@ -71,7 +71,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your project settings
 |
-| Go to **Administration > General Settings > Pull Request Decoration**, select your **Configuration name**, and set your **Project Key** and **Repo Slug**.
+| Go to **Project Settings > General Settings > Pull Request Decoration**, select your **Configuration name**, and set your **Project Key** and **Repo Slug**.
 
 [[collapse]]
 | ## Azure DevOps Server
@@ -90,7 +90,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your project settings
 |
-| Go to **Administration > General Settings > Pull Request Decoration** and select your **Configuration name**.
+| Go to **Project Settings > General Settings > Pull Request Decoration** and select your **Configuration name**.
 
 [[collapse]]
 | ## GitLab Self-Managed and GitLab.com
@@ -111,7 +111,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your project settings
 |
-| Go to **Administration > General Settings > Pull Request Decoration** and select your **Configuration name**.
+| Go to **Project Settings > General Settings > Pull Request Decoration** and select your **Configuration name**.
 
 ## Multiple ALM instances
 

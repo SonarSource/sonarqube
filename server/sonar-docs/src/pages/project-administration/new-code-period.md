@@ -15,7 +15,7 @@ You can set the global New Code Period to the following:
 * **Number of days** – You can specify a number of days for a floating New Code Period. For example, setting **Number of Days** to 30 creates a floating New Code Period beginning 30 days from the current date.
 
 ## Setting a project-level New Code Period
-You can override the global New Code Period by setting a project-level New Code Period from the project page at **Administration > New Code Period**. For [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/), this will be the default New Code Period for all of the project's branches.
+You can override the global New Code Period by setting a project-level New Code Period from the project page at **Project Settings > New Code Period**. For [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/), this will be the default New Code Period for all of the project's branches.
 
 You can set a project's New Code Period to the following:
 

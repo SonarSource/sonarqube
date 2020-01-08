@@ -14,7 +14,7 @@ Analysis is not complete until the relevant Background Task has been completed. 
 
 At the Project level, when there is a pending Analysis Report waiting to be consumed, you have a "Pending" notification in the header, next to the date of the most recent completed analysis.
 
-Global Administrators can view the current queue at **[Administration > Projects > Background Tasks](/#sonarqube-admin#/admin/background_tasks)**. Project administrators can see the tasks for a project at **Administration > Background Tasks**.
+Global Administrators can view the current queue at **[Administration > Projects > Background Tasks](/#sonarqube-admin#/admin/background_tasks)**. Project administrators can see the tasks for a project at **Project Settings > Background Tasks**.
 
 ## How do I know when analysis report processing fails?
 Background tasks usually succeed, but sometimes unusual circumstances cause processing to fail. Examples include:

@@ -100,7 +100,7 @@ To set global permissions, log in as a System administrator and go to **[Adminis
 ** Creating an item does not automatically grant rights to administer it. For that, see _Creators permission_ below.
 
 ### Project Permissions
-Project permissions are available from the project-level Administration menu: **Administration > Permissions**.
+Project permissions are available from the project-level Administration menu: **Project Settings > Permissions**.
 
 Project visibility may be toggled between public or private. Making a project private hides its source code and measures from the `Anyone` group. For both public and private projects, four different permissions can be set:
 

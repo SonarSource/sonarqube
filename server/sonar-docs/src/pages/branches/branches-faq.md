@@ -6,10 +6,10 @@ url: /branches/branches-faq/
 _Branch analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
 
 ## How long are branches retained?  
-Branches will be deleted automatically when they are inactive according to your settings at [Administration > Configuration > General Settings > Housekeeping > Number of days before deleting inactive branches](/#sonarqube-admin#/admin/settings?category=housekeeping) except for branches you have set to be kept when inactive. These branches are kept until you delete them manually at the project level at **Administration > Branches & Pull Requests**. See the [Branches Analysis](/branches/overview/) for more information on keeping inactive branches.
+Branches will be deleted automatically when they are inactive according to your settings at [Administration > Configuration > General Settings > Housekeeping > Number of days before deleting inactive branches](/#sonarqube-admin#/admin/settings?category=housekeeping) except for branches you have set to be kept when inactive. These branches are kept until you delete them manually at the project level at **Project Settings > Branches & Pull Requests**. See the [Branches Analysis](/branches/overview/) for more information on keeping inactive branches.
 
 ## Does my project need to be stored in an SCM like Git or SVN?  
-No, you don't need to be connected to a SCM. However, SCM data still enhances the SonarQube exprerience (including issue auto-assignment and issue backdating), and you will be well prepared to take advantage of [Pull Request Analysis](/analysis/pull-request/)!
+No, you don't need to be connected to a SCM. However, SCM data still enhances the SonarQube experience (including issue auto-assignment and issue backdating), and you will be well prepared to take advantage of [Pull Request Analysis](/analysis/pull-request/)!
 
 ## What if I mark an Issue "Won't Fix" or "False-Positive" in a branch?
 It will be replicated as such when creating a Pull Request and merging the Pull Request into the master branch.

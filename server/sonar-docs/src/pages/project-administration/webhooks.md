@@ -13,7 +13,7 @@ The HTTP(S) call:
 
 ## Configuration
 
-You can configure up to 10 webhooks in in **Administration > Webhooks**.
+You can configure up to 10 webhooks at the project level in **Project Settings > Webhooks**.
 
 An additional set of 10 webhooks can be configured at the global level in **Administration > Configuration > Webhooks**.
 
@@ -106,7 +106,7 @@ After you've configured your server to receive payloads, you want to be sure tha
 
 To set your secret in {instance}:
 
-1. From the project or organization where you're securing your webhooks, navigate to the webhooks settings at **Administration > webhooks**
+1. From the project or organization where you're securing your webhooks, navigate to the webhooks settings at **Project Settings > Webhooks**
 1. You can either click **Create** to create a new webhook or click an existing webhook's settings drop-down and click **Update**.
 1. Enter a random string in the **Secret** text box. This is used as the key to generate the HMAC hex digest value in the `X-Sonar-Webhook-HMAC-SHA256` header.
 1. Click **Update**. 

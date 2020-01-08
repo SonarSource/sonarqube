@@ -8,7 +8,7 @@ Project analysis settings can be configured in multiple places. Here is the hier
 <!-- sonarqube -->
 * Global properties, defined in the UI, apply to all projects (From the top bar, go to **[Administration > Configuration > General Settings](/#sonarqube-admin#/admin/settings)**)
 <!-- /sonarqube -->
-* Project properties, defined in the UI, override global property values (At a project level, go to **Administration > General Settings**)
+* Project properties, defined in the UI, override global property values (At a project level, go to **Project Settings > General Settings**)
 * Project analysis parameters, defined in a project analysis configuration file or an analyzer configuration file, override the ones defined in the UI
 * Analysis / Command line parameters, defined when launching an analysis (with `-D` on the command line), override project analysis parameters
 
@@ -25,7 +25,7 @@ For language-specific parameters related to external issue reports, see [Externa
 ### Server
 Key | Description | Default
 ---|----|---
-`sonar.host.url`| the server URL | <!-- sonarqube -->http://localhost:9000<!-- /sonarqube --><!-- sonarcloud -->https://sonarcloud.io<!-- /sonarcloud -->
+`sonar.host.url`| the server URL | http://localhost:9000
 
 ### Project Configuration
 Key | Description | Default
