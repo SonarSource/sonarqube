@@ -21,6 +21,7 @@ import * as classnames from 'classnames';
 import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Radio from 'sonar-ui-common/components/controls/Radio';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import {
@@ -50,7 +51,11 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
 
   return (
     <form className="abs-width-400 padded" onSubmit={props.onSubmit}>
-      <h2>{translate('hotspots.form.title')}</h2>
+      <h2>
+        {disableStatusChange
+          ? translate('hotspots.form.title.disabled')
+          : translate('hotspots.form.title')}
+      </h2>
       <div className="display-flex-column big-spacer-bottom">
         {renderOption({
           disabled: disableStatusChange,
@@ -140,7 +145,8 @@ function renderOption(params: {
   selectedOption: HotspotStatusOption;
 }) {
   const { disabled, onClick, option, selectedOption } = params;
-  return (
+
+  const optionRender = (
     <div className="big-spacer-top">
       <Radio
         checked={selectedOption === option}
@@ -155,5 +161,13 @@ function renderOption(params: {
         {translate('hotspots.status_option', option, 'description')}
       </div>
     </div>
+  );
+
+  return disabled ? (
+    <Tooltip overlay={translate('hotspots.form.cannot_change_status')} placement="left">
+      {optionRender}
+    </Tooltip>
+  ) : (
+    optionRender
   );
 }
