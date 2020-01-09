@@ -19,10 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
@@ -32,13 +36,18 @@ import org.sonar.ce.task.projectanalysis.qualitygate.Condition;
 import org.sonar.ce.task.projectanalysis.qualitygate.EvaluationResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.OK;
+
+import java.util.Optional;
 
 public class SmallChangesetQualityGateSpecialCaseTest {
 
@@ -52,10 +61,18 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     .add(CoreMetrics.NEW_BUGS);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-  private final SmallChangesetQualityGateSpecialCase underTest = new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository);
+  private final ConfigurationRepository configurationRepository = mock(ConfigurationRepository.class);
+  private final Configuration configuration = mock(Configuration.class);
+  private final SmallChangesetQualityGateSpecialCase underTest = new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository, configurationRepository);
+
+  @Before
+  public void setUp() {
+    when(configurationRepository.getConfiguration()).thenReturn(configuration);
+    when(configuration.getInt(anyString())).thenReturn(Optional.empty());
+  }
 
   @Test
-  public void ignore_errors_about_new_coverage_for_small_changesets() {
+  public void ignoreErrorsAboutNewCoverageForDefaultSmallChangesets() {
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
     measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
@@ -66,7 +83,31 @@ public class SmallChangesetQualityGateSpecialCaseTest {
   }
 
   @Test
-  public void should_not_change_for_bigger_changesets() {
+  public void ignoreErrorsAboutNewCoverageForCustomSmallChangesets() {
+    when(configuration.getInt(eq(CoreProperties.SMALL_CHANGESET_MAX_LINES))).thenReturn(Optional.of(5));
+    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
+    Component project = generateNewRootProject();
+    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(2).create(1000));
+
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  public void shouldNotChangeForDefaultBiggerChangesets() {
+    QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
+    Component project = generateNewRootProject();
+    measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(20).create(1000));
+
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void shouldNotChangeForCustomBiggerChangesets() {
+    when(configuration.getInt(eq(CoreProperties.SMALL_CHANGESET_MAX_LINES))).thenReturn(Optional.of(2));
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
     measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(20).create(1000));

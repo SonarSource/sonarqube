@@ -173,6 +173,16 @@ public class CorePropertyDefinitions {
         .category(CATEGORY_ORGANIZATIONS)
         .type(BOOLEAN)
         .hidden()
+        .build(),
+
+       //Changeset size
+       PropertyDefinition.builder(CoreProperties.SMALL_CHANGESET_MAX_LINES)
+        .name("Small Changeset Size")
+        .description("Any change containing less than this number of lines will have some metrics excluded from Quality Gate checks")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .type(PropertyType.INTEGER)
+        .defaultValue("20")
+        .onQualifiers(Qualifiers.PROJECT)
         .build()));
     return defs;
   }

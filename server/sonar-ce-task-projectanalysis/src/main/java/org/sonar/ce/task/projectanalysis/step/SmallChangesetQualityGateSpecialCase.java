@@ -21,8 +21,11 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Collection;
 import javax.annotation.Nullable;
+
+import org.sonar.api.CoreProperties;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
@@ -43,14 +46,16 @@ public class SmallChangesetQualityGateSpecialCase {
     CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY,
     CoreMetrics.NEW_DUPLICATED_LINES_KEY,
     CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY);
-  private static final int MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS = 19;
+  private static final int MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS = 20;
 
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
+  private final ConfigurationRepository configurationRepository;
 
-  public SmallChangesetQualityGateSpecialCase(MeasureRepository measureRepository, MetricRepository metricRepository) {
+  public SmallChangesetQualityGateSpecialCase(MeasureRepository measureRepository, MetricRepository metricRepository, ConfigurationRepository configurationRepository) {
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
+    this.configurationRepository = configurationRepository;
   }
 
   public boolean appliesTo(Component project, @Nullable MetricEvaluationResult metricEvaluationResult) {
@@ -66,8 +71,11 @@ public class SmallChangesetQualityGateSpecialCase {
   }
 
   private boolean isSmallChangeset(Component project) {
+    int maximumLinesForSmallChangeset = configurationRepository.getConfiguration()
+      .getInt(CoreProperties.SMALL_CHANGESET_MAX_LINES)
+      .orElse(MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS);
     return measureRepository.getRawMeasure(project, metricRepository.getByKey(CoreMetrics.NEW_LINES_KEY))
-      .map(newLines -> newLines.hasVariation() && newLines.getVariation() <= MAXIMUM_NEW_LINES_FOR_SMALL_CHANGESETS)
+      .map(newLines -> newLines.hasVariation() && newLines.getVariation() < maximumLinesForSmallChangeset)
       .orElse(false);
   }
 }

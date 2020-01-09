@@ -31,8 +31,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
@@ -55,6 +57,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
@@ -88,8 +91,10 @@ public class QualityGateMeasuresStepTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   private EvaluationResultTextConverter resultTextConverter = mock(EvaluationResultTextConverter.class);
+  private ConfigurationRepository configurationRepository = mock(ConfigurationRepository.class);
+  private Configuration configuration = mock(Configuration.class);
   private QualityGateMeasuresStep underTest = new QualityGateMeasuresStep(treeRootHolder, qualityGateHolder, qualityGateStatusHolder, measureRepository, metricRepository,
-    resultTextConverter, new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository));
+    resultTextConverter, new SmallChangesetQualityGateSpecialCase(measureRepository, metricRepository, configurationRepository));
 
   @Before
   public void setUp() {
@@ -109,6 +114,8 @@ public class QualityGateMeasuresStepTest {
         return dumbResultTextAnswer(condition, evaluationResult.getLevel(), evaluationResult.getValue());
       }
     });
+    when(configurationRepository.getConfiguration()).thenReturn(configuration);
+    when(configuration.getInt(anyString())).thenReturn(Optional.empty());
   }
 
   private static String dumbResultTextAnswer(Condition condition, Measure.Level level, Object value) {

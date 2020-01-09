@@ -486,4 +486,9 @@ public interface CoreProperties {
    * @since 7.6
    */
   String MODULE_LEVEL_ARCHIVED_SETTINGS = "sonar.subproject.settings.archived";
+
+  /**
+   * @since 8.2
+   */
+  String SMALL_CHANGESET_MAX_LINES = "sonar.smallchangeset.maxlines";
 }
