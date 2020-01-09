@@ -19,16 +19,15 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.Map;
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.admin.indices.stats.IndexStats;
-import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.response.IndexStats;
+import org.sonar.server.es.response.IndicesStatsResponse;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
@@ -56,12 +55,12 @@ public class EsIndexesSection implements SystemInfoSection, Global {
   }
 
   private void completeIndexAttributes(ProtobufSystemInfo.Section.Builder protobuf) {
-    IndicesStatsResponse indicesStats = esClient.prepareStats().all().get();
-    for (Map.Entry<String, IndexStats> indexStats : indicesStats.getIndices().entrySet()) {
-      String prefix = "Index " + indexStats.getKey() + " - ";
-      setAttribute(protobuf, prefix + "Docs", indexStats.getValue().getPrimaries().getDocs().getCount());
-      setAttribute(protobuf, prefix + "Shards", indexStats.getValue().getShards().length);
-      setAttribute(protobuf, prefix + "Store Size", byteCountToDisplaySize(indexStats.getValue().getPrimaries().getStore().getSizeInBytes()));
+    IndicesStatsResponse indicesStats = esClient.indicesStats();
+    for (IndexStats indexStats : indicesStats.getAllIndexStats()) {
+      String prefix = "Index " + indexStats.getName() + " - ";
+      setAttribute(protobuf, prefix + "Docs", indexStats.getDocCount());
+      setAttribute(protobuf, prefix + "Shards", indexStats.getShardsCount());
+      setAttribute(protobuf, prefix + "Store Size", byteCountToDisplaySize(indexStats.getStoreSizeBytes()));
     }
   }
 }

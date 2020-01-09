@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HostAndPort;
 import java.util.Arrays;
 import java.util.Set;
@@ -31,16 +32,18 @@ import org.sonar.application.es.EsConnector;
 import org.sonar.application.es.EsConnectorImpl;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
+import org.sonar.process.cluster.NodeType;
 import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
 
 import static java.util.Arrays.asList;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 public class AppStateFactory {
   private final AppSettings settings;
@@ -70,10 +73,17 @@ public class AppStateFactory {
   }
 
   private static EsConnector createEsConnector(Props props) {
+    NodeType nodeType = ClusterSettings.toNodeType(props);
+    if (nodeType == NodeType.SEARCH) {
+      String host = props.nonNullValue(SEARCH_HOST.getKey());
+      String port = props.nonNullValue(SEARCH_PORT.getKey());
+      return new EsConnectorImpl(ImmutableSet.of(HostAndPort.fromParts(host, Integer.valueOf(port))));
+    }
+
     String searchHosts = props.nonNullValue(CLUSTER_SEARCH_HOSTS.getKey());
     Set<HostAndPort> hostAndPorts = Arrays.stream(searchHosts.split(","))
       .map(HostAndPort::fromString)
       .collect(Collectors.toSet());
-    return new EsConnectorImpl(props.nonNullValue(CLUSTER_NAME.getKey()), hostAndPorts);
+    return new EsConnectorImpl(hostAndPorts);
   }
 }

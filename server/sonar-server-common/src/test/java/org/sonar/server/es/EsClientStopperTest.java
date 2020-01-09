@@ -23,8 +23,7 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class EsClientStopperTest {
 
@@ -34,7 +33,7 @@ public class EsClientStopperTest {
   @Test
   public void stop_client() {
     underTest.start();
-    verifyZeroInteractions(client);
+    verifyNoMoreInteractions(client);
 
     underTest.stop();
     verify(client).close();

@@ -26,7 +26,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.elasticsearch.action.admin.indices.stats.IndexStats;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
@@ -41,8 +43,8 @@ public class MigrationEsClientImpl implements MigrationEsClient {
 
   @Override
   public void deleteIndexes(String name, String... otherNames) {
-    Map<String, IndexStats> indices = client.nativeClient().admin().indices().prepareStats().get().getIndices();
-    Set<String> existingIndices = indices.values().stream().map(IndexStats::getIndex).collect(MoreCollectors.toSet());
+    String[] indices = client.getIndex(new GetIndexRequest("_all")).getIndices();
+    Set<String> existingIndices = Arrays.stream(indices).collect(MoreCollectors.toSet());
     Stream.concat(Stream.of(name), Arrays.stream(otherNames))
       .distinct()
       .filter(existingIndices::contains)
@@ -51,17 +53,18 @@ public class MigrationEsClientImpl implements MigrationEsClient {
 
   @Override
   public void addMappingToExistingIndex(String index, String type, String mappingName, String mappingType, Map<String, String> options) {
-    IndexStats stats = client.nativeClient().admin().indices().prepareStats().get().getIndex(index);
-    if (stats != null) {
+    String[] indices = client.getIndex(new GetIndexRequest(index)).getIndices();
+    if (indices != null && indices.length == 1) {
       Loggers.get(getClass()).info("Add mapping [{}] to Elasticsearch index [{}]", mappingName, index);
       String mappingOptions = Stream.concat(Stream.of(Maps.immutableEntry("type", mappingType)), options.entrySet().stream())
         .map(e -> e.getKey() + "=" + e.getValue())
         .collect(Collectors.joining(","));
-      client.nativeClient().admin().indices().preparePutMapping(index)
-        .setType(type)
-        .setSource(mappingName, mappingOptions)
-        .get();
+      client.putMapping(new PutMappingRequest(index)
+        .type(type)
+        .source(mappingName, mappingOptions));
       updatedIndices.add(index);
+    } else {
+      throw new IllegalStateException("Expected only one index to be found, actual [" + String.join(",", indices) + "]");
     }
   }
 
@@ -72,6 +75,6 @@ public class MigrationEsClientImpl implements MigrationEsClient {
 
   private void deleteIndex(String index) {
     Loggers.get(getClass()).info("Drop Elasticsearch index [{}]", index);
-    client.nativeClient().admin().indices().prepareDelete(index).get();
+    client.deleteIndex(new DeleteIndexRequest(index));
   }
 }

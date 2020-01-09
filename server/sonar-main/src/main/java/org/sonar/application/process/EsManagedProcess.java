@@ -20,8 +20,9 @@
 package org.sonar.application.process;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.discovery.MasterNotDiscoveredException;
+import org.elasticsearch.ElasticsearchStatusException;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.rest.RestStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.es.EsConnector;
@@ -85,26 +86,32 @@ public class EsManagedProcess extends AbstractManagedProcess {
 
   private Status checkStatus() {
     try {
-      switch (esConnector.getClusterHealthStatus()) {
-        case GREEN:
-          return GREEN;
-        case YELLOW:
-          return YELLOW;
-        case RED:
-          return RED;
-        default:
-          return KO;
-      }
-    } catch (NoNodeAvailableException e) {
-      return CONNECTION_REFUSED;
-    } catch (MasterNotDiscoveredException e) {
-      if (firstMasterNotDiscoveredLog.getAndSet(false)) {
-        LOG.info("Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?");
+      return esConnector.getClusterHealthStatus()
+        .map(EsManagedProcess::convert)
+        .orElse(CONNECTION_REFUSED);
+    } catch (ElasticsearchStatusException e) {
+      if (e.status() == RestStatus.SERVICE_UNAVAILABLE && e.getMessage().contains("type=master_not_discovered_exception")) {
+        if (firstMasterNotDiscoveredLog.getAndSet(false)) {
+          LOG.info("Elasticsearch is waiting for a master to be elected. Did you start all the search nodes ?");
+        }
       }
       return KO;
     } catch (Exception e) {
       LOG.error("Failed to check status", e);
       return KO;
+    }
+  }
+
+  private static Status convert(ClusterHealthStatus clusterHealthStatus) {
+    switch (clusterHealthStatus) {
+      case GREEN:
+        return GREEN;
+      case YELLOW:
+        return YELLOW;
+      case RED:
+        return RED;
+      default:
+        return KO;
     }
   }
 

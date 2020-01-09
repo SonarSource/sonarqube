@@ -51,7 +51,7 @@ public class AppStateFactoryTest {
     settings.set(CLUSTER_NODE_HOST.getKey(), ip.get().getHostAddress());
     settings.set(CLUSTER_HZ_HOSTS.getKey(), ip.get().getHostAddress());
     settings.set(CLUSTER_NAME.getKey(), "foo");
-    settings.set(CLUSTER_SEARCH_HOSTS.getKey(), "localhost:9001");
+    settings.set(CLUSTER_SEARCH_HOSTS.getKey(), "localhost:9002");
 
     AppState appState = underTest.create();
     assertThat(appState).isInstanceOf(ClusterAppStateImpl.class);

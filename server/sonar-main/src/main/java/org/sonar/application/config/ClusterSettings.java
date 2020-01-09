@@ -138,7 +138,7 @@ public class ClusterSettings implements Consumer<Props> {
     return addressAndPort;
   }
 
-  private static NodeType toNodeType(Props props) {
+  public static NodeType toNodeType(Props props) {
     String nodeTypeValue = requireValue(props, CLUSTER_NODE_TYPE);
     if (!NodeType.isValid(nodeTypeValue)) {
       throw new MessageException(format("Invalid value for property %s: [%s], only [%s] are allowed", CLUSTER_NODE_TYPE.getKey(), nodeTypeValue,

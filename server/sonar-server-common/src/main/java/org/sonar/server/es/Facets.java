@@ -38,7 +38,7 @@ import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.sum.Sum;
+import org.elasticsearch.search.aggregations.metrics.Sum;
 
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;

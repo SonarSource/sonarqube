@@ -36,9 +36,9 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
-import static org.sonar.process.ProcessProperties.Property.SEARCH_HTTP_PORT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_INITIAL_STATE_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_TRANSPORT_PORT;
 
 public class EsSettings {
 
@@ -75,8 +75,8 @@ public class EsSettings {
   public Map<String, String> build() {
     Map<String, String> builder = new HashMap<>();
     configureFileSystem(builder);
-    configureNetwork(builder);
-    configureCluster(builder);
+    InetAddress host = configureNetwork(builder);
+    configureCluster(builder, host);
     configureOthers(builder);
     return builder;
   }
@@ -86,33 +86,27 @@ public class EsSettings {
     builder.put("path.logs", fileSystem.getLogDirectory().getAbsolutePath());
   }
 
-  private void configureNetwork(Map<String, String> builder) {
+  private InetAddress configureNetwork(Map<String, String> builder) {
     InetAddress host = readHost();
-    int port = Integer.parseInt(props.nonNullValue(SEARCH_PORT.getKey()));
-    LOGGER.info("Elasticsearch listening on {}:{}", host, port);
+    int httpPort = Integer.parseInt(props.nonNullValue(SEARCH_PORT.getKey()));
+    LOGGER.info("Elasticsearch listening on {}:{}", host, httpPort);
 
-    // FIXME no need to open TCP port unless running DCE
-    //       TCP is used by main process to check ES is up => probably has to use HTTP now
-    builder.put("transport.port", valueOf(port));
-    builder.put("transport.host", valueOf(host.getHostAddress()));
+    // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
+    builder.put("http.cors.enabled", valueOf(true));
+    builder.put("http.cors.allow-origin", "*");
+    builder.put("http.host", host.getHostAddress());
+    builder.put("http.port", valueOf(httpPort));
+
     builder.put("network.host", valueOf(host.getHostAddress()));
-
     // Elasticsearch sets the default value of TCP reuse address to true only on non-MSWindows machines, but why ?
     builder.put("network.tcp.reuse_address", valueOf(true));
 
-    int httpPort = props.valueAsInt(SEARCH_HTTP_PORT.getKey(), -1);
-    if (httpPort < 0) {
-      // standard configuration
-      builder.put("http.enabled", valueOf(false));
-    } else {
-      LOGGER.warn("Elasticsearch HTTP connector is enabled on port {}. MUST NOT BE USED FOR PRODUCTION", httpPort);
-      // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
-      builder.put("http.cors.enabled", valueOf(true));
-      builder.put("http.cors.allow-origin", "*");
-      builder.put("http.enabled", valueOf(true));
-      builder.put("http.host", host.getHostAddress());
-      builder.put("http.port", valueOf(httpPort));
-    }
+    // FIXME remove definition of transport properties when Web and CE have moved to ES Rest client
+    int tcpPort = props.valueAsInt(SEARCH_TRANSPORT_PORT.getKey(), 9002);
+    builder.put("transport.port", valueOf(tcpPort));
+    builder.put("transport.host", valueOf(host.getHostAddress()));
+
+    return host;
   }
 
   private InetAddress readHost() {
@@ -124,13 +118,17 @@ public class EsSettings {
     }
   }
 
-  private void configureCluster(Map<String, String> builder) {
+  private void configureCluster(Map<String, String> builder, InetAddress host) {
     // Default value in a standalone mode, not overridable
 
     String initialStateTimeOut = "30s";
 
     if (clusterEnabled) {
       initialStateTimeOut = props.value(SEARCH_INITIAL_STATE_TIMEOUT.getKey(), "120s");
+
+      int tcpPort = props.valueAsInt(SEARCH_TRANSPORT_PORT.getKey(), 9002);
+      builder.put("transport.port", valueOf(tcpPort));
+      builder.put("transport.host", valueOf(host.getHostAddress()));
 
       String hosts = props.value(CLUSTER_SEARCH_HOSTS.getKey(), "");
       LOGGER.info("Elasticsearch cluster enabled. Connect to hosts [{}]", hosts);

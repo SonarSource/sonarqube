@@ -78,7 +78,7 @@ public enum DefaultIndexSettingsElement {
 
     @Override
     protected void setup() {
-      set(TYPE, "nGram");
+      set(TYPE, "ngram");
       set(MIN_GRAM, MINIMUM_NGRAM_LENGTH);
       set(MAX_GRAM, MAXIMUM_NGRAM_LENGTH);
       setList("token_chars", "letter", "digit", "punctuation", "symbol");
@@ -91,7 +91,7 @@ public enum DefaultIndexSettingsElement {
 
     @Override
     protected void setup() {
-      set(TYPE, "nGram");
+      set(TYPE, "ngram");
       set(MIN_GRAM, MINIMUM_NGRAM_LENGTH);
       set(MAX_GRAM, MAXIMUM_NGRAM_LENGTH);
       setList("token_chars", "letter", "digit", "punctuation", "symbol");
@@ -101,7 +101,7 @@ public enum DefaultIndexSettingsElement {
 
     @Override
     protected void setup() {
-      set(TYPE, "edgeNGram");
+      set(TYPE, "edge_ngram");
       set(MIN_GRAM, MINIMUM_NGRAM_LENGTH);
       set(MAX_GRAM, MAXIMUM_NGRAM_LENGTH);
     }

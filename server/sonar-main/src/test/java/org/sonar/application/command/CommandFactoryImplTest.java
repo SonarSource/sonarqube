@@ -131,9 +131,8 @@ public class CommandFactoryImplTest {
     EsScriptCommand esCommand = (EsScriptCommand) command;
     EsInstallation esConfig = esCommand.getEsInstallation();
 
-    assertThat(esConfig.getClusterName()).isEqualTo("sonarqube");
     assertThat(esConfig.getHost()).isNotEmpty();
-    assertThat(esConfig.getPort()).isEqualTo(9001);
+    assertThat(esConfig.getHttpPort()).isEqualTo(9001);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
       .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
@@ -167,9 +166,8 @@ public class CommandFactoryImplTest {
     JavaCommand<?> esCommand = (JavaCommand<?>) command;
     EsInstallation esConfig = esCommand.getEsInstallation();
 
-    assertThat(esConfig.getClusterName()).isEqualTo("sonarqube");
     assertThat(esConfig.getHost()).isNotEmpty();
-    assertThat(esConfig.getPort()).isEqualTo(9001);
+    assertThat(esConfig.getHttpPort()).isEqualTo(9001);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
       .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")
@@ -209,8 +207,7 @@ public class CommandFactoryImplTest {
     AbstractCommand esCommand = newFactory(props).createEsCommand();
     EsInstallation esConfig = esCommand.getEsInstallation();
 
-    assertThat(esConfig.getClusterName()).isEqualTo("foo");
-    assertThat(esConfig.getPort()).isEqualTo(1234);
+    assertThat(esConfig.getHttpPort()).isEqualTo(1234);
     assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
       .contains("-XX:+UseConcMarkSweepGC", "-Dfile.encoding=UTF-8")

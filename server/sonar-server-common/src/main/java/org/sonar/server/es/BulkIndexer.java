@@ -31,8 +31,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequestBuilder;
+import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -40,12 +42,13 @@ import org.elasticsearch.action.bulk.BulkProcessor.Listener;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
@@ -74,7 +77,8 @@ public class BulkIndexer {
   private static final String REFRESH_INTERVAL_SETTING = "index.refresh_interval";
   private static final int DEFAULT_NUMBER_OF_SHARDS = 5;
 
-  private final EsClient client;
+  private final EsClient esClient;
+
   private final IndexType indexType;
   private final BulkProcessor bulkProcessor;
   private final IndexingResult result = new IndexingResult();
@@ -86,12 +90,14 @@ public class BulkIndexer {
   }
 
   public BulkIndexer(EsClient client, IndexType indexType, Size size, IndexingListener indexingListener) {
-    this.client = client;
+    this.esClient = client;
     this.indexType = indexType;
     this.sizeHandler = size.createHandler(Runtime2.INSTANCE);
     this.indexingListener = indexingListener;
     BulkProcessorListener bulkProcessorListener = new BulkProcessorListener();
-    this.bulkProcessor = BulkProcessor.builder(client.nativeClient(), bulkProcessorListener)
+    this.bulkProcessor = BulkProcessor.builder(
+      client::bulkAsync,
+      bulkProcessorListener)
       .setBackoffPolicy(BackoffPolicy.exponentialBackoff())
       .setBulkSize(FLUSH_BYTE_SIZE)
       .setBulkActions(FLUSH_ACTIONS)
@@ -118,7 +124,9 @@ public class BulkIndexer {
       Thread.currentThread().interrupt();
       throw new IllegalStateException("Elasticsearch bulk requests still being executed after 1 minute", e);
     }
-    client.prepareRefresh(indexType.getMainType().getIndex()).get();
+
+    esClient.refresh(indexType.getMainType().getIndex());
+
     sizeHandler.afterStop(this);
     indexingListener.onFinish(result);
     return result;
@@ -139,50 +147,53 @@ public class BulkIndexer {
     bulkProcessor.add(request);
   }
 
-  public void addDeletion(SearchRequestBuilder searchRequest) {
+  public void addDeletion(SearchRequest searchRequest) {
     // TODO to be replaced by delete_by_query that is back in ES5
     searchRequest
-      .addSort("_doc", SortOrder.ASC)
-      .setScroll(TimeValue.timeValueMinutes(5))
-      .setSize(100)
+      .scroll(TimeValue.timeValueMinutes(5))
+      .source()
+      .sort("_doc", SortOrder.ASC)
+      .size(100)
       // load only doc ids, not _source fields
-      .setFetchSource(false);
+      .fetchSource(false);
 
     // this search is synchronous. An optimization would be to be non-blocking,
     // but it requires to tracking pending requests in close().
     // Same semaphore can't be reused because of potential deadlock (requires to acquire
     // two locks)
-    SearchResponse searchResponse = searchRequest.get();
+    SearchResponse searchResponse = esClient.search(searchRequest);
 
     while (true) {
       SearchHit[] hits = searchResponse.getHits().getHits();
       for (SearchHit hit : hits) {
         DocumentField routing = hit.field("_routing");
-        DeleteRequestBuilder deleteRequestBuilder = client.prepareDelete(hit.getIndex(), hit.getType(), hit.getId());
+        DeleteRequest deleteRequest = new DeleteRequest(hit.getIndex(), hit.getType(), hit.getId());
         if (routing != null) {
-          deleteRequestBuilder.setRouting(routing.getValue());
+          deleteRequest.routing(routing.getValue());
         }
-        add(deleteRequestBuilder.request());
+        add(deleteRequest);
       }
 
       String scrollId = searchResponse.getScrollId();
       if (scrollId == null) {
         break;
       }
-      searchResponse = client.prepareSearchScroll(scrollId).setScroll(TimeValue.timeValueMinutes(5)).get();
+      searchResponse = esClient.scroll(new SearchScrollRequest(scrollId).scroll(TimeValue.timeValueMinutes(5)));
       if (hits.length == 0) {
-        client.nativeClient().prepareClearScroll().addScrollId(scrollId).get();
+        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
+        clearScrollRequest.addScrollId(scrollId);
+        esClient.clearScroll(clearScrollRequest);
         break;
       }
     }
   }
 
   public void addDeletion(IndexType indexType, String id) {
-    add(client.prepareDelete(indexType, id).request());
+    add(new DeleteRequest(indexType.getMainType().getIndex().getName(), indexType.getMainType().getType(), id));
   }
 
   public void addDeletion(IndexType indexType, String id, @Nullable String routing) {
-    add(client.prepareDelete(indexType, id).setRouting(routing).request());
+    add(new DeleteRequest(indexType.getMainType().getIndex().getName(), indexType.getMainType().getType(), id).routing(routing));
   }
 
   /**
@@ -191,7 +202,7 @@ public class BulkIndexer {
    * <p>
    * Note that the parameter indexType could be removed if progress logs are not needed.
    */
-  public static IndexingResult delete(EsClient client, IndexType indexType, SearchRequestBuilder searchRequest) {
+  public static IndexingResult delete(EsClient client, IndexType indexType, SearchRequest searchRequest) {
     BulkIndexer bulk = new BulkIndexer(client, indexType, Size.REGULAR);
     bulk.start();
     bulk.addDeletion(searchRequest);
@@ -381,13 +392,14 @@ public class BulkIndexer {
         .setPluralLabel("requests");
       this.progress.start();
       Map<String, Object> temporarySettings = new HashMap<>();
-      GetSettingsResponse settingsResp = bulkIndexer.client.nativeClient().admin().indices().prepareGetSettings(index).get();
+
+      GetSettingsResponse settingsResp = bulkIndexer.esClient.getSettings(new GetSettingsRequest());
 
       // deactivate replicas
-      int initialReplicas = Integer.parseInt(settingsResp.getSetting(index, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
+      int initialReplicas = Integer.parseInt(settingsResp.getSetting(index, IndexMetadata.SETTING_NUMBER_OF_REPLICAS));
       if (initialReplicas > 0) {
-        initialSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
-        temporarySettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0);
+        initialSettings.put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
+        temporarySettings.put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, 0);
       }
 
       // deactivate periodical refresh
@@ -403,16 +415,16 @@ public class BulkIndexer {
       // optimize lucene segments and revert index settings
       // Optimization must be done before re-applying replicas:
       // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
-      bulkIndexer.client.prepareForceMerge(bulkIndexer.indexType.getMainType().getIndex().getName()).get();
+      bulkIndexer.esClient.forcemerge(new ForceMergeRequest(bulkIndexer.indexType.getMainType().getIndex().getName()));
 
       updateSettings(bulkIndexer, initialSettings);
       this.progress.stop();
     }
 
     private static void updateSettings(BulkIndexer bulkIndexer, Map<String, Object> settings) {
-      UpdateSettingsRequestBuilder req = bulkIndexer.client.nativeClient().admin().indices().prepareUpdateSettings(bulkIndexer.indexType.getMainType().getIndex().getName());
-      req.setSettings(settings);
-      req.get();
+      UpdateSettingsRequest req = new UpdateSettingsRequest(bulkIndexer.indexType.getMainType().getIndex().getName());
+      req.settings(settings);
+      bulkIndexer.esClient.putSettings(req);
     }
   }
 }

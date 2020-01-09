@@ -34,7 +34,7 @@ public class SearchResult<DOC extends BaseDoc> {
 
   public SearchResult(SearchResponse response, Function<Map<String, Object>, DOC> converter, TimeZone timeZone) {
     this.facets = new Facets(response, timeZone);
-    this.total = response.getHits().getTotalHits();
+    this.total = response.getHits().getTotalHits().value;
     this.docs = EsUtils.convertToDocs(response.getHits(), converter);
   }
 

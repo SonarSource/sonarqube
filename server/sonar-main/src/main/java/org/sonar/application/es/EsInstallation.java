@@ -52,7 +52,7 @@ public class EsInstallation {
   private Properties log4j2Properties;
   private String clusterName;
   private String host;
-  private int port;
+  private int httpPort;
 
   public EsInstallation(Props props) {
     File sqHomeDir = props.nonNullValueAsFile(PATH_HOME.getKey());
@@ -152,15 +152,6 @@ public class EsInstallation {
     return this;
   }
 
-  public String getClusterName() {
-    return clusterName;
-  }
-
-  public EsInstallation setClusterName(String clusterName) {
-    this.clusterName = clusterName;
-    return this;
-  }
-
   public String getHost() {
     return host;
   }
@@ -170,12 +161,12 @@ public class EsInstallation {
     return this;
   }
 
-  public int getPort() {
-    return port;
+  public int getHttpPort() {
+    return httpPort;
   }
 
-  public EsInstallation setPort(int port) {
-    this.port = port;
+  public EsInstallation setHttpPort(int httpPort) {
+    this.httpPort = httpPort;
     return this;
   }
 }

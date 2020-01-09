@@ -143,9 +143,8 @@ public class CommandFactoryImpl implements CommandFactory {
         .addFromMandatoryProperty(props, SEARCH_JAVA_OPTS.getKey())
         .addFromMandatoryProperty(props, SEARCH_JAVA_ADDITIONAL_OPTS.getKey()))
       .setEsYmlSettings(new EsYmlSettings(settingsMap))
-      .setClusterName(settingsMap.get("cluster.name"))
-      .setHost(settingsMap.get("network.host"))
-      .setPort(Integer.parseInt(settingsMap.get("transport.port")));
+      .setHost(settingsMap.get("http.host"))
+      .setHttpPort(Integer.parseInt(settingsMap.get("http.port")));
     return esInstallation;
   }
 

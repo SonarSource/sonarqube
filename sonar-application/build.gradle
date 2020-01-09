@@ -30,7 +30,7 @@ dependencies {
     // please keep list ordered
     compile 'org.slf4j:slf4j-api'
 
-    compile 'org.elasticsearch.client:transport'
+    compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
     compile project(':server:sonar-ce')
     compile project(':server:sonar-main')
     compile project(':server:sonar-process')

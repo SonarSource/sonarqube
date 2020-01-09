@@ -23,7 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class MigrationEsClientImplTest {
@@ -77,8 +79,8 @@ public class MigrationEsClientImplTest {
     underTest.addMappingToExistingIndex("as", "s", "new_field", "keyword", mappingOptions);
 
     assertThat(loadExistingIndices()).toIterable().contains("as");
-    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
-    MappingMetaData mapping = mappings.get("as").get("s");
+    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings = mappings();
+    MappingMetadata mapping = mappings.get("as").get("s");
     assertThat(countMappingFields(mapping)).isEqualTo(1);
     assertThat(field(mapping, "new_field")).isNotNull();
 
@@ -87,22 +89,31 @@ public class MigrationEsClientImplTest {
     assertThat(underTest.getUpdatedIndices()).containsExactly("as");
   }
 
-  private Iterator<String> loadExistingIndices() {
-    return es.client().nativeClient().admin().indices().prepareGetMappings().get().mappings().keysIt();
+  @Test
+  public void shouldFailIfMoreThanOneIndexReturned() {
+    String indexPattern = "*s";
+    Map<String, String> mappingOptions = ImmutableMap.of("norms", "false");
+    assertThatThrownBy(() -> underTest.addMappingToExistingIndex(indexPattern, "s", "new_field", "keyword", mappingOptions))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Expected only one index to be found, actual");
   }
 
-  private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings() {
-    return es.client().nativeClient().admin().indices().prepareGetMappings().get().mappings();
+  private Iterator<String> loadExistingIndices() {
+    return es.client().getMapping(new GetMappingsRequest()).mappings().keysIt();
+  }
+
+  private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings() {
+    return es.client().getMapping(new GetMappingsRequest()).mappings();
   }
 
   @CheckForNull
   @SuppressWarnings("unchecked")
-  private Map<String, Object> field(MappingMetaData mapping, String field) {
+  private Map<String, Object> field(MappingMetadata mapping, String field) {
     Map<String, Object> props = (Map<String, Object>) mapping.getSourceAsMap().get("properties");
     return (Map<String, Object>) props.get(field);
   }
 
-  private int countMappingFields(MappingMetaData mapping) {
+  private int countMappingFields(MappingMetadata mapping) {
     return ((Map) mapping.getSourceAsMap().get("properties")).size();
   }
 

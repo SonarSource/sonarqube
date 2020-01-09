@@ -19,7 +19,7 @@
  */
 package org.sonar.server.es.newindex;
 
-import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.FakeDoc;
 import org.sonar.server.es.Index;
@@ -47,7 +47,7 @@ public class FakeIndexDefinition implements IndexDefinition {
   @Override
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(DESCRIPTOR, newBuilder(new MapSettings().asConfig()).build());
-    index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
+    index.getSettings().put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, replicas);
     index.getSettings().put("index.refresh_interval", "-1");
     index.createTypeMapping(TYPE_FAKE)
       .createIntegerField(INT_FIELD);

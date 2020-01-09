@@ -20,12 +20,19 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
+import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.indices.AnalyzeRequest;
+import org.elasticsearch.client.indices.AnalyzeResponse;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
@@ -93,8 +100,10 @@ public class RuleIndexDefinitionTest {
       FIELD_RULE_REPOSITORY, "squid",
       FIELD_RULE_KEY, "squid:S001")));
     assertThat(tester.countDocuments(TYPE_RULE)).isEqualTo(1);
-    assertThat(tester.client().prepareSearch(TYPE_RULE.getIndex()).setQuery(matchQuery(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION), "brown fox jumps lazy"))
-      .get().getHits().getTotalHits()).isEqualTo(1);
+    assertThat(tester.client().search(EsClient.prepareSearch(TYPE_RULE)
+      .source(new SearchSourceBuilder()
+        .query(matchQuery(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION), "brown fox jumps lazy"))))
+      .getHits().getTotalHits()).isEqualTo(new TotalHits(1, TotalHits.Relation.EQUAL_TO));
   }
 
   @Test
@@ -115,9 +124,12 @@ public class RuleIndexDefinitionTest {
   }
 
   private List<AnalyzeResponse.AnalyzeToken> analyzeIndexedTokens(String text) {
-    return tester.client().nativeClient().admin().indices().prepareAnalyze(TYPE_RULE.getIndex().getName(),
-      text)
-      .setField(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION))
-      .execute().actionGet().getTokens();
+    try {
+      return tester.nativeClient().indices()
+        .analyze(AnalyzeRequest.withField(TYPE_RULE.getIndex().getName(), ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION), text), RequestOptions.DEFAULT)
+        .getTokens();
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not analyze indexed tokens for text: " + text);
+    }
   }
 }

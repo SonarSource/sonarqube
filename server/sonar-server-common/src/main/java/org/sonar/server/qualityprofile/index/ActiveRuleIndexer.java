@@ -27,8 +27,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
@@ -184,8 +185,8 @@ public class ActiveRuleIndexer implements ResilientIndexer {
       RulesProfileDto profile = dbClient.qualityProfileDao().selectRuleProfile(dbSession, ruleProfileUUid);
       if (profile == null) {
         // profile does not exist anymore in db --> related documents must be deleted from index rules/activeRule
-        SearchRequestBuilder search = esClient.prepareSearch(TYPE_ACTIVE_RULE.getMainType())
-          .setQuery(QueryBuilders.boolQuery().must(termQuery(FIELD_ACTIVE_RULE_PROFILE_UUID, ruleProfileUUid)));
+        SearchRequest search = EsClient.prepareSearch(TYPE_ACTIVE_RULE.getMainType())
+          .source(new SearchSourceBuilder().query(QueryBuilders.boolQuery().must(termQuery(FIELD_ACTIVE_RULE_PROFILE_UUID, ruleProfileUUid))));
         profileResult = BulkIndexer.delete(esClient, TYPE_ACTIVE_RULE, search);
 
       } else {

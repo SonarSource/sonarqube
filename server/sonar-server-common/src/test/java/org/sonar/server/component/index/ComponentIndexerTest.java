@@ -22,6 +22,7 @@ package org.sonar.server.component.index;
 import java.util.Arrays;
 import java.util.Collection;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -32,6 +33,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.ProjectIndexer;
@@ -257,9 +259,9 @@ public class ComponentIndexerTest {
 
   private void assertThatComponentHasName(ComponentDto component, String expectedName) {
     SearchHit[] hits = es.client()
-      .prepareSearch(TYPE_COMPONENT.getMainType())
-      .setQuery(matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), expectedName))
-      .get()
+      .search(EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
+        .source(new SearchSourceBuilder()
+          .query(matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), expectedName))))
       .getHits()
       .getHits();
     assertThat(hits)

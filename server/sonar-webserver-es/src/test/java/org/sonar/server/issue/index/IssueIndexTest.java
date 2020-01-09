@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.lucene.search.TotalHits;
 import org.assertj.core.groups.Tuple;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
@@ -102,15 +103,15 @@ public class IssueIndexTest {
     // There are 12 issues in total, with 10 issues per page, the page 2 should only contain 2 elements
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setPage(2, 10));
     assertThat(result.getHits().getHits()).hasSize(2);
-    assertThat(result.getHits().getTotalHits()).isEqualTo(12);
+    assertThat(result.getHits().getTotalHits()).isEqualTo(new TotalHits(12, TotalHits.Relation.EQUAL_TO));
 
     result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(0).setLimit(5));
     assertThat(result.getHits().getHits()).hasSize(5);
-    assertThat(result.getHits().getTotalHits()).isEqualTo(12);
+    assertThat(result.getHits().getTotalHits()).isEqualTo(new TotalHits(12, TotalHits.Relation.EQUAL_TO));
 
     result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(2).setLimit(10));
     assertThat(result.getHits().getHits()).hasSize(10);
-    assertThat(result.getHits().getTotalHits()).isEqualTo(12);
+    assertThat(result.getHits().getTotalHits()).isEqualTo(new TotalHits(12, TotalHits.Relation.EQUAL_TO));
   }
 
   @Test

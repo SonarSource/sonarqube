@@ -31,6 +31,7 @@ import org.sonar.server.es.EsClient;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +44,7 @@ public class EsStatusClusterCheckTest {
   @Test
   public void check_ignores_NodeHealth_arg_and_returns_RED_with_cause_if_an_exception_occurs_checking_ES_cluster_status() {
     Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(NodeHealth.Status.GREEN));
-    when(esClient.prepareClusterStats()).thenThrow(new RuntimeException("Faking an exception occurring while using the EsClient"));
+    when(esClient.clusterHealth(any())).thenThrow(new RuntimeException("Faking an exception occurring while using the EsClient"));
 
     Health health = new EsStatusClusterCheck(esClient).check(nodeHealths);
 
@@ -54,7 +55,7 @@ public class EsStatusClusterCheckTest {
   @Test
   public void check_ignores_NodeHealth_arg_and_returns_GREEN_without_cause_if_ES_cluster_status_is_GREEN() {
     Set<NodeHealth> nodeHealths = ImmutableSet.of(newNodeHealth(NodeHealth.Status.YELLOW));
-    when(esClient.prepareClusterStats().get().getStatus()).thenReturn(ClusterHealthStatus.GREEN);
+    when(esClient.clusterHealth(any()).getStatus()).thenReturn(ClusterHealthStatus.GREEN);
 
     Health health = underTest.check(nodeHealths);
 

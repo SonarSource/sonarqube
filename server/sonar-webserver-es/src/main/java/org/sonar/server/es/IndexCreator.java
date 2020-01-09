@@ -25,10 +25,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.CreateIndexResponse;
+import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.picocontainer.Startable;
@@ -78,7 +82,7 @@ public class IndexCreator implements Startable {
   public void start() {
     // create the "metadata" index first
     IndexType.IndexMainType metadataMainType = TYPE_METADATA;
-    if (!client.prepareIndicesExist(metadataMainType.getIndex()).get().isExists()) {
+    if (!client.indexExists(new GetIndexRequest(metadataMainType.getIndex().getName()))) {
       IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
       metadataIndexDefinition.define(context);
       NewIndex index = context.getIndices().values().iterator().next();
@@ -93,7 +97,7 @@ public class IndexCreator implements Startable {
     definitions.getIndices().values().stream()
       .filter(i -> !i.getMainType().equals(metadataMainType))
       .forEach(index -> {
-        boolean exists = client.prepareIndicesExist(index.getMainType().getIndex()).get().isExists();
+        boolean exists = client.indexExists(new GetIndexRequest(index.getMainType().getIndex().getName()));
         if (!exists) {
           createIndex(index, true);
         } else if (hasDefinitionChange(index)) {
@@ -112,7 +116,7 @@ public class IndexCreator implements Startable {
 
   private boolean isReadOnly(IndexType.IndexMainType mainType) {
     String indexName = mainType.getIndex().getName();
-    String readOnly = client.nativeClient().admin().indices().getSettings(new GetSettingsRequest().indices(indexName)).actionGet()
+    String readOnly = client.getSettings(new GetSettingsRequest().indices(indexName))
       .getSetting(indexName, "index.blocks.read_only_allow_delete");
     return "true".equalsIgnoreCase(readOnly);
   }
@@ -123,9 +127,8 @@ public class IndexCreator implements Startable {
     String indexName = mainType.getIndex().getName();
     Settings.Builder builder = Settings.builder();
     builder.putNull("index.blocks.read_only_allow_delete");
-    client.nativeClient().admin().indices()
-      .updateSettings(new UpdateSettingsRequest().indices(indexName).settings(builder.build()))
-      .actionGet();
+
+    client.putSettings(new UpdateSettingsRequest().indices(indexName).settings(builder.build()));
   }
 
   @Override
@@ -143,10 +146,8 @@ public class IndexCreator implements Startable {
       metadataIndex.setInitialized(builtIndex.getMainType(), false);
       builtIndex.getRelationTypes().forEach(relationType -> metadataIndex.setInitialized(relationType, false));
     }
-    CreateIndexResponse indexResponse = client
-      .prepareCreate(index)
-      .setSettings(settings)
-      .get();
+    CreateIndexResponse indexResponse = client.create(new CreateIndexRequest(index.getName()).settings((settings)));
+
     if (!indexResponse.isAcknowledged()) {
       throw new IllegalStateException("Failed to create index [" + index.getName() + "]");
     }
@@ -154,10 +155,10 @@ public class IndexCreator implements Startable {
 
     // create types
     LOGGER.info("Create type {}", builtIndex.getMainType().format());
-    AcknowledgedResponse mappingResponse = client.preparePutMapping(index)
-      .setType(builtIndex.getMainType().getType())
-      .setSource(builtIndex.getAttributes())
-      .get();
+    AcknowledgedResponse mappingResponse = client.putMapping(new PutMappingRequest(builtIndex.getMainType().getIndex().getName())
+      .type(builtIndex.getMainType().getType())
+      .source(builtIndex.getAttributes()));
+
     if (!mappingResponse.isAcknowledged()) {
       throw new IllegalStateException("Failed to create type " + builtIndex.getMainType().getType());
     }
@@ -165,7 +166,7 @@ public class IndexCreator implements Startable {
   }
 
   private void deleteIndex(String indexName) {
-    client.nativeClient().admin().indices().prepareDelete(indexName).get();
+    client.deleteIndex(new DeleteIndexRequest(indexName));
   }
 
   private void updateIndex(BuiltIndex<?> index) {
@@ -215,7 +216,7 @@ public class IndexCreator implements Startable {
     Set<String> definedNames = definitions.stream()
       .map(t -> t.getMainType().getIndex().getName())
       .collect(Collectors.toSet());
-    return Arrays.stream(client.nativeClient().admin().indices().prepareGetIndex().get().getIndices())
+    return Arrays.stream(client.getIndex(new GetIndexRequest("_all")).getIndices())
       .filter(definedNames::contains)
       .filter(index -> !DESCRIPTOR.getName().equals(index))
       .collect(Collectors.toList());

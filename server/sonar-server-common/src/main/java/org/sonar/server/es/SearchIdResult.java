@@ -36,7 +36,7 @@ public class SearchIdResult<ID> {
 
   public SearchIdResult(SearchResponse response, Function<String, ID> converter, TimeZone timeZone) {
     this.facets = new Facets(response, timeZone);
-    this.total = response.getHits().getTotalHits();
+    this.total = response.getHits().getTotalHits().value;
     this.uuids = convertToIds(response.getHits(), converter);
   }
 

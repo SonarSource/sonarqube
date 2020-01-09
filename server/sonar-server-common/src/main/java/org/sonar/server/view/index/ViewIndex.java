@@ -20,10 +20,13 @@
 package org.sonar.server.view.index;
 
 import java.util.List;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -45,14 +48,15 @@ public class ViewIndex {
   }
 
   public List<String> findAllViewUuids() {
-    SearchRequestBuilder esSearch = esClient.prepareSearch(ViewIndexDefinition.TYPE_VIEW)
-      .addSort("_doc", SortOrder.ASC)
-      .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
-      .setFetchSource(false)
-      .setSize(100)
-      .setQuery(matchAllQuery());
+    SearchRequest esSearch = EsClient.prepareSearch(ViewIndexDefinition.TYPE_VIEW)
+      .source(new SearchSourceBuilder()
+        .sort("_doc", SortOrder.ASC)
+        .fetchSource(false)
+        .size(100)
+        .query(matchAllQuery()))
+      .scroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
 
-    SearchResponse response = esSearch.get();
+    SearchResponse response = esClient.search(esSearch);
     List<String> result = newArrayList();
     while (true) {
       List<SearchHit> hits = newArrayList(response.getHits());
@@ -60,12 +64,12 @@ public class ViewIndex {
         result.add(hit.getId());
       }
       String scrollId = response.getScrollId();
-      response = esClient.prepareSearchScroll(scrollId)
-        .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
-        .get();
+      response = esClient.scroll(new SearchScrollRequest().scrollId(scrollId).scroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES)));
       // Break condition: No hits are returned
       if (response.getHits().getHits().length == 0) {
-        esClient.nativeClient().prepareClearScroll().addScrollId(scrollId).get();
+        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
+        clearScrollRequest.addScrollId(scrollId);
+        esClient.clearScroll(clearScrollRequest);
         break;
       }
     }

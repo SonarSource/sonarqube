@@ -293,7 +293,7 @@ public class SearchAction implements HotspotsWsAction {
 
     List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
 
-    Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) result.getHits().getTotalHits());
+    Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) result.getHits().getTotalHits().value);
     return new SearchResponseData(paging, hotspots);
   }
 

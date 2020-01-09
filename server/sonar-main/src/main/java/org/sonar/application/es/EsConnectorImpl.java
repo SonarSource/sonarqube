@@ -20,121 +20,83 @@
 package org.sonar.application.es;
 
 import com.google.common.net.HostAndPort;
-import io.netty.util.ThreadDeathWatcher;
-import io.netty.util.concurrent.GlobalEventExecutor;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import org.apache.http.HttpHost;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.common.network.NetworkModule;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.transport.Netty4Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.String.format;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.unmodifiableList;
 import static org.elasticsearch.common.unit.TimeValue.timeValueSeconds;
 
 public class EsConnectorImpl implements EsConnector {
 
   private static final Logger LOG = LoggerFactory.getLogger(EsConnectorImpl.class);
 
-  private final AtomicReference<TransportClient> transportClient = new AtomicReference<>(null);
-  private final String clusterName;
+  private final AtomicReference<RestHighLevelClient> restClient = new AtomicReference<>(null);
   private final Set<HostAndPort> hostAndPorts;
 
-  public EsConnectorImpl(String clusterName, Set<HostAndPort> hostAndPorts) {
-    this.clusterName = clusterName;
+  public EsConnectorImpl(Set<HostAndPort> hostAndPorts) {
     this.hostAndPorts = hostAndPorts;
   }
 
   @Override
-  public ClusterHealthStatus getClusterHealthStatus() {
-    return getTransportClient().admin().cluster()
-      .health(new ClusterHealthRequest().waitForStatus(ClusterHealthStatus.YELLOW).timeout(timeValueSeconds(30)))
-      .actionGet().getStatus();
+  public Optional<ClusterHealthStatus> getClusterHealthStatus() {
+    try {
+      ClusterHealthResponse healthResponse = getRestHighLevelClient().cluster()
+        .health(new ClusterHealthRequest().waitForYellowStatus().timeout(timeValueSeconds(30)), RequestOptions.DEFAULT);
+      return Optional.of(healthResponse.getStatus());
+    } catch (IOException e) {
+      LOG.trace("Failed to check health status ", e);
+      return Optional.empty();
+    }
   }
 
   @Override
   public void stop() {
-    transportClient.set(null);
-  }
-
-  private TransportClient getTransportClient() {
-    TransportClient res = this.transportClient.get();
-    if (res == null) {
-      res = buildTransportClient();
-      if (this.transportClient.compareAndSet(null, res)) {
-        return res;
+    RestHighLevelClient restHighLevelClient = restClient.get();
+    if (restHighLevelClient != null) {
+      try {
+        restHighLevelClient.close();
+      } catch (IOException e) {
+        LOG.warn("Error occurred while closing Rest Client", e);
       }
-      return this.transportClient.get();
     }
-    return res;
   }
 
-  private TransportClient buildTransportClient() {
-    Settings.Builder esSettings = Settings.builder();
+  private RestHighLevelClient getRestHighLevelClient() {
+    RestHighLevelClient res = this.restClient.get();
+    if (res != null) {
+      return res;
+    }
 
-    // mandatory property defined by bootstrap process
-    esSettings.put("cluster.name", clusterName);
+    RestHighLevelClient restHighLevelClient = buildRestHighLevelClient();
+    this.restClient.set(restHighLevelClient);
+    return restHighLevelClient;
+  }
 
-    TransportClient nativeClient = new MinimalTransportClient(esSettings.build(), hostAndPorts);
+  private RestHighLevelClient buildRestHighLevelClient() {
+    HttpHost[] httpHosts = hostAndPorts.stream()
+      .map(hostAndPort -> new HttpHost(hostAndPort.getHost(), hostAndPort.getPortOrDefault(9001)))
+      .toArray(HttpHost[]::new);
+
     if (LOG.isDebugEnabled()) {
-      LOG.debug("Connected to Elasticsearch node: [{}]", displayedAddresses(nativeClient));
+      String addresses = Arrays.stream(httpHosts)
+        .map(t -> t.getHostName() + ":" + t.getPort())
+        .collect(Collectors.joining(", "));
+      LOG.debug("Connected to Elasticsearch node: [{}]", addresses);
     }
-    return nativeClient;
+    return new RestHighLevelClient(RestClient.builder(httpHosts));
   }
 
-  private static String displayedAddresses(TransportClient nativeClient) {
-    return nativeClient.transportAddresses().stream().map(TransportAddress::toString).collect(Collectors.joining(", "));
-  }
-
-  private static class MinimalTransportClient extends TransportClient {
-
-    public MinimalTransportClient(Settings settings, Set<HostAndPort> hostAndPorts) {
-      super(settings, unmodifiableList(singletonList(Netty4Plugin.class)));
-
-      boolean connectedToOneHost = false;
-      for (HostAndPort hostAndPort : hostAndPorts) {
-        try {
-          addTransportAddress(new TransportAddress(InetAddress.getByName(hostAndPort.getHost()), hostAndPort.getPortOrDefault(9001)));
-          connectedToOneHost = true;
-        } catch (UnknownHostException e) {
-          LOG.debug("Can not resolve host [" + hostAndPort.getHost() + "]", e);
-        }
-      }
-      if (!connectedToOneHost) {
-        throw new IllegalStateException(format("Can not connect to one node from [%s]",
-          hostAndPorts.stream()
-            .map(h -> format("%s:%d", h.getHost(), h.getPortOrDefault(9001)))
-            .collect(Collectors.joining(","))));
-      }
-    }
-
-    @Override
-    public void close() {
-      super.close();
-      if (!NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings)
-        || NetworkModule.TRANSPORT_TYPE_SETTING.get(settings).equals(Netty4Plugin.NETTY_TRANSPORT_NAME)) {
-        try {
-          GlobalEventExecutor.INSTANCE.awaitInactivity(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-        try {
-          ThreadDeathWatcher.awaitInactivity(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-      }
-    }
-  }
 }

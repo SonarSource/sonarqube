@@ -19,51 +19,233 @@
  */
 package org.sonar.server.es;
 
-import org.junit.Rule;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Objects;
+import org.apache.http.HttpEntity;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Test;
-import org.sonar.server.es.newindex.FakeIndexDefinition;
-import org.sonar.server.es.request.ProxyClusterHealthRequestBuilder;
-import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
-import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
-import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
-import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
-import org.sonar.server.es.request.ProxyGetRequestBuilder;
-import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
-import org.sonar.server.es.request.ProxyIndicesStatsRequestBuilder;
-import org.sonar.server.es.request.ProxyNodesStatsRequestBuilder;
-import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
-import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
-import org.sonar.server.es.request.ProxySearchRequestBuilder;
-import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
+import org.mockito.ArgumentMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class EsClientTest {
+  private static final String EXAMPLE_CLUSTER_STATS_JSON = "{" +
+    "  \"status\": \"yellow\"," +
+    "  \"nodes\": {" +
+    "    \"count\": {" +
+    "      \"total\": 3" +
+    "    }" +
+    "  }" +
+    "}";
 
-  @Rule
-  public EsTester es = EsTester.createCustom(new FakeIndexDefinition());
+  private static final String EXAMPLE_INDICES_STATS_JSON = "{" +
+    "  \"indices\": {" +
+    "    \"index-1\": {" +
+    "      \"primaries\": {" +
+    "        \"docs\": {" +
+    "          \"count\": 1234" +
+    "        }," +
+    "        \"store\": {" +
+    "          \"size_in_bytes\": 56789" +
+    "        }" +
+    "      }," +
+    "      \"shards\": {" +
+    "        \"shard-1\": {}," +
+    "        \"shard-2\": {}" +
+    "      }" +
+    "    }," +
+    "    \"index-2\": {" +
+    "      \"primaries\": {" +
+    "        \"docs\": {" +
+    "          \"count\": 42" +
+    "        }," +
+    "        \"store\": {" +
+    "          \"size_in_bytes\": 123" +
+    "        }" +
+    "      }," +
+    "      \"shards\": {" +
+    "        \"shard-1\": {}," +
+    "        \"shard-2\": {}" +
+    "      }" +
+    "    }" +
+    "  }" +
+    "}";
+
+  private final static String EXAMPLE_NODE_STATS_JSON = "{" +
+    "  \"nodes\": {" +
+    "    \"YnKPZcbGRamRQGxjErLWoQ\": {" +
+    "      \"name\": \"sonarqube\"," +
+    "      \"host\": \"127.0.0.1\"," +
+    "      \"indices\": {" +
+    "        \"docs\": {" +
+    "          \"count\": 13557" +
+    "        }," +
+    "        \"store\": {" +
+    "          \"size_in_bytes\": 8670970" +
+    "        }," +
+    "        \"query_cache\": {" +
+    "          \"memory_size_in_bytes\": 0" +
+    "        }," +
+    "        \"fielddata\": {" +
+    "          \"memory_size_in_bytes\": 4880" +
+    "        }," +
+    "        \"translog\": {" +
+    "          \"size_in_bytes\": 8274137" +
+    "        }," +
+    "        \"request_cache\": {" +
+    "          \"memory_size_in_bytes\": 0" +
+    "        }" +
+    "      }," +
+    "      \"process\": {" +
+    "        \"open_file_descriptors\": 296," +
+    "        \"max_file_descriptors\": 10240," +
+    "        \"cpu\": {" +
+    "          \"percent\": 7" +
+    "        }" +
+    "      }," +
+    "      \"jvm\": {" +
+    "        \"mem\": {" +
+    "          \"heap_used_in_bytes\": 158487160," +
+    "          \"heap_used_percent\": 30," +
+    "          \"heap_max_in_bytes\": 518979584," +
+    "          \"non_heap_used_in_bytes\": 109066592" +
+    "        }," +
+    "        \"threads\": {" +
+    "          \"count\": 70" +
+    "        }" +
+    "      }," +
+    "      \"fs\": {" +
+    "        \"total\": {" +
+    "          \"total_in_bytes\": 250685575168," +
+    "          \"free_in_bytes\": 142843138048," +
+    "          \"available_in_bytes\": 136144027648" +
+    "        }" +
+    "      }," +
+    "      \"breakers\": {" +
+    "        \"request\": {" +
+    "          \"limit_size_in_bytes\": 311387750," +
+    "          \"estimated_size_in_bytes\": 0" +
+    "        }," +
+    "        \"fielddata\": {" +
+    "          \"limit_size_in_bytes\": 207591833," +
+    "          \"estimated_size_in_bytes\": 4880" +
+    "        }" +
+    "      }" +
+    "    }" +
+    "  }" +
+    "}";
+
+  RestClient restClient = mock(RestClient.class);
+  RestHighLevelClient client = new EsClient.MinimalRestHighLevelClient(restClient);
+
+  EsClient underTest = new EsClient(client);
 
   @Test
-  public void proxify_requests() {
-    Index fakesIndex = Index.simple("fakes");
-    IndexType.IndexMainType fakeMainType = IndexType.main(fakesIndex, "fake");
+  public void should_close_client() throws IOException {
+    underTest.close();
+    verify(restClient).close();
+  }
 
-    EsClient underTest = es.client();
-    assertThat(underTest.nativeClient()).isNotNull();
-    assertThat(underTest.prepareClusterStats()).isInstanceOf(ProxyClusterStatsRequestBuilder.class);
-    assertThat(underTest.prepareCreate(fakesIndex)).isInstanceOf(ProxyCreateIndexRequestBuilder.class);
-    assertThat(underTest.prepareDelete(fakeMainType, "my_id")).isInstanceOf(ProxyDeleteRequestBuilder.class);
-    assertThat(underTest.prepareIndicesExist(fakesIndex)).isInstanceOf(ProxyIndicesExistsRequestBuilder.class);
-    assertThat(underTest.prepareGet(fakeMainType, "1")).isInstanceOf(ProxyGetRequestBuilder.class);
-    assertThat(underTest.prepareHealth()).isInstanceOf(ProxyClusterHealthRequestBuilder.class);
-    assertThat(underTest.prepareNodesStats()).isInstanceOf(ProxyNodesStatsRequestBuilder.class);
-    assertThat(underTest.preparePutMapping(fakesIndex)).isInstanceOf(ProxyPutMappingRequestBuilder.class);
-    assertThat(underTest.prepareRefresh(fakesIndex)).isInstanceOf(ProxyRefreshRequestBuilder.class);
-    assertThat(underTest.prepareSearch(fakesIndex)).isInstanceOf(ProxySearchRequestBuilder.class);
-    assertThat(underTest.prepareSearchScroll("1234")).isInstanceOf(ProxySearchScrollRequestBuilder.class);
-    assertThat(underTest.prepareState()).isInstanceOf(ProxyClusterStateRequestBuilder.class);
-    assertThat(underTest.prepareStats(fakesIndex)).isInstanceOf(ProxyIndicesStatsRequestBuilder.class);
-
+  @Test(expected = ElasticsearchException.class)
+  public void should_rethrow_ex_when_close_client_throws() throws IOException {
+    doThrow(IOException.class).when(restClient).close();
     underTest.close();
   }
+
+  @Test
+  public void should_call_node_stats_api() throws Exception {
+    HttpEntity entity = mock(HttpEntity.class);
+    when(entity.getContent()).thenReturn(new ByteArrayInputStream(EXAMPLE_NODE_STATS_JSON.getBytes()));
+    Response response = mock(Response.class);
+    when(response.getEntity()).thenReturn(entity);
+    when(restClient.performRequest(argThat(new RawRequestMatcher(
+      "GET",
+      "/_nodes/stats/fs,process,jvm,indices,breaker"))))
+        .thenReturn(response);
+
+    assertThat(underTest.nodesStats()).isNotNull();
+  }
+
+  @Test(expected = ElasticsearchException.class)
+  public void should_rethrow_ex_on_node_stat_fail() throws Exception {
+    when(restClient.performRequest(argThat(new RawRequestMatcher(
+      "GET",
+      "/_nodes/stats/fs,process,jvm,indices,breaker"))))
+        .thenThrow(IOException.class);
+    underTest.nodesStats();
+  }
+
+  @Test
+  public void should_call_indices_stat_api() throws Exception {
+    HttpEntity entity = mock(HttpEntity.class);
+    when(entity.getContent()).thenReturn(new ByteArrayInputStream(EXAMPLE_INDICES_STATS_JSON.getBytes()));
+    Response response = mock(Response.class);
+    when(response.getEntity()).thenReturn(entity);
+    when(restClient.performRequest(argThat(new RawRequestMatcher(
+      "GET",
+      "/_stats"))))
+        .thenReturn(response);
+
+    assertThat(underTest.indicesStats()).isNotNull();
+  }
+
+  @Test(expected = ElasticsearchException.class)
+  public void should_rethrow_ex_on_indices_stat_fail() throws Exception {
+    when(restClient.performRequest(argThat(new RawRequestMatcher(
+      "GET",
+      "/_stats"))))
+        .thenThrow(IOException.class);
+    underTest.indicesStats();
+  }
+
+  @Test
+  public void should_call_cluster_stat_api() throws Exception {
+    HttpEntity entity = mock(HttpEntity.class);
+    when(entity.getContent()).thenReturn(new ByteArrayInputStream(EXAMPLE_CLUSTER_STATS_JSON.getBytes()));
+
+    Response response = mock(Response.class);
+    when(response.getEntity()).thenReturn(entity);
+    when(restClient.performRequest(argThat(new RawRequestMatcher(
+      "GET",
+      "/_cluster/stats"))))
+        .thenReturn(response);
+
+    assertThat(underTest.clusterStats()).isNotNull();
+  }
+
+  @Test(expected = ElasticsearchException.class)
+  public void should_rethrow_ex_on_cluster_stat_fail() throws Exception {
+    when(restClient.performRequest(argThat(new RawRequestMatcher(
+      "GET",
+      "/_cluster/stats"))))
+        .thenThrow(IOException.class);
+    underTest.clusterStats();
+  }
+
+  static class RawRequestMatcher implements ArgumentMatcher<Request> {
+    String endpoint;
+    String method;
+
+    RawRequestMatcher(String method, String endpoint) {
+      Objects.requireNonNull(endpoint);
+      Objects.requireNonNull(method);
+      this.endpoint = endpoint;
+      this.method = method;
+    }
+
+    @Override
+    public boolean matches(Request request) {
+      return endpoint.equals(request.getEndpoint()) && method.equals(request.getMethod());
+    }
+  }
+
 }

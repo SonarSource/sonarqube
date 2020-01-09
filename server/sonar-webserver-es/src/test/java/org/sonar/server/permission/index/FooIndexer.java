@@ -22,6 +22,7 @@ package org.sonar.server.permission.index;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Set;
+import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.server.es.BaseDoc;
@@ -60,11 +61,11 @@ public class FooIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
   private void addToIndex(String projectUuid, String name) {
     FooDoc fooDoc = new FooDoc(projectUuid, name);
-    esClient.prepareIndex(TYPE_FOO)
-      .setId(fooDoc.getId())
-      .setRouting(fooDoc.getRouting().orElse(null))
-      .setSource(fooDoc.getFields())
-      .get();
+    esClient.index(new IndexRequest(TYPE_FOO.getMainType().getIndex().getName())
+      .type(TYPE_FOO.getMainType().getType())
+      .id(fooDoc.getId())
+      .routing(fooDoc.getRouting().orElse(null))
+      .source(fooDoc.getFields()));
   }
 
   private static final class FooDoc extends BaseDoc {

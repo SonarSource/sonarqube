@@ -22,11 +22,11 @@ package org.sonar.server.platform.monitoring.cluster;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
-import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.sonar.api.server.ServerSide;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.response.NodeStats;
+import org.sonar.server.es.response.NodeStatsResponse;
 import org.sonar.server.platform.monitoring.EsStateSection;
 
 @ServerSide
@@ -39,28 +39,22 @@ public class SearchNodesInfoLoaderImpl implements SearchNodesInfoLoader {
   }
 
   public Collection<NodeInfo> load() {
-    NodesStatsResponse nodesStats = esClient.prepareNodesStats()
-      .setFs(true)
-      .setProcess(true)
-      .setJvm(true)
-      .setIndices(true)
-      .setBreaker(true)
-      .get();
+    NodeStatsResponse response = esClient.nodesStats();
+
     List<NodeInfo> result = new ArrayList<>();
-    nodesStats.getNodes().forEach(nodeStat -> result.add(toNodeInfo(nodeStat)));
+    response.getNodeStats().forEach(nodeStat -> result.add(toNodeInfo(nodeStat)));
     return result;
   }
 
   private static NodeInfo toNodeInfo(NodeStats stat) {
-    String nodeName = stat.getNode().getName();
+    String nodeName = stat.getName();
     NodeInfo info = new NodeInfo(nodeName);
-    info.setHost(stat.getHostname());
+    info.setHost(stat.getHost());
 
     ProtobufSystemInfo.Section.Builder section = ProtobufSystemInfo.Section.newBuilder();
     section.setName("Search State");
     EsStateSection.toProtobuf(stat, section);
     info.addSection(section.build());
-    
     return info;
   }
 

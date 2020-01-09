@@ -97,7 +97,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     try {
       if (processId == ProcessId.ELASTICSEARCH) {
         checkArgument(esInstallation != null, "Incorrect configuration EsInstallation is null");
-        EsConnectorImpl esConnector = new EsConnectorImpl(esInstallation.getClusterName(), singleton(HostAndPort.fromParts(esInstallation.getHost(), esInstallation.getPort())));
+        EsConnectorImpl esConnector = new EsConnectorImpl(singleton(HostAndPort.fromParts(esInstallation.getHost(), esInstallation.getHttpPort())));
         return new EsManagedProcess(process, processId, esConnector);
       } else {
         ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());

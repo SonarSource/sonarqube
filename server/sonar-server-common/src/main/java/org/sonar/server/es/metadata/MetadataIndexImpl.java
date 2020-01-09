@@ -20,8 +20,9 @@
 package org.sonar.server.es.metadata;
 
 import java.util.Optional;
-import org.elasticsearch.action.get.GetRequestBuilder;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.document.DocumentField;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.Index;
@@ -90,9 +91,8 @@ public class MetadataIndexImpl implements MetadataIndex {
   }
 
   private Optional<String> getMetadata(String id) {
-    GetRequestBuilder request = esClient.prepareGet(TYPE_METADATA, id)
-      .setStoredFields(MetadataIndexDefinition.FIELD_VALUE);
-    GetResponse response = request.get();
+    GetResponse response = esClient.get(new GetRequest(TYPE_METADATA.getIndex().getName(), TYPE_METADATA.getType(), id)
+      .storedFields(MetadataIndexDefinition.FIELD_VALUE));
     if (response.isExists()) {
       DocumentField field = response.getField(MetadataIndexDefinition.FIELD_VALUE);
       return Optional.of(field.getValue());
@@ -101,10 +101,8 @@ public class MetadataIndexImpl implements MetadataIndex {
   }
 
   private void setMetadata(String id, String value) {
-    esClient.prepareIndex(TYPE_METADATA)
-      .setId(id)
-      .setSource(MetadataIndexDefinition.FIELD_VALUE, value)
-      .setRefreshPolicy(REFRESH_IMMEDIATE)
-      .get();
+    esClient.index(new IndexRequest(TYPE_METADATA.getIndex().getName(), TYPE_METADATA.getType(), id)
+      .source(MetadataIndexDefinition.FIELD_VALUE, value)
+      .setRefreshPolicy(REFRESH_IMMEDIATE));
   }
 }

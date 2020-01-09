@@ -56,7 +56,6 @@ import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
-import static org.sonar.process.ProcessProperties.Property.SEARCH_HTTP_PORT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_INITIAL_STATE_TIMEOUT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
@@ -138,8 +137,13 @@ public class EsSettingsTest {
     EsSettings esSettings = new EsSettings(props, new EsInstallation(props), system);
 
     Map<String, String> generated = esSettings.build();
-    assertThat(generated.get("transport.port")).isEqualTo("1234");
+
+    // FIXME transport.port and transport.host should not be set in standalone
+    assertThat(generated.get("transport.port")).isEqualTo("9002");
     assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
+
+    assertThat(generated.get("http.port")).isEqualTo("1234");
+    assertThat(generated.get("http.host")).isEqualTo("127.0.0.1");
 
     // no cluster, but cluster and node names are set though
     assertThat(generated.get("cluster.name")).isEqualTo("sonarqube");
@@ -149,9 +153,6 @@ public class EsSettingsTest {
     assertThat(generated.get("path.logs")).isNotNull();
     assertThat(generated.get("path.home")).isNull();
     assertThat(generated.get("path.conf")).isNull();
-
-    // http is disabled for security reasons
-    assertThat(generated.get("http.enabled")).isEqualTo("false");
 
     assertThat(generated.get("discovery.seed_hosts")).isNull();
     assertThat(generated.get("discovery.initial_state_timeout")).isEqualTo("30s");
@@ -274,39 +275,51 @@ public class EsSettingsTest {
   }
 
   @Test
-  public void enable_http_connector() throws Exception {
-    Props props = minProps(CLUSTER_DISABLED);
-    props.set(SEARCH_HTTP_PORT.getKey(), "9010");
+  @UseDataProvider("clusterEnabledOrNot")
+  public void enable_http_connector_on_port_9001_by_default(boolean clusterEnabled) throws Exception {
+    Props props = minProps(clusterEnabled);
     Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
 
-    assertThat(settings.get("http.port")).isEqualTo("9010");
+    assertThat(settings.get("http.port")).isEqualTo("9001");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.1");
-    assertThat(settings.get("http.enabled")).isEqualTo("true");
   }
 
   @Test
-  public void enable_http_connector_different_host() throws Exception {
-    Props props = minProps(CLUSTER_DISABLED);
-    props.set(SEARCH_HTTP_PORT.getKey(), "9010");
+  @UseDataProvider("clusterEnabledOrNot")
+  public void enable_http_connector_on_specified_port(boolean clusterEnabled) throws Exception {
+    String port = "" + new Random().nextInt(49151);
+    Props props = minProps(clusterEnabled);
+    props.set(SEARCH_PORT.getKey(), port);
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), System2.INSTANCE).build();
+
+    assertThat(settings.get("http.port")).isEqualTo(port);
+    assertThat(settings.get("http.host")).isEqualTo("127.0.0.1");
+  }
+
+  @Test
+  @UseDataProvider("clusterEnabledOrNot")
+  public void enable_http_connector_different_host(boolean clusterEnabled) throws Exception {
+    Props props = minProps(clusterEnabled);
     props.set(SEARCH_HOST.getKey(), "127.0.0.2");
     Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
 
-    assertThat(settings.get("http.port")).isEqualTo("9010");
+    assertThat(settings.get("http.port")).isEqualTo("9001");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.2");
-    assertThat(settings.get("http.enabled")).isEqualTo("true");
   }
 
   @Test
-  public void enable_seccomp_filter_by_default() throws Exception {
-    Props props = minProps(CLUSTER_DISABLED);
+  @UseDataProvider("clusterEnabledOrNot")
+  public void enable_seccomp_filter_by_default(boolean clusterEnabled) throws Exception {
+    Props props = minProps(clusterEnabled);
     Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
 
     assertThat(settings.get("bootstrap.system_call_filter")).isNull();
   }
 
   @Test
-  public void disable_seccomp_filter_if_configured_in_search_additional_props() throws Exception {
-    Props props = minProps(CLUSTER_DISABLED);
+  @UseDataProvider("clusterEnabledOrNot")
+  public void disable_seccomp_filter_if_configured_in_search_additional_props(boolean clusterEnabled) throws Exception {
+    Props props = minProps(clusterEnabled);
     props.set("sonar.search.javaAdditionalOpts", "-Xmx1G -Dbootstrap.system_call_filter=false -Dfoo=bar");
     Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
 
@@ -314,8 +327,9 @@ public class EsSettingsTest {
   }
 
   @Test
-  public void disable_mmap_if_configured_in_search_additional_props() throws Exception {
-    Props props = minProps(CLUSTER_DISABLED);
+  @UseDataProvider("clusterEnabledOrNot")
+  public void disable_mmap_if_configured_in_search_additional_props(boolean clusterEnabled) throws Exception {
+    Props props = minProps(clusterEnabled);
     props.set("sonar.search.javaAdditionalOpts", "-Dnode.store.allow_mmap=false");
     Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
 

@@ -15,7 +15,7 @@ dependencies {
   compile 'com.google.guava:guava'
   compile 'org.slf4j:slf4j-api'
   compile 'com.squareup.okhttp3:okhttp'
-  compile 'org.elasticsearch.client:transport'
+  compile 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
   compile project(':server:sonar-db-dao')
   compile project(':server:sonar-db-migration')
   compile project(':server:sonar-process')
@@ -26,6 +26,7 @@ dependencies {
 
   compileOnly 'com.google.code.findbugs:jsr305'
 
+  testCompile 'org.elasticsearch.plugin:transport-netty4-client'
   testCompile 'ch.qos.logback:logback-core'
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.squareup.okhttp3:mockwebserver'
@@ -46,6 +47,7 @@ dependencies {
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 
   testFixturesCompileOnly 'com.google.code.findbugs:jsr305'
+  testFixturesImplementation 'org.elasticsearch.plugin:transport-netty4-client'
 
   testFixturesImplementation 'org.codelibs.elasticsearch.module:analysis-common'
   testFixturesImplementation 'org.elasticsearch:mocksocket'

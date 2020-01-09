@@ -23,12 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -69,15 +71,17 @@ public class UserIndex {
   public List<UserDoc> getAtMostThreeActiveUsersForScmAccount(String scmAccount) {
     List<UserDoc> result = new ArrayList<>();
     if (!StringUtils.isEmpty(scmAccount)) {
-      SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.TYPE_USER)
-        .setQuery(boolQuery().must(matchAllQuery()).filter(
-          boolQuery()
-            .must(termQuery(FIELD_ACTIVE, true))
-            .should(termQuery(FIELD_LOGIN, scmAccount))
-            .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_EMAIL), scmAccount))
-            .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_SCM_ACCOUNTS), scmAccount))))
-        .setSize(3);
-      for (SearchHit hit : request.get().getHits().getHits()) {
+      SearchResponse response = esClient.search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
+        .source(new SearchSourceBuilder()
+          .query(boolQuery().must(matchAllQuery()).filter(
+            boolQuery()
+              .must(termQuery(FIELD_ACTIVE, true))
+              .should(termQuery(FIELD_LOGIN, scmAccount))
+              .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_EMAIL), scmAccount))
+              .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_SCM_ACCOUNTS), scmAccount))
+              .minimumShouldMatch(1)))
+          .size(3)));
+      for (SearchHit hit : response.getHits().getHits()) {
         result.add(new UserDoc(hit.getSourceAsMap()));
       }
     }
@@ -85,10 +89,10 @@ public class UserIndex {
   }
 
   public SearchResult<UserDoc> search(UserQuery userQuery, SearchOptions options) {
-    SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.TYPE_USER)
-      .setSize(options.getLimit())
-      .setFrom(options.getOffset())
-      .addSort(FIELD_NAME, SortOrder.ASC);
+    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+      .size(options.getLimit())
+      .from(options.getOffset())
+      .sort(FIELD_NAME, SortOrder.ASC);
 
     BoolQueryBuilder filter = boolQuery().must(termQuery(FIELD_ACTIVE, true));
     userQuery.getOrganizationUuid()
@@ -109,9 +113,9 @@ public class UserIndex {
         .operator(Operator.AND);
     }
 
-    request.setQuery(boolQuery().must(esQuery).filter(filter));
-
-    return new SearchResult<>(request.get(), UserDoc::new, system2.getDefaultTimeZone());
+    SearchRequest request = EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
+      .source(searchSourceBuilder.query(boolQuery().must(esQuery).filter(filter)));
+    return new SearchResult<>(esClient.search(request), UserDoc::new, system2.getDefaultTimeZone());
   }
 
 }

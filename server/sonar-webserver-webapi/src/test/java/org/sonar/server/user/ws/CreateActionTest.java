@@ -21,6 +21,8 @@ package org.sonar.server.user.ws;
 
 import java.util.HashSet;
 import java.util.Optional;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -109,13 +112,14 @@ public class CreateActionTest {
       .containsOnly("john", "John", "john@email.com", singletonList("jn"), true);
 
     // exists in index
-    assertThat(es.client().prepareSearch(UserIndexDefinition.TYPE_USER)
-      .setQuery(boolQuery()
-        .must(termQuery(FIELD_LOGIN, "john"))
-        .must(termQuery(FIELD_NAME, "John"))
-        .must(termQuery(FIELD_EMAIL, "john@email.com"))
-        .must(termQuery(FIELD_SCM_ACCOUNTS, "jn")))
-      .get().getHits().getHits()).hasSize(1);
+    assertThat(es.client().search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
+      .source(new SearchSourceBuilder()
+        .query(boolQuery()
+          .must(termQuery(FIELD_LOGIN, "john"))
+          .must(termQuery(FIELD_NAME, "John"))
+          .must(termQuery(FIELD_EMAIL, "john@email.com"))
+          .must(termQuery(FIELD_SCM_ACCOUNTS, "jn")))))
+      .getHits().getHits()).hasSize(1);
 
     // exists in db
     Optional<UserDto> dbUser = db.users().selectUserByLogin("john");

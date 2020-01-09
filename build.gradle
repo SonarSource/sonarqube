@@ -342,14 +342,12 @@ subprojects {
         entry 'jetty-server'
         entry 'jetty-servlet'
       }
-      dependency('org.elasticsearch.client:transport:6.8.4') {
-        exclude 'org.elasticsearch.plugin:lang-mustache-client'
+      dependency('org.elasticsearch.client:elasticsearch-rest-high-level-client:7.9.3') {
         exclude 'commons-logging:commons-logging'
-        exclude 'org.elasticsearch.plugin:reindex-client'
-        exclude 'org.elasticsearch.plugin:rank-eval-client'
       }
+      dependency 'org.elasticsearch.plugin:transport-netty4-client:7.9.3'
       dependency 'org.elasticsearch:mocksocket:1.0'
-      dependency 'org.codelibs.elasticsearch.module:analysis-common:6.8.4'
+      dependency 'org.codelibs.elasticsearch.module:analysis-common:7.9.3'
       dependency 'org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r'
       dependency 'org.tmatesoft.svnkit:svnkit:1.10.1'
       dependency 'org.hamcrest:hamcrest-all:1.3'

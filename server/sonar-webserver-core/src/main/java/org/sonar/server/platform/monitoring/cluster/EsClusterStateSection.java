@@ -19,12 +19,12 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
-import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.sonar.api.server.ServerSide;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.response.ClusterStatsResponse;
 
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
@@ -45,9 +45,9 @@ public class EsClusterStateSection implements SystemInfoSection, Global {
   public ProtobufSystemInfo.Section toProtobuf() {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
     protobuf.setName("Search State");
-    ClusterStatsResponse stats = esClient.prepareClusterStats().get();
-    setAttribute(protobuf, "State", stats.getStatus().name());
-    setAttribute(protobuf, "Nodes", stats.getNodesStats().getCounts().getTotal());
+    ClusterStatsResponse stats = esClient.clusterStats();
+    setAttribute(protobuf, "State", stats.getHealthStatus().name());
+    setAttribute(protobuf, "Nodes", stats.getNodeCount());
     return protobuf.build();
   }
 

@@ -200,8 +200,7 @@ public class ProcessLauncherImplTest {
       .setEsJvmOptions(mock(EsJvmOptions.class))
       .setLog4j2Properties(new Properties())
       .setHost("localhost")
-      .setPort(9001)
-      .setClusterName("sonarqube"));
+      .setHttpPort(9001));
     return command;
   }
 
@@ -212,8 +211,7 @@ public class ProcessLauncherImplTest {
       .set("sonar.path.data", this.temp.newFolder("data").getAbsolutePath())
       .set("sonar.path.temp", tempFolder.getAbsolutePath())
       .set("sonar.path.logs", this.temp.newFolder("logs").getAbsolutePath()))
-        .setClusterName("cluster")
-        .setPort(9001)
+        .setHttpPort(9001)
         .setHost("localhost")
         .setEsYmlSettings(new EsYmlSettings(new HashMap<>()))
         .setEsJvmOptions(new EsJvmOptions(new Props(new Properties()), tempFolder))

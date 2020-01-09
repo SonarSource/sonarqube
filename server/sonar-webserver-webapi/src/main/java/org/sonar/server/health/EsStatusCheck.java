@@ -19,6 +19,7 @@
  */
 package org.sonar.server.health;
 
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -50,7 +51,7 @@ abstract class EsStatusCheck {
 
   Health checkEsStatus() {
     try {
-      ClusterHealthStatus esStatus = esClient.prepareClusterStats().get().getStatus();
+      ClusterHealthStatus esStatus = esClient.clusterHealth(new ClusterHealthRequest()).getStatus();
       if (esStatus == null) {
         return RED_HEALTH_UNAVAILABLE;
       }

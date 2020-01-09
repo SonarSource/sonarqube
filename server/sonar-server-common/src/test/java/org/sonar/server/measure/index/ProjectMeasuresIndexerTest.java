@@ -23,8 +23,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -50,6 +51,7 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.server.es.EsClient.prepareSearch;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
@@ -288,12 +290,13 @@ public class ProjectMeasuresIndexerTest {
   }
 
   private void assertThatProjectHasTag(ComponentDto project, String expectedTag) {
-    SearchRequestBuilder request = es.client()
-      .prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
-      .setQuery(boolQuery()
-        .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
-        .filter(termQuery(FIELD_TAGS, expectedTag)));
-    assertThat(request.get().getHits().getHits())
+    SearchRequest request = prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
+      .source(new SearchSourceBuilder()
+        .query(boolQuery()
+          .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
+          .filter(termQuery(FIELD_TAGS, expectedTag))));
+
+    assertThat(es.client().search(request).getHits().getHits())
       .extracting(SearchHit::getId)
       .contains(project.uuid());
   }
@@ -323,13 +326,15 @@ public class ProjectMeasuresIndexerTest {
   }
 
   private void assertThatQualifierIs(String qualifier, String... componentsUuid) {
-    SearchRequestBuilder request = es.client()
-      .prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
-      .setQuery(boolQuery()
+    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
+      .query(boolQuery()
         .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
         .filter(termQuery(FIELD_QUALIFIER, qualifier))
         .filter(termsQuery(FIELD_UUID, componentsUuid)));
-    assertThat(request.get().getHits().getHits())
+
+    SearchRequest request = prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
+      .source(searchSourceBuilder);
+    assertThat(es.client().search(request).getHits().getHits())
       .extracting(SearchHit::getId)
       .containsExactlyInAnyOrder(componentsUuid);
   }

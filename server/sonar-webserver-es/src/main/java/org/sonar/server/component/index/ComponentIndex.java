@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -35,10 +35,10 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
-import org.elasticsearch.search.aggregations.bucket.filter.InternalFilters;
-import org.elasticsearch.search.aggregations.bucket.filter.InternalFilters.InternalBucket;
-import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilters;
+import org.elasticsearch.search.aggregations.metrics.ParsedTopHits;
+import org.elasticsearch.search.aggregations.metrics.TopHitsAggregationBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.ScoreSortBuilder;
@@ -81,11 +81,10 @@ public class ComponentIndex {
   }
 
   public SearchIdResult<String> search(ComponentQuery query, SearchOptions searchOptions) {
-    SearchRequestBuilder requestBuilder = client
-      .prepareSearch(TYPE_COMPONENT.getMainType())
-      .setFetchSource(false)
-      .setFrom(searchOptions.getOffset())
-      .setSize(searchOptions.getLimit());
+    SearchSourceBuilder source = new SearchSourceBuilder()
+      .fetchSource(false)
+      .from(searchOptions.getOffset())
+      .size(searchOptions.getLimit());
 
     BoolQueryBuilder esQuery = boolQuery();
     esQuery.filter(authorizationTypeSupport.createQueryFilter());
@@ -99,10 +98,13 @@ public class ComponentIndex {
     });
     setEmptiable(query.getQualifiers(), q -> esQuery.must(termsQuery(FIELD_QUALIFIER, q)));
     setNullable(query.getOrganizationUuid(), o -> esQuery.must(termQuery(FIELD_ORGANIZATION_UUID, o)));
-    requestBuilder.setQuery(esQuery);
-    requestBuilder.addSort(SORTABLE_ANALYZER.subField(FIELD_NAME), SortOrder.ASC);
+    source.sort(SORTABLE_ANALYZER.subField(FIELD_NAME), SortOrder.ASC);
 
-    return new SearchIdResult<>(requestBuilder.get(), id -> id, system2.getDefaultTimeZone());
+    source.query(esQuery);
+
+    SearchRequest request = EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
+      .source(source);
+    return new SearchIdResult<>(client.search(request), id -> id, system2.getDefaultTimeZone());
   }
 
   public ComponentIndexResults searchSuggestions(SuggestionQuery query) {
@@ -116,15 +118,16 @@ public class ComponentIndex {
       return ComponentIndexResults.newBuilder().build();
     }
 
-    SearchRequestBuilder request = client
-      .prepareSearch(TYPE_COMPONENT.getMainType())
-      .setQuery(createQuery(query, features))
-      .addAggregation(createAggregation(query))
+    SearchSourceBuilder source = new SearchSourceBuilder()
+      .query(createQuery(query, features))
+      .aggregation(createAggregation(query))
 
       // the search hits are part of the aggregations
-      .setSize(0);
+      .size(0);
 
-    SearchResponse response = request.get();
+    SearchRequest request = EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
+      .source(source);
+    SearchResponse response = client.search(request);
 
     return aggregationsToQualifiers(response);
   }
@@ -178,21 +181,21 @@ public class ComponentIndex {
   }
 
   private static ComponentIndexResults aggregationsToQualifiers(SearchResponse response) {
-    InternalFilters filtersAgg = response.getAggregations().get(FILTERS_AGGREGATION_NAME);
-    List<InternalBucket> buckets = filtersAgg.getBuckets();
+    ParsedFilters filtersAgg = response.getAggregations().get(FILTERS_AGGREGATION_NAME);
+    List<ParsedFilters.ParsedBucket> buckets = (List<ParsedFilters.ParsedBucket>) filtersAgg.getBuckets();
     return ComponentIndexResults.newBuilder()
       .setQualifiers(
         buckets.stream().map(ComponentIndex::bucketToQualifier))
       .build();
   }
 
-  private static ComponentHitsPerQualifier bucketToQualifier(InternalBucket bucket) {
-    InternalTopHits docs = bucket.getAggregations().get(DOCS_AGGREGATION_NAME);
+  private static ComponentHitsPerQualifier bucketToQualifier(ParsedFilters.ParsedBucket bucket) {
+    ParsedTopHits docs = bucket.getAggregations().get(DOCS_AGGREGATION_NAME);
 
     SearchHits hitList = docs.getHits();
     SearchHit[] hits = hitList.getHits();
 
-    return new ComponentHitsPerQualifier(bucket.getKey(), ComponentHit.fromSearchHits(hits), hitList.getTotalHits());
+    return new ComponentHitsPerQualifier(bucket.getKey(), ComponentHit.fromSearchHits(hits), hitList.getTotalHits().value);
   }
 
   private static <T> void setNullable(@Nullable T parameter, Consumer<T> consumer) {

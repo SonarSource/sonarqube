@@ -21,6 +21,7 @@ package org.sonar.server.es;
 
 import java.util.Date;
 import java.util.List;
+import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Test;
@@ -34,14 +35,14 @@ public class EsUtilsTest {
 
   @Test
   public void convertToDocs_empty() {
-    SearchHits hits = new SearchHits(new SearchHit[] {}, 0, 0);
+    SearchHits hits = new SearchHits(new SearchHit[] {}, new TotalHits(0, TotalHits.Relation.EQUAL_TO), 0);
     List<BaseDoc> docs = EsUtils.convertToDocs(hits, IssueDoc::new);
     assertThat(docs).isEmpty();
   }
 
   @Test
   public void convertToDocs() {
-    SearchHits hits = new SearchHits(new SearchHit[] {new SearchHit(16)}, 1, 1);
+    SearchHits hits = new SearchHits(new SearchHit[] {new SearchHit(16)}, new TotalHits(1, TotalHits.Relation.EQUAL_TO), 1);
     List<BaseDoc> docs = EsUtils.convertToDocs(hits, IssueDoc::new);
     assertThat(docs).hasSize(1);
   }

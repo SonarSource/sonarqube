@@ -74,7 +74,8 @@ public class ProcessProperties {
 
     SEARCH_HOST("sonar.search.host", InetAddress.getLoopbackAddress().getHostAddress()),
     SEARCH_PORT("sonar.search.port", "9001"),
-    SEARCH_HTTP_PORT("sonar.search.httpPort"),
+    // FIXME default is 0 until we move out of usage of TransportClient and we can put the expected default: 9002
+    SEARCH_TRANSPORT_PORT("sonar.search.transportPort", "0"),
     SEARCH_JAVA_OPTS("sonar.search.javaOpts", "-Xmx512m -Xms512m -XX:MaxDirectMemorySize=256m -XX:+HeapDumpOnOutOfMemoryError"),
     SEARCH_JAVA_ADDITIONAL_OPTS("sonar.search.javaAdditionalOpts", ""),
     SEARCH_REPLICAS("sonar.search.replicas"),
@@ -224,6 +225,8 @@ public class ProcessProperties {
     }
 
     fixPortIfZero(props, Property.SEARCH_HOST.getKey(), Property.SEARCH_PORT.getKey());
+    // FIXME remove when transport is not used anymore in non-DCE editions: sonar.search.transportPort must not support port 0
+    fixPortIfZero(props, Property.SEARCH_HOST.getKey(), Property.SEARCH_TRANSPORT_PORT.getKey());
   }
 
   private Properties defaults() {

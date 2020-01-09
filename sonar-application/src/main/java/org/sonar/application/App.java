@@ -42,7 +42,6 @@ public class App {
   private final JavaVersion javaVersion;
   private StopRequestWatcher stopRequestWatcher = null;
   private StopRequestWatcher hardStopRequestWatcher = null;
-
   public App(JavaVersion javaVersion) {
     this.javaVersion = javaVersion;
   }

@@ -426,7 +426,7 @@ public class SearchAction implements IssuesWsAction {
     SearchResponseData data = searchResponseLoader.load(preloadedData, collector, additionalFields, facets);
 
     // FIXME allow long in Paging
-    Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getHits().getTotalHits());
+    Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getHits().getTotalHits().value);
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
   }
 

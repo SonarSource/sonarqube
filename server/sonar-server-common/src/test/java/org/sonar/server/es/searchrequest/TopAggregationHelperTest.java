@@ -29,7 +29,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.MinAggregationBuilder;
 import org.junit.Test;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;

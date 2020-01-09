@@ -20,20 +20,14 @@
 package org.sonar.server.es;
 
 import com.google.common.net.HostAndPort;
-import io.netty.util.ThreadDeathWatcher;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.network.NetworkModule;
+import org.apache.http.HttpHost;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.join.ParentJoinPlugin;
-import org.elasticsearch.percolator.PercolatorPlugin;
-import org.elasticsearch.transport.Netty4Plugin;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
@@ -42,7 +36,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.cluster.NodeType;
 
-import static java.util.Collections.unmodifiableList;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
@@ -68,58 +61,41 @@ public class EsClientProvider extends ProviderAdapter {
 
       boolean clusterEnabled = config.getBoolean(CLUSTER_ENABLED.getKey()).orElse(false);
       boolean searchNode = !clusterEnabled || SEARCH.equals(NodeType.parse(config.get(CLUSTER_NODE_TYPE.getKey()).orElse(null)));
-      final TransportClient nativeClient = new MinimalTransportClient(esSettings.build());
+      List<HttpHost> httpHosts;
       if (clusterEnabled && !searchNode) {
-        esSettings.put("client.transport.sniff", true);
-        Arrays.stream(config.getStringArray(CLUSTER_SEARCH_HOSTS.getKey()))
-          .map(HostAndPort::fromString)
-          .forEach(h -> addHostToClient(h, nativeClient));
-        LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(nativeClient));
+        httpHosts = getHttpHosts(config);
+
+        LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(httpHosts));
       } else {
+        //defaults provided in:
+        // * in org.sonar.process.ProcessProperties.Property.SEARCH_HOST
+        // * in org.sonar.process.ProcessProperties.Property.SEARCH_PORT
         HostAndPort host = HostAndPort.fromParts(config.get(SEARCH_HOST.getKey()).get(), config.getInt(SEARCH_PORT.getKey()).get());
-        addHostToClient(host, nativeClient);
-        LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(nativeClient));
+        httpHosts = Collections.singletonList(toHttpHost(host));
+        LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(httpHosts));
       }
 
-      cache = new EsClient(nativeClient);
+      cache = new EsClient(httpHosts.toArray(new HttpHost[0]));
     }
     return cache;
   }
 
-  private static void addHostToClient(HostAndPort host, TransportClient client) {
+  private static List<HttpHost> getHttpHosts(Configuration config) {
+    return Arrays.stream(config.getStringArray(CLUSTER_SEARCH_HOSTS.getKey()))
+      .map(HostAndPort::fromString)
+      .map(EsClientProvider::toHttpHost)
+      .collect(Collectors.toList());
+  }
+
+  private static HttpHost toHttpHost(HostAndPort host) {
     try {
-      client.addTransportAddress(new TransportAddress(InetAddress.getByName(host.getHost()), host.getPortOrDefault(9001)));
+      return new HttpHost(InetAddress.getByName(host.getHost()), host.getPortOrDefault(9001));
     } catch (UnknownHostException e) {
       throw new IllegalStateException("Can not resolve host [" + host + "]", e);
     }
   }
 
-  private static String displayedAddresses(TransportClient nativeClient) {
-    return nativeClient.transportAddresses().stream().map(TransportAddress::toString).collect(Collectors.joining(", "));
-  }
-
-  static class MinimalTransportClient extends TransportClient {
-
-    MinimalTransportClient(Settings settings) {
-      super(settings, unmodifiableList(Arrays.asList(Netty4Plugin.class, PercolatorPlugin.class, ParentJoinPlugin.class)));
-    }
-
-    @Override
-    public void close() {
-      super.close();
-      if (!NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings)
-        || NetworkModule.TRANSPORT_TYPE_SETTING.get(settings).equals(Netty4Plugin.NETTY_TRANSPORT_NAME)) {
-        try {
-          GlobalEventExecutor.INSTANCE.awaitInactivity(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-        try {
-          ThreadDeathWatcher.awaitInactivity(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-      }
-    }
+  private static String displayedAddresses(List<HttpHost> httpHosts) {
+    return httpHosts.stream().map(HttpHost::toString).collect(Collectors.joining(", "));
   }
 }

@@ -200,8 +200,9 @@ public class ClusterAppStateImpl implements ClusterAppState {
   }
 
   private boolean isElasticSearchAvailable() {
-    ClusterHealthStatus clusterHealthStatus = esConnector.getClusterHealthStatus();
-    return clusterHealthStatus.equals(ClusterHealthStatus.GREEN) || clusterHealthStatus.equals(ClusterHealthStatus.YELLOW);
+    return esConnector.getClusterHealthStatus()
+      .filter(t -> ClusterHealthStatus.GREEN.equals(t) || ClusterHealthStatus.YELLOW.equals(t))
+      .isPresent();
   }
 
   private class OperationalProcessListener implements EntryListener<ClusterProcess, Boolean> {

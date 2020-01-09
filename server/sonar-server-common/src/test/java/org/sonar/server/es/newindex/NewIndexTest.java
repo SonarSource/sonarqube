@@ -24,7 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Map;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
@@ -229,8 +229,8 @@ public class NewIndexTest {
   public void default_shards_and_replicas(Index index) {
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
-    assertThat(newIndex.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
+    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
@@ -239,8 +239,8 @@ public class NewIndexTest {
     settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
-    assertThat(newIndex.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
+    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
+    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }
 
   @Test
@@ -249,9 +249,9 @@ public class NewIndexTest {
     settings.setProperty("sonar.search." + index.getName() + ".shards", "3");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSetting(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
+    assertThat(newIndex.getSetting(IndexMetadata.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
     // keep default value
-    assertThat(newIndex.getSetting(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSetting(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
@@ -259,7 +259,7 @@ public class NewIndexTest {
   public void default_number_of_replicas_on_standalone_instance_must_be_0(Index index) {
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
@@ -268,7 +268,7 @@ public class NewIndexTest {
     settings.setProperty(CLUSTER_ENABLED.getKey(), "false");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
@@ -277,7 +277,7 @@ public class NewIndexTest {
     settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
+    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }
 
   @Test
@@ -287,7 +287,7 @@ public class NewIndexTest {
     settings.setProperty(SEARCH_REPLICAS.getKey(), "0");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
   @Test
@@ -297,7 +297,7 @@ public class NewIndexTest {
     settings.setProperty(SEARCH_REPLICAS.getKey(), "3");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("3");
+    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("3");
   }
 
   @Test

@@ -24,10 +24,13 @@ import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequest;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.WriteRequest;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
@@ -97,19 +100,20 @@ public class IndexCreatorTest {
 
     IndexMainType fakeIndexType = main(Index.simple("fakes"), "fake");
     String id = "1";
-    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
-    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
+    es.client().index(new IndexRequest(fakeIndexType.getIndex().getName(), fakeIndexType.getType()).id(id).source(new FakeDoc().getFields())
+      .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE));
+    assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName(), fakeIndexType.getType(), id)).isExists()).isTrue();
 
     // v2
     run(new FakeIndexDefinitionV2());
 
-    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
-    MappingMetaData mapping = mappings.get("fakes").get("fake");
+    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings = mappings();
+    MappingMetadata mapping = mappings.get("fakes").get("fake");
     assertThat(countMappingFields(mapping)).isEqualTo(3);
     assertThat(field(mapping, "updatedAt").get("type")).isEqualTo("date");
     assertThat(field(mapping, "newField").get("type")).isEqualTo("integer");
 
-    assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isFalse();
+    assertThat(es.client().get(new GetRequest(fakeIndexType.getIndex().getName(), fakeIndexType.getType(), id)).isExists()).isFalse();
   }
 
   @Test
@@ -207,7 +211,7 @@ public class IndexCreatorTest {
 
   private boolean isNotReadOnly(IndexMainType mainType) {
     String indexName = mainType.getIndex().getName();
-    String readOnly = es.client().nativeClient().admin().indices().getSettings(new GetSettingsRequest().indices(indexName)).actionGet()
+    String readOnly = es.client().getSettings(new GetSettingsRequest().indices(indexName))
       .getSetting(indexName, "index.blocks.read_only_allow_delete");
     return readOnly == null;
   }
@@ -215,9 +219,7 @@ public class IndexCreatorTest {
   private void makeReadOnly(IndexMainType mainType) {
     Settings.Builder builder = Settings.builder();
     builder.put("index.blocks.read_only_allow_delete", "true");
-    es.client().nativeClient().admin().indices()
-      .updateSettings(new UpdateSettingsRequest().indices(mainType.getIndex().getName()).settings(builder.build()))
-      .actionGet();
+    es.client().putSettings(new UpdateSettingsRequest().indices(mainType.getIndex().getName()).settings(builder.build()));
   }
 
   private void enableBlueGreenDeployment() {
@@ -246,18 +248,18 @@ public class IndexCreatorTest {
     assertThat(es.countDocuments(FakeIndexDefinition.INDEX_TYPE)).isEqualTo(0);
   }
 
-  private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings() {
-    return es.client().nativeClient().admin().indices().prepareGetMappings().get().mappings();
+  private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings() {
+    return es.client().getMapping(new GetMappingsRequest()).mappings();
   }
 
   @CheckForNull
   @SuppressWarnings("unchecked")
-  private Map<String, Object> field(MappingMetaData mapping, String field) {
+  private Map<String, Object> field(MappingMetadata mapping, String field) {
     Map<String, Object> props = (Map<String, Object>) mapping.getSourceAsMap().get("properties");
     return (Map<String, Object>) props.get(field);
   }
 
-  private int countMappingFields(MappingMetaData mapping) {
+  private int countMappingFields(MappingMetadata mapping) {
     return ((Map) mapping.getSourceAsMap().get("properties")).size();
   }
 
@@ -274,8 +276,8 @@ public class IndexCreatorTest {
   }
 
   private void verifyFakeIndexV1() {
-    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
-    MappingMetaData mapping = mappings.get("fakes").get("fake");
+    ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings = mappings();
+    MappingMetadata mapping = mappings.get("fakes").get("fake");
     assertThat(mapping.type()).isEqualTo("fake");
     assertThat(mapping.getSourceAsMap()).isNotEmpty();
     assertThat(countMappingFields(mapping)).isEqualTo(2);

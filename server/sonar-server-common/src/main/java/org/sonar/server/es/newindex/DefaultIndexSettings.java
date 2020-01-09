@@ -21,7 +21,7 @@ package org.sonar.server.es.newindex;
 
 import java.util.Arrays;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.common.settings.Settings;
 
 public class DefaultIndexSettings {
@@ -82,7 +82,7 @@ public class DefaultIndexSettings {
 
   public static Settings.Builder defaults() {
     Settings.Builder builder = Settings.builder()
-      .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
+      .put(IndexMetadata.SETTING_NUMBER_OF_SHARDS, 1)
       .put("index.refresh_interval", "30s");
 
     Arrays.stream(DefaultIndexSettingsElement.values())

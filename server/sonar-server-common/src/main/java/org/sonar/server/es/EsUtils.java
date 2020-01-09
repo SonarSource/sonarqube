@@ -33,13 +33,13 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequestBuilder;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.format.ISODateTimeFormat;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -101,8 +101,8 @@ public class EsUtils {
    * Optimize scolling, by specifying document sorting.
    * See https://www.elastic.co/guide/en/elasticsearch/reference/2.4/search-request-scroll.html#search-request-scroll
    */
-  public static void optimizeScrollRequest(SearchRequestBuilder esSearch) {
-    esSearch.addSort("_doc", SortOrder.ASC);
+  public static void optimizeScrollRequest(SearchSourceBuilder esSearch) {
+    esSearch.sort("_doc", SortOrder.ASC);
   }
 
   /**
@@ -136,9 +136,9 @@ public class EsUtils {
     @Override
     public boolean hasNext() {
       if (hits.isEmpty()) {
-        SearchScrollRequestBuilder esRequest = esClient.prepareSearchScroll(scrollId)
-          .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
-        Collections.addAll(hits, esRequest.get().getHits().getHits());
+        SearchScrollRequest esRequest = new SearchScrollRequest(scrollId)
+          .scroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
+        Collections.addAll(hits, esClient.scroll(esRequest).getHits().getHits());
       }
       return !hits.isEmpty();
     }

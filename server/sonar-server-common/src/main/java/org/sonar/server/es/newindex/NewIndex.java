@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.es.Index;
@@ -63,8 +63,8 @@ public abstract class NewIndex<T extends NewIndex<T>> {
       .orElse(settingsConfiguration.getDefaultNbOfShards());
     int replicas = clusterMode ? config.getInt(SEARCH_REPLICAS.getKey()).orElse(1) : 0;
 
-    settings.put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
-    settings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
+    settings.put(IndexMetadata.SETTING_NUMBER_OF_SHARDS, shards);
+    settings.put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, replicas);
     settings.put("index.max_ngram_diff", DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH - DefaultIndexSettings.MINIMUM_NGRAM_LENGTH);
   }
 

@@ -21,6 +21,8 @@ package org.sonar.server.user.ws;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,6 +45,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -100,11 +103,12 @@ public class DeactivateActionTest {
     deactivate(user.getLogin());
 
     verifyThatUserIsDeactivated(user.getLogin());
-    assertThat(es.client().prepareSearch(UserIndexDefinition.TYPE_USER)
-      .setQuery(boolQuery()
-        .must(termQuery(FIELD_UUID, user.getUuid()))
-        .must(termQuery(FIELD_ACTIVE, "false")))
-      .get().getHits().getHits()).hasSize(1);
+    assertThat(es.client().search(EsClient.prepareSearch(UserIndexDefinition.TYPE_USER)
+      .source(new SearchSourceBuilder()
+        .query(boolQuery()
+          .must(termQuery(FIELD_UUID, user.getUuid()))
+          .must(termQuery(FIELD_ACTIVE, "false")))))
+      .getHits().getHits()).hasSize(1);
   }
 
   @Test

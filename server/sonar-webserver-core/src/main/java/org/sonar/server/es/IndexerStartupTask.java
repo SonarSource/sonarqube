@@ -21,9 +21,7 @@ package org.sonar.server.es;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthAction;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -108,8 +106,9 @@ public class IndexerStartupTask {
   }
 
   private void waitForIndexYellow(String index) {
-    Client nativeClient = esClient.nativeClient();
-    ClusterHealthAction.INSTANCE.newRequestBuilder(nativeClient).setIndices(index).setWaitForYellowStatus().get(TimeValue.timeValueMinutes(10));
+    esClient.clusterHealth(new ClusterHealthRequest()
+      .indices(index)
+      .waitForYellowStatus());
   }
 
   private static String getSynchronousIndexingLogMessage(Set<IndexType> emptyTypes) {
