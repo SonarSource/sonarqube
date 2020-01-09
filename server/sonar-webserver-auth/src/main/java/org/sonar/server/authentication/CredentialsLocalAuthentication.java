@@ -185,6 +185,7 @@ public class CredentialsLocalAuthentication {
   private static final class BcryptFunction implements HashFunction {
     @Override
     public AuthenticationResult checkCredentials(UserDto user, String password) {
+      // This behavior is overridden in most of integration tests for performance reasons, any changes to BCrypt calls should be propagated to Byteman classes
       if (!BCrypt.checkpw(password, user.getCryptedPassword())) {
         return new AuthenticationResult(false, "wrong password");
       }
