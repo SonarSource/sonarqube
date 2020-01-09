@@ -44,7 +44,7 @@ public class EsJvmOptionsTest {
   private Properties properties = new Properties();
 
   @Test
-  public void constructor_sets_mandatory_JVM_options_on_Java_11() throws IOException {
+  public void constructor_sets_mandatory_JVM_options() throws IOException {
     File tmpDir = temporaryFolder.newFolder();
     EsJvmOptions underTest = new EsJvmOptions(new Props(properties), tmpDir);
 
@@ -53,6 +53,8 @@ public class EsJvmOptionsTest {
         "-XX:+UseConcMarkSweepGC",
         "-XX:CMSInitiatingOccupancyFraction=75",
         "-XX:+UseCMSInitiatingOccupancyOnly",
+        "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
+        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log",
         "-Des.networkaddress.cache.ttl=60",
         "-Des.networkaddress.cache.negative.ttl=10",
         "-XX:+AlwaysPreTouch",
@@ -64,10 +66,10 @@ public class EsJvmOptionsTest {
         "-Dio.netty.noUnsafe=true",
         "-Dio.netty.noKeySetOptimization=true",
         "-Dio.netty.recycler.maxCapacityPerThread=0",
+        "-Dio.netty.allocator.numDirectArenas=0",
         "-Dlog4j.shutdownHookEnabled=false",
         "-Dlog4j2.disable.jmx=true",
-        "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
-        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log",
+        "-Djava.locale.providers=COMPAT",
         "-Des.enforce.bootstrap.checks=true");
   }
 
@@ -132,6 +134,8 @@ public class EsJvmOptionsTest {
         "-XX:+UseConcMarkSweepGC\n" +
         "-XX:CMSInitiatingOccupancyFraction=75\n" +
         "-XX:+UseCMSInitiatingOccupancyOnly\n" +
+        "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath() + "\n" +
+        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log\n" +
         "-Des.networkaddress.cache.ttl=60\n" +
         "-Des.networkaddress.cache.negative.ttl=10\n" +
         "-XX:+AlwaysPreTouch\n" +
@@ -143,10 +147,10 @@ public class EsJvmOptionsTest {
         "-Dio.netty.noUnsafe=true\n" +
         "-Dio.netty.noKeySetOptimization=true\n" +
         "-Dio.netty.recycler.maxCapacityPerThread=0\n" +
+        "-Dio.netty.allocator.numDirectArenas=0\n" +
         "-Dlog4j.shutdownHookEnabled=false\n" +
         "-Dlog4j2.disable.jmx=true\n" +
-        "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath() + "\n" +
-        "-XX:ErrorFile=../logs/es_hs_err_pid%p.log\n" +
+        "-Djava.locale.providers=COMPAT\n" +
         "-Des.enforce.bootstrap.checks=true\n" +
         "-foo\n" +
         "-bar");

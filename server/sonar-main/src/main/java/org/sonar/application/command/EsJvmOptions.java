@@ -43,47 +43,21 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
   // with some changes to fit running bundled in SQ
   private static Map<String, String> mandatoryOptions(File tmpDir, Props props) {
     Map<String, String> res = new LinkedHashMap<>(30);
+    fromJvmDotOptionsFile(tmpDir, res);
+    fromSystemJvmOptionsClass(res);
+
+    if (!props.value("sonar.jdbc.url", "").contains("jdbc:h2") && !props.valueAsBoolean("sonar.es.bootstrap.checks.disable")) {
+      res.put("-Des.enforce.bootstrap.checks=", "true");
+    }
+
+    return res;
+  }
+
+  private static void fromJvmDotOptionsFile(File tmpDir, Map<String, String> res) {
     // GC configuration
     res.put("-XX:+UseConcMarkSweepGC", "");
     res.put("-XX:CMSInitiatingOccupancyFraction=", "75");
     res.put("-XX:+UseCMSInitiatingOccupancyOnly", "");
-
-    // DNS cache policy
-    // cache ttl in seconds for positive DNS lookups noting that this overrides the
-    // JDK security property networkaddress.cache.ttl; set to -1 to cache forever
-    res.put("-Des.networkaddress.cache.ttl=", "60");
-    // cache ttl in seconds for negative DNS lookups noting that this overrides the
-    // JDK security property networkaddress.cache.negative ttl; set to -1 to cache
-    // forever
-    res.put("-Des.networkaddress.cache.negative.ttl=", "10");
-
-    // optimizations
-
-    // pre-touch memory pages used by the JVM during initialization
-    res.put("-XX:+AlwaysPreTouch", "");
-
-    // basic
-    // explicitly set the stack size
-    res.put("-Xss1m", "");
-    // set to headless, just in case
-    res.put("-Djava.awt.headless=", "true");
-    // ensure UTF-8 encoding by default (e.g. filenames)
-    res.put("-Dfile.encoding=", "UTF-8");
-    // use our provided JNA always versus the system one
-    res.put("-Djna.nosys=", "true");
-
-    // turn off a JDK optimization that throws away stack traces for common
-    // exceptions because stack traces are important for debugging
-    res.put("-XX:-OmitStackTraceInFastThrow", "");
-
-    // flags to configure Netty
-    res.put("-Dio.netty.noUnsafe=", "true");
-    res.put("-Dio.netty.noKeySetOptimization=", "true");
-    res.put("-Dio.netty.recycler.maxCapacityPerThread=", "0");
-
-    // log4j 2
-    res.put("-Dlog4j.shutdownHookEnabled=", "false");
-    res.put("-Dlog4j2.disable.jmx=", "true");
 
     // (by default ES 6.6.1 uses variable ${ES_TMPDIR} which is replaced by start scripts. Since we start JAR file
     // directly on windows, we specify absolute file as URL (to support space in path) instead
@@ -110,12 +84,50 @@ public class EsJvmOptions extends JvmOptions<EsJvmOptions> {
     // res.put("8:-XX:GCLogFileSize", "64m");
     // JDK 9+ GC logging
     // res.put("9-:-Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m", "");
+  }
 
-    if (!props.value("sonar.jdbc.url", "").contains("jdbc:h2") && !props.valueAsBoolean("sonar.es.bootstrap.checks.disable")) {
-      res.put("-Des.enforce.bootstrap.checks=", "true");
-    }
-
-    return res;
+  /**
+   * JVM options from class "org.elasticsearch.tools.launchers.SystemJvmOptions"
+   */
+  private static void fromSystemJvmOptionsClass(Map<String, String> res) {
+    /*
+     * Cache ttl in seconds for positive DNS lookups noting that this overrides the JDK security property networkaddress.cache.ttl;
+     * can be set to -1 to cache forever.
+     */
+    res.put("-Des.networkaddress.cache.ttl=", "60");
+    /*
+     * Cache ttl in seconds for negative DNS lookups noting that this overrides the JDK security property
+     * networkaddress.cache.negative ttl; set to -1 to cache forever.
+     */
+    res.put("-Des.networkaddress.cache.negative.ttl=", "10");
+    // pre-touch JVM emory pages during initialization
+    res.put("-XX:+AlwaysPreTouch", "");
+    // explicitly set the stack size
+    res.put("-Xss1m", "");
+    // set to headless, just in case,
+    res.put("-Djava.awt.headless=", "true");
+    // ensure UTF-8 encoding by default (e.g., filenames)
+    res.put("-Dfile.encoding=", "UTF-8");
+    // use our provided JNA always versus the system one
+    res.put("-Djna.nosys=", "true");
+    /*
+     * Turn off a JDK optimization that throws away stack traces for common exceptions because stack traces are important for
+     * debugging.
+     */
+    res.put("-XX:-OmitStackTraceInFastThrow", "");
+    // flags to configure Netty
+    res.put("-Dio.netty.noUnsafe=", "true");
+    res.put("-Dio.netty.noKeySetOptimization=", "true");
+    res.put("-Dio.netty.recycler.maxCapacityPerThread=", "0");
+    res.put("-Dio.netty.allocator.numDirectArenas=", "0");
+    // log4j 2
+    res.put("-Dlog4j.shutdownHookEnabled=", "false");
+    res.put("-Dlog4j2.disable.jmx=", "true");
+    /*
+     * Due to internationalization enhancements in JDK 9 Elasticsearch need to set the provider to COMPAT otherwise time/date
+     * parsing will break in an incompatible way for some date patterns and locales.
+     */
+    res.put("-Djava.locale.providers=", "COMPAT");
   }
 
   public void writeToJvmOptionFile(File file) {
