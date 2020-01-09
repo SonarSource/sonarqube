@@ -49,6 +49,7 @@ exports[`should render correctly: empty tab 1`] = `
                   "login": "author",
                   "name": "John Doe",
                 },
+                "canChangeStatus": true,
                 "changelog": Array [],
                 "comment": Array [],
                 "component": Object {
@@ -212,6 +213,7 @@ exports[`should render correctly: fix 1`] = `
                   "login": "author",
                   "name": "John Doe",
                 },
+                "canChangeStatus": true,
                 "changelog": Array [],
                 "comment": Array [],
                 "component": Object {
@@ -375,6 +377,7 @@ exports[`should render correctly: review 1`] = `
                   "login": "author",
                   "name": "John Doe",
                 },
+                "canChangeStatus": true,
                 "changelog": Array [],
                 "comment": Array [],
                 "component": Object {
@@ -503,6 +506,7 @@ exports[`should render correctly: review 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -645,6 +649,7 @@ exports[`should render correctly: risk 1`] = `
                   "login": "author",
                   "name": "John Doe",
                 },
+                "canChangeStatus": true,
                 "changelog": Array [],
                 "comment": Array [],
                 "component": Object {
@@ -808,6 +813,7 @@ exports[`should render correctly: vulnerability 1`] = `
                   "login": "author",
                   "name": "John Doe",
                 },
+                "canChangeStatus": true,
                 "changelog": Array [],
                 "comment": Array [],
                 "component": Object {
@@ -982,6 +988,7 @@ exports[`should render correctly: with comments or changelog element 1`] = `
                   "login": "author",
                   "name": "John Doe",
                 },
+                "canChangeStatus": true,
                 "changelog": Array [],
                 "comment": Array [
                   Object {

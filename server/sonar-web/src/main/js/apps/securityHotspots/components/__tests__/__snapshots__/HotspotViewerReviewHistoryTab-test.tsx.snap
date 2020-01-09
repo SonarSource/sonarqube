@@ -181,6 +181,7 @@ exports[`should render correctly 1`] = `
           "login": "author",
           "name": "John Doe",
         },
+        "canChangeStatus": true,
         "changelog": Array [],
         "comment": Array [],
         "component": Object {

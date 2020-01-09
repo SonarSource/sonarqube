@@ -25,7 +25,7 @@ import { isUserActive } from '../../../helpers/users';
 import HotspotAssigneeSelectRenderer from './HotspotAssigneeSelectRenderer';
 
 interface Props {
-  onSelect: (user: T.UserActive) => void;
+  onSelect: (user?: T.UserActive) => void;
 }
 
 interface State {
@@ -58,6 +58,7 @@ export default class HotspotAssigneeSelect extends React.PureComponent<Props, St
   handleSearch = (query: string) => {
     if (query.length < 2) {
       this.setState({ open: false, query });
+      this.props.onSelect(undefined);
       return Promise.resolve([]);
     }
 

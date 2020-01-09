@@ -73,6 +73,7 @@ exports[`should render correctly 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -173,6 +174,7 @@ exports[`should render correctly 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -334,6 +336,7 @@ exports[`should render correctly: anonymous user 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -434,6 +437,7 @@ exports[`should render correctly: anonymous user 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -584,6 +588,7 @@ exports[`should render correctly: assignee without name 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -684,6 +689,7 @@ exports[`should render correctly: assignee without name 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -845,6 +851,7 @@ exports[`should render correctly: deleted assignee 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -945,6 +952,7 @@ exports[`should render correctly: deleted assignee 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -1113,6 +1121,7 @@ exports[`should render correctly: unassigned 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -1213,6 +1222,7 @@ exports[`should render correctly: unassigned 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -1335,6 +1345,7 @@ exports[`should render correctly: user logged in 1`] = `
                 "login": "author",
                 "name": "John Doe",
               },
+              "canChangeStatus": true,
               "changelog": Array [],
               "comment": Array [],
               "component": Object {
@@ -1475,6 +1486,7 @@ exports[`should render correctly: user logged in 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {
@@ -1575,6 +1587,7 @@ exports[`should render correctly: user logged in 1`] = `
             "login": "author",
             "name": "John Doe",
           },
+          "canChangeStatus": true,
           "changelog": Array [],
           "comment": Array [],
           "component": Object {

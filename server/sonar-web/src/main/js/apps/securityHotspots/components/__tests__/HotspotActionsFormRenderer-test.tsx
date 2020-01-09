@@ -19,8 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
-import { HotspotStatus, HotspotStatusOption } from '../../../../types/security-hotspots';
+import {
+  HotspotResolution,
+  HotspotStatus,
+  HotspotStatusOption
+} from '../../../../types/security-hotspots';
 import HotspotActionsForm from '../HotspotActionsForm';
 import HotspotActionsFormRenderer, {
   HotspotActionsFormRendererProps
@@ -38,13 +44,59 @@ it('should render correctly', () => {
       selectedUser: mockLoggedInUser()
     })
   ).toMatchSnapshot('user selected');
+  expect(shallowRender({ hotspot: mockHotspot({ canChangeStatus: false }) })).toMatchSnapshot(
+    'restricted access'
+  );
+});
+
+it('should enable the submit button if anything has changed', () => {
+  const hotspot = mockHotspot({
+    status: HotspotStatus.REVIEWED,
+    resolution: HotspotResolution.SAFE
+  });
+  const selectedOption = HotspotStatusOption.SAFE;
+  expect(
+    shallowRender({ comment: '', hotspot, selectedOption, selectedUser: undefined })
+      .find(SubmitButton)
+      .props().disabled
+  ).toBe(true);
+  expect(
+    shallowRender({ comment: 'some comment', hotspot, selectedOption, selectedUser: undefined })
+      .find(SubmitButton)
+      .props().disabled
+  ).toBe(false);
+  expect(
+    shallowRender({ comment: '', hotspot, selectedOption, selectedUser: mockLoggedInUser() })
+      .find(SubmitButton)
+      .props().disabled
+  ).toBe(false);
+  expect(
+    shallowRender({
+      comment: '',
+      hotspot,
+      selectedOption: HotspotStatusOption.FIXED,
+      selectedUser: undefined
+    })
+      .find(SubmitButton)
+      .props().disabled
+  ).toBe(false);
+  expect(
+    shallowRender({
+      comment: '',
+      hotspot,
+      selectedOption: HotspotStatusOption.ADDITIONAL_REVIEW,
+      selectedUser: undefined
+    })
+      .find(SubmitButton)
+      .props().disabled
+  ).toBe(false);
 });
 
 function shallowRender(props: Partial<HotspotActionsFormRendererProps> = {}) {
   return shallow<HotspotActionsForm>(
     <HotspotActionsFormRenderer
       comment="written comment"
-      hotspotStatus={HotspotStatus.TO_REVIEW}
+      hotspot={mockHotspot({ key: 'key' })}
       onAssign={jest.fn()}
       onChangeComment={jest.fn()}
       onSelectOption={jest.fn()}

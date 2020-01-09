@@ -18,11 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { assignSecurityHotspot, setSecurityHotspotStatus } from '../../../api/security-hotspots';
+import {
+  assignSecurityHotspot,
+  commentSecurityHotspot,
+  setSecurityHotspotStatus
+} from '../../../api/security-hotspots';
 import {
   Hotspot,
   HotspotResolution,
-  HotspotSetStatusRequest,
   HotspotStatus,
   HotspotStatusOption,
   HotspotUpdateFields
@@ -42,11 +45,22 @@ interface State {
 }
 
 export default class HotspotActionsForm extends React.Component<Props, State> {
-  state: State = {
-    comment: '',
-    selectedOption: HotspotStatusOption.FIXED,
-    submitting: false
-  };
+  constructor(props: Props) {
+    super(props);
+
+    let selectedOption = HotspotStatusOption.FIXED;
+    if (props.hotspot.status === HotspotStatus.TO_REVIEW) {
+      selectedOption = HotspotStatusOption.ADDITIONAL_REVIEW;
+    } else if (props.hotspot.resolution) {
+      selectedOption = HotspotStatusOption[props.hotspot.resolution];
+    }
+
+    this.state = {
+      comment: '',
+      selectedOption,
+      submitting: false
+    };
+  }
 
   handleSelectOption = (selectedOption: HotspotStatusOption) => {
     this.setState({ selectedOption });
@@ -71,40 +85,62 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
         ? HotspotStatus.TO_REVIEW
         : HotspotStatus.REVIEWED;
 
-    const data: HotspotSetStatusRequest = { status };
-
-    // If reassigning, ignore comment for status update. It will be sent with the reassignment below
-    if (comment && !(selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW && selectedUser)) {
-      data.comment = comment;
-    }
-
-    if (selectedOption !== HotspotStatusOption.ADDITIONAL_REVIEW) {
-      data.resolution = HotspotResolution[selectedOption];
-    }
+    const resolution =
+      selectedOption !== HotspotStatusOption.ADDITIONAL_REVIEW
+        ? HotspotResolution[selectedOption]
+        : undefined;
 
     this.setState({ submitting: true });
-    return setSecurityHotspotStatus(hotspot.key, data)
+    /*
+     *  updateAssignee depends on updateStatus, hence these are chained rather than
+     *  run in parallel. The comment should also appear last in the changelog.
+     */
+    return Promise.resolve()
+      .then(() => this.updateStatus(hotspot, status, resolution))
+      .then(() => this.updateAssignee(hotspot, selectedOption, selectedUser))
+      .then(() => this.addComment(hotspot, comment))
       .then(() => {
-        if (selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW && selectedUser) {
-          return this.assignHotspot(selectedUser, comment);
-        }
-        return null;
-      })
-      .then(() => {
-        this.props.onSubmit({ status, resolution: data.resolution });
+        this.props.onSubmit({ status, resolution });
+        // No need to set "submitting", we are closing the window
       })
       .catch(() => {
         this.setState({ submitting: false });
       });
   };
 
-  assignHotspot = (assignee: T.UserActive, comment: string) => {
-    const { hotspot } = this.props;
+  updateStatus = (hotspot: Hotspot, status: HotspotStatus, resolution?: HotspotResolution) => {
+    if (
+      hotspot.canChangeStatus &&
+      (status !== hotspot.status || resolution !== hotspot.resolution)
+    ) {
+      return setSecurityHotspotStatus(hotspot.key, { status, resolution });
+    }
 
-    return assignSecurityHotspot(hotspot.key, {
-      assignee: assignee.login,
-      comment
-    });
+    return Promise.resolve();
+  };
+
+  updateAssignee = (
+    hotspot: Hotspot,
+    selectedOption: HotspotStatusOption,
+    selectedUser?: T.UserActive
+  ) => {
+    if (
+      selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW &&
+      selectedUser &&
+      selectedUser.login !== hotspot.assignee
+    ) {
+      return assignSecurityHotspot(hotspot.key, {
+        assignee: selectedUser.login
+      });
+    }
+    return Promise.resolve();
+  };
+
+  addComment = (hotspot: Hotspot, comment: string) => {
+    if (comment.length > 0) {
+      return commentSecurityHotspot(hotspot.key, comment);
+    }
+    return Promise.resolve();
   };
 
   render() {
@@ -114,7 +150,7 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
     return (
       <HotspotActionsFormRenderer
         comment={comment}
-        hotspotStatus={hotspot.status}
+        hotspot={hotspot}
         onAssign={this.handleAssign}
         onChangeComment={this.handleCommentChange}
         onSelectOption={this.handleSelectOption}

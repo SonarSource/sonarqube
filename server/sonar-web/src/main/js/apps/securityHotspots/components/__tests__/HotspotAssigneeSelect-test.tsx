@@ -74,7 +74,9 @@ it('should handle search', async () => {
   const users = [mockUser({ login: '1' }), mockUser({ login: '2' }), mockUser({ login: '3' })];
   (searchUsers as jest.Mock).mockResolvedValueOnce({ users });
 
-  const wrapper = shallowRender();
+  const onSelect = jest.fn();
+
+  const wrapper = shallowRender({ onSelect });
   wrapper.instance().handleSearch('j');
 
   expect(searchUsers).not.toBeCalled();
@@ -90,6 +92,12 @@ it('should handle search', async () => {
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().open).toBe(true);
   expect(wrapper.state().suggestedUsers).toHaveLength(3);
+
+  jest.clearAllMocks();
+
+  await wrapper.instance().handleSearch('');
+  expect(searchUsers).not.toBeCalled();
+  expect(onSelect).toBeCalledWith(undefined);
 });
 
 function shallowRender(props?: Partial<HotspotAssigneeSelect['props']>) {

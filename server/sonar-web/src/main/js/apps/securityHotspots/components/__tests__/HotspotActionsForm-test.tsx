@@ -19,8 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { assignSecurityHotspot, setSecurityHotspotStatus } from '../../../../api/security-hotspots';
+import { mockEvent, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import {
+  assignSecurityHotspot,
+  commentSecurityHotspot,
+  setSecurityHotspotStatus
+} from '../../../../api/security-hotspots';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockLoggedInUser } from '../../../../helpers/testMocks';
 import {
@@ -32,6 +36,7 @@ import HotspotActionsForm from '../HotspotActionsForm';
 
 jest.mock('../../../../api/security-hotspots', () => ({
   assignSecurityHotspot: jest.fn().mockResolvedValue(undefined),
+  commentSecurityHotspot: jest.fn().mockResolvedValue(undefined),
   setSecurityHotspotStatus: jest.fn().mockResolvedValue(undefined)
 }));
 
@@ -52,41 +57,55 @@ it('should handle comment change', () => {
   expect(wrapper.state().comment).toBe('new comment');
 });
 
-it('should handle submit', async () => {
-  const onSubmit = jest.fn();
-  const wrapper = shallowRender({ onSubmit });
-  wrapper.setState({ selectedOption: HotspotStatusOption.ADDITIONAL_REVIEW });
-  await waitAndUpdate(wrapper);
-
-  const preventDefault = jest.fn();
-  const promise = wrapper.instance().handleSubmit({ preventDefault } as any);
-  expect(preventDefault).toBeCalled();
-
-  expect(wrapper.state().submitting).toBe(true);
-  await promise;
-  expect(setSecurityHotspotStatus).toBeCalledWith('key', {
-    status: HotspotStatus.TO_REVIEW
-  });
-  expect(onSubmit).toBeCalled();
-
-  // SAFE
-  wrapper.setState({ comment: 'commentsafe', selectedOption: HotspotStatusOption.SAFE });
-  await waitAndUpdate(wrapper);
-  await wrapper.instance().handleSubmit({ preventDefault } as any);
-  expect(setSecurityHotspotStatus).toBeCalledWith('key', {
-    comment: 'commentsafe',
-    status: HotspotStatus.REVIEWED,
-    resolution: HotspotResolution.SAFE
+describe('submit', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  // FIXED
-  wrapper.setState({ comment: 'commentFixed', selectedOption: HotspotStatusOption.FIXED });
-  await waitAndUpdate(wrapper);
-  await wrapper.instance().handleSubmit({ preventDefault } as any);
-  expect(setSecurityHotspotStatus).toBeCalledWith('key', {
-    comment: 'commentFixed',
-    status: HotspotStatus.REVIEWED,
-    resolution: HotspotResolution.FIXED
+  it('should be handled for additional review', async () => {
+    const onSubmit = jest.fn();
+    const wrapper = shallowRender({ onSubmit });
+    wrapper.setState({ selectedOption: HotspotStatusOption.ADDITIONAL_REVIEW });
+
+    const promise = wrapper.instance().handleSubmit(mockEvent());
+
+    expect(wrapper.state().submitting).toBe(true);
+    await promise;
+    expect(setSecurityHotspotStatus).toBeCalledWith('key', {
+      status: HotspotStatus.TO_REVIEW
+    });
+    expect(onSubmit).toBeCalled();
+  });
+
+  it('should be handled for SAFE', async () => {
+    const wrapper = shallowRender();
+    wrapper.setState({ comment: 'commentsafe', selectedOption: HotspotStatusOption.SAFE });
+    await wrapper.instance().handleSubmit(mockEvent());
+    expect(setSecurityHotspotStatus).toBeCalledWith('key', {
+      status: HotspotStatus.REVIEWED,
+      resolution: HotspotResolution.SAFE
+    });
+    expect(commentSecurityHotspot).toBeCalledWith('key', 'commentsafe');
+  });
+
+  it('should be handled for FIXED', async () => {
+    const wrapper = shallowRender({
+      hotspot: mockHotspot({ key: 'key', status: HotspotStatus.TO_REVIEW })
+    });
+    wrapper.setState({ comment: 'commentfixed', selectedOption: HotspotStatusOption.FIXED });
+    await wrapper.instance().handleSubmit(mockEvent());
+    expect(setSecurityHotspotStatus).toBeCalledWith('key', {
+      status: HotspotStatus.REVIEWED,
+      resolution: HotspotResolution.FIXED
+    });
+    expect(commentSecurityHotspot).toBeCalledWith('key', 'commentfixed');
+  });
+
+  it('should ignore no change', async () => {
+    const wrapper = shallowRender();
+    wrapper.setState({ selectedOption: HotspotStatusOption.FIXED });
+    await wrapper.instance().handleSubmit(mockEvent());
+    expect(setSecurityHotspotStatus).not.toBeCalled();
   });
 });
 
@@ -110,9 +129,9 @@ it('should handle assignment', async () => {
     status: HotspotStatus.TO_REVIEW
   });
   expect(assignSecurityHotspot).toBeCalledWith('key', {
-    assignee: 'userLogin',
-    comment: 'assignment comment'
+    assignee: 'userLogin'
   });
+  expect(commentSecurityHotspot).toBeCalledWith('key', 'assignment comment');
   expect(onSubmit).toBeCalled();
 });
 
@@ -120,9 +139,11 @@ it('should handle submit failure', async () => {
   const onSubmit = jest.fn();
   (setSecurityHotspotStatus as jest.Mock).mockRejectedValueOnce('failure');
   const wrapper = shallowRender({ onSubmit });
+  wrapper.setState({ selectedOption: HotspotStatusOption.ADDITIONAL_REVIEW });
   const promise = wrapper.instance().handleSubmit({ preventDefault: jest.fn() } as any);
   expect(wrapper.state().submitting).toBe(true);
-  await promise.catch(() => {});
+  await promise;
+  await waitAndUpdate(wrapper);
   expect(wrapper.state().submitting).toBe(false);
   expect(onSubmit).not.toBeCalled();
 });

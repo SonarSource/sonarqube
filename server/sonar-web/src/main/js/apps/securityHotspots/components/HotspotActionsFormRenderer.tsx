@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classnames from 'classnames';
 import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import MarkdownTips from '../../../components/common/MarkdownTips';
-import { HotspotStatus, HotspotStatusOption } from '../../../types/security-hotspots';
+import {
+  Hotspot,
+  HotspotResolution,
+  HotspotStatus,
+  HotspotStatusOption
+} from '../../../types/security-hotspots';
 import HotspotAssigneeSelect from './HotspotAssigneeSelect';
 
 export interface HotspotActionsFormRendererProps {
   comment: string;
-  hotspotStatus: HotspotStatus;
+  hotspot: Hotspot;
   onAssign: (user: T.UserActive) => void;
   onChangeComment: (comment: string) => void;
   onSelectOption: (option: HotspotStatusOption) => void;
@@ -38,23 +44,28 @@ export interface HotspotActionsFormRendererProps {
 }
 
 export default function HotspotActionsFormRenderer(props: HotspotActionsFormRendererProps) {
-  const { comment, hotspotStatus, selectedOption, submitting } = props;
+  const { comment, hotspot, selectedOption, submitting } = props;
+
+  const disableStatusChange = !hotspot.canChangeStatus;
 
   return (
     <form className="abs-width-400 padded" onSubmit={props.onSubmit}>
       <h2>{translate('hotspots.form.title')}</h2>
       <div className="display-flex-column big-spacer-bottom">
         {renderOption({
+          disabled: disableStatusChange,
           option: HotspotStatusOption.FIXED,
           selectedOption,
           onClick: props.onSelectOption
         })}
         {renderOption({
+          disabled: disableStatusChange,
           option: HotspotStatusOption.SAFE,
           selectedOption,
           onClick: props.onSelectOption
         })}
         {renderOption({
+          disabled: disableStatusChange,
           option: HotspotStatusOption.ADDITIONAL_REVIEW,
           selectedOption,
           onClick: props.onSelectOption
@@ -86,26 +97,61 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
       </div>
       <div className="text-right">
         {submitting && <i className="spinner spacer-right" />}
-        <SubmitButton disabled={submitting}>
-          {translate('hotspots.form.submit', hotspotStatus)}
+        <SubmitButton disabled={submitting || !changes(props)}>
+          {translate('hotspots.form.submit', hotspot.status)}
         </SubmitButton>
       </div>
     </form>
   );
 }
 
+const noop = () => {};
+
+function changes(params: {
+  comment: string;
+  hotspot: Hotspot;
+  selectedOption: HotspotStatusOption;
+  selectedUser?: T.UserActive;
+}) {
+  const { comment, hotspot, selectedOption, selectedUser } = params;
+
+  const status =
+    selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW
+      ? HotspotStatus.TO_REVIEW
+      : HotspotStatus.REVIEWED;
+
+  const resolution =
+    selectedOption !== HotspotStatusOption.ADDITIONAL_REVIEW
+      ? HotspotResolution[selectedOption]
+      : undefined;
+
+  return (
+    comment.length > 0 ||
+    selectedUser ||
+    status !== hotspot.status ||
+    resolution !== hotspot.resolution
+  );
+}
+
 function renderOption(params: {
+  disabled: boolean;
   option: HotspotStatusOption;
   onClick: (option: HotspotStatusOption) => void;
   selectedOption: HotspotStatusOption;
 }) {
-  const { onClick, option, selectedOption } = params;
+  const { disabled, onClick, option, selectedOption } = params;
   return (
     <div className="big-spacer-top">
-      <Radio checked={selectedOption === option} onCheck={onClick} value={option}>
-        <h3>{translate('hotspots.status_option', option)}</h3>
+      <Radio
+        checked={selectedOption === option}
+        className={classnames({ disabled })}
+        onCheck={disabled ? noop : onClick}
+        value={option}>
+        <h3 className={classnames({ 'text-muted': disabled })}>
+          {translate('hotspots.status_option', option)}
+        </h3>
       </Radio>
-      <div className="radio-button-description">
+      <div className={classnames('radio-button-description', { 'text-muted': disabled })}>
         {translate('hotspots.status_option', option, 'description')}
       </div>
     </div>

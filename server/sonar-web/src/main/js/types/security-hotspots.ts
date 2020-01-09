@@ -74,6 +74,7 @@ export interface Hotspot {
   assigneeUser?: T.UserBase;
   author: string;
   authorUser: T.UserBase;
+  canChangeStatus: boolean;
   changelog: T.IssueChangelog[];
   comment: HotspotComment[];
   component: T.Component;

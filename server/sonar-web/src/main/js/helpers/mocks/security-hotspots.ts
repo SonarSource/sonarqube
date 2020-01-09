@@ -57,6 +57,7 @@ export function mockHotspot(overrides?: Partial<Hotspot>): Hotspot {
     assigneeUser,
     author: 'author',
     authorUser,
+    canChangeStatus: true,
     changelog: [],
     comment: [],
     component: mockComponent({ qualifier: ComponentQualifier.File }),

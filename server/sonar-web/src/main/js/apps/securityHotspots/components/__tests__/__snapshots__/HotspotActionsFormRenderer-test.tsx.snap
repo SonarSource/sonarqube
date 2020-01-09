@@ -16,10 +16,13 @@ exports[`should render correctly 1`] = `
     >
       <Radio
         checked={true}
+        className=""
         onCheck={[MockFunction]}
         value="FIXED"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.FIXED
         </h3>
       </Radio>
@@ -34,10 +37,13 @@ exports[`should render correctly 1`] = `
     >
       <Radio
         checked={false}
+        className=""
         onCheck={[MockFunction]}
         value="SAFE"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.SAFE
         </h3>
       </Radio>
@@ -52,10 +58,13 @@ exports[`should render correctly 1`] = `
     >
       <Radio
         checked={false}
+        className=""
         onCheck={[MockFunction]}
         value="ADDITIONAL_REVIEW"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.ADDITIONAL_REVIEW
         </h3>
       </Radio>
@@ -90,7 +99,7 @@ exports[`should render correctly 1`] = `
     <SubmitButton
       disabled={false}
     >
-      hotspots.form.submit.TO_REVIEW
+      hotspots.form.submit.REVIEWED
     </SubmitButton>
   </div>
 </form>
@@ -112,10 +121,13 @@ exports[`should render correctly: Submitting 1`] = `
     >
       <Radio
         checked={true}
+        className=""
         onCheck={[MockFunction]}
         value="FIXED"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.FIXED
         </h3>
       </Radio>
@@ -130,10 +142,13 @@ exports[`should render correctly: Submitting 1`] = `
     >
       <Radio
         checked={false}
+        className=""
         onCheck={[MockFunction]}
         value="SAFE"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.SAFE
         </h3>
       </Radio>
@@ -148,10 +163,13 @@ exports[`should render correctly: Submitting 1`] = `
     >
       <Radio
         checked={false}
+        className=""
         onCheck={[MockFunction]}
         value="ADDITIONAL_REVIEW"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.ADDITIONAL_REVIEW
         </h3>
       </Radio>
@@ -189,7 +207,112 @@ exports[`should render correctly: Submitting 1`] = `
     <SubmitButton
       disabled={true}
     >
-      hotspots.form.submit.TO_REVIEW
+      hotspots.form.submit.REVIEWED
+    </SubmitButton>
+  </div>
+</form>
+`;
+
+exports[`should render correctly: restricted access 1`] = `
+<form
+  className="abs-width-400 padded"
+  onSubmit={[MockFunction]}
+>
+  <h2>
+    hotspots.form.title
+  </h2>
+  <div
+    className="display-flex-column big-spacer-bottom"
+  >
+    <div
+      className="big-spacer-top"
+    >
+      <Radio
+        checked={true}
+        className="disabled"
+        onCheck={[Function]}
+        value="FIXED"
+      >
+        <h3
+          className="text-muted"
+        >
+          hotspots.status_option.FIXED
+        </h3>
+      </Radio>
+      <div
+        className="radio-button-description text-muted"
+      >
+        hotspots.status_option.FIXED.description
+      </div>
+    </div>
+    <div
+      className="big-spacer-top"
+    >
+      <Radio
+        checked={false}
+        className="disabled"
+        onCheck={[Function]}
+        value="SAFE"
+      >
+        <h3
+          className="text-muted"
+        >
+          hotspots.status_option.SAFE
+        </h3>
+      </Radio>
+      <div
+        className="radio-button-description text-muted"
+      >
+        hotspots.status_option.SAFE.description
+      </div>
+    </div>
+    <div
+      className="big-spacer-top"
+    >
+      <Radio
+        checked={false}
+        className="disabled"
+        onCheck={[Function]}
+        value="ADDITIONAL_REVIEW"
+      >
+        <h3
+          className="text-muted"
+        >
+          hotspots.status_option.ADDITIONAL_REVIEW
+        </h3>
+      </Radio>
+      <div
+        className="radio-button-description text-muted"
+      >
+        hotspots.status_option.ADDITIONAL_REVIEW.description
+      </div>
+    </div>
+  </div>
+  <div
+    className="display-flex-column big-spacer-bottom"
+  >
+    <label
+      className="little-spacer-bottom"
+    >
+      hotspots.form.comment
+    </label>
+    <textarea
+      autoFocus={true}
+      className="form-field fixed-width spacer-bottom"
+      onChange={[Function]}
+      placeholder=""
+      rows={6}
+      value="written comment"
+    />
+    <MarkdownTips />
+  </div>
+  <div
+    className="text-right"
+  >
+    <SubmitButton
+      disabled={false}
+    >
+      hotspots.form.submit.REVIEWED
     </SubmitButton>
   </div>
 </form>
@@ -211,10 +334,13 @@ exports[`should render correctly: safe option selected 1`] = `
     >
       <Radio
         checked={false}
+        className=""
         onCheck={[MockFunction]}
         value="FIXED"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.FIXED
         </h3>
       </Radio>
@@ -229,10 +355,13 @@ exports[`should render correctly: safe option selected 1`] = `
     >
       <Radio
         checked={true}
+        className=""
         onCheck={[MockFunction]}
         value="SAFE"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.SAFE
         </h3>
       </Radio>
@@ -247,10 +376,13 @@ exports[`should render correctly: safe option selected 1`] = `
     >
       <Radio
         checked={false}
+        className=""
         onCheck={[MockFunction]}
         value="ADDITIONAL_REVIEW"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.ADDITIONAL_REVIEW
         </h3>
       </Radio>
@@ -285,7 +417,7 @@ exports[`should render correctly: safe option selected 1`] = `
     <SubmitButton
       disabled={false}
     >
-      hotspots.form.submit.TO_REVIEW
+      hotspots.form.submit.REVIEWED
     </SubmitButton>
   </div>
 </form>
@@ -307,10 +439,13 @@ exports[`should render correctly: user selected 1`] = `
     >
       <Radio
         checked={false}
+        className=""
         onCheck={[MockFunction]}
         value="FIXED"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.FIXED
         </h3>
       </Radio>
@@ -325,10 +460,13 @@ exports[`should render correctly: user selected 1`] = `
     >
       <Radio
         checked={false}
+        className=""
         onCheck={[MockFunction]}
         value="SAFE"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.SAFE
         </h3>
       </Radio>
@@ -343,10 +481,13 @@ exports[`should render correctly: user selected 1`] = `
     >
       <Radio
         checked={true}
+        className=""
         onCheck={[MockFunction]}
         value="ADDITIONAL_REVIEW"
       >
-        <h3>
+        <h3
+          className=""
+        >
           hotspots.status_option.ADDITIONAL_REVIEW
         </h3>
       </Radio>
@@ -391,7 +532,7 @@ exports[`should render correctly: user selected 1`] = `
     <SubmitButton
       disabled={false}
     >
-      hotspots.form.submit.TO_REVIEW
+      hotspots.form.submit.REVIEWED
     </SubmitButton>
   </div>
 </form>
