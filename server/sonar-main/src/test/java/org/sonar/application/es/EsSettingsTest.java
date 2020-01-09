@@ -21,6 +21,9 @@ package org.sonar.application.es;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.google.common.collect.ImmutableSet;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -31,8 +34,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 import org.sonar.application.logging.ListAppender;
 import org.sonar.core.extension.ServiceLoaderWrapper;
+import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.ProcessProperties.Property;
 import org.sonar.process.Props;
@@ -40,6 +45,7 @@ import org.sonar.process.System2;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
@@ -55,6 +61,7 @@ import static org.sonar.process.ProcessProperties.Property.SEARCH_INITIAL_STATE_
 import static org.sonar.process.ProcessProperties.Property.SEARCH_MINIMUM_MASTER_NODES;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
+@RunWith(DataProviderRunner.class)
 public class EsSettingsTest {
 
   private static final boolean CLUSTER_ENABLED = true;
@@ -332,10 +339,30 @@ public class EsSettingsTest {
   @Test
   public void disable_mmap_if_configured_in_search_additional_props() throws Exception {
     Props props = minProps(CLUSTER_DISABLED);
-    props.set("sonar.search.javaAdditionalOpts", "-Dnode.store.allow_mmapfs=false");
+    props.set("sonar.search.javaAdditionalOpts", "-Dnode.store.allow_mmap=false");
     Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
 
-    assertThat(settings.get("node.store.allow_mmapfs")).isEqualTo("false");
+    assertThat(settings).containsEntry("node.store.allow_mmap", "false");
+  }
+
+  @Test
+  @UseDataProvider("clusterEnabledOrNot")
+  public void throw_exception_if_old_mmap_property_is_used(boolean clusterEnabled) throws Exception {
+    Props props = minProps(clusterEnabled);
+    props.set("sonar.search.javaAdditionalOpts", "-Dnode.store.allow_mmapfs=false");
+    EsSettings settings = new EsSettings(props, new EsInstallation(props), system);
+
+    assertThatThrownBy(settings::build)
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Property 'node.store.allow_mmapfs' is no longer supported. Use 'node.store.allow_mmap' instead.");
+  }
+
+  @DataProvider
+  public static Object[][] clusterEnabledOrNot() {
+    return new Object[][] {
+      {false},
+      {true}
+    };
   }
 
   private Props minProps(boolean cluster) throws IOException {

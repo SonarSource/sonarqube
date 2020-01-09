@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.MessageException;
 import org.sonar.process.Props;
 import org.sonar.process.System2;
 
@@ -45,7 +46,7 @@ public class EsSettings {
   private static final Logger LOGGER = LoggerFactory.getLogger(EsSettings.class);
   private static final String STANDALONE_NODE_NAME = "sonarqube";
   private static final String SECCOMP_PROPERTY = "bootstrap.system_call_filter";
-  private static final String ALLOW_MMAP = "node.store.allow_mmapfs";
+  private static final String ALLOW_MMAP = "node.store.allow_mmap";
 
   private final Props props;
   private final EsInstallation fileSystem;
@@ -153,7 +154,10 @@ public class EsSettings {
       builder.put(SECCOMP_PROPERTY, "false");
     }
 
-    // to be used with HA QA, where we can't easily set mmap size when running with docker.
+    if (props.value("sonar.search.javaAdditionalOpts", "").contains("-Dnode.store.allow_mmapfs=false")) {
+      throw new MessageException("Property 'node.store.allow_mmapfs' is no longer supported. Use 'node.store.allow_mmap' instead.");
+    }
+
     if (props.value("sonar.search.javaAdditionalOpts", "").contains("-D" + ALLOW_MMAP + "=false")) {
       builder.put(ALLOW_MMAP, "false");
     }
