@@ -27,14 +27,13 @@ import {
   Hotspot,
   HotspotResolution,
   HotspotStatus,
-  HotspotStatusOption,
-  HotspotUpdateFields
+  HotspotStatusOption
 } from '../../../types/security-hotspots';
 import HotspotActionsFormRenderer from './HotspotActionsFormRenderer';
 
 interface Props {
   hotspot: Hotspot;
-  onSubmit: (data: HotspotUpdateFields) => void;
+  onSubmit: () => void;
 }
 
 interface State {
@@ -100,7 +99,7 @@ export default class HotspotActionsForm extends React.Component<Props, State> {
       .then(() => this.updateAssignee(hotspot, selectedOption, selectedUser))
       .then(() => this.addComment(hotspot, comment))
       .then(() => {
-        this.props.onSubmit({ status, resolution });
+        this.props.onSubmit();
         // No need to set "submitting", we are closing the window
       })
       .catch(() => {

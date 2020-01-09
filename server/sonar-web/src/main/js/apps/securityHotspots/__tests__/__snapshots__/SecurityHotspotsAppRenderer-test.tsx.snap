@@ -36,7 +36,7 @@ exports[`should render correctly with hotspots 1`] = `
     <Suggestions
       suggestions="security_hotspots"
     />
-    <HelmetWrapper
+    <Helmet
       defer={true}
       encodeSpecialCharacters={true}
       title="hotspots.page"
@@ -115,7 +115,7 @@ exports[`should render correctly with hotspots 2`] = `
     <Suggestions
       suggestions="security_hotspots"
     />
-    <HelmetWrapper
+    <Helmet
       defer={true}
       encodeSpecialCharacters={true}
       title="hotspots.page"
@@ -201,7 +201,7 @@ exports[`should render correctly: no hotspots 1`] = `
     <Suggestions
       suggestions="security_hotspots"
     />
-    <HelmetWrapper
+    <Helmet
       defer={true}
       encodeSpecialCharacters={true}
       title="hotspots.page"
@@ -230,7 +230,7 @@ exports[`should render correctly: no hotspots with filters 1`] = `
     <Suggestions
       suggestions="security_hotspots"
     />
-    <HelmetWrapper
+    <Helmet
       defer={true}
       encodeSpecialCharacters={true}
       title="hotspots.page"

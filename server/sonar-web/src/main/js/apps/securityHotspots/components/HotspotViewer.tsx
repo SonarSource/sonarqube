@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
 import { BranchLike } from '../../../types/branch-like';
-import { Hotspot, HotspotUpdate, HotspotUpdateFields } from '../../../types/security-hotspots';
+import { Hotspot, HotspotUpdate } from '../../../types/security-hotspots';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
@@ -58,16 +58,25 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   fetchHotspot() {
     this.setState({ loading: true });
     return getSecurityHotspotDetails(this.props.hotspotKey)
-      .then(hotspot => this.mounted && this.setState({ hotspot, loading: false }))
+      .then(hotspot => {
+        if (this.mounted) {
+          this.setState({ hotspot, loading: false });
+        }
+        return hotspot;
+      })
       .catch(() => this.mounted && this.setState({ loading: false }));
   }
 
-  handleHotspotUpdate = (data?: HotspotUpdateFields) => {
-    if (data) {
-      this.props.onUpdateHotspot({ key: this.props.hotspotKey, ...data });
-    }
-
-    this.fetchHotspot();
+  handleHotspotUpdate = () => {
+    return this.fetchHotspot().then((hotspot?: Hotspot) => {
+      if (hotspot) {
+        this.props.onUpdateHotspot({
+          key: hotspot.key,
+          status: hotspot.status,
+          resolution: hotspot.resolution
+        });
+      }
+    });
   };
 
   render() {

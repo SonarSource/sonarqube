@@ -24,12 +24,12 @@ import OutsideClickHandler from 'sonar-ui-common/components/controls/OutsideClic
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Hotspot, HotspotUpdateFields } from '../../../types/security-hotspots';
+import { Hotspot } from '../../../types/security-hotspots';
 import HotspotActionsForm from './HotspotActionsForm';
 
 export interface HotspotActionsProps {
   hotspot: Hotspot;
-  onSubmit: (hotspot: HotspotUpdateFields) => void;
+  onSubmit: () => void;
 }
 
 const ESCAPE_KEY = 'Escape';
@@ -64,9 +64,9 @@ export default function HotspotActions(props: HotspotActionsProps) {
           <DropdownOverlay placement={PopupPlacement.BottomRight}>
             <HotspotActionsForm
               hotspot={hotspot}
-              onSubmit={data => {
+              onSubmit={() => {
                 setOpen(false);
-                props.onSubmit(data);
+                props.onSubmit();
               }}
             />
           </DropdownOverlay>

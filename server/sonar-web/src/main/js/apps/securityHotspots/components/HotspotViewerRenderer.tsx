@@ -23,7 +23,7 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
-import { Hotspot, HotspotUpdateFields } from '../../../types/security-hotspots';
+import { Hotspot } from '../../../types/security-hotspots';
 import HotspotActions from './HotspotActions';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
 import HotspotViewerTabs from './HotspotViewerTabs';
@@ -33,7 +33,7 @@ export interface HotspotViewerRendererProps {
   currentUser: T.CurrentUser;
   hotspot?: Hotspot;
   loading: boolean;
-  onUpdateHotspot: (data?: HotspotUpdateFields) => void;
+  onUpdateHotspot: () => void;
   securityCategories: T.StandardSecurityCategories;
 }
 
