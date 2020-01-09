@@ -136,6 +136,7 @@ public class EsSettings {
       String hosts = props.value(CLUSTER_SEARCH_HOSTS.getKey(), "");
       LOGGER.info("Elasticsearch cluster enabled. Connect to hosts [{}]", hosts);
       builder.put("discovery.zen.ping.unicast.hosts", hosts);
+      builder.put("cluster.initial_master_nodes", hosts);
     }
 
     builder.put("discovery.zen.minimum_master_nodes", valueOf(minimumMasterNodes));
