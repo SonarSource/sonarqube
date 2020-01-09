@@ -95,7 +95,7 @@ public class PermissionTemplateService {
     for (ComponentDto project : projects) {
       copyPermissions(dbSession, template, project, null);
     }
-    projectIndexers.commitAndIndex(dbSession, projects, ProjectIndexer.Cause.PERMISSION_CHANGE);
+    projectIndexers.commitAndIndexComponents(dbSession, projects, ProjectIndexer.Cause.PERMISSION_CHANGE);
   }
 
   /**

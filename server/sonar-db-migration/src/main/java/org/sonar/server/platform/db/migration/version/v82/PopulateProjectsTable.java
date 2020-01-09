@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v81;
+package org.sonar.server.platform.db.migration.version.v82;
 
 import java.sql.SQLException;
+import java.util.Date;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
@@ -38,10 +39,10 @@ public class PopulateProjectsTable extends DataChange {
   @Override
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select p.uuid, p.kee, p.qualifier, p.organization_uuid, p.name, p.description, p.private, p.tags, p.created_at  " +
-      "from components p " +
-      "left join projects np on np.uuid = p.uuid " +
-      "where p.scope = 'PRJ' and p.qualifier in ('TRK', 'APP') and np.uuid is null");
+    massUpdate.select("select cp.uuid, cp.kee, cp.qualifier, cp.organization_uuid, cp.name, cp.description, cp.private, cp.tags, cp.created_at  " +
+      "from components cp " +
+      "left join projects np on np.uuid = cp.uuid " +
+      "where cp.scope = 'PRJ' and cp.qualifier in ('TRK', 'APP') and cp.main_branch_project_uuid is null and np.uuid is null");
     massUpdate.rowPluralName("projects");
     massUpdate.update("insert into projects (uuid, kee, qualifier, organization_uuid, name, description, private, tags, created_at, updated_at) " +
       "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -54,7 +55,8 @@ public class PopulateProjectsTable extends DataChange {
       update.setString(6, row.getNullableString(6));
       update.setBoolean(7, row.getBoolean(7));
       update.setString(8, row.getNullableString(8));
-      update.setLong(9, row.getDate(9).getTime());
+      Date createdAtDate = row.getNullableDate(9);
+      update.setLong(9, createdAtDate != null ? createdAtDate.getTime() : null);
       update.setLong(10, system.now());
       return true;
     });

@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v81;
+package org.sonar.server.platform.db.migration.version.v82;
 
 import java.sql.SQLException;
-import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
-import static java.sql.Types.BIGINT;
-import static java.sql.Types.BOOLEAN;
-import static java.sql.Types.VARCHAR;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 
 public class RenameProjectsTableToComponentsTest {
   private static final String TABLE_NAME = "projects";

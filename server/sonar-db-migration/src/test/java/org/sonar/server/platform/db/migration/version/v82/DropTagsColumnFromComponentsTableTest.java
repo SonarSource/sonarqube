@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v81;
+package org.sonar.server.platform.db.migration.version.v82;
 
 import java.sql.SQLException;
 import org.junit.Rule;
@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.v81.DropTagsColumnFromComponentsTable.COLUMN_TO_DROP;
-import static org.sonar.server.platform.db.migration.version.v81.DropTagsColumnFromComponentsTable.TABLE;
+import static org.sonar.server.platform.db.migration.version.v82.DropTagsColumnFromComponentsTable.COLUMNS_TO_DROP;
+import static org.sonar.server.platform.db.migration.version.v82.DropTagsColumnFromComponentsTable.TABLE;
 
 public class DropTagsColumnFromComponentsTableTest {
 
@@ -41,14 +41,18 @@ public class DropTagsColumnFromComponentsTableTest {
   public void execute() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDoesNotExist(TABLE, COLUMN_TO_DROP);
+    for (String column : COLUMNS_TO_DROP) {
+      db.assertColumnDoesNotExist(TABLE, column);
+    }
   }
 
   @Test
   public void migration_is_not_re_entrant() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDoesNotExist(TABLE, COLUMN_TO_DROP);
+    for (String column : COLUMNS_TO_DROP) {
+      db.assertColumnDoesNotExist(TABLE, column);
+    }
     expectedException.expect(IllegalStateException.class);
 
     underTest.execute();

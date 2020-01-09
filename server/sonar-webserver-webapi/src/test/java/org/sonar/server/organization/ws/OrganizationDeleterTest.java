@@ -33,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -95,8 +96,8 @@ public class OrganizationDeleterTest {
   @Rule
   public final EsTester es = EsTester.create();
   private final EsClient esClient = es.client();
-
-  private final ComponentCleanerService componentCleanerService = spy(new ComponentCleanerService(db.getDbClient(), mock(ProjectIndexers.class)));
+  private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
+  private final ComponentCleanerService componentCleanerService = spy(new ComponentCleanerService(db.getDbClient(), mockResourceTypes, mock(ProjectIndexers.class)));
   private final UserIndex userIndex = new UserIndex(esClient, System2.INSTANCE);
   private final UserIndexer userIndexer = new UserIndexer(dbClient, esClient);
   private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);

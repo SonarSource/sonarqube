@@ -39,10 +39,12 @@ import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 public class ComponentCleanerService {
 
   private final DbClient dbClient;
+  private final ResourceTypes resourceTypes;
   private final ProjectIndexers projectIndexers;
 
-  public ComponentCleanerService(DbClient dbClient, ProjectIndexers projectIndexers) {
+  public ComponentCleanerService(DbClient dbClient, ResourceTypes resourceTypes, ProjectIndexers projectIndexers) {
     this.dbClient = dbClient;
+    this.resourceTypes = resourceTypes;
     this.projectIndexers = projectIndexers;
   }
 
@@ -71,7 +73,7 @@ public class ComponentCleanerService {
   }
 
   public void delete(DbSession dbSession, ComponentDto project) {
-    checkArgument(!hasNotProjectScope(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
+    checkArgument(!hasNotProjectScope(project) && !isNotDeletable(project) && project.getMainBranchProjectUuid() == null, "Only projects can be deleted");
     dbClient.purgeDao().deleteProject(dbSession, project.uuid());
     dbClient.userDao().cleanHomepage(dbSession, project);
     projectIndexers.commitAndIndexComponents(dbSession, singletonList(project), PROJECT_DELETION);
@@ -81,11 +83,9 @@ public class ComponentCleanerService {
     return !Scopes.PROJECT.equals(project.scope());
   }
 
-  // TODO check if we need to filter as before
-
-  //private boolean isNotDeletable(ComponentDto project) {
-  //  ResourceType resourceType = resourceTypes.get(project.qualifier());
-  //  return resourceType == null || !resourceType.getBooleanProperty("deletable");
-  //}
-
+  private boolean isNotDeletable(ComponentDto project) {
+    ResourceType resourceType = resourceTypes.get(project.qualifier());
+    // this essentially means PROJECTS, VIEWS and APPS (not SUBVIEWS)
+    return resourceType == null || !resourceType.getBooleanProperty("deletable");
+  }
 }

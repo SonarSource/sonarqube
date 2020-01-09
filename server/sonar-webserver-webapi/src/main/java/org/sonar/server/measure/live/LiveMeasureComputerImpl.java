@@ -141,7 +141,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     // persist the measures that have been created or updated
     matrix.getChanged().sorted(LiveMeasureComparator.INSTANCE)
       .forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m));
-    projectIndexer.commitAndIndex(dbSession, singleton(branchComponent), ProjectIndexer.Cause.MEASURE_CHANGE);
+    projectIndexer.commitAndIndexComponents(dbSession, singleton(branchComponent), ProjectIndexer.Cause.MEASURE_CHANGE);
 
     return Optional.of(
       new QGChangeEvent(project, branch, lastAnalysis.get(), config, previousStatus, () -> Optional.of(evaluatedQualityGate)));

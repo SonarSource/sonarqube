@@ -19,7 +19,6 @@
  */
 package org.sonar.server.webhook.ws;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,12 +29,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Webhooks;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.webhook.ws.WebhookWsSupport.copyDtoToProtobuf;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class WebhookDeliveryAction implements WebhooksWsAction {
@@ -80,10 +79,10 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
 
   private Data loadFromDatabase(String deliveryUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<WebhookDeliveryDto> delivery = dbClient.webhookDeliveryDao().selectByUuid(dbSession, deliveryUuid);
-      checkFoundWithOptional(delivery, "Webhook delivery not found");
-      ProjectDto project = componentFinder.getProjectByUuid(dbSession, delivery.get().getComponentUuid());
-      return new Data(project, delivery.get());
+      WebhookDeliveryDto delivery = dbClient.webhookDeliveryDao().selectByUuid(dbSession, deliveryUuid)
+        .orElseThrow(() -> new NotFoundException("Webhook delivery not found"));
+      ProjectDto project = componentFinder.getProjectByUuid(dbSession, delivery.getComponentUuid());
+      return new Data(project, delivery);
     }
   }
 

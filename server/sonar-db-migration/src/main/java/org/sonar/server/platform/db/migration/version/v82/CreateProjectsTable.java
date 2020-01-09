@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v81;
+package org.sonar.server.platform.db.migration.version.v82;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -77,7 +77,7 @@ public class CreateProjectsTable extends DdlChange {
     .build();
   private static final BigIntegerColumnDef CREATED_AT = newBigIntegerColumnDefBuilder()
     .setColumnName("created_at")
-    .setIsNullable(false)
+    .setIsNullable(true)
     .build();
   private static final BigIntegerColumnDef UPDATED_AT = newBigIntegerColumnDefBuilder()
     .setColumnName("updated_at")

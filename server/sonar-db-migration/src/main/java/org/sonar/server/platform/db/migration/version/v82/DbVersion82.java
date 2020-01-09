@@ -29,6 +29,10 @@ public class DbVersion82 implements DbVersion {
       .add(3200, "Drop 'In Review' Security Hotspots status ", DropSecurityHotSpotsInReviewStatus.class)
       .add(3201, "Migrate Manual Vulnerabilities to Security Hotspots ", MigrateManualVulnerabilitiesToSecurityHotSpots.class)
       .add(3202, "Remove 'newsbox.dismiss.hotspots' user property", RemoveNewsboxDismissHotspotsProperty.class)
-      .add(3203, "Ensure Security Hotspots have status TO_REVIEW", EnsureHotspotDefaultStatusIsToReview.class);
+      .add(3203, "Ensure Security Hotspots have status TO_REVIEW", EnsureHotspotDefaultStatusIsToReview.class)
+      .add(3204, "Rename table 'PROJECTS' to 'COMPONENTS'", RenameProjectsTableToComponents.class)
+      .add(3205, "Add PROJECTS table", CreateProjectsTable.class)
+      .add(3206, "Populate PROJECTS table", PopulateProjectsTable.class)
+      .add(3207, "Drop 'TAGS' column from COMPONENTS table", DropTagsColumnFromComponentsTable.class);
   }
 }

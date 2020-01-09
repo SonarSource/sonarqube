@@ -97,7 +97,7 @@ public class ComponentUpdater {
   }
 
   public void commitAndIndex(DbSession dbSession, ComponentDto componentDto) {
-    projectIndexers.commitAndIndex(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
+    projectIndexers.commitAndIndexComponents(dbSession, singletonList(componentDto), Cause.PROJECT_CREATION);
   }
 
   private ComponentDto createRootComponent(DbSession session, NewComponent newComponent, Consumer<ComponentDto> componentModifier) {

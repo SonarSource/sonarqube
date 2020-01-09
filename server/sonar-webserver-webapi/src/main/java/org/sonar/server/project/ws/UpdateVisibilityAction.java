@@ -44,8 +44,8 @@ import org.sonarqube.ws.client.project.ProjectsWsParameters;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
@@ -103,24 +103,29 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
         OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, component.getOrganizationUuid())
           .orElseThrow(() -> new IllegalStateException(format("Could not find organization with uuid '%s' of project '%s'", component.getOrganizationUuid(), projectKey)));
         projectsWsSupport.checkCanUpdateProjectsVisibility(organization, changeToPrivate);
-        setPrivateForRootComponentUuid(dbSession, component.uuid(), changeToPrivate);
+        setPrivateForRootComponentUuid(dbSession, component, changeToPrivate);
         if (changeToPrivate) {
           updatePermissionsToPrivate(dbSession, component);
         } else {
           updatePermissionsToPublic(dbSession, component);
         }
-        projectIndexers.commitAndIndex(dbSession, singletonList(component), ProjectIndexer.Cause.PERMISSION_CHANGE);
+        projectIndexers.commitAndIndexComponents(dbSession, singletonList(component), ProjectIndexer.Cause.PERMISSION_CHANGE);
       }
 
       response.noContent();
     }
   }
 
-  private void setPrivateForRootComponentUuid(DbSession dbSession, String uuid, boolean isPrivate) {
+  private void setPrivateForRootComponentUuid(DbSession dbSession, ComponentDto component, boolean isPrivate) {
+    String uuid = component.uuid();
     dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, uuid, isPrivate);
+
+    if (component.qualifier().equals(Qualifiers.PROJECT) || component.qualifier().equals(Qualifiers.APP)) {
+      dbClient.projectDao().updateVisibility(dbSession, uuid, isPrivate);
+    }
+
     ComponentMapper mapper = dbSession.getMapper(ComponentMapper.class);
-    dbSession.getMapper(BranchMapper.class).selectByProjectUuid(uuid)
-      .stream()
+    dbSession.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
       .filter(branch -> !uuid.equals(branch.getUuid()))
       .forEach(branch -> mapper.setPrivateForRootComponentUuid(branch.getUuid(), isPrivate));
   }

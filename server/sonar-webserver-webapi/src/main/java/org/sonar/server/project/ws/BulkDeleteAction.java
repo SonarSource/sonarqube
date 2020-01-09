@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
@@ -145,7 +144,6 @@ public class BulkDeleteAction implements ProjectsWsAction {
       checkAtLeastOneParameterIsPresent(searchRequest);
 
       ComponentQuery query = buildDbQuery(searchRequest);
-      // TODO do query in ProjectDao
       Set<ComponentDto> componentDtos = new HashSet<>(dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, 0, Integer.MAX_VALUE));
 
       try {

@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
@@ -101,7 +102,8 @@ public class DeleteActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ComponentCleanerService spiedComponentCleanerService = spy(new ComponentCleanerService(db.getDbClient(), mock(ProjectIndexers.class)));
+  private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
+  private ComponentCleanerService spiedComponentCleanerService = spy(new ComponentCleanerService(db.getDbClient(), mockResourceTypes, mock(ProjectIndexers.class)));
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileFactory qProfileFactory = new QProfileFactoryImpl(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));

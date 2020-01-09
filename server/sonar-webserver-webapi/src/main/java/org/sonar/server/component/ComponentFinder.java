@@ -46,6 +46,7 @@ public class ComponentFinder {
   private static final String MSG_PARAMETER_MUST_NOT_BE_EMPTY = "The '%s' parameter must not be empty";
   private static final String LABEL_PROJECT = "Project";
   private static final String LABEL_COMPONENT = "Component";
+  private static final String LABEL_PROJECT_NOT_FOUND = "Project '%s' not found";
 
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
@@ -67,7 +68,7 @@ public class ComponentFinder {
 
   public ProjectDto getProjectByKey(DbSession dbSession, String projectKey) {
     return dbClient.projectDao().selectProjectByKey(dbSession, projectKey)
-      .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", projectKey)));
+      .orElseThrow(() -> new NotFoundException(String.format(LABEL_PROJECT_NOT_FOUND, projectKey)));
   }
 
   public ProjectDto getApplicationByKey(DbSession dbSession, String applicationKey) {
@@ -77,13 +78,13 @@ public class ComponentFinder {
 
   public ProjectDto getProjectOrApplicationByKey(DbSession dbSession, String projectKey) {
     return dbClient.projectDao().selectProjectOrAppByKey(dbSession, projectKey)
-      .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", projectKey)));
+      .orElseThrow(() -> new NotFoundException(String.format(LABEL_PROJECT_NOT_FOUND, projectKey)));
   }
 
   public ProjectDto getProjectByUuid(DbSession dbSession, String projectUuid) {
     return dbClient.projectDao().selectByUuid(dbSession, projectUuid)
       .filter(p -> Qualifiers.PROJECT.equals(p.getQualifier()))
-      .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", projectUuid)));
+      .orElseThrow(() -> new NotFoundException(String.format(LABEL_PROJECT_NOT_FOUND, projectUuid)));
   }
 
   public ProjectDto getProjectByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey, ParamNames parameterNames) {

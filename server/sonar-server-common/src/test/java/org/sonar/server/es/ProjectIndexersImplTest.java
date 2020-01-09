@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- package org.sonar.server.es;
+package org.sonar.server.es;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +42,7 @@ public class ProjectIndexersImplTest {
     ComponentDto project = ComponentTesting.newPublicProjectDto(organization);
 
     FakeIndexers underTest = new FakeIndexers();
-    underTest.commitAndIndex(mock(DbSession.class), singletonList(project), Cause.PROJECT_CREATION);
+    underTest.commitAndIndexComponents(mock(DbSession.class), singletonList(project), Cause.PROJECT_CREATION);
 
     assertThat(underTest.calls).containsExactly(project.uuid());
   }
@@ -54,7 +54,7 @@ public class ProjectIndexersImplTest {
     ComponentDto module = ComponentTesting.newModuleDto(project);
 
     FakeIndexers underTest = new FakeIndexers();
-    underTest.commitAndIndex(mock(DbSession.class), singletonList(module), Cause.PROJECT_CREATION);
+    underTest.commitAndIndexComponents(mock(DbSession.class), singletonList(module), Cause.PROJECT_CREATION);
 
     assertThat(underTest.calls).containsExactly(project.uuid());
   }

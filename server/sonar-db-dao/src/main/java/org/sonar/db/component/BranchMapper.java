@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
-import org.sonar.db.DbSession;
 
 public interface BranchMapper {
 
@@ -37,7 +36,7 @@ public interface BranchMapper {
   int updateManualBaseline(@Param("uuid") String uuid, @Nullable @Param("analysisUuid") String analysisUuid, @Param("now") long now);
 
   int updateExcludeFromPurge(@Param("uuid") String uuid, @Param("excludeFromPurge") boolean excludeFromPurge,
-                             @Param("now") long now);
+    @Param("now") long now);
 
   BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("keyType") KeyType keyType);
 

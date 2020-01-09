@@ -47,8 +47,7 @@ class ComponentDtoToWsComponent {
     // prevent instantiation
   }
 
-  static Components.Component.Builder projectOrAppToWsComponent(ProjectDto project, ComponentDto component, OrganizationDto organizationDto,
-    @Nullable SnapshotDto lastAnalysis) {
+  static Components.Component.Builder projectOrAppToWsComponent(ProjectDto project, OrganizationDto organizationDto, @Nullable SnapshotDto lastAnalysis) {
 
     checkArgument(
       Objects.equals(project.getOrganizationUuid(), organizationDto.getUuid()),
@@ -58,15 +57,10 @@ class ComponentDtoToWsComponent {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
       .setOrganization(organizationDto.getKey())
       .setKey(project.getKey())
-      // TODO switch to using ProjectDto.getName() after fixing
-      // org.sonarqube.tests.project.ProjectInfoTest.project_name_and_description_should_be_truncated_if_too_long
-      .setName(component.name())
+      .setName(project.getName())
       .setQualifier(project.getQualifier());
 
-    // TODO switch to using ProjectDto.getDescription() after fixing
-    // org.sonarqube.tests.project.ProjectInfoTest.project_name_and_description_should_be_truncated_if_too_long
-    ofNullable(emptyToNull(component.description())).ifPresent(wsComponent::setDescription);
-    ofNullable(emptyToNull(component.language())).ifPresent(wsComponent::setLanguage);
+    ofNullable(emptyToNull(project.getDescription())).ifPresent(wsComponent::setDescription);
     ofNullable(lastAnalysis).ifPresent(
       analysis -> {
         wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt()));
@@ -74,8 +68,7 @@ class ComponentDtoToWsComponent {
         ofNullable(analysis.getProjectVersion()).ifPresent(wsComponent::setVersion);
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(project.getQualifier())) {
-      // TODO switch to using ProjectDto.isPrivate() instead after fixing UpdateVisibilityAction WS
-      wsComponent.setVisibility(Visibility.getLabel(component.isPrivate()));
+      wsComponent.setVisibility(Visibility.getLabel(project.isPrivate()));
       if (Qualifiers.PROJECT.equals(project.getQualifier())) {
         wsComponent.getTagsBuilder().addAllTags(project.getTags());
       }

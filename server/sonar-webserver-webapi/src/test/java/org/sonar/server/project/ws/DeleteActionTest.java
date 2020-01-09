@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -74,6 +75,8 @@ public class DeleteActionTest {
   private ComponentDbTester componentDbTester = new ComponentDbTester(db);
   private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
+  private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
+
   private DeleteAction underTest = new DeleteAction(
     componentCleanerService,
     from(db),
@@ -111,7 +114,7 @@ public class DeleteActionTest {
     dbSession.commit();
     userSessionRule.logIn().addProjectPermission(ADMIN, project);
     DeleteAction underTest = new DeleteAction(
-      new ComponentCleanerService(dbClient, new TestProjectIndexers()),
+      new ComponentCleanerService(dbClient, mockResourceTypes, new TestProjectIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTest)
@@ -134,7 +137,7 @@ public class DeleteActionTest {
 
     userSessionRule.logIn().addProjectPermission(ADMIN, project);
     DeleteAction underTest = new DeleteAction(
-      new ComponentCleanerService(dbClient, new TestProjectIndexers()),
+      new ComponentCleanerService(dbClient, mockResourceTypes, new TestProjectIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTest)

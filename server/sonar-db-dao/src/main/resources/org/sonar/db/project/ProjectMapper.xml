@@ -141,9 +141,18 @@
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 
-  <update id="updateKey" parameterType="String">
+  <update id="updateKey">
     update projects set
-    kee = #{newKey,jdbcType=VARCHAR}
+    kee = #{newKey,jdbcType=VARCHAR},
+    updated_at = #{updatedAt,jdbcType=BIGINT}
+    where
+    uuid = #{uuid,jdbcType=VARCHAR}
+  </update>
+
+    <update id="updateVisibility">
+    update projects set
+    private = #{isPrivate,jdbcType=BOOLEAN},
+    updated_at = #{updatedAt,jdbcType=BIGINT}
     where
     uuid = #{uuid,jdbcType=VARCHAR}
   </update>

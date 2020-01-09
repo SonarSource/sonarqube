@@ -35,7 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.project.ProjectDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -272,9 +272,9 @@ public class ProjectAlmBindingDaoTest {
   @Test
   public void findProjectKey_returns_projectKey_when_entry_exists() {
     String projectKey = randomAlphabetic(10);
-    ComponentDto project = createProject(projectKey);
+    ProjectDto project = createProject(projectKey);
     when(uuidFactory.create()).thenReturn("uuid1");
-    underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, project.projectUuid(), A_GITHUB_SLUG, A_URL);
+    underTest.insertOrUpdate(dbSession, GITHUB, A_REPO, project.getUuid(), A_GITHUB_SLUG, A_URL);
 
     assertThat(underTest.findProjectKey(dbSession, GITHUB, A_REPO)).contains(projectKey);
   }
@@ -400,10 +400,7 @@ public class ProjectAlmBindingDaoTest {
     }
   }
 
-  private ComponentDto createProject(String projectKey) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setDbKey(projectKey);
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
-    return project;
+  private ProjectDto createProject(String projectKey) {
+    return dbTester.components().insertPrivateProjectDto(c -> c.setDbKey(projectKey));
   }
 }

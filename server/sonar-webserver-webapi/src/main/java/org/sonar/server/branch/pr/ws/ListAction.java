@@ -96,7 +96,6 @@ public class ListAction implements PullRequestWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
       checkPermission(project);
-      // TODO support disabled projects?
 
       List<BranchDto> pullRequests = dbClient.branchDao().selectByProject(dbSession, project).stream()
         .filter(b -> b.getBranchType() == PULL_REQUEST)

@@ -22,12 +22,15 @@ package org.sonar.server.component;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -38,6 +41,10 @@ import org.sonar.server.es.TestProjectIndexers;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 
 public class ComponentCleanerServiceTest {
@@ -53,7 +60,8 @@ public class ComponentCleanerServiceTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private TestProjectIndexers projectIndexers = new TestProjectIndexers();
-  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, projectIndexers);
+  private ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
+  private ComponentCleanerService underTest = new ComponentCleanerService(dbClient, mockResourceTypes, projectIndexers);
 
   @Test
   public void delete_project_from_db_and_index() {
@@ -110,10 +118,25 @@ public class ComponentCleanerServiceTest {
     ProjectDto projectDto1 = dbClient.projectDao().selectByUuid(dbSession, project1.getUuid()).get();
     ProjectDto projectDto2 = dbClient.projectDao().selectByUuid(dbSession, project2.getUuid()).get();
 
+    mockResourceTypeAsValidProject();
+
     underTest.delete(dbSession, asList(projectDto1, projectDto2));
 
     assertThat(db.countRowsOfTable(db.getSession(), "webhooks")).isEqualTo(1);
     assertThat(db.countRowsOfTable(db.getSession(), "webhook_deliveries")).isEqualTo(1);
+  }
+
+  @Test
+  public void fail_with_IAE_if_not_a_project() {
+    mockResourceTypeAsValidProject();
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
+    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto file = newFileDto(project, null);
+    dbClient.componentDao().insert(dbSession, file);
+    dbSession.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
+    underTest.delete(dbSession, file);
   }
 
   private DbData insertData() {
@@ -125,7 +148,14 @@ public class ComponentCleanerServiceTest {
     RuleDefinitionDto rule = db.rules().insert();
     IssueDto issue = db.issues().insert(rule, project, component);
     SnapshotDto analysis = db.components().insertSnapshot(component);
+    mockResourceTypeAsValidProject();
     return new DbData(project, branch, analysis, issue);
+  }
+
+  private void mockResourceTypeAsValidProject() {
+    ResourceType resourceType = mock(ResourceType.class);
+    when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
+    when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
   }
 
   private void assertNotExists(DbData data) {

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v81;
+package org.sonar.server.platform.db.migration.version.v82;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
@@ -27,7 +27,7 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 public class DropTagsColumnFromComponentsTable extends DdlChange {
 
   static final String TABLE = "components";
-  static final String COLUMN_TO_DROP = "tags";
+  static final String[] COLUMNS_TO_DROP = new String[] {"tags", "developer_uuid", "authorization_updated_at"};
 
   public DropTagsColumnFromComponentsTable(Database db) {
     super(db);
@@ -35,6 +35,6 @@ public class DropTagsColumnFromComponentsTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(getDialect(), TABLE, COLUMN_TO_DROP).build());
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE, COLUMNS_TO_DROP).build());
   }
 }

@@ -239,7 +239,7 @@ public class TreeAction implements ComponentsWsAction {
     if (component.getMainBranchProjectUuid() == null && component.isRootProject() &&
       PROJECT_OR_APP_QUALIFIERS.contains(component.qualifier())) {
       ProjectDto projectDto = componentFinder.getProjectOrApplicationByKey(dbSession, component.getKey());
-      wsComponent = projectOrAppToWsComponent(projectDto, component, organizationDto, null);
+      wsComponent = projectOrAppToWsComponent(projectDto, organizationDto, null);
     } else {
       wsComponent = componentDtoToWsComponent(component, organizationDto, null);
     }

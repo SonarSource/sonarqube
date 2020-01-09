@@ -227,25 +227,6 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  @Ignore
-  // TODO
-  public void does_not_return_non_active_projects() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    // Disabled project
-    dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false));
-    // Disabled project with analysis
-    ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false));
-    dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
-
-    // A view
-    dbTester.components().insertProjectAndSnapshot(newView(organization));
-
-    dbSession.commit();
-
-    assertThat(createResultSetAndReturnDocsById()).isEmpty();
-  }
-
-  @Test
   public void return_only_docs_from_given_project() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project1 = dbTester.components().insertPrivateProject(organization);

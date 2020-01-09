@@ -102,7 +102,6 @@ public class SetAction implements ProjectTagsWsAction {
       project.setUpdatedAt(system2.now());
       dbClient.projectDao().updateTags(dbSession, project);
 
-      // FIXME we use the old table to index and also when returning generic components, so we still need to add it to the old table.
       projectIndexers.commitAndIndexProjects(dbSession, singletonList(project), PROJECT_TAGS_UPDATE);
     }
 

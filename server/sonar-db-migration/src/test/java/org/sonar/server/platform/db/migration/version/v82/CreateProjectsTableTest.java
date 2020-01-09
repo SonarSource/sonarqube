@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v81;
+package org.sonar.server.platform.db.migration.version.v82;
 
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.version.v82.CreateProjectsTable;
 
 import static java.sql.Types.BIGINT;
 import static java.sql.Types.BOOLEAN;
@@ -56,7 +57,7 @@ public class CreateProjectsTableTest {
     dbTester.assertColumnDefinition(TABLE_NAME, "description", VARCHAR, 2000, true);
     dbTester.assertColumnDefinition(TABLE_NAME, "private", BOOLEAN, null, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "tags", VARCHAR, 500, true);
-    dbTester.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, null, false);
+    dbTester.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, null, true);
     dbTester.assertColumnDefinition(TABLE_NAME, "updated_at", BIGINT, null, false);
 
     // script should not fail if executed twice

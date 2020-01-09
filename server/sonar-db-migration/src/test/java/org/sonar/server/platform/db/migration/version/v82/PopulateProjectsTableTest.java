@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v81;
+package org.sonar.server.platform.db.migration.version.v82;
 
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,12 +53,13 @@ public class PopulateProjectsTableTest {
 
   @Before
   public void setup() {
-    insertComponent("uuid-1", "PRJ", "TRK");
-    insertComponent("uuid-2", "PRJ", "VW");
-    insertComponent("uuid-3", "PRJ", "SVW");
-    insertComponent("uuid-4", "PRJ", "APP");
-    insertComponent("uuid-5", "PRJ", "TRK");
-    insertComponent("uuid-6", "FIL", "FIL");
+    insertComponent("uuid-1", "PRJ", "TRK", null);
+    insertComponent("uuid-2", "PRJ", "VW", null);
+    insertComponent("uuid-3", "PRJ", "SVW", null);
+    insertComponent("uuid-4", "PRJ", "APP", null);
+    insertComponent("uuid-5", "PRJ", "TRK", null);
+    insertComponent("uuid-6", "FIL", "FIL", null);
+    insertComponent("uuid-5-branch", "PRJ", "TRK", "uuid-5");
   }
 
   @Test
@@ -76,7 +78,7 @@ public class PopulateProjectsTableTest {
   }
 
   private void verifyMigrationResult() {
-    assertThat(db.countRowsOfTable(TABLE_COMPONENTS)).isEqualTo(6);
+    assertThat(db.countRowsOfTable(TABLE_COMPONENTS)).isEqualTo(7);
     assertThat(db.countRowsOfTable(TABLE_PROJECTS)).isEqualTo(3);
 
     assertThat(db.select("select UUID, KEE, QUALIFIER, ORGANIZATION_UUID, NAME, DESCRIPTION, PRIVATE, TAGS, CREATED_AT, UPDATED_AT from " + TABLE_PROJECTS)
@@ -99,7 +101,7 @@ public class PopulateProjectsTableTest {
           new Tuple("uuid-4", "uuid-4-key", "APP", "default", "uuid-4-name", "uuid-4-description", false, "uuid-4-tags", PAST, 50_000_000_000L));
   }
 
-  private void insertComponent(String uuid, String scope, String qualifier) {
+  private void insertComponent(String uuid, String scope, String qualifier, @Nullable String mainBranchProjectUuid) {
     int id = nextInt();
     db.executeInsert("COMPONENTS",
       "ID", id,
@@ -111,7 +113,7 @@ public class PopulateProjectsTableTest {
       "KEE", uuid + "-key",
       "UUID", uuid,
       "PROJECT_UUID", uuid,
-      "MAIN_BRANCH_PROJECT_UUID", uuid,
+      "MAIN_BRANCH_PROJECT_UUID", mainBranchProjectUuid,
       "UUID_PATH", ".",
       "ROOT_UUID", uuid,
       "PRIVATE", Boolean.toString(false),

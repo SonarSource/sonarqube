@@ -145,7 +145,7 @@ public class ShowAction implements ComponentsWsAction {
     if (isProjectOrApp(component)) {
       ProjectDto project = dbClient.projectDao().selectProjectOrAppByKey(dbSession, component.getKey())
         .orElseThrow(() -> new IllegalStateException("Project is in invalid state."));
-      return projectOrAppToWsComponent(project, component, organizationDto, lastAnalysis);
+      return projectOrAppToWsComponent(project, organizationDto, lastAnalysis);
     } else {
       return componentDtoToWsComponent(component, organizationDto, lastAnalysis);
     }

@@ -54,11 +54,11 @@ public class ProjectPersister {
     }
   }
 
-  private boolean shouldSkip(Component rootComponent) {
+  private static boolean shouldSkip(Component rootComponent) {
     return !rootComponent.getType().equals(Component.Type.PROJECT) && !rootComponent.getType().equals(Component.Type.PROJECT_VIEW);
   }
 
-  private boolean hasChanged(ProjectDto dbProject, ProjectDto newProject) {
+  private static boolean hasChanged(ProjectDto dbProject, ProjectDto newProject) {
     return !StringUtils.equals(dbProject.getName(), newProject.getName()) ||
       !StringUtils.equals(dbProject.getDescription(), newProject.getDescription());
   }

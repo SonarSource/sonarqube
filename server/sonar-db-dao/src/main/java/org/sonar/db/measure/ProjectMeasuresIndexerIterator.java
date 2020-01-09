@@ -68,12 +68,10 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.NEW_LINES_KEY,
     CoreMetrics.NEW_RELIABILITY_RATING_KEY);
 
-  // TODO filter on enabled projects
   private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.created_at, p.tags " +
     "FROM projects p " +
-    "LEFT OUTER JOIN components cp on p.uuid = cp.uuid " +
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
-    "WHERE cp.enabled=? AND p.qualifier=?";
+    "WHERE p.qualifier=?";
 
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 
@@ -131,10 +129,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       }
       PreparedStatement stmt = session.getConnection().prepareStatement(sql.toString());
       stmt.setBoolean(1, true);
-      stmt.setBoolean(2, true);
-      stmt.setString(3, Qualifiers.PROJECT);
+      stmt.setString(2, Qualifiers.PROJECT);
       if (projectUuid != null) {
-        stmt.setString(4, projectUuid);
+        stmt.setString(3, projectUuid);
       }
       return stmt;
     } catch (SQLException e) {

@@ -46,7 +46,7 @@ public interface ProjectMapper {
 
   List<ProjectDto> selectByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
 
-  void updateKey(@Param("uuid") String uuid, @Param("newKey") String newKey);
+  void updateKey(@Param("uuid") String uuid, @Param("newKey") String newKey, @Param("updatedAt") long updatedAt);
 
   void updateTags(ProjectDto project);
 
@@ -55,4 +55,6 @@ public interface ProjectMapper {
   List<ProjectDto> selectProjects();
 
   List<ProjectDto> selectProjectsByOrganizationUuid(String organizationUuid);
+
+  void updateVisibility(@Param("uuid") String uuid, @Param("isPrivate") boolean isPrivate, @Param("updatedAt") long updatedAt);
 }

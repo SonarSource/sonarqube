@@ -23,10 +23,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 public class ProjectDao implements Dao {
+  private final System2 system2;
+
+  public ProjectDao(System2 system2) {
+    this.system2 = system2;
+  }
 
   public void insert(DbSession session, ProjectDto item) {
     mapper(session).insert(item);
@@ -75,7 +81,11 @@ public class ProjectDao implements Dao {
   }
 
   public void updateKey(DbSession session, String uuid, String newKey) {
-    mapper(session).updateKey(uuid, newKey);
+    mapper(session).updateKey(uuid, newKey, system2.now());
+  }
+
+  public void updateVisibility(DbSession session, String uuid, boolean isPrivate) {
+    mapper(session).updateVisibility(uuid, isPrivate, system2.now());
   }
 
   public void updateTags(DbSession session, ProjectDto project) {

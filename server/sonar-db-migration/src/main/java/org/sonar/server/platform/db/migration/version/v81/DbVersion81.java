@@ -43,10 +43,6 @@ public class DbVersion81 implements DbVersion {
       .add(3112, "Migrate short and long living branches types to common BRANCH type", MigrateSlbsAndLlbsToCommonType.class)
       .add(3113, "Migrate short and long living branches types to common BRANCH type in ce tasks table",
         MigrateSlbsAndLlbsToCommonTypeInCeTasks.class)
-      .add(3114, "Rename table 'PROJECTS' to 'COMPONENTS'", RenameProjectsTableToComponents.class)
-      .add(3115, "Add PROJECTS table", CreateProjectsTable.class)
-      .add(3116, "Populate PROJECTS table", PopulateProjectsTable.class)
-      .add(3117, "Drop 'TAGS' column from COMPONENTS table", DropTagsColumnFromComponentsTable.class)
     ;
   }
 }

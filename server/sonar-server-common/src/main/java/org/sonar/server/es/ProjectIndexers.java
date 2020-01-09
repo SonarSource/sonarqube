@@ -37,14 +37,6 @@ public interface ProjectIndexers {
    */
   void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
 
-  //TODO remove?
-  default void commitAndIndex(DbSession dbSession, Collection<ComponentDto> projectOrModules, ProjectIndexer.Cause cause) {
-    Collection<String> projectUuids = projectOrModules.stream()
-      .map(ComponentDto::projectUuid)
-      .collect(MoreCollectors.toSet(projectOrModules.size()));
-    commitAndIndexByProjectUuids(dbSession, projectUuids, cause);
-  }
-
   default void commitAndIndexProjects(DbSession dbSession, Collection<ProjectDto> projects, ProjectIndexer.Cause cause) {
     Collection<String> projectUuids = projects.stream()
       .map(ProjectDto::getUuid)
@@ -54,7 +46,7 @@ public interface ProjectIndexers {
 
   default void commitAndIndexComponents(DbSession dbSession, Collection<ComponentDto> projects, ProjectIndexer.Cause cause) {
     Collection<String> projectUuids = projects.stream()
-      .map(ComponentDto::uuid)
+      .map(ComponentDto::projectUuid)
       .collect(MoreCollectors.toSet(projects.size()));
     commitAndIndexByProjectUuids(dbSession, projectUuids, cause);
   }
