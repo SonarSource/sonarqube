@@ -37,6 +37,7 @@
   box-sizing: border-box;
   background-color: #fff;
   overflow: auto;
+  height: 100vh;
 }
 
 .modal .side-tabs-main {
