@@ -78,7 +78,6 @@ public class ProcessProperties {
     SEARCH_JAVA_OPTS("sonar.search.javaOpts", "-Xmx512m -Xms512m -XX:MaxDirectMemorySize=256m -XX:+HeapDumpOnOutOfMemoryError"),
     SEARCH_JAVA_ADDITIONAL_OPTS("sonar.search.javaAdditionalOpts", ""),
     SEARCH_REPLICAS("sonar.search.replicas"),
-    SEARCH_MINIMUM_MASTER_NODES("sonar.search.minimumMasterNodes"),
     SEARCH_INITIAL_STATE_TIMEOUT("sonar.search.initialStateTimeout"),
 
     WEB_HOST("sonar.web.host"),

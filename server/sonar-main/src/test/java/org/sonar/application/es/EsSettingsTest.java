@@ -58,7 +58,6 @@ import static org.sonar.process.ProcessProperties.Property.PATH_TEMP;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HTTP_PORT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_INITIAL_STATE_TIMEOUT;
-import static org.sonar.process.ProcessProperties.Property.SEARCH_MINIMUM_MASTER_NODES;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 @RunWith(DataProviderRunner.class)
@@ -154,8 +153,7 @@ public class EsSettingsTest {
     // http is disabled for security reasons
     assertThat(generated.get("http.enabled")).isEqualTo("false");
 
-    assertThat(generated.get("discovery.zen.ping.unicast.hosts")).isNull();
-    assertThat(generated.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
+    assertThat(generated.get("discovery.seed_hosts")).isNull();
     assertThat(generated.get("discovery.initial_state_timeout")).isEqualTo("30s");
 
     assertThat(generated.get("action.auto_create_index")).isEqualTo("false");
@@ -243,30 +241,18 @@ public class EsSettingsTest {
     props.set(CLUSTER_SEARCH_HOSTS.getKey(), "1.2.3.4:9000,1.2.3.5:8080");
     Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
 
-    assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
-    assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("2");
+    assertThat(settings.get("discovery.seed_hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("120s");
   }
 
   @Test
-  public void incorrect_values_of_minimum_master_nodes() throws Exception {
+  public void set_initial_master_nodes_settings_if_cluster_is_enabled() throws Exception {
     Props props = minProps(CLUSTER_ENABLED);
-    props.set(SEARCH_MINIMUM_MASTER_NODES.getKey(), "ꝱꝲꝳପ");
+    props.set(CLUSTER_SEARCH_HOSTS.getKey(), "1.2.3.4:9000,1.2.3.5:8080");
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), System2.INSTANCE).build();
 
-    EsSettings underTest = new EsSettings(props, new EsInstallation(props), system);
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Value of property sonar.search.minimumMasterNodes is not an integer:");
-    underTest.build();
-  }
-
-  @Test
-  public void cluster_is_enabled_with_defined_minimum_master_nodes() throws Exception {
-    Props props = minProps(CLUSTER_ENABLED);
-    props.set(SEARCH_MINIMUM_MASTER_NODES.getKey(), "5");
-    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
-
-    assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("5");
+    assertThat(settings.get("cluster.initial_master_nodes")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
+    assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("120s");
   }
 
   @Test
@@ -285,15 +271,6 @@ public class EsSettingsTest {
     Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
 
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("30s");
-  }
-
-  @Test
-  public void in_standalone_minimumMasterNodes_is_not_overridable() throws Exception {
-    Props props = minProps(CLUSTER_DISABLED);
-    props.set(SEARCH_MINIMUM_MASTER_NODES.getKey(), "5");
-    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), system).build();
-
-    assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
   }
 
   @Test

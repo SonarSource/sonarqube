@@ -38,7 +38,6 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HTTP_PORT;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_INITIAL_STATE_TIMEOUT;
-import static org.sonar.process.ProcessProperties.Property.SEARCH_MINIMUM_MASTER_NODES;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 public class EsSettings {
@@ -126,20 +125,17 @@ public class EsSettings {
   private void configureCluster(Map<String, String> builder) {
     // Default value in a standalone mode, not overridable
 
-    int minimumMasterNodes = 1;
     String initialStateTimeOut = "30s";
 
     if (clusterEnabled) {
-      minimumMasterNodes = props.valueAsInt(SEARCH_MINIMUM_MASTER_NODES.getKey(), 2);
       initialStateTimeOut = props.value(SEARCH_INITIAL_STATE_TIMEOUT.getKey(), "120s");
 
       String hosts = props.value(CLUSTER_SEARCH_HOSTS.getKey(), "");
       LOGGER.info("Elasticsearch cluster enabled. Connect to hosts [{}]", hosts);
-      builder.put("discovery.zen.ping.unicast.hosts", hosts);
+      builder.put("discovery.seed_hosts", hosts);
       builder.put("cluster.initial_master_nodes", hosts);
     }
 
-    builder.put("discovery.zen.minimum_master_nodes", valueOf(minimumMasterNodes));
     builder.put("discovery.initial_state_timeout", initialStateTimeOut);
     builder.put("cluster.name", clusterName);
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
