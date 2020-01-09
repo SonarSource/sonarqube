@@ -11,7 +11,7 @@ There are three types of issues:
 
 1. **Bug** – A coding error that will break your code and needs to be fixed immediately.
 1. **Vulnerability** – A point in your code that's open to attack.
-1. **Codesmell** – A maintainability issue that makes your code confusing and difficult to maintain.
+1. **Code Smell** – A maintainability issue that makes your code confusing and difficult to maintain.
 
 ### Issue Severity
 
