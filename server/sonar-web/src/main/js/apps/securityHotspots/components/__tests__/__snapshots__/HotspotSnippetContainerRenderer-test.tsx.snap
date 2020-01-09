@@ -14,6 +14,7 @@ exports[`should render correctly 1`] = `
       }
     }
     expandable={false}
+    linkToProject={false}
     loading={false}
     onExpand={[Function]}
     sourceViewerFile={
@@ -54,6 +55,7 @@ exports[`should render correctly: with sourcelines 1`] = `
       }
     }
     expandable={false}
+    linkToProject={false}
     loading={false}
     onExpand={[Function]}
     sourceViewerFile={
@@ -128,6 +130,7 @@ exports[`should render correctly: with sourcelines 1`] = `
             "uuid": "foo-bar",
           }
         }
+        displaySCM={false}
         expandBlock={[Function]}
         handleCloseIssues={[Function]}
         handleLinePopupToggle={[MockFunction]}

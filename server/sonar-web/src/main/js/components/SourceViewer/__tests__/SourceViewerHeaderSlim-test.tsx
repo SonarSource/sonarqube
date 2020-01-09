@@ -25,6 +25,7 @@ import SourceViewerHeaderSlim, { Props } from '../SourceViewerHeaderSlim';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ linkToProject: false })).toMatchSnapshot('no link to project');
 });
 
 it('should allow to mark as favorite', () => {

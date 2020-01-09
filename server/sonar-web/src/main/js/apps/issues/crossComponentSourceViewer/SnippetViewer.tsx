@@ -37,6 +37,7 @@ import { inSnippet, LINES_BELOW_ISSUE } from './utils';
 interface Props {
   branchLike: BranchLike | undefined;
   component: T.SourceViewerFile;
+  displaySCM?: boolean;
   duplications?: T.Duplication[];
   duplicationsByLine?: { [line: number]: number[] };
   expandBlock: (snippetIndex: number, direction: T.ExpandDirection) => Promise<void>;
@@ -110,6 +111,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
 
   renderLine({
     displayDuplications,
+    displaySCM,
     index,
     issuesForLine,
     issueLocations,
@@ -119,6 +121,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
     verticalBuffer
   }: {
     displayDuplications: boolean;
+    displaySCM?: boolean;
     index: number;
     issuesForLine: T.Issue[];
     issueLocations: T.LinearIssueLocation[];
@@ -144,6 +147,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         displayDuplications={displayDuplications}
         displayIssues={!isSinkLine || issuesForLine.length > 1}
         displayLocationMarkers={true}
+        displaySCM={displaySCM}
         duplications={lineDuplications}
         duplicationsCount={duplicationsCount}
         highlighted={false}
@@ -183,6 +187,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
   render() {
     const {
       component,
+      displaySCM,
       issue,
       issuesByLine = {},
       last,
@@ -230,6 +235,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
               {snippet.map((line, index) =>
                 this.renderLine({
                   displayDuplications,
+                  displaySCM,
                   index,
                   issuesForLine: issuesByLine[line.line] || [],
                   issueLocations: locationsByLine[line.line] || [],

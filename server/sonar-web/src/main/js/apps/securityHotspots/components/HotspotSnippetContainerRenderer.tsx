@@ -61,6 +61,7 @@ export default function HotspotSnippetContainerRenderer(
       <SourceViewerHeaderSlim
         branchLike={branchLike}
         expandable={false}
+        linkToProject={false}
         loading={loading}
         onExpand={noop}
         sourceViewerFile={sourceViewerFile}
@@ -72,6 +73,7 @@ export default function HotspotSnippetContainerRenderer(
             <SnippetViewer
               branchLike={branchLike}
               component={sourceViewerFile}
+              displaySCM={false}
               expandBlock={(_i, direction) => props.onExpandBlock(direction)}
               handleCloseIssues={noop}
               handleLinePopupToggle={props.onLinePopupToggle}

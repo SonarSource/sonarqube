@@ -31,12 +31,14 @@ import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import { getBranchLikeQuery, isMainBranch } from '../../helpers/branch-like';
 import { getBranchLikeUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
+import { ComponentQualifier } from '../../types/component';
 import Favorite from '../controls/Favorite';
 import './SourceViewerHeaderSlim.css';
 
 export interface Props {
   branchLike: BranchLike | undefined;
   expandable?: boolean;
+  linkToProject?: boolean;
   loading?: boolean;
   onExpand?: () => void;
   sourceViewerFile: T.SourceViewerFile;
@@ -45,6 +47,7 @@ export interface Props {
 export default function SourceViewerHeaderSlim({
   branchLike,
   expandable,
+  linkToProject = true,
   loading,
   onExpand,
   sourceViewerFile
@@ -60,20 +63,31 @@ export default function SourceViewerHeaderSlim({
     subProjectName
   } = sourceViewerFile;
 
+  const projectNameLabel = (
+    <>
+      <QualifierIcon qualifier={ComponentQualifier.Project} /> <span>{projectName}</span>
+    </>
+  );
+
   return (
     <div className="source-viewer-header-slim display-flex-row display-flex-space-between">
       <div className="display-flex-center flex-1">
         <div>
-          <a
-            className="link-with-icon"
-            href={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}>
-            <QualifierIcon qualifier="TRK" /> <span>{projectName}</span>
-          </a>
+          {linkToProject ? (
+            <a
+              className="link-with-icon"
+              href={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}>
+              {projectNameLabel}
+            </a>
+          ) : (
+            projectNameLabel
+          )}
         </div>
 
         {subProject !== undefined && (
           <>
-            <QualifierIcon qualifier="BRC" /> <span>{subProjectName}</span>
+            <QualifierIcon qualifier={ComponentQualifier.SubProject} />{' '}
+            <span>{subProjectName}</span>
           </>
         )}
 

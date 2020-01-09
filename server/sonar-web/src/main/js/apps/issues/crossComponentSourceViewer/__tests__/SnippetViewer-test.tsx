@@ -42,6 +42,16 @@ it('should render correctly', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should render correctly with no SCM', () => {
+  const snippet = range(5, 8).map(line => mockSourceLine({ line }));
+  const wrapper = shallowRender({
+    displaySCM: false,
+    snippet
+  });
+
+  expect(wrapper).toMatchSnapshot();
+});
+
 it('should render correctly when at the top of the file', () => {
   const snippet = range(1, 8).map(line => mockSourceLine({ line }));
   const wrapper = shallowRender({

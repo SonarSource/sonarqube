@@ -174,3 +174,82 @@ exports[`should render correctly for subproject 1`] = `
   </DeferredSpinner>
 </div>
 `;
+
+exports[`should render correctly: no link to project 1`] = `
+<div
+  className="source-viewer-header-slim display-flex-row display-flex-space-between"
+>
+  <div
+    className="display-flex-center flex-1"
+  >
+    <div>
+      <QualifierIcon
+        qualifier="TRK"
+      />
+       
+      <span>
+        MyProject
+      </span>
+    </div>
+    <div
+      className="spacer-left"
+    >
+      <QualifierIcon
+        qualifier="FIL"
+      />
+       
+      <span>
+        foo/
+      </span>
+      <span
+        className="component-name-file"
+      >
+        bar.ts
+      </span>
+    </div>
+    <div
+      className="spacer-left"
+    >
+      <ClipboardIconButton
+        className="button-link link-no-underline"
+        copyValue="foo/bar.ts"
+      />
+    </div>
+  </div>
+  <div
+    className="flex-0 big-spacer-left"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "fileUuids": "foo-bar",
+            "id": "my-project",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      source_viewer.view_all_issues
+    </Link>
+  </div>
+  <DeferredSpinner
+    className="little-spacer-right"
+    timeout={100}
+  >
+    <div
+      className="flex-0 big-spacer-left"
+    >
+      <ButtonIcon
+        className="js-actions"
+        onClick={[MockFunction]}
+      >
+        <ExpandSnippetIcon />
+      </ButtonIcon>
+    </div>
+  </DeferredSpinner>
+</div>
+`;

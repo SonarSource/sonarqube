@@ -25,6 +25,7 @@ import Line from '../Line';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ displaySCM: false })).toMatchSnapshot('no SCM');
 });
 
 it('should render correctly for last, new, and highlighted lines', () => {

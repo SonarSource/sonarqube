@@ -39,6 +39,7 @@ interface Props {
   displayIssueLocationsLink?: boolean;
   displayIssues: boolean;
   displayLocationMarkers?: boolean;
+  displaySCM?: boolean;
   duplications: number[];
   duplicationsCount: number;
   highlighted: boolean;
@@ -97,7 +98,14 @@ export default class Line extends React.PureComponent<Props> {
   };
 
   render() {
-    const { displayCoverage, duplications, duplicationsCount, issuePopup, line } = this.props;
+    const {
+      displayCoverage,
+      displaySCM = true,
+      duplications,
+      duplicationsCount,
+      issuePopup,
+      line
+    } = this.props;
     const className = classNames('source-line', {
       'source-line-highlighted': this.props.highlighted,
       'source-line-filtered': line.isNew,
@@ -119,13 +127,14 @@ export default class Line extends React.PureComponent<Props> {
           popupOpen={this.isPopupOpen('line-number')}
         />
 
-        <LineSCM
-          line={line}
-          onPopupToggle={this.props.onLinePopupToggle}
-          popupOpen={this.isPopupOpen('scm')}
-          previousLine={this.props.previousLine}
-        />
-
+        {displaySCM && (
+          <LineSCM
+            line={line}
+            onPopupToggle={this.props.onLinePopupToggle}
+            popupOpen={this.isPopupOpen('scm')}
+            previousLine={this.props.previousLine}
+          />
+        )}
         {this.props.displayIssues && !this.props.displayAllIssues ? (
           <LineIssuesIndicator
             issues={this.props.issues}
