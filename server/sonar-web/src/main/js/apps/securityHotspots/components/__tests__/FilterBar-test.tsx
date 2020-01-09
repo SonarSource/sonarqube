@@ -54,10 +54,11 @@ it('should trigger onChange for status', () => {
     .props();
 
   if (!onChange) {
-    return fail("Select's onChange should be defined");
+    fail("Select's onChange should be defined");
+  } else {
+    onChange({ value: HotspotStatusFilter.SAFE });
+    expect(onChangeFilters).toBeCalledWith({ status: HotspotStatusFilter.SAFE });
   }
-  onChange({ value: HotspotStatusFilter.SAFE });
-  expect(onChangeFilters).toBeCalledWith({ status: HotspotStatusFilter.SAFE });
 });
 
 it('should trigger onChange for self-assigned toggle', () => {
@@ -67,10 +68,11 @@ it('should trigger onChange for self-assigned toggle', () => {
   const { onCheck } = wrapper.find(RadioToggle).props();
 
   if (!onCheck) {
-    return fail("RadioToggle's onCheck should be defined");
+    fail("RadioToggle's onCheck should be defined");
+  } else {
+    onCheck(AssigneeFilterOption.ALL);
+    expect(onChangeFilters).toBeCalledWith({ assignedToMe: false });
   }
-  onCheck(AssigneeFilterOption.ALL);
-  expect(onChangeFilters).toBeCalledWith({ assignedToMe: false });
 });
 
 it('should trigger onChange for leak period', () => {
@@ -83,10 +85,11 @@ it('should trigger onChange for leak period', () => {
     .props();
 
   if (!onChange) {
-    return fail("Select's onChange should be defined");
+    fail("Select's onChange should be defined");
+  } else {
+    onChange({ value: true });
+    expect(onChangeFilters).toBeCalledWith({ sinceLeakPeriod: true });
   }
-  onChange({ value: true });
-  expect(onChangeFilters).toBeCalledWith({ sinceLeakPeriod: true });
 });
 
 function shallowRender(props: Partial<FilterBarProps> = {}) {

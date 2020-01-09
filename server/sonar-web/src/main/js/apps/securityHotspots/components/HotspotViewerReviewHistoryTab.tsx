@@ -38,9 +38,9 @@ export default function HotspotViewerReviewHistoryTab(props: HotspotViewerReview
 
   return (
     <div className="padded">
-      {history.map((elt, i) => (
-        <React.Fragment key={i}>
-          {i > 0 && <hr />}
+      {history.map((elt, historyIndex) => (
+        <React.Fragment key={historyIndex}>
+          {historyIndex > 0 && <hr />}
           <div className="padded">
             <div className="display-flex-center">
               {elt.user.name && (
@@ -74,8 +74,8 @@ export default function HotspotViewerReviewHistoryTab(props: HotspotViewerReview
 
             {elt.type === ReviewHistoryType.Diff && elt.diffs && (
               <div className="spacer-top">
-                {elt.diffs.map((diff, i) => (
-                  <IssueChangelogDiff diff={diff} key={i} />
+                {elt.diffs.map((diff, diffIndex) => (
+                  <IssueChangelogDiff diff={diff} key={diffIndex} />
                 ))}
               </div>
             )}
