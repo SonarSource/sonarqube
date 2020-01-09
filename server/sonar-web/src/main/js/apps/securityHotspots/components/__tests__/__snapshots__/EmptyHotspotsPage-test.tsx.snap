@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="display-flex-column display-flex-center huge-spacer-top"
+>
+  <img
+    alt="hotspots.page"
+    className="huge-spacer-top"
+    height={100}
+    src="/images/hotspot-large.svg"
+  />
+  <h1
+    className="huge-spacer-top"
+  >
+    hotspots.no_hotspots.title
+  </h1>
+  <div
+    className="abs-width-400 text-center big-spacer-top"
+  >
+    hotspots.no_hotspots.description
+  </div>
+  <Link
+    className="big-spacer-top"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    target="_blank"
+    to={
+      Object {
+        "pathname": "/documentation/user-guide/security-hotspots/",
+      }
+    }
+  >
+    hotspots.learn_more
+  </Link>
+</div>
+`;
+
+exports[`should render correctly: filtered 1`] = `
+<div
+  className="display-flex-column display-flex-center huge-spacer-top"
+>
+  <img
+    alt="hotspots.page"
+    className="huge-spacer-top"
+    height={100}
+    src="/images/filter-large.svg"
+  />
+  <h1
+    className="huge-spacer-top"
+  >
+    hotspots.no_hotspots_for_filters.title
+  </h1>
+  <div
+    className="abs-width-400 text-center big-spacer-top"
+  >
+    hotspots.no_hotspots_for_filters.description
+  </div>
+</div>
+`;
+
+exports[`should render correctly: keys 1`] = `
+<div
+  className="display-flex-column display-flex-center huge-spacer-top"
+>
+  <img
+    alt="hotspots.page"
+    className="huge-spacer-top"
+    height={100}
+    src="/images/hotspot-large.svg"
+  />
+  <h1
+    className="huge-spacer-top"
+  >
+    hotspots.no_hotspots_for_keys.title
+  </h1>
+  <div
+    className="abs-width-400 text-center big-spacer-top"
+  >
+    hotspots.no_hotspots_for_keys.description
+  </div>
+</div>
+`;

@@ -19,16 +19,20 @@
  */
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import A11ySkipTarget from '../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
 import { isBranch } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
-import { HotspotFilters, HotspotUpdate, RawHotspot } from '../../types/security-hotspots';
+import {
+  HotspotFilters,
+  HotspotStatusFilter,
+  HotspotUpdate,
+  RawHotspot
+} from '../../types/security-hotspots';
+import EmptyHotspotsPage from './components/EmptyHotspotsPage';
 import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
 import HotspotViewer from './components/HotspotViewer';
@@ -49,37 +53,6 @@ export interface SecurityHotspotsAppRendererProps {
   onUpdateHotspot: (hotspot: HotspotUpdate) => void;
   selectedHotspotKey?: string;
   securityCategories: T.StandardSecurityCategories;
-}
-
-function renderNoHotspots(filtered: boolean) {
-  return (
-    <div className="display-flex-column display-flex-center huge-spacer-top">
-      <img
-        alt={translate('hotspots.page')}
-        className="huge-spacer-top"
-        height={100}
-        src={`${getBaseUrl()}/images/${filtered ? 'filter-large' : 'hotspot-large'}.svg`}
-      />
-      <h1 className="huge-spacer-top">
-        {filtered
-          ? translate('hotspots.no_hotspots_for_filters.title')
-          : translate('hotspots.no_hotspots.title')}
-      </h1>
-      <div className="abs-width-400 text-center big-spacer-top">
-        {filtered
-          ? translate('hotspots.no_hotspots_for_filters.description')
-          : translate('hotspots.no_hotspots.description')}
-      </div>
-      {!filtered && (
-        <Link
-          className="big-spacer-top"
-          target="_blank"
-          to={{ pathname: '/documentation/user-guide/security-hotspots/' }}>
-          {translate('hotspots.learn_more')}
-        </Link>
-      )}
-    </div>
-  );
 }
 
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
@@ -117,9 +90,14 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
             ) : (
               <>
                 {hotspots.length === 0 ? (
-                  renderNoHotspots(
-                    filters.assignedToMe || (filters.sinceLeakPeriod && isBranch(branchLike))
-                  )
+                  <EmptyHotspotsPage
+                    filtered={
+                      filters.assignedToMe ||
+                      (isBranch(branchLike) && filters.sinceLeakPeriod) ||
+                      filters.status !== HotspotStatusFilter.TO_REVIEW
+                    }
+                    isStaticListOfHotspots={isStaticListOfHotspots}
+                  />
                 ) : (
                   <div className="layout-page">
                     <div className="sidebar">
