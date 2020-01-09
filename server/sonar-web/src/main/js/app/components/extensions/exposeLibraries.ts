@@ -86,7 +86,11 @@ import {
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
 } from '../../../helpers/security-standard';
-import { getComponentIssuesUrl, getRulesUrl } from '../../../helpers/urls';
+import {
+  getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
+  getRulesUrl
+} from '../../../helpers/urls';
 import addGlobalSuccessMessage from '../../utils/addGlobalSuccessMessage';
 import throwGlobalError from '../../utils/throwGlobalError';
 import A11ySkipTarget from '../a11y/A11ySkipTarget';
@@ -109,6 +113,7 @@ const exposeLibraries = () => {
     renderSansTop25Category,
     renderSonarSourceSecurityCategory,
     getComponentIssuesUrl,
+    getComponentSecurityHotspotsUrl,
     getRulesUrl
   };
   global.SonarMeasures = { ...measures, formatMeasure };

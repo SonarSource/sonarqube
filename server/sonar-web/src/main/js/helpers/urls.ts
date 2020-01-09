@@ -74,6 +74,13 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Loca
 }
 
 /**
+ * Generate URL for a component's security hotspot page
+ */
+export function getComponentSecurityHotspotsUrl(componentKey: string): Location {
+  return { pathname: '/security_hotspots', query: { id: componentKey } };
+}
+
+/**
  * Generate URL for a component's drilldown page
  */
 export function getComponentDrilldownUrl(options: {
