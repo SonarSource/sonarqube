@@ -111,8 +111,8 @@ Property  | Description | Required
 ---|---|---|---
 `sonar.cluster.hosts`|Comma-delimited list of all **application** hosts in the cluster. This value must contain **only application hosts**. Each item in the list must contain the port if the default `sonar.cluster.node.port` value is not used. Item format is `sonar.cluster.node.host` or `sonar.cluster.node.host:sonar.cluster.node.port`.|yes
 `sonar.cluster.node.port`|The Hazelcast port for communication with each application member of the cluster. Default: `9003`|no|
-`sonar.cluster.node.web.port`|Hazelcast port for communication with the ComputeEngine process. Port must be accessible to all other search and application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
-`sonar.cluster.node.ce.port`|Hazelcast port for communication with the WebServer process. Port must be accessible to all other search and application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
+`sonar.cluster.node.web.port`|Hazelcast port for communication with the WebServer process. Port must be accessible to all other search and application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
+`sonar.cluster.node.ce.port`|Hazelcast port for communication with the ComputeEngine process. Port must be accessible to all other search and application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
 `sonar.auth.jwtBase64Hs256Secret`|Required for authentication with multiple web servers. It is used to keep user sessions opened when they are redirected from one web server to another by the load balancer. See _$SONARQUBE-HOME/conf/sonar.properties_) for details about how to generate this secret key.| yes
 
 ### Search nodes
