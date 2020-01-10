@@ -138,7 +138,7 @@ public class EsSettingsTest {
     EsSettings esSettings = new EsSettings(props, new EsInstallation(props), system);
 
     Map<String, String> generated = esSettings.build();
-    assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
+    assertThat(generated.get("transport.port")).isEqualTo("1234");
     assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
 
     // no cluster, but cluster and node names are set though

@@ -145,7 +145,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setEsYmlSettings(new EsYmlSettings(settingsMap))
       .setClusterName(settingsMap.get("cluster.name"))
       .setHost(settingsMap.get("network.host"))
-      .setPort(Integer.parseInt(settingsMap.get("transport.tcp.port")));
+      .setPort(Integer.parseInt(settingsMap.get("transport.port")));
     return esInstallation;
   }
 

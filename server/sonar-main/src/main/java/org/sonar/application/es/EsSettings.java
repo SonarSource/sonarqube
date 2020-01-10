@@ -91,7 +91,9 @@ public class EsSettings {
     int port = Integer.parseInt(props.nonNullValue(SEARCH_PORT.getKey()));
     LOGGER.info("Elasticsearch listening on {}:{}", host, port);
 
-    builder.put("transport.tcp.port", valueOf(port));
+    // FIXME no need to open TCP port unless running DCE
+    //       TCP is used by main process to check ES is up => probably has to use HTTP now
+    builder.put("transport.port", valueOf(port));
     builder.put("transport.host", valueOf(host.getHostAddress()));
     builder.put("network.host", valueOf(host.getHostAddress()));
 
