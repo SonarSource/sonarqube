@@ -9462,10 +9462,10 @@ sockjs@0.3.19:
     faye-websocket "^0.10.0"
     uuid "^3.0.1"
 
-sonar-ui-common@0.0.44:
-  version "0.0.44"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/sonar-ui-common/-/sonar-ui-common-0.0.44.tgz#03b1e640c591416ed20b0227a3db89d43eeb8214"
-  integrity sha1-A7HmQMWRQW7SCwIno9uJ1D7rghQ=
+sonar-ui-common@0.0.50:
+  version "0.0.50"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/sonar-ui-common/-/sonar-ui-common-0.0.50.tgz#46705448d9f550c53fe4df95fecff9514e205ccb"
+  integrity sha1-RnBUSNn1UMU/5N+V/s/5UU4gXMs=
   dependencies:
     "@types/react-select" "1.2.6"
     classnames "2.2.6"

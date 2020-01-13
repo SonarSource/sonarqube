@@ -43,6 +43,46 @@ bar"
                 onMouseLeave={[Function]}
                 type="button"
               >
+                <CopyIcon
+                  className="little-spacer-right"
+                >
+                  <Icon
+                    className="little-spacer-right"
+                  >
+                    <svg
+                      className="little-spacer-right"
+                      height={16}
+                      style={
+                        Object {
+                          "clipRule": "evenodd",
+                          "fillRule": "evenodd",
+                          "strokeLinejoin": "round",
+                          "strokeMiterlimit": 1.41421,
+                        }
+                      }
+                      version="1.1"
+                      viewBox="0 0 16 16"
+                      width={16}
+                      xmlSpace="preserve"
+                      xmlnsXlink="http://www.w3.org/1999/xlink"
+                    >
+                      <g
+                        fill="currentColor"
+                        fillRule="nonzero"
+                      >
+                        <path
+                          d="M2.931 15.005V3H2v13h9v-.995z"
+                        />
+                        <path
+                          d="M10 4.015h3V14H4V1h6v3.015zM9 8V6H8v2H6v1h2v2h1V9h2V8H9z"
+                        />
+                        <path
+                          d="M11 1v2h2a2.151 2.151 0 0 0-2-2z"
+                        />
+                      </g>
+                    </svg>
+                  </Icon>
+                </CopyIcon>
                 copy
               </button>
             </Button>
@@ -118,6 +158,46 @@ exports[`renders correctly with array snippet 1`] = `
                 onMouseLeave={[Function]}
                 type="button"
               >
+                <CopyIcon
+                  className="little-spacer-right"
+                >
+                  <Icon
+                    className="little-spacer-right"
+                  >
+                    <svg
+                      className="little-spacer-right"
+                      height={16}
+                      style={
+                        Object {
+                          "clipRule": "evenodd",
+                          "fillRule": "evenodd",
+                          "strokeLinejoin": "round",
+                          "strokeMiterlimit": 1.41421,
+                        }
+                      }
+                      version="1.1"
+                      viewBox="0 0 16 16"
+                      width={16}
+                      xmlSpace="preserve"
+                      xmlnsXlink="http://www.w3.org/1999/xlink"
+                    >
+                      <g
+                        fill="currentColor"
+                        fillRule="nonzero"
+                      >
+                        <path
+                          d="M2.931 15.005V3H2v13h9v-.995z"
+                        />
+                        <path
+                          d="M10 4.015h3V14H4V1h6v3.015zM9 8V6H8v2H6v1h2v2h1V9h2V8H9z"
+                        />
+                        <path
+                          d="M11 1v2h2a2.151 2.151 0 0 0-2-2z"
+                        />
+                      </g>
+                    </svg>
+                  </Icon>
+                </CopyIcon>
                 copy
               </button>
             </Button>
@@ -173,6 +253,46 @@ exports[`renders correctly with array snippet 2`] = `
                 onMouseLeave={[Function]}
                 type="button"
               >
+                <CopyIcon
+                  className="little-spacer-right"
+                >
+                  <Icon
+                    className="little-spacer-right"
+                  >
+                    <svg
+                      className="little-spacer-right"
+                      height={16}
+                      style={
+                        Object {
+                          "clipRule": "evenodd",
+                          "fillRule": "evenodd",
+                          "strokeLinejoin": "round",
+                          "strokeMiterlimit": 1.41421,
+                        }
+                      }
+                      version="1.1"
+                      viewBox="0 0 16 16"
+                      width={16}
+                      xmlSpace="preserve"
+                      xmlnsXlink="http://www.w3.org/1999/xlink"
+                    >
+                      <g
+                        fill="currentColor"
+                        fillRule="nonzero"
+                      >
+                        <path
+                          d="M2.931 15.005V3H2v13h9v-.995z"
+                        />
+                        <path
+                          d="M10 4.015h3V14H4V1h6v3.015zM9 8V6H8v2H6v1h2v2h1V9h2V8H9z"
+                        />
+                        <path
+                          d="M11 1v2h2a2.151 2.151 0 0 0-2-2z"
+                        />
+                      </g>
+                    </svg>
+                  </Icon>
+                </CopyIcon>
                 copy
               </button>
             </Button>
