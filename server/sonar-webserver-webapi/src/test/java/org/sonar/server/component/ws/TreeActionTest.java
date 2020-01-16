@@ -31,7 +31,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -43,7 +42,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -58,6 +56,7 @@ import org.sonarqube.ws.Components.TreeWsResponse;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -89,7 +88,8 @@ public class TreeActionTest {
     .setLeavesQualifiers(FILE, UNIT_TEST_FILE);
   private DbClient dbClient = db.getDbClient();
 
-  private WsActionTester ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient, resourceTypes), resourceTypes, userSession, Mockito.mock(I18n.class)));
+  private WsActionTester ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient, resourceTypes), resourceTypes, userSession,
+    mock(I18n.class)));
 
   @Test
   public void verify_definition() {
@@ -163,7 +163,7 @@ public class TreeActionTest {
   @Test
   public void return_descendants() {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
-    SnapshotDto projectSnapshot = db.components().insertProjectAndSnapshot(project);
+    db.components().insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
     db.components().insertComponent(module);
     db.components().insertComponent(newFileDto(project, 10));
@@ -530,10 +530,15 @@ public class TreeActionTest {
 
   private ComponentDto initJsonExampleComponents() throws IOException {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = newPrivateProjectDto(organizationDto, "MY_PROJECT_ID")
-      .setDbKey("MY_PROJECT_KEY")
-      .setName("Project Name");
-    db.components().insertProjectAndSnapshot(project);
+    ComponentDto project = db.components().insertPrivateProject(organizationDto,
+      c -> c.setUuid("MY_PROJECT_ID")
+        .setDescription("MY_PROJECT_DESCRIPTION")
+        .setDbKey("MY_PROJECT_KEY")
+        .setName("Project Name")
+        .setProjectUuid("MY_PROJECT_ID"),
+      p -> p.setTagsString("abc,def"));
+    db.components().insertSnapshot(project);
+
     Date now = new Date();
     JsonParser jsonParser = new JsonParser();
     JsonElement jsonTree = jsonParser.parse(IOUtils.toString(getClass().getResource("tree-example.json"), UTF_8));

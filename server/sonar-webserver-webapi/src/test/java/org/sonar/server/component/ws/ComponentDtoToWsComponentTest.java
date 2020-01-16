@@ -19,16 +19,18 @@
  */
 package org.sonar.server.component.ws;
 
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.component.ws.ComponentDtoToWsComponent.projectOrAppToWsComponent;
 
 public class ComponentDtoToWsComponentTest {
   @Rule
@@ -38,13 +40,29 @@ public class ComponentDtoToWsComponentTest {
   public void componentDtoToWsComponent_throws_IAE_if_organization_uuid_of_component_does_not_match_organizationDto_uuid() {
     OrganizationDto organizationDto1 = OrganizationTesting.newOrganizationDto();
     OrganizationDto organizationDto2 = OrganizationTesting.newOrganizationDto();
-    ComponentDto componentDto = ComponentTesting.newPrivateProjectDto(organizationDto1);
+
+    ProjectDto parentProjectDto = ComponentTesting.createPrivateProjectDto(organizationDto1);
+    ComponentDto componentDto = ComponentTesting.newBranchComponent(parentProjectDto,
+      ComponentTesting.newBranchDto(parentProjectDto.getUuid(), BranchType.BRANCH));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("OrganizationUuid (" + organizationDto1.getUuid() + ") of ComponentDto to convert " +
       "to Ws Component is not the same as the one (" + organizationDto2.getUuid() + ") of the specified OrganizationDto");
 
-    componentDtoToWsComponent(componentDto, organizationDto2, null);
+    componentDtoToWsComponent(componentDto, parentProjectDto, organizationDto2, null);
+  }
+
+  @Test
+  public void projectOrAppToWsComponent_throws_IAE_if_organization_uuid_of_component_does_not_match_organizationDto_uuid() {
+    OrganizationDto organizationDto1 = OrganizationTesting.newOrganizationDto();
+    OrganizationDto organizationDto2 = OrganizationTesting.newOrganizationDto();
+    ProjectDto projectDto = ComponentTesting.createPrivateProjectDto(organizationDto1);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("OrganizationUuid (" + organizationDto1.getUuid() + ") of ComponentDto to convert " +
+      "to Ws Component is not the same as the one (" + organizationDto2.getUuid() + ") of the specified OrganizationDto");
+
+    projectOrAppToWsComponent(projectDto, organizationDto2, null);
   }
 
 }

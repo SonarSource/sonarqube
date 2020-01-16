@@ -77,15 +77,17 @@ class ComponentDtoToWsComponent {
     return wsComponent;
   }
 
-  static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, OrganizationDto organizationDto, @Nullable SnapshotDto lastAnalysis) {
+  static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, @Nullable ProjectDto parentProjectDto, OrganizationDto organizationDto,
+    @Nullable SnapshotDto lastAnalysis) {
     checkArgument(
       Objects.equals(dto.getOrganizationUuid(), organizationDto.getUuid()),
       "OrganizationUuid (%s) of ComponentDto to convert to Ws Component is not the same as the one (%s) of the specified OrganizationDto",
       dto.getOrganizationUuid(), organizationDto.getUuid());
-    return componentDtoToWsComponent(dto, organizationDto.getKey(), lastAnalysis);
+    return componentDtoToWsComponent(dto, parentProjectDto, organizationDto.getKey(), lastAnalysis);
   }
 
-  private static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, String organizationDtoKey, @Nullable SnapshotDto lastAnalysis) {
+  private static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, @Nullable ProjectDto parentProjectDto, String organizationDtoKey,
+    @Nullable SnapshotDto lastAnalysis) {
     Components.Component.Builder wsComponent = Components.Component.newBuilder()
       .setOrganization(organizationDtoKey)
       .setKey(dto.getKey())
@@ -104,6 +106,9 @@ class ComponentDtoToWsComponent {
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));
+      if (Qualifiers.PROJECT.equals(dto.qualifier()) && dto.getBranch() != null && parentProjectDto != null) {
+        wsComponent.getTagsBuilder().addAllTags(parentProjectDto.getTags());
+      }
     }
     return wsComponent;
   }

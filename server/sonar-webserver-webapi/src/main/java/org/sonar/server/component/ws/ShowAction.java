@@ -42,6 +42,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.ShowWsResponse;
 
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.projectOrAppToWsComponent;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
@@ -147,7 +148,9 @@ public class ShowAction implements ComponentsWsAction {
         .orElseThrow(() -> new IllegalStateException("Project is in invalid state."));
       return projectOrAppToWsComponent(project, organizationDto, lastAnalysis);
     } else {
-      return componentDtoToWsComponent(component, organizationDto, lastAnalysis);
+      Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
+        ofNullable(component.getMainBranchProjectUuid()).orElse(component.projectUuid()));
+      return componentDtoToWsComponent(component, parentProject.orElse(null), organizationDto, lastAnalysis);
     }
   }
 

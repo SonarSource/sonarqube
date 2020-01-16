@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -57,6 +58,7 @@ import org.sonarqube.ws.Components.TreeWsResponse;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
@@ -241,7 +243,9 @@ public class TreeAction implements ComponentsWsAction {
       ProjectDto projectDto = componentFinder.getProjectOrApplicationByKey(dbSession, component.getKey());
       wsComponent = projectOrAppToWsComponent(projectDto, organizationDto, null);
     } else {
-      wsComponent = componentDtoToWsComponent(component, organizationDto, null);
+      Optional<ProjectDto> parentProject = dbClient.projectDao().selectByUuid(dbSession,
+        ofNullable(component.getMainBranchProjectUuid()).orElse(component.projectUuid()));
+      wsComponent = componentDtoToWsComponent(component, parentProject.orElse(null), organizationDto, null);
     }
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());

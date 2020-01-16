@@ -7,9 +7,12 @@
   "baseComponent": {
     "organization": "my-org-1",
     "key": "MY_PROJECT_KEY",
-    "description": "DESCRIPTION_MY_PROJECT_ID",
+    "description": "MY_PROJECT_DESCRIPTION",
     "qualifier": "TRK",
-    "tags": [],
+    "tags": [
+      "abc",
+      "def"
+    ],
     "visibility": "private"
   },
   "components": [
