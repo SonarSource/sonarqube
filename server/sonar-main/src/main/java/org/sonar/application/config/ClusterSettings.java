@@ -19,26 +19,31 @@
  */
 package org.sonar.application.config;
 
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import com.google.common.net.HostAndPort;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
-import org.apache.commons.lang.StringUtils;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties.Property;
 import org.sonar.process.Props;
 import org.sonar.process.cluster.NodeType;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
@@ -49,6 +54,7 @@ import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_WEB_STARTUP_LEADER;
 import static org.sonar.process.ProcessProperties.Property.JDBC_URL;
 import static org.sonar.process.ProcessProperties.Property.SEARCH_HOST;
+import static org.sonar.process.ProcessProperties.Property.SEARCH_PORT;
 
 public class ClusterSettings implements Consumer<Props> {
 
@@ -71,16 +77,23 @@ public class ClusterSettings implements Consumer<Props> {
       throw new MessageException(format("Property [%s] is forbidden", CLUSTER_WEB_STARTUP_LEADER.getKey()));
     }
 
+    checkNodeSpecificProperties(props);
+    checkCommonProperties(props);
+  }
+
+  private void checkNodeSpecificProperties(Props props) {
     NodeType nodeType = toNodeType(props);
     switch (nodeType) {
       case APPLICATION:
         ensureNotH2(props);
-        requireValue(props, AUTH_JWT_SECRET.getKey());
-        ensureNotLoopbackAddresses(props, CLUSTER_HZ_HOSTS.getKey());
+        requireValue(props, AUTH_JWT_SECRET);
+        Set<AddressAndPort> hzNodes = parseHosts(CLUSTER_HZ_HOSTS, requireValue(props, CLUSTER_HZ_HOSTS));
+        ensureNotLoopbackAddresses(CLUSTER_HZ_HOSTS, hzNodes);
         break;
       case SEARCH:
-        requireValue(props, SEARCH_HOST.getKey());
-        ensureLocalButNotLoopbackAddress(props, SEARCH_HOST.getKey());
+        AddressAndPort searchHost = parseAndCheckHost(SEARCH_HOST, requireValue(props, SEARCH_HOST));
+        ensureLocalButNotLoopbackAddress(SEARCH_HOST, searchHost);
+        requireValue(props, SEARCH_PORT);
         if (props.contains(CLUSTER_NODE_HZ_PORT.getKey())) {
           LoggerFactory.getLogger(getClass()).warn("Property {} is ignored on search nodes since 7.2", CLUSTER_NODE_HZ_PORT.getKey());
         }
@@ -88,13 +101,50 @@ public class ClusterSettings implements Consumer<Props> {
       default:
         throw new UnsupportedOperationException("Unknown value: " + nodeType);
     }
-    requireValue(props, CLUSTER_NODE_HOST.getKey());
-    ensureLocalButNotLoopbackAddress(props, CLUSTER_NODE_HOST.getKey());
-    ensureNotLoopbackAddresses(props, CLUSTER_SEARCH_HOSTS.getKey());
+  }
+
+  private void checkCommonProperties(Props props) {
+    AddressAndPort clusterNodeHost = parseAndCheckHost(CLUSTER_NODE_HOST, requireValue(props, CLUSTER_NODE_HOST));
+    ensureLocalButNotLoopbackAddress(CLUSTER_NODE_HOST, clusterNodeHost);
+    Set<AddressAndPort> searchHosts = parseHosts(CLUSTER_SEARCH_HOSTS, requireValue(props, CLUSTER_SEARCH_HOSTS));
+    ensureNotLoopbackAddresses(CLUSTER_SEARCH_HOSTS, searchHosts);
+  }
+
+  private Set<AddressAndPort> parseHosts(Property property, String value) {
+    Set<AddressAndPort> res = stream(value.split(","))
+      .filter(Objects::nonNull)
+      .map(String::trim)
+      .map(ClusterSettings::parseHost)
+      .collect(toSet());
+    checkValidHosts(property, res);
+    return res;
+  }
+
+  private void checkValidHosts(Property property, Set<AddressAndPort> addressAndPorts) {
+    List<String> invalidHosts = addressAndPorts.stream()
+      .map(AddressAndPort::getHost)
+      .filter(t -> !network.toInetAddress(t).isPresent())
+      .sorted()
+      .collect(toList());
+    if (!invalidHosts.isEmpty()) {
+      throw new MessageException(format("Address in property %s is not a valid address: %s",
+        property.getKey(), String.join(", ", invalidHosts)));
+    }
+  }
+
+  private static AddressAndPort parseHost(String value) {
+    HostAndPort hostAndPort = HostAndPort.fromString(value);
+    return new AddressAndPort(hostAndPort.getHost(), hostAndPort.hasPort() ? hostAndPort.getPort() : null);
+  }
+
+  private AddressAndPort parseAndCheckHost(Property property, String value) {
+    AddressAndPort addressAndPort = parseHost(value);
+    checkValidHosts(property, singleton(addressAndPort));
+    return addressAndPort;
   }
 
   private static NodeType toNodeType(Props props) {
-    String nodeTypeValue = requireValue(props, CLUSTER_NODE_TYPE.getKey());
+    String nodeTypeValue = requireValue(props, CLUSTER_NODE_TYPE);
     if (!NodeType.isValid(nodeTypeValue)) {
       throw new MessageException(format("Invalid value for property %s: [%s], only [%s] are allowed", CLUSTER_NODE_TYPE.getKey(), nodeTypeValue,
         Arrays.stream(NodeType.values()).map(NodeType::getValue).collect(joining(", "))));
@@ -102,46 +152,59 @@ public class ClusterSettings implements Consumer<Props> {
     return NodeType.parse(nodeTypeValue);
   }
 
-  private static String requireValue(Props props, String key) {
+  private static String requireValue(Props props, Property property) {
+    String key = property.getKey();
     String value = props.value(key);
-    if (isBlank(value)) {
+    String trimmedValue = value == null ? null : value.trim();
+    if (trimmedValue == null || trimmedValue.isEmpty()) {
       throw new MessageException(format("Property %s is mandatory", key));
     }
-    return value;
+    return trimmedValue;
   }
 
   private static void ensureNotH2(Props props) {
     String jdbcUrl = props.value(JDBC_URL.getKey());
-    if (isBlank(jdbcUrl) || jdbcUrl.startsWith("jdbc:h2:")) {
+    String trimmedJdbcUrl = jdbcUrl == null ? null : jdbcUrl.trim();
+    if (trimmedJdbcUrl == null || trimmedJdbcUrl.isEmpty() || trimmedJdbcUrl.startsWith("jdbc:h2:")) {
       throw new MessageException("Embedded database is not supported in cluster mode");
     }
   }
 
-  private void ensureNotLoopbackAddresses(Props props, String propertyKey) {
-    stream(requireValue(props, propertyKey).split(","))
-      .filter(StringUtils::isNotBlank)
-      .map(StringUtils::trim)
-      .map(s -> StringUtils.substringBefore(s, ":"))
-      .forEach(ip -> {
-        try {
-          if (network.isLoopbackInetAddress(network.toInetAddress(ip))) {
-            throw new MessageException(format("Property %s must not be a loopback address: %s", propertyKey, ip));
-          }
-        } catch (UnknownHostException e) {
-          throw new MessageException(format("Property %s must not a valid address: %s [%s]", propertyKey, ip, e.getMessage()));
-        }
-      });
+  private void ensureNotLoopbackAddresses(Property property, Set<AddressAndPort> hostAndPorts) {
+    Set<AddressAndPort> loopbackAddresses = hostAndPorts.stream()
+      .filter(t -> network.isLoopback(t.getHost()))
+      .collect(MoreCollectors.toSet());
+    if (!loopbackAddresses.isEmpty()) {
+      throw new MessageException(format("Property %s must not contain a loopback address: %s", property.getKey(),
+        loopbackAddresses.stream().map(AddressAndPort::getHost).sorted().collect(Collectors.joining(", "))));
+    }
   }
 
-  private void ensureLocalButNotLoopbackAddress(Props props, String propertyKey) {
-    String propertyValue = props.nonNullValue(propertyKey).trim();
-    try {
-      InetAddress address = network.toInetAddress(propertyValue);
-      if (!network.isLocalInetAddress(address) || network.isLoopbackInetAddress(address)) {
-        throw new MessageException(format("Property %s must be a local non-loopback address: %s", propertyKey, propertyValue));
-      }
-    } catch (UnknownHostException | SocketException e) {
-      throw new MessageException(format("Property %s must be a local non-loopback address: %s [%s]", propertyKey, propertyValue, e.getMessage()));
+  private void ensureLocalButNotLoopbackAddress(Property property, AddressAndPort addressAndPort) {
+    String host = addressAndPort.getHost();
+    if (!network.isLocal(host) || network.isLoopback(host)) {
+      throw new MessageException(format("Property %s must be a local non-loopback address: %s", property.getKey(), addressAndPort.getHost()));
+    }
+  }
+
+  private static class AddressAndPort {
+    private static final int NO_PORT = -1;
+
+    /** the host from setting, can be a hostname or an IP address */
+    private final String host;
+    private final int port;
+
+    private AddressAndPort(String host, @Nullable Integer port) {
+      this.host = host;
+      this.port = port == null ? NO_PORT : port;
+    }
+
+    public String getHost() {
+      return host;
+    }
+
+    public boolean hasPort() {
+      return port != NO_PORT;
     }
   }
 

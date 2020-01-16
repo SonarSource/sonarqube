@@ -21,14 +21,15 @@ package org.sonar.process;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Predicate;
 
 public interface NetworkUtils {
 
-  int getNextAvailablePort(InetAddress address);
+  int getNextLoopbackAvailablePort();
+
+  OptionalInt getNextAvailablePort(String hostOrAddress);
 
   /**
    * Identifying the localhost machine
@@ -44,11 +45,11 @@ public interface NetworkUtils {
    * If text value references an IPv4 or IPv6 address, then DNS is
    * not used.
    */
-  InetAddress toInetAddress(String hostOrAddress) throws UnknownHostException;
+  Optional<InetAddress> toInetAddress(String hostOrAddress);
 
-  boolean isLocalInetAddress(InetAddress address) throws SocketException;
+  boolean isLocal(String hostOrAddress);
 
-  boolean isLoopbackInetAddress(InetAddress address);
+  boolean isLoopback(String hostOrAddress);
 
   /**
    * Returns the machine {@link InetAddress} that matches the specified

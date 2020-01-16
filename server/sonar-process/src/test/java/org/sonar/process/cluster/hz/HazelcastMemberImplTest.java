@@ -55,9 +55,9 @@ public class HazelcastMemberImplTest {
 
   @BeforeClass
   public static void setUp() {
-    int port1 = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback);
-    int port2 = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback);
-    int port3 = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback);
+    int port1 = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    int port2 = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    int port3 = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     member1 = newHzMember(port1, port2, port3);
     member2 = newHzMember(port2, port1, port3);
     member3 = newHzMember(port3, port1, port2);

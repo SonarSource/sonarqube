@@ -55,7 +55,7 @@ public class EmbeddedTomcatTest {
 
     // start server on a random port
     InetAddress address = InetAddress.getLoopbackAddress();
-    int httpPort = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(address);
+    int httpPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     props.set("sonar.web.host", address.getHostAddress());
     props.set("sonar.web.port", String.valueOf(httpPort));
     EmbeddedTomcat tomcat = new EmbeddedTomcat(props);

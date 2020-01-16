@@ -21,6 +21,7 @@ package org.sonar.process;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeThat;
 
@@ -42,7 +44,8 @@ public class NetworkUtilsImplTest {
 
   @Test
   public void getNextAvailablePort_returns_a_port() throws Exception {
-    int port = underTest.getNextAvailablePort(InetAddress.getLocalHost());
+    String localhost = InetAddress.getLocalHost().getHostName();
+    int port = underTest.getNextAvailablePort(localhost).getAsInt();
     assertThat(port)
       .isGreaterThan(1_023)
       .isLessThanOrEqualTo(65_535);
@@ -50,10 +53,11 @@ public class NetworkUtilsImplTest {
 
   @Test
   public void getNextAvailablePort_does_not_return_twice_the_same_port() throws Exception {
+    String localhost = InetAddress.getLocalHost().getHostName();
     Set<Integer> ports = new HashSet<>(Arrays.asList(
-      underTest.getNextAvailablePort(InetAddress.getLocalHost()),
-      underTest.getNextAvailablePort(InetAddress.getLocalHost()),
-      underTest.getNextAvailablePort(InetAddress.getLocalHost())));
+      underTest.getNextAvailablePort(localhost).getAsInt(),
+      underTest.getNextAvailablePort(localhost).getAsInt(),
+      underTest.getNextAvailablePort(localhost).getAsInt()));
     assertThat(ports).hasSize(3);
   }
 
@@ -69,6 +73,17 @@ public class NetworkUtilsImplTest {
   }
 
   @Test
+  public void getHostname_returns_hostname_of_localhost_otherwise_a_constant() {
+    try {
+      InetAddress localHost = InetAddress.getLocalHost();
+      assertThat(underTest.getHostname()).isEqualTo(localHost.getHostName());
+    } catch (UnknownHostException e) {
+      // no localhost on host running the UT
+      assertThat(underTest.getHostname()).isEqualTo("unresolved hostname");
+    }
+  }
+
+  @Test
   public void getLocalInetAddress_filters_local_addresses() {
     InetAddress address = underTest.getLocalInetAddress(InetAddress::isLoopbackAddress).get();
     assertThat(address.isLoopbackAddress()).isTrue();
@@ -81,20 +96,64 @@ public class NetworkUtilsImplTest {
   }
 
   @Test
-  public void toInetAddress_supports_host_names() throws Exception {
-    assertThat(underTest.toInetAddress("localhost")).isNotNull();
+  public void toInetAddress_supports_host_names() {
+    assertThat(underTest.toInetAddress("localhost")).isNotEmpty();
     // do not test values that require DNS calls. Build must support offline mode.
   }
 
   @Test
-  public void toInetAddress_supports_ipv4() throws Exception {
-    assertThat(underTest.toInetAddress("1.2.3.4")).isNotNull();
+  public void toInetAddress_supports_ipv4() {
+    assertThat(underTest.toInetAddress("1.2.3.4")).isNotEmpty();
   }
 
   @Test
-  public void toInetAddress_supports_ipv6() throws Exception {
-    assertThat(underTest.toInetAddress("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb")).isNotNull();
-    assertThat(underTest.toInetAddress("[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]")).isNotNull();
+  public void toInetAddress_supports_ipv6() {
+    assertThat(underTest.toInetAddress("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb")).isNotEmpty();
+    assertThat(underTest.toInetAddress("[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]")).isNotEmpty();
   }
 
+  @Test
+  public void toInetAddress_returns_empty_on_unvalid_IP_and_hostname() {
+    assertThat(underTest.toInetAddress(randomAlphabetic(32))).isEmpty();
+  }
+
+  @Test
+  public void isLoopback_returns_true_on_loopback_address_or_host() {
+    InetAddress loopback = InetAddress.getLoopbackAddress();
+
+    assertThat(underTest.isLoopback(loopback.getHostAddress())).isTrue();
+    assertThat(underTest.isLoopback(loopback.getHostName())).isTrue();
+  }
+
+  @Test
+  public void isLoopback_returns_true_on_localhost_address_or_host_if_loopback() {
+    try {
+      InetAddress localHost = InetAddress.getLocalHost();
+      boolean isLoopback = localHost.isLoopbackAddress();
+      assertThat(underTest.isLoopback(localHost.getHostAddress())).isEqualTo(isLoopback);
+      assertThat(underTest.isLoopback(localHost.getHostName())).isEqualTo(isLoopback);
+    } catch (UnknownHostException e) {
+      // ignore, host running the test has no localhost
+    }
+  }
+
+  @Test
+  public void isLocal_returns_true_on_loopback_address_or_host() {
+    InetAddress loopback = InetAddress.getLoopbackAddress();
+
+    assertThat(underTest.isLocal(loopback.getHostAddress())).isTrue();
+    assertThat(underTest.isLocal(loopback.getHostName())).isTrue();
+  }
+
+  @Test
+  public void isLocal_returns_true_on_localhost_address_or_host() {
+    try {
+      InetAddress localHost = InetAddress.getLocalHost();
+
+      assertThat(underTest.isLocal(localHost.getHostAddress())).isTrue();
+      assertThat(underTest.isLocal(localHost.getHostName())).isTrue();
+    } catch (UnknownHostException e) {
+      // ignore, host running the test has no localhost
+    }
+  }
 }

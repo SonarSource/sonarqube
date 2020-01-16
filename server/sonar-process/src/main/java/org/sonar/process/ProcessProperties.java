@@ -20,7 +20,6 @@
 package org.sonar.process;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,9 +32,8 @@ import javax.annotation.Nullable;
 import org.sonar.core.extension.CoreExtension;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 
-import static java.lang.String.format;
-
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 
 /**
  * Constants shared by search, web server and app processes.
@@ -200,11 +198,9 @@ public class ProcessProperties {
     String port = props.value(portPropertyKey);
     if ("0".equals(port)) {
       String address = props.nonNullValue(addressPropertyKey);
-      try {
-        props.set(portPropertyKey, String.valueOf(NetworkUtilsImpl.INSTANCE.getNextAvailablePort(InetAddress.getByName(address))));
-      } catch (UnknownHostException e) {
-        throw new IllegalStateException("Cannot resolve address [" + address + "] set by property [" + addressPropertyKey + "]", e);
-      }
+      int allocatedPort = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(address)
+        .orElseThrow(() -> new IllegalStateException("Cannot resolve address [" + address + "] set by property [" + addressPropertyKey + "]"));
+      props.set(portPropertyKey, String.valueOf(allocatedPort));
     }
   }
 

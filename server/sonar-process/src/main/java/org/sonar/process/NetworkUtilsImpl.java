@@ -30,22 +30,36 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Predicate;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
+import static java.lang.String.format;
 
 public class NetworkUtilsImpl implements NetworkUtils {
 
-  public static final NetworkUtils INSTANCE = new NetworkUtilsImpl();
   private static final Set<Integer> PORTS_ALREADY_ALLOCATED = new HashSet<>();
   private static final int PORT_MAX_TRIES = 50;
+  private static final Logger LOG = Loggers.get(NetworkUtilsImpl.class);
+
+  public static final NetworkUtils INSTANCE = new NetworkUtilsImpl();
 
   NetworkUtilsImpl() {
     // prevent instantiation
   }
 
   @Override
-  public int getNextAvailablePort(InetAddress address) {
-    return getNextAvailablePort(address, PortAllocator.INSTANCE);
+  public int getNextLoopbackAvailablePort() {
+    return getNextAvailablePort(InetAddress.getLoopbackAddress(), PortAllocator.INSTANCE);
+  }
+
+  @Override
+  public OptionalInt getNextAvailablePort(String hostOrAddress) {
+    return OptionalInt.of(toInetAddress(hostOrAddress)
+      .map(t -> getNextAvailablePort(t, PortAllocator.INSTANCE))
+      .orElseThrow(() -> new IllegalArgumentException(format("Can not resolve address %s", hostOrAddress))));
   }
 
   /**
@@ -84,32 +98,46 @@ public class NetworkUtilsImpl implements NetworkUtils {
 
   @Override
   public String getHostname() {
-    String hostname;
     try {
-      hostname = InetAddress.getLocalHost().getHostName();
+      return InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {
-      hostname = "unresolved hostname";
+      LOG.trace("Failed to get hostname", e);
+      return  "unresolved hostname";
     }
-
-    return hostname;
   }
 
   @Override
-  public InetAddress toInetAddress(String hostOrAddress) throws UnknownHostException {
-    if (InetAddresses.isInetAddress(hostOrAddress)) {
-      return InetAddresses.forString(hostOrAddress);
+  public Optional<InetAddress> toInetAddress(String hostOrAddress) {
+    try {
+      if (InetAddresses.isInetAddress(hostOrAddress)) {
+        return Optional.of(InetAddresses.forString(hostOrAddress));
+      }
+      return Optional.of(InetAddress.getByName(hostOrAddress));
+    } catch (UnknownHostException e) {
+      LOG.trace("toInetAddress({}) failed", hostOrAddress, e);
+      return Optional.empty();
     }
-    return InetAddress.getByName(hostOrAddress);
   }
 
   @Override
-  public boolean isLocalInetAddress(InetAddress address) throws SocketException {
-    return NetworkInterface.getByInetAddress(address) != null ;
+  public boolean isLocal(String hostOrAddress) {
+    try {
+      Optional<InetAddress> inetAddress = toInetAddress(hostOrAddress);
+      if (inetAddress.isPresent()) {
+        return NetworkInterface.getByInetAddress(inetAddress.get()) != null;
+      }
+      return false;
+    } catch (SocketException e) {
+      LOG.trace("isLocalInetAddress({}) failed", hostOrAddress, e);
+      return false;
+    }
   }
 
   @Override
-  public boolean isLoopbackInetAddress(InetAddress address) {
-    return address.isLoopbackAddress();
+  public boolean isLoopback(String hostOrAddress) {
+    return toInetAddress(hostOrAddress)
+      .filter(InetAddress::isLoopbackAddress)
+      .isPresent();
   }
 
   @Override
@@ -121,6 +149,7 @@ public class NetworkUtilsImpl implements NetworkUtils {
         .filter(predicate)
         .findFirst();
     } catch (SocketException e) {
+      LOG.trace("getLocalInetAddress(Predicate<InetAddress>) failed", e);
       throw new IllegalStateException("Can not retrieve network interfaces", e);
     }
   }

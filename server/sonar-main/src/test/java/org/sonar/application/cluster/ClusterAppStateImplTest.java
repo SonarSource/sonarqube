@@ -155,7 +155,7 @@ public class ClusterAppStateImplTest {
     return new HazelcastMemberBuilder()
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setNodeName("bar")
-      .setPort(NetworkUtilsImpl.INSTANCE.getNextAvailablePort(loopback))
+      .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())
       .setNetworkInterface(loopback.getHostAddress())
       .build();
   }

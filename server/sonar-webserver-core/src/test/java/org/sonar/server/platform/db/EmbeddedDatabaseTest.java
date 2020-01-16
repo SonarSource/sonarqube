@@ -111,7 +111,7 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_ignores_URL_to_create_database_and_uses_empty_username_and_password_when_then_are_not_set() throws IOException {
-    int port = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    int port = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     settings
       .setProperty(PATH_DATA.getKey(), temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(JDBC_URL.getKey(), "jdbc url")
@@ -124,7 +124,7 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_creates_db_and_adds_tcp_listener() throws IOException {
-    int port = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    int port = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     settings
       .setProperty(PATH_DATA.getKey(), temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(JDBC_URL.getKey(), "jdbc url")
@@ -142,7 +142,7 @@ public class EmbeddedDatabaseTest {
 
   @Test
   public void start_supports_in_memory_H2_JDBC_URL() throws IOException {
-    int port = NetworkUtilsImpl.INSTANCE.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    int port = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     settings
       .setProperty(PATH_DATA.getKey(), temporaryFolder.newFolder().getAbsolutePath())
       .setProperty(JDBC_URL.getKey(), "jdbc:h2:mem:sonar")
