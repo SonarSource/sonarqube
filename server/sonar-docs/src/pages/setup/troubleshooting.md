@@ -59,13 +59,13 @@ If you still have inconsistencies, you'll need to rebuild the indices (this oper
 **non-DCE:**  
 
 1. Stop SonarQube  
-1. Delete the data/es6 directory  
+1. Delete the data/es7 directory  
 1. Restart SonarQube  
 
 **DCE:**  
 
 1. Stop the whole cluster (ES and application nodes)  
-1. Delete the data/es6 directory on each ES node  
+1. Delete the data/es7 directory on each ES node  
 1. Restart the whole cluster  
     
 **Note:** See [Configure & Operate a Cluster](/setup/operate-cluster/) for information on stopping and starting a cluster.

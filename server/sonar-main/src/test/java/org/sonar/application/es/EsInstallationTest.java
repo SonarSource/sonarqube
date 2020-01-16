@@ -102,7 +102,7 @@ public class EsInstallationTest {
 
     EsInstallation underTest = new EsInstallation(props);
 
-    assertThat(underTest.getDataDirectory()).isEqualTo(new File(dataDir, "es6"));
+    assertThat(underTest.getDataDirectory()).isEqualTo(new File(dataDir, "es7"));
   }
 
   @Test
@@ -133,8 +133,8 @@ public class EsInstallationTest {
     EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getOutdatedSearchDirectories())
-      .extracting(t -> t.getName())
-      .containsOnly("es", "es5");
+      .extracting(File::getName)
+      .containsExactlyInAnyOrder("es", "es5", "es6");
   }
 
   @Test
