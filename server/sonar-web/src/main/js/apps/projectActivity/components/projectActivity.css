@@ -112,6 +112,10 @@
   padding-left: 20px;
 }
 
+.project-activity-event * {
+  text-indent: 0;
+}
+
 .project-activity-event + .project-activity-event {
   margin-top: var(--gridSize);
 }
