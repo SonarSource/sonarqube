@@ -143,52 +143,9 @@ qa_task:
       QA_CATEGORY: License
       QA_CATEGORY: Branch
       QA_CATEGORY: Upgrade
+      QA_CATEGORY: HA
   script:
     - ./private/cirrus/cirrus-qa.sh postgres106
-  on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    screenshots_artifacts:
-      path: "**/build/screenshots/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
-
-qa_ha_task:
-  depends_on: build
-  # Comment the following line and commit with message "DO NOT MERGE" in order to run
-  # this task on your branch
-  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
-  gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
-    cpu: 2.4
-    memory: 10Gb
-    additional_containers:
-      - name: postgres
-        image: postgres:12.1
-        port: 5432
-        cpu: 1
-        memory: 1Gb
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-  env:
-      # No need to clone the full history.
-      # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
-      # (example of error: "Hard resetting to c968ecaf7a1942dacecd78480b3751ac74d53c33...Failed to force reset to c968ecaf7a1942dacecd78480b3751ac74d53c33: object not found!")
-    CIRRUS_CLONE_DEPTH: 50
-    QA_CATEGORY: HA
-  gradle_cache:
-    folder: ~/.gradle/caches
-  script:
-    - ./private/cirrus/cirrus-qa.sh postgres106
-  cleanup_before_cache_script:
-    - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
     reports_artifacts:
       path: "**/build/reports/**/*"
