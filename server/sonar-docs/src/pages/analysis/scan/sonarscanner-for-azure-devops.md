@@ -93,28 +93,53 @@ Once all this is done, you can trigger a build.
 
 Once all this is done, you can trigger a build.
 
-## Analyzing a Visual C++ project
-1. Make **SonarQube Build Wrapper** available on the build agent
-   * Download and unzip **SonarQube Build Wrapper** on the build agent (see *Prerequisites* section of *C/C++/Objective-C* page). For the Microsoft-hosted build agent you will need to do it every time (as part of build definition), e.g. you can add **PowerShell script** task doing that. For the self-hosted build agent you can do the same either every build or only once (as part of manual setup of build agent). Example of PowerShell commands:
-   ```
-   Invoke-WebRequest -Uri '<sonarqube or sonarcloud url>/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
-   Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'
-   ```
-1. In your build definition, add:
-   * At least **Prepare Analysis Configuration** task, **Run Code Analysis** task and the **Command Line** task
-   * Optionally **Publish Quality Gate Result** task
-1. Reorder the tasks to respect the following order:
-   * **Prepare Analysis Configuration** task before **Command Line** task.
-   * **Run Code Analysis** task after the **Command Line** task.
-   * **Publish Quality Gate Result** task after the **Run Code Analysis** task
-1. On the **Command Line** task
-   * Run **SonarQube Build Wrapper** executable. Pass in as the arguments (1) the output directory to which the Build Wrapper should write its results and (2) the command that runs the compilation of your project, e.g.
-   ```
-   path/to/build-wrapper-win-x86-64.exe --out-dir <output directory> MSBuild.exe /t:Rebuild
-   ```
-1. Click on the **Prepare Analysis Configuration** task to configure it:
-   * Select the **SonarQube Server**
-   * In *Additional Properties* in the *Advanced* section, add the property `sonar.cfamily.build-wrapper-output` with the value of the directory you specified: `sonar.cfamily.build-wrapper-output=<output directory>`
+## Analyzing a C++ project
+In your build pipeline, insert the following steps in the order they appear here. These steps can be interleaved with other steps of your build as long as the following order is followed. All steps have to be executed on the same agent.
+1. Make **Build Wrapper** available on the build agent:\
+   Download and unzip **Build Wrapper** on the build agent (see *Prerequisites* section of *C/C++/Objective-C* page). The archive to download and decompress depends on the platform of the host.\
+   Please, note that:
+   * For the Microsoft-hosted build agent you will need to do it every time (as part of build pipeline), e.g. you can add **PowerShell script** task doing that. This can be done by inserting a **Command Line** task.\
+     Example of PowerShell commands on a windows host:
+     ```
+     Invoke-WebRequest -Uri '<sonarqube or sonarcloud url>/static/cpp/build-wrapper-win-x86.zip' -OutFile 'build-wrapper.zip'
+     Expand-Archive -Path 'build-wrapper.zip' -DestinationPath '.'
+     ```
+     Example of bash commands on a linux host:
+     ```
+     curl '<sonarqube or sonarcloud url>/static/cpp/build-wrapper-linux-x86.zip' --output build-wrapper.zip
+     unzip build-wrapper.zip
+     ```
+     Example of bash commands on a macos host:
+     ```
+     curl '<sonarqube or sonarcloud url>/static/cpp/build-wrapper-macosx-x86.zip' --output build-wrapper.zip
+     unzip build-wrapper.zip
+     ```  
+   * For the self-hosted build agent you can either download it everytime (using the same scripts) or only once (as part of manual setup of build agent).
+2. Add a **Prepare analysis Configuration** task and configure it as follow:\
+   Click on the **Prepare analysis on <!-- sonarcloud -->SonarCloud <!-- /sonarcloud --><!-- sonarqube -->SonarQube <!-- /sonarqube -->** task to configure it:
+   * Select the <!-- sonarcloud -->**SonarCloud Service Endpoint**<!-- /sonarcloud --><!-- sonarqube -->**SonarQube Server**<!-- /sonarqube -->
+   <!-- sonarcloud -->* Select your SonarCloud organization<!-- /sonarcloud -->
+   * In *Choose the way to run the analysis*, select *standalone scanner* (even if you build with *Visual Studio*/*MSBuild*) 
+   * In *Additional Properties* in the *Advanced* section, add the property `sonar.cfamily.build-wrapper-output` with, as its value, the output directory to which the Build Wrapper should write its results: `sonar.cfamily.build-wrapper-output=<output directory>`
+3. Add a **Command Line** task to run your build.\
+   For the analysis to happen, your build has to be run through a command line so that it can be wrapped-up by the build-wrapper.
+   To do so, 
+   * Run **Build Wrapper** executable. Pass in as the arguments (1) the output directory configured in the previous task and (2) the command that runs a clean build of your project (not an incremental build).\
+   Example of PowerShell commands on a windows host with an *MSBuild* build:
+      ```
+      build-wrapper-win-x86/build-wrapper-win-x86-64.exe --out-dir <output directory> MSBuild.exe /t:Rebuild
+      ```
+      Example of bash commands on a linux host with a *make* build:
+      ```
+      build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir <output directory> make clean all
+      ```
+      Example of bash commands on a macos host with a *xcodebuild* build:
+      ```
+      build-wrapper-macosx-x86/build-wrapper-macos-x86 --out-dir <output directory> xcodebuild -project myproject.xcodeproj -configuration Release clean build
+      ```
+4. Add a **Run Code Analysis** task to run the code analysis and make the results available to <!-- sonarcloud -->SonarCloud<!-- /sonarcloud --><!-- sonarqube -->SonarQube<!-- /sonarqube -->.\
+   Consider running this task right after the previous one as the build environment should not be significantly altered before running the analysis. 
+5. Optionally, add a **Publish Quality Gate Result** task <!-- sonarcloud --> (required if you want to check the Quality Gate in a release pipeline). <!-- sonarcloud -->
 
 Once all this is done, you can trigger a build.
 
