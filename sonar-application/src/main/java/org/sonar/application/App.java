@@ -19,9 +19,9 @@
  */
 package org.sonar.application;
 
-import java.io.IOException;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.internal.MetadataLoader;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.CommandFactoryImpl;
 import org.sonar.application.command.JavaVersion;
@@ -42,12 +42,11 @@ public class App {
   private final JavaVersion javaVersion;
   private StopRequestWatcher stopRequestWatcher = null;
   private StopRequestWatcher hardStopRequestWatcher = null;
-
   public App(JavaVersion javaVersion) {
     this.javaVersion = javaVersion;
   }
 
-  public void start(String[] cliArguments) throws IOException, InterruptedException {
+  public void start(String[] cliArguments) {
     AppSettingsLoader settingsLoader = new AppSettingsLoaderImpl(cliArguments, new ServiceLoaderWrapper());
     AppSettings settings = settingsLoader.load();
     // order is important - logging must be configured before any other components (AppFileSystem, ...)
@@ -80,6 +79,8 @@ public class App {
         scheduler.awaitTermination();
         hardStopRequestWatcher.stopWatching();
       }
+    } catch (Exception e) {
+      Loggers.get(App.class).error("Startup failure", e);
     }
 
     systemExit.exit(0);
