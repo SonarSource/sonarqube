@@ -2,6 +2,16 @@
 title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
+## Release 8.6 Upgrade Notes  
+**Elasticsearch update and change in cluster configuration**  
+For non-DCE editions, the Elasticsearch upgrade doesn't change the configuration. SonarQube automatically binds to the loopback address an additional Elasticsearch port which can be configured optionally.  
+
+When running a cluster with Data Center Edition, the configuration of search nodes has changed. The old search properties will now fail. You need to configure two new sets of properties. See [Configure and Operate a Cluster](/setup/operate-cluster/) for more information.  
+
+We recommend only giving external access to the application nodes and to the main port. ([SONAR-12686](https://jira.sonarsource.com/browse/SONAR-12686)).
+
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=16435)  
+
 ## Release 8.5 Upgrade Notes  
 **GitHub Enterprise compatibility**  
 SonarQube 8.5 only supports GitHub Enterprise 2.15+ for pull request decoration (the previous minimum version was 2.14).

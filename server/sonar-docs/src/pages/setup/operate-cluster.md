@@ -101,7 +101,7 @@ Property | Description | Default | Required |
 ---|---|---|---|
 `sonar.cluster.enabled`|Set to `true` in each node to activate the cluster mode|`false`|yes
 `sonar.cluster.name`|The name of the cluster. **Required if multiple clusters are present on the same network.** For example this prevents mixing Production and Preproduction clusters. This will be the name stored in the Hazelcast cluster and used as the name of the Elasticsearch cluster.|`sonarqube`|no
-`sonar.cluster.search.hosts`|Comma-delimited list of search hosts in the cluster. Each item in the list must contain the port if the default `sonar.search.port` value is not used. Item format is `sonar.search.host` or `sonar.search.host:sonar.search.port`.| |yes
+`sonar.cluster.search.hosts`|Comma-delimited list of search hosts in the cluster. Each item in the list must contain the host and port. For search nodes, the item format is `sonar.search.host:sonar.search.transportPort`. For application nodes, the item format is `sonar.search.host:sonar.search.port`.| |yes
 `sonar.cluster.node.name`|The name of the node that is used on Elasticsearch and stored in Hazelcast member attribute (NODE_NAME) for sonar-application|`sonarqube-{UUID}`|no
 `sonar.cluster.node.type`|Type of node: either `application` or `search`| |yes
 `sonar.cluster.node.host`|IP address of the network card that will be used by Hazelcast to communicate with the members of the cluster. Must not be a loopback address.| |yes
@@ -110,7 +110,8 @@ Property | Description | Default | Required |
 ### Application nodes
 Property  | Description | Required 
 ---|---|---|---
-`sonar.cluster.hosts`|Comma-delimited list of all **application** hosts in the cluster. This value must contain **only application hosts**. Each item in the list must contain the port if the default `sonar.cluster.node.port` value is not used. Item format is `sonar.cluster.node.host` or `sonar.cluster.node.host:sonar.cluster.node.port`.|yes
+`sonar.cluster.hosts`|Comma-delimited list of all **application** hosts in the cluster. This value must contain **only application hosts**. Each item in the list must contain the port if the default `sonar.cluster.node.port` value is not used. Item format is `sonar.cluster.node.host` or `s
+onar.cluster.node.host:sonar.cluster.node.port`.|yes
 `sonar.cluster.node.port`|The Hazelcast port for communication with each application member of the cluster. Default: `9003`|no|
 `sonar.cluster.node.web.port`|Hazelcast port for communication with the WebServer process. Port must be accessible to all other search and application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
 `sonar.cluster.node.ce.port`|Hazelcast port for communication with the ComputeEngine process. Port must be accessible to all other search and application nodes. If not specified, a dynamic port will be chosen and all ports must be open among the nodes.|no
@@ -120,7 +121,8 @@ Property  | Description | Required
 Property  | Description | Default | Required 
 ---|---|---|---
 `sonar.search.host`|Listening IP. IP must be accessible to all other search and application nodes.|`127.0.0.1`|yes
-`sonar.search.port`|Listening port. Port must be accessible to all other search and application nodes.|`9001`|yes
+`sonar.search.port`|Listening port. Port must be accessible to all application nodes. This port is used for HTTP communication between search and application nodes|`9001`|yes
+`sonar.search.transportPort`|Listening port. Port must be accessible to all other search nodes. This port is used for TCP communication between search nodes.|`9002`|yes
 `sonar.search.initialStateTimeout`|The timeout for the Elasticsearch nodes to elect a master node. The default value will be fine in most cases, but in a situation where startup is failing because of a timeout, this may need to be adjusted. The value must be set in the format: `{integer}{timeunit}`. Valid `{timeunit}` values are: `ms` (milliseconds); `s` (seconds); `m` (minutes); `h` (hours); `d` (days); `w` (weeks)|cluster: 120s; standalone: 30s|no
 
 ## Limitations
