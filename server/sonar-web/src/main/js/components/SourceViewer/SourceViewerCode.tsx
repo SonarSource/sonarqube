@@ -59,7 +59,6 @@ interface Props {
   issuePopup: { issue: string; name: string } | undefined;
   issues: T.Issue[] | undefined;
   issuesByLine: { [line: number]: T.Issue[] };
-  linePopup: T.LinePopup | undefined;
   loadDuplications: (line: T.SourceLine) => void;
   loadingSourcesAfter: boolean;
   loadingSourcesBefore: boolean;
@@ -71,7 +70,6 @@ interface Props {
   onIssueSelect: (issueKey: string) => void;
   onIssuesOpen: (line: T.SourceLine) => void;
   onIssueUnselect: () => void;
-  onLinePopupToggle: (linePopup: T.LinePopup) => void;
   onLocationSelect: ((index: number) => void) | undefined;
   onSymbolClick: (symbols: string[]) => void;
   openIssuesByLine: { [line: number]: boolean };
@@ -143,7 +141,6 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         key={line.line}
         last={index === this.props.sources.length - 1 && !this.props.hasSourcesAfter}
         line={line}
-        linePopup={this.props.linePopup}
         loadDuplications={this.props.loadDuplications}
         onIssueChange={this.props.onIssueChange}
         onIssuePopupToggle={this.props.onIssuePopupToggle}
@@ -151,7 +148,6 @@ export default class SourceViewerCode extends React.PureComponent<Props> {
         onIssueUnselect={this.props.onIssueUnselect}
         onIssuesClose={this.props.onIssuesClose}
         onIssuesOpen={this.props.onIssuesOpen}
-        onLinePopupToggle={this.props.onLinePopupToggle}
         onLocationSelect={this.props.onLocationSelect}
         onSymbolClick={this.props.onSymbolClick}
         openIssues={this.props.openIssuesByLine[line.line] || false}

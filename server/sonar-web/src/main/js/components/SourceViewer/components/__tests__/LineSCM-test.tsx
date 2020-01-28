@@ -17,52 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable sonarjs/no-duplicate-string */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
-import LineSCM from '../LineSCM';
+import { LineSCM, LineSCMProps } from '../LineSCM';
 
-it('render scm details', () => {
-  const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };
-  const previousLine = { line: 2, scmAuthor: 'bar', scmDate: '2017-01-02' };
-  const wrapper = shallow(
-    <LineSCM line={line} onPopupToggle={jest.fn()} popupOpen={false} previousLine={previousLine} />
-  );
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly', () => {
+  const scmInfo = { scmRevision: 'foo', scmAuthor: 'foo', scmDate: '2017-01-01' };
+
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(
+    shallowRender({ line: { line: 3, ...scmInfo }, previousLine: { line: 2, ...scmInfo } })
+  ).toMatchSnapshot('same commit');
+  expect(shallowRender({ line: { line: 3, scmDate: '2017-01-01' } })).toMatchSnapshot('no author');
 });
 
-it('render scm details for the first line', () => {
-  const line = { line: 3, scmRevision: 'foo', scmAuthor: 'foo', scmDate: '2017-01-01' };
-  const wrapper = shallow(
-    <LineSCM line={line} onPopupToggle={jest.fn()} popupOpen={false} previousLine={undefined} />
+function shallowRender(props: Partial<LineSCMProps> = {}) {
+  return shallow(
+    <LineSCM
+      line={{ line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' }}
+      previousLine={{ line: 2, scmAuthor: 'bar', scmDate: '2017-01-02' }}
+      {...props}
+    />
   );
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('does not render scm details', () => {
-  const line = { line: 3, scmRevision: 'foo', scmAuthor: 'foo', scmDate: '2017-01-01' };
-  const previousLine = { line: 2, scmRevision: 'foo', scmAuthor: 'foo', scmDate: '2017-01-01' };
-  const wrapper = shallow(
-    <LineSCM line={line} onPopupToggle={jest.fn()} popupOpen={false} previousLine={previousLine} />
-  );
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('renders ellipsis when no author info', () => {
-  const line = { line: 3, scmRevision: 'foo', scmDate: '2017-01-01' };
-  const previousLine = { line: 2, scmRevision: 'bar', scmDate: '2017-01-01' };
-  const wrapper = shallow(
-    <LineSCM line={line} onPopupToggle={jest.fn()} popupOpen={false} previousLine={previousLine} />
-  );
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should open popup', () => {
-  const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };
-  const onPopupToggle = jest.fn();
-  const wrapper = shallow(
-    <LineSCM line={line} onPopupToggle={onPopupToggle} popupOpen={false} previousLine={undefined} />
-  );
-  click(wrapper.find('[role="button"]'));
-  expect(onPopupToggle).toBeCalledWith({ line: 3, name: 'scm' });
-});
+}

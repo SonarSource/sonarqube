@@ -19,18 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
-import LineNumber from '../LineNumber';
+import { LineNumber, LineNumberProps } from '../LineNumber';
 
-it('render line 3', () => {
-  const line = { line: 3 };
-  const wrapper = shallow(<LineNumber line={line} onPopupToggle={jest.fn()} popupOpen={false} />);
-  expect(wrapper).toMatchSnapshot();
-  click(wrapper);
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ line: { line: 0 } })).toMatchSnapshot('no line number');
 });
 
-it('render line 0', () => {
-  const line = { line: 0 };
-  const wrapper = shallow(<LineNumber line={line} onPopupToggle={jest.fn()} popupOpen={false} />);
-  expect(wrapper).toMatchSnapshot();
-});
+function shallowRender(props: Partial<LineNumberProps> = {}) {
+  return shallow(<LineNumber line={{ line: 3 }} {...props} />);
+}

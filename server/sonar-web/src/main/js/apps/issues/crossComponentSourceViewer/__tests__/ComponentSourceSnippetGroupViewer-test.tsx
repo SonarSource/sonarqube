@@ -221,12 +221,10 @@ it('should correctly handle lines actions', () => {
     ...mockSnippetsByComponent('a', [32, 33, 34, 35, 36, 52, 53, 54, 55, 56])
   };
   const loadDuplications = jest.fn();
-  const onLinePopupToggle = jest.fn();
   const renderDuplicationPopup = jest.fn();
 
   const wrapper = shallowRender({
     loadDuplications,
-    onLinePopupToggle,
     renderDuplicationPopup,
     snippetGroup
   });
@@ -237,12 +235,6 @@ it('should correctly handle lines actions', () => {
     .first()
     .prop<Function>('loadDuplications')(line);
   expect(loadDuplications).toHaveBeenCalledWith('a', line);
-
-  wrapper
-    .find('SnippetViewer')
-    .first()
-    .prop<Function>('handleLinePopupToggle')({ line: 13, name: 'foo' });
-  expect(onLinePopupToggle).toHaveBeenCalledWith({ component: 'a', line: 13, name: 'foo' });
 
   wrapper
     .find('SnippetViewer')
@@ -264,18 +256,14 @@ describe('getNodes', () => {
   const wrapper = mount<ComponentSourceSnippetGroupViewer>(
     <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
-      duplications={undefined}
-      duplicationsByLine={undefined}
       highlightedLocationMessage={{ index: 0, text: '' }}
       issue={mockIssue()}
       issuesByLine={{}}
       lastSnippetGroup={false}
-      linePopup={undefined}
       loadDuplications={jest.fn()}
       locations={[]}
       onIssueChange={jest.fn()}
       onIssuePopupToggle={jest.fn()}
-      onLinePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}
       scroll={jest.fn()}
@@ -322,18 +310,14 @@ describe('getHeight', () => {
   const wrapper = mount<ComponentSourceSnippetGroupViewer>(
     <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
-      duplications={undefined}
-      duplicationsByLine={undefined}
       highlightedLocationMessage={{ index: 0, text: '' }}
       issue={mockIssue()}
       issuesByLine={{}}
       lastSnippetGroup={false}
-      linePopup={undefined}
       loadDuplications={jest.fn()}
       locations={[]}
       onIssueChange={jest.fn()}
       onIssuePopupToggle={jest.fn()}
-      onLinePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}
       scroll={jest.fn()}
@@ -376,18 +360,14 @@ function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']
   return shallow<ComponentSourceSnippetGroupViewer>(
     <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
-      duplications={undefined}
-      duplicationsByLine={undefined}
       highlightedLocationMessage={{ index: 0, text: '' }}
       issue={mockIssue()}
       issuesByLine={{}}
       lastSnippetGroup={false}
-      linePopup={undefined}
       loadDuplications={jest.fn()}
       locations={[]}
       onIssueChange={jest.fn()}
       onIssuePopupToggle={jest.fn()}
-      onLinePopupToggle={jest.fn()}
       onLocationSelect={jest.fn()}
       renderDuplicationPopup={jest.fn()}
       scroll={jest.fn()}

@@ -19,72 +19,64 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
-interface Props {
+export interface LineDuplicationBlockProps {
+  blocksLoaded: boolean;
   duplicated: boolean;
   index: number;
   line: T.SourceLine;
-  onPopupToggle: (linePopup: T.LinePopup) => void;
-  popupOpen: boolean;
+  onClick?: (line: T.SourceLine) => void;
   renderDuplicationPopup: (index: number, line: number) => React.ReactNode;
 }
 
-export default class LineDuplicationBlock extends React.PureComponent<Props> {
-  handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.currentTarget.blur();
-    this.props.onPopupToggle({
-      index: this.props.index,
-      line: this.props.line.line,
-      name: 'duplications'
-    });
-  };
+export function LineDuplicationBlock(props: LineDuplicationBlockProps) {
+  const { blocksLoaded, duplicated, index, line } = props;
+  const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
-  handleTogglePopup = (open: boolean) => {
-    this.props.onPopupToggle({
-      index: this.props.index,
-      line: this.props.line.line,
-      name: 'duplications',
-      open
-    });
-  };
+  const className = classNames('source-meta', 'source-line-duplications', {
+    'source-line-duplicated': duplicated
+  });
 
-  closePopup = () => {
-    this.handleTogglePopup(false);
-  };
-
-  render() {
-    const { duplicated, index, line, popupOpen } = this.props;
-    const className = classNames('source-meta', 'source-line-duplications-extra', {
-      'source-line-duplicated': duplicated
-    });
-
-    return duplicated ? (
-      <td className={className} data-index={index} data-line-number={line.line}>
-        <Toggler
-          onRequestClose={this.closePopup}
-          open={popupOpen}
-          overlay={this.props.renderDuplicationPopup(index, line.line)}>
-          <Tooltip
-            overlay={popupOpen ? undefined : translate('source_viewer.tooltip.duplicated_block')}
-            placement="right">
+  return duplicated ? (
+    <td className={className} data-index={index} data-line-number={line.line}>
+      <Tooltip
+        overlay={dropdownOpen ? undefined : translate('source_viewer.tooltip.duplicated_block')}
+        placement="right">
+        <div>
+          <Toggler
+            onRequestClose={() => setDropdownOpen(false)}
+            open={dropdownOpen}
+            overlay={
+              <DropdownOverlay placement={PopupPlacement.RightTop}>
+                {props.renderDuplicationPopup(index, line.line)}
+              </DropdownOverlay>
+            }>
             <div
+              aria-label={translate('source_viewer.tooltip.duplicated_block')}
               className="source-line-bar"
-              onClick={this.handleClick}
+              onClick={() => {
+                setDropdownOpen(true);
+                if (!blocksLoaded && line.duplicated && props.onClick) {
+                  props.onClick(line);
+                }
+              }}
               role="button"
               tabIndex={0}
             />
-          </Tooltip>
-        </Toggler>
-      </td>
-    ) : (
-      <td className={className} data-index={index} data-line-number={line.line}>
-        <div className="source-line-bar" />
-      </td>
-    );
-  }
+          </Toggler>
+        </div>
+      </Tooltip>
+    </td>
+  ) : (
+    <td className={className} data-index={index} data-line-number={line.line}>
+      <div className="source-line-bar" />
+    </td>
+  );
 }
+
+export default React.memo(LineDuplicationBlock);

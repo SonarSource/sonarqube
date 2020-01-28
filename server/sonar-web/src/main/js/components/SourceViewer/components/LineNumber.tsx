@@ -18,51 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Toggler from 'sonar-ui-common/components/controls/Toggler';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import LineOptionsPopup from './LineOptionsPopup';
 
-interface Props {
+export interface LineNumberProps {
   line: T.SourceLine;
-  onPopupToggle: (linePopup: T.LinePopup) => void;
-  popupOpen: boolean;
 }
 
-export default class LineNumber extends React.PureComponent<Props> {
-  handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.currentTarget.blur();
-    this.props.onPopupToggle({ line: this.props.line.line, name: 'line-number' });
-  };
-
-  handleTogglePopup = (open: boolean) => {
-    this.props.onPopupToggle({ line: this.props.line.line, name: 'line-number', open });
-  };
-
-  closePopup = () => {
-    this.handleTogglePopup(false);
-  };
-
-  render() {
-    const { line, popupOpen } = this.props;
-    const { line: lineNumber } = line;
-    const hasLineNumber = !!lineNumber;
-    return hasLineNumber ? (
-      <td
-        className="source-meta source-line-number"
-        data-line-number={lineNumber}
-        onClick={this.handleClick}
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
-        role="button"
-        tabIndex={0}>
-        <Toggler
-          onRequestClose={this.closePopup}
-          open={popupOpen}
-          overlay={<LineOptionsPopup line={line} />}
-        />
-      </td>
-    ) : (
-      <td className="source-meta source-line-number" />
-    );
-  }
+export function LineNumber({ line }: LineNumberProps) {
+  const { line: lineNumber } = line;
+  const hasLineNumber = !!lineNumber;
+  return hasLineNumber ? (
+    <td className="source-meta source-line-number" data-line-number={lineNumber}>
+      <Dropdown
+        overlay={<LineOptionsPopup line={line} />}
+        overlayPlacement={PopupPlacement.RightTop}>
+        <span
+          aria-label={translateWithParameters('source_viewer.line_X', lineNumber)}
+          role="button">
+          {lineNumber}
+        </span>
+      </Dropdown>
+    </td>
+  ) : (
+    <td className="source-meta source-line-number" />
+  );
 }
+
+export default React.memo(LineNumber);

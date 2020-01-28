@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
-import LineOptionsPopup from '../LineOptionsPopup';
+import { LineOptionsPopup } from '../LineOptionsPopup';
 
 jest.mock('../../SourceViewerContext', () => ({
   SourceViewerContext: {
@@ -32,7 +32,7 @@ jest.mock('../../SourceViewerContext', () => ({
   }
 }));
 
-it('should render', () => {
+it('should render correctly', () => {
   const line = { line: 3 };
   const wrapper = shallow(<LineOptionsPopup line={line} />).dive();
   expect(wrapper).toMatchSnapshot();

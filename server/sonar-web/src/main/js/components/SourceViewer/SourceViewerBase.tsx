@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import { intersection, uniqBy } from 'lodash';
 import * as React from 'react';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
@@ -96,7 +95,6 @@ export interface Props {
 
 interface State {
   component?: T.SourceViewerFile;
-  displayDuplications: boolean;
   duplicatedFiles?: T.Dict<T.DuplicatedFile>;
   duplications?: T.Duplication[];
   duplicationsByLine: { [line: number]: number[] };
@@ -106,7 +104,6 @@ interface State {
   issuePopup?: { issue: string; name: string };
   issues?: T.Issue[];
   issuesByLine: { [line: number]: T.Issue[] };
-  linePopup?: T.LinePopup;
   loading: boolean;
   loadingSourcesAfter: boolean;
   loadingSourcesBefore: boolean;
@@ -136,7 +133,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     super(props);
 
     this.state = {
-      displayDuplications: false,
       duplicationsByLine: {},
       hasSourcesAfter: false,
       highlightedSymbols: [],
@@ -245,7 +241,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
             this.setState(
               {
                 component,
-                displayDuplications: false,
                 duplicatedFiles: undefined,
                 duplications: undefined,
                 duplicationsByLine: {},
@@ -254,7 +249,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
                 issueLocationsByLine: locationsByLine(issues),
                 issues,
                 issuesByLine: issuesByLine(issues),
-                linePopup: undefined,
                 loading: false,
                 notAccessible: false,
                 notExist: false,
@@ -474,49 +468,24 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
     );
   };
 
-  loadDuplications = (line: T.SourceLine) => {
+  loadDuplications = () => {
     getDuplications({
       key: this.props.component,
       ...getBranchLikeQuery(this.props.branchLike)
     }).then(
       r => {
         if (this.mounted) {
-          this.setState(state => ({
-            displayDuplications: true,
+          this.setState({
             duplications: r.duplications,
             duplicationsByLine: duplicationsByLine(r.duplications),
-            duplicatedFiles: r.files,
-            linePopup:
-              r.duplications.length === 1
-                ? { index: 0, line: line.line, name: 'duplications' }
-                : state.linePopup
-          }));
+            duplicatedFiles: r.files
+          });
         }
       },
       () => {
         // TODO
       }
     );
-  };
-
-  handleLinePopupToggle = ({ index, line, name, open }: T.LinePopup) => {
-    this.setState((state: State) => {
-      const samePopup =
-        state.linePopup !== undefined &&
-        state.linePopup.name === name &&
-        state.linePopup.line === line &&
-        state.linePopup.index === index;
-      if (open !== false && !samePopup) {
-        return { linePopup: { index, line, name } };
-      } else if (open !== true && samePopup) {
-        return { linePopup: undefined };
-      }
-      return null;
-    });
-  };
-
-  closeLinePopup = () => {
-    this.setState({ linePopup: undefined });
   };
 
   handleIssuePopupToggle = (issue: string, popupName: string, open?: boolean) => {
@@ -595,7 +564,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
             branchLike={this.props.branchLike}
             duplicatedFiles={duplicatedFiles}
             inRemovedComponent={isDuplicationBlockInRemovedComponent(blocks)}
-            onClose={this.closeLinePopup}
             openComponent={openComponent}
             sourceViewerFile={component}
           />
@@ -626,7 +594,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
         issuePopup={this.state.issuePopup}
         issues={this.state.issues}
         issuesByLine={this.state.issuesByLine}
-        linePopup={this.state.linePopup}
         loadDuplications={this.loadDuplications}
         loadSourcesAfter={this.loadSourcesAfter}
         loadSourcesBefore={this.loadSourcesBefore}
@@ -638,7 +605,6 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
         onIssueUnselect={this.handleIssueUnselect}
         onIssuesClose={this.handleCloseIssues}
         onIssuesOpen={this.handleOpenIssues}
-        onLinePopupToggle={this.handleLinePopupToggle}
         onLocationSelect={this.props.onLocationSelect}
         onSymbolClick={this.handleSymbolClick}
         openIssuesByLine={this.state.openIssuesByLine}
@@ -696,13 +662,9 @@ export default class SourceViewerBase extends React.PureComponent<Props, State> 
       return null;
     }
 
-    const className = classNames('source-viewer', {
-      'source-duplications-expanded': this.state.displayDuplications
-    });
-
     return (
       <SourceViewerContext.Provider value={{ branchLike: this.props.branchLike, file: component }}>
-        <div className={className} ref={node => (this.node = node)}>
+        <div className="source-viewer" ref={node => (this.node = node)}>
           {this.renderHeader(this.props.branchLike, component)}
           {sourceRemoved && (
             <Alert className="spacer-top" variant="warning">

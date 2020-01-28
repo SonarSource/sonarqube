@@ -42,7 +42,6 @@ interface Props {
   duplicationsByLine?: { [line: number]: number[] };
   expandBlock: (snippetIndex: number, direction: T.ExpandDirection) => Promise<void>;
   handleCloseIssues: (line: T.SourceLine) => void;
-  handleLinePopupToggle: (line: T.SourceLine) => void;
   handleOpenIssues: (line: T.SourceLine) => void;
   handleSymbolClick: (symbols: string[]) => void;
   highlightedLocationMessage: { index: number; text: string | undefined } | undefined;
@@ -52,8 +51,7 @@ interface Props {
   issuePopup?: { issue: string; name: string };
   issuesByLine: T.IssuesByLine;
   lastSnippetOfLastGroup: boolean;
-  linePopup?: T.LinePopup;
-  loadDuplications: (line: T.SourceLine) => void;
+  loadDuplications?: (line: T.SourceLine) => void;
   locations: T.FlowLocation[];
   locationsByLine: { [line: number]: T.LinearIssueLocation[] };
   onIssueChange: (issue: T.Issue) => void;
@@ -138,6 +136,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
       (duplicationsCount && duplicationsByLine && duplicationsByLine[line.line]) || [];
 
     const isSinkLine = issuesForLine.some(i => i.key === this.props.issue.key);
+    const noop = () => {};
 
     return (
       <Line
@@ -162,15 +161,13 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         key={line.line}
         last={false}
         line={line}
-        linePopup={this.props.linePopup}
-        loadDuplications={this.props.loadDuplications}
+        loadDuplications={this.props.loadDuplications || noop}
         onIssueChange={this.props.onIssueChange}
         onIssuePopupToggle={this.props.onIssuePopupToggle}
-        onIssueSelect={() => {}}
-        onIssueUnselect={() => {}}
+        onIssueSelect={noop}
+        onIssueUnselect={noop}
         onIssuesClose={this.props.handleCloseIssues}
         onIssuesOpen={this.props.handleOpenIssues}
-        onLinePopupToggle={this.props.handleLinePopupToggle}
         onLocationSelect={this.props.onLocationSelect}
         onSymbolClick={this.props.handleSymbolClick}
         openIssues={this.props.openIssuesByLine[line.line]}
@@ -211,7 +208,8 @@ export default class SnippetViewer extends React.PureComponent<Props> {
       ? Math.max(0, LINES_BELOW_ISSUE - (bottomLine - lowestVisibleIssue))
       : 0;
 
-    const displayDuplications = snippet.some(s => !!s.duplicated);
+    const displayDuplications =
+      Boolean(this.props.loadDuplications) && snippet.some(s => !!s.duplicated);
 
     return (
       <div className="source-viewer-code snippet" ref={this.snippetNodeRef}>

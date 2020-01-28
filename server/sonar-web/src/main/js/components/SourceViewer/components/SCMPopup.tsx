@@ -19,27 +19,38 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
-import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
-interface Props {
+export interface SCMPopupProps {
   line: T.SourceLine;
 }
 
-export default function SCMPopup({ line }: Props) {
-  const hasAuthor = line.scmAuthor !== '';
+export function SCMPopup({ line }: SCMPopupProps) {
+  const hasAuthor = line.scmAuthor !== undefined && line.scmAuthor !== '';
+  const hasDate = line.scmDate !== undefined;
   return (
-    <DropdownOverlay placement={PopupPlacement.RightTop}>
-      <div className="source-viewer-bubble-popup abs-width-400">
-        {hasAuthor && <div>{line.scmAuthor}</div>}
-        {line.scmDate && (
-          <div className={classNames({ 'spacer-top': hasAuthor })}>
-            <DateFormatter date={line.scmDate} />
-          </div>
-        )}
-        {line.scmRevision && <div className="spacer-top">{line.scmRevision}</div>}
-      </div>
-    </DropdownOverlay>
+    <div className="source-viewer-bubble-popup abs-width-400">
+      {hasAuthor && (
+        <div>
+          <h4>{translate('author')}</h4>
+          {line.scmAuthor}
+        </div>
+      )}
+      {hasDate && (
+        <div className={classNames({ 'spacer-top': hasAuthor })}>
+          <h4>{translate('source_viewer.tooltip.scm.commited_on')}</h4>
+          <DateFormatter date={line.scmDate!} />
+        </div>
+      )}
+      {line.scmRevision && (
+        <div className={classNames({ 'spacer-top': hasAuthor || hasDate })}>
+          <h4>{translate('source_viewer.tooltip.scm.revision')}</h4>
+          {line.scmRevision}
+        </div>
+      )}
+    </div>
   );
 }
+
+export default React.memo(SCMPopup);

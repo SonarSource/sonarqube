@@ -39,11 +39,9 @@ function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
       highlightedSymbols={[]}
       hotspot={mockHotspot()}
       lastLine={undefined}
-      linePopup={undefined}
       loading={false}
       locations={{}}
       onExpandBlock={jest.fn()}
-      onLinePopupToggle={jest.fn()}
       onSymbolClick={jest.fn()}
       sourceLines={[]}
       sourceViewerFile={mockSourceViewerFile()}

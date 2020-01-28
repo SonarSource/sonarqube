@@ -37,7 +37,6 @@ interface State {
   highlightedSymbols: string[];
   lastLine?: number;
   loading: boolean;
-  linePopup?: T.LinePopup & { component: string };
   sourceLines: T.SourceLine[];
 }
 
@@ -143,31 +142,13 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     });
   };
 
-  handleLinePopupToggle = (params: T.LinePopup & { component: string }) => {
-    const { component, index, line, name, open } = params;
-    this.setState((state: State) => {
-      const samePopup =
-        state.linePopup !== undefined &&
-        state.linePopup.line === line &&
-        state.linePopup.name === name &&
-        state.linePopup.component === component &&
-        state.linePopup.index === index;
-      if (open !== false && !samePopup) {
-        return { linePopup: params };
-      } else if (open !== true && samePopup) {
-        return { linePopup: undefined };
-      }
-      return null;
-    });
-  };
-
   handleSymbolClick = (highlightedSymbols: string[]) => {
     this.setState({ highlightedSymbols });
   };
 
   render() {
     const { branchLike, component, hotspot } = this.props;
-    const { highlightedSymbols, lastLine, linePopup, loading, sourceLines } = this.state;
+    const { highlightedSymbols, lastLine, loading, sourceLines } = this.state;
 
     const locations = locationsByLine([hotspot]);
 
@@ -180,11 +161,9 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
         highlightedSymbols={highlightedSymbols}
         hotspot={hotspot}
         lastLine={lastLine}
-        linePopup={linePopup}
         loading={loading}
         locations={locations}
         onExpandBlock={this.handleExpansion}
-        onLinePopupToggle={this.handleLinePopupToggle}
         onSymbolClick={this.handleSymbolClick}
         sourceLines={sourceLines}
         sourceViewerFile={sourceViewerFile}

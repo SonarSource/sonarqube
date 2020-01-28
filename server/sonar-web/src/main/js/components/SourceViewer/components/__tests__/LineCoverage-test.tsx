@@ -19,22 +19,24 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import LineCoverage from '../LineCoverage';
+import { LineCoverage, LineCoverageProps } from '../LineCoverage';
 
-it('render covered line', () => {
-  const line: T.SourceLine = { line: 3, coverageStatus: 'covered' };
-  const wrapper = shallow(<LineCoverage line={line} />);
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('covered');
+  expect(shallowRender({ line: { line: 3, coverageStatus: 'uncovered' } })).toMatchSnapshot(
+    'uncovered'
+  );
+  expect(shallowRender({ line: { line: 3, coverageStatus: 'partially-covered' } })).toMatchSnapshot(
+    'partially covered, 0 conditions'
+  );
+  expect(
+    shallowRender({ line: { line: 3, coverageStatus: 'partially-covered', coveredConditions: 10 } })
+  ).toMatchSnapshot('partially covered, 10 conditions');
+  expect(shallowRender({ line: { line: 3, coverageStatus: undefined } })).toMatchSnapshot(
+    'no data'
+  );
 });
 
-it('render uncovered line', () => {
-  const line: T.SourceLine = { line: 3, coverageStatus: 'uncovered' };
-  const wrapper = shallow(<LineCoverage line={line} />);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('render line with unknown coverage', () => {
-  const line: T.SourceLine = { line: 3 };
-  const wrapper = shallow(<LineCoverage line={line} />);
-  expect(wrapper).toMatchSnapshot();
-});
+function shallowRender(props: Partial<LineCoverageProps> = {}) {
+  return shallow(<LineCoverage line={{ line: 3, coverageStatus: 'covered' }} {...props} />);
+}

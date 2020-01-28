@@ -19,35 +19,30 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
-import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getCodeUrl } from '../../../helpers/urls';
 import { SourceViewerContext } from '../SourceViewerContext';
 
-interface Props {
+interface LineOptionsPopupProps {
   line: T.SourceLine;
 }
 
-export default function LineOptionsPopup({ line }: Props) {
+export function LineOptionsPopup({ line }: LineOptionsPopupProps) {
   return (
     <SourceViewerContext.Consumer>
       {({ branchLike, file }) => (
-        <DropdownOverlay placement={PopupPlacement.RightTop}>
-          <div className="source-viewer-bubble-popup nowrap">
-            <Link
-              className="js-get-permalink"
-              onClick={event => {
-                event.stopPropagation();
-              }}
-              rel="noopener noreferrer"
-              target="_blank"
-              to={getCodeUrl(file.project, branchLike, file.key, line.line)}>
-              {translate('component_viewer.get_permalink')}
-            </Link>
-          </div>
-        </DropdownOverlay>
+        <div className="source-viewer-bubble-popup nowrap">
+          <Link
+            className="js-get-permalink"
+            rel="noopener noreferrer"
+            target="_blank"
+            to={getCodeUrl(file.project, branchLike, file.key, line.line)}>
+            {translate('component_viewer.get_permalink')}
+          </Link>
+        </div>
       )}
     </SourceViewerContext.Consumer>
   );
 }
+
+export default React.memo(LineOptionsPopup);

@@ -20,10 +20,8 @@
 import { groupBy, sortBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
-import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
 import { isPullRequest } from '../../../helpers/branch-like';
@@ -36,7 +34,6 @@ interface Props {
   branchLike: BranchLike | undefined;
   duplicatedFiles?: T.Dict<T.DuplicatedFile>;
   inRemovedComponent: boolean;
-  onClose: () => void;
   openComponent: WorkspaceContextShape['openComponent'];
   sourceViewerFile: T.SourceViewerFile;
 }
@@ -65,7 +62,6 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
         line: line ? Number(line) : undefined
       });
     }
-    this.props.onClose();
   };
 
   renderDuplication(file: T.DuplicatedFile, children: React.ReactNode, line?: number) {
@@ -106,76 +102,74 @@ export default class DuplicationPopup extends React.PureComponent<Props> {
     );
 
     return (
-      <DropdownOverlay placement={PopupPlacement.RightTop}>
-        <div className="source-viewer-bubble-popup abs-width-400">
-          {this.props.inRemovedComponent && (
-            <Alert variant="warning">
-              {translate('duplications.dups_found_on_deleted_resource')}
-            </Alert>
-          )}
-          {duplications.length > 0 && (
-            <>
-              <h6 className="spacer-bottom">
-                {translate('component_viewer.transition.duplication')}
-              </h6>
-              {duplications.map(duplication => (
-                <div className="spacer-top text-ellipsis" key={duplication.file.key}>
-                  <div className="component-name">
-                    {this.isDifferentComponent(duplication.file, this.props.sourceViewerFile) && (
-                      <>
+      <div className="source-viewer-bubble-popup abs-width-400">
+        {this.props.inRemovedComponent && (
+          <Alert variant="warning">
+            {translate('duplications.dups_found_on_deleted_resource')}
+          </Alert>
+        )}
+        {duplications.length > 0 && (
+          <>
+            <h6 className="spacer-bottom">
+              {translate('component_viewer.transition.duplication')}
+            </h6>
+            {duplications.map(duplication => (
+              <div className="spacer-top text-ellipsis" key={duplication.file.key}>
+                <div className="component-name">
+                  {this.isDifferentComponent(duplication.file, this.props.sourceViewerFile) && (
+                    <>
+                      <div className="component-name-parent">
+                        <QualifierIcon className="little-spacer-right" qualifier="TRK" />
+                        <Link to={getProjectUrl(duplication.file.project)}>
+                          {duplication.file.projectName}
+                        </Link>
+                      </div>
+                      {duplication.file.subProject && duplication.file.subProjectName && (
                         <div className="component-name-parent">
-                          <QualifierIcon className="little-spacer-right" qualifier="TRK" />
-                          <Link to={getProjectUrl(duplication.file.project)}>
-                            {duplication.file.projectName}
-                          </Link>
+                          <QualifierIcon className="little-spacer-right" qualifier="BRC" />
+                          {duplication.file.subProjectName}
                         </div>
-                        {duplication.file.subProject && duplication.file.subProjectName && (
-                          <div className="component-name-parent">
-                            <QualifierIcon className="little-spacer-right" qualifier="BRC" />
-                            {duplication.file.subProjectName}
-                          </div>
-                        )}
-                      </>
-                    )}
+                      )}
+                    </>
+                  )}
 
-                    {duplication.file.key !== this.props.sourceViewerFile.key && (
-                      <div className="component-name-path">
+                  {duplication.file.key !== this.props.sourceViewerFile.key && (
+                    <div className="component-name-path">
+                      {this.renderDuplication(
+                        duplication.file,
+                        <>
+                          <span>{collapsedDirFromPath(duplication.file.name)}</span>
+                          <span className="component-name-file">
+                            {fileFromPath(duplication.file.name)}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="component-name-path">
+                    {'Lines: '}
+                    {duplication.blocks.map((block, index) => (
+                      <React.Fragment key={index}>
                         {this.renderDuplication(
                           duplication.file,
                           <>
-                            <span>{collapsedDirFromPath(duplication.file.name)}</span>
-                            <span className="component-name-file">
-                              {fileFromPath(duplication.file.name)}
-                            </span>
-                          </>
+                            {block.from}
+                            {' – '}
+                            {block.from + block.size - 1}
+                          </>,
+                          block.from
                         )}
-                      </div>
-                    )}
-
-                    <div className="component-name-path">
-                      {'Lines: '}
-                      {duplication.blocks.map((block, index) => (
-                        <React.Fragment key={index}>
-                          {this.renderDuplication(
-                            duplication.file,
-                            <>
-                              {block.from}
-                              {' – '}
-                              {block.from + block.size - 1}
-                            </>,
-                            block.from
-                          )}
-                          {index < duplication.blocks.length - 1 && ', '}
-                        </React.Fragment>
-                      ))}
-                    </div>
+                        {index < duplication.blocks.length - 1 && ', '}
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </>
-          )}
-        </div>
-      </DropdownOverlay>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
     );
   }
 }

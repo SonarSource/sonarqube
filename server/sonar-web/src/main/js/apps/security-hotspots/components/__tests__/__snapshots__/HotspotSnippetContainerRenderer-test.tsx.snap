@@ -135,7 +135,6 @@ exports[`should render correctly: with sourcelines 1`] = `
         displaySCM={false}
         expandBlock={[Function]}
         handleCloseIssues={[Function]}
-        handleLinePopupToggle={[MockFunction]}
         handleOpenIssues={[Function]}
         handleSymbolClick={[MockFunction]}
         highlightedSymbols={Array []}
@@ -241,7 +240,6 @@ exports[`should render correctly: with sourcelines 1`] = `
         }
         issuesByLine={Object {}}
         lastSnippetOfLastGroup={false}
-        loadDuplications={[Function]}
         locations={Array []}
         locationsByLine={Object {}}
         onIssueChange={[Function]}

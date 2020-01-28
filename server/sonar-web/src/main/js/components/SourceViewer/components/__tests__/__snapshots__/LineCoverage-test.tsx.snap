@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`render covered line 1`] = `
+exports[`should render correctly: covered 1`] = `
 <td
   className="source-meta source-line-coverage source-line-covered"
   data-line-number={3}
@@ -10,13 +10,14 @@ exports[`render covered line 1`] = `
     placement="right"
   >
     <div
+      aria-label="source_viewer.tooltip.covered"
       className="source-line-bar"
     />
   </Tooltip>
 </td>
 `;
 
-exports[`render line with unknown coverage 1`] = `
+exports[`should render correctly: no data 1`] = `
 <td
   className="source-meta source-line-coverage"
   data-line-number={3}
@@ -31,7 +32,41 @@ exports[`render line with unknown coverage 1`] = `
 </td>
 `;
 
-exports[`render uncovered line 1`] = `
+exports[`should render correctly: partially covered, 0 conditions 1`] = `
+<td
+  className="source-meta source-line-coverage source-line-partially-covered"
+  data-line-number={3}
+>
+  <Tooltip
+    overlay="source_viewer.tooltip.partially-covered"
+    placement="right"
+  >
+    <div
+      aria-label="source_viewer.tooltip.partially-covered"
+      className="source-line-bar"
+    />
+  </Tooltip>
+</td>
+`;
+
+exports[`should render correctly: partially covered, 10 conditions 1`] = `
+<td
+  className="source-meta source-line-coverage source-line-partially-covered"
+  data-line-number={3}
+>
+  <Tooltip
+    overlay="source_viewer.tooltip.partially-covered"
+    placement="right"
+  >
+    <div
+      aria-label="source_viewer.tooltip.partially-covered"
+      className="source-line-bar"
+    />
+  </Tooltip>
+</td>
+`;
+
+exports[`should render correctly: uncovered 1`] = `
 <td
   className="source-meta source-line-coverage source-line-uncovered"
   data-line-number={3}
@@ -41,6 +76,7 @@ exports[`render uncovered line 1`] = `
     placement="right"
   >
     <div
+      aria-label="source_viewer.tooltip.uncovered"
       className="source-line-bar"
     />
   </Tooltip>

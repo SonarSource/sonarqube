@@ -18,54 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Toggler from 'sonar-ui-common/components/controls/Toggler';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import SCMPopup from './SCMPopup';
 
-interface Props {
+export interface LineSCMProps {
   line: T.SourceLine;
-  onPopupToggle: (linePopup: T.LinePopup) => void;
-  popupOpen: boolean;
   previousLine: T.SourceLine | undefined;
 }
 
-export default class LineSCM extends React.PureComponent<Props> {
-  handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.currentTarget.blur();
-    this.props.onPopupToggle({ line: this.props.line.line, name: 'scm' });
-  };
+export function LineSCM({ line, previousLine }: LineSCMProps) {
+  const hasPopup = !!line.line;
+  const cell = (
+    <div className="source-line-scm-inner">
+      {isSCMChanged(line, previousLine) ? line.scmAuthor || '…' : ' '}
+    </div>
+  );
 
-  handleTogglePopup = (open: boolean) => {
-    this.props.onPopupToggle({ line: this.props.line.line, name: 'scm', open });
-  };
+  if (hasPopup) {
+    let ariaLabel = translate('source_viewer.click_for_scm_info');
+    if (line.scmAuthor) {
+      ariaLabel = `${translateWithParameters(
+        'source_viewer.author_X',
+        line.scmAuthor
+      )}, ${ariaLabel}`;
+    }
 
-  closePopup = () => {
-    this.handleTogglePopup(false);
-  };
-
-  render() {
-    const { line, popupOpen, previousLine } = this.props;
-    const hasPopup = !!line.line;
-    const cell = isSCMChanged(line, previousLine) && (
-      <div className="source-line-scm-inner" data-author={line.scmAuthor || '…'} />
-    );
-    return hasPopup ? (
-      <td
-        className="source-meta source-line-scm"
-        data-line-number={line.line}
-        onClick={this.handleClick}
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
-        role="button"
-        tabIndex={0}>
-        <Toggler
-          onRequestClose={this.closePopup}
-          open={popupOpen}
-          overlay={<SCMPopup line={line} />}>
-          {cell}
-        </Toggler>
+    return (
+      <td className="source-meta source-line-scm" data-line-number={line.line}>
+        <Dropdown overlay={<SCMPopup line={line} />} overlayPlacement={PopupPlacement.RightTop}>
+          <div aria-label={ariaLabel} role="button">
+            {cell}
+          </div>
+        </Dropdown>
       </td>
-    ) : (
+    );
+  } else {
+    return (
       <td className="source-meta source-line-scm" data-line-number={line.line}>
         {cell}
       </td>
@@ -80,3 +70,5 @@ function isSCMChanged(s: T.SourceLine, p: T.SourceLine | undefined) {
   }
   return changed;
 }
+
+export default React.memo(LineSCM);

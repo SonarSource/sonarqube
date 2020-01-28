@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import * as React from 'react';
 import { getSources } from '../../../api/components';
 import getCoverageStatus from '../../../components/SourceViewer/helpers/getCoverageStatus';
@@ -43,12 +42,10 @@ interface Props {
   issuePopup?: { issue: string; name: string };
   issuesByLine: T.IssuesByLine;
   lastSnippetGroup: boolean;
-  linePopup?: T.LinePopup;
   loadDuplications: (component: string, line: T.SourceLine) => void;
   locations: T.FlowLocation[];
   onIssueChange: (issue: T.Issue) => void;
   onIssuePopupToggle: (issue: string, popupName: string, open?: boolean) => void;
-  onLinePopupToggle: (linePopup: T.LinePopup & { component: string }) => void;
   onLocationSelect: (index: number) => void;
   renderDuplicationPopup: (
     component: T.SourceViewerFile,
@@ -273,13 +270,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
     );
   };
 
-  handleLinePopupToggle = (linePopup: T.LinePopup) => {
-    this.props.onLinePopupToggle({
-      ...linePopup,
-      component: this.props.snippetGroup.component.key
-    });
-  };
-
   handleOpenIssues = (line: T.SourceLine) => {
     this.setState(state => ({
       openIssuesByLine: { ...state.openIssuesByLine, [line.line]: true }
@@ -326,9 +316,10 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       <SnippetViewer
         branchLike={this.props.branchLike}
         component={this.props.snippetGroup.component}
+        duplications={this.props.duplications}
+        duplicationsByLine={this.props.duplicationsByLine}
         expandBlock={this.expandBlock}
         handleCloseIssues={this.handleCloseIssues}
-        handleLinePopupToggle={this.handleLinePopupToggle}
         handleOpenIssues={this.handleOpenIssues}
         handleSymbolClick={this.handleSymbolClick}
         highlightedLocationMessage={this.props.highlightedLocationMessage}
@@ -338,7 +329,6 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
         issuePopup={this.props.issuePopup}
         issuesByLine={issuesByLine}
         lastSnippetOfLastGroup={lastSnippetOfLastGroup}
-        linePopup={this.props.linePopup}
         loadDuplications={this.loadDuplications}
         locations={this.props.locations}
         locationsByLine={locationsByLine}
@@ -354,14 +344,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
   }
 
   render() {
-    const {
-      branchLike,
-      duplications,
-      issue,
-      issuesByLine,
-      lastSnippetGroup,
-      snippetGroup
-    } = this.props;
+    const { branchLike, issue, issuesByLine, lastSnippetGroup, snippetGroup } = this.props;
     const { additionalLines, loading, snippets } = this.state;
     const locations =
       issue.component === snippetGroup.component.key ? locationsByLine([issue]) : {};
@@ -382,11 +365,7 @@ export default class ComponentSourceSnippetGroupViewer extends React.PureCompone
       isFlow ? lastSnippetGroup && snippetIndex === snippets.length - 1 : snippetIndex === 0;
 
     return (
-      <div
-        className={classNames('component-source-container', {
-          'source-duplications-expanded': duplications && duplications.length > 0
-        })}
-        ref={this.rootNodeRef}>
+      <div className="component-source-container" ref={this.rootNodeRef}>
         <SourceViewerHeaderSlim
           branchLike={branchLike}
           expandable={!fullyShown}

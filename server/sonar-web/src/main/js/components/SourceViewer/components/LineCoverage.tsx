@@ -21,18 +21,20 @@ import * as React from 'react';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 
-interface Props {
+export interface LineCoverageProps {
   line: T.SourceLine;
 }
 
-export default function LineCoverage({ line }: Props) {
+export function LineCoverage({ line }: LineCoverageProps) {
   const className =
     'source-meta source-line-coverage' +
     (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
+  const status = getStatusTooltip(line);
+
   return (
     <td className={className} data-line-number={line.line}>
-      <Tooltip overlay={getStatusTooltip(line)} placement="right">
-        <div className="source-line-bar" />
+      <Tooltip overlay={status} placement="right">
+        <div aria-label={status} className="source-line-bar" />
       </Tooltip>
     </td>
   );
@@ -64,3 +66,5 @@ function getStatusTooltip(line: T.SourceLine) {
   }
   return undefined;
 }
+
+export default React.memo(LineCoverage);

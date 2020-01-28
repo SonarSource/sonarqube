@@ -87,27 +87,6 @@ it('should handle issue popup', () => {
   expect(wrapper.state('issuePopup')).toBeUndefined();
 });
 
-it('should handle line popup', async () => {
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  const linePopup = { component: 'foo', index: 0, line: 16, name: 'b.tsx' };
-  wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('onLinePopupToggle')(linePopup);
-  expect(wrapper.state('linePopup')).toEqual(linePopup);
-
-  wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('onLinePopupToggle')(linePopup);
-  expect(wrapper.state('linePopup')).toBeUndefined();
-
-  const openLinePopup = { ...linePopup, open: true };
-  wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('onLinePopupToggle')(
-    openLinePopup
-  );
-  wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('onLinePopupToggle')(
-    openLinePopup
-  );
-  expect(wrapper.state('linePopup')).toEqual(linePopup);
-});
-
 it('should handle duplication popup', async () => {
   const files = { b: { key: 'b', name: 'B.tsx', project: 'foo', projectName: 'Foo' } };
   const duplications = [{ blocks: [{ _ref: '1', from: 1, size: 2 }] }];
@@ -126,12 +105,6 @@ it('should handle duplication popup', async () => {
   expect(wrapper.state('duplicatedFiles')).toEqual(files);
   expect(wrapper.state('duplications')).toEqual(duplications);
   expect(wrapper.state('duplicationsByLine')).toEqual({ '1': [0], '2': [0] });
-  expect(wrapper.state('linePopup')).toEqual({
-    component: 'foo',
-    index: 0,
-    line: 16,
-    name: 'duplications'
-  });
 
   expect(
     wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('renderDuplicationPopup')(

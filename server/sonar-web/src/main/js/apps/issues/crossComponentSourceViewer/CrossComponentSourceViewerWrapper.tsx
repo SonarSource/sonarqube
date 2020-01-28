@@ -60,7 +60,6 @@ interface State {
   duplications?: T.Duplication[];
   duplicationsByLine: { [line: number]: number[] };
   issuePopup?: { issue: string; name: string };
-  linePopup?: T.LinePopup & { component: string };
   loading: boolean;
   notAccessible: boolean;
 }
@@ -89,22 +88,18 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
     this.mounted = false;
   }
 
-  fetchDuplications = (component: string, line: T.SourceLine) => {
+  fetchDuplications = (component: string) => {
     getDuplications({
       key: component,
       ...getBranchLikeQuery(this.props.branchLike)
     }).then(
       r => {
         if (this.mounted) {
-          this.setState(state => ({
+          this.setState({
             duplicatedFiles: r.files,
             duplications: r.duplications,
-            duplicationsByLine: getDuplicationsByLine(r.duplications),
-            linePopup:
-              r.duplications.length === 1
-                ? { component, index: 0, line: line.line, name: 'duplications' }
-                : state.linePopup
-          }));
+            duplicationsByLine: getDuplicationsByLine(r.duplications)
+          });
         }
       },
       () => {}
@@ -119,7 +114,6 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
           this.setState({
             components,
             issuePopup: undefined,
-            linePopup: undefined,
             loading: false
           });
           if (this.props.onLoaded) {
@@ -151,33 +145,6 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
     });
   };
 
-  handleLinePopupToggle = ({
-    component,
-    index,
-    line,
-    name,
-    open
-  }: T.LinePopup & { component: string }) => {
-    this.setState((state: State) => {
-      const samePopup =
-        state.linePopup !== undefined &&
-        state.linePopup.line === line &&
-        state.linePopup.name === name &&
-        state.linePopup.component === component &&
-        state.linePopup.index === index;
-      if (open !== false && !samePopup) {
-        return { linePopup: { component, index, line, name } };
-      } else if (open !== true && samePopup) {
-        return { linePopup: undefined };
-      }
-      return null;
-    });
-  };
-
-  handleCloseLinePopup = () => {
-    this.setState({ linePopup: undefined });
-  };
-
   renderDuplicationPopup = (component: T.SourceViewerFile, index: number, line: number) => {
     const { duplicatedFiles, duplications } = this.state;
 
@@ -195,7 +162,6 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
             branchLike={this.props.branchLike}
             duplicatedFiles={duplicatedFiles}
             inRemovedComponent={isDuplicationBlockInRemovedComponent(blocks)}
-            onClose={this.handleCloseLinePopup}
             openComponent={openComponent}
             sourceViewerFile={component}
           />
@@ -224,21 +190,13 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
     }
 
     const { issue, locations } = this.props;
-    const { components, duplications, duplicationsByLine, linePopup } = this.state;
+    const { components, duplications, duplicationsByLine } = this.state;
     const issuesByComponent = issuesByComponentAndLine(this.props.issues);
     const locationsByComponent = groupLocationsByComponent(issue, locations, components);
 
     return (
       <div>
         {locationsByComponent.map((snippetGroup, i) => {
-          let componentProps = {};
-          if (linePopup && snippetGroup.component.key === linePopup.component) {
-            componentProps = {
-              duplications,
-              duplicationsByLine,
-              linePopup: { index: linePopup.index, line: linePopup.line, name: linePopup.name }
-            };
-          }
           return (
             <SourceViewerContext.Provider
               // eslint-disable-next-line react/no-array-index-key
@@ -246,6 +204,8 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
               value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}>
               <ComponentSourceSnippetGroupViewer
                 branchLike={this.props.branchLike}
+                duplications={duplications}
+                duplicationsByLine={duplicationsByLine}
                 highlightedLocationMessage={this.props.highlightedLocationMessage}
                 issue={issue}
                 issuePopup={this.state.issuePopup}
@@ -255,12 +215,10 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
                 locations={snippetGroup.locations || []}
                 onIssueChange={this.props.onIssueChange}
                 onIssuePopupToggle={this.handleIssuePopupToggle}
-                onLinePopupToggle={this.handleLinePopupToggle}
                 onLocationSelect={this.props.onLocationSelect}
                 renderDuplicationPopup={this.renderDuplicationPopup}
                 scroll={this.props.scroll}
                 snippetGroup={snippetGroup}
-                {...componentProps}
               />
             </SourceViewerContext.Provider>
           );

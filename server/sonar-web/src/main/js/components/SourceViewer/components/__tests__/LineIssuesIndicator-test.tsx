@@ -21,29 +21,30 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import { mockIssue } from '../../../../helpers/testMocks';
-import LineIssuesIndicator from '../LineIssuesIndicator';
+import { LineIssuesIndicator, LineIssuesIndicatorProps } from '../LineIssuesIndicator';
 
 it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(
+    shallowRender({
+      issues: [
+        mockIssue(false, { key: 'foo', type: 'VULNERABILITY' }),
+        mockIssue(false, { key: 'bar', type: 'SECURITY_HOTSPOT' })
+      ]
+    })
+  ).toMatchSnapshot('diff issue types');
+  expect(shallowRender({ issues: [] })).toMatchSnapshot('no issues');
+});
+
+it('should correctly handle click', () => {
   const onClick = jest.fn();
   const wrapper = shallowRender({ onClick });
-  expect(wrapper).toMatchSnapshot();
 
-  click(wrapper);
+  click(wrapper.find('span[role="button"]'));
   expect(onClick).toHaveBeenCalled();
-
-  const nextIssues = [
-    mockIssue(false, { key: 'foo', type: 'VULNERABILITY' }),
-    mockIssue(false, { key: 'bar', type: 'SECURITY_HOTSPOT' })
-  ];
-  wrapper.setProps({ issues: nextIssues });
-  expect(wrapper).toMatchSnapshot();
 });
 
-it('should render correctly for no issues', () => {
-  expect(shallowRender({ issues: [] })).toMatchSnapshot();
-});
-
-function shallowRender(props: Partial<LineIssuesIndicator['props']> = {}) {
+function shallowRender(props: Partial<LineIssuesIndicatorProps> = {}) {
   return shallow(
     <LineIssuesIndicator
       issues={[

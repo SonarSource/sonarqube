@@ -5,7 +5,7 @@ exports[`should render correctly 1`] = `
   className="source-line source-line-filtered"
   data-line-number={16}
 >
-  <LineNumber
+  <Memo(LineNumber)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -19,10 +19,8 @@ exports[`should render correctly 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
-  <LineSCM
+  <Memo(LineSCM)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -36,8 +34,6 @@ exports[`should render correctly 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
   <td
     className="source-meta source-line-issues"
@@ -151,7 +147,7 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
   className="source-line source-line-highlighted source-line-filtered source-line-last"
   data-line-number={16}
 >
-  <LineNumber
+  <Memo(LineNumber)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -165,10 +161,8 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
-  <LineSCM
+  <Memo(LineSCM)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -182,8 +176,6 @@ exports[`should render correctly for last, new, and highlighted lines 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
   <td
     className="source-meta source-line-issues"
@@ -297,7 +289,7 @@ exports[`should render correctly with coverage 1`] = `
   className="source-line source-line-filtered"
   data-line-number={16}
 >
-  <LineNumber
+  <Memo(LineNumber)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -311,10 +303,8 @@ exports[`should render correctly with coverage 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
-  <LineSCM
+  <Memo(LineSCM)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -328,13 +318,11 @@ exports[`should render correctly with coverage 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
   <td
     className="source-meta source-line-issues"
   />
-  <LineCoverage
+  <Memo(LineCoverage)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -458,7 +446,7 @@ exports[`should render correctly with duplication information 1`] = `
   className="source-line source-line-filtered"
   data-line-number={16}
 >
-  <LineNumber
+  <Memo(LineNumber)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -472,10 +460,8 @@ exports[`should render correctly with duplication information 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
-  <LineSCM
+  <Memo(LineSCM)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -489,29 +475,12 @@ exports[`should render correctly with duplication information 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
   <td
     className="source-meta source-line-issues"
   />
-  <LineDuplications
-    line={
-      Object {
-        "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
-        "coverageStatus": "covered",
-        "coveredConditions": 2,
-        "duplicated": false,
-        "isNew": true,
-        "line": 16,
-        "scmAuthor": "simon.brandhof@sonarsource.com",
-        "scmDate": "2018-12-11T10:48:39+0100",
-        "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
-      }
-    }
-    onClick={[MockFunction]}
-  />
-  <LineDuplicationBlock
+  <Memo(LineDuplicationBlock)
+    blocksLoaded={true}
     duplicated={false}
     index={0}
     key="0"
@@ -528,11 +497,11 @@ exports[`should render correctly with duplication information 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
+    onClick={[MockFunction]}
     renderDuplicationPopup={[MockFunction]}
   />
-  <LineDuplicationBlock
+  <Memo(LineDuplicationBlock)
+    blocksLoaded={true}
     duplicated={false}
     index={1}
     key="1"
@@ -549,11 +518,10 @@ exports[`should render correctly with duplication information 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
     renderDuplicationPopup={[MockFunction]}
   />
-  <LineDuplicationBlock
+  <Memo(LineDuplicationBlock)
+    blocksLoaded={true}
     duplicated={false}
     index={2}
     key="2"
@@ -570,8 +538,6 @@ exports[`should render correctly with duplication information 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
     renderDuplicationPopup={[MockFunction]}
   />
   <LineCode
@@ -683,7 +649,7 @@ exports[`should render correctly with issues info 1`] = `
   className="source-line source-line-filtered"
   data-line-number={16}
 >
-  <LineNumber
+  <Memo(LineNumber)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -697,10 +663,8 @@ exports[`should render correctly with issues info 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
-  <LineSCM
+  <Memo(LineSCM)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -714,10 +678,8 @@ exports[`should render correctly with issues info 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
-  <LineIssuesIndicator
+  <Memo(LineIssuesIndicator)
     issues={
       Array [
         Object {
@@ -784,6 +746,7 @@ exports[`should render correctly with issues info 1`] = `
         },
       ]
     }
+    issuesOpen={false}
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -908,7 +871,7 @@ exports[`should render correctly: no SCM 1`] = `
   className="source-line source-line-filtered"
   data-line-number={16}
 >
-  <LineNumber
+  <Memo(LineNumber)
     line={
       Object {
         "code": "<span class=\\"k\\">import</span> java.util.<span class=\\"sym-9 sym\\">ArrayList</span>;",
@@ -922,8 +885,6 @@ exports[`should render correctly: no SCM 1`] = `
         "scmRevision": "80f564becc0c0a1c9abaa006eca83a4fd278c3f0",
       }
     }
-    onPopupToggle={[MockFunction]}
-    popupOpen={false}
   />
   <td
     className="source-meta source-line-issues"

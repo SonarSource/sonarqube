@@ -31,6 +31,10 @@
   background-color: #f5f5f5;
 }
 
+.source-line [role='button'] {
+  cursor: pointer;
+}
+
 .source-line-highlighted .source-line-number,
 .source-line-highlighted:hover .source-line-number,
 .source-line-highlighted .source-line-issues,
@@ -140,20 +144,12 @@
   outline: none;
 }
 
-.source-meta[role='button'] {
-  cursor: pointer;
-}
-
 .source-line-number {
   min-width: 18px;
   padding: 0 10px;
   background-color: var(--barBackgroundColor);
   color: var(--secondFontColor);
   text-align: right;
-}
-
-.source-line-number:before {
-  content: attr(data-line-number);
 }
 
 .source-line-issues {
@@ -189,17 +185,17 @@
   display: none;
 }
 
-.source-duplications-expanded .source-line-duplications {
-  display: none;
-}
-
-.source-duplications-expanded .source-line-duplications-extra {
-  display: table-cell;
-}
-
 .source-line-scm {
   padding: 0 5px;
   background-color: var(--barBackgroundColor);
+}
+
+.source-line-scm .dropdown {
+  display: block;
+}
+
+.source-line-scm [role='button'] {
+  height: 18px;
 }
 
 .source-line-scm-inner {
@@ -209,17 +205,9 @@
   white-space: nowrap;
 }
 
-.source-line-scm-inner:before {
-  content: attr(data-author);
-}
-
 .source-line-bar {
   width: 5px;
   height: 18px;
-}
-
-.source-line-bar[role='button'] {
-  cursor: pointer;
 }
 
 .source-line-bar:focus {

@@ -155,32 +155,6 @@ describe('Expansion', () => {
   });
 });
 
-it('should handle line popups', async () => {
-  (getSources as jest.Mock).mockResolvedValueOnce(
-    range(5, 18).map(line => mockSourceLine({ line }))
-  );
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-
-  const params = wrapper.state().sourceLines[0];
-
-  wrapper
-    .find(HotspotSnippetContainerRenderer)
-    .props()
-    .onLinePopupToggle(params);
-
-  expect(wrapper.state().linePopup).toEqual(params);
-
-  // Close it
-  wrapper
-    .find(HotspotSnippetContainerRenderer)
-    .props()
-    .onLinePopupToggle(params);
-
-  expect(wrapper.state().linePopup).toBeUndefined();
-});
-
 it('should handle symbol click', () => {
   const wrapper = shallowRender();
   const symbols = ['symbol'];

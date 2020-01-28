@@ -17,11 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable sonarjs/no-duplicate-string */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SCMPopup from '../SCMPopup';
+import { SCMPopup, SCMPopupProps } from '../SCMPopup';
 
-it('should render', () => {
-  const line = { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' };
-  expect(shallow(<SCMPopup line={line} />)).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(
+    shallowRender({ line: { line: 3, scmDate: '2017-01-01', scmRevision: 'bar' } })
+  ).toMatchSnapshot('no author');
+  expect(
+    shallowRender({ line: { line: 3, scmAuthor: 'foo', scmRevision: 'bar' } })
+  ).toMatchSnapshot('no date');
+  expect(
+    shallowRender({ line: { line: 3, scmAuthor: 'foo', scmDate: '2017-01-01' } })
+  ).toMatchSnapshot('no revision');
 });
+
+function shallowRender(props: Partial<SCMPopupProps> = {}) {
+  return shallow(
+    <SCMPopup
+      line={{ line: 3, scmAuthor: 'foo', scmDate: '2017-01-01', scmRevision: 'bar' }}
+      {...props}
+    />
+  );
+}

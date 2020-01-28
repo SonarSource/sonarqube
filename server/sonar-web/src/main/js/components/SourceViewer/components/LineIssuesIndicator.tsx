@@ -20,38 +20,44 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import IssueIcon from 'sonar-ui-common/components/icons/IssueIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { sortByType } from '../../../helpers/issues';
 
-interface Props {
+export interface LineIssuesIndicatorProps {
   issues: T.Issue[];
+  issuesOpen?: boolean;
   line: T.SourceLine;
   onClick: () => void;
 }
 
-export default class LineIssuesIndicator extends React.PureComponent<Props> {
-  handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.onClick();
+export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
+  const { issues, issuesOpen, line } = props;
+  const hasIssues = issues.length > 0;
+  const className = classNames('source-meta', 'source-line-issues', {
+    'source-line-with-issues': hasIssues
+  });
+  const mostImportantIssue = hasIssues ? sortByType(issues)[0] : null;
+
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.currentTarget.blur();
+    props.onClick();
   };
 
-  render() {
-    const { issues, line } = this.props;
-    const hasIssues = issues.length > 0;
-    const className = classNames('source-meta', 'source-line-issues', {
-      'source-line-with-issues': hasIssues
-    });
-    const mostImportantIssue = hasIssues ? sortByType(issues)[0] : null;
-
-    return (
-      <td
-        className={className}
-        data-line-number={line.line}
-        onClick={hasIssues ? this.handleClick : undefined}
-        role={hasIssues ? 'button' : undefined}
-        tabIndex={hasIssues ? 0 : undefined}>
-        {mostImportantIssue != null && <IssueIcon type={mostImportantIssue.type} />}
-        {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
-      </td>
-    );
-  }
+  return (
+    <td className={className} data-line-number={line.line}>
+      {hasIssues && (
+        <span
+          aria-label={translate('source_viewer.issues_on_line', issuesOpen ? 'hide' : 'show')}
+          onClick={handleClick}
+          role="button"
+          tabIndex={0}>
+          {mostImportantIssue != null && <IssueIcon type={mostImportantIssue.type} />}
+          {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
+        </span>
+      )}
+    </td>
+  );
 }
+
+export default React.memo(LineIssuesIndicator);

@@ -1,33 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render 1`] = `
-<DropdownOverlay
-  placement="right-top"
+exports[`should render correctly 1`] = `
+<div
+  className="source-viewer-bubble-popup nowrap"
 >
-  <div
-    className="source-viewer-bubble-popup nowrap"
-  >
-    <Link
-      className="js-get-permalink"
-      onClick={[Function]}
-      onlyActiveOnIndex={false}
-      rel="noopener noreferrer"
-      style={Object {}}
-      target="_blank"
-      to={
-        Object {
-          "pathname": "/code",
-          "query": Object {
-            "branch": "feature",
-            "id": "prj",
-            "line": 3,
-            "selected": "foo",
-          },
-        }
+  <Link
+    className="js-get-permalink"
+    onlyActiveOnIndex={false}
+    rel="noopener noreferrer"
+    style={Object {}}
+    target="_blank"
+    to={
+      Object {
+        "pathname": "/code",
+        "query": Object {
+          "branch": "feature",
+          "id": "prj",
+          "line": 3,
+          "selected": "foo",
+        },
       }
-    >
-      component_viewer.get_permalink
-    </Link>
-  </div>
-</DropdownOverlay>
+    }
+  >
+    component_viewer.get_permalink
+  </Link>
+</div>
 `;
