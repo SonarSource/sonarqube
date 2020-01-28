@@ -2,58 +2,37 @@
 title: Security-related Rules
 url: /user-guide/security-rules/
 ---
-The {instance} Quality Model has three different types of rules: Reliability (bug), Vulnerability (security), and Maintainability (code smell) rules. But divided another way, there are only two types: security rules, and all the rest. The distinction between these two groups is not so much in what they catch but in where they come from and in the standards imposed on them.
+The {instance} Quality Model has four different types of rules: Reliability (bug), Maintainability (code smell), Security (vulnerability and hotspot) rules. There are a lot of expectations about security, so below we explain some key concepts and how the security rules differ from others.
 
 ## What to expect from security-related rules
-To be clear, the standard for most rules implemented in {instance} language plugins is very strict: no false positives. For normal rules, you should be able to be confident that whatever is reported to you as an issue really is an issue.
+As with other types of rules, we try to raise no false positives: you should be confident that anything reported to you as an issue is really an issue.
 
-But for security-related rules, the story is a little different. For instance, a lot of security guidelines talk about how "sensitive" data should be handled (e.g. not logged, not stored un-encrypted, &etc.). But since it's not really possible in a rule to tell which data is sensitive and which isn't, the choice becomes: maintain the no-false-positives standard and don't implement security-related rules, or implement security-related rules with a different standard.
+Under the hood SonarQube is based on different representations of the source code and technologies in order to be able to detect any kind of security issue:
+* **Security-injection rules**: there is a vulnerability here when the inputs handled by your application are controlled by a user (potentially an attacker) and not validated or sanitized, when this occurs, the flow from sources (user-controlled inputs) to sinks (sensitive functions) will be presented. To do this, SonarQube uses well-known taint analysis technology on source code which allows, for example, the detection of:
+  * [CWE-89](https://cwe.mitre.org/data/definitions/89.html): SQL Injection
+  * [CWE-79](https://cwe.mitre.org/data/definitions/79.html): Cross-site Scripting
+  * [CWE-94](https://cwe.mitre.org/data/definitions/94.html): Code Injection
+* **Security-configuration rules**: here there is a security issue because the wrong parameter (eg: invalid cryptographic algorithm or TLS version) when calling a sensitive function has been set or when a check (eg: check_permissions() kind of function) was not done or not in the correct order, this problem is likely to appear often when the program is executed (no injected/complex attacks are required unlike in the previous category):
+  * [CWE-1004](https://cwe.mitre.org/data/definitions/1004.html): Sensitive Cookie Without 'HttpOnly' Flag
+  * [CWE-297](https://cwe.mitre.org/data/definitions/297.html): Improper Validation of Certificate with Host Mismatch
+  * [CWE-327](https://cwe.mitre.org/data/definitions/327.html): Use of a Broken or Risky Cryptographic Algorithm
 
-That's why security-related rules cast a wider net than you may be used to seeing. The idea is that the rule will flag anything suspicious, and leave it to the human security auditor to cull the false positives and sent the real issues for remediation.
+These security issues are then divided into two categories: vulnerabilities and hotspots (see the main differences on the [Security Hotspots](/user-guide/security-hotspots/) page). Security Hotspots have been introduced for security protections that have no direct impact on the overall application's security. Most injection rules are vulnerabilities, for example, if a SQL injection is found, it is certain that a fix (input validation) is required, so this is a vulnerability. On the contrary, the *httpOnly* flag when creating a cookie is an additional protection desired (to reduce the impact when XSS vulnerabilities appear) but not always possible to implement or relevant depending on the context of the application, so it's a hotspot. 
 
-Security Hotspots are a special type of issue that identify sensitive areas of code that need to be reviewed to determine if they contain vulnerable code.  See [Security Hotspots](/user-guide/security-hotspots/) for more information.
+With Hotspots, we want to help developers understand information security risks, threats, impacts, root causes of security issues, and the choice of relevant software protections. In short, we really want to educate developers and help them develop secure, ethical, and privacy-friendly applications.
 
-## Where security-related rules come from
-The vast majority of security-related rules originate from established standards: [CWE](http://cwe.mitre.org/), [SANS Top 25](http://www.sans.org/top25-software-errors/), and [OWASP Top 10](https://www.owasp.org/index.php/Top_10-2017_Top_10). To find rules that relate to any of these standards, you can search rules either by tag or by text. The standards that a rule relates to will be listed in the **See** section at the bottom of the rule description. 
+## Which security-standards are covered?
+Our security rules are classified according to well-established security-standards such as:
+* [CWE](https://cwe.mitre.org/): SonarQube is a CWE compatible product [since 2015](https://cwe.mitre.org/compatible/questionnaires/33.html).
+* [SANS Top 25](https://www.sans.org/top25-software-errors/)
+* [OWASP Top 10 ](https://www.owasp.org/index.php/Top_10-2017_Top_10)
 
-### CWE
-CWE stands for Common Weakness Enumeration. According to the [CWE FAQ](http://cwe.mitre.org/about/faq.html#A.1):
+The standards to which a rule relates will be listed in the **See** section at the bottom of the rule description. More generally, you can search for a rule on [rules.sonarsource.com](https://rules.sonarsource.com/):
+* [Java-vulnerability-issue-type](https://rules.sonarsource.com/java/type/Vulnerability): all vulnerability rules for Java language.
+* [Java-hotspots-issue-type](https://rules.sonarsource.com/java/type/Security%20Hotspot): all security-hotspot rules for Java language.
+* [Java-tag-injection](https://rules.sonarsource.com/java/tag/injection): all security-injection rules for Java language.
 
-> Common Weakness Enumeration (CWE™) is a formal list or dictionary of common software weaknesses that can occur in software's architecture, design, code or implementation that can lead to exploitable security vulnerabilities. CWE was created to serve as a common language for describing software security weaknesses; serve as a standard measuring stick for software security tools targeting these weaknesses; and to provide a common baseline standard for weakness identification, mitigation, and prevention efforts.
+## How to propose new security-rules?
+Security is a lively world where new types of attacks and vulnerabilities appear very often, so we welcome any suggestions for new security-rules. You can read the [adding coding rules](/extend/adding-coding-rules/) page to see how to develop a new rule or propose a new one [on our community forum](https://community.sonarsource.com/c/suggestions/rules/13).
 
-The CWE is a hierarchy of weakness descriptions. The lowest level in the hierarchy is a "Weakness Base", which describes a granular weakness. Above Weakness Bases, are Weakness Classes and Categories. In general, rules are linked to Weakness Bases or Classes. 
-
-Tools which meet certain requirements can be certified as [CWE Compatible](http://cwe.mitre.org/compatible/). Those requirements are:
-
-* You must be able to search for CWE-related rules using a CWE identifier. To do so in the {instance} platform, simply drop the CWE identifier (e.g. CWE-595) in the search text input on the rules page and run the search.
-* Rules must be accurately linked to their related CWE items. To see the CWE mapping for a {instance} rule, consult the rule's See section at the bottom of the rule description.
-* You must be able to identify the relevant CWE from an Issue. To do so in the {instance} platform, consult the related rule.
-* The product documentation must include a description of CWE and CWE Compatibility.
-* The version of CWE supported must be listed. The {instance} language plugins support version 2.8.
-* In addition to searching rules by CWE id's, you can also search by the "cwe" rule tag.
-
-To see which CWE items are covered for a language, consult the links below.
-
-* [C](https://rules.sonarsource.com/c/tag/cwe)/[C++](https://rules.sonarsource.com/cpp/tag/cwe)
-* [Java](https://rules.sonarsource.com/java/tag/cwe) 
-* [Objective-C](https://rules.sonarsource.com/objective-c/tag/cwe)
- 
-
-### SANS Top 25
-
-The [SANS Top 25](http://www.sans.org/top25-software-errors/) list is a collection of the 25-most dangerous errors listed in the CWE, as compiled by the [SANS organization](http://www.sans.org/). The current SANS list is divided into three categories: Insecure Interaction Between Components, Risky Resource Management, and Porous Defenses.
-
-The tags used for SANS correspond to its categories: sans-top25-insecure, sans-top25-risky, sans-top25-porous.
-
-To find rules relating to SANS Top 25, you can perform a text search for the category, or the relevant CWE item, or perform a rule tag search.
-
-### OWASP Top 10
-OWASP stands for Open Web Application Security Project. According to its site, it is:
-
-> A [501(c)(3)](http://www.irs.gov/Charities-&-Non-Profits/Charitable-Organizations/Exemption-Requirements-Section-501(c)(3)-Organizations) worldwide not-for-profit charitable organization focused on improving the security of software. Our mission is to make software security [visible](https://www.owasp.org/index.php/Category:OWASP_Video), so that [individuals and organizations](https://www.owasp.org/index.php/Industry:Citations) worldwide can make informed decisions about true software security risks.
-
-The [OWASP Top 10](https://www.owasp.org/index.php/Top_10-2017_Top_10) is a list of broad categories of weaknesses, each of which can map to many individual rules.
-
-The tags used for OWASP correspond to the weakness categories: owasp-a1, owasp-a2, owasp-a3, owasp-a4, owasp-a5, owasp-a6, owasp-a7, owasp-a8, owasp-a9, owasp-a10.
-
-To find rules relating to OWASP Top 10, you can perform a text search for the category, or perform a rule tag search.
+Regarding the security-injection rules mentioned above, it's possible to [extend the taint analysis configuration](/analysis/security_configuration/) to allow the SonarQube engine to use new sources, sanitizers, validators and sinks of the homemade-frameworks that you use. Security Engine Custom Configuration is available as part of the Enterprise Edition and above.

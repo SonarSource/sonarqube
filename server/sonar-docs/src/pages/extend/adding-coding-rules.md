@@ -150,25 +150,9 @@ Now that you've fleshed out the description, you should have a fairly clear idea
 
 Sometimes the line between Bug and Code Smell is fuzzy. When in doubt, ask yourself: "Is code that breaks this rule doing what the programmer probably intended?" If the answer is "probably not" then it's a Bug. Everything else is a Code Smell. 
 
-[[collapse]]
-| ## Vulnerability or hotspot ?
-|
-| The main difference between a hotspot and a vulnerability is the **the need of a review** before deciding whether to apply a fix:
-| 
-| * With a hotspot, a missing protection is highlighted but the overall application's security may not be impacted.
-| * With a vulnerability, something that's wrong which impacts the application's security has been discovered and therefore needs a quick fix.
-| 
-| Another way of looking at hotspots may be [the concept of defense in depth](https://en.wikipedia.org/wiki/Defense_in_depth_(computing)) in which several redundant protection layers are placed in an application so that it becomes more resilient in the event of an attack.
-| 
-| An example is the [RSPEC-2092](https://jira.sonarsource.com/browse/RSPEC-2092) where the use of *cookie secure flag* is recommended to prevent cookies from being sent over non-HTTPS connections but the developer has to do a review because:
-| * HTTPS is the main protection against MITM attacks and so the secure flag is only an additional protection in case of some failures of network security. 
-| * The cookie may be designed to be sent everywhere (non-HTTPS websites included) because it's a tracking cookie or similar.
-|
-| With hotspots we try to give some freedom to users and to educate them on how to choose the most relevant/appropriate protections depending on the context (budget, threats, etc).
-|
-| The difficulty of exploiting a weakness should not be a criterion for specifying a hotspot or a vulnerability.
-|
-| Vulnerabilities and hotspots should not overlap but can be related to the same subject, for example, with the hotspot [RSPEC-2077](https://jira.sonarsource.com/browse/RSPEC-2077) formatted SQL queries are highlighted and we recommend the use of *prepare statements* as an additional protection to prevent SQL-injection vulnerabilities ([RSPEC-3649](https://jira.sonarsource.com/browse/RSPEC-3649)).
+The main differences between vulnerabilities and hotspots are explained on the [security-hotspots](/user-guide/security-hotspots/) page. During the specification of a rule, the following guidelines might also help:
+* The difficulty of exploiting a weakness should not be a criterion for specifying a hotspot or a vulnerability.
+* Vulnerabilities and hotspots should not overlap but can be related to the same subject. For example, with the hotspot [RSPEC-2077](https://jira.sonarsource.com/browse/RSPEC-2077), formatted SQL queries are highlighted and we recommend the use of *prepare statements* as an additional protection to prevent SQL-injection vulnerabilities ([RSPEC-3649](https://jira.sonarsource.com/browse/RSPEC-3649)).
 
 
 #### Default severities
