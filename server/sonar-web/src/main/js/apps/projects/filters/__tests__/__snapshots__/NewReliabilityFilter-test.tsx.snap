@@ -7,7 +7,7 @@ exports[`renders 1`] = `
     <span
       className="note little-spacer-left"
     >
-      (
+      ( 
       <BugIcon
         className="little-spacer-right"
       />

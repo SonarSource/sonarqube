@@ -27,9 +27,6 @@ it('renders', () => {
 
   const renderOption = wrapper.prop('renderOption');
   expect(renderOption(2, false)).toMatchSnapshot();
-
-  const getFacetValueForOption = wrapper.prop('getFacetValueForOption');
-  expect(getFacetValueForOption({ ERROR: 1, OK: 3 }, 'OK')).toBe(3);
 });
 
 it('should render with warning facet', () => {

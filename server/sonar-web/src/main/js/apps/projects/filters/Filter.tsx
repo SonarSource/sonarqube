@@ -49,6 +49,8 @@ interface Props {
   footer?: React.ReactNode;
 }
 
+const defaultGetFacetValueForOption = (facet: Facet, option: string | number) => facet[option];
+
 export default class Filter extends React.PureComponent<Props> {
   isSelected(option: Option): boolean {
     const { value } = this.props;
@@ -103,7 +105,7 @@ export default class Filter extends React.PureComponent<Props> {
   }
 
   renderOption(option: Option) {
-    const { facet, getFacetValueForOption, value } = this.props;
+    const { facet, getFacetValueForOption = defaultGetFacetValueForOption, value } = this.props;
     const className = classNames(
       'facet',
       'search-navigator-facet',

@@ -2,7 +2,6 @@
 
 exports[`renders 1`] = `
 <Filter
-  getFacetValueForOption={[Function]}
   header={
     <FilterHeader
       name="metric_domain.Coverage"
@@ -13,12 +12,12 @@ exports[`renders 1`] = `
   onQueryChange={[MockFunction]}
   options={
     Array [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
+      "80.0-*",
+      "70.0-80.0",
+      "50.0-70.0",
+      "30.0-50.0",
+      "*-30.0",
+      "NO_DATA",
     ]
   }
   property="coverage"

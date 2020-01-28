@@ -40,7 +40,7 @@ export default function NewSecurityFilter(props: Props) {
       className="leak-facet-box"
       headerDetail={
         <span className="note little-spacer-left">
-          {'('}
+          {'( '}
           <VulnerabilityIcon className="little-spacer-right" />
           {translate('metric.vulnerabilities.name')}
           {' )'}

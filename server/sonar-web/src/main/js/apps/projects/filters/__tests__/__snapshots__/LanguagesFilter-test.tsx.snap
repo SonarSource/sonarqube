@@ -39,7 +39,6 @@ exports[`should render the languages facet with the selected languages 1`] = `
       }
     />
   }
-  getFacetValueForOption={[Function]}
   header={
     <FilterHeader
       name="projects.facets.languages"
@@ -229,7 +228,6 @@ exports[`should render the languages without the ones in the facet 1`] = `
       }
     />
   }
-  getFacetValueForOption={[Function]}
   header={
     <FilterHeader
       name="projects.facets.languages"

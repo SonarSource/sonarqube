@@ -20,6 +20,7 @@
 import * as React from 'react';
 import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
 import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
+import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
 import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
 import Rating from 'sonar-ui-common/components/ui/Rating';
@@ -77,6 +78,24 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
           <div className="project-card-measure-label-with-icon">
             <VulnerabilityIcon className="little-spacer-right text-bottom" />
             {translate('metric.vulnerabilities.name')}
+          </div>
+        </div>
+      </div>
+
+      <div className="project-card-measure" data-key="security_review_rating">
+        <div className="project-card-measure-inner">
+          <div className="project-card-measure-number">
+            <Measure
+              className="spacer-right"
+              metricKey="security_hotspots_reviewed"
+              metricType="PERCENT"
+              value={measures['security_hotspots_reviewed']}
+            />
+            <Rating value={measures['security_review_rating']} />
+          </div>
+          <div className="project-card-measure-label-with-icon">
+            <SecurityHotspotIcon className="little-spacer-right text-bottom" />
+            {translate('metric.security_hotspots_reviewed.extra_short_name')}
           </div>
         </div>
       </div>

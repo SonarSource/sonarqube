@@ -33,6 +33,7 @@ import NewSecurityFilter from '../filters/NewSecurityFilter';
 import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
+import SecurityReviewFilter from '../filters/SecurityReviewFilter';
 import SizeFilter from '../filters/SizeFilter';
 import TagsFilter from '../filters/TagsFilter';
 import { hasFilterParams } from '../query';
@@ -91,6 +92,13 @@ export default function PageSidebar(props: Props) {
             facet={getFacet(facets, 'security')}
             value={query.security}
           />
+
+          <SecurityReviewFilter
+            {...facetProps}
+            facet={getFacet(facets, 'security_review_rating')}
+            value={query.security_review_rating}
+          />
+
           <MaintainabilityFilter
             {...facetProps}
             facet={getFacet(facets, 'maintainability')}
@@ -120,6 +128,13 @@ export default function PageSidebar(props: Props) {
             {...facetProps}
             facet={getFacet(facets, 'new_security')}
             value={query.new_security}
+          />
+          <SecurityReviewFilter
+            {...facetProps}
+            className="leak-facet-box"
+            facet={getFacet(facets, 'new_security_review_rating')}
+            property="new_security_review_rating"
+            value={query.new_security_review_rating}
           />
           <NewMaintainabilityFilter
             {...facetProps}

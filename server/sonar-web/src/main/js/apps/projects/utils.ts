@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { uniq } from 'lodash';
+import { invert, uniq } from 'lodash';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { RequestData } from 'sonar-ui-common/helpers/request';
 import { Facet, searchProjects } from '../../api/components';
@@ -97,6 +97,8 @@ const METRICS = [
   'reliability_rating',
   'vulnerabilities',
   'security_rating',
+  'security_hotspots_reviewed',
+  'security_review_rating',
   'code_smells',
   'sqale_rating',
   'duplicated_lines_density',
@@ -111,6 +113,8 @@ const LEAK_METRICS = [
   'new_reliability_rating',
   'new_vulnerabilities',
   'new_security_rating',
+  'new_security_hotspots_reviewed',
+  'new_security_review_rating',
   'new_code_smells',
   'new_maintainability_rating',
   'new_coverage',
@@ -131,6 +135,7 @@ const METRICS_BY_VISUALIZATION: T.Dict<string[]> = {
 export const FACETS = [
   'reliability_rating',
   'security_rating',
+  'security_review_rating',
   'sqale_rating',
   'coverage',
   'duplicated_lines_density',
@@ -143,6 +148,7 @@ export const FACETS = [
 export const LEAK_FACETS = [
   'new_reliability_rating',
   'new_security_rating',
+  'new_security_review_rating',
   'new_maintainability_rating',
   'new_coverage',
   'new_duplicated_lines_density',
@@ -284,10 +290,34 @@ function mapFacetValues(values: Array<{ val: string; count: number }>) {
   return map;
 }
 
+const propertyToMetricMap: T.Dict<string | undefined> = {
+  analysis_date: 'analysisDate',
+  reliability: 'reliability_rating',
+  new_reliability: 'new_reliability_rating',
+  security: 'security_rating',
+  new_security: 'new_security_rating',
+  security_review_rating: 'security_review_rating',
+  new_security_review_rating: 'new_security_review_rating',
+  maintainability: 'sqale_rating',
+  new_maintainability: 'new_maintainability_rating',
+  coverage: 'coverage',
+  new_coverage: 'new_coverage',
+  duplications: 'duplicated_lines_density',
+  new_duplications: 'new_duplicated_lines_density',
+  size: 'ncloc',
+  new_lines: 'new_lines',
+  gate: 'alert_status',
+  languages: 'languages',
+  tags: 'tags',
+  search: 'query'
+};
+
+const metricToPropertyMap = invert(propertyToMetricMap);
+
 function getFacetsMap(facets: Facet[]) {
   const map: T.Dict<T.Dict<number>> = {};
   facets.forEach(facet => {
-    const property = mapMetricToProperty(facet.property);
+    const property = metricToPropertyMap[facet.property];
     const { values } = facet;
     if (REVERSED_FACETS.includes(property)) {
       values.reverse();
@@ -297,57 +327,11 @@ function getFacetsMap(facets: Facet[]) {
   return map;
 }
 
-function mapPropertyToMetric(property?: string) {
-  const map: T.Dict<string> = {
-    analysis_date: 'analysisDate',
-    reliability: 'reliability_rating',
-    new_reliability: 'new_reliability_rating',
-    security: 'security_rating',
-    new_security: 'new_security_rating',
-    maintainability: 'sqale_rating',
-    new_maintainability: 'new_maintainability_rating',
-    coverage: 'coverage',
-    new_coverage: 'new_coverage',
-    duplications: 'duplicated_lines_density',
-    new_duplications: 'new_duplicated_lines_density',
-    size: 'ncloc',
-    new_lines: 'new_lines',
-    gate: 'alert_status',
-    languages: 'languages',
-    tags: 'tags',
-    search: 'query'
-  };
-  return property && map[property];
-}
-
 function convertToSorting({ sort }: Query): { s?: string; asc?: boolean } {
   if (sort && sort[0] === '-') {
-    return { s: mapPropertyToMetric(sort.substr(1)), asc: false };
+    return { s: propertyToMetricMap[sort.substr(1)], asc: false };
   }
-  return { s: mapPropertyToMetric(sort) };
-}
-
-function mapMetricToProperty(metricKey: string) {
-  const map: T.Dict<string> = {
-    analysisDate: 'analysis_date',
-    reliability_rating: 'reliability',
-    new_reliability_rating: 'new_reliability',
-    security_rating: 'security',
-    new_security_rating: 'new_security',
-    sqale_rating: 'maintainability',
-    new_maintainability_rating: 'new_maintainability',
-    coverage: 'coverage',
-    new_coverage: 'new_coverage',
-    duplicated_lines_density: 'duplications',
-    new_duplicated_lines_density: 'new_duplications',
-    ncloc: 'size',
-    new_lines: 'new_lines',
-    alert_status: 'gate',
-    languages: 'languages',
-    tags: 'tags',
-    query: 'search'
-  };
-  return map[metricKey];
+  return { s: propertyToMetricMap[sort || ''] };
 }
 
 const ONE_MINUTE = 60000;

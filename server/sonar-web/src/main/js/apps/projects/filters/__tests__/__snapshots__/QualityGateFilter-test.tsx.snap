@@ -2,7 +2,6 @@
 
 exports[`renders 1`] = `
 <Filter
-  getFacetValueForOption={[Function]}
   header={
     <FilterHeader
       name="projects.facets.quality_gate"

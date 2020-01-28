@@ -1563,7 +1563,7 @@ public final class CoreMetrics {
    * @since 8.2
    */
   public static final Metric<Integer> SECURITY_HOTSPOTS_REVIEWED = new Metric.Builder(SECURITY_HOTSPOTS_REVIEWED_KEY, "Security Hotspots Reviewed", Metric.ValueType.PERCENT)
-    .setDescription("Security Hotspots Reviewed")
+    .setDescription("Percentage of Security Hotspots Reviewed")
     .setDomain(DOMAIN_SECURITY_REVIEW)
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
@@ -1581,7 +1581,7 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> NEW_SECURITY_HOTSPOTS_REVIEWED = new Metric.Builder(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, "Security Hotspots Reviewed on New Code",
     Metric.ValueType.PERCENT)
-      .setDescription("Security Hotspots Reviewed on New Code")
+      .setDescription("Percentage of Security Hotspots Reviewed on New Code")
       .setDomain(DOMAIN_SECURITY_REVIEW)
       .setDirection(Metric.DIRECTION_BETTER)
       .setDeleteHistoricalData(true)

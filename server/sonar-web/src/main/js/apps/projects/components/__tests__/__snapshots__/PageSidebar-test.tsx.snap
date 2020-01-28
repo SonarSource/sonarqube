@@ -40,6 +40,16 @@ exports[`should render \`leak\` view correctly 1`] = `
       }
     }
   />
+  <SecurityReviewFilter
+    className="leak-facet-box"
+    onQueryChange={[MockFunction]}
+    property="new_security_review_rating"
+    query={
+      Object {
+        "view": "leak",
+      }
+    }
+  />
   <NewMaintainabilityFilter
     onQueryChange={[MockFunction]}
     query={
@@ -121,6 +131,14 @@ exports[`should render correctly 1`] = `
     }
   />
   <SecurityFilter
+    onQueryChange={[MockFunction]}
+    query={
+      Object {
+        "size": "3",
+      }
+    }
+  />
+  <SecurityReviewFilter
     onQueryChange={[MockFunction]}
     query={
       Object {

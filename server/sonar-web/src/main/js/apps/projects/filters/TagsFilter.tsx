@@ -95,8 +95,6 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
   getSortedOptions = (facet: Facet = {}) =>
     sortBy(Object.keys(facet), [(option: string) => -facet[option], (option: string) => option]);
 
-  getFacetValueForOption = (facet: Facet = {}, option: string) => facet[option];
-
   renderOption = (option: string) => <SearchableFilterOption optionKey={option} />;
 
   render() {
@@ -117,7 +115,6 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
             query={this.props.query}
           />
         }
-        getFacetValueForOption={this.getFacetValueForOption}
         header={<FilterHeader name={translate('projects.facets.tags')} />}
         maxFacetValue={this.props.maxFacetValue}
         onQueryChange={this.props.onQueryChange}

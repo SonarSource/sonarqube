@@ -20,6 +20,7 @@
 import * as React from 'react';
 import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
 import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
+import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
 import Rating from 'sonar-ui-common/components/ui/Rating';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -64,6 +65,24 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
           <div className="project-card-measure-label-with-icon">
             <VulnerabilityIcon className="little-spacer-right text-bottom" />
             {translate('metric.vulnerabilities.name')}
+          </div>
+        </div>
+      </div>
+
+      <div className="project-card-measure" data-key="new_security_review_rating">
+        <div className="project-card-measure-inner">
+          <div className="project-card-measure-number">
+            <Measure
+              className="spacer-right"
+              metricKey="new_security_hotspots_reviewed"
+              metricType="PERCENT"
+              value={measures['new_security_hotspots_reviewed']}
+            />
+            <Rating value={measures['new_security_review_rating']} />
+          </div>
+          <div className="project-card-measure-label-with-icon">
+            <SecurityHotspotIcon className="little-spacer-right text-bottom" />
+            {translate('metric.security_hotspots_reviewed.extra_short_name')}
           </div>
         </div>
       </div>

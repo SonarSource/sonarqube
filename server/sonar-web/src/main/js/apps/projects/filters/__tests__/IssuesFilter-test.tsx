@@ -29,7 +29,4 @@ it('renders', () => {
 
   const renderOption = wrapper.prop('renderOption');
   expect(renderOption(2, false)).toMatchSnapshot();
-
-  const getFacetValueForOption = wrapper.prop('getFacetValueForOption');
-  expect(getFacetValueForOption({ 1: 1, 2: 2, 3: 3, 4: 4, 5: 5 }, 2)).toBe(2);
 });

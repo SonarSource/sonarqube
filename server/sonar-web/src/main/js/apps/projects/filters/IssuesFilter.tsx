@@ -42,7 +42,6 @@ export default function IssuesFilter(props: Props) {
     <Filter
       className={props.className}
       facet={props.facet}
-      getFacetValueForOption={getFacetValueForOption}
       header={
         <FilterHeader name={translate('metric_domain', props.name)}>
           {props.headerDetail}
@@ -59,10 +58,6 @@ export default function IssuesFilter(props: Props) {
       value={props.value}
     />
   );
-}
-
-function getFacetValueForOption(facet: Facet, option: number) {
-  return facet[option];
 }
 
 function renderOption(option: number, selected: boolean) {

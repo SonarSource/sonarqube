@@ -17,37 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Facet } from '../types';
-import IssuesFilter from './IssuesFilter';
+import SecurityReviewFilter from '../SecurityReviewFilter';
 
-interface Props {
-  className?: string;
-  facet?: Facet;
-  headerDetail?: React.ReactNode;
-  maxFacetValue?: number;
-  onQueryChange: (change: T.RawQuery) => void;
-  organization?: { key: string };
-  query: T.Dict<any>;
-  value?: any;
-}
+it('renders', () => {
+  const wrapper = shallow(<SecurityReviewFilter onQueryChange={jest.fn()} query={{}} />);
+  expect(wrapper).toMatchSnapshot();
 
-export default function SecurityFilter(props: Props) {
-  return (
-    <IssuesFilter
-      {...props}
-      headerDetail={
-        <span className="note little-spacer-left">
-          {'( '}
-          <VulnerabilityIcon className="little-spacer-right" />
-          {translate('metric.vulnerabilities.name')}
-          {' )'}
-        </span>
-      }
-      name="Security"
-      property="security"
-    />
-  );
-}
+  const renderOption = wrapper.prop('renderOption');
+  expect(renderOption(2, false)).toMatchSnapshot('option');
+});

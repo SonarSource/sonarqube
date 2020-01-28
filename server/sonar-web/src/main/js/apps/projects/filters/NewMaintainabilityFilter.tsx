@@ -40,7 +40,7 @@ export default function NewMaintainabilityFilter(props: Props) {
       className="leak-facet-box"
       headerDetail={
         <span className="note little-spacer-left">
-          {'('}
+          {'( '}
           <CodeSmellIcon className="little-spacer-right" />
           {translate('metric.code_smells.name')}
           {' )'}

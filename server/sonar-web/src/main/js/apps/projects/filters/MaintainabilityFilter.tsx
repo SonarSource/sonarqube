@@ -40,7 +40,7 @@ export default function MaintainabilityFilter(props: Props) {
       {...props}
       headerDetail={
         <span className="note little-spacer-left">
-          {'('}
+          {'( '}
           <CodeSmellIcon className="little-spacer-right" />
           {translate('metric.code_smells.name')}
           {' )'}

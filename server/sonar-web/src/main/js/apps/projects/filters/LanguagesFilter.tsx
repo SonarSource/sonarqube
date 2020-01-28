@@ -51,8 +51,6 @@ export default class LanguagesFilter extends React.Component<Props> {
   getSortedOptions = (facet: Facet = {}) =>
     sortBy(Object.keys(facet), [(option: string) => -facet[option], (option: string) => option]);
 
-  getFacetValueForOption = (facet: Facet = {}, option: string) => facet[option];
-
   renderOption = (option: string) => (
     <SearchableFilterOption
       option={getLanguageByKey(this.props.languages, option)}
@@ -75,7 +73,6 @@ export default class LanguagesFilter extends React.Component<Props> {
             query={this.props.query}
           />
         }
-        getFacetValueForOption={this.getFacetValueForOption}
         header={<FilterHeader name={translate('projects.facets.languages')} />}
         maxFacetValue={this.props.maxFacetValue}
         onQueryChange={this.props.onQueryChange}

@@ -71,7 +71,6 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
       }
     />
   }
-  getFacetValueForOption={[Function]}
   header={
     <FilterHeader
       name="projects.facets.tags"
@@ -132,7 +131,6 @@ exports[`should render the tags facet with the selected tags 1`] = `
       }
     />
   }
-  getFacetValueForOption={[Function]}
   header={
     <FilterHeader
       name="projects.facets.tags"
@@ -280,7 +278,6 @@ exports[`should render the tags without the ones in the facet 1`] = `
       }
     />
   }
-  getFacetValueForOption={[Function]}
   header={
     <FilterHeader
       name="projects.facets.tags"
@@ -343,7 +340,6 @@ exports[`should render the tags without the ones in the facet 2`] = `
       }
     />
   }
-  getFacetValueForOption={[Function]}
   header={
     <FilterHeader
       name="projects.facets.tags"

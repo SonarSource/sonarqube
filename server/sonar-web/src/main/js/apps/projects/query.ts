@@ -27,6 +27,8 @@ export interface Query {
   new_reliability?: number;
   security?: number;
   new_security?: number;
+  security_review_rating?: number;
+  new_security_review_rating?: number;
   maintainability?: number;
   new_maintainability?: number;
   coverage?: number;
@@ -51,6 +53,8 @@ export function parseUrlQuery(urlQuery: T.RawQuery): Query {
     new_reliability: getAsNumericRating(urlQuery['new_reliability']),
     security: getAsNumericRating(urlQuery['security']),
     new_security: getAsNumericRating(urlQuery['new_security']),
+    security_review_rating: getAsNumericRating(urlQuery['security_review']),
+    new_security_review_rating: getAsNumericRating(urlQuery['new_security_review']),
     maintainability: getAsNumericRating(urlQuery['maintainability']),
     new_maintainability: getAsNumericRating(urlQuery['new_maintainability']),
     coverage: getAsNumericRating(urlQuery['coverage']),
@@ -94,9 +98,11 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
   [
     'reliability',
     'security',
+    'security_review_rating',
     'maintainability',
     'new_reliability',
     'new_security',
+    'new_security_review_rating',
     'new_maintainability'
   ].forEach(property => pushMetricToArray(query, property, conditions, convertIssuesRating));
 
@@ -232,6 +238,8 @@ function mapPropertyToMetric(property?: string): string | undefined {
     new_reliability: 'new_reliability_rating',
     security: 'security_rating',
     new_security: 'new_security_rating',
+    security_review_rating: 'security_review_rating',
+    new_security_review_rating: 'new_security_review_rating',
     maintainability: 'sqale_rating',
     new_maintainability: 'new_maintainability_rating',
     coverage: 'coverage',

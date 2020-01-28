@@ -66,6 +66,33 @@ exports[`should render correctly with all data 1`] = `
   </div>
   <div
     className="project-card-measure"
+    data-key="new_security_review_rating"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          className="spacer-right"
+          metricKey="new_security_hotspots_reviewed"
+          metricType="PERCENT"
+        />
+        <Rating />
+      </div>
+      <div
+        className="project-card-measure-label-with-icon"
+      >
+        <SecurityHotspotIcon
+          className="little-spacer-right text-bottom"
+        />
+        metric.security_hotspots_reviewed.extra_short_name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
     data-key="new_maintainability_rating"
   >
     <div
@@ -227,6 +254,33 @@ exports[`should render no data style new coverage, new duplications and new line
           className="little-spacer-right text-bottom"
         />
         metric.vulnerabilities.name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
+    data-key="new_security_review_rating"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          className="spacer-right"
+          metricKey="new_security_hotspots_reviewed"
+          metricType="PERCENT"
+        />
+        <Rating />
+      </div>
+      <div
+        className="project-card-measure-label-with-icon"
+      >
+        <SecurityHotspotIcon
+          className="little-spacer-right text-bottom"
+        />
+        metric.security_hotspots_reviewed.extra_short_name
       </div>
     </div>
   </div>

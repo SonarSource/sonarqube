@@ -40,7 +40,7 @@ export default function ReliabilityFilter(props: Props) {
       {...props}
       headerDetail={
         <span className="note little-spacer-left">
-          {'('}
+          {'( '}
           <BugIcon className="little-spacer-right" />
           {translate('metric.bugs.name')}
           {' )'}
