@@ -329,7 +329,7 @@ export default class MeasuresOverlay extends React.PureComponent<Props, State> {
       <div className="measures-viewer-card" key={domain}>
         <div className="measures">
           <div className="measure measure-big">
-            <span className="measure-name">{domain}</span>
+            <span className="measure-name">{translate('metric_domain', domain)}</span>
           </div>
           {sortBy(
             measures.filter(measure => measure.value !== undefined),

@@ -47,6 +47,7 @@ import { BranchLike } from '../../../types/branch-like';
 import Sidebar from '../sidebar/Sidebar';
 import '../style.css';
 import {
+  banQualityGateMeasure,
   getMeasuresPageMetricKeys,
   groupByDomains,
   hasBubbleChart,
@@ -136,24 +137,13 @@ export class App extends React.PureComponent<Props, State> {
 
     const filteredKeys = getMeasuresPageMetricKeys(metrics, branchLike);
 
-    const banQualityGate = ({ measures = [], qualifier }: T.ComponentMeasure) => {
-      const bannedMetrics: string[] = [];
-      if (!['VW', 'SVW'].includes(qualifier)) {
-        bannedMetrics.push('alert_status', 'security_review_rating');
-      }
-      if (qualifier === 'APP') {
-        bannedMetrics.push('releasability_rating', 'releasability_effort');
-      }
-      return measures.filter(measure => !bannedMetrics.includes(measure.metric));
-    };
-
     getMeasuresAndMeta(componentKey, filteredKeys, {
       additionalFields: 'periods',
       ...getBranchLikeQuery(branchLike)
     }).then(
       ({ component, periods }) => {
         if (this.mounted) {
-          const measures = banQualityGate(component).map(measure =>
+          const measures = banQualityGateMeasure(component).map(measure =>
             enhanceMeasure(measure, metrics)
           );
 

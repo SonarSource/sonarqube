@@ -1146,7 +1146,7 @@ exports[`should render source file 2`] = `
                 <span
                   className="measure-name"
                 >
-                  Complexity
+                  metric_domain.Complexity
                 </span>
               </div>
               <MeasuresOverlayMeasure
@@ -1190,7 +1190,7 @@ exports[`should render source file 2`] = `
                 <span
                   className="measure-name"
                 >
-                  Size
+                  metric_domain.Size
                 </span>
               </div>
               <MeasuresOverlayMeasure
@@ -1312,7 +1312,7 @@ exports[`should render source file 2`] = `
                 <span
                   className="measure-name"
                 >
-                  Coverage
+                  metric_domain.Coverage
                 </span>
               </div>
               <MeasuresOverlayMeasure
@@ -1382,7 +1382,7 @@ exports[`should render source file 2`] = `
                 <span
                   className="measure-name"
                 >
-                  Reliability
+                  metric_domain.Reliability
                 </span>
               </div>
               <MeasuresOverlayMeasure
@@ -1430,7 +1430,7 @@ exports[`should render source file 2`] = `
                 <span
                   className="measure-name"
                 >
-                  Security
+                  metric_domain.Security
                 </span>
               </div>
               <MeasuresOverlayMeasure
@@ -1474,7 +1474,7 @@ exports[`should render source file 2`] = `
                 <span
                   className="measure-name"
                 >
-                  Tests
+                  metric_domain.Tests
                 </span>
               </div>
               <MeasuresOverlayMeasure
@@ -1544,7 +1544,7 @@ exports[`should render source file 2`] = `
                 <span
                   className="measure-name"
                 >
-                  Issues
+                  metric_domain.Issues
                 </span>
               </div>
               <MeasuresOverlayMeasure
@@ -1601,7 +1601,7 @@ exports[`should render source file 2`] = `
                 <span
                   className="measure-name"
                 >
-                  Duplications
+                  metric_domain.Duplications
                 </span>
               </div>
               <MeasuresOverlayMeasure
@@ -1671,7 +1671,7 @@ exports[`should render source file 2`] = `
                 <span
                   className="measure-name"
                 >
-                  Maintainability
+                  metric_domain.Maintainability
                 </span>
               </div>
               <MeasuresOverlayMeasure

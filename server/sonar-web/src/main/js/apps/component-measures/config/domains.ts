@@ -46,13 +46,26 @@ export const domains: Domains = {
       MetricKey.new_vulnerabilities,
       MetricKey.new_security_rating,
       MetricKey.new_security_remediation_effort,
-      MetricKey.new_security_hotspots,
 
       'overall_category',
       MetricKey.vulnerabilities,
       MetricKey.security_rating,
-      MetricKey.security_remediation_effort,
-      MetricKey.security_hotspots
+      MetricKey.security_remediation_effort
+    ]
+  },
+
+  SecurityReview: {
+    categories: ['new_code_category', 'overall_category'],
+    order: [
+      'new_code_category',
+      MetricKey.new_security_hotspots,
+      MetricKey.new_security_review_rating,
+      MetricKey.new_security_hotspots_reviewed,
+
+      'overall_category',
+      MetricKey.security_hotspots,
+      MetricKey.security_review_rating,
+      MetricKey.security_hotspots_reviewed
     ]
   },
 

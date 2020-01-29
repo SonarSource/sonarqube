@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import * as utils from '../utils';
 
@@ -149,5 +150,77 @@ describe('serializeQuery', () => {
   it('should be memoized', () => {
     const query: utils.Query = { metric: 'foo', selected: 'bar', view: 'tree' };
     expect(utils.serializeQuery(query)).toBe(utils.serializeQuery(query));
+  });
+});
+
+describe('extract measure', () => {
+  const componentBuilder = (qual: ComponentQualifier): T.ComponentMeasure => {
+    return {
+      qualifier: qual,
+      key: '1',
+      name: 'TEST',
+      measures: [
+        {
+          metric: 'alert_status',
+          value: '3.2',
+          periods: [{ index: 1, value: '0.0' }]
+        },
+        {
+          metric: 'releasability_rating',
+          value: '3.2',
+          periods: [{ index: 1, value: '0.0' }]
+        },
+        {
+          metric: 'releasability_effort',
+          value: '3.2',
+          periods: [{ index: 1, value: '0.0' }]
+        }
+      ]
+    };
+  };
+  it('should ban quality gate for app', () => {
+    const measure = utils.banQualityGateMeasure(componentBuilder(ComponentQualifier.Application));
+    expect(measure).toHaveLength(0);
+  });
+
+  it('should ban quality gate for portfolio', () => {
+    const measure = utils.banQualityGateMeasure(componentBuilder(ComponentQualifier.Portfolio));
+    expect(measure).toHaveLength(3);
+  });
+
+  it('should ban quality gate for file', () => {
+    const measure = utils.banQualityGateMeasure(componentBuilder(ComponentQualifier.File));
+    expect(measure).toHaveLength(2);
+    measure.forEach(({ metric }) => {
+      expect(['releasability_rating', 'releasability_effort']).toContain(metric);
+    });
+  });
+});
+
+describe('Component classification', () => {
+  const componentBuilder = (qual: ComponentQualifier): T.ComponentMeasure => {
+    return {
+      qualifier: qual,
+      key: '1',
+      name: 'TEST'
+    };
+  };
+
+  it('should be file type', () => {
+    [ComponentQualifier.File, ComponentQualifier.TestFile].forEach(qual => {
+      const component = componentBuilder(qual);
+      expect(utils.isFileType(component)).toBeTruthy();
+    });
+  });
+
+  it('should be view type', () => {
+    [
+      ComponentQualifier.Portfolio,
+      ComponentQualifier.SubPortfolio,
+      ComponentQualifier.Application
+    ].forEach(qual => {
+      const component = componentBuilder(qual);
+      expect(utils.isViewType(component)).toBeTruthy();
+    });
   });
 });

@@ -24,6 +24,7 @@ import { enhanceMeasure } from '../../components/measure/utils';
 import { isBranch, isPullRequest } from '../../helpers/branch-like';
 import { getDisplayMetrics, isDiffMetric } from '../../helpers/measures';
 import { BranchLike } from '../../types/branch-like';
+import { ComponentQualifier } from '../../types/component';
 import { bubbles } from './config/bubbles';
 import { domains } from './config/domains';
 
@@ -36,6 +37,7 @@ export const KNOWN_DOMAINS = [
   'Releasability',
   'Reliability',
   'Security',
+  'SecurityReview',
   'Maintainability',
   'Coverage',
   'Duplications',
@@ -103,11 +105,31 @@ export function enhanceComponent(
 }
 
 export function isFileType(component: T.ComponentMeasure): boolean {
-  return ['FIL', 'UTS'].includes(component.qualifier);
+  return [ComponentQualifier.File, ComponentQualifier.TestFile].includes(
+    component.qualifier as ComponentQualifier
+  );
 }
 
 export function isViewType(component: T.ComponentMeasure): boolean {
-  return ['VW', 'SVW', 'APP'].includes(component.qualifier);
+  return [
+    ComponentQualifier.Portfolio,
+    ComponentQualifier.SubPortfolio,
+    ComponentQualifier.Application
+  ].includes(component.qualifier as ComponentQualifier);
+}
+
+export function banQualityGateMeasure({
+  measures = [],
+  qualifier
+}: T.ComponentMeasure): T.Measure[] {
+  const bannedMetrics: string[] = [];
+  if (ComponentQualifier.Portfolio !== qualifier && ComponentQualifier.SubPortfolio !== qualifier) {
+    bannedMetrics.push('alert_status');
+  }
+  if (qualifier === ComponentQualifier.Application) {
+    bannedMetrics.push('releasability_rating', 'releasability_effort');
+  }
+  return measures.filter(measure => !bannedMetrics.includes(measure.metric));
 }
 
 export const groupByDomains = memoize((measures: T.MeasureEnhanced[]) => {
