@@ -453,6 +453,45 @@ public class RegisterRulesTest {
   }
 
   @Test
+  public void update_template_rule_key_should_also_update_custom_rules() {
+    when(system.now()).thenReturn(DATE1.getTime());
+    execute(context -> {
+      NewRepository repo = context.createRepository("squid", "java");
+      repo.createRule("rule")
+        .setName("Name1")
+        .setHtmlDescription("Description")
+        .setTemplate(true);
+      repo.done();
+    });
+
+    RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of("squid", "rule"));
+
+    // insert custom rule
+    dbClient.ruleDao().insert(db.getSession(), new RuleDefinitionDto()
+      .setRuleKey(RuleKey.of("squid", "custom"))
+      .setLanguage("java")
+      .setScope(Scope.ALL)
+      .setTemplateId(rule1.getId())
+      .setName("custom1"));
+    db.commit();
+
+    // re-key rule
+    execute(context -> {
+      NewRepository repo = context.createRepository("java", "java");
+      repo.createRule("rule")
+        .setName("Name1")
+        .setHtmlDescription("Description")
+        .addDeprecatedRuleKey("squid", "rule")
+        .setTemplate(true);
+      repo.done();
+    });
+
+    // template rule and custom rule have been updated
+    rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of("java", "rule"));
+    RuleDto custom = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of("java", "custom"));
+  }
+
+  @Test
   public void update_if_rule_key_renamed_and_deprecated_key_declared() {
     String ruleKey1 = "rule1";
     String ruleKey2 = "rule2";
@@ -1046,6 +1085,13 @@ public class RegisterRulesTest {
 
     Arrays.stream(consumers).forEach(c -> c.accept(newRule));
     repo.done();
+  }
+
+  private void verifyIndicesMarkedAsInitialized() {
+    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_RULE, true);
+    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_RULE_EXTENSION, true);
+    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_ACTIVE_RULE, true);
+    reset(metadataIndex);
   }
 
   private RuleParamDto getParam(List<RuleParamDto> params, String key) {
