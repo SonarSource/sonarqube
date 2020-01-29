@@ -70,7 +70,6 @@ import org.sonar.server.rule.index.RuleIndexer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.difference;
 import static com.google.common.collect.Sets.intersection;
 import static java.lang.String.format;
@@ -170,16 +169,14 @@ public class RegisterRules implements Startable {
   }
 
   private RegisterRulesContext createRegisterRulesContext(DbSession dbSession) {
-    Map<RuleKey, RuleDefinitionDto> allRules = dbClient.ruleDao().selectAllDefinitions(dbSession)
-      .stream()
+    Map<RuleKey, RuleDefinitionDto> allRules = dbClient.ruleDao().selectAllDefinitions(dbSession).stream()
       .collect(uniqueIndex(RuleDefinitionDto::getKey));
     Map<Integer, Set<SingleDeprecatedRuleKey>> existingDeprecatedKeysById = loadDeprecatedRuleKeys(dbSession);
     return new RegisterRulesContext(allRules, existingDeprecatedKeysById);
   }
 
   private Map<Integer, Set<SingleDeprecatedRuleKey>> loadDeprecatedRuleKeys(DbSession dbSession) {
-    return dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession)
-      .stream()
+    return dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
       .map(SingleDeprecatedRuleKey::from)
       .collect(Collectors.groupingBy(SingleDeprecatedRuleKey::getRuleId, Collectors.toSet()));
   }
@@ -231,7 +228,7 @@ public class RegisterRules implements Startable {
         RuleDefinitionDto rule = dbRulesByRuleId.get(ruleId);
         if (rule == null) {
           LOG.warn("Could not retrieve rule with id %s referenced by a deprecated rule key. " +
-            "The following deprecated rule keys seem to be referencing a non-existing rule",
+              "The following deprecated rule keys seem to be referencing a non-existing rule",
             ruleId, entry.getValue());
         } else {
           entry.getValue().forEach(d -> builder.put(d.getOldRuleKeyAsRuleKey(), rule));
@@ -641,11 +638,9 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
       !dto.getSystemTags().containsAll(ruleDef.tags())) {
-        dto.setSystemTags(ruleDef.tags());
-        // FIXME this can't be implemented easily with organization support: remove end-user tags that are now declared as system
-        // RuleTagHelper.applyTags(dto, ImmutableSet.copyOf(dto.getTags()));
-        changed = true;
-      }
+      dto.setSystemTags(ruleDef.tags());
+      changed = true;
+    }
     return changed;
   }
 
@@ -657,15 +652,15 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
       !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
-        dto.setSecurityStandards(ruleDef.securityStandards());
-        changed = true;
-      }
+      dto.setSecurityStandards(ruleDef.securityStandards());
+      changed = true;
+    }
     return changed;
   }
 
   private void processRemainingDbRules(RegisterRulesContext recorder, DbSession dbSession) {
     // custom rules check status of template, so they must be processed at the end
-    List<RuleDefinitionDto> customRules = newArrayList();
+    List<RuleDefinitionDto> customRules = new ArrayList<>();
 
     recorder.getRemaining().forEach(rule -> {
       if (rule.isCustomRule()) {
@@ -681,6 +676,7 @@ public class RegisterRules implements Startable {
       Optional<RuleDefinitionDto> template = dbClient.ruleDao().selectDefinitionById(templateId, dbSession);
       if (template.isPresent() && template.get().getStatus() != RuleStatus.REMOVED) {
         if (updateCustomRuleFromTemplateRule(customRule, template.get())) {
+          recorder.updated(customRule);
           update(dbSession, customRule);
         }
       } else {
@@ -741,6 +737,10 @@ public class RegisterRules implements Startable {
     }
     if (!StringUtils.equals(customRule.getSeverityString(), templateRule.getSeverityString())) {
       customRule.setSeverity(templateRule.getSeverityString());
+      changed = true;
+    }
+    if (!StringUtils.equals(customRule.getRepositoryKey(), templateRule.getRepositoryKey())) {
+      customRule.setRepositoryKey(templateRule.getRepositoryKey());
       changed = true;
     }
     return changed;
@@ -813,7 +813,7 @@ public class RegisterRules implements Startable {
       .collect(Collectors.toSet());
 
     checkState(incorrectRuleKeyMessage.isEmpty(), "An incorrect state of deprecated rule keys has been detected.\n %s",
-      lazyToString(() -> incorrectRuleKeyMessage.stream().collect(Collectors.joining("\n"))));
+      lazyToString(() -> String.join("\n", incorrectRuleKeyMessage)));
   }
 
   private static Stream<String> filterInvalidDeprecatedRuleKeys(ImmutableMap<RuleKey, SingleDeprecatedRuleKey> dbDeprecatedRuleKeysByOldRuleKey,
@@ -855,7 +855,7 @@ public class RegisterRules implements Startable {
     Set<T> duplicates = new HashSet<>();
     Set<T> uniques = new HashSet<>();
 
-    list.stream().forEach(t -> {
+    list.forEach(t -> {
       if (!uniques.add(t)) {
         duplicates.add(t);
       }
