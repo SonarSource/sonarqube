@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -46,7 +46,7 @@ public class RemoveProcessedComponentsVisitorTest {
 
   @Test
   public void remove_processed_files() {
-    when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.absent());
+    when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.empty());
     underTest.afterComponent(component);
 
     verify(movedFilesRepository).getOriginalFile(component);

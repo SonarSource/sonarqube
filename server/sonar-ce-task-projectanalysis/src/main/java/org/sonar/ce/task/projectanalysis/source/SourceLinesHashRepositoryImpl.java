@@ -61,7 +61,7 @@ public class SourceLinesHashRepositoryImpl implements SourceLinesHashRepository 
     boolean cacheHit = cache.contains(component);
 
     // check if line hashes are cached and if we can use it
-    if (cacheHit && dbLineHashesVersion.hasLineHashesWithSignificantCode(component)) {
+    if (cacheHit && !dbLineHashesVersion.hasLineHashesWithoutSignificantCode(component)) {
       return new CachedLineHashesComputer(cache.get(component));
     }
 
@@ -75,10 +75,11 @@ public class SourceLinesHashRepositoryImpl implements SourceLinesHashRepository 
   }
 
   private List<String> createLineHashesMatchingDBVersion(Component component) {
-    if (!dbLineHashesVersion.hasLineHashesWithSignificantCode(component)) {
+    if (dbLineHashesVersion.hasLineHashesWithoutSignificantCode(component)) {
       return createLineHashes(component, Optional.empty());
     }
 
+    // if the file is not in the DB, this will be used too
     Optional<LineRange[]> significantCodePerLine = significantCodeRepository.getRangesPerLine(component);
     return createLineHashes(component, significantCodePerLine);
   }

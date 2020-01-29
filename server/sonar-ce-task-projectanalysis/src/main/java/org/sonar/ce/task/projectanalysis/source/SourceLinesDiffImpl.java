@@ -21,9 +21,11 @@ package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDao;
@@ -34,14 +36,16 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
   private final FileSourceDao fileSourceDao;
   private final SourceLinesHashRepository sourceLinesHash;
   private final ReferenceBranchComponentUuids referenceBranchComponentUuids;
+  private final MovedFilesRepository movedFilesRepository;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
   public SourceLinesDiffImpl(DbClient dbClient, FileSourceDao fileSourceDao, SourceLinesHashRepository sourceLinesHash,
-    ReferenceBranchComponentUuids referenceBranchComponentUuids, AnalysisMetadataHolder analysisMetadataHolder) {
+    ReferenceBranchComponentUuids referenceBranchComponentUuids, MovedFilesRepository movedFilesRepository, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.fileSourceDao = fileSourceDao;
     this.sourceLinesHash = sourceLinesHash;
     this.referenceBranchComponentUuids = referenceBranchComponentUuids;
+    this.movedFilesRepository = movedFilesRepository;
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
@@ -59,7 +63,8 @@ public class SourceLinesDiffImpl implements SourceLinesDiff {
       if (analysisMetadataHolder.isPullRequest()) {
         uuid = referenceBranchComponentUuids.getComponentUuid(component.getDbKey());
       } else {
-        uuid = component.getUuid();
+        Optional<MovedFilesRepository.OriginalFile> originalFile = movedFilesRepository.getOriginalFile(component);
+        uuid = originalFile.map(MovedFilesRepository.OriginalFile::getUuid).orElse(component.getUuid());
       }
 
       if (uuid == null) {

@@ -42,12 +42,21 @@ public class DbLineHashVersion {
   }
 
   /**
-   * Reads from DB the version of line hashes for a component and returns if it was generated taking into account the ranges of significant code.
+   * Reads from DB the version of line hashes for a component and returns whether it was generated taking into account the ranges of significant code.
    * The response is cached.
    * Returns false if the component is not in the DB.
    */
   public boolean hasLineHashesWithSignificantCode(Component component) {
     return lineHashVersionPerComponent.computeIfAbsent(component, this::compute) == LineHashVersion.WITH_SIGNIFICANT_CODE;
+  }
+
+  /**
+   * Reads from DB the version of line hashes for a component and returns whether it was generated taking into account the ranges of significant code.
+   * The response is cached.
+   * Returns false if the component is not in the DB.
+   */
+  public boolean hasLineHashesWithoutSignificantCode(Component component) {
+    return lineHashVersionPerComponent.computeIfAbsent(component, this::compute) == LineHashVersion.WITHOUT_SIGNIFICANT_CODE;
   }
 
   @CheckForNull

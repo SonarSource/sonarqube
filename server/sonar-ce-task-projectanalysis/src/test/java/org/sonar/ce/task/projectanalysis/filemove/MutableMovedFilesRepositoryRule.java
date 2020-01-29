@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.filemove;
 
-import com.google.common.base.Optional;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.junit.rules.ExternalResource;

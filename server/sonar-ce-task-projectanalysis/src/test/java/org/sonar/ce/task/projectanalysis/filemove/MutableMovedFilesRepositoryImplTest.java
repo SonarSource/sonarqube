@@ -28,7 +28,6 @@ import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
 public class MutableMovedFilesRepositoryImplTest {
@@ -113,9 +112,9 @@ public class MutableMovedFilesRepositoryImplTest {
 
   @Test
   public void getOriginalFile_returns_absent_for_any_component_type_when_empty() {
-    assertThat(underTest.getOriginalFile(SOME_FILE)).isAbsent();
+    assertThat(underTest.getOriginalFile(SOME_FILE)).isEmpty();
     for (Component component : COMPONENTS_EXCEPT_FILE) {
-      assertThat(underTest.getOriginalFile(component)).isAbsent();
+      assertThat(underTest.getOriginalFile(component)).isEmpty();
     }
   }
 
@@ -124,7 +123,7 @@ public class MutableMovedFilesRepositoryImplTest {
     underTest.setOriginalFile(SOME_FILE, SOME_ORIGINAL_FILE);
 
     for (Component component : COMPONENTS_EXCEPT_FILE) {
-      assertThat(underTest.getOriginalFile(component)).isAbsent();
+      assertThat(underTest.getOriginalFile(component)).isEmpty();
     }
     assertThat(underTest.getOriginalFile(SOME_FILE)).contains(SOME_ORIGINAL_FILE);
   }

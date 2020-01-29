@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRule;
 import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
@@ -67,11 +68,13 @@ public class ScmInfoDbLoaderTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
 
   private Branch branch = mock(Branch.class);
   private ReferenceBranchComponentUuids referenceBranchComponentUuids = mock(ReferenceBranchComponentUuids.class);
 
-  private ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, dbTester.getDbClient(), referenceBranchComponentUuids);
+  private ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, movedFiles, dbTester.getDbClient(), referenceBranchComponentUuids);
 
   @Test
   public void returns_ScmInfo_from_DB() {
