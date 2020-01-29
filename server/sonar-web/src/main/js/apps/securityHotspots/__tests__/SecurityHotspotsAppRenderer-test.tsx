@@ -78,8 +78,10 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
         status: HotspotStatusFilter.TO_REVIEW
       }}
       hotspots={[]}
+      isProject={true}
       isStaticListOfHotspots={true}
       loading={false}
+      loadingMeasure={false}
       loadingMore={false}
       onChangeFilters={jest.fn()}
       onHotspotClick={jest.fn()}

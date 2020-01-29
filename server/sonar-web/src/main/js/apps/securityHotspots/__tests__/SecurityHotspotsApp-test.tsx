@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { addNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getMeasures } from '../../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
@@ -47,6 +48,10 @@ jest.mock('sonar-ui-common/helpers/pages', () => ({
   removeNoFooterPageClass: jest.fn()
 }));
 
+jest.mock('../../../api/measures', () => ({
+  getMeasures: jest.fn().mockResolvedValue([])
+}));
+
 jest.mock('../../../api/security-hotspots', () => ({
   getSecurityHotspots: jest.fn().mockResolvedValue({ hotspots: [], paging: { total: 0 } }),
   getSecurityHotspotList: jest.fn().mockResolvedValue({ hotspots: [], rules: [] })
@@ -70,14 +75,21 @@ it('should load data correctly', async () => {
       total: 1
     }
   });
+  (getMeasures as jest.Mock).mockResolvedValue([{ value: '86.6' }]);
 
   const wrapper = shallowRender();
 
   expect(wrapper.state().loading).toBe(true);
+  expect(wrapper.state().loadingMeasure).toBe(true);
 
   expect(addNoFooterPageClass).toBeCalled();
   expect(getStandards).toBeCalled();
   expect(getSecurityHotspots).toBeCalledWith(
+    expect.objectContaining({
+      branch: branch.name
+    })
+  );
+  expect(getMeasures).toBeCalledWith(
     expect.objectContaining({
       branch: branch.name
     })
@@ -91,8 +103,8 @@ it('should load data correctly', async () => {
   expect(wrapper.state().securityCategories).toEqual({
     cat1: { title: 'cat 1' }
   });
-
-  expect(wrapper.state());
+  expect(wrapper.state().loadingMeasure).toBe(false);
+  expect(wrapper.state().hotspotsReviewedMeasure).toBe('86.6');
 });
 
 it('should load data correctly when hotspot key list is forced', async () => {
@@ -155,11 +167,12 @@ it('should set "leakperiod" filter according to context (branchlike & location q
 });
 
 it('should set "assigned to me" filter according to context (logged in & explicit location query)', () => {
-  expect(shallowRender().state().filters.assignedToMe).toBe(false);
-  expect(
-    shallowRender({ location: mockLocation({ query: { assignedToMe: 'true' } }) }).state().filters
-      .assignedToMe
-  ).toBe(false);
+  const wrapper = shallowRender();
+  expect(wrapper.state().filters.assignedToMe).toBe(false);
+
+  wrapper.setProps({ location: mockLocation({ query: { assignedToMe: 'true' } }) });
+  expect(wrapper.state().filters.assignedToMe).toBe(false);
+
   expect(shallowRender({ currentUser: mockLoggedInUser() }).state().filters.assignedToMe).toBe(
     false
   );
@@ -224,7 +237,9 @@ it('should handle hotspot update', async () => {
     status: HotspotStatus.REVIEWED,
     resolution: HotspotResolution.SAFE
   });
+  expect(getMeasures).toBeCalled();
 
+  await waitAndUpdate(wrapper);
   const previousState = wrapper.state();
   wrapper.instance().handleHotspotUpdate({
     key: 'unknown',
@@ -251,8 +266,11 @@ it('should handle status filter change', async () => {
 
   await waitAndUpdate(wrapper);
 
+  expect(getMeasures).toBeCalledTimes(1);
+
   // Set filter to SAFE:
   wrapper.instance().handleChangeFilters({ status: HotspotStatusFilter.SAFE });
+  expect(getMeasures).toBeCalledTimes(1);
 
   expect(getSecurityHotspots).toBeCalledWith(
     expect.objectContaining({ status: HotspotStatus.REVIEWED, resolution: HotspotResolution.SAFE })
@@ -272,6 +290,30 @@ it('should handle status filter change', async () => {
   await waitAndUpdate(wrapper);
 
   expect(wrapper.state().hotspots).toHaveLength(0);
+});
+
+it('should handle leakPeriod filter change', async () => {
+  const hotspots = [mockRawHotspot({ key: 'key1' })];
+  const hotspots2 = [mockRawHotspot({ key: 'key2' })];
+  (getSecurityHotspots as jest.Mock)
+    .mockResolvedValueOnce({ hotspots, paging: { total: 1 } })
+    .mockResolvedValueOnce({ hotspots: hotspots2, paging: { total: 1 } })
+    .mockResolvedValueOnce({ hotspots: [], paging: { total: 0 } });
+
+  const wrapper = shallowRender();
+
+  expect(getSecurityHotspots).toBeCalledWith(
+    expect.objectContaining({ status: HotspotStatus.TO_REVIEW, resolution: undefined })
+  );
+
+  await waitAndUpdate(wrapper);
+
+  expect(getMeasures).toBeCalledTimes(1);
+
+  wrapper.instance().handleChangeFilters({ sinceLeakPeriod: true });
+
+  expect(getMeasures).toBeCalledTimes(2);
+  expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ sinceLeakPeriod: true }));
 });
 
 function shallowRender(props: Partial<SecurityHotspotsApp['props']> = {}) {

@@ -19,58 +19,89 @@ exports[`should render correctly: anonymous 1`] = `
 <div
   className="filter-bar display-flex-center"
 >
-  <h3
-    className="huge-spacer-right"
+  <div
+    className="display-flex-space-between width-100"
   >
-    hotspot.filters.title
-  </h3>
-  <span
-    className="spacer-right"
-  >
-    status
-  </span>
-  <Select
-    className="input-medium big-spacer-right"
-    clearable={false}
-    onChange={[Function]}
-    options={
-      Array [
-        Object {
-          "label": "hotspot.filters.status.to_review",
-          "value": "TO_REVIEW",
-        },
-        Object {
-          "label": "hotspot.filters.status.fixed",
-          "value": "FIXED",
-        },
-        Object {
-          "label": "hotspot.filters.status.safe",
-          "value": "SAFE",
-        },
-      ]
-    }
-    searchable={false}
-    value="TO_REVIEW"
-  />
-  <Select
-    className="input-medium big-spacer-right"
-    clearable={false}
-    onChange={[Function]}
-    options={
-      Array [
-        Object {
-          "label": "hotspot.filters.period.since_leak_period",
-          "value": true,
-        },
-        Object {
-          "label": "hotspot.filters.period.overall",
-          "value": false,
-        },
-      ]
-    }
-    searchable={false}
-    value={false}
-  />
+    <div
+      className="display-flex-center"
+    >
+      <h3
+        className="huge-spacer-right"
+      >
+        hotspot.filters.title
+      </h3>
+      <span
+        className="spacer-right"
+      >
+        status
+      </span>
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.status.to_review",
+              "value": "TO_REVIEW",
+            },
+            Object {
+              "label": "hotspot.filters.status.fixed",
+              "value": "FIXED",
+            },
+            Object {
+              "label": "hotspot.filters.status.safe",
+              "value": "SAFE",
+            },
+          ]
+        }
+        searchable={false}
+        value="TO_REVIEW"
+      />
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.period.since_leak_period",
+              "value": true,
+            },
+            Object {
+              "label": "hotspot.filters.period.overall",
+              "value": false,
+            },
+          ]
+        }
+        searchable={false}
+        value={false}
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="little-spacer-right"
+      >
+        metric.security_hotspots_reviewed.name
+      </span>
+      <HelpTooltip
+        className="big-spacer-right"
+        overlay="hotspots.reviewed.tooltip"
+      />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
+      >
+        <Measure
+          className="spacer-left huge"
+          metricKey="security_hotspots_reviewed"
+          metricType="PERCENT"
+        />
+      </DeferredSpinner>
+    </div>
+  </div>
 </div>
 `;
 
@@ -78,77 +109,194 @@ exports[`should render correctly: logged-in 1`] = `
 <div
   className="filter-bar display-flex-center"
 >
-  <h3
-    className="huge-spacer-right"
+  <div
+    className="display-flex-space-between width-100"
   >
-    hotspot.filters.title
-  </h3>
-  <RadioToggle
-    className="huge-spacer-right"
-    disabled={false}
-    name="assignee-filter"
-    onCheck={[Function]}
-    options={
-      Array [
-        Object {
-          "label": "hotspot.filters.assignee.assigned_to_me",
-          "value": "me",
-        },
-        Object {
-          "label": "hotspot.filters.assignee.all",
-          "value": "all",
-        },
-      ]
-    }
-    value="all"
-  />
-  <span
-    className="spacer-right"
+    <div
+      className="display-flex-center"
+    >
+      <h3
+        className="huge-spacer-right"
+      >
+        hotspot.filters.title
+      </h3>
+      <RadioToggle
+        className="huge-spacer-right"
+        disabled={false}
+        name="assignee-filter"
+        onCheck={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.assignee.assigned_to_me",
+              "value": "me",
+            },
+            Object {
+              "label": "hotspot.filters.assignee.all",
+              "value": "all",
+            },
+          ]
+        }
+        value="all"
+      />
+      <span
+        className="spacer-right"
+      >
+        status
+      </span>
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.status.to_review",
+              "value": "TO_REVIEW",
+            },
+            Object {
+              "label": "hotspot.filters.status.fixed",
+              "value": "FIXED",
+            },
+            Object {
+              "label": "hotspot.filters.status.safe",
+              "value": "SAFE",
+            },
+          ]
+        }
+        searchable={false}
+        value="TO_REVIEW"
+      />
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.period.since_leak_period",
+              "value": true,
+            },
+            Object {
+              "label": "hotspot.filters.period.overall",
+              "value": false,
+            },
+          ]
+        }
+        searchable={false}
+        value={false}
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="little-spacer-right"
+      >
+        metric.security_hotspots_reviewed.name
+      </span>
+      <HelpTooltip
+        className="big-spacer-right"
+        overlay="hotspots.reviewed.tooltip"
+      />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
+      >
+        <Measure
+          className="spacer-left huge"
+          metricKey="security_hotspots_reviewed"
+          metricType="PERCENT"
+        />
+      </DeferredSpinner>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: non-project 1`] = `
+<div
+  className="filter-bar display-flex-center"
+>
+  <div
+    className="display-flex-space-between width-100"
   >
-    status
-  </span>
-  <Select
-    className="input-medium big-spacer-right"
-    clearable={false}
-    onChange={[Function]}
-    options={
-      Array [
-        Object {
-          "label": "hotspot.filters.status.to_review",
-          "value": "TO_REVIEW",
-        },
-        Object {
-          "label": "hotspot.filters.status.fixed",
-          "value": "FIXED",
-        },
-        Object {
-          "label": "hotspot.filters.status.safe",
-          "value": "SAFE",
-        },
-      ]
-    }
-    searchable={false}
-    value="TO_REVIEW"
-  />
-  <Select
-    className="input-medium big-spacer-right"
-    clearable={false}
-    onChange={[Function]}
-    options={
-      Array [
-        Object {
-          "label": "hotspot.filters.period.since_leak_period",
-          "value": true,
-        },
-        Object {
-          "label": "hotspot.filters.period.overall",
-          "value": false,
-        },
-      ]
-    }
-    searchable={false}
-    value={false}
-  />
+    <div
+      className="display-flex-center"
+    >
+      <h3
+        className="huge-spacer-right"
+      >
+        hotspot.filters.title
+      </h3>
+      <RadioToggle
+        className="huge-spacer-right"
+        disabled={false}
+        name="assignee-filter"
+        onCheck={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.assignee.assigned_to_me",
+              "value": "me",
+            },
+            Object {
+              "label": "hotspot.filters.assignee.all",
+              "value": "all",
+            },
+          ]
+        }
+        value="all"
+      />
+      <span
+        className="spacer-right"
+      >
+        status
+      </span>
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.status.to_review",
+              "value": "TO_REVIEW",
+            },
+            Object {
+              "label": "hotspot.filters.status.fixed",
+              "value": "FIXED",
+            },
+            Object {
+              "label": "hotspot.filters.status.safe",
+              "value": "SAFE",
+            },
+          ]
+        }
+        searchable={false}
+        value="TO_REVIEW"
+      />
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.period.since_leak_period",
+              "value": true,
+            },
+            Object {
+              "label": "hotspot.filters.period.overall",
+              "value": false,
+            },
+          ]
+        }
+        searchable={false}
+        value={false}
+      />
+    </div>
+  </div>
 </div>
 `;
 
@@ -156,38 +304,163 @@ exports[`should render correctly: on Pull request 1`] = `
 <div
   className="filter-bar display-flex-center"
 >
-  <h3
-    className="huge-spacer-right"
+  <div
+    className="display-flex-space-between width-100"
   >
-    hotspot.filters.title
-  </h3>
-  <span
-    className="spacer-right"
+    <div
+      className="display-flex-center"
+    >
+      <h3
+        className="huge-spacer-right"
+      >
+        hotspot.filters.title
+      </h3>
+      <span
+        className="spacer-right"
+      >
+        status
+      </span>
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.status.to_review",
+              "value": "TO_REVIEW",
+            },
+            Object {
+              "label": "hotspot.filters.status.fixed",
+              "value": "FIXED",
+            },
+            Object {
+              "label": "hotspot.filters.status.safe",
+              "value": "SAFE",
+            },
+          ]
+        }
+        searchable={false}
+        value="TO_REVIEW"
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="little-spacer-right"
+      >
+        metric.security_hotspots_reviewed.name
+      </span>
+      <HelpTooltip
+        className="big-spacer-right"
+        overlay="hotspots.reviewed.tooltip"
+      />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
+      >
+        <Measure
+          className="spacer-left huge"
+          metricKey="new_security_hotspots_reviewed"
+          metricType="PERCENT"
+        />
+      </DeferredSpinner>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: with hotspots reviewed measure 1`] = `
+<div
+  className="filter-bar display-flex-center"
+>
+  <div
+    className="display-flex-space-between width-100"
   >
-    status
-  </span>
-  <Select
-    className="input-medium big-spacer-right"
-    clearable={false}
-    onChange={[Function]}
-    options={
-      Array [
-        Object {
-          "label": "hotspot.filters.status.to_review",
-          "value": "TO_REVIEW",
-        },
-        Object {
-          "label": "hotspot.filters.status.fixed",
-          "value": "FIXED",
-        },
-        Object {
-          "label": "hotspot.filters.status.safe",
-          "value": "SAFE",
-        },
-      ]
-    }
-    searchable={false}
-    value="TO_REVIEW"
-  />
+    <div
+      className="display-flex-center"
+    >
+      <h3
+        className="huge-spacer-right"
+      >
+        hotspot.filters.title
+      </h3>
+      <span
+        className="spacer-right"
+      >
+        status
+      </span>
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.status.to_review",
+              "value": "TO_REVIEW",
+            },
+            Object {
+              "label": "hotspot.filters.status.fixed",
+              "value": "FIXED",
+            },
+            Object {
+              "label": "hotspot.filters.status.safe",
+              "value": "SAFE",
+            },
+          ]
+        }
+        searchable={false}
+        value="TO_REVIEW"
+      />
+      <Select
+        className="input-medium big-spacer-right"
+        clearable={false}
+        onChange={[Function]}
+        options={
+          Array [
+            Object {
+              "label": "hotspot.filters.period.since_leak_period",
+              "value": true,
+            },
+            Object {
+              "label": "hotspot.filters.period.overall",
+              "value": false,
+            },
+          ]
+        }
+        searchable={false}
+        value={false}
+      />
+    </div>
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="little-spacer-right"
+      >
+        metric.security_hotspots_reviewed.name
+      </span>
+      <HelpTooltip
+        className="big-spacer-right"
+        overlay="hotspots.reviewed.tooltip"
+      />
+      <DeferredSpinner
+        loading={false}
+        timeout={100}
+      >
+        <CoverageRating
+          value="23.30"
+        />
+        <Measure
+          className="spacer-left huge"
+          metricKey="security_hotspots_reviewed"
+          metricType="PERCENT"
+          value="23.30"
+        />
+      </DeferredSpinner>
+    </div>
+  </div>
 </div>
 `;

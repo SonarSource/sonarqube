@@ -18,17 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import Select from 'sonar-ui-common/components/controls/Select';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import Measure from '../../../components/measure/Measure';
+import CoverageRating from '../../../components/ui/CoverageRating';
 import { isLoggedIn } from '../../../helpers/users';
 import { HotspotFilters, HotspotStatusFilter } from '../../../types/security-hotspots';
 
 export interface FilterBarProps {
   currentUser: T.CurrentUser;
   filters: HotspotFilters;
+  hotspotsReviewedMeasure?: string;
+  isProject: boolean;
   isStaticListOfHotspots: boolean;
+  loadingMeasure: boolean;
   onBranch: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
   onShowAllHotspots: () => void;
@@ -56,7 +63,15 @@ const assigneeFilterOptions = [
 ];
 
 export function FilterBar(props: FilterBarProps) {
-  const { currentUser, filters, isStaticListOfHotspots, onBranch } = props;
+  const {
+    currentUser,
+    filters,
+    hotspotsReviewedMeasure,
+    isProject,
+    isStaticListOfHotspots,
+    loadingMeasure,
+    onBranch
+  } = props;
 
   return (
     <div className="filter-bar display-flex-center">
@@ -65,46 +80,73 @@ export function FilterBar(props: FilterBarProps) {
           {translate('hotspot.filters.show_all')}
         </a>
       ) : (
-        <>
-          <h3 className="huge-spacer-right">{translate('hotspot.filters.title')}</h3>
+        <div className="display-flex-space-between width-100">
+          <div className="display-flex-center">
+            <h3 className="huge-spacer-right">{translate('hotspot.filters.title')}</h3>
 
-          {isLoggedIn(currentUser) && (
-            <RadioToggle
-              className="huge-spacer-right"
-              name="assignee-filter"
-              onCheck={(value: AssigneeFilterOption) =>
-                props.onChangeFilters({ assignedToMe: value === AssigneeFilterOption.ME })
-              }
-              options={assigneeFilterOptions}
-              value={filters.assignedToMe ? AssigneeFilterOption.ME : AssigneeFilterOption.ALL}
-            />
-          )}
+            {isLoggedIn(currentUser) && (
+              <RadioToggle
+                className="huge-spacer-right"
+                name="assignee-filter"
+                onCheck={(value: AssigneeFilterOption) =>
+                  props.onChangeFilters({ assignedToMe: value === AssigneeFilterOption.ME })
+                }
+                options={assigneeFilterOptions}
+                value={filters.assignedToMe ? AssigneeFilterOption.ME : AssigneeFilterOption.ALL}
+              />
+            )}
 
-          <span className="spacer-right">{translate('status')}</span>
-          <Select
-            className="input-medium big-spacer-right"
-            clearable={false}
-            onChange={(option: { value: HotspotStatusFilter }) =>
-              props.onChangeFilters({ status: option.value })
-            }
-            options={statusOptions}
-            searchable={false}
-            value={filters.status}
-          />
-
-          {onBranch && (
+            <span className="spacer-right">{translate('status')}</span>
             <Select
               className="input-medium big-spacer-right"
               clearable={false}
-              onChange={(option: { value: boolean }) =>
-                props.onChangeFilters({ sinceLeakPeriod: option.value })
+              onChange={(option: { value: HotspotStatusFilter }) =>
+                props.onChangeFilters({ status: option.value })
               }
-              options={periodOptions}
+              options={statusOptions}
               searchable={false}
-              value={filters.sinceLeakPeriod}
+              value={filters.status}
             />
+
+            {onBranch && (
+              <Select
+                className="input-medium big-spacer-right"
+                clearable={false}
+                onChange={(option: { value: boolean }) =>
+                  props.onChangeFilters({ sinceLeakPeriod: option.value })
+                }
+                options={periodOptions}
+                searchable={false}
+                value={filters.sinceLeakPeriod}
+              />
+            )}
+          </div>
+
+          {isProject && (
+            <div className="display-flex-center">
+              <span className="little-spacer-right">
+                {translate('metric.security_hotspots_reviewed.name')}
+              </span>
+              <HelpTooltip
+                className="big-spacer-right"
+                overlay={translate('hotspots.reviewed.tooltip')}
+              />
+              <DeferredSpinner loading={loadingMeasure}>
+                {hotspotsReviewedMeasure && <CoverageRating value={hotspotsReviewedMeasure} />}
+                <Measure
+                  className="spacer-left huge"
+                  metricKey={
+                    onBranch && !filters.sinceLeakPeriod
+                      ? 'security_hotspots_reviewed'
+                      : 'new_security_hotspots_reviewed'
+                  }
+                  metricType="PERCENT"
+                  value={hotspotsReviewedMeasure}
+                />
+              </DeferredSpinner>
+            </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

@@ -18,8 +18,10 @@ exports[`should render correctly 1`] = `
     }
   }
   hotspots={Array []}
+  isProject={true}
   isStaticListOfHotspots={false}
   loading={true}
+  loadingMeasure={true}
   loadingMore={false}
   onChangeFilters={[Function]}
   onHotspotClick={[Function]}

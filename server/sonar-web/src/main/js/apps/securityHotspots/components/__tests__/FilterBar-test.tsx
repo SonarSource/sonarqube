@@ -29,6 +29,12 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('anonymous');
   expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('logged-in');
   expect(shallowRender({ onBranch: false })).toMatchSnapshot('on Pull request');
+  expect(shallowRender({ hotspotsReviewedMeasure: '23.30' })).toMatchSnapshot(
+    'with hotspots reviewed measure'
+  );
+  expect(shallowRender({ currentUser: mockLoggedInUser(), isProject: false })).toMatchSnapshot(
+    'non-project'
+  );
 });
 
 it('should render correctly when the list of hotspot is static', () => {
@@ -101,7 +107,9 @@ function shallowRender(props: Partial<FilterBarProps> = {}) {
         sinceLeakPeriod: false,
         status: HotspotStatusFilter.TO_REVIEW
       }}
+      isProject={true}
       isStaticListOfHotspots={false}
+      loadingMeasure={false}
       onBranch={true}
       onChangeFilters={jest.fn()}
       onShowAllHotspots={jest.fn()}

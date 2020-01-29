@@ -12,7 +12,9 @@ exports[`should render correctly 1`] = `
         "status": "TO_REVIEW",
       }
     }
+    isProject={true}
     isStaticListOfHotspots={true}
+    loadingMeasure={false}
     onBranch={false}
     onChangeFilters={[MockFunction]}
     onShowAllHotspots={[MockFunction]}

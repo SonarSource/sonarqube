@@ -20,13 +20,16 @@
 import { Location } from 'history';
 import * as React from 'react';
 import { addNoFooterPageClass, removeNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
+import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
 import { withCurrentUser } from '../../components/hoc/withCurrentUser';
 import { Router } from '../../components/hoc/withRouter';
+import { getLeakValue } from '../../components/measure/utils';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpers/branch-like';
 import { getStandards } from '../../helpers/security-standard';
 import { isLoggedIn } from '../../helpers/users';
 import { BranchLike } from '../../types/branch-like';
+import { ComponentQualifier } from '../../types/component';
 import {
   HotspotFilters,
   HotspotResolution,
@@ -52,8 +55,10 @@ interface State {
   hotspotKeys?: string[];
   hotspots: RawHotspot[];
   hotspotsPageIndex: number;
+  hotspotsReviewedMeasure?: string;
   hotspotsTotal?: number;
   loading: boolean;
+  loadingMeasure: boolean;
   loadingMore: boolean;
   securityCategories: T.StandardSecurityCategories;
   selectedHotspotKey: string | undefined;
@@ -69,6 +74,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
     this.state = {
       loading: true,
+      loadingMeasure: false,
       loadingMore: false,
       hotspots: [],
       hotspotsPageIndex: 1,
@@ -129,7 +135,11 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   };
 
   fetchInitialData() {
-    return Promise.all([getStandards(), this.fetchSecurityHotspots()])
+    return Promise.all([
+      getStandards(),
+      this.fetchSecurityHotspots(),
+      this.fetchSecurityHotspotsReviewed()
+    ])
       .then(([{ sonarsourceSecurity }, { hotspots, paging }]) => {
         if (!this.mounted) {
           return;
@@ -144,6 +154,38 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         });
       })
       .catch(this.handleCallFailure);
+  }
+
+  fetchSecurityHotspotsReviewed() {
+    const { branchLike, component } = this.props;
+    const { filters } = this.state;
+
+    const reviewedHotspotsMetricKey = filters.sinceLeakPeriod
+      ? 'new_security_hotspots_reviewed'
+      : 'security_hotspots_reviewed';
+
+    this.setState({ loadingMeasure: true });
+    return getMeasures({
+      component: component.key,
+      metricKeys: reviewedHotspotsMetricKey,
+      ...getBranchLikeQuery(branchLike)
+    })
+      .then(measures => {
+        if (!this.mounted) {
+          return;
+        }
+        const measure = measures && measures.length > 0 ? measures[0] : undefined;
+        const hotspotsReviewedMeasure = filters.sinceLeakPeriod
+          ? getLeakValue(measure)
+          : measure?.value;
+
+        this.setState({ hotspotsReviewedMeasure, loadingMeasure: false });
+      })
+      .catch(() => {
+        if (this.mounted) {
+          this.setState({ loadingMeasure: false });
+        }
+      });
   }
 
   fetchSecurityHotspots(page = 1) {
@@ -208,7 +250,12 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   handleChangeFilters = (changes: Partial<HotspotFilters>) => {
     this.setState(
       ({ filters }) => ({ filters: { ...filters, ...changes } }),
-      this.reloadSecurityHotspotList
+      () => {
+        this.reloadSecurityHotspotList();
+        if (changes.sinceLeakPeriod !== undefined) {
+          this.fetchSecurityHotspotsReviewed();
+        }
+      }
     );
   };
 
@@ -229,6 +276,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       }
       return null;
     });
+    return this.fetchSecurityHotspotsReviewed();
   };
 
   handleShowAllHotspots = () => {
@@ -259,12 +307,14 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchLike } = this.props;
+    const { branchLike, component } = this.props;
     const {
       hotspotKeys,
       hotspots,
+      hotspotsReviewedMeasure,
       hotspotsTotal,
       loading,
+      loadingMeasure,
       loadingMore,
       securityCategories,
       selectedHotspotKey,
@@ -276,9 +326,12 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         branchLike={branchLike}
         filters={filters}
         hotspots={hotspots}
+        hotspotsReviewedMeasure={hotspotsReviewedMeasure}
         hotspotsTotal={hotspotsTotal}
+        isProject={component.qualifier === ComponentQualifier.Project}
         isStaticListOfHotspots={Boolean(hotspotKeys && hotspotKeys.length > 0)}
         loading={loading}
+        loadingMeasure={loadingMeasure}
         loadingMore={loadingMore}
         onChangeFilters={this.handleChangeFilters}
         onHotspotClick={this.handleHotspotClick}

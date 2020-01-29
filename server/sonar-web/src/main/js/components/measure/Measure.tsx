@@ -42,7 +42,7 @@ export default function Measure({
   value
 }: Props) {
   if (value === undefined) {
-    return <span>–</span>;
+    return <span className={className}>–</span>;
   }
 
   if (metricType === 'LEVEL') {
