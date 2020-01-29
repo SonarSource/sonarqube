@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -139,7 +139,7 @@ public class IntegrateIssuesVisitorTest {
     IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[] {issueVisitor});
 
     defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.absent());
+    when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.empty());
 
     DbClient dbClient = dbTester.getDbClient();
     TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, sourceLinesHash, new CommonRuleEngineImpl(),

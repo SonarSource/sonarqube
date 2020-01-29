@@ -21,11 +21,11 @@ package org.sonar.ce.task.projectanalysis.source;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.LineHashVersion;
-import org.sonar.ce.task.projectanalysis.component.Component;
 
 public class DbLineHashVersion {
   private final Map<Component, LineHashVersion> lineHashVersionPerComponent = new HashMap<>();
@@ -36,7 +36,7 @@ public class DbLineHashVersion {
   }
 
   /**
-   * Reads from DB the version of line hashes for a component and returns if it was generated taking into account the ranges of significant code.
+   * Reads from DB the version of line hashes for a component and returns whether it was generated taking into account the ranges of significant code.
    * The response is cached.
    * Returns false if the component is not in the DB.
    */
@@ -44,6 +44,16 @@ public class DbLineHashVersion {
     return lineHashVersionPerComponent.computeIfAbsent(component, this::compute) == LineHashVersion.WITH_SIGNIFICANT_CODE;
   }
 
+  /**
+   * Reads from DB the version of line hashes for a component and returns whether it was generated taking into account the ranges of significant code.
+   * The response is cached.
+   * Returns false if the component is not in the DB.
+   */
+  public boolean hasLineHashesWithoutSignificantCode(Component component) {
+    return lineHashVersionPerComponent.computeIfAbsent(component, this::compute) == LineHashVersion.WITHOUT_SIGNIFICANT_CODE;
+  }
+
+  @CheckForNull
   private LineHashVersion compute(Component component) {
     try (DbSession session = dbClient.openSession(false)) {
       return dbClient.fileSourceDao().selectLineHashesVersion(session, component.getUuid());

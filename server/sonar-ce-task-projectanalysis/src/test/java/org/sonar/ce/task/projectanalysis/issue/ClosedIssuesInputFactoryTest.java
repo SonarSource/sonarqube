@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
@@ -47,7 +47,7 @@ public class ClosedIssuesInputFactoryTest {
   public void underTest_returns_inputFactory_loading_closed_issues_only_when_getIssues_is_called() {
     String componentUuid = randomAlphanumeric(12);
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).setUuid(componentUuid).build();
-    when(movedFilesRepository.getOriginalFile(component)).thenReturn(Optional.absent());
+    when(movedFilesRepository.getOriginalFile(component)).thenReturn(Optional.empty());
 
     Input<DefaultIssue> input = underTest.create(component);
 
@@ -81,7 +81,7 @@ public class ClosedIssuesInputFactoryTest {
   public void underTest_returns_inputFactory_which_caches_loaded_issues() {
     String componentUuid = randomAlphanumeric(12);
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).setUuid(componentUuid).build();
-    when(movedFilesRepository.getOriginalFile(component)).thenReturn(Optional.absent());
+    when(movedFilesRepository.getOriginalFile(component)).thenReturn(Optional.empty());
 
     Input<DefaultIssue> input = underTest.create(component);
 

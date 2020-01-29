@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.filemove;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -30,7 +30,7 @@ public interface MovedFilesRepository {
   /**
    * The original file for the specified component if it was registered as a moved file in the repository.
    * <p>
-   * Calling this method with a Component which is not a file, will always return {@link Optional#absent()}.
+   * Calling this method with a Component which is not a file, will always return {@link Optional#empty()}.
    * </p>
    */
   Optional<OriginalFile> getOriginalFile(Component file);

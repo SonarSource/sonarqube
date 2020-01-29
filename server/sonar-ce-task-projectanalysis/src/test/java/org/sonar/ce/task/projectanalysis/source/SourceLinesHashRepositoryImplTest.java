@@ -88,24 +88,24 @@ public class SourceLinesHashRepositoryImplTest {
 
   @Test
   public void should_create_hash_without_significant_code_if_db_has_no_significant_code() {
-    when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(false);
+    when(dbLineHashVersion.hasLineHashesWithoutSignificantCode(file)).thenReturn(true);
     List<String> lineHashes = underTest.getLineHashesMatchingDBVersion(file);
 
     assertLineHashes(lineHashes, "line1", "line2", "line3");
-    verify(dbLineHashVersion).hasLineHashesWithSignificantCode(file);
+    verify(dbLineHashVersion).hasLineHashesWithoutSignificantCode(file);
     verifyNoMoreInteractions(dbLineHashVersion);
     verifyZeroInteractions(significantCodeRepository);
   }
 
   @Test
   public void should_create_hash_without_significant_code_if_report_has_no_significant_code() {
-    when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(true);
+    when(dbLineHashVersion.hasLineHashesWithoutSignificantCode(file)).thenReturn(false);
     when(significantCodeRepository.getRangesPerLine(file)).thenReturn(Optional.empty());
 
     List<String> lineHashes = underTest.getLineHashesMatchingDBVersion(file);
 
     assertLineHashes(lineHashes, "line1", "line2", "line3");
-    verify(dbLineHashVersion).hasLineHashesWithSignificantCode(file);
+    verify(dbLineHashVersion).hasLineHashesWithoutSignificantCode(file);
     verifyNoMoreInteractions(dbLineHashVersion);
     verify(significantCodeRepository).getRangesPerLine(file);
     verifyNoMoreInteractions(significantCodeRepository);
@@ -121,7 +121,7 @@ public class SourceLinesHashRepositoryImplTest {
     List<String> lineHashes = underTest.getLineHashesMatchingDBVersion(file);
 
     assertLineHashes(lineHashes, "l", "", "ine3");
-    verify(dbLineHashVersion).hasLineHashesWithSignificantCode(file);
+    verify(dbLineHashVersion).hasLineHashesWithoutSignificantCode(file);
     verifyNoMoreInteractions(dbLineHashVersion);
     verify(significantCodeRepository).getRangesPerLine(file);
     verifyNoMoreInteractions(significantCodeRepository);
@@ -154,7 +154,7 @@ public class SourceLinesHashRepositoryImplTest {
     LineRange[] lineRanges = {new LineRange(0, 1), null, new LineRange(1, 5)};
     sourceLinesHashCache.computeIfAbsent(file, c -> lineHashes);
 
-    when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(true);
+    when(dbLineHashVersion.hasLineHashesWithoutSignificantCode(file)).thenReturn(false);
     when(significantCodeRepository.getRangesPerLine(file)).thenReturn(Optional.of(lineRanges));
 
     LineHashesComputer hashesComputer = underTest.getLineHashesComputerToPersist(file);
@@ -168,7 +168,7 @@ public class SourceLinesHashRepositoryImplTest {
     List<String> lineHashes = Lists.newArrayList("line1", "line2", "line3");
     sourceLinesHashCache.computeIfAbsent(file, c -> lineHashes);
 
-    when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(false);
+    when(dbLineHashVersion.hasLineHashesWithoutSignificantCode(file)).thenReturn(true);
     when(significantCodeRepository.getRangesPerLine(file)).thenReturn(Optional.empty());
 
     LineHashesComputer hashesComputer = underTest.getLineHashesComputerToPersist(file);
@@ -185,7 +185,7 @@ public class SourceLinesHashRepositoryImplTest {
     sourceLinesHashCache.computeIfAbsent(file, c -> lineHashes);
 
     // DB has line hashes without significant code and significant code is available in the report, so we need to generate new line hashes
-    when(dbLineHashVersion.hasLineHashesWithSignificantCode(file)).thenReturn(false);
+    when(dbLineHashVersion.hasLineHashesWithoutSignificantCode(file)).thenReturn(true);
     when(significantCodeRepository.getRangesPerLine(file)).thenReturn(Optional.of(lineRanges));
 
     LineHashesComputer hashesComputer = underTest.getLineHashesComputerToPersist(file);

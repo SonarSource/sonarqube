@@ -63,7 +63,7 @@ public class TrackerBaseInputFactory extends BaseInputFactory {
       // Folders have no issues
       return new EmptyTrackerBaseLazyInput(dbClient, component);
     }
-    return new FileTrackerBaseLazyInput(dbClient, component, movedFilesRepository.getOriginalFile(component).orNull());
+    return new FileTrackerBaseLazyInput(dbClient, component, movedFilesRepository.getOriginalFile(component).orElse(null));
   }
 
   private class FileTrackerBaseLazyInput extends BaseLazyInput {

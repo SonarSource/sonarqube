@@ -113,7 +113,6 @@ public class PersistFileSourcesStep implements ComputationStep {
       Changeset latestChangeWithRevision = fileSourceData.getLatestChangeWithRevision();
       int lineHashesVersion = sourceLinesHash.getLineHashesVersion(file);
       FileSourceDto previousDto = previousFileSourcesByUuid.get(file.getUuid());
-
       if (previousDto == null) {
         FileSourceDto dto = new FileSourceDto()
           .setProjectUuid(projectUuid)

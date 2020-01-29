@@ -39,7 +39,7 @@ public class ClosedIssuesInputFactory extends BaseInputFactory {
   }
 
   public Input<DefaultIssue> create(Component component) {
-    return new ClosedIssuesLazyInput(dbClient, component, movedFilesRepository.getOriginalFile(component).orNull());
+    return new ClosedIssuesLazyInput(dbClient, component, movedFilesRepository.getOriginalFile(component).orElse(null));
   }
 
   private class ClosedIssuesLazyInput extends BaseLazyInput {

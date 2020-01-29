@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -65,7 +65,7 @@ public class TrackerBaseInputFactoryTest {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
     when(movedFilesRepository.getOriginalFile(any(Component.class)))
-      .thenReturn(Optional.absent());
+      .thenReturn(Optional.empty());
   }
 
   @Test

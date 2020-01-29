@@ -29,26 +29,18 @@ import static java.util.Objects.requireNonNull;
 public interface FileSimilarity {
 
   interface File {
-    String getPath();
-
     List<String> getLineHashes();
 
     int getLineCount();
   }
 
   final class FileImpl implements File {
-    private final String path;
     private final List<String> lineHashes;
     private final int lineCount;
 
-    FileImpl(String path, List<String> lineHashes) {
-      this.path = requireNonNull(path, "path can not be null");
+    FileImpl(List<String> lineHashes) {
       this.lineHashes = requireNonNull(lineHashes, "lineHashes can not be null");
       this.lineCount = lineHashes.size();
-    }
-
-    public String getPath() {
-      return path;
     }
 
     /**
@@ -65,19 +57,13 @@ public interface FileSimilarity {
   }
 
   final class LazyFileImpl implements File {
-    private final String path;
     private final Supplier<List<String>> supplier;
     private final int lineCount;
     private List<String> lineHashes;
 
-    LazyFileImpl(String path, Supplier<List<String>> supplier, int lineCount) {
-      this.path = requireNonNull(path, "path can not be null");
+    LazyFileImpl(Supplier<List<String>> supplier, int lineCount) {
       this.supplier = requireNonNull(supplier, "supplier can not be null");
       this.lineCount = lineCount;
-    }
-
-    public String getPath() {
-      return path;
     }
 
     /**

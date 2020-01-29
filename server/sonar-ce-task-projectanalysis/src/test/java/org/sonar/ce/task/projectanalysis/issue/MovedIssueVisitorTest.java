@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.base.Optional;
 import java.util.Date;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -63,7 +63,7 @@ public class MovedIssueVisitorTest {
   public void setUp() throws Exception {
     analysisMetadataHolder.setAnalysisDate(ANALYSIS_DATE);
     when(movedFilesRepository.getOriginalFile(any(Component.class)))
-      .thenReturn(Optional.absent());
+      .thenReturn(Optional.empty());
   }
 
   @Test

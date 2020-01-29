@@ -19,9 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.filemove;
 
-import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -49,9 +49,9 @@ public class MutableMovedFilesRepositoryImpl implements MutableMovedFilesReposit
   public Optional<OriginalFile> getOriginalFile(Component file) {
     requireNonNull(file, "file can't be null");
     if (file.getType() != Component.Type.FILE) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
-    return Optional.fromNullable(originalFiles.get(file.getDbKey()));
+    return Optional.ofNullable(originalFiles.get(file.getDbKey()));
   }
 }

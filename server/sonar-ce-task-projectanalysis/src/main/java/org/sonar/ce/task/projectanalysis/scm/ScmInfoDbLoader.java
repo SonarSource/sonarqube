@@ -26,6 +26,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto;
@@ -34,11 +35,14 @@ public class ScmInfoDbLoader {
   private static final Logger LOGGER = Loggers.get(ScmInfoDbLoader.class);
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final MovedFilesRepository movedFilesRepository;
   private final DbClient dbClient;
   private final MergeAndTargetBranchComponentUuids mergeBranchComponentUuid;
 
-  public ScmInfoDbLoader(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient, MergeAndTargetBranchComponentUuids mergeBranchComponentUuid) {
+  public ScmInfoDbLoader(AnalysisMetadataHolder analysisMetadataHolder, MovedFilesRepository movedFilesRepository, DbClient dbClient,
+    MergeAndTargetBranchComponentUuids mergeBranchComponentUuid) {
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.movedFilesRepository = movedFilesRepository;
     this.dbClient = dbClient;
     this.mergeBranchComponentUuid = mergeBranchComponentUuid;
   }
@@ -61,6 +65,10 @@ public class ScmInfoDbLoader {
 
   private Optional<String> getFileUUid(Component file) {
     if (!analysisMetadataHolder.isFirstAnalysis() && !analysisMetadataHolder.isSLBorPR()) {
+      Optional<MovedFilesRepository.OriginalFile> originalFile = movedFilesRepository.getOriginalFile(file);
+      if (originalFile.isPresent()) {
+        return originalFile.map(MovedFilesRepository.OriginalFile::getUuid);
+      }
       return Optional.of(file.getUuid());
     }
 

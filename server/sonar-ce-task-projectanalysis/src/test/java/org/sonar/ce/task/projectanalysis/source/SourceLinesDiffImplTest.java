@@ -22,10 +22,12 @@ package org.sonar.ce.task.projectanalysis.source;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.MergeAndTargetBranchComponentUuids;
+import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRule;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
@@ -45,10 +47,12 @@ public class SourceLinesDiffImplTest {
   private FileSourceDao fileSourceDao = mock(FileSourceDao.class);
   private SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+  @Rule
+  public MutableMovedFilesRepositoryRule movedFiles = new MutableMovedFilesRepositoryRule();
   private MergeAndTargetBranchComponentUuids mergeAndTargetBranchComponentUuids = mock(MergeAndTargetBranchComponentUuids.class);
 
   private SourceLinesDiffImpl underTest = new SourceLinesDiffImpl(dbClient, fileSourceDao, sourceLinesHash,
-    mergeAndTargetBranchComponentUuids, analysisMetadataHolder);
+    mergeAndTargetBranchComponentUuids, movedFiles, analysisMetadataHolder);
 
   private static final int FILE_REF = 1;
 

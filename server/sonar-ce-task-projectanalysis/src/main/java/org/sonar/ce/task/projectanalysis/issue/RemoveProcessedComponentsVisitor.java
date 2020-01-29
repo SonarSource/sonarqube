@@ -20,10 +20,9 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import org.sonar.ce.task.projectanalysis.component.Component;
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
-
-import com.google.common.base.Optional;
 
 public class RemoveProcessedComponentsVisitor extends IssueVisitor {
   private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;

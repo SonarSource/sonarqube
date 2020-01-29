@@ -1087,13 +1087,6 @@ public class RegisterRulesTest {
     repo.done();
   }
 
-  private void verifyIndicesMarkedAsInitialized() {
-    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_RULE, true);
-    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_RULE_EXTENSION, true);
-    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_ACTIVE_RULE, true);
-    reset(metadataIndex);
-  }
-
   private RuleParamDto getParam(List<RuleParamDto> params, String key) {
     for (RuleParamDto param : params) {
       if (param.getName().equals(key)) {
