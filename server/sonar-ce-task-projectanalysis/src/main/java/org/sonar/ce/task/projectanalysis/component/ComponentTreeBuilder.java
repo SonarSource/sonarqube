@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -42,6 +41,7 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
 
 public class ComponentTreeBuilder {
 
@@ -64,7 +64,6 @@ public class ComponentTreeBuilder {
   private final Function<Integer, ScannerReport.Component> scannerComponentSupplier;
   private final Project project;
   private final Branch branch;
-  @Nullable
   private final ProjectAttributes projectAttributes;
 
   private ScannerReport.Component rootComponent;
@@ -97,11 +96,10 @@ public class ComponentTreeBuilder {
   }
 
   private Node createProjectHierarchy(ScannerReport.Component rootComponent) {
-    Preconditions.checkArgument(rootComponent.getType() == ScannerReport.Component.ComponentType.PROJECT, "Expected root component of type 'PROJECT'");
+    checkArgument(rootComponent.getType() == ScannerReport.Component.ComponentType.PROJECT, "Expected root component of type 'PROJECT'");
 
     LinkedList<ScannerReport.Component> queue = new LinkedList<>();
-    rootComponent.getChildRefList()
-      .stream()
+    rootComponent.getChildRefList().stream()
       .map(scannerComponentSupplier)
       .forEach(queue::addLast);
 
@@ -110,19 +108,14 @@ public class ComponentTreeBuilder {
 
     while (!queue.isEmpty()) {
       ScannerReport.Component component = queue.removeFirst();
-      switch (component.getType()) {
-        case FILE:
-          addFile(root, component);
-          break;
-        default:
-          throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
-      }
+      checkArgument(component.getType() == FILE, "Unsupported component type '%s'", component.getType());
+      addFile(root, component);
     }
     return root;
   }
 
   private static void addFile(Node root, ScannerReport.Component file) {
-    Preconditions.checkArgument(!StringUtils.isEmpty(file.getProjectRelativePath()), "Files should have a project relative path: " + file);
+    checkArgument(!StringUtils.isEmpty(file.getProjectRelativePath()), "Files should have a project relative path: " + file);
     String[] split = StringUtils.split(file.getProjectRelativePath(), '/');
     Node currentNode = root;
 
@@ -137,7 +130,7 @@ public class ComponentTreeBuilder {
     ScannerReport.Component component = node.reportComponent();
 
     if (component != null) {
-      if (component.getType() == ScannerReport.Component.ComponentType.FILE) {
+      if (component.getType() == FILE) {
         return buildFile(component);
       } else if (component.getType() == ScannerReport.Component.ComponentType.PROJECT) {
         return buildProject(childComponents);
@@ -220,10 +213,57 @@ public class ComponentTreeBuilder {
   }
 
   public Component buildChangedComponentTreeRoot(Component project) {
-    return buildChangedComponentTree(project);
+    return buildChangedComponentTree(project, "");
   }
 
-  private static ComponentImpl.Builder changedComponentBuilder(Component component) {
+  @Nullable
+  private static Component buildChangedComponentTree(Component component, String parentPath) {
+    switch (component.getType()) {
+      case PROJECT:
+        return buildChangedProject(component);
+      case DIRECTORY:
+        return buildChangedDirectory(component, parentPath);
+      case FILE:
+        return buildChangedFile(component);
+      default:
+        throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
+    }
+  }
+
+  private static Component buildChangedProject(Component component) {
+    return changedComponentBuilder(component, "", "")
+      .setProjectAttributes(new ProjectAttributes(component.getProjectAttributes()))
+      .addChildren(buildChangedComponentChildren(component))
+      .build();
+  }
+
+  @Nullable
+  private static Component buildChangedDirectory(Component component, String parentPath) {
+    List<Component> children = buildChangedComponentChildren(component);
+    if (children.isEmpty()) {
+      return null;
+    }
+
+    if (children.size() == 1 && children.get(0).getType() == Component.Type.DIRECTORY) {
+      Component child = children.get(0);
+      return changedComponentBuilder(child, parentPath, child.getName())
+        .addChildren(child.getChildren())
+        .build();
+    } else {
+      return changedComponentBuilder(component, parentPath, component.getName())
+        .addChildren(children)
+        .build();
+    }
+  }
+
+  private static List<Component> buildChangedComponentChildren(Component component) {
+    return component.getChildren().stream()
+      .map(c -> ComponentTreeBuilder.buildChangedComponentTree(c, component.getName()))
+      .filter(Objects::nonNull)
+      .collect(MoreCollectors.toList());
+  }
+
+  private static ComponentImpl.Builder changedComponentBuilder(Component component, String parentPath, String path) {
     return ComponentImpl.builder(component.getType())
       .setUuid(component.getUuid())
       .setDbKey(component.getDbKey())
@@ -231,41 +271,8 @@ public class ComponentTreeBuilder {
       .setStatus(component.getStatus())
       .setReportAttributes(component.getReportAttributes())
       .setName(component.getName())
-      .setShortName(component.getShortName())
+      .setShortName(removeStart(removeStart(path, parentPath), "/"))
       .setDescription(component.getDescription());
-  }
-
-  @Nullable
-  private static Component buildChangedComponentTree(Component component) {
-    switch (component.getType()) {
-      case PROJECT:
-        return buildChangedProject(component);
-      case DIRECTORY:
-        return buildChangedIntermediate(component);
-      case FILE:
-        return buildChangedFile(component);
-
-      default:
-        throw new IllegalArgumentException(format("Unsupported component type '%s'", component.getType()));
-    }
-  }
-
-  private static Component buildChangedProject(Component component) {
-    return changedComponentBuilder(component)
-      .setProjectAttributes(new ProjectAttributes(component.getProjectAttributes()))
-      .addChildren(buildChangedComponentChildren(component))
-      .build();
-  }
-
-  @Nullable
-  private static Component buildChangedIntermediate(Component component) {
-    List<Component> children = buildChangedComponentChildren(component);
-    if (children.isEmpty()) {
-      return null;
-    }
-    return changedComponentBuilder(component)
-      .addChildren(children)
-      .build();
   }
 
   @Nullable
@@ -273,17 +280,7 @@ public class ComponentTreeBuilder {
     if (component.getStatus() == Component.Status.SAME) {
       return null;
     }
-    return changedComponentBuilder(component)
-      .setFileAttributes(component.getFileAttributes())
-      .build();
-  }
-
-  private static List<Component> buildChangedComponentChildren(Component component) {
-    return component.getChildren()
-      .stream()
-      .map(ComponentTreeBuilder::buildChangedComponentTree)
-      .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList());
+    return component;
   }
 
   private void setNameAndDescription(ScannerReport.Component component, ComponentImpl.Builder builder) {
@@ -340,7 +337,7 @@ public class ComponentTreeBuilder {
   }
 
   private static FileAttributes createFileAttributes(ScannerReport.Component component) {
-    checkArgument(component.getType() == ScannerReport.Component.ComponentType.FILE);
+    checkArgument(component.getType() == FILE);
     checkArgument(component.getLines() > 0, "File '%s' has no line", component.getProjectRelativePath());
     String lang = trimToNull(component.getLanguage());
     return new FileAttributes(
