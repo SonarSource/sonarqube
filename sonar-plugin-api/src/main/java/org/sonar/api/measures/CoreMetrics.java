@@ -74,6 +74,11 @@ public final class CoreMetrics {
   public static String DOMAIN_SECURITY = "Security";
 
   /**
+   * @since 8.2
+   */
+  public static String DOMAIN_SECURITY_REVIEW = "SecurityReview";
+
+  /**
    * @since 5.5
    */
   public static String DOMAIN_RELEASABILITY = "Releasability";
@@ -1151,7 +1156,7 @@ public final class CoreMetrics {
     .setDescription("Security Hotspots")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_SECURITY)
+    .setDomain(DOMAIN_SECURITY_REVIEW)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1168,7 +1173,7 @@ public final class CoreMetrics {
     .setDescription("New Security Hotspots")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_SECURITY)
+    .setDomain(DOMAIN_SECURITY_REVIEW)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
@@ -1506,6 +1511,13 @@ public final class CoreMetrics {
     .setWorstValue(5.0)
     .create();
 
+
+  // --------------------------------------------------------------------------------------------------------------------
+  //
+  // SECURITY REVIEW
+  //
+  // --------------------------------------------------------------------------------------------------------------------
+
   /**
    * @since 7.8
    */
@@ -1516,11 +1528,28 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> SECURITY_REVIEW_RATING = new Metric.Builder(SECURITY_REVIEW_RATING_KEY, "Security Review Rating", Metric.ValueType.RATING)
     .setDescription("Security Review Rating")
-    .setDomain(DOMAIN_SECURITY)
+    .setDomain(DOMAIN_SECURITY_REVIEW)
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setBestValue(1d)
-    .setWorstValue(5d)
+    .setBestValue(1.0)
+    .setWorstValue(5.0)
+    .create();
+
+  /**
+   * @since 8.2
+   */
+  public static final String SECURITY_HOTSPOTS_REVIEWED_KEY = "security_hotspots_reviewed";
+
+  /**
+   * @since 8.2
+   */
+  public static final Metric<Integer> SECURITY_HOTSPOTS_REVIEWED = new Metric.Builder(SECURITY_HOTSPOTS_REVIEWED_KEY, "Security Hotspots Reviewed", Metric.ValueType.PERCENT)
+    .setDescription("Security Hotspots Reviewed")
+    .setDomain(DOMAIN_SECURITY_REVIEW)
+    .setDirection(Metric.DIRECTION_BETTER)
+    .setQualitative(true)
+    .setWorstValue(0.0)
+    .setBestValue(100.0)
     .create();
 
   // --------------------------------------------------------------------------------------------------------------------

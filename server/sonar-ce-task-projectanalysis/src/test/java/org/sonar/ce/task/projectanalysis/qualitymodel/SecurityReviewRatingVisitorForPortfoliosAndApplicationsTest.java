@@ -38,15 +38,11 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
-import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 
-public class SecurityReviewRatingVisitorTest {
-
-  private static final int PROJECT_REF = 1;
-  private static final Component PROJECT = builder(Component.Type.PROJECT, PROJECT_REF).setKey("project").build();
+public class SecurityReviewRatingVisitorForPortfoliosAndApplicationsTest {
 
   private static final int PORTFOLIO_REF = 10;
   private static final int SUB_PORTFOLIO_1_REF = 11;
@@ -74,20 +70,7 @@ public class SecurityReviewRatingVisitorTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(singletonList(new SecurityReviewRatingVisitor(measureRepository, metricRepository)));
-
-  @Test
-  public void compute_security_review_rating_on_project() {
-    treeRootHolder.setRoot(PROJECT);
-    measureRepository.addRawMeasure(PROJECT_REF, NCLOC_KEY, newMeasureBuilder().create(1000));
-    measureRepository.addRawMeasure(PROJECT_REF, SECURITY_HOTSPOTS_KEY, newMeasureBuilder().create(12));
-
-    underTest.visit(PROJECT);
-
-    Measure measure = measureRepository.getAddedRawMeasure(PROJECT_REF, SECURITY_REVIEW_RATING_KEY).get();
-    assertThat(measure.getIntValue()).isEqualTo(C.getIndex());
-    assertThat(measure.getData()).isEqualTo(C.name());
-  }
+  private VisitorsCrawler underTest = new VisitorsCrawler(singletonList(new SecurityReviewRatingVisitorForPortfoliosAndApplications(measureRepository, metricRepository)));
 
   @Test
   public void compute_security_review_rating_on_portfolio() {
@@ -121,21 +104,21 @@ public class SecurityReviewRatingVisitorTest {
 
   @Test
   public void compute_nothing_when_no_ncloc() {
-    treeRootHolder.setRoot(PROJECT);
-    measureRepository.addRawMeasure(PROJECT_REF, SECURITY_HOTSPOTS_KEY, newMeasureBuilder().create(2));
+    treeRootHolder.setRoot(PORTFOLIO);
+    measureRepository.addRawMeasure(PORTFOLIO_REF, SECURITY_HOTSPOTS_KEY, newMeasureBuilder().create(2));
 
-    underTest.visit(PROJECT);
+    underTest.visit(PORTFOLIO);
 
-    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, SECURITY_REVIEW_RATING_KEY)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasure(PORTFOLIO_REF, SECURITY_REVIEW_RATING_KEY)).isEmpty();
   }
 
   @Test
   public void compute_nothing_when_no_security_hotspot() {
-    treeRootHolder.setRoot(PROJECT);
-    measureRepository.addRawMeasure(PROJECT_REF, NCLOC_KEY, newMeasureBuilder().create(1000));
+    treeRootHolder.setRoot(PORTFOLIO);
+    measureRepository.addRawMeasure(PORTFOLIO_REF, NCLOC_KEY, newMeasureBuilder().create(1000));
 
-    underTest.visit(PROJECT);
+    underTest.visit(PORTFOLIO);
 
-    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, SECURITY_REVIEW_RATING_KEY)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasure(PORTFOLIO_REF, SECURITY_REVIEW_RATING_KEY)).isEmpty();
   }
 }

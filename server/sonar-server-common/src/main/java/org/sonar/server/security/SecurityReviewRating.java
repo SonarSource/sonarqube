@@ -21,27 +21,58 @@ package org.sonar.server.security;
 
 import org.sonar.server.measure.Rating;
 
+import static org.sonar.server.measure.Rating.A;
+import static org.sonar.server.measure.Rating.B;
+import static org.sonar.server.measure.Rating.C;
+import static org.sonar.server.measure.Rating.D;
+import static org.sonar.server.measure.Rating.E;
+
 public class SecurityReviewRating {
 
   private SecurityReviewRating() {
     // Only static method
   }
 
-  public static Rating compute(int ncloc, int securityHotspots) {
+  /**
+   * This code will be removed when updating computation of Security Review Rating for portfolios
+   */
+  @Deprecated
+  public static Rating computeForPortfolios(int ncloc, int securityHotspots) {
     if (ncloc == 0) {
-      return Rating.A;
+      return A;
     }
     double ratio = (double) securityHotspots * 1000d / (double) ncloc;
     if (ratio <= 3d) {
-      return Rating.A;
+      return A;
     } else if (ratio <= 10) {
-      return Rating.B;
+      return B;
     } else if (ratio <= 15) {
-      return Rating.C;
+      return C;
     } else if (ratio <= 25) {
-      return Rating.D;
+      return D;
     } else {
-      return Rating.E;
+      return E;
     }
+  }
+
+  public static Double computePercent(long hotspotsToReview, long hotspotsReviewed) {
+    long total = hotspotsToReview + hotspotsReviewed;
+    if (total == 0) {
+      return 100.0;
+    }
+    return hotspotsReviewed * 100.0 / total;
+  }
+
+  public static Rating computeRating(Double percent) {
+    if (percent >= 80.0) {
+      return A;
+    } else if (percent >= 70.0) {
+      return B;
+    } else if (percent >= 50.0) {
+      return C;
+    } else if (percent >= 30.0) {
+      return D;
+    }
+    return E;
   }
 }

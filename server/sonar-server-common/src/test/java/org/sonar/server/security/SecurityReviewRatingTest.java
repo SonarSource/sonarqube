@@ -62,7 +62,7 @@ public class SecurityReviewRatingTest {
   @Test
   @UseDataProvider("values")
   public void compute_security_review_rating_on_project(int ncloc, int securityHotspots, Rating expectedRating) {
-    assertThat(SecurityReviewRating.compute(ncloc, securityHotspots)).isEqualTo(expectedRating);
+    assertThat(SecurityReviewRating.computeForPortfolios(ncloc, securityHotspots)).isEqualTo(expectedRating);
   }
 
 }

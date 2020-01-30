@@ -34,18 +34,16 @@ import org.sonar.server.security.SecurityReviewRating;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 
-public class SecurityReviewRatingVisitor extends TypeAwareVisitorAdapter {
+public class SecurityReviewRatingVisitorForPortfoliosAndApplications extends TypeAwareVisitorAdapter {
 
   private final MeasureRepository measureRepository;
   private final Metric nclocMetric;
   private final Metric securityHostspotsMetric;
   private final Metric securityReviewRatingMetric;
 
-  public SecurityReviewRatingVisitor(MeasureRepository measureRepository, MetricRepository metricRepository) {
-    super(new CrawlerDepthLimit.Builder(PROJECT).withViewsMaxDepth(SUBVIEW), Order.POST_ORDER);
+  public SecurityReviewRatingVisitorForPortfoliosAndApplications(MeasureRepository measureRepository, MetricRepository metricRepository) {
+    super(CrawlerDepthLimit.SUBVIEW, Order.POST_ORDER);
     this.measureRepository = measureRepository;
     this.nclocMetric = metricRepository.getByKey(NCLOC_KEY);
     this.securityHostspotsMetric = metricRepository.getByKey(SECURITY_HOTSPOTS_KEY);
@@ -54,7 +52,7 @@ public class SecurityReviewRatingVisitor extends TypeAwareVisitorAdapter {
 
   @Override
   public void visitProject(Component project) {
-    computeMeasure(project);
+    // Do nothing
   }
 
   @Override
@@ -75,7 +73,7 @@ public class SecurityReviewRatingVisitor extends TypeAwareVisitorAdapter {
     }
     int ncloc = nclocMeasure.get().getIntValue();
     int securityHotspots = securityHostspotsMeasure.get().getIntValue();
-    Rating rating = SecurityReviewRating.compute(ncloc, securityHotspots);
+    Rating rating = SecurityReviewRating.computeForPortfolios(ncloc, securityHotspots);
     measureRepository.add(component, securityReviewRatingMetric, RatingMeasures.get(rating));
   }
 

@@ -40,6 +40,7 @@ class IssueCounter {
   private final Map<RuleType, Count> unresolvedByType = new EnumMap<>(RuleType.class);
   private final Map<String, Count> byResolution = new HashMap<>();
   private final Map<String, Count> byStatus = new HashMap<>();
+  private final Map<String, Count> hotspotsByStatus = new HashMap<>();
   private final Count unresolved = new Count();
 
   IssueCounter(Collection<IssueGroupDto> groups) {
@@ -49,6 +50,11 @@ class IssueCounter {
         if (group.getResolution() == null) {
           unresolvedByType
             .computeIfAbsent(SECURITY_HOTSPOT, k -> new Count())
+            .add(group);
+        }
+        if (group.getStatus() != null) {
+          hotspotsByStatus
+            .computeIfAbsent(group.getStatus(), k -> new Count())
             .add(group);
         }
         continue;
@@ -111,6 +117,10 @@ class IssueCounter {
 
   public long countUnresolved(boolean onlyInLeak) {
     return value(unresolved, onlyInLeak);
+  }
+
+  public long countHotspotsByStatus(String status, boolean onlyInLeak) {
+    return value(hotspotsByStatus.get(status), onlyInLeak);
   }
 
   private static long value(@Nullable Count count, boolean onlyInLeak) {

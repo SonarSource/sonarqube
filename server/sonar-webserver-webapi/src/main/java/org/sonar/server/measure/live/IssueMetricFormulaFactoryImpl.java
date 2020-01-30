@@ -28,10 +28,11 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.server.measure.Rating;
-import org.sonar.server.security.SecurityReviewRating;
 
 import static java.util.Arrays.asList;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
+import static org.sonar.server.security.SecurityReviewRating.computePercent;
+import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
 public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory {
 
@@ -109,9 +110,12 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
       (context, issues) -> context.setValue(RATING_BY_SEVERITY.get(issues.getHighestSeverityOfUnresolved(RuleType.VULNERABILITY, false).orElse(Severity.INFO)))),
 
     new IssueMetricFormula(CoreMetrics.SECURITY_REVIEW_RATING, false,
-      (context, issues) -> context.setValue(SecurityReviewRating.compute(context.getValue(CoreMetrics.NCLOC).orElse(0d).intValue(),
-        context.getValue(CoreMetrics.SECURITY_HOTSPOTS).orElse(0d).intValue())),
-      asList(CoreMetrics.NCLOC, CoreMetrics.SECURITY_HOTSPOTS)),
+      (context, issues) -> context
+        .setValue(computeRating(computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false))))),
+
+    new IssueMetricFormula(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, false,
+      (context, issues) -> context
+        .setValue(computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false)))),
 
     new IssueMetricFormula(CoreMetrics.NEW_CODE_SMELLS, true,
       (context, issues) -> context.setLeakValue(issues.countUnresolvedByType(RuleType.CODE_SMELL, true))),
@@ -181,7 +185,7 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
     if (devCost.isPresent() && Double.doubleToRawLongBits(devCost.get()) > 0L) {
       return debt / devCost.get();
     }
-    return 0d;
+    return 0.0;
   }
 
   private static double newDebtDensity(IssueMetricFormula.Context context) {
@@ -190,7 +194,7 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
     if (devCost.isPresent() && Double.doubleToRawLongBits(devCost.get()) > 0L) {
       return debt / devCost.get();
     }
-    return 0d;
+    return 0.0;
   }
 
   private static double effortToReachMaintainabilityRatingA(IssueMetricFormula.Context context) {

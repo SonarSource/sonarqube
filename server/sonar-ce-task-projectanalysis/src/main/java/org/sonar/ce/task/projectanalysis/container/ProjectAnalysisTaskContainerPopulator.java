@@ -70,21 +70,21 @@ import org.sonar.ce.task.projectanalysis.issue.IssueTrackingDelegator;
 import org.sonar.ce.task.projectanalysis.issue.IssueVisitors;
 import org.sonar.ce.task.projectanalysis.issue.IssuesRepositoryVisitor;
 import org.sonar.ce.task.projectanalysis.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
-import org.sonar.ce.task.projectanalysis.issue.ReferenceBranchTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.ce.task.projectanalysis.issue.NewEffortAggregator;
+import org.sonar.ce.task.projectanalysis.issue.PullRequestTrackerExecution;
+import org.sonar.ce.task.projectanalysis.issue.ReferenceBranchTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.issue.RuleTagsCopier;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.ce.task.projectanalysis.issue.ScmAccountToUserLoader;
-import org.sonar.ce.task.projectanalysis.issue.PullRequestTrackerExecution;
 import org.sonar.ce.task.projectanalysis.issue.SiblingsIssueMerger;
 import org.sonar.ce.task.projectanalysis.issue.SiblingsIssuesLoader;
 import org.sonar.ce.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerExecution;
-import org.sonar.ce.task.projectanalysis.issue.TrackerReferenceBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.TrackerRawInputFactory;
+import org.sonar.ce.task.projectanalysis.issue.TrackerReferenceBranchInputFactory;
 import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.projectanalysis.issue.commonrule.BranchCoverageRule;
 import org.sonar.ce.task.projectanalysis.issue.commonrule.CommentDensityRule;
@@ -113,7 +113,7 @@ import org.sonar.ce.task.projectanalysis.qualitymodel.NewMaintainabilityMeasures
 import org.sonar.ce.task.projectanalysis.qualitymodel.NewReliabilityAndSecurityRatingMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualitymodel.RatingSettings;
 import org.sonar.ce.task.projectanalysis.qualitymodel.ReliabilityAndSecurityRatingMeasuresVisitor;
-import org.sonar.ce.task.projectanalysis.qualitymodel.SecurityReviewRatingVisitor;
+import org.sonar.ce.task.projectanalysis.qualitymodel.SecurityReviewMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoDbLoader;
@@ -268,7 +268,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       NewMaintainabilityMeasuresVisitor.class,
       ReliabilityAndSecurityRatingMeasuresVisitor.class,
       NewReliabilityAndSecurityRatingMeasuresVisitor.class,
-      SecurityReviewRatingVisitor.class,
+      SecurityReviewMeasuresVisitor.class,
       LastCommitVisitor.class,
       MeasureComputersVisitor.class,
 

@@ -120,16 +120,29 @@ public class IssueMetricFormulaFactoryImplTest {
       newResolvedGroup(RuleType.SECURITY_HOTSPOT).setCount(7),
       // not hotspots
       newGroup(RuleType.BUG).setCount(11))
-      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS, 3 + 5);
+        .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS, 3 + 5);
   }
 
   @Test
   public void test_security_review_rating() {
-    withNoIssues().assertThatValueIs(CoreMetrics.SECURITY_REVIEW_RATING, Rating.A);
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
+        .assertThatValueIs(CoreMetrics.SECURITY_REVIEW_RATING, Rating.B);
 
-    with(CoreMetrics.SECURITY_HOTSPOTS, 12.0)
-      .and(CoreMetrics.NCLOC, 1000.0)
-      .assertThatValueIs(CoreMetrics.SECURITY_REVIEW_RATING, Rating.C);
+    withNoIssues()
+      .assertThatValueIs(CoreMetrics.SECURITY_REVIEW_RATING, Rating.A);
+  }
+
+  @Test
+  public void test_security_hotspots_reviewed() {
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
+      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 75.0);
+
+    withNoIssues()
+      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 100.0);
   }
 
   @Test
