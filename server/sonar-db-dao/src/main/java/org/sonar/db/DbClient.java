@@ -24,6 +24,7 @@ import java.util.Map;
 import org.sonar.db.alm.AlmAppInstallDao;
 import org.sonar.db.alm.OrganizationAlmBindingDao;
 import org.sonar.db.alm.ProjectAlmBindingDao;
+import org.sonar.db.alm.pat.AlmPatDao;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
 import org.sonar.db.ce.CeActivityDao;
@@ -103,6 +104,7 @@ public class DbClient {
   private final PropertiesDao propertiesDao;
   private final AlmAppInstallDao almAppInstallDao;
   private final AlmSettingDao almSettingDao;
+  private final AlmPatDao almPatDao;
   private final ProjectAlmSettingDao projectAlmSettingDao;
   private final ProjectAlmBindingDao projectAlmBindingDao;
   private final InternalComponentPropertiesDao internalComponentPropertiesDao;
@@ -172,6 +174,7 @@ public class DbClient {
     }
     almAppInstallDao = getDao(map, AlmAppInstallDao.class);
     almSettingDao = getDao(map, AlmSettingDao.class);
+    almPatDao = getDao(map, AlmPatDao.class);
     projectAlmSettingDao = getDao(map, ProjectAlmSettingDao.class);
     projectAlmBindingDao = getDao(map, ProjectAlmBindingDao.class);
     schemaMigrationDao = getDao(map, SchemaMigrationDao.class);
@@ -252,6 +255,10 @@ public class DbClient {
 
   public AlmSettingDao almSettingDao() {
     return almSettingDao;
+  }
+
+  public AlmPatDao almPatDao() {
+    return almPatDao;
   }
 
   public ProjectAlmSettingDao projectAlmSettingDao() {
@@ -519,4 +526,5 @@ public class DbClient {
   public NewCodePeriodDao newCodePeriodDao() {
     return newCodePeriodDao;
   }
+
 }

@@ -17,19 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.alm.integration.pat;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.alm.pat.AlmPatDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isGreaterThan(1);
+public class AlmPatsTesting {
+
+  public static AlmPatDto newAlmPatDto() {
+    AlmPatDto almPatDto = new AlmPatDto();
+    almPatDto.setAlmSettingUuid(randomAlphanumeric(40));
+    almPatDto.setPersonalAccessToken(randomAlphanumeric(2000));
+    almPatDto.setUserUuid(randomAlphanumeric(40));
+    return almPatDto;
   }
+
 }

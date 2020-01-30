@@ -33,6 +33,7 @@ import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.alm.AlmDbTester;
+import org.sonar.db.alm.integration.pat.AlmPatsDbTester;
 import org.sonar.db.almsettings.AlmSettingsDbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ProjectLinkDbTester;
@@ -98,6 +99,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
   private final AlmDbTester almDbTester;
   private final InternalComponentPropertyDbTester internalComponentPropertyTester;
   private final AlmSettingsDbTester almSettingsDbTester;
+  private final AlmPatsDbTester almPatsDbtester;
 
   private DbTester(System2 system2, @Nullable String schemaPath, MyBatisConfExtension... confExtensions) {
     super(TestDbImpl.create(schemaPath, confExtensions));
@@ -127,6 +129,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     this.internalComponentPropertyTester = new InternalComponentPropertyDbTester(this);
     this.newCodePeriodTester = new NewCodePeriodDbTester(this);
     this.almSettingsDbTester = new AlmSettingsDbTester(this);
+    this.almPatsDbtester = new AlmPatsDbTester(this);
   }
 
   public static DbTester create() {
@@ -299,6 +302,10 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
 
   public AlmSettingsDbTester almSettings() {
     return almSettingsDbTester;
+  }
+
+  public AlmPatsDbTester almPats(){
+    return almPatsDbtester;
   }
 
   @Override

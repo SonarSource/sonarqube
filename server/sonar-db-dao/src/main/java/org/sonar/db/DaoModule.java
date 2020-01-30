@@ -26,6 +26,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.db.alm.AlmAppInstallDao;
 import org.sonar.db.alm.OrganizationAlmBindingDao;
 import org.sonar.db.alm.ProjectAlmBindingDao;
+import org.sonar.db.alm.pat.AlmPatDao;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
 import org.sonar.db.ce.CeActivityDao;
@@ -119,6 +120,7 @@ public class DaoModule extends Module {
     GroupPermissionDao.class,
     AlmAppInstallDao.class,
     AlmSettingDao.class,
+    AlmPatDao.class,
     ProjectAlmSettingDao.class,
     ProjectAlmBindingDao.class,
     InternalComponentPropertiesDao.class,

@@ -17,19 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db;
+package org.sonar.db.alm.integration.pat;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.function.Consumer;
+import org.sonar.db.DbTester;
+import org.sonar.db.alm.pat.AlmPatDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static java.util.Arrays.stream;
+import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 
-public class DaoModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new DaoModule().configure(container);
-    assertThat(container.size()).isGreaterThan(1);
+public class AlmPatsDbTester {
+
+  private final DbTester db;
+
+  public AlmPatsDbTester(DbTester db) {
+    this.db = db;
   }
+
+  @SafeVarargs
+  public final AlmPatDto insert(Consumer<AlmPatDto>... populators) {
+    return insert(newAlmPatDto(), populators);
+  }
+
+  private AlmPatDto insert(AlmPatDto dto, Consumer<AlmPatDto>[] populators) {
+    stream(populators).forEach(p -> p.accept(dto));
+    db.getDbClient().almPatDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
 }

@@ -63,7 +63,7 @@ public class AlmSettingDto {
   private String privateKey;
 
   /**
-   * Personal access token of the Azure DevOps instance. Max size is 2000.
+   * Personal access token of the Azure DevOps / Bitbucket instance. Max size is 2000.
    * This column will only be fed when alm is Azure DevOps or Bitbucket.
    * It will be null when the ALM is GitHub.
    */
