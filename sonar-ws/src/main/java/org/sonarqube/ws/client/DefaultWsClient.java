@@ -20,6 +20,7 @@
 package org.sonarqube.ws.client;
 
 import javax.annotation.Generated;
+import org.sonarqube.ws.client.almintegration.AlmIntegrationService;
 import org.sonarqube.ws.client.almsettings.AlmSettingsService;
 import org.sonarqube.ws.client.analysisreports.AnalysisReportsService;
 import org.sonarqube.ws.client.applications.ApplicationsService;
@@ -140,6 +141,7 @@ class DefaultWsClient implements WsClient {
   private final WebservicesService webservicesService;
   private final BatchService batchService;
   private final SecurityReportsService securityReportsService;
+  private final AlmIntegrationService almIntegrationService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -198,6 +200,7 @@ class DefaultWsClient implements WsClient {
     this.webservicesService = new WebservicesService(wsConnector);
     this.batchService = new BatchService(wsConnector);
     this.securityReportsService = new SecurityReportsService(wsConnector);
+    this.almIntegrationService = new AlmIntegrationService(wsConnector);
   }
 
   @Override
@@ -209,6 +212,11 @@ class DefaultWsClient implements WsClient {
   @Override
   public AlmSettingsService almSettings() {
     return almSettingsService;
+  }
+
+  @Override
+  public AlmIntegrationService almIntegrations() {
+    return almIntegrationService;
   }
 
   @Override
