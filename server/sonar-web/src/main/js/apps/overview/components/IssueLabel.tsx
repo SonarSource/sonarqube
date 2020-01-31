@@ -25,7 +25,7 @@ import DocTooltip from '../../../components/docs/DocTooltip';
 import { getLeakValue } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure } from '../../../helpers/measures';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { getIssueIconClass, getIssueMetricKey, IssueType } from '../utils';
 
@@ -63,7 +63,11 @@ export function IssueLabel(props: IssueLabelProps) {
       ) : (
         <Link
           className="overview-measures-value text-light"
-          to={getComponentIssuesUrl(component.key, params)}>
+          to={
+            type === IssueType.SecurityHotspot
+              ? getComponentSecurityHotspotsUrl(component.key, getBranchLikeQuery(branchLike))
+              : getComponentIssuesUrl(component.key, params)
+          }>
           {formatMeasure(value, 'SHORT_INT')}
         </Link>
       )}

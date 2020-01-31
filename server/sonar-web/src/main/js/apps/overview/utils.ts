@@ -88,6 +88,7 @@ export const PR_METRICS: string[] = [
   MetricKey.new_reliability_rating,
   MetricKey.new_vulnerabilities,
   MetricKey.new_security_hotspots,
+  MetricKey.new_security_review_rating,
   MetricKey.new_security_rating
 ];
 
@@ -165,9 +166,10 @@ const ISSUETYPE_MAP = {
   [IssueType.SecurityHotspot]: {
     metric: MetricKey.security_hotspots,
     newMetric: MetricKey.new_security_hotspots,
-    rating: '',
-    newRating: '',
-    ratingName: '',
+    rating: MetricKey.security_review_rating,
+    newRating: MetricKey.new_security_review_rating,
+    ratingName: 'SecurityReview',
+
     iconClass: SecurityHotspotIcon
   }
 };

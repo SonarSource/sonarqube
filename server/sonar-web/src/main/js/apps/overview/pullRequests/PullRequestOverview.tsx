@@ -175,44 +175,33 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
               </h2>
 
               <div className="overview-panel-content">
-                {[IssueType.Bug, IssueType.Vulnerability, IssueType.CodeSmell].map(
-                  (type: IssueType) => (
-                    <div className="overview-measures-row display-flex-row" key={type}>
-                      <div className="overview-panel-big-padded flex-1 small display-flex-center">
-                        <IssueLabel
-                          branchLike={branchLike}
-                          component={component}
-                          measures={measures}
-                          type={type}
-                          useDiffMetric={true}
-                        />
-                      </div>
-                      {type === 'VULNERABILITY' && (
-                        <div className="flex-1 small display-flex-center">
-                          <IssueLabel
-                            branchLike={branchLike}
-                            component={component}
-                            docTooltip={import(
-                              /* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md'
-                            )}
-                            measures={measures}
-                            type={IssueType.SecurityHotspot}
-                            useDiffMetric={true}
-                          />
-                        </div>
-                      )}
-                      <div className="overview-panel-big-padded overview-measures-aside display-flex-center">
-                        <IssueRating
-                          branchLike={branchLike}
-                          component={component}
-                          measures={measures}
-                          type={type}
-                          useDiffMetric={true}
-                        />
-                      </div>
+                {[
+                  IssueType.Bug,
+                  IssueType.Vulnerability,
+                  IssueType.SecurityHotspot,
+                  IssueType.CodeSmell
+                ].map((type: IssueType) => (
+                  <div className="overview-measures-row display-flex-row" key={type}>
+                    <div className="overview-panel-big-padded flex-1 small display-flex-center">
+                      <IssueLabel
+                        branchLike={branchLike}
+                        component={component}
+                        measures={measures}
+                        type={type}
+                        useDiffMetric={true}
+                      />
                     </div>
-                  )
-                )}
+                    <div className="overview-panel-big-padded overview-measures-aside display-flex-center">
+                      <IssueRating
+                        branchLike={branchLike}
+                        component={component}
+                        measures={measures}
+                        type={type}
+                        useDiffMetric={true}
+                      />
+                    </div>
+                  </div>
+                ))}
 
                 {[MeasurementType.Coverage, MeasurementType.Duplication].map(
                   (type: MeasurementType) => (

@@ -18,17 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
-import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
-import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
-import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
 import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
-import Rating from 'sonar-ui-common/components/ui/Rating';
 import SizeRating from 'sonar-ui-common/components/ui/SizeRating';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import ProjectCardLanguagesContainer from './ProjectCardLanguagesContainer';
+import ProjectCardRatingMeasure from './ProjectCardRatingMeasure';
 
 interface Props {
   measures: T.Dict<string | undefined>;
@@ -46,77 +42,39 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
 
   return (
     <div className="project-card-measures">
-      <div className="project-card-measure" data-key="reliability_rating">
-        <div className="project-card-measure-inner">
-          <div className="project-card-measure-number">
-            <Measure
-              className="spacer-right"
-              metricKey="bugs"
-              metricType="SHORT_INT"
-              value={measures['bugs']}
-            />
-            <Rating value={measures['reliability_rating']} />
-          </div>
-          <div className="project-card-measure-label-with-icon">
-            <BugIcon className="little-spacer-right text-bottom" />
-            {translate('metric.bugs.name')}
-          </div>
-        </div>
-      </div>
+      <ProjectCardRatingMeasure
+        iconLabel={translate('metric.bugs.name')}
+        measures={measures}
+        metricKey="bugs"
+        metricRatingKey="reliability_rating"
+        metricType="SHORT_INT"
+      />
 
-      <div className="project-card-measure" data-key="security_rating">
-        <div className="project-card-measure-inner">
-          <div className="project-card-measure-number">
-            <Measure
-              className="spacer-right"
-              metricKey="vulnerabilities"
-              metricType="SHORT_INT"
-              value={measures['vulnerabilities']}
-            />
-            <Rating value={measures['security_rating']} />
-          </div>
-          <div className="project-card-measure-label-with-icon">
-            <VulnerabilityIcon className="little-spacer-right text-bottom" />
-            {translate('metric.vulnerabilities.name')}
-          </div>
-        </div>
-      </div>
+      <ProjectCardRatingMeasure
+        iconLabel={translate('metric.vulnerabilities.name')}
+        measures={measures}
+        metricKey="vulnerabilities"
+        metricRatingKey="security_rating"
+        metricType="SHORT_INT"
+      />
 
-      <div className="project-card-measure" data-key="security_review_rating">
-        <div className="project-card-measure-inner">
-          <div className="project-card-measure-number">
-            <Measure
-              className="spacer-right"
-              metricKey="security_hotspots_reviewed"
-              metricType="PERCENT"
-              value={measures['security_hotspots_reviewed']}
-            />
-            <Rating value={measures['security_review_rating']} />
-          </div>
-          <div className="project-card-measure-label-with-icon">
-            <SecurityHotspotIcon className="little-spacer-right text-bottom" />
-            {translate('metric.security_hotspots_reviewed.extra_short_name')}
-          </div>
-        </div>
-      </div>
+      <ProjectCardRatingMeasure
+        iconKey="security_hotspots"
+        iconLabel={translate('projects.security_hotspots_reviewed')}
+        measures={measures}
+        metricKey="security_hotspots_reviewed"
+        metricRatingKey="security_review_rating"
+        metricType="PERCENT"
+      />
 
-      <div className="project-card-measure" data-key="sqale_rating">
-        <div className="project-card-measure-inner">
-          <div className="project-card-measure-number">
-            <Measure
-              className="spacer-right"
-              metricKey="code_smells"
-              metricType="SHORT_INT"
-              value={measures['code_smells']}
-            />
-            <Rating value={measures['sqale_rating']} />
-          </div>
-          <div className="project-card-measure-label-with-icon">
-            <CodeSmellIcon className="little-spacer-right text-bottom" />
-            {translate('metric.code_smells.name')}
-          </div>
-        </div>
-      </div>
+      <ProjectCardRatingMeasure
+        iconLabel={translate('metric.code_smells.name')}
+        measures={measures}
+        metricKey="code_smells"
+        metricRatingKey="sqale_rating"
+        metricType="SHORT_INT"
+      />
+
       {measures['coverage'] != null && (
         <div className="project-card-measure" data-key="coverage">
           <div className="project-card-measure-inner">

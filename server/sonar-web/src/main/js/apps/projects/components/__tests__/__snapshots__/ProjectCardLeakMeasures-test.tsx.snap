@@ -4,123 +4,87 @@ exports[`should render correctly with all data 1`] = `
 <div
   className="project-card-leak-measures"
 >
-  <div
-    className="project-card-measure"
-    data-key="new_reliability_rating"
-  >
-    <div
-      className="project-card-measure-inner"
-    >
-      <div
-        className="project-card-measure-number"
-      >
-        <Measure
-          className="spacer-right"
-          metricKey="new_bugs"
-          metricType="SHORT_INT"
-          value="8"
-        />
-        <Rating
-          value="1.0"
-        />
-      </div>
-      <div
-        className="project-card-measure-label-with-icon"
-      >
-        <BugIcon
-          className="little-spacer-right text-bottom"
-        />
-        metric.bugs.name
-      </div>
-    </div>
-  </div>
-  <div
-    className="project-card-measure"
-    data-key="new_security_rating"
-  >
-    <div
-      className="project-card-measure-inner"
-    >
-      <div
-        className="project-card-measure-number"
-      >
-        <Measure
-          className="spacer-right"
-          metricKey="new_vulnerabilities"
-          metricType="SHORT_INT"
-          value="2"
-        />
-        <Rating
-          value="2.0"
-        />
-      </div>
-      <div
-        className="project-card-measure-label-with-icon"
-      >
-        <VulnerabilityIcon
-          className="little-spacer-right text-bottom"
-        />
-        metric.vulnerabilities.name
-      </div>
-    </div>
-  </div>
-  <div
-    className="project-card-measure"
-    data-key="new_security_review_rating"
-  >
-    <div
-      className="project-card-measure-inner"
-    >
-      <div
-        className="project-card-measure-number"
-      >
-        <Measure
-          className="spacer-right"
-          metricKey="new_security_hotspots_reviewed"
-          metricType="PERCENT"
-        />
-        <Rating />
-      </div>
-      <div
-        className="project-card-measure-label-with-icon"
-      >
-        <SecurityHotspotIcon
-          className="little-spacer-right text-bottom"
-        />
-        metric.security_hotspots_reviewed.extra_short_name
-      </div>
-    </div>
-  </div>
-  <div
-    className="project-card-measure"
-    data-key="new_maintainability_rating"
-  >
-    <div
-      className="project-card-measure-inner"
-    >
-      <div
-        className="project-card-measure-number"
-      >
-        <Measure
-          className="spacer-right"
-          metricKey="new_code_smells"
-          metricType="SHORT_INT"
-          value="0"
-        />
-        <Rating
-          value="1.0"
-        />
-      </div>
-      <div
-        className="project-card-measure-label-with-icon"
-      >
-        <CodeSmellIcon
-          className="little-spacer-right text-bottom"
-        />
-        metric.code_smells.name
-      </div>
-    </div>
-  </div>
+  <ProjectCardRatingMeasure
+    iconLabel="metric.bugs.name"
+    measures={
+      Object {
+        "alert_status": "ERROR",
+        "new_bugs": "8",
+        "new_code_smells": "0",
+        "new_coverage": "26.55",
+        "new_duplicated_lines_density": "0.55",
+        "new_lines": "87",
+        "new_maintainability_rating": "1.0",
+        "new_reliability_rating": "1.0",
+        "new_security_rating": "2.0",
+        "new_vulnerabilities": "2",
+      }
+    }
+    metricKey="new_bugs"
+    metricRatingKey="new_reliability_rating"
+    metricType="SHORT_INT"
+  />
+  <ProjectCardRatingMeasure
+    iconLabel="metric.vulnerabilities.name"
+    measures={
+      Object {
+        "alert_status": "ERROR",
+        "new_bugs": "8",
+        "new_code_smells": "0",
+        "new_coverage": "26.55",
+        "new_duplicated_lines_density": "0.55",
+        "new_lines": "87",
+        "new_maintainability_rating": "1.0",
+        "new_reliability_rating": "1.0",
+        "new_security_rating": "2.0",
+        "new_vulnerabilities": "2",
+      }
+    }
+    metricKey="new_vulnerabilities"
+    metricRatingKey="new_security_rating"
+    metricType="SHORT_INT"
+  />
+  <ProjectCardRatingMeasure
+    iconKey="security_hotspots"
+    iconLabel="projects.security_hotspots_reviewed"
+    measures={
+      Object {
+        "alert_status": "ERROR",
+        "new_bugs": "8",
+        "new_code_smells": "0",
+        "new_coverage": "26.55",
+        "new_duplicated_lines_density": "0.55",
+        "new_lines": "87",
+        "new_maintainability_rating": "1.0",
+        "new_reliability_rating": "1.0",
+        "new_security_rating": "2.0",
+        "new_vulnerabilities": "2",
+      }
+    }
+    metricKey="new_security_hotspots_reviewed"
+    metricRatingKey="new_security_review_rating"
+    metricType="PERCENT"
+  />
+  <ProjectCardRatingMeasure
+    iconLabel="metric.code_smells.name"
+    measures={
+      Object {
+        "alert_status": "ERROR",
+        "new_bugs": "8",
+        "new_code_smells": "0",
+        "new_coverage": "26.55",
+        "new_duplicated_lines_density": "0.55",
+        "new_lines": "87",
+        "new_maintainability_rating": "1.0",
+        "new_reliability_rating": "1.0",
+        "new_security_rating": "2.0",
+        "new_vulnerabilities": "2",
+      }
+    }
+    metricKey="new_code_smells"
+    metricRatingKey="new_maintainability_rating"
+    metricType="SHORT_INT"
+  />
   <div
     className="project-card-measure"
     data-key="new_coverage"
@@ -197,123 +161,75 @@ exports[`should render no data style new coverage, new duplications and new line
 <div
   className="project-card-leak-measures"
 >
-  <div
-    className="project-card-measure"
-    data-key="new_reliability_rating"
-  >
-    <div
-      className="project-card-measure-inner"
-    >
-      <div
-        className="project-card-measure-number"
-      >
-        <Measure
-          className="spacer-right"
-          metricKey="new_bugs"
-          metricType="SHORT_INT"
-          value="8"
-        />
-        <Rating
-          value="1.0"
-        />
-      </div>
-      <div
-        className="project-card-measure-label-with-icon"
-      >
-        <BugIcon
-          className="little-spacer-right text-bottom"
-        />
-        metric.bugs.name
-      </div>
-    </div>
-  </div>
-  <div
-    className="project-card-measure"
-    data-key="new_security_rating"
-  >
-    <div
-      className="project-card-measure-inner"
-    >
-      <div
-        className="project-card-measure-number"
-      >
-        <Measure
-          className="spacer-right"
-          metricKey="new_vulnerabilities"
-          metricType="SHORT_INT"
-          value="2"
-        />
-        <Rating
-          value="2.0"
-        />
-      </div>
-      <div
-        className="project-card-measure-label-with-icon"
-      >
-        <VulnerabilityIcon
-          className="little-spacer-right text-bottom"
-        />
-        metric.vulnerabilities.name
-      </div>
-    </div>
-  </div>
-  <div
-    className="project-card-measure"
-    data-key="new_security_review_rating"
-  >
-    <div
-      className="project-card-measure-inner"
-    >
-      <div
-        className="project-card-measure-number"
-      >
-        <Measure
-          className="spacer-right"
-          metricKey="new_security_hotspots_reviewed"
-          metricType="PERCENT"
-        />
-        <Rating />
-      </div>
-      <div
-        className="project-card-measure-label-with-icon"
-      >
-        <SecurityHotspotIcon
-          className="little-spacer-right text-bottom"
-        />
-        metric.security_hotspots_reviewed.extra_short_name
-      </div>
-    </div>
-  </div>
-  <div
-    className="project-card-measure"
-    data-key="new_maintainability_rating"
-  >
-    <div
-      className="project-card-measure-inner"
-    >
-      <div
-        className="project-card-measure-number"
-      >
-        <Measure
-          className="spacer-right"
-          metricKey="new_code_smells"
-          metricType="SHORT_INT"
-          value="0"
-        />
-        <Rating
-          value="1.0"
-        />
-      </div>
-      <div
-        className="project-card-measure-label-with-icon"
-      >
-        <CodeSmellIcon
-          className="little-spacer-right text-bottom"
-        />
-        metric.code_smells.name
-      </div>
-    </div>
-  </div>
+  <ProjectCardRatingMeasure
+    iconLabel="metric.bugs.name"
+    measures={
+      Object {
+        "alert_status": "ERROR",
+        "new_bugs": "8",
+        "new_code_smells": "0",
+        "new_maintainability_rating": "1.0",
+        "new_reliability_rating": "1.0",
+        "new_security_rating": "2.0",
+        "new_vulnerabilities": "2",
+      }
+    }
+    metricKey="new_bugs"
+    metricRatingKey="new_reliability_rating"
+    metricType="SHORT_INT"
+  />
+  <ProjectCardRatingMeasure
+    iconLabel="metric.vulnerabilities.name"
+    measures={
+      Object {
+        "alert_status": "ERROR",
+        "new_bugs": "8",
+        "new_code_smells": "0",
+        "new_maintainability_rating": "1.0",
+        "new_reliability_rating": "1.0",
+        "new_security_rating": "2.0",
+        "new_vulnerabilities": "2",
+      }
+    }
+    metricKey="new_vulnerabilities"
+    metricRatingKey="new_security_rating"
+    metricType="SHORT_INT"
+  />
+  <ProjectCardRatingMeasure
+    iconKey="security_hotspots"
+    iconLabel="projects.security_hotspots_reviewed"
+    measures={
+      Object {
+        "alert_status": "ERROR",
+        "new_bugs": "8",
+        "new_code_smells": "0",
+        "new_maintainability_rating": "1.0",
+        "new_reliability_rating": "1.0",
+        "new_security_rating": "2.0",
+        "new_vulnerabilities": "2",
+      }
+    }
+    metricKey="new_security_hotspots_reviewed"
+    metricRatingKey="new_security_review_rating"
+    metricType="PERCENT"
+  />
+  <ProjectCardRatingMeasure
+    iconLabel="metric.code_smells.name"
+    measures={
+      Object {
+        "alert_status": "ERROR",
+        "new_bugs": "8",
+        "new_code_smells": "0",
+        "new_maintainability_rating": "1.0",
+        "new_reliability_rating": "1.0",
+        "new_security_rating": "2.0",
+        "new_vulnerabilities": "2",
+      }
+    }
+    metricKey="new_code_smells"
+    metricRatingKey="new_maintainability_rating"
+    metricType="SHORT_INT"
+  />
   <div
     className="project-card-measure"
     data-key="new_duplicated_lines_density"

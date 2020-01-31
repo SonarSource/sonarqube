@@ -209,3 +209,18 @@ exports[`should render correctly for vulnerabilities 2`] = `
   </Tooltip>
 </Fragment>
 `;
+
+exports[`should render correctly if no values are present 1`] = `
+<Fragment>
+  <span
+    className="flex-1 big-spacer-right text-right"
+  >
+    metric_domain.Reliability
+  </span>
+  <div
+    className="padded"
+  >
+    <Rating />
+  </div>
+</Fragment>
+`;

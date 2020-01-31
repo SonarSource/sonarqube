@@ -120,13 +120,10 @@ exports[`should render correctly for hotspots 1`] = `
     style={Object {}}
     to={
       Object {
-        "pathname": "/project/issues",
+        "pathname": "/security_hotspots",
         "query": Object {
           "id": "my-project",
           "pullRequest": "1001",
-          "resolved": "false",
-          "sinceLeakPeriod": "false",
-          "types": "SECURITY_HOTSPOT",
         },
       }
     }
@@ -152,13 +149,10 @@ exports[`should render correctly for hotspots 2`] = `
     style={Object {}}
     to={
       Object {
-        "pathname": "/project/issues",
+        "pathname": "/security_hotspots",
         "query": Object {
           "id": "my-project",
           "pullRequest": "1001",
-          "resolved": "false",
-          "sinceLeakPeriod": "true",
-          "types": "SECURITY_HOTSPOT",
         },
       }
     }

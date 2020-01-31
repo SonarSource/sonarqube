@@ -34,32 +34,44 @@ export interface IssueRatingProps {
   useDiffMetric?: boolean;
 }
 
-export function IssueRating(props: IssueRatingProps) {
-  const { branchLike, component, measures, type, useDiffMetric = false } = props;
+function renderRatingLink(props: IssueRatingProps) {
+  const { branchLike, component, useDiffMetric = false, measures, type } = props;
   const rating = getIssueRatingMetricKey(type, useDiffMetric);
   const measure = findMeasure(measures, rating);
 
   if (!rating || !measure) {
-    return null;
+    return (
+      <div className="padded">
+        <Rating value={undefined} />
+      </div>
+    );
   }
 
-  const value = useDiffMetric ? getLeakValue(measure) : measure.value;
+  const value = measure && (useDiffMetric ? getLeakValue(measure) : measure.value);
   const tooltip = value && getRatingTooltip(rating, Number(value));
+
+  return (
+    <Tooltip overlay={tooltip}>
+      <span>
+        <DrilldownLink
+          branchLike={branchLike}
+          className="link-no-underline"
+          component={component.key}
+          metric={rating}>
+          <Rating value={value} />
+        </DrilldownLink>
+      </span>
+    </Tooltip>
+  );
+}
+
+export function IssueRating(props: IssueRatingProps) {
+  const { type } = props;
 
   return (
     <>
       <span className="flex-1 big-spacer-right text-right">{getIssueRatingName(type)}</span>
-      <Tooltip overlay={tooltip}>
-        <span>
-          <DrilldownLink
-            branchLike={branchLike}
-            className="link-no-underline"
-            component={component.key}
-            metric={rating}>
-            <Rating value={value} />
-          </DrilldownLink>
-        </span>
-      </Tooltip>
+      {renderRatingLink(props)}
     </>
   );
 }

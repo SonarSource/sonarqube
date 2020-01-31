@@ -44,8 +44,8 @@ it('should render correctly if no values are present', () => {
   expect(
     shallowRender({
       measures: [mockMeasureEnhanced({ metric: mockMetric({ key: 'NONE' }) })]
-    }).type()
-  ).toBeNull();
+    })
+  ).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<IssueRatingProps> = {}) {
