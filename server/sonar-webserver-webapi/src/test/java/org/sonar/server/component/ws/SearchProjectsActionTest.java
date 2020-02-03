@@ -170,6 +170,8 @@ public class SearchProjectsActionTest {
       "lines",
       "new_lines",
       "security_rating",
+      "security_review_rating",
+      "security_hotspots_reviewed",
       "new_reliability_rating",
       "new_coverage",
       "new_security_rating",
@@ -192,7 +194,8 @@ public class SearchProjectsActionTest {
     Param facets = def.param("facets");
     assertThat(facets.defaultValue()).isNull();
     assertThat(facets.possibleValues()).containsOnly("ncloc", "duplicated_lines_density", "coverage", "sqale_rating", "reliability_rating", "security_rating", "alert_status",
-      "languages", "tags", "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density", "new_lines");
+      "languages", "tags", "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density", "new_lines",
+      "security_review_rating", "security_hotspots_reviewed");
   }
 
   @Test

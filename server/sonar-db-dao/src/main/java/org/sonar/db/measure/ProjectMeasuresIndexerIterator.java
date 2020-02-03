@@ -59,6 +59,8 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.SQALE_RATING_KEY,
     CoreMetrics.RELIABILITY_RATING_KEY,
     CoreMetrics.SECURITY_RATING_KEY,
+    CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY,
+    CoreMetrics.SECURITY_REVIEW_RATING_KEY,
     CoreMetrics.ALERT_STATUS_KEY,
     CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY,
     CoreMetrics.NEW_SECURITY_RATING_KEY,

@@ -84,7 +84,9 @@ import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.termsToMap;
@@ -122,12 +124,15 @@ public class ProjectMeasuresIndex {
     NEW_RELIABILITY_RATING_KEY,
     SECURITY_RATING_KEY,
     NEW_SECURITY_RATING_KEY,
+    SECURITY_REVIEW_RATING_KEY,
+    SECURITY_HOTSPOTS_REVIEWED_KEY,
     ALERT_STATUS_KEY,
     FILTER_LANGUAGES,
     FILTER_TAGS);
 
   private static final Double[] LINES_THRESHOLDS = new Double[] {1_000d, 10_000d, 100_000d, 500_000d};
   private static final Double[] COVERAGE_THRESHOLDS = new Double[] {30d, 50d, 70d, 80d};
+  private static final Double[] SECURITY_REVIEW_RATING_THRESHOLDS = new Double[] {30D, 50D, 70D, 80D};
   private static final Double[] DUPLICATIONS_THRESHOLDS = new Double[] {3d, 5d, 10d, 20d};
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
@@ -150,6 +155,9 @@ public class ProjectMeasuresIndex {
     .put(NEW_RELIABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_RELIABILITY_RATING_KEY, facetBuilder))
     .put(SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, facetBuilder))
     .put(NEW_SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_SECURITY_RATING_KEY, facetBuilder))
+    .put(SECURITY_REVIEW_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SECURITY_REVIEW_RATING_KEY, facetBuilder))
+    .put(SECURITY_HOTSPOTS_REVIEWED_KEY,
+      (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, SECURITY_HOTSPOTS_REVIEWED_KEY, facetBuilder, SECURITY_REVIEW_RATING_THRESHOLDS))
     .put(ALERT_STATUS_KEY, (esSearch, query, facetBuilder) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, facetBuilder, createQualityGateFacet(query))))
     .put(FILTER_LANGUAGES, ProjectMeasuresIndex::addLanguagesFacet)
     .put(FIELD_TAGS, ProjectMeasuresIndex::addTagsFacet)
