@@ -1,85 +1,90 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<div
-  className="create-project"
->
+<Fragment>
+  <CreateProjectPageHeader
+    title="onboarding.create_project.setup_manually"
+  />
   <div
-    className="flex-1 huge-spacer-right"
+    className="create-project"
   >
-    <form
-      className="manual-project-create"
-      onSubmit={[Function]}
+    <div
+      className="flex-1 huge-spacer-right"
     >
-      <withRouter(OrganizationInput)
-        onChange={[Function]}
-        organization=""
-        organizations={
-          Array [
-            Object {
-              "key": "foo",
-              "name": "Foo",
-            },
-            Object {
-              "key": "bar",
-              "name": "Bar",
-              "subscription": "PAID",
-            },
-          ]
-        }
-      />
-      <ValidationInput
-        className="form-field"
-        description="onboarding.create_project.project_key.description"
-        help="onboarding.create_project.project_key.help"
-        id="project-key"
-        isInvalid={false}
-        isValid={false}
-        label="onboarding.create_project.project_key"
-        required={true}
+      <form
+        className="manual-project-create"
+        onSubmit={[Function]}
       >
-        <input
-          autoFocus={true}
-          className="input-super-large"
+        <withRouter(OrganizationInput)
+          onChange={[Function]}
+          organization=""
+          organizations={
+            Array [
+              Object {
+                "key": "foo",
+                "name": "Foo",
+              },
+              Object {
+                "key": "bar",
+                "name": "Bar",
+                "subscription": "PAID",
+              },
+            ]
+          }
+        />
+        <ValidationInput
+          className="form-field"
+          description="onboarding.create_project.project_key.description"
+          help="onboarding.create_project.project_key.help"
           id="project-key"
-          maxLength={400}
-          minLength={1}
-          onChange={[Function]}
-          type="text"
-          value=""
-        />
-      </ValidationInput>
-      <ValidationInput
-        className="form-field"
-        description="onboarding.create_project.display_name.description"
-        help="onboarding.create_project.display_name.help"
-        id="project-name"
-        isInvalid={false}
-        isValid={false}
-        label="onboarding.create_project.display_name"
-        required={true}
-      >
-        <input
-          className="input-super-large"
+          isInvalid={false}
+          isValid={false}
+          label="onboarding.create_project.project_key"
+          required={true}
+        >
+          <input
+            autoFocus={true}
+            className="input-super-large"
+            id="project-key"
+            maxLength={400}
+            minLength={1}
+            onChange={[Function]}
+            type="text"
+            value=""
+          />
+        </ValidationInput>
+        <ValidationInput
+          className="form-field"
+          description="onboarding.create_project.display_name.description"
+          help="onboarding.create_project.display_name.help"
           id="project-name"
-          maxLength={255}
-          minLength={1}
-          onChange={[Function]}
-          type="text"
-          value=""
+          isInvalid={false}
+          isValid={false}
+          label="onboarding.create_project.display_name"
+          required={true}
+        >
+          <input
+            className="input-super-large"
+            id="project-name"
+            maxLength={255}
+            minLength={1}
+            onChange={[Function]}
+            type="text"
+            value=""
+          />
+        </ValidationInput>
+        <SubmitButton
+          disabled={true}
+        >
+          set_up
+        </SubmitButton>
+        <DeferredSpinner
+          className="spacer-left"
+          loading={false}
+          timeout={100}
         />
-      </ValidationInput>
-      <SubmitButton
-        disabled={true}
-      >
-        set_up
-      </SubmitButton>
-      <DeferredSpinner
-        className="spacer-left"
-        loading={false}
-        timeout={100}
-      />
-    </form>
+      </form>
+    </div>
   </div>
-</div>
+</Fragment>
 `;

@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<BitbucketProjectCreateRenderer
+  bitbucketSetting={
+    Object {
+      "alm": "bitbucket",
+      "key": "foo",
+    }
+  }
+  importing={false}
+  loading={true}
+  onImportRepository={[Function]}
+  onPersonalAccessTokenCreate={[Function]}
+  onProjectCreate={[MockFunction]}
+  onSelectRepository={[Function]}
+  showPersonalAccessTokenForm={true}
+/>
+`;

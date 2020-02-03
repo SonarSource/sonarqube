@@ -28,10 +28,12 @@ import { createProject, doesComponentExists } from '../../../api/components';
 import VisibilitySelector from '../../../components/common/VisibilitySelector';
 import { isSonarCloud } from '../../../helpers/system';
 import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
+import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
 import OrganizationInput from './OrganizationInput';
 
 interface Props {
+  branchesEnabled?: boolean;
   currentUser: T.LoggedInUser;
   fetchMyOrganizations?: () => Promise<void>;
   onProjectCreate: (projectKeys: string[]) => void;
@@ -248,6 +250,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       touched,
       validating
     } = this.state;
+    const { branchesEnabled } = this.props;
     const projectKeyIsInvalid = touched && projectKeyError !== undefined;
     const projectKeyIsValid = touched && !validating && projectKeyError === undefined;
     const projectNameIsInvalid = touched && projectNameError !== undefined;
@@ -255,97 +258,104 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     const canChoosePrivate = this.canChoosePrivate(selectedOrganization);
 
     return (
-      <div className="create-project">
-        <div className="flex-1 huge-spacer-right">
-          <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
-            {isSonarCloud() && this.props.userOrganizations && (
-              <OrganizationInput
-                onChange={this.handleOrganizationSelect}
-                organization={selectedOrganization ? selectedOrganization.key : ''}
-                organizations={this.props.userOrganizations}
-              />
-            )}
+      <>
+        <CreateProjectPageHeader
+          showBreadcrumb={branchesEnabled}
+          title={translate('onboarding.create_project.setup_manually')}
+        />
 
-            <ValidationInput
-              className="form-field"
-              description={translate('onboarding.create_project.project_key.description')}
-              error={projectKeyError}
-              help={translate('onboarding.create_project.project_key.help')}
-              id="project-key"
-              isInvalid={projectKeyIsInvalid}
-              isValid={projectKeyIsValid}
-              label={translate('onboarding.create_project.project_key')}
-              required={true}>
-              <input
-                autoFocus={true}
-                className={classNames('input-super-large', {
-                  'is-invalid': projectKeyIsInvalid,
-                  'is-valid': projectKeyIsValid
-                })}
-                id="project-key"
-                maxLength={400}
-                minLength={1}
-                onChange={this.handleProjectKeyChange}
-                type="text"
-                value={projectKey}
-              />
-            </ValidationInput>
-
-            <ValidationInput
-              className="form-field"
-              description={translate('onboarding.create_project.display_name.description')}
-              error={projectNameError}
-              help={translate('onboarding.create_project.display_name.help')}
-              id="project-name"
-              isInvalid={projectNameIsInvalid}
-              isValid={projectNameIsValid}
-              label={translate('onboarding.create_project.display_name')}
-              required={true}>
-              <input
-                className={classNames('input-super-large', {
-                  'is-invalid': projectNameIsInvalid,
-                  'is-valid': projectNameIsValid
-                })}
-                id="project-name"
-                maxLength={255}
-                minLength={1}
-                onChange={this.handleProjectNameChange}
-                type="text"
-                value={projectName}
-              />
-            </ValidationInput>
-
-            {isSonarCloud() && selectedOrganization && (
-              <div
-                className={classNames('visibility-select-wrapper', {
-                  open: Boolean(this.state.selectedOrganization)
-                })}>
-                <VisibilitySelector
-                  canTurnToPrivate={canChoosePrivate}
-                  onChange={this.handleVisibilityChange}
-                  showDetails={true}
-                  visibility={canChoosePrivate ? this.state.selectedVisibility : 'public'}
+        <div className="create-project">
+          <div className="flex-1 huge-spacer-right">
+            <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
+              {isSonarCloud() && this.props.userOrganizations && (
+                <OrganizationInput
+                  onChange={this.handleOrganizationSelect}
+                  organization={selectedOrganization ? selectedOrganization.key : ''}
+                  organizations={this.props.userOrganizations}
                 />
-              </div>
-            )}
+              )}
 
-            <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
-              {translate('set_up')}
-            </SubmitButton>
-            <DeferredSpinner className="spacer-left" loading={submitting} />
-          </form>
-        </div>
+              <ValidationInput
+                className="form-field"
+                description={translate('onboarding.create_project.project_key.description')}
+                error={projectKeyError}
+                help={translate('onboarding.create_project.project_key.help')}
+                id="project-key"
+                isInvalid={projectKeyIsInvalid}
+                isValid={projectKeyIsValid}
+                label={translate('onboarding.create_project.project_key')}
+                required={true}>
+                <input
+                  autoFocus={true}
+                  className={classNames('input-super-large', {
+                    'is-invalid': projectKeyIsInvalid,
+                    'is-valid': projectKeyIsValid
+                  })}
+                  id="project-key"
+                  maxLength={400}
+                  minLength={1}
+                  onChange={this.handleProjectKeyChange}
+                  type="text"
+                  value={projectKey}
+                />
+              </ValidationInput>
 
-        {isSonarCloud() && selectedOrganization && (
-          <div className="create-project-side-sticky">
-            <UpgradeOrganizationBox
-              className={classNames('animated', { open: !canChoosePrivate })}
-              onOrganizationUpgrade={this.handleOrganizationUpgrade}
-              organization={selectedOrganization}
-            />
+              <ValidationInput
+                className="form-field"
+                description={translate('onboarding.create_project.display_name.description')}
+                error={projectNameError}
+                help={translate('onboarding.create_project.display_name.help')}
+                id="project-name"
+                isInvalid={projectNameIsInvalid}
+                isValid={projectNameIsValid}
+                label={translate('onboarding.create_project.display_name')}
+                required={true}>
+                <input
+                  className={classNames('input-super-large', {
+                    'is-invalid': projectNameIsInvalid,
+                    'is-valid': projectNameIsValid
+                  })}
+                  id="project-name"
+                  maxLength={255}
+                  minLength={1}
+                  onChange={this.handleProjectNameChange}
+                  type="text"
+                  value={projectName}
+                />
+              </ValidationInput>
+
+              {isSonarCloud() && selectedOrganization && (
+                <div
+                  className={classNames('visibility-select-wrapper', {
+                    open: Boolean(this.state.selectedOrganization)
+                  })}>
+                  <VisibilitySelector
+                    canTurnToPrivate={canChoosePrivate}
+                    onChange={this.handleVisibilityChange}
+                    showDetails={true}
+                    visibility={canChoosePrivate ? this.state.selectedVisibility : 'public'}
+                  />
+                </div>
+              )}
+
+              <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
+                {translate('set_up')}
+              </SubmitButton>
+              <DeferredSpinner className="spacer-left" loading={submitting} />
+            </form>
           </div>
-        )}
-      </div>
+
+          {isSonarCloud() && selectedOrganization && (
+            <div className="create-project-side-sticky">
+              <UpgradeOrganizationBox
+                className={classNames('animated', { open: !canChoosePrivate })}
+                onOrganizationUpgrade={this.handleOrganizationUpgrade}
+                organization={selectedOrganization}
+              />
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 }

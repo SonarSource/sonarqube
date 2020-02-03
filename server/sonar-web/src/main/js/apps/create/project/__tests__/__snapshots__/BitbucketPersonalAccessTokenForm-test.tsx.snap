@@ -1,0 +1,225 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<div
+  className="display-flex-start"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <h2
+      className="big"
+    >
+      onboarding.create_project.grant_access_to_bbs.title
+    </h2>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.grant_access_to_bbs.help
+    </p>
+    <ValidationInput
+      id="personal_access_token"
+      isInvalid={false}
+      isValid={false}
+      label="onboarding.create_project.enter_pat"
+      required={true}
+    >
+      <input
+        autoFocus={true}
+        className="input-super-large"
+        id="personal_access_token"
+        minLength={1}
+        onChange={[Function]}
+        type="text"
+        value=""
+      />
+    </ValidationInput>
+    <SubmitButton
+      disabled={true}
+    >
+      save
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
+      timeout={100}
+    />
+  </form>
+  <Alert
+    className="big-spacer-left big-spacer-top"
+    display="block"
+    variant="info"
+  >
+    <h3>
+      onboarding.create_project.pat_help.title
+    </h3>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.bbs_help_1
+    </p>
+    <div
+      className="text-middle"
+    >
+      <img
+        alt=""
+        className="spacer-right"
+        height="16"
+        src="/images/alm/bitbucket.svg"
+      />
+      <a
+        href="http://www.example.com/plugins/servlet/access-tokens/add"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.create_project.pat_help.link
+      </a>
+    </div>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.bbs_help_2
+    </p>
+    <ul>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.create_project.pat_help.bbs_permission_projects"
+          id="onboarding.create_project.pat_help.bbs_permission_projects"
+          values={
+            Object {
+              "perm": <strong>
+                onboarding.create_project.pat_help.read_permission
+              </strong>,
+            }
+          }
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.create_project.pat_help.bbs_permission_repos"
+          id="onboarding.create_project.pat_help.bbs_permission_repos"
+          values={
+            Object {
+              "perm": <strong>
+                onboarding.create_project.pat_help.read_permission
+              </strong>,
+            }
+          }
+        />
+      </li>
+    </ul>
+  </Alert>
+</div>
+`;
+
+exports[`should render correctly: submitting 1`] = `
+<div
+  className="display-flex-start"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <h2
+      className="big"
+    >
+      onboarding.create_project.grant_access_to_bbs.title
+    </h2>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.grant_access_to_bbs.help
+    </p>
+    <ValidationInput
+      id="personal_access_token"
+      isInvalid={false}
+      isValid={false}
+      label="onboarding.create_project.enter_pat"
+      required={true}
+    >
+      <input
+        autoFocus={true}
+        className="input-super-large"
+        id="personal_access_token"
+        minLength={1}
+        onChange={[Function]}
+        type="text"
+        value=""
+      />
+    </ValidationInput>
+    <SubmitButton
+      disabled={true}
+    >
+      save
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      loading={true}
+      timeout={100}
+    />
+  </form>
+  <Alert
+    className="big-spacer-left big-spacer-top"
+    display="block"
+    variant="info"
+  >
+    <h3>
+      onboarding.create_project.pat_help.title
+    </h3>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.bbs_help_1
+    </p>
+    <div
+      className="text-middle"
+    >
+      <img
+        alt=""
+        className="spacer-right"
+        height="16"
+        src="/images/alm/bitbucket.svg"
+      />
+      <a
+        href="http://www.example.com/plugins/servlet/access-tokens/add"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.create_project.pat_help.link
+      </a>
+    </div>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.bbs_help_2
+    </p>
+    <ul>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.create_project.pat_help.bbs_permission_projects"
+          id="onboarding.create_project.pat_help.bbs_permission_projects"
+          values={
+            Object {
+              "perm": <strong>
+                onboarding.create_project.pat_help.read_permission
+              </strong>,
+            }
+          }
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="onboarding.create_project.pat_help.bbs_permission_repos"
+          id="onboarding.create_project.pat_help.bbs_permission_repos"
+          values={
+            Object {
+              "perm": <strong>
+                onboarding.create_project.pat_help.read_permission
+              </strong>,
+            }
+          }
+        />
+      </li>
+    </ul>
+  </Alert>
+</div>
+`;

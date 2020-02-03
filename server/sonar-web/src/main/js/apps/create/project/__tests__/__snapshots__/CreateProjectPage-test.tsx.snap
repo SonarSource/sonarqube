@@ -41,7 +41,7 @@ exports[`should render correctly for SonarQube 1`] = `
   <A11ySkipTarget
     anchor="create_project_main"
   />
-  <Connect(withCurrentUser(whenLoggedIn(CreateProjectPageSonarQube)))
+  <Connect(withCurrentUser(whenLoggedIn(Connect(withAppState(CreateProjectPageSonarQube)))))
     location={
       Object {
         "action": "PUSH",

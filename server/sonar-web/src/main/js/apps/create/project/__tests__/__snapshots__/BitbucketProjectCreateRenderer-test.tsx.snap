@@ -1,0 +1,383 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<Fragment>
+  <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+          timeout={100}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
+    showBreadcrumb={true}
+    title={
+      <span
+        className="text-middle"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height="24"
+          src="/images/alm/bitbucket.svg"
+        />
+        onboarding.create_project.from_bbs
+      </span>
+    }
+  />
+  <BitbucketImportRepositoryForm
+    importing={false}
+    onSelectRepository={[MockFunction]}
+    projectRepositories={
+      Object {
+        "foo": Array [
+          Object {
+            "id": 1,
+            "name": "Repo",
+            "projectKey": "project",
+            "slug": "project__repo",
+          },
+        ],
+      }
+    }
+    projects={
+      Array [
+        Object {
+          "id": 1,
+          "key": "foo",
+          "name": "Project",
+        },
+      ]
+    }
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: importing 1`] = `
+<Fragment>
+  <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={true}
+          timeout={100}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
+    showBreadcrumb={true}
+    title={
+      <span
+        className="text-middle"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height="24"
+          src="/images/alm/bitbucket.svg"
+        />
+        onboarding.create_project.from_bbs
+      </span>
+    }
+  />
+  <BitbucketImportRepositoryForm
+    importing={true}
+    onSelectRepository={[MockFunction]}
+    projectRepositories={
+      Object {
+        "foo": Array [
+          Object {
+            "id": 1,
+            "name": "Repo",
+            "projectKey": "project",
+            "slug": "project__repo",
+          },
+        ],
+      }
+    }
+    projects={
+      Array [
+        Object {
+          "id": 1,
+          "key": "foo",
+          "name": "Project",
+        },
+      ]
+    }
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: invalid config, admin user 1`] = `
+<Fragment>
+  <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+          timeout={100}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
+    showBreadcrumb={true}
+    title={
+      <span
+        className="text-middle"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height="24"
+          src="/images/alm/bitbucket.svg"
+        />
+        onboarding.create_project.from_bbs
+      </span>
+    }
+  />
+  <Alert
+    variant="error"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.create_project.no_bbs_binding.admin"
+      id="onboarding.create_project.no_bbs_binding.admin"
+      values={
+        Object {
+          "url": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to={
+              Object {
+                "pathname": "/admin/settings",
+                "query": Object {
+                  "category": "pull_request_decoration",
+                },
+              }
+            }
+          >
+            settings.page
+          </Link>,
+        }
+      }
+    />
+  </Alert>
+</Fragment>
+`;
+
+exports[`should render correctly: invalid config, regular user 1`] = `
+<Fragment>
+  <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+          timeout={100}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
+    showBreadcrumb={true}
+    title={
+      <span
+        className="text-middle"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height="24"
+          src="/images/alm/bitbucket.svg"
+        />
+        onboarding.create_project.from_bbs
+      </span>
+    }
+  />
+  <Alert
+    variant="error"
+  >
+    onboarding.create_project.no_bbs_binding
+  </Alert>
+</Fragment>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<Fragment>
+  <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+          timeout={100}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
+    showBreadcrumb={true}
+    title={
+      <span
+        className="text-middle"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height="24"
+          src="/images/alm/bitbucket.svg"
+        />
+        onboarding.create_project.from_bbs
+      </span>
+    }
+  />
+  <i
+    className="spinner"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: pat form 1`] = `
+<Fragment>
+  <CreateProjectPageHeader
+    additionalActions={false}
+    showBreadcrumb={true}
+    title={
+      <span
+        className="text-middle"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height="24"
+          src="/images/alm/bitbucket.svg"
+        />
+        onboarding.create_project.from_bbs
+      </span>
+    }
+  />
+  <BitbucketPersonalAccessTokenForm
+    bitbucketSetting={
+      Object {
+        "alm": "bitbucket",
+        "key": "key",
+      }
+    }
+    onPersonalAccessTokenCreate={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: selected repo 1`] = `
+<Fragment>
+  <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+          timeout={100}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
+    showBreadcrumb={true}
+    title={
+      <span
+        className="text-middle"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height="24"
+          src="/images/alm/bitbucket.svg"
+        />
+        onboarding.create_project.from_bbs
+      </span>
+    }
+  />
+  <BitbucketImportRepositoryForm
+    importing={false}
+    onSelectRepository={[MockFunction]}
+    projectRepositories={
+      Object {
+        "foo": Array [
+          Object {
+            "id": 1,
+            "name": "Repo",
+            "projectKey": "project",
+            "slug": "project__repo",
+          },
+        ],
+      }
+    }
+    projects={
+      Array [
+        Object {
+          "id": 1,
+          "key": "foo",
+          "name": "Project",
+        },
+      ]
+    }
+    selectedRepository={
+      Object {
+        "id": 1,
+        "name": "Repo",
+        "projectKey": "project",
+        "slug": "project__repo",
+      }
+    }
+  />
+</Fragment>
+`;

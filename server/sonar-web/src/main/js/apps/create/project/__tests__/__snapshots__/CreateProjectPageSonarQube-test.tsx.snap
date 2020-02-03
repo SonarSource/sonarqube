@@ -1,0 +1,114 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <Helmet
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="my_account.create_new.TRK"
+    titleTemplate="%s"
+  />
+  <div
+    className="page page-limited huge-spacer-bottom position-relative"
+    id="create-project"
+  >
+    <CreateProjectModeSelection
+      bbsBindingCount={0}
+      loadingBindings={true}
+      onSelectMode={[Function]}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly if no branch support 1`] = `
+<Fragment>
+  <Helmet
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="my_account.create_new.TRK"
+    titleTemplate="%s"
+  />
+  <div
+    className="page page-limited huge-spacer-bottom position-relative"
+    id="create-project"
+  >
+    <ManualProjectCreate
+      branchesEnabled={false}
+      currentUser={
+        Object {
+          "groups": Array [],
+          "isLoggedIn": true,
+          "login": "luke",
+          "name": "Skywalker",
+          "scmAccounts": Array [],
+        }
+      }
+      onProjectCreate={[Function]}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly if the BBS method is selected 1`] = `
+<Fragment>
+  <Helmet
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="my_account.create_new.TRK"
+    titleTemplate="%s"
+  />
+  <div
+    className="page page-limited huge-spacer-bottom position-relative"
+    id="create-project"
+  >
+    <Connect(BitbucketProjectCreate)
+      bitbucketSettings={Array []}
+      loadingBindings={true}
+      location={
+        Object {
+          "action": "PUSH",
+          "hash": "",
+          "key": "key",
+          "pathname": "/path",
+          "query": Object {
+            "mode": "bbs",
+          },
+          "search": "",
+          "state": Object {},
+        }
+      }
+      onProjectCreate={[Function]}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly if the manual method is selected 1`] = `
+<Fragment>
+  <Helmet
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="my_account.create_new.TRK"
+    titleTemplate="%s"
+  />
+  <div
+    className="page page-limited huge-spacer-bottom position-relative"
+    id="create-project"
+  >
+    <ManualProjectCreate
+      branchesEnabled={true}
+      currentUser={
+        Object {
+          "groups": Array [],
+          "isLoggedIn": true,
+          "login": "luke",
+          "name": "Skywalker",
+          "scmAccounts": Array [],
+        }
+      }
+      onProjectCreate={[Function]}
+    />
+  </div>
+</Fragment>
+`;

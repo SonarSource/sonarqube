@@ -17,6 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+#create-project {
+  padding-top: 0 !important;
+}
+
+#create-project header {
+  padding-top: 20px;
+}
+
+.white-page #create-project header {
+  background-color: white;
+  position: sticky;
+  top: var(--globalNavHeight);
+  z-index: var(--pageMainZIndex);
+}
+
 .create-project {
   display: flex !important;
   justify-content: space-between;
@@ -123,4 +138,26 @@
 
 .create-project-actions .icon-checkbox {
   margin-right: 8px;
+}
+
+.create-project-modes {
+  margin: 0 auto;
+  max-width: 500px;
+}
+
+.create-project-import-bbs i.icon-radio {
+  flex-shrink: 0;
+}
+
+.create-project-import-bbs .open .boxed-group-header {
+  border-bottom: 1px solid var(--barBorderColor);
+}
+
+.create-project-import-bbs .boxed-group-inner {
+  padding-top: calc(3 * var(--gridSize));
+}
+
+.create-project-import-bbs-repo {
+  width: 250px;
+  min-height: 40px;
 }

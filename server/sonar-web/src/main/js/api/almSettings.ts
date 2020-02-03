@@ -37,7 +37,7 @@ export function getAlmDefinitions(): Promise<AlmSettingsBindingDefinitions> {
   return getJSON('/api/alm_settings/list_definitions').catch(throwGlobalError);
 }
 
-export function getAlmSettings(project: string): Promise<AlmSettingsInstance[]> {
+export function getAlmSettings(project?: string): Promise<AlmSettingsInstance[]> {
   return getJSON('/api/alm_settings/list', { project })
     .then(({ almSettings }) => almSettings)
     .catch(throwGlobalError);

@@ -18,11 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
+  AlmSettingsInstance,
+  ALM_KEYS,
   AzureBindingDefinition,
   BitbucketBindingDefinition,
   GithubBindingDefinition,
   GitlabBindingDefinition
 } from '../../types/alm-settings';
+
+export function mockAlmSettingsInstance(
+  overrides: Partial<AlmSettingsInstance> = {}
+): AlmSettingsInstance {
+  return {
+    alm: ALM_KEYS.GITHUB,
+    key: 'key',
+    ...overrides
+  };
+}
 
 export function mockAzureDefinition(
   overrides: Partial<AzureBindingDefinition> = {}

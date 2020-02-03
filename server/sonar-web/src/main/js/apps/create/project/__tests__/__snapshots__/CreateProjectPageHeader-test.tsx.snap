@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: additional content 1`] = `
+<header
+  className="huge-spacer-bottom bordered-bottom overflow-hidden"
+>
+  <h1
+    className="pull-left huge big-spacer-bottom"
+  >
+    Foo
+  </h1>
+  Bar
+</header>
+`;
+
+exports[`should render correctly: default 1`] = `
+<header
+  className="huge-spacer-bottom bordered-bottom overflow-hidden"
+>
+  <h1
+    className="pull-left huge big-spacer-bottom"
+  >
+    Foo
+  </h1>
+</header>
+`;
+
+exports[`should render correctly: with breadcrumb 1`] = `
+<header
+  className="huge-spacer-bottom bordered-bottom overflow-hidden"
+>
+  <h1
+    className="pull-left huge big-spacer-bottom"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/projects/create"
+    >
+      my_account.create_new.TRK
+    </Link>
+    <span
+      className="big-spacer-left big-spacer-right slash-separator"
+    />
+    Foo
+  </h1>
+</header>
+`;

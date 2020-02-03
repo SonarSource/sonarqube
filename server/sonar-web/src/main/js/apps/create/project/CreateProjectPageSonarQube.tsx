@@ -22,23 +22,76 @@ import { Helmet } from 'react-helmet-async';
 import { WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { getAlmSettings } from '../../../api/almSettings';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
+import { withAppState } from '../../../components/hoc/withAppState';
 import { getProjectUrl } from '../../../helpers/urls';
+import { AlmSettingsInstance, ALM_KEYS } from '../../../types/alm-settings';
+import BitbucketProjectCreate from './BitbucketProjectCreate';
+import CreateProjectModeSelection from './CreateProjectModeSelection';
 import ManualProjectCreate from './ManualProjectCreate';
 import './style.css';
+import { CreateProjectModes } from './types';
 
-interface Props {
+interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
+  appState: Pick<T.AppState, 'branchesEnabled'>;
   currentUser: T.LoggedInUser;
 }
 
-export class CreateProjectPageSonarQube extends React.PureComponent<Props & WithRouterProps> {
+interface State {
+  bitbucketSettings: AlmSettingsInstance[];
+  loading: boolean;
+}
+
+export class CreateProjectPageSonarQube extends React.PureComponent<Props, State> {
+  mounted = false;
+  state: State = { bitbucketSettings: [], loading: false };
+
   componentDidMount() {
-    addWhitePageClass();
+    const {
+      appState: { branchesEnabled },
+      location
+    } = this.props;
+    this.mounted = true;
+    if (branchesEnabled) {
+      this.fetchAlmBindings();
+    }
+
+    if (location.query?.mode || !branchesEnabled) {
+      addWhitePageClass();
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.location.query?.mode && !prevProps.location.query?.mode) {
+      addWhitePageClass();
+    } else if (!this.props.location.query?.mode && prevProps.location.query?.mode) {
+      removeWhitePageClass();
+    }
   }
 
   componentWillUnmount() {
+    this.mounted = false;
     removeWhitePageClass();
   }
+
+  fetchAlmBindings = () => {
+    this.setState({ loading: true });
+    getAlmSettings()
+      .then(almSettings => {
+        if (this.mounted) {
+          this.setState({
+            bitbucketSettings: almSettings.filter(s => s.alm === ALM_KEYS.BITBUCKET),
+            loading: false
+          });
+        }
+      })
+      .catch(() => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      });
+  };
 
   handleProjectCreate = (projectKeys: string[]) => {
     if (projectKeys.length === 1) {
@@ -46,26 +99,58 @@ export class CreateProjectPageSonarQube extends React.PureComponent<Props & With
     }
   };
 
+  handleModeSelect = (mode: CreateProjectModes) => {
+    const { router, location } = this.props;
+    router.push({
+      pathname: location.pathname,
+      query: { mode }
+    });
+  };
+
   render() {
-    const { currentUser } = this.props;
-    const header = translate('my_account.create_new.TRK');
+    const {
+      appState: { branchesEnabled },
+      currentUser,
+      location
+    } = this.props;
+    const { bitbucketSettings, loading } = this.state;
+
+    const mode: CreateProjectModes | undefined = location.query?.mode;
+    const showManualForm = !branchesEnabled || mode === CreateProjectModes.Manual;
+    const showBBSForm = branchesEnabled && mode === CreateProjectModes.BitbucketServer;
+
     return (
       <>
-        <Helmet title={header} titleTemplate="%s" />
-        <div className="page page-limited huge-spacer-top huge-spacer-bottom">
-          <header className="page-header bordered-bottom big-spacer-bottom">
-            <h1 className="page-title huge big-spacer-bottom">
-              <strong>{header}</strong>
-            </h1>
-          </header>
-          <ManualProjectCreate
-            currentUser={currentUser}
-            onProjectCreate={this.handleProjectCreate}
-          />
+        <Helmet title={translate('my_account.create_new.TRK')} titleTemplate="%s" />
+        <div className="page page-limited huge-spacer-bottom position-relative" id="create-project">
+          {!showBBSForm && !showManualForm && (
+            <CreateProjectModeSelection
+              bbsBindingCount={bitbucketSettings.length}
+              loadingBindings={loading}
+              onSelectMode={this.handleModeSelect}
+            />
+          )}
+
+          {showManualForm && (
+            <ManualProjectCreate
+              branchesEnabled={branchesEnabled}
+              currentUser={currentUser}
+              onProjectCreate={this.handleProjectCreate}
+            />
+          )}
+
+          {showBBSForm && (
+            <BitbucketProjectCreate
+              bitbucketSettings={bitbucketSettings}
+              loadingBindings={loading}
+              location={location}
+              onProjectCreate={this.handleProjectCreate}
+            />
+          )}
         </div>
       </>
     );
   }
 }
 
-export default whenLoggedIn(CreateProjectPageSonarQube);
+export default whenLoggedIn(withAppState(CreateProjectPageSonarQube));
