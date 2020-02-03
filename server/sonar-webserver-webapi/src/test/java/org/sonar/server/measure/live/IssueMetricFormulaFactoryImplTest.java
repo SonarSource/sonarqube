@@ -139,10 +139,32 @@ public class IssueMetricFormulaFactoryImplTest {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
-        .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 75.0);
+      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 75.0);
 
     withNoIssues()
       .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 100.0);
+  }
+
+  @Test
+  public void test_security_hotspots_reviewed_status() {
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
+      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS, 3.0);
+
+    withNoIssues()
+      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS, 0.0);
+  }
+
+  @Test
+  public void test_security_hotspots_to_review_status() {
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
+      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 1.0);
+
+    withNoIssues()
+      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 0.0);
   }
 
   @Test
@@ -676,6 +698,32 @@ public class IssueMetricFormulaFactoryImplTest {
 
     withNoIssues()
       .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED, 100.0);
+  }
+
+  @Test
+  public void test_new_security_hotspots_reviewed_status() {
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3).setInLeak(true),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true),
+      // not in leak
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(5).setInLeak(false))
+      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, 3.0);
+
+    withNoIssues()
+      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, 0.0);
+  }
+
+  @Test
+  public void test_new_security_hotspots_to_review_status() {
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3).setInLeak(true),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true),
+      // not in leak
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(5).setInLeak(false))
+      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 1.0);
+
+    withNoIssues()
+      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 0.0);
   }
 
   @Test

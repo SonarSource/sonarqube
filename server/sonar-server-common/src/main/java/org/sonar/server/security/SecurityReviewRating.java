@@ -55,7 +55,7 @@ public class SecurityReviewRating {
     }
   }
 
-  public static Double computePercent(long hotspotsToReview, long hotspotsReviewed) {
+  public static double computePercent(long hotspotsToReview, long hotspotsReviewed) {
     long total = hotspotsToReview + hotspotsReviewed;
     if (total == 0) {
       return 100.0;

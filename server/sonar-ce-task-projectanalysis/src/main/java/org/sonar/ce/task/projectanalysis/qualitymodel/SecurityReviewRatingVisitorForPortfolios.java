@@ -34,15 +34,16 @@ import org.sonar.server.security.SecurityReviewRating;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
+import static org.sonar.ce.task.projectanalysis.component.ViewAttributes.Type.APPLICATION;
 
-public class SecurityReviewRatingVisitorForPortfoliosAndApplications extends TypeAwareVisitorAdapter {
+public class SecurityReviewRatingVisitorForPortfolios extends TypeAwareVisitorAdapter {
 
   private final MeasureRepository measureRepository;
   private final Metric nclocMetric;
   private final Metric securityHostspotsMetric;
   private final Metric securityReviewRatingMetric;
 
-  public SecurityReviewRatingVisitorForPortfoliosAndApplications(MeasureRepository measureRepository, MetricRepository metricRepository) {
+  public SecurityReviewRatingVisitorForPortfolios(MeasureRepository measureRepository, MetricRepository metricRepository) {
     super(CrawlerDepthLimit.SUBVIEW, Order.POST_ORDER);
     this.measureRepository = measureRepository;
     this.nclocMetric = metricRepository.getByKey(NCLOC_KEY);
@@ -51,12 +52,10 @@ public class SecurityReviewRatingVisitorForPortfoliosAndApplications extends Typ
   }
 
   @Override
-  public void visitProject(Component project) {
-    // Do nothing
-  }
-
-  @Override
   public void visitView(Component view) {
+    if (view.getViewAttributes().getType().equals(APPLICATION)) {
+      return;
+    }
     computeMeasure(view);
   }
 

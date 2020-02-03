@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.qualitymodel;
 import java.util.Arrays;
 import java.util.Date;
 import javax.annotation.Nullable;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +35,6 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepositoryRule;
 import org.sonar.ce.task.projectanalysis.issue.FillComponentIssuesVisitorRule;
-import org.sonar.ce.task.projectanalysis.measure.MeasureAssert;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
@@ -52,6 +52,10 @@ import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REVIEW_RATING;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.rule.Severity.MAJOR;
@@ -59,6 +63,7 @@ import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.ce.task.projectanalysis.measure.MeasureAssert.assertThat;
 import static org.sonar.server.measure.Rating.A;
 import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
@@ -99,7 +104,9 @@ public class NewSecurityReviewMeasuresVisitorTest {
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(NEW_SECURITY_REVIEW_RATING)
-    .add(NEW_SECURITY_HOTSPOTS_REVIEWED);
+    .add(NEW_SECURITY_HOTSPOTS_REVIEWED)
+    .add(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS)
+    .add(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
@@ -131,11 +138,11 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyMeasures(FILE_1_REF, A, 100.0);
-    verifyMeasures(FILE_2_REF, A, 100.0);
-    verifyMeasures(DIRECTORY_REF, A, 100.0);
-    verifyMeasures(ROOT_DIR_REF, A, 100.0);
-    verifyMeasures(PROJECT_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 100.0);
   }
 
   @Test
@@ -160,11 +167,11 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyMeasures(FILE_1_REF, A, 100.0);
-    verifyMeasures(FILE_2_REF, A, 80.0);
-    verifyMeasures(DIRECTORY_REF, A, 87.5);
-    verifyMeasures(ROOT_DIR_REF, A, 87.5);
-    verifyMeasures(PROJECT_REF, A, 87.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, A, 80.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, A, 87.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, A, 87.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 87.5);
   }
 
   @Test
@@ -189,11 +196,11 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyMeasures(FILE_1_REF, A, 100.0);
-    verifyMeasures(FILE_2_REF, B, 71.42);
-    verifyMeasures(DIRECTORY_REF, B, 75.0);
-    verifyMeasures(ROOT_DIR_REF, B, 75.0);
-    verifyMeasures(PROJECT_REF, B, 75.0);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, B, 71.42);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, B, 75.0);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, B, 75.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, B, 75.0);
   }
 
   @Test
@@ -217,11 +224,11 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyMeasures(FILE_1_REF, C, 50.0);
-    verifyMeasures(FILE_2_REF, C, 60.0);
-    verifyMeasures(DIRECTORY_REF, C, 57.14);
-    verifyMeasures(ROOT_DIR_REF, C, 57.14);
-    verifyMeasures(PROJECT_REF, C, 57.14);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, C, 50.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, C, 60.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C, 57.14);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, 57.14);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, C, 57.14);
   }
 
   @Test
@@ -246,11 +253,11 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyMeasures(FILE_1_REF, D, 33.33);
-    verifyMeasures(FILE_2_REF, D, 40.0);
-    verifyMeasures(DIRECTORY_REF, D, 37.5);
-    verifyMeasures(ROOT_DIR_REF, D, 37.5);
-    verifyMeasures(PROJECT_REF, D, 37.5);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.33);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, D, 40.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, D, 37.5);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, D, 37.5);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, D, 37.5);
   }
 
   @Test
@@ -273,11 +280,11 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyMeasures(FILE_1_REF, D, 33.33);
-    verifyMeasures(FILE_2_REF, E, 0.0);
-    verifyMeasures(DIRECTORY_REF, E, 16.66);
-    verifyMeasures(ROOT_DIR_REF, E, 16.66);
-    verifyMeasures(PROJECT_REF, E, 16.66);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, D, 33.33);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, E, 0.0);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, E, 16.66);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, E, 16.66);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, E, 16.66);
   }
 
   @Test
@@ -290,7 +297,7 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyMeasures(PROJECT_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 100.0);
   }
 
   @Test
@@ -317,11 +324,45 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyMeasures(FILE_1_REF, C, 50.0);
-    verifyMeasures(FILE_2_REF, C, 57.14);
-    verifyMeasures(DIRECTORY_REF, C, 55.55);
-    verifyMeasures(ROOT_DIR_REF, C, 55.55);
-    verifyMeasures(PROJECT_REF, C, 55.55);
+    verifyRatingAndReviewedMeasures(FILE_1_REF, C, 50.0);
+    verifyRatingAndReviewedMeasures(FILE_2_REF, C, 57.14);
+    verifyRatingAndReviewedMeasures(DIRECTORY_REF, C, 55.55);
+    verifyRatingAndReviewedMeasures(ROOT_DIR_REF, C, 55.55);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, C, 55.55);
+  }
+
+  @Test
+  public void compute_status_related_measures() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
+      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      // Should not be taken into account
+      newIssue());
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF,
+      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_TO_REVIEW, null).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newHotspot(STATUS_REVIEWED, RESOLUTION_FIXED).setCreationDate(AFTER_LEAK_PERIOD_DATE),
+      newIssue());
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyHotspotStatusMeasures(FILE_1_REF, null, null);
+    verifyHotspotStatusMeasures(FILE_2_REF, null, null);
+    verifyHotspotStatusMeasures(DIRECTORY_REF, null, null);
+    verifyHotspotStatusMeasures(ROOT_DIR_REF, null, null);
+    verifyHotspotStatusMeasures(PROJECT_REF, 4, 3);
+  }
+
+  @Test
+  public void compute_0_status_related_measures_when_no_hotspot() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyHotspotStatusMeasures(PROJECT_REF, 0, 0);
   }
 
   @Test
@@ -337,10 +378,23 @@ public class NewSecurityReviewMeasuresVisitorTest {
     assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).values()).isEmpty();
   }
 
-  private void verifyMeasures(int componentRef, Rating expectedReviewRating, double expectedHotspotsReviewed) {
-    MeasureAssert.assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_REVIEW_RATING_KEY)).hasVariation(expectedReviewRating.getIndex());
-    MeasureAssert.assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).hasVariation(expectedHotspotsReviewed,
+  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, double expectedHotspotsReviewed) {
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_REVIEW_RATING_KEY)).hasVariation(expectedReviewRating.getIndex());
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).hasVariation(expectedHotspotsReviewed,
       VARIATION_COMPARISON_OFFSET);
+  }
+
+  private void verifyHotspotStatusMeasures(int componentRef, @Nullable Integer hotspotsReviewed, @Nullable Integer hotspotsToReview) {
+    if (hotspotsReviewed == null) {
+      Assertions.assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY)).isEmpty();
+    } else {
+      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY)).hasVariation(hotspotsReviewed);
+    }
+    if (hotspotsReviewed == null) {
+      Assertions.assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY)).isEmpty();
+    } else {
+      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY)).hasVariation(hotspotsToReview);
+    }
   }
 
   private static DefaultIssue newHotspot(String status, @Nullable String resolution) {

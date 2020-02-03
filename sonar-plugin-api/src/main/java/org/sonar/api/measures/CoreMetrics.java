@@ -1590,6 +1590,94 @@ public final class CoreMetrics {
       .setBestValue(100.0)
       .create();
 
+  /**
+   * @since 8.2
+   */
+  public static final String SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY = "security_hotspots_reviewed_status";
+
+  /**
+   * @since 8.2
+   *
+   * This hidden metric is only needed to compute 'security_review_rating' and 'security_hotspots_reviewed' on Applications.
+   */
+  public static final Metric<Integer> SECURITY_HOTSPOTS_REVIEWED_STATUS = new Metric.Builder(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, "Security Review Reviewed Status",
+    Metric.ValueType.INT)
+      .setDescription("Security Review Reviewed Status")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SECURITY_REVIEW)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
+      .setHidden(true)
+      .create();
+
+  /**
+   * @since 8.2
+   */
+  public static final String SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY = "security_hotspots_to_review_status";
+
+  /**
+   * @since 8.2
+   *
+   * This hidden metric is only needed to compute 'security_review_rating' and 'security_hotspots_reviewed' on Applications.
+   */
+  public static final Metric<Integer> SECURITY_HOTSPOTS_TO_REVIEW_STATUS = new Metric.Builder(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY, "Security Review To Review Status",
+    Metric.ValueType.INT)
+      .setDescription("Security Review To Review Status")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SECURITY_REVIEW)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
+      .setHidden(true)
+      .create();
+
+  /**
+   * @since 8.2
+   */
+  public static final String NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY = "new_security_hotspots_reviewed_status";
+
+  /**
+   * @since 8.2
+   *
+   * This hidden metric is only needed to compute 'new_security_review_rating' and 'new_security_hotspots_reviewed' on Applications.
+   */
+  public static final Metric<Integer> NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS = new Metric.Builder(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY,
+    "Security Review Reviewed Status on New Code", Metric.ValueType.INT)
+      .setDescription("Security Review Reviewed Status on New Code")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SECURITY_REVIEW)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
+      .setHidden(true)
+      .create();
+
+  /**
+   * @since 8.2
+   */
+  public static final String NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY = "new_security_hotspots_to_review_status";
+
+  /**
+   * @since 8.2
+   *
+   * This hidden metric is only needed to compute 'new_security_review_rating' and 'new_security_hotspots_reviewed' on Applications.
+   */
+  public static final Metric<Integer> NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS = new Metric.Builder(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY,
+    "Security Review To Review Status on New Code", Metric.ValueType.INT)
+      .setDescription("Security Review To Review Status on New Code")
+      .setDirection(Metric.DIRECTION_WORST)
+      .setQualitative(false)
+      .setDomain(DOMAIN_SECURITY_REVIEW)
+      .setBestValue(0.0)
+      .setOptimizedBestValue(true)
+      .setDeleteHistoricalData(true)
+      .setHidden(true)
+      .create();
+
   // --------------------------------------------------------------------------------------------------------------------
   //
   // FILE DATA

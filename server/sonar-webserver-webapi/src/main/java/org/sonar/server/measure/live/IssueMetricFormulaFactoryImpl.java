@@ -117,6 +117,12 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
       (context, issues) -> context
         .setValue(computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false)))),
 
+    new IssueMetricFormula(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS, false,
+      (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false))),
+
+    new IssueMetricFormula(CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS, false,
+      (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false))),
+
     new IssueMetricFormula(CoreMetrics.NEW_CODE_SMELLS, true,
       (context, issues) -> context.setLeakValue(issues.countUnresolvedByType(RuleType.CODE_SMELL, true))),
 
@@ -179,6 +185,12 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
         double percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true));
         context.setLeakValue(percent);
       }),
+
+    new IssueMetricFormula(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, true,
+      (context, issues) -> context.setLeakValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))),
+
+    new IssueMetricFormula(CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, true,
+      (context, issues) -> context.setLeakValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true))),
 
     new IssueMetricFormula(CoreMetrics.NEW_SQALE_DEBT_RATIO, true,
       (context, issues) -> context.setLeakValue(100.0 * newDebtDensity(context)),

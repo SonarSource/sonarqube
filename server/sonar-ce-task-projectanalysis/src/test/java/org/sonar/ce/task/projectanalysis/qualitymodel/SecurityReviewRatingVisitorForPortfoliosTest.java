@@ -26,7 +26,6 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
-import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 
@@ -42,20 +41,16 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 
-public class SecurityReviewRatingVisitorForPortfoliosAndApplicationsTest {
+public class SecurityReviewRatingVisitorForPortfoliosTest {
 
   private static final int PORTFOLIO_REF = 10;
   private static final int SUB_PORTFOLIO_1_REF = 11;
   private static final int SUB_PORTFOLIO_2_REF = 12;
   private static final Component PORTFOLIO = ViewsComponent.builder(Component.Type.VIEW, Integer.toString(PORTFOLIO_REF))
+    .setViewAttributes(new ViewAttributes(ViewAttributes.Type.PORTFOLIO))
     .addChildren(
       ViewsComponent.builder(Component.Type.SUBVIEW, Integer.toString(SUB_PORTFOLIO_1_REF)).build(),
       ViewsComponent.builder(Component.Type.SUBVIEW, Integer.toString(SUB_PORTFOLIO_2_REF)).build())
-    .build();
-
-  private static final int APPLICATION_REF = 20;
-  private static final Component APPLICATION = ViewsComponent.builder(Component.Type.VIEW, Integer.toString(APPLICATION_REF))
-    .setViewAttributes(new ViewAttributes(ViewAttributes.Type.APPLICATION))
     .build();
 
   @Rule
@@ -70,7 +65,7 @@ public class SecurityReviewRatingVisitorForPortfoliosAndApplicationsTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(singletonList(new SecurityReviewRatingVisitorForPortfoliosAndApplications(measureRepository, metricRepository)));
+  private VisitorsCrawler underTest = new VisitorsCrawler(singletonList(new SecurityReviewRatingVisitorForPortfolios(measureRepository, metricRepository)));
 
   @Test
   public void compute_security_review_rating_on_portfolio() {
@@ -87,19 +82,6 @@ public class SecurityReviewRatingVisitorForPortfoliosAndApplicationsTest {
     assertThat(measureRepository.getAddedRawMeasure(SUB_PORTFOLIO_1_REF, SECURITY_REVIEW_RATING_KEY).get().getIntValue()).isEqualTo(B.getIndex());
     assertThat(measureRepository.getAddedRawMeasure(SUB_PORTFOLIO_2_REF, SECURITY_REVIEW_RATING_KEY).get().getIntValue()).isEqualTo(C.getIndex());
     assertThat(measureRepository.getAddedRawMeasure(PORTFOLIO_REF, SECURITY_REVIEW_RATING_KEY).get().getIntValue()).isEqualTo(B.getIndex());
-  }
-
-  @Test
-  public void compute_security_review_rating_on_application() {
-    treeRootHolder.setRoot(APPLICATION);
-    measureRepository.addRawMeasure(APPLICATION_REF, NCLOC_KEY, newMeasureBuilder().create(1000));
-    measureRepository.addRawMeasure(APPLICATION_REF, SECURITY_HOTSPOTS_KEY, newMeasureBuilder().create(12));
-
-    underTest.visit(APPLICATION);
-
-    Measure measure = measureRepository.getAddedRawMeasure(APPLICATION_REF, SECURITY_REVIEW_RATING_KEY).get();
-    assertThat(measure.getIntValue()).isEqualTo(C.getIndex());
-    assertThat(measure.getData()).isEqualTo(C.name());
   }
 
   @Test

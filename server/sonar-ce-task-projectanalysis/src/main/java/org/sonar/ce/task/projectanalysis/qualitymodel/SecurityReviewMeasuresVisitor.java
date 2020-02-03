@@ -30,6 +30,8 @@ import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
@@ -43,6 +45,8 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
   private final MeasureRepository measureRepository;
   private final Metric securityReviewRatingMetric;
   private final Metric securityHotspotsReviewedMetric;
+  private final Metric securityHotspotsReviewedStatusMetric;
+  private final Metric securityHotspotsToReviewStatusMetric;
 
   public SecurityReviewMeasuresVisitor(ComponentIssuesRepository componentIssuesRepository, MeasureRepository measureRepository, MetricRepository metricRepository) {
     super(FILE, POST_ORDER, SecurityReviewMeasuresVisitor.CounterFactory.INSTANCE);
@@ -50,11 +54,16 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
     this.measureRepository = measureRepository;
     this.securityReviewRatingMetric = metricRepository.getByKey(SECURITY_REVIEW_RATING_KEY);
     this.securityHotspotsReviewedMetric = metricRepository.getByKey(SECURITY_HOTSPOTS_REVIEWED_KEY);
+    this.securityHotspotsReviewedStatusMetric = metricRepository.getByKey(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY);
+    this.securityHotspotsToReviewStatusMetric = metricRepository.getByKey(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY);
   }
 
   @Override
   public void visitProject(Component project, Path<SecurityReviewCounter> path) {
     computeMeasure(project, path);
+    // The following measures are only computed on projects level as they are required to compute the others measures on applications
+    measureRepository.add(project, securityHotspotsReviewedStatusMetric, Measure.newMeasureBuilder().create(path.current().getHotspotsReviewed()));
+    measureRepository.add(project, securityHotspotsToReviewStatusMetric, Measure.newMeasureBuilder().create(path.current().getHotspotsToReview()));
   }
 
   @Override
@@ -73,7 +82,7 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
       .filter(issue -> issue.type().equals(SECURITY_HOTSPOT))
       .forEach(issue -> path.current().processHotspot(issue));
 
-    Double percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
+    double percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
     measureRepository.add(component, securityHotspotsReviewedMetric, Measure.newMeasureBuilder().create(percent, securityHotspotsReviewedMetric.getDecimalScale()));
     measureRepository.add(component, securityReviewRatingMetric, RatingMeasures.get(computeRating(percent)));
 

@@ -25,8 +25,8 @@ import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
 import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 
 final class SecurityReviewCounter {
-  private long hotspotsReviewed;
-  private long hotspotsToReview;
+  private int hotspotsReviewed;
+  private int hotspotsToReview;
 
   SecurityReviewCounter() {
     // prevents instantiation
@@ -45,11 +45,11 @@ final class SecurityReviewCounter {
     hotspotsToReview += otherCounter.hotspotsToReview;
   }
 
-  public long getHotspotsReviewed() {
+  public int getHotspotsReviewed() {
     return hotspotsReviewed;
   }
 
-  public long getHotspotsToReview() {
+  public int getHotspotsToReview() {
     return hotspotsToReview;
   }
 }

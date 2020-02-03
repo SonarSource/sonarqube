@@ -30,6 +30,8 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
@@ -45,6 +47,8 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final Metric newSecurityReviewRatingMetric;
   private final Metric newSecurityHotspotsReviewedMetric;
+  private final Metric newSecurityHotspotsReviewedStatusMetric;
+  private final Metric newSecurityHotspotsToReviewStatusMetric;
 
   public NewSecurityReviewMeasuresVisitor(ComponentIssuesRepository componentIssuesRepository, MeasureRepository measureRepository, PeriodHolder periodHolder,
     AnalysisMetadataHolder analysisMetadataHolder, MetricRepository metricRepository) {
@@ -55,11 +59,19 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.newSecurityReviewRatingMetric = metricRepository.getByKey(NEW_SECURITY_REVIEW_RATING_KEY);
     this.newSecurityHotspotsReviewedMetric = metricRepository.getByKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
+    this.newSecurityHotspotsReviewedStatusMetric = metricRepository.getByKey(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY);
+    this.newSecurityHotspotsToReviewStatusMetric = metricRepository.getByKey(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY);
   }
 
   @Override
   public void visitProject(Component project, Path<SecurityReviewCounter> path) {
     computeMeasure(project, path);
+    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
+      return;
+    }
+    // The following measures are only computed on projects level as they are required to compute the others measures on applications
+    measureRepository.add(project, newSecurityHotspotsReviewedStatusMetric, Measure.newMeasureBuilder().setVariation(path.current().getHotspotsReviewed()).createNoValue());
+    measureRepository.add(project, newSecurityHotspotsToReviewStatusMetric, Measure.newMeasureBuilder().setVariation(path.current().getHotspotsToReview()).createNoValue());
   }
 
   @Override
@@ -79,10 +91,10 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
     componentIssuesRepository.getIssues(component)
       .stream()
       .filter(issue -> issue.type().equals(SECURITY_HOTSPOT))
-      .filter(issue -> analysisMetadataHolder.isPullRequest() || periodHolder.getPeriod().isOnPeriod(issue.creationDate()) )
+      .filter(issue -> analysisMetadataHolder.isPullRequest() || periodHolder.getPeriod().isOnPeriod(issue.creationDate()))
       .forEach(issue -> path.current().processHotspot(issue));
 
-    Double percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
+    double percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
     measureRepository.add(component, newSecurityHotspotsReviewedMetric, Measure.newMeasureBuilder().setVariation(percent).createNoValue());
     measureRepository.add(component, newSecurityReviewRatingMetric, Measure.newMeasureBuilder().setVariation(computeRating(percent).getIndex()).createNoValue());
 
