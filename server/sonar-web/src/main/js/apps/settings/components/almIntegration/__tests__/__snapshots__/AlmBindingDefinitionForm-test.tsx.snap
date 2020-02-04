@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<AlmBindingDefinitionFormRenderer
+  canSubmit={[Function]}
+  loading={false}
+  onCancel={[Function]}
+  onSubmit={[Function]}
+  success={false}
+/>
+`;

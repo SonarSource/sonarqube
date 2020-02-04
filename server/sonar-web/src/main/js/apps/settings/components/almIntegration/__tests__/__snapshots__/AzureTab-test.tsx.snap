@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="bordered"
+>
+  <AlmTab
+    alm="azure"
+    createConfiguration={[Function]}
+    defaultBinding={
+      Object {
+        "key": "",
+        "personalAccessToken": "",
+      }
+    }
+    definitions={
+      Array [
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+        },
+      ]
+    }
+    features={
+      Array [
+        Object {
+          "active": true,
+          "description": "settings.almintegration.feature.pr_decoration.description",
+          "inactiveReason": "settings.almintegration.feature.need_at_least_1_binding",
+          "name": "settings.almintegration.feature.pr_decoration.title",
+        },
+      ]
+    }
+    form={[Function]}
+    loading={false}
+    multipleAlmEnabled={true}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+    updateConfiguration={[Function]}
+  />
+</div>
+`;

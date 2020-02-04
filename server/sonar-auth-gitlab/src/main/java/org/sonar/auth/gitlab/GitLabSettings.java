@@ -38,7 +38,7 @@ public class GitLabSettings {
   static final String GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP = "sonar.auth.gitlab.allowUsersToSignUp";
   static final String GITLAB_AUTH_SYNC_USER_GROUPS = "sonar.auth.gitlab.groupsSync";
 
-  private static final String CATEGORY = CoreProperties.CATEGORY_SECURITY;
+  private static final String CATEGORY = CoreProperties.CATEGORY_ALM_INTEGRATION;
   private static final String SUBCATEGORY = "gitlab";
 
   private final Configuration configuration;

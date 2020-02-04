@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<AlmIntegrationRenderer
+  branchesEnabled={true}
+  currentAlm="github"
+  definitions={
+    Object {
+      "azure": Array [],
+      "bitbucket": Array [],
+      "github": Array [],
+      "gitlab": Array [],
+    }
+  }
+  loading={true}
+  multipleAlmEnabled={false}
+  onCancel={[Function]}
+  onConfirmDelete={[Function]}
+  onDelete={[Function]}
+  onSelectAlm={[Function]}
+  onUpdateDefinitions={[Function]}
+/>
+`;

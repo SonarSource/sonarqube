@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="bordered"
+>
+  <AlmTab
+    additionalColumnsHeaders={
+      Array [
+        "settings.almintegration.table.column.bitbucket.url",
+      ]
+    }
+    additionalColumnsKeys={
+      Array [
+        "url",
+      ]
+    }
+    additionalTableInfo={
+      <Alert
+        className="big-spacer-bottom width-50"
+        variant="info"
+      >
+        <FormattedMessage
+          defaultMessage="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_bbs_instances"
+          id="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_bbs_instances"
+          values={
+            Object {
+              "feature": <em>
+                settings.almintegration.feature.alm_repo_import.title
+              </em>,
+            }
+          }
+        />
+      </Alert>
+    }
+    alm="bitbucket"
+    createConfiguration={[Function]}
+    defaultBinding={
+      Object {
+        "key": "",
+        "personalAccessToken": "",
+        "url": "",
+      }
+    }
+    definitions={
+      Array [
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+          "url": "http://bbs.enterprise.com",
+        },
+      ]
+    }
+    features={
+      Array [
+        Object {
+          "active": true,
+          "description": "settings.almintegration.feature.pr_decoration.description",
+          "inactiveReason": "settings.almintegration.feature.need_at_least_1_binding",
+          "name": "settings.almintegration.feature.pr_decoration.title",
+        },
+        Object {
+          "active": true,
+          "description": "settings.almintegration.feature.alm_repo_import.description",
+          "inactiveReason": "onboarding.create_project.too_many_bbs_instances_X.1",
+          "name": "settings.almintegration.feature.alm_repo_import.title",
+        },
+      ]
+    }
+    form={[Function]}
+    help={
+      <React.Fragment>
+        <h3>
+          onboarding.create_project.pat_help.title
+        </h3>
+        <p
+          className="big-spacer-top"
+        >
+          settings.almintegration.bitbucket.help_1
+        </p>
+        <ul
+          className="big-spacer-top list-styled"
+        >
+          <li>
+            settings.almintegration.bitbucket.help_2
+          </li>
+          <li>
+            settings.almintegration.bitbucket.help_3
+          </li>
+        </ul>
+        <p
+          className="big-spacer-top big-spacer-bottom"
+        >
+          <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/pr-decoration/"
+          >
+            learn_more
+          </Link>
+        </p>
+      </React.Fragment>
+    }
+    loading={false}
+    multipleAlmEnabled={true}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+    updateConfiguration={[Function]}
+  />
+</div>
+`;

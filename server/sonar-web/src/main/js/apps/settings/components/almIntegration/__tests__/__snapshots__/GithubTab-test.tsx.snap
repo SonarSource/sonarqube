@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: with branch support 1`] = `
+<div
+  className="bordered"
+>
+  <AlmTab
+    additionalColumnsHeaders={
+      Array [
+        "settings.almintegration.table.column.github.url",
+        "settings.almintegration.table.column.app_id",
+      ]
+    }
+    additionalColumnsKeys={
+      Array [
+        "appId",
+        "url",
+      ]
+    }
+    alm="github"
+    createConfiguration={[Function]}
+    defaultBinding={
+      Object {
+        "appId": "",
+        "key": "",
+        "privateKey": "",
+        "url": "",
+      }
+    }
+    definitions={
+      Array [
+        Object {
+          "appId": "123456",
+          "key": "key",
+          "privateKey": "asdf1234",
+          "url": "http://github.enterprise.com",
+        },
+      ]
+    }
+    features={
+      Array [
+        Object {
+          "active": true,
+          "description": "settings.almintegration.feature.pr_decoration.description",
+          "inactiveReason": "settings.almintegration.feature.need_at_least_1_binding",
+          "name": "settings.almintegration.feature.pr_decoration.title",
+        },
+      ]
+    }
+    form={[Function]}
+    loading={false}
+    multipleAlmEnabled={true}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+    updateConfiguration={[Function]}
+  />
+  <div
+    className="huge-spacer-top huge-spacer-bottom bordered-top"
+  />
+  <div
+    className="big-padded"
+  >
+    <Connect(SubCategoryDefinitionsList)
+      category="almintegration"
+      subCategory="github"
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: without branch support 1`] = `
+<div
+  className="bordered"
+>
+  <div
+    className="big-padded"
+  >
+    <Connect(SubCategoryDefinitionsList)
+      category="almintegration"
+      subCategory="github"
+    />
+  </div>
+</div>
+`;

@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { ALM_KEYS } from '../../../../../types/alm-settings';
+import { AlmKeys } from '../../../../../types/alm-settings';
 import PRDecorationBindingRenderer, {
   PRDecorationBindingRendererProps
 } from '../PRDecorationBindingRenderer';
@@ -35,7 +35,7 @@ it('should render single instance correctly', () => {
   const singleInstance = {
     key: 'single',
     url: 'http://single.url',
-    alm: ALM_KEYS.GITHUB
+    alm: AlmKeys.GitHub
   };
   expect(
     shallowRender({
@@ -49,22 +49,22 @@ it('should render multiple instances correctly', () => {
   const urls = ['http://github.enterprise.com', 'http://bbs.enterprise.com'];
   const instances = [
     {
-      alm: ALM_KEYS.GITHUB,
+      alm: AlmKeys.GitHub,
       key: 'i1',
       url: urls[0]
     },
     {
-      alm: ALM_KEYS.GITHUB,
+      alm: AlmKeys.GitHub,
       key: 'i2',
       url: urls[0]
     },
     {
-      alm: ALM_KEYS.BITBUCKET,
+      alm: AlmKeys.Bitbucket,
       key: 'i3',
       url: urls[1]
     },
     {
-      alm: ALM_KEYS.AZURE,
+      alm: AlmKeys.Azure,
       key: 'i4'
     }
   ];
@@ -96,7 +96,7 @@ it('should render multiple instances correctly', () => {
 
 it('should display action state correctly', () => {
   const urls = ['http://url.com'];
-  const instances = [{ key: 'key', url: urls[0], alm: ALM_KEYS.GITHUB }];
+  const instances = [{ key: 'key', url: urls[0], alm: AlmKeys.GitHub }];
 
   expect(shallowRender({ instances, loading: false, saving: true })).toMatchSnapshot();
   expect(shallowRender({ instances, loading: false, success: true })).toMatchSnapshot();
@@ -112,11 +112,11 @@ it('should display action state correctly', () => {
 it('should render select options correctly', async () => {
   const instances = [
     {
-      alm: ALM_KEYS.AZURE,
+      alm: AlmKeys.Azure,
       key: 'azure'
     },
     {
-      alm: ALM_KEYS.GITHUB,
+      alm: AlmKeys.GitHub,
       key: 'github',
       url: 'gh.url.com'
     }

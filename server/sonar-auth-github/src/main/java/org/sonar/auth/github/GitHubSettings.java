@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 
@@ -42,7 +43,7 @@ public class GitHubSettings {
 
   private static final String ORGANIZATIONS = "sonar.auth.github.organizations";
 
-  private static final String CATEGORY = "security";
+  private static final String CATEGORY = CoreProperties.CATEGORY_ALM_INTEGRATION;
   private static final String SUBCATEGORY = "github";
 
   private final Configuration configuration;

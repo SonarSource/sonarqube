@@ -1,0 +1,101 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.github.help"
+    id="name.github"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.github.help1
+        <br />
+        <em>
+          https://github.company.com/api/v3
+        </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.github.help2
+        <br />
+        <em>
+          https://api.github.com/
+        </em>
+      </React.Fragment>
+    }
+    id="url.github"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    id="app_id"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="appId"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    id="private_key"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    propKey="privateKey"
+    value=""
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.github.help"
+    id="name.github"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value="key"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.github.help1
+        <br />
+        <em>
+          https://github.company.com/api/v3
+        </em>
+        <br />
+        <br />
+        settings.almintegration.form.url.github.help2
+        <br />
+        <em>
+          https://api.github.com/
+        </em>
+      </React.Fragment>
+    }
+    id="url.github"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value="http://github.enterprise.com"
+  />
+  <AlmBindingDefinitionFormField
+    id="app_id"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="appId"
+    value="123456"
+  />
+  <AlmBindingDefinitionFormField
+    id="private_key"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    propKey="privateKey"
+    value="asdf1234"
+  />
+</Fragment>
+`;

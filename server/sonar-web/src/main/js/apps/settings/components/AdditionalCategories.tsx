@@ -20,16 +20,16 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
+  ALM_INTEGRATION,
   ANALYSIS_SCOPE_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
-  PULL_REQUEST_DECORATION_BINDING_CATEGORY,
-  PULL_REQUEST_DECORATION_CATEGORY
+  PULL_REQUEST_DECORATION_BINDING_CATEGORY
 } from './AdditionalCategoryKeys';
+import AlmIntegration from './almIntegration/AlmIntegration';
 import { AnalysisScope } from './AnalysisScope';
 import Languages from './Languages';
 import NewCodePeriod from './NewCodePeriod';
-import PullRequestDecoration from './pullRequestDecoration/PullRequestDecoration';
 import PullRequestDecorationBinding from './pullRequestDecorationBinding/PRDecorationBinding';
 
 export interface AdditionalCategoryComponentProps {
@@ -73,13 +73,12 @@ export const ADDITIONAL_CATEGORIES: AdditionalCategory[] = [
     displayTab: false
   },
   {
-    key: PULL_REQUEST_DECORATION_CATEGORY,
-    name: translate('settings.pr_decoration.category'),
-    renderComponent: getPullRequestDecorationComponent,
+    key: ALM_INTEGRATION,
+    name: translate('property.category.almintegration'),
+    renderComponent: getAlmIntegrationComponent,
     availableGlobally: true,
     availableForProject: false,
-    displayTab: true,
-    requiresBranchesEnabled: true
+    displayTab: false
   },
   {
     key: PULL_REQUEST_DECORATION_BINDING_CATEGORY,
@@ -104,8 +103,8 @@ function getAnalysisScopeComponent(props: AdditionalCategoryComponentProps) {
   return <AnalysisScope {...props} />;
 }
 
-function getPullRequestDecorationComponent() {
-  return <PullRequestDecoration />;
+function getAlmIntegrationComponent(props: AdditionalCategoryComponentProps) {
+  return <AlmIntegration {...props} />;
 }
 
 function getPullRequestDecorationBindingComponent(props: AdditionalCategoryComponentProps) {

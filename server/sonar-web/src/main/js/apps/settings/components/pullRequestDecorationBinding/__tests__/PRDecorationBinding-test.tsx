@@ -27,12 +27,12 @@ import {
   setProjectAzureBinding,
   setProjectBitbucketBinding,
   setProjectGithubBinding
-} from '../../../../../api/almSettings';
+} from '../../../../../api/alm-settings';
 import { mockComponent } from '../../../../../helpers/testMocks';
-import { ALM_KEYS } from '../../../../../types/alm-settings';
+import { AlmKeys } from '../../../../../types/alm-settings';
 import PRDecorationBinding from '../PRDecorationBinding';
 
-jest.mock('../../../../../api/almSettings', () => ({
+jest.mock('../../../../../api/alm-settings', () => ({
   getAlmSettings: jest.fn().mockResolvedValue([]),
   getProjectAlmBinding: jest.fn().mockResolvedValue(undefined),
   setProjectAzureBinding: jest.fn().mockResolvedValue(undefined),
@@ -53,7 +53,7 @@ it('should render correctly', () => {
 
 it('should fill selects and fill formdata', async () => {
   const url = 'github.com';
-  const instances = [{ key: 'instance1', url, alm: ALM_KEYS.GITHUB }];
+  const instances = [{ key: 'instance1', url, alm: AlmKeys.GitHub }];
   const formdata = {
     key: 'instance1',
     repository: 'account/repo'
@@ -89,9 +89,9 @@ it('should handle reset', async () => {
 
 describe('handleSubmit', () => {
   const instances = [
-    { key: 'github', alm: ALM_KEYS.GITHUB },
-    { key: 'azure', alm: ALM_KEYS.AZURE },
-    { key: 'bitbucket', alm: ALM_KEYS.BITBUCKET }
+    { key: 'github', alm: AlmKeys.GitHub },
+    { key: 'azure', alm: AlmKeys.Azure },
+    { key: 'bitbucket', alm: AlmKeys.Bitbucket }
   ];
 
   it('should work for github', async () => {
@@ -195,9 +195,9 @@ it('should validate form', async () => {
 
   wrapper.setState({
     instances: [
-      { key: 'azure', alm: ALM_KEYS.AZURE },
-      { key: 'bitbucket', alm: ALM_KEYS.BITBUCKET },
-      { key: 'github', alm: ALM_KEYS.GITHUB }
+      { key: 'azure', alm: AlmKeys.Azure },
+      { key: 'bitbucket', alm: AlmKeys.Bitbucket },
+      { key: 'github', alm: AlmKeys.GitHub }
     ]
   });
   expect(wrapper.instance().validateForm({ key: 'azure' })).toBe(true);

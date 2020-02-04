@@ -28,6 +28,7 @@ interface Props {
   component?: T.Component;
   fetchValues: Function;
   settings: Array<T.Setting & { definition: T.SettingCategoryDefinition }>;
+  subCategory?: string;
 }
 
 export default class SubCategoryDefinitionsList extends React.PureComponent<Props> {
@@ -66,9 +67,12 @@ export default class SubCategoryDefinitionsList extends React.PureComponent<Prop
     const sortedSubCategories = sortBy(subCategories, subCategory =>
       subCategory.name.toLowerCase()
     );
+    const filteredSubCategories = this.props.subCategory
+      ? sortedSubCategories.filter(c => c.key === this.props.subCategory)
+      : sortedSubCategories;
     return (
       <ul className="settings-sub-categories-list">
-        {sortedSubCategories.map(subCategory => (
+        {filteredSubCategories.map(subCategory => (
           <li key={subCategory.key}>
             <h2 className="settings-sub-category-name">{subCategory.name}</h2>
             {subCategory.description != null && (

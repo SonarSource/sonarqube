@@ -57,6 +57,11 @@ public interface CoreProperties {
   String SUBCATEGORY_DUPLICATIONS = "duplications";
 
   /**
+   * @since 8.2
+   */
+  String CATEGORY_ALM_INTEGRATION = "almintegration";
+
+  /**
    * @since 8.1
    */
   String CATEGORY_HOUSEKEEPING = "housekeeping";

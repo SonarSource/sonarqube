@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.azure.help"
+    id="name.azure"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.personal_access_token.azure.help"
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    propKey="personalAccessToken"
+    value=""
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.azure.help"
+    id="name.azure"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value="key"
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.personal_access_token.azure.help"
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    propKey="personalAccessToken"
+    value="asdf1234"
+  />
+</Fragment>
+`;

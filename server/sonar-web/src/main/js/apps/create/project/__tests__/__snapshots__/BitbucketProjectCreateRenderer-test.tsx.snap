@@ -179,7 +179,7 @@ exports[`should render correctly: invalid config, admin user 1`] = `
               Object {
                 "pathname": "/admin/settings",
                 "query": Object {
-                  "category": "pull_request_decoration",
+                  "category": "almintegration",
                 },
               }
             }

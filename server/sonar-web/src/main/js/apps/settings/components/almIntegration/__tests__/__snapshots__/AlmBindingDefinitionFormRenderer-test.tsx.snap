@@ -1,0 +1,161 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <div
+    className="display-flex-start"
+  >
+    <div
+      className="flex-1"
+    >
+      <Component />
+      <div
+        className="display-flex-center"
+      >
+        <SubmitButton
+          disabled={true}
+        >
+          settings.almintegration.form.save
+        </SubmitButton>
+      </div>
+    </div>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 2`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <div
+    className="display-flex-start"
+  >
+    <div
+      className="flex-1"
+    >
+      <Component />
+      <div
+        className="display-flex-center"
+      >
+        <SubmitButton
+          disabled={true}
+        >
+          settings.almintegration.form.save
+        </SubmitButton>
+        <ResetButtonLink
+          className="spacer-left"
+          onClick={[MockFunction]}
+        >
+          cancel
+        </ResetButtonLink>
+      </div>
+    </div>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 3`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <div
+    className="display-flex-start"
+  >
+    <div
+      className="flex-1"
+    >
+      <Component />
+      <div
+        className="display-flex-center"
+      >
+        <SubmitButton
+          disabled={true}
+        >
+          settings.almintegration.form.save
+        </SubmitButton>
+        <Button
+          className="button-red spacer-left"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          delete
+        </Button>
+      </div>
+    </div>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 4`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <div
+    className="display-flex-start"
+  >
+    <div
+      className="flex-1"
+    >
+      <Component />
+      <div
+        className="display-flex-center"
+      >
+        <SubmitButton
+          disabled={true}
+        >
+          settings.almintegration.form.save
+        </SubmitButton>
+        <span
+          className="text-success spacer-left"
+        >
+          <AlertSuccessIcon
+            className="spacer-right"
+          />
+          settings.state.saved
+        </span>
+      </div>
+    </div>
+  </div>
+</form>
+`;
+
+exports[`should render correctly 5`] = `
+<form
+  className="views-form"
+  data-test="settings__alm-form"
+  onSubmit={[Function]}
+>
+  <div
+    className="display-flex-start"
+  >
+    <div
+      className="flex-1"
+    >
+      <Component />
+      <div
+        className="display-flex-center"
+      >
+        <SubmitButton
+          disabled={true}
+        >
+          settings.almintegration.form.save
+        </SubmitButton>
+        <DeferredSpinner
+          className="spacer-left"
+          timeout={100}
+        />
+      </div>
+    </div>
+  </div>
+</form>
+`;

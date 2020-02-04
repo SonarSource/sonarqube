@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="modal-field"
+>
+  <label
+    className="display-flex-center"
+    htmlFor="key"
+  >
+    settings.almintegration.form.key
+    <em
+      className="mandatory spacer-right"
+    >
+      *
+    </em>
+  </label>
+  <input
+    className="input-super-large"
+    disabled={false}
+    id="key"
+    maxLength={40}
+    name="key"
+    onChange={[Function]}
+    size={50}
+    type="text"
+    value="key"
+  />
+</div>
+`;
+
+exports[`should render correctly 2`] = `
+<div
+  className="modal-field"
+>
+  <label
+    className="display-flex-center"
+    htmlFor="key"
+  >
+    settings.almintegration.form.key
+    <em
+      className="mandatory spacer-right"
+    >
+      *
+    </em>
+    <HelpTooltip
+      overlay="help"
+      placement="right"
+    />
+  </label>
+  <input
+    className="input-super-large"
+    disabled={false}
+    id="key"
+    maxLength={40}
+    name="key"
+    onChange={[Function]}
+    size={50}
+    type="text"
+    value="key"
+  />
+</div>
+`;
+
+exports[`should render correctly 3`] = `
+<div
+  className="modal-field"
+>
+  <label
+    className="display-flex-center"
+    htmlFor="key"
+  >
+    settings.almintegration.form.key
+    <em
+      className="mandatory spacer-right"
+    >
+      *
+    </em>
+  </label>
+  <textarea
+    className="settings-large-input"
+    disabled={false}
+    id="key"
+    maxLength={40}
+    onChange={[Function]}
+    required={true}
+    rows={5}
+    value="key"
+  />
+</div>
+`;

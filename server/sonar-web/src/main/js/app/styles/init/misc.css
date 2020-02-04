@@ -152,6 +152,14 @@ th.hide-overflow {
   padding-top: calc(var(--gridSize) / 2) !important;
 }
 
+.big-padded-top {
+  padding-top: calc(2 * var(--gridSize));
+}
+
+.huge-padded-top {
+  padding-top: 40px;
+}
+
 td.little-spacer-left {
   padding-left: 4px !important;
 }
@@ -303,6 +311,10 @@ th.huge-spacer-right {
 
 .abs-width-600 {
   width: 600px !important;
+}
+
+.abs-height-100 {
+  height: 100% !important;
 }
 
 .max-height-100 {

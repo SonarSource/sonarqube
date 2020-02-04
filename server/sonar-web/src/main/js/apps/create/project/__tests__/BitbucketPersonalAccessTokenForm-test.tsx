@@ -23,7 +23,7 @@ import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
-import { ALM_KEYS } from '../../../../types/alm-settings';
+import { AlmKeys } from '../../../../types/alm-settings';
 import BitbucketPersonalAccessTokenForm, {
   BitbucketPersonalAccessTokenFormProps
 } from '../BitbucketPersonalAccessTokenForm';
@@ -54,7 +54,7 @@ function shallowRender(props: Partial<BitbucketPersonalAccessTokenFormProps> = {
   return shallow<BitbucketPersonalAccessTokenFormProps>(
     <BitbucketPersonalAccessTokenForm
       bitbucketSetting={mockAlmSettingsInstance({
-        alm: ALM_KEYS.BITBUCKET,
+        alm: AlmKeys.Bitbucket,
         url: 'http://www.example.com'
       })}
       onPersonalAccessTokenCreate={jest.fn()}

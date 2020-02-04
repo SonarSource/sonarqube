@@ -26,9 +26,9 @@ import {
   setProjectBitbucketBinding,
   setProjectGithubBinding,
   setProjectGitlabBinding
-} from '../../../../api/almSettings';
+} from '../../../../api/alm-settings';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
-import { AlmSettingsInstance, ALM_KEYS, ProjectAlmBinding } from '../../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance, ProjectAlmBinding } from '../../../../types/alm-settings';
 import PRDecorationBindingRenderer from './PRDecorationBindingRenderer';
 
 interface Props {
@@ -45,11 +45,11 @@ interface State {
   success: boolean;
 }
 
-const FIELDS_BY_ALM: { [almKey in ALM_KEYS]: Array<keyof T.Omit<ProjectAlmBinding, 'key'>> } = {
-  [ALM_KEYS.AZURE]: [],
-  [ALM_KEYS.BITBUCKET]: ['repository', 'slug'],
-  [ALM_KEYS.GITHUB]: ['repository'],
-  [ALM_KEYS.GITLAB]: []
+const FIELDS_BY_ALM: { [almKey in AlmKeys]: Array<keyof T.Omit<ProjectAlmBinding, 'key'>> } = {
+  [AlmKeys.Azure]: [],
+  [AlmKeys.Bitbucket]: ['repository', 'slug'],
+  [AlmKeys.GitHub]: ['repository'],
+  [AlmKeys.GitLab]: []
 };
 
 export default class PRDecorationBinding extends React.PureComponent<Props, State> {
@@ -133,7 +133,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   };
 
   submitProjectAlmBinding(
-    alm: ALM_KEYS,
+    alm: AlmKeys,
     key: string,
     almSpecificFields?: T.Omit<ProjectAlmBinding, 'key'>
   ): Promise<void> {
@@ -141,12 +141,12 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
     const project = this.props.component.key;
 
     switch (alm) {
-      case ALM_KEYS.AZURE:
+      case AlmKeys.Azure:
         return setProjectAzureBinding({
           almSetting,
           project
         });
-      case ALM_KEYS.BITBUCKET: {
+      case AlmKeys.Bitbucket: {
         if (!almSpecificFields) {
           return Promise.reject();
         }
@@ -158,7 +158,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
           slug
         });
       }
-      case ALM_KEYS.GITHUB: {
+      case AlmKeys.GitHub: {
         const repository = almSpecificFields && almSpecificFields.repository;
         if (!repository) {
           return Promise.reject();
@@ -170,7 +170,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
         });
       }
 
-      case ALM_KEYS.GITLAB:
+      case AlmKeys.GitLab:
         return setProjectGitlabBinding({
           almSetting,
           project

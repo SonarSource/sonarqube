@@ -27,7 +27,7 @@ import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon'
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmSettingsInstance, ALM_KEYS, ProjectAlmBinding } from '../../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance, ProjectAlmBinding } from '../../../../types/alm-settings';
 
 export interface PRDecorationBindingRendererProps {
   formData: ProjectAlmBinding;
@@ -179,7 +179,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           />
         </div>
 
-        {alm === ALM_KEYS.BITBUCKET && (
+        {alm === AlmKeys.Bitbucket && (
           <>
             {renderField({
               help: true,
@@ -216,7 +216,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           </>
         )}
 
-        {alm === ALM_KEYS.GITHUB &&
+        {alm === AlmKeys.GitHub &&
           renderField({
             help: true,
             helpParams: { example: 'SonarSource/sonarqube' },

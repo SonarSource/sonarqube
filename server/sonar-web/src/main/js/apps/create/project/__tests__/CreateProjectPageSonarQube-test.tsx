@@ -21,14 +21,14 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { addWhitePageClass } from 'sonar-ui-common/helpers/pages';
-import { getAlmSettings } from '../../../../api/almSettings';
+import { getAlmSettings } from '../../../../api/alm-settings';
 import { mockLocation, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
-import { ALM_KEYS } from '../../../../types/alm-settings';
+import { AlmKeys } from '../../../../types/alm-settings';
 import { CreateProjectPageSonarQube } from '../CreateProjectPageSonarQube';
 import { CreateProjectModes } from '../types';
 
-jest.mock('../../../../api/almSettings', () => ({
-  getAlmSettings: jest.fn().mockResolvedValue([{ alm: ALM_KEYS.BITBUCKET, key: 'foo' }])
+jest.mock('../../../../api/alm-settings', () => ({
+  getAlmSettings: jest.fn().mockResolvedValue([{ alm: AlmKeys.Bitbucket, key: 'foo' }])
 }));
 
 jest.mock('sonar-ui-common/helpers/pages', () => ({

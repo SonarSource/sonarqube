@@ -1,0 +1,514 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: azure 1`] = `
+<Fragment>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.almintegration.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.almintegration.description
+  </div>
+  <BoxedTabs
+    onSelect={[MockFunction]}
+    selected="azure"
+    tabs={
+      Array [
+        Object {
+          "key": "github",
+          "label": <React.Fragment>
+            <img
+              alt="github"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/github.svg"
+            />
+            GitHub
+          </React.Fragment>,
+        },
+        Object {
+          "key": "bitbucket",
+          "label": <React.Fragment>
+            <img
+              alt="bitbucket"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/bitbucket.svg"
+            />
+            Bitbucket Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "azure",
+          "label": <React.Fragment>
+            <img
+              alt="azure"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/azure.svg"
+            />
+            Azure DevOps Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <AzureTab
+    definitions={Array []}
+    loading={false}
+    multipleAlmEnabled={false}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: bitbucket 1`] = `
+<Fragment>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.almintegration.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.almintegration.description
+  </div>
+  <BoxedTabs
+    onSelect={[MockFunction]}
+    selected="bitbucket"
+    tabs={
+      Array [
+        Object {
+          "key": "github",
+          "label": <React.Fragment>
+            <img
+              alt="github"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/github.svg"
+            />
+            GitHub
+          </React.Fragment>,
+        },
+        Object {
+          "key": "bitbucket",
+          "label": <React.Fragment>
+            <img
+              alt="bitbucket"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/bitbucket.svg"
+            />
+            Bitbucket Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "azure",
+          "label": <React.Fragment>
+            <img
+              alt="azure"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/azure.svg"
+            />
+            Azure DevOps Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <BitbucketTab
+    definitions={Array []}
+    loading={false}
+    multipleAlmEnabled={false}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: default 1`] = `
+<Fragment>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.almintegration.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.almintegration.description
+  </div>
+  <BoxedTabs
+    onSelect={[MockFunction]}
+    selected="github"
+    tabs={
+      Array [
+        Object {
+          "key": "github",
+          "label": <React.Fragment>
+            <img
+              alt="github"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/github.svg"
+            />
+            GitHub
+          </React.Fragment>,
+        },
+        Object {
+          "key": "bitbucket",
+          "label": <React.Fragment>
+            <img
+              alt="bitbucket"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/bitbucket.svg"
+            />
+            Bitbucket Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "azure",
+          "label": <React.Fragment>
+            <img
+              alt="azure"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/azure.svg"
+            />
+            Azure DevOps Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <GithubTab
+    branchesEnabled={true}
+    definitions={Array []}
+    loading={false}
+    multipleAlmEnabled={false}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: delete modal 1`] = `
+<Fragment>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.almintegration.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.almintegration.description
+  </div>
+  <BoxedTabs
+    onSelect={[MockFunction]}
+    selected="github"
+    tabs={
+      Array [
+        Object {
+          "key": "github",
+          "label": <React.Fragment>
+            <img
+              alt="github"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/github.svg"
+            />
+            GitHub
+          </React.Fragment>,
+        },
+        Object {
+          "key": "bitbucket",
+          "label": <React.Fragment>
+            <img
+              alt="bitbucket"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/bitbucket.svg"
+            />
+            Bitbucket Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "azure",
+          "label": <React.Fragment>
+            <img
+              alt="azure"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/azure.svg"
+            />
+            Azure DevOps Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <GithubTab
+    branchesEnabled={true}
+    definitions={Array []}
+    loading={false}
+    multipleAlmEnabled={false}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+  />
+  <DeleteModal
+    id="keyToDelete"
+    onCancel={[MockFunction]}
+    onDelete={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: gitlab 1`] = `
+<Fragment>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.almintegration.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.almintegration.description
+  </div>
+  <BoxedTabs
+    onSelect={[MockFunction]}
+    selected="gitlab"
+    tabs={
+      Array [
+        Object {
+          "key": "github",
+          "label": <React.Fragment>
+            <img
+              alt="github"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/github.svg"
+            />
+            GitHub
+          </React.Fragment>,
+        },
+        Object {
+          "key": "bitbucket",
+          "label": <React.Fragment>
+            <img
+              alt="bitbucket"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/bitbucket.svg"
+            />
+            Bitbucket Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "azure",
+          "label": <React.Fragment>
+            <img
+              alt="azure"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/azure.svg"
+            />
+            Azure DevOps Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <GitlabTab
+    branchesEnabled={true}
+    definitions={Array []}
+    loading={false}
+    multipleAlmEnabled={false}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<Fragment>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      settings.almintegration.title
+    </h1>
+  </header>
+  <div
+    className="markdown small spacer-top big-spacer-bottom"
+  >
+    settings.almintegration.description
+  </div>
+  <BoxedTabs
+    onSelect={[MockFunction]}
+    selected="github"
+    tabs={
+      Array [
+        Object {
+          "key": "github",
+          "label": <React.Fragment>
+            <img
+              alt="github"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/github.svg"
+            />
+            GitHub
+          </React.Fragment>,
+        },
+        Object {
+          "key": "bitbucket",
+          "label": <React.Fragment>
+            <img
+              alt="bitbucket"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/bitbucket.svg"
+            />
+            Bitbucket Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "azure",
+          "label": <React.Fragment>
+            <img
+              alt="azure"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/azure.svg"
+            />
+            Azure DevOps Server
+          </React.Fragment>,
+          "requiresBranchesEnabled": true,
+        },
+        Object {
+          "key": "gitlab",
+          "label": <React.Fragment>
+            <img
+              alt="gitlab"
+              className="spacer-right"
+              height={16}
+              src="/images/alm/gitlab.svg"
+            />
+            GitLab
+          </React.Fragment>,
+        },
+      ]
+    }
+  />
+  <GithubTab
+    branchesEnabled={true}
+    definitions={Array []}
+    loading={true}
+    multipleAlmEnabled={false}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+  />
+</Fragment>
+`;

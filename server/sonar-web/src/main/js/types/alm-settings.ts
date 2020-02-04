@@ -17,46 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const enum ALM_KEYS {
-  AZURE = 'azure',
-  BITBUCKET = 'bitbucket',
-  GITHUB = 'github',
-  GITLAB = 'gitlab'
+export const enum AlmKeys {
+  Azure = 'azure',
+  Bitbucket = 'bitbucket',
+  GitHub = 'github',
+  GitLab = 'gitlab'
 }
 
-export interface AlmSettingsBinding {
+export interface AlmBindingDefinition {
   key: string;
 }
 
-export interface AlmSettingsInstance {
-  alm: ALM_KEYS;
-  key: string;
-  url?: string;
-}
-
-export interface AlmSettingsBindingDefinitions {
-  azure: AzureBindingDefinition[];
-  bitbucket: BitbucketBindingDefinition[];
-  github: GithubBindingDefinition[];
-  gitlab: GitlabBindingDefinition[];
-}
-
-export interface AzureBindingDefinition extends AlmSettingsBinding {
+export interface AzureBindingDefinition extends AlmBindingDefinition {
   personalAccessToken: string;
 }
 
-export interface BitbucketBindingDefinition extends AlmSettingsBinding {
+export interface BitbucketBindingDefinition extends AlmBindingDefinition {
   personalAccessToken: string;
   url: string;
 }
 
-export interface GithubBindingDefinition extends AlmSettingsBinding {
+export interface GithubBindingDefinition extends AlmBindingDefinition {
   appId: string;
   privateKey: string;
   url: string;
 }
 
-export interface GitlabBindingDefinition extends AlmSettingsBinding {
+export interface GitlabBindingDefinition extends AlmBindingDefinition {
   personalAccessToken: string;
 }
 
@@ -87,4 +74,17 @@ export interface GithubProjectAlmBinding {
 export interface GitlabProjectAlmBinding {
   almSetting: string;
   project: string;
+}
+
+export interface AlmSettingsInstance {
+  alm: AlmKeys;
+  key: string;
+  url?: string;
+}
+
+export interface AlmSettingsBindingDefinitions {
+  azure: AzureBindingDefinition[];
+  bitbucket: BitbucketBindingDefinition[];
+  github: GithubBindingDefinition[];
+  gitlab: GitlabBindingDefinition[];
 }

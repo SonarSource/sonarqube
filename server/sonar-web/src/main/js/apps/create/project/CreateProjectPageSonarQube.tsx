@@ -22,11 +22,11 @@ import { Helmet } from 'react-helmet-async';
 import { WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
-import { getAlmSettings } from '../../../api/almSettings';
+import { getAlmSettings } from '../../../api/alm-settings';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { getProjectUrl } from '../../../helpers/urls';
-import { AlmSettingsInstance, ALM_KEYS } from '../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketProjectCreate from './BitbucketProjectCreate';
 import CreateProjectModeSelection from './CreateProjectModeSelection';
 import ManualProjectCreate from './ManualProjectCreate';
@@ -81,7 +81,7 @@ export class CreateProjectPageSonarQube extends React.PureComponent<Props, State
       .then(almSettings => {
         if (this.mounted) {
           this.setState({
-            bitbucketSettings: almSettings.filter(s => s.alm === ALM_KEYS.BITBUCKET),
+            bitbucketSettings: almSettings.filter(s => s.alm === AlmKeys.Bitbucket),
             loading: false
           });
         }

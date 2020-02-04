@@ -22,11 +22,11 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import {
+  ALM_INTEGRATION,
   ANALYSIS_SCOPE_CATEGORY,
   LANGUAGES_CATEGORY,
   NEW_CODE_PERIOD_CATEGORY,
-  PULL_REQUEST_DECORATION_BINDING_CATEGORY,
-  PULL_REQUEST_DECORATION_CATEGORY
+  PULL_REQUEST_DECORATION_BINDING_CATEGORY
 } from '../AdditionalCategoryKeys';
 import { App } from '../AppContainer';
 
@@ -64,9 +64,9 @@ it('should render analysis scope correctly', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should render pull request decoration correctly', async () => {
+it('should render ALM integration correctly', async () => {
   const wrapper = shallowRender({
-    location: mockLocation({ query: { category: PULL_REQUEST_DECORATION_CATEGORY } })
+    location: mockLocation({ query: { category: ALM_INTEGRATION } })
   });
 
   await waitAndUpdate(wrapper);

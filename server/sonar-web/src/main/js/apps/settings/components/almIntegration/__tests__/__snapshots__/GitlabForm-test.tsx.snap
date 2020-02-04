@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.gitlab.help"
+    id="name.gitlab"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.personal_access_token.gitlab.help"
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    propKey="personalAccessToken"
+    value=""
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.gitlab.help"
+    id="name.gitlab"
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value="foo"
+  />
+  <AlmBindingDefinitionFormField
+    help="settings.almintegration.form.personal_access_token.gitlab.help"
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    propKey="personalAccessToken"
+    value="foobar"
+  />
+</Fragment>
+`;

@@ -25,7 +25,7 @@ import {
   mockBitbucketRepository
 } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
-import { ALM_KEYS } from '../../../../types/alm-settings';
+import { AlmKeys } from '../../../../types/alm-settings';
 import BitbucketProjectCreateRenderer, {
   BitbucketProjectCreateRendererProps
 } from '../BitbucketProjectCreateRenderer';
@@ -49,7 +49,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<BitbucketProjectCreateRendererProps> = {}) {
   return shallow<BitbucketProjectCreateRendererProps>(
     <BitbucketProjectCreateRenderer
-      bitbucketSetting={mockAlmSettingsInstance({ alm: ALM_KEYS.BITBUCKET })}
+      bitbucketSetting={mockAlmSettingsInstance({ alm: AlmKeys.Bitbucket })}
       importing={false}
       loading={false}
       onImportRepository={jest.fn()}

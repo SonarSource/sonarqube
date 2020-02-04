@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.bitbucket.help"
+    id="name.bitbucket"
+    maxLength={100}
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.url.bitbucket.help"
+        id="settings.almintegration.form.url.bitbucket.help"
+        values={
+          Object {
+            "example": "https://bitbucket-server.your-company.com",
+          }
+        }
+      />
+    }
+    id="url.bitbucket"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    propKey="personalAccessToken"
+    value=""
+  />
+</Fragment>
+`;
+
+exports[`should render correctly 2`] = `
+<Fragment>
+  <AlmBindingDefinitionFormField
+    autoFocus={true}
+    help="settings.almintegration.form.name.bitbucket.help"
+    id="name.bitbucket"
+    maxLength={100}
+    onFieldChange={[MockFunction]}
+    propKey="key"
+    value="key"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <FormattedMessage
+        defaultMessage="settings.almintegration.form.url.bitbucket.help"
+        id="settings.almintegration.form.url.bitbucket.help"
+        values={
+          Object {
+            "example": "https://bitbucket-server.your-company.com",
+          }
+        }
+      />
+    }
+    id="url.bitbucket"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    propKey="url"
+    value="http://bbs.enterprise.com"
+  />
+  <AlmBindingDefinitionFormField
+    id="personal_access_token"
+    isTextArea={true}
+    onFieldChange={[MockFunction]}
+    propKey="personalAccessToken"
+    value="asdf1234"
+  />
+</Fragment>
+`;
