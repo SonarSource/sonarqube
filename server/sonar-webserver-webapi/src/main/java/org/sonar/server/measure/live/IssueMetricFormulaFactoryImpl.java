@@ -168,6 +168,18 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
         context.setLeakValue(RATING_BY_SEVERITY.get(highestSeverity));
       }),
 
+    new IssueMetricFormula(CoreMetrics.NEW_SECURITY_REVIEW_RATING, true,
+      (context, issues) -> {
+        Rating rating = computeRating(computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true)));
+        context.setLeakValue(rating);
+      }),
+
+    new IssueMetricFormula(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED, true,
+      (context, issues) -> {
+        double percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true));
+        context.setLeakValue(percent);
+      }),
+
     new IssueMetricFormula(CoreMetrics.NEW_SQALE_DEBT_RATIO, true,
       (context, issues) -> context.setLeakValue(100.0 * newDebtDensity(context)),
       asList(CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST)),

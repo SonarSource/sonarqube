@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.issue;
 import com.google.common.base.MoreObjects;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -29,13 +30,13 @@ import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
+import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
-import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
 /**
  * Compute new effort related measures :
@@ -82,9 +83,9 @@ public class NewEffortAggregator extends IssueVisitor {
   public void onIssue(Component component, DefaultIssue issue) {
     if (issue.resolution() == null && issue.effortInMinutes() != null) {
       if (analysisMetadataHolder.isPullRequest()) {
-        counter.add(issue, 0L);
+        counter.add(issue, null);
       } else if (periodHolder.hasPeriod()) {
-        counter.add(issue, periodHolder.getPeriod().getSnapshotDate());
+        counter.add(issue, periodHolder.getPeriod());
       }
     }
   }
@@ -115,8 +116,8 @@ public class NewEffortAggregator extends IssueVisitor {
       securitySum.add(otherCounter.securitySum);
     }
 
-    void add(DefaultIssue issue, long startDate) {
-      long newEffort = calculate(issue, startDate);
+    void add(DefaultIssue issue, @Nullable Period period) {
+      long newEffort = calculate(issue, period);
       switch (issue.type()) {
         case CODE_SMELL:
           maintainabilitySum.add(newEffort);
@@ -135,8 +136,8 @@ public class NewEffortAggregator extends IssueVisitor {
       }
     }
 
-    long calculate(DefaultIssue issue, long startDate) {
-      if (issue.creationDate().getTime() > truncateToSeconds(startDate)) {
+    long calculate(DefaultIssue issue, @Nullable Period period) {
+      if (period == null || period.isOnPeriod(issue.creationDate())) {
         return MoreObjects.firstNonNull(issue.effortInMinutes(), 0L);
       }
       return 0L;

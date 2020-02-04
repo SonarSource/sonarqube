@@ -111,6 +111,7 @@ import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatusHolderImpl
 import org.sonar.ce.task.projectanalysis.qualitymodel.MaintainabilityMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualitymodel.NewMaintainabilityMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualitymodel.NewReliabilityAndSecurityRatingMeasuresVisitor;
+import org.sonar.ce.task.projectanalysis.qualitymodel.NewSecurityReviewMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualitymodel.RatingSettings;
 import org.sonar.ce.task.projectanalysis.qualitymodel.ReliabilityAndSecurityRatingMeasuresVisitor;
 import org.sonar.ce.task.projectanalysis.qualitymodel.SecurityReviewMeasuresVisitor;
@@ -269,6 +270,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ReliabilityAndSecurityRatingMeasuresVisitor.class,
       NewReliabilityAndSecurityRatingMeasuresVisitor.class,
       SecurityReviewMeasuresVisitor.class,
+      NewSecurityReviewMeasuresVisitor.class,
       LastCommitVisitor.class,
       MeasureComputersVisitor.class,
 

@@ -139,7 +139,7 @@ public class IssueMetricFormulaFactoryImplTest {
     with(
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3),
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
-      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 75.0);
+        .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 75.0);
 
     withNoIssues()
       .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 100.0);
@@ -650,6 +650,32 @@ public class IssueMetricFormulaFactoryImplTest {
       newResolvedGroup(RuleType.VULNERABILITY).setSeverity(Severity.BLOCKER).setInLeak(true))
         // highest severity of bugs on leak period is minor -> B
         .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_RATING, Rating.B);
+  }
+
+  @Test
+  public void test_new_security_review_rating() {
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3).setInLeak(true),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true),
+      // not in leak
+      newGroup(RuleType.SECURITY_HOTSPOT).setSeverity(Issue.STATUS_TO_REVIEW).setInLeak(false))
+        .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_REVIEW_RATING, Rating.B);
+
+    withNoIssues()
+      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_REVIEW_RATING, Rating.A);
+  }
+
+  @Test
+  public void test_new_security_hotspots_reviewed() {
+    with(
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_REVIEWED).setCount(3).setInLeak(true),
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1).setInLeak(true),
+      // not in leak
+      newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(5).setInLeak(false))
+        .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED, 75.0);
+
+    withNoIssues()
+      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED, 100.0);
   }
 
   @Test

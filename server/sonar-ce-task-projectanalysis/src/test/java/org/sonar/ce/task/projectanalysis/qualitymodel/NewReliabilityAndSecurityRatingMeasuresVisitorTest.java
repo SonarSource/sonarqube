@@ -80,14 +80,14 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
   static final String LANGUAGE_KEY_1 = "lKey1";
 
   static final int PROJECT_REF = 1;
-  static final int DIR_REF = 12;
+  static final int ROOT_DIR_REF = 12;
   static final int DIRECTORY_REF = 123;
   static final int FILE_1_REF = 1231;
   static final int FILE_2_REF = 1232;
 
   static final Component ROOT_PROJECT = builder(Component.Type.PROJECT, PROJECT_REF).setKey("project")
     .addChildren(
-      builder(DIRECTORY, DIR_REF).setKey("dir")
+      builder(DIRECTORY, ROOT_DIR_REF).setKey("dir")
         .addChildren(
           builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
             .addChildren(
@@ -157,7 +157,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
       newVulnerabilityIssue(3L, MINOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
       // Should not be taken into account
       newVulnerabilityIssue(10L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE).setResolution(RESOLUTION_FIXED));
-    fillComponentIssuesVisitorRule.setIssues(DIR_REF,
+    fillComponentIssuesVisitorRule.setIssues(ROOT_DIR_REF,
       newVulnerabilityIssue(7L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE));
 
     underTest.visit(ROOT_PROJECT);
@@ -165,7 +165,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SECURITY_RATING_KEY, C);
     verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SECURITY_RATING_KEY, D);
     verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SECURITY_RATING_KEY, D);
-    verifyAddedRawMeasureOnLeakPeriod(DIR_REF, NEW_SECURITY_RATING_KEY, E);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SECURITY_RATING_KEY, E);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SECURITY_RATING_KEY, E);
   }
 
@@ -179,7 +179,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SECURITY_RATING_KEY, A);
-    verifyAddedRawMeasureOnLeakPeriod(DIR_REF, NEW_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SECURITY_RATING_KEY, A);
   }
 
@@ -194,7 +194,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_SECURITY_RATING_KEY, A);
-    verifyAddedRawMeasureOnLeakPeriod(DIR_REF, NEW_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_SECURITY_RATING_KEY, A);
   }
 
@@ -211,7 +211,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
       newBugIssue(3L, MINOR).setCreationDate(AFTER_LEAK_PERIOD_DATE),
       // Should not be taken into account
       newBugIssue(10L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE).setResolution(RESOLUTION_FIXED));
-    fillComponentIssuesVisitorRule.setIssues(DIR_REF,
+    fillComponentIssuesVisitorRule.setIssues(ROOT_DIR_REF,
       newBugIssue(7L, BLOCKER).setCreationDate(AFTER_LEAK_PERIOD_DATE));
 
     underTest.visit(ROOT_PROJECT);
@@ -219,7 +219,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_RELIABILITY_RATING_KEY, C);
     verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_RELIABILITY_RATING_KEY, D);
     verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_RELIABILITY_RATING_KEY, D);
-    verifyAddedRawMeasureOnLeakPeriod(DIR_REF, NEW_RELIABILITY_RATING_KEY, E);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_RELIABILITY_RATING_KEY, E);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_RELIABILITY_RATING_KEY, E);
   }
 
@@ -233,7 +233,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_RELIABILITY_RATING_KEY, A);
-    verifyAddedRawMeasureOnLeakPeriod(DIR_REF, NEW_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_RELIABILITY_RATING_KEY, A);
   }
 
@@ -248,7 +248,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasureOnLeakPeriod(FILE_1_REF, NEW_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(FILE_2_REF, NEW_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(DIRECTORY_REF, NEW_RELIABILITY_RATING_KEY, A);
-    verifyAddedRawMeasureOnLeakPeriod(DIR_REF, NEW_RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasureOnLeakPeriod(ROOT_DIR_REF, NEW_RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasureOnLeakPeriod(PROJECT_REF, NEW_RELIABILITY_RATING_KEY, A);
   }
 

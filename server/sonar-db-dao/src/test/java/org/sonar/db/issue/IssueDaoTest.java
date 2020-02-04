@@ -293,6 +293,11 @@ public class IssueDaoTest {
     result = underTest.selectIssueGroupsByBaseComponent(db.getSession(), file, 999_999_999L);
     assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
     assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
+
+    // test leak using exact creation time of criticalBug2 issue
+    result = underTest.selectIssueGroupsByBaseComponent(db.getSession(), file, criticalBug2.getIssueCreationTime());
+    assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
   }
 
   @Test

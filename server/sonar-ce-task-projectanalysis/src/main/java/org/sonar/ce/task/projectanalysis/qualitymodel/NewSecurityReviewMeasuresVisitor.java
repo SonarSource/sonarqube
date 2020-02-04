@@ -19,37 +19,42 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.PathAwareVisitor;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepository;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
-import org.sonar.ce.task.projectanalysis.measure.RatingMeasures;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
+import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 
-import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
-import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.FILE;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
-public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<SecurityReviewCounter> {
+public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<SecurityReviewCounter> {
 
   private final ComponentIssuesRepository componentIssuesRepository;
   private final MeasureRepository measureRepository;
-  private final Metric securityReviewRatingMetric;
-  private final Metric securityHotspotsReviewedMetric;
+  private final PeriodHolder periodHolder;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final Metric newSecurityReviewRatingMetric;
+  private final Metric newSecurityHotspotsReviewedMetric;
 
-  public SecurityReviewMeasuresVisitor(ComponentIssuesRepository componentIssuesRepository, MeasureRepository measureRepository, MetricRepository metricRepository) {
-    super(FILE, POST_ORDER, SecurityReviewMeasuresVisitor.CounterFactory.INSTANCE);
+  public NewSecurityReviewMeasuresVisitor(ComponentIssuesRepository componentIssuesRepository, MeasureRepository measureRepository, PeriodHolder periodHolder,
+    AnalysisMetadataHolder analysisMetadataHolder, MetricRepository metricRepository) {
+    super(FILE, POST_ORDER, NewSecurityReviewMeasuresVisitor.CounterFactory.INSTANCE);
     this.componentIssuesRepository = componentIssuesRepository;
     this.measureRepository = measureRepository;
-    this.securityReviewRatingMetric = metricRepository.getByKey(SECURITY_REVIEW_RATING_KEY);
-    this.securityHotspotsReviewedMetric = metricRepository.getByKey(SECURITY_HOTSPOTS_REVIEWED_KEY);
+    this.periodHolder = periodHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
+    this.newSecurityReviewRatingMetric = metricRepository.getByKey(NEW_SECURITY_REVIEW_RATING_KEY);
+    this.newSecurityHotspotsReviewedMetric = metricRepository.getByKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
   }
 
   @Override
@@ -58,32 +63,36 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
   }
 
   @Override
-  public void visitDirectory(Component directory, PathAwareVisitor.Path<SecurityReviewCounter> path) {
+  public void visitDirectory(Component directory, Path<SecurityReviewCounter> path) {
     computeMeasure(directory, path);
   }
 
   @Override
-  public void visitFile(Component file, PathAwareVisitor.Path<SecurityReviewCounter> path) {
+  public void visitFile(Component file, Path<SecurityReviewCounter> path) {
     computeMeasure(file, path);
   }
 
-  private void computeMeasure(Component component, PathAwareVisitor.Path<SecurityReviewCounter> path) {
+  private void computeMeasure(Component component, Path<SecurityReviewCounter> path) {
+    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
+      return;
+    }
     componentIssuesRepository.getIssues(component)
       .stream()
       .filter(issue -> issue.type().equals(SECURITY_HOTSPOT))
+      .filter(issue -> analysisMetadataHolder.isPullRequest() || periodHolder.getPeriod().isOnPeriod(issue.creationDate()) )
       .forEach(issue -> path.current().processHotspot(issue));
 
     Double percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
-    measureRepository.add(component, securityHotspotsReviewedMetric, Measure.newMeasureBuilder().create(percent, securityHotspotsReviewedMetric.getDecimalScale()));
-    measureRepository.add(component, securityReviewRatingMetric, RatingMeasures.get(computeRating(percent)));
+    measureRepository.add(component, newSecurityHotspotsReviewedMetric, Measure.newMeasureBuilder().setVariation(percent).createNoValue());
+    measureRepository.add(component, newSecurityReviewRatingMetric, Measure.newMeasureBuilder().setVariation(computeRating(percent).getIndex()).createNoValue());
 
     if (!path.isRoot()) {
       path.parent().add(path.current());
     }
   }
 
-  private static final class CounterFactory extends PathAwareVisitorAdapter.SimpleStackElementFactory<SecurityReviewCounter> {
-    public static final SecurityReviewMeasuresVisitor.CounterFactory INSTANCE = new SecurityReviewMeasuresVisitor.CounterFactory();
+  private static final class CounterFactory extends SimpleStackElementFactory<SecurityReviewCounter> {
+    public static final NewSecurityReviewMeasuresVisitor.CounterFactory INSTANCE = new NewSecurityReviewMeasuresVisitor.CounterFactory();
 
     private CounterFactory() {
       // prevents instantiation

@@ -76,7 +76,6 @@ import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
-import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
 /**
  * For each component, computes the measures related to number of issues:
@@ -153,7 +152,7 @@ public class IssueCounter extends IssueVisitor {
       currentCounters.addOnPeriod(issue);
     } else if (periodHolder.hasPeriod()) {
       Period period = periodHolder.getPeriod();
-      if (issue.creationDate().getTime() > truncateToSeconds(period.getSnapshotDate())) {
+      if (period.isOnPeriod(issue.creationDate())){
         currentCounters.addOnPeriod(issue);
       }
     }

@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.period;
 
+import java.util.Date;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -27,6 +28,7 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.hash;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
 @Immutable
 public class Period {
@@ -66,6 +68,10 @@ public class Period {
     return snapshotDate == period.snapshotDate
       && mode.equals(period.mode)
       && Objects.equals(modeParameter, period.modeParameter);
+  }
+
+  public boolean isOnPeriod(Date date) {
+    return date.getTime() > truncateToSeconds(snapshotDate);
   }
 
   @Override
