@@ -82,7 +82,9 @@ public class ProjectMeasuresIndexTest {
   private static final String SECURITY_RATING = "security_rating";
   private static final String NEW_SECURITY_RATING = "new_security_rating";
   private static final String SECURITY_REVIEW_RATING = "security_review_rating";
+  private static final String NEW_SECURITY_REVIEW_RATING = "new_security_review_rating";
   private static final String SECURITY_HOTSPOTS_REVIEWED = "security_hotspots_reviewed";
+  private static final String NEW_SECURITY_HOTSPOTS_REVIEWED = "new_security_hotspots_reviewed";
   private static final String COVERAGE = "coverage";
   private static final String NEW_COVERAGE = "new_coverage";
   private static final String DUPLICATION = "duplicated_lines_density";
@@ -110,7 +112,7 @@ public class ProjectMeasuresIndexTest {
   @DataProvider
   public static Object[][] rating_metric_keys() {
     return new Object[][] {{MAINTAINABILITY_RATING}, {NEW_MAINTAINABILITY_RATING_KEY}, {RELIABILITY_RATING}, {NEW_RELIABILITY_RATING}, {SECURITY_RATING}, {NEW_SECURITY_RATING},
-      {SECURITY_REVIEW_RATING}};
+      {SECURITY_REVIEW_RATING}, {NEW_SECURITY_REVIEW_RATING}};
   }
 
   private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
@@ -354,7 +356,7 @@ public class ProjectMeasuresIndexTest {
       // 2 docs with >=70% and <80%
       newDoc(SECURITY_HOTSPOTS_REVIEWED, 70),
       newDoc(SECURITY_HOTSPOTS_REVIEWED, 79),
-      // 5 docs with duplication>= 80%
+      // 5 docs with >= 80%
       newDoc(SECURITY_HOTSPOTS_REVIEWED, 80),
       newDoc(SECURITY_HOTSPOTS_REVIEWED, 90),
       newDoc(SECURITY_HOTSPOTS_REVIEWED, 93),
@@ -363,6 +365,43 @@ public class ProjectMeasuresIndexTest {
 
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(SECURITY_HOTSPOTS_REVIEWED)).getFacets();
     assertThat(facets.get(SECURITY_HOTSPOTS_REVIEWED)).containsExactly(
+      entry("*-30.0", 3L),
+      entry("30.0-50.0", 2L),
+      entry("50.0-70.0", 4L),
+      entry("70.0-80.0", 2L),
+      entry("80.0-*", 5L));
+  }
+
+  @Test
+  public void facet_new_security_hotspots_reviewed() {
+    index(
+      // 2 docs with no measure
+      newDocWithNoMeasure(),
+      newDocWithNoMeasure(),
+      // 3 docs < 30%
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 29),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 28),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 0),
+      // 2 docs with >=30% and <50%
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 30),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 49),
+      // 4 docs with >=50% and <70%
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 50),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 60),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 61),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 69),
+      // 2 docs with >=70% and <80%
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 70),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 79),
+      // 5 docs with >= 80%
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 80),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 90),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 93),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 99),
+      newDoc(NEW_SECURITY_HOTSPOTS_REVIEWED, 100));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NEW_SECURITY_HOTSPOTS_REVIEWED)).getFacets();
+    assertThat(facets.get(NEW_SECURITY_HOTSPOTS_REVIEWED)).containsExactly(
       entry("*-30.0", 3L),
       entry("30.0-50.0", 2L),
       entry("50.0-70.0", 4L),

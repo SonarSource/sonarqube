@@ -82,7 +82,9 @@ import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KE
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
@@ -125,7 +127,9 @@ public class ProjectMeasuresIndex {
     SECURITY_RATING_KEY,
     NEW_SECURITY_RATING_KEY,
     SECURITY_REVIEW_RATING_KEY,
+    NEW_SECURITY_REVIEW_RATING_KEY,
     SECURITY_HOTSPOTS_REVIEWED_KEY,
+    NEW_SECURITY_HOTSPOTS_REVIEWED_KEY,
     ALERT_STATUS_KEY,
     FILTER_LANGUAGES,
     FILTER_TAGS);
@@ -156,8 +160,11 @@ public class ProjectMeasuresIndex {
     .put(SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, facetBuilder))
     .put(NEW_SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_SECURITY_RATING_KEY, facetBuilder))
     .put(SECURITY_REVIEW_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SECURITY_REVIEW_RATING_KEY, facetBuilder))
+    .put(NEW_SECURITY_REVIEW_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_SECURITY_REVIEW_RATING_KEY, facetBuilder))
     .put(SECURITY_HOTSPOTS_REVIEWED_KEY,
       (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, SECURITY_HOTSPOTS_REVIEWED_KEY, facetBuilder, SECURITY_REVIEW_RATING_THRESHOLDS))
+    .put(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY,
+      (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, facetBuilder, SECURITY_REVIEW_RATING_THRESHOLDS))
     .put(ALERT_STATUS_KEY, (esSearch, query, facetBuilder) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, facetBuilder, createQualityGateFacet(query))))
     .put(FILTER_LANGUAGES, ProjectMeasuresIndex::addLanguagesFacet)
     .put(FIELD_TAGS, ProjectMeasuresIndex::addTagsFacet)
