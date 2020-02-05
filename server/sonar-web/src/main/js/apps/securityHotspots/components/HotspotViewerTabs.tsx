@@ -20,89 +20,123 @@
 import { sanitize } from 'dompurify';
 import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
+import Tab from 'sonar-ui-common/components/controls/Tabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
 import { getHotspotReviewHistory } from '../utils';
 import HotspotViewerReviewHistoryTab from './HotspotViewerReviewHistoryTab';
 
-export interface HotspotViewerTabsProps {
+interface Props {
   hotspot: Hotspot;
   onUpdateHotspot: () => void;
 }
 
-export enum Tabs {
+interface State {
+  currentTab: Tab;
+  tabs: Tab[];
+}
+
+interface Tab {
+  key: TabKeys;
+  label: React.ReactNode;
+  content: React.ReactNode;
+}
+
+export enum TabKeys {
   RiskDescription = 'risk',
   VulnerabilityDescription = 'vulnerability',
   FixRecommendation = 'fix',
   ReviewHistory = 'review'
 }
 
-export default function HotspotViewerTabs(props: HotspotViewerTabsProps) {
-  const { hotspot } = props;
-  const [currentTabKey, setCurrentTabKey] = React.useState(Tabs.RiskDescription);
-  const hotspotReviewHistory = React.useMemo(() => getHotspotReviewHistory(hotspot), [hotspot]);
-
-  const tabs = [
-    {
-      key: Tabs.RiskDescription,
-      label: translate('hotspots.tabs.risk_description'),
-      content: hotspot.rule.riskDescription || ''
-    },
-    {
-      key: Tabs.VulnerabilityDescription,
-      label: translate('hotspots.tabs.vulnerability_description'),
-      content: hotspot.rule.vulnerabilityDescription || ''
-    },
-    {
-      key: Tabs.FixRecommendation,
-      label: translate('hotspots.tabs.fix_recommendations'),
-      content: hotspot.rule.fixRecommendations || ''
-    },
-    {
-      key: Tabs.ReviewHistory,
-      label: (
-        <>
-          <span>{translate('hotspots.tabs.review_history')}</span>
-          {hotspotReviewHistory.functionalCount > 0 && (
-            <span className="counter-badge spacer-left">
-              {hotspotReviewHistory.functionalCount}
-            </span>
-          )}
-        </>
-      ),
-      content: hotspotReviewHistory.history.length > 0 && (
-        <HotspotViewerReviewHistoryTab
-          history={hotspotReviewHistory.history}
-          hotspot={hotspot}
-          onUpdateHotspot={props.onUpdateHotspot}
-        />
-      )
-    }
-  ].filter(tab => Boolean(tab.content));
-
-  if (tabs.length === 0) {
-    return null;
+export default class HotspotViewerTabs extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    const tabs = this.computeTabs();
+    this.state = {
+      currentTab: tabs[0],
+      tabs
+    };
   }
 
-  const currentTab = tabs.find(tab => tab.key === currentTabKey) || tabs[0];
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.hotspot.key !== prevProps.hotspot.key) {
+      const tabs = this.computeTabs();
+      this.setState({
+        currentTab: tabs[0],
+        tabs
+      });
+    }
+  }
 
-  return (
-    <>
-      <BoxedTabs
-        onSelect={tabKey => setCurrentTabKey(tabKey)}
-        selected={currentTabKey}
-        tabs={tabs}
-      />
-      <div className="bordered huge-spacer-bottom">
-        {typeof currentTab.content === 'string' ? (
-          <div
-            className="markdown big-padded"
-            dangerouslySetInnerHTML={{ __html: sanitize(currentTab.content) }}
+  handleSelectTabs = (tabKey: TabKeys) => {
+    const { tabs } = this.state;
+    const currentTab = tabs.find(tab => tab.key === tabKey)!;
+    this.setState({ currentTab });
+  };
+
+  computeTabs() {
+    const { hotspot } = this.props;
+    const hotspotReviewHistory = getHotspotReviewHistory(hotspot);
+    return [
+      {
+        key: TabKeys.RiskDescription,
+        label: translate('hotspots.tabs.risk_description'),
+        content: hotspot.rule.riskDescription || ''
+      },
+      {
+        key: TabKeys.VulnerabilityDescription,
+        label: translate('hotspots.tabs.vulnerability_description'),
+        content: hotspot.rule.vulnerabilityDescription || ''
+      },
+      {
+        key: TabKeys.FixRecommendation,
+        label: translate('hotspots.tabs.fix_recommendations'),
+        content: hotspot.rule.fixRecommendations || ''
+      },
+      {
+        key: TabKeys.ReviewHistory,
+        label: (
+          <>
+            <span>{translate('hotspots.tabs.review_history')}</span>
+            {hotspotReviewHistory.functionalCount > 0 && (
+              <span className="counter-badge spacer-left">
+                {hotspotReviewHistory.functionalCount}
+              </span>
+            )}
+          </>
+        ),
+        content: hotspotReviewHistory.history.length > 0 && (
+          <HotspotViewerReviewHistoryTab
+            history={hotspotReviewHistory.history}
+            hotspot={hotspot}
+            onUpdateHotspot={this.props.onUpdateHotspot}
           />
-        ) : (
-          <>{currentTab.content}</>
-        )}
-      </div>
-    </>
-  );
+        )
+      }
+    ].filter(tab => Boolean(tab.content));
+  }
+
+  render() {
+    const { tabs, currentTab } = this.state;
+    if (tabs.length === 0) {
+      return null;
+    }
+
+    return (
+      <>
+        <BoxedTabs onSelect={this.handleSelectTabs} selected={currentTab.key} tabs={tabs} />
+        <div className="bordered huge-spacer-bottom">
+          {typeof currentTab.content === 'string' ? (
+            <div
+              className="markdown big-padded"
+              dangerouslySetInnerHTML={{ __html: sanitize(currentTab.content) }}
+            />
+          ) : (
+            <>{currentTab.content}</>
+          )}
+        </div>
+      </>
+    );
+  }
 }

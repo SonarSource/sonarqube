@@ -23,34 +23,22 @@ import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
 import { mockUser } from '../../../../helpers/testMocks';
 import HotspotViewerReviewHistoryTab from '../HotspotViewerReviewHistoryTab';
-import HotspotViewerTabs, { HotspotViewerTabsProps, Tabs } from '../HotspotViewerTabs';
+import HotspotViewerTabs, { TabKeys } from '../HotspotViewerTabs';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('risk');
 
-  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: Tabs) => void;
+  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: TabKeys) => void;
 
-  if (!onSelect) {
-    fail('onSelect should be defined');
-  } else {
-    onSelect(Tabs.VulnerabilityDescription);
-    expect(wrapper).toMatchSnapshot('vulnerability');
+  onSelect(TabKeys.VulnerabilityDescription);
+  expect(wrapper).toMatchSnapshot('vulnerability');
 
-    onSelect(Tabs.FixRecommendation);
-    expect(wrapper).toMatchSnapshot('fix');
+  onSelect(TabKeys.FixRecommendation);
+  expect(wrapper).toMatchSnapshot('fix');
 
-    onSelect(Tabs.ReviewHistory);
-    expect(wrapper).toMatchSnapshot('review');
-  }
-
-  expect(
-    shallowRender({
-      hotspot: mockHotspot({
-        rule: mockHotspotRule({ riskDescription: undefined })
-      })
-    })
-  ).toMatchSnapshot('empty tab');
+  onSelect(TabKeys.ReviewHistory);
+  expect(wrapper).toMatchSnapshot('review');
 
   expect(
     shallowRender({
@@ -84,26 +72,47 @@ it('should render correctly', () => {
   ).toMatchSnapshot('with comments or changelog element');
 });
 
+it('should filter empty tab', () => {
+  const count = shallowRender({
+    hotspot: mockHotspot({
+      rule: mockHotspotRule()
+    })
+  }).state().tabs.length;
+
+  expect(
+    shallowRender({
+      hotspot: mockHotspot({
+        rule: mockHotspotRule({ riskDescription: undefined })
+      })
+    }).state().tabs.length
+  ).toBe(count - 1);
+});
+
 it('should propagate onHotspotUpdate correctly', () => {
   const onUpdateHotspot = jest.fn();
   const wrapper = shallowRender({ onUpdateHotspot });
+  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: TabKeys) => void;
 
-  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: Tabs) => void;
-
-  if (!onSelect) {
-    fail('onSelect should be defined');
-  } else {
-    onSelect(Tabs.ReviewHistory);
-    wrapper
-      .find(HotspotViewerReviewHistoryTab)
-      .props()
-      .onUpdateHotspot();
-    expect(onUpdateHotspot).toHaveBeenCalled();
-  }
+  onSelect(TabKeys.ReviewHistory);
+  wrapper
+    .find(HotspotViewerReviewHistoryTab)
+    .props()
+    .onUpdateHotspot();
+  expect(onUpdateHotspot).toHaveBeenCalled();
 });
 
-function shallowRender(props?: Partial<HotspotViewerTabsProps>) {
-  return shallow(
+it('should select first tab on hotspot update', () => {
+  const wrapper = shallowRender();
+  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: TabKeys) => void;
+
+  onSelect(TabKeys.ReviewHistory);
+  expect(wrapper.state().currentTab.key).toBe(TabKeys.ReviewHistory);
+  wrapper.setProps({ hotspot: mockHotspot({ key: 'new_key' }) });
+  expect(wrapper.state().currentTab.key).toBe(TabKeys.RiskDescription);
+});
+
+function shallowRender(props?: Partial<HotspotViewerTabs['props']>) {
+  return shallow<HotspotViewerTabs>(
     <HotspotViewerTabs hotspot={mockHotspot()} onUpdateHotspot={jest.fn()} {...props} />
   );
 }
