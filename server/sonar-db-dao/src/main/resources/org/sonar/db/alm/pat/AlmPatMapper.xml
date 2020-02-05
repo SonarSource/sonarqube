@@ -20,7 +20,7 @@
       a.uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByAlmSetting" parameterType="string" resultType="org.sonar.db.alm.pat.AlmPatDto">
+  <select id="selectByUserAndAlmSetting" parameterType="string" resultType="org.sonar.db.alm.pat.AlmPatDto">
     select <include refid="sqlColumns"/>
     from
     alm_pats a
@@ -29,12 +29,6 @@
       and
       a.user_uuid = #{userUuid, jdbcType=VARCHAR}
   </select>
-
-  <select id="selectAll" resultType="org.sonar.db.alm.pat.AlmPatDto">
-    select <include refid="sqlColumns"/>
-    from alm_pats a
-  </select>
-
 
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
     INSERT INTO alm_pats
@@ -69,6 +63,14 @@
 
   <delete id="deleteByUuid" parameterType="String">
     DELETE FROM alm_pats WHERE uuid = #{uuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByUser" parameterType="String">
+    DELETE FROM alm_pats WHERE user_uuid = #{userUuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByAlmSetting" parameterType="String">
+    DELETE FROM alm_pats WHERE alm_setting_uuid = #{almSettingUuid, jdbcType=VARCHAR}
   </delete>
 
 

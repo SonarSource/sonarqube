@@ -51,7 +51,7 @@ public class CreateAlmPATsTableTest {
 
     dbTester.assertColumnDefinition(TABLE_NAME, "uuid", VARCHAR, 40, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "pat", VARCHAR, 2000, false);
-    dbTester.assertColumnDefinition(TABLE_NAME, "user_uuid", VARCHAR, 40, false);
+    dbTester.assertColumnDefinition(TABLE_NAME, "user_uuid", VARCHAR, 256, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "alm_setting_uuid", VARCHAR, 40, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "updated_at", BIGINT, 20, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, 20, false);

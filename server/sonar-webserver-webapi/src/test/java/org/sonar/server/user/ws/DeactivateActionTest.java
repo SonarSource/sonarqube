@@ -30,6 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -241,6 +242,23 @@ public class DeactivateActionTest {
 
     assertThat(db.getDbClient().userPropertiesDao().selectByUser(dbSession, user)).isEmpty();
     assertThat(db.getDbClient().userPropertiesDao().selectByUser(dbSession, anotherUser)).hasSize(1);
+  }
+
+  @Test
+  public void deactivate_user_deletes_his_alm_pat() {
+    logInAsSystemAdministrator();
+
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
+
+    UserDto user = db.users().insertUser();
+    db.almPats().insert(p -> p.setUserUuid(user.getUuid()), p -> p.setAlmSettingUuid(almSettingDto.getUuid()));
+    UserDto anotherUser = db.users().insertUser();
+    db.almPats().insert(p -> p.setUserUuid(anotherUser.getUuid()), p -> p.setAlmSettingUuid(almSettingDto.getUuid()));
+
+    deactivate(user.getLogin());
+
+    assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(dbSession, user.getUuid(), almSettingDto)).isEmpty();
+    assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(dbSession, anotherUser.getUuid(), almSettingDto)).isNotNull();
   }
 
   @Test

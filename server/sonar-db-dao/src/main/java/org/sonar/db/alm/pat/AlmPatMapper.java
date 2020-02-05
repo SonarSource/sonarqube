@@ -19,7 +19,6 @@
  */
 package org.sonar.db.alm.pat;
 
-import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,9 +28,7 @@ public interface AlmPatMapper {
   AlmPatDto selectByUuid(@Param("uuid") String uuid);
 
   @CheckForNull
-  AlmPatDto selectByAlmSetting(@Param("userUuid") String userUuid, @Param("almSettingUuid") String almSettingUuid);
-
-  List<AlmPatDto> selectAll();
+  AlmPatDto selectByUserAndAlmSetting(@Param("userUuid") String userUuid, @Param("almSettingUuid") String almSettingUuid);
 
   void insert(@Param("dto") AlmPatDto almPatDto, @Param("uuid") String uuid, @Param("now") long now);
 
@@ -39,4 +36,7 @@ public interface AlmPatMapper {
 
   void deleteByUuid(@Param("uuid") String uuid);
 
+  void deleteByUser(@Param("userUuid") String userUuid);
+
+  void deleteByAlmSetting(@Param("almSettingUuid") String almSettingUuid);
 }

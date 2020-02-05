@@ -19,8 +19,6 @@
  */
 package org.sonar.db.alm.pat;
 
-import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,10 +26,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.alm.pat.AlmPatDao;
-import org.sonar.db.alm.pat.AlmPatDto;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.user.UserDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +36,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class ALMPatDaoTest {
 
@@ -89,27 +85,14 @@ public class ALMPatDaoTest {
     almPatDto.setUserUuid(userUuid);
     underTest.insert(dbSession, almPatDto);
 
-    assertThat(underTest.selectByAlmSetting(dbSession, userUuid, almSetting).get())
+    assertThat(underTest.selectByUserAndAlmSetting(dbSession, userUuid, almSetting).get())
       .extracting(AlmPatDto::getUuid, AlmPatDto::getPersonalAccessToken,
         AlmPatDto::getUserUuid, AlmPatDto::getAlmSettingUuid,
         AlmPatDto::getCreatedAt, AlmPatDto::getUpdatedAt)
       .containsExactly(A_UUID, almPatDto.getPersonalAccessToken(),
         userUuid, almSetting.getUuid(), NOW, NOW);
 
-    assertThat(underTest.selectByAlmSetting(dbSession, randomAlphanumeric(40), newGithubAlmSettingDto())).isNotPresent();
-  }
-
-  @Test
-  public void selectAll() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
-    underTest.insert(dbSession, newAlmPatDto());
-    when(uuidFactory.create()).thenReturn(A_UUID + "bis");
-    underTest.insert(dbSession, newAlmPatDto());
-
-    List<AlmPatDto> almPats = underTest.selectAll(dbSession);
-
-    Assertions.assertThat(almPats).size().isEqualTo(2);
+    assertThat(underTest.selectByUserAndAlmSetting(dbSession, randomAlphanumeric(40), newGithubAlmSettingDto())).isNotPresent();
   }
 
   @Test
@@ -146,7 +129,34 @@ public class ALMPatDaoTest {
     underTest.delete(dbSession, almPat);
 
     assertThat(underTest.selectByUuid(dbSession, almPat.getUuid()).isPresent()).isFalse();
+  }
 
+  @Test
+  public void deleteByUser() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    when(system2.now()).thenReturn(NOW);
+    UserDto userDto = db.users().insertUser();
+    AlmPatDto almPat = newAlmPatDto();
+    almPat.setUserUuid(userDto.getUuid());
+    underTest.insert(dbSession, almPat);
+
+    underTest.deleteByUser(dbSession, userDto);
+
+    assertThat(underTest.selectByUuid(dbSession, almPat.getUuid()).isPresent()).isFalse();
+  }
+
+  @Test
+  public void deleteByAlmSetting() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    when(system2.now()).thenReturn(NOW);
+    AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
+    AlmPatDto almPat = newAlmPatDto();
+    almPat.setAlmSettingUuid(almSettingDto.getUuid());
+    underTest.insert(dbSession, almPat);
+
+    underTest.deleteByAlmSetting(dbSession, almSettingDto);
+
+    assertThat(underTest.selectByUuid(dbSession, almPat.getUuid()).isPresent()).isFalse();
   }
 
 }

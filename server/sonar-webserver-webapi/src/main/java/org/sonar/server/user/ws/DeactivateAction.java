@@ -119,10 +119,11 @@ public class DeactivateAction implements UsersWsAction {
       dbClient.qProfileEditUsersDao().deleteByUser(dbSession, user);
       dbClient.organizationMemberDao().deleteByUserId(dbSession, userId);
       dbClient.userPropertiesDao().deleteByUser(dbSession, user);
+      dbClient.almPatDao().deleteByUser(dbSession, user);
       deactivateUser(dbSession, user);
       userIndexer.commitAndIndex(dbSession, user);
 
-      LOGGER.info("Deactivate user: {}; by admin: {}", login, userSession.isSystemAdministrator());
+      LOGGER.debug("Deactivate user: {}; by admin: {}", login, userSession.isSystemAdministrator());
     }
 
     writeResponse(response, login);

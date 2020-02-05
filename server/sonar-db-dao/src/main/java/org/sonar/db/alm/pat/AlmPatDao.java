@@ -19,13 +19,13 @@
  */
 package org.sonar.db.alm.pat;
 
-import java.util.List;
 import java.util.Optional;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.user.UserDto;
 
 public class AlmPatDao implements Dao {
 
@@ -45,12 +45,8 @@ public class AlmPatDao implements Dao {
     return Optional.ofNullable(getMapper(dbSession).selectByUuid(uuid));
   }
 
-  public Optional<AlmPatDto> selectByAlmSetting(DbSession dbSession, String userUuid, AlmSettingDto almSettingDto) {
-    return Optional.ofNullable(getMapper(dbSession).selectByAlmSetting(userUuid, almSettingDto.getUuid()));
-  }
-
-  public List<AlmPatDto> selectAll(DbSession dbSession) {
-    return getMapper(dbSession).selectAll();
+  public Optional<AlmPatDto> selectByUserAndAlmSetting(DbSession dbSession, String userUuid, AlmSettingDto almSettingDto) {
+    return Optional.ofNullable(getMapper(dbSession).selectByUserAndAlmSetting(userUuid, almSettingDto.getUuid()));
   }
 
   public void insert(DbSession dbSession, AlmPatDto almPatDto) {
@@ -71,5 +67,15 @@ public class AlmPatDao implements Dao {
   public void delete(DbSession dbSession, AlmPatDto almPatDto) {
     getMapper(dbSession).deleteByUuid(almPatDto.getUuid());
   }
+
+  public void deleteByUser(DbSession dbSession, UserDto user) {
+    getMapper(dbSession).deleteByUser(user.getUuid());
+  }
+
+  public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
+    getMapper(dbSession).deleteByAlmSetting(almSetting.getUuid());
+  }
+
+
 
 }
