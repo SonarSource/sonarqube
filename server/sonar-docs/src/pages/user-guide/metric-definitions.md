@@ -151,7 +151,7 @@ Same as _Reliability remediation effort_ but on the code changed in the New Code
 **Vulnerabilities** (`vulnerabilities`)  
 Number of vulnerability issues.
 
-**New Vulnerabilities** (`new_vulnerabilities`)  
+**Vulnerabilities on new code** (`new_vulnerabilities`)  
 Number of new vulnerability issues.
 
 **Security Rating** (`security_rating`)  
@@ -170,18 +170,33 @@ Same as _Security remediation effort_ but on the code changed in the New Code pe
 **Security Hotspots** (`security_hotspots`)
 Number of Security Hotspots
 
-**New Security Hotspots** (`new_security_hotspots`)
-Number of new Security Hotspots
+**Security Hotspots on new code** (`new_security_hotspots`)
+Number of new Security Hotspots in the New Code Period.
 
 **Security Review Rating** (`security_review_rating`)
 
-The ratio of the number of Security Hotspots that are in "To Review" status per 1K lines of code.	
+The Security Review Rating is a letter grade based on the percentage of Reviewed (Fixed or Safe) Security Hotspots.	
 
-A = 0–3 "To Review" and "In Review" Security Hotspots per 1K lines of code  	
-B = >3–10  	
-C = >10–15  	
-D = >15–25  	
-E = >25  
+A = >= 80%  
+B = >= 70% and <80%  
+C = >= 50% and <70%  
+D = >= 30% and <50%  
+E = < 30%  
+
+**Security Review Rating on new code** (`new_security_review_rating`)
+
+Security Review Rating for the New Code Period.
+
+**Security Hotspots Reviewed** (`security_hotspots_reviewed`)
+
+Percentage of Reviewed (Fixed or Safe) Security Hotspots.
+
+Ratio Formula: 
+`Number of Reviewed (Fixed or Safe) Hotspots x 100 / (To_Review Hotspots + Reviewed Hotspots)`
+
+**New Security Hotspots Reviewed**
+
+Percentage of Reviewed Security Hotspots (Fixed or Safe) for the New Code Period.
 
 ---
 ## Size
