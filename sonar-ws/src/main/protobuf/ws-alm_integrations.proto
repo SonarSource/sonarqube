@@ -30,6 +30,11 @@ message ListBitbucketserverReposWsResponse {
   repeated BBSRepo repositories = 2;
 }
 
+// WS api/alm_integrations/list_bibucketserver_projects
+message ListBitbucketserverProjectsWsResponse {
+  repeated BBSProject values = 1;
+}
+
 message BBSRepo {
   optional string slug = 1;
   optional int64 id = 2;
@@ -37,4 +42,9 @@ message BBSRepo {
   optional string url = 4;
   optional string sqProjectKey = 5;
   optional string projectKey = 6;
+}
+
+message BBSProject {
+  optional string key = 1;
+  optional string name = 2;
 }
