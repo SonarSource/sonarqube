@@ -46,7 +46,8 @@ const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];
 const FORBIDDEN_METRICS: string[] = [
   MetricKey.alert_status,
   MetricKey.releasability_rating,
-  MetricKey.security_review_rating
+  MetricKey.security_hotspots,
+  MetricKey.new_security_hotspots
 ];
 
 export class Conditions extends React.PureComponent<Props> {
