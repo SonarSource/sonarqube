@@ -458,35 +458,6 @@ public class UserDaoTest {
   }
 
   @Test
-  public void deactivate_sonarcloud_user() {
-    UserDto user = insertActiveUser();
-    insertUserGroup(user);
-    UserDto otherUser = insertActiveUser();
-    underTest.update(db.getSession(), user.setLastConnectionDate(10_000_000_000L));
-    session.commit();
-
-    underTest.deactivateSonarCloudUser(session, user);
-
-    UserDto userReloaded = underTest.selectUserById(session, user.getId());
-    assertThat(userReloaded.isActive()).isFalse();
-    assertThat(userReloaded.getName()).isNull();
-    assertThat(userReloaded.getLogin()).isEqualTo(user.getLogin());
-    assertThat(userReloaded.getExternalId()).isEqualTo(user.getExternalId());
-    assertThat(userReloaded.getExternalLogin()).isEqualTo(user.getExternalLogin());
-    assertThat(userReloaded.getExternalIdentityProvider()).isEqualTo(user.getExternalIdentityProvider());
-    assertThat(userReloaded.getEmail()).isNull();
-    assertThat(userReloaded.getScmAccounts()).isNull();
-    assertThat(userReloaded.getSalt()).isNull();
-    assertThat(userReloaded.getCryptedPassword()).isNull();
-    assertThat(userReloaded.isRoot()).isFalse();
-    assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
-    assertThat(userReloaded.getHomepageType()).isNull();
-    assertThat(userReloaded.getHomepageParameter()).isNull();
-    assertThat(userReloaded.getLastConnectionDate()).isNull();
-    assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
-  }
-
-  @Test
   public void clean_users_homepage_when_deleting_organization() {
 
     UserDto userUnderTest = newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter("dummy-organization-UUID");

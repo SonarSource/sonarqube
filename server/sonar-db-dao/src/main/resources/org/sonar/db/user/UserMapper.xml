@@ -189,14 +189,6 @@
         login = #{login, jdbcType=VARCHAR}
     </update>
 
-    <update id="deactivateSonarCloudUser" parameterType="map">
-        update users set
-        name = null,
-        <include refid="deactivateUserUpdatedFields"/>
-        where
-        login = #{login, jdbcType=VARCHAR}
-    </update>
-
     <update id="clearHomepages" parameterType="map">
         update users set
         homepage_type = null,

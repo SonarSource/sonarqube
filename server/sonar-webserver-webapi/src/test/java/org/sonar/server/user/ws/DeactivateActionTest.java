@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -65,7 +64,6 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
-import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -90,9 +88,8 @@ public class DeactivateActionTest {
   private DbClient dbClient = db.getDbClient();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private DbSession dbSession = db.getSession();
-  private MapSettings settings = new MapSettings();
   private WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession,
-    new UserJsonWriter(userSession), defaultOrganizationProvider, settings.asConfig()));
+    new UserJsonWriter(userSession), defaultOrganizationProvider));
 
   @Test
   public void deactivate_user_and_delete_his_related_data() {
@@ -105,7 +102,7 @@ public class DeactivateActionTest {
 
     deactivate(user.getLogin());
 
-    verifyThatUserIsDeactivated(user.getLogin(), false);
+    verifyThatUserIsDeactivated(user.getLogin());
     assertThat(es.client().prepareSearch(UserIndexDefinition.TYPE_USER)
       .setQuery(boolQuery()
         .must(termQuery(FIELD_UUID, user.getUuid()))
@@ -262,31 +259,6 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void user_can_deactivate_itself_on_sonarcloud() {
-    WsActionTester customWs = newSonarCloudWs();
-
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user.getLogin());
-
-    deactivate(customWs, user.getLogin());
-
-    verifyThatUserIsDeactivated(user.getLogin(), true);
-  }
-
-  @Test
-  public void user_cannot_deactivate_another_user_on_sonarcloud() {
-    WsActionTester customWs = newSonarCloudWs();
-
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user.getLogin());
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privilege");
-
-    deactivate(customWs, "other user");
-  }
-
-  @Test
   public void user_cannot_deactivate_itself_on_sonarqube() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user.getLogin()).setSystemAdministrator();
@@ -391,7 +363,7 @@ public class DeactivateActionTest {
 
     deactivate(admin.getLogin());
 
-    verifyThatUserIsDeactivated(admin.getLogin(), false);
+    verifyThatUserIsDeactivated(admin.getLogin());
     verifyThatUserExists(anotherAdmin.getLogin());
   }
 
@@ -436,20 +408,12 @@ public class DeactivateActionTest {
     assertThat(db.users().selectUserByLogin(login)).isPresent();
   }
 
-  private void verifyThatUserIsDeactivated(String login, boolean isSonarCloud) {
+  private void verifyThatUserIsDeactivated(String login) {
     Optional<UserDto> user = db.users().selectUserByLogin(login);
     assertThat(user).isPresent();
     assertThat(user.get().isActive()).isFalse();
     assertThat(user.get().getEmail()).isNull();
     assertThat(user.get().getScmAccountsAsList()).isEmpty();
-    if (isSonarCloud) {
-      assertThat(user.get().getName()).isNull();
-    }
   }
 
-  private WsActionTester newSonarCloudWs() {
-    settings.setProperty(SONARCLOUD_ENABLED.getKey(), true);
-    return new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession,
-      new UserJsonWriter(userSession), defaultOrganizationProvider, settings.asConfig()));
-  }
 }

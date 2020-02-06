@@ -38,7 +38,6 @@ import org.sonar.db.organization.OrganizationHelper;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndexer;
@@ -47,8 +46,8 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class DeactivateAction implements UsersWsAction {
 
@@ -61,16 +60,14 @@ public class DeactivateAction implements UsersWsAction {
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
-  private final boolean isSonarCloud;
 
   public DeactivateAction(DbClient dbClient, UserIndexer userIndexer, UserSession userSession, UserJsonWriter userWriter,
-    DefaultOrganizationProvider defaultOrganizationProvider, Configuration configuration) {
+    DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.userSession = userSession;
     this.userWriter = userWriter;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
-    this.isSonarCloud = configuration.getBoolean(SONARCLOUD_ENABLED.getKey()).orElse(false);
   }
 
   @Override
@@ -92,16 +89,9 @@ public class DeactivateAction implements UsersWsAction {
   public void handle(Request request, Response response) throws Exception {
     String login;
 
-    if (isSonarCloud) {
-      login = request.mandatoryParam(PARAM_LOGIN);
-      if (!login.equals(userSession.getLogin()) && !userSession.checkLoggedIn().isSystemAdministrator()) {
-        throw new ForbiddenException("Insufficient privileges");
-      }
-    } else {
-      userSession.checkLoggedIn().checkIsSystemAdministrator();
-      login = request.mandatoryParam(PARAM_LOGIN);
-      checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
-    }
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
+    login = request.mandatoryParam(PARAM_LOGIN);
+    checkRequest(!login.equals(userSession.getLogin()), "Self-deactivation is not possible");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
@@ -130,11 +120,7 @@ public class DeactivateAction implements UsersWsAction {
   }
 
   private void deactivateUser(DbSession dbSession, UserDto user) {
-    if (isSonarCloud) {
-      dbClient.userDao().deactivateSonarCloudUser(dbSession, user);
-    } else {
-      dbClient.userDao().deactivateUser(dbSession, user);
-    }
+    dbClient.userDao().deactivateUser(dbSession, user);
   }
 
   private void writeResponse(Response response, String login) {
