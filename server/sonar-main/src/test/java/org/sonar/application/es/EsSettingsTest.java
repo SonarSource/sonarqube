@@ -339,6 +339,15 @@ public class EsSettingsTest {
     assertThat(settings.get("node.store.allow_mmapfs")).isEqualTo("false");
   }
 
+  @Test
+  public void increaseElasticsearchMaxResultWindow() throws Exception {
+    Props props = minProps(CLUSTER_DISABLED);
+    props.set("sonar.search.maxResults", "20000");
+    Map<String, String> settings = new EsSettings(props, new EsInstallation(props), System2.INSTANCE).build();
+
+    assertThat(settings.get("index.max_result_window")).isEqualTo("20000");
+  }
+
   private Props minProps(boolean cluster) throws IOException {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());

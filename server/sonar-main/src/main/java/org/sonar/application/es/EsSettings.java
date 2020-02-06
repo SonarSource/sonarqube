@@ -157,5 +157,11 @@ public class EsSettings {
     if (props.value("sonar.search.javaAdditionalOpts", "").contains("-D" + ALLOW_MMAP + "=false")) {
       builder.put(ALLOW_MMAP, "false");
     }
+
+    // Elasticsearch max results. This might need increasing when there are a lot of issues.
+    String maxResults = props.value("sonar.search.maxResults", "");
+    if (!maxResults.isEmpty()) {
+      builder.put("index.max_result_window", maxResults);
+    }
   }
 }
