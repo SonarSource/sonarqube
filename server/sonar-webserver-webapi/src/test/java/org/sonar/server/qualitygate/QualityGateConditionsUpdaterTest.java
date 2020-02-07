@@ -38,7 +38,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import static java.lang.String.format;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
@@ -316,7 +317,8 @@ public class QualityGateConditionsUpdaterTest {
   public static Object[][] invalid_metrics() {
     return new Object[][] {
       {ALERT_STATUS_KEY, INT, false},
-      {SECURITY_REVIEW_RATING_KEY, RATING, false},
+      {SECURITY_HOTSPOTS_KEY, INT, false},
+      {NEW_SECURITY_HOTSPOTS_KEY, INT, false},
       {"boolean", BOOL, false},
       {"string", STRING, false},
       {"data_metric", DATA, false},

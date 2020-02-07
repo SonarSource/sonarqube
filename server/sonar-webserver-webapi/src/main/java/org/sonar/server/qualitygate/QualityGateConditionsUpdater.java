@@ -47,18 +47,20 @@ import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.Metric.DIRECTION_BETTER;
 import static org.sonar.api.measures.Metric.DIRECTION_NONE;
 import static org.sonar.api.measures.Metric.DIRECTION_WORST;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.measure.Rating.E;
 import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
 import static org.sonar.server.qualitygate.Condition.Operator.LESS_THAN;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class QualityGateConditionsUpdater {
+  public static final Set<String> INVALID_METRIC_KEYS = ImmutableSet.of(ALERT_STATUS_KEY, SECURITY_HOTSPOTS_KEY, NEW_SECURITY_HOTSPOTS_KEY);
 
   private static final Map<Integer, ImmutableSet<Condition.Operator>> VALID_OPERATORS_BY_DIRECTION = ImmutableMap.<Integer, ImmutableSet<Condition.Operator>>builder()
     .put(DIRECTION_NONE, ImmutableSet.of(GREATER_THAN, LESS_THAN))
@@ -76,8 +78,6 @@ public class QualityGateConditionsUpdater {
     ValueType.WORK_DUR);
 
   private static final List<String> RATING_VALID_INT_VALUES = stream(Rating.values()).map(r -> Integer.toString(r.getIndex())).collect(Collectors.toList());
-
-  private static final Set<String> INVALID_METRIC_KEYS = ImmutableSet.of(ALERT_STATUS_KEY, SECURITY_REVIEW_RATING_KEY);
 
   private final DbClient dbClient;
 

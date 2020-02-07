@@ -29,11 +29,11 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 
+import static org.sonar.server.qualitygate.QualityGateConditionsUpdater.INVALID_METRIC_KEYS;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
-
 
 public class QualityGatesWs implements WebService {
 
@@ -63,8 +63,7 @@ public class QualityGatesWs implements WebService {
       .setHandler(RemovedWebServiceHandler.INSTANCE)
       .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample())
       .setChangelog(
-        new Change("7.0", "Unset a quality gate is no more authorized")
-      );
+        new Change("7.0", "Unset a quality gate is no more authorized"));
 
     controller.done();
   }
@@ -81,17 +80,17 @@ public class QualityGatesWs implements WebService {
         "<li>WORK_DUR</li>" +
         "<li>FLOAT</li>" +
         "<li>PERCENT</li>" +
-        "<li>LEVEL</li>" +
-        "")
+        "<li>LEVEL</li></ul>" +
+        "Following metrics are forbidden:" +
+        "<ul>" + getInvalidMetrics() + "</ul>")
       .setRequired(true)
-      .setExampleValue("blocker_violations");
+      .setExampleValue("blocker_violations, vulnerabilities, new_code_smells");
 
     action.createParam(PARAM_OPERATOR)
       .setDescription("Condition operator:<br/>" +
         "<ul>" +
         "<li>LT = is lower than</li>" +
-        "<li>GT = is greater than</li>" +
-        "</ui>")
+        "<li>GT = is greater than</li></ul>")
       .setExampleValue(Condition.Operator.GREATER_THAN.getDbValue())
       .setPossibleValues(getPossibleOperators());
 
@@ -100,6 +99,11 @@ public class QualityGatesWs implements WebService {
       .setDescription("Condition error threshold")
       .setRequired(true)
       .setExampleValue("10");
+  }
+
+  private static String getInvalidMetrics() {
+    return INVALID_METRIC_KEYS.stream().map(s -> "<li>" + s + "</li>")
+      .collect(Collectors.joining());
   }
 
   static Long parseId(Request request, String paramName) {
