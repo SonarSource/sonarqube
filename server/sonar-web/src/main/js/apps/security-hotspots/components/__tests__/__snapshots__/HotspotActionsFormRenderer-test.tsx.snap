@@ -514,16 +514,6 @@ exports[`should render correctly: user selected 1`] = `
     </div>
   </div>
   <div
-    className="form-field huge-spacer-left"
-  >
-    <label>
-      hotspots.form.assign_to
-    </label>
-    <HotspotAssigneeSelect
-      onSelect={[MockFunction]}
-    />
-  </div>
-  <div
     className="display-flex-column big-spacer-bottom"
   >
     <label

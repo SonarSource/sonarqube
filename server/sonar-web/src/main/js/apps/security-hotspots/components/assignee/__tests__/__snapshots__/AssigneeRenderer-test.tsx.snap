@@ -1,0 +1,135 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: editing 1`] = `
+<div
+  className="big-spacer-top display-flex-center"
+>
+  <span>
+    assignee
+    :
+  </span>
+  <span
+    className="spacer-left"
+  >
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    >
+      <EscKeydownHandler
+        onKeydown={[MockFunction]}
+      >
+        <OutsideClickHandler
+          onClickOutside={[MockFunction]}
+        >
+          <AssigneeSelection
+            allowCurrentUserSelection={false}
+            loggedInUser={
+              Object {
+                "groups": Array [],
+                "isLoggedIn": true,
+                "login": "luke",
+                "name": "Skywalker",
+                "scmAccounts": Array [],
+              }
+            }
+            onSelect={[MockFunction]}
+          />
+        </OutsideClickHandler>
+      </EscKeydownHandler>
+    </DeferredSpinner>
+  </span>
+</div>
+`;
+
+exports[`should render correctly: not editing 1`] = `
+<div
+  className="big-spacer-top display-flex-center"
+>
+  <span>
+    assignee
+    :
+  </span>
+  <span
+    className="spacer-left"
+  >
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    >
+      <div
+        className="display-flex-center"
+      >
+        <strong>
+          user.x_deleted.Skywalker
+        </strong>
+        <EditButton
+          className="spacer-left"
+          onClick={[MockFunction]}
+        />
+      </div>
+    </DeferredSpinner>
+  </span>
+</div>
+`;
+
+exports[`should render correctly: with active assignee 1`] = `
+<div
+  className="big-spacer-top display-flex-center"
+>
+  <span>
+    assignee
+    :
+  </span>
+  <span
+    className="spacer-left"
+  >
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    >
+      <div
+        className="display-flex-center"
+      >
+        <strong>
+          John Doe
+        </strong>
+        <EditButton
+          className="spacer-left"
+          onClick={[MockFunction]}
+        />
+      </div>
+    </DeferredSpinner>
+  </span>
+</div>
+`;
+
+exports[`should render correctly: without current assignee 1`] = `
+<div
+  className="big-spacer-top display-flex-center"
+>
+  <span>
+    assignee
+    :
+  </span>
+  <span
+    className="spacer-left"
+  >
+    <DeferredSpinner
+      loading={false}
+      timeout={100}
+    >
+      <div
+        className="display-flex-center"
+      >
+        <strong>
+          unassigned
+        </strong>
+        <EditButton
+          className="spacer-left"
+          onClick={[MockFunction]}
+        />
+      </div>
+    </DeferredSpinner>
+  </span>
+</div>
+`;

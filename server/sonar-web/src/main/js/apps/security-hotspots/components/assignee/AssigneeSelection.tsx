@@ -20,11 +20,13 @@
 import { debounce } from 'lodash';
 import * as React from 'react';
 import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
-import { searchUsers } from '../../../api/users';
-import { isUserActive } from '../../../helpers/users';
-import HotspotAssigneeSelectRenderer from './HotspotAssigneeSelectRenderer';
+import { searchUsers } from '../../../../api/users';
+import { isUserActive } from '../../../../helpers/users';
+import AssigneeSelectionRenderer from './AssigneeSelectionRenderer';
 
 interface Props {
+  allowCurrentUserSelection: boolean;
+  loggedInUser: T.LoggedInUser;
   onSelect: (user?: T.UserActive) => void;
 }
 
@@ -33,123 +35,138 @@ interface State {
   loading: boolean;
   open: boolean;
   query?: string;
-  suggestedUsers?: T.UserActive[];
+  suggestedUsers: T.UserActive[];
 }
 
-export default class HotspotAssigneeSelect extends React.PureComponent<Props, State> {
-  state: State;
+export default class AssigneeSelection extends React.PureComponent<Props, State> {
+  mounted = false;
 
   constructor(props: Props) {
     super(props);
+
     this.state = {
       loading: false,
-      open: false
+      open: props.allowCurrentUserSelection,
+      suggestedUsers: props.allowCurrentUserSelection ? [props.loggedInUser] : []
     };
+
     this.handleSearch = debounce(this.handleSearch, 250);
   }
 
-  getCurrentIndex = () => {
-    const { highlighted, suggestedUsers } = this.state;
-    return highlighted && suggestedUsers
-      ? suggestedUsers.findIndex(suggestion => suggestion.login === highlighted.login)
-      : -1;
-  };
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
 
   handleSearch = (query: string) => {
-    if (query.length < 2) {
-      this.setState({ open: false, query });
-      this.props.onSelect(undefined);
-      return Promise.resolve([]);
+    if (this.mounted) {
+      if (query.length < 2) {
+        this.handleNoSearch(query);
+      } else {
+        this.handleActualSearch(query);
+      }
     }
-
-    this.setState({ loading: true, query });
-    return searchUsers({ q: query })
-      .then(this.handleSearchResult, () => {})
-      .catch(() => this.setState({ loading: false }));
   };
 
-  handleSearchResult = ({ users }: { users: T.UserBase[] }) => {
-    const activeUsers = users.filter(isUserActive);
-    this.setState(({ highlighted }) => {
-      if (activeUsers.length === 0) {
-        highlighted = undefined;
-      } else {
-        const findHighlited = activeUsers.find(u => highlighted && u.login === highlighted.login);
-        highlighted = findHighlited || activeUsers[0];
-      }
+  handleNoSearch = (query: string) => {
+    const { allowCurrentUserSelection, loggedInUser } = this.props;
 
-      return {
-        highlighted,
-        loading: false,
-        open: true,
-        suggestedUsers: activeUsers
-      };
+    this.setState({
+      loading: false,
+      open: allowCurrentUserSelection,
+      query,
+      suggestedUsers: allowCurrentUserSelection ? [loggedInUser] : []
     });
+  };
+
+  handleActualSearch = (query: string) => {
+    this.setState({ loading: true, query });
+    searchUsers({ q: query })
+      .then(result => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            query,
+            open: true,
+            suggestedUsers: result.users.filter(isUserActive) as T.UserActive[]
+          });
+        }
+      })
+      .catch(() => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      });
   };
 
   handleKeyDown = (event: React.KeyboardEvent) => {
     switch (event.keyCode) {
       case KeyCodes.Enter:
         event.preventDefault();
-        this.handleSelectHighlighted();
+        this.selectHighlighted();
         break;
       case KeyCodes.UpArrow:
         event.preventDefault();
-        this.handleHighlightPrevious();
+        this.highlightPrevious();
         break;
       case KeyCodes.DownArrow:
         event.preventDefault();
-        this.handleHighlightNext();
+        this.highlightNext();
         break;
     }
   };
 
+  getCurrentIndex = () => {
+    const { highlighted, suggestedUsers } = this.state;
+
+    return highlighted
+      ? suggestedUsers.findIndex(suggestion => suggestion.login === highlighted.login)
+      : -1;
+  };
+
   highlightIndex = (index: number) => {
     const { suggestedUsers } = this.state;
-    if (suggestedUsers && suggestedUsers.length > 0) {
+
+    if (suggestedUsers.length > 0) {
       if (index < 0) {
         index = suggestedUsers.length - 1;
       } else if (index >= suggestedUsers.length) {
         index = 0;
       }
-      this.setState({
-        highlighted: suggestedUsers[index]
-      });
+
+      this.setState({ highlighted: suggestedUsers[index] });
     }
   };
 
-  handleHighlightPrevious = () => {
+  highlightPrevious = () => {
     this.highlightIndex(this.getCurrentIndex() - 1);
   };
 
-  handleHighlightNext = () => {
+  highlightNext = () => {
     this.highlightIndex(this.getCurrentIndex() + 1);
   };
 
-  handleSelectHighlighted = () => {
+  selectHighlighted = () => {
     const { highlighted } = this.state;
-    if (highlighted !== undefined) {
-      this.handleSelect(highlighted);
-    }
-  };
 
-  handleSelect = (selectedUser: T.UserActive) => {
-    this.setState({
-      open: false,
-      query: selectedUser.name
-    });
-    this.props.onSelect(selectedUser);
+    if (highlighted !== undefined) {
+      this.props.onSelect(highlighted);
+    }
   };
 
   render() {
     const { highlighted, loading, open, query, suggestedUsers } = this.state;
+
     return (
-      <HotspotAssigneeSelectRenderer
+      <AssigneeSelectionRenderer
         highlighted={highlighted}
         loading={loading}
         onKeyDown={this.handleKeyDown}
         onSearch={this.handleSearch}
-        onSelect={this.handleSelect}
+        onSelect={this.props.onSelect}
         open={open}
         query={query}
         suggestedUsers={suggestedUsers}

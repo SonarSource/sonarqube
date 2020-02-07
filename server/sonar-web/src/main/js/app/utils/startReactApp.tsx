@@ -183,7 +183,7 @@ function renderComponentRoutes() {
       <Route
         path="security_hotspots"
         component={lazyLoadComponent(() =>
-          import('../../apps/securityHotspots/SecurityHotspotsApp')
+          import('../../apps/security-hotspots/SecurityHotspotsApp')
         )}
       />
       <RouteWithChildRoutes path="project/quality_gate" childRoutes={projectQualityGateRoutes} />

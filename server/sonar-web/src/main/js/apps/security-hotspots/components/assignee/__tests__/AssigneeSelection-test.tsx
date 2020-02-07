@@ -21,11 +21,11 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { searchUsers } from '../../../../api/users';
-import { mockUser } from '../../../../helpers/testMocks';
-import HotspotAssigneeSelect from '../HotspotAssigneeSelect';
+import { searchUsers } from '../../../../../api/users';
+import { mockLoggedInUser, mockUser } from '../../../../../helpers/testMocks';
+import AssigneeSelection from '../AssigneeSelection';
 
-jest.mock('../../../../api/users', () => ({
+jest.mock('../../../../../api/users', () => ({
   searchUsers: jest.fn().mockResolvedValue([])
 }));
 
@@ -77,6 +77,7 @@ it('should handle search', async () => {
   const onSelect = jest.fn();
 
   const wrapper = shallowRender({ onSelect });
+  expect(wrapper.state().suggestedUsers.length).toBe(0);
   wrapper.instance().handleSearch('j');
 
   expect(searchUsers).not.toBeCalled();
@@ -88,18 +89,40 @@ it('should handle search', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(wrapper.state().highlighted).toBe(users[0]);
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().open).toBe(true);
   expect(wrapper.state().suggestedUsers).toHaveLength(3);
 
   jest.clearAllMocks();
 
-  await wrapper.instance().handleSearch('');
+  wrapper.instance().handleSearch('');
   expect(searchUsers).not.toBeCalled();
-  expect(onSelect).toBeCalledWith(undefined);
+  expect(wrapper.state().suggestedUsers.length).toBe(0);
 });
 
-function shallowRender(props?: Partial<HotspotAssigneeSelect['props']>) {
-  return shallow<HotspotAssigneeSelect>(<HotspotAssigneeSelect onSelect={jest.fn()} {...props} />);
+it('should allow current user selection', async () => {
+  const loggedInUser = mockLoggedInUser();
+  const users = [mockUser({ login: '1' }), mockUser({ login: '2' }), mockUser({ login: '3' })];
+  (searchUsers as jest.Mock).mockResolvedValueOnce({ users });
+
+  const wrapper = shallowRender({ allowCurrentUserSelection: true, loggedInUser });
+  expect(wrapper.state().suggestedUsers[0]).toBe(loggedInUser);
+
+  wrapper.instance().handleSearch('jo');
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().suggestedUsers).toHaveLength(3);
+
+  wrapper.instance().handleSearch('');
+  expect(wrapper.state().suggestedUsers[0]).toBe(loggedInUser);
+});
+
+function shallowRender(props?: Partial<AssigneeSelection['props']>) {
+  return shallow<AssigneeSelection>(
+    <AssigneeSelection
+      allowCurrentUserSelection={false}
+      loggedInUser={mockLoggedInUser()}
+      onSelect={jest.fn()}
+      {...props}
+    />
+  );
 }

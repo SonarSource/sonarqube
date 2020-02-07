@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<AssigneeRenderer
+  assignee={
+    Object {
+      "active": true,
+      "local": true,
+      "login": "assignee",
+      "name": "John Doe",
+    }
+  }
+  canEdit={false}
+  editing={false}
+  loading={false}
+  onAssign={[Function]}
+  onEnterEditionMode={[Function]}
+  onExitEditionMode={[Function]}
+/>
+`;
+
+exports[`should render correctly: can edit 1`] = `
+<AssigneeRenderer
+  assignee={
+    Object {
+      "active": true,
+      "local": true,
+      "login": "assignee",
+      "name": "John Doe",
+    }
+  }
+  canEdit={true}
+  editing={false}
+  loading={false}
+  onAssign={[Function]}
+  onEnterEditionMode={[Function]}
+  onExitEditionMode={[Function]}
+/>
+`;

@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
+import Assignee from './assignee/Assignee';
 import HotspotActions from './HotspotActions';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
 import HotspotViewerTabs from './HotspotViewerTabs';
@@ -63,16 +64,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
             <span className="badge little-spacer-left">
               {translate('hotspot.status', hotspot.resolution || hotspot.status)}
             </span>
-            {hotspot.assigneeUser && hotspot.assigneeUser.name && (
-              <>
-                <span className="huge-spacer-left">{translate('assigned_to')}:</span>
-                <strong className="little-spacer-left">
-                  {hotspot.assigneeUser.active
-                    ? hotspot.assigneeUser.name
-                    : translateWithParameters('user.x_deleted', hotspot.assigneeUser.name)}
-                </strong>
-              </>
-            )}
+            <Assignee hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
           </div>
           <HotspotSnippetContainer branchLike={branchLike} hotspot={hotspot} />
           <HotspotViewerTabs hotspot={hotspot} onUpdateHotspot={props.onUpdateHotspot} />

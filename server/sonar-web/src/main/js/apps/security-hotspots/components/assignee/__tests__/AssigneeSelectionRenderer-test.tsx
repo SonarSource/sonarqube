@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockUser } from '../../../../helpers/testMocks';
-import HotspotAssigneeSelectRenderer, {
+import { mockUser } from '../../../../../helpers/testMocks';
+import AssigneeSelectionRenderer, {
   HotspotAssigneeSelectRendererProps
-} from '../HotspotAssigneeSelectRenderer';
+} from '../AssigneeSelectionRenderer';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -58,7 +58,7 @@ it('should call onSelect when clicked', () => {
 
 function shallowRender(props?: Partial<HotspotAssigneeSelectRendererProps>) {
   return shallow(
-    <HotspotAssigneeSelectRenderer
+    <AssigneeSelectionRenderer
       loading={false}
       onKeyDown={jest.fn()}
       onSearch={jest.fn()}

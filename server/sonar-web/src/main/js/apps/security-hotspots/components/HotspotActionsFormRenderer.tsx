@@ -30,7 +30,6 @@ import {
   HotspotStatus,
   HotspotStatusOption
 } from '../../../types/security-hotspots';
-import HotspotAssigneeSelect from './HotspotAssigneeSelect';
 
 export interface HotspotActionsFormRendererProps {
   comment: string;
@@ -76,12 +75,6 @@ export default function HotspotActionsFormRenderer(props: HotspotActionsFormRend
           onClick: props.onSelectOption
         })}
       </div>
-      {selectedOption === HotspotStatusOption.ADDITIONAL_REVIEW && (
-        <div className="form-field huge-spacer-left">
-          <label>{translate('hotspots.form.assign_to')}</label>
-          <HotspotAssigneeSelect onSelect={props.onAssign} />
-        </div>
-      )}
       <div className="display-flex-column big-spacer-bottom">
         <label className="little-spacer-bottom">{translate('hotspots.form.comment')}</label>
         <textarea

@@ -24,8 +24,8 @@ import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Avatar from '../../../components/ui/Avatar';
-import './HotspotAssigneeSelect.css';
+import Avatar from '../../../../components/ui/Avatar';
+import './AssigneeSelection.css';
 
 export interface HotspotAssigneeSelectRendererProps {
   highlighted?: T.UserActive;
@@ -38,19 +38,21 @@ export interface HotspotAssigneeSelectRendererProps {
   suggestedUsers?: T.UserActive[];
 }
 
-export default function HotspotAssigneeSelectRenderer(props: HotspotAssigneeSelectRendererProps) {
+export default function AssigneeSelectionRenderer(props: HotspotAssigneeSelectRendererProps) {
   const { highlighted, loading, open, query, suggestedUsers } = props;
   return (
     <>
-      <SearchBox
-        autoFocus={true}
-        onChange={props.onSearch}
-        onKeyDown={props.onKeyDown}
-        placeholder={translate('hotspots.form.select_user')}
-        value={query}
-      />
+      <div className="display-flex-center">
+        <SearchBox
+          autoFocus={true}
+          onChange={props.onSearch}
+          onKeyDown={props.onKeyDown}
+          placeholder={translate('hotspots.form.select_user')}
+          value={query}
+        />
 
-      {loading && <DeferredSpinner />}
+        {loading && <DeferredSpinner className="spacer-left" />}
+      </div>
 
       {!loading && open && (
         <div className="position-relative">
