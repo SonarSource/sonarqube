@@ -33,28 +33,6 @@ public class SecurityReviewRating {
     // Only static method
   }
 
-  /**
-   * This code will be removed when updating computation of Security Review Rating for portfolios
-   */
-  @Deprecated
-  public static Rating computeForPortfolios(int ncloc, int securityHotspots) {
-    if (ncloc == 0) {
-      return A;
-    }
-    double ratio = (double) securityHotspots * 1000d / (double) ncloc;
-    if (ratio <= 3d) {
-      return A;
-    } else if (ratio <= 10) {
-      return B;
-    } else if (ratio <= 15) {
-      return C;
-    } else if (ratio <= 25) {
-      return D;
-    } else {
-      return E;
-    }
-  }
-
   public static double computePercent(long hotspotsToReview, long hotspotsReviewed) {
     long total = hotspotsToReview + hotspotsReviewed;
     if (total == 0) {
@@ -63,7 +41,7 @@ public class SecurityReviewRating {
     return hotspotsReviewed * 100.0 / total;
   }
 
-  public static Rating computeRating(Double percent) {
+  public static Rating computeRating(double percent) {
     if (percent >= 80.0) {
       return A;
     } else if (percent >= 70.0) {

@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.ArrayList;
 import java.util.List;
+import org.assertj.core.data.Offset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.server.measure.Rating;
@@ -34,35 +35,42 @@ import static org.sonar.server.measure.Rating.B;
 import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
+import static org.sonar.server.security.SecurityReviewRating.computePercent;
+import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
 @RunWith(DataProviderRunner.class)
 public class SecurityReviewRatingTest {
 
+  private static final Offset<Double> DOUBLE_OFFSET = Offset.offset(0.01d);
+
   @DataProvider
   public static Object[][] values() {
     List<Object[]> res = new ArrayList<>();
-    res.add(new Object[] {1000, 0, A});
-    res.add(new Object[] {1000, 3, A});
-    res.add(new Object[] {1000, 4, B});
-    res.add(new Object[] {1000, 10, B});
-    res.add(new Object[] {1000, 11, C});
-    res.add(new Object[] {1000, 15, C});
-    res.add(new Object[] {1000, 16, D});
-    res.add(new Object[] {1000, 25, D});
-    res.add(new Object[] {1000, 26, E});
-    res.add(new Object[] {1000, 900, E});
-
-    res.add(new Object[] {0, 2, A});
-    res.add(new Object[] {1001, 3, A});
-    res.add(new Object[] {999, 3, B});
-    res.add(new Object[] {Integer.MAX_VALUE, Integer.MAX_VALUE, E});
-    return res.toArray(new Object[res.size()][3]);
+    res.add(new Object[] {100.0, A});
+    res.add(new Object[] {90.0, A});
+    res.add(new Object[] {80.0, A});
+    res.add(new Object[] {75.0, B});
+    res.add(new Object[] {70.0, B});
+    res.add(new Object[] {60, C});
+    res.add(new Object[] {50.0, C});
+    res.add(new Object[] {40.0, D});
+    res.add(new Object[] {30.0, D});
+    res.add(new Object[] {29.9, E});
+    return res.toArray(new Object[res.size()][2]);
   }
 
   @Test
   @UseDataProvider("values")
-  public void compute_security_review_rating_on_project(int ncloc, int securityHotspots, Rating expectedRating) {
-    assertThat(SecurityReviewRating.computeForPortfolios(ncloc, securityHotspots)).isEqualTo(expectedRating);
+  public void compute_rating(double percent, Rating expectedRating) {
+    assertThat(computeRating(percent)).isEqualTo(expectedRating);
   }
 
+  @Test
+  public void compute_percent() {
+    assertThat(computePercent(0, 10)).isEqualTo(100.0);
+    assertThat(computePercent(1, 3)).isEqualTo(75.0);
+    assertThat(computePercent(3, 4)).isEqualTo(57.14, DOUBLE_OFFSET);
+    assertThat(computePercent(10, 10)).isEqualTo(50.0);
+    assertThat(computePercent(10, 0)).isEqualTo(0.0);
+  }
 }
