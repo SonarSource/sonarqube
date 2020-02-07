@@ -25,9 +25,12 @@ import javax.annotation.Nullable;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleForIndexingDto;
 
-import static java.lang.Character.isWhitespace;
 import static java.util.Optional.ofNullable;
 
+/***
+ * Temporary rule split before we have a better
+ * solution to specify security hotspot.
+ */
 public class HotspotRuleDescription {
   private static final HotspotRuleDescription NO_DESCRIPTION = new HotspotRuleDescription(null, null, null);
 
@@ -58,54 +61,64 @@ public class HotspotRuleDescription {
       return NO_DESCRIPTION;
     }
 
-    String vulnerableTitle = "<h2>Ask Yourself Whether</h2>";
-    String fixItTitle = "<h2>Recommended Secure Coding Practices</h2>";
-    int vulnerableTitlePosition = description.indexOf(vulnerableTitle);
-    int fixItTitlePosition = description.indexOf(fixItTitle);
-    if (vulnerableTitlePosition == -1 && fixItTitlePosition == -1) {
-      return NO_DESCRIPTION;
-    }
+    String[] split = extractSection("", description);
+    description = split[0];
+    String ruleDescriptionSection = split[1];
 
-    if (vulnerableTitlePosition == -1) {
-      return new HotspotRuleDescription(
-        trimingSubstring(description, 0, fixItTitlePosition),
-        null,
-        trimingSubstring(description, fixItTitlePosition, description.length())
-      );
-    }
-    if (fixItTitlePosition == -1) {
-      return new HotspotRuleDescription(
-        trimingSubstring(description, 0, vulnerableTitlePosition),
-        trimingSubstring(description, vulnerableTitlePosition, description.length()),
-        null
-      );
-    }
+    split = extractSection("<h2>Exceptions</h2>", description);
+    description = split[0];
+    String exceptions = split[1];
+
+    split = extractSection("<h2>Ask Yourself Whether</h2>", description);
+    description = split[0];
+    String askSection = split[1];
+
+    split = extractSection("<h2>Sensitive Code Example</h2>", description);
+    description = split[0];
+    String sensitiveSection = split[1];
+
+    split = extractSection("<h2>Noncompliant Code Example</h2>", description);
+    description = split[0];
+    String noncompliantSection = split[1];
+
+    split = extractSection("<h2>Recommended Secure Coding Practices</h2>", description);
+    description = split[0];
+    String recommendedSection = split[1];
+
+    split = extractSection("<h2>Compliant Solution</h2>", description);
+    description = split[0];
+    String compliantSection = split[1];
+
+    split = extractSection("<h2>See</h2>", description);
+    description = split[0];
+    String seeSection = split[1];
+
     return new HotspotRuleDescription(
-      trimingSubstring(description, 0, vulnerableTitlePosition),
-      trimingSubstring(description, vulnerableTitlePosition, fixItTitlePosition),
-      trimingSubstring(description, fixItTitlePosition, description.length())
-    );
+      trimToNull(ruleDescriptionSection + exceptions + description),
+      trimToNull(askSection + sensitiveSection + noncompliantSection),
+      trimToNull(recommendedSection + compliantSection + seeSection));
   }
 
-  @CheckForNull
-  private static String trimingSubstring(String description, int beginIndex, int endIndex) {
-    if (beginIndex == endIndex) {
-      return null;
+  private static String trimToNull(String input) {
+    return input.isEmpty() ? null : input;
+  }
+
+  private static String[] extractSection(String beginning, String description) {
+    String endSection = "<h2>";
+    int beginningIndex = description.indexOf(beginning);
+    if (beginningIndex != -1) {
+      int endIndex = description.indexOf(endSection, beginningIndex + beginning.length());
+      if (endIndex == -1) {
+        endIndex = description.length();
+      }
+      return new String[] {
+        description.substring(0, beginningIndex) + description.substring(endIndex),
+        description.substring(beginningIndex, endIndex)
+      };
+    } else {
+      return new String[] {description, ""};
     }
 
-    int trimmedBeginIndex = beginIndex;
-    while (trimmedBeginIndex < endIndex && isWhitespace(description.charAt(trimmedBeginIndex))) {
-      trimmedBeginIndex++;
-    }
-    int trimmedEndIndex = endIndex;
-    while (trimmedEndIndex > 0 && trimmedEndIndex > trimmedBeginIndex && isWhitespace(description.charAt(trimmedEndIndex - 1))) {
-      trimmedEndIndex--;
-    }
-    if (trimmedBeginIndex == trimmedEndIndex) {
-      return null;
-    }
-
-    return description.substring(trimmedBeginIndex, trimmedEndIndex);
   }
 
   public Optional<String> getRisk() {
@@ -123,6 +136,7 @@ public class HotspotRuleDescription {
   public boolean isComplete() {
     return risk != null && vulnerable != null && fixIt != null;
   }
+
   @Override
   public String toString() {
     return "HotspotRuleDescription{" +

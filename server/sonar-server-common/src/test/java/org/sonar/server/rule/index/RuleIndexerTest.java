@@ -224,7 +224,7 @@ public class RuleIndexerTest {
 
   @Test
   @UseDataProvider("nullEmptyOrNoTitleDescription")
-  public void log_a_warning_when_hotspot_rule_description_is_null_or_empty_or_has_none_of_the_key_titles(@Nullable String description) {
+  public void log_a_warning_when_hotspot_rule_description_is_null_or_empty(@Nullable String description) {
     RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription(description));
@@ -243,9 +243,22 @@ public class RuleIndexerTest {
     return new Object[][] {
       {null},
       {""},
-      {"   "},
-      {randomAlphabetic(30)}
     };
+  }
+
+  @Test
+  public void log_a_warning_when_hotspot_rule_description_has_none_of_the_key_titles() {
+    RuleDefinitionDto rule = dbTester.rules().insert(RuleTesting.newRule()
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setDescription(randomAlphabetic(30)));
+    OrganizationDto organization = dbTester.organizations().insert();
+    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+
+    assertThat(logTester.getLogs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN).get(0))
+      .isEqualTo(format(
+        "Description of Security Hotspot Rule %s can't be fully parsed: What is the risk?=ok, Are you vulnerable?=missing, How to fix it=missing",
+        rule.getKey()));
   }
 
   @Test
