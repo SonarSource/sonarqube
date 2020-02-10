@@ -42,7 +42,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your global settings
 |
-| To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > Pull Request Decoration** and select the **GitHub** tab.
+| To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations** and select the **GitHub** tab.
 |
 | From here, set your **Configuration Name**, **GitHub Instance URL**, **GitHub App ID**, and your GitHub App's **Private Key** (that was generated above in the **Creating a GitHub App** section).
 |
@@ -57,13 +57,11 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | *Minimum BitBucket Server version 5.15*
 |
-| A Bitbucket Server user account is used to decorate Pull Requests. We recommend creating a dedicated Bitbucket Server account with Administrator permissions to decorate Pull Requests. You need a [Personal Access Token](https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html) from this account with **Write** permission for the repositories that will be analyzed.
-|
-| To add Pull Request decoration on Bitbucket Server, you also need to update your global and project settings. 
+| A Bitbucket Server user account is used to decorate Pull Requests. We recommend using a dedicated Bitbucket Server account with Administrator permissions. You need a [Personal Access Token](https://confluence.atlassian.com/bitbucketserver0515/personal-access-tokens-961275199.html) from this account with **Write** permission for the repositories that will be analyzed.
 |
 | ### Setting your global settings
 |
-| To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > Pull Request Decoration** and select the **Bitbucket Server** tab.
+| To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations** and select the **Bitbucket Server** tab.
 |
 | From here, set your  **Configuration name**, **Bitbucket Server URL**, and the **Personal Access Token** of the account you're using to decorate your Pull Requests.
 |
@@ -71,18 +69,32 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Setting your project settings
 |
-| Go to **Project Settings > General Settings > Pull Request Decoration**, select your **Configuration name**, and set your **Project Key** and **Repo Slug**.
+| #### **Projects created from a Bitbucket Server repository**
+|
+| If you create a project **From a Bitbucket Server repository**, SonarQube automatically configures your project settings for Pull Request decoration. You will need to provide a Personal Access Token from your user account with Read permissions for both projects and repositories. This Personal Access Token will be stored in SonarQube until you revoke it on the Bitbucket Server side.
+|
+| #### **Projects created manually**
+|
+| If you create a new project **Manually** or want to add Pull Request decoration to an existing project, you need to set your project settings at **Project Settings > General Settings > Pull Request Decoration**. Here you'll select your **Configuration name** and set your **Project Key** and **Repo Slug**.
+|
+| ### Blocking Pull Request merges
+|*Blocking Pull Request merges is available starting with version 6.9 of Bitbucket Server
+|
+| After setting up Pull Request analysis, you can block Pull Requests from being merged if they don't meet your quality standards (if the Quality Gate is failing). To do this:
+| 
+| 1. From Bitbucket Server, navigate to **Repository settings > Code Insights**. 
+| 1. Add a Required report called `com.sonarsource.sonarqube`, select **Must pass** as the Required status, and **Must not have any annotations** as the Annotation requirements.
 
 [[collapse]]
 | ## Azure DevOps Server
 |
-| An Azure DevOps Server user account is used to decorate Pull Requests. We recommend creating a dedicated Azure DevOps Server account with Administrator permissions to decorate Pull Requests. You need a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write** for the repositories that will be analyzed.
+| An Azure DevOps Server user account is used to decorate Pull Requests. We recommend using a dedicated Azure DevOps Server account with Administrator permissions. You need a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write** for the repositories that will be analyzed.
 |
 | To add Pull Request decoration on Azure DevOps Server, you also need to update your global and project settings. 
 |
 | ### Setting your global settings
 |
-| To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > Pull Request Decoration** and select the **Azure DevOps Server** tab.
+| To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations** and select the **Azure DevOps Server** tab.
 |
 | From here, set your **Configuration name** and the **Personal Access Token** of the account you're using to decorate your Pull Requests.
 |
@@ -97,13 +109,13 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 |*For GitLab Self-Managed, the minimum version is 11.7*
 |
-| A GitLab user account is used to decorate Merge Requests. We recommend creating a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments) to decorate Merge Requests. You need a Personal Access Token from this account with the scope authorized for **api** for the repositories that will be analyzed.
+| A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a Personal Access Token from this account with the scope authorized for **api** for the repositories that will be analyzed.
 |
 | To add Merge Request decoration to GitLab, you also need to update your global and project settings.
 |
 | ### Setting your global settings
 |
-| To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > Pull Request Decoration** and select the **GitLab** tab.  
+| To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations** and select the **GitLab** tab.  
 |
 | From here, set your **Configuration name** and the **Personal Access Token** of the account you're using to decorate your Merge Requests.
 |
@@ -120,6 +132,8 @@ It's possible to decorate Pull Requests from multiple ALM instances. To do this,
 As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
 
 As part of [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/), you can create multiple configurations for each ALM.
+[[warning]]
+| If you have multiple Bitbucket Server configurations connected to SonarQube, you cannot use the automated create a new project **From a Bitbucket Server repository** option and will have to create projects manually.
 
 ## Issue links
-During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. However, for this to work correctly, the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) must be set correctly. Otherwise the links will default to `localhost`.
+During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. However, for this to work correctly, the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) must be set correctly. Otherwise, the links will default to `localhost`.

@@ -38,9 +38,9 @@ You can delegate authentication to GitHub Enterprise and GitHub.com using a dedi
 
 ### Dedicated GitHub OAuth application
 1. You'll need to first create a GitHub OAuth application. Click [here](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) for general instructions:
-   1. "Homepage URL" is the public URL to your SonarQube server, for example "https://sonarqube.mycompany.com". For security reasons HTTP is not supported. HTTPS must be used. The public URL is configured in SonarQube at **[Administration -> General -> Server base URL](/#sonarqube-admin#/admin/settings)**
+   1. "Homepage URL" is the public URL to your SonarQube server, for example "https://sonarqube.mycompany.com". For security reasons HTTP is not supported. HTTPS must be used. The public URL is configured in SonarQube at **[Administration > General > Server base URL](/#sonarqube-admin#/admin/settings)**
    1. For **GitHub Enterprise** "Authorization callback URL" and for **GitHub.com** "User authorization callback URL" is <Homepage URL>/oauth2/callback, for example "https://sonarqube.mycompany.com/oauth2/callback"
-1. In SonarQube, navigate to **[Administration > Configuration > General Settings > Security > GitHub](/#sonarqube-admin#/admin/settings?category=security)**:
+1. In SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations > GitHub**:
    1. Set **Enabled** to `true`
    1. Set the **Client ID** to the value provided by the GitHub developer application
    1. Set the **Client Secret** to the value provided by the GitHub developer application
@@ -62,7 +62,7 @@ Create a GitLab OAuth application from your GitLab account. Click [here](https:/
    1. In the **Redirect URI** text box, enter your SonarQube URL with the path `/oauth2/callback/gitlab`. For example, `https://sonarqube.mycompany.com/oauth2/callback/gitlab`.
    1. Under **Scopes**, select **api** if you plan to enable group synchronization. You can instead select **read_user** if you only plan to delegate authentication.
 
-After saving your application, GitLab gives you your **Application ID** and **Secret**. Keep these at hand, open your SonarQube instance, and navigate to **[Administration > Configuration > General Settings > Security](/#sonarqube-admin#/admin/settings?category=security/)** to finish setting up GitLab authentication:
+After saving your application, GitLab gives you your **Application ID** and **Secret**. Keep these at hand, open your SonarQube instance, and navigate to **Administration > Configuration > General Settings > ALM Integrations > GitLab** to finish setting up GitLab authentication:
 
 1. Set **Enabled** to `true`.
 1. Enter the Application ID provided by GitLab in the **Application ID** text box.
@@ -71,7 +71,7 @@ After saving your application, GitLab gives you your **Application ID** and **Se
 On the login form, the new "Log in with GitLab" button allows users to connect with their GitLab accounts.
 
 ### GitLab group synchronization
-Setting **Synchronize groups** to `true` at **[Administration > Configuration > General Settings > Security](/#sonarqube-admin#/admin/settings?category=security/)** associates GitLab groups with SonarQube groups of the same name (if they exist). GitLab users inherit membership to subgroups from parent groups so a user that is a member of a group will also be a member of the group's subgroups. 
+Setting **Synchronize user groups** to `true` at **Administration > Configuration > General Settings > ALM Integrations > GitLab** associates GitLab groups with SonarQube groups of the same name (if they exist). GitLab users inherit membership to subgroups from parent groups so a user that is a member of a group will also be a member of the group's subgroups. 
 
 To synchronize a GitLab group or subgroup with a SonarQube group, name the SonarQube group with the full path of the of the GitLab group or subgroup URL. For example, say you have a GitLab group named "My Group" with a subgroup named "My Subgroup" and the subgroup URL is `https://YourGitLabURL.com/my-group/my-subgroup`. You would name your SonarQube group `my-group/my-subgroup` to synchronize it with your GitLab subgroup.
 
