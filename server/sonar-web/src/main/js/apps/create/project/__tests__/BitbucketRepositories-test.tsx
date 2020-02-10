@@ -20,37 +20,32 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
-import { change } from 'sonar-ui-common/helpers/testUtils';
+import { click } from 'sonar-ui-common/helpers/testUtils';
 import {
   mockBitbucketProject,
   mockBitbucketRepository
 } from '../../../../helpers/mocks/alm-integrations';
-import BitbucketImportRepositoryForm, {
-  BitbucketImportRepositoryFormProps
-} from '../BitbucketImportRepositoryForm';
+import BitbucketProjectAccordion from '../BitbucketProjectAccordion';
+import BitbucketRepositories, { BitbucketRepositoriesProps } from '../BitbucketRepositories';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ projects: undefined })).toMatchSnapshot('no projects');
-  expect(shallowRender({ searching: true })).toMatchSnapshot('searching');
-  expect(shallowRender({ searchResults: [mockBitbucketRepository()] })).toMatchSnapshot(
-    'search results'
+  expect(shallowRender({ projectRepositories: {} })).toMatchSnapshot('no repos');
+  expect(shallowRender({ selectedRepository: mockBitbucketRepository() })).toMatchSnapshot(
+    'selected repo'
   );
 });
 
-it('should correctly handle search', () => {
-  const onSearch = jest.fn();
-  const wrapper = shallowRender({ onSearch });
-  change(wrapper.find(SearchBox), 'foo');
-  expect(onSearch).toBeCalledWith('foo');
+it('should correctly handle opening/closing accordions', () => {
+  const wrapper = shallowRender();
+  click(wrapper.find(BitbucketProjectAccordion).at(1));
+  expect(wrapper).toMatchSnapshot('2nd opened');
 });
 
-function shallowRender(props: Partial<BitbucketImportRepositoryFormProps> = {}) {
-  return shallow<BitbucketImportRepositoryFormProps>(
-    <BitbucketImportRepositoryForm
+function shallowRender(props: Partial<BitbucketRepositoriesProps> = {}) {
+  return shallow<BitbucketRepositoriesProps>(
+    <BitbucketRepositories
       disableRepositories={false}
-      onSearch={jest.fn()}
       onSelectRepository={jest.fn()}
       projectRepositories={{
         project: {
@@ -65,7 +60,6 @@ function shallowRender(props: Partial<BitbucketImportRepositoryFormProps> = {}) 
         mockBitbucketProject(),
         mockBitbucketProject({ id: 2, key: 'project2', name: 'Project 2' })
       ]}
-      searching={false}
       {...props}
     />
   );

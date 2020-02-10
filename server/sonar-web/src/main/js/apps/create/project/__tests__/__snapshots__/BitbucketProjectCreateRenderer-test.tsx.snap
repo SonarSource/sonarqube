@@ -37,18 +37,22 @@ exports[`should render correctly: default 1`] = `
     }
   />
   <BitbucketImportRepositoryForm
-    importing={false}
+    disableRepositories={false}
+    onSearch={[MockFunction]}
     onSelectRepository={[MockFunction]}
     projectRepositories={
       Object {
-        "foo": Array [
-          Object {
-            "id": 1,
-            "name": "Repo",
-            "projectKey": "project",
-            "slug": "project__repo",
-          },
-        ],
+        "foo": Object {
+          "allShown": true,
+          "repositories": Array [
+            Object {
+              "id": 1,
+              "name": "Repo",
+              "projectKey": "project",
+              "slug": "project__repo",
+            },
+          ],
+        },
       }
     }
     projects={
@@ -60,6 +64,7 @@ exports[`should render correctly: default 1`] = `
         },
       ]
     }
+    searching={false}
   />
 </Fragment>
 `;
@@ -101,18 +106,22 @@ exports[`should render correctly: importing 1`] = `
     }
   />
   <BitbucketImportRepositoryForm
-    importing={true}
+    disableRepositories={true}
+    onSearch={[MockFunction]}
     onSelectRepository={[MockFunction]}
     projectRepositories={
       Object {
-        "foo": Array [
-          Object {
-            "id": 1,
-            "name": "Repo",
-            "projectKey": "project",
-            "slug": "project__repo",
-          },
-        ],
+        "foo": Object {
+          "allShown": true,
+          "repositories": Array [
+            Object {
+              "id": 1,
+              "name": "Repo",
+              "projectKey": "project",
+              "slug": "project__repo",
+            },
+          ],
+        },
       }
     }
     projects={
@@ -124,6 +133,7 @@ exports[`should render correctly: importing 1`] = `
         },
       ]
     }
+    searching={false}
   />
 </Fragment>
 `;
@@ -347,18 +357,22 @@ exports[`should render correctly: selected repo 1`] = `
     }
   />
   <BitbucketImportRepositoryForm
-    importing={false}
+    disableRepositories={false}
+    onSearch={[MockFunction]}
     onSelectRepository={[MockFunction]}
     projectRepositories={
       Object {
-        "foo": Array [
-          Object {
-            "id": 1,
-            "name": "Repo",
-            "projectKey": "project",
-            "slug": "project__repo",
-          },
-        ],
+        "foo": Object {
+          "allShown": true,
+          "repositories": Array [
+            Object {
+              "id": 1,
+              "name": "Repo",
+              "projectKey": "project",
+              "slug": "project__repo",
+            },
+          ],
+        },
       }
     }
     projects={
@@ -370,6 +384,7 @@ exports[`should render correctly: selected repo 1`] = `
         },
       ]
     }
+    searching={false}
     selectedRepository={
       Object {
         "id": 1,

@@ -25,9 +25,13 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { BitbucketProject, BitbucketRepository } from '../../../types/alm-integration';
+import {
+  BitbucketProject,
+  BitbucketProjectRepositories,
+  BitbucketRepository
+} from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
-import { PULL_REQUEST_DECORATION_BINDING_CATEGORY } from '../../settings/components/AdditionalCategoryKeys';
+import { ALM_INTEGRATION } from '../../settings/components/AdditionalCategoryKeys';
 import BitbucketImportRepositoryForm from './BitbucketImportRepositoryForm';
 import BitbucketPersonalAccessTokenForm from './BitbucketPersonalAccessTokenForm';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
@@ -38,11 +42,14 @@ export interface BitbucketProjectCreateRendererProps {
   importing: boolean;
   loading: boolean;
   onImportRepository: () => void;
+  onSearch: (query: string) => void;
   onSelectRepository: (repo: BitbucketRepository) => void;
   onPersonalAccessTokenCreate: (token: string) => void;
   onProjectCreate: (projectKeys: string[]) => void;
   projects?: BitbucketProject[];
-  projectRepositories?: T.Dict<BitbucketRepository[]>;
+  projectRepositories?: BitbucketProjectRepositories;
+  searching: boolean;
+  searchResults?: BitbucketRepository[];
   selectedRepository?: BitbucketRepository;
   showPersonalAccessTokenForm?: boolean;
   submittingToken?: boolean;
@@ -57,6 +64,8 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
     projects,
     projectRepositories,
     selectedRepository,
+    searching,
+    searchResults,
     showPersonalAccessTokenForm,
     submittingToken
   } = props;
@@ -104,7 +113,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
                   <Link
                     to={{
                       pathname: '/admin/settings',
-                      query: { category: PULL_REQUEST_DECORATION_BINDING_CATEGORY }
+                      query: { category: ALM_INTEGRATION }
                     }}>
                     {translate('settings.page')}
                   </Link>
@@ -127,10 +136,13 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
           />
         ) : (
           <BitbucketImportRepositoryForm
-            importing={importing}
+            disableRepositories={importing}
+            onSearch={props.onSearch}
             onSelectRepository={props.onSelectRepository}
             projectRepositories={projectRepositories}
             projects={projects}
+            searchResults={searchResults}
+            searching={searching}
             selectedRepository={selectedRepository}
           />
         ))}

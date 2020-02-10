@@ -104,6 +104,14 @@
   padding-bottom: calc(2 * var(--gridSize));
 }
 
+.boxed-group-accordion.not-clickable .boxed-group-header {
+  cursor: default;
+}
+
+.boxed-group-accordion.not-clickable .boxed-group-accordion-title > svg {
+  display: none;
+}
+
 .boxed-group-accordion-alert.boxed-group-accordion-alert {
   vertical-align: middle;
   margin-bottom: -6px;

@@ -25,10 +25,15 @@ import {
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
   importBitbucketServerProject,
+  searchForBitbucketServerRepositories,
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
 import { getAppState, Store } from '../../../store/rootReducer';
-import { BitbucketProject, BitbucketRepository } from '../../../types/alm-integration';
+import {
+  BitbucketProject,
+  BitbucketProjectRepositories,
+  BitbucketRepository
+} from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
 
@@ -45,7 +50,9 @@ interface State {
   loading: boolean;
   patIsValid?: boolean;
   projects?: BitbucketProject[];
-  projectRepositories?: T.Dict<BitbucketRepository[]>;
+  projectRepositories?: BitbucketProjectRepositories;
+  searching: boolean;
+  searchResults?: BitbucketRepository[];
   selectedRepository?: BitbucketRepository;
   submittingToken?: boolean;
 }
@@ -60,7 +67,8 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
       // one from the list.
       bitbucketSetting: props.bitbucketSettings[0],
       importing: false,
-      loading: false
+      loading: false,
+      searching: false
     };
   }
 
@@ -127,7 +135,7 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
 
   fetchBitbucketRepositories = (
     projects: BitbucketProject[]
-  ): Promise<T.Dict<BitbucketRepository[]> | undefined> => {
+  ): Promise<BitbucketProjectRepositories | undefined> => {
     const { bitbucketSetting } = this.state;
 
     if (!bitbucketSetting) {
@@ -137,16 +145,20 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
     return Promise.all(
       projects.map(p => {
         return getBitbucketServerRepositories(bitbucketSetting.key, p.name).then(
-          ({ repositories }) => ({
+          ({ isLastPage, repositories }) => ({
+            isLastPage,
             repositories,
             projectKey: p.key
           })
         );
       })
     ).then(results => {
-      return results.reduce((acc: T.Dict<BitbucketRepository[]>, { projectKey, repositories }) => {
-        return { ...acc, [projectKey]: repositories };
-      }, {});
+      return results.reduce(
+        (acc: BitbucketProjectRepositories, { isLastPage, projectKey, repositories }) => {
+          return { ...acc, [projectKey]: { allShown: isLastPage, repositories } };
+        },
+        {}
+      );
     });
   };
 
@@ -198,6 +210,32 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
       });
   };
 
+  handleSearch = (query: string) => {
+    const { bitbucketSetting } = this.state;
+
+    if (!bitbucketSetting) {
+      return;
+    }
+
+    if (!query) {
+      this.setState({ searching: false, searchResults: undefined, selectedRepository: undefined });
+      return;
+    }
+
+    this.setState({ searching: true, selectedRepository: undefined });
+    searchForBitbucketServerRepositories(bitbucketSetting.key, query)
+      .then(({ repositories }) => {
+        if (this.mounted) {
+          this.setState({ searching: false, searchResults: repositories });
+        }
+      })
+      .catch(() => {
+        if (this.mounted) {
+          this.setState({ searching: false });
+        }
+      });
+  };
+
   handleSelectRepository = (selectedRepository: BitbucketRepository) => {
     this.setState({ selectedRepository });
   };
@@ -211,6 +249,8 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
       patIsValid,
       projectRepositories,
       projects,
+      searching,
+      searchResults,
       selectedRepository,
       submittingToken
     } = this.state;
@@ -224,9 +264,12 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
         onImportRepository={this.handleImportRepository}
         onPersonalAccessTokenCreate={this.handlePersonalAccessTokenCreate}
         onProjectCreate={this.props.onProjectCreate}
+        onSearch={this.handleSearch}
         onSelectRepository={this.handleSelectRepository}
         projectRepositories={projectRepositories}
         projects={projects}
+        searchResults={searchResults}
+        searching={searching}
         selectedRepository={selectedRepository}
         showPersonalAccessTokenForm={!patIsValid}
         submittingToken={submittingToken}

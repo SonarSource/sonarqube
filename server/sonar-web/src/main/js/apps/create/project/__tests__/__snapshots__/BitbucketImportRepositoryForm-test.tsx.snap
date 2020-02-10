@@ -1,289 +1,51 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should correctly handle opening/closing accordions: 2nd opened 1`] = `
-<div
-  className="create-project-import-bbs"
->
-  <div
-    className="overflow-hidden spacer-bottom"
-  >
-    <ButtonLink
-      className="pull-right"
-      onClick={[Function]}
-    >
-      collapse_all
-    </ButtonLink>
-  </div>
-  <BoxedGroupAccordion
-    className="open"
-    key="project"
-    onClick={[Function]}
-    open={true}
-    title={
-      <h3>
-        Project
-      </h3>
-    }
-  >
-    <div
-      className="display-flex-wrap"
-    >
-      <Radio
-        checked={false}
-        className="display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden"
-        key="1"
-        onCheck={[Function]}
-        value="1"
-      >
-        <strong
-          className="text-ellipsis"
-        >
-          Repo
-        </strong>
-      </Radio>
-      <span
-        className="display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
-        key="2"
-      >
-        <CheckIcon
-          className="spacer-right"
-          fill="#00aa00"
-          size={14}
-        />
-        <span>
-          <div
-            className="little-spacer-bottom"
-          >
-            <strong>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "bar",
-                    },
-                  }
-                }
-              >
-                Bar
-              </Link>
-            </strong>
-          </div>
-          <em>
-            onboarding.create_project.repository_imported
-          </em>
-        </span>
-      </span>
-    </div>
-  </BoxedGroupAccordion>
-  <BoxedGroupAccordion
-    className="open"
-    key="project2"
-    onClick={[Function]}
-    open={true}
-    title={
-      <h3>
-        Project 2
-      </h3>
-    }
-  >
-    <div
-      className="display-flex-wrap"
-    >
-      <Alert
-        variant="warning"
-      >
-        onboarding.create_project.no_bbs_repos
-      </Alert>
-    </div>
-  </BoxedGroupAccordion>
-</div>
-`;
-
 exports[`should render correctly: default 1`] = `
 <div
   className="create-project-import-bbs"
 >
-  <div
-    className="overflow-hidden spacer-bottom"
-  >
-    <ButtonLink
-      className="pull-right"
-      onClick={[Function]}
-    >
-      expand_all
-    </ButtonLink>
-  </div>
-  <BoxedGroupAccordion
-    className="open"
-    key="project"
-    onClick={[Function]}
-    open={true}
-    title={
-      <h3>
-        Project
-      </h3>
-    }
-  >
-    <div
-      className="display-flex-wrap"
-    >
-      <Radio
-        checked={false}
-        className="display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden"
-        key="1"
-        onCheck={[Function]}
-        value="1"
-      >
-        <strong
-          className="text-ellipsis"
-        >
-          Repo
-        </strong>
-      </Radio>
-      <span
-        className="display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
-        key="2"
-      >
-        <CheckIcon
-          className="spacer-right"
-          fill="#00aa00"
-          size={14}
-        />
-        <span>
-          <div
-            className="little-spacer-bottom"
-          >
-            <strong>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "bar",
-                    },
-                  }
-                }
-              >
-                Bar
-              </Link>
-            </strong>
-          </div>
-          <em>
-            onboarding.create_project.repository_imported
-          </em>
-        </span>
-      </span>
-    </div>
-  </BoxedGroupAccordion>
-  <BoxedGroupAccordion
-    className=""
-    key="project2"
-    onClick={[Function]}
-    open={false}
-    title={
-      <h3>
-        Project 2
-      </h3>
-    }
+  <SearchBox
+    onChange={[MockFunction]}
+    placeholder="onboarding.create_project.search_repositories_by_name"
   />
-</div>
-`;
-
-exports[`should render correctly: importing 1`] = `
-<div
-  className="create-project-import-bbs"
->
-  <div
-    className="overflow-hidden spacer-bottom"
-  >
-    <ButtonLink
-      className="pull-right"
-      onClick={[Function]}
-    >
-      expand_all
-    </ButtonLink>
-  </div>
-  <BoxedGroupAccordion
-    className="open"
-    key="project"
-    onClick={[Function]}
-    open={true}
-    title={
-      <h3>
-        Project
-      </h3>
+  <BitbucketRepositories
+    disableRepositories={false}
+    onSelectRepository={[MockFunction]}
+    projectRepositories={
+      Object {
+        "project": Object {
+          "allShown": true,
+          "repositories": Array [
+            Object {
+              "id": 1,
+              "name": "Repo",
+              "projectKey": "project",
+              "slug": "project__repo",
+            },
+            Object {
+              "id": 2,
+              "name": "Bar",
+              "projectKey": "project",
+              "slug": "bar",
+              "sqProjectKey": "bar",
+            },
+          ],
+        },
+      }
     }
-  >
-    <div
-      className="display-flex-wrap"
-    >
-      <Radio
-        checked={false}
-        className="display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden disabled text-muted link-no-underline"
-        key="1"
-        onCheck={[Function]}
-        value="1"
-      >
-        <strong
-          className="text-ellipsis"
-        >
-          Repo
-        </strong>
-      </Radio>
-      <span
-        className="display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
-        key="2"
-      >
-        <CheckIcon
-          className="spacer-right"
-          fill="#00aa00"
-          size={14}
-        />
-        <span>
-          <div
-            className="little-spacer-bottom"
-          >
-            <strong>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "bar",
-                    },
-                  }
-                }
-              >
-                Bar
-              </Link>
-            </strong>
-          </div>
-          <em>
-            onboarding.create_project.repository_imported
-          </em>
-        </span>
-      </span>
-    </div>
-  </BoxedGroupAccordion>
-  <BoxedGroupAccordion
-    className=""
-    key="project2"
-    onClick={[Function]}
-    open={false}
-    title={
-      <h3>
-        Project 2
-      </h3>
+    projects={
+      Array [
+        Object {
+          "id": 1,
+          "key": "project",
+          "name": "Project",
+        },
+        Object {
+          "id": 2,
+          "key": "project2",
+          "name": "Project 2",
+        },
+      ]
     }
   />
 </div>
@@ -291,150 +53,79 @@ exports[`should render correctly: importing 1`] = `
 
 exports[`should render correctly: no projects 1`] = `
 <Alert
+  className="spacer-top"
   variant="warning"
 >
   onboarding.create_project.no_bbs_projects
 </Alert>
 `;
 
-exports[`should render correctly: no repos 1`] = `
+exports[`should render correctly: search results 1`] = `
 <div
   className="create-project-import-bbs"
 >
-  <div
-    className="overflow-hidden spacer-bottom"
-  >
-    <ButtonLink
-      className="pull-right"
-      onClick={[Function]}
-    >
-      expand_all
-    </ButtonLink>
-  </div>
-  <BoxedGroupAccordion
-    className="open"
-    key="project"
-    onClick={[Function]}
-    open={true}
-    title={
-      <h3>
-        Project
-      </h3>
+  <SearchBox
+    onChange={[MockFunction]}
+    placeholder="onboarding.create_project.search_repositories_by_name"
+  />
+  <BitbucketSearchResults
+    disableRepositories={false}
+    onSelectRepository={[MockFunction]}
+    projects={
+      Array [
+        Object {
+          "id": 1,
+          "key": "project",
+          "name": "Project",
+        },
+        Object {
+          "id": 2,
+          "key": "project2",
+          "name": "Project 2",
+        },
+      ]
     }
-  >
-    <div
-      className="display-flex-wrap"
-    >
-      <Alert
-        variant="warning"
-      >
-        onboarding.create_project.no_bbs_repos
-      </Alert>
-    </div>
-  </BoxedGroupAccordion>
-  <BoxedGroupAccordion
-    className=""
-    key="project2"
-    onClick={[Function]}
-    open={false}
-    title={
-      <h3>
-        Project 2
-      </h3>
+    searchResults={
+      Array [
+        Object {
+          "id": 1,
+          "name": "Repo",
+          "projectKey": "project",
+          "slug": "project__repo",
+        },
+      ]
     }
+    searching={false}
   />
 </div>
 `;
 
-exports[`should render correctly: selected repo 1`] = `
+exports[`should render correctly: searching 1`] = `
 <div
   className="create-project-import-bbs"
 >
-  <div
-    className="overflow-hidden spacer-bottom"
-  >
-    <ButtonLink
-      className="pull-right"
-      onClick={[Function]}
-    >
-      expand_all
-    </ButtonLink>
-  </div>
-  <BoxedGroupAccordion
-    className="open"
-    key="project"
-    onClick={[Function]}
-    open={true}
-    title={
-      <h3>
-        Project
-      </h3>
+  <SearchBox
+    onChange={[MockFunction]}
+    placeholder="onboarding.create_project.search_repositories_by_name"
+  />
+  <BitbucketSearchResults
+    disableRepositories={false}
+    onSelectRepository={[MockFunction]}
+    projects={
+      Array [
+        Object {
+          "id": 1,
+          "key": "project",
+          "name": "Project",
+        },
+        Object {
+          "id": 2,
+          "key": "project2",
+          "name": "Project 2",
+        },
+      ]
     }
-  >
-    <div
-      className="display-flex-wrap"
-    >
-      <Radio
-        checked={true}
-        className="display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden"
-        key="1"
-        onCheck={[Function]}
-        value="1"
-      >
-        <strong
-          className="text-ellipsis"
-        >
-          Repo
-        </strong>
-      </Radio>
-      <span
-        className="display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
-        key="2"
-      >
-        <CheckIcon
-          className="spacer-right"
-          fill="#00aa00"
-          size={14}
-        />
-        <span>
-          <div
-            className="little-spacer-bottom"
-          >
-            <strong>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "bar",
-                    },
-                  }
-                }
-              >
-                Bar
-              </Link>
-            </strong>
-          </div>
-          <em>
-            onboarding.create_project.repository_imported
-          </em>
-        </span>
-      </span>
-    </div>
-  </BoxedGroupAccordion>
-  <BoxedGroupAccordion
-    className=""
-    key="project2"
-    onClick={[Function]}
-    open={false}
-    title={
-      <h3>
-        Project 2
-      </h3>
-    }
+    searching={true}
   />
 </div>
 `;

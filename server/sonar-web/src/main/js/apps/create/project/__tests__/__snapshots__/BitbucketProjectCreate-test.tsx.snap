@@ -13,7 +13,9 @@ exports[`should render correctly 1`] = `
   onImportRepository={[Function]}
   onPersonalAccessTokenCreate={[Function]}
   onProjectCreate={[MockFunction]}
+  onSearch={[Function]}
   onSelectRepository={[Function]}
+  searching={false}
   showPersonalAccessTokenForm={true}
 />
 `;

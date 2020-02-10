@@ -17,115 +17,72 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
-import { uniq, without } from 'lodash';
 import * as React from 'react';
-import { Link } from 'react-router';
-import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { colors } from '../../../app/theme';
-import { getProjectUrl } from '../../../helpers/urls';
-import { BitbucketProject, BitbucketRepository } from '../../../types/alm-integration';
+import {
+  BitbucketProject,
+  BitbucketProjectRepositories,
+  BitbucketRepository
+} from '../../../types/alm-integration';
+import BitbucketRepositories from './BitbucketRepositories';
+import BitbucketSearchResults from './BitbucketSearchResults';
 
 export interface BitbucketImportRepositoryFormProps {
-  importing?: boolean;
+  disableRepositories: boolean;
+  onSearch: (query: string) => void;
   onSelectRepository: (repo: BitbucketRepository) => void;
   projects?: BitbucketProject[];
-  projectRepositories?: T.Dict<BitbucketRepository[]>;
+  projectRepositories?: BitbucketProjectRepositories;
+  searching: boolean;
+  searchResults?: BitbucketRepository[];
   selectedRepository?: BitbucketRepository;
 }
 
 export default function BitbucketImportRepositoryForm(props: BitbucketImportRepositoryFormProps) {
-  const { importing, projects = [], projectRepositories = {}, selectedRepository } = props;
-  const [openProjectKeys, setOpenProjectKeys] = React.useState(
-    projects.length > 0 ? [projects[0].key] : []
-  );
+  const {
+    disableRepositories,
+    projects = [],
+    projectRepositories = {},
+    searchResults,
+    searching,
+    selectedRepository
+  } = props;
 
   if (projects.length === 0) {
     return (
-      <Alert variant="warning">{translate('onboarding.create_project.no_bbs_projects')}</Alert>
+      <Alert className="spacer-top" variant="warning">
+        {translate('onboarding.create_project.no_bbs_projects')}
+      </Alert>
     );
   }
 
-  const allAreExpanded = projects.length === openProjectKeys.length;
-
   return (
     <div className="create-project-import-bbs">
-      <div className="overflow-hidden spacer-bottom">
-        <ButtonLink
-          className="pull-right"
-          onClick={() => setOpenProjectKeys(allAreExpanded ? [] : projects.map(p => p.key))}>
-          {allAreExpanded ? translate('collapse_all') : translate('expand_all')}
-        </ButtonLink>
-      </div>
+      <SearchBox
+        onChange={props.onSearch}
+        placeholder={translate('onboarding.create_project.search_repositories_by_name')}
+      />
 
-      {projects.map(project => {
-        const isOpen = openProjectKeys.includes(project.key);
-        const repositories = projectRepositories[project.key] || [];
-
-        return (
-          <BoxedGroupAccordion
-            className={classNames({ open: isOpen })}
-            key={project.key}
-            onClick={() =>
-              setOpenProjectKeys(
-                isOpen
-                  ? without(openProjectKeys, project.key)
-                  : uniq([...openProjectKeys, project.key])
-              )
-            }
-            open={isOpen}
-            title={<h3>{project.name}</h3>}>
-            {isOpen && (
-              <div className="display-flex-wrap">
-                {repositories.length === 0 && (
-                  <Alert variant="warning">
-                    {translate('onboarding.create_project.no_bbs_repos')}
-                  </Alert>
-                )}
-
-                {repositories.map(repo =>
-                  repo.sqProjectKey ? (
-                    <span
-                      className="display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
-                      key={repo.id}>
-                      <CheckIcon className="spacer-right" fill={colors.green} size={14} />
-                      <span>
-                        <div className="little-spacer-bottom">
-                          <strong>
-                            <Link to={getProjectUrl(repo.sqProjectKey)}>{repo.name}</Link>
-                          </strong>
-                        </div>
-                        <em>{translate('onboarding.create_project.repository_imported')}</em>
-                      </span>
-                    </span>
-                  ) : (
-                    <Radio
-                      checked={selectedRepository?.id === repo.id}
-                      className={classNames(
-                        'display-inline-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden',
-                        {
-                          disabled: importing,
-                          'text-muted': importing,
-                          'link-no-underline': importing
-                        }
-                      )}
-                      key={repo.id}
-                      onCheck={() => props.onSelectRepository(repo)}
-                      value={String(repo.id)}>
-                      <strong className="text-ellipsis">{repo.name}</strong>
-                    </Radio>
-                  )
-                )}
-              </div>
-            )}
-          </BoxedGroupAccordion>
-        );
-      })}
+      {searching || searchResults ? (
+        <BitbucketSearchResults
+          disableRepositories={disableRepositories}
+          onSelectRepository={props.onSelectRepository}
+          projects={projects}
+          searchResults={searchResults}
+          searching={searching}
+          selectedRepository={selectedRepository}
+        />
+      ) : (
+        <BitbucketRepositories
+          disableRepositories={disableRepositories}
+          onSelectRepository={props.onSelectRepository}
+          projectRepositories={projectRepositories}
+          projects={projects}
+          selectedRepository={selectedRepository}
+        />
+      )}
     </div>
   );
 }

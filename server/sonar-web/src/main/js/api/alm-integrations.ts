@@ -68,3 +68,16 @@ export function importBitbucketServerProject(
     repositorySlug
   }).catch(throwGlobalError);
 }
+
+export function searchForBitbucketServerRepositories(
+  almSetting: string,
+  repositoryName: string
+): Promise<{
+  isLastPage: boolean;
+  repositories: BitbucketRepository[];
+}> {
+  return getJSON('/api/alm_integrations/search_bitbucketserver_repos', {
+    almSetting,
+    repositoryName
+  });
+}

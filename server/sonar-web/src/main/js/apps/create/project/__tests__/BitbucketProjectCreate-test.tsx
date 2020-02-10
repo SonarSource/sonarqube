@@ -26,6 +26,7 @@ import {
   getBitbucketServerProjects,
   getBitbucketServerRepositories,
   importBitbucketServerProject,
+  searchForBitbucketServerRepositories,
   setAlmPersonalAccessToken
 } from '../../../../api/alm-integrations';
 import { mockBitbucketRepository } from '../../../../helpers/mocks/alm-integrations';
@@ -53,7 +54,13 @@ jest.mock('../../../../api/alm-integrations', () => {
       ]
     }),
     importBitbucketServerProject: jest.fn().mockResolvedValue({ project: { key: 'baz' } }),
-    setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null)
+    setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null),
+    searchForBitbucketServerRepositories: jest.fn().mockResolvedValue({
+      repositories: [
+        mockBitbucketRepository(),
+        mockBitbucketRepository({ id: 2, slug: 'project__repo2' })
+      ]
+    })
   };
 });
 
@@ -104,10 +111,12 @@ it('should correctly fetch projects and repos', async () => {
   expect(getBitbucketServerRepositories).toBeCalledWith('foo', 'Project 1');
   expect(wrapper.state().projectRepositories).toEqual(
     expect.objectContaining({
-      project1: expect.arrayContaining([
-        expect.objectContaining({ id: 1 }),
-        expect.objectContaining({ id: 2 })
-      ])
+      project1: expect.objectContaining({
+        repositories: expect.arrayContaining([
+          expect.objectContaining({ id: 1 }),
+          expect.objectContaining({ id: 2 })
+        ])
+      })
     })
   );
   expect(wrapper.state().projectRepositories).toBeDefined();
@@ -124,6 +133,24 @@ it('should correctly import a repo', async () => {
   expect(importBitbucketServerProject).toBeCalledWith('foo', repo.projectKey, repo.slug);
   await waitAndUpdate(wrapper);
   expect(onProjectCreate).toBeCalledWith(['baz']);
+});
+
+it('should correctly handle search', async () => {
+  const wrapper = shallowRender();
+  const instance = wrapper.instance();
+
+  // Don't trigger search on empty query.
+  instance.handleSearch('');
+  expect(searchForBitbucketServerRepositories).not.toBeCalled();
+  expect(wrapper.state().searching).toBe(false);
+  expect(wrapper.state().searchResults).toBeUndefined();
+
+  instance.handleSearch('bar');
+  expect(searchForBitbucketServerRepositories).toBeCalledWith('foo', 'bar');
+  expect(wrapper.state().searching).toBe(true);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().searching).toBe(false);
+  expect(wrapper.state().searchResults).toHaveLength(2);
 });
 
 function shallowRender(props: Partial<BitbucketProjectCreate['props']> = {}) {

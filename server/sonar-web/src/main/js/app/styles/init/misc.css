@@ -407,11 +407,6 @@ th.huge-spacer-right {
   align-items: center;
 }
 
-.display-inline-flex-start {
-  display: inline-flex !important;
-  align-items: start;
-}
-
 .position-absolute {
   position: absolute !important;
 }
