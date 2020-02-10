@@ -60,7 +60,7 @@ public class ProjectsWsSupport {
       "No organization for key '%s'", organizationKey);
   }
 
-  void checkCanUpdateProjectsVisibility(OrganizationDto organizationDto, boolean newProjectsPrivate) {
+  public void checkCanUpdateProjectsVisibility(OrganizationDto organizationDto, boolean newProjectsPrivate) {
     try {
       BillingValidations.Organization organization = new BillingValidations.Organization(organizationDto.getKey(), organizationDto.getUuid(), organizationDto.getName());
       billingValidations.checkCanUpdateProjectVisibility(organization, newProjectsPrivate);
