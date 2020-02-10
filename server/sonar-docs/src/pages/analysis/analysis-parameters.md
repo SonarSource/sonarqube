@@ -89,7 +89,6 @@ Key | Description | Default
 ---|----|---
 `sonar.log.level` | Control the quantity / level of logs produced during an analysis. `DEBUG`: Display `INFO` logs + more details at `DEBUG` level. Similar to `sonar.verbose=true`. `TRACE`: Display `DEBUG` logs + the timings of all ElasticSearch queries and Web API calls executed by the SonarScanner. | `INFO`
 `sonar.verbose` | Add more detail to both client and server-side analysis logs. Activates `DEBUG` mode for the scanner, and adds client-side environment variables and system properties to server-side log of analysis report processing. ![](/images/exclamation.svg)NOTE: There is the potential for this setting to expose sensitive information such as passwords if they are stored as server-side environment variables. | false
-`sonar.showProfiling` | Display logs to see where the analyzer spends time. This parameter generates a file containing these timing infos in `<workingDir>/profiling/<moduleKey>-profiler.xml` where `<workingDir>` is: `.sonar/profiling/` when analysis is run with SonarScanner, and `target/sonar/profiling/` when SonarScanner for Maven is used. | `false`
 `sonar.scanner.dumpToFile` | Outputs to the specified file the full list of properties passed to the scanner API as a means to debug analysis. |  
 `sonar.scanner.metadataFilePath` | Set the location where the scanner writes the `report-task.txt` file containing among other things the `ceTaskId`. | value of `sonar.working.directory`
 
