@@ -17,27 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.almintegration;
+package org.sonarqube.ws.client.almintegrations;
 
 import javax.annotation.Generated;
 
 /**
+ * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integration/check_pat">Further information about this action online (including a response example)</a>
- * @since 8.1
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/set_pat">Further information about this action online (including a response example)</a>
+ * @since 8.2
  */
 @Generated("sonar-ws-generator")
-public class CheckPatRequest {
+public class SetPatRequest {
 
   private String almSetting;
+  private String pat;
+
+  /**
+   * This is a mandatory parameter.
+   */
+  public SetPatRequest setAlmSetting(String almSetting) {
+    this.almSetting = almSetting;
+    return this;
+  }
 
   public String getAlmSetting() {
     return almSetting;
   }
 
-  public CheckPatRequest setAlmSetting(String almSetting) {
-    this.almSetting = almSetting;
+  /**
+   * This is a mandatory parameter.
+   */
+  public SetPatRequest setPat(String pat) {
+    this.pat = pat;
     return this;
   }
 
+  public String getPat() {
+    return pat;
+  }
 }

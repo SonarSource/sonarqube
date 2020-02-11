@@ -20,7 +20,7 @@
 package org.sonarqube.ws.client;
 
 import javax.annotation.Generated;
-import org.sonarqube.ws.client.almintegration.AlmIntegrationService;
+import org.sonarqube.ws.client.almintegrations.AlmIntegrationsService;
 import org.sonarqube.ws.client.almsettings.AlmSettingsService;
 import org.sonarqube.ws.client.analysisreports.AnalysisReportsService;
 import org.sonarqube.ws.client.applications.ApplicationsService;
@@ -87,6 +87,7 @@ class DefaultWsClient implements WsClient {
 
   private final WsConnector wsConnector;
 
+  private final AlmIntegrationsService almIntegrationsService;
   private final AlmSettingsService almSettingsService;
   private final AnalysisReportsService analysisReportsService;
   private final ApplicationsService applicationsService;
@@ -141,11 +142,11 @@ class DefaultWsClient implements WsClient {
   private final WebservicesService webservicesService;
   private final BatchService batchService;
   private final SecurityReportsService securityReportsService;
-  private final AlmIntegrationService almIntegrationService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
 
+    this.almIntegrationsService = new AlmIntegrationsService(wsConnector);
     this.almSettingsService = new AlmSettingsService(wsConnector);
     this.analysisReportsService = new AnalysisReportsService(wsConnector);
     this.applicationsService = new ApplicationsService(wsConnector);
@@ -200,7 +201,6 @@ class DefaultWsClient implements WsClient {
     this.webservicesService = new WebservicesService(wsConnector);
     this.batchService = new BatchService(wsConnector);
     this.securityReportsService = new SecurityReportsService(wsConnector);
-    this.almIntegrationService = new AlmIntegrationService(wsConnector);
   }
 
   @Override
@@ -210,13 +210,13 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public AlmSettingsService almSettings() {
-    return almSettingsService;
+  public AlmIntegrationsService almIntegrations() {
+    return almIntegrationsService;
   }
 
   @Override
-  public AlmIntegrationService almIntegrations() {
-    return almIntegrationService;
+  public AlmSettingsService almSettings() {
+    return almSettingsService;
   }
 
   @Override
