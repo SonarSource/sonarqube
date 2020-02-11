@@ -24,7 +24,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
 public class ProjectAlmSettingDao implements Dao {
