@@ -20,8 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { mockCurrentUser, mockLoggedInUser, mockUser } from '../../../../helpers/testMocks';
-import { HotspotViewerRenderer, HotspotViewerRendererProps } from '../HotspotViewerRenderer';
+import { mockUser } from '../../../../helpers/testMocks';
+import HotspotViewerRenderer, { HotspotViewerRendererProps } from '../HotspotViewerRenderer';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -41,13 +41,11 @@ it('should render correctly', () => {
     })
   ).toMatchSnapshot('assignee without name');
   expect(shallowRender()).toMatchSnapshot('anonymous user');
-  expect(shallowRender({ currentUser: mockLoggedInUser() })).toMatchSnapshot('user logged in');
 });
 
 function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
   return shallow(
     <HotspotViewerRenderer
-      currentUser={mockCurrentUser()}
       hotspot={mockHotspot()}
       loading={false}
       onUpdateHotspot={jest.fn()}

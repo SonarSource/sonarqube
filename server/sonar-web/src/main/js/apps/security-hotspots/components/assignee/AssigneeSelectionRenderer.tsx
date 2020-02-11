@@ -47,7 +47,7 @@ export default function AssigneeSelectionRenderer(props: HotspotAssigneeSelectRe
           autoFocus={true}
           onChange={props.onSearch}
           onKeyDown={props.onKeyDown}
-          placeholder={translate('hotspots.form.select_user')}
+          placeholder={translate('hotspots.assignee.select_user')}
           value={query}
         />
 

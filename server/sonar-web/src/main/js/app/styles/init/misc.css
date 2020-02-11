@@ -384,6 +384,11 @@ th.huge-spacer-right {
   justify-content: center;
 }
 
+.display-flex-justify-end {
+  display: flex !important;
+  justify-content: flex-end;
+}
+
 .display-flex-space-around {
   display: flex !important;
   justify-content: space-around;

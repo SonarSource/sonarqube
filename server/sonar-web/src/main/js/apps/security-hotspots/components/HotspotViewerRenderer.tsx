@@ -20,26 +20,23 @@
 import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
-import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import Assignee from './assignee/Assignee';
-import HotspotActions from './HotspotActions';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
 import HotspotViewerTabs from './HotspotViewerTabs';
+import Status from './status/Status';
 
 export interface HotspotViewerRendererProps {
   branchLike?: BranchLike;
-  currentUser: T.CurrentUser;
   hotspot?: Hotspot;
   loading: boolean;
   onUpdateHotspot: () => void;
   securityCategories: T.StandardSecurityCategories;
 }
 
-export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
-  const { branchLike, currentUser, hotspot, loading, securityCategories } = props;
+export default function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
+  const { branchLike, hotspot, loading, securityCategories } = props;
 
   return (
     <DeferredSpinner loading={loading}>
@@ -48,9 +45,6 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
           <div className="big-spacer-bottom">
             <div className="display-flex-space-between">
               <h1>{hotspot.message}</h1>
-              {isLoggedIn(currentUser) && (
-                <HotspotActions hotspot={hotspot} onSubmit={props.onUpdateHotspot} />
-              )}
             </div>
             <div className="text-muted">
               <span>{translate('category')}:</span>
@@ -59,12 +53,9 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
               </span>
             </div>
           </div>
-          <div className="huge-spacer-bottom">
-            <span>{translate('status')}:</span>
-            <span className="badge little-spacer-left">
-              {translate('hotspot.status', hotspot.resolution || hotspot.status)}
-            </span>
+          <div className="display-flex-row huge-spacer-bottom">
             <Assignee hotspot={hotspot} onAssigneeChange={props.onUpdateHotspot} />
+            <Status hotspot={hotspot} onStatusChange={props.onUpdateHotspot} />
           </div>
           <HotspotSnippetContainer branchLike={branchLike} hotspot={hotspot} />
           <HotspotViewerTabs hotspot={hotspot} onUpdateHotspot={props.onUpdateHotspot} />
@@ -73,5 +64,3 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     </DeferredSpinner>
   );
 }
-
-export default withCurrentUser(HotspotViewerRenderer);

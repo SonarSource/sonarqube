@@ -17,37 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#security_hotspots .wrapper {
-  position: fixed;
-  /* top is defined programatically */
-  bottom: 0;
-  width: 100%;
-}
 
-#security_hotspots .layout-page {
-  margin: 0 auto;
-  min-width: var(--minPageWidth);
-  max-width: 1280px;
-  height: 100%;
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { HotspotStatusOption } from '../../../../../types/security-hotspots';
+import StatusDescription, { StatusDescriptionProps } from '../StatusDescription';
 
-#security_hotspots .filter-bar {
-  max-width: 1280px;
-  box-sizing: border-box;
-  margin: 0 auto;
-  padding: calc(2 * var(--gridSize)) var(--gridSize);
-  border-bottom: 1px solid var(--barBorderColor);
-}
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ showTitle: true })).toMatchSnapshot('with title');
+});
 
-#security_hotspots .sidebar {
-  flex: 0 0 300px;
-  border-right: 1px solid var(--barBorderColor);
-  height: 100%;
-  overflow-y: auto;
-}
-
-#security_hotspots .main {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  background-color: white;
+function shallowRender(props?: Partial<StatusDescriptionProps>) {
+  return shallow<StatusDescriptionProps>(
+    <StatusDescription statusOption={HotspotStatusOption.TO_REVIEW} {...props} />
+  );
 }

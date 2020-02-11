@@ -77,7 +77,7 @@ a[class*=' icon-'] {
   transition: opacity 0.3s ease;
 }
 
-a:hover > .icon-radio {
+a:not(.disabled):hover > .icon-radio {
   border-color: var(--blue);
 }
 

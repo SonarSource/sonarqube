@@ -20,6 +20,9 @@
 import { groupBy, sortBy } from 'lodash';
 import {
   Hotspot,
+  HotspotResolution,
+  HotspotStatus,
+  HotspotStatusOption,
   RawHotspot,
   ReviewHistoryElement,
   ReviewHistoryType,
@@ -136,4 +139,36 @@ export function getHotspotReviewHistory(
     history: sortBy(history, elt => elt.date),
     functionalCount
   };
+}
+
+const STATUS_AND_RESOLUTION_TO_STATUS_OPTION = {
+  [HotspotStatus.TO_REVIEW]: HotspotStatusOption.TO_REVIEW,
+  [HotspotStatus.REVIEWED]: HotspotStatusOption.FIXED,
+  [HotspotResolution.FIXED]: HotspotStatusOption.FIXED,
+  [HotspotResolution.SAFE]: HotspotStatusOption.SAFE
+};
+
+export function getStatusOptionFromStatusAndResolution(
+  status: HotspotStatus,
+  resolution?: HotspotResolution
+) {
+  // Resolution is the most determinist info here, so we use it first to get the matching status option
+  // If not provided, we use the status (which will be TO_REVIEW)
+  return STATUS_AND_RESOLUTION_TO_STATUS_OPTION[resolution ?? status];
+}
+
+const STATUS_OPTION_TO_STATUS_AND_RESOLUTION_MAP = {
+  [HotspotStatusOption.TO_REVIEW]: { status: HotspotStatus.TO_REVIEW, resolution: undefined },
+  [HotspotStatusOption.FIXED]: {
+    status: HotspotStatus.REVIEWED,
+    resolution: HotspotResolution.FIXED
+  },
+  [HotspotStatusOption.SAFE]: {
+    status: HotspotStatus.REVIEWED,
+    resolution: HotspotResolution.SAFE
+  }
+};
+
+export function getStatusAndResolutionFromStatusOption(statusOption: HotspotStatusOption) {
+  return STATUS_OPTION_TO_STATUS_AND_RESOLUTION_MAP[statusOption];
 }

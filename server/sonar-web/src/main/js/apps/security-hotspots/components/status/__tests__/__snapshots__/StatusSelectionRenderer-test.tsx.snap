@@ -1,0 +1,140 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <div
+    className="big-padded"
+  >
+    <Radio
+      checked={true}
+      className="big-spacer-bottom"
+      onCheck={[MockFunction]}
+      value="TO_REVIEW"
+    >
+      <StatusDescription
+        statusOption="TO_REVIEW"
+      />
+    </Radio>
+    <Radio
+      checked={false}
+      className="big-spacer-bottom"
+      onCheck={[MockFunction]}
+      value="FIXED"
+    >
+      <StatusDescription
+        statusOption="FIXED"
+      />
+    </Radio>
+    <Radio
+      checked={false}
+      className="big-spacer-bottom"
+      onCheck={[MockFunction]}
+      value="SAFE"
+    >
+      <StatusDescription
+        statusOption="SAFE"
+      />
+    </Radio>
+  </div>
+  <hr />
+  <div
+    className="big-padded display-flex-column"
+  >
+    <label
+      className="text-bold"
+      htmlFor="comment-textarea"
+    >
+      hotspots.status.add_comment
+    </label>
+    <textarea
+      className="spacer-top form-field fixed-width spacer-bottom"
+      id="comment-textarea"
+      onChange={[Function]}
+      rows={4}
+      value="TEST-COMMENT"
+    />
+    <MarkdownTips />
+    <div
+      className="big-spacer-top display-flex-justify-end display-flex-center"
+    >
+      <SubmitButton
+        disabled={false}
+        onClick={[MockFunction]}
+      >
+        hotspots.status.change_status
+      </SubmitButton>
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<Fragment>
+  <div
+    className="big-padded"
+  >
+    <Radio
+      checked={true}
+      className="big-spacer-bottom"
+      onCheck={[MockFunction]}
+      value="TO_REVIEW"
+    >
+      <StatusDescription
+        statusOption="TO_REVIEW"
+      />
+    </Radio>
+    <Radio
+      checked={false}
+      className="big-spacer-bottom"
+      onCheck={[MockFunction]}
+      value="FIXED"
+    >
+      <StatusDescription
+        statusOption="FIXED"
+      />
+    </Radio>
+    <Radio
+      checked={false}
+      className="big-spacer-bottom"
+      onCheck={[MockFunction]}
+      value="SAFE"
+    >
+      <StatusDescription
+        statusOption="SAFE"
+      />
+    </Radio>
+  </div>
+  <hr />
+  <div
+    className="big-padded display-flex-column"
+  >
+    <label
+      className="text-bold"
+      htmlFor="comment-textarea"
+    >
+      hotspots.status.add_comment
+    </label>
+    <textarea
+      className="spacer-top form-field fixed-width spacer-bottom"
+      id="comment-textarea"
+      onChange={[Function]}
+      rows={4}
+      value="TEST-COMMENT"
+    />
+    <MarkdownTips />
+    <div
+      className="big-spacer-top display-flex-justify-end display-flex-center"
+    >
+      <SubmitButton
+        disabled={true}
+        onClick={[MockFunction]}
+      >
+        hotspots.status.change_status
+      </SubmitButton>
+      <i
+        className="spacer-left spinner"
+      />
+    </div>
+  </div>
+</Fragment>
+`;

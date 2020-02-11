@@ -42,7 +42,7 @@ export enum HotspotStatusFilter {
 export enum HotspotStatusOption {
   FIXED = 'FIXED',
   SAFE = 'SAFE',
-  ADDITIONAL_REVIEW = 'ADDITIONAL_REVIEW'
+  TO_REVIEW = 'TO_REVIEW'
 }
 
 export interface HotspotFilters {
@@ -60,10 +60,10 @@ export interface RawHotspot {
   line?: number;
   message: string;
   project: string;
-  resolution?: string;
+  resolution?: HotspotResolution;
   rule: string;
   securityCategory: string;
-  status: string;
+  status: HotspotStatus;
   subProject?: string;
   updateDate: string;
   vulnerabilityProbability: RiskExposure;

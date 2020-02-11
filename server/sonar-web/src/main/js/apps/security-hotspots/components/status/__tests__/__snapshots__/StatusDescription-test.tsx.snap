@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div>
+  <h3>
+    hotspots.status_option.TO_REVIEW
+  </h3>
+  <span>
+    hotspots.status_option.TO_REVIEW.description
+  </span>
+</div>
+`;
+
+exports[`should render correctly: with title 1`] = `
+<div>
+  <h3>
+    status: 
+    hotspots.status_option.TO_REVIEW
+  </h3>
+  <span>
+    hotspots.status_option.TO_REVIEW.description
+  </span>
+</div>
+`;

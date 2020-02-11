@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<Connect(withCurrentUser(HotspotViewerRenderer))
+<HotspotViewerRenderer
   loading={true}
   onUpdateHotspot={[Function]}
   securityCategories={
@@ -15,7 +15,7 @@ exports[`should render correctly 1`] = `
 `;
 
 exports[`should render correctly 2`] = `
-<Connect(withCurrentUser(HotspotViewerRenderer))
+<HotspotViewerRenderer
   hotspot={
     Object {
       "id": "I am a detailled hotspot",

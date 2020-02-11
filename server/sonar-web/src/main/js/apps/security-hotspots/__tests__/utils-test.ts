@@ -19,8 +19,21 @@
  */
 import { mockHotspot, mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { mockUser } from '../../../helpers/testMocks';
-import { ReviewHistoryType, RiskExposure } from '../../../types/security-hotspots';
-import { getHotspotReviewHistory, groupByCategory, mapRules, sortHotspots } from '../utils';
+import {
+  HotspotResolution,
+  HotspotStatus,
+  HotspotStatusOption,
+  ReviewHistoryType,
+  RiskExposure
+} from '../../../types/security-hotspots';
+import {
+  getHotspotReviewHistory,
+  getStatusAndResolutionFromStatusOption,
+  getStatusOptionFromStatusAndResolution,
+  groupByCategory,
+  mapRules,
+  sortHotspots
+} from '../utils';
 
 const hotspots = [
   mockRawHotspot({
@@ -221,5 +234,39 @@ describe('getHotspotReviewHistory', () => {
         diffs: changelogElement.diffs
       })
     );
+  });
+});
+
+describe('getStatusOptionFromStatusAndResolution', () => {
+  it('should return the correct values', () => {
+    expect(
+      getStatusOptionFromStatusAndResolution(HotspotStatus.REVIEWED, HotspotResolution.FIXED)
+    ).toBe(HotspotStatusOption.FIXED);
+    expect(
+      getStatusOptionFromStatusAndResolution(HotspotStatus.REVIEWED, HotspotResolution.SAFE)
+    ).toBe(HotspotStatusOption.SAFE);
+    expect(getStatusOptionFromStatusAndResolution(HotspotStatus.REVIEWED)).toBe(
+      HotspotStatusOption.FIXED
+    );
+    expect(getStatusOptionFromStatusAndResolution(HotspotStatus.TO_REVIEW)).toBe(
+      HotspotStatusOption.TO_REVIEW
+    );
+  });
+});
+
+describe('getStatusAndResolutionFromStatusOption', () => {
+  it('should return the correct values', () => {
+    expect(getStatusAndResolutionFromStatusOption(HotspotStatusOption.TO_REVIEW)).toEqual({
+      status: HotspotStatus.TO_REVIEW,
+      resolution: undefined
+    });
+    expect(getStatusAndResolutionFromStatusOption(HotspotStatusOption.FIXED)).toEqual({
+      status: HotspotStatus.REVIEWED,
+      resolution: HotspotResolution.FIXED
+    });
+    expect(getStatusAndResolutionFromStatusOption(HotspotStatusOption.SAFE)).toEqual({
+      status: HotspotStatus.REVIEWED,
+      resolution: HotspotResolution.SAFE
+    });
   });
 });

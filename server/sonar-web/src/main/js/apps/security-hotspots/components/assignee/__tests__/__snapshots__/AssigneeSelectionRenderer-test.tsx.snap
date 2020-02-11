@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
       autoFocus={true}
       onChange={[MockFunction]}
       onKeyDown={[MockFunction]}
-      placeholder="hotspots.form.select_user"
+      placeholder="hotspots.assignee.select_user"
     />
   </div>
 </Fragment>
@@ -24,7 +24,7 @@ exports[`should render correctly: loading 1`] = `
       autoFocus={true}
       onChange={[MockFunction]}
       onKeyDown={[MockFunction]}
-      placeholder="hotspots.form.select_user"
+      placeholder="hotspots.assignee.select_user"
     />
     <DeferredSpinner
       className="spacer-left"
@@ -43,7 +43,7 @@ exports[`should render correctly: open 1`] = `
       autoFocus={true}
       onChange={[MockFunction]}
       onKeyDown={[MockFunction]}
-      placeholder="hotspots.form.select_user"
+      placeholder="hotspots.assignee.select_user"
     />
   </div>
   <div
@@ -73,7 +73,7 @@ exports[`should render correctly: open with results 1`] = `
       autoFocus={true}
       onChange={[MockFunction]}
       onKeyDown={[MockFunction]}
-      placeholder="hotspots.form.select_user"
+      placeholder="hotspots.assignee.select_user"
     />
   </div>
   <div

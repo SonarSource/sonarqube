@@ -17,32 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { RawHotspot } from '../../../types/security-hotspots';
-import { getStatusOptionFromStatusAndResolution } from '../utils';
+import { HotspotStatusOption } from '../../../../types/security-hotspots';
 
-export interface HotspotListItemProps {
-  hotspot: RawHotspot;
-  onClick: (key: string) => void;
-  selected: boolean;
+export interface StatusDescriptionProps {
+  statusOption: HotspotStatusOption;
+  showTitle?: boolean;
 }
 
-export default function HotspotListItem(props: HotspotListItemProps) {
-  const { hotspot, selected } = props;
+export default function StatusDescription(props: StatusDescriptionProps) {
+  const { statusOption, showTitle } = props;
+
   return (
-    <a
-      className={classNames('hotspot-item', { highlight: selected })}
-      href="#"
-      onClick={() => !selected && props.onClick(hotspot.key)}>
-      <div className="little-spacer-left">{hotspot.message}</div>
-      <div className="badge spacer-top">
-        {translate(
-          'hotspots.status_option',
-          getStatusOptionFromStatusAndResolution(hotspot.status, hotspot.resolution)
-        )}
-      </div>
-    </a>
+    <div>
+      <h3>
+        {showTitle && `${translate('status')}: `}
+        {translate('hotspots.status_option', statusOption)}
+      </h3>
+      <span>{translate('hotspots.status_option', statusOption, 'description')}</span>
+    </div>
   );
 }

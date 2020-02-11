@@ -33,17 +33,8 @@ exports[`should render correctly 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom"
+      className="display-flex-row huge-spacer-bottom"
     >
-      <span>
-        status
-        :
-      </span>
-      <span
-        className="badge little-spacer-left"
-      >
-        hotspot.status.FIXED
-      </span>
       <Connect(withCurrentUser(Assignee))
         hotspot={
           Object {
@@ -145,6 +136,108 @@ exports[`should render correctly 1`] = `
           }
         }
         onAssigneeChange={[MockFunction]}
+      />
+      <Connect(withCurrentUser(Status))
+        hotspot={
+          Object {
+            "assignee": "assignee",
+            "assigneeUser": Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            "author": "author",
+            "authorUser": Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+            "canChangeStatus": true,
+            "changelog": Array [],
+            "comment": Array [],
+            "component": Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "FIL",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+            "creationDate": "2013-05-13T17:55:41+0200",
+            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+            "line": 142,
+            "message": "'3' is a magic number.",
+            "project": Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+            "resolution": "FIXED",
+            "rule": Object {
+              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+              "key": "squid:S2077",
+              "name": "That rule",
+              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+              "securityCategory": "sql-injection",
+              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+              "vulnerabilityProbability": "HIGH",
+            },
+            "status": "REVIEWED",
+            "textRange": Object {
+              "endLine": 142,
+              "endOffset": 83,
+              "startLine": 142,
+              "startOffset": 26,
+            },
+            "updateDate": "2013-05-13T17:55:42+0200",
+            "users": Array [
+              Object {
+                "active": true,
+                "local": true,
+                "login": "assignee",
+                "name": "John Doe",
+              },
+              Object {
+                "active": true,
+                "local": true,
+                "login": "author",
+                "name": "John Doe",
+              },
+            ],
+          }
+        }
+        onStatusChange={[MockFunction]}
       />
     </div>
     <HotspotSnippetContainer
@@ -387,17 +480,8 @@ exports[`should render correctly: anonymous user 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom"
+      className="display-flex-row huge-spacer-bottom"
     >
-      <span>
-        status
-        :
-      </span>
-      <span
-        className="badge little-spacer-left"
-      >
-        hotspot.status.FIXED
-      </span>
       <Connect(withCurrentUser(Assignee))
         hotspot={
           Object {
@@ -499,6 +583,108 @@ exports[`should render correctly: anonymous user 1`] = `
           }
         }
         onAssigneeChange={[MockFunction]}
+      />
+      <Connect(withCurrentUser(Status))
+        hotspot={
+          Object {
+            "assignee": "assignee",
+            "assigneeUser": Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            "author": "author",
+            "authorUser": Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+            "canChangeStatus": true,
+            "changelog": Array [],
+            "comment": Array [],
+            "component": Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "FIL",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+            "creationDate": "2013-05-13T17:55:41+0200",
+            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+            "line": 142,
+            "message": "'3' is a magic number.",
+            "project": Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+            "resolution": "FIXED",
+            "rule": Object {
+              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+              "key": "squid:S2077",
+              "name": "That rule",
+              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+              "securityCategory": "sql-injection",
+              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+              "vulnerabilityProbability": "HIGH",
+            },
+            "status": "REVIEWED",
+            "textRange": Object {
+              "endLine": 142,
+              "endOffset": 83,
+              "startLine": 142,
+              "startOffset": 26,
+            },
+            "updateDate": "2013-05-13T17:55:42+0200",
+            "users": Array [
+              Object {
+                "active": true,
+                "local": true,
+                "login": "assignee",
+                "name": "John Doe",
+              },
+              Object {
+                "active": true,
+                "local": true,
+                "login": "author",
+                "name": "John Doe",
+              },
+            ],
+          }
+        }
+        onStatusChange={[MockFunction]}
       />
     </div>
     <HotspotSnippetContainer
@@ -741,17 +927,8 @@ exports[`should render correctly: assignee without name 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom"
+      className="display-flex-row huge-spacer-bottom"
     >
-      <span>
-        status
-        :
-      </span>
-      <span
-        className="badge little-spacer-left"
-      >
-        hotspot.status.FIXED
-      </span>
       <Connect(withCurrentUser(Assignee))
         hotspot={
           Object {
@@ -853,6 +1030,108 @@ exports[`should render correctly: assignee without name 1`] = `
           }
         }
         onAssigneeChange={[MockFunction]}
+      />
+      <Connect(withCurrentUser(Status))
+        hotspot={
+          Object {
+            "assignee": "assignee",
+            "assigneeUser": Object {
+              "active": true,
+              "local": true,
+              "login": "assignee_login",
+              "name": undefined,
+            },
+            "author": "author",
+            "authorUser": Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+            "canChangeStatus": true,
+            "changelog": Array [],
+            "comment": Array [],
+            "component": Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "FIL",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+            "creationDate": "2013-05-13T17:55:41+0200",
+            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+            "line": 142,
+            "message": "'3' is a magic number.",
+            "project": Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+            "resolution": "FIXED",
+            "rule": Object {
+              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+              "key": "squid:S2077",
+              "name": "That rule",
+              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+              "securityCategory": "sql-injection",
+              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+              "vulnerabilityProbability": "HIGH",
+            },
+            "status": "REVIEWED",
+            "textRange": Object {
+              "endLine": 142,
+              "endOffset": 83,
+              "startLine": 142,
+              "startOffset": 26,
+            },
+            "updateDate": "2013-05-13T17:55:42+0200",
+            "users": Array [
+              Object {
+                "active": true,
+                "local": true,
+                "login": "assignee",
+                "name": "John Doe",
+              },
+              Object {
+                "active": true,
+                "local": true,
+                "login": "author",
+                "name": "John Doe",
+              },
+            ],
+          }
+        }
+        onStatusChange={[MockFunction]}
       />
     </div>
     <HotspotSnippetContainer
@@ -1095,17 +1374,8 @@ exports[`should render correctly: deleted assignee 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom"
+      className="display-flex-row huge-spacer-bottom"
     >
-      <span>
-        status
-        :
-      </span>
-      <span
-        className="badge little-spacer-left"
-      >
-        hotspot.status.FIXED
-      </span>
       <Connect(withCurrentUser(Assignee))
         hotspot={
           Object {
@@ -1207,6 +1477,108 @@ exports[`should render correctly: deleted assignee 1`] = `
           }
         }
         onAssigneeChange={[MockFunction]}
+      />
+      <Connect(withCurrentUser(Status))
+        hotspot={
+          Object {
+            "assignee": "assignee",
+            "assigneeUser": Object {
+              "active": false,
+              "local": true,
+              "login": "john.doe",
+              "name": "John Doe",
+            },
+            "author": "author",
+            "authorUser": Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+            "canChangeStatus": true,
+            "changelog": Array [],
+            "comment": Array [],
+            "component": Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "FIL",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+            "creationDate": "2013-05-13T17:55:41+0200",
+            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+            "line": 142,
+            "message": "'3' is a magic number.",
+            "project": Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            },
+            "resolution": "FIXED",
+            "rule": Object {
+              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+              "key": "squid:S2077",
+              "name": "That rule",
+              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+              "securityCategory": "sql-injection",
+              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+              "vulnerabilityProbability": "HIGH",
+            },
+            "status": "REVIEWED",
+            "textRange": Object {
+              "endLine": 142,
+              "endOffset": 83,
+              "startLine": 142,
+              "startOffset": 26,
+            },
+            "updateDate": "2013-05-13T17:55:42+0200",
+            "users": Array [
+              Object {
+                "active": true,
+                "local": true,
+                "login": "assignee",
+                "name": "John Doe",
+              },
+              Object {
+                "active": true,
+                "local": true,
+                "login": "author",
+                "name": "John Doe",
+              },
+            ],
+          }
+        }
+        onStatusChange={[MockFunction]}
       />
     </div>
     <HotspotSnippetContainer
@@ -1456,17 +1828,8 @@ exports[`should render correctly: unassigned 1`] = `
       </div>
     </div>
     <div
-      className="huge-spacer-bottom"
+      className="display-flex-row huge-spacer-bottom"
     >
-      <span>
-        status
-        :
-      </span>
-      <span
-        className="badge little-spacer-left"
-      >
-        hotspot.status.FIXED
-      </span>
       <Connect(withCurrentUser(Assignee))
         hotspot={
           Object {
@@ -1569,364 +1932,10 @@ exports[`should render correctly: unassigned 1`] = `
         }
         onAssigneeChange={[MockFunction]}
       />
-    </div>
-    <HotspotSnippetContainer
-      hotspot={
-        Object {
-          "assignee": undefined,
-          "assigneeUser": Object {
-            "active": true,
-            "local": true,
-            "login": "assignee",
-            "name": "John Doe",
-          },
-          "author": "author",
-          "authorUser": Object {
-            "active": true,
-            "local": true,
-            "login": "author",
-            "name": "John Doe",
-          },
-          "canChangeStatus": true,
-          "changelog": Array [],
-          "comment": Array [],
-          "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
-            "organization": "foo",
-            "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
-          },
-          "creationDate": "2013-05-13T17:55:41+0200",
-          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-          "line": 142,
-          "message": "'3' is a magic number.",
-          "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
-            "organization": "foo",
-            "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
-          },
-          "resolution": "FIXED",
-          "rule": Object {
-            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-            "key": "squid:S2077",
-            "name": "That rule",
-            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-            "securityCategory": "sql-injection",
-            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-            "vulnerabilityProbability": "HIGH",
-          },
-          "status": "REVIEWED",
-          "textRange": Object {
-            "endLine": 142,
-            "endOffset": 83,
-            "startLine": 142,
-            "startOffset": 26,
-          },
-          "updateDate": "2013-05-13T17:55:42+0200",
-          "users": Array [
-            Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-          ],
-        }
-      }
-    />
-    <HotspotViewerTabs
-      hotspot={
-        Object {
-          "assignee": undefined,
-          "assigneeUser": Object {
-            "active": true,
-            "local": true,
-            "login": "assignee",
-            "name": "John Doe",
-          },
-          "author": "author",
-          "authorUser": Object {
-            "active": true,
-            "local": true,
-            "login": "author",
-            "name": "John Doe",
-          },
-          "canChangeStatus": true,
-          "changelog": Array [],
-          "comment": Array [],
-          "component": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
-            "organization": "foo",
-            "qualifier": "FIL",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
-          },
-          "creationDate": "2013-05-13T17:55:41+0200",
-          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-          "line": 142,
-          "message": "'3' is a magic number.",
-          "project": Object {
-            "breadcrumbs": Array [],
-            "key": "my-project",
-            "name": "MyProject",
-            "organization": "foo",
-            "qualifier": "TRK",
-            "qualityGate": Object {
-              "isDefault": true,
-              "key": "30",
-              "name": "Sonar way",
-            },
-            "qualityProfiles": Array [
-              Object {
-                "deleted": false,
-                "key": "my-qp",
-                "language": "ts",
-                "name": "Sonar way",
-              },
-            ],
-            "tags": Array [],
-          },
-          "resolution": "FIXED",
-          "rule": Object {
-            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-            "key": "squid:S2077",
-            "name": "That rule",
-            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-            "securityCategory": "sql-injection",
-            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-            "vulnerabilityProbability": "HIGH",
-          },
-          "status": "REVIEWED",
-          "textRange": Object {
-            "endLine": 142,
-            "endOffset": 83,
-            "startLine": 142,
-            "startOffset": 26,
-          },
-          "updateDate": "2013-05-13T17:55:42+0200",
-          "users": Array [
-            Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-          ],
-        }
-      }
-      onUpdateHotspot={[MockFunction]}
-    />
-  </div>
-</DeferredSpinner>
-`;
-
-exports[`should render correctly: user logged in 1`] = `
-<DeferredSpinner
-  loading={false}
-  timeout={100}
->
-  <div
-    className="big-padded"
-  >
-    <div
-      className="big-spacer-bottom"
-    >
-      <div
-        className="display-flex-space-between"
-      >
-        <h1>
-          '3' is a magic number.
-        </h1>
-        <HotspotActions
-          hotspot={
-            Object {
-              "assignee": "assignee",
-              "assigneeUser": Object {
-                "active": true,
-                "local": true,
-                "login": "assignee",
-                "name": "John Doe",
-              },
-              "author": "author",
-              "authorUser": Object {
-                "active": true,
-                "local": true,
-                "login": "author",
-                "name": "John Doe",
-              },
-              "canChangeStatus": true,
-              "changelog": Array [],
-              "comment": Array [],
-              "component": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
-                "organization": "foo",
-                "qualifier": "FIL",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
-              },
-              "creationDate": "2013-05-13T17:55:41+0200",
-              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-              "line": 142,
-              "message": "'3' is a magic number.",
-              "project": Object {
-                "breadcrumbs": Array [],
-                "key": "my-project",
-                "name": "MyProject",
-                "organization": "foo",
-                "qualifier": "TRK",
-                "qualityGate": Object {
-                  "isDefault": true,
-                  "key": "30",
-                  "name": "Sonar way",
-                },
-                "qualityProfiles": Array [
-                  Object {
-                    "deleted": false,
-                    "key": "my-qp",
-                    "language": "ts",
-                    "name": "Sonar way",
-                  },
-                ],
-                "tags": Array [],
-              },
-              "resolution": "FIXED",
-              "rule": Object {
-                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-                "key": "squid:S2077",
-                "name": "That rule",
-                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-                "securityCategory": "sql-injection",
-                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-                "vulnerabilityProbability": "HIGH",
-              },
-              "status": "REVIEWED",
-              "textRange": Object {
-                "endLine": 142,
-                "endOffset": 83,
-                "startLine": 142,
-                "startOffset": 26,
-              },
-              "updateDate": "2013-05-13T17:55:42+0200",
-              "users": Array [
-                Object {
-                  "active": true,
-                  "local": true,
-                  "login": "assignee",
-                  "name": "John Doe",
-                },
-                Object {
-                  "active": true,
-                  "local": true,
-                  "login": "author",
-                  "name": "John Doe",
-                },
-              ],
-            }
-          }
-          onSubmit={[MockFunction]}
-        />
-      </div>
-      <div
-        className="text-muted"
-      >
-        <span>
-          category
-          :
-        </span>
-        <span
-          className="little-spacer-left"
-        >
-          SQL injection
-        </span>
-      </div>
-    </div>
-    <div
-      className="huge-spacer-bottom"
-    >
-      <span>
-        status
-        :
-      </span>
-      <span
-        className="badge little-spacer-left"
-      >
-        hotspot.status.FIXED
-      </span>
-      <Connect(withCurrentUser(Assignee))
+      <Connect(withCurrentUser(Status))
         hotspot={
           Object {
-            "assignee": "assignee",
+            "assignee": undefined,
             "assigneeUser": Object {
               "active": true,
               "local": true,
@@ -2023,13 +2032,13 @@ exports[`should render correctly: user logged in 1`] = `
             ],
           }
         }
-        onAssigneeChange={[MockFunction]}
+        onStatusChange={[MockFunction]}
       />
     </div>
     <HotspotSnippetContainer
       hotspot={
         Object {
-          "assignee": "assignee",
+          "assignee": undefined,
           "assigneeUser": Object {
             "active": true,
             "local": true,
@@ -2130,7 +2139,7 @@ exports[`should render correctly: user logged in 1`] = `
     <HotspotViewerTabs
       hotspot={
         Object {
-          "assignee": "assignee",
+          "assignee": undefined,
           "assigneeUser": Object {
             "active": true,
             "local": true,
