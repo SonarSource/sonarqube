@@ -77,7 +77,7 @@
 }
 
 .highlighted {
-  background-color: #b3d4ff;
+  background-color: var(--lightBlue);
   animation: highlightedFadeIn 0.3s forwards;
 }
 
@@ -87,6 +87,6 @@
   }
 
   to {
-    background-color: #b3d4ff;
+    background-color: var(--lightBlue);
   }
 }

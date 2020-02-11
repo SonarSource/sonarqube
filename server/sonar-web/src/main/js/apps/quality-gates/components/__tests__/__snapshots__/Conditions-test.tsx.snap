@@ -82,6 +82,7 @@ exports[`should render correctly 1`] = `
               "name": "qualitygate",
             }
           }
+          updated={false}
         />
         <Condition
           canEdit={false}
@@ -110,6 +111,7 @@ exports[`should render correctly 1`] = `
               "name": "qualitygate",
             }
           }
+          updated={false}
         />
       </tbody>
     </table>
@@ -136,6 +138,125 @@ exports[`should render correctly for no conditions 1`] = `
     className="big-spacer-top"
   >
     quality_gates.no_conditions
+  </div>
+</div>
+`;
+
+exports[`should render correctly with an updated condition 1`] = `
+<div
+  className="quality-gate-section"
+>
+  <header
+    className="display-flex-center spacer-bottom"
+  >
+    <h3>
+      quality_gates.conditions
+    </h3>
+    <DocTooltip
+      className="spacer-left"
+      doc={Promise {}}
+    />
+  </header>
+  <div
+    className="big-spacer-top"
+  >
+    <h4>
+      quality_gates.conditions.overall_code.long
+    </h4>
+    <p
+      className="spacer-top spacer-bottom"
+    >
+      quality_gates.conditions.overall_code.description
+    </p>
+    <table
+      className="data zebra"
+      data-test="quality-gates__conditions-overall"
+    >
+      <thead>
+        <tr>
+          <th
+            className="nowrap"
+            style={
+              Object {
+                "width": 300,
+              }
+            }
+          >
+            quality_gates.conditions.metric
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.operator
+          </th>
+          <th
+            className="nowrap"
+          >
+            quality_gates.conditions.value
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <Condition
+          canEdit={false}
+          condition={
+            Object {
+              "error": "10",
+              "id": 1,
+              "metric": "coverage",
+              "op": "LT",
+            }
+          }
+          key="1"
+          metric={
+            Object {
+              "id": "coverage",
+              "key": "coverage",
+              "name": "Coverage",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+          updated={true}
+        />
+        <Condition
+          canEdit={false}
+          condition={
+            Object {
+              "error": "10",
+              "id": 2,
+              "metric": "duplicated_lines",
+              "op": "LT",
+            }
+          }
+          key="2"
+          metric={
+            Object {
+              "id": "duplicated_lines",
+              "key": "duplicated_lines",
+              "name": "Duplicated_lines",
+              "type": "PERCENT",
+            }
+          }
+          onRemoveCondition={[MockFunction]}
+          onSaveCondition={[MockFunction]}
+          qualityGate={
+            Object {
+              "id": 1,
+              "name": "qualitygate",
+            }
+          }
+          updated={false}
+        />
+      </tbody>
+    </table>
   </div>
 </div>
 `;
@@ -222,6 +343,7 @@ exports[`should render correctly with new code conditions 1`] = `
               "name": "qualitygate",
             }
           }
+          updated={false}
         />
         <Condition
           canEdit={false}
@@ -250,6 +372,7 @@ exports[`should render correctly with new code conditions 1`] = `
               "name": "qualitygate",
             }
           }
+          updated={false}
         />
       </tbody>
     </table>
@@ -321,6 +444,7 @@ exports[`should render correctly with new code conditions 1`] = `
               "name": "qualitygate",
             }
           }
+          updated={false}
         />
         <Condition
           canEdit={false}
@@ -349,6 +473,7 @@ exports[`should render correctly with new code conditions 1`] = `
               "name": "qualitygate",
             }
           }
+          updated={false}
         />
       </tbody>
     </table>
@@ -457,6 +582,7 @@ exports[`should render the add conditions button and modal 1`] = `
               "name": "qualitygate",
             }
           }
+          updated={false}
         />
         <Condition
           canEdit={true}
@@ -485,6 +611,7 @@ exports[`should render the add conditions button and modal 1`] = `
               "name": "qualitygate",
             }
           }
+          updated={false}
         />
       </tbody>
     </table>

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import { DeleteButton, EditButton } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
@@ -38,6 +39,7 @@ interface Props {
   onRemoveCondition: (Condition: T.Condition) => void;
   onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
   qualityGate: T.QualityGate;
+  updated?: boolean;
 }
 
 interface State {
@@ -84,19 +86,15 @@ export default class Condition extends React.PureComponent<Props, State> {
   renderOperator() {
     // TODO can operator be missing?
     const { op = 'GT' } = this.props.condition;
-    return (
-      <span className="note">
-        {this.props.metric.type === 'RATING'
-          ? translate('quality_gates.operator', op, 'rating')
-          : translate('quality_gates.operator', op)}
-      </span>
-    );
+    return this.props.metric.type === 'RATING'
+      ? translate('quality_gates.operator', op, 'rating')
+      : translate('quality_gates.operator', op);
   }
 
   render() {
-    const { condition, canEdit, metric, organization, qualityGate } = this.props;
+    const { condition, canEdit, metric, organization, qualityGate, updated } = this.props;
     return (
-      <tr>
+      <tr className={classNames({ highlighted: updated })}>
         <td className="text-middle">
           {getLocalizedMetricNameNoDiffMetric(metric)}
           {metric.hidden && (

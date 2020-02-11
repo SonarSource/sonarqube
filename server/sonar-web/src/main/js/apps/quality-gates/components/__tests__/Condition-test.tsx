@@ -24,13 +24,9 @@ import { mockCondition, mockMetric } from '../../../../helpers/testMocks';
 import Condition from '../Condition';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render correctly with edit rights', () => {
-  const wrapper = shallowRender({ canEdit: true });
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ canEdit: true })).toMatchSnapshot('with edit rights');
+  expect(shallowRender({ updated: true })).toMatchSnapshot('updated');
 });
 
 it('should render the update modal correctly', () => {

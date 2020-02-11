@@ -40,6 +40,7 @@ interface Props {
   onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
   organization?: string;
   qualityGate: T.QualityGate;
+  updatedConditionId?: number;
 }
 
 const FORBIDDEN_METRIC_TYPES = ['DATA', 'DISTRIB', 'STRING', 'BOOL'];
@@ -58,7 +59,8 @@ export class Conditions extends React.PureComponent<Props> {
       canEdit,
       onRemoveCondition,
       onSaveCondition,
-      organization
+      organization,
+      updatedConditionId
     } = this.props;
     return (
       <table className="data zebra" data-test={`quality-gates__conditions-${scope}`}>
@@ -88,6 +90,7 @@ export class Conditions extends React.PureComponent<Props> {
               onSaveCondition={onSaveCondition}
               organization={organization}
               qualityGate={qualityGate}
+              updated={condition.id === updatedConditionId}
             />
           ))}
         </tbody>

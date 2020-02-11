@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
-<tr>
+exports[`should render correctly: default 1`] = `
+<tr
+  className=""
+>
   <td
     className="text-middle"
   >
@@ -10,11 +12,7 @@ exports[`should render correctly 1`] = `
   <td
     className="text-middle nowrap"
   >
-    <span
-      className="note"
-    >
-      quality_gates.operator.LT
-    </span>
+    quality_gates.operator.LT
   </td>
   <td
     className="text-middle nowrap"
@@ -24,8 +22,10 @@ exports[`should render correctly 1`] = `
 </tr>
 `;
 
-exports[`should render correctly with edit rights 1`] = `
-<tr>
+exports[`should render correctly: updated 1`] = `
+<tr
+  className="highlighted"
+>
   <td
     className="text-middle"
   >
@@ -34,11 +34,29 @@ exports[`should render correctly with edit rights 1`] = `
   <td
     className="text-middle nowrap"
   >
-    <span
-      className="note"
-    >
-      quality_gates.operator.LT
-    </span>
+    quality_gates.operator.LT
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    10.0%
+  </td>
+</tr>
+`;
+
+exports[`should render correctly: with edit rights 1`] = `
+<tr
+  className=""
+>
+  <td
+    className="text-middle"
+  >
+    Coverage
+  </td>
+  <td
+    className="text-middle nowrap"
+  >
+    quality_gates.operator.LT
   </td>
   <td
     className="text-middle nowrap"
@@ -65,7 +83,9 @@ exports[`should render correctly with edit rights 1`] = `
 `;
 
 exports[`should render the delete modal correctly 1`] = `
-<tr>
+<tr
+  className=""
+>
   <td
     className="text-middle"
   >
@@ -74,11 +94,7 @@ exports[`should render the delete modal correctly 1`] = `
   <td
     className="text-middle nowrap"
   >
-    <span
-      className="note"
-    >
-      quality_gates.operator.LT
-    </span>
+    quality_gates.operator.LT
   </td>
   <td
     className="text-middle nowrap"
@@ -122,7 +138,9 @@ exports[`should render the delete modal correctly 1`] = `
 `;
 
 exports[`should render the update modal correctly 1`] = `
-<tr>
+<tr
+  className=""
+>
   <td
     className="text-middle"
   >
@@ -131,11 +149,7 @@ exports[`should render the update modal correctly 1`] = `
   <td
     className="text-middle nowrap"
   >
-    <span
-      className="note"
-    >
-      quality_gates.operator.LT
-    </span>
+    quality_gates.operator.LT
   </td>
   <td
     className="text-middle nowrap"

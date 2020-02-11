@@ -31,10 +31,11 @@ export interface DetailsContentProps {
   onRemoveCondition: (Condition: T.Condition) => void;
   onSaveCondition: (newCondition: T.Condition, oldCondition: T.Condition) => void;
   qualityGate: T.QualityGate;
+  updatedConditionId?: number;
 }
 
 export function DetailsContent(props: DetailsContentProps) {
-  const { isDefault, metrics, organization, qualityGate } = props;
+  const { isDefault, metrics, organization, qualityGate, updatedConditionId } = props;
   const conditions = qualityGate.conditions || [];
   const actions = qualityGate.actions || ({} as any);
 
@@ -49,6 +50,7 @@ export function DetailsContent(props: DetailsContentProps) {
         onSaveCondition={props.onSaveCondition}
         organization={organization}
         qualityGate={qualityGate}
+        updatedConditionId={updatedConditionId}
       />
 
       <div className="quality-gate-section" id="quality-gate-projects">

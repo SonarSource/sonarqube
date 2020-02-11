@@ -28,6 +28,10 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
+it('should render correctly with an updated condition', () => {
+  expect(shallowRender({ updatedConditionId: mockCondition().id })).toMatchSnapshot();
+});
+
 it('should render correctly with new code conditions', () => {
   const wrapper = shallowRender({
     conditions: [
