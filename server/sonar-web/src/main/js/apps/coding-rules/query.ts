@@ -156,6 +156,10 @@ export function getOpen(query: T.RawQuery) {
   return query.open;
 }
 
+export function hasRuleKey(query: T.RawQuery) {
+  return Boolean(query.rule_key);
+}
+
 function parseAsInheritance(value?: string): T.RuleInheritance | undefined {
   if (value === 'INHERITED' || value === 'NONE' || value === 'OVERRIDES') {
     return value;

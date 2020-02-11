@@ -17,33 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
+import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { App } from '../App';
+import { getRulesApp } from '../../../../api/rules';
+import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
+import { isSonarCloud } from '../../../../helpers/system';
 import {
   mockAppState,
   mockCurrentUser,
   mockLocation,
   mockOrganization,
-  mockRouter
+  mockRouter,
+  mockRule
 } from '../../../../helpers/testMocks';
-import { getRulesApp } from '../../../../api/rules';
-import { isSonarCloud } from '../../../../helpers/system';
+import { App } from '../App';
 
-jest.mock('../../../../api/rules', () => ({
-  getRulesApp: jest.fn().mockResolvedValue({ canWrite: true, repositories: [] }),
-  searchRules: jest.fn().mockResolvedValue({
-    actives: [],
-    rawActives: [],
-    facets: [],
-    rawFacets: [],
-    p: 0,
-    ps: 100,
-    rules: [],
-    total: 0
-  })
-}));
+jest.mock('../../../../components/common/ScreenPositionHelper');
+
+jest.mock('../../../../api/rules', () => {
+  const { mockRule } = jest.requireActual('../../../../helpers/testMocks');
+  return {
+    getRulesApp: jest.fn().mockResolvedValue({ canWrite: true, repositories: [] }),
+    searchRules: jest.fn().mockResolvedValue({
+      actives: [],
+      rawActives: [],
+      facets: [],
+      rawFacets: [],
+      p: 0,
+      ps: 100,
+      rules: [mockRule(), mockRule()],
+      total: 0
+    })
+  };
+});
 
 jest.mock('../../../../api/quality-profiles', () => ({
   searchQualityProfiles: jest.fn().mockResolvedValue({ profiles: [] })
@@ -55,10 +62,22 @@ jest.mock('../../../../helpers/system', () => ({
 
 it('should render correctly', async () => {
   const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('loading');
 
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('loaded');
+  expect(wrapper.find(ScreenPositionHelper).dive()).toMatchSnapshot(
+    'loaded (ScreenPositionHelper)'
+  );
+
+  wrapper.setState({ openRule: mockRule() });
+  expect(wrapper).toMatchSnapshot('open rule');
+  expect(wrapper.find(ScreenPositionHelper).dive()).toMatchSnapshot(
+    'open rule (ScreenPositionHelper)'
+  );
+
+  wrapper.setState({ usingPermalink: true });
+  expect(wrapper).toMatchSnapshot('using permalink');
 });
 
 describe('renderBulkButton', () => {

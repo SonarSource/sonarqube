@@ -26,16 +26,7 @@ import { isSonarCloud } from '../../../../helpers/system';
 import getPages from '../../pages';
 import App from '../App';
 
-jest.mock('../../../../components/common/ScreenPositionHelper', () => ({
-  default: class ScreenPositionHelper extends React.Component<{
-    children: (pos: { top: number }) => React.ReactNode;
-  }> {
-    static displayName = 'ScreenPositionHelper';
-    render() {
-      return this.props.children({ top: 0 });
-    }
-  }
-}));
+jest.mock('../../../../components/common/ScreenPositionHelper');
 
 jest.mock('../../../../helpers/system', () => ({
   isSonarCloud: jest.fn().mockReturnValue(false)
