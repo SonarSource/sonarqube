@@ -89,6 +89,21 @@ public class HotspotsService extends BaseService {
   /**
    *
    * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/hotspots/delete_comment">Further information about this action online (including a response example)</a>
+   * @since 8.2
+   */
+  public void deleteComment(DeleteCommentRequest request) {
+    call(
+      new PostRequest(path("delete_comment"))
+        .setParam("comment", request.getComment())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/hotspots/search">Further information about this action online (including a response example)</a>
    * @since 8.1

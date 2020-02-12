@@ -50,6 +50,11 @@ public class HotspotWsSupport {
     return userSession.checkLoggedIn().getUuid();
   }
 
+  ComponentDto loadAndCheckProject(DbSession dbSession, String hotspotKey) {
+    IssueDto hotspot = loadHotspot(dbSession, hotspotKey);
+    return loadAndCheckProject(dbSession, hotspot, UserRole.USER);
+  }
+
   IssueDto loadHotspot(DbSession dbSession, String hotspotKey) {
     return dbClient.issueDao().selectByKey(dbSession, hotspotKey)
       .filter(t -> t.getType() == RuleType.SECURITY_HOTSPOT.getDbConstant())

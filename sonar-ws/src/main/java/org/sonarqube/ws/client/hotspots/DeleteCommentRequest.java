@@ -17,20 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.hotspot.ws;
+package org.sonarqube.ws.client.hotspots;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import javax.annotation.Generated;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+/**
+ * This is part of the internal API.
+ * This is a POST request.
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/hotspots/delete_comment">Further information about this action online (including a response example)</a>
+ * @since 8.2
+ */
+@Generated("sonar-ws-generator")
+public class DeleteCommentRequest {
 
-public class HotspotsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new HotspotsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 9);
+  private String comment;
+
+  /**
+   * This is a mandatory parameter.
+   * Example value: "AU-Tpxb--iU5OvuD2FLy"
+   */
+  public DeleteCommentRequest setComment(String comment) {
+    this.comment = comment;
+    return this;
   }
 
+  public String getComment() {
+    return comment;
+  }
 }

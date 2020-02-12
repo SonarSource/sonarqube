@@ -32,6 +32,7 @@ public class HotspotsWsModule extends Module {
       ShowAction.class,
       ChangeStatusAction.class,
       AddCommentAction.class,
+      DeleteCommentAction.class,
       HotspotsWs.class);
   }
 }
