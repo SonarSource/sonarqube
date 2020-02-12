@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
   timeout={100}
 >
   <div
-    className="big-padded"
+    className="big-padded hotspot-content"
   >
     <div
       className="huge-spacer-bottom display-flex-space-between"
@@ -16,16 +16,30 @@ exports[`should render correctly 1`] = `
       >
         '3' is a magic number.
       </strong>
-      <ClipboardButton
-        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+      <div
+        className="display-flex-row flex-0"
       >
-        <LinkIcon
-          className="spacer-right"
-        />
-        <span>
-          hotspots.get_permalink
-        </span>
-      </ClipboardButton>
+        <div
+          className="dropdown spacer-right flex-1-0-auto"
+        >
+          <Button
+            onClick={[MockFunction]}
+          >
+            hotspots.comment.open
+          </Button>
+        </div>
+        <ClipboardButton
+          className="flex-1-0-auto"
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
+      </div>
     </div>
     <div
       className="huge-spacer-bottom display-flex-row"
@@ -491,7 +505,121 @@ exports[`should render correctly 1`] = `
           ],
         }
       }
-      onUpdateHotspot={[MockFunction]}
+    />
+    <HotspotReviewHistoryAndComments
+      commentTextRef={
+        Object {
+          "current": null,
+        }
+      }
+      commentVisible={false}
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "FIL",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+      onCloseComment={[MockFunction]}
+      onCommentUpdate={[MockFunction]}
+      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -503,7 +631,7 @@ exports[`should render correctly: anonymous user 1`] = `
   timeout={100}
 >
   <div
-    className="big-padded"
+    className="big-padded hotspot-content"
   >
     <div
       className="huge-spacer-bottom display-flex-space-between"
@@ -513,16 +641,30 @@ exports[`should render correctly: anonymous user 1`] = `
       >
         '3' is a magic number.
       </strong>
-      <ClipboardButton
-        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+      <div
+        className="display-flex-row flex-0"
       >
-        <LinkIcon
-          className="spacer-right"
-        />
-        <span>
-          hotspots.get_permalink
-        </span>
-      </ClipboardButton>
+        <div
+          className="dropdown spacer-right flex-1-0-auto"
+        >
+          <Button
+            onClick={[MockFunction]}
+          >
+            hotspots.comment.open
+          </Button>
+        </div>
+        <ClipboardButton
+          className="flex-1-0-auto"
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
+      </div>
     </div>
     <div
       className="huge-spacer-bottom display-flex-row"
@@ -988,7 +1130,121 @@ exports[`should render correctly: anonymous user 1`] = `
           ],
         }
       }
-      onUpdateHotspot={[MockFunction]}
+    />
+    <HotspotReviewHistoryAndComments
+      commentTextRef={
+        Object {
+          "current": null,
+        }
+      }
+      commentVisible={false}
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "FIL",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+      onCloseComment={[MockFunction]}
+      onCommentUpdate={[MockFunction]}
+      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -1000,7 +1256,7 @@ exports[`should render correctly: assignee without name 1`] = `
   timeout={100}
 >
   <div
-    className="big-padded"
+    className="big-padded hotspot-content"
   >
     <div
       className="huge-spacer-bottom display-flex-space-between"
@@ -1010,16 +1266,30 @@ exports[`should render correctly: assignee without name 1`] = `
       >
         '3' is a magic number.
       </strong>
-      <ClipboardButton
-        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+      <div
+        className="display-flex-row flex-0"
       >
-        <LinkIcon
-          className="spacer-right"
-        />
-        <span>
-          hotspots.get_permalink
-        </span>
-      </ClipboardButton>
+        <div
+          className="dropdown spacer-right flex-1-0-auto"
+        >
+          <Button
+            onClick={[MockFunction]}
+          >
+            hotspots.comment.open
+          </Button>
+        </div>
+        <ClipboardButton
+          className="flex-1-0-auto"
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
+      </div>
     </div>
     <div
       className="huge-spacer-bottom display-flex-row"
@@ -1485,7 +1755,121 @@ exports[`should render correctly: assignee without name 1`] = `
           ],
         }
       }
-      onUpdateHotspot={[MockFunction]}
+    />
+    <HotspotReviewHistoryAndComments
+      commentTextRef={
+        Object {
+          "current": null,
+        }
+      }
+      commentVisible={false}
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee_login",
+            "name": undefined,
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "FIL",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+      onCloseComment={[MockFunction]}
+      onCommentUpdate={[MockFunction]}
+      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -1497,7 +1881,7 @@ exports[`should render correctly: deleted assignee 1`] = `
   timeout={100}
 >
   <div
-    className="big-padded"
+    className="big-padded hotspot-content"
   >
     <div
       className="huge-spacer-bottom display-flex-space-between"
@@ -1507,16 +1891,30 @@ exports[`should render correctly: deleted assignee 1`] = `
       >
         '3' is a magic number.
       </strong>
-      <ClipboardButton
-        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+      <div
+        className="display-flex-row flex-0"
       >
-        <LinkIcon
-          className="spacer-right"
-        />
-        <span>
-          hotspots.get_permalink
-        </span>
-      </ClipboardButton>
+        <div
+          className="dropdown spacer-right flex-1-0-auto"
+        >
+          <Button
+            onClick={[MockFunction]}
+          >
+            hotspots.comment.open
+          </Button>
+        </div>
+        <ClipboardButton
+          className="flex-1-0-auto"
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
+      </div>
     </div>
     <div
       className="huge-spacer-bottom display-flex-row"
@@ -1982,7 +2380,121 @@ exports[`should render correctly: deleted assignee 1`] = `
           ],
         }
       }
-      onUpdateHotspot={[MockFunction]}
+    />
+    <HotspotReviewHistoryAndComments
+      commentTextRef={
+        Object {
+          "current": null,
+        }
+      }
+      commentVisible={false}
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+      hotspot={
+        Object {
+          "assignee": "assignee",
+          "assigneeUser": Object {
+            "active": false,
+            "local": true,
+            "login": "john.doe",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "FIL",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+      onCloseComment={[MockFunction]}
+      onCommentUpdate={[MockFunction]}
+      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>
@@ -2001,7 +2513,7 @@ exports[`should render correctly: unassigned 1`] = `
   timeout={100}
 >
   <div
-    className="big-padded"
+    className="big-padded hotspot-content"
   >
     <div
       className="huge-spacer-bottom display-flex-space-between"
@@ -2011,16 +2523,30 @@ exports[`should render correctly: unassigned 1`] = `
       >
         '3' is a magic number.
       </strong>
-      <ClipboardButton
-        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+      <div
+        className="display-flex-row flex-0"
       >
-        <LinkIcon
-          className="spacer-right"
-        />
-        <span>
-          hotspots.get_permalink
-        </span>
-      </ClipboardButton>
+        <div
+          className="dropdown spacer-right flex-1-0-auto"
+        >
+          <Button
+            onClick={[MockFunction]}
+          >
+            hotspots.comment.open
+          </Button>
+        </div>
+        <ClipboardButton
+          className="flex-1-0-auto"
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
+      </div>
     </div>
     <div
       className="huge-spacer-bottom display-flex-row"
@@ -2486,7 +3012,121 @@ exports[`should render correctly: unassigned 1`] = `
           ],
         }
       }
-      onUpdateHotspot={[MockFunction]}
+    />
+    <HotspotReviewHistoryAndComments
+      commentTextRef={
+        Object {
+          "current": null,
+        }
+      }
+      commentVisible={false}
+      currentUser={
+        Object {
+          "isLoggedIn": false,
+        }
+      }
+      hotspot={
+        Object {
+          "assignee": undefined,
+          "assigneeUser": Object {
+            "active": true,
+            "local": true,
+            "login": "assignee",
+            "name": "John Doe",
+          },
+          "author": "author",
+          "authorUser": Object {
+            "active": true,
+            "local": true,
+            "login": "author",
+            "name": "John Doe",
+          },
+          "canChangeStatus": true,
+          "changelog": Array [],
+          "comment": Array [],
+          "component": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "FIL",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "creationDate": "2013-05-13T17:55:41+0200",
+          "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+          "line": 142,
+          "message": "'3' is a magic number.",
+          "project": Object {
+            "breadcrumbs": Array [],
+            "key": "my-project",
+            "name": "MyProject",
+            "organization": "foo",
+            "qualifier": "TRK",
+            "qualityGate": Object {
+              "isDefault": true,
+              "key": "30",
+              "name": "Sonar way",
+            },
+            "qualityProfiles": Array [
+              Object {
+                "deleted": false,
+                "key": "my-qp",
+                "language": "ts",
+                "name": "Sonar way",
+              },
+            ],
+            "tags": Array [],
+          },
+          "resolution": "FIXED",
+          "rule": Object {
+            "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+            "key": "squid:S2077",
+            "name": "That rule",
+            "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+            "securityCategory": "sql-injection",
+            "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+            "vulnerabilityProbability": "HIGH",
+          },
+          "status": "REVIEWED",
+          "textRange": Object {
+            "endLine": 142,
+            "endOffset": 83,
+            "startLine": 142,
+            "startOffset": 26,
+          },
+          "updateDate": "2013-05-13T17:55:42+0200",
+          "users": Array [
+            Object {
+              "active": true,
+              "local": true,
+              "login": "assignee",
+              "name": "John Doe",
+            },
+            Object {
+              "active": true,
+              "local": true,
+              "login": "author",
+              "name": "John Doe",
+            },
+          ],
+        }
+      }
+      onCloseComment={[MockFunction]}
+      onCommentUpdate={[MockFunction]}
+      onOpenComment={[MockFunction]}
     />
   </div>
 </DeferredSpinner>

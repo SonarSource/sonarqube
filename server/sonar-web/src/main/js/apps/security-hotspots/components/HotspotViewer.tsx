@@ -19,6 +19,7 @@
  */
 
 import * as React from 'react';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
@@ -35,20 +36,33 @@ interface Props {
 interface State {
   hotspot?: Hotspot;
   loading: boolean;
+  commentVisible: boolean;
 }
 
 export default class HotspotViewer extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { loading: false };
+  state: State;
+  commentTextRef: React.RefObject<HTMLTextAreaElement>;
+  parentScrollRef: React.RefObject<HTMLDivElement>;
+
+  constructor(props: Props) {
+    super(props);
+    this.commentTextRef = React.createRef<HTMLTextAreaElement>();
+    this.parentScrollRef = React.createRef<HTMLDivElement>();
+    this.state = { loading: false, commentVisible: false };
+  }
 
   componentDidMount() {
     this.mounted = true;
     this.fetchHotspot();
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (prevProps.hotspotKey !== this.props.hotspotKey) {
       this.fetchHotspot();
+    }
+    if (this.commentTextRef.current && !prevState.commentVisible && this.state.commentVisible) {
+      this.commentTextRef.current.focus({ preventScroll: true });
     }
   }
 
@@ -76,17 +90,40 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     });
   };
 
+  handleOpenComment = () => {
+    this.setState({ commentVisible: true });
+    if (this.commentTextRef.current) {
+      // Edge case when the comment is already open and unfocus.
+      this.commentTextRef.current.focus({ preventScroll: true });
+    }
+    if (this.commentTextRef.current && this.parentScrollRef.current) {
+      scrollToElement(this.commentTextRef.current, {
+        parent: this.parentScrollRef.current,
+        bottomOffset: 100
+      });
+    }
+  };
+
+  handleCloseComment = () => {
+    this.setState({ commentVisible: false });
+  };
+
   render() {
     const { branchLike, component, securityCategories } = this.props;
-    const { hotspot, loading } = this.state;
+    const { hotspot, loading, commentVisible } = this.state;
 
     return (
       <HotspotViewerRenderer
         branchLike={branchLike}
         component={component}
+        commentTextRef={this.commentTextRef}
+        commentVisible={commentVisible}
         hotspot={hotspot}
         loading={loading}
+        onCloseComment={this.handleCloseComment}
+        onOpenComment={this.handleOpenComment}
         onUpdateHotspot={this.handleHotspotUpdate}
+        parentScrollRef={this.parentScrollRef}
         securityCategories={securityCategories}
       />
     );

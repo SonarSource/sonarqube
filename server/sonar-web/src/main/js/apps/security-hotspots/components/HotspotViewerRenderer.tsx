@@ -19,16 +19,20 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { ClipboardButton } from 'sonar-ui-common/components/controls/clipboard';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
+import { isLoggedIn } from '../../../helpers/users';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import Assignee from './assignee/Assignee';
+import HotspotReviewHistoryAndComments from './HotspotReviewHistoryAndComments';
 import HotspotSnippetContainer from './HotspotSnippetContainer';
 import './HotspotViewer.css';
 import HotspotViewerTabs from './HotspotViewerTabs';
@@ -37,14 +41,30 @@ import Status from './status/Status';
 export interface HotspotViewerRendererProps {
   branchLike?: BranchLike;
   component: T.Component;
+  currentUser: T.CurrentUser;
   hotspot?: Hotspot;
   loading: boolean;
+  commentVisible: boolean;
+  commentTextRef: React.RefObject<HTMLTextAreaElement>;
+  onOpenComment: () => void;
+  onCloseComment: () => void;
   onUpdateHotspot: () => Promise<void>;
+  parentScrollRef: React.RefObject<HTMLDivElement>;
   securityCategories: T.StandardSecurityCategories;
 }
 
-export default function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
-  const { branchLike, component, hotspot, loading, securityCategories } = props;
+export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
+  const {
+    branchLike,
+    component,
+    currentUser,
+    hotspot,
+    loading,
+    securityCategories,
+    commentTextRef,
+    commentVisible,
+    parentScrollRef
+  } = props;
 
   const permalink = getPathUrlAsString(
     getComponentSecurityHotspotsUrl(component.key, {
@@ -57,13 +77,22 @@ export default function HotspotViewerRenderer(props: HotspotViewerRendererProps)
   return (
     <DeferredSpinner loading={loading}>
       {hotspot && (
-        <div className="big-padded">
+        <div className="big-padded hotspot-content" ref={parentScrollRef}>
           <div className="huge-spacer-bottom display-flex-space-between">
             <strong className="big big-spacer-right">{hotspot.message}</strong>
-            <ClipboardButton copyValue={permalink}>
-              <LinkIcon className="spacer-right" />
-              <span>{translate('hotspots.get_permalink')}</span>
-            </ClipboardButton>
+            <div className="display-flex-row flex-0">
+              {isLoggedIn(currentUser) && (
+                <div className="dropdown spacer-right flex-1-0-auto">
+                  <Button onClick={props.onOpenComment}>
+                    {translate('hotspots.comment.open')}
+                  </Button>
+                </div>
+              )}
+              <ClipboardButton className="flex-1-0-auto" copyValue={permalink}>
+                <LinkIcon className="spacer-right" />
+                <span>{translate('hotspots.get_permalink')}</span>
+              </ClipboardButton>
+            </div>
           </div>
 
           <div className="huge-spacer-bottom display-flex-row">
@@ -97,9 +126,20 @@ export default function HotspotViewerRenderer(props: HotspotViewerRendererProps)
           </div>
 
           <HotspotSnippetContainer branchLike={branchLike} hotspot={hotspot} />
-          <HotspotViewerTabs hotspot={hotspot} onUpdateHotspot={props.onUpdateHotspot} />
+          <HotspotViewerTabs hotspot={hotspot} />
+          <HotspotReviewHistoryAndComments
+            commentTextRef={commentTextRef}
+            commentVisible={commentVisible}
+            currentUser={currentUser}
+            hotspot={hotspot}
+            onCloseComment={props.onCloseComment}
+            onCommentUpdate={props.onUpdateHotspot}
+            onOpenComment={props.onOpenComment}
+          />
         </div>
       )}
     </DeferredSpinner>
   );
 }
+
+export default withCurrentUser(HotspotViewerRenderer);

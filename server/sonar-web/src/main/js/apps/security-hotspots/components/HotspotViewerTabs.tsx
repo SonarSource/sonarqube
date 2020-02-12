@@ -23,12 +23,9 @@ import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import Tab from 'sonar-ui-common/components/controls/Tabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Hotspot } from '../../../types/security-hotspots';
-import { getHotspotReviewHistory } from '../utils';
-import HotspotViewerReviewHistoryTab from './HotspotViewerReviewHistoryTab';
 
 interface Props {
   hotspot: Hotspot;
-  onUpdateHotspot: () => void;
 }
 
 interface State {
@@ -39,14 +36,13 @@ interface State {
 interface Tab {
   key: TabKeys;
   label: React.ReactNode;
-  content: React.ReactNode;
+  content: string;
 }
 
 export enum TabKeys {
   RiskDescription = 'risk',
   VulnerabilityDescription = 'vulnerability',
-  FixRecommendation = 'fix',
-  ReviewHistory = 'review'
+  FixRecommendation = 'fix'
 }
 
 export default class HotspotViewerTabs extends React.PureComponent<Props, State> {
@@ -77,7 +73,6 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
 
   computeTabs() {
     const { hotspot } = this.props;
-    const hotspotReviewHistory = getHotspotReviewHistory(hotspot);
     return [
       {
         key: TabKeys.RiskDescription,
@@ -93,26 +88,6 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
         key: TabKeys.FixRecommendation,
         label: translate('hotspots.tabs.fix_recommendations'),
         content: hotspot.rule.fixRecommendations || ''
-      },
-      {
-        key: TabKeys.ReviewHistory,
-        label: (
-          <>
-            <span>{translate('hotspots.tabs.review_history')}</span>
-            {hotspotReviewHistory.functionalCount > 0 && (
-              <span className="counter-badge spacer-left">
-                {hotspotReviewHistory.functionalCount}
-              </span>
-            )}
-          </>
-        ),
-        content: hotspotReviewHistory.history.length > 0 && (
-          <HotspotViewerReviewHistoryTab
-            history={hotspotReviewHistory.history}
-            hotspot={hotspot}
-            onUpdateHotspot={this.props.onUpdateHotspot}
-          />
-        )
       }
     ].filter(tab => Boolean(tab.content));
   }
@@ -127,14 +102,10 @@ export default class HotspotViewerTabs extends React.PureComponent<Props, State>
       <>
         <BoxedTabs onSelect={this.handleSelectTabs} selected={currentTab.key} tabs={tabs} />
         <div className="bordered huge-spacer-bottom">
-          {typeof currentTab.content === 'string' ? (
-            <div
-              className="markdown big-padded"
-              dangerouslySetInnerHTML={{ __html: sanitize(currentTab.content) }}
-            />
-          ) : (
-            <>{currentTab.content}</>
-          )}
+          <div
+            className="markdown big-padded"
+            dangerouslySetInnerHTML={{ __html: sanitize(currentTab.content) }}
+          />
         </div>
       </>
     );

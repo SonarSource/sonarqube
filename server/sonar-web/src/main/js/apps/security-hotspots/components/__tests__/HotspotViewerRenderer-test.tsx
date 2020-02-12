@@ -21,8 +21,10 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { mockComponent, mockUser } from '../../../../helpers/testMocks';
-import HotspotViewerRenderer, { HotspotViewerRendererProps } from '../HotspotViewerRenderer';
+import { mockComponent, mockCurrentUser, mockUser } from '../../../../helpers/testMocks';
+import { HotspotViewerRenderer, HotspotViewerRendererProps } from '../HotspotViewerRenderer';
+
+jest.mock('../../../../helpers/users', () => ({ isLoggedIn: jest.fn(() => true) }));
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
@@ -49,9 +51,15 @@ function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
     <HotspotViewerRenderer
       branchLike={mockBranch()}
       component={mockComponent()}
+      commentTextRef={React.createRef()}
+      commentVisible={false}
+      currentUser={mockCurrentUser()}
       hotspot={mockHotspot()}
       loading={false}
+      onCloseComment={jest.fn()}
+      onOpenComment={jest.fn()}
       onUpdateHotspot={jest.fn()}
+      parentScrollRef={React.createRef()}
       securityCategories={{ 'sql-injection': { title: 'SQL injection' } }}
       {...props}
     />

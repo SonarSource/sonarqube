@@ -22,7 +22,6 @@ import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import { mockHotspot, mockHotspotRule } from '../../../../helpers/mocks/security-hotspots';
 import { mockUser } from '../../../../helpers/testMocks';
-import HotspotViewerReviewHistoryTab from '../HotspotViewerReviewHistoryTab';
 import HotspotViewerTabs, { TabKeys } from '../HotspotViewerTabs';
 
 it('should render correctly', () => {
@@ -36,9 +35,6 @@ it('should render correctly', () => {
 
   onSelect(TabKeys.FixRecommendation);
   expect(wrapper).toMatchSnapshot('fix');
-
-  onSelect(TabKeys.ReviewHistory);
-  expect(wrapper).toMatchSnapshot('review');
 
   expect(
     shallowRender({
@@ -88,31 +84,16 @@ it('should filter empty tab', () => {
   ).toBe(count - 1);
 });
 
-it('should propagate onHotspotUpdate correctly', () => {
-  const onUpdateHotspot = jest.fn();
-  const wrapper = shallowRender({ onUpdateHotspot });
-  const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: TabKeys) => void;
-
-  onSelect(TabKeys.ReviewHistory);
-  wrapper
-    .find(HotspotViewerReviewHistoryTab)
-    .props()
-    .onUpdateHotspot();
-  expect(onUpdateHotspot).toHaveBeenCalled();
-});
-
 it('should select first tab on hotspot update', () => {
   const wrapper = shallowRender();
   const onSelect = wrapper.find(BoxedTabs).prop('onSelect') as (tab: TabKeys) => void;
 
-  onSelect(TabKeys.ReviewHistory);
-  expect(wrapper.state().currentTab.key).toBe(TabKeys.ReviewHistory);
+  onSelect(TabKeys.VulnerabilityDescription);
+  expect(wrapper.state().currentTab.key).toBe(TabKeys.VulnerabilityDescription);
   wrapper.setProps({ hotspot: mockHotspot({ key: 'new_key' }) });
   expect(wrapper.state().currentTab.key).toBe(TabKeys.RiskDescription);
 });
 
 function shallowRender(props?: Partial<HotspotViewerTabs['props']>) {
-  return shallow<HotspotViewerTabs>(
-    <HotspotViewerTabs hotspot={mockHotspot()} onUpdateHotspot={jest.fn()} {...props} />
-  );
+  return shallow<HotspotViewerTabs>(<HotspotViewerTabs hotspot={mockHotspot()} {...props} />);
 }

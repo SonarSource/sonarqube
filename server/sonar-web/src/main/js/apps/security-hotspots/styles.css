@@ -48,6 +48,17 @@
 
 #security_hotspots .main {
   flex: 1 1 auto;
-  overflow-y: auto;
   background-color: white;
+  /* Force flex to take parent width. */
+  overflow-x: auto;
+}
+
+#security_hotspots .main .hotspot-content {
+  overflow-y: auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.invisible {
+  visibility: hidden;
 }

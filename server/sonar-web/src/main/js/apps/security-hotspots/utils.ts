@@ -81,14 +81,8 @@ export function constructSourceViewerFile(
   };
 }
 
-export function getHotspotReviewHistory(
-  hotspot: Hotspot
-): {
-  history: ReviewHistoryElement[];
-  functionalCount: number;
-} {
+export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[] {
   const history: ReviewHistoryElement[] = [];
-  let functionalCount = 0;
 
   if (hotspot.creationDate) {
     history.push({
@@ -102,7 +96,6 @@ export function getHotspotReviewHistory(
   }
 
   if (hotspot.changelog && hotspot.changelog.length > 0) {
-    functionalCount += hotspot.changelog.length;
     history.push(
       ...hotspot.changelog.map(log => ({
         type: ReviewHistoryType.Diff,
@@ -118,7 +111,6 @@ export function getHotspotReviewHistory(
   }
 
   if (hotspot.comment && hotspot.comment.length > 0) {
-    functionalCount += hotspot.comment.length;
     history.push(
       ...hotspot.comment.map(comment => ({
         type: ReviewHistoryType.Comment,
@@ -132,10 +124,7 @@ export function getHotspotReviewHistory(
     );
   }
 
-  return {
-    history: sortBy(history, elt => elt.date),
-    functionalCount
-  };
+  return sortBy(history, elt => elt.date);
 }
 
 const STATUS_AND_RESOLUTION_TO_STATUS_OPTION = {

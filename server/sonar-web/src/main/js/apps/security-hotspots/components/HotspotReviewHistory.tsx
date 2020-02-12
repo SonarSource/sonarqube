@@ -17,83 +17,76 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+import * as classNames from 'classnames';
 import { sanitize } from 'dompurify';
 import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../../../components/issue/components/IssueChangelogDiff';
 import Avatar from '../../../components/ui/Avatar';
-import { Hotspot, ReviewHistoryElement, ReviewHistoryType } from '../../../types/security-hotspots';
-import HotspotViewerReviewHistoryTabCommentBox from './HotspotViewerReviewHistoryTabCommentBox';
+import { Hotspot, ReviewHistoryType } from '../../../types/security-hotspots';
+import { getHotspotReviewHistory } from '../utils';
 
-export interface HotspotViewerReviewHistoryTabProps {
-  history: ReviewHistoryElement[];
+export interface HotspotReviewHistoryProps {
   hotspot: Hotspot;
-  onUpdateHotspot: () => void;
 }
 
-export default function HotspotViewerReviewHistoryTab(props: HotspotViewerReviewHistoryTabProps) {
-  const { history, hotspot } = props;
+export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
+  const reviewHistory = getHotspotReviewHistory(props.hotspot);
 
   return (
-    <div className="padded">
-      {history.map((elt, historyIndex) => (
-        <React.Fragment key={historyIndex}>
-          {historyIndex > 0 && <hr />}
-          <div className="padded">
+    <>
+      {reviewHistory.map((historyElt, historyIndex) => {
+        const { user, type, diffs, date, html } = historyElt;
+        return (
+          <div
+            className={classNames('padded', { 'bordered-top': historyIndex > 0 })}
+            key={historyIndex}>
             <div className="display-flex-center">
-              {elt.user.name && (
+              {user.name && (
                 <>
                   <Avatar
                     className="little-spacer-right"
-                    hash={elt.user.avatar}
-                    name={elt.user.name}
+                    hash={user.avatar}
+                    name={user.name}
                     size={20}
                   />
                   <strong>
-                    {elt.user.active
-                      ? elt.user.name
-                      : translateWithParameters('user.x_deleted', elt.user.name)}
+                    {user.active ? user.name : translateWithParameters('user.x_deleted', user.name)}
                   </strong>
-                  {elt.type === ReviewHistoryType.Creation && (
+                  {type === ReviewHistoryType.Creation && (
                     <span className="little-spacer-left">
-                      {translate('hotspots.tabs.review_history.created')}
+                      {translate('hotspots.review_history.created')}
                     </span>
                   )}
-                  {elt.type === ReviewHistoryType.Comment && (
+                  {type === ReviewHistoryType.Comment && (
                     <span className="little-spacer-left">
-                      {translate('hotspots.tabs.review_history.comment.added')}
+                      {translate('hotspots.review_history.comment_added')}
                     </span>
                   )}
                   <span className="little-spacer-left little-spacer-right">-</span>
                 </>
               )}
-              <DateTimeFormatter date={elt.date} />
+              <DateTimeFormatter date={date} />
             </div>
 
-            {elt.type === ReviewHistoryType.Diff && elt.diffs && (
+            {type === ReviewHistoryType.Diff && diffs && (
               <div className="spacer-top">
-                {elt.diffs.map((diff, diffIndex) => (
+                {diffs.map((diff, diffIndex) => (
                   <IssueChangelogDiff diff={diff} key={diffIndex} />
                 ))}
               </div>
             )}
 
-            {elt.type === ReviewHistoryType.Comment && elt.html && (
+            {type === ReviewHistoryType.Comment && html && (
               <div
                 className="spacer-top markdown"
-                dangerouslySetInnerHTML={{ __html: sanitize(elt.html) }}
+                dangerouslySetInnerHTML={{ __html: sanitize(html) }}
               />
             )}
           </div>
-        </React.Fragment>
-      ))}
-      <hr />
-      <HotspotViewerReviewHistoryTabCommentBox
-        hotspot={hotspot}
-        onUpdateHotspot={props.onUpdateHotspot}
-      />
-    </div>
+        );
+      })}
+    </>
   );
 }
