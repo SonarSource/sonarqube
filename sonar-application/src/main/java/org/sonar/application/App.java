@@ -42,12 +42,13 @@ public class App {
   private final JavaVersion javaVersion;
   private StopRequestWatcher stopRequestWatcher = null;
   private StopRequestWatcher hardStopRequestWatcher = null;
+
   public App(JavaVersion javaVersion) {
     this.javaVersion = javaVersion;
   }
 
   public void start(String[] cliArguments) {
-    AppSettingsLoader settingsLoader = new AppSettingsLoaderImpl(cliArguments, new ServiceLoaderWrapper());
+    AppSettingsLoader settingsLoader = new AppSettingsLoaderImpl(System2.INSTANCE, cliArguments, new ServiceLoaderWrapper());
     AppSettings settings = settingsLoader.load();
     // order is important - logging must be configured before any other components (AppFileSystem, ...)
     AppLogging logging = new AppLogging(settings);

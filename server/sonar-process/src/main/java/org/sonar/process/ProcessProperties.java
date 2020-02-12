@@ -62,6 +62,11 @@ public class ProcessProperties {
     PATH_TEMP("sonar.path.temp", "temp"),
     PATH_WEB("sonar.path.web", "web"),
 
+    LOG_LEVEL_APP("sonar.log.level.app"),
+    LOG_LEVEL_WEB("sonar.log.level.web"),
+    LOG_LEVEL_CE("sonar.log.level.ce"),
+    LOG_LEVEL_ES("sonar.log.level.es"),
+
     SEARCH_HOST("sonar.search.host", InetAddress.getLoopbackAddress().getHostAddress()),
     SEARCH_PORT("sonar.search.port", "9001"),
     SEARCH_HTTP_PORT("sonar.search.httpPort"),

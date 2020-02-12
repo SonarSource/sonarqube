@@ -29,6 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.PropertyType.BOOLEAN;
+import static org.sonar.api.PropertyType.STRING;
 
 public class CorePropertyDefinitions {
 
@@ -70,6 +71,12 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .build(),
 
+      PropertyDefinition.builder(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)
+        .name("Encryption secret key path")
+        .description("Path to a file that contains encryption secret key that is used to encrypting other settings.")
+        .type(STRING)
+        .hidden()
+        .build(),
       PropertyDefinition.builder("sonar.authenticator.downcase")
         .name("Downcase login")
         .description("Downcase login during user authentication, typically for Active Directory")

@@ -34,6 +34,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.utils.System2;
+import org.sonar.core.config.CorePropertyDefinitions;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
@@ -44,6 +46,7 @@ import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ThreadLocalSettingsTest {
 
@@ -56,6 +59,7 @@ public class ThreadLocalSettingsTest {
 
   private MapSettingLoader dbSettingLoader = new MapSettingLoader();
   private ThreadLocalSettings underTest = null;
+  private System2 system = mock(System2.class);
 
   @After
   public void tearDown() {
@@ -141,7 +145,7 @@ public class ThreadLocalSettingsTest {
   private ThreadLocalSettings create(Map<String, String> systemProps) {
     Properties p = new Properties();
     p.putAll(systemProps);
-    return new ThreadLocalSettings(new PropertyDefinitions(), p, dbSettingLoader);
+    return new ThreadLocalSettings(system, new PropertyDefinitions(CorePropertyDefinitions.all()), p, dbSettingLoader);
   }
 
   @Test
@@ -154,6 +158,16 @@ public class ThreadLocalSettingsTest {
   }
 
   @Test
+  public void load_core_properties_from_environment() {
+    when(system.envVariable("SONAR_FORCEAUTHENTICATION")).thenReturn("true");
+    underTest = create(ImmutableMap.of());
+
+    assertThat(underTest.get("sonar.forceAuthentication")).hasValue("true");
+    assertThat(underTest.get("missing")).isNotPresent();
+    assertThat(underTest.getProperties()).containsOnly(entry("sonar.forceAuthentication", "true"));
+  }
+
+  @Test
   public void database_properties_are_not_cached_by_default() {
     insertPropertyIntoDb("foo", "from db");
     underTest = create(Collections.emptyMap());
@@ -163,25 +177,6 @@ public class ThreadLocalSettingsTest {
     deletePropertyFromDb("foo");
     // no cache, change is visible immediately
     assertThat(underTest.get("foo")).isNotPresent();
-  }
-
-  @Test
-  public void overwritten_system_settings_have_precedence_over_system_and_databse() {
-    underTest = create(ImmutableMap.of("foo", "from system"));
-
-    underTest.setSystemProperty("foo", "donut");
-
-    assertThat(underTest.get("foo")).hasValue("donut");
-  }
-
-  @Test
-  public void overwritten_system_settings_have_precedence_over_databse() {
-    insertPropertyIntoDb("foo", "from db");
-    underTest = create(Collections.emptyMap());
-
-    underTest.setSystemProperty("foo", "donut");
-
-    assertThat(underTest.get("foo")).hasValue("donut");
   }
 
   @Test
@@ -268,7 +263,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void change_setting_loader() {
-    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties());
+    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties());
 
     assertThat(underTest.getSettingLoader()).isNotNull();
 
@@ -291,7 +286,7 @@ public class ThreadLocalSettingsTest {
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
     doThrow(toBeThrown).when(settingLoaderMock).loadAll();
-    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
 
     assertThat(underTest.getProperties())
       .isEmpty();
@@ -302,7 +297,7 @@ public class ThreadLocalSettingsTest {
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
     doThrow(toBeThrown).when(settingLoaderMock).loadAll();
-    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
     underTest.load();
 
     assertThat(underTest.getProperties())
@@ -321,7 +316,7 @@ public class ThreadLocalSettingsTest {
       .doAnswer(invocationOnMock -> ImmutableMap.of(key, value2))
       .when(settingLoaderMock)
       .loadAll();
-    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
 
     underTest.load();
     assertThat(underTest.getProperties())
@@ -345,7 +340,7 @@ public class ThreadLocalSettingsTest {
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
     String key = randomAlphanumeric(3);
     doThrow(toBeThrown).when(settingLoaderMock).load(key);
-    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
 
     assertThat(underTest.get(key)).isEmpty();
   }
@@ -356,7 +351,7 @@ public class ThreadLocalSettingsTest {
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
     String key = randomAlphanumeric(3);
     doThrow(toBeThrown).when(settingLoaderMock).load(key);
-    underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
     underTest.load();
 
     assertThat(underTest.get(key)).isEmpty();

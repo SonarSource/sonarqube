@@ -20,23 +20,26 @@
 package org.sonar.server.setting;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Encryption;
+import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.System2;
+import org.sonar.core.util.SettingFormatter;
 
-import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 
@@ -57,27 +60,29 @@ import static java.util.Objects.requireNonNull;
 @ComputeEngineSide
 @ServerSide
 public class ThreadLocalSettings extends Settings {
-  private static final Logger LOG = Loggers.get(ThreadLocalSettings.class);
-
-  private final Properties overwrittenSystemProps = new Properties();
   private final Properties systemProps = new Properties();
+  private final Properties corePropsFromEnvVariables = new Properties();
   private static final ThreadLocal<Map<String, String>> CACHE = new ThreadLocal<>();
   private Map<String, String> getPropertyDbFailureCache = Collections.emptyMap();
   private Map<String, String> getPropertiesDbFailureCache = Collections.emptyMap();
   private SettingLoader settingLoader;
+  private System2 system2;
 
-  public ThreadLocalSettings(PropertyDefinitions definitions, Properties props) {
-    this(definitions, props, new NopSettingLoader());
+  public ThreadLocalSettings(System2 system2, PropertyDefinitions definitions, Properties props) {
+    this(system2, definitions, props, new NopSettingLoader());
   }
 
   @VisibleForTesting
-  ThreadLocalSettings(PropertyDefinitions definitions, Properties props, SettingLoader settingLoader) {
+  ThreadLocalSettings(System2 system2, PropertyDefinitions definitions, Properties props, SettingLoader settingLoader) {
     super(definitions, new Encryption(null));
+    this.system2 = system2;
     this.settingLoader = settingLoader;
+
+    resolveCorePropertiesFromEnvironment();
     props.forEach((k, v) -> systemProps.put(k, v == null ? null : v.toString().trim()));
 
     // TODO something wrong about lifecycle here. It could be improved
-    getEncryption().setPathToSecretKey(props.getProperty(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+    getEncryption().setPathToSecretKey(get(CoreProperties.ENCRYPTION_SECRET_KEY_PATH).orElse(null));
   }
 
   @VisibleForTesting
@@ -92,17 +97,17 @@ public class ThreadLocalSettings extends Settings {
   @Override
   protected Optional<String> get(String key) {
     // search for the first value available in
-    // 1. overwritten system properties
-    // 2. system properties
+    // 1. system properties
+    // 2. core property from environment variable
     // 3. thread local cache (if enabled)
     // 4. db
 
-    String value =  overwrittenSystemProps.getProperty(key);
+    String value = systemProps.getProperty(key);
     if (value != null) {
       return Optional.of(value);
     }
 
-    value = systemProps.getProperty(key);
+    value = corePropsFromEnvVariables.getProperty(key);
     if (value != null) {
       return Optional.of(value);
     }
@@ -133,15 +138,6 @@ public class ThreadLocalSettings extends Settings {
     } catch (PersistenceException e) {
       return getPropertyDbFailureCache.get(key);
     }
-  }
-
-  public void setSystemProperty(String key, String value) {
-    checkKeyAndValue(key, value);
-    String systemValue = systemProps.getProperty(key);
-    if (LOG.isDebugEnabled() && systemValue != null && !value.equals(systemValue)) {
-      LOG.debug(format("System property '%s' with value '%s' overwritten with value '%s'", key, systemValue, value));
-    }
-    overwrittenSystemProps.put(key, value.trim());
   }
 
   @Override
@@ -187,6 +183,7 @@ public class ThreadLocalSettings extends Settings {
   public Map<String, String> getProperties() {
     Map<String, String> result = new HashMap<>();
     loadAll(result);
+    corePropsFromEnvVariables.forEach((k, v) -> result.put((String) k, (String) v));
     systemProps.forEach((key, value) -> result.put((String) key, (String) value));
     return unmodifiableMap(result);
   }
@@ -199,5 +196,21 @@ public class ThreadLocalSettings extends Settings {
     } catch (PersistenceException e) {
       appendTo.putAll(getPropertiesDbFailureCache);
     }
+  }
+
+  private void resolveCorePropertiesFromEnvironment() {
+    corePropsFromEnvVariables.putAll(this.getDefinitions().getAll()
+      .stream()
+      .map(PropertyDefinition::key)
+      .flatMap(p -> {
+        String envVar = SettingFormatter.fromJavaPropertyToEnvVariable(p);
+        String envVarValue = system2.envVariable(envVar);
+        if (envVarValue != null) {
+          return Stream.of(new AbstractMap.SimpleEntry<>(p, envVarValue));
+        } else {
+          return Stream.empty();
+        }
+      })
+      .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue)));
   }
 }

@@ -19,8 +19,10 @@
  */
 package org.sonar.application.config;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,7 +30,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.extension.ServiceLoaderWrapper;
+import org.sonar.process.System2;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
@@ -42,6 +46,7 @@ public class AppSettingsLoaderImplTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
+  private System2 system = mock(System2.class);
 
   @Before
   public void setup() {
@@ -52,12 +57,34 @@ public class AppSettingsLoaderImplTest {
   public void load_properties_from_file() throws Exception {
     File homeDir = temp.newFolder();
     File propsFile = new File(homeDir, "conf/sonar.properties");
-    FileUtils.write(propsFile, "foo=bar");
+    FileUtils.write(propsFile, "foo=bar", UTF_8);
 
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[0], homeDir, serviceLoaderWrapper);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
     AppSettings settings = underTest.load();
 
     assertThat(settings.getProps().rawProperties()).contains(entry("foo", "bar"));
+  }
+
+  @Test
+  public void load_properties_from_env() throws Exception {
+    when(system.getenv()).thenReturn(ImmutableMap.of(
+      "SONAR_DASHED_PROPERTY", "2",
+      "SONAR_JDBC_URL", "some_jdbc_url",
+      "SONAR_EMBEDDEDDATABASE_PORT", "8765"));
+    when(system.getenv("SONAR_DASHED_PROPERTY")).thenReturn("2");
+    when(system.getenv("SONAR_JDBC_URL")).thenReturn("some_jdbc_url");
+    when(system.getenv("SONAR_EMBEDDEDDATABASE_PORT")).thenReturn("8765");
+    File homeDir = temp.newFolder();
+    File propsFile = new File(homeDir, "conf/sonar.properties");
+    FileUtils.write(propsFile, "sonar.dashed-property=1", UTF_8);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
+
+    AppSettings settings = underTest.load();
+
+    assertThat(settings.getProps().rawProperties()).contains(
+      entry("sonar.dashed-property", "2"),
+      entry("sonar.jdbc.url", "some_jdbc_url"),
+      entry("sonar.embeddedDatabase.port", "8765"));
   }
 
   @Test
@@ -65,7 +92,7 @@ public class AppSettingsLoaderImplTest {
     File homeDir = temp.newFolder();
     File propsFileAsDir = new File(homeDir, "conf/sonar.properties");
     FileUtils.forceMkdir(propsFileAsDir);
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[0], homeDir, serviceLoaderWrapper);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot open file " + propsFileAsDir.getAbsolutePath());
@@ -77,7 +104,7 @@ public class AppSettingsLoaderImplTest {
   public void file_is_not_loaded_if_it_does_not_exist() throws Exception {
     File homeDir = temp.newFolder();
 
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[0], homeDir, serviceLoaderWrapper);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
     AppSettings settings = underTest.load();
 
     // no failure, file is ignored
@@ -88,7 +115,7 @@ public class AppSettingsLoaderImplTest {
   public void command_line_arguments_are_included_to_settings() throws Exception {
     File homeDir = temp.newFolder();
 
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[] {"-Dsonar.foo=bar", "-Dhello=world"}, homeDir, serviceLoaderWrapper);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[] {"-Dsonar.foo=bar", "-Dhello=world"}, homeDir, serviceLoaderWrapper);
     AppSettings settings = underTest.load();
 
     assertThat(settings.getProps().rawProperties())
@@ -97,20 +124,47 @@ public class AppSettingsLoaderImplTest {
   }
 
   @Test
-  public void command_line_arguments_make_precedence_over_properties_files() throws Exception {
+  public void command_line_arguments_take_precedence_over_properties_files() throws IOException {
     File homeDir = temp.newFolder();
     File propsFile = new File(homeDir, "conf/sonar.properties");
-    FileUtils.write(propsFile, "sonar.foo=file");
+    FileUtils.write(propsFile, "sonar.foo=file", UTF_8);
 
-    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(new String[] {"-Dsonar.foo=cli"}, homeDir, serviceLoaderWrapper);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[] {"-Dsonar.foo=cli"}, homeDir, serviceLoaderWrapper);
     AppSettings settings = underTest.load();
 
     assertThat(settings.getProps().rawProperties()).contains(entry("sonar.foo", "cli"));
   }
 
   @Test
-  public void detectHomeDir_returns_existing_dir() {
-    assertThat(new AppSettingsLoaderImpl(new String[0], serviceLoaderWrapper).getHomeDir()).exists().isDirectory();
+  public void env_vars_take_precedence_over_properties_file() throws Exception {
+    when(system.getenv()).thenReturn(ImmutableMap.of("SONAR_CUSTOMPROP", "11"));
+    when(system.getenv("SONAR_CUSTOMPROP")).thenReturn("11");
+    File homeDir = temp.newFolder();
+    File propsFile = new File(homeDir, "conf/sonar.properties");
+    FileUtils.write(propsFile, "sonar.customProp=10", UTF_8);
 
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
+    AppSettings settings = underTest.load();
+
+    assertThat(settings.getProps().rawProperties()).contains(entry("sonar.customProp", "11"));
+  }
+
+  @Test
+  public void command_line_arguments_take_precedence_over_env_vars() throws Exception {
+    when(system.getenv()).thenReturn(ImmutableMap.of("SONAR_CUSTOMPROP", "11"));
+    when(system.getenv("SONAR_CUSTOMPROP")).thenReturn("11");
+    File homeDir = temp.newFolder();
+    File propsFile = new File(homeDir, "conf/sonar.properties");
+    FileUtils.write(propsFile, "sonar.customProp=10", UTF_8);
+
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[] {"-Dsonar.customProp=9"}, homeDir, serviceLoaderWrapper);
+    AppSettings settings = underTest.load();
+
+    assertThat(settings.getProps().rawProperties()).contains(entry("sonar.customProp", "9"));
+  }
+
+  @Test
+  public void detectHomeDir_returns_existing_dir() {
+    assertThat(new AppSettingsLoaderImpl(system, new String[0], serviceLoaderWrapper).getHomeDir()).exists().isDirectory();
   }
 }

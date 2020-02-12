@@ -26,30 +26,40 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.process.System2;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Optional.ofNullable;
+import static org.sonar.core.util.SettingFormatter.fromJavaPropertyToEnvVariable;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 public class AppSettingsLoaderImpl implements AppSettingsLoader {
 
+  private final System2 system;
   private final File homeDir;
   private final String[] cliArguments;
   private final Consumer<Props>[] consumers;
   private final ServiceLoaderWrapper serviceLoaderWrapper;
 
-  public AppSettingsLoaderImpl(String[] cliArguments, ServiceLoaderWrapper serviceLoaderWrapper) {
-    this(cliArguments, detectHomeDir(), serviceLoaderWrapper, new FileSystemSettings(), new JdbcSettings(), new ClusterSettings(NetworkUtilsImpl.INSTANCE));
+  public AppSettingsLoaderImpl(System2 system, String[] cliArguments, ServiceLoaderWrapper serviceLoaderWrapper) {
+    this(system, cliArguments, detectHomeDir(), serviceLoaderWrapper, new FileSystemSettings(), new JdbcSettings(),
+      new ClusterSettings(NetworkUtilsImpl.INSTANCE));
   }
 
-  AppSettingsLoaderImpl(String[] cliArguments, File homeDir, ServiceLoaderWrapper serviceLoaderWrapper, Consumer<Props>... consumers) {
+  @SafeVarargs
+  AppSettingsLoaderImpl(System2 system, String[] cliArguments, File homeDir, ServiceLoaderWrapper serviceLoaderWrapper, Consumer<Props>... consumers) {
+    this.system = system;
     this.cliArguments = cliArguments;
     this.homeDir = homeDir;
     this.serviceLoaderWrapper = serviceLoaderWrapper;
@@ -63,9 +73,10 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
   @Override
   public AppSettings load() {
     Properties p = loadPropertiesFile(homeDir);
+    fetchSettingsFromEnvironment(system, p);
     p.putAll(CommandLineParser.parseArguments(cliArguments));
     p.setProperty(PATH_HOME.getKey(), homeDir.getAbsolutePath());
-    p = ConfigurationUtils.interpolateVariables(p, System.getenv());
+    p = ConfigurationUtils.interpolateVariables(p, system.getenv());
 
     // the difference between Properties and Props is that the latter
     // supports decryption of values, so it must be used when values
@@ -75,6 +86,17 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     Arrays.stream(consumers).forEach(c -> c.accept(props));
 
     return new AppSettingsImpl(props);
+  }
+
+  private static void fetchSettingsFromEnvironment(System2 system, Properties properties) {
+    Set<String> possibleSettings = Arrays.stream(ProcessProperties.Property.values()).map(ProcessProperties.Property::getKey)
+      .collect(Collectors.toSet());
+    possibleSettings.addAll(properties.stringPropertyNames());
+    possibleSettings.forEach(key -> {
+      String environmentVarName = fromJavaPropertyToEnvVariable(key);
+      Optional<String> envVarValue = ofNullable(system.getenv(environmentVarName));
+      envVarValue.ifPresent(value -> properties.put(key, value));
+    });
   }
 
   private static File detectHomeDir() {

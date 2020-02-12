@@ -17,28 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.core.util;
 
-import java.util.List;
 import org.junit.Test;
-import org.sonar.api.config.PropertyDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CorePropertyDefinitionsTest {
+public class SettingFormatterTest {
 
   @Test
-  public void all() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs).hasSize(51);
-  }
-
-  @Test
-  public void all_includes_scanner_properties() {
-    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-
-    assertThat(defs.stream()
-      .filter(def -> def.key().equals(ScannerProperties.BRANCH_NAME))
-      .findFirst()).isPresent();
+  public void fromJavaPropertyToEnvVariable() {
+    String output = SettingFormatter.fromJavaPropertyToEnvVariable("some.randomProperty-123.test");
+    assertThat(output).isEqualTo("SOME_RANDOMPROPERTY_123_TEST");
   }
 }
