@@ -24,15 +24,15 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "AlmIntegrations";
 option optimize_for = SPEED;
 
-// WS api/alm_integrations/list_bibucketserver_repos
-message ListBitbucketserverReposWsResponse {
+// WS api/alm_integrations/search_bibucketserver_repos
+message SearchBitbucketserverReposWsResponse {
   optional bool isLastPage = 1;
   repeated BBSRepo repositories = 2;
 }
 
 // WS api/alm_integrations/list_bibucketserver_projects
 message ListBitbucketserverProjectsWsResponse {
-  repeated BBSProject values = 1;
+  repeated BBSProject projects = 1;
 }
 
 message BBSRepo {
