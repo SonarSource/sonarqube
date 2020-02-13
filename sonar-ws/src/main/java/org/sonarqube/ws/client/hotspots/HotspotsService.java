@@ -21,6 +21,7 @@ package org.sonarqube.ws.client.hotspots;
 
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -84,6 +85,22 @@ public class HotspotsService extends BaseService {
         .setParam("resolution", request.getResolution())
         .setParam("status", request.getStatus())
         .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/hotspots/edit_comment">Further information about this action online (including a response example)</a>
+   * @since 8.2
+   */
+  public Common.Comment editComment(EditCommentRequest request) {
+    return call(
+      new PostRequest(path("edit_comment"))
+        .setParam("comment", request.getComment())
+        .setParam("text", request.getText())
+        .setMediaType(MediaTypes.JSON),
+      Common.Comment.parser());
   }
 
   /**

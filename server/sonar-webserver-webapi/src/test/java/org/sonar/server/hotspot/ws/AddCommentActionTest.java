@@ -86,6 +86,8 @@ public class AddCommentActionTest {
   @Test
   public void ws_is_internal() {
     assertThat(actionTester.getDef().isInternal()).isTrue();
+    assertThat(actionTester.getDef().isPost()).isTrue();
+    assertThat(actionTester.getDef().param("comment").maximumLength()).isEqualTo(1000);
   }
 
   @Test

@@ -35,6 +35,7 @@ import org.sonar.server.issue.ws.IssueUpdater;
 public class AddCommentAction implements HotspotsWsAction {
   private static final String PARAM_HOTSPOT_KEY = "hotspot";
   private static final String PARAM_COMMENT = "comment";
+  private static final Integer MAXIMUM_COMMENT_LENGTH = 1000;
 
   private final DbClient dbClient;
   private final HotspotWsSupport hotspotWsSupport;
@@ -66,6 +67,7 @@ public class AddCommentAction implements HotspotsWsAction {
       .setRequired(true);
     action.createParam(PARAM_COMMENT)
       .setDescription("Comment text.")
+      .setMaximumLength(MAXIMUM_COMMENT_LENGTH)
       .setExampleValue("This is safe because user input is validated by the calling code")
       .setRequired(true);
   }
