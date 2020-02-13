@@ -20,6 +20,7 @@
 import {
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
+  getComponentSecurityHotspotsUrl,
   getQualityGatesUrl,
   getQualityGateUrl
 } from '../urls';
@@ -41,6 +42,27 @@ describe('#getComponentIssuesUrl', () => {
     expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { resolved: 'false' })).toEqual({
       pathname: '/project/issues',
       query: { id: SIMPLE_COMPONENT_KEY, resolved: 'false' }
+    });
+  });
+});
+
+describe('getComponentSecurityHotspotsUrl', () => {
+  it('should work with no extra parameters', () => {
+    expect(getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, {})).toEqual({
+      pathname: '/security_hotspots',
+      query: { id: SIMPLE_COMPONENT_KEY }
+    });
+  });
+
+  it('should forward some query parameters', () => {
+    expect(
+      getComponentSecurityHotspotsUrl(SIMPLE_COMPONENT_KEY, {
+        sinceLeakPeriod: 'true',
+        ignoredParam: '1234'
+      })
+    ).toEqual({
+      pathname: '/security_hotspots',
+      query: { id: SIMPLE_COMPONENT_KEY, sinceLeakPeriod: 'true' }
     });
   });
 });

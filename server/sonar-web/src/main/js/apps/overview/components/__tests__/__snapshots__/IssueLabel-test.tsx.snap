@@ -122,8 +122,12 @@ exports[`should render correctly for hotspots 1`] = `
       Object {
         "pathname": "/security_hotspots",
         "query": Object {
+          "assignedToMe": undefined,
+          "branch": undefined,
+          "hotspots": undefined,
           "id": "my-project",
           "pullRequest": "1001",
+          "sinceLeakPeriod": "false",
         },
       }
     }
@@ -151,8 +155,12 @@ exports[`should render correctly for hotspots 2`] = `
       Object {
         "pathname": "/security_hotspots",
         "query": Object {
+          "assignedToMe": undefined,
+          "branch": undefined,
+          "hotspots": undefined,
           "id": "my-project",
           "pullRequest": "1001",
+          "sinceLeakPeriod": "true",
         },
       }
     }

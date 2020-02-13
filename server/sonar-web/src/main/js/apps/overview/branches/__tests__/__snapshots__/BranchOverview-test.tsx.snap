@@ -271,6 +271,64 @@ exports[`application overview should render correctly 1`] = `
       Object {
         "bestValue": true,
         "metric": Object {
+          "id": "security_hotspots_reviewed",
+          "key": "security_hotspots_reviewed",
+          "name": "security_hotspots_reviewed",
+          "type": "INT",
+        },
+        "periods": undefined,
+        "value": "1.0",
+      },
+      Object {
+        "bestValue": true,
+        "leak": "1",
+        "metric": Object {
+          "id": "new_security_hotspots_reviewed",
+          "key": "new_security_hotspots_reviewed",
+          "name": "new_security_hotspots_reviewed",
+          "type": "INT",
+        },
+        "periods": Array [
+          Object {
+            "bestValue": true,
+            "index": 1,
+            "value": "1.0",
+          },
+        ],
+        "value": "1.0",
+      },
+      Object {
+        "bestValue": true,
+        "metric": Object {
+          "id": "security_review_rating",
+          "key": "security_review_rating",
+          "name": "security_review_rating",
+          "type": "RATING",
+        },
+        "periods": undefined,
+        "value": "1.0",
+      },
+      Object {
+        "bestValue": true,
+        "leak": "1",
+        "metric": Object {
+          "id": "new_security_review_rating",
+          "key": "new_security_review_rating",
+          "name": "new_security_review_rating",
+          "type": "RATING",
+        },
+        "periods": Array [
+          Object {
+            "bestValue": true,
+            "index": 1,
+            "value": "1.0",
+          },
+        ],
+        "value": "1.0",
+      },
+      Object {
+        "bestValue": true,
+        "metric": Object {
           "id": "code_smells",
           "key": "code_smells",
           "name": "code_smells",
@@ -659,6 +717,30 @@ exports[`application overview should render correctly 1`] = `
         "key": "new_security_hotspots",
         "name": "new_security_hotspots",
         "type": "INT",
+      },
+      Object {
+        "id": "security_hotspots_reviewed",
+        "key": "security_hotspots_reviewed",
+        "name": "security_hotspots_reviewed",
+        "type": "INT",
+      },
+      Object {
+        "id": "new_security_hotspots_reviewed",
+        "key": "new_security_hotspots_reviewed",
+        "name": "new_security_hotspots_reviewed",
+        "type": "INT",
+      },
+      Object {
+        "id": "security_review_rating",
+        "key": "security_review_rating",
+        "name": "security_review_rating",
+        "type": "RATING",
+      },
+      Object {
+        "id": "new_security_review_rating",
+        "key": "new_security_review_rating",
+        "name": "new_security_review_rating",
+        "type": "RATING",
       },
       Object {
         "id": "code_smells",
@@ -1134,6 +1216,64 @@ exports[`project overview should render correctly 1`] = `
       Object {
         "bestValue": true,
         "metric": Object {
+          "id": "security_hotspots_reviewed",
+          "key": "security_hotspots_reviewed",
+          "name": "security_hotspots_reviewed",
+          "type": "INT",
+        },
+        "periods": undefined,
+        "value": "1.0",
+      },
+      Object {
+        "bestValue": true,
+        "leak": "1",
+        "metric": Object {
+          "id": "new_security_hotspots_reviewed",
+          "key": "new_security_hotspots_reviewed",
+          "name": "new_security_hotspots_reviewed",
+          "type": "INT",
+        },
+        "periods": Array [
+          Object {
+            "bestValue": true,
+            "index": 1,
+            "value": "1.0",
+          },
+        ],
+        "value": "1.0",
+      },
+      Object {
+        "bestValue": true,
+        "metric": Object {
+          "id": "security_review_rating",
+          "key": "security_review_rating",
+          "name": "security_review_rating",
+          "type": "RATING",
+        },
+        "periods": undefined,
+        "value": "1.0",
+      },
+      Object {
+        "bestValue": true,
+        "leak": "1",
+        "metric": Object {
+          "id": "new_security_review_rating",
+          "key": "new_security_review_rating",
+          "name": "new_security_review_rating",
+          "type": "RATING",
+        },
+        "periods": Array [
+          Object {
+            "bestValue": true,
+            "index": 1,
+            "value": "1.0",
+          },
+        ],
+        "value": "1.0",
+      },
+      Object {
+        "bestValue": true,
+        "metric": Object {
           "id": "code_smells",
           "key": "code_smells",
           "name": "code_smells",
@@ -1522,6 +1662,30 @@ exports[`project overview should render correctly 1`] = `
         "key": "new_security_hotspots",
         "name": "new_security_hotspots",
         "type": "INT",
+      },
+      Object {
+        "id": "security_hotspots_reviewed",
+        "key": "security_hotspots_reviewed",
+        "name": "security_hotspots_reviewed",
+        "type": "INT",
+      },
+      Object {
+        "id": "new_security_hotspots_reviewed",
+        "key": "new_security_hotspots_reviewed",
+        "name": "new_security_hotspots_reviewed",
+        "type": "INT",
+      },
+      Object {
+        "id": "security_review_rating",
+        "key": "security_review_rating",
+        "name": "security_review_rating",
+        "type": "RATING",
+      },
+      Object {
+        "id": "new_security_review_rating",
+        "key": "new_security_review_rating",
+        "name": "new_security_review_rating",
+        "type": "RATING",
       },
       Object {
         "id": "code_smells",

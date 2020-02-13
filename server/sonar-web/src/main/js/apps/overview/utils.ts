@@ -43,8 +43,14 @@ export const METRICS: string[] = [
   MetricKey.new_vulnerabilities,
   MetricKey.security_rating,
   MetricKey.new_security_rating,
+
+  // hotspots
   MetricKey.security_hotspots,
   MetricKey.new_security_hotspots,
+  MetricKey.security_hotspots_reviewed,
+  MetricKey.new_security_hotspots_reviewed,
+  MetricKey.security_review_rating,
+  MetricKey.new_security_review_rating,
 
   // code smells
   MetricKey.code_smells,
@@ -169,7 +175,6 @@ const ISSUETYPE_MAP = {
     rating: MetricKey.security_review_rating,
     newRating: MetricKey.new_security_review_rating,
     ratingName: 'SecurityReview',
-
     iconClass: SecurityHotspotIcon
   }
 };

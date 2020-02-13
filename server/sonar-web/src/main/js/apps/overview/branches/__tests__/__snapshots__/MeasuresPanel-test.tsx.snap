@@ -292,8 +292,14 @@ exports[`should render correctly for applications 1`] = `
           useDiffMetric={true}
         />
       </div>
+    </div>
+    <div
+      className="display-flex-row overview-measures-row"
+      data-test="overview__measures-security_hotspot"
+      key="SECURITY_HOTSPOT"
+    >
       <div
-        className="flex-1 small display-flex-center"
+        className="overview-panel-big-padded flex-1 small display-flex-center big-spacer-left"
       >
         <Memo(IssueLabel)
           branchLike={
@@ -405,6 +411,89 @@ exports[`should render correctly for applications 1`] = `
             ]
           }
           type="SECURITY_HOTSPOT"
+          useDiffMetric={true}
+        />
+      </div>
+      <div
+        className="flex-1 small display-flex-center"
+      >
+        <SecurityHotspotsReviewed
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
           useDiffMetric={true}
         />
       </div>
@@ -1293,7 +1382,128 @@ exports[`should render correctly for applications 2`] = `
         />
       </div>
       <div
-        className="flex-1 small display-flex-center"
+        className="overview-panel-big-padded overview-measures-aside display-flex-center"
+      >
+        <Memo(IssueRating)
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "APP",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          type="VULNERABILITY"
+          useDiffMetric={false}
+        />
+      </div>
+    </div>
+    <div
+      className="display-flex-row overview-measures-row"
+      data-test="overview__measures-security_hotspot"
+      key="SECURITY_HOTSPOT"
+    >
+      <div
+        className="overview-panel-big-padded flex-1 small display-flex-center big-spacer-left"
       >
         <Memo(IssueLabel)
           branchLike={
@@ -1409,6 +1619,89 @@ exports[`should render correctly for applications 2`] = `
         />
       </div>
       <div
+        className="flex-1 small display-flex-center"
+      >
+        <SecurityHotspotsReviewed
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          useDiffMetric={false}
+        />
+      </div>
+      <div
         className="overview-panel-big-padded overview-measures-aside display-flex-center"
       >
         <Memo(IssueRating)
@@ -1519,7 +1812,7 @@ exports[`should render correctly for applications 2`] = `
               },
             ]
           }
-          type="VULNERABILITY"
+          type="SECURITY_HOTSPOT"
           useDiffMetric={false}
         />
       </div>
@@ -2751,7 +3044,128 @@ exports[`should render correctly for projects 1`] = `
         />
       </div>
       <div
-        className="flex-1 small display-flex-center"
+        className="overview-panel-big-padded overview-measures-aside display-flex-center"
+      >
+        <Memo(IssueRating)
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          type="VULNERABILITY"
+          useDiffMetric={true}
+        />
+      </div>
+    </div>
+    <div
+      className="display-flex-row overview-measures-row"
+      data-test="overview__measures-security_hotspot"
+      key="SECURITY_HOTSPOT"
+    >
+      <div
+        className="overview-panel-big-padded flex-1 small display-flex-center big-spacer-left"
       >
         <Memo(IssueLabel)
           branchLike={
@@ -2867,6 +3281,89 @@ exports[`should render correctly for projects 1`] = `
         />
       </div>
       <div
+        className="flex-1 small display-flex-center"
+      >
+        <SecurityHotspotsReviewed
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          useDiffMetric={true}
+        />
+      </div>
+      <div
         className="overview-panel-big-padded overview-measures-aside display-flex-center"
       >
         <Memo(IssueRating)
@@ -2977,7 +3474,7 @@ exports[`should render correctly for projects 1`] = `
               },
             ]
           }
-          type="VULNERABILITY"
+          type="SECURITY_HOTSPOT"
           useDiffMetric={true}
         />
       </div>
@@ -3981,7 +4478,128 @@ exports[`should render correctly for projects 2`] = `
         />
       </div>
       <div
-        className="flex-1 small display-flex-center"
+        className="overview-panel-big-padded overview-measures-aside display-flex-center"
+      >
+        <Memo(IssueRating)
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          type="VULNERABILITY"
+          useDiffMetric={false}
+        />
+      </div>
+    </div>
+    <div
+      className="display-flex-row overview-measures-row"
+      data-test="overview__measures-security_hotspot"
+      key="SECURITY_HOTSPOT"
+    >
+      <div
+        className="overview-panel-big-padded flex-1 small display-flex-center big-spacer-left"
       >
         <Memo(IssueLabel)
           branchLike={
@@ -4097,6 +4715,89 @@ exports[`should render correctly for projects 2`] = `
         />
       </div>
       <div
+        className="flex-1 small display-flex-center"
+      >
+        <SecurityHotspotsReviewed
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "coverage",
+                  "key": "coverage",
+                  "name": "Coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_coverage",
+                  "key": "new_coverage",
+                  "name": "New_coverage",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          useDiffMetric={false}
+        />
+      </div>
+      <div
         className="overview-panel-big-padded overview-measures-aside display-flex-center"
       >
         <Memo(IssueRating)
@@ -4207,7 +4908,7 @@ exports[`should render correctly for projects 2`] = `
               },
             ]
           }
-          type="VULNERABILITY"
+          type="SECURITY_HOTSPOT"
           useDiffMetric={false}
         />
       </div>
@@ -5352,7 +6053,92 @@ exports[`should render correctly if there is no coverage 1`] = `
         />
       </div>
       <div
-        className="flex-1 small display-flex-center"
+        className="overview-panel-big-padded overview-measures-aside display-flex-center"
+      >
+        <Memo(IssueRating)
+          branchLike={
+            Object {
+              "analysisDate": "2018-01-01",
+              "excludedFromPurge": true,
+              "isMain": true,
+              "name": "master",
+            }
+          }
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          type="VULNERABILITY"
+          useDiffMetric={true}
+        />
+      </div>
+    </div>
+    <div
+      className="display-flex-row overview-measures-row"
+      data-test="overview__measures-security_hotspot"
+      key="SECURITY_HOTSPOT"
+    >
+      <div
+        className="overview-panel-big-padded flex-1 small display-flex-center big-spacer-left"
       >
         <Memo(IssueLabel)
           branchLike={
@@ -5432,6 +6218,53 @@ exports[`should render correctly if there is no coverage 1`] = `
         />
       </div>
       <div
+        className="flex-1 small display-flex-center"
+      >
+        <SecurityHotspotsReviewed
+          measures={
+            Array [
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "bugs",
+                  "key": "bugs",
+                  "name": "Bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+              Object {
+                "bestValue": true,
+                "leak": "1",
+                "metric": Object {
+                  "id": "new_bugs",
+                  "key": "new_bugs",
+                  "name": "New_bugs",
+                  "type": "PERCENT",
+                },
+                "periods": Array [
+                  Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
+                ],
+                "value": "1.0",
+              },
+            ]
+          }
+          useDiffMetric={true}
+        />
+      </div>
+      <div
         className="overview-panel-big-padded overview-measures-aside display-flex-center"
       >
         <Memo(IssueRating)
@@ -5506,7 +6339,7 @@ exports[`should render correctly if there is no coverage 1`] = `
               },
             ]
           }
-          type="VULNERABILITY"
+          type="SECURITY_HOTSPOT"
           useDiffMetric={true}
         />
       </div>

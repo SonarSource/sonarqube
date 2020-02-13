@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <span
+    className="huge"
+  >
+    1.0%
+  </span>
+  <span
+    className="big-spacer-left"
+  >
+    overview.measures.security_hotspots_reviewed
+  </span>
+</Fragment>
+`;
+
+exports[`should render correctly: no measures 1`] = `
+<Fragment>
+  <span
+    aria-label="no_data"
+    className="overview-measures-empty-value"
+  />
+  <span
+    className="big-spacer-left"
+  >
+    overview.measures.security_hotspots_reviewed
+  </span>
+</Fragment>
+`;
+
+exports[`should render correctly: on new code 1`] = `
+<Fragment>
+  <span
+    className="huge"
+  >
+    1.0%
+  </span>
+  <span
+    className="big-spacer-left"
+  >
+    overview.measures.security_hotspots_reviewed
+  </span>
+</Fragment>
+`;
