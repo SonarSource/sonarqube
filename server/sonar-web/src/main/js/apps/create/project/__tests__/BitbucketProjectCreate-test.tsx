@@ -92,10 +92,17 @@ it('should correctly handle an invalid PAT', async () => {
   expect(wrapper.state().patIsValid).toBe(false);
 });
 
-it('should correctly handle setting a new PAT', () => {
+it('should correctly handle setting a new PAT', async () => {
   const wrapper = shallowRender();
   wrapper.instance().handlePersonalAccessTokenCreate('token');
   expect(setAlmPersonalAccessToken).toBeCalledWith('foo', 'token');
+  expect(wrapper.state().submittingToken).toBe(true);
+
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(false);
+  await waitAndUpdate(wrapper);
+  expect(checkPersonalAccessTokenIsValid).toBeCalled();
+  expect(wrapper.state().submittingToken).toBe(false);
+  expect(wrapper.state().tokenValidationFailed).toBe(true);
 });
 
 it('should correctly fetch projects and repos', async () => {

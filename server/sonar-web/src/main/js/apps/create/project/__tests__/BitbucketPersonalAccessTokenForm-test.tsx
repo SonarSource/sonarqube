@@ -21,7 +21,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
-import { change, submit, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { change, submit } from 'sonar-ui-common/helpers/testUtils';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
 import BitbucketPersonalAccessTokenForm, {
@@ -31,9 +31,10 @@ import BitbucketPersonalAccessTokenForm, {
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
+  expect(shallowRender({ validationFailed: true })).toMatchSnapshot('validation failed');
 });
 
-it('should correctly handle form interactions', async () => {
+it('should correctly handle form interactions', () => {
   const onPersonalAccessTokenCreate = jest.fn();
   const wrapper = shallowRender({ onPersonalAccessTokenCreate });
 
@@ -46,8 +47,14 @@ it('should correctly handle form interactions', async () => {
 
   // Expect correct calls to be made when submitting.
   submit(wrapper.find('form'));
-  await waitAndUpdate(wrapper);
   expect(onPersonalAccessTokenCreate).toBeCalled();
+
+  // If validation fails, we toggle the submitting flag and call useEffect()
+  // to set the `touched` flag to false again. Trigger a re-render, and mock
+  // useEffect(). This should de-activate the submit button again.
+  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+  wrapper.setProps({ submitting: false });
+  expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
 });
 
 function shallowRender(props: Partial<BitbucketPersonalAccessTokenFormProps> = {}) {
@@ -58,6 +65,7 @@ function shallowRender(props: Partial<BitbucketPersonalAccessTokenFormProps> = {
         url: 'http://www.example.com'
       })}
       onPersonalAccessTokenCreate={jest.fn()}
+      validationFailed={false}
       {...props}
     />
   );

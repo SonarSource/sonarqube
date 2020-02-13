@@ -53,6 +53,7 @@ export interface BitbucketProjectCreateRendererProps {
   selectedRepository?: BitbucketRepository;
   showPersonalAccessTokenForm?: boolean;
   submittingToken?: boolean;
+  tokenValidationFailed: boolean;
 }
 
 export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCreateRendererProps) {
@@ -67,7 +68,8 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
     searching,
     searchResults,
     showPersonalAccessTokenForm,
-    submittingToken
+    submittingToken,
+    tokenValidationFailed
   } = props;
 
   return (
@@ -133,6 +135,7 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
             bitbucketSetting={bitbucketSetting}
             onPersonalAccessTokenCreate={props.onPersonalAccessTokenCreate}
             submitting={submittingToken}
+            validationFailed={tokenValidationFailed}
           />
         ) : (
           <BitbucketImportRepositoryForm

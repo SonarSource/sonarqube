@@ -316,6 +316,7 @@ exports[`should render correctly: pat form 1`] = `
       }
     }
     onPersonalAccessTokenCreate={[MockFunction]}
+    validationFailed={false}
   />
 </Fragment>
 `;

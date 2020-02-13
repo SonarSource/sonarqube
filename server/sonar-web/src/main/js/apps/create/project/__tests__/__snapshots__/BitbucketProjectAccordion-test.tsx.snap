@@ -36,15 +36,12 @@ exports[`should render correctly: default 1`] = `
       onCheck={[Function]}
       value="1"
     >
-      <Tooltip
-        overlay="Repo"
+      <strong
+        className="text-ellipsis"
+        title="Repo"
       >
-        <strong
-          className="text-ellipsis"
-        >
-          Repo
-        </strong>
-      </Tooltip>
+        Repo
+      </strong>
     </Radio>
     <div
       className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
@@ -61,27 +58,25 @@ exports[`should render correctly: default 1`] = `
         <div
           className="little-spacer-bottom text-ellipsis"
         >
-          <Tooltip
-            overlay="Bar"
+          <strong
+            title="Bar"
           >
-            <strong>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "bar",
-                    },
-                  }
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "bar",
+                  },
                 }
-              >
-                Bar
-              </Link>
-            </strong>
-          </Tooltip>
+              }
+            >
+              Bar
+            </Link>
+          </strong>
         </div>
         <em>
           onboarding.create_project.repository_imported
@@ -114,15 +109,12 @@ exports[`should render correctly: disable options 1`] = `
       onCheck={[Function]}
       value="1"
     >
-      <Tooltip
-        overlay="Repo"
+      <strong
+        className="text-ellipsis"
+        title="Repo"
       >
-        <strong
-          className="text-ellipsis"
-        >
-          Repo
-        </strong>
-      </Tooltip>
+        Repo
+      </strong>
     </Radio>
     <div
       className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
@@ -139,27 +131,25 @@ exports[`should render correctly: disable options 1`] = `
         <div
           className="little-spacer-bottom text-ellipsis"
         >
-          <Tooltip
-            overlay="Bar"
+          <strong
+            title="Bar"
           >
-            <strong>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "bar",
-                    },
-                  }
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "bar",
+                  },
                 }
-              >
-                Bar
-              </Link>
-            </strong>
-          </Tooltip>
+              }
+            >
+              Bar
+            </Link>
+          </strong>
         </div>
         <em>
           onboarding.create_project.repository_imported
@@ -192,15 +182,12 @@ exports[`should render correctly: no click handler 1`] = `
       onCheck={[Function]}
       value="1"
     >
-      <Tooltip
-        overlay="Repo"
+      <strong
+        className="text-ellipsis"
+        title="Repo"
       >
-        <strong
-          className="text-ellipsis"
-        >
-          Repo
-        </strong>
-      </Tooltip>
+        Repo
+      </strong>
     </Radio>
     <div
       className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
@@ -217,27 +204,25 @@ exports[`should render correctly: no click handler 1`] = `
         <div
           className="little-spacer-bottom text-ellipsis"
         >
-          <Tooltip
-            overlay="Bar"
+          <strong
+            title="Bar"
           >
-            <strong>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "bar",
-                    },
-                  }
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "bar",
+                  },
                 }
-              >
-                Bar
-              </Link>
-            </strong>
-          </Tooltip>
+              }
+            >
+              Bar
+            </Link>
+          </strong>
         </div>
         <em>
           onboarding.create_project.repository_imported
@@ -266,7 +251,29 @@ exports[`should render correctly: no repos 1`] = `
     <Alert
       variant="warning"
     >
-      onboarding.create_project.no_bbs_repos
+      <FormattedMessage
+        defaultMessage="onboarding.create_project.no_bbs_repos"
+        id="onboarding.create_project.no_bbs_repos"
+        values={
+          Object {
+            "link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/projects/create",
+                  "query": Object {
+                    "mode": "bbs",
+                    "resetPat": 1,
+                  },
+                }
+              }
+            >
+              onboarding.create_project.update_your_token
+            </Link>,
+          }
+        }
+      />
     </Alert>
   </div>
 </BoxedGroupAccordion>
@@ -294,15 +301,12 @@ exports[`should render correctly: not showing all repos 1`] = `
       onCheck={[Function]}
       value="1"
     >
-      <Tooltip
-        overlay="Repo"
+      <strong
+        className="text-ellipsis"
+        title="Repo"
       >
-        <strong
-          className="text-ellipsis"
-        >
-          Repo
-        </strong>
-      </Tooltip>
+        Repo
+      </strong>
     </Radio>
     <div
       className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
@@ -319,27 +323,25 @@ exports[`should render correctly: not showing all repos 1`] = `
         <div
           className="little-spacer-bottom text-ellipsis"
         >
-          <Tooltip
-            overlay="Bar"
+          <strong
+            title="Bar"
           >
-            <strong>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "bar",
-                    },
-                  }
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "bar",
+                  },
                 }
-              >
-                Bar
-              </Link>
-            </strong>
-          </Tooltip>
+              }
+            >
+              Bar
+            </Link>
+          </strong>
         </div>
         <em>
           onboarding.create_project.repository_imported
@@ -377,15 +379,12 @@ exports[`should render correctly: selected repo 1`] = `
       onCheck={[Function]}
       value="1"
     >
-      <Tooltip
-        overlay="Repo"
+      <strong
+        className="text-ellipsis"
+        title="Repo"
       >
-        <strong
-          className="text-ellipsis"
-        >
-          Repo
-        </strong>
-      </Tooltip>
+        Repo
+      </strong>
     </Radio>
     <div
       className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
@@ -402,27 +401,25 @@ exports[`should render correctly: selected repo 1`] = `
         <div
           className="little-spacer-bottom text-ellipsis"
         >
-          <Tooltip
-            overlay="Bar"
+          <strong
+            title="Bar"
           >
-            <strong>
-              <Link
-                onlyActiveOnIndex={false}
-                style={Object {}}
-                to={
-                  Object {
-                    "pathname": "/dashboard",
-                    "query": Object {
-                      "branch": undefined,
-                      "id": "bar",
-                    },
-                  }
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "bar",
+                  },
                 }
-              >
-                Bar
-              </Link>
-            </strong>
-          </Tooltip>
+              }
+            >
+              Bar
+            </Link>
+          </strong>
         </div>
         <em>
           onboarding.create_project.repository_imported

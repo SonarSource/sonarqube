@@ -55,6 +55,7 @@ interface State {
   searchResults?: BitbucketRepository[];
   selectedRepository?: BitbucketRepository;
   submittingToken?: boolean;
+  tokenValidationFailed: boolean;
 }
 
 export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
@@ -68,7 +69,8 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
       bitbucketSetting: props.bitbucketSettings[0],
       importing: false,
       loading: false,
-      searching: false
+      searching: false,
+      tokenValidationFailed: false
     };
   }
 
@@ -79,8 +81,9 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.bitbucketSettings.length === 0 && this.props.bitbucketSettings.length > 0) {
-      this.setState({ bitbucketSetting: this.props.bitbucketSettings[0] });
-      this.fetchInitialData();
+      this.setState({ bitbucketSetting: this.props.bitbucketSettings[0] }, () =>
+        this.fetchInitialData()
+      );
     }
   }
 
@@ -169,12 +172,15 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
       return;
     }
 
-    this.setState({ submittingToken: true });
+    this.setState({ submittingToken: true, tokenValidationFailed: false });
     setAlmPersonalAccessToken(bitbucketSetting.key, token)
-      .then(() => {
+      .then(this.checkPersonalAccessToken)
+      .then(patIsValid => {
         if (this.mounted) {
-          this.setState({ submittingToken: false });
-          this.fetchInitialData();
+          this.setState({ submittingToken: false, patIsValid, tokenValidationFailed: !patIsValid });
+          if (patIsValid) {
+            this.fetchInitialData();
+          }
         }
       })
       .catch(() => {
@@ -241,7 +247,7 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { canAdmin, loadingBindings } = this.props;
+    const { canAdmin, loadingBindings, location } = this.props;
     const {
       bitbucketSetting,
       importing,
@@ -252,7 +258,8 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
       searching,
       searchResults,
       selectedRepository,
-      submittingToken
+      submittingToken,
+      tokenValidationFailed
     } = this.state;
 
     return (
@@ -271,8 +278,9 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
         searchResults={searchResults}
         searching={searching}
         selectedRepository={selectedRepository}
-        showPersonalAccessTokenForm={!patIsValid}
+        showPersonalAccessTokenForm={!patIsValid || Boolean(location.query.resetPat)}
         submittingToken={submittingToken}
+        tokenValidationFailed={tokenValidationFailed}
       />
     );
   }

@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -28,6 +30,7 @@ import {
 } from '../../../types/alm-integration';
 import BitbucketRepositories from './BitbucketRepositories';
 import BitbucketSearchResults from './BitbucketSearchResults';
+import { CreateProjectModes } from './types';
 
 export interface BitbucketImportRepositoryFormProps {
   disableRepositories: boolean;
@@ -53,7 +56,21 @@ export default function BitbucketImportRepositoryForm(props: BitbucketImportRepo
   if (projects.length === 0) {
     return (
       <Alert className="spacer-top" variant="warning">
-        {translate('onboarding.create_project.no_bbs_projects')}
+        <FormattedMessage
+          defaultMessage={translate('onboarding.create_project.no_bbs_projects')}
+          id="onboarding.create_project.no_bbs_projects"
+          values={{
+            link: (
+              <Link
+                to={{
+                  pathname: '/projects/create',
+                  query: { mode: CreateProjectModes.BitbucketServer, resetPat: 1 }
+                }}>
+                {translate('onboarding.create_project.update_your_token')}
+              </Link>
+            )
+          }}
+        />
       </Alert>
     );
   }

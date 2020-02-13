@@ -56,7 +56,29 @@ exports[`should render correctly: no projects 1`] = `
   className="spacer-top"
   variant="warning"
 >
-  onboarding.create_project.no_bbs_projects
+  <FormattedMessage
+    defaultMessage="onboarding.create_project.no_bbs_projects"
+    id="onboarding.create_project.no_bbs_projects"
+    values={
+      Object {
+        "link": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/projects/create",
+              "query": Object {
+                "mode": "bbs",
+                "resetPat": 1,
+              },
+            }
+          }
+        >
+          onboarding.create_project.update_your_token
+        </Link>,
+      }
+    }
+  />
 </Alert>
 `;
 

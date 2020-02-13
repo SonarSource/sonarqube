@@ -17,5 +17,6 @@ exports[`should render correctly 1`] = `
   onSelectRepository={[Function]}
   searching={false}
   showPersonalAccessTokenForm={true}
+  tokenValidationFailed={false}
 />
 `;

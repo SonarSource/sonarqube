@@ -32,6 +32,7 @@ export interface BitbucketPersonalAccessTokenFormProps {
   bitbucketSetting: AlmSettingsInstance;
   onPersonalAccessTokenCreate: (token: string) => void;
   submitting?: boolean;
+  validationFailed: boolean;
 }
 
 export default function BitbucketPersonalAccessTokenForm(
@@ -39,17 +40,24 @@ export default function BitbucketPersonalAccessTokenForm(
 ) {
   const {
     bitbucketSetting: { url },
-    submitting = false
+    submitting = false,
+    validationFailed
   } = props;
-  const [personalAccessToken, setPersonalAccessToken] = React.useState('');
-  const isValid = personalAccessToken.length > 0;
+  const [touched, setTouched] = React.useState(false);
+
+  React.useEffect(() => {
+    setTouched(false);
+  }, [submitting]);
+
+  const isInvalid = validationFailed && !touched;
 
   return (
     <div className="display-flex-start">
       <form
         onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
           e.preventDefault();
-          props.onPersonalAccessTokenCreate(personalAccessToken);
+          const value = new FormData(e.currentTarget).get('personal_access_token') as string;
+          props.onPersonalAccessTokenCreate(value);
         }}>
         <h2 className="big">{translate('onboarding.create_project.grant_access_to_bbs.title')}</h2>
         <p className="big-spacer-top big-spacer-bottom">
@@ -57,28 +65,30 @@ export default function BitbucketPersonalAccessTokenForm(
         </p>
 
         <ValidationInput
-          error={undefined}
+          error={isInvalid ? translate('onboarding.create_project.pat_incorrect') : undefined}
           id="personal_access_token"
-          isInvalid={false}
-          isValid={isValid}
+          isInvalid={isInvalid}
+          isValid={false}
           label={translate('onboarding.create_project.enter_pat')}
           required={true}>
           <input
             autoFocus={true}
             className={classNames('input-super-large', {
-              'is-valid': isValid
+              'is-invalid': isInvalid
             })}
             id="personal_access_token"
             minLength={1}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setPersonalAccessToken(e.currentTarget.value)
-            }
+            name="personal_access_token"
+            onChange={() => {
+              setTouched(true);
+            }}
             type="text"
-            value={personalAccessToken}
           />
         </ValidationInput>
 
-        <SubmitButton disabled={!isValid || submitting}>{translate('save')}</SubmitButton>
+        <SubmitButton disabled={isInvalid || submitting || !touched}>
+          {translate('save')}
+        </SubmitButton>
         <DeferredSpinner className="spacer-left" loading={submitting} />
       </form>
 

@@ -19,16 +19,17 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
 import Radio from 'sonar-ui-common/components/controls/Radio';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BitbucketProject, BitbucketRepository } from '../../../types/alm-integration';
+import { CreateProjectModes } from './types';
 
 export interface BitbucketProjectAccordionProps {
   disableRepositories: boolean;
@@ -73,7 +74,23 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
       {open && (
         <div className="display-flex-wrap">
           {repositoryCount === 0 && (
-            <Alert variant="warning">{translate('onboarding.create_project.no_bbs_repos')}</Alert>
+            <Alert variant="warning">
+              <FormattedMessage
+                defaultMessage={translate('onboarding.create_project.no_bbs_repos')}
+                id="onboarding.create_project.no_bbs_repos"
+                values={{
+                  link: (
+                    <Link
+                      to={{
+                        pathname: '/projects/create',
+                        query: { mode: CreateProjectModes.BitbucketServer, resetPat: 1 }
+                      }}>
+                      {translate('onboarding.create_project.update_your_token')}
+                    </Link>
+                  )
+                }}
+              />
+            </Alert>
           )}
 
           {repositories.map(repo =>
@@ -84,11 +101,9 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                 <CheckIcon className="spacer-right" fill={colors.green} size={14} />
                 <div className="overflow-hidden">
                   <div className="little-spacer-bottom text-ellipsis">
-                    <Tooltip overlay={repo.name}>
-                      <strong>
-                        <Link to={getProjectUrl(repo.sqProjectKey)}>{repo.name}</Link>
-                      </strong>
-                    </Tooltip>
+                    <strong title={repo.name}>
+                      <Link to={getProjectUrl(repo.sqProjectKey)}>{repo.name}</Link>
+                    </strong>
                   </div>
                   <em>{translate('onboarding.create_project.repository_imported')}</em>
                 </div>
@@ -107,9 +122,9 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
                 key={repo.id}
                 onCheck={() => props.onSelectRepository(repo)}
                 value={String(repo.id)}>
-                <Tooltip overlay={repo.name}>
-                  <strong className="text-ellipsis">{repo.name}</strong>
-                </Tooltip>
+                <strong className="text-ellipsis" title={repo.name}>
+                  {repo.name}
+                </strong>
               </Radio>
             )
           )}

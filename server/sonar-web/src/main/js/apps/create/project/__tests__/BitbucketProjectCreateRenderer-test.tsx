@@ -60,6 +60,7 @@ function shallowRender(props: Partial<BitbucketProjectCreateRendererProps> = {})
       projectRepositories={{ foo: { allShown: true, repositories: [mockBitbucketRepository()] } }}
       projects={[mockBitbucketProject({ key: 'foo' })]}
       searching={false}
+      tokenValidationFailed={false}
       {...props}
     />
   );
