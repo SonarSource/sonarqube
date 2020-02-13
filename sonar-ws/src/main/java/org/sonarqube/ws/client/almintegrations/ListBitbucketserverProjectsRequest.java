@@ -24,47 +24,23 @@ import javax.annotation.Generated;
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/search_bibucketserver_repos">Further information about this action online (including a response example)</a>
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_bibucketserver_projects">Further information about this action online (including a response example)</a>
  * @since 8.2
  */
 @Generated("sonar-ws-generator")
-public class SearchBibucketserverReposRequest {
+public class ListBitbucketserverProjectsRequest {
 
   private String almSetting;
-  private String projectName;
-  private String repositoryName;
 
   /**
    * This is a mandatory parameter.
    */
-  public SearchBibucketserverReposRequest setAlmSetting(String almSetting) {
+  public ListBitbucketserverProjectsRequest setAlmSetting(String almSetting) {
     this.almSetting = almSetting;
     return this;
   }
 
   public String getAlmSetting() {
     return almSetting;
-  }
-
-  /**
-   */
-  public SearchBibucketserverReposRequest setProjectName(String projectName) {
-    this.projectName = projectName;
-    return this;
-  }
-
-  public String getProjectName() {
-    return projectName;
-  }
-
-  /**
-   */
-  public SearchBibucketserverReposRequest setRepositoryName(String repositoryName) {
-    this.repositoryName = repositoryName;
-    return this;
-  }
-
-  public String getRepositoryName() {
-    return repositoryName;
   }
 }

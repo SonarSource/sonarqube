@@ -74,12 +74,12 @@ public class AlmIntegrationsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_bibucketserver_projects">Further information about this action online (including a response example)</a>
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/list_bitbucketserver_projects">Further information about this action online (including a response example)</a>
    * @since 8.2
    */
-  public AlmIntegrations.ListBitbucketserverProjectsWsResponse listBibucketserverProjects(ListBibucketserverProjectsRequest request) {
+  public AlmIntegrations.ListBitbucketserverProjectsWsResponse listBitbucketserverProjects(ListBitbucketserverProjectsRequest request) {
     return call(
-      new GetRequest(path("list_bibucketserver_projects"))
+      new GetRequest(path("list_bitbucketserver_projects"))
         .setParam("almSetting", request.getAlmSetting())
         .setMediaType(MediaTypes.JSON),
       AlmIntegrations.ListBitbucketserverProjectsWsResponse.parser());
@@ -89,12 +89,12 @@ public class AlmIntegrationsService extends BaseService {
    *
    * This is part of the internal API.
    * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/search_bibucketserver_repos">Further information about this action online (including a response example)</a>
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/search_bitbucketserver_repos">Further information about this action online (including a response example)</a>
    * @since 8.2
    */
-  public AlmIntegrations.SearchBitbucketserverReposWsResponse searchBibucketserverRepos(SearchBibucketserverReposRequest request) {
+  public AlmIntegrations.SearchBitbucketserverReposWsResponse searchBitbucketserverRepos(SearchBitbucketserverReposRequest request) {
     return call(
-      new GetRequest(path("search_bibucketserver_repos"))
+      new GetRequest(path("search_bitbucketserver_repos"))
         .setParam("almSetting", request.getAlmSetting())
         .setParam("projectName", request.getProjectName())
         .setParam("repositoryName", request.getRepositoryName())
