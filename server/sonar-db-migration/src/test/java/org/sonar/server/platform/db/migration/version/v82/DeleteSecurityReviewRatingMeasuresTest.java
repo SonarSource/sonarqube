@@ -24,6 +24,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
@@ -38,22 +39,29 @@ public class DeleteSecurityReviewRatingMeasuresTest {
 
   private static final int SECURITY_REVIEW_RATING_METRIC_ID = 200;
   private static final String SECURITY_REVIEW_RATING_METRIC_KEY = "security_review_rating";
+  private static final int SECURITY_REVIEW_RATING_EFFORT_METRIC_ID = 201;
+  private static final String SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY = "security_review_rating_effort";
 
-  private static final Random RANDOM = new Random();
+  private static final int OTHER_METRIC_ID_1 = 1;
+  private static final int OTHER_METRIC_ID_2 = 2;
+  private static final int OTHER_METRIC_MEASURES_COUNT = 20;
 
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DeleteSecurityReviewRatingMeasuresTest.class, "schema.sql");
 
   private DataChange underTest = new DeleteSecurityReviewRatingMeasures(db.database());
 
-  @Test
-  public void should_not_fail_if_metric_not_defined() throws SQLException {
-    insertMetric(1, "another metric#1");
-    insertMetric(2, "another metric#2");
+  @Before
+  public void before() {
+    insertMetric(OTHER_METRIC_ID_1, "another metric#1");
+    insertMetric(OTHER_METRIC_ID_2, "another metric#2");
+  }
 
+  @Test
+  public void not_fail_if_metrics_not_defined() throws SQLException {
     String projectUuid = insertComponent("PRJ", "TRK");
-    insertMeasure(4, SECURITY_REVIEW_RATING_METRIC_ID, projectUuid);
-    insertLiveMeasure("uuid-4", SECURITY_REVIEW_RATING_METRIC_ID, projectUuid, projectUuid);
+    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, projectUuid);
+    insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, projectUuid, projectUuid);
 
     underTest.execute();
 
@@ -62,10 +70,119 @@ public class DeleteSecurityReviewRatingMeasuresTest {
   }
 
   @Test
-  public void should_remove_security_rating_review_from_measures_and_live_measures() throws SQLException {
+  public void not_fail_if_security_review_rating_effort_metric_not_found() throws SQLException {
     insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
-    insertMetric(1, "another metric#1");
-    insertMetric(2, "another metric#2");
+
+    String applicationUuid = insertComponent("PRJ", "TRK");
+
+    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid);
+    insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid, applicationUuid);
+
+    generateOtherMetricMeasures(2, applicationUuid);
+    generateOtherMetricsLiveMeasures(applicationUuid);
+
+    underTest.execute();
+
+    assertSecurityReviewRatingMeasuresDeleted();
+    assertSecurityReviewRatingLiveMeasuresDeleted();
+
+    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
+    assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
+
+    // should not fail if called twice
+    underTest.execute();
+  }
+
+  @Test
+  public void remove_security_rating_review_from_measures_and_live_measures_projects() throws SQLException {
+    insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
+    insertMetric(SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
+
+    String applicationUuid = insertComponent("PRJ", "TRK");
+
+    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid);
+    insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid, applicationUuid);
+
+    generateOtherMetricMeasures(2, applicationUuid);
+    generateOtherMetricsLiveMeasures(applicationUuid);
+
+    underTest.execute();
+
+    assertSecurityReviewRatingMeasuresDeleted();
+    assertSecurityReviewRatingLiveMeasuresDeleted();
+
+    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
+    assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
+
+    // should not fail if called twice
+    underTest.execute();
+  }
+
+  @Test
+  public void remove_security_rating_review_from_measures_and_live_measures_for_portfolios() throws SQLException {
+    insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
+    insertMetric(SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
+
+    String portfolioUuid = insertComponent("PRJ", "VW");
+    String subPortfolioUuid = insertComponent("PRJ", "SVW");
+
+    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, portfolioUuid);
+    insertMeasure(2, SECURITY_REVIEW_RATING_METRIC_ID, subPortfolioUuid);
+
+    insertMeasure(3, SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, portfolioUuid);
+    insertMeasure(4, SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, subPortfolioUuid);
+
+    insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, portfolioUuid, portfolioUuid);
+    insertLiveMeasure("uuid-2", SECURITY_REVIEW_RATING_METRIC_ID, subPortfolioUuid, subPortfolioUuid);
+
+    insertLiveMeasure("uuid-3", SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, portfolioUuid, portfolioUuid);
+    insertLiveMeasure("uuid-4", SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, subPortfolioUuid, subPortfolioUuid);
+
+
+    generateOtherMetricMeasures(5, portfolioUuid);
+    generateOtherMetricsLiveMeasures(portfolioUuid);
+
+    underTest.execute();
+
+    assertSecurityReviewRatingMeasuresDeleted();
+    assertSecurityReviewRatingLiveMeasuresDeleted();
+
+    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
+    assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
+
+    // should not fail if called twice
+    underTest.execute();
+  }
+
+  @Test
+  public void remove_security_rating_review_from_measures_and_live_measures_applications() throws SQLException {
+    insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
+    insertMetric(SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
+
+    String applicationUuid = insertComponent("PRJ", "APP");
+
+    insertMeasure(1, SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid);
+    insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid, applicationUuid);
+
+    generateOtherMetricMeasures(2, applicationUuid);
+    generateOtherMetricsLiveMeasures(applicationUuid);
+
+    underTest.execute();
+
+    assertSecurityReviewRatingMeasuresDeleted();
+    assertSecurityReviewRatingLiveMeasuresDeleted();
+
+    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
+    assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
+
+    // should not fail if called twice
+    underTest.execute();
+  }
+
+  @Test
+  public void remove_security_rating_review_from_measures_and_live_measures_mixed() throws SQLException {
+    insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
+    insertMetric(SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, SECURITY_REVIEW_RATING_EFFORT_METRIC_KEY);
 
     String portfolioUuid = insertComponent("PRJ", "VW");
     String subPortfolioUuid = insertComponent("PRJ", "SVW");
@@ -77,12 +194,8 @@ public class DeleteSecurityReviewRatingMeasuresTest {
     insertMeasure(3, SECURITY_REVIEW_RATING_METRIC_ID, applicationUuid);
     insertMeasure(4, SECURITY_REVIEW_RATING_METRIC_ID, projectUuid);
 
-    // other random metrics
-    int totalOtherMeasures = IntStream.range(5, 10 + RANDOM.nextInt(10))
-      .peek(i -> insertMeasure(i, RANDOM.nextInt(100), projectUuid))
-      .boxed()
-      .collect(Collectors.toList())
-      .size();
+    insertMeasure(5, SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, portfolioUuid);
+    insertMeasure(6, SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, subPortfolioUuid);
 
     insertLiveMeasure("uuid-1", SECURITY_REVIEW_RATING_METRIC_ID, portfolioUuid, portfolioUuid);
     insertLiveMeasure("uuid-2", SECURITY_REVIEW_RATING_METRIC_ID, subPortfolioUuid, subPortfolioUuid);
@@ -91,35 +204,46 @@ public class DeleteSecurityReviewRatingMeasuresTest {
     insertLiveMeasure("uuid-5", SECURITY_REVIEW_RATING_METRIC_ID, projectUuid, getRandomUuid());
     insertLiveMeasure("uuid-6", SECURITY_REVIEW_RATING_METRIC_ID, projectUuid, getRandomUuid());
 
-    // other random metrics
-    long totalOtherLiveMeasures = IntStream.range(0, 10 + RANDOM.nextInt(10))
-      .peek(i -> insertLiveMeasure("uuid-other-" + i, RANDOM.nextInt(100), projectUuid, getRandomUuid()))
-      .boxed()
-      .collect(Collectors.toList())
-      .size();
+    insertLiveMeasure("uuid-7", SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, portfolioUuid, portfolioUuid);
+    insertLiveMeasure("uuid-8", SECURITY_REVIEW_RATING_EFFORT_METRIC_ID, subPortfolioUuid, subPortfolioUuid);
+
+    generateOtherMetricMeasures(7, projectUuid);
+    generateOtherMetricsLiveMeasures(projectUuid);
 
     underTest.execute();
 
     assertSecurityReviewRatingMeasuresDeleted();
     assertSecurityReviewRatingLiveMeasuresDeleted();
 
-    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(totalOtherMeasures);
-    assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(totalOtherLiveMeasures);
+    assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
+    assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(OTHER_METRIC_MEASURES_COUNT);
 
     // should not fail if called twice
     underTest.execute();
   }
 
   @Test
-  public void should_not_fail_if_empty_tables() throws SQLException {
+  public void not_fail_if_empty_tables() throws SQLException {
     insertMetric(SECURITY_REVIEW_RATING_METRIC_ID, SECURITY_REVIEW_RATING_METRIC_KEY);
-    insertMetric(1, "another metric#1");
-    insertMetric(2, "another metric#2");
 
     underTest.execute();
 
     assertThat(db.countRowsOfTable(PROJECT_MEASURES_TABLE_NAME)).isEqualTo(0);
     assertThat(db.countRowsOfTable(LIVE_MEASURES_TABLE_NAME)).isEqualTo(0);
+  }
+
+  private void generateOtherMetricsLiveMeasures(String componentUuid) {
+    IntStream.range(0, OTHER_METRIC_MEASURES_COUNT)
+      .peek(i -> insertLiveMeasure("uuid-other-" + i, i, componentUuid, getRandomUuid()))
+      .boxed()
+      .collect(Collectors.toList());
+  }
+
+  private void generateOtherMetricMeasures(int startId, String componentUuid) {
+    IntStream.range(startId, startId + OTHER_METRIC_MEASURES_COUNT)
+      .peek(i -> insertMeasure(i, new Random().nextBoolean() ? OTHER_METRIC_ID_1 : OTHER_METRIC_ID_2, componentUuid))
+      .boxed()
+      .collect(Collectors.toList());
   }
 
   private void assertSecurityReviewRatingLiveMeasuresDeleted() {

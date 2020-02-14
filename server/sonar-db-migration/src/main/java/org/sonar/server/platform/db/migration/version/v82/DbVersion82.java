@@ -34,6 +34,6 @@ public class DbVersion82 implements DbVersion {
       .add(3205, "Add PROJECTS table", CreateProjectsTable.class)
       .add(3206, "Populate PROJECTS table", PopulateProjectsTable.class)
       .add(3207, "Drop 'TAGS' column from COMPONENTS table", DropTagsColumnFromComponentsTable.class)
-      .add(3208, "Remove old Security Review Rating measures", DeleteSecurityReviewRatingMeasures.class);
+      .add(3209, "Remove old Security Review Rating measures", DeleteSecurityReviewRatingMeasures.class);
   }
 }
