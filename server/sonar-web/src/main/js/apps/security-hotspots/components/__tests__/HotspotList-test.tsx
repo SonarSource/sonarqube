@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { HotspotStatusFilter, RiskExposure } from '../../../../types/security-hotspots';
-import HotspotList, { HotspotListProps } from '../HotspotList';
+import HotspotList from '../HotspotList';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -32,32 +32,53 @@ it('should render correctly when the list of hotspot is static', () => {
   expect(shallowRender({ isStaticListOfHotspots: true })).toMatchSnapshot();
 });
 
+const hotspots = [
+  mockRawHotspot({ key: 'h1', securityCategory: 'cat2' }),
+  mockRawHotspot({ key: 'h2', securityCategory: 'cat1' }),
+  mockRawHotspot({
+    key: 'h3',
+    securityCategory: 'cat1',
+    vulnerabilityProbability: RiskExposure.MEDIUM
+  }),
+  mockRawHotspot({
+    key: 'h4',
+    securityCategory: 'cat1',
+    vulnerabilityProbability: RiskExposure.MEDIUM
+  }),
+  mockRawHotspot({
+    key: 'h5',
+    securityCategory: 'cat2',
+    vulnerabilityProbability: RiskExposure.MEDIUM
+  })
+];
+
 it('should render correctly with hotspots', () => {
-  const hotspots = [
-    mockRawHotspot({ key: 'h1', securityCategory: 'cat2' }),
-    mockRawHotspot({ key: 'h2', securityCategory: 'cat1' }),
-    mockRawHotspot({
-      key: 'h3',
-      securityCategory: 'cat1',
-      vulnerabilityProbability: RiskExposure.MEDIUM
-    }),
-    mockRawHotspot({
-      key: 'h4',
-      securityCategory: 'cat1',
-      vulnerabilityProbability: RiskExposure.MEDIUM
-    }),
-    mockRawHotspot({
-      key: 'h5',
-      securityCategory: 'cat2',
-      vulnerabilityProbability: RiskExposure.MEDIUM
-    })
-  ];
   expect(shallowRender({ hotspots })).toMatchSnapshot('no pagination');
   expect(shallowRender({ hotspots, hotspotsTotal: 7 })).toMatchSnapshot('pagination');
 });
 
-function shallowRender(props: Partial<HotspotListProps> = {}) {
-  return shallow(
+it('should update expanded categories correctly', () => {
+  const wrapper = shallowRender({ hotspots, selectedHotspot: hotspots[0] });
+
+  expect(wrapper.state().expandedCategories).toEqual({ cat2: true });
+
+  wrapper.setProps({ selectedHotspot: hotspots[1] });
+
+  expect(wrapper.state().expandedCategories).toEqual({ cat1: true, cat2: true });
+});
+
+it('should update grouped hotspots when the list changes', () => {
+  const wrapper = shallowRender({ hotspots, selectedHotspot: hotspots[0] });
+
+  wrapper.setProps({ hotspots: [mockRawHotspot()] });
+
+  expect(wrapper.state().groupedHotspots).toHaveLength(1);
+  expect(wrapper.state().groupedHotspots[0].categories).toHaveLength(1);
+  expect(wrapper.state().groupedHotspots[0].categories[0].hotspots).toHaveLength(1);
+});
+
+function shallowRender(props: Partial<HotspotList['props']> = {}) {
+  return shallow<HotspotList>(
     <HotspotList
       hotspots={[]}
       isStaticListOfHotspots={false}
@@ -65,7 +86,7 @@ function shallowRender(props: Partial<HotspotListProps> = {}) {
       onHotspotClick={jest.fn()}
       onLoadMore={jest.fn()}
       securityCategories={{}}
-      selectedHotspotKey="h2"
+      selectedHotspot={mockRawHotspot({ key: 'h2' })}
       statusFilter={HotspotStatusFilter.TO_REVIEW}
       {...props}
     />

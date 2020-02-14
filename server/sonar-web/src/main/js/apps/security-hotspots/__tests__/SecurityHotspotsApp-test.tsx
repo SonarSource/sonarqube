@@ -99,7 +99,7 @@ it('should load data correctly', async () => {
 
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().hotspots).toEqual(hotspots);
-  expect(wrapper.state().selectedHotspotKey).toBe(hotspots[0].key);
+  expect(wrapper.state().selectedHotspot).toBe(hotspots[0]);
   expect(wrapper.state().securityCategories).toEqual({
     cat1: { title: 'cat 1' }
   });
@@ -219,35 +219,43 @@ it('should handle hotspot update', async () => {
   const hotspots = [mockRawHotspot(), mockRawHotspot({ key })];
   (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({
     hotspots,
-    paging: { total: 2 }
+    paging: { pageIndex: 1, total: 1252 }
   });
 
   const wrapper = shallowRender();
-
   await waitAndUpdate(wrapper);
+  wrapper.setState({ hotspotsPageIndex: 2 });
 
-  wrapper
+  jest.clearAllMocks();
+  (getSecurityHotspots as jest.Mock)
+    .mockResolvedValueOnce({
+      hotspots: [mockRawHotspot()],
+      paging: { pageIndex: 1, total: 1251 }
+    })
+    .mockResolvedValueOnce({
+      hotspots: [mockRawHotspot()],
+      paging: { pageIndex: 2, total: 1251 }
+    });
+
+  const selectedHotspotIndex = wrapper
+    .state()
+    .hotspots.findIndex(h => h.key === wrapper.state().selectedHotspot?.key);
+
+  await wrapper
     .find(SecurityHotspotsAppRenderer)
     .props()
-    .onUpdateHotspot({ key, status: HotspotStatus.REVIEWED, resolution: HotspotResolution.SAFE });
+    .onUpdateHotspot(key);
 
-  expect(wrapper.state().hotspots[0]).toEqual(hotspots[0]);
-  expect(wrapper.state().hotspots[1]).toEqual({
-    ...hotspots[1],
-    status: HotspotStatus.REVIEWED,
-    resolution: HotspotResolution.SAFE
-  });
+  expect(getSecurityHotspots).toHaveBeenCalledTimes(2);
+
+  expect(wrapper.state().hotspots).toHaveLength(2);
+  expect(wrapper.state().hotspotsPageIndex).toBe(2);
+  expect(wrapper.state().hotspotsTotal).toBe(1251);
+  expect(
+    wrapper.state().hotspots.findIndex(h => h.key === wrapper.state().selectedHotspot?.key)
+  ).toBe(selectedHotspotIndex);
+
   expect(getMeasures).toBeCalled();
-
-  await waitAndUpdate(wrapper);
-  const previousState = wrapper.state();
-  wrapper.instance().handleHotspotUpdate({
-    key: 'unknown',
-    status: HotspotStatus.REVIEWED,
-    resolution: HotspotResolution.SAFE
-  });
-  await waitAndUpdate(wrapper);
-  expect(wrapper.state()).toEqual(previousState);
 });
 
 it('should handle status filter change', async () => {

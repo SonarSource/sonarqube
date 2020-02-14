@@ -31,7 +31,7 @@ export interface HotspotViewerRendererProps {
   branchLike?: BranchLike;
   hotspot?: Hotspot;
   loading: boolean;
-  onUpdateHotspot: () => void;
+  onUpdateHotspot: () => Promise<void>;
   securityCategories: T.StandardSecurityCategories;
 }
 

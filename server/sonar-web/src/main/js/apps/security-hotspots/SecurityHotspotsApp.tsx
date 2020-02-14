@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Location } from 'history';
+import { flatMap, range } from 'lodash';
 import * as React from 'react';
 import { addNoFooterPageClass, removeNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
 import { getMeasures } from '../../api/measures';
@@ -35,7 +36,6 @@ import {
   HotspotResolution,
   HotspotStatus,
   HotspotStatusFilter,
-  HotspotUpdate,
   RawHotspot
 } from '../../types/security-hotspots';
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
@@ -61,7 +61,7 @@ interface State {
   loadingMeasure: boolean;
   loadingMore: boolean;
   securityCategories: T.StandardSecurityCategories;
-  selectedHotspotKey: string | undefined;
+  selectedHotspot: RawHotspot | undefined;
   filters: HotspotFilters;
 }
 
@@ -79,7 +79,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       hotspots: [],
       hotspotsPageIndex: 1,
       securityCategories: {},
-      selectedHotspotKey: undefined,
+      selectedHotspot: undefined,
       filters: {
         ...this.constructFiltersFromProps(props),
         status: HotspotStatusFilter.TO_REVIEW
@@ -150,13 +150,13 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
           hotspotsTotal: paging.total,
           loading: false,
           securityCategories: sonarsourceSecurity,
-          selectedHotspotKey: hotspots.length > 0 ? hotspots[0].key : undefined
+          selectedHotspot: hotspots.length > 0 ? hotspots[0] : undefined
         });
       })
       .catch(this.handleCallFailure);
   }
 
-  fetchSecurityHotspotsReviewed() {
+  fetchSecurityHotspotsReviewed = () => {
     const { branchLike, component } = this.props;
     const { filters } = this.state;
 
@@ -186,7 +186,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
           this.setState({ loadingMeasure: false });
         }
       });
-  }
+  };
 
   fetchSecurityHotspots(page = 1) {
     const { branchLike, component, location } = this.props;
@@ -241,7 +241,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
           hotspotsPageIndex: 1,
           hotspotsTotal: paging.total,
           loading: false,
-          selectedHotspotKey: hotspots.length > 0 ? hotspots[0].key : undefined
+          selectedHotspot: hotspots.length > 0 ? hotspots[0] : undefined
         });
       })
       .catch(this.handleCallFailure);
@@ -259,24 +259,30 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     );
   };
 
-  handleHotspotClick = (key: string) => this.setState({ selectedHotspotKey: key });
+  handleHotspotClick = (selectedHotspot: RawHotspot) => this.setState({ selectedHotspot });
 
-  handleHotspotUpdate = ({ key, status, resolution }: HotspotUpdate) => {
-    this.setState(({ hotspots }) => {
-      const index = hotspots.findIndex(h => h.key === key);
+  handleHotspotUpdate = (hotspotKey: string) => {
+    const { hotspots, hotspotsPageIndex } = this.state;
+    const index = hotspots.findIndex(h => h.key === hotspotKey);
 
-      if (index > -1) {
-        const hotspot = {
-          ...hotspots[index],
-          status,
-          resolution
-        };
+    return Promise.all(
+      range(hotspotsPageIndex).map(p => this.fetchSecurityHotspots(p + 1 /* pages are 1-indexed */))
+    )
+      .then(hotspotPages => {
+        const allHotspots = flatMap(hotspotPages, 'hotspots');
 
-        return { hotspots: [...hotspots.slice(0, index), hotspot, ...hotspots.slice(index + 1)] };
-      }
-      return null;
-    });
-    return this.fetchSecurityHotspotsReviewed();
+        const { paging } = hotspotPages[hotspotPages.length - 1];
+
+        const nextHotspot = allHotspots[Math.min(index, allHotspots.length - 1)];
+
+        this.setState({
+          hotspots: allHotspots,
+          hotspotsPageIndex: paging.pageIndex,
+          hotspotsTotal: paging.total,
+          selectedHotspot: nextHotspot
+        });
+      })
+      .then(this.fetchSecurityHotspotsReviewed);
   };
 
   handleShowAllHotspots = () => {
@@ -317,7 +323,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       loadingMeasure,
       loadingMore,
       securityCategories,
-      selectedHotspotKey,
+      selectedHotspot,
       filters
     } = this.state;
 
@@ -339,7 +345,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
         onShowAllHotspots={this.handleShowAllHotspots}
         onUpdateHotspot={this.handleHotspotUpdate}
         securityCategories={securityCategories}
-        selectedHotspotKey={selectedHotspotKey}
+        selectedHotspot={selectedHotspot}
       />
     );
   }

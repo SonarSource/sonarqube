@@ -34,7 +34,7 @@ it('should handle click', () => {
 
   wrapper.simulate('click');
 
-  expect(onClick).toBeCalledWith(hotspot.key);
+  expect(onClick).toBeCalledWith(hotspot);
 });
 
 function shallowRender(props: Partial<HotspotListItemProps> = {}) {

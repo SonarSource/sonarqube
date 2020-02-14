@@ -37,7 +37,8 @@
   border-left: 4px solid;
 }
 
-.hotspot-category .hotspot-category-header:hover {
+.hotspot-category .hotspot-category-header:hover,
+.hotspot-category .hotspot-category-header.contains-selected-hotspot {
   color: var(--blue);
 }
 

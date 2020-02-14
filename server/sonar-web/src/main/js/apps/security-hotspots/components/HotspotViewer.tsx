@@ -21,13 +21,13 @@
 import * as React from 'react';
 import { getSecurityHotspotDetails } from '../../../api/security-hotspots';
 import { BranchLike } from '../../../types/branch-like';
-import { Hotspot, HotspotUpdate } from '../../../types/security-hotspots';
+import { Hotspot } from '../../../types/security-hotspots';
 import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
   branchLike?: BranchLike;
   hotspotKey: string;
-  onUpdateHotspot: (hotspot: HotspotUpdate) => void;
+  onUpdateHotspot: (hotspotKey: string) => Promise<void>;
   securityCategories: T.StandardSecurityCategories;
 }
 
@@ -70,11 +70,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   handleHotspotUpdate = () => {
     return this.fetchHotspot().then((hotspot?: Hotspot) => {
       if (hotspot) {
-        this.props.onUpdateHotspot({
-          key: hotspot.key,
-          status: hotspot.status,
-          resolution: hotspot.resolution
-        });
+        return this.props.onUpdateHotspot(hotspot.key);
       }
     });
   };

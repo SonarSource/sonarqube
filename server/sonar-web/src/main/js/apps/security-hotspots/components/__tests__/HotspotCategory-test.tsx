@@ -27,30 +27,49 @@ it('should render correctly', () => {
 });
 
 it('should render correctly with hotspots', () => {
-  const hotspots = [mockRawHotspot({ key: 'h1' }), mockRawHotspot({ key: 'h2' })];
+  const securityCategory = 'command-injection';
+  const hotspots = [
+    mockRawHotspot({ key: 'h1', securityCategory }),
+    mockRawHotspot({ key: 'h2', securityCategory })
+  ];
   expect(shallowRender({ hotspots })).toMatchSnapshot();
-  expect(shallowRender({ hotspots, startsExpanded: false })).toMatchSnapshot('collapsed');
+  expect(shallowRender({ hotspots, expanded: false })).toMatchSnapshot('collapsed');
+  expect(
+    shallowRender({ categoryKey: securityCategory, hotspots, selectedHotspot: hotspots[0] })
+  ).toMatchSnapshot('contains selected');
 });
 
 it('should handle collapse and expand', () => {
-  const wrapper = shallowRender({ hotspots: [mockRawHotspot()] });
+  const onToggleExpand = jest.fn();
+
+  const categoryKey = 'xss-injection';
+
+  const wrapper = shallowRender({
+    categoryKey,
+    expanded: true,
+    hotspots: [mockRawHotspot()],
+    onToggleExpand
+  });
 
   wrapper.find('.hotspot-category-header').simulate('click');
 
-  expect(wrapper).toMatchSnapshot();
+  expect(onToggleExpand).toBeCalledWith(categoryKey, false);
 
+  wrapper.setProps({ expanded: false });
   wrapper.find('.hotspot-category-header').simulate('click');
 
-  expect(wrapper).toMatchSnapshot();
+  expect(onToggleExpand).toBeCalledWith(categoryKey, true);
 });
 
 function shallowRender(props: Partial<HotspotCategoryProps> = {}) {
   return shallow(
     <HotspotCategory
+      categoryKey="xss-injection"
+      expanded={true}
       hotspots={[]}
       onHotspotClick={jest.fn()}
-      selectedHotspotKey=""
-      startsExpanded={true}
+      onToggleExpand={jest.fn()}
+      selectedHotspot={mockRawHotspot()}
       title="Class Injection"
       {...props}
     />

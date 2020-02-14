@@ -51,7 +51,7 @@ it('should render correctly with hotspots', () => {
       .dive()
   ).toMatchSnapshot();
   expect(
-    shallowRender({ hotspots, hotspotsTotal: 3, selectedHotspotKey: 'h2' })
+    shallowRender({ hotspots, hotspotsTotal: 3, selectedHotspot: mockRawHotspot({ key: 'h2' }) })
       .find(ScreenPositionHelper)
       .dive()
   ).toMatchSnapshot();
@@ -89,6 +89,7 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
       onShowAllHotspots={jest.fn()}
       onUpdateHotspot={jest.fn()}
       securityCategories={{}}
+      selectedHotspot={undefined}
       {...props}
     />
   );

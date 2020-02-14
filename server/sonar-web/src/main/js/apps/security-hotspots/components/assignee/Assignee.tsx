@@ -19,7 +19,9 @@
  */
 
 import * as React from 'react';
+import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { assignSecurityHotspot } from '../../../../api/security-hotspots';
+import addGlobalSuccessMessage from '../../../../app/utils/addGlobalSuccessMessage';
 import { withCurrentUser } from '../../../../components/hoc/withCurrentUser';
 import { isLoggedIn } from '../../../../helpers/users';
 import { Hotspot, HotspotStatus } from '../../../../types/security-hotspots';
@@ -72,6 +74,11 @@ export class Assignee extends React.PureComponent<Props, State> {
             this.props.onAssigneeChange();
           }
         })
+        .then(() =>
+          addGlobalSuccessMessage(
+            translateWithParameters('hotspots.assign.success', newAssignee.name)
+          )
+        )
         .catch(() => this.setState({ loading: false }));
     }
   };

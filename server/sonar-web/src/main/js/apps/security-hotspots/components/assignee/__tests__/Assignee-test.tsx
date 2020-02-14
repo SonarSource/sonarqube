@@ -22,6 +22,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { assignSecurityHotspot } from '../../../../../api/security-hotspots';
+import addGlobalSuccessMessage from '../../../../../app/utils/addGlobalSuccessMessage';
 import { mockHotspot } from '../../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser, mockUser } from '../../../../../helpers/testMocks';
 import { HotspotStatus } from '../../../../../types/security-hotspots';
@@ -30,6 +31,10 @@ import AssigneeRenderer from '../AssigneeRenderer';
 
 jest.mock('../../../../../api/security-hotspots', () => ({
   assignSecurityHotspot: jest.fn()
+}));
+
+jest.mock('../../../../../app/utils/addGlobalSuccessMessage', () => ({
+  default: jest.fn()
 }));
 
 it('should render correctly', () => {
@@ -78,6 +83,7 @@ it('should handle assign event correctly', async () => {
     loading: false
   });
   expect(onAssigneeChange).toHaveBeenCalled();
+  expect(addGlobalSuccessMessage).toHaveBeenCalled();
 });
 
 function shallowRender(props?: Partial<Assignee['props']>) {

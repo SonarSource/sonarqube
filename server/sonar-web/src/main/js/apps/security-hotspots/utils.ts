@@ -44,14 +44,11 @@ export function groupByCategory(
 ) {
   const groups = groupBy(hotspots, h => h.securityCategory);
 
-  return sortBy(
-    Object.keys(groups).map(key => ({
-      key,
-      title: getCategoryTitle(key, securityCategories),
-      hotspots: groups[key]
-    })),
-    cat => cat.title
-  );
+  return Object.keys(groups).map(key => ({
+    key,
+    title: getCategoryTitle(key, securityCategories),
+    hotspots: groups[key]
+  }));
 }
 
 export function sortHotspots(

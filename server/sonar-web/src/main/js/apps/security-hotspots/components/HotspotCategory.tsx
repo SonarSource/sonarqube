@@ -25,17 +25,17 @@ import { RawHotspot } from '../../../types/security-hotspots';
 import HotspotListItem from './HotspotListItem';
 
 export interface HotspotCategoryProps {
+  categoryKey: string;
+  expanded: boolean;
   hotspots: RawHotspot[];
-  onHotspotClick: (key: string) => void;
-  selectedHotspotKey: string | undefined;
-  startsExpanded: boolean;
+  onHotspotClick: (hotspot: RawHotspot) => void;
+  onToggleExpand: (categoryKey: string, value: boolean) => void;
+  selectedHotspot: RawHotspot;
   title: string;
 }
 
 export default function HotspotCategory(props: HotspotCategoryProps) {
-  const { hotspots, selectedHotspotKey, startsExpanded, title } = props;
-
-  const [expanded, setExpanded] = React.useState(startsExpanded);
+  const { categoryKey, expanded, hotspots, selectedHotspot, title } = props;
 
   if (hotspots.length < 1) {
     return null;
@@ -46,9 +46,12 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
   return (
     <div className={classNames('hotspot-category', risk)}>
       <a
-        className="hotspot-category-header display-flex-space-between display-flex-center"
+        className={classNames(
+          'hotspot-category-header display-flex-space-between display-flex-center',
+          { 'contains-selected-hotspot': selectedHotspot.securityCategory === categoryKey }
+        )}
         href="#"
-        onClick={() => setExpanded(!expanded)}>
+        onClick={() => props.onToggleExpand(categoryKey, !expanded)}>
         <strong className="flex-1">{title}</strong>
         <span>
           <span className="counter-badge">{hotspots.length}</span>
@@ -66,7 +69,7 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
               <HotspotListItem
                 hotspot={h}
                 onClick={props.onHotspotClick}
-                selected={h.key === selectedHotspotKey}
+                selected={h.key === selectedHotspot.key}
               />
             </li>
           ))}

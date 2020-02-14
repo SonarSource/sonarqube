@@ -25,7 +25,7 @@ import { getStatusOptionFromStatusAndResolution } from '../utils';
 
 export interface HotspotListItemProps {
   hotspot: RawHotspot;
-  onClick: (key: string) => void;
+  onClick: (hotspot: RawHotspot) => void;
   selected: boolean;
 }
 
@@ -35,7 +35,7 @@ export default function HotspotListItem(props: HotspotListItemProps) {
     <a
       className={classNames('hotspot-item', { highlight: selected })}
       href="#"
-      onClick={() => !selected && props.onClick(hotspot.key)}>
+      onClick={() => !selected && props.onClick(hotspot)}>
       <div className="little-spacer-left">{hotspot.message}</div>
       <div className="badge spacer-top">
         {translate(

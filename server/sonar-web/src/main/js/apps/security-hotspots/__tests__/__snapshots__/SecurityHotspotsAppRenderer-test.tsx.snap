@@ -46,60 +46,10 @@ exports[`should render correctly with hotspots 1`] = `
     <A11ySkipTarget
       anchor="security_hotspots_main"
     />
-    <div
-      className="layout-page"
-    >
-      <div
-        className="sidebar"
-      >
-        <HotspotList
-          hotspots={
-            Array [
-              Object {
-                "author": "Developer 1",
-                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                "creationDate": "2013-05-13T17:55:39+0200",
-                "key": "h1",
-                "line": 81,
-                "message": "'3' is a magic number.",
-                "project": "com.github.kevinsawicki:http-request",
-                "resolution": undefined,
-                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                "securityCategory": "command-injection",
-                "status": "TO_REVIEW",
-                "updateDate": "2013-05-13T17:55:39+0200",
-                "vulnerabilityProbability": "HIGH",
-              },
-              Object {
-                "author": "Developer 1",
-                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                "creationDate": "2013-05-13T17:55:39+0200",
-                "key": "h2",
-                "line": 81,
-                "message": "'3' is a magic number.",
-                "project": "com.github.kevinsawicki:http-request",
-                "resolution": undefined,
-                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                "securityCategory": "command-injection",
-                "status": "TO_REVIEW",
-                "updateDate": "2013-05-13T17:55:39+0200",
-                "vulnerabilityProbability": "HIGH",
-              },
-            ]
-          }
-          hotspotsTotal={2}
-          isStaticListOfHotspots={true}
-          loadingMore={false}
-          onHotspotClick={[MockFunction]}
-          onLoadMore={[MockFunction]}
-          securityCategories={Object {}}
-          statusFilter="TO_REVIEW"
-        />
-      </div>
-      <div
-        className="main"
-      />
-    </div>
+    <EmptyHotspotsPage
+      filtered={false}
+      isStaticListOfHotspots={true}
+    />
   </div>
 </div>
 `;
@@ -172,7 +122,23 @@ exports[`should render correctly with hotspots 2`] = `
           onHotspotClick={[MockFunction]}
           onLoadMore={[MockFunction]}
           securityCategories={Object {}}
-          selectedHotspotKey="h2"
+          selectedHotspot={
+            Object {
+              "author": "Developer 1",
+              "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+              "creationDate": "2013-05-13T17:55:39+0200",
+              "key": "h2",
+              "line": 81,
+              "message": "'3' is a magic number.",
+              "project": "com.github.kevinsawicki:http-request",
+              "resolution": undefined,
+              "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+              "securityCategory": "command-injection",
+              "status": "TO_REVIEW",
+              "updateDate": "2013-05-13T17:55:39+0200",
+              "vulnerabilityProbability": "HIGH",
+            }
+          }
           statusFilter="TO_REVIEW"
         />
       </div>

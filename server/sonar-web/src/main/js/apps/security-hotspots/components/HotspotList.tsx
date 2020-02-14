@@ -28,81 +28,127 @@ import { groupByCategory, RISK_EXPOSURE_LEVELS } from '../utils';
 import HotspotCategory from './HotspotCategory';
 import './HotspotList.css';
 
-export interface HotspotListProps {
+interface Props {
   hotspots: RawHotspot[];
   hotspotsTotal?: number;
   isStaticListOfHotspots: boolean;
   loadingMore: boolean;
-  onHotspotClick: (key: string) => void;
+  onHotspotClick: (hotspot: RawHotspot) => void;
   onLoadMore: () => void;
   securityCategories: T.StandardSecurityCategories;
-  selectedHotspotKey: string | undefined;
+  selectedHotspot: RawHotspot;
   statusFilter: HotspotStatusFilter;
 }
 
-export default function HotspotList(props: HotspotListProps) {
-  const {
-    hotspots,
-    hotspotsTotal,
-    isStaticListOfHotspots,
-    loadingMore,
-    securityCategories,
-    selectedHotspotKey,
-    statusFilter
-  } = props;
-
-  const groupedHotspots: Array<{
+interface State {
+  expandedCategories: T.Dict<boolean>;
+  groupedHotspots: Array<{
     risk: RiskExposure;
     categories: Array<{ key: string; hotspots: RawHotspot[]; title: string }>;
-  }> = React.useMemo(() => {
+  }>;
+}
+
+export default class HotspotList extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      expandedCategories: { [props.selectedHotspot.securityCategory]: true },
+      groupedHotspots: this.groupHotspots(props.hotspots, props.securityCategories)
+    };
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    // Force open the category of selected hotspot
+    if (
+      this.props.selectedHotspot.securityCategory !== prevProps.selectedHotspot.securityCategory
+    ) {
+      this.handleToggleCategory(this.props.selectedHotspot.securityCategory, true);
+    }
+
+    // Compute the hotspot tree from the list
+    if (
+      this.props.hotspots !== prevProps.hotspots ||
+      this.props.securityCategories !== prevProps.securityCategories
+    ) {
+      const groupedHotspots = this.groupHotspots(
+        this.props.hotspots,
+        this.props.securityCategories
+      );
+      this.setState({ groupedHotspots });
+    }
+  }
+
+  groupHotspots = (hotspots: RawHotspot[], securityCategories: T.StandardSecurityCategories) => {
     const risks = groupBy(hotspots, h => h.vulnerabilityProbability);
 
     return RISK_EXPOSURE_LEVELS.map(risk => ({
       risk,
       categories: groupByCategory(risks[risk], securityCategories)
     })).filter(risk => risk.categories.length > 0);
-  }, [hotspots, securityCategories]);
+  };
 
-  return (
-    <div className="huge-spacer-bottom">
-      <h1 className="hotspot-list-header bordered-bottom">
-        <SecurityHotspotIcon className="spacer-right" />
-        {translateWithParameters(
-          isStaticListOfHotspots ? 'hotspots.list_title' : `hotspots.list_title.${statusFilter}`,
-          hotspots.length
-        )}
-      </h1>
-      <ul className="big-spacer-bottom">
-        {groupedHotspots.map((riskGroup, groupIndex) => (
-          <li className="big-spacer-bottom" key={riskGroup.risk}>
-            <div className="hotspot-risk-header little-spacer-left">
-              <span>{translate('hotspots.risk_exposure')}</span>
-              <div className={classNames('hotspot-risk-badge', 'spacer-left', riskGroup.risk)}>
-                {translate('risk_exposure', riskGroup.risk)}
+  handleToggleCategory = (categoryKey: string, value: boolean) => {
+    this.setState(({ expandedCategories }) => ({
+      expandedCategories: { ...expandedCategories, [categoryKey]: value }
+    }));
+  };
+
+  render() {
+    const {
+      hotspots,
+      hotspotsTotal,
+      isStaticListOfHotspots,
+      loadingMore,
+      selectedHotspot,
+      statusFilter
+    } = this.props;
+
+    const { expandedCategories, groupedHotspots } = this.state;
+
+    return (
+      <div className="huge-spacer-bottom">
+        <h1 className="hotspot-list-header bordered-bottom">
+          <SecurityHotspotIcon className="spacer-right" />
+          {translateWithParameters(
+            isStaticListOfHotspots ? 'hotspots.list_title' : `hotspots.list_title.${statusFilter}`,
+            hotspots.length
+          )}
+        </h1>
+        <ul className="big-spacer-bottom">
+          {groupedHotspots.map(riskGroup => (
+            <li className="big-spacer-bottom" key={riskGroup.risk}>
+              <div className="hotspot-risk-header little-spacer-left">
+                <span>{translate('hotspots.risk_exposure')}</span>
+                <div className={classNames('hotspot-risk-badge', 'spacer-left', riskGroup.risk)}>
+                  {translate('risk_exposure', riskGroup.risk)}
+                </div>
               </div>
-            </div>
-            <ul>
-              {riskGroup.categories.map((cat, catIndex) => (
-                <li className="spacer-bottom" key={cat.key}>
-                  <HotspotCategory
-                    hotspots={cat.hotspots}
-                    onHotspotClick={props.onHotspotClick}
-                    selectedHotspotKey={selectedHotspotKey}
-                    startsExpanded={groupIndex === 0 && catIndex === 0}
-                    title={cat.title}
-                  />
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
-      <ListFooter
-        count={hotspots.length}
-        loadMore={!loadingMore ? props.onLoadMore : undefined}
-        loading={loadingMore}
-        total={hotspotsTotal}
-      />
-    </div>
-  );
+              <ul>
+                {riskGroup.categories.map(cat => (
+                  <li className="spacer-bottom" key={cat.key}>
+                    <HotspotCategory
+                      categoryKey={cat.key}
+                      expanded={expandedCategories[cat.key]}
+                      hotspots={cat.hotspots}
+                      onHotspotClick={this.props.onHotspotClick}
+                      onToggleExpand={this.handleToggleCategory}
+                      selectedHotspot={selectedHotspot}
+                      title={cat.title}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+        <ListFooter
+          count={hotspots.length}
+          loadMore={!loadingMore ? this.props.onLoadMore : undefined}
+          loading={loadingMore}
+          total={hotspotsTotal}
+        />
+      </div>
+    );
+  }
 }

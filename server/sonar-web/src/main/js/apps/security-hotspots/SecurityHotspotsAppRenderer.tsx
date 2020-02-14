@@ -26,12 +26,7 @@ import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
 import { isBranch } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
-import {
-  HotspotFilters,
-  HotspotStatusFilter,
-  HotspotUpdate,
-  RawHotspot
-} from '../../types/security-hotspots';
+import { HotspotFilters, HotspotStatusFilter, RawHotspot } from '../../types/security-hotspots';
 import EmptyHotspotsPage from './components/EmptyHotspotsPage';
 import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
@@ -50,11 +45,11 @@ export interface SecurityHotspotsAppRendererProps {
   loadingMeasure: boolean;
   loadingMore: boolean;
   onChangeFilters: (filters: Partial<HotspotFilters>) => void;
-  onHotspotClick: (key: string) => void;
+  onHotspotClick: (hotspot: RawHotspot) => void;
   onLoadMore: () => void;
   onShowAllHotspots: () => void;
-  onUpdateHotspot: (hotspot: HotspotUpdate) => void;
-  selectedHotspotKey?: string;
+  onUpdateHotspot: (hotspotKey: string) => Promise<void>;
+  selectedHotspot: RawHotspot | undefined;
   securityCategories: T.StandardSecurityCategories;
 }
 
@@ -70,7 +65,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     loadingMeasure,
     loadingMore,
     securityCategories,
-    selectedHotspotKey,
+    selectedHotspot,
     filters
   } = props;
 
@@ -98,7 +93,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
               <DeferredSpinner className="huge-spacer-left big-spacer-top" />
             ) : (
               <>
-                {hotspots.length === 0 ? (
+                {hotspots.length === 0 || !selectedHotspot ? (
                   <EmptyHotspotsPage
                     filtered={
                       filters.assignedToMe ||
@@ -118,19 +113,17 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                         onHotspotClick={props.onHotspotClick}
                         onLoadMore={props.onLoadMore}
                         securityCategories={securityCategories}
-                        selectedHotspotKey={selectedHotspotKey}
+                        selectedHotspot={selectedHotspot}
                         statusFilter={filters.status}
                       />
                     </div>
                     <div className="main">
-                      {selectedHotspotKey && (
-                        <HotspotViewer
-                          branchLike={branchLike}
-                          hotspotKey={selectedHotspotKey}
-                          onUpdateHotspot={props.onUpdateHotspot}
-                          securityCategories={securityCategories}
-                        />
-                      )}
+                      <HotspotViewer
+                        branchLike={branchLike}
+                        hotspotKey={selectedHotspot.key}
+                        onUpdateHotspot={props.onUpdateHotspot}
+                        securityCategories={securityCategories}
+                      />
                     </div>
                   </div>
                 )}

@@ -125,19 +125,10 @@ describe('sortHotspots', () => {
 });
 
 describe('groupByCategory', () => {
-  it('should group and sort properly', () => {
+  it('should group properly', () => {
     const result = groupByCategory(hotspots, categories);
 
     expect(result).toHaveLength(7);
-    expect(result.map(g => g.key)).toEqual([
-      'xss',
-      'dos',
-      'log-injection',
-      'object-injection',
-      'ssrf',
-      'xxe',
-      'xpath-injection'
-    ]);
   });
 });
 
