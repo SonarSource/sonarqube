@@ -39,9 +39,8 @@ message BBSRepo {
   optional string slug = 1;
   optional int64 id = 2;
   optional string name = 3;
-  optional string url = 4;
-  optional string sqProjectKey = 5;
-  optional string projectKey = 6;
+  optional string sqProjectKey = 4;
+  optional string projectKey = 5;
 }
 
 message BBSProject {

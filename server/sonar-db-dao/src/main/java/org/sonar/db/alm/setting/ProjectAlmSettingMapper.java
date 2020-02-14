@@ -19,6 +19,8 @@
  */
 package org.sonar.db.alm.setting;
 
+import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 
@@ -36,4 +38,5 @@ public interface ProjectAlmSettingMapper {
   void deleteByProjectUuid(@Param("projectUuid") String projectUuid);
   void deleteByAlmSettingUuid(@Param("almSettingUuid") String almSettingUuid);
 
+  List<ProjectAlmSettingDto> selectByAlmSettingAndSlugs(@Param("almSettingUuid") String almSettingUuid, @Param("slugs") List<String> slugs);
 }

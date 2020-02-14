@@ -73,7 +73,7 @@ public class AlmAppInstallDao implements Dao {
 
   public List<AlmAppInstallDto> selectByOrganizations(DbSession dbSession, List<OrganizationDto> organizations) {
     Set<String> organizationUuids = organizations.stream().map(OrganizationDto::getUuid).collect(Collectors.toSet());
-    return executeLargeInputs(organizationUuids, uuids -> getMapper(dbSession).selectByOrganizationUuids(organizationUuids));
+    return executeLargeInputs(organizationUuids, uuids -> getMapper(dbSession).selectByOrganizationUuids(uuids));
   }
 
   public List<AlmAppInstallDto> selectUnboundByUserExternalId(DbSession dbSession, String userExternalId) {

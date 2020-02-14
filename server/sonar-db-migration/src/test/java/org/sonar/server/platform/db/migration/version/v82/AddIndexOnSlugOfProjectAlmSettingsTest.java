@@ -25,38 +25,26 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
-import static java.sql.Types.BIGINT;
-import static java.sql.Types.VARCHAR;
+public class AddIndexOnSlugOfProjectAlmSettingsTest {
 
-public class CreateAlmPATsTableTest {
-
-  private static final String TABLE_NAME = "alm_pats";
+  private static final String TABLE_NAME = "project_alm_settings";
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createEmpty();
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(AddIndexOnSlugOfProjectAlmSettingsTest.class, "schema.sql");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private CreateAlmPatsTable underTest = new CreateAlmPatsTable(dbTester.database());
+  private AddIndexOnSlugOfProjectAlmSettings underTest = new AddIndexOnSlugOfProjectAlmSettings(dbTester.database());
 
   @Test
-  public void table_has_been_created() throws SQLException {
+  public void index_has_been_created() throws SQLException {
     underTest.execute();
 
     dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertPrimaryKey(TABLE_NAME, "pk_alm_pats", "uuid");
-    dbTester.assertUniqueIndex(TABLE_NAME, "uniq_alm_pats", "user_uuid", "alm_setting_uuid");
-
-    dbTester.assertColumnDefinition(TABLE_NAME, "uuid", VARCHAR, 40, false);
-    dbTester.assertColumnDefinition(TABLE_NAME, "pat", VARCHAR, 2000, false);
-    dbTester.assertColumnDefinition(TABLE_NAME, "user_uuid", VARCHAR, 256, false);
-    dbTester.assertColumnDefinition(TABLE_NAME, "alm_setting_uuid", VARCHAR, 40, false);
-    dbTester.assertColumnDefinition(TABLE_NAME, "updated_at", BIGINT, 20, false);
-    dbTester.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, 20, false);
+    dbTester.assertIndex(TABLE_NAME, "project_alm_settings_slug", "alm_slug");
 
     // script should not fail if executed twice
     underTest.execute();
   }
-
 }

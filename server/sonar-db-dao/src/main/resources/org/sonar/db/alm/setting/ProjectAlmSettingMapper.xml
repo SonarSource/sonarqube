@@ -21,6 +21,18 @@
       p.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByAlmSettingAndSlugs" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+    select <include refid="sqlColumns"/>
+    from
+      project_alm_settings p
+    where
+      alm_setting_uuid=#{almSettingUuid, jdbcType=VARCHAR}
+    and alm_slug in
+      <foreach collection="slugs" open="(" close=")" item="slug" separator=",">
+        #{slug, jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
     INSERT INTO project_alm_settings
     (

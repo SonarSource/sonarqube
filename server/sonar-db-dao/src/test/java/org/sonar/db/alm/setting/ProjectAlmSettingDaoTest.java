@@ -19,6 +19,8 @@
  */
 package org.sonar.db.alm.setting;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,6 +33,7 @@ import org.sonar.db.project.ProjectDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSettingDto;
 
 public class ProjectAlmSettingDaoTest {
@@ -50,7 +53,7 @@ public class ProjectAlmSettingDaoTest {
   private ProjectAlmSettingDao underTest = new ProjectAlmSettingDao(system2, uuidFactory);
 
   @Test
-  public void selectByProject() {
+  public void select_by_project() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto githubAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
@@ -68,6 +71,36 @@ public class ProjectAlmSettingDaoTest {
         A_DATE, A_DATE);
 
     assertThat(underTest.selectByProject(dbSession, anotherProject)).isNotPresent();
+  }
+
+  @Test
+  public void select_by_alm_setting_and_slugs() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    when(system2.now()).thenReturn(A_DATE);
+    AlmSettingDto almSettingsDto = db.almSettings().insertBitbucketAlmSetting();
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectAlmSettingDto githubProjectAlmSettingDto = newBitbucketProjectAlmSettingDto(almSettingsDto, project);
+    githubProjectAlmSettingDto.setAlmSlug("slug1");
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto);
+    ProjectAlmSettingDto githubProjectAlmSettingDto2 = newBitbucketProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProjectDto());
+    githubProjectAlmSettingDto2.setAlmSlug("slug2");
+    when(uuidFactory.create()).thenReturn(A_UUID + 1);
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto2);
+
+    Set<String> slugs = new HashSet<>();
+    slugs.add("slug1");
+    assertThat(underTest.selectByAlmSettingAndSlugs(dbSession, almSettingsDto, slugs))
+      .extracting(ProjectAlmSettingDto::getProjectUuid)
+      .containsExactly(project.getUuid());
+  }
+
+  @Test
+  public void select_with_no_slugs_return_empty() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    when(system2.now()).thenReturn(A_DATE);
+    AlmSettingDto almSettingsDto = db.almSettings().insertBitbucketAlmSetting();
+
+    assertThat(underTest.selectByAlmSettingAndSlugs(dbSession, almSettingsDto, new HashSet<>())).isEmpty();
   }
 
   @Test
