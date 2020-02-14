@@ -18,53 +18,45 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { WorkspaceContextShape } from '../../workspace/context';
 
-interface Props {
+export interface IssueMessageProps {
   engine?: string;
   manualVulnerability: boolean;
   message: string;
-  openRule: WorkspaceContextShape['openRule'];
+  onOpenRule: WorkspaceContextShape['openRule'];
   organization: string;
-  rule: string;
+  ruleKey: string;
 }
 
-export default class IssueMessage extends React.PureComponent<Props> {
-  handleClick = () => {
-    this.props.openRule({
-      key: this.props.rule,
-      organization: this.props.organization
-    });
-  };
+export default function IssueMessage(props: IssueMessageProps) {
+  const { engine, manualVulnerability, message, organization, ruleKey } = props;
 
-  render() {
-    return (
-      <div className="issue-message">
-        <span className="spacer-right">{this.props.message}</span>
-        <Button
-          aria-label={translate('issue.rule_details')}
-          className="button button-link issue-see-rule spacer-right text-top"
-          onClick={this.handleClick}>
-          {translate('issue.see_rule')}
-        </Button>
+  return (
+    <div className="issue-message">
+      <span className="spacer-right">{message}</span>
+      <ButtonLink
+        aria-label={translate('issue.why_this_issue.long')}
+        className="issue-see-rule spacer-right"
+        onClick={() => props.onOpenRule({ key: ruleKey, organization })}>
+        {translate('issue.why_this_issue')}
+      </ButtonLink>
 
-        {this.props.engine && (
-          <Tooltip
-            overlay={translateWithParameters('issue.from_external_rule_engine', this.props.engine)}>
-            <div className="badge spacer-right text-top">{this.props.engine}</div>
-          </Tooltip>
-        )}
-        {this.props.manualVulnerability && (
-          <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
-            <div className="badge spacer-right text-top">
-              {translate('issue.manual_vulnerability')}
-            </div>
-          </Tooltip>
-        )}
-      </div>
-    );
-  }
+      {engine && (
+        <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', engine)}>
+          <div className="badge spacer-right text-top">{engine}</div>
+        </Tooltip>
+      )}
+      {manualVulnerability && (
+        <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
+          <div className="badge spacer-right text-top">
+            {translate('issue.manual_vulnerability')}
+          </div>
+        </Tooltip>
+      )}
+    </div>
+  );
 }

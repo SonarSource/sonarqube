@@ -77,9 +77,9 @@ export default function IssueTitleBar(props: Props) {
             engine={issue.externalRuleEngine}
             manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
             message={issue.message}
-            openRule={openRule}
+            onOpenRule={openRule}
             organization={issue.organization}
-            rule={issue.rule}
+            ruleKey={issue.rule}
           />
         )}
       </WorkspaceContext.Consumer>

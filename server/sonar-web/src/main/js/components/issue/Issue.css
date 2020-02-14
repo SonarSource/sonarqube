@@ -99,7 +99,7 @@
 
 .issue-see-rule {
   border-bottom: none;
-  line-height: 16px;
+  font-size: var(--smallFontSize);
 }
 
 .issue-changelog {

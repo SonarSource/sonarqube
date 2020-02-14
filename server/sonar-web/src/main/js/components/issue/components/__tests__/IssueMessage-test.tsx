@@ -17,19 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import IssueMessage from '../IssueMessage';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { click } from 'sonar-ui-common/helpers/testUtils';
+import IssueMessage, { IssueMessageProps } from '../IssueMessage';
 
-it('should render with the message and a link to open the rule', () => {
-  const element = shallow(
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ engine: 'js' })).toMatchSnapshot('with engine info');
+  expect(shallowRender({ manualVulnerability: true })).toMatchSnapshot('is manual vulnerability');
+});
+
+it('should handle click correctly', () => {
+  const onOpenRule = jest.fn();
+  const wrapper = shallowRender({ onOpenRule });
+  click(wrapper.find(ButtonLink));
+  expect(onOpenRule).toBeCalledWith({ key: 'javascript:S1067', organization: 'myorg' });
+});
+
+function shallowRender(props: Partial<IssueMessageProps> = {}) {
+  return shallow<IssueMessageProps>(
     <IssueMessage
       manualVulnerability={false}
       message="Reduce the number of conditional operators (4) used in the expression"
-      openRule={jest.fn()}
+      onOpenRule={jest.fn()}
       organization="myorg"
-      rule="javascript:S1067"
+      ruleKey="javascript:S1067"
+      {...props}
     />
   );
-  expect(element).toMatchSnapshot();
-});
+}
