@@ -48,6 +48,7 @@ public class AlmSettingsTesting {
     return new AlmSettingDto()
       .setKey(randomAlphanumeric(200))
       .setPersonalAccessToken(randomAlphanumeric(2000))
+      .setUrl(randomAlphanumeric(2000))
       .setAlm(ALM.GITLAB);
   }
 

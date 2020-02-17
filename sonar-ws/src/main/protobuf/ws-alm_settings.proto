@@ -53,6 +53,7 @@ message AlmSettingBitbucket {
 message AlmSettingGitlab {
   optional string key = 1;
   optional string personalAccessToken = 2;
+  optional string url = 3;
 }
 
 // WS api/alm_settings/get_binding
