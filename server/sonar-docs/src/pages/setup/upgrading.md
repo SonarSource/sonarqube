@@ -13,12 +13,10 @@ Example 2 : 6.2 -> 6.7, migration path is 6.2 -> 6.7.x LTS (where x is the lates
 
 This is a generic upgrade guide. Carefully read the [Release Upgrade Notes](/setup/upgrade-notes/) of your target version and of any intermediate version(s).
 
-[[info]]
-| **Planning to Upgrade to a Commercial Edition?**  
-| If you are moving to 6.7 LTS and installing a Commercial Edition, please read this [documentation](https://docs.sonarqube.org/display/SONARQUBE67/SonarSource+Editions).
-
 [[warning]]
 | Before you start, back up your SonarQube Database. Upgrade problems are rare, but you'll want the backup if anything does happen.
+
+### Upgrading from the ZIP file
 
 1. Download and unzip the SonarQube distribution of your edition in a fresh directory, let's say `$NEW_SONARQUBE_HOME`
 2. Manually install the non-default plugins that are compatible with your version of SonarQube. Use the [Compatibility Matrix](https://docs.sonarqube.org/display/PLUG/Plugin+Version+Matrix) to ensure that the versions you install are compatible with your server version. Note that the most recent versions of all SonarSource code analyzers available in your edition are installed by default. Simply copying plugins from the old server to the new is not recommended; incompatible or duplicate plugins could cause startup errors.
@@ -28,6 +26,48 @@ If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONARQUBE_HOME/e
 5. Start your new SonarQube Server
 6. Browse to `http://yourSonarQubeServerURL/setup` and follow the setup instructions
 7. Reanalyze your projects to get fresh data
+
+### Upgrading from the Docker image
+
+### To 8.2+
+
+To upgrade to SonarQube 8.2+:
+
+1. Create a **new** `sonarqube_extensions_8_x` volume. 
+
+2. If you're using Oracle, copy the JDBC driver into the new `sonarqube_extensions_8_x` volume.
+
+3. Non-default plugins need to be either re-added through the marketplace after start-up or manually added to the `sonarqube_extensions_8_x` volume. 
+
+4. Stop and remove the SonarQube container (a restart from the UI is not enough as the environment variables are only evaluated during the first run, not during a restart):
+
+	```console
+	$ docker stop <image_name>
+	$ docker rm <image_name>
+	```
+
+5. Run docker:
+
+	```bash
+	$> docker run -d --name sonarqube \
+		-p 9000:9000 \
+		-e SONAR_JDBC_URL=... \
+		-e SONAR_JDBC_USERNAME=... \
+		-e SONAR_JDBC_PASSWORD=... \
+		-v sonarqube_data:/opt/sonarqube/data \
+		-v sonarqube_extensions_8_x:/opt/sonarqube/extensions \
+		-v sonarqube_logs:/opt/sonarqube/logs \
+		<image_name>
+	```
+
+6. Browse to `http://yourSonarQubeServerURL/setup` and follow the setup instructions.
+
+7. Reanalyze your projects to get fresh data.
+
+### From 7.9.x LTS to another 7.9.x LTS version
+
+No specific Docker operations are needed, just use the new tag.
+
 
 ## Additional Information
 

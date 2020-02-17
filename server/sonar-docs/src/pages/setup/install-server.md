@@ -70,7 +70,7 @@ If you want to use a custom schema and not the default "public" one, the Postgre
 ALTER USER mySonarUser SET search_path to mySonarQubeSchema
 ```
 
-## Installing the Web Server
+## Installing the Server from the ZIP file
 
 First, check the [requirements](/requirements/requirements/). Then download and unzip the [distribution](http://www.sonarqube.org/downloads/) (do not unzip into a directory starting with a digit). 
 
@@ -146,6 +146,100 @@ wrapper.java.command=/path/to/my/jdk/bin/java
 - Running SonarQube as a Service on [Windows](/setup/operate-server/) or [Linux](/setup/operate-server/)
 - Running SonarQube [behind a Proxy](/setup/operate-server/)
 - Running SonarQube Community Edition with [Docker](https://hub.docker.com/_/sonarqube/)
+
+## Installing the Server from the Docker Image
+
+Click your SonarQube version below for instructions on installing the server from a Docker image.
+
+[[collapse]]
+| ## SonarQube 8.2+
+|
+| Follow these steps for your first installation:
+|
+| 1.	Creating the following volumes helps prevent the loss of information when updating to a new version or upgrading to a higher edition:
+|	- `sonarqube_data` – contains data files, such as the embedded H2 database and Elasticsearch indexes
+|	- `sonarqube_logs` – contains SonarQube logs about access, web process, CE process, and Elasticsearch
+|	- `sonarqube_extensions` – contains plugins, such as language analyzers 
+|	
+|	Create the volumes with the following commands:
+|	```bash
+|	$> docker volume create --name sonarqube_data
+|	$> docker volume create --name sonarqube_extensions
+|	$> docker volume create --name sonarqube_logs
+|	``` 
+|
+| 2. Configure the database with SonarQube properties using environment variables. Define these variables using the -e flag as shown in the following example:
+|
+|	```console
+|		#Example for PostgreSQL
+|		-e SONAR_JDBC_USERNAME=sonar \
+|		-e SONAR_JDBC_PASSWORD=sonar \
+|		-e SONAR.JDBC.URL=jdbc:postgresql://localhost/sonar \
+|	```
+|
+| 	For more configuration environment variables, see the [Docker Environment Variables](/setup/environment-variables/).  
+|
+| [[info]]
+| | Drivers for supported databases (except Oracle) are already provided. Do not replace the provided drivers; they are the only ones supported. For Oracle, you need to copy the JDBC driver into the `sonarqube_extensions` volume.
+|
+| [[warning]]
+| | Use of the environment variables `SONARQUBE_JDBC_USERNAME`, `SONARQUBE_JDBC_PASSWORD`, and `SONARQUBE_JDBC_URL` is deprecated and will stop working in future releases.
+|
+| 3. Run the image:
+|
+|	```bash
+|	$> docker run -d --name sonarqube \
+|		-p 9000:9000 \
+|		-e SONAR_JDBC_URL=... \
+|		-e SONAR_JDBC_USERNAME=... \
+|		-e SONAR_JDBC_PASSWORD=... \
+|		-v sonarqube_data:/opt/sonarqube/data \
+|		-v sonarqube_extensions:/opt/sonarqube/extensions \
+|		-v sonarqube_logs:/opt/sonarqube/logs \
+|		<image_name>
+|	```
+
+[[collapse]]
+| ## SonarQube 7.9.x LTS
+|
+| Follow these steps for your first installation:
+|
+| 1.	Create volumes `sonarqube_conf`, `sonarqube_data`, `sonarqube_logs`, and `sonarqube_extensions` and start the image with the following command. This will populate all the volumes (copying default plugins, create the Elasticsearch data folder, create the sonar.properties configuration file). Watch the logs, and, once the container is properly started, you can force-exit (ctrl+c) and proceed to the next step.
+|
+|	```console
+|	$ docker run --rm \
+|	    -p 9000:9000 \
+|	    -v sonarqube_conf:/opt/sonarqube/conf \
+|	    -v sonarqube_extensions:/opt/sonarqube/extensions \
+|	    -v sonarqube_logs:/opt/sonarqube/logs \
+|	    -v sonarqube_data:/opt/sonarqube/data \
+|	    <image_name>
+|	```
+|
+|2.	Configure sonar.properties if needed. Please note that due to [SONAR-12501](https://jira.sonarsource.com/browse/SONAR-12501), providing `sonar.jdbc.url`, `sonar.jdbc.username`, `sonar.jdbc.password` and `sonar.web.javaAdditionalOpts` in `sonar.properties` is not working, and you will need to explicitly define theses values in the docker run command with the `-e` flag.
+|
+|	```plain
+|	#Example for PostgreSQL
+|	-e sonar.jdbc.url=jdbc:postgresql://localhost/sonarqube
+|	```
+|
+|[[info]]
+|| Drivers for supported databases (except Oracle) are already provided. Do not replace the provided drivers; they are the only ones supported. For Oracle, you need to copy the JDBC driver into |`$SONARQUBE_HOME/extensions/jdbc-driver/oracle`.
+|
+|3.	Run the image with your JDBC username and password :
+|
+|	```console
+|	$ docker run -d --name sonarqube \
+|	    -p 9000:9000 \
+|		-e sonar.jdbc.url=... \
+|	    -e sonar.jdbc.username=... \
+|	    -e sonar.jdbc.password=... \
+|	    -v sonarqube_conf:/opt/sonarqube/conf \
+|	    -v sonarqube_extensions:/opt/sonarqube/extensions \
+|	    -v sonarqube_logs:/opt/sonarqube/logs \
+|	    -v sonarqube_data:/opt/sonarqube/data \
+|	    <image_name>
+|	```
 
 ## Next Steps
 

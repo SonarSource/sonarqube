@@ -1,9 +1,7 @@
 ---
-title: Configure & Operate the Server
+title: Operating the Server
 url: /setup/operate-server/
 ---
-
-<!-- sonarqube -->
 
 ## Running SonarQube as a Service on Windows
 
@@ -40,7 +38,7 @@ $SONAR_HOME/bin/linux-x86-64/sonar.sh force-stop
 
 ## Running SonarQube as a Service on Linux with SystemD
 
-On Unix system using SystemD, you can install SonarQube as a service. You cannot run SonarQube as `root` in 'nix systems. Ideally, you will created a new account dedicated to the purpose of running SonarQube.
+On a Unix system using SystemD, you can install SonarQube as a service. You cannot run SonarQube as `root` in 'nix systems. Ideally, you will created a new account dedicated to the purpose of running SonarQube.
 Let's suppose:
 
 * The user used to start the service is `sonarqube`

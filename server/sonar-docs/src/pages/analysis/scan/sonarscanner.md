@@ -10,7 +10,8 @@ url: /analysis/scan/sonarscanner/
 | [Linux 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-linux.zip) |
 | [Windowx 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-windows.zip) |
 | [Mac OS X 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-macosx.zip) |
-| [Any*](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873.zip)
+| [Any*](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873.zip) |
+| [Docker](https://hub.docker.com/r/sonarsource/sonar-scanner-cli)
 | *Requires a pre-installed JVM - with the same requirements as the SonarQube server.
 
 The SonarScanner is the scanner to use when there is no specific scanner for your build system.

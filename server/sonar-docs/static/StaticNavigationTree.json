@@ -13,7 +13,13 @@
       "/setup/overview/",
       "/setup/get-started-2-minutes/",
       "/setup/install-server/",
-      "/setup/operate-server/",
+      {
+        "title": "Configure and Operate a Server",
+        "children": [
+		  "/setup/operate-server/",
+		  "/setup/environment-variables/"
+        ]
+      },
       "/setup/install-plugin/",
       "/setup/install-cluster/",
       "/setup/operate-cluster/",
