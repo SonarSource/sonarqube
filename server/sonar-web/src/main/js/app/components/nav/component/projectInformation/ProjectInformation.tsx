@@ -86,7 +86,8 @@ export class ProjectInformation extends React.PureComponent<Props, State> {
     const { branchLike, component, currentUser, metrics } = this.props;
     const { measures, page } = this.state;
 
-    const canConfigureNotifications = isLoggedIn(currentUser);
+    const canConfigureNotifications =
+      isLoggedIn(currentUser) && component.qualifier === ComponentQualifier.Project;
     const canUseBadges =
       metrics !== undefined &&
       component.visibility !== 'private' &&
