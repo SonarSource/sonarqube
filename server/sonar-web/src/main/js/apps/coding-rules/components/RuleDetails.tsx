@@ -258,7 +258,7 @@ export default class RuleDetails extends React.PureComponent<Props, State> {
             />
           )}
 
-          {!ruleDetails.isTemplate && (
+          {!ruleDetails.isTemplate && ruleDetails.type !== 'SECURITY_HOTSPOT' && (
             <RuleDetailsIssues organization={organization} ruleDetails={ruleDetails} />
           )}
         </DeferredSpinner>

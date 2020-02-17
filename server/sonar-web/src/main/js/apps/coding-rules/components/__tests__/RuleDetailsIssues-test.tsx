@@ -44,30 +44,26 @@ beforeEach(() => {
 });
 
 it('should fetch issues and render', async () => {
-  await check('BUG', undefined);
-});
-
-it('should handle hotspot rules', async () => {
-  await check('SECURITY_HOTSPOT', ['VULNERABILITY', 'SECURITY_HOTSPOT']);
-});
-
-async function check(ruleType: T.RuleType, requestedTypes: T.RuleType[] | undefined) {
-  const wrapper = shallow(
-    <RuleDetailsIssues
-      appState={{ branchesEnabled: false }}
-      organization="org"
-      ruleDetails={{ key: 'foo', type: ruleType }}
-    />
-  );
+  const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(getFacet).toBeCalledWith(
     {
       organization: 'org',
       resolved: 'false',
-      rules: 'foo',
-      types: requestedTypes && requestedTypes.join()
+      rules: 'foo'
     },
     'projects'
+  );
+});
+
+function shallowRender(props: Partial<RuleDetailsIssues['props']> = {}) {
+  return shallow(
+    <RuleDetailsIssues
+      appState={{ branchesEnabled: false }}
+      organization="org"
+      ruleDetails={{ key: 'foo', type: 'BUG' }}
+      {...props}
+    />
   );
 }

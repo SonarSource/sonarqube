@@ -47,7 +47,7 @@ interface State {
 
 export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { loading: true };
+  state: State = { loading: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -64,19 +64,19 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  getBaseIssuesQuery = () => ({
-    resolved: 'false',
-    rules: this.props.ruleDetails.key,
-    types:
-      this.props.ruleDetails.type === 'SECURITY_HOTSPOT'
-        ? ['VULNERABILITY', 'SECURITY_HOTSPOT'].join()
-        : undefined
-  });
-
   fetchIssues = () => {
+    const {
+      ruleDetails: { key },
+      organization
+    } = this.props;
+
     this.setState({ loading: true });
     getFacet(
-      { ...this.getBaseIssuesQuery(), organization: this.props.organization },
+      {
+        resolved: 'false',
+        rules: key,
+        organization
+      },
       'projects'
     ).then(
       ({ facet, response }) => {
@@ -101,11 +101,16 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   };
 
   renderTotal = () => {
+    const {
+      ruleDetails: { key },
+      organization
+    } = this.props;
+
     const { total } = this.state;
     if (total === undefined) {
       return null;
     }
-    const path = getIssuesUrl(this.getBaseIssuesQuery(), this.props.organization);
+    const path = getIssuesUrl({ resolved: 'false', rules: key }, organization);
 
     const totalItem = (
       <span className="little-spacer-left">
@@ -125,9 +130,14 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
   };
 
   renderProject = (project: Project) => {
+    const {
+      ruleDetails: { key },
+      organization
+    } = this.props;
+
     const path = getIssuesUrl(
-      { ...this.getBaseIssuesQuery(), projects: project.key },
-      this.props.organization
+      { resolved: 'false', rules: key, projects: project.key },
+      organization
     );
     return (
       <tr key={project.key}>
