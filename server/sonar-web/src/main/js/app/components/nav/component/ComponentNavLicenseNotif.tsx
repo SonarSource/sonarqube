@@ -20,9 +20,10 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { isValidLicense } from '../../../../api/marketplace';
 import { withAppState } from '../../../../components/hoc/withAppState';
+import { ComponentQualifier } from '../../../../types/component';
 
 interface Props {
   appState: Pick<T.AppState, 'canAdmin'>;
@@ -74,7 +75,10 @@ export class ComponentNavLicenseNotif extends React.PureComponent<Props, State> 
     if (isValidLicense && currentTask.errorType !== 'LICENSING_LOC') {
       return (
         <Alert display="banner" variant="error">
-          {translate('component_navigation.status.last_blocked_due_to_bad_license')}
+          {translateWithParameters(
+            'component_navigation.status.last_blocked_due_to_bad_license_X',
+            translate('qualifier', currentTask.componentQualifier || ComponentQualifier.Project)
+          )}
         </Alert>
       );
     }

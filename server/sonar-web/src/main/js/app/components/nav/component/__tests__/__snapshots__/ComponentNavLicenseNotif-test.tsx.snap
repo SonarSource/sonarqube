@@ -5,7 +5,7 @@ exports[`renders a different message if the license is valid 1`] = `
   display="banner"
   variant="error"
 >
-  component_navigation.status.last_blocked_due_to_bad_license
+  component_navigation.status.last_blocked_due_to_bad_license_X.qualifier.TRK
 </Alert>
 `;
 
