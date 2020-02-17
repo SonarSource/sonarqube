@@ -75,6 +75,7 @@ public class AlmSettingsService extends BaseService {
       new PostRequest(path("create_gitlab"))
         .setParam("key", request.getKey())
         .setParam("personalAccessToken", request.getPersonalAccessToken())
+        .setParam("url", request.getUrl())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -194,6 +195,7 @@ public class AlmSettingsService extends BaseService {
       new PostRequest(path("set_gitlab_binding"))
         .setParam("almSetting", request.getAlmSetting())
         .setParam("project", request.getProject())
+        .setParam("repository", request.getRepository())
         .setMediaType(MediaTypes.JSON)).content();
   }
 

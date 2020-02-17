@@ -31,6 +31,17 @@ public class SetGitlabBindingRequest {
 
   private String almSetting;
   private String project;
+  private String repository;
+
+
+  public String getRepository() {
+    return repository;
+  }
+
+  public SetGitlabBindingRequest setRepository(String repository) {
+    this.repository = repository;
+    return this;
+  }
 
   /**
    * This is a mandatory parameter.
