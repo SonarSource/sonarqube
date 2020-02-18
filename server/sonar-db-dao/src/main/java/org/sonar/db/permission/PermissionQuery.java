@@ -50,7 +50,6 @@ public class PermissionQuery {
   // filter on project, else filter org permissions
   private final String componentUuid;
   private final Long componentId;
-  private final String template;
 
   // filter on login, email or name of users or groups
   private final String searchQuery;
@@ -70,7 +69,6 @@ public class PermissionQuery {
     this.withAtLeastOnePermission = builder.withAtLeastOnePermission;
     this.componentUuid = builder.componentUuid;
     this.componentId = builder.componentId;
-    this.template = builder.template;
     this.searchQuery = builder.searchQuery;
     this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER);
     this.searchQueryToSqlLowercase = searchQueryToSql == null ? null : searchQueryToSql.toLowerCase(Locale.ENGLISH);
@@ -89,12 +87,6 @@ public class PermissionQuery {
 
   public boolean withAtLeastOnePermission() {
     return withAtLeastOnePermission;
-  }
-
-  // TODO remove it, it should not be in the query, but set as a separate parameter
-  @Deprecated
-  public String template() {
-    return template;
   }
 
   @CheckForNull
@@ -139,7 +131,6 @@ public class PermissionQuery {
     private String organizationUuid;
     private String componentUuid;
     private Long componentId;
-    private String template;
     private String searchQuery;
     private boolean withAtLeastOnePermission;
 
@@ -153,11 +144,6 @@ public class PermissionQuery {
     public Builder setPermission(@Nullable String permission) {
       this.withAtLeastOnePermission = permission != null;
       this.permission = permission;
-      return this;
-    }
-
-    public Builder setTemplate(@Nullable String template) {
-      this.template = template;
       return this;
     }
 

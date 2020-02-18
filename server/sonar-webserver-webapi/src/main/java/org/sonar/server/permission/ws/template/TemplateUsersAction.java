@@ -36,9 +36,9 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolver;
+import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
@@ -121,7 +121,6 @@ public class TemplateUsersAction implements PermissionsWsAction {
     String permission = wsRequest.param(PARAM_PERMISSION);
     PermissionQuery.Builder query = PermissionQuery.builder()
       .setOrganizationUuid(template.getOrganizationUuid())
-      .setTemplate(template.getUuid())
       .setPermission(permission != null ? requestValidator.validateProjectPermission(permission) : null)
       .setPageIndex(wsRequest.mandatoryParamAsInt(PAGE))
       .setPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))

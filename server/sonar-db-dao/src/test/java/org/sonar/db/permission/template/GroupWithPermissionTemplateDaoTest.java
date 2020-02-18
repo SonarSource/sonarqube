@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.builder;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
@@ -91,7 +92,6 @@ public class GroupWithPermissionTemplateDaoTest {
   public void selectGroupNamesByQueryAndTemplate_is_ordering_results_by_groups_with_permission_then_by_name() {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
-
     GroupDto group1 = db.users().insertGroup(organization, "A");
     GroupDto group2 = db.users().insertGroup(organization, "B");
     GroupDto group3 = db.users().insertGroup(organization, "C");
@@ -101,6 +101,42 @@ public class GroupWithPermissionTemplateDaoTest {
     PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
     assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getId()))
       .containsExactly("Anyone", group3.getName(), group1.getName(), group2.getName());
+  }
+
+  @Test
+  public void selectGroupNamesByQueryAndTemplate_is_order_by_groups_with_permission_then_by_name_when_many_groups() {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
+    IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
+      db.users().insertGroup(organization, "Group-" + i);
+    });
+
+    String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
+    permissionTemplateDbTester.addGroupToTemplate(template, db.users().selectGroup(organization, lastGroupName).get(), UserRole.USER);
+
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+    assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getId()))
+      .hasSize(DEFAULT_PAGE_SIZE)
+      .startsWith("Anyone", lastGroupName, "Group-1");
+  }
+
+  @Test
+  public void selectGroupNamesByQueryAndTemplate_ignores_other_template_and_is_ordered_by_groups_with_permission_then_by_name_when_many_groups() {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
+    PermissionTemplateDto otherTemplate = permissionTemplateDbTester.insertTemplate(organization);
+    IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
+      GroupDto group = db.users().insertGroup(organization, "Group-" + i);
+      permissionTemplateDbTester.addGroupToTemplate(otherTemplate, group, UserRole.USER);
+    });
+
+    String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
+    permissionTemplateDbTester.addGroupToTemplate(template, db.users().selectGroup(organization, lastGroupName).get(), UserRole.USER);
+
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+    assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getId()))
+      .hasSize(DEFAULT_PAGE_SIZE)
+      .startsWith("Anyone", lastGroupName, "Group-1");
   }
 
   @Test
@@ -121,7 +157,7 @@ public class GroupWithPermissionTemplateDaoTest {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
 
-    GroupDto group = db.users().insertGroup(newGroupDto().setName("Group"));
+    GroupDto group = db.users().insertGroup(organization, "Group");
     PermissionTemplateDto otherTemplate = permissionTemplateDbTester.insertTemplate(organization);
     permissionTemplateDbTester.addGroupToTemplate(otherTemplate.getId(), group.getId(), USER);
 

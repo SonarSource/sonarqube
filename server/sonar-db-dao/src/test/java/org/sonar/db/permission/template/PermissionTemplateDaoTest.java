@@ -54,7 +54,6 @@ public class PermissionTemplateDaoTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create();
 
@@ -70,7 +69,7 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_create_permission_template() {
+  public void create_permission_template() {
     PermissionTemplateDto permissionTemplate = underTest.insert(db.getSession(), newPermissionTemplateDto()
       .setUuid("ABCD")
       .setName("my template")
@@ -88,7 +87,7 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_select_permission_template_by_uuid() {
+  public void select_permission_template_by_uuid() {
     templateDb.insertTemplate(newPermissionTemplateDto()
       .setUuid("ABCD")
       .setName("my template")
@@ -169,7 +168,7 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_delete_permission_template() {
+  public void delete_permission_template() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();
@@ -203,7 +202,7 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_add_user_permission_to_template() {
+  public void add_user_permission_to_template() {
     PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
     UserDto user = db.users().insertUser();
 
@@ -216,7 +215,7 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_remove_user_permission_from_template() {
+  public void remove_user_permission_from_template() {
     PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
@@ -232,7 +231,7 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_add_group_permission_to_template() {
+  public void add_group_permission_to_template() {
     PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
     GroupDto group = db.users().insertGroup();
 
@@ -264,7 +263,7 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_add_group_permission_to_anyone() {
+  public void add_group_permission_to_anyone() {
     PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
 
     underTest.insertGroupPermission(dbSession, permissionTemplate.getId(), null, "user");

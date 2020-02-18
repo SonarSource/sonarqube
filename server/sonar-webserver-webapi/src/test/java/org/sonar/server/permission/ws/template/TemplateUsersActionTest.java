@@ -19,13 +19,16 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
@@ -36,8 +39,8 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
-import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.permission.RequestValidator;
+import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 import org.sonarqube.ws.Permissions;
@@ -48,6 +51,7 @@ import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateUserDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -212,6 +216,31 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
       .executeProtobuf(Permissions.UsersWsResponse.class);
 
     assertThat(response.getUsersList()).extracting("login").containsExactly("login-1", "login-2", "login-3");
+  }
+
+  @Test
+  public void search_ignores_other_template_and_is_ordered_by_users_with_permission_when_many_users() {
+    OrganizationDto defaultOrg = db.getDefaultOrganization();
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    // Add another template having some users with permission to make sure it's correctly ignored
+    PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate(defaultOrg);
+    IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
+      UserDto user = db.users().insertUser("User-" + i);
+      db.organizations().addMember(db.getDefaultOrganization(), user);
+      db.permissionTemplates().addUserToTemplate(otherTemplate, user, UserRole.USER);
+    });
+    String lastLogin = "User-" + (DEFAULT_PAGE_SIZE + 1);
+    db.permissionTemplates().addUserToTemplate(template, db.users().selectUserByLogin(lastLogin).get(), UserRole.USER);
+    loginAsAdmin(defaultOrg);
+
+    Permissions.UsersWsResponse response = newRequest(null, null)
+      .setParam(PARAM_TEMPLATE_NAME, template.getName())
+      .executeProtobuf(Permissions.UsersWsResponse.class);
+
+    assertThat(response.getUsersList())
+      .extracting("login")
+      .hasSize(DEFAULT_PAGE_SIZE)
+      .startsWith(lastLogin);
   }
 
   @Test
