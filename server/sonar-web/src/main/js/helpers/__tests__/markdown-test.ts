@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable no-console */
 import { filterContent, getFrontMatter, separateFrontMatter } from '../markdown';
 import { isSonarCloud } from '../system';
 
@@ -160,4 +161,23 @@ Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum
 
   (isSonarCloud as jest.Mock).mockReturnValueOnce(true);
   expect(filterContent(content)).toMatchSnapshot();
+});
+
+it.only('should not break when conditional tags are misused', () => {
+  const originalConsoleError = console.error;
+  console.error = jest.fn();
+
+  const content = `Random <!-- /sonarqube -->SC <!-- sonarqube -->text
+  Break
+  Bad <!-- /sonarcloud -->SQ conditional <!-- sonarcloud -->formatting
+  Break
+  <!-- sonarqube -->SC<!-- /sonarqube --><!-- sonarcloud -->SQ<!-- /sonarcloud --> text
+  Break
+  Bad <!-- /sonarcloud -->SQ conditional <!-- sonarcloud -->formatting
+  Break
+  <!-- static -->Static <!-- /sonarcloud -->stuff`;
+  expect(filterContent(content)).toMatchSnapshot();
+  expect(console.error).toBeCalledTimes(2);
+
+  console.error = originalConsoleError;
 });

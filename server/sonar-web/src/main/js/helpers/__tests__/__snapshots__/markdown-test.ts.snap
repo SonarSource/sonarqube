@@ -55,3 +55,15 @@ Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum
 
 "
 `;
+
+exports[`should not break when conditional tags are misused 1`] = `
+"Random SC text
+  Break
+  Bad SQ conditional formatting
+  Break
+  SC text
+  Break
+  Bad SQ conditional formatting
+  Break
+  Static stuff"
+`;

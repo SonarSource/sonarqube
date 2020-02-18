@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ParsedContent } from '../../../helpers/markdown';
+/* eslint-disable no-console */
+import { filterContent, ParsedContent } from '../../../helpers/markdown';
 import { mockDocumentationMarkdown } from '../../../helpers/testMocks';
 
 jest.mock('remark', () => ({
@@ -31,6 +32,11 @@ jest.mock('unist-util-visit', () => ({
     cb({ type: 'text', value: 'Text content' });
   }
 }));
+
+jest.mock('../../../helpers/markdown', () => {
+  const markdown = jest.requireActual('../../../helpers/markdown');
+  return { ...markdown, filterContent: jest.fn().mockImplementation(markdown.filterContent) };
+});
 
 const lorem = {
   url: 'analysis/languages/lorem',
@@ -97,6 +103,21 @@ it('should correctly handle overrides (replace & add)', () => {
   expect(pages[1].title).toBe(overrideFooDoc.title);
   expect(pages[2].content).toBe(newDoc.content);
   expect(pages[2].title).toBe(newDoc.title);
+});
+
+it('should not break the whole doc when one page cannot be parsed', () => {
+  const originalConsoleError = console.error;
+  console.error = jest.fn();
+
+  (filterContent as jest.Mock).mockImplementationOnce(() => {
+    throw Error('Parse page error');
+  });
+  const pages = getPages();
+  expect(pages.length).toBe(2);
+  expect(pages[0].content).toBe('');
+  expect(console.error).toBeCalledTimes(1);
+
+  console.error = originalConsoleError;
 });
 
 function getPages(overrides: T.Dict<ParsedContent> = {}) {

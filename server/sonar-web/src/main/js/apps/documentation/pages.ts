@@ -52,8 +52,19 @@ export default function getPages(
   });
 
   return pages.map(({ parsed, file }) => {
-    const content = filterContent(parsed.content);
-    const text = getText(content);
+    let content = '';
+    let text = '';
+    try {
+      content = filterContent(parsed.content);
+      text = getText(content);
+    } catch (e) {
+      /* eslint-disable-next-line no-console */
+      console.error(
+        `Documentation - an error occured while parsing page "${parsed.frontmatter.url ||
+          file.path}":`,
+        e
+      );
+    }
 
     return {
       relativeName: file.path,

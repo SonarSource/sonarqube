@@ -96,7 +96,24 @@ function cutConditionalContent(content, tag) {
   let start = newContent.indexOf(beginning);
   let end = newContent.indexOf(ending);
   while (start !== -1 && end !== -1) {
-    newContent = newContent.substring(0, start) + newContent.substring(end + ending.length);
+    if (start < end) {
+      newContent = newContent.substring(0, start) + newContent.substring(end + ending.length);
+    } else {
+      // When conditional tags are incorrectly used we log an error, strip them out and pass to the next pair of tags
+      // eslint-disable-next-line no-console
+      console.error(
+        new Error(
+          `Documentation - incorrect usage of conditional formatting tags here: "${newContent.substring(
+            end,
+            start + beginning.length
+          )}"`
+        )
+      );
+      newContent =
+        newContent.substring(0, end) +
+        newContent.substring(end + ending.length, start) +
+        newContent.substring(start + beginning.length);
+    }
     start = newContent.indexOf(beginning);
     end = newContent.indexOf(ending);
   }
