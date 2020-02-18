@@ -45,6 +45,7 @@ export interface GithubBindingDefinition extends AlmBindingDefinition {
 
 export interface GitlabBindingDefinition extends AlmBindingDefinition {
   personalAccessToken: string;
+  url?: string;
 }
 
 export interface ProjectAlmBinding {
@@ -74,6 +75,7 @@ export interface GithubProjectAlmBinding {
 export interface GitlabProjectAlmBinding {
   almSetting: string;
   project: string;
+  repository?: string;
 }
 
 export interface AlmSettingsInstance {

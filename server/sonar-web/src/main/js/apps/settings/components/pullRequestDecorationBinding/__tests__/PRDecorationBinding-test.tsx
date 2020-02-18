@@ -69,15 +69,15 @@ it('should fill selects and fill formdata', async () => {
   expect(wrapper.state().originalData).toEqual(formdata);
 });
 
-const formData = {
-  key: 'whatever',
-  repository: 'something/else'
-};
-
 it('should handle reset', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  wrapper.setState({ formData });
+  wrapper.setState({
+    formData: {
+      key: 'whatever',
+      repository: 'something/else'
+    }
+  });
 
   wrapper.instance().handleReset();
   await waitAndUpdate(wrapper);
@@ -153,7 +153,12 @@ it('should handle failures gracefully', async () => {
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  wrapper.setState({ formData });
+  wrapper.setState({
+    formData: {
+      key: 'whatever',
+      repository: 'something/else'
+    }
+  });
 
   wrapper.instance().handleSubmit();
   await waitAndUpdate(wrapper);
@@ -197,9 +202,11 @@ it('should validate form', async () => {
     instances: [
       { key: 'azure', alm: AlmKeys.Azure },
       { key: 'bitbucket', alm: AlmKeys.Bitbucket },
-      { key: 'github', alm: AlmKeys.GitHub }
+      { key: 'github', alm: AlmKeys.GitHub },
+      { key: 'gitlab', alm: AlmKeys.GitLab }
     ]
   });
+
   expect(wrapper.instance().validateForm({ key: 'azure' })).toBe(true);
 
   expect(wrapper.instance().validateForm({ key: 'github', repository: '' })).toBe(false);
@@ -209,6 +216,9 @@ it('should validate form', async () => {
   expect(
     wrapper.instance().validateForm({ key: 'bitbucket', repository: 'key', slug: 'slug' })
   ).toBe(true);
+
+  expect(wrapper.instance().validateForm({ key: 'gitlab' })).toBe(true);
+  expect(wrapper.instance().validateForm({ key: 'gitlab', repository: 'key' })).toBe(true);
 });
 
 function shallowRender(props: Partial<PRDecorationBinding['props']> = {}) {

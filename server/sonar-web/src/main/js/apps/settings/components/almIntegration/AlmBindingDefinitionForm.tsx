@@ -40,6 +40,7 @@ interface Props<B> {
   onDelete?: (definitionKey: string) => void;
   onEdit?: (definitionKey: string) => void;
   onSubmit: (data: B, originalKey: string) => void;
+  optionalFields?: Array<keyof B>;
   readOnly?: boolean;
   showInModal?: boolean;
   success?: boolean;
@@ -98,7 +99,7 @@ export default class AlmBindingDefinitionForm<
   };
 
   canSubmit = () => {
-    const { hideKeyField } = this.props;
+    const { hideKeyField, optionalFields } = this.props;
     const { formData, touched } = this.state;
 
     let values;
@@ -106,6 +107,10 @@ export default class AlmBindingDefinitionForm<
       values = omit(formData, 'key');
     } else {
       values = { ...formData };
+    }
+
+    if (optionalFields && optionalFields.length > 0) {
+      values = omit(values, optionalFields);
     }
 
     return touched && !Object.values(values).some(v => !v);

@@ -49,6 +49,7 @@ export interface AlmTabRendererProps<B> {
   onDelete: (definitionKey: string) => void;
   onEdit: (definitionKey: string) => void;
   onSubmit: (config: B, originalKey: string) => void;
+  optionalFields?: Array<keyof B>;
   success: boolean;
 }
 
@@ -67,6 +68,7 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
     form,
     loading,
     multipleAlmEnabled,
+    optionalFields,
     success,
     help = (
       <FormattedMessage
@@ -123,6 +125,7 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
               help={help}
               onCancel={props.onCancel}
               onSubmit={props.onSubmit}
+              optionalFields={optionalFields}
               showInModal={true}>
               {form}
             </AlmBindingDefinitionForm>
@@ -138,6 +141,7 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
           onDelete={definition ? props.onDelete : undefined}
           onEdit={showEdit ? props.onEdit : undefined}
           onSubmit={props.onSubmit}
+          optionalFields={optionalFields}
           readOnly={showEdit}
           success={success}>
           {form}

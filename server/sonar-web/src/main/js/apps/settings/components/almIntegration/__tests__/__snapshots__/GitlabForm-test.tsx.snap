@@ -11,6 +11,26 @@ exports[`should render correctly 1`] = `
     value=""
   />
   <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.gitlab.help1
+        <br />
+        <br />
+        settings.almintegration.form.url.gitlab.help2
+        <br />
+        <em>
+          https://gitlab.com/api/v4
+        </em>
+      </React.Fragment>
+    }
+    id="url.gitlab"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    optional={true}
+    propKey="url"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
     help="settings.almintegration.form.personal_access_token.gitlab.help"
     id="personal_access_token"
     isTextArea={true}
@@ -30,6 +50,26 @@ exports[`should render correctly 2`] = `
     onFieldChange={[MockFunction]}
     propKey="key"
     value="foo"
+  />
+  <AlmBindingDefinitionFormField
+    help={
+      <React.Fragment>
+        settings.almintegration.form.url.gitlab.help1
+        <br />
+        <br />
+        settings.almintegration.form.url.gitlab.help2
+        <br />
+        <em>
+          https://gitlab.com/api/v4
+        </em>
+      </React.Fragment>
+    }
+    id="url.gitlab"
+    maxLength={2000}
+    onFieldChange={[MockFunction]}
+    optional={true}
+    propKey="url"
+    value=""
   />
   <AlmBindingDefinitionFormField
     help="settings.almintegration.form.personal_access_token.gitlab.help"

@@ -45,7 +45,9 @@ interface State {
   success: boolean;
 }
 
-const FIELDS_BY_ALM: { [almKey in AlmKeys]: Array<keyof T.Omit<ProjectAlmBinding, 'key'>> } = {
+const REQUIRED_FIELDS_BY_ALM: {
+  [almKey in AlmKeys]: Array<keyof T.Omit<ProjectAlmBinding, 'key'>>;
+} = {
   [AlmKeys.Azure]: [],
   [AlmKeys.Bitbucket]: ['repository', 'slug'],
   [AlmKeys.GitHub]: ['repository'],
@@ -170,11 +172,14 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
         });
       }
 
-      case AlmKeys.GitLab:
+      case AlmKeys.GitLab: {
+        const repository = almSpecificFields && almSpecificFields.repository;
         return setProjectGitlabBinding({
           almSetting,
-          project
+          project,
+          repository
         });
+      }
 
       default:
         return Promise.reject();
@@ -228,7 +233,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
     if (!key || !selected) {
       return false;
     }
-    return FIELDS_BY_ALM[selected.alm].reduce(
+    return REQUIRED_FIELDS_BY_ALM[selected.alm].reduce(
       (result: boolean, field) => result && Boolean(additionalFields[field]),
       true
     );

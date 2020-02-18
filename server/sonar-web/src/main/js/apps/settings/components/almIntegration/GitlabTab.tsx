@@ -44,9 +44,13 @@ export default function GitlabTab(props: GitlabTabProps) {
       {branchesEnabled && (
         <>
           <AlmTab
+            additionalColumnsHeaders={[
+              translate('settings.almintegration.table.column.gitlab.url')
+            ]}
+            additionalColumnsKeys={['url']}
             alm={AlmKeys.GitLab}
             createConfiguration={createGitlabConfiguration}
-            defaultBinding={{ key: '', personalAccessToken: '' }}
+            defaultBinding={{ key: '', personalAccessToken: '', url: '' }}
             definitions={definitions}
             features={[
               {
@@ -61,6 +65,7 @@ export default function GitlabTab(props: GitlabTabProps) {
             multipleAlmEnabled={multipleAlmEnabled}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}
+            optionalFields={['url']}
             updateConfiguration={updateGitlabConfiguration}
           />
 

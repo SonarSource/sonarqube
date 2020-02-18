@@ -26,9 +26,10 @@ import {
 } from '../AlmBindingDefinitionFormField';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ help: 'help' })).toMatchSnapshot();
-  expect(shallowRender({ isTextArea: true })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ help: 'help' })).toMatchSnapshot('with help');
+  expect(shallowRender({ isTextArea: true })).toMatchSnapshot('textarea');
+  expect(shallowRender({ optional: true })).toMatchSnapshot('optional');
 });
 
 it('should call onFieldChange', () => {

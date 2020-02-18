@@ -131,6 +131,18 @@ it('should render select options correctly', async () => {
   expect(optionRenderer!(instances[1])).toMatchSnapshot();
 });
 
+it('should render optional fields correctly', () => {
+  expect(
+    shallowRender({
+      formData: {
+        key: 'key'
+      },
+      instances: [{ key: 'key', url: 'http://example.com', alm: AlmKeys.GitLab }],
+      loading: false
+    })
+  ).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {
   return shallow(
     <PRDecorationBindingRenderer

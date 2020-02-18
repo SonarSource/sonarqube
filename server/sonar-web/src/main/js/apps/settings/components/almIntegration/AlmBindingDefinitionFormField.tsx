@@ -29,6 +29,7 @@ export interface AlmBindingDefinitionFormFieldProps<B extends AlmBindingDefiniti
   isTextArea?: boolean;
   maxLength?: number;
   onFieldChange: (id: keyof B, value: string) => void;
+  optional?: boolean;
   propKey: keyof B;
   readOnly?: boolean;
   value: string;
@@ -44,6 +45,7 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinition>(
     isTextArea,
     maxLength,
     onFieldChange,
+    optional,
     propKey,
     readOnly = false,
     value
@@ -53,8 +55,8 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinition>(
     <div className="modal-field">
       <label className="display-flex-center" htmlFor={id}>
         {translate('settings.almintegration.form', id)}
-        <em className="mandatory spacer-right">*</em>
-        {help && <HelpTooltip overlay={help} placement="right" />}
+        {!optional && <em className="mandatory">*</em>}
+        {help && <HelpTooltip className="spacer-left" overlay={help} placement="right" />}
       </label>
       {isTextArea ? (
         <textarea
@@ -63,7 +65,7 @@ export function AlmBindingDefinitionFormField<B extends AlmBindingDefinition>(
           id={id}
           maxLength={maxLength || 2000}
           onChange={e => onFieldChange(propKey, e.currentTarget.value)}
-          required={true}
+          required={!optional}
           rows={5}
           value={value}
         />

@@ -58,17 +58,19 @@ function renderField(props: {
   helpParams?: { [key: string]: string | JSX.Element };
   id: string;
   onFieldChange: (id: keyof ProjectAlmBinding, value: string) => void;
+  optional?: boolean;
   propKey: keyof ProjectAlmBinding;
   value: string;
 }) {
-  const { help, helpParams, id, propKey, value, onFieldChange } = props;
+  const { help, helpParams, id, propKey, optional, value, onFieldChange } = props;
   return (
     <div className="form-field">
       <label className="display-flex-center" htmlFor={id}>
         {translate('settings.pr_decoration.binding.form', id)}
-        <em className="mandatory spacer-right">*</em>
+        {!optional && <em className="mandatory">*</em>}
         {help && (
           <HelpTooltip
+            className="spacer-left"
             overlay={
               <FormattedMessage
                 defaultMessage={translate('settings.pr_decoration.binding.form', id, 'help')}
@@ -222,6 +224,16 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
             helpParams: { example: 'SonarSource/sonarqube' },
             id: 'github.repository',
             onFieldChange: props.onFieldChange,
+            propKey: 'repository',
+            value: repository || ''
+          })}
+
+        {alm === AlmKeys.GitLab &&
+          renderField({
+            help: true,
+            id: 'gitlab.repository',
+            onFieldChange: props.onFieldChange,
+            optional: true,
             propKey: 'repository',
             value: repository || ''
           })}

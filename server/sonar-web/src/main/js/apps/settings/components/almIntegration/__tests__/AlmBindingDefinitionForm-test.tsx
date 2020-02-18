@@ -119,6 +119,10 @@ it('should (dis)allow submit by validating its state', () => {
   wrapper.setState({ formData: mockGithubDefinition({ key: '' }), touched: true });
   wrapper.setProps({ hideKeyField: true });
   expect(wrapper.instance().canSubmit()).toBe(true);
+
+  wrapper.setState({ formData: mockGithubDefinition({ url: '' }), touched: true });
+  wrapper.setProps({ optionalFields: ['url'] });
+  expect(wrapper.instance().canSubmit()).toBe(true);
 });
 
 function shallowRender(

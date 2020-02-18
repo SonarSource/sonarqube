@@ -5,12 +5,23 @@ exports[`should render correctly: with branch support 1`] = `
   className="bordered"
 >
   <AlmTab
+    additionalColumnsHeaders={
+      Array [
+        "settings.almintegration.table.column.gitlab.url",
+      ]
+    }
+    additionalColumnsKeys={
+      Array [
+        "url",
+      ]
+    }
     alm="gitlab"
     createConfiguration={[Function]}
     defaultBinding={
       Object {
         "key": "",
         "personalAccessToken": "",
+        "url": "",
       }
     }
     definitions={
@@ -36,6 +47,11 @@ exports[`should render correctly: with branch support 1`] = `
     multipleAlmEnabled={true}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
+    optionalFields={
+      Array [
+        "url",
+      ]
+    }
     updateConfiguration={[Function]}
   />
   <div

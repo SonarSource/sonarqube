@@ -38,6 +38,7 @@ interface Props<B> {
   multipleAlmEnabled: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
+  optionalFields?: Array<keyof B>;
   updateConfiguration: (data: B & { newKey?: string }) => Promise<void>;
 }
 
@@ -112,7 +113,8 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
       form,
       help,
       loading,
-      multipleAlmEnabled
+      multipleAlmEnabled,
+      optionalFields
     } = this.props;
     const { editedDefinition, submitting, success } = this.state;
 
@@ -135,6 +137,7 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
         onDelete={this.props.onDelete}
         onEdit={this.handleEdit}
         onSubmit={this.handleSubmit}
+        optionalFields={optionalFields}
         success={success}
       />
     );
