@@ -20,6 +20,9 @@
 import * as classNames from 'classnames';
 import { sanitize } from 'dompurify';
 import * as React from 'react';
+import { Button, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
+import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import IssueChangelogDiff from '../../../components/issue/components/IssueChangelogDiff';
@@ -29,15 +32,17 @@ import { getHotspotReviewHistory } from '../utils';
 
 export interface HotspotReviewHistoryProps {
   hotspot: Hotspot;
+  onDeleteComment: (key: string) => void;
 }
 
 export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
-  const reviewHistory = getHotspotReviewHistory(props.hotspot);
+  const { hotspot } = props;
+  const reviewHistory = getHotspotReviewHistory(hotspot);
 
   return (
     <>
       {reviewHistory.map((historyElt, historyIndex) => {
-        const { user, type, diffs, date, html } = historyElt;
+        const { user, type, diffs, date, html, key, updatable } = historyElt;
         return (
           <div
             className={classNames('padded', { 'bordered-top': historyIndex > 0 })}
@@ -78,11 +83,28 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
               </div>
             )}
 
-            {type === ReviewHistoryType.Comment && html && (
-              <div
-                className="spacer-top markdown"
-                dangerouslySetInnerHTML={{ __html: sanitize(html) }}
-              />
+            {type === ReviewHistoryType.Comment && key && html && (
+              <div className="spacer-top display-flex-space-between">
+                <div className="markdown" dangerouslySetInnerHTML={{ __html: sanitize(html) }} />
+                {updatable && (
+                  <div className="dropdown">
+                    <Dropdown
+                      overlay={
+                        <div className="padded abs-width-150">
+                          <p>{translate('issue.comment.delete_confirm_message')}</p>
+                          <Button
+                            className="button-red big-spacer-top pull-right"
+                            onClick={() => props.onDeleteComment(key)}>
+                            {translate('delete')}
+                          </Button>
+                        </div>
+                      }
+                      overlayPlacement={PopupPlacement.BottomRight}>
+                      <DeleteButton className="it__hotspots-comment-delete button-small" />
+                    </Dropdown>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         );

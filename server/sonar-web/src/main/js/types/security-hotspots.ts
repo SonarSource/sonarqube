@@ -126,6 +126,8 @@ export interface ReviewHistoryElement {
   user: Pick<T.UserBase, 'active' | 'avatar' | 'name'>;
   diffs?: T.IssueChangelogDiff[];
   html?: string;
+  key?: string;
+  updatable?: boolean;
 }
 
 export enum ReviewHistoryType {

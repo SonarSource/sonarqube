@@ -62,13 +62,43 @@ exports[`should render correctly 1`] = `
       />
     </div>
     <div
-      className="spacer-top markdown"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<strong>TEST</strong>",
+      className="spacer-top display-flex-space-between"
+    >
+      <div
+        className="markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "<strong>TEST</strong>",
+          }
         }
-      }
-    />
+      />
+      <div
+        className="dropdown"
+      >
+        <Dropdown
+          overlay={
+            <div
+              className="padded abs-width-150"
+            >
+              <p>
+                issue.comment.delete_confirm_message
+              </p>
+              <Button
+                className="button-red big-spacer-top pull-right"
+                onClick={[Function]}
+              >
+                delete
+              </Button>
+            </div>
+          }
+          overlayPlacement="bottom-right"
+        >
+          <DeleteButton
+            className="js-issue-comment-delete button-small"
+          />
+        </Dropdown>
+      </div>
+    </div>
   </div>
   <div
     className="padded bordered-top"
@@ -100,13 +130,17 @@ exports[`should render correctly 1`] = `
       />
     </div>
     <div
-      className="spacer-top markdown"
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "<strong>TEST</strong>",
+      className="spacer-top display-flex-space-between"
+    >
+      <div
+        className="markdown"
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "<strong>TEST</strong>",
+          }
         }
-      }
-    />
+      />
+    </div>
   </div>
   <div
     className="padded bordered-top"

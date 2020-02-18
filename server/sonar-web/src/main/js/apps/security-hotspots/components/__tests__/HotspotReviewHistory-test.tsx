@@ -56,7 +56,7 @@ function shallowRender(props?: Partial<HotspotReviewHistoryProps>) {
     createdAt: '2018-09-11',
     htmlText: '<strong>TEST</strong>',
     markdown: '*TEST*',
-    updatable: true,
+    updatable: false,
     login: 'dude-2',
     user: mockUser({ login: 'dude-2' })
   };
@@ -65,5 +65,5 @@ function shallowRender(props?: Partial<HotspotReviewHistoryProps>) {
     changelog: [changelogElement],
     comment: [commentElement, commentElement1]
   });
-  return shallow(<HotspotReviewHistory hotspot={hotspot} {...props} />);
+  return shallow(<HotspotReviewHistory hotspot={hotspot} onDeleteComment={jest.fn()} {...props} />);
 }

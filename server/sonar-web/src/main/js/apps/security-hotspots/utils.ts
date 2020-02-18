@@ -115,11 +115,13 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
       ...hotspot.comment.map(comment => ({
         type: ReviewHistoryType.Comment,
         date: comment.createdAt,
+        updatable: comment.updatable,
         user: {
           ...comment.user,
           name: comment.user.name || comment.user.login
         },
-        html: comment.htmlText
+        html: comment.htmlText,
+        key: comment.key
       }))
     );
   }

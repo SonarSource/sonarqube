@@ -108,6 +108,7 @@ exports[`should render correctly 1`] = `
           ],
         }
       }
+      onDeleteComment={[Function]}
     />
     <hr />
     <div
@@ -271,6 +272,7 @@ exports[`should render correctly without user 1`] = `
           ],
         }
       }
+      onDeleteComment={[Function]}
     />
   </div>
 </Fragment>

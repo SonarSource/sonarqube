@@ -20,14 +20,19 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { commentSecurityHotspot } from '../../../../api/security-hotspots';
+import {
+  commentSecurityHotspot,
+  deleteCommentSecurityHotspot
+} from '../../../../api/security-hotspots';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { isLoggedIn } from '../../../../helpers/users';
+import HotspotReviewHistory from '../HotspotReviewHistory';
 import HotspotReviewHistoryAndComments from '../HotspotReviewHistoryAndComments';
 
 jest.mock('../../../../api/security-hotspots', () => ({
-  commentSecurityHotspot: jest.fn().mockResolvedValue({})
+  commentSecurityHotspot: jest.fn().mockResolvedValue({}),
+  deleteCommentSecurityHotspot: jest.fn().mockResolvedValue({})
 }));
 
 jest.mock('../../../../helpers/users', () => ({ isLoggedIn: jest.fn(() => true) }));
@@ -93,6 +98,12 @@ it('should reset on change hotspot', () => {
   wrapper.setProps({ hotspot: mockHotspot() });
 
   expect(wrapper.state().comment).toBe('');
+});
+
+it('should delete comment', () => {
+  const wrapper = shallowRender();
+  wrapper.find(HotspotReviewHistory).simulate('deleteComment', 'me1');
+  expect(deleteCommentSecurityHotspot).toHaveBeenCalledWith('me1');
 });
 
 function shallowRender(props?: Partial<HotspotReviewHistoryAndComments['props']>) {

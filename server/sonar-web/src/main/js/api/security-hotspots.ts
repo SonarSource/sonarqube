@@ -51,6 +51,10 @@ export function commentSecurityHotspot(hotspotKey: string, comment: string): Pro
   );
 }
 
+export function deleteCommentSecurityHotspot(comment: string): Promise<void> {
+  return post('/api/hotspots/delete_comment', { comment }).catch(throwGlobalError);
+}
+
 export function getSecurityHotspots(
   data: {
     projectKey: string;

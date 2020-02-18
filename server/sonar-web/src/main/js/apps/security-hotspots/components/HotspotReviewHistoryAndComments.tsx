@@ -21,7 +21,10 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { commentSecurityHotspot } from '../../../api/security-hotspots';
+import {
+  commentSecurityHotspot,
+  deleteCommentSecurityHotspot
+} from '../../../api/security-hotspots';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import { isLoggedIn } from '../../../helpers/users';
 import { Hotspot } from '../../../types/security-hotspots';
@@ -74,6 +77,12 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
     });
   };
 
+  handleDeleteComment = (key: string) => {
+    return deleteCommentSecurityHotspot(key).then(() => {
+      this.props.onCommentUpdate();
+    });
+  };
+
   render() {
     const { currentUser, hotspot, commentTextRef, commentVisible } = this.props;
     const { comment } = this.state;
@@ -81,7 +90,7 @@ export default class HotspotReviewHistoryAndComments extends React.PureComponent
       <>
         <h1>{translate('hotspot.section.activity')}</h1>
         <div className="padded">
-          <HotspotReviewHistory hotspot={hotspot} />
+          <HotspotReviewHistory hotspot={hotspot} onDeleteComment={this.handleDeleteComment} />
 
           {isLoggedIn(currentUser) && (
             <>
