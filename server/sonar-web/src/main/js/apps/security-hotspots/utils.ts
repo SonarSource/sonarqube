@@ -121,7 +121,8 @@ export function getHotspotReviewHistory(hotspot: Hotspot): ReviewHistoryElement[
           name: comment.user.name || comment.user.login
         },
         html: comment.htmlText,
-        key: comment.key
+        key: comment.key,
+        markdown: comment.markdown
       }))
     );
   }

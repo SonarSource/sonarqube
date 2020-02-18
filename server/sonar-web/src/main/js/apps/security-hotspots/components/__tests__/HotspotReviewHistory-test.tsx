@@ -65,5 +65,12 @@ function shallowRender(props?: Partial<HotspotReviewHistoryProps>) {
     changelog: [changelogElement],
     comment: [commentElement, commentElement1]
   });
-  return shallow(<HotspotReviewHistory hotspot={hotspot} onDeleteComment={jest.fn()} {...props} />);
+  return shallow(
+    <HotspotReviewHistory
+      hotspot={hotspot}
+      onDeleteComment={jest.fn()}
+      onEditComment={jest.fn()}
+      {...props}
+    />
+  );
 }

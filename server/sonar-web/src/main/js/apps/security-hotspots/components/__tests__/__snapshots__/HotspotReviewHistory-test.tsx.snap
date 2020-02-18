@@ -72,10 +72,33 @@ exports[`should render correctly 1`] = `
           }
         }
       />
-      <div
-        className="dropdown"
-      >
+      <div>
+        <div
+          className="dropdown"
+        >
+          <Toggler
+            onRequestClose={[Function]}
+            open={false}
+            overlay={
+              <DropdownOverlay
+                placement="bottom-right"
+              >
+                <HotspotCommentPopup
+                  markdownComment="*TEST*"
+                  onCancelEdit={[Function]}
+                  onCommentEditSubmit={[Function]}
+                />
+              </DropdownOverlay>
+            }
+          >
+            <EditButton
+              className="it__hotspots-comment-edit button-small"
+              onClick={[Function]}
+            />
+          </Toggler>
+        </div>
         <Dropdown
+          onOpen={[Function]}
           overlay={
             <div
               className="padded abs-width-150"
@@ -94,7 +117,7 @@ exports[`should render correctly 1`] = `
           overlayPlacement="bottom-right"
         >
           <DeleteButton
-            className="js-issue-comment-delete button-small"
+            className="it__hotspots-comment-delete button-small"
           />
         </Dropdown>
       </div>

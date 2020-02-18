@@ -62,8 +62,3 @@
 .invisible {
   visibility: hidden;
 }
-
-#security_hotspots .review-comment {
-  display: flex;
-  justify-content: space-between;
-}

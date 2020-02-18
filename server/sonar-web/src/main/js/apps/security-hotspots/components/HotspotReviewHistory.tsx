@@ -20,8 +20,9 @@
 import * as classNames from 'classnames';
 import { sanitize } from 'dompurify';
 import * as React from 'react';
-import { Button, DeleteButton } from 'sonar-ui-common/components/controls/buttons';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import { Button, DeleteButton, EditButton } from 'sonar-ui-common/components/controls/buttons';
+import Dropdown, { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
+import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
@@ -29,20 +30,23 @@ import IssueChangelogDiff from '../../../components/issue/components/IssueChange
 import Avatar from '../../../components/ui/Avatar';
 import { Hotspot, ReviewHistoryType } from '../../../types/security-hotspots';
 import { getHotspotReviewHistory } from '../utils';
+import HotspotCommentPopup from './HotspotCommentPopup';
 
 export interface HotspotReviewHistoryProps {
   hotspot: Hotspot;
   onDeleteComment: (key: string) => void;
+  onEditComment: (key: string, comment: string) => void;
 }
 
 export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
   const { hotspot } = props;
   const reviewHistory = getHotspotReviewHistory(hotspot);
+  const [editedCommentKey, setEditedCommentKey] = React.useState('');
 
   return (
     <>
       {reviewHistory.map((historyElt, historyIndex) => {
-        const { user, type, diffs, date, html, key, updatable } = historyElt;
+        const { user, type, diffs, date, html, key, updatable, markdown } = historyElt;
         return (
           <div
             className={classNames('padded', { 'bordered-top': historyIndex > 0 })}
@@ -83,12 +87,37 @@ export default function HotspotReviewHistory(props: HotspotReviewHistoryProps) {
               </div>
             )}
 
-            {type === ReviewHistoryType.Comment && key && html && (
+            {type === ReviewHistoryType.Comment && key && html && markdown && (
               <div className="spacer-top display-flex-space-between">
                 <div className="markdown" dangerouslySetInnerHTML={{ __html: sanitize(html) }} />
                 {updatable && (
-                  <div className="dropdown">
+                  <div>
+                    <div className="dropdown">
+                      <Toggler
+                        onRequestClose={() => {
+                          setEditedCommentKey('');
+                        }}
+                        open={key === editedCommentKey}
+                        overlay={
+                          <DropdownOverlay placement={PopupPlacement.BottomRight}>
+                            <HotspotCommentPopup
+                              markdownComment={markdown}
+                              onCancelEdit={() => setEditedCommentKey('')}
+                              onCommentEditSubmit={comment => {
+                                setEditedCommentKey('');
+                                props.onEditComment(key, comment);
+                              }}
+                            />
+                          </DropdownOverlay>
+                        }>
+                        <EditButton
+                          className="it__hotspots-comment-edit button-small"
+                          onClick={() => setEditedCommentKey(key)}
+                        />
+                      </Toggler>
+                    </div>
                     <Dropdown
+                      onOpen={() => setEditedCommentKey('')}
                       overlay={
                         <div className="padded abs-width-150">
                           <p>{translate('issue.comment.delete_confirm_message')}</p>

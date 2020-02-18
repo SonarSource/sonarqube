@@ -23,6 +23,7 @@ import { BranchParameters } from '../types/branch-like';
 import {
   Hotspot,
   HotspotAssignRequest,
+  HotspotComment,
   HotspotResolution,
   HotspotSearchResponse,
   HotspotSetStatusRequest,
@@ -51,8 +52,17 @@ export function commentSecurityHotspot(hotspotKey: string, comment: string): Pro
   );
 }
 
-export function deleteCommentSecurityHotspot(comment: string): Promise<void> {
-  return post('/api/hotspots/delete_comment', { comment }).catch(throwGlobalError);
+export function deleteSecurityHotspotComment(commentKey: string): Promise<void> {
+  return post('/api/hotspots/delete_comment', { comment: commentKey }).catch(throwGlobalError);
+}
+
+export function editSecurityHotspotComment(
+  commentKey: string,
+  comment: string
+): Promise<HotspotComment> {
+  return post('/api/hotspots/edit_comment', { comment: commentKey, text: comment }).catch(
+    throwGlobalError
+  );
 }
 
 export function getSecurityHotspots(

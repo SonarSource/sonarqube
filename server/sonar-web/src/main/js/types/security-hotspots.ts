@@ -128,6 +128,7 @@ export interface ReviewHistoryElement {
   html?: string;
   key?: string;
   updatable?: boolean;
+  markdown?: string;
 }
 
 export enum ReviewHistoryType {

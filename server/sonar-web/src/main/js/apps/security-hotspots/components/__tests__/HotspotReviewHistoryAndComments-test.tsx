@@ -22,7 +22,8 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   commentSecurityHotspot,
-  deleteCommentSecurityHotspot
+  deleteSecurityHotspotComment,
+  editSecurityHotspotComment
 } from '../../../../api/security-hotspots';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
 import { mockCurrentUser } from '../../../../helpers/testMocks';
@@ -32,7 +33,8 @@ import HotspotReviewHistoryAndComments from '../HotspotReviewHistoryAndComments'
 
 jest.mock('../../../../api/security-hotspots', () => ({
   commentSecurityHotspot: jest.fn().mockResolvedValue({}),
-  deleteCommentSecurityHotspot: jest.fn().mockResolvedValue({})
+  deleteSecurityHotspotComment: jest.fn().mockResolvedValue({}),
+  editSecurityHotspotComment: jest.fn().mockResolvedValue({})
 }));
 
 jest.mock('../../../../helpers/users', () => ({ isLoggedIn: jest.fn(() => true) }));
@@ -100,10 +102,24 @@ it('should reset on change hotspot', () => {
   expect(wrapper.state().comment).toBe('');
 });
 
-it('should delete comment', () => {
+it('should delete comment', async () => {
   const wrapper = shallowRender();
+
   wrapper.find(HotspotReviewHistory).simulate('deleteComment', 'me1');
-  expect(deleteCommentSecurityHotspot).toHaveBeenCalledWith('me1');
+  await waitAndUpdate(wrapper);
+
+  expect(deleteSecurityHotspotComment).toHaveBeenCalledWith('me1');
+  expect(wrapper.instance().props.onCommentUpdate).toBeCalledTimes(1);
+});
+
+it('should edit comment', async () => {
+  const wrapper = shallowRender();
+
+  wrapper.find(HotspotReviewHistory).simulate('editComment', 'me1', 'new');
+  await waitAndUpdate(wrapper);
+
+  expect(editSecurityHotspotComment).toHaveBeenCalledWith('me1', 'new');
+  expect(wrapper.instance().props.onCommentUpdate).toBeCalledTimes(1);
 });
 
 function shallowRender(props?: Partial<HotspotReviewHistoryAndComments['props']>) {
