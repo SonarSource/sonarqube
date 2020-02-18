@@ -19,10 +19,13 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
@@ -48,6 +51,7 @@ import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateGroupDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -69,6 +73,17 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
+  public void define_template_groups() {
+    WebService.Action action = wsTester.getDef();
+
+    assertThat(action).isNotNull();
+    assertThat(action.key()).isEqualTo("template_groups");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.since()).isEqualTo("5.2");
+  }
+
+  @Test
   public void template_groups_of_json_example() {
     GroupDto adminGroup = insertGroupOnDefaultOrganization("sonar-administrators", "System administrators");
     GroupDto userGroup = insertGroupOnDefaultOrganization("sonar-users", "Any new users created will automatically join this group");
@@ -79,7 +94,6 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     // Anyone group
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), null));
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getId(), null));
-    commit();
     loginAsAdmin(db.getDefaultOrganization());
 
     String response = newRequest()
@@ -134,18 +148,20 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getId(), null));
 
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
+    GroupDto group4 = db.users().insertGroup(db.getDefaultOrganization(), "group-4-name");
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getId(), group3.getId()));
-    commit();
+    addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getId(), group4.getId()));
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .executeProtobuf(WsGroupsResponse.class);
 
-    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name", "group-3-name");
+    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name", "group-3-name", "group-4-name");
     assertThat(response.getGroups(0).getPermissionsList()).containsOnly("user", "issueadmin");
     assertThat(response.getGroups(1).getPermissionsList()).containsOnly("codeviewer", "admin");
     assertThat(response.getGroups(2).getPermissionsList()).containsOnly("user", "admin");
+    assertThat(response.getGroups(3).getPermissionsList()).isEmpty();
   }
 
   @Test
@@ -166,7 +182,6 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getId(), group3.getId()));
-    commit();
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
@@ -193,7 +208,6 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(USER, anotherTemplate.getId(), group1.getId()));
-    commit();
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
@@ -211,7 +225,6 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group1.getId()));
     GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group2.getId()));
-    commit();
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
@@ -232,7 +245,6 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group1.getId()));
     GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
     GroupDto group3 = db.users().insertGroup(defaultOrg, "group-3");
-    commit();
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
@@ -250,7 +262,6 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     db.users().insertGroup(defaultOrg, "group-1-name");
     db.users().insertGroup(defaultOrg, "group-2-name");
     db.users().insertGroup(defaultOrg, "group-3-name");
-    commit();
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
@@ -269,7 +280,6 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "group");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getId(), group.getId()));
-    commit();
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
@@ -279,6 +289,29 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone");
     assertThat(response.getGroups(0).getPermissionsList()).isEmpty();
+  }
+
+  @Test
+  public void search_ignores_other_template_and_is_ordered_by_groups_with_permission_then_by_name_when_many_groups() {
+    OrganizationDto defaultOrg = db.getDefaultOrganization();
+    PermissionTemplateDto template = addTemplateToDefaultOrganization();
+    PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate(defaultOrg);
+    IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
+      GroupDto group = db.users().insertGroup(defaultOrg, "Group-" + i);
+      db.permissionTemplates().addGroupToTemplate(otherTemplate, group, UserRole.USER);
+    });
+    String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
+    db.permissionTemplates().addGroupToTemplate(template, db.users().selectGroup(defaultOrg, lastGroupName).get(), UserRole.USER);
+    loginAsAdmin(db.getDefaultOrganization());
+
+    WsGroupsResponse response = newRequest()
+      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
+      .executeProtobuf(WsGroupsResponse.class);
+
+    assertThat(response.getGroupsList())
+      .extracting("name")
+      .hasSize(DEFAULT_PAGE_SIZE)
+      .startsWith("Anyone", lastGroupName, "Group-1");
   }
 
   @Test
@@ -363,6 +396,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   private void addGroupToTemplate(PermissionTemplateGroupDto permissionTemplateGroup) {
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), permissionTemplateGroup);
+    db.commit();
   }
 
   private static PermissionTemplateGroupDto newPermissionTemplateGroup(String permission, long templateId, @Nullable Integer groupId) {
@@ -372,7 +406,4 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
       .setGroupId(groupId);
   }
 
-  private void commit() {
-    db.commit();
-  }
 }

@@ -20,6 +20,7 @@
 package org.sonar.db.permission.template;
 
 import java.util.Collections;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.builder;
 
 public class UserWithPermissionTemplateDaoTest {
@@ -160,6 +162,26 @@ public class UserWithPermissionTemplateDaoTest {
   }
 
   @Test
+  public void selectUserLoginsByQueryAndTemplate_is_order_by_groups_with_permission_when_many_users() {
+    OrganizationDto organization = db.organizations().insert();
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
+    // Add another template having some users with permission to make sure it's correctly ignored
+    PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate(organization);
+    IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
+      UserDto user = db.users().insertUser("User-" + i);
+      db.organizations().addMember(organization, user);
+      db.permissionTemplates().addUserToTemplate(otherTemplate, user, UserRole.USER);
+    });
+    String lastLogin = "User-" + (DEFAULT_PAGE_SIZE + 1);
+    db.permissionTemplates().addUserToTemplate(template, db.users().selectUserByLogin(lastLogin).get(), UserRole.USER);
+
+    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+    assertThat(underTest.selectUserLoginsByQueryAndTemplate(db.getSession(), query, template.getId()))
+      .hasSize(DEFAULT_PAGE_SIZE)
+      .startsWith(lastLogin);
+  }
+
+  @Test
   public void should_be_paginated() {
     OrganizationDto organization = db.organizations().insert();
     UserDto user1 = db.users().insertUser(u -> u.setName("User1"));
@@ -234,4 +256,5 @@ public class UserWithPermissionTemplateDaoTest {
     assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, permissionTemplate.getId(), Collections.emptyList())).isEmpty();
     assertThat(underTest.selectUserPermissionsByTemplateIdAndUserLogins(dbSession, 123L, singletonList(user1.getLogin()))).isEmpty();
   }
+
 }

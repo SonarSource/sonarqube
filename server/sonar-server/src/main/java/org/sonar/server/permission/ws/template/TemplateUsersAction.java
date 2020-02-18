@@ -121,7 +121,6 @@ public class TemplateUsersAction implements PermissionsWsAction {
     String permission = wsRequest.param(PARAM_PERMISSION);
     PermissionQuery.Builder query = PermissionQuery.builder()
       .setOrganizationUuid(template.getOrganizationUuid())
-      .setTemplate(template.getUuid())
       .setPermission(permission != null ? requestValidator.validateProjectPermission(permission) : null)
       .setPageIndex(wsRequest.mandatoryParamAsInt(PAGE))
       .setPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))

@@ -139,8 +139,10 @@
 
   <sql id="userLoginsByQueryAndTemplate">
     FROM users u
-    LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id AND ptu.template_id=#{templateId}
-    INNER JOIN organization_members om ON u.id=om.user_id AND om.organization_uuid=#{query.organizationUuid}
+    LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id
+      AND ptu.template_id=#{templateId}
+    INNER JOIN organization_members om ON u.id=om.user_id
+      AND om.organization_uuid=#{query.organizationUuid}
     <where>
       u.active = ${_true}
       <if test="query.getSearchQueryToSql() != null">
@@ -179,6 +181,7 @@
     FROM groups g
     LEFT JOIN perm_templates_groups ptg ON
       ptg.group_id=g.id
+      AND ptg.template_id=#{templateId}
     where
       g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     UNION ALL
@@ -187,8 +190,11 @@
       'Anyone' AS name,
       ptg.permission_reference AS permission,
       ptg.template_id AS templateId
-    FROM perm_templates_groups ptg
+    FROM groups g
+    LEFT JOIN perm_templates_groups ptg ON
+      ptg.template_id=#{templateId}
     <where>
+      g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
       <if test="query.withAtLeastOnePermission()">
         AND ptg.group_id IS NULL
       </if>
