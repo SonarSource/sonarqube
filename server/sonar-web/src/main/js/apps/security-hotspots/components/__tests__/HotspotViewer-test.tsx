@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getSecurityHotspotDetails } from '../../../../api/security-hotspots';
+import { mockComponent } from '../../../../helpers/testMocks';
 import HotspotViewer from '../HotspotViewer';
 
 const hotspotKey = 'hotspot-key';
@@ -48,6 +49,7 @@ it('should render correctly', async () => {
 function shallowRender(props?: Partial<HotspotViewer['props']>) {
   return shallow<HotspotViewer>(
     <HotspotViewer
+      component={mockComponent()}
       hotspotKey={hotspotKey}
       onUpdateHotspot={jest.fn()}
       securityCategories={{ cat1: { title: 'cat1' } }}

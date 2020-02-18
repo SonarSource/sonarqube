@@ -27,13 +27,14 @@ import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { isLoggedIn } from '../../../helpers/users';
+import { ComponentQualifier } from '../../../types/component';
 import { HotspotFilters, HotspotStatusFilter } from '../../../types/security-hotspots';
 
 export interface FilterBarProps {
   currentUser: T.CurrentUser;
+  component: T.Component;
   filters: HotspotFilters;
   hotspotsReviewedMeasure?: string;
-  isProject: boolean;
   isStaticListOfHotspots: boolean;
   loadingMeasure: boolean;
   onBranch: boolean;
@@ -65,13 +66,14 @@ const assigneeFilterOptions = [
 export function FilterBar(props: FilterBarProps) {
   const {
     currentUser,
+    component,
     filters,
     hotspotsReviewedMeasure,
-    isProject,
     isStaticListOfHotspots,
     loadingMeasure,
     onBranch
   } = props;
+  const isProject = component.qualifier === ComponentQualifier.Project;
 
   return (
     <div className="filter-bar display-flex-center">

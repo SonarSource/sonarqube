@@ -35,11 +35,11 @@ import './styles.css';
 
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
+  component: T.Component;
   filters: HotspotFilters;
   hotspots: RawHotspot[];
   hotspotsReviewedMeasure?: string;
   hotspotsTotal?: number;
-  isProject: boolean;
   isStaticListOfHotspots: boolean;
   loading: boolean;
   loadingMeasure: boolean;
@@ -56,10 +56,10 @@ export interface SecurityHotspotsAppRendererProps {
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
   const {
     branchLike,
+    component,
     hotspots,
     hotspotsReviewedMeasure,
     hotspotsTotal,
-    isProject,
     isStaticListOfHotspots,
     loading,
     loadingMeasure,
@@ -72,9 +72,9 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
   return (
     <div id="security_hotspots">
       <FilterBar
+        component={component}
         filters={filters}
         hotspotsReviewedMeasure={hotspotsReviewedMeasure}
-        isProject={isProject}
         isStaticListOfHotspots={isStaticListOfHotspots}
         loadingMeasure={loadingMeasure}
         onBranch={isBranch(branchLike)}
@@ -120,6 +120,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                     <div className="main">
                       <HotspotViewer
                         branchLike={branchLike}
+                        component={component}
                         hotspotKey={selectedHotspot.key}
                         onUpdateHotspot={props.onUpdateHotspot}
                         securityCategories={securityCategories}

@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
+import { mockComponent } from '../../../helpers/testMocks';
 import { HotspotStatusFilter } from '../../../types/security-hotspots';
 import FilterBar from '../components/FilterBar';
 import SecurityHotspotsAppRenderer, {
@@ -72,13 +73,13 @@ it('should properly propagate the "show all" call', () => {
 function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
   return shallow(
     <SecurityHotspotsAppRenderer
+      component={mockComponent()}
       filters={{
         assignedToMe: false,
         sinceLeakPeriod: false,
         status: HotspotStatusFilter.TO_REVIEW
       }}
       hotspots={[]}
-      isProject={true}
       isStaticListOfHotspots={true}
       loading={false}
       loadingMeasure={false}

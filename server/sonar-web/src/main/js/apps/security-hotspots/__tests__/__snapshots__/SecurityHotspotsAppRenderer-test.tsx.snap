@@ -5,6 +5,29 @@ exports[`should render correctly 1`] = `
   id="security_hotspots"
 >
   <Connect(withCurrentUser(FilterBar))
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
     filters={
       Object {
         "assignedToMe": false,
@@ -12,7 +35,6 @@ exports[`should render correctly 1`] = `
         "status": "TO_REVIEW",
       }
     }
-    isProject={true}
     isStaticListOfHotspots={true}
     loadingMeasure={false}
     onBranch={false}
@@ -146,6 +168,29 @@ exports[`should render correctly with hotspots 2`] = `
         className="main"
       >
         <HotspotViewer
+          component={
+            Object {
+              "breadcrumbs": Array [],
+              "key": "my-project",
+              "name": "MyProject",
+              "organization": "foo",
+              "qualifier": "TRK",
+              "qualityGate": Object {
+                "isDefault": true,
+                "key": "30",
+                "name": "Sonar way",
+              },
+              "qualityProfiles": Array [
+                Object {
+                  "deleted": false,
+                  "key": "my-qp",
+                  "language": "ts",
+                  "name": "Sonar way",
+                },
+              ],
+              "tags": Array [],
+            }
+          }
           hotspotKey="h2"
           onUpdateHotspot={[MockFunction]}
           securityCategories={Object {}}

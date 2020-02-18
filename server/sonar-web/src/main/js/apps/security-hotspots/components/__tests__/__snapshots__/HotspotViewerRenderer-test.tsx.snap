@@ -14,9 +14,21 @@ exports[`should render correctly 1`] = `
       <div
         className="display-flex-space-between"
       >
-        <h1>
+        <strong
+          className="big"
+        >
           '3' is a magic number.
-        </h1>
+        </strong>
+        <ClipboardButton
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
       </div>
       <div
         className="text-muted"
@@ -241,6 +253,14 @@ exports[`should render correctly 1`] = `
       />
     </div>
     <HotspotSnippetContainer
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "branch-6.7",
+        }
+      }
       hotspot={
         Object {
           "assignee": "assignee",
@@ -461,9 +481,21 @@ exports[`should render correctly: anonymous user 1`] = `
       <div
         className="display-flex-space-between"
       >
-        <h1>
+        <strong
+          className="big"
+        >
           '3' is a magic number.
-        </h1>
+        </strong>
+        <ClipboardButton
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
       </div>
       <div
         className="text-muted"
@@ -688,6 +720,14 @@ exports[`should render correctly: anonymous user 1`] = `
       />
     </div>
     <HotspotSnippetContainer
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "branch-6.7",
+        }
+      }
       hotspot={
         Object {
           "assignee": "assignee",
@@ -908,9 +948,21 @@ exports[`should render correctly: assignee without name 1`] = `
       <div
         className="display-flex-space-between"
       >
-        <h1>
+        <strong
+          className="big"
+        >
           '3' is a magic number.
-        </h1>
+        </strong>
+        <ClipboardButton
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
       </div>
       <div
         className="text-muted"
@@ -1135,6 +1187,14 @@ exports[`should render correctly: assignee without name 1`] = `
       />
     </div>
     <HotspotSnippetContainer
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "branch-6.7",
+        }
+      }
       hotspot={
         Object {
           "assignee": "assignee",
@@ -1355,9 +1415,21 @@ exports[`should render correctly: deleted assignee 1`] = `
       <div
         className="display-flex-space-between"
       >
-        <h1>
+        <strong
+          className="big"
+        >
           '3' is a magic number.
-        </h1>
+        </strong>
+        <ClipboardButton
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
       </div>
       <div
         className="text-muted"
@@ -1582,6 +1654,14 @@ exports[`should render correctly: deleted assignee 1`] = `
       />
     </div>
     <HotspotSnippetContainer
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "branch-6.7",
+        }
+      }
       hotspot={
         Object {
           "assignee": "assignee",
@@ -1809,9 +1889,21 @@ exports[`should render correctly: unassigned 1`] = `
       <div
         className="display-flex-space-between"
       >
-        <h1>
+        <strong
+          className="big"
+        >
           '3' is a magic number.
-        </h1>
+        </strong>
+        <ClipboardButton
+          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
+        >
+          <LinkIcon
+            className="spacer-right"
+          />
+          <span>
+            hotspots.get_permalink
+          </span>
+        </ClipboardButton>
       </div>
       <div
         className="text-muted"
@@ -2036,6 +2128,14 @@ exports[`should render correctly: unassigned 1`] = `
       />
     </div>
     <HotspotSnippetContainer
+      branchLike={
+        Object {
+          "analysisDate": "2018-01-01",
+          "excludedFromPurge": true,
+          "isMain": false,
+          "name": "branch-6.7",
+        }
+      }
       hotspot={
         Object {
           "assignee": undefined,

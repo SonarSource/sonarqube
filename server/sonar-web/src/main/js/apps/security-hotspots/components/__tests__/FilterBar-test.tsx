@@ -21,7 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import Select from 'sonar-ui-common/components/controls/Select';
-import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { mockComponent, mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { HotspotStatusFilter } from '../../../../types/security-hotspots';
 import { AssigneeFilterOption, FilterBar, FilterBarProps } from '../FilterBar';
 
@@ -32,9 +33,12 @@ it('should render correctly', () => {
   expect(shallowRender({ hotspotsReviewedMeasure: '23.30' })).toMatchSnapshot(
     'with hotspots reviewed measure'
   );
-  expect(shallowRender({ currentUser: mockLoggedInUser(), isProject: false })).toMatchSnapshot(
-    'non-project'
-  );
+  expect(
+    shallowRender({
+      currentUser: mockLoggedInUser(),
+      component: mockComponent({ qualifier: ComponentQualifier.Application })
+    })
+  ).toMatchSnapshot('non-project');
 });
 
 it('should render correctly when the list of hotspot is static', () => {
@@ -101,13 +105,13 @@ it('should trigger onChange for leak period', () => {
 function shallowRender(props: Partial<FilterBarProps> = {}) {
   return shallow(
     <FilterBar
+      component={mockComponent()}
       currentUser={mockCurrentUser()}
       filters={{
         assignedToMe: false,
         sinceLeakPeriod: false,
         status: HotspotStatusFilter.TO_REVIEW
       }}
-      isProject={true}
       isStaticListOfHotspots={false}
       loadingMeasure={false}
       onBranch={true}

@@ -10,6 +10,29 @@ exports[`should render correctly 1`] = `
       "name": "branch-6.7",
     }
   }
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "key": "my-project",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "deleted": false,
+          "key": "my-qp",
+          "language": "ts",
+          "name": "Sonar way",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
   filters={
     Object {
       "assignedToMe": false,
@@ -18,7 +41,6 @@ exports[`should render correctly 1`] = `
     }
   }
   hotspots={Array []}
-  isProject={true}
   isStaticListOfHotspots={false}
   loading={true}
   loadingMeasure={true}

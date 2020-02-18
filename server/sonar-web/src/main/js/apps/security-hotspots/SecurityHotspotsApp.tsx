@@ -30,7 +30,6 @@ import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../helpe
 import { getStandards } from '../../helpers/security-standard';
 import { isLoggedIn } from '../../helpers/users';
 import { BranchLike } from '../../types/branch-like';
-import { ComponentQualifier } from '../../types/component';
 import {
   HotspotFilters,
   HotspotResolution,
@@ -330,11 +329,11 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     return (
       <SecurityHotspotsAppRenderer
         branchLike={branchLike}
+        component={component}
         filters={filters}
         hotspots={hotspots}
         hotspotsReviewedMeasure={hotspotsReviewedMeasure}
         hotspotsTotal={hotspotsTotal}
-        isProject={component.qualifier === ComponentQualifier.Project}
         isStaticListOfHotspots={Boolean(hotspotKeys && hotspotKeys.length > 0)}
         loading={loading}
         loadingMeasure={loadingMeasure}

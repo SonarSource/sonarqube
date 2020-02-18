@@ -23,6 +23,7 @@ import { InjectedRouter } from 'react-router';
 import { createStore, Store } from 'redux';
 import { DocumentationEntry } from '../apps/documentation/utils';
 import { Exporter, Profile } from '../apps/quality-profiles/types';
+import { ComponentQualifier } from '../types/component';
 
 export function mockAlmApplication(overrides: Partial<T.AlmApplication> = {}): T.AlmApplication {
   return {
@@ -277,7 +278,7 @@ export function mockComponent(overrides: Partial<T.Component> = {}): T.Component
     key: 'my-project',
     name: 'MyProject',
     organization: 'foo',
-    qualifier: 'TRK',
+    qualifier: ComponentQualifier.Project,
     qualityGate: { isDefault: true, key: '30', name: 'Sonar way' },
     qualityProfiles: [
       {

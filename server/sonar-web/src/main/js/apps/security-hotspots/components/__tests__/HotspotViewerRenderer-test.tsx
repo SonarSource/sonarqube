@@ -19,8 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockHotspot } from '../../../../helpers/mocks/security-hotspots';
-import { mockUser } from '../../../../helpers/testMocks';
+import { mockComponent, mockUser } from '../../../../helpers/testMocks';
 import HotspotViewerRenderer, { HotspotViewerRendererProps } from '../HotspotViewerRenderer';
 
 it('should render correctly', () => {
@@ -46,6 +47,8 @@ it('should render correctly', () => {
 function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
   return shallow(
     <HotspotViewerRenderer
+      branchLike={mockBranch()}
+      component={mockComponent()}
       hotspot={mockHotspot()}
       loading={false}
       onUpdateHotspot={jest.fn()}

@@ -26,6 +26,7 @@ import HotspotViewerRenderer from './HotspotViewerRenderer';
 
 interface Props {
   branchLike?: BranchLike;
+  component: T.Component;
   hotspotKey: string;
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
   securityCategories: T.StandardSecurityCategories;
@@ -55,7 +56,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  fetchHotspot() {
+  fetchHotspot = () => {
     this.setState({ loading: true });
     return getSecurityHotspotDetails(this.props.hotspotKey)
       .then(hotspot => {
@@ -65,7 +66,7 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
         return hotspot;
       })
       .catch(() => this.mounted && this.setState({ loading: false }));
-  }
+  };
 
   handleHotspotUpdate = () => {
     return this.fetchHotspot().then((hotspot?: Hotspot) => {
@@ -76,12 +77,13 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchLike, securityCategories } = this.props;
+    const { branchLike, component, securityCategories } = this.props;
     const { hotspot, loading } = this.state;
 
     return (
       <HotspotViewerRenderer
         branchLike={branchLike}
+        component={component}
         hotspot={hotspot}
         loading={loading}
         onUpdateHotspot={this.handleHotspotUpdate}

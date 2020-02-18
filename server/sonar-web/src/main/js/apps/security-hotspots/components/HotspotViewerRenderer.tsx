@@ -18,8 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { ClipboardButton } from 'sonar-ui-common/components/controls/clipboard';
+import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { Hotspot } from '../../../types/security-hotspots';
 import Assignee from './assignee/Assignee';
@@ -29,6 +34,7 @@ import Status from './status/Status';
 
 export interface HotspotViewerRendererProps {
   branchLike?: BranchLike;
+  component: T.Component;
   hotspot?: Hotspot;
   loading: boolean;
   onUpdateHotspot: () => Promise<void>;
@@ -36,7 +42,15 @@ export interface HotspotViewerRendererProps {
 }
 
 export default function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
-  const { branchLike, hotspot, loading, securityCategories } = props;
+  const { branchLike, component, hotspot, loading, securityCategories } = props;
+
+  const permalink = getPathUrlAsString(
+    getComponentSecurityHotspotsUrl(component.key, {
+      ...getBranchLikeQuery(branchLike),
+      hotspots: hotspot?.key
+    }),
+    false
+  );
 
   return (
     <DeferredSpinner loading={loading}>
@@ -44,7 +58,11 @@ export default function HotspotViewerRenderer(props: HotspotViewerRendererProps)
         <div className="big-padded">
           <div className="big-spacer-bottom">
             <div className="display-flex-space-between">
-              <h1>{hotspot.message}</h1>
+              <strong className="big">{hotspot.message}</strong>
+              <ClipboardButton copyValue={permalink}>
+                <LinkIcon className="spacer-right" />
+                <span>{translate('hotspots.get_permalink')}</span>
+              </ClipboardButton>
             </div>
             <div className="text-muted">
               <span>{translate('category')}:</span>
