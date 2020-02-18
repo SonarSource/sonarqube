@@ -117,13 +117,13 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations** and select the **GitLab** tab.  
 |
-| From here, set your **Configuration name** and the **Personal Access Token** of the account you're using to decorate your Merge Requests.
+| From here, set your **Configuration name** and the **Personal Access Token** of the account you're using to decorate your Merge Requests. If you're using [GitLab CI](/analysis/gitlab-cicd/) to scan your project, you can leave the **GitLab URL** blank, as it will be auto-detected. If you're using a different CI tool (e.g.: Jenkins, Travis CI, etc), or run the analysis manually, provide the base URL for GitLab's API.
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
 | ### Setting your project settings
 |
-| Go to **Project Settings > General Settings > Pull Request Decoration** and select your **Configuration name**.
+| Go to **Project Settings > General Settings > Pull Request Decoration** and select your **Configuration name**. If you're using [GitLab CI](/analysis/gitlab-cicd/), you can leave **Project ID** blank, as it will be auto-detected. If you're using a different CI tool (e.g.: Jenkins, Travis CI, etc), or run the analysis manually, provide the project's numerical ID.
 
 ## Multiple ALM instances
 
