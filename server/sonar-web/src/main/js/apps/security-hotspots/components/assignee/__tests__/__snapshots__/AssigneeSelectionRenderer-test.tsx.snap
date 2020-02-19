@@ -50,7 +50,6 @@ exports[`should render correctly: open 1`] = `
     className="position-relative"
   >
     <DropdownOverlay
-      className="abs-width-400"
       noPadding={true}
       placement="bottom-left"
     >
@@ -80,7 +79,6 @@ exports[`should render correctly: open with results 1`] = `
     className="position-relative"
   >
     <DropdownOverlay
-      className="abs-width-400"
       noPadding={true}
       placement="bottom-left"
     >

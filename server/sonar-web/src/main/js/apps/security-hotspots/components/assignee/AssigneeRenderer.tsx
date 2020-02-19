@@ -43,39 +43,33 @@ export default function AssigneeRenderer(props: AssigneeRendererProps) {
   const { assignee, canEdit, loggedInUser, editing, loading } = props;
 
   return (
-    <div className="big-spacer-top display-flex-center">
-      <span>{translate('assignee')}:</span>
-
-      <span className="spacer-left">
-        <DeferredSpinner loading={loading}>
-          {!editing && (
-            <div className="display-flex-center">
-              <strong>
-                {assignee &&
-                  (assignee.active
-                    ? assignee.name ?? assignee.login
-                    : translateWithParameters('user.x_deleted', assignee.name ?? assignee.login))}
-                {!assignee && translate('unassigned')}
-              </strong>
-              {loggedInUser && canEdit && (
-                <EditButton className="spacer-left" onClick={props.onEnterEditionMode} />
-              )}
-            </div>
+    <DeferredSpinner loading={loading}>
+      {!editing && (
+        <div className="display-flex-center">
+          <strong className="nowrap">
+            {assignee &&
+              (assignee.active
+                ? assignee.name ?? assignee.login
+                : translateWithParameters('user.x_deleted', assignee.name ?? assignee.login))}
+            {!assignee && translate('unassigned')}
+          </strong>
+          {loggedInUser && canEdit && (
+            <EditButton className="spacer-left" onClick={props.onEnterEditionMode} />
           )}
+        </div>
+      )}
 
-          {loggedInUser && editing && (
-            <EscKeydownHandler onKeydown={props.onExitEditionMode}>
-              <OutsideClickHandler onClickOutside={props.onExitEditionMode}>
-                <AssigneeSelection
-                  allowCurrentUserSelection={loggedInUser.login !== assignee?.login}
-                  loggedInUser={loggedInUser}
-                  onSelect={props.onAssign}
-                />
-              </OutsideClickHandler>
-            </EscKeydownHandler>
-          )}
-        </DeferredSpinner>
-      </span>
-    </div>
+      {loggedInUser && editing && (
+        <EscKeydownHandler onKeydown={props.onExitEditionMode}>
+          <OutsideClickHandler onClickOutside={props.onExitEditionMode}>
+            <AssigneeSelection
+              allowCurrentUserSelection={loggedInUser.login !== assignee?.login}
+              loggedInUser={loggedInUser}
+              onSelect={props.onAssign}
+            />
+          </OutsideClickHandler>
+        </EscKeydownHandler>
+      )}
+    </DeferredSpinner>
   );
 }

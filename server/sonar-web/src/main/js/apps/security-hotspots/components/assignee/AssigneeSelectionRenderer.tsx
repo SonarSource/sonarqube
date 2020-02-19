@@ -56,10 +56,7 @@ export default function AssigneeSelectionRenderer(props: HotspotAssigneeSelectRe
 
       {!loading && open && (
         <div className="position-relative">
-          <DropdownOverlay
-            className="abs-width-400"
-            noPadding={true}
-            placement={PopupPlacement.BottomLeft}>
+          <DropdownOverlay noPadding={true} placement={PopupPlacement.BottomLeft}>
             {suggestedUsers && suggestedUsers.length > 0 ? (
               <ul className="hotspot-assignee-search-results">
                 {suggestedUsers.map(suggestion => (

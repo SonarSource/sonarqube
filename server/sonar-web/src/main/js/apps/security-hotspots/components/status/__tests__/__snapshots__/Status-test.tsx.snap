@@ -2,7 +2,7 @@
 
 exports[`should render correctly: closed 1`] = `
 <div
-  className="dropdown huge-spacer-left"
+  className="dropdown"
 >
   <Toggler
     closeOnClickOutside={true}
@@ -146,7 +146,7 @@ exports[`should render correctly: closed 1`] = `
 
 exports[`should render correctly: open 1`] = `
 <div
-  className="dropdown huge-spacer-left"
+  className="dropdown"
 >
   <Toggler
     closeOnClickOutside={true}
@@ -291,7 +291,7 @@ exports[`should render correctly: open 1`] = `
 
 exports[`should render correctly: readonly 1`] = `
 <div
-  className="dropdown huge-spacer-left"
+  className="dropdown"
 >
   <Tooltip
     overlay="hotspots.status.cannot_change_status"

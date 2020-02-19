@@ -92,7 +92,7 @@ export function Status(props: StatusProps) {
   );
 
   return (
-    <div className="dropdown huge-spacer-left">
+    <div className="dropdown">
       {readonly ? (
         <Tooltip overlay={translate('hotspots.status.cannot_change_status')} placement="bottom">
           {actionableTrigger}

@@ -92,6 +92,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
       >
         <span>
           hotspots.risk_exposure
+          :
         </span>
         <div
           className="hotspot-risk-badge spacer-left HIGH"
@@ -205,6 +206,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
       >
         <span>
           hotspots.risk_exposure
+          :
         </span>
         <div
           className="hotspot-risk-badge spacer-left MEDIUM"
@@ -357,6 +359,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
       >
         <span>
           hotspots.risk_exposure
+          :
         </span>
         <div
           className="hotspot-risk-badge spacer-left HIGH"
@@ -470,6 +473,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
       >
         <span>
           hotspots.risk_exposure
+          :
         </span>
         <div
           className="hotspot-risk-badge spacer-left MEDIUM"

@@ -9,248 +9,278 @@ exports[`should render correctly 1`] = `
     className="big-padded"
   >
     <div
-      className="big-spacer-bottom"
+      className="huge-spacer-bottom display-flex-space-between"
     >
-      <div
-        className="display-flex-space-between"
+      <strong
+        className="big big-spacer-right"
       >
-        <strong
-          className="big"
-        >
-          '3' is a magic number.
-        </strong>
-        <ClipboardButton
-          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-        >
-          <LinkIcon
-            className="spacer-right"
-          />
-          <span>
-            hotspots.get_permalink
-          </span>
-        </ClipboardButton>
-      </div>
-      <div
-        className="text-muted"
+        '3' is a magic number.
+      </strong>
+      <ClipboardButton
+        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
       >
+        <LinkIcon
+          className="spacer-right"
+        />
         <span>
-          category
-          :
+          hotspots.get_permalink
         </span>
-        <span
-          className="little-spacer-left"
-        >
-          SQL injection
-        </span>
-      </div>
+      </ClipboardButton>
     </div>
     <div
-      className="display-flex-row huge-spacer-bottom"
+      className="huge-spacer-bottom display-flex-row"
     >
-      <Connect(withCurrentUser(Assignee))
-        hotspot={
-          Object {
-            "assignee": "assignee",
-            "assigneeUser": Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
+      <div
+        className="hotspot-information display-flex-column display-flex-space-between"
+      >
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            category
+          </span>
+          <strong
+            className="nowrap"
+          >
+            SQL injection
+          </strong>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            hotspots.risk_exposure
+          </span>
+          <div
+            className="hotspot-risk-badge HIGH"
+          >
+            risk_exposure.HIGH
+          </div>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            assignee
+          </span>
+          <div>
+            <Connect(withCurrentUser(Assignee))
+              hotspot={
                 Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
+                  "assignee": "assignee",
+                  "assigneeUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "assignee",
+                    "name": "John Doe",
+                  },
+                  "author": "author",
+                  "authorUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "author",
+                    "name": "John Doe",
+                  },
+                  "canChangeStatus": true,
+                  "changelog": Array [],
+                  "comment": Array [],
+                  "component": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "FIL",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "creationDate": "2013-05-13T17:55:41+0200",
+                  "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+                  "line": 142,
+                  "message": "'3' is a magic number.",
+                  "project": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "TRK",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "resolution": "FIXED",
+                  "rule": Object {
+                    "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                    "key": "squid:S2077",
+                    "name": "That rule",
+                    "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                    "securityCategory": "sql-injection",
+                    "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                    "vulnerabilityProbability": "HIGH",
+                  },
+                  "status": "REVIEWED",
+                  "textRange": Object {
+                    "endLine": 142,
+                    "endOffset": 83,
+                    "startLine": 142,
+                    "startOffset": 26,
+                  },
+                  "updateDate": "2013-05-13T17:55:42+0200",
+                  "users": Array [
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "assignee",
+                      "name": "John Doe",
+                    },
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "author",
+                      "name": "John Doe",
+                    },
+                  ],
+                }
+              }
+              onAssigneeChange={[MockFunction]}
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="huge-spacer-left"
+      >
+        <Connect(withCurrentUser(Status))
+          hotspot={
+            Object {
+              "assignee": "assignee",
+              "assigneeUser": Object {
                 "active": true,
                 "local": true,
                 "login": "assignee",
                 "name": "John Doe",
               },
-              Object {
+              "author": "author",
+              "authorUser": Object {
                 "active": true,
                 "local": true,
                 "login": "author",
                 "name": "John Doe",
               },
-            ],
-          }
-        }
-        onAssigneeChange={[MockFunction]}
-      />
-      <Connect(withCurrentUser(Status))
-        hotspot={
-          Object {
-            "assignee": "assignee",
-            "assigneeUser": Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
+              "canChangeStatus": true,
+              "changelog": Array [],
+              "comment": Array [],
+              "component": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "FIL",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
                   "name": "Sonar way",
                 },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
               },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
+              "creationDate": "2013-05-13T17:55:41+0200",
+              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+              "line": 142,
+              "message": "'3' is a magic number.",
+              "project": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
                   "name": "Sonar way",
                 },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              },
+              "resolution": "FIXED",
+              "rule": Object {
+                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                "key": "squid:S2077",
+                "name": "That rule",
+                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                "securityCategory": "sql-injection",
+                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                "vulnerabilityProbability": "HIGH",
+              },
+              "status": "REVIEWED",
+              "textRange": Object {
+                "endLine": 142,
+                "endOffset": 83,
+                "startLine": 142,
+                "startOffset": 26,
+              },
+              "updateDate": "2013-05-13T17:55:42+0200",
+              "users": Array [
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "assignee",
+                  "name": "John Doe",
+                },
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "author",
+                  "name": "John Doe",
+                },
               ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
-                "active": true,
-                "local": true,
-                "login": "assignee",
-                "name": "John Doe",
-              },
-              Object {
-                "active": true,
-                "local": true,
-                "login": "author",
-                "name": "John Doe",
-              },
-            ],
+            }
           }
-        }
-        onStatusChange={[MockFunction]}
-      />
+          onStatusChange={[MockFunction]}
+        />
+      </div>
     </div>
     <HotspotSnippetContainer
       branchLike={
@@ -476,248 +506,278 @@ exports[`should render correctly: anonymous user 1`] = `
     className="big-padded"
   >
     <div
-      className="big-spacer-bottom"
+      className="huge-spacer-bottom display-flex-space-between"
     >
-      <div
-        className="display-flex-space-between"
+      <strong
+        className="big big-spacer-right"
       >
-        <strong
-          className="big"
-        >
-          '3' is a magic number.
-        </strong>
-        <ClipboardButton
-          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-        >
-          <LinkIcon
-            className="spacer-right"
-          />
-          <span>
-            hotspots.get_permalink
-          </span>
-        </ClipboardButton>
-      </div>
-      <div
-        className="text-muted"
+        '3' is a magic number.
+      </strong>
+      <ClipboardButton
+        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
       >
+        <LinkIcon
+          className="spacer-right"
+        />
         <span>
-          category
-          :
+          hotspots.get_permalink
         </span>
-        <span
-          className="little-spacer-left"
-        >
-          SQL injection
-        </span>
-      </div>
+      </ClipboardButton>
     </div>
     <div
-      className="display-flex-row huge-spacer-bottom"
+      className="huge-spacer-bottom display-flex-row"
     >
-      <Connect(withCurrentUser(Assignee))
-        hotspot={
-          Object {
-            "assignee": "assignee",
-            "assigneeUser": Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
+      <div
+        className="hotspot-information display-flex-column display-flex-space-between"
+      >
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            category
+          </span>
+          <strong
+            className="nowrap"
+          >
+            SQL injection
+          </strong>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            hotspots.risk_exposure
+          </span>
+          <div
+            className="hotspot-risk-badge HIGH"
+          >
+            risk_exposure.HIGH
+          </div>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            assignee
+          </span>
+          <div>
+            <Connect(withCurrentUser(Assignee))
+              hotspot={
                 Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
+                  "assignee": "assignee",
+                  "assigneeUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "assignee",
+                    "name": "John Doe",
+                  },
+                  "author": "author",
+                  "authorUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "author",
+                    "name": "John Doe",
+                  },
+                  "canChangeStatus": true,
+                  "changelog": Array [],
+                  "comment": Array [],
+                  "component": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "FIL",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "creationDate": "2013-05-13T17:55:41+0200",
+                  "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+                  "line": 142,
+                  "message": "'3' is a magic number.",
+                  "project": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "TRK",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "resolution": "FIXED",
+                  "rule": Object {
+                    "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                    "key": "squid:S2077",
+                    "name": "That rule",
+                    "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                    "securityCategory": "sql-injection",
+                    "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                    "vulnerabilityProbability": "HIGH",
+                  },
+                  "status": "REVIEWED",
+                  "textRange": Object {
+                    "endLine": 142,
+                    "endOffset": 83,
+                    "startLine": 142,
+                    "startOffset": 26,
+                  },
+                  "updateDate": "2013-05-13T17:55:42+0200",
+                  "users": Array [
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "assignee",
+                      "name": "John Doe",
+                    },
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "author",
+                      "name": "John Doe",
+                    },
+                  ],
+                }
+              }
+              onAssigneeChange={[MockFunction]}
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="huge-spacer-left"
+      >
+        <Connect(withCurrentUser(Status))
+          hotspot={
+            Object {
+              "assignee": "assignee",
+              "assigneeUser": Object {
                 "active": true,
                 "local": true,
                 "login": "assignee",
                 "name": "John Doe",
               },
-              Object {
+              "author": "author",
+              "authorUser": Object {
                 "active": true,
                 "local": true,
                 "login": "author",
                 "name": "John Doe",
               },
-            ],
-          }
-        }
-        onAssigneeChange={[MockFunction]}
-      />
-      <Connect(withCurrentUser(Status))
-        hotspot={
-          Object {
-            "assignee": "assignee",
-            "assigneeUser": Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
+              "canChangeStatus": true,
+              "changelog": Array [],
+              "comment": Array [],
+              "component": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "FIL",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
                   "name": "Sonar way",
                 },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
               },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
+              "creationDate": "2013-05-13T17:55:41+0200",
+              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+              "line": 142,
+              "message": "'3' is a magic number.",
+              "project": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
                   "name": "Sonar way",
                 },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              },
+              "resolution": "FIXED",
+              "rule": Object {
+                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                "key": "squid:S2077",
+                "name": "That rule",
+                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                "securityCategory": "sql-injection",
+                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                "vulnerabilityProbability": "HIGH",
+              },
+              "status": "REVIEWED",
+              "textRange": Object {
+                "endLine": 142,
+                "endOffset": 83,
+                "startLine": 142,
+                "startOffset": 26,
+              },
+              "updateDate": "2013-05-13T17:55:42+0200",
+              "users": Array [
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "assignee",
+                  "name": "John Doe",
+                },
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "author",
+                  "name": "John Doe",
+                },
               ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
-                "active": true,
-                "local": true,
-                "login": "assignee",
-                "name": "John Doe",
-              },
-              Object {
-                "active": true,
-                "local": true,
-                "login": "author",
-                "name": "John Doe",
-              },
-            ],
+            }
           }
-        }
-        onStatusChange={[MockFunction]}
-      />
+          onStatusChange={[MockFunction]}
+        />
+      </div>
     </div>
     <HotspotSnippetContainer
       branchLike={
@@ -943,248 +1003,278 @@ exports[`should render correctly: assignee without name 1`] = `
     className="big-padded"
   >
     <div
-      className="big-spacer-bottom"
+      className="huge-spacer-bottom display-flex-space-between"
     >
-      <div
-        className="display-flex-space-between"
+      <strong
+        className="big big-spacer-right"
       >
-        <strong
-          className="big"
-        >
-          '3' is a magic number.
-        </strong>
-        <ClipboardButton
-          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-        >
-          <LinkIcon
-            className="spacer-right"
-          />
-          <span>
-            hotspots.get_permalink
-          </span>
-        </ClipboardButton>
-      </div>
-      <div
-        className="text-muted"
+        '3' is a magic number.
+      </strong>
+      <ClipboardButton
+        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
       >
+        <LinkIcon
+          className="spacer-right"
+        />
         <span>
-          category
-          :
+          hotspots.get_permalink
         </span>
-        <span
-          className="little-spacer-left"
-        >
-          SQL injection
-        </span>
-      </div>
+      </ClipboardButton>
     </div>
     <div
-      className="display-flex-row huge-spacer-bottom"
+      className="huge-spacer-bottom display-flex-row"
     >
-      <Connect(withCurrentUser(Assignee))
-        hotspot={
-          Object {
-            "assignee": "assignee",
-            "assigneeUser": Object {
-              "active": true,
-              "local": true,
-              "login": "assignee_login",
-              "name": undefined,
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
+      <div
+        className="hotspot-information display-flex-column display-flex-space-between"
+      >
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            category
+          </span>
+          <strong
+            className="nowrap"
+          >
+            SQL injection
+          </strong>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            hotspots.risk_exposure
+          </span>
+          <div
+            className="hotspot-risk-badge HIGH"
+          >
+            risk_exposure.HIGH
+          </div>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            assignee
+          </span>
+          <div>
+            <Connect(withCurrentUser(Assignee))
+              hotspot={
                 Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
+                  "assignee": "assignee",
+                  "assigneeUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "assignee_login",
+                    "name": undefined,
+                  },
+                  "author": "author",
+                  "authorUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "author",
+                    "name": "John Doe",
+                  },
+                  "canChangeStatus": true,
+                  "changelog": Array [],
+                  "comment": Array [],
+                  "component": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "FIL",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "creationDate": "2013-05-13T17:55:41+0200",
+                  "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+                  "line": 142,
+                  "message": "'3' is a magic number.",
+                  "project": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "TRK",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "resolution": "FIXED",
+                  "rule": Object {
+                    "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                    "key": "squid:S2077",
+                    "name": "That rule",
+                    "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                    "securityCategory": "sql-injection",
+                    "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                    "vulnerabilityProbability": "HIGH",
+                  },
+                  "status": "REVIEWED",
+                  "textRange": Object {
+                    "endLine": 142,
+                    "endOffset": 83,
+                    "startLine": 142,
+                    "startOffset": 26,
+                  },
+                  "updateDate": "2013-05-13T17:55:42+0200",
+                  "users": Array [
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "assignee",
+                      "name": "John Doe",
+                    },
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "author",
+                      "name": "John Doe",
+                    },
+                  ],
+                }
+              }
+              onAssigneeChange={[MockFunction]}
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="huge-spacer-left"
+      >
+        <Connect(withCurrentUser(Status))
+          hotspot={
+            Object {
+              "assignee": "assignee",
+              "assigneeUser": Object {
                 "active": true,
                 "local": true,
-                "login": "assignee",
-                "name": "John Doe",
+                "login": "assignee_login",
+                "name": undefined,
               },
-              Object {
-                "active": true,
-                "local": true,
-                "login": "author",
-                "name": "John Doe",
-              },
-            ],
-          }
-        }
-        onAssigneeChange={[MockFunction]}
-      />
-      <Connect(withCurrentUser(Status))
-        hotspot={
-          Object {
-            "assignee": "assignee",
-            "assigneeUser": Object {
-              "active": true,
-              "local": true,
-              "login": "assignee_login",
-              "name": undefined,
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
-                "active": true,
-                "local": true,
-                "login": "assignee",
-                "name": "John Doe",
-              },
-              Object {
+              "author": "author",
+              "authorUser": Object {
                 "active": true,
                 "local": true,
                 "login": "author",
                 "name": "John Doe",
               },
-            ],
+              "canChangeStatus": true,
+              "changelog": Array [],
+              "comment": Array [],
+              "component": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "FIL",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              },
+              "creationDate": "2013-05-13T17:55:41+0200",
+              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+              "line": 142,
+              "message": "'3' is a magic number.",
+              "project": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              },
+              "resolution": "FIXED",
+              "rule": Object {
+                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                "key": "squid:S2077",
+                "name": "That rule",
+                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                "securityCategory": "sql-injection",
+                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                "vulnerabilityProbability": "HIGH",
+              },
+              "status": "REVIEWED",
+              "textRange": Object {
+                "endLine": 142,
+                "endOffset": 83,
+                "startLine": 142,
+                "startOffset": 26,
+              },
+              "updateDate": "2013-05-13T17:55:42+0200",
+              "users": Array [
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "assignee",
+                  "name": "John Doe",
+                },
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "author",
+                  "name": "John Doe",
+                },
+              ],
+            }
           }
-        }
-        onStatusChange={[MockFunction]}
-      />
+          onStatusChange={[MockFunction]}
+        />
+      </div>
     </div>
     <HotspotSnippetContainer
       branchLike={
@@ -1410,248 +1500,278 @@ exports[`should render correctly: deleted assignee 1`] = `
     className="big-padded"
   >
     <div
-      className="big-spacer-bottom"
+      className="huge-spacer-bottom display-flex-space-between"
     >
-      <div
-        className="display-flex-space-between"
+      <strong
+        className="big big-spacer-right"
       >
-        <strong
-          className="big"
-        >
-          '3' is a magic number.
-        </strong>
-        <ClipboardButton
-          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-        >
-          <LinkIcon
-            className="spacer-right"
-          />
-          <span>
-            hotspots.get_permalink
-          </span>
-        </ClipboardButton>
-      </div>
-      <div
-        className="text-muted"
+        '3' is a magic number.
+      </strong>
+      <ClipboardButton
+        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
       >
+        <LinkIcon
+          className="spacer-right"
+        />
         <span>
-          category
-          :
+          hotspots.get_permalink
         </span>
-        <span
-          className="little-spacer-left"
-        >
-          SQL injection
-        </span>
-      </div>
+      </ClipboardButton>
     </div>
     <div
-      className="display-flex-row huge-spacer-bottom"
+      className="huge-spacer-bottom display-flex-row"
     >
-      <Connect(withCurrentUser(Assignee))
-        hotspot={
-          Object {
-            "assignee": "assignee",
-            "assigneeUser": Object {
-              "active": false,
-              "local": true,
-              "login": "john.doe",
-              "name": "John Doe",
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
+      <div
+        className="hotspot-information display-flex-column display-flex-space-between"
+      >
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            category
+          </span>
+          <strong
+            className="nowrap"
+          >
+            SQL injection
+          </strong>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            hotspots.risk_exposure
+          </span>
+          <div
+            className="hotspot-risk-badge HIGH"
+          >
+            risk_exposure.HIGH
+          </div>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            assignee
+          </span>
+          <div>
+            <Connect(withCurrentUser(Assignee))
+              hotspot={
                 Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
-                "active": true,
+                  "assignee": "assignee",
+                  "assigneeUser": Object {
+                    "active": false,
+                    "local": true,
+                    "login": "john.doe",
+                    "name": "John Doe",
+                  },
+                  "author": "author",
+                  "authorUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "author",
+                    "name": "John Doe",
+                  },
+                  "canChangeStatus": true,
+                  "changelog": Array [],
+                  "comment": Array [],
+                  "component": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "FIL",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "creationDate": "2013-05-13T17:55:41+0200",
+                  "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+                  "line": 142,
+                  "message": "'3' is a magic number.",
+                  "project": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "TRK",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "resolution": "FIXED",
+                  "rule": Object {
+                    "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                    "key": "squid:S2077",
+                    "name": "That rule",
+                    "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                    "securityCategory": "sql-injection",
+                    "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                    "vulnerabilityProbability": "HIGH",
+                  },
+                  "status": "REVIEWED",
+                  "textRange": Object {
+                    "endLine": 142,
+                    "endOffset": 83,
+                    "startLine": 142,
+                    "startOffset": 26,
+                  },
+                  "updateDate": "2013-05-13T17:55:42+0200",
+                  "users": Array [
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "assignee",
+                      "name": "John Doe",
+                    },
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "author",
+                      "name": "John Doe",
+                    },
+                  ],
+                }
+              }
+              onAssigneeChange={[MockFunction]}
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="huge-spacer-left"
+      >
+        <Connect(withCurrentUser(Status))
+          hotspot={
+            Object {
+              "assignee": "assignee",
+              "assigneeUser": Object {
+                "active": false,
                 "local": true,
-                "login": "assignee",
+                "login": "john.doe",
                 "name": "John Doe",
               },
-              Object {
-                "active": true,
-                "local": true,
-                "login": "author",
-                "name": "John Doe",
-              },
-            ],
-          }
-        }
-        onAssigneeChange={[MockFunction]}
-      />
-      <Connect(withCurrentUser(Status))
-        hotspot={
-          Object {
-            "assignee": "assignee",
-            "assigneeUser": Object {
-              "active": false,
-              "local": true,
-              "login": "john.doe",
-              "name": "John Doe",
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
-                "active": true,
-                "local": true,
-                "login": "assignee",
-                "name": "John Doe",
-              },
-              Object {
+              "author": "author",
+              "authorUser": Object {
                 "active": true,
                 "local": true,
                 "login": "author",
                 "name": "John Doe",
               },
-            ],
+              "canChangeStatus": true,
+              "changelog": Array [],
+              "comment": Array [],
+              "component": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "FIL",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              },
+              "creationDate": "2013-05-13T17:55:41+0200",
+              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+              "line": 142,
+              "message": "'3' is a magic number.",
+              "project": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
+                  "name": "Sonar way",
+                },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              },
+              "resolution": "FIXED",
+              "rule": Object {
+                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                "key": "squid:S2077",
+                "name": "That rule",
+                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                "securityCategory": "sql-injection",
+                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                "vulnerabilityProbability": "HIGH",
+              },
+              "status": "REVIEWED",
+              "textRange": Object {
+                "endLine": 142,
+                "endOffset": 83,
+                "startLine": 142,
+                "startOffset": 26,
+              },
+              "updateDate": "2013-05-13T17:55:42+0200",
+              "users": Array [
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "assignee",
+                  "name": "John Doe",
+                },
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "author",
+                  "name": "John Doe",
+                },
+              ],
+            }
           }
-        }
-        onStatusChange={[MockFunction]}
-      />
+          onStatusChange={[MockFunction]}
+        />
+      </div>
     </div>
     <HotspotSnippetContainer
       branchLike={
@@ -1884,248 +2004,278 @@ exports[`should render correctly: unassigned 1`] = `
     className="big-padded"
   >
     <div
-      className="big-spacer-bottom"
+      className="huge-spacer-bottom display-flex-space-between"
     >
-      <div
-        className="display-flex-space-between"
+      <strong
+        className="big big-spacer-right"
       >
-        <strong
-          className="big"
-        >
-          '3' is a magic number.
-        </strong>
-        <ClipboardButton
-          copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
-        >
-          <LinkIcon
-            className="spacer-right"
-          />
-          <span>
-            hotspots.get_permalink
-          </span>
-        </ClipboardButton>
-      </div>
-      <div
-        className="text-muted"
+        '3' is a magic number.
+      </strong>
+      <ClipboardButton
+        copyValue="http://localhost/security_hotspots?id=my-project&branch=branch-6.7&hotspots=01fc972e-2a3c-433e-bcae-0bd7f88f5123"
       >
+        <LinkIcon
+          className="spacer-right"
+        />
         <span>
-          category
-          :
+          hotspots.get_permalink
         </span>
-        <span
-          className="little-spacer-left"
-        >
-          SQL injection
-        </span>
-      </div>
+      </ClipboardButton>
     </div>
     <div
-      className="display-flex-row huge-spacer-bottom"
+      className="huge-spacer-bottom display-flex-row"
     >
-      <Connect(withCurrentUser(Assignee))
-        hotspot={
-          Object {
-            "assignee": undefined,
-            "assigneeUser": Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
+      <div
+        className="hotspot-information display-flex-column display-flex-space-between"
+      >
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            category
+          </span>
+          <strong
+            className="nowrap"
+          >
+            SQL injection
+          </strong>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            hotspots.risk_exposure
+          </span>
+          <div
+            className="hotspot-risk-badge HIGH"
+          >
+            risk_exposure.HIGH
+          </div>
+        </div>
+        <div
+          className="display-flex-center"
+        >
+          <span
+            className="big-spacer-right"
+          >
+            assignee
+          </span>
+          <div>
+            <Connect(withCurrentUser(Assignee))
+              hotspot={
                 Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
+                  "assignee": undefined,
+                  "assigneeUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "assignee",
+                    "name": "John Doe",
+                  },
+                  "author": "author",
+                  "authorUser": Object {
+                    "active": true,
+                    "local": true,
+                    "login": "author",
+                    "name": "John Doe",
+                  },
+                  "canChangeStatus": true,
+                  "changelog": Array [],
+                  "comment": Array [],
+                  "component": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "FIL",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "creationDate": "2013-05-13T17:55:41+0200",
+                  "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+                  "line": 142,
+                  "message": "'3' is a magic number.",
+                  "project": Object {
+                    "breadcrumbs": Array [],
+                    "key": "my-project",
+                    "name": "MyProject",
+                    "organization": "foo",
+                    "qualifier": "TRK",
+                    "qualityGate": Object {
+                      "isDefault": true,
+                      "key": "30",
+                      "name": "Sonar way",
+                    },
+                    "qualityProfiles": Array [
+                      Object {
+                        "deleted": false,
+                        "key": "my-qp",
+                        "language": "ts",
+                        "name": "Sonar way",
+                      },
+                    ],
+                    "tags": Array [],
+                  },
+                  "resolution": "FIXED",
+                  "rule": Object {
+                    "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                    "key": "squid:S2077",
+                    "name": "That rule",
+                    "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                    "securityCategory": "sql-injection",
+                    "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                    "vulnerabilityProbability": "HIGH",
+                  },
+                  "status": "REVIEWED",
+                  "textRange": Object {
+                    "endLine": 142,
+                    "endOffset": 83,
+                    "startLine": 142,
+                    "startOffset": 26,
+                  },
+                  "updateDate": "2013-05-13T17:55:42+0200",
+                  "users": Array [
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "assignee",
+                      "name": "John Doe",
+                    },
+                    Object {
+                      "active": true,
+                      "local": true,
+                      "login": "author",
+                      "name": "John Doe",
+                    },
+                  ],
+                }
+              }
+              onAssigneeChange={[MockFunction]}
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="huge-spacer-left"
+      >
+        <Connect(withCurrentUser(Status))
+          hotspot={
+            Object {
+              "assignee": undefined,
+              "assigneeUser": Object {
                 "active": true,
                 "local": true,
                 "login": "assignee",
                 "name": "John Doe",
               },
-              Object {
+              "author": "author",
+              "authorUser": Object {
                 "active": true,
                 "local": true,
                 "login": "author",
                 "name": "John Doe",
               },
-            ],
-          }
-        }
-        onAssigneeChange={[MockFunction]}
-      />
-      <Connect(withCurrentUser(Status))
-        hotspot={
-          Object {
-            "assignee": undefined,
-            "assigneeUser": Object {
-              "active": true,
-              "local": true,
-              "login": "assignee",
-              "name": "John Doe",
-            },
-            "author": "author",
-            "authorUser": Object {
-              "active": true,
-              "local": true,
-              "login": "author",
-              "name": "John Doe",
-            },
-            "canChangeStatus": true,
-            "changelog": Array [],
-            "comment": Array [],
-            "component": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "FIL",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
+              "canChangeStatus": true,
+              "changelog": Array [],
+              "comment": Array [],
+              "component": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "FIL",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
                   "name": "Sonar way",
                 },
-              ],
-              "tags": Array [],
-            },
-            "creationDate": "2013-05-13T17:55:41+0200",
-            "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
-            "line": 142,
-            "message": "'3' is a magic number.",
-            "project": Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
               },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
+              "creationDate": "2013-05-13T17:55:41+0200",
+              "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+              "line": 142,
+              "message": "'3' is a magic number.",
+              "project": Object {
+                "breadcrumbs": Array [],
+                "key": "my-project",
+                "name": "MyProject",
+                "organization": "foo",
+                "qualifier": "TRK",
+                "qualityGate": Object {
+                  "isDefault": true,
+                  "key": "30",
                   "name": "Sonar way",
                 },
+                "qualityProfiles": Array [
+                  Object {
+                    "deleted": false,
+                    "key": "my-qp",
+                    "language": "ts",
+                    "name": "Sonar way",
+                  },
+                ],
+                "tags": Array [],
+              },
+              "resolution": "FIXED",
+              "rule": Object {
+                "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
+                "key": "squid:S2077",
+                "name": "That rule",
+                "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
+                "securityCategory": "sql-injection",
+                "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
+                "vulnerabilityProbability": "HIGH",
+              },
+              "status": "REVIEWED",
+              "textRange": Object {
+                "endLine": 142,
+                "endOffset": 83,
+                "startLine": 142,
+                "startOffset": 26,
+              },
+              "updateDate": "2013-05-13T17:55:42+0200",
+              "users": Array [
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "assignee",
+                  "name": "John Doe",
+                },
+                Object {
+                  "active": true,
+                  "local": true,
+                  "login": "author",
+                  "name": "John Doe",
+                },
               ],
-              "tags": Array [],
-            },
-            "resolution": "FIXED",
-            "rule": Object {
-              "fixRecommendations": "<p>This a <strong>strong</strong> message about fixing !</p>",
-              "key": "squid:S2077",
-              "name": "That rule",
-              "riskDescription": "<p>This a <strong>strong</strong> message about risk !</p>",
-              "securityCategory": "sql-injection",
-              "vulnerabilityDescription": "<p>This a <strong>strong</strong> message about vulnerability !</p>",
-              "vulnerabilityProbability": "HIGH",
-            },
-            "status": "REVIEWED",
-            "textRange": Object {
-              "endLine": 142,
-              "endOffset": 83,
-              "startLine": 142,
-              "startOffset": 26,
-            },
-            "updateDate": "2013-05-13T17:55:42+0200",
-            "users": Array [
-              Object {
-                "active": true,
-                "local": true,
-                "login": "assignee",
-                "name": "John Doe",
-              },
-              Object {
-                "active": true,
-                "local": true,
-                "login": "author",
-                "name": "John Doe",
-              },
-            ],
+            }
           }
-        }
-        onStatusChange={[MockFunction]}
-      />
+          onStatusChange={[MockFunction]}
+        />
+      </div>
     </div>
     <HotspotSnippetContainer
       branchLike={
