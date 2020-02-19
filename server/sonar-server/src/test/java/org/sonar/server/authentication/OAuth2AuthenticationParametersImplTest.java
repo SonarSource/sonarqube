@@ -19,12 +19,15 @@
  */
 package org.sonar.server.authentication;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +37,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class OAuth2AuthenticationParametersImplTest {
 
   private static final String AUTHENTICATION_COOKIE_NAME = "AUTH-PARAMS";
@@ -95,21 +99,12 @@ public class OAuth2AuthenticationParametersImplTest {
   }
 
   @Test
-  public void return_to_is_not_set_when_not_local() {
-    when(request.getParameter("return_to")).thenReturn("http://external_url");
-    underTest.init(request, response);
-    verify(response, never()).addCookie(any());
+  @DataProvider({"http://example.com", "/\t/example.com", "//local_file", "/\\local_file", "something_else"})
+  public void return_to_is_not_set_when_not_local(String url) {
+    when(request.getParameter("return_to")).thenReturn(url);
 
-    when(request.getParameter("return_to")).thenReturn("//local_file");
     underTest.init(request, response);
-    verify(response, never()).addCookie(any());
 
-    when(request.getParameter("return_to")).thenReturn("/\\local_file");
-    underTest.init(request, response);
-    verify(response, never()).addCookie(any());
-
-    when(request.getParameter("return_to")).thenReturn("something_else");
-    underTest.init(request, response);
     verify(response, never()).addCookie(any());
   }
 

@@ -28,6 +28,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +45,7 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
 
   private static final String AUTHENTICATION_COOKIE_NAME = "AUTH-PARAMS";
   private static final int FIVE_MINUTES_IN_SECONDS = 5 * 60;
+  private static final Pattern VALID_RETURN_TO = Pattern.compile("^/\\w.*");
 
   /**
    * The HTTP parameter that contains the path where the user should be redirect to.
@@ -151,13 +153,13 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
     if (Strings.isNullOrEmpty(url)) {
       return empty();
     }
-    if (url.startsWith("//") || url.startsWith("/\\")) {
-      return empty();
-    }
-    if (!url.startsWith("/")) {
-      return empty();
-    }
-    return Optional.of(url);
-  }
 
+    String sanitizedUrl = url.trim();
+    boolean isValidUrl = VALID_RETURN_TO.matcher(sanitizedUrl).matches();
+    if (!isValidUrl) {
+      return empty();
+    }
+
+    return Optional.of(sanitizedUrl);
+  }
 }
