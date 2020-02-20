@@ -27,9 +27,6 @@ const middlewares = [thunk as ThunkMiddleware<State, any>];
 const composed = [];
 
 if (process.env.NODE_ENV === 'development') {
-  const { createLogger } = require('redux-logger');
-  middlewares.push(createLogger());
-
   const { __REDUX_DEVTOOLS_EXTENSION__ } = window as any;
   composed.push(__REDUX_DEVTOOLS_EXTENSION__ ? __REDUX_DEVTOOLS_EXTENSION__() : (f: Function) => f);
 }
