@@ -29,10 +29,16 @@ import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.core.util.SettingFormatter;
 
 import static org.sonar.process.FileUtils2.deleteQuietly;
 
 public final class ConfigurationUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUtils.class);
+  private static final String ENV_VAR_INTERPOLATION_PREFIX = "${env:";
+  private static final String ENV_VAR_INTERPOLATION_POSTFIX = "}";
 
   private ConfigurationUtils() {
     // Utility class
@@ -40,11 +46,17 @@ public final class ConfigurationUtils {
 
   public static Properties interpolateVariables(Properties properties, Map<String, String> variables) {
     Properties result = new Properties();
-    Enumeration keys = properties.keys();
+    Enumeration<Object> keys = properties.keys();
     while (keys.hasMoreElements()) {
       String key = (String) keys.nextElement();
       String value = (String) properties.get(key);
-      String interpolatedValue = StrSubstitutor.replace(value, variables, "${env:", "}");
+      if (value.contains(ENV_VAR_INTERPOLATION_PREFIX)) {
+        String environmentVariableName = SettingFormatter.fromJavaPropertyToEnvVariable(key);
+        LOG.warn("Referencing environment variables in configuration is deprecated and will be removed in a future version of SonarQube. " +
+          "You should stop using '{}' in your configuration and use the '{}' environment variable instead.", value, environmentVariableName);
+      }
+
+      String interpolatedValue = StrSubstitutor.replace(value, variables, ENV_VAR_INTERPOLATION_PREFIX, ENV_VAR_INTERPOLATION_POSTFIX);
       result.setProperty(key, interpolatedValue);
     }
     return result;
