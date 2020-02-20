@@ -19,6 +19,8 @@
  */
 package org.sonar.server.security;
 
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.server.measure.Rating;
 
 import static org.sonar.server.measure.Rating.A;
@@ -33,16 +35,16 @@ public class SecurityReviewRating {
     // Only static method
   }
 
-  public static double computePercent(long hotspotsToReview, long hotspotsReviewed) {
+  public static Optional<Double> computePercent(long hotspotsToReview, long hotspotsReviewed) {
     long total = hotspotsToReview + hotspotsReviewed;
     if (total == 0) {
-      return 100.0;
+      return Optional.empty();
     }
-    return hotspotsReviewed * 100.0 / total;
+    return Optional.of(hotspotsReviewed * 100.0 / total);
   }
 
-  public static Rating computeRating(double percent) {
-    if (percent >= 80.0) {
+  public static Rating computeRating(@Nullable Double percent) {
+    if (percent == null || percent >= 80.0) {
       return A;
     } else if (percent >= 70.0) {
       return B;

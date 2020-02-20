@@ -142,7 +142,7 @@ public class IssueMetricFormulaFactoryImplTest {
       .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 75.0);
 
     withNoIssues()
-      .assertThatValueIs(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, 100.0);
+      .assertNoValue(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED);
   }
 
   @Test
@@ -697,7 +697,7 @@ public class IssueMetricFormulaFactoryImplTest {
         .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED, 75.0);
 
     withNoIssues()
-      .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED, 100.0);
+      .assertNoLeakValue(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED);
   }
 
   @Test
@@ -850,9 +850,21 @@ public class IssueMetricFormulaFactoryImplTest {
       return this;
     }
 
+    Verifier assertNoLeakValue(Metric metric) {
+      TestContext context = run(metric, true);
+      assertThat(context.ratingLeakValue).isNull();
+      return this;
+    }
+
     Verifier assertThatValueIs(Metric metric, Rating expectedValue) {
       TestContext context = run(metric, false);
       assertThat(context.ratingValue).isNotNull().isEqualTo(expectedValue);
+      return this;
+    }
+
+    Verifier assertNoValue(Metric metric) {
+      TestContext context = run(metric, false);
+      assertThat(context.ratingValue).isNull();
       return this;
     }
 

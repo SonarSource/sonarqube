@@ -19,11 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitor;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.issue.ComponentIssuesRepository;
-import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.measure.RatingMeasures;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -36,6 +36,7 @@ import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit.FILE;
+import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
@@ -62,8 +63,8 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
   public void visitProject(Component project, Path<SecurityReviewCounter> path) {
     computeMeasure(project, path);
     // The following measures are only computed on projects level as they are required to compute the others measures on applications
-    measureRepository.add(project, securityHotspotsReviewedStatusMetric, Measure.newMeasureBuilder().create(path.current().getHotspotsReviewed()));
-    measureRepository.add(project, securityHotspotsToReviewStatusMetric, Measure.newMeasureBuilder().create(path.current().getHotspotsToReview()));
+    measureRepository.add(project, securityHotspotsReviewedStatusMetric, newMeasureBuilder().create(path.current().getHotspotsReviewed()));
+    measureRepository.add(project, securityHotspotsToReviewStatusMetric, newMeasureBuilder().create(path.current().getHotspotsToReview()));
   }
 
   @Override
@@ -82,9 +83,9 @@ public class SecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Secur
       .filter(issue -> issue.type().equals(SECURITY_HOTSPOT))
       .forEach(issue -> path.current().processHotspot(issue));
 
-    double percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
-    measureRepository.add(component, securityHotspotsReviewedMetric, Measure.newMeasureBuilder().create(percent, securityHotspotsReviewedMetric.getDecimalScale()));
-    measureRepository.add(component, securityReviewRatingMetric, RatingMeasures.get(computeRating(percent)));
+    Optional<Double> percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
+    measureRepository.add(component, securityReviewRatingMetric, RatingMeasures.get(computeRating(percent.orElse(null))));
+    percent.ifPresent(p -> measureRepository.add(component, securityHotspotsReviewedMetric, newMeasureBuilder().create(p, securityHotspotsReviewedMetric.getDecimalScale())));
 
     if (!path.isRoot()) {
       path.parent().add(path.current());

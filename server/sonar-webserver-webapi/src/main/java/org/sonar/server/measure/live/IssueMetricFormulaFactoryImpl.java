@@ -110,12 +110,14 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
       (context, issues) -> context.setValue(RATING_BY_SEVERITY.get(issues.getHighestSeverityOfUnresolved(RuleType.VULNERABILITY, false).orElse(Severity.INFO)))),
 
     new IssueMetricFormula(CoreMetrics.SECURITY_REVIEW_RATING, false,
-      (context, issues) -> context
-        .setValue(computeRating(computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false))))),
+      (context, issues) -> {
+        Optional<Double> percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false));
+        context.setValue(computeRating(percent.orElse(null)));
+      }),
 
     new IssueMetricFormula(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, false,
-      (context, issues) -> context
-        .setValue(computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false)))),
+      (context, issues) -> computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false))
+        .ifPresent(context::setValue)),
 
     new IssueMetricFormula(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS, false,
       (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false))),
@@ -176,15 +178,13 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
 
     new IssueMetricFormula(CoreMetrics.NEW_SECURITY_REVIEW_RATING, true,
       (context, issues) -> {
-        Rating rating = computeRating(computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true)));
-        context.setLeakValue(rating);
+        Optional<Double> percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true));
+        context.setLeakValue(computeRating(percent.orElse(null)));
       }),
 
     new IssueMetricFormula(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED, true,
-      (context, issues) -> {
-        double percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true));
-        context.setLeakValue(percent);
-      }),
+      (context, issues) -> computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))
+        .ifPresent(context::setLeakValue)),
 
     new IssueMetricFormula(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, true,
       (context, issues) -> context.setLeakValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))),

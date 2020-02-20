@@ -288,7 +288,7 @@ public class NewSecurityReviewMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_A_rating_and_100_percent_when_no_new_hotspot_on_new_code() {
+  public void compute_A_rating_and_no_percent_when_no_new_hotspot_on_new_code() {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF,
       newHotspot(STATUS_TO_REVIEW, null).setCreationDate(BEFORE_LEAK_PERIOD_DATE),
@@ -297,7 +297,7 @@ public class NewSecurityReviewMeasuresVisitorTest {
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, null);
   }
 
   @Test
@@ -378,10 +378,14 @@ public class NewSecurityReviewMeasuresVisitorTest {
     assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).values()).isEmpty();
   }
 
-  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, double expectedHotspotsReviewed) {
+  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, @Nullable Double expectedHotspotsReviewed) {
     assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_REVIEW_RATING_KEY)).hasVariation(expectedReviewRating.getIndex());
-    assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).hasVariation(expectedHotspotsReviewed,
-      VARIATION_COMPARISON_OFFSET);
+    if (expectedHotspotsReviewed != null){
+      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).hasVariation(expectedHotspotsReviewed,
+        VARIATION_COMPARISON_OFFSET);
+    } else {
+      assertThat(measureRepository.getAddedRawMeasure(componentRef, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)).isAbsent();
+    }
   }
 
   private void verifyHotspotStatusMeasures(int componentRef, @Nullable Integer hotspotsReviewed, @Nullable Integer hotspotsToReview) {

@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitymodel;
 
+import java.util.Optional;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
@@ -94,9 +95,9 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
       .filter(issue -> analysisMetadataHolder.isPullRequest() || periodHolder.getPeriod().isOnPeriod(issue.creationDate()))
       .forEach(issue -> path.current().processHotspot(issue));
 
-    double percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
-    measureRepository.add(component, newSecurityHotspotsReviewedMetric, Measure.newMeasureBuilder().setVariation(percent).createNoValue());
-    measureRepository.add(component, newSecurityReviewRatingMetric, Measure.newMeasureBuilder().setVariation(computeRating(percent).getIndex()).createNoValue());
+    Optional<Double> percent = computePercent(path.current().getHotspotsToReview(), path.current().getHotspotsReviewed());
+    measureRepository.add(component, newSecurityReviewRatingMetric, Measure.newMeasureBuilder().setVariation(computeRating(percent.orElse(null)).getIndex()).createNoValue());
+    percent.ifPresent(p -> measureRepository.add(component, newSecurityHotspotsReviewedMetric, Measure.newMeasureBuilder().setVariation(p).createNoValue()));
 
     if (!path.isRoot()) {
       path.parent().add(path.current());

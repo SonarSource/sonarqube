@@ -247,12 +247,12 @@ public class SecurityReviewMeasuresVisitorTest {
   }
 
   @Test
-  public void compute_A_rating_and_100_percent_when_no_hotspot() {
+  public void compute_A_rating_and_no_reviewed_when_no_hotspot() {
     treeRootHolder.setRoot(ROOT_PROJECT);
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyRatingAndReviewedMeasures(PROJECT_REF, A, 100.0);
+    verifyRatingAndReviewedMeasures(PROJECT_REF, A, null);
   }
 
   @Test
@@ -289,9 +289,13 @@ public class SecurityReviewMeasuresVisitorTest {
     verifyHotspotStatusMeasures(PROJECT_REF, 0, 0);
   }
 
-  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, double expectedHotspotsReviewed) {
+  private void verifyRatingAndReviewedMeasures(int componentRef, Rating expectedReviewRating, @Nullable Double expectedHotspotsReviewed) {
     verifySecurityReviewRating(componentRef, expectedReviewRating);
-    verifySecurityHotspotsReviewed(componentRef, expectedHotspotsReviewed);
+    if (expectedHotspotsReviewed != null) {
+      verifySecurityHotspotsReviewed(componentRef, expectedHotspotsReviewed);
+    } else {
+      assertThat(measureRepository.getAddedRawMeasure(componentRef, SECURITY_HOTSPOTS_REVIEWED_KEY)).isEmpty();
+    }
   }
 
   private void verifySecurityReviewRating(int componentRef, Rating rating) {
