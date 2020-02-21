@@ -19,7 +19,6 @@
  */
 package org.sonar.db.measure;
 
-import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -112,6 +111,10 @@ public class LiveMeasureDao implements Dao {
     mapper(dbSession).insert(dto, Uuids.create(), system2.now());
   }
 
+  public void update(DbSession dbSession, LiveMeasureDto dto) {
+    mapper(dbSession).update(dto, system2.now());
+  }
+
   public void insertOrUpdate(DbSession dbSession, LiveMeasureDto dto) {
     LiveMeasureMapper mapper = mapper(dbSession);
     long now = system2.now();
@@ -120,28 +123,21 @@ public class LiveMeasureDao implements Dao {
     }
   }
 
-  /**
-   * Similar to {@link #insertOrUpdate(DbSession, LiveMeasureDto)}, except that:
-   * <ul>
-   * <li>it is batch session friendly (single same statement for both updates and inserts)</li>
-   * <li>it triggers a single SQL request</li>
-   * </ul>
-   * <p>
-   * <strong>This method should not be called unless {@link Dialect#supportsUpsert()} is true</strong>
-   */
-  public int upsert(DbSession dbSession, Iterable<LiveMeasureDto> dtos) {
-    for (LiveMeasureDto dto : dtos) {
-      dto.setUuidForUpsert(Uuids.create());
-    }
-    int updated = 0;
-    for (List<LiveMeasureDto> chunk : Iterables.partition(dtos, 100)) {
-      updated += mapper(dbSession).upsert(chunk, system2.now());
-    }
-    return updated;
+  public void deleteByComponent(DbSession dbSession, String componentUuid) {
+    mapper(dbSession).deleteByComponent(componentUuid);
   }
 
-  public int deleteByComponentUuidExcludingMetricIds(DbSession dbSession, String componentUuid, List<Integer> excludedMetricIds) {
-    return mapper(dbSession).deleteByComponentUuidExcludingMetricIds(componentUuid, excludedMetricIds);
+  /**
+   * Similar to {@link #insertOrUpdate(DbSession, LiveMeasureDto)}, except that it triggers a single SQL request
+   * <strong>This method should not be called unless {@link Dialect#supportsUpsert()} is true</strong>
+   */
+  public int upsert(DbSession dbSession, LiveMeasureDto dto) {
+    dto.setUuidForUpsert(Uuids.create());
+    return mapper(dbSession).upsert(dto, system2.now());
+  }
+
+  public void deleteByComponentUuidExcludingMetricIds(DbSession dbSession, String componentUuid, List<Integer> excludedMetricIds) {
+    mapper(dbSession).deleteByComponentUuidExcludingMetricIds(componentUuid, excludedMetricIds);
   }
 
   private static LiveMeasureMapper mapper(DbSession dbSession) {

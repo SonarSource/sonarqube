@@ -379,13 +379,29 @@ public class LiveMeasureDaoTest {
     underTest.insertOrUpdate(db.getSession(), measure3);
     underTest.insertOrUpdate(db.getSession(), measureOtherComponent);
 
-    int count = underTest.deleteByComponentUuidExcludingMetricIds(db.getSession(), "C1", Arrays.asList(1, 2));
+    underTest.deleteByComponentUuidExcludingMetricIds(db.getSession(), "C1", Arrays.asList(1, 2));
 
     verifyTableSize(3);
     verifyPersisted(measure1);
     verifyPersisted(measure2);
     verifyPersisted(measureOtherComponent);
-    assertThat(count).isEqualTo(1);
+  }
+
+  @Test
+  public void deleteByComponentUuid() {
+    LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricId(1);
+    LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricId(2);
+    LiveMeasureDto measure3 = newLiveMeasure().setComponentUuid("C1").setMetricId(3);
+    LiveMeasureDto measureOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricId(3);
+    underTest.insertOrUpdate(db.getSession(), measure1);
+    underTest.insertOrUpdate(db.getSession(), measure2);
+    underTest.insertOrUpdate(db.getSession(), measure3);
+    underTest.insertOrUpdate(db.getSession(), measureOtherComponent);
+
+    underTest.deleteByComponent(db.getSession(), "C1");
+
+    verifyTableSize(1);
+    verifyPersisted(measureOtherComponent);
   }
 
   @Test
@@ -397,9 +413,8 @@ public class LiveMeasureDaoTest {
     underTest.insertOrUpdate(db.getSession(), measure2);
     underTest.insertOrUpdate(db.getSession(), measureOnOtherComponent);
 
-    int count = underTest.deleteByComponentUuidExcludingMetricIds(db.getSession(), "C1", Collections.emptyList());
+    underTest.deleteByComponentUuidExcludingMetricIds(db.getSession(), "C1", Collections.emptyList());
 
-    assertThat(count).isEqualTo(2);
     verifyTableSize(1);
     verifyPersisted(measureOnOtherComponent);
   }
@@ -412,7 +427,7 @@ public class LiveMeasureDaoTest {
 
     // insert
     LiveMeasureDto dto = newLiveMeasure();
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     verifyPersisted(dto);
     verifyTableSize(1);
     assertThat(count).isEqualTo(1);
@@ -421,7 +436,7 @@ public class LiveMeasureDaoTest {
     dto.setValue(dto.getValue() + 1);
     dto.setVariation(dto.getVariation() + 10);
     dto.setData(dto.getDataAsString() + "_new");
-    count = underTest.upsert(db.getSession(), asList(dto));
+    count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -434,10 +449,10 @@ public class LiveMeasureDaoTest {
     }
 
     LiveMeasureDto dto = newLiveMeasure();
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(0);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -450,11 +465,11 @@ public class LiveMeasureDaoTest {
     }
 
     LiveMeasureDto dto = newLiveMeasure().setData(RandomStringUtils.random(10_000));
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
     dto.setData(RandomStringUtils.random(dto.getDataAsString().length() + 10));
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -466,10 +481,10 @@ public class LiveMeasureDaoTest {
       return;
     }
     LiveMeasureDto dto = newLiveMeasure().setData(RandomStringUtils.random(10_000));
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(0);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -482,11 +497,11 @@ public class LiveMeasureDaoTest {
     }
 
     LiveMeasureDto dto = newLiveMeasure().setData(RandomStringUtils.random(10_000));
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
     dto.setData((String) null);
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -498,11 +513,11 @@ public class LiveMeasureDaoTest {
       return;
     }
     LiveMeasureDto dto = newLiveMeasure().setVariation(40.0);
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
     dto.setVariation(50.0);
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -514,11 +529,11 @@ public class LiveMeasureDaoTest {
       return;
     }
     LiveMeasureDto dto = newLiveMeasure().setVariation(40.0);
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
     dto.setVariation(null);
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -530,11 +545,11 @@ public class LiveMeasureDaoTest {
       return;
     }
     LiveMeasureDto dto = newLiveMeasure().setVariation(null);
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
     dto.setVariation(40.0);
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -546,11 +561,11 @@ public class LiveMeasureDaoTest {
       return;
     }
     LiveMeasureDto dto = newLiveMeasure().setValue(40.0);
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
     dto.setValue(50.0);
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -562,11 +577,11 @@ public class LiveMeasureDaoTest {
       return;
     }
     LiveMeasureDto dto = newLiveMeasure().setValue(40.0);
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
     dto.setValue(null);
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -578,11 +593,11 @@ public class LiveMeasureDaoTest {
       return;
     }
     LiveMeasureDto dto = newLiveMeasure().setValue(null);
-    underTest.upsert(db.getSession(), asList(dto));
+    underTest.upsert(db.getSession(), dto);
 
     // update
     dto.setValue(40.0);
-    int count = underTest.upsert(db.getSession(), asList(dto));
+    int count = underTest.upsert(db.getSession(), dto);
     assertThat(count).isEqualTo(1);
     verifyPersisted(dto);
     verifyTableSize(1);
@@ -597,9 +612,10 @@ public class LiveMeasureDaoTest {
     // insert 30
     List<LiveMeasureDto> inserted = new ArrayList<>();
     IntStream.range(0, 30).forEach(i -> inserted.add(newLiveMeasure()));
-    int result = underTest.upsert(db.getSession(), inserted);
+    for (LiveMeasureDto dto : inserted) {
+      underTest.upsert(db.getSession(), dto);
+    }
     verifyTableSize(30);
-    assertThat(result).isEqualTo(30);
 
     // update 10 with new values, update 5 without any change and insert new 50
     List<LiveMeasureDto> upserted = new ArrayList<>();
@@ -609,9 +625,11 @@ public class LiveMeasureDaoTest {
     });
     upserted.addAll(inserted.subList(10, 15));
     IntStream.range(0, 50).forEach(i -> upserted.add(newLiveMeasure()));
-    result = underTest.upsert(db.getSession(), upserted);
+    for (LiveMeasureDto dto : upserted) {
+      underTest.upsert(db.getSession(), dto);
+    }
+    db.getSession().commit();
     verifyTableSize(80);
-    assertThat(result).isEqualTo(60);
   }
 
   private void verifyTableSize(int expectedSize) {

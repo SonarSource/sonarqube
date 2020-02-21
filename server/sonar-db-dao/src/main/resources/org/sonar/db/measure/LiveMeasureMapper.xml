@@ -107,6 +107,12 @@
     and metric_id = #{dto.metricId, jdbcType=INTEGER}
   </update>
 
+  <delete id="deleteByComponent" parameterType="map">
+    delete from live_measures
+    where
+      component_uuid = #{componentUuid, jdbcType=VARCHAR}
+  </delete>
+
   <update id="upsert" parameterType="map" useGeneratedKeys="false" databaseId="postgresql">
     insert into live_measures (
       uuid,
@@ -119,8 +125,7 @@
       measure_data,
       created_at,
       updated_at
-    ) values
-    <foreach item="dto" collection="dtos" open="(" separator="),(" close=")">
+    ) values (
       #{dto.uuidForUpsert, jdbcType=VARCHAR},
       #{dto.componentUuid, jdbcType=VARCHAR},
       #{dto.projectUuid, jdbcType=VARCHAR},
@@ -131,7 +136,7 @@
       #{dto.data, jdbcType=BINARY},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
-    </foreach>
+    )
     on conflict(component_uuid, metric_id) do update set
       value = excluded.value,
       variation = excluded.variation,

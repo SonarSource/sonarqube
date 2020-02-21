@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
@@ -81,11 +80,11 @@ public class PersistLiveMeasuresStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     boolean supportUpsert = dbClient.getDatabase().getDialect().supportsUpsert();
-    try (DbSession dbSession = dbClient.openSession(false)) {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       Component root = treeRootHolder.getRoot();
       MeasureVisitor visitor = new MeasureVisitor(dbSession, supportUpsert);
       new DepthTraversalTypeAwareCrawler(visitor).visit(root);
-
+      dbSession.commit();
       context.getStatistics()
         .add("insertsOrUpdates", visitor.insertsOrUpdates);
     }
@@ -115,29 +114,30 @@ public class PersistLiveMeasuresStep implements ComputationStep {
         Metric metric = metricRepository.getByKey(metricKey);
         Predicate<Measure> notBestValueOptimized = BestValueOptimization.from(metric, component).negate();
         Measure m = measuresByMetricKey.getValue();
-        Stream.of(m)
-          .filter(NonEmptyMeasure.INSTANCE)
-          .filter(notBestValueOptimized)
-          .map(measure -> measureToMeasureDto.toLiveMeasureDto(measure, metric, component))
-          .forEach(lm -> {
-            dtos.add(lm);
-            metricIds.add(metric.getId());
-          });
-      }
-      if (supportUpsert) {
-        dbClient.liveMeasureDao().upsert(dbSession, dtos);
-      } else {
-        for (LiveMeasureDto dto : dtos) {
-          dbClient.liveMeasureDao().insertOrUpdate(dbSession, dto);
+        if (!NonEmptyMeasure.INSTANCE.test(m) || !notBestValueOptimized.test(m)) {
+          continue;
         }
-      }
-      insertsOrUpdates += dtos.size();
 
-      // The measures that no longer exist on the component must be deleted, for example
-      // when the coverage on a file goes to the "best value" 100%.
-      // The measures on deleted components are deleted by the step PurgeDatastoresStep
-      dbClient.liveMeasureDao().deleteByComponentUuidExcludingMetricIds(dbSession, component.getUuid(), metricIds);
+        LiveMeasureDto lm = measureToMeasureDto.toLiveMeasureDto(m, metric, component);
+        dtos.add(lm);
+        metricIds.add(metric.getId());
+      }
+
+      if (supportUpsert) {
+        for (LiveMeasureDto dto : dtos) {
+          dbClient.liveMeasureDao().upsert(dbSession, dto);
+        }
+        // The measures that no longer exist on the component must be deleted, for example
+        // when the coverage on a file goes to the "best value" 100%.
+        // The measures on deleted components are deleted by the step PurgeDatastoresStep
+        dbClient.liveMeasureDao().deleteByComponentUuidExcludingMetricIds(dbSession, component.getUuid(), metricIds);
+      } else {
+        dbClient.liveMeasureDao().deleteByComponent(dbSession, component.getUuid());
+        dtos.forEach(dto -> dbClient.liveMeasureDao().insert(dbSession, dto));
+      }
+
       dbSession.commit();
+      insertsOrUpdates += dtos.size();
     }
   }
 

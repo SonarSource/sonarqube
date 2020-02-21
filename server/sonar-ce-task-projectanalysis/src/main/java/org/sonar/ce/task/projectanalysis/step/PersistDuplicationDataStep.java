@@ -125,7 +125,7 @@ public class PersistDuplicationDataStep implements ComputationStep {
         return;
       }
       if (supportUpsert) {
-        dbClient.liveMeasureDao().upsert(dbSession, nonPersistedBuffer);
+        nonPersistedBuffer.forEach(d -> dbClient.liveMeasureDao().upsert(dbSession, d));
       } else {
         nonPersistedBuffer.forEach(d -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, d));
       }

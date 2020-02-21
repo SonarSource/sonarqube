@@ -21,9 +21,11 @@ package org.sonar.db.measure;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.KeyType;
 
@@ -70,10 +72,13 @@ public interface LiveMeasureMapper {
     @Param("now") long now);
 
   int upsert(
-    @Param("dtos") List<LiveMeasureDto> dtos,
+    @Param("dto") LiveMeasureDto dto,
     @Param("now") long now);
 
-  int deleteByComponentUuidExcludingMetricIds(
+  void deleteByComponentUuidExcludingMetricIds(
     @Param("componentUuid") String componentUuid,
     @Param("excludedMetricIds") List<Integer> excludedMetricIds);
+
+  void deleteByComponent(@Param("componentUuid") String componentUuid);
+
 }
