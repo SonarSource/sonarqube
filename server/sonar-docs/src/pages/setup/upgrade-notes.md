@@ -7,6 +7,11 @@ url: /setup/upgrade-notes/
 **PostgreSQL 12.1 support**  
 SonarQube 8.2+ now support PostgreSQL 9.3 - 12.
 
+**Security Hotspots: dedicated space and workflow**
+* The Security Hotspots have a brand new space where developers can perform security reviews. The review process has been simplified. It's no longer necessary to transform a Security Hotspot into a Manual Vulnerability and back and forth. A developer can now simply mark a Security Hotspot as Safe, Fixed, or leave it as is if the developer needs more time to perform their review.  
+* Manual Vulnerabilities created from Security Hotspots are migrated to Security Hotspots with the status "To Review". A comment "Migrated from Manual Vulnerability" is added to the review history to recognize them.  
+* Users who want to enforce Security Hotspots review with the Quality Gate can do so by adding the Security Hotspots Reviewed measure on their Quality Gates.
+
 [Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15301)
 
 ## Release 8.1 Upgrade Notes  
