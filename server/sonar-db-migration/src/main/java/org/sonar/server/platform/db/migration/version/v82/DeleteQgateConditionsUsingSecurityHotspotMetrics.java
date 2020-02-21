@@ -19,24 +19,28 @@
  */
 package org.sonar.server.platform.db.migration.version.v82;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DeleteQgateConditionsUsingSecurityHotspotMetrics extends DataChange {
 
-public class DbVersion82Test {
-
-  private DbVersion underTest = new DbVersion82();
-
-  @Test
-  public void migrationNumber_starts_at_3200() {
-    verifyMinimumMigrationNumber(underTest, 3200);
+  public DeleteQgateConditionsUsingSecurityHotspotMetrics(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 12);
+  @Override
+  protected void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select qgc.id from quality_gate_conditions qgc " +
+      "  inner join metrics m on m.id = qgc.metric_id and " +
+      "    m.name in ('security_hotspots', 'new_security_hotspots')");
+    massUpdate.update("delete from quality_gate_conditions where id = ?");
+    massUpdate.execute((row, handler) -> {
+      handler.setLong(1, row.getLong(1));
+      return true;
+    });
   }
 
 }
