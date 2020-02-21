@@ -59,6 +59,7 @@ import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.TESTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
@@ -97,7 +98,7 @@ public class IssueSnippetsActionTest {
     ComponentDto file = insertFile(project, "file");
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
     fileSourceTester.insertFileSource(file, 10, dto -> dto.setSourceData(fileSources));
-    userSession.logIn().addProjectPermission(USER, project, file);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
@@ -124,7 +125,7 @@ public class IssueSnippetsActionTest {
 
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
     fileSourceTester.insertFileSource(file, 10, dto -> dto.setSourceData(fileSources));
-    userSession.logIn().addProjectPermission(USER, project, file);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
@@ -139,7 +140,7 @@ public class IssueSnippetsActionTest {
 
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
     fileSourceTester.insertFileSource(file, 10, dto -> dto.setSourceData(fileSources));
-    userSession.logIn().addProjectPermission(USER, project, file);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
     String issueKey = insertIssue(file, newLocation(file2.uuid(), 5, 5));
 
@@ -150,7 +151,7 @@ public class IssueSnippetsActionTest {
   @Test
   public void no_code_to_display() {
     ComponentDto file = insertFile(project, "file");
-    userSession.logIn().addProjectPermission(USER, project, file);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
@@ -161,6 +162,7 @@ public class IssueSnippetsActionTest {
   @Test
   public void fail_if_no_project_permission() {
     ComponentDto file = insertFile(project, "file");
+    userSession.logIn().addProjectPermission(USER, project, file);
     String issueKey = insertIssue(file, newLocation(file.uuid(), 5, 5));
 
     expectedException.expect(ForbiddenException.class);
@@ -171,7 +173,7 @@ public class IssueSnippetsActionTest {
   public void fail_if_issue_not_found() {
     ComponentDto file = insertFile(project, "file");
     insertIssue(file, newLocation(file.uuid(), 5, 5));
-    userSession.logIn().addProjectPermission(USER, project, file);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Issue with key 'invalid' does not exist");
@@ -180,8 +182,12 @@ public class IssueSnippetsActionTest {
 
   @Test
   public void fail_if_parameter_missing() {
+    ComponentDto file = insertFile(project, "file");
+    userSession.logIn().addProjectPermission(CODEVIEWER, project, file);
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'issueKey' parameter is missing");
+
     actionTester.newRequest().execute();
   }
 
@@ -194,7 +200,7 @@ public class IssueSnippetsActionTest {
     fileSourceTester.insertFileSource(file1, 10, dto -> dto.setSourceData(fileSources));
     fileSourceTester.insertFileSource(file2, 10, dto -> dto.setSourceData(fileSources));
 
-    userSession.logIn().addProjectPermission(USER, project, file1, file2);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project, file1, file2);
 
     String issueKey1 = insertIssue(file1, newLocation(file1.uuid(), 5, 5),
       newLocation(file1.uuid(), 9, 9), newLocation(file2.uuid(), 1, 5));
@@ -213,7 +219,7 @@ public class IssueSnippetsActionTest {
     DbFileSources.Data fileSources = FileSourceTesting.newFakeData(20).build();
     fileSourceTester.insertFileSource(file1, 20, dto -> dto.setSourceData(fileSources));
 
-    userSession.logIn().addProjectPermission(USER, project, file1);
+    userSession.logIn().addProjectPermission(CODEVIEWER, project, file1);
 
     // these two locations should get connected, making a single range 3-14
     String issueKey1 = insertIssue(file1, newLocation(file1.uuid(), 5, 5),
@@ -236,7 +242,7 @@ public class IssueSnippetsActionTest {
     fileSourceTester.insertFileSource(file2, 10, dto -> dto.setSourceData(fileSources));
 
     userSession.logIn()
-      .addProjectPermission(USER, project, file1, file2)
+      .addProjectPermission(CODEVIEWER, project, file1, file2)
       .addMembership(organization);
 
     String issueKey1 = insertIssue(file1, newLocation(file1.uuid(), 5, 5),

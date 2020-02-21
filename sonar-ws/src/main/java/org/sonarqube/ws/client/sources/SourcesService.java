@@ -71,6 +71,21 @@ public class SourcesService extends BaseService {
    *
    * This is part of the internal API.
    * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/sources/issue_snippets">Further information about this action online (including a response example)</a>
+   * @since 5.0
+   */
+  public String issueSnippets(IssueSnippetsRequest request) {
+    return call(
+      new GetRequest(path("issue_snippets"))
+        .setParam("issueKey", request.getIssueKey())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/sources/lines">Further information about this action online (including a response example)</a>
    * @since 5.0
    */

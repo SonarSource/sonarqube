@@ -89,7 +89,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
         .orElseThrow(() -> new NotFoundException(format("Issue with key '%s' does not exist", issueKey)));
       ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, issueDto.getProjectUuid())
         .orElseThrow(() -> new NotFoundException(format("Project with uuid '%s' does not exist", issueDto.getProjectUuid())));
-      userSession.checkComponentPermission(UserRole.USER, project);
+      userSession.checkComponentPermission(UserRole.CODEVIEWER, project);
 
       DbIssues.Locations locations = issueDto.parseLocations();
       String componentUuid = issueDto.getComponentUuid();
