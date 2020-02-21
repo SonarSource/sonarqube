@@ -2,8 +2,11 @@
 
 exports[`should render correctly 1`] = `
 <Fragment>
+  <CoverageRating
+    value="1.0"
+  />
   <span
-    className="huge"
+    className="huge spacer-left"
   >
     1.0%
   </span>
@@ -31,8 +34,11 @@ exports[`should render correctly: no measures 1`] = `
 
 exports[`should render correctly: on new code 1`] = `
 <Fragment>
+  <CoverageRating
+    value="1.0"
+  />
   <span
-    className="huge"
+    className="huge spacer-left"
   >
     1.0%
   </span>

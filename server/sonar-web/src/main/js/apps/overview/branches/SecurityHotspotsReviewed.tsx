@@ -21,6 +21,7 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getLeakValue } from '../../../components/measure/utils';
+import CoverageRating from '../../../components/ui/CoverageRating';
 import { findMeasure } from '../../../helpers/measures';
 import { MetricKey } from '../../../types/metrics';
 
@@ -46,7 +47,10 @@ export default function SecurityHotspotsReviewed(props: SecurityHotspotsReviewed
       {value === undefined ? (
         <span aria-label={translate('no_data')} className="overview-measures-empty-value" />
       ) : (
-        <span className="huge">{formatMeasure(value, 'PERCENT')}</span>
+        <>
+          <CoverageRating value={value} />
+          <span className="huge spacer-left">{formatMeasure(value, 'PERCENT')}</span>
+        </>
       )}
       <span className="big-spacer-left">
         {translate('overview.measures.security_hotspots_reviewed')}
