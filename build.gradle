@@ -128,29 +128,29 @@ subprojects {
       //    githubRepository: name of github repository of the plugin in the SonarSource organisation
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.8.0.2034' // bundled_plugin:abap:sonar-abap
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:4.4.0.3403' // bundled_plugin:cobol:sonar-cobol
-      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.6.0.13759' // bundled_plugin:cpp:sonar-cpp
+      dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.7.0.15300' // bundled_plugin:cpp:sonar-cpp
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.10.0.1880' // bundled_plugin:pli:sonar-pli
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.4.1.2576' // bundled_plugin:plsql:sonar-plsql
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.6.0.1875' // bundled_plugin:vb:sonar-vb
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:2.3.0.1187' // bundled_plugin:rpg:sonar-rpg
-      dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:8.1.0.675' // bundled_plugin::sonar-security
-      dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:8.1.0.675' // bundled_plugin::sonar-security
-      dependency 'com.sonarsource.security:sonar-security-php-frontend-plugin:8.1.0.675' // bundled_plugin::sonar-security
-      dependency 'com.sonarsource.security:sonar-security-plugin:8.1.0.675' // bundled_plugin::sonar-security
-      dependency 'com.sonarsource.security:sonar-security-python-frontend-plugin:8.1.0.675' // bundled_plugin::sonar-security
+      dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:8.2.0.1225' // bundled_plugin::sonar-security
+      dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:8.2.0.1225' // bundled_plugin::sonar-security
+      dependency 'com.sonarsource.security:sonar-security-php-frontend-plugin:8.2.0.1225' // bundled_plugin::sonar-security
+      dependency 'com.sonarsource.security:sonar-security-plugin:8.2.0.1225' // bundled_plugin::sonar-security
+      dependency 'com.sonarsource.security:sonar-security-python-frontend-plugin:8.2.0.1225' // bundled_plugin::sonar-security
       dependency 'com.sonarsource.slang:sonar-apex-plugin:1.7.0.883' // bundled_plugin:sonarapex:slang-enterprise
       dependency 'com.sonarsource.swift:sonar-swift-plugin:4.2.2.77' // bundled_plugin:swift:sonar-swift
       dependency 'com.sonarsource.tsql:sonar-tsql-plugin:1.4.0.3334' // bundled_plugin:tsql:sonar-tsql
-      dependency 'org.sonarsource.css:sonar-css-plugin:1.1.1.1010' // bundled_plugin:cssfamily:sonar-css
-      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.1.0.13383' // bundled_plugin:csharp:sonar-dotnet
-      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:8.1.0.13383' // bundled_plugin:vbnet:sonar-dotnet
+      dependency 'org.sonarsource.css:sonar-css-plugin:1.2.0.1325' // bundled_plugin:cssfamily:sonar-css
+      dependency 'org.sonarsource.dotnet:sonar-csharp-plugin:8.4.0.15306' // bundled_plugin:csharp:sonar-dotnet
+      dependency 'org.sonarsource.dotnet:sonar-vbnet-plugin:8.4.0.15306' // bundled_plugin:vbnet:sonar-dotnet
       dependency 'org.sonarsource.flex:sonar-flex-plugin:2.5.1.1831' // bundled_plugin:flex:sonar-flex
       dependency 'org.sonarsource.html:sonar-html-plugin:3.2.0.2082' // bundled_plugin:web:sonar-html
       dependency 'org.sonarsource.jacoco:sonar-jacoco-plugin:1.0.2.475' // bundled_plugin:jacoco:sonar-jacoco
-      dependency 'org.sonarsource.java:sonar-java-plugin:6.0.0.20538' // bundled_plugin:java:sonar-java
-      dependency 'org.sonarsource.javascript:sonar-javascript-plugin:6.1.0.11503' // bundled_plugin:javascript:SonarJS
+      dependency 'org.sonarsource.java:sonar-java-plugin:6.1.0.20866' // bundled_plugin:java:sonar-java
+      dependency 'org.sonarsource.javascript:sonar-javascript-plugin:6.2.0.12043' // bundled_plugin:javascript:SonarJS
       dependency 'org.sonarsource.php:sonar-php-plugin:3.3.0.5166' // bundled_plugin:php:sonar-php
-      dependency 'org.sonarsource.python:sonar-python-plugin:2.3.0.5351' // bundled_plugin:python:sonar-python
+      dependency 'org.sonarsource.python:sonar-python-plugin:2.5.0.5733' // bundled_plugin:python:sonar-python
       dependency 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.9.1.1834' // bundled_plugin:scmgit:sonar-scm-git
       dependency 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.9.0.1295' // bundled_plugin:scmsvn:sonar-scm-svn
       dependency 'org.sonarsource.slang:sonar-go-plugin:1.6.0.719' // bundled_plugin:go:slang-enterprise
