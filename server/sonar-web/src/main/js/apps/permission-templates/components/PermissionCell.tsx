@@ -33,7 +33,7 @@ interface Props {
 
 export default function PermissionCell({ permission: p }: Props) {
   return (
-    <td className="permission-column little-padding-left little-padding-right">
+    <td className="permission-column little-padded-left little-padded-right">
       <div className="permission-column-inner">
         <ul>
           {p.withProjectCreator && (
