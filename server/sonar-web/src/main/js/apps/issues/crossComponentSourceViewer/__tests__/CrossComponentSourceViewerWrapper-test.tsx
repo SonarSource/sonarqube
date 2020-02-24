@@ -66,6 +66,16 @@ it('Should fetch data', async () => {
   expect(getIssueFlowSnippets).toBeCalledWith('foo');
 });
 
+it('Should handle no access rights', async () => {
+  (getIssueFlowSnippets as jest.Mock).mockRejectedValueOnce({ status: 403 });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().notAccessible).toBe(true);
+  expect(wrapper).toMatchSnapshot();
+});
+
 it('should handle issue popup', () => {
   const wrapper = shallowRender();
   // open

@@ -1,5 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Should handle no access rights 1`] = `
+<Alert
+  className="spacer-top"
+  variant="warning"
+>
+  code_viewer.no_source_code_displayed_due_to_security
+</Alert>
+`;
+
 exports[`should handle duplication popup 1`] = `
 <Context.Consumer>
   [Function]

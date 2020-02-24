@@ -18,9 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getDuplications } from '../../../api/components';
 import { getIssueFlowSnippets } from '../../../api/issues';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 import DuplicationPopup from '../../../components/SourceViewer/components/DuplicationPopup';
 import {
   filterDuplicationBlocksByLine,
@@ -59,6 +62,7 @@ interface State {
   issuePopup?: { issue: string; name: string };
   linePopup?: T.LinePopup & { component: string };
   loading: boolean;
+  notAccessible: boolean;
 }
 
 export default class CrossComponentSourceViewerWrapper extends React.PureComponent<Props, State> {
@@ -66,7 +70,8 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
   state: State = {
     components: {},
     duplicationsByLine: {},
-    loading: true
+    loading: true,
+    notAccessible: false
   };
 
   componentDidMount() {
@@ -122,9 +127,12 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
           }
         }
       },
-      () => {
+      (response: Response) => {
+        if (response.status !== 403) {
+          throwGlobalError(response);
+        }
         if (this.mounted) {
-          this.setState({ loading: false });
+          this.setState({ loading: false, notAccessible: response.status === 403 });
         }
       }
     );
@@ -197,13 +205,21 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
   };
 
   render() {
-    const { loading } = this.state;
+    const { loading, notAccessible } = this.state;
 
     if (loading) {
       return (
         <div>
           <DeferredSpinner />
         </div>
+      );
+    }
+
+    if (notAccessible) {
+      return (
+        <Alert className="spacer-top" variant="warning">
+          {translate('code_viewer.no_source_code_displayed_due_to_security')}
+        </Alert>
       );
     }
 

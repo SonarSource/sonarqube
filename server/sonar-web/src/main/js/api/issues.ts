@@ -179,5 +179,5 @@ export function getIssueFlowSnippets(issueKey: string): Promise<T.Dict<T.Snippet
       }
     });
     return result;
-  }, throwGlobalError);
+  });
 }
