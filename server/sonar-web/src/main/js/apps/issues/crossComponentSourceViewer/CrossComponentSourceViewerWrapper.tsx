@@ -23,12 +23,14 @@ import { groupLocationsByComponent } from './utils';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import DuplicationPopup from '../../../components/SourceViewer/components/DuplicationPopup';
 import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
+import { Alert } from '../../../components/ui/Alert';
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getIssueFlowSnippets } from '../../../api/issues';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 import {
   filterDuplicationBlocksByLine,
-  isDuplicationBlockInRemovedComponent,
-  getDuplicationBlocksForIndex
+  getDuplicationBlocksForIndex,
+  isDuplicationBlockInRemovedComponent
 } from '../../../components/SourceViewer/helpers/duplications';
 import {
   duplicationsByLine,
@@ -36,6 +38,7 @@ import {
 } from '../../../components/SourceViewer/helpers/indexing';
 import { getDuplications } from '../../../api/components';
 import { getBranchLikeQuery } from '../../../helpers/branches';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   branchLike: T.Branch | T.PullRequest | undefined;
@@ -58,6 +61,7 @@ interface State {
   issuePopup?: { issue: string; name: string };
   linePopup?: T.LinePopup & { component: string };
   loading: boolean;
+  notAccessible: boolean;
 }
 
 export default class CrossComponentSourceViewerWrapper extends React.PureComponent<Props, State> {
@@ -65,7 +69,8 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
   state: State = {
     components: {},
     duplicationsByLine: {},
-    loading: true
+    loading: true,
+    notAccessible: false
   };
 
   componentDidMount() {
@@ -121,9 +126,12 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
           }
         }
       },
-      () => {
+      ({ response }: { response: Response }) => {
+        if (response.status !== 403) {
+          throwGlobalError({ response });
+        }
         if (this.mounted) {
-          this.setState({ loading: false });
+          this.setState({ loading: false, notAccessible: response.status === 403 });
         }
       }
     );
@@ -196,13 +204,21 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
   };
 
   render() {
-    const { loading } = this.state;
+    const { loading, notAccessible } = this.state;
 
     if (loading) {
       return (
         <div>
           <DeferredSpinner />
         </div>
+      );
+    }
+
+    if (notAccessible) {
+      return (
+        <Alert className="spacer-top" variant="warning">
+          {translate('code_viewer.no_source_code_displayed_due_to_security')}
+        </Alert>
       );
     }
 

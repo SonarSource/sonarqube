@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
 import { shallow } from 'enzyme';
-import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
+import * as React from 'react';
+import { getDuplications } from '../../../../api/components';
+import { getIssueFlowSnippets } from '../../../../api/issues';
 import {
   mockFlowLocation,
   mockIssue,
@@ -28,8 +29,7 @@ import {
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
 import { waitAndUpdate } from '../../../../helpers/testUtils';
-import { getIssueFlowSnippets } from '../../../../api/issues';
-import { getDuplications } from '../../../../api/components';
+import CrossComponentSourceViewerWrapper from '../CrossComponentSourceViewerWrapper';
 
 jest.mock('../../../../api/issues', () => {
   const { mockSnippetsByComponent } = require.requireActual('../../../../helpers/testMocks');
@@ -64,6 +64,16 @@ it('Should fetch data', async () => {
   (getIssueFlowSnippets as jest.Mock).mockClear();
   wrapper.setProps({ issue: mockIssue(true, { key: 'foo' }) });
   expect(getIssueFlowSnippets).toBeCalledWith('foo');
+});
+
+it('Should handle no access rights', async () => {
+  (getIssueFlowSnippets as jest.Mock).mockRejectedValueOnce({ response: { status: 403 } });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().notAccessible).toBe(true);
+  expect(wrapper).toMatchSnapshot();
 });
 
 it('should handle issue popup', () => {
