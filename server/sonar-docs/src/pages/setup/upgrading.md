@@ -33,20 +33,31 @@ If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONARQUBE_HOME/e
 
 To upgrade to SonarQube 8.2+:
 
-1. Create a **new** `sonarqube_extensions_8_x` volume. 
+1. Create a **new** `sonarqube_extensions_8_x` volume.
 
-2. If you're using Oracle, copy the JDBC driver into the new `sonarqube_extensions_8_x` volume.
-
-3. Non-default plugins need to be either re-added through the marketplace after start-up or manually added to the `sonarqube_extensions_8_x` volume. 
-
-4. Stop and remove the SonarQube container (a restart from the UI is not enough as the environment variables are only evaluated during the first run, not during a restart):
-
+2. Stop and remove the existing SonarQube container (a restart from the UI is not enough as the environment variables are only evaluated during the first run, not during a restart):
+    
 	```console
-	$ docker stop <image_name>
-	$ docker rm <image_name>
+	$ docker stop <container_id>
+    $ docker rm <container_id>
 	```
 
-5. Run docker:
+3. If you're using non-default plugins, they need to be manually added to the new `sonarqube_extensions_8_x` volume after the first start-up only. If you're using an Oracle database, the same applies to the JDBC driver. To do this:
+
+	a. Start the SonarQube container with the embedded H2 database:
+   
+    ```
+	$ docker run --rm \
+		-p 9000:9000 \
+		-v sonarqube_extensions_8_x:/opt/sonarqube/extensions \
+		<image_name>
+	```
+	
+	b. Exit once SonarQube has started properly. 
+   
+	c. Copy non-default plugins into `sonarqube_extensions_8_x/plugins` and, if needed, the Oracle driver into `sonarqube_extensions_8_x/jdbc-driver/oracle`.
+
+4. Run docker:
 
 	```bash
 	$> docker run -d --name sonarqube \
@@ -60,9 +71,9 @@ To upgrade to SonarQube 8.2+:
 		<image_name>
 	```
 
-6. Browse to `http://yourSonarQubeServerURL/setup` and follow the setup instructions.
+5. Browse to `http://yourSonarQubeServerURL/setup` and follow the setup instructions.
 
-7. Reanalyze your projects to get fresh data.
+6. Reanalyze your projects to get fresh data.
 
 ### From 7.9.x LTS to another 7.9.x LTS version
 
