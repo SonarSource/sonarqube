@@ -4,13 +4,16 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 8.2 Upgrade Notes  
-**PostgreSQL 12.1 support**  
-SonarQube 8.2+ now support PostgreSQL 9.3 - 12.
-
 **Security Hotspots: dedicated space and workflow**
-* The Security Hotspots have a brand new space where developers can perform security reviews. The review process has been simplified. It's no longer necessary to transform a Security Hotspot into a Manual Vulnerability and back and forth. A developer can now simply mark a Security Hotspot as Safe, Fixed, or leave it as is if the developer needs more time to perform their review.  
+* The Security Hotspots have a brand new space where developers can perform security reviews. The review process has been simplified. It's no longer necessary to transform a Security Hotspot into a Manual Vulnerability and back. A developer can now simply mark a Security Hotspot as Safe, Fixed, or leave it as-is if more time is needed. ([MMF-1868](https://jira.sonarsource.com/browse/MMF-1868)).
 * Manual Vulnerabilities created from Security Hotspots are migrated to Security Hotspots with the status "To Review". A comment "Migrated from Manual Vulnerability" is added to the review history to recognize them.  
-* Users who want to enforce Security Hotspots review with the Quality Gate can do so by adding the Security Hotspots Reviewed measure on their Quality Gates.
+* A Security Hotspots Reviewed metric has been added and is available to Quality Gates along with the Security Review Rating.
+
+**New project homepage**  
+The project homepage has been redesigned to focus on New Code ([MMF-1886](https://jira.sonarsource.com/browse/MMF-1886)). Projects details are now tucked into a new "Project information" pane. The project administration menu has been renamed "Project Settings".
+
+**Deprecated configuration**  
+The old way of referencing environment variables in server configuration is deprecated and replaced with the support of default environment variables. ([SONAR-13113](https://jira.sonarsource.com/browse/SONAR-13113)).
 
 [Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15301)
 
