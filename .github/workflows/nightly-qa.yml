@@ -1,0 +1,29 @@
+name: Nightly QA
+on:
+  schedule:
+    # at 1:30 daily
+    - cron: "30 1 * * *"
+jobs:
+  nightly:
+    # prevent job to run on public repository sonarsource/sonarqube
+    if: github.repository == 'sonarsource/sonar-enterprise'
+    runs-on: ubuntu-latest
+    name: Trigger the nightly QA build
+    steps:
+      - name: Fetch code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_ORG_TOKEN }}
+          ref: branch-nightly-build
+          path: repo
+      - name: Trigger nightly build
+        run: |
+          cd repo/
+          ./private/trigger-nightly-build.sh
+      - name: Notify failures on Slack
+        if: failure()
+        uses: Ilshidur/action-slack@2.0.0
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        with:
+          args: "Nightly QA failed, see the logs at https://github.com/SonarSource/sonar-enterprise/actions"
