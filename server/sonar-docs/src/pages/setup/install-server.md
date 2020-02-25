@@ -167,24 +167,22 @@ Follow these steps for your first installation:
 	$> docker volume create --name sonarqube_logs
 	``` 
 
-2. Configure the database with SonarQube properties using environment variables. Define these variables using the -e flag as shown in the following example:
+2. Drivers for supported databases (except Oracle) are already provided. If you're using an Oracle database, you need to add the JDBC driver to the `sonar_extensions` volume. To do this:
 
-	```console
-		#Example for PostgreSQL
-		-e SONAR_JDBC_URL=jdbc:postgresql://localhost/sonar \
-		-e SONAR_JDBC_USERNAME=sonar \
-		-e SONAR_JDBC_PASSWORD=sonar \	
+	a. Start the SonarQube container with the embedded H2 database:
+   
+    ```
+	$ docker run --rm \
+		-p 9000:9000 \
+		-v sonarqube_extensions:/opt/sonarqube/extensions \
+		<image_name>
 	```
-
-	For more configuration environment variables, see the [Docker Environment Variables](/setup/environment-variables/).  
-
-   [[info]]
-    | Drivers for supported databases (except Oracle) are already provided. Do not replace the provided drivers; they are the only ones supported. For Oracle, you need to copy the JDBC driver into the `sonarqube_extensions` volume.
-
-   [[warning]]
-    | Use of the environment variables `SONARQUBE_JDBC_USERNAME`, `SONARQUBE_JDBC_PASSWORD`, and `SONARQUBE_JDBC_URL` is deprecated and will stop working in future releases.
-
- 3. Run the image:
+	
+	b. Exit once SonarQube has started properly. 
+   
+	c. Copy the Oracle driver into `sonarqube_extensions/jdbc-driver/oracle`.
+   
+3. Run the image with your database properties defined using the -e environment variable flag:
 
 	```bash
 	$> docker run -d --name sonarqube \
@@ -197,6 +195,11 @@ Follow these steps for your first installation:
 		-v sonarqube_logs:/opt/sonarqube/logs \
 		<image_name>
 	```
+	
+	For more configuration environment variables, see the [Docker Environment Variables](/setup/environment-variables/).
+	
+	[[warning]]
+    | Use of the environment variables `SONARQUBE_JDBC_USERNAME`, `SONARQUBE_JDBC_PASSWORD`, and `SONARQUBE_JDBC_URL` is deprecated and will stop working in future releases.
 
 ### SonarQube 7.9.x LTS
 
