@@ -19,6 +19,10 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import {
+  getCoverageRatingAverageValue,
+  getCoverageRatingLabel
+} from 'sonar-ui-common/helpers/ratings';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { Facet } from '../types';
 import Filter from './Filter';
@@ -35,16 +39,6 @@ export interface Props {
   value?: any;
 }
 
-const NO_DATA = 'NO_DATA';
-const slices: { [key: string]: { label: string; average: number } } = {
-  '80.0-*': { label: '≥ 80%', average: 90 },
-  '70.0-80.0': { label: '70% - 80%', average: 75 },
-  '50.0-70.0': { label: '50% - 70%', average: 60 },
-  '30.0-50.0': { label: '30% - 50%', average: 40 },
-  '*-30.0': { label: '< 30%', average: 15 },
-  [NO_DATA]: { label: '', average: NaN }
-};
-
 export default function CoverageFilter(props: Props) {
   const { property = 'coverage' } = props;
 
@@ -52,12 +46,13 @@ export default function CoverageFilter(props: Props) {
     <Filter
       className={props.className}
       facet={props.facet}
+      getFacetValueForOption={getFacetValueForOption}
       header={<FilterHeader name={translate('metric_domain.Coverage')} />}
       highlightUnder={1}
       highlightUnderMax={5}
       maxFacetValue={props.maxFacetValue}
       onQueryChange={props.onQueryChange}
-      options={Object.keys(slices)}
+      options={[1, 2, 3, 4, 5, 6]}
       organization={props.organization}
       property={property}
       query={props.query}
@@ -67,15 +62,24 @@ export default function CoverageFilter(props: Props) {
   );
 }
 
-function renderOption(option: string, selected: boolean) {
+function getFacetValueForOption(facet: Facet, option: number): number {
+  const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0', 'NO_DATA'];
+  return facet[map[option - 1]];
+}
+
+function renderOption(option: number, selected: boolean) {
   return (
     <span>
-      {option !== NO_DATA && (
-        <CoverageRating muted={!selected} size="small" value={slices[option].average} />
+      {option < 6 && (
+        <CoverageRating
+          muted={!selected}
+          size="small"
+          value={getCoverageRatingAverageValue(option)}
+        />
       )}
       <span className="spacer-left">
-        {option !== NO_DATA ? (
-          slices[option].label
+        {option < 6 ? (
+          getCoverageRatingLabel(option)
         ) : (
           <span className="big-spacer-left">{translate('no_data')}</span>
         )}
