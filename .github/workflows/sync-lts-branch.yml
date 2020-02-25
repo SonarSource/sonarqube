@@ -1,0 +1,30 @@
+name: Sync LTS branch
+on:
+  schedule:
+    # at 20:00 daily
+    - cron: "0 20 * * *"
+jobs:
+  sync_lts:
+    # prevent job to run on public repository sonarsource/sonarqube
+    if: github.repository == 'sonarsource/sonar-enterprise'
+    runs-on: ubuntu-latest
+    name: Sync LTS branch of sonarsource/sonar-enterprise with sonarsource/sonarqube
+    steps:
+      - name: Fetch code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_ORG_TOKEN }}
+          ref: master
+          path: repo
+      - name: Sync LTS branch
+        run: ./repo/private/sync-public-git-branches.sh
+        env:
+          GITHUB_ORG_TOKEN: ${{ secrets.GITHUB_ORG_TOKEN }}
+          BRANCH_NAME: branch-7.9
+      - name: Notify failures on Slack
+        if: failure()
+        uses: Ilshidur/action-slack@2.0.0
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        with:
+          args: "Nightly public sync failed, see the logs at https://github.com/SonarSource/sonar-enterprise/actions"
