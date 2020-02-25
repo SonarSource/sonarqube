@@ -46,6 +46,10 @@ BUILD)
       -Dsonar.organization=sonarsource \
       -Dsonar.host.url=https://sonarcloud.io \
       -Dsonar.login="$SONAR_TOKEN"
+    
+    # Wait for 5mins, hopefully the report will be processed.
+    sleep 5m
+    ./.travis/run_iris.sh
   fi
   ;;
 
