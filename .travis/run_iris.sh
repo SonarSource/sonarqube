@@ -1,7 +1,7 @@
 #!/bin/bash
 set +x
 
-VERSION="[RELEASE]"
+VERSION='[RELEASE]'
 HTTP_CODE=`curl --write-out %{http_code} -O --user ${ARTIFACTORY_LOGIN}:${ARTIFACTORY_API_KEY} ${ARTIFACTORY_URL}sonarsource-private-releases/com/sonarsource/iris/iris/${VERSION}/iris-${VERSION}-jar-with-dependencies.jar`
 
 if [ "$HTTP_CODE" != "200" ]; then
