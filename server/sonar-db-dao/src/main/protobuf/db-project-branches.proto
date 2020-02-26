@@ -37,4 +37,5 @@ message PullRequestData {
   map<string, string> attributes = 4;
 
   string target = 5;
+  int64 summary_comment_id = 6;
 }

@@ -62,7 +62,7 @@ public class BranchPersisterImpl implements BranchPersister {
       .orElseThrow(() -> new IllegalStateException("Component has been deleted by end-user during analysis"));
 
     // insert or update in table project_branches
-    dbClient.branchDao().upsert(dbSession, toBranchDto(branchComponentDto, branch, checkIfExcludedFromPurge()));
+    dbClient.branchDao().upsert(dbSession, toBranchDto(dbSession, branchComponentDto, branch, checkIfExcludedFromPurge()));
   }
 
   private boolean checkIfExcludedFromPurge() {
@@ -76,12 +76,13 @@ public class BranchPersisterImpl implements BranchPersister {
       .anyMatch(excludePattern -> excludePattern.matcher(analysisMetadataHolder.getBranch().getName()).matches());
   }
 
-  protected BranchDto toBranchDto(ComponentDto componentDto, Branch branch, boolean excludeFromPurge) {
+  protected BranchDto toBranchDto(DbSession dbSession, ComponentDto componentDto, Branch branch, boolean excludeFromPurge) {
     BranchDto dto = new BranchDto();
     dto.setUuid(componentDto.uuid());
 
     // MainBranchProjectUuid will be null if it's a main branch
-    dto.setProjectUuid(firstNonNull(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid()));
+    String projectUuid = firstNonNull(componentDto.getMainBranchProjectUuid(), componentDto.projectUuid());
+    dto.setProjectUuid(projectUuid);
     dto.setBranchType(branch.getType());
     dto.setExcludeFromPurge(excludeFromPurge);
 
@@ -91,9 +92,10 @@ public class BranchPersisterImpl implements BranchPersister {
     }
 
     if (branch.getType() == BranchType.PULL_REQUEST) {
-      dto.setKey(analysisMetadataHolder.getPullRequestKey());
+      String pullRequestKey = analysisMetadataHolder.getPullRequestKey();
+      dto.setKey(pullRequestKey);
 
-      DbProjectBranches.PullRequestData pullRequestData = DbProjectBranches.PullRequestData.newBuilder()
+      DbProjectBranches.PullRequestData pullRequestData = getBuilder(dbSession, projectUuid, pullRequestKey)
         .setBranch(branch.getName())
         .setTitle(branch.getName())
         .setTarget(branch.getTargetBranchName())
@@ -104,6 +106,13 @@ public class BranchPersisterImpl implements BranchPersister {
     }
 
     return dto;
+  }
+
+  private DbProjectBranches.PullRequestData.Builder getBuilder(DbSession dbSession, String projectUuid, String pullRequestKey) {
+    return dbClient.branchDao().selectByPullRequestKey(dbSession, projectUuid, pullRequestKey)
+      .map(BranchDto::getPullRequestData)
+      .map(DbProjectBranches.PullRequestData::toBuilder)
+      .orElse(DbProjectBranches.PullRequestData.newBuilder());
   }
 
   private static <T> T firstNonNull(@Nullable T first, T second) {
