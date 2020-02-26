@@ -306,32 +306,6 @@ exports[`should render an app correctly: default 1`] = `
     <div
       className="big-padded bordered-bottom"
     >
-      <MetaQualityGate
-        qualityGate={
-          Object {
-            "isDefault": true,
-            "key": "30",
-            "name": "Sonar way",
-          }
-        }
-      />
-      <Connect(MetaQualityProfiles)
-        headerClassName="big-spacer-top"
-        profiles={
-          Array [
-            Object {
-              "deleted": false,
-              "key": "my-qp",
-              "language": "ts",
-              "name": "Sonar way",
-            },
-          ]
-        }
-      />
-    </div>
-    <div
-      className="big-padded bordered-bottom"
-    >
       <MetaKey
         componentKey="my-project"
         qualifier="APP"
