@@ -90,7 +90,7 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
         ? selectedLocation && { index: selectedLocationIndex, text: selectedLocation.msg }
         : undefined;
 
-    if (locations.length > 1) {
+    if (locations.length > 0) {
       const components = uniq(locations.map(l => l.component));
       return (
         <div ref={node => (this.node = node)}>
