@@ -69,6 +69,60 @@ The tutorial [Writing Custom Java Rules 101](https://redirect.sonarsource.com/do
 
 ### API changes
 
+#### **6.1**
+
+* The `ExpressionTree` interface, from the AST API, is now enriched by two new methods `Optional<Object> asConstant()` and `<T> Optional<T> asConstant(Class<T> type)`. These methods let you try to retrieve the equivalent constant value of an expression (from a variable, for instance). An example of usage would be:
+
+```
+class A {
+  public static final String CONSTANT1 = "abc";
+  public static final String CONSTANT2 = CONSTANT1 + "def";
+
+  void foo() {
+    System.out.println(CONSTANT2);
+                    // ^^^^^^^^^ calling 'identifier.asConstant(String.class)' will return 'Optional.of("abcdef")'
+  }
+}
+```
+
+#### **6.0**
+
+* Deprecated method `org.sonar.plugins.java.api.JavaFileScannerContext.addIssue(File, JavaCheck, int, String)` has been **removed**. Custom rules relying on it should report issues on a given `Tree` from now on.
+* Deprecated method `org.sonar.plugins.java.api.JavaFileScannerContext.getFile()` has been **removed**. Custom rules relying on it should rely on content of SQ's API `InputFile`.
+* Deprecated method `org.sonar.plugins.java.api.tree.TryStatementTree.resources()` has been **removed**, in favor of `org.sonar.plugins.java.api.tree.TryStatementTree.resourceList()`, as Java 9 allows other trees than `VariableTree` to be placed as resources in try-with-resources statements.
+* Method `org.sonar.plugins.java.api.semantic.Symbol.owner()` has been **flagged** with `@Nullable` annotation, to explicitly document the fact that some symbols (package, unknown, recovered) might well return `null`.
+
+* **Semantic engine**
+    * Return type of constructor is now `void type` instead of `null`.
+    * A **raw type** is now explicitly different from an **erasure type**. It is recommended to systematically use type erasure for type comparison when dealing with generics.
+        ```
+        class A<T> {
+        //    ^^^^ Definition of a Generic Type
+          boolean equals(Object o) {
+            if (o instance of A) {
+                           // ^ this is a raw type, not erasure of A<T>
+             return true;
+            }
+            return false;
+          }
+
+          A<String> foo() {
+            return new A<String>();
+                   //  ^^^^^^^^^ Parameterization of a Generic Type
+          }
+        }
+        ```
+    * According to Java Language Specification every array type implements the interface `java.io.Serializable`, calling `isSubtypeOf("java.io.Serializable")` on an array type now consistently returns `true`.
+    * Symbol corresponding to generic method invocations are now correctly parameterized.
+    * In some special cases (mostly missing bytecode dependencies, misconfigured projects), and due to ECJ recovery system, unknown/recovered types can now lead to unknown symbols, even on `ClassTree`/`MethodTree`/`VariableTree`. To illustrate this, the following example now associate the method to an unknown symbol, while previous semantic engine from SonarJava 5.X series was creating a `Symbol.MethodSymbol` with an unknown return type.
+        ```
+        Class A {
+          UnknownType<String> myMethod() { /* ... */ }
+                          //  ^^^^^^^^  symbol corresponding to the MethodTree will be unknown,
+        }
+        ```
+    * Thanks to improved semantic provided by ECJ engine, new semantic is now able to say that an *unknown* symbol is supposed to be type/variable/method (`isTypeSymbol()`, `isVariableSymbol()`, ...). Old semantic was answering `false` for all of them. Consequently, be sure to always use `isUnknown()` to validate symbol resolution. Other `is...Symbol()` methods are only designed to know how to cast the symbols (e.g from `Symbol` to `Symbol.MethodSymbol`).
+
 #### **5.12**
 * **Dropped**
     * `org.sonar.plugins.java.api.JavaFileScannerContext`: Drop deprecated method used to retrieve trees contributing to the complexity of a method from  (deprecated since SonarJava 4.1). 
