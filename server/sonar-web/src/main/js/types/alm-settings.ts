@@ -52,6 +52,7 @@ export interface ProjectAlmBinding {
   key: string;
   repository?: string;
   slug?: string;
+  summaryCommentEnabled?: boolean;
 }
 
 export interface AzureProjectAlmBinding {
@@ -70,6 +71,7 @@ export interface GithubProjectAlmBinding {
   almSetting: string;
   project: string;
   repository: string;
+  summaryCommentEnabled: boolean;
 }
 
 export interface GitlabProjectAlmBinding {

@@ -66,7 +66,7 @@ it('should fill selects and fill formdata', async () => {
 
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().formData).toEqual(formdata);
-  expect(wrapper.state().originalData).toEqual(formdata);
+  expect(wrapper.state().isChanged).toBe(false);
 });
 
 it('should handle reset', async () => {
@@ -84,7 +84,7 @@ it('should handle reset', async () => {
 
   expect(deleteProjectAlmBinding).toBeCalledWith(PROJECT_KEY);
   expect(wrapper.state().formData).toEqual({ key: '', repository: '', slug: '' });
-  expect(wrapper.state().originalData).toBeUndefined();
+  expect(wrapper.state().isChanged).toBe(false);
 });
 
 describe('handleSubmit', () => {
@@ -99,14 +99,19 @@ describe('handleSubmit', () => {
     await waitAndUpdate(wrapper);
     const githubKey = 'github';
     const repository = 'repo/path';
-    wrapper.setState({ formData: { key: githubKey, repository }, instances });
+    const summaryCommentEnabled = true;
+    wrapper.setState({
+      formData: { key: githubKey, repository, summaryCommentEnabled },
+      instances
+    });
     wrapper.instance().handleSubmit();
     await waitAndUpdate(wrapper);
 
     expect(setProjectGithubBinding).toBeCalledWith({
       almSetting: githubKey,
       project: PROJECT_KEY,
-      repository
+      repository,
+      summaryCommentEnabled
     });
     expect(wrapper.state().success).toBe(true);
   });
@@ -146,23 +151,31 @@ describe('handleSubmit', () => {
   });
 });
 
-it('should handle failures gracefully', async () => {
-  (getProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status: 500 });
-  (setProjectGithubBinding as jest.Mock).mockRejectedValueOnce({ status: 500 });
-  (deleteProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status: 500 });
-
-  const wrapper = shallowRender();
-  await waitAndUpdate(wrapper);
-  wrapper.setState({
-    formData: {
+describe.each([[500], [404]])('For status %i', status => {
+  it('should handle failures gracefully', async () => {
+    const newFormData = {
       key: 'whatever',
       repository: 'something/else'
-    }
-  });
+    };
 
-  wrapper.instance().handleSubmit();
-  await waitAndUpdate(wrapper);
-  wrapper.instance().handleReset();
+    (getProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status });
+    (setProjectGithubBinding as jest.Mock).mockRejectedValueOnce({ status });
+    (deleteProjectAlmBinding as jest.Mock).mockRejectedValueOnce({ status });
+
+    const wrapper = shallowRender();
+    await waitAndUpdate(wrapper);
+    wrapper.setState({
+      formData: newFormData,
+      orignalData: undefined
+    });
+
+    wrapper.instance().handleSubmit();
+    await waitAndUpdate(wrapper);
+    expect(wrapper.instance().state.orignalData).toBeUndefined();
+    wrapper.instance().handleReset();
+    await waitAndUpdate(wrapper);
+    expect(wrapper.instance().state.formData).toEqual(newFormData);
+  });
 });
 
 it('should handle field changes', async () => {
@@ -188,6 +201,48 @@ it('should handle field changes', async () => {
   expect(wrapper.state().formData).toEqual({
     key: 'instance2',
     repository
+  });
+
+  wrapper.instance().handleFieldChange('summaryCommentEnabled', true);
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().formData).toEqual({
+    key: 'instance2',
+    repository,
+    summaryCommentEnabled: true
+  });
+});
+
+it('should reject submit github settings', async () => {
+  const wrapper = shallowRender();
+
+  expect.assertions(1);
+  await expect(
+    wrapper.instance().submitProjectAlmBinding(AlmKeys.GitHub, 'github-binding', {})
+  ).rejects.toBe(undefined);
+});
+
+it('should accept submit github settings', async () => {
+  (setProjectGithubBinding as jest.Mock).mockRestore();
+  const wrapper = shallowRender();
+  await wrapper
+    .instance()
+    .submitProjectAlmBinding(AlmKeys.GitHub, 'github-binding', { repository: 'foo' });
+  expect(setProjectGithubBinding).toHaveBeenCalledWith({
+    almSetting: 'github-binding',
+    project: PROJECT_KEY,
+    repository: 'foo',
+    summaryCommentEnabled: true
+  });
+
+  await wrapper.instance().submitProjectAlmBinding(AlmKeys.GitHub, 'github-binding', {
+    repository: 'foo',
+    summaryCommentEnabled: true
+  });
+  expect(setProjectGithubBinding).toHaveBeenCalledWith({
+    almSetting: 'github-binding',
+    project: PROJECT_KEY,
+    repository: 'foo',
+    summaryCommentEnabled: true
   });
 });
 

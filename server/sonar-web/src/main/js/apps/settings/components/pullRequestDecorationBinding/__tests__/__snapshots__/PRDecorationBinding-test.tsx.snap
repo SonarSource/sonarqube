@@ -8,6 +8,8 @@ exports[`should render correctly 1`] = `
     }
   }
   instances={Array []}
+  isChanged={false}
+  isConfigured={false}
   isValid={false}
   loading={true}
   onFieldChange={[Function]}

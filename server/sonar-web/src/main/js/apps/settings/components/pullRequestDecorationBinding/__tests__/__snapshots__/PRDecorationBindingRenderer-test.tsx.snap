@@ -459,6 +459,33 @@ exports[`should render multiple instances correctly 2`] = `
       />
     </div>
     <div
+      className="form-field"
+    >
+      <label
+        className="display-flex-center"
+        htmlFor="github.summary_comment_setting"
+      >
+        settings.pr_decoration.binding.form.github.summary_comment_setting
+        <HelpTooltip
+          className="spacer-left"
+          overlay={
+            <FormattedMessage
+              defaultMessage="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+              id="settings.pr_decoration.binding.form.github.summary_comment_setting.help"
+              values={Object {}}
+            />
+          }
+          placement="right"
+        />
+      </label>
+      <InputForBoolean
+        isDefault={true}
+        name="github.summary_comment_setting"
+        onChange={[Function]}
+        value={true}
+      />
+    </div>
+    <div
       className="display-flex-center"
     >
       <DeferredSpinner

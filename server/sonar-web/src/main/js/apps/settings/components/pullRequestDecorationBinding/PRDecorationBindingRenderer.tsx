@@ -28,18 +28,32 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { AlmKeys, AlmSettingsInstance, ProjectAlmBinding } from '../../../../types/alm-settings';
+import InputForBoolean from '../inputs/InputForBoolean';
 
 export interface PRDecorationBindingRendererProps {
   formData: ProjectAlmBinding;
   instances: AlmSettingsInstance[];
+  isChanged: boolean;
+  isConfigured: boolean;
   isValid: boolean;
   loading: boolean;
-  onFieldChange: (id: keyof ProjectAlmBinding, value: string) => void;
+  onFieldChange: (id: keyof ProjectAlmBinding, value: string | boolean) => void;
   onReset: () => void;
   onSubmit: () => void;
-  originalData?: ProjectAlmBinding;
   saving: boolean;
   success: boolean;
+}
+
+interface LabelProps {
+  help?: boolean;
+  helpParams?: T.Dict<string | JSX.Element>;
+  id: string;
+  optional?: boolean;
+}
+
+interface CommonFieldProps extends LabelProps {
+  onFieldChange: (id: keyof ProjectAlmBinding, value: string | boolean) => void;
+  propKey: keyof ProjectAlmBinding;
 }
 
 function optionRenderer(instance: AlmSettingsInstance) {
@@ -53,35 +67,57 @@ function optionRenderer(instance: AlmSettingsInstance) {
   );
 }
 
-function renderField(props: {
-  help?: boolean;
-  helpParams?: { [key: string]: string | JSX.Element };
-  id: string;
-  onFieldChange: (id: keyof ProjectAlmBinding, value: string) => void;
-  optional?: boolean;
-  propKey: keyof ProjectAlmBinding;
-  value: string;
-}) {
-  const { help, helpParams, id, propKey, optional, value, onFieldChange } = props;
+function renderLabel(props: LabelProps) {
+  const { help, helpParams, optional, id } = props;
+  return (
+    <label className="display-flex-center" htmlFor={id}>
+      {translate('settings.pr_decoration.binding.form', id)}
+      {!optional && <em className="mandatory">*</em>}
+      {help && (
+        <HelpTooltip
+          className="spacer-left"
+          overlay={
+            <FormattedMessage
+              defaultMessage={translate('settings.pr_decoration.binding.form', id, 'help')}
+              id={`settings.pr_decoration.binding.form.${id}.help`}
+              values={helpParams}
+            />
+          }
+          placement="right"
+        />
+      )}
+    </label>
+  );
+}
+
+function renderBooleanField(
+  props: Omit<CommonFieldProps, 'optional'> & {
+    value: boolean;
+  }
+) {
+  const { id, value, onFieldChange, propKey } = props;
   return (
     <div className="form-field">
-      <label className="display-flex-center" htmlFor={id}>
-        {translate('settings.pr_decoration.binding.form', id)}
-        {!optional && <em className="mandatory">*</em>}
-        {help && (
-          <HelpTooltip
-            className="spacer-left"
-            overlay={
-              <FormattedMessage
-                defaultMessage={translate('settings.pr_decoration.binding.form', id, 'help')}
-                id={`settings.pr_decoration.binding.form.${id}.help`}
-                values={helpParams}
-              />
-            }
-            placement="right"
-          />
-        )}
-      </label>
+      {renderLabel({ ...props, optional: true })}
+      <InputForBoolean
+        isDefault={true}
+        name={id}
+        onChange={v => onFieldChange(propKey, v)}
+        value={value}
+      />
+    </div>
+  );
+}
+
+function renderField(
+  props: CommonFieldProps & {
+    value: string;
+  }
+) {
+  const { id, propKey, value, onFieldChange } = props;
+  return (
+    <div className="form-field">
+      {renderLabel(props)}
       <input
         className="input-super-large"
         id={id}
@@ -95,20 +131,14 @@ function renderField(props: {
   );
 }
 
-function isDataSame(
-  { key, repository = '', slug = '' }: ProjectAlmBinding,
-  { key: oKey = '', repository: oRepository = '', slug: oSlug = '' }: ProjectAlmBinding
-) {
-  return key === oKey && repository === oRepository && slug === oSlug;
-}
-
 export default function PRDecorationBindingRenderer(props: PRDecorationBindingRendererProps) {
   const {
-    formData: { key, repository, slug },
+    formData: { key, repository, slug, summaryCommentEnabled },
     instances,
+    isChanged,
+    isConfigured,
     isValid,
     loading,
-    originalData,
     saving,
     success
   } = props;
@@ -139,8 +169,6 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
 
   const selected = key && instances.find(i => i.key === key);
   const alm = selected && selected.alm;
-
-  const isChanged = !isDataSame({ key, repository, slug }, originalData || { key: '' });
 
   return (
     <div>
@@ -218,15 +246,25 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
           </>
         )}
 
-        {alm === AlmKeys.GitHub &&
-          renderField({
-            help: true,
-            helpParams: { example: 'SonarSource/sonarqube' },
-            id: 'github.repository',
-            onFieldChange: props.onFieldChange,
-            propKey: 'repository',
-            value: repository || ''
-          })}
+        {alm === AlmKeys.GitHub && (
+          <>
+            {renderField({
+              help: true,
+              helpParams: { example: 'SonarSource/sonarqube' },
+              id: 'github.repository',
+              onFieldChange: props.onFieldChange,
+              propKey: 'repository',
+              value: repository || ''
+            })}
+            {renderBooleanField({
+              help: true,
+              id: 'github.summary_comment_setting',
+              onFieldChange: props.onFieldChange,
+              propKey: 'summaryCommentEnabled',
+              value: summaryCommentEnabled === undefined ? true : summaryCommentEnabled
+            })}
+          </>
+        )}
 
         {alm === AlmKeys.GitLab &&
           renderField({
@@ -245,7 +283,7 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
               <span data-test="project-settings__alm-save">{translate('save')}</span>
             </SubmitButton>
           )}
-          {originalData && (
+          {isConfigured && (
             <Button className="spacer-right" onClick={props.onReset}>
               <span data-test="project-settings__alm-reset">{translate('reset_verb')}</span>
             </Button>

@@ -38,9 +38,11 @@ interface Props {
 interface State {
   formData: ProjectAlmBinding;
   instances: AlmSettingsInstance[];
+  isChanged: boolean;
+  isConfigured: boolean;
   isValid: boolean;
   loading: boolean;
-  originalData?: ProjectAlmBinding;
+  orignalData?: ProjectAlmBinding;
   saving: boolean;
   success: boolean;
 }
@@ -59,6 +61,8 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   state: State = {
     formData: { key: '' },
     instances: [],
+    isChanged: false,
+    isConfigured: false,
     isValid: false,
     loading: true,
     saving: false,
@@ -84,9 +88,11 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
             return {
               formData: newFormData,
               instances: instances || [],
+              isChanged: false,
+              isConfigured: !!originalData,
               isValid: this.validateForm(newFormData),
               loading: false,
-              originalData
+              orignalData: newFormData
             };
           });
         }
@@ -125,7 +131,8 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
               repository: '',
               slug: ''
             },
-            originalData: undefined,
+            isChanged: false,
+            isConfigured: false,
             saving: false,
             success: true
           });
@@ -161,14 +168,20 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
         });
       }
       case AlmKeys.GitHub: {
-        const repository = almSpecificFields && almSpecificFields.repository;
+        const repository = almSpecificFields?.repository;
+        // By default it must remain true.
+        const summaryCommentEnabled =
+          almSpecificFields?.summaryCommentEnabled === undefined
+            ? true
+            : almSpecificFields?.summaryCommentEnabled;
         if (!repository) {
           return Promise.reject();
         }
         return setProjectGithubBinding({
           almSetting,
           project,
-          repository
+          repository,
+          summaryCommentEnabled
         });
       }
 
@@ -198,23 +211,38 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
       return;
     }
 
-    if (key) {
-      this.submitProjectAlmBinding(selected.alm, key, additionalFields)
-        .then(() => {
-          if (this.mounted) {
-            this.setState({
-              saving: false,
-              success: true
-            });
-          }
-        })
-        .then(this.fetchDefinitions)
-        .catch(this.catchError);
-    }
+    this.submitProjectAlmBinding(selected.alm, key, additionalFields)
+      .then(() => {
+        if (this.mounted) {
+          this.setState({
+            saving: false,
+            success: true
+          });
+        }
+      })
+      .then(this.fetchDefinitions)
+      .catch(this.catchError);
   };
 
-  handleFieldChange = (id: keyof ProjectAlmBinding, value: string) => {
-    this.setState(({ formData }) => {
+  isDataSame(
+    { key, repository = '', slug = '', summaryCommentEnabled = false }: ProjectAlmBinding,
+    {
+      key: oKey = '',
+      repository: oRepository = '',
+      slug: oSlug = '',
+      summaryCommentEnabled: osummaryCommentEnabled = false
+    }: ProjectAlmBinding
+  ) {
+    return (
+      key === oKey &&
+      repository === oRepository &&
+      slug === oSlug &&
+      summaryCommentEnabled === osummaryCommentEnabled
+    );
+  }
+
+  handleFieldChange = (id: keyof ProjectAlmBinding, value: string | boolean) => {
+    this.setState(({ formData, orignalData }) => {
       const newFormData = {
         ...formData,
         [id]: value
@@ -222,6 +250,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
       return {
         formData: newFormData,
         isValid: this.validateForm(newFormData),
+        isChanged: !this.isDataSame(newFormData, orignalData || { key: '' }),
         success: false
       };
     });

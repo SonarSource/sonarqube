@@ -84,12 +84,10 @@ it('should render multiple instances correctly', () => {
         key: 'i1',
         repository: 'account/repo'
       },
+      isChanged: false,
+      isConfigured: true,
       instances,
-      loading: false,
-      originalData: {
-        key: 'i1',
-        repository: 'account/repo'
-      }
+      loading: false
     })
   ).toMatchSnapshot();
 });
@@ -137,6 +135,8 @@ it('should render optional fields correctly', () => {
       formData: {
         key: 'key'
       },
+      isChanged: true,
+      isConfigured: false,
       instances: [{ key: 'key', url: 'http://example.com', alm: AlmKeys.GitLab }],
       loading: false
     })
@@ -151,12 +151,13 @@ function shallowRender(props: Partial<PRDecorationBindingRendererProps> = {}) {
         repository: ''
       }}
       instances={[]}
+      isChanged={false}
+      isConfigured={false}
       isValid={false}
       loading={true}
       onFieldChange={jest.fn()}
       onReset={jest.fn()}
       onSubmit={jest.fn()}
-      originalData={undefined}
       saving={false}
       success={false}
       {...props}
