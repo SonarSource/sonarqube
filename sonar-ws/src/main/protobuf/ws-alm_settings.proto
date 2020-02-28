@@ -63,6 +63,7 @@ message GetBindingWsResponse {
   optional string repository = 3;
   optional string url = 4;
   optional string slug = 5;
+  optional bool summaryCommentEnabled = 6;
 }
 
 enum Alm {

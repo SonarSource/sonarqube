@@ -64,7 +64,8 @@ public class AlmSettingsTesting {
     return new ProjectAlmSettingDto()
       .setAlmSettingUuid(githubAlmSetting.getUuid())
       .setProjectUuid(project.getUuid())
-      .setAlmRepo(randomAlphanumeric(256));
+      .setAlmRepo(randomAlphanumeric(256))
+      .setSummaryCommentEnabled(true);
   }
 
   static ProjectAlmSettingDto newGitlabProjectAlmSettingDto(AlmSettingDto gitlabAlmSetting, ProjectDto project) {

@@ -9,6 +9,7 @@
     p.alm_setting_uuid as almSettingUuid,
     p.alm_repo as almRepo,
     p.alm_slug as almSlug,
+    p.summary_comment_enabled as summaryCommentEnabled,
     p.created_at as createdAt,
     p.updated_at as updatedAt
   </sql>
@@ -41,6 +42,7 @@
       alm_setting_uuid,
       alm_repo,
       alm_slug,
+      summary_comment_enabled,
       created_at,
       updated_at
     )
@@ -50,6 +52,32 @@
       #{dto.almSettingUuid, jdbcType=VARCHAR},
       #{dto.almRepo, jdbcType=VARCHAR},
       #{dto.almSlug, jdbcType=VARCHAR},
+      #{dto.summaryCommentEnabled, jdbcType=BOOLEAN},
+      #{now, jdbcType=BIGINT},
+      #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <!-- Oracle -->
+  <insert id="insert" parameterType="Map" useGeneratedKeys="false" databaseId="oracle">
+    INSERT INTO project_alm_settings
+    (
+      uuid,
+      project_uuid,
+      alm_setting_uuid,
+      alm_repo,
+      alm_slug,
+      summary_comment_enabled,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      #{uuid, jdbcType=VARCHAR},
+      #{dto.projectUuid, jdbcType=VARCHAR},
+      #{dto.almSettingUuid, jdbcType=VARCHAR},
+      #{dto.almRepo, jdbcType=VARCHAR},
+      #{dto.almSlug, jdbcType=VARCHAR},
+      #{dto.summaryCommentEnabled, jdbcType=NUMERIC},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
@@ -61,6 +89,20 @@
       alm_setting_uuid = #{dto.almSettingUuid, jdbcType=VARCHAR},
       alm_repo = #{dto.almRepo, jdbcType=VARCHAR},
       alm_slug = #{dto.almSlug, jdbcType=VARCHAR},
+      summary_comment_enabled = #{dto.summaryCommentEnabled, jdbcType=BOOLEAN},
+      updated_at = #{now, jdbcType=BIGINT}
+    WHERE
+      project_uuid = #{dto.projectUuid, jdbcType=VARCHAR}
+  </update>
+
+  <!-- Oracle -->
+  <update id="update" parameterType="map" databaseId="oracle">
+    UPDATE project_alm_settings
+    SET
+      alm_setting_uuid = #{dto.almSettingUuid, jdbcType=VARCHAR},
+      alm_repo = #{dto.almRepo, jdbcType=VARCHAR},
+      alm_slug = #{dto.almSlug, jdbcType=VARCHAR},
+      summary_comment_enabled = #{dto.summaryCommentEnabled, jdbcType=NUMERIC},
       updated_at = #{now, jdbcType=BIGINT}
     WHERE
       project_uuid = #{dto.projectUuid, jdbcType=VARCHAR}

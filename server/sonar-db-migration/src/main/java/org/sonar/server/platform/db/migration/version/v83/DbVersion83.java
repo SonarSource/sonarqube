@@ -17,29 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration;
+package org.sonar.server.platform.db.migration.version.v83;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
+import org.sonar.server.platform.db.migration.version.DbVersion;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
-
-public class MigrationConfigurationModuleTest {
-  private MigrationConfigurationModule underTest = new MigrationConfigurationModule();
-
-  @Test
-  public void verify_component_count() {
-    ComponentContainer container = new ComponentContainer();
-
-    underTest.configure(container);
-
-    assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER
-        // DbVersion classes
-        + 5
-        // Others
-        + 4);
+public class DbVersion83 implements DbVersion {
+  @Override
+  public void addSteps(MigrationStepRegistry registry) {
+    registry
+      .add(3300, "Add 'summary_comment_enabled' boolean column to 'project_alm_settings'", AddSummaryEnabledColumnToAlmSettings.class)
+      .add(3301, "Enable 'summary_comment_enabled' for GitHub based projects", PopulateSummaryCommentEnabledColumnForGitHub.class);
   }
-
 }

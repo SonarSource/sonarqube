@@ -33,6 +33,7 @@ public class SetGithubBindingRequest {
   private String almSetting;
   private String project;
   private String repository;
+  private String summaryCommentEnabled;
 
   /**
    * This is a mandatory parameter.
@@ -68,5 +69,14 @@ public class SetGithubBindingRequest {
 
   public String getRepository() {
     return repository;
+  }
+
+  public String getSummaryCommentEnabled() {
+    return summaryCommentEnabled;
+  }
+
+  public SetGithubBindingRequest setSummaryCommentEnabled(String summaryCommentEnabled) {
+    this.summaryCommentEnabled = summaryCommentEnabled;
+    return this;
   }
 }

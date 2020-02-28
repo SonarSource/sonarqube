@@ -31,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketProjectAlmSettingDto;
@@ -65,10 +66,11 @@ public class ProjectAlmSettingDaoTest {
     assertThat(underTest.selectByProject(dbSession, project).get())
       .extracting(ProjectAlmSettingDto::getUuid, ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid,
         ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug,
-        ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt)
+        ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt,
+        ProjectAlmSettingDto::getSummaryCommentEnabled)
       .containsExactly(A_UUID, githubAlmSettingDto.getUuid(), project.getUuid(),
         githubProjectAlmSettingDto.getAlmRepo(), githubProjectAlmSettingDto.getAlmSlug(),
-        A_DATE, A_DATE);
+        A_DATE, A_DATE, githubProjectAlmSettingDto.getSummaryCommentEnabled());
 
     assertThat(underTest.selectByProject(dbSession, anotherProject)).isNotPresent();
   }
@@ -79,19 +81,19 @@ public class ProjectAlmSettingDaoTest {
     when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto almSettingsDto = db.almSettings().insertBitbucketAlmSetting();
     ProjectDto project = db.components().insertPrivateProjectDto();
-    ProjectAlmSettingDto githubProjectAlmSettingDto = newBitbucketProjectAlmSettingDto(almSettingsDto, project);
-    githubProjectAlmSettingDto.setAlmSlug("slug1");
-    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto);
-    ProjectAlmSettingDto githubProjectAlmSettingDto2 = newBitbucketProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProjectDto());
-    githubProjectAlmSettingDto2.setAlmSlug("slug2");
+    ProjectAlmSettingDto bitbucketProjectAlmSettingDto = newBitbucketProjectAlmSettingDto(almSettingsDto, project);
+    bitbucketProjectAlmSettingDto.setAlmSlug("slug1");
+    underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto);
+    ProjectAlmSettingDto bitbucketProjectAlmSettingDto2 = newBitbucketProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProjectDto());
+    bitbucketProjectAlmSettingDto2.setAlmSlug("slug2");
     when(uuidFactory.create()).thenReturn(A_UUID + 1);
-    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto2);
+    underTest.insertOrUpdate(dbSession, bitbucketProjectAlmSettingDto2);
 
     Set<String> slugs = new HashSet<>();
     slugs.add("slug1");
     assertThat(underTest.selectByAlmSettingAndSlugs(dbSession, almSettingsDto, slugs))
-      .extracting(ProjectAlmSettingDto::getProjectUuid)
-      .containsExactly(project.getUuid());
+      .extracting(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getSummaryCommentEnabled)
+      .containsExactly(tuple(project.getUuid(), bitbucketProjectAlmSettingDto2.getSummaryCommentEnabled()));
   }
 
   @Test
@@ -113,16 +115,18 @@ public class ProjectAlmSettingDaoTest {
     AlmSettingDto anotherGithubAlmSetting = db.almSettings().insertGitHubAlmSetting();
 
     when(system2.now()).thenReturn(A_DATE_LATER);
-    ProjectAlmSettingDto newProjectAlmSettingDto = newGithubProjectAlmSettingDto(anotherGithubAlmSetting, project);
+    ProjectAlmSettingDto newProjectAlmSettingDto = newGithubProjectAlmSettingDto(anotherGithubAlmSetting, project)
+      .setSummaryCommentEnabled(false);
     underTest.insertOrUpdate(dbSession, newProjectAlmSettingDto);
 
     assertThat(underTest.selectByProject(dbSession, project).get())
       .extracting(ProjectAlmSettingDto::getUuid, ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid,
         ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug,
-        ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt)
+        ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt,
+        ProjectAlmSettingDto::getSummaryCommentEnabled)
       .containsExactly(projectAlmSettingDto.getUuid(), anotherGithubAlmSetting.getUuid(), project.getUuid(),
         newProjectAlmSettingDto.getAlmRepo(), newProjectAlmSettingDto.getAlmSlug(),
-        A_DATE, A_DATE_LATER);
+        A_DATE, A_DATE_LATER, newProjectAlmSettingDto.getSummaryCommentEnabled());
   }
 
   @Test

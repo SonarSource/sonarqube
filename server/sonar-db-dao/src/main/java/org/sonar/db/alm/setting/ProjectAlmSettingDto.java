@@ -56,6 +56,12 @@ public class ProjectAlmSettingDto {
    */
   private String almSlug;
 
+  /**
+   * Boolean flag which enable/disable inserting summary of analysis as a comment
+   * It will be null when the ALM is other than GitHub
+   */
+  private Boolean summaryCommentEnabled;
+
   private long updatedAt;
   private long createdAt;
 
@@ -102,6 +108,15 @@ public class ProjectAlmSettingDto {
 
   public ProjectAlmSettingDto setAlmSlug(@Nullable String almSlug) {
     this.almSlug = almSlug;
+    return this;
+  }
+
+  public Boolean getSummaryCommentEnabled() {
+    return summaryCommentEnabled;
+  }
+
+  public ProjectAlmSettingDto setSummaryCommentEnabled(@Nullable Boolean summaryCommentEnabled) {
+    this.summaryCommentEnabled = summaryCommentEnabled;
     return this;
   }
 
