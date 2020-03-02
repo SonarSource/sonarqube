@@ -88,6 +88,18 @@ The `RuleKey` value can be one of the following:
   * [S2631](https://rules.sonarsource.com/csharp/RSPEC-2631): RegExp Injection
   * [S5144](https://rules.sonarsource.com/csharp/RSPEC-5144): Server-Side Request Forgery (SSRF)
   * [S2091](https://rules.sonarsource.com/csharp/RSPEC-2091): XPath Injection
+* For Python
+  * [S3649](https://rules.sonarsource.com/python/RSPEC-3649): SQL Injection
+  * [S5146](https://rules.sonarsource.com/python/RSPEC-5146): Open Redirect
+  * [S5167](https://rules.sonarsource.com/python/RSPEC-5167): HTTP Response Splitting
+  * [S2083](https://rules.sonarsource.com/python/RSPEC-2083): Path Traversal Injection
+  * [S2078](https://rules.sonarsource.com/python/RSPEC-2078): LDAP Injection
+  * [S5145](https://rules.sonarsource.com/python/RSPEC-5145): Log Injection
+  * [S2076](https://rules.sonarsource.com/python/RSPEC-2076): OS Command Injection
+  * [S5144](https://rules.sonarsource.com/python/RSPEC-5144): Server-Side Request Forgery (SSRF)
+  * [S2091](https://rules.sonarsource.com/python/RSPEC-2091): XPath Injection
+  * [S5135](https://rules.sonarsource.com/python/RSPEC-5135): Object Injection
+  * [S5334](https://rules.sonarsource.com/python/RSPEC-5334): Code Injection
 
 [[info]]
 | The configuration works per rule. There is no way to share configuration between rules. 
