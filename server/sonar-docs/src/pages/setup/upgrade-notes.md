@@ -3,6 +3,11 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 8.3 Upgrade Notes  
+**Analysis summary for GitHub Pull Requests**
+* Pull Request analysis can be shown under the Conversation tab in GitHub. You can enable or disable it at **Project Settings > General Settings > Pull Request Decoration**. 
+* If you already have Pull Request analysis under the GitHub Checks tab, you'll need to update your GitHub App to give Pull Requests read & write access. For more information see [Decorating Pull Requests](/analysis/pr-decoration/). ([MMF-1892](https://jira.sonarsource.com/browse/MMF-1892)).
+
 ## Release 8.2 Upgrade Notes  
 **Security Hotspots: dedicated space and workflow**
 * The Security Hotspots have a brand new space where developers can perform security reviews. The review process has been simplified. It's no longer necessary to transform a Security Hotspot into a Manual Vulnerability and back. A developer can now simply mark a Security Hotspot as Safe, Fixed, or leave it as-is if more time is needed. ([MMF-1868](https://jira.sonarsource.com/browse/MMF-1868)).

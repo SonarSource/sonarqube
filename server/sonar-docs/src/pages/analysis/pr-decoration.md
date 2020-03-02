@@ -18,7 +18,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |
 | ### Creating a GitHub App
 |
-| To add Pull Request decoration in GitHub checks, an instance administrator needs to create a GitHub App:
+| You can add Pull Request decoration under the GitHub **Checks** tab or **Conversation** tab. To do this, an instance administrator must first create a GitHub App:
 |
 | 1. Follow Steps 1–4 [here](https://developer.github.com/apps/building-github-apps/creating-a-github-app/) to start creating your GitHub App.
 | 1. Under **GitHub App name**, give your app a name (such as SonarQubePRChecks).
@@ -29,7 +29,7 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 |	|---------------------|--------------|
 |	| Checks              | Read & write |
 |	| **GitHub Enterprise:** Repository metadata <br/> **GitHub.com:** Metadata | Read-only    |
-|	| Pull Requests       | Read-only    |
+|	| Pull Requests       | Read & write |
 |	| Commit statuses     | Read-only    |
 |
 | 1. Under "Where can this GitHub App be installed?," select **Any account**.  
@@ -51,6 +51,8 @@ Click your ALM provider below to expand the instructions on decorating your Pull
 | ### Setting your project settings
 |
 | Go to **Project Settings > General Settings > Pull Request Decoration**, select your **Configuration Name**, and set your **Repository identifier**.
+|
+| By default, **Enable analysis summary under the GitHub Conversation tab** is on and your Pull Request analysis will be shown under the **Conversation** and **Checks** tabs in GitHub. Turning this setting off will make it so Pull Request analysis is only shown under the **Checks** tab.
 
 [[collapse]]
 | ## Bitbucket Server
