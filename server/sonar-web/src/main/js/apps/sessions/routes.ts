@@ -17,24 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 
 const routes = [
   {
     path: 'new',
-    component: lazyLoad(() => import('./components/LoginContainer'))
+    component: lazyLoadComponent(() => import('./components/LoginContainer'))
   },
   {
     path: 'logout',
-    component: lazyLoad(() => import('./components/Logout'))
+    component: lazyLoadComponent(() => import('./components/Logout'))
   },
   {
     path: 'unauthorized',
-    component: lazyLoad(() => import('./components/Unauthorized'))
+    component: lazyLoadComponent(() => import('./components/Unauthorized'))
   },
   {
     path: 'email_already_exists',
-    component: lazyLoad(() => import('./components/EmailAlreadyExists'))
+    component: lazyLoadComponent(() => import('./components/EmailAlreadyExists'))
   }
 ];
 

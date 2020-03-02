@@ -18,18 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RedirectFunction, RouterState } from 'react-router';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import codingRulesRoutes from '../coding-rules/routes';
 import qualityGatesRoutes from '../quality-gates/routes';
 import qualityProfilesRoutes from '../quality-profiles/routes';
 import webhooksRoutes from '../webhooks/routes';
 
-const OrganizationContainer = lazyLoad(() => import('./components/OrganizationContainer'));
+const OrganizationContainer = lazyLoadComponent(() => import('./components/OrganizationContainer'));
 
 const routes = [
   {
     path: ':organizationKey',
-    component: lazyLoad(() => import('./components/OrganizationPage')),
+    component: lazyLoadComponent(() => import('./components/OrganizationPage')),
     childRoutes: [
       {
         indexRoute: {
@@ -43,14 +43,22 @@ const routes = [
         path: 'projects',
         component: OrganizationContainer,
         childRoutes: [
-          { indexRoute: { component: lazyLoad(() => import('./components/OrganizationProjects')) } }
+          {
+            indexRoute: {
+              component: lazyLoadComponent(() => import('./components/OrganizationProjects'))
+            }
+          }
         ]
       },
       {
         path: 'issues',
         component: OrganizationContainer,
         childRoutes: [
-          { indexRoute: { component: lazyLoad(() => import('../issues/components/AppContainer')) } }
+          {
+            indexRoute: {
+              component: lazyLoadComponent(() => import('../issues/components/AppContainer'))
+            }
+          }
         ]
       },
       {
@@ -60,7 +68,9 @@ const routes = [
       },
       {
         path: 'members',
-        component: lazyLoad(() => import('../organizationMembers/OrganizationMembersContainer'))
+        component: lazyLoadComponent(() =>
+          import('../organizationMembers/OrganizationMembersContainer')
+        )
       },
       {
         path: 'quality_profiles',
@@ -72,26 +82,32 @@ const routes = [
         childRoutes: qualityGatesRoutes
       },
       {
-        component: lazyLoad(() => import('./components/OrganizationAccessContainer')),
+        component: lazyLoadComponent(() => import('./components/OrganizationAccessContainer')),
         childRoutes: [
-          { path: 'edit', component: lazyLoad(() => import('./components/OrganizationEdit')) },
-          { path: 'groups', component: lazyLoad(() => import('../groups/components/App')) },
+          {
+            path: 'edit',
+            component: lazyLoadComponent(() => import('./components/OrganizationEdit'))
+          },
+          {
+            path: 'groups',
+            component: lazyLoadComponent(() => import('../groups/components/App'))
+          },
           {
             path: 'permissions',
-            component: lazyLoad(() => import('../permissions/global/components/App'))
+            component: lazyLoadComponent(() => import('../permissions/global/components/App'))
           },
           {
             path: 'permission_templates',
-            component: lazyLoad(() => import('../permission-templates/components/App'))
+            component: lazyLoadComponent(() => import('../permission-templates/components/App'))
           },
           {
             path: 'projects_management',
-            component: lazyLoad(() => import('../projectsManagement/AppContainer'))
+            component: lazyLoadComponent(() => import('../projectsManagement/AppContainer'))
           },
           { path: 'webhooks', childRoutes: webhooksRoutes },
           {
             path: 'extension/:pluginKey/:extensionKey',
-            component: lazyLoad(() =>
+            component: lazyLoadComponent(() =>
               import('../../app/components/extensions/OrganizationPageExtension')
             )
           }

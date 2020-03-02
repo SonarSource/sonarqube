@@ -19,12 +19,13 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
-const AnalysisWarningsModal = lazyLoad(() =>
-  import('../../../../components/common/AnalysisWarningsModal')
+const AnalysisWarningsModal = lazyLoadComponent(
+  () => import('../../../../components/common/AnalysisWarningsModal'),
+  'AnalysisWarningsModal'
 );
 
 interface Props {

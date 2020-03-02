@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { filterContent } from '../../helpers/markdown';
 
-const DocMarkdownBlock = lazyLoad(() => import('./DocMarkdownBlock'));
+const DocMarkdownBlock = lazyLoadComponent(() => import('./DocMarkdownBlock'), 'DocMarkdownBlock');
 
 interface Props {
   className?: string;

@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 
 const routes = [
   {
-    indexRoute: { component: lazyLoad(() => import('./components/AppContainer')) }
+    indexRoute: { component: lazyLoadComponent(() => import('./components/AppContainer')) }
   },
   {
     path: 'encryption',
-    component: lazyLoad(() => import('./encryption/EncryptionApp'))
+    component: lazyLoadComponent(() => import('./encryption/EncryptionApp'))
   }
 ];
 

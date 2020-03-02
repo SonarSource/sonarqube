@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RedirectFunction, RouterState } from 'react-router';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { save } from 'sonar-ui-common/helpers/storage';
 import { isDefined } from 'sonar-ui-common/helpers/types';
 import DefaultPageSelectorContainer from './components/DefaultPageSelectorContainer';
@@ -37,7 +37,7 @@ const routes = [
   { path: 'favorite', component: FavoriteProjectsContainer },
   {
     path: 'create',
-    component: lazyLoad(() => import('../create/project/CreateProjectPage'))
+    component: lazyLoadComponent(() => import('../create/project/CreateProjectPage'))
   }
 ].filter(isDefined);
 

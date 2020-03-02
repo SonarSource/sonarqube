@@ -21,10 +21,10 @@ import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import HelpIcon from 'sonar-ui-common/components/icons/HelpIcon';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
-const EmbedDocsPopup = lazyLoad(() => import('./EmbedDocsPopup'));
+const EmbedDocsPopup = lazyLoadComponent(() => import('./EmbedDocsPopup'));
 
 interface State {
   helpOpen: boolean;

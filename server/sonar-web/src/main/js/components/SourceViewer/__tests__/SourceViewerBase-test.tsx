@@ -17,14 +17,137 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getComponentData, getComponentForSourceViewer, getSources } from '../../../api/components';
 import { mockMainBranch } from '../../../helpers/mocks/branch-like';
+import { mockIssue, mockSourceLine, mockSourceViewerFile } from '../../../helpers/testMocks';
+import defaultLoadIssues from '../helpers/loadIssues';
 import SourceViewerBase from '../SourceViewerBase';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+jest.mock('../helpers/loadIssues', () => ({
+  default: jest.fn().mockRejectedValue({})
+}));
+
+jest.mock('../../../api/components', () => ({
+  getComponentForSourceViewer: jest.fn().mockRejectedValue(''),
+  getComponentData: jest.fn().mockRejectedValue(''),
+  getSources: jest.fn().mockRejectedValue('')
+}));
+
+beforeEach(() => {
+  jest.resetAllMocks();
 });
 
-function shallowRender() {
-  return <SourceViewerBase branchLike={mockMainBranch()} component="my-component" />;
+it('should render nothing from the start', () => {
+  expect(shallowRender().type()).toBeNull();
+});
+
+it('should render correctly', async () => {
+  (defaultLoadIssues as jest.Mock).mockResolvedValueOnce([mockIssue()]);
+  (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
+  (getComponentData as jest.Mock).mockResolvedValueOnce({
+    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
+  });
+  (getSources as jest.Mock).mockResolvedValueOnce([]);
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should use load props if provided', () => {
+  const loadComponent = jest.fn().mockResolvedValue({});
+  const loadIssues = jest.fn().mockResolvedValue([]);
+  const loadSources = jest.fn().mockResolvedValue([]);
+  const wrapper = shallowRender({
+    loadComponent,
+    loadIssues,
+    loadSources
+  });
+
+  expect(wrapper.instance().loadComponent).toBe(loadComponent);
+});
+
+it('should reload', async () => {
+  (defaultLoadIssues as jest.Mock)
+    .mockResolvedValueOnce([mockIssue()])
+    .mockResolvedValueOnce([mockIssue()]);
+  (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
+  (getComponentData as jest.Mock).mockResolvedValueOnce({
+    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
+  });
+  (getSources as jest.Mock).mockResolvedValueOnce([mockSourceLine()]);
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().reloadIssues();
+
+  expect(defaultLoadIssues).toBeCalledTimes(2);
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().issues).toHaveLength(1);
+});
+
+it('should load sources before', async () => {
+  (defaultLoadIssues as jest.Mock)
+    .mockResolvedValueOnce([mockIssue(false, { key: 'issue1' })])
+    .mockResolvedValueOnce([mockIssue(false, { key: 'issue2' })]);
+  (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
+  (getComponentData as jest.Mock).mockResolvedValueOnce({
+    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
+  });
+  (getSources as jest.Mock)
+    .mockResolvedValueOnce([mockSourceLine()])
+    .mockResolvedValueOnce([mockSourceLine()]);
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().loadSourcesBefore();
+  expect(wrapper.state().loadingSourcesBefore).toBe(true);
+
+  expect(defaultLoadIssues).toBeCalledTimes(2);
+  expect(getSources).toBeCalledTimes(2);
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().loadingSourcesBefore).toBe(false);
+  expect(wrapper.state().issues).toHaveLength(2);
+});
+
+it('should load sources after', async () => {
+  (defaultLoadIssues as jest.Mock)
+    .mockResolvedValueOnce([mockIssue(false, { key: 'issue1' })])
+    .mockResolvedValueOnce([mockIssue(false, { key: 'issue2' })]);
+  (getComponentForSourceViewer as jest.Mock).mockResolvedValueOnce(mockSourceViewerFile());
+  (getComponentData as jest.Mock).mockResolvedValueOnce({
+    component: { leakPeriodDate: '2018-06-20T17:12:19+0200' }
+  });
+  (getSources as jest.Mock)
+    .mockResolvedValueOnce([mockSourceLine()])
+    .mockResolvedValueOnce([mockSourceLine()]);
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().loadSourcesAfter();
+  expect(wrapper.state().loadingSourcesAfter).toBe(true);
+
+  expect(defaultLoadIssues).toBeCalledTimes(2);
+  expect(getSources).toBeCalledTimes(2);
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().loadingSourcesAfter).toBe(false);
+  expect(wrapper.state().issues).toHaveLength(2);
+});
+
+function shallowRender(overrides: Partial<SourceViewerBase['props']> = {}) {
+  return shallow<SourceViewerBase>(
+    <SourceViewerBase branchLike={mockMainBranch()} component="my-component" {...overrides} />
+  );
 }

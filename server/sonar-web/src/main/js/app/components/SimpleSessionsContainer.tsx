@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import GlobalFooterContainer from './GlobalFooterContainer';
 
-const PageTracker = lazyLoad(() => import('./PageTracker'));
+const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
 
 interface Props {
   children?: React.ReactNode;

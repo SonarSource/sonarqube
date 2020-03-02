@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import NavBar from 'sonar-ui-common/components/ui/NavBar';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import {
@@ -47,12 +47,12 @@ import GlobalNavExplore from './GlobalNavExplore';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 
-const GlobalNavPlus = lazyLoad(() => import('./GlobalNavPlus'), 'GlobalNavPlus');
-const NotificationsSidebar = lazyLoad(
+const GlobalNavPlus = lazyLoadComponent(() => import('./GlobalNavPlus'), 'GlobalNavPlus');
+const NotificationsSidebar = lazyLoadComponent(
   () => import('../../notifications/NotificationsSidebar'),
   'NotificationsSidebar'
 );
-const NavLatestNotification = lazyLoad(
+const NavLatestNotification = lazyLoadComponent(
   () => import('../../notifications/NavLatestNotification'),
   'NavLatestNotification'
 );

@@ -30,7 +30,7 @@ exports[`should render 1`] = `
       }
     />
   </Alert>
-  <LazyLoader
+  <AnalysisWarningsModal
     onClose={[Function]}
     warnings={
       Array [

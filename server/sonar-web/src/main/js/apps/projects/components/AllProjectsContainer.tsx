@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { areThereCustomOrganizations, getCurrentUser, Store } from '../../../store/rootReducer';
 
 const stateToProps = (state: Store) => ({
@@ -26,4 +26,4 @@ const stateToProps = (state: Store) => ({
   organizationsEnabled: areThereCustomOrganizations(state)
 });
 
-export default connect(stateToProps)(lazyLoad(() => import('./AllProjects')));
+export default connect(stateToProps)(lazyLoadComponent(() => import('./AllProjects')));

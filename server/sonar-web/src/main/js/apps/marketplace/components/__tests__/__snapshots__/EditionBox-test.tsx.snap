@@ -4,7 +4,7 @@ exports[`should display the edition 1`] = `
 <div
   className="boxed-group boxed-group-inner marketplace-edition"
 >
-  <LazyLoader />
+  <DocMarkdownBlock />
   <div
     className="marketplace-edition-action spacer-top"
   >

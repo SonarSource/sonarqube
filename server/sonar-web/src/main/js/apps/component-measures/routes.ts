@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RedirectFunction, RouterState } from 'react-router';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 
 const routes = [
   {
-    indexRoute: { component: lazyLoad(() => import('./components/App')) }
+    indexRoute: { component: lazyLoadComponent(() => import('./components/App')) }
   },
   {
     path: 'domain/:domainName',

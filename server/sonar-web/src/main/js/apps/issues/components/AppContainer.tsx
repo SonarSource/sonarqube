@@ -20,18 +20,22 @@
 import { uniq } from 'lodash';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { searchIssues } from '../../../api/issues';
 import { getOrganizations } from '../../../api/organizations';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
+import { withRouter } from '../../../components/hoc/withRouter';
 import { parseIssueFromResponse } from '../../../helpers/issues';
 import { receiveOrganizations } from '../../../store/organizations';
+import { fetchBranchStatus } from '../../../store/rootActions';
 import {
   areThereCustomOrganizations,
   getCurrentUser,
   getMyOrganizations,
   Store
 } from '../../../store/rootReducer';
+
+const IssuesAppContainer = lazyLoadComponent(() => import('./App'), 'IssuesAppContainer');
 
 interface StateProps {
   currentUser: T.CurrentUser;
@@ -79,14 +83,10 @@ const fetchIssues = (query: T.RawQuery, requestOrganizations = true) => (
     .catch(throwGlobalError);
 };
 
-interface DispatchProps {
-  fetchIssues: (query: T.RawQuery, requestOrganizations?: boolean) => Promise<void>;
-}
-
 // have to type cast this, because of async action
-const mapDispatchToProps = { fetchIssues: fetchIssues as any } as DispatchProps;
+const mapDispatchToProps = {
+  fetchBranchStatus: fetchBranchStatus as any,
+  fetchIssues: fetchIssues as any
+};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(lazyLoad(() => import('./App'), 'IssuesAppContainer'));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(IssuesAppContainer));

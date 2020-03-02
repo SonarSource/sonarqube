@@ -19,16 +19,22 @@
  */
 import { omit, uniqBy } from 'lodash';
 import * as React from 'react';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { get, save } from 'sonar-ui-common/helpers/storage';
 import { ComponentDescriptor, RuleDescriptor, WorkspaceContext } from './context';
 import './styles.css';
 import WorkspacePortal from './WorkspacePortal';
 
 const WORKSPACE = 'sonarqube-workspace';
-const WorkspaceNav = lazyLoad(() => import('./WorkspaceNav'));
-const WorkspaceRuleViewer = lazyLoad(() => import('./WorkspaceRuleViewer'));
-const WorkspaceComponentViewer = lazyLoad(() => import('./WorkspaceComponentViewer'));
+const WorkspaceNav = lazyLoadComponent(() => import('./WorkspaceNav'), 'WorkspaceNav');
+const WorkspaceRuleViewer = lazyLoadComponent(
+  () => import('./WorkspaceRuleViewer'),
+  'WorkspaceRuleViewer'
+);
+const WorkspaceComponentViewer = lazyLoadComponent(
+  () => import('./WorkspaceComponentViewer'),
+  'WorkspaceComponentViewer'
+);
 
 interface State {
   components: ComponentDescriptor[];

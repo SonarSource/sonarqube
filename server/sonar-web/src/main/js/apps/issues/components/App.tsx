@@ -22,7 +22,6 @@ import { debounce, keyBy, omit, without } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
-import { connect } from 'react-redux';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
@@ -41,7 +40,7 @@ import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import EmptySearch from '../../../components/common/EmptySearch';
 import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
+import { Location, Router } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
 import {
   fillBranchLike,
@@ -50,7 +49,6 @@ import {
   isSameBranchLike
 } from '../../../helpers/branch-like';
 import { isSonarCloud } from '../../../helpers/system';
-import { fetchBranchStatus } from '../../../store/rootActions';
 import { BranchLike } from '../../../types/branch-like';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
@@ -104,10 +102,10 @@ interface Props {
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   fetchIssues: (query: T.RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
   hideAuthorFacet?: boolean;
-  location: Pick<Location, 'pathname' | 'query'>;
+  location: Location;
   multiOrganizations?: boolean;
   myIssues?: boolean;
-  onBranchesChange: () => void;
+  onBranchesChange?: () => void;
   organization?: { key: string };
   router: Pick<Router, 'push' | 'replace'>;
   userOrganizations: T.Organization[];
@@ -144,7 +142,7 @@ export interface State {
 const DEFAULT_QUERY = { resolved: 'false' };
 const MAX_INITAL_FETCH = 1000;
 
-export class App extends React.PureComponent<Props, State> {
+export default class App extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -539,13 +537,13 @@ export class App extends React.PureComponent<Props, State> {
     const { paging } = this.state;
 
     if (!paging) {
-      return;
+      return Promise.reject();
     }
 
     const p = paging.pageIndex + 1;
 
     this.setState({ checkAll: false, loadingMore: true });
-    this.fetchIssuesPage(p).then(
+    return this.fetchIssuesPage(p).then(
       response => {
         if (this.mounted) {
           this.setState(state => ({
@@ -825,8 +823,9 @@ export class App extends React.PureComponent<Props, State> {
   handleReload = () => {
     this.fetchFirstIssues();
     this.refreshBranchStatus();
-    if (isPullRequest(this.props.branchLike)) {
-      this.props.onBranchesChange();
+    const { branchLike, onBranchesChange } = this.props;
+    if (onBranchesChange && isPullRequest(branchLike)) {
+      onBranchesChange();
     }
   };
 
@@ -1180,7 +1179,3 @@ export class App extends React.PureComponent<Props, State> {
     );
   }
 }
-
-const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
-
-export default withRouter(connect(null, mapDispatchToProps)(App));

@@ -20,7 +20,7 @@
 import * as differenceInDays from 'date-fns/difference_in_days';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { hasMessage } from 'sonar-ui-common/helpers/l10n';
 import { get, save } from 'sonar-ui-common/helpers/storage';
@@ -33,8 +33,10 @@ import { skipOnboarding } from '../../store/users';
 import { EditionKey } from '../../types/editions';
 import { OnboardingContext } from './OnboardingContext';
 
-const OnboardingModal = lazyLoad(() => import('../../apps/tutorials/onboarding/OnboardingModal'));
-const LicensePromptModal = lazyLoad(
+const OnboardingModal = lazyLoadComponent(() =>
+  import('../../apps/tutorials/onboarding/OnboardingModal')
+);
+const LicensePromptModal = lazyLoadComponent(
   () => import('../../apps/marketplace/components/LicensePromptModal'),
   'LicensePromptModal'
 );

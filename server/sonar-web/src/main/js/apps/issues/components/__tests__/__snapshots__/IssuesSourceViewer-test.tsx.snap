@@ -11,11 +11,6 @@ exports[`should render CrossComponentSourceViewer correctly 1`] = `
         "name": "master",
       }
     }
-    components={
-      Array [
-        "main.js",
-      ]
-    }
     issue={
       Object {
         "actions": Array [],

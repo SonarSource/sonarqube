@@ -26,7 +26,6 @@ import { HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
 import { IndexRoute, Redirect, Route, RouteConfig, RouteProps, Router } from 'react-router';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { ThemeProvider } from 'sonar-ui-common/components/theme';
 import getHistory from 'sonar-ui-common/helpers/getHistory';
@@ -44,7 +43,6 @@ import ExploreIssues from '../../apps/explore/ExploreIssues';
 import ExploreProjects from '../../apps/explore/ExploreProjects';
 import groupsRoutes from '../../apps/groups/routes';
 import Issues from '../../apps/issues/components/AppContainer';
-import IssuesPageSelector from '../../apps/issues/IssuesPageSelector';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import marketplaceRoutes from '../../apps/marketplace/routes';
 import organizationsRoutes from '../../apps/organizations/routes';
@@ -151,7 +149,7 @@ function renderRedirects() {
 
 function renderComponentRoutes() {
   return (
-    <Route component={lazyLoad(() => import('../components/ComponentContainer'))}>
+    <Route component={lazyLoadComponent(() => import('../components/ComponentContainer'))}>
       <RouteWithChildRoutes path="code" childRoutes={codeRoutes} />
       <RouteWithChildRoutes path="component_measures" childRoutes={componentMeasuresRoutes} />
       <RouteWithChildRoutes path="dashboard" childRoutes={overviewRoutes} />
@@ -159,7 +157,7 @@ function renderComponentRoutes() {
       <RouteWithChildRoutes path="project/activity" childRoutes={projectActivityRoutes} />
       <Route
         path="project/extension/:pluginKey/:extensionKey"
-        component={lazyLoad(() => import('../components/extensions/ProjectPageExtension'))}
+        component={lazyLoadComponent(() => import('../components/extensions/ProjectPageExtension'))}
       />
       <Route
         path="project/issues"
@@ -191,11 +189,13 @@ function renderComponentRoutes() {
         path="project/quality_profiles"
         childRoutes={projectQualityProfilesRoutes}
       />
-      <Route component={lazyLoad(() => import('../components/ProjectAdminContainer'))}>
+      <Route component={lazyLoadComponent(() => import('../components/ProjectAdminContainer'))}>
         <RouteWithChildRoutes path="custom_measures" childRoutes={customMeasuresRoutes} />
         <Route
           path="project/admin/extension/:pluginKey/:extensionKey"
-          component={lazyLoad(() => import('../components/extensions/ProjectAdminPageExtension'))}
+          component={lazyLoadComponent(() =>
+            import('../components/extensions/ProjectAdminPageExtension')
+          )}
         />
         <RouteWithChildRoutes path="project/background_tasks" childRoutes={backgroundTasksRoutes} />
         <RouteWithChildRoutes path="project/baseline" childRoutes={projectBaselineRoutes} />
@@ -205,13 +205,16 @@ function renderComponentRoutes() {
         <RouteWithChildRoutes path="project/webhooks" childRoutes={webhooksRoutes} />
         <Route
           path="project/deletion"
-          component={lazyLoad(() => import('../../apps/projectDeletion/App'))}
+          component={lazyLoadComponent(() => import('../../apps/projectDeletion/App'))}
         />
         <Route
           path="project/links"
-          component={lazyLoad(() => import('../../apps/projectLinks/App'))}
+          component={lazyLoadComponent(() => import('../../apps/projectLinks/App'))}
         />
-        <Route path="project/key" component={lazyLoad(() => import('../../apps/projectKey/Key'))} />
+        <Route
+          path="project/key"
+          component={lazyLoadComponent(() => import('../../apps/projectKey/Key'))}
+        />
       </Route>
     </Route>
   );
@@ -219,10 +222,12 @@ function renderComponentRoutes() {
 
 function renderAdminRoutes() {
   return (
-    <Route component={lazyLoad(() => import('../components/AdminContainer'))} path="admin">
+    <Route component={lazyLoadComponent(() => import('../components/AdminContainer'))} path="admin">
       <Route
         path="extension/:pluginKey/:extensionKey"
-        component={lazyLoad(() => import('../components/extensions/GlobalAdminPageExtension'))}
+        component={lazyLoadComponent(() =>
+          import('../components/extensions/GlobalAdminPageExtension')
+        )}
       />
       <RouteWithChildRoutes path="background_tasks" childRoutes={backgroundTasksRoutes} />
       <RouteWithChildRoutes path="custom_metrics" childRoutes={customMetricsRoutes} />
@@ -259,21 +264,26 @@ export default function startReactApp(
 
               <Route
                 path="markdown/help"
-                component={lazyLoad(() => import('../components/MarkdownHelp'))}
+                component={lazyLoadComponent(() => import('../components/MarkdownHelp'))}
               />
 
-              <Route component={lazyLoad(() => import('../components/SimpleContainer'))}>
+              <Route component={lazyLoadComponent(() => import('../components/SimpleContainer'))}>
                 <Route path="maintenance">{maintenanceRoutes}</Route>
                 <Route path="setup">{setupRoutes}</Route>
               </Route>
 
               <Route component={MigrationContainer}>
-                <Route component={lazyLoad(() => import('../components/SimpleSessionsContainer'))}>
+                <Route
+                  component={lazyLoadComponent(() =>
+                    import('../components/SimpleSessionsContainer')
+                  )}>
                   <RouteWithChildRoutes path="/sessions" childRoutes={sessionsRoutes} />
                 </Route>
 
                 <Route path="/" component={App}>
-                  <IndexRoute component={lazyLoad(() => import('../components/Landing'))} />
+                  <IndexRoute
+                    component={lazyLoadComponent(() => import('../components/Landing'))}
+                  />
                   <RouteWithChildRoutes path="about" childRoutes={aboutRoutes} />
 
                   <Route component={GlobalContainer}>
@@ -286,18 +296,20 @@ export default function startReactApp(
                     </Route>
                     <Route
                       path="extension/:pluginKey/:extensionKey"
-                      component={lazyLoad(() =>
+                      component={lazyLoadComponent(() =>
                         import('../components/extensions/GlobalPageExtension')
                       )}
                     />
-                    <Route path="issues" component={IssuesPageSelector} />
+                    <Route path="issues" component={Issues} />
                     <RouteWithChildRoutes path="onboarding" childRoutes={onboardingRoutes} />
                     <RouteWithChildRoutes path="organizations" childRoutes={organizationsRoutes} />
                     <RouteWithChildRoutes path="projects" childRoutes={projectsRoutes} />
                     <RouteWithChildRoutes path="quality_gates" childRoutes={qualityGatesRoutes} />
                     <Route
                       path="portfolios"
-                      component={lazyLoad(() => import('../components/extensions/PortfoliosPage'))}
+                      component={lazyLoadComponent(() =>
+                        import('../components/extensions/PortfoliosPage')
+                      )}
                     />
                     <RouteWithChildRoutes path="profiles" childRoutes={qualityProfilesRoutes} />
                     <RouteWithChildRoutes path="web_api" childRoutes={webAPIRoutes} />
@@ -308,9 +320,12 @@ export default function startReactApp(
                   </Route>
                   <Route
                     path="not_found"
-                    component={lazyLoad(() => import('../components/NotFound'))}
+                    component={lazyLoadComponent(() => import('../components/NotFound'))}
                   />
-                  <Route path="*" component={lazyLoad(() => import('../components/NotFound'))} />
+                  <Route
+                    path="*"
+                    component={lazyLoadComponent(() => import('../components/NotFound'))}
+                  />
                 </Route>
               </Route>
             </Router>

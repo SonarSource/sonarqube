@@ -200,4 +200,4 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
   }
 }
 
-export default withRouter(GlobalNavPlus);
+export default withRouter<Props>(GlobalNavPlus);

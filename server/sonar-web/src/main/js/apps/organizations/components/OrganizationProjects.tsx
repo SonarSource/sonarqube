@@ -29,11 +29,7 @@ interface Props {
 export default function OrganizationProjects(props: Props) {
   return (
     <>
-      <AllProjectsContainer
-        isFavorite={false}
-        location={props.location}
-        organization={props.organization}
-      />
+      <AllProjectsContainer isFavorite={false} organization={props.organization} />
       <Suggestions suggestions="organization_projects" />
     </>
   );

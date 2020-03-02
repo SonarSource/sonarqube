@@ -41,14 +41,22 @@ import { IssueType, MeasurementType, PR_METRICS } from '../utils';
 import AfterMergeEstimate from './AfterMergeEstimate';
 import LargeQualityGateBadge from './LargeQualityGateBadge';
 
-interface Props {
-  branchLike: PullRequest;
-  component: T.Component;
+interface StateProps {
   conditions?: QualityGateStatusCondition[];
-  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   ignoredConditions?: boolean;
   status?: T.Status;
 }
+
+interface DispatchProps {
+  fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
+}
+
+interface OwnProps {
+  branchLike: PullRequest;
+  component: T.Component;
+}
+
+type Props = StateProps & DispatchProps & OwnProps;
 
 interface State {
   loading: boolean;
@@ -244,4 +252,7 @@ const mapStateToProps = (state: Store, { branchLike, component }: Props) => {
 
 const mapDispatchToProps = { fetchBranchStatus: fetchBranchStatus as any };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PullRequestOverview);
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(PullRequestOverview);

@@ -22,13 +22,13 @@ import ActionsDropdown, {
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { STATUSES } from '../constants';
 import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';
 
-const AnalysisWarningsModal = lazyLoad(
+const AnalysisWarningsModal = lazyLoadComponent(
   () => import('../../../components/common/AnalysisWarningsModal'),
   'AnalysisWarningsModal'
 );

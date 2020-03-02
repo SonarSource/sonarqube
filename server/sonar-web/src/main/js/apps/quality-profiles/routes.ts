@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 
 const routes = [
   {
-    component: lazyLoad(() => import('./components/AppContainer')),
-    indexRoute: { component: lazyLoad(() => import('./home/HomeContainer')) },
+    component: lazyLoadComponent(() => import('./components/AppContainer')),
+    indexRoute: { component: lazyLoadComponent(() => import('./home/HomeContainer')) },
     childRoutes: [
       {
-        component: lazyLoad(() => import('./components/ProfileContainer')),
+        component: lazyLoadComponent(() => import('./components/ProfileContainer')),
         childRoutes: [
           {
             path: 'show',
-            component: lazyLoad(() => import('./details/ProfileDetails'))
+            component: lazyLoadComponent(() => import('./details/ProfileDetails'))
           },
           {
             path: 'changelog',
-            component: lazyLoad(() => import('./changelog/ChangelogContainer'))
+            component: lazyLoadComponent(() => import('./changelog/ChangelogContainer'))
           },
           {
             path: 'compare',
-            component: lazyLoad(() => import('./compare/ComparisonContainer'))
+            component: lazyLoadComponent(() => import('./compare/ComparisonContainer'))
           }
         ]
       }

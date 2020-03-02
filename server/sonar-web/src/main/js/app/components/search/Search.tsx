@@ -26,7 +26,7 @@ import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
 import OutsideClickHandler from 'sonar-ui-common/components/controls/OutsideClickHandler';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import ClockIcon from 'sonar-ui-common/components/icons/ClockIcon';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
@@ -36,8 +36,8 @@ import RecentHistory from '../RecentHistory';
 import './Search.css';
 import { ComponentResult, More, Results, sortQualifiers } from './utils';
 
-const SearchResults = lazyLoad(() => import('./SearchResults'));
-const SearchResult = lazyLoad(() => import('./SearchResult'));
+const SearchResults = lazyLoadComponent(() => import('./SearchResults'));
+const SearchResult = lazyLoadComponent(() => import('./SearchResult'));
 
 interface OwnProps {
   appState: Pick<T.AppState, 'organizationsEnabled'>;

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { isPullRequest } from '../../../helpers/branch-like';
@@ -26,8 +26,8 @@ import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import BranchOverview from '../branches/BranchOverview';
 
-const EmptyOverview = lazyLoad(() => import('./EmptyOverview'));
-const PullRequestOverview = lazyLoad(() => import('../pullRequests/PullRequestOverview'));
+const EmptyOverview = lazyLoadComponent(() => import('./EmptyOverview'));
+const PullRequestOverview = lazyLoadComponent(() => import('../pullRequests/PullRequestOverview'));
 
 interface Props {
   branchLike?: BranchLike;

@@ -8,7 +8,7 @@ exports[`should render 2`] = `
     <div
       className="abs-width-300"
     >
-      <LazyLoader
+      <DocMarkdownBlock
         className="cut-margins"
         content="this is *bold* text"
         isTooltip={true}

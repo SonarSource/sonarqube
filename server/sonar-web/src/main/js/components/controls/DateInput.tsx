@@ -32,7 +32,7 @@ import Select from 'sonar-ui-common/components/controls/Select';
 import CalendarIcon from 'sonar-ui-common/components/icons/CalendarIcon';
 import ChevronLeftIcon from 'sonar-ui-common/components/icons/ChevronLeftIcon';
 import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import {
   getShortMonthName,
   getShortWeekDayName,
@@ -41,7 +41,7 @@ import {
 import './DayPicker.css';
 import './styles.css';
 
-const DayPicker = lazyLoad(() => import('react-day-picker'));
+const DayPicker = lazyLoadComponent(() => import('react-day-picker'), 'DayPicker');
 
 interface Props {
   className?: string;

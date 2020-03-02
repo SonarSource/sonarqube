@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { uniq } from 'lodash';
 import * as React from 'react';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
@@ -91,12 +90,10 @@ export default class IssuesSourceViewer extends React.PureComponent<Props> {
         : undefined;
 
     if (locations.length > 0) {
-      const components = uniq(locations.map(l => l.component));
       return (
         <div ref={node => (this.node = node)}>
           <CrossComponentSourceViewer
             branchLike={this.props.branchLike}
-            components={components}
             highlightedLocationMessage={highlightedLocationMessage}
             issue={openIssue}
             issues={this.props.issues}

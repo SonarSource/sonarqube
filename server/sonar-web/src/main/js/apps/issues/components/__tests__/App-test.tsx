@@ -38,7 +38,7 @@ import {
   selectPreviousFlow,
   selectPreviousLocation
 } from '../../actions';
-import { App } from '../App';
+import App from '../App';
 
 jest.mock('sonar-ui-common/helpers/handleRequiredAuthentication', () => ({
   default: jest.fn()
@@ -90,7 +90,7 @@ it('should not render for anonymous user', () => {
 
 it('should open standard facets for vulnerabilities and hotspots', () => {
   const wrapper = shallowRender({
-    location: { pathname: '/issues', query: { types: 'VULNERABILITY' } }
+    location: mockLocation({ pathname: '/issues', query: { types: 'VULNERABILITY' } })
   });
   const instance = wrapper.instance();
   const fetchFacet = jest.spyOn(instance, 'fetchFacet');
@@ -420,7 +420,7 @@ function shallowRender(props: Partial<App['props']> = {}) {
         rules: [],
         users: []
       })}
-      location={{ pathname: '/issues', query: {} }}
+      location={mockLocation({ pathname: '/issues', query: {} })}
       onBranchesChange={() => {}}
       organization={{ key: 'foo' }}
       router={mockRouter()}

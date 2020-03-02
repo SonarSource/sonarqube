@@ -17,30 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 
 const routes = [
   {
-    component: lazyLoad(() => import('./components/Account')),
+    component: lazyLoadComponent(() => import('./components/Account')),
     childRoutes: [
       {
-        indexRoute: { component: lazyLoad(() => import('./profile/Profile')) }
+        indexRoute: { component: lazyLoadComponent(() => import('./profile/Profile')) }
       },
       {
         path: 'security',
-        component: lazyLoad(() => import('./components/Security'))
+        component: lazyLoadComponent(() => import('./components/Security'))
       },
       {
         path: 'projects',
-        component: lazyLoad(() => import('./projects/ProjectsContainer'))
+        component: lazyLoadComponent(() => import('./projects/ProjectsContainer'))
       },
       {
         path: 'notifications',
-        component: lazyLoad(() => import('./notifications/Notifications'))
+        component: lazyLoadComponent(() => import('./notifications/Notifications'))
       },
       {
         path: 'organizations',
-        component: lazyLoad(() => import('./organizations/UserOrganizations'))
+        component: lazyLoadComponent(() => import('./organizations/UserOrganizations'))
       }
     ]
   }

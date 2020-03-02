@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
-import { isSonarCloud } from '../../helpers/system';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 
 const routes = [
   {
     indexRoute: {
-      component: lazyLoad(() =>
-        isSonarCloud() ? import('./onboarding/OnboardingPage') : import('./ProjectOnboardingPage')
-      )
+      component: lazyLoadComponent(() => import('./ProjectOnboardingPage'))
     }
   }
 ];

@@ -19,14 +19,14 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { lazyLoad } from 'sonar-ui-common/components/lazyLoad';
+import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
 import { isSonarCloud } from '../../helpers/system';
 import { isLoggedIn } from '../../helpers/users';
 import { fetchLanguages } from '../../store/rootActions';
 import { getAppState, getCurrentUser, getGlobalSettingValue, Store } from '../../store/rootReducer';
 
-const PageTracker = lazyLoad(() => import('./PageTracker'));
+const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
 
 interface StateProps {
   appState: T.AppState | undefined;
