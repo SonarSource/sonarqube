@@ -19,9 +19,16 @@
  */
 package org.sonar.scanner.ci.vendors;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import javax.annotation.Nullable;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.ZipUtils;
 import org.sonar.scanner.ci.CiVendor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +37,11 @@ import static org.mockito.Mockito.when;
 
 public class JenkinsTest {
   private System2 system = mock(System2.class);
-  private CiVendor underTest = new Jenkins(system);
+  private DefaultInputProject project = mock(DefaultInputProject.class);
+  private CiVendor underTest = new Jenkins(system, project);
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void getName() {
@@ -54,7 +65,6 @@ public class JenkinsTest {
 
   @Test
   public void loadConfiguration_with_deprecated_pull_request_plugin() {
-    setEnvVariable("CI", "true");
     setEnvVariable("ghprbActualCommit", "abd12fc");
 
     assertThat(underTest.loadConfiguration().getScmRevision()).hasValue("abd12fc");
@@ -62,15 +72,41 @@ public class JenkinsTest {
 
   @Test
   public void loadConfiguration_of_git_repo() {
-    setEnvVariable("CI", "true");
     setEnvVariable("GIT_COMMIT", "abd12fc");
 
     assertThat(underTest.loadConfiguration().getScmRevision()).hasValue("abd12fc");
   }
 
   @Test
+  public void loadConfiguration_of_git_repo_with_branch_plugin() throws IOException {
+    // prepare fake git clone
+    Path baseDir = temp.newFolder().toPath();
+    File unzip = ZipUtils.unzip(this.getClass().getResourceAsStream("gitrepo.zip"), baseDir.toFile());
+    when(project.getBaseDir()).thenReturn(unzip.toPath().resolve("gitrepo"));
+
+    setEnvVariable("CHANGE_ID", "3");
+    setEnvVariable("GIT_BRANCH", "PR-3");
+    // this will be ignored
+    setEnvVariable("GIT_COMMIT", "abd12fc");
+
+    assertThat(underTest.loadConfiguration().getScmRevision()).hasValue("e6013986eff4f0ce0a85f5d070070e7fdabead48");
+  }
+
+  @Test
+  public void loadConfiguration_of_git_repo_with_branch_plugin_without_git_repo() throws IOException {
+    // prepare fake git clone
+    Path baseDir = temp.newFolder().toPath();
+    when(project.getBaseDir()).thenReturn(baseDir);
+
+    setEnvVariable("CHANGE_ID", "3");
+    setEnvVariable("GIT_BRANCH", "PR-3");
+    setEnvVariable("GIT_COMMIT", "abc");
+
+    assertThat(underTest.loadConfiguration().getScmRevision()).hasValue("abc");
+  }
+
+  @Test
   public void loadConfiguration_of_svn_repo() {
-    setEnvVariable("CI", "true");
     setEnvVariable("SVN_COMMIT", "abd12fc");
 
     assertThat(underTest.loadConfiguration().getScmRevision()).hasValue("abd12fc");
