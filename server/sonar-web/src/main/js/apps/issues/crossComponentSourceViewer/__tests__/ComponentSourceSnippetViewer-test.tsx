@@ -168,6 +168,8 @@ it('should handle symbol highlighting', () => {
   expect(wrapper.state('highlightedSymbols')).toEqual([]);
   wrapper.instance().handleSymbolClick(['foo']);
   expect(wrapper.state('highlightedSymbols')).toEqual(['foo']);
+  wrapper.instance().handleSymbolClick(['foo']);
+  expect(wrapper.state('highlightedSymbols')).toEqual([]);
 });
 
 it('should correctly handle lines actions', () => {

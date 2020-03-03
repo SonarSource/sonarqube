@@ -290,8 +290,13 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
     }));
   };
 
-  handleSymbolClick = (highlightedSymbols: string[]) => {
-    this.setState({ highlightedSymbols });
+  handleSymbolClick = (clickedSymbols: string[]) => {
+    this.setState(({ highlightedSymbols }) => {
+      const newHighlightedSymbols = clickedSymbols.filter(
+        symb => !highlightedSymbols.includes(symb)
+      );
+      return { highlightedSymbols: newHighlightedSymbols };
+    });
   };
 
   loadDuplications = (line: T.SourceLine) => {
