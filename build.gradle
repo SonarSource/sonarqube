@@ -14,7 +14,6 @@ buildscript {
     classpath 'io.spring.gradle:dependency-management-plugin:1.0.9.RELEASE'
     classpath 'net.rdrei.android.buildtimetracker:gradle-plugin:0.11.1'
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.10.0'
-    classpath 'org.owasp:dependency-check-gradle:5.2.2'
     classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8'
   }
 }
@@ -91,7 +90,6 @@ subprojects {
   apply plugin: 'jacoco'
   apply plugin: 'java'
   apply plugin: 'idea'
-  apply plugin: 'org.owasp.dependencycheck'
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
