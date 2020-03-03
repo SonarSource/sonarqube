@@ -6,7 +6,7 @@ buildscript {
   }
   dependencies {
     // Ordered alphabeticly to avoid duplication
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.27.0'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.28.0'
     classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
     classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.10'
     classpath 'com.moowork.gradle:gradle-node-plugin:1.3.1'
