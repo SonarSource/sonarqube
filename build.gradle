@@ -180,8 +180,10 @@ subprojects {
       }
       dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
       dependency 'com.github.kevinsawicki:http-request:5.4.1'
-      dependency 'com.github.scribejava:scribejava-core:6.8.1'
-      dependency 'com.github.scribejava:scribejava-apis:6.8.1'
+      dependencySet(group: 'com.github.scribejava', version: '6.9.0') {
+        entry 'scribejava-apis'
+        entry 'scribejava-core'
+      }
       dependency 'com.googlecode.java-diff-utils:diffutils:1.2'
       dependency('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude 'junit:junit'
