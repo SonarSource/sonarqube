@@ -30,7 +30,6 @@ import java.util.Properties;
 import javax.sql.DataSource;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbcp2.BasicDataSourceFactory;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
@@ -118,7 +117,7 @@ public class DefaultDatabase implements Database {
     } catch (SQLException e) {
       throw new IllegalStateException("Can not connect to database. Please check connectivity and settings (see the properties prefixed by 'sonar.jdbc.').", e);
     } finally {
-      DbUtils.closeQuietly(connection);
+      DatabaseUtils.closeQuietly(connection);
     }
   }
 

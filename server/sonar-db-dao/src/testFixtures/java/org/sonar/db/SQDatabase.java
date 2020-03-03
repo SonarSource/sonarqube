@@ -24,7 +24,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import javax.sql.DataSource;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.output.NullWriter;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -97,7 +96,7 @@ public class SQDatabase extends DefaultDatabase {
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to create schema", e);
     } finally {
-      DbUtils.closeQuietly(connection);
+      DatabaseUtils.closeQuietly(connection);
     }
   }
 

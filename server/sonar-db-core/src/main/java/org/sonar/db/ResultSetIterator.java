@@ -25,7 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.apache.commons.dbutils.DbUtils;
 
 /**
  * Forward-only {@link java.util.Iterator} over a {@link java.sql.ResultSet}. Rows are
@@ -98,8 +97,8 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
   @Override
   public void close() {
     closed = true;
-    DbUtils.closeQuietly(rs);
-    DbUtils.closeQuietly(stmt);
+    DatabaseUtils.closeQuietly(rs);
+    DatabaseUtils.closeQuietly(stmt);
   }
 
   protected abstract E read(ResultSet rs) throws SQLException;

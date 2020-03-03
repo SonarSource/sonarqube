@@ -25,8 +25,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 
 public class SelectImpl extends BaseSqlStatement<Select> implements Select {
 
@@ -47,7 +47,7 @@ public class SelectImpl extends BaseSqlStatement<Select> implements Select {
     } catch (Exception e) {
       throw newExceptionWithRowDetails(row, e);
     } finally {
-      DbUtils.closeQuietly(rs);
+      DatabaseUtils.closeQuietly(rs);
       close();
     }
   }
@@ -64,7 +64,7 @@ public class SelectImpl extends BaseSqlStatement<Select> implements Select {
     } catch (Exception e) {
       throw newExceptionWithRowDetails(row, e);
     } finally {
-      DbUtils.closeQuietly(rs);
+      DatabaseUtils.closeQuietly(rs);
       close();
     }
   }
@@ -80,7 +80,7 @@ public class SelectImpl extends BaseSqlStatement<Select> implements Select {
     } catch (Exception e) {
       throw newExceptionWithRowDetails(row, e);
     } finally {
-      DbUtils.closeQuietly(rs);
+      DatabaseUtils.closeQuietly(rs);
       close();
     }
   }

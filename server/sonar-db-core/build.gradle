@@ -10,7 +10,6 @@ dependencies {
   compile 'ch.qos.logback:logback-classic'
   compile 'ch.qos.logback:logback-core'
   compile 'com.google.guava:guava'
-  compile 'commons-dbutils:commons-dbutils'
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
   compile 'org.apache.commons:commons-dbcp2'
@@ -37,6 +36,7 @@ dependencies {
   testRuntime 'com.oracle.jdbc:ojdbc8'
   testRuntime 'org.postgresql:postgresql'
 
+  testFixturesApi 'commons-dbutils:commons-dbutils'
   testFixturesApi 'junit:junit'
   testFixturesApi 'org.assertj:assertj-core'
 

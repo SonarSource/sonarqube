@@ -30,10 +30,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.toUniqueAndSortedPartitions;
@@ -73,7 +73,9 @@ public class FileSourceDao implements Dao {
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to read FILE_SOURCES.LINE_HASHES of file " + fileUuid, e);
     } finally {
-      DbUtils.closeQuietly(connection, pstmt, rs);
+      DatabaseUtils.closeQuietly(rs);
+      DatabaseUtils.closeQuietly(pstmt);
+      DatabaseUtils.closeQuietly(connection);
     }
   }
 
@@ -106,7 +108,9 @@ public class FileSourceDao implements Dao {
       throw new IllegalStateException("Fail to read FILE_SOURCES.LINE_HASHES of file " + fileUuid, e);
     } finally {
       IOUtils.closeQuietly(reader);
-      DbUtils.closeQuietly(connection, pstmt, rs);
+      DatabaseUtils.closeQuietly(rs);
+      DatabaseUtils.closeQuietly(pstmt);
+      DatabaseUtils.closeQuietly(connection);
     }
   }
 

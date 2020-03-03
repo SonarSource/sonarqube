@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 import javax.annotation.Nullable;
-import org.apache.commons.dbutils.DbUtils;
+import org.sonar.db.DatabaseUtils;
 
 class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD> {
   protected PreparedStatement pstmt;
@@ -36,7 +36,7 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
 
   @Override
   public void close() {
-    DbUtils.closeQuietly(pstmt);
+    DatabaseUtils.closeQuietly(pstmt);
     pstmt = null;
   }
 

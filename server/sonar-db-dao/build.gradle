@@ -9,7 +9,6 @@ dependencies {
 
   compile 'com.google.guava:guava'
   compile 'com.google.protobuf:protobuf-java'
-  compile 'commons-dbutils:commons-dbutils'
   compile 'commons-io:commons-io'
   compile 'commons-lang:commons-lang'
   compile 'net.jpountz.lz4:lz4'
@@ -23,6 +22,7 @@ dependencies {
   compileOnly 'com.google.code.findbugs:jsr305'
 
   testCompile 'com.tngtech.java:junit-dataprovider'
+  testCompile 'commons-dbutils:commons-dbutils'
   testCompile 'junit:junit'
   testCompile 'org.assertj:assertj-core'
   testCompile 'org.assertj:assertj-guava'
