@@ -48,7 +48,7 @@ export default function GithubTab(props: GithubTabProps) {
               translate('settings.almintegration.table.column.github.url'),
               translate('settings.almintegration.table.column.app_id')
             ]}
-            additionalColumnsKeys={['appId', 'url']}
+            additionalColumnsKeys={['url', 'appId']}
             alm={AlmKeys.GitHub}
             createConfiguration={createGithubConfiguration}
             defaultBinding={{ key: '', appId: '', url: '', privateKey: '' }}

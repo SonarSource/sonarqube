@@ -13,8 +13,8 @@ exports[`should render correctly: with branch support 1`] = `
     }
     additionalColumnsKeys={
       Array [
-        "appId",
         "url",
+        "appId",
       ]
     }
     alm="github"
