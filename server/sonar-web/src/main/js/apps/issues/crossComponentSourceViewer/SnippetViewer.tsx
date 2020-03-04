@@ -65,8 +65,6 @@ interface Props {
   snippet: T.SourceLine[];
 }
 
-const SCROLL_LEFT_OFFSET = 32;
-
 export default class SnippetViewer extends React.PureComponent<Props> {
   snippetNodeRef: React.RefObject<HTMLDivElement>;
 
@@ -82,9 +80,11 @@ export default class SnippetViewer extends React.PureComponent<Props> {
     const parent = this.snippetNodeRef.current as Element;
 
     if (parent) {
+      const offset = parent.getBoundingClientRect().width / 2;
+
       scrollHorizontally(element, {
-        leftOffset: SCROLL_LEFT_OFFSET,
-        rightOffset: parent.getBoundingClientRect().width - SCROLL_LEFT_OFFSET,
+        leftOffset: offset,
+        rightOffset: offset,
         parent
       });
     }
