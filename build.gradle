@@ -242,7 +242,7 @@ subprojects {
         exclude 'org.slf4j:slf4j-api'
       }
       dependency 'org.codehaus.sonar:sonar-classloader:1.0'
-      dependency('org.codehaus.woodstox:woodstox-core-lgpl:4.4.0') {
+      dependency('org.codehaus.woodstox:woodstox-core-lgpl:4.4.1') {
         exclude 'javax.xml.stream:stax-api'
       }
       dependency 'org.codehaus.sonar.runner:sonar-runner-api:2.4'
