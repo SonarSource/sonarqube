@@ -20,7 +20,6 @@
 package org.sonar.db.component;
 
 import com.google.common.base.Strings;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -368,9 +367,9 @@ public class ComponentKeyUpdaterDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Malformed key for '  '. Project key cannot be empty nor contain whitespaces.");
+    thrown.expectMessage("Malformed key for 'my?project?key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
-    underTest.bulkUpdateKey(dbSession, project.uuid(), project.getDbKey(), "  ", doNotReturnAnyRekeyedResource());
+    underTest.bulkUpdateKey(dbSession, project.uuid(), project.getDbKey(), "my?project?key", doNotReturnAnyRekeyedResource());
   }
 
   @Test
@@ -431,7 +430,7 @@ public class ComponentKeyUpdaterDaoTest {
 
     thrown.expect(IllegalArgumentException.class);
 
-    underTest.simulateBulkUpdateKey(dbSession, "A", "project", "  ");
+    underTest.simulateBulkUpdateKey(dbSession, "A", "project", "project?");
   }
 
   @Test

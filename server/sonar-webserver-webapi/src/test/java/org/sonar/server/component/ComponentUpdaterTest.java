@@ -290,11 +290,11 @@ public class ComponentUpdaterTest {
   @Test
   public void fail_when_key_has_bad_format() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for Project: '  '");
+    expectedException.expectMessage("Malformed key for Project: '1234'");
 
     underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
-        .setKey("  ")
+        .setKey("1234")
         .setName(DEFAULT_PROJECT_NAME)
         .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .build(),
@@ -302,13 +302,13 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void properly_fail_when_key_contains_percent_character() {
+  public void fail_when_key_contains_percent_character() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for Project: '  '");
+    expectedException.expectMessage("Malformed key for Project: 'roject%Key'");
 
     underTest.create(db.getSession(),
       NewComponent.newComponentBuilder()
-        .setKey("  ")
+        .setKey("roject%Key")
         .setName(DEFAULT_PROJECT_NAME)
         .setOrganizationUuid(db.getDefaultOrganization().getUuid())
         .build(),

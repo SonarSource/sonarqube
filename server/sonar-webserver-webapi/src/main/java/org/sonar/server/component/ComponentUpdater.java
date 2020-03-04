@@ -42,8 +42,8 @@ import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
 import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
@@ -170,7 +170,7 @@ public class ComponentUpdater {
   }
 
   private void checkKeyFormat(String qualifier, String key) {
-    checkRequest(isValidProjectKey(key), "Malformed key for %s: '%s'. It cannot be empty nor contain whitespaces.", getQualifierToDisplay(qualifier), key);
+    checkRequest(isValidProjectKey(key), "Malformed key for %s: '%s'. %s.", getQualifierToDisplay(qualifier), key, ALLOWED_CHARACTERS_MESSAGE);
   }
 
   private String getQualifierToDisplay(String qualifier) {

@@ -47,6 +47,7 @@ import static org.sonar.core.component.ComponentKeys.checkProjectKey;
  * @since 3.2
  */
 public class ComponentKeyUpdaterDao implements Dao {
+
   public void updateKey(DbSession dbSession, String projectUuid, String newKey) {
     ComponentKeyUpdaterMapper mapper = dbSession.getMapper(ComponentKeyUpdaterMapper.class);
     if (mapper.countResourceByKey(newKey) > 0) {

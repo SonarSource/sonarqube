@@ -20,20 +20,23 @@
 package org.sonar.scanner.scan;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.scan.branch.BranchParamsValidator;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
 import static org.sonar.core.config.ScannerProperties.BRANCHES_DOC_LINK;
 import static org.sonar.core.config.ScannerProperties.BRANCH_NAME;
 import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_BASE;
@@ -46,6 +49,9 @@ import static org.sonar.core.config.ScannerProperties.PULL_REQUEST_KEY;
  * @since 3.6
  */
 public class ProjectReactorValidator {
+
+  private static final Logger LOG = Loggers.get(ProjectReactorValidator.class);
+
   private final GlobalConfiguration settings;
 
   // null = branch plugin is not available
@@ -65,7 +71,7 @@ public class ProjectReactorValidator {
     List<String> validationMessages = new ArrayList<>();
 
     for (ProjectDefinition moduleDef : reactor.getProjects()) {
-      validateModule(moduleDef, validationMessages);
+      validateModule(moduleDef);
     }
 
     if (isBranchFeatureAvailable()) {
@@ -82,7 +88,7 @@ public class ProjectReactorValidator {
   }
 
   private void validateBranchParamsWhenPluginAbsent(List<String> validationMessages) {
-    for (String param : Arrays.asList(BRANCH_NAME)) {
+    for (String param : singletonList(BRANCH_NAME)) {
       if (isNotEmpty(settings.get(param).orElse(null))) {
         validationMessages.add(format("To use the property \"%s\" and analyze branches, Developer Edition or above is required. "
           + "See %s for more information.", param, BRANCHES_DOC_LINK));
@@ -97,9 +103,12 @@ public class ProjectReactorValidator {
         + "See %s for more information.", param, BRANCHES_DOC_LINK)));
   }
 
-  private static void validateModule(ProjectDefinition moduleDef, List<String> validationMessages) {
+  private static void validateModule(ProjectDefinition moduleDef) {
     if (!ComponentKeys.isValidProjectKey(moduleDef.getKey())) {
-      validationMessages.add(format("\"%s\" is not a valid project or module key. It cannot be empty nor contain whitespaces.", moduleDef.getKey()));
+      // As it was possible in the past to use project key with a format that is no more compatible, we need to display a warning to the user in
+      // order for him to update his project key.
+      // SONAR-13191 This warning should be removed in 9.0
+      LOG.warn("\"{}\" is not a valid project or module key. {}.", moduleDef.getKey(), ALLOWED_CHARACTERS_MESSAGE);
     }
   }
 

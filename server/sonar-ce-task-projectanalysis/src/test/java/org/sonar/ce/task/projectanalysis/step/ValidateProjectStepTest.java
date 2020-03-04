@@ -24,9 +24,11 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -42,38 +44,71 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class ValidateProjectStepTest {
 
-  static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01
+  static long PAST_ANALYSIS_TIME = 1_420_088_400_000L; // 2015-01-01
+  static long DEFAULT_ANALYSIS_TIME = 1_433_131_200_000L; // 2015-06-01
+  static long NOW = 1_500_000_000_000L;
+
   static final String PROJECT_KEY = "PROJECT_KEY";
   static final Branch DEFAULT_BRANCH = new DefaultBranchImpl();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setAnalysisDate(new Date(DEFAULT_ANALYSIS_TIME))
     .setBranch(DEFAULT_BRANCH);
+  private System2 system2 = new TestSystem2().setNow(NOW);
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
+  private CeTaskMessages taskMessages = mock(CeTaskMessages.class);
+  private DbClient dbClient = db.getDbClient();
+
+  private ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder, taskMessages, system2);
+
+  @Test
+  public void dont_fail_for_long_forked_from_master_with_modules() {
+    ComponentDto masterProject = db.components().insertPublicProject();
+    dbClient.componentDao().insert(db.getSession(), ComponentTesting.newModuleDto(masterProject));
+    setBranch(BranchType.BRANCH, masterProject.uuid());
+    db.getSession().commit();
+
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
+      .setKey("branch")
+      .build());
+
+    underTest.execute(new TestComputationStepContext());
+    verifyNoInteractions(taskMessages);
+  }
+
+  @Test
+  public void not_fail_if_analysis_date_is_after_last_analysis() {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
+    dbClient.componentDao().insert(db.getSession(), project);
+    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(PAST_ANALYSIS_TIME));
+    db.getSession().commit();
+
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+
+    underTest.execute(new TestComputationStepContext());
+  }
 
   @Test
   public void fail_if_pr_is_targeting_branch_with_modules() {
-    ComponentDto masterProject = dbTester.components().insertPublicProject();
-    ComponentDto mergeBranch = dbTester.components().insertProjectBranch(masterProject, b -> b.setKey("mergeBranch"));
-    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(mergeBranch));
+    ComponentDto masterProject = db.components().insertPublicProject();
+    ComponentDto mergeBranch = db.components().insertProjectBranch(masterProject, b -> b.setKey("mergeBranch"));
+    dbClient.componentDao().insert(db.getSession(), ComponentTesting.newModuleDto(mergeBranch));
     setBranch(BranchType.PULL_REQUEST, mergeBranch.uuid());
-    dbTester.getSession().commit();
+    db.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
       .setKey("branch")
@@ -85,46 +120,13 @@ public class ValidateProjectStepTest {
   }
 
   @Test
-  public void dont_fail_for_long_forked_from_master_with_modules() {
-    ComponentDto masterProject = dbTester.components().insertPublicProject();
-    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newModuleDto(masterProject));
-    setBranch(BranchType.BRANCH, masterProject.uuid());
-    dbTester.getSession().commit();
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("DEFG")
-      .setKey("branch")
-      .build());
-
-    underTest.execute(new TestComputationStepContext());
-  }
-
-  private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {
-    Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(type);
-    when(branch.getReferenceBranchUuid()).thenReturn(mergeBranchUuid);
-    analysisMetadataHolder.setBranch(branch);
-  }
-
-  @Test
-  public void not_fail_if_analysis_date_is_after_last_analysis() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
-    dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1420088400000L)); // 2015-01-01
-    dbTester.getSession().commit();
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
-
-    underTest.execute(new TestComputationStepContext());
-  }
-
-  @Test
   public void fail_if_analysis_date_is_before_last_analysis() {
     analysisMetadataHolder.setAnalysisDate(DateUtils.parseDate("2015-01-01"));
 
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
-    dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1433131200000L)); // 2015-06-01
-    dbTester.getSession().commit();
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
+    dbClient.componentDao().insert(db.getSession(), project);
+    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(project).setCreatedAt(1433131200000L)); // 2015-06-01
+    db.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
@@ -136,4 +138,28 @@ public class ValidateProjectStepTest {
     underTest.execute(new TestComputationStepContext());
   }
 
+  @Test
+  public void add_warning_when_project_key_is_invalid() {
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("inv$lid!"));
+    db.components().insertSnapshot(project, a -> a.setCreatedAt(PAST_ANALYSIS_TIME));
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1)
+      .setUuid(project.uuid())
+      .setKey(project.getKey())
+      .build());
+
+    underTest.execute(new TestComputationStepContext());
+
+    verify(taskMessages, times(1))
+      .add(new CeTaskMessages.Message(
+        "The project key ‘inv$lid!’ contains invalid characters. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit. " +
+          "You should update the project key with the expected format.",
+        NOW));
+  }
+
+  private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(type);
+    when(branch.getReferenceBranchUuid()).thenReturn(mergeBranchUuid);
+    analysisMetadataHolder.setBranch(branch);
+  }
 }

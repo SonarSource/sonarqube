@@ -60,6 +60,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 public class BulkUpdateKeyActionTest {
+
   private static final String MY_PROJECT_KEY = "my_project";
   private static final String FROM = "my_";
   private static final String TO = "your_";
@@ -169,9 +170,9 @@ public class BulkUpdateKeyActionTest {
     insertMyProject();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed key for 'my aproject'. Project key cannot be empty nor contain whitespaces.");
+    expectedException.expectMessage("Malformed key for 'my?project'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
-    callByKey(MY_PROJECT_KEY, FROM, "my a");
+    callByKey(MY_PROJECT_KEY, FROM, "my?");
   }
 
   @Test
@@ -179,9 +180,9 @@ public class BulkUpdateKeyActionTest {
     insertMyProject();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed key for 'my aproject'. Project key cannot be empty nor contain whitespaces.");
+    expectedException.expectMessage("Malformed key for 'my?project'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
-    callDryRunByKey(MY_PROJECT_KEY, FROM, "my a");
+    callDryRunByKey(MY_PROJECT_KEY, FROM, "my?");
   }
 
   @Test

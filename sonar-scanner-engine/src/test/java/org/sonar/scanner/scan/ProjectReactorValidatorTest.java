@@ -34,11 +34,15 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogAndArguments;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.ProjectInfo;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAscii;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -49,6 +53,9 @@ public class ProjectReactorValidatorTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private GlobalConfiguration settings = mock(GlobalConfiguration.class);
   private ProjectInfo projectInfo = mock(ProjectInfo.class);
@@ -86,12 +93,36 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
-  public void fail_with_invalid_key() {
-    ProjectReactor reactor = createProjectReactor("  ");
+  public void log_warning_when_invalid_key() {
+    ProjectReactor reactor = createProjectReactor("foo$bar");
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("\"  \" is not a valid project or module key");
     underTest.validate(reactor);
+
+    assertThat(logTester.getLogs(LoggerLevel.WARN))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .containsOnly("\"foo$bar\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+  }
+
+  @Test
+  public void log_warning_when_only_digits() {
+    ProjectReactor reactor = createProjectReactor("12345");
+
+    underTest.validate(reactor);
+
+    assertThat(logTester.getLogs(LoggerLevel.WARN))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .containsOnly("\"12345\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+  }
+
+  @Test
+  public void log_warning_when_backslash_in_key() {
+    ProjectReactor reactor = createProjectReactor("foo\\bar");
+
+    underTest.validate(reactor);
+
+    assertThat(logTester.getLogs(LoggerLevel.WARN))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .containsOnly("\"foo\\bar\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
   }
 
   @Test
