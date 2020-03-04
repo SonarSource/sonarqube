@@ -222,6 +222,7 @@ public class FileSystemMediumTest {
         .build())
       .execute();
 
+    assertThat(logTester.logs()).contains("'src/main/sample.java' indexed with no language");
     assertThat(logTester.logs()).contains("3 files indexed");
     assertThat(logTester.logs()).contains("'src/main/sample.xoo' generated metadata with charset 'UTF-8'");
     assertThat(String.join("\n", logTester.logs())).doesNotContain("'src/main/sample.java' generated metadata");

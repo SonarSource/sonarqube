@@ -44,6 +44,8 @@ import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.util.ProgressReport;
 
+import static java.lang.String.format;
+
 /**
  * Index input files into {@link InputComponentStore}.
  */
@@ -141,7 +143,8 @@ public class FileIndexer {
     checkIfAlreadyIndexed(inputFile);
     componentStore.put(module.key(), inputFile);
     issueExclusionsLoader.addMulticriteriaPatterns(inputFile);
-    LOG.debug("'{}' indexed {}with language '{}'", projectRelativePath, type == Type.TEST ? "as test " : "", inputFile.language());
+    String langStr = inputFile.language() != null ? format("with language '%s'", inputFile.language()) : "with no language";
+    LOG.debug("'{}' indexed {}{}", projectRelativePath, type == Type.TEST ? "as test " : "", langStr);
     evaluateCoverageExclusions(moduleCoverageAndDuplicationExclusions, inputFile);
     evaluateDuplicationExclusions(moduleCoverageAndDuplicationExclusions, inputFile);
     if (properties.preloadFileMetadata()) {
