@@ -23,7 +23,6 @@ dependencies {
   compile 'commons-lang:commons-lang'
   compile 'com.google.code.gson:gson'
   compile 'org.apache.commons:commons-csv'
-  compile 'org.freemarker:freemarker'
   compile 'com.google.protobuf:protobuf-java'
   compile 'com.squareup.okhttp3:okhttp'
   compile 'org.codehaus.staxmate:staxmate'
