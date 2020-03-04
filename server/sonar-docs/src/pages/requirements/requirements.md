@@ -5,9 +5,6 @@ url: /requirements/requirements/
 ## Prerequisite
 The only prerequisite for running SonarQube is to have Java (Oracle JRE 11 or OpenJDK 11) installed on your machine.
 
-[[warning]]
-| **Note:** _On Mac OS X it is highly recommended to install Oracle JDK 11 instead of the corresponding Oracle JRE since the JRE installation does not fully set up your Java environment properly. See [this post](http://stackoverflow.com/questions/15624667/mac-osx-java-terminal-version-incorrect) for more information._
-
 ## Hardware Requirements
 1. A small-scale (individual or small team) instance of the SonarQube server requires at least 2GB of RAM to run efficiently and 1GB of free RAM for the OS. If you are installing an instance for a large teams or Enterprise, please consider the additional recommendations below.
 2. The amount of disk space you need will depend on how much code you analyze with SonarQube. As an example, [SonarCloud](https://sonarcloud.io) the public instance of SonarQube, has more than 350 million lines of code under analysis with 5 years of history. SonarCloud is currently running on clustered [Amazon EC2 m5.large](http://aws.amazon.com/ec2/instance-types/) instances with allocations of 50 Gb of drive space per node. It handles 19,000+ projects with roughly 14M open issues. SonarCloud runs on PostgreSQL 9.5 and it is using about 250Gb of disk space for the database.
