@@ -68,8 +68,9 @@ public abstract class ScmProvider {
 
   /**
    * Return a map between paths given as argument and the corresponding line numbers which are new compared to the provided target branch.
-   * If null is returned or if a path is not included in the map, an imprecise fallback mechanism will be used to detect which lines
-   * are new (based on SCM dates).
+   * If nothing is returned for a file, the scanner will consider that the provider was unable to determine changes for that file and it will
+   * assume that nothing was changed in it.
+   * If null is returned, an imprecise fallback mechanism will be used to detect which lines are new (based on SCM dates).
    *
    * @param files Absolute path of files of interest
    * @return null if the SCM provider was not able to compute the new lines

@@ -89,18 +89,20 @@ public class ChangedLinesPublisher implements ReportPublisherStep {
 
     for (Map.Entry<Path, DefaultInputFile> e : changedFiles.entrySet()) {
       DefaultInputFile inputFile = e.getValue();
-      Set<Integer> changedLines = pathSetMap.getOrDefault(e.getKey(), Collections.emptySet());
+      Set<Integer> changedLines = pathSetMap.get(e.getKey());
 
-      // detect unchanged last empty line
-      if (changedLines.size() + 1 == inputFile.lines() && inputFile.lineLength(inputFile.lines()) == 0) {
-        changedLines.add(inputFile.lines());
-      }
-
-      if (changedLines.isEmpty()) {
+      if (changedLines == null) {
         LOG.warn("File '{}' was detected as changed but without having changed lines", e.getKey().toAbsolutePath());
+        // assume that no line was changed
+        writeChangedLines(writer, e.getValue().scannerId(), Collections.emptySet());
+      } else {
+        // detect unchanged last empty line
+        if (changedLines.size() + 1 == inputFile.lines() && inputFile.lineLength(inputFile.lines()) == 0) {
+          changedLines.add(inputFile.lines());
+        }
+        count++;
+        writeChangedLines(writer, e.getValue().scannerId(), changedLines);
       }
-      count++;
-      writeChangedLines(writer, e.getValue().scannerId(), changedLines);
     }
     return count;
   }

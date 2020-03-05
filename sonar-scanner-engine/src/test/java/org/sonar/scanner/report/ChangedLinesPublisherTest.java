@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.report;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,6 +35,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.ScmProvider;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -42,6 +44,7 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scm.ScmConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -60,6 +63,9 @@ public class ChangedLinesPublisherTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private ChangedLinesPublisher publisher = new ChangedLinesPublisher(scmConfiguration, project, inputComponentStore, branchConfiguration);
 
@@ -114,16 +120,22 @@ public class ChangedLinesPublisherTest {
   @Test
   public void write_changed_files() {
     DefaultInputFile fileWithChangedLines = createInputFile("path1", "l1\nl2\nl3\n");
-    DefaultInputFile fileWithoutChangedLines = createInputFile("path2", "l1\nl2\nl3\n");
-    Set<Path> paths = new HashSet<>(Arrays.asList(BASE_DIR.resolve("path1"), BASE_DIR.resolve("path2")));
+    DefaultInputFile fileNotReturned = createInputFile("path2", "l1\nl2\nl3\n");
+    DefaultInputFile fileWithoutChangedLines = createInputFile("path3", "l1\nl2\nl3\n");
+
+    Set<Path> paths = new HashSet<>(Arrays.asList(BASE_DIR.resolve("path1"), BASE_DIR.resolve("path2"), BASE_DIR.resolve("path3")));
     Set<Integer> lines = new HashSet<>(Arrays.asList(1, 10));
-    when(provider.branchChangedLines(TARGET_BRANCH, BASE_DIR, paths)).thenReturn(Collections.singletonMap(BASE_DIR.resolve("path1"), lines));
-    when(inputComponentStore.allChangedFilesToPublish()).thenReturn(Arrays.asList(fileWithChangedLines, fileWithoutChangedLines));
+    when(provider.branchChangedLines(TARGET_BRANCH, BASE_DIR, paths))
+      .thenReturn(ImmutableMap.of(BASE_DIR.resolve("path1"), lines, BASE_DIR.resolve("path3"), Collections.emptySet()));
+    when(inputComponentStore.allChangedFilesToPublish()).thenReturn(Arrays.asList(fileWithChangedLines, fileNotReturned, fileWithoutChangedLines));
 
     publisher.publish(writer);
 
     assertPublished(fileWithChangedLines, new HashSet<>(Arrays.asList(1, 10)));
     assertPublished(fileWithoutChangedLines, Collections.emptySet());
+    assertPublished(fileNotReturned, Collections.emptySet());
+
+    assumeThat(logTester.logs()).contains("File '/root/path2' was detected as changed but without having changed lines");
   }
 
   @Test
@@ -168,10 +180,6 @@ public class ChangedLinesPublisherTest {
     assertThat(new File(temp.getRoot(), "changed-lines-" + file.scannerId() + ".pb")).exists();
     ScannerReportReader reader = new ScannerReportReader(temp.getRoot());
     assertThat(reader.readComponentChangedLines(file.scannerId()).getLineList()).containsExactlyElementsOf(lines);
-  }
-
-  private void assertNotPublished(DefaultInputFile file) {
-    assertThat(new File(temp.getRoot(), "changed-lines-" + file.scannerId() + ".pb")).doesNotExist();
   }
 
   private void assertNotPublished() {
