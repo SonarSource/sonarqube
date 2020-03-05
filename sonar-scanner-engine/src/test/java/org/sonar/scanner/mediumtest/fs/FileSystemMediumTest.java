@@ -167,8 +167,7 @@ public class FileSystemMediumTest {
 
     assertThat(logTester.logs()).contains("2 files indexed");
     assertThat(logTester.logs()).contains("'src/sample.xoo' generated metadata with charset 'UTF-8'");
-    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("'src/sample.java' generated metadata");
-
+    assertThat(String.join("\n", logTester.logs())).doesNotContain("'src/sample.java' generated metadata");
   }
 
   @Test
@@ -225,8 +224,8 @@ public class FileSystemMediumTest {
 
     assertThat(logTester.logs()).contains("3 files indexed");
     assertThat(logTester.logs()).contains("'src/main/sample.xoo' generated metadata with charset 'UTF-8'");
-    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("'src/main/sample.java' generated metadata");
-    assertThat(logTester.logs().stream().collect(joining("\n"))).doesNotContain("'src/test/sample.java' generated metadata");
+    assertThat(String.join("\n", logTester.logs())).doesNotContain("'src/main/sample.java' generated metadata");
+    assertThat(String.join("\n", logTester.logs())).doesNotContain("'src/test/sample.java' generated metadata");
     DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/main/sample.java");
 
     thrown.expect(IllegalStateException.class);
@@ -1027,6 +1026,29 @@ public class FileSystemMediumTest {
 
     assertThat(result.inputFiles()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in project basedir '" + baseDir + "'.");
+  }
+
+  @Test
+  public void dont_log_warn_about_files_out_of_basedir_if_they_arent_included() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample1.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent", StandardCharsets.UTF_8);
+
+    File outsideBaseDir = temp.newFolder().getCanonicalFile();
+    File xooFile2 = new File(outsideBaseDir, "another.xoo");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent", StandardCharsets.UTF_8);
+
+    AnalysisResult result = tester.newAnalysis()
+      .properties(builder
+        .put("sonar.sources", "src," + PathUtils.canonicalPath(xooFile2))
+        .put("sonar.inclusions", "**/sample1.xoo")
+        .build())
+      .execute();
+
+    assertThat(result.inputFiles()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN)).doesNotContain("File '" + xooFile2.getAbsolutePath() + "' is ignored. It is not located in project basedir '" + baseDir + "'.");
   }
 
   @Test
