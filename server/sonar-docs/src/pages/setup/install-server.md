@@ -3,72 +3,74 @@ title: Install the Server
 url: /setup/install-server/
 ---
 
-
 ## Installing the Database
 
 Several [database engines](/requirements/requirements/) are supported. Be sure to follow the requirements listed for your database, they are real requirements not recommendations.
 
 Create an empty schema and a `sonarqube` user. Grant this `sonarqube` user permissions to `create`, `update`, and `delete` objects for this schema.
 
-### Microsoft SQL Server
+[[collapse]]
+| ## Microsoft SQL Server
+|
+|[[warning]]
+|| Collation **MUST** be case-sensitive (CS) and accent-sensitive (AS).  
+|| `READ_COMMITED_SNAPSHOT` **MUST** be set on the SonarQube database.
+|
+|MS SQL database's shared lock strategy may impact SonarQube runtime. Making sure that `is_read_committed_snapshot_on` is set to `true` to prevent SonarQube from facing potential deadlocks under heavy loads. 
+|
+|Example of query to check `is_read_committed_snapshot_on`:
+|```
+|SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name='YourSonarQubeDatabase';
+|```
+|Example of query to update `is_read_committed_snapshot_on`:
+|```
+|ALTER DATABASE YourSonarQubeDatabase SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;
+|```
+|### Integrated Security
+|
+|To use integrated security: 
+|
+|1. Download the [Microsoft SQL JDBC Driver 7.2.2 package](https://www.microsoft.com/en-us/download/details.aspx?id=57782) and copy the 64-bit version of `sqljdbc_auth.dll` to any folder in your path. 
+|
+|2. **If you're running SonarQube as a Windows service,** make sure the Windows account under which the service is running has permission to connect your SQL server. The account should have `db_owner` database role membership. 
+|
+|	**If you're running the SonarQube server from a command prompt,** the user under which the command prompt is running should have `db_owner` database role membership. 
+|
+|3. Ensure that `sonar.jdbc.username` or `sonar.jdbc.password` properties are commented out or SonarQube will use SQL authentication.
+|
+|```
+|sonar.jdbc.url=jdbc:sqlserver://localhost;databaseName=sonar;integratedSecurity=true
+|```
+|
+|### SQL Authentication
+|
+|To use SQL Authentication, use the following connection string. Also ensure that `sonar.jdbc.username` and `sonar.jdbc.password` are set appropriately:
+|
+|```
+|sonar.jdbc.url=jdbc:sqlserver://localhost;databaseName=sonar
+|sonar.jdbc.username=sonarqube
+|sonar.jdbc.password=mypassword
+|```
 
-[[warning]]
-| Collation **MUST** be case-sensitive (CS) and accent-sensitive (AS).  
-| `READ_COMMITED_SNAPSHOT` **MUST** be set on the SonarQube database.
+[[collapse]]
+| ## Oracle
+|
+|If there are two SonarQube schemas on the same Oracle instance, especially if they are for two different versions, SonarQube gets confused and picks the first it finds. To avoid this issue:
+|
+|- Either privileges associated to the SonarQube Oracle user should be decreased
+|- Or a trigger should be defined on the Oracle side to automatically alter the SonarQube Oracle user session when establishing a new connection:
+|
+|[[warning]]
+|| Oracle JDBC driver versions 12.1.0.1 and 12.1.0.2 have major bugs, and are not recommended for use with the SonarQube ([see more details](https://groups.google.com/forum/#!msg/sonarqube/Ahqt1iarqJg/u0BVRJZnBQAJ)).
 
-MS SQL database's shared lock strategy may impact SonarQube runtime. Making sure that `is_read_committed_snapshot_on` is set to `true` to prevent SonarQube from facing potential deadlocks under heavy loads. 
-
-Example of query to check `is_read_committed_snapshot_on`:
-```
-SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name='YourSonarQubeDatabase';
-```
-Example of query to update `is_read_committed_snapshot_on`:
-```
-ALTER DATABASE YourSonarQubeDatabase SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;
-```
-#### Integrated Security
-
-To use integrated security: 
-
-1. Download the [Microsoft SQL JDBC Driver 7.2.2 package](https://www.microsoft.com/en-us/download/details.aspx?id=57782) and copy the 64-bit version of `sqljdbc_auth.dll` to any folder in your path. 
-
-2. **If you're running SonarQube as a Windows service,** make sure the Windows account under which the service is running has permission to connect your SQL server. The account should have `db_owner` database role membership. 
-
-	**If you're running the SonarQube server from a command prompt,** the user under which the command prompt is running should have `db_owner` database role membership. 
-
-3. Ensure that `sonar.jdbc.username` or `sonar.jdbc.password` properties are commented out or SonarQube will use SQL authentication.
-
-```
-sonar.jdbc.url=jdbc:sqlserver://localhost;databaseName=sonar;integratedSecurity=true
-```
-
-#### SQL Authentication
-
-To use SQL Authentication, use the following connection string. Also ensure that `sonar.jdbc.username` and `sonar.jdbc.password` are set appropriately:
-
-```
-sonar.jdbc.url=jdbc:sqlserver://localhost;databaseName=sonar
-sonar.jdbc.username=sonarqube
-sonar.jdbc.password=mypassword
-```
-
-### Oracle
-
-If there are two SonarQube schemas on the same Oracle instance, especially if they are for two different versions, SonarQube gets confused and picks the first it finds. To avoid this issue:
-
-- Either privileges associated to the SonarQube Oracle user should be decreased
-- Or a trigger should be defined on the Oracle side to automatically alter the SonarQube Oracle user session when establishing a new connection:
-
-[[warning]]
-| Oracle JDBC driver versions 12.1.0.1 and 12.1.0.2 have major bugs, and are not recommended for use with the SonarQube ([see more details](https://groups.google.com/forum/#!msg/sonarqube/Ahqt1iarqJg/u0BVRJZnBQAJ)).
-
-### PostgreSQL
-
-If you want to use a custom schema and not the default "public" one, the PostgreSQL `search_path` property must be set:
-
-```
-ALTER USER mySonarUser SET search_path to mySonarQubeSchema
-```
+[[collapse]]
+| ## PostgreSQL
+|
+|If you want to use a custom schema and not the default "public" one, the PostgreSQL `search_path` property must be set:
+|
+|```
+|ALTER USER mySonarUser SET search_path to mySonarQubeSchema
+|```
 
 ## Installing the Server from the ZIP file
 
