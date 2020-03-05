@@ -258,10 +258,6 @@ To grant more memory to a server-side process, uncomment and edit the relevant j
 - `sonar.ce.javaOpts`
 - `sonar.search.javaOpts`
 
-### Failed to start on Windows Vista
-
-SonarQube seems unable to start when installed under the `Program Files` directory on Windows Vista. It should therefore not be installed there.
-
 ### Failed to start SonarQube with Oracle due to bad `USERS` table structure
 
 When other `USERS` tables exist in the Oracle DB, if the `sonarqube` user has read access on this other `USERS` table, the SonarQube web server can't start and an exception like the following one is thrown:
