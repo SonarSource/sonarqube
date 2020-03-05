@@ -39,13 +39,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.scm.IgnoreCommand;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.GlobalServerSettings;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.scan.ModuleConfiguration;
 import org.sonar.scanner.scan.ModuleConfigurationProvider;
@@ -163,7 +163,7 @@ public class ProjectFileIndexer {
   private static void logPaths(String label, Path baseDir, List<Path> paths) {
     if (!paths.isEmpty()) {
       StringBuilder sb = new StringBuilder(label);
-      for (Iterator<Path> it = paths.iterator(); it.hasNext(); ) {
+      for (Iterator<Path> it = paths.iterator(); it.hasNext();) {
         Path file = it.next();
         Optional<String> relativePathToBaseDir = PathResolver.relativize(baseDir, file);
         if (!relativePathToBaseDir.isPresent()) {
@@ -282,11 +282,11 @@ public class ProjectFileIndexer {
     }
 
     public int getByPatternsCount() {
-      return excludedByScmCount.get();
+      return excludedByPatternsCount.get();
     }
 
     public void increaseByScmCount() {
-      excludedByPatternsCount.incrementAndGet();
+      excludedByScmCount.incrementAndGet();
     }
 
     public int getByScmCount() {
