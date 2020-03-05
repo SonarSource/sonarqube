@@ -129,14 +129,6 @@ You can now browse SonarQube at _http://localhost:9000_ (the default System admi
 
 ### Tuning the Web Server
 
-By default, SonarQube is configured to run on any computer with a simple Java JRE.
-
-For better performance, the first thing to do when installing a production instance is to use a Java JDK and activate the server mode by uncommenting/setting the following line in _$SONARQUBE-HOME/conf/sonar.properties_:
-
-```
-sonar.web.javaOpts=-server
-```
-
 To change the Java JVM used by SonarQube, simply edit _$SONARQUBE-HOME/conf/wrapper.conf_ and update the following line:
 
 ```
@@ -147,6 +139,7 @@ wrapper.java.command=/path/to/my/jdk/bin/java
 
 - Running SonarQube as a Service on [Windows](/setup/operate-server/) or [Linux](/setup/operate-server/)
 - Running SonarQube [behind a Proxy](/setup/operate-server/)
+- Monitoring and adjusting [Java Process Memory](/instance-administration/monitoring/)
 - Running SonarQube Community Edition with [Docker](https://hub.docker.com/_/sonarqube/)
 
 ## Installing the Server from the Docker Image
@@ -249,14 +242,6 @@ Follow these steps for your first installation:
 Once your server is installed and running, you may also want to [Install Plugins](/setup/install-plugin/). Then you're ready to begin [Analyzing Source Code](/analysis/overview/).
 
 ## Troubleshooting/FAQ
-
-### Grant more memory to the web server / compute engine / elastic search
-
-To grant more memory to a server-side process, uncomment and edit the relevant javaOpts property in `$SONARQUBE_HOME/conf/sonar.properties`, specifically:
-
-- `sonar.web.javaOpts` (minimum values: `-server -Xmx768m`)
-- `sonar.ce.javaOpts`
-- `sonar.search.javaOpts`
 
 ### Failed to start SonarQube with Oracle due to bad `USERS` table structure
 
