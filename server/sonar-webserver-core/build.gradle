@@ -55,7 +55,6 @@ dependencies {
   // not a transitive dep. At runtime lib/jdbc/h2 is used
   compileOnly 'com.h2database:h2'
 
-  testCompile 'com.github.kevinsawicki:http-request'
   testCompile 'com.google.code.findbugs:jsr305'
   testCompile 'com.h2database:h2'
   testCompile 'com.squareup.okhttp3:mockwebserver'

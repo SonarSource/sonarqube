@@ -177,7 +177,6 @@ subprojects {
         entry 'jackson-databind'
       }
       dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-      dependency 'com.github.kevinsawicki:http-request:5.4.1'
       dependencySet(group: 'com.github.scribejava', version: '6.9.0') {
         entry 'scribejava-apis'
         entry 'scribejava-core'
