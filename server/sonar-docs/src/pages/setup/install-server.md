@@ -127,9 +127,11 @@ Execute the following script to start the server:
 
 You can now browse SonarQube at _http://localhost:9000_ (the default System administrator credentials are `admin`/`admin`).
 
-### Tuning the Web Server
+### Adjusting the Java Installation
 
-To change the Java JVM used by SonarQube, simply edit _$SONARQUBE-HOME/conf/wrapper.conf_ and update the following line:
+If there are multiple versions of Java installed on your server, you may need to explicitly define which version of Java is used.
+
+To change the Java JVM used by SonarQube, edit _$SONARQUBE-HOME/conf/wrapper.conf_ and update the following line:
 
 ```
 wrapper.java.command=/path/to/my/jdk/bin/java
