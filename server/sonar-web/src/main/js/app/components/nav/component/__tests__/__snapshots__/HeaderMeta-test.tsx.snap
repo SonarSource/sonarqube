@@ -43,6 +43,36 @@ exports[`should render correctly for a branch 1`] = `
 </Fragment>
 `;
 
+exports[`should render correctly for a portfolio 1`] = `
+<Fragment>
+  <div
+    className="display-flex-center flex-0 small"
+  >
+    <span
+      className="header-meta-warnings"
+    >
+      <ComponentNavWarnings
+        warnings={
+          Array [
+            "ERROR_1",
+            "ERROR_2",
+          ]
+        }
+      />
+    </span>
+    <Connect(HomePageSelect)
+      className="spacer-left"
+      currentPage={
+        Object {
+          "component": "foo",
+          "type": "PORTFOLIO",
+        }
+      }
+    />
+  </div>
+</Fragment>
+`;
+
 exports[`should render correctly for a pull request 1`] = `
 <Fragment>
   <div

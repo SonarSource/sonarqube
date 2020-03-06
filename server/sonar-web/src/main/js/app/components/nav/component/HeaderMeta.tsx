@@ -64,7 +64,7 @@ export function HeaderMeta(props: HeaderMetaProps) {
             component.version
           }`}</span>
         )}
-        {isLoggedIn(currentUser) && isABranch && currentPage !== undefined && (
+        {isLoggedIn(currentUser) && currentPage !== undefined && !isPullRequest(branchLike) && (
           <HomePageSelect className="spacer-left" currentPage={currentPage} />
         )}
       </div>

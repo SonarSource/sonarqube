@@ -23,20 +23,18 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolverImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.tester.UserSessionRule;
@@ -63,15 +61,14 @@ public class CurrentActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private PluginRepository pluginRepository = mock(PluginRepository.class);
-  private MapSettings settings = new MapSettings();
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
-  private HomepageTypesImpl homepageTypes = new HomepageTypesImpl(settings.asConfig(), organizationFlags, db.getDbClient());
+  private PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
+  private HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
   private PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
     ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
 
   private WsActionTester ws = new WsActionTester(
-    new CurrentAction(userSession, db.getDbClient(), TestDefaultOrganizationProvider.from(db), new AvatarResolverImpl(), homepageTypes, pluginRepository, permissionService));
+    new CurrentAction(userSession, db.getDbClient(), TestDefaultOrganizationProvider.from(db), new AvatarResolverImpl(), homepageTypes, platformEditionProvider,
+      permissionService));
 
   @Test
   public void return_user_info() {
