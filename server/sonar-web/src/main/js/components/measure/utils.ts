@@ -24,7 +24,8 @@ const KNOWN_RATINGS = [
   'sqale_rating',
   'maintainability_rating', // Needed to provide the label for "new_maintainability_rating"
   'reliability_rating',
-  'security_rating'
+  'security_rating',
+  'security_review_rating'
 ];
 
 export function enhanceMeasure(measure: T.Measure, metrics: T.Dict<T.Metric>): T.MeasureEnhanced {
