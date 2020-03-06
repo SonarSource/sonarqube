@@ -31,7 +31,7 @@ You may need to increase your memory settings if you see the following symptoms:
 You can increase the maximum memory allocated to the appropriate process by increasing the  -Xmx memory setting for the corresponding Java process in your _$SONARQUBE-HOME/conf/sonar.properties_ file:
 
 * For Web: sonar.web.javaOpts
-* For ElasticSearch: sonar.search.javaOpts
+* For ElasticSearch: sonar.search.javaOpts (It is recommended to set the min and max memory to the same value to prevent the heap from resizing at runtime, a very costly process)
 * For Compute Engine: sonar.ce.javaOpts
 
 The -Xmx parameter accepts numbers in both megabytes (e.g. -Xmx2048m) and gigabytes (e.g. -Xmx2G)
