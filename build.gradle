@@ -187,7 +187,13 @@ subprojects {
       }
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
       dependency 'com.google.code.gson:gson:2.8.5'
-      dependency 'com.google.guava:guava:28.1-jre'
+      dependency('com.google.guava:guava:28.2-jre') {
+        exclude 'com.google.errorprone:error_prone_annotations'
+        exclude 'com.google.guava:listenablefuture'
+        exclude 'com.google.j2objc:j2objc-annotations'
+        exclude 'org.checkerframework:checker-qual'
+        exclude 'org.codehaus.mojo:animal-sniffer-annotations'
+      }
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
       // Do not upgrade H2 to 1.4.200 because of instability: https://github.com/h2database/h2database/issues/2205
       dependency 'com.h2database:h2:1.4.199'
