@@ -140,7 +140,6 @@ wrapper.java.command=/path/to/my/jdk/bin/java
 - Running SonarQube as a Service on [Windows](/setup/operate-server/) or [Linux](/setup/operate-server/)
 - Running SonarQube [behind a Proxy](/setup/operate-server/)
 - Monitoring and adjusting [Java Process Memory](/instance-administration/monitoring/)
-- Running SonarQube Community Edition with [Docker](https://hub.docker.com/_/sonarqube/)
 
 ## Installing the Server from the Docker Image
 
