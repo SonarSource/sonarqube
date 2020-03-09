@@ -51,7 +51,7 @@ public class CiConfigurationProvider extends ProviderAdapter {
 
     if (detectedVendors.size() == 1) {
       CiVendor vendor = detectedVendors.get(0);
-      LOG.info("Detected {}", vendor.getName());
+      LOG.info("Auto-configuring with CI '{}'", vendor.getName());
       return vendor.loadConfiguration();
     }
     return new EmptyCiConfiguration();

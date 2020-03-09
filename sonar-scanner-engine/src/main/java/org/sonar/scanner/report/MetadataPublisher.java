@@ -146,7 +146,10 @@ public class MetadataPublisher implements ReportPublisherStep {
 
   private void addScmInformation(ScannerReport.Metadata.Builder builder) {
     try {
-      scmRevision.get().ifPresent(builder::setScmRevisionId);
+      scmRevision.get().ifPresent(revisionId -> {
+        LOG.debug("SCM revision ID '{}'", revisionId);
+        builder.setScmRevisionId(revisionId);
+      });
     } catch (UnsupportedOperationException e) {
       LOG.debug(e.getMessage());
     }

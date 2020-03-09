@@ -35,7 +35,7 @@ import org.sonar.scanner.ci.CiVendor;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public class Jenkins implements CiVendor {
-  private final static Logger log = Loggers.get(Jenkins.class);
+  private static final Logger LOG = Loggers.get(Jenkins.class);
   private final System2 system;
   private final DefaultInputProject inputProject;
 
@@ -104,7 +104,7 @@ public class Jenkins implements CiVendor {
         return ref.getObjectId().getName();
       }
     } catch (Exception e) {
-      log.debug("Couldn't find git sha1 in '{}': {}", refName, e.getMessage());
+      LOG.debug("Couldn't find git sha1 in '{}': {}", refName, e.getMessage());
     }
     return null;
   }
