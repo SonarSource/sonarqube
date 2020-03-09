@@ -73,7 +73,14 @@
           "/branches/branches-faq/"
         ]
       },
-      "/analysis/gitlab-cicd/",
+	  {
+        "title": "CI Integration",
+        "children": [
+          "/analysis/branch-pr-analysis-overview/",
+		  "/analysis/gitlab-cicd/",
+          "/analysis/jenkins/"
+        ]
+      },
       "/analysis/scm-integration/",
       "/analysis/security_configuration/"
     ]
