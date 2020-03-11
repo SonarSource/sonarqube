@@ -33,7 +33,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.TestProjectIndexers;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -152,21 +151,21 @@ public class ComponentServiceUpdateKeyTest {
     ComponentDto project = insertSampleRootProject();
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for ''. It cannot be empty nor contain whitespaces.");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Malformed key for ''. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
     underTest.updateKey(dbSession, project, "");
   }
 
   @Test
-  public void fail_if_new_key_is_invalid() {
+  public void fail_if_new_key_is_not_formatted_correctly() {
     ComponentDto project = insertSampleRootProject();
     logInAsProjectAdministrator(project);
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for 'sample root'. It cannot be empty nor contain whitespaces.");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Malformed key for 'sample?root'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
-    underTest.updateKey(dbSession, project, "sample root");
+    underTest.updateKey(dbSession, project, "sample?root");
   }
 
   @Test

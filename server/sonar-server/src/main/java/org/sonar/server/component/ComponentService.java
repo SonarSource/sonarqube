@@ -40,9 +40,8 @@ import org.sonar.server.user.UserSession;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
+import static org.sonar.core.component.ComponentKeys.checkProjectKey;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 @ServerSide
 public class ComponentService {
@@ -61,7 +60,7 @@ public class ComponentService {
   public void updateKey(DbSession dbSession, ComponentDto projectOrModule, String newKey) {
     userSession.checkComponentPermission(UserRole.ADMIN, projectOrModule);
     checkIsProjectOrModule(projectOrModule);
-    checkProjectOrModuleKeyFormat(newKey);
+    checkProjectKey(newKey);
     dbClient.componentKeyUpdaterDao().updateKey(dbSession, projectOrModule.uuid(), newKey);
     projectIndexers.commitAndIndex(dbSession, singletonList(projectOrModule), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
     if (isMainProject(projectOrModule)) {
@@ -99,10 +98,6 @@ public class ComponentService {
     ResourceDto resource = rekeyedResource.getResource();
     Project project = new Project(resource.getUuid(), resource.getKey(), resource.getName(), resource.getDescription(), emptyList());
     return new RekeyedProject(project, rekeyedResource.getOldKey());
-  }
-
-  private static void checkProjectOrModuleKeyFormat(String key) {
-    checkRequest(isValidProjectKey(key), "Malformed key for '%s'. It cannot be empty nor contain whitespaces.", key);
   }
 
 }

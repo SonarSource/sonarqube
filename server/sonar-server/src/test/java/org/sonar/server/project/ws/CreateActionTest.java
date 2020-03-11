@@ -305,14 +305,14 @@ public class CreateActionTest {
   }
 
   @Test
-  public void properly_fail_when_invalid_project_key() {
+  public void fail_when_invalid_project_key() {
     userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Malformed key for Project: 'project Key'. It cannot be empty nor contain whitespaces.");
+    expectedException.expectMessage("Malformed key for Project: 'project%Key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
 
     call(CreateRequest.builder()
-      .setKey("project Key")
+      .setKey("project%Key")
       .setName(DEFAULT_PROJECT_NAME)
       .build());
   }

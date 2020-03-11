@@ -27,6 +27,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -42,31 +44,38 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ValidateProjectStepTest {
 
-  static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01
-  static final String PROJECT_KEY = "PROJECT_KEY";
-  static final Branch DEFAULT_BRANCH = new DefaultBranchImpl();
+  private static final String PROJECT_KEY = "PROJECT_KEY";
+
+  private static long PAST_ANALYSIS_TIME = 1_420_088_400_000L; // 2015-01-01
+  private static long DEFAULT_ANALYSIS_TIME = 1_433_131_200_000L; // 2015-06-01
+  private static long NOW = 1_500_000_000_000L;
+
+  private static final Branch DEFAULT_BRANCH = new DefaultBranchImpl();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setAnalysisDate(new Date(DEFAULT_ANALYSIS_TIME))
     .setBranch(DEFAULT_BRANCH);
 
-  DbClient dbClient = dbTester.getDbClient();
+  private System2 system2 = new TestSystem2().setNow(NOW);
 
-  ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder);
+  private CeTaskMessages taskMessages = mock(CeTaskMessages.class);
+  private DbClient dbClient = dbTester.getDbClient();
+
+  private ValidateProjectStep underTest = new ValidateProjectStep(dbClient, treeRootHolder, analysisMetadataHolder, taskMessages, system2);
 
   @Test
   public void fail_if_slb_is_targeting_master_with_modules() {
@@ -112,6 +121,7 @@ public class ValidateProjectStepTest {
       .build());
 
     underTest.execute(new TestComputationStepContext());
+    verifyZeroInteractions(taskMessages);
   }
 
   @Test
@@ -126,13 +136,7 @@ public class ValidateProjectStepTest {
       .build());
 
     underTest.execute(new TestComputationStepContext());
-  }
-
-  private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {
-    Branch branch = mock(Branch.class);
-    when(branch.getType()).thenReturn(type);
-    when(branch.getMergeBranchUuid()).thenReturn(mergeBranchUuid);
-    analysisMetadataHolder.setBranch(branch);
+    verifyZeroInteractions(taskMessages);
   }
 
   @Test
@@ -164,6 +168,31 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Latest analysis: ");
 
     underTest.execute(new TestComputationStepContext());
+  }
+
+  @Test
+  public void add_warning_when_project_key_is_invalid() {
+    ComponentDto project = dbTester.components().insertPrivateProject(p -> p.setDbKey("inv$lid!"));
+    dbTester.components().insertSnapshot(project, a -> a.setCreatedAt(PAST_ANALYSIS_TIME));
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1)
+      .setUuid(project.uuid())
+      .setKey(project.getKey())
+      .build());
+
+    underTest.execute(new TestComputationStepContext());
+
+    verify(taskMessages, times(1))
+      .add(new CeTaskMessages.Message(
+        "The project key ‘inv$lid!’ contains invalid characters. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit. " +
+          "You should update the project key with the expected format.",
+        NOW));
+  }
+
+  private void setBranch(BranchType type, @Nullable String mergeBranchUuid) {
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(type);
+    when(branch.getMergeBranchUuid()).thenReturn(mergeBranchUuid);
+    analysisMetadataHolder.setBranch(branch);
   }
 
 }

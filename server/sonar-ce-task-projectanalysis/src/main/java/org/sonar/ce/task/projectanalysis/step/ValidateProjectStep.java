@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.System2;
+import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentVisitor;
@@ -46,17 +48,9 @@ import org.sonar.db.component.SnapshotDto;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.component.ComponentKeys.ALLOWED_CHARACTERS_MESSAGE;
+import static org.sonar.core.component.ComponentKeys.isValidProjectKey;
 
-/**
- * Validate project and modules. It will fail in the following cases :
- * <ol>
- * <li>module key is not valid</li>
- * <li>module key already exists in another project (same module key cannot exists in different projects)</li>
- * <li>module key is already used as a project key</li>
- * <li>date of the analysis is before last analysis</li>
- * <li>short living branch or PR targets a branch that still contains modules</li>
- * </ol>
- */
 public class ValidateProjectStep implements ComputationStep {
 
   private static final Joiner MESSAGES_JOINER = Joiner.on("\n  o ");
@@ -64,11 +58,15 @@ public class ValidateProjectStep implements ComputationStep {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final CeTaskMessages taskMessages;
+  private final System2 system2;
 
-  public ValidateProjectStep(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder) {
+  public ValidateProjectStep(DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder, CeTaskMessages taskMessages, System2 system2) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.taskMessages = taskMessages;
+    this.system2 = system2;
   }
 
   @Override
@@ -76,6 +74,7 @@ public class ValidateProjectStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       validateTargetBranch(dbSession);
       Component root = treeRootHolder.getRoot();
+      // FIXME if module have really be dropped, no more need to load them
       List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(dbSession, root.getDbKey());
       Map<String, ComponentDto> baseModulesByKey = baseModules.stream().collect(Collectors.toMap(ComponentDto::getDbKey, x -> x));
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(dbSession, dbClient.componentDao(), baseModulesByKey);
@@ -123,8 +122,20 @@ public class ValidateProjectStep implements ComputationStep {
     @Override
     public void visitProject(Component rawProject) {
       String rawProjectKey = rawProject.getDbKey();
-      Optional<ComponentDto> baseProject = loadBaseComponent(rawProjectKey);
-      validateAnalysisDate(baseProject);
+      Optional<ComponentDto> baseProjectOpt = loadBaseComponent(rawProjectKey);
+      validateAnalysisDate(baseProjectOpt);
+      if (!baseProjectOpt.isPresent()) {
+        return;
+      }
+      if (!isValidProjectKey(baseProjectOpt.get().getKey())) {
+        ComponentDto baseProject = baseProjectOpt.get();
+        // As it was possible in the past to use project key with a format that is no more compatible, we need to display a warning to the user in
+        // order for him to update his project key.
+        taskMessages.add(new CeTaskMessages.Message(
+          format("The project key ‘%s’ contains invalid characters. %s. You should update the project key with the expected format.", baseProject.getKey(),
+            ALLOWED_CHARACTERS_MESSAGE),
+          system2.now()));
+      }
     }
 
     private void validateAnalysisDate(Optional<ComponentDto> baseProject) {

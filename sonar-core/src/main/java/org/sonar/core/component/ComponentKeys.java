@@ -19,6 +19,7 @@
  */
 package org.sonar.core.component;
 
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -29,12 +30,16 @@ public final class ComponentKeys {
 
   public static final int MAX_COMPONENT_KEY_LENGTH = 400;
 
-  /*
-   * Must not be blank or empty
-   */
-  private static final String VALID_PROJECT_KEY_REGEXP = "[^\\p{javaWhitespace}]+";
+  public static final String ALLOWED_CHARACTERS_MESSAGE = "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit";
 
-  /*
+  public static final String MALFORMED_KEY_MESSAGE = "Malformed key for '%s'. %s.";
+
+  /**
+   * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
+   */
+  private static final Pattern VALID_PROJECT_KEY_REGEXP = Pattern.compile("[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*");
+
+  /**
    * Allowed characters are alphanumeric, '-', '_', '.' and '/'
    */
   private static final String VALID_BRANCH_REGEXP = "[\\p{Alnum}\\-_./]*";
@@ -58,13 +63,8 @@ public final class ComponentKeys {
     return sb.toString();
   }
 
-  /**
-   * Test if given parameter is valid for a project. A key is valid if it doesn't contain whitespaces.
-   *
-   * @return <code>true</code> if <code>keyCandidate</code> can be used for a project
-   */
   public static boolean isValidProjectKey(String keyCandidate) {
-    return keyCandidate.matches(VALID_PROJECT_KEY_REGEXP);
+    return VALID_PROJECT_KEY_REGEXP.matcher(keyCandidate).matches();
   }
 
   /**
@@ -73,7 +73,7 @@ public final class ComponentKeys {
    * @throws IllegalArgumentException if the format is incorrect
    */
   public static void checkProjectKey(String keyCandidate) {
-    checkArgument(isValidProjectKey(keyCandidate), "Malformed key for '%s'. %s", keyCandidate, "Project key cannot be empty nor contain whitespaces.");
+    checkArgument(isValidProjectKey(keyCandidate), MALFORMED_KEY_MESSAGE, keyCandidate, ALLOWED_CHARACTERS_MESSAGE);
   }
 
   /**
