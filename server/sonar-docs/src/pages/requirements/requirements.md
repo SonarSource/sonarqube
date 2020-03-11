@@ -68,13 +68,23 @@ To get the full experience SonarQube has to offer, you must enable JavaScript in
 | Opera                       | ![](/images/exclamation.svg) Not tested |
 | Safari                      | ![](/images/check.svg) Latest           |
 
-<!-- sonarqube -->
-## GitHub Enterprise Integration
+## ALM Integrations
+
+### Azure Devops Server
+The [SonarScanner for Azure Devops](/analysis/scan/sonarscanner-for-azure-devops/) is compatible with TFS 2017 Update 2 and greater
+
+### Bitbucket Server
+To add Pull Request analysis to Code Insights in Bitbucket Server, you must be running Bitbucket Server version 5.15+.
+
+### GitHub Enterprise and GitHub.com
 To add Pull Request analysis to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.14+.
 
-## Bitbucket Server Integration
-To add Pull Request analysis to Code Insights in Bitbucket Server, you must be running Bitbucket Server version 5.15+.
-<!-- /sonarqube -->
+GitHub.com is also supported.
+
+### GitLab Self-Managed and GitLab.com
+To add Merge Request Decoration to your Merge Requests in GitLab Self-Managed, you must be running Gitlab Self-Manged 11.7+.
+
+GitLab.com is also supported.
 
 ## Platform notes
 ### Linux
