@@ -2,7 +2,6 @@
 
 exports[`should render flow locations in different file 1`] = `
 <CrossFileLocationsNavigator
-  isTaintAnalysis={false}
   issue={
     Object {
       "actions": Array [],
@@ -98,23 +97,19 @@ exports[`should render flow locations in the same file 1`] = `
 >
   <ConciseIssueLocationsNavigatorLocation
     index={0}
-    isTaintAnalysis={false}
     key="0"
     message="Do not use foo"
     onClick={[MockFunction]}
     scroll={[MockFunction]}
     selected={false}
-    totalCount={2}
   />
   <ConciseIssueLocationsNavigatorLocation
     index={1}
-    isTaintAnalysis={false}
     key="1"
     message="Do not use foo"
     onClick={[MockFunction]}
     scroll={[MockFunction]}
     selected={false}
-    totalCount={2}
   />
 </div>
 `;
@@ -125,23 +120,19 @@ exports[`should render secondary locations in the same file 1`] = `
 >
   <ConciseIssueLocationsNavigatorLocation
     index={0}
-    isTaintAnalysis={false}
     key="0"
     message="Do not use foo"
     onClick={[MockFunction]}
     scroll={[MockFunction]}
     selected={false}
-    totalCount={2}
   />
   <ConciseIssueLocationsNavigatorLocation
     index={1}
-    isTaintAnalysis={false}
     key="1"
     message="Do not use foo"
     onClick={[MockFunction]}
     scroll={[MockFunction]}
     selected={false}
-    totalCount={2}
   />
 </div>
 `;
@@ -152,30 +143,25 @@ exports[`should render selected flow locations in the same file 1`] = `
 >
   <ConciseIssueLocationsNavigatorLocation
     index={0}
-    isTaintAnalysis={false}
     key="0"
     message="Do not use foo"
     onClick={[MockFunction]}
     scroll={[MockFunction]}
     selected={false}
-    totalCount={2}
   />
   <ConciseIssueLocationsNavigatorLocation
     index={1}
-    isTaintAnalysis={false}
     key="1"
     message="Do not use foo"
     onClick={[MockFunction]}
     scroll={[MockFunction]}
     selected={false}
-    totalCount={2}
   />
 </div>
 `;
 
 exports[`should render taint analysis issues correctly 1`] = `
 <CrossFileLocationsNavigator
-  isTaintAnalysis={true}
   issue={
     Object {
       "actions": Array [],

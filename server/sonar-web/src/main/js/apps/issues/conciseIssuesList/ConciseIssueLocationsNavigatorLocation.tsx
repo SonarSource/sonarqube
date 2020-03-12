@@ -23,12 +23,10 @@ import LocationMessage from '../../../components/common/LocationMessage';
 
 interface Props {
   index: number;
-  isTaintAnalysis: boolean;
   message: string | undefined;
   onClick: (index: number) => void;
   scroll: (element: Element) => void;
   selected: boolean;
-  totalCount: number;
 }
 
 export default class ConciseIssueLocationsNavigatorLocation extends React.PureComponent<Props> {
@@ -51,19 +49,8 @@ export default class ConciseIssueLocationsNavigatorLocation extends React.PureCo
     this.props.onClick(this.props.index);
   };
 
-  prefixMessage(index: number, message = '', totalCount: number) {
-    switch (index) {
-      case 0:
-        return 'source: ' + message;
-      case totalCount - 1:
-        return 'sink: ' + message;
-      default:
-        return message;
-    }
-  }
-
   render() {
-    const { index, isTaintAnalysis, message, selected, totalCount } = this.props;
+    const { index, message, selected } = this.props;
 
     return (
       <div className="little-spacer-top" ref={node => (this.node = node)}>
@@ -72,9 +59,7 @@ export default class ConciseIssueLocationsNavigatorLocation extends React.PureCo
           href="#"
           onClick={this.handleClick}>
           <LocationIndex selected={selected}>{index + 1}</LocationIndex>
-          <LocationMessage selected={selected}>
-            {isTaintAnalysis ? this.prefixMessage(index, message, totalCount) : message}
-          </LocationMessage>
+          <LocationMessage selected={selected}>{message}</LocationMessage>
         </a>
       </div>
     );

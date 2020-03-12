@@ -22,25 +22,19 @@ import * as React from 'react';
 import ConciseIssueLocationsNavigatorLocation from '../ConciseIssueLocationsNavigatorLocation';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
-});
-it('should render vulnerabilities correctly', () => {
-  expect(shallowRender({ index: 0, isTaintAnalysis: true, totalCount: 4 })).toMatchSnapshot();
-  expect(shallowRender({ index: 1, isTaintAnalysis: true, totalCount: 4 })).toMatchSnapshot();
-  expect(shallowRender({ index: 3, isTaintAnalysis: true, totalCount: 4 })).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('index 1');
+  expect(shallowRender({ index: 1 })).toMatchSnapshot('index 2');
 });
 
-const shallowRender = (props: Partial<ConciseIssueLocationsNavigatorLocation['props']> = {}) => {
+function shallowRender(props: Partial<ConciseIssueLocationsNavigatorLocation['props']> = {}) {
   return shallow(
     <ConciseIssueLocationsNavigatorLocation
       index={0}
-      isTaintAnalysis={false}
       message=""
       onClick={jest.fn()}
       scroll={jest.fn()}
       selected={true}
-      totalCount={5}
       {...props}
     />
   );
-};
+}

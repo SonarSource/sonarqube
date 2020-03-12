@@ -23,7 +23,6 @@ import { collapsePath } from 'sonar-ui-common/helpers/path';
 import ConciseIssueLocationsNavigatorLocation from './ConciseIssueLocationsNavigatorLocation';
 
 interface Props {
-  isTaintAnalysis: boolean;
   issue: Pick<T.Issue, 'key' | 'type'>;
   locations: T.FlowLocation[];
   onLocationSelect: (index: number) => void;
@@ -41,6 +40,8 @@ interface LocationGroup {
   firstLocationIndex: number;
   locations: T.FlowLocation[];
 }
+
+const MAX_PATH_LENGTH = 15;
 
 export default class CrossFileLocationsNavigator extends React.PureComponent<Props, State> {
   state: State = { collapsed: true };
@@ -112,13 +113,11 @@ export default class CrossFileLocationsNavigator extends React.PureComponent<Pro
     return (
       <ConciseIssueLocationsNavigatorLocation
         index={index}
-        isTaintAnalysis={this.props.isTaintAnalysis}
         key={index}
         message={message}
         onClick={this.props.onLocationSelect}
         scroll={this.props.scroll}
         selected={index === this.props.selectedLocationIndex}
-        totalCount={this.props.locations.length}
       />
     );
   };
@@ -134,7 +133,7 @@ export default class CrossFileLocationsNavigator extends React.PureComponent<Pro
       <div className="concise-issue-locations-navigator-file" key={groupIndex}>
         <div className="concise-issue-location-file">
           <i className="concise-issue-location-file-circle little-spacer-right" />
-          {collapsePath(group.componentName || '', 15)}
+          {collapsePath(group.componentName || '', MAX_PATH_LENGTH)}
         </div>
         {group.locations.length > 0 && (
           <div className="concise-issue-location-file-locations">

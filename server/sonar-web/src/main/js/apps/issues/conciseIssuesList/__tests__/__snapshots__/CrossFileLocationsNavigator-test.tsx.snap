@@ -21,13 +21,11 @@ exports[`should render 1`] = `
     >
       <ConciseIssueLocationsNavigatorLocation
         index={0}
-        isTaintAnalysis={false}
         key="0"
         message="Do not use foo"
         onClick={[MockFunction]}
         scroll={[MockFunction]}
         selected={false}
-        totalCount={3}
       />
     </div>
   </div>
@@ -66,15 +64,49 @@ exports[`should render 1`] = `
     >
       <ConciseIssueLocationsNavigatorLocation
         index={2}
-        isTaintAnalysis={false}
         key="2"
         message="Do not use bar"
         onClick={[MockFunction]}
         scroll={[MockFunction]}
         selected={false}
-        totalCount={3}
       />
     </div>
   </div>
 </div>
+`;
+
+exports[`should render locations with no component name 1`] = `
+<div
+  className="concise-issue-locations-navigator spacer-top"
+>
+  <div
+    className="concise-issue-locations-navigator-file"
+    key="0"
+  >
+    <div
+      className="concise-issue-location-file"
+    >
+      <i
+        className="concise-issue-location-file-circle little-spacer-right"
+      />
+    </div>
+    <div
+      className="concise-issue-location-file-locations"
+    >
+      <ConciseIssueLocationsNavigatorLocation
+        index={0}
+        key="0"
+        onClick={[MockFunction]}
+        scroll={[MockFunction]}
+        selected={false}
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render with no locations 1`] = `
+<div
+  className="concise-issue-locations-navigator spacer-top"
+/>
 `;

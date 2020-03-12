@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
+import { mockFlowLocation } from '../../../../helpers/testMocks';
 import CrossFileLocationsNavigator from '../CrossFileLocationsNavigator';
 
 const location1: T.FlowLocation = {
@@ -43,17 +44,17 @@ const location3: T.FlowLocation = {
   textRange: { startLine: 15, endLine: 16, startOffset: 4, endOffset: 6 }
 };
 
+it('should render with no locations', () => {
+  expect(shallowRender({ locations: [] })).toMatchSnapshot();
+});
+
+it('should render locations with no component name', () => {
+  expect(shallowRender({ locations: [mockFlowLocation({ componentName: '' })] })).toMatchSnapshot();
+});
+
 it('should render', () => {
-  const wrapper = shallow(
-    <CrossFileLocationsNavigator
-      isTaintAnalysis={false}
-      issue={{ key: 'abcd', type: 'BUG' }}
-      locations={[location1, location2, location3]}
-      onLocationSelect={jest.fn()}
-      scroll={jest.fn()}
-      selectedLocationIndex={undefined}
-    />
-  );
+  const wrapper = shallowRender();
+
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('ConciseIssueLocationsNavigatorLocation').length).toBe(2);
 
@@ -62,30 +63,13 @@ it('should render', () => {
 });
 
 it('should render all locations', () => {
-  const wrapper = shallow(
-    <CrossFileLocationsNavigator
-      isTaintAnalysis={false}
-      issue={{ key: 'abcd', type: 'BUG' }}
-      locations={[location1, location2]}
-      onLocationSelect={jest.fn()}
-      scroll={jest.fn()}
-      selectedLocationIndex={undefined}
-    />
-  );
+  const wrapper = shallowRender({ locations: [location1, location2] });
+
   expect(wrapper.find('ConciseIssueLocationsNavigatorLocation').length).toBe(2);
 });
 
 it('should expand all locations', () => {
-  const wrapper = shallow(
-    <CrossFileLocationsNavigator
-      isTaintAnalysis={false}
-      issue={{ key: 'abcd', type: 'BUG' }}
-      locations={[location1, location2, location3]}
-      onLocationSelect={jest.fn()}
-      scroll={jest.fn()}
-      selectedLocationIndex={undefined}
-    />
-  );
+  const wrapper = shallowRender();
   expect(wrapper.find('ConciseIssueLocationsNavigatorLocation').length).toBe(2);
 
   wrapper.setProps({ selectedLocationIndex: 1 });
@@ -93,19 +77,24 @@ it('should expand all locations', () => {
 });
 
 it('should collapse locations when issue changes', () => {
-  const wrapper = shallow(
+  const wrapper = shallowRender();
+
+  wrapper.setProps({ selectedLocationIndex: 1 });
+  expect(wrapper.find('ConciseIssueLocationsNavigatorLocation').length).toBe(3);
+
+  wrapper.setProps({ issue: { key: 'def', type: 'BUG' }, selectedLocationIndex: undefined });
+  expect(wrapper.find('ConciseIssueLocationsNavigatorLocation').length).toBe(2);
+});
+
+function shallowRender(props: Partial<CrossFileLocationsNavigator['props']> = {}) {
+  return shallow<CrossFileLocationsNavigator>(
     <CrossFileLocationsNavigator
-      isTaintAnalysis={false}
       issue={{ key: 'abcd', type: 'BUG' }}
       locations={[location1, location2, location3]}
       onLocationSelect={jest.fn()}
       scroll={jest.fn()}
       selectedLocationIndex={undefined}
+      {...props}
     />
   );
-  wrapper.setProps({ selectedLocationIndex: 1 });
-  expect(wrapper.find('ConciseIssueLocationsNavigatorLocation').length).toBe(3);
-
-  wrapper.setProps({ issue: { key: 'def' }, selectedLocationIndex: undefined });
-  expect(wrapper.find('ConciseIssueLocationsNavigatorLocation').length).toBe(2);
-});
+}
