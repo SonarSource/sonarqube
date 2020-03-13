@@ -58,6 +58,9 @@ processResources {
 
 shadowJar {
   configurations = [project.configurations.default]
+  minimize {
+    exclude(project(':sonar-check-api'))
+  }
   relocate('com.google', 'org.sonar.api.internal.google')
   relocate('org.apache.commons', 'org.sonar.api.internal.apachecommons')
 }

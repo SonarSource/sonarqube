@@ -20,6 +20,8 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.Map;
@@ -27,8 +29,6 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.internal.google.gson.JsonObject;
-import org.sonar.api.internal.google.gson.JsonParser;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.UtcDateUtils;
 
