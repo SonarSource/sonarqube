@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -247,11 +248,13 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
 
     for (Map.Entry<String, FieldDiffs.Diff> e : fieldDiffs.diffs().entrySet()) {
       IssueCache.Diff.Builder diffBuilder = IssueCache.Diff.newBuilder();
-      if (e.getValue().oldValue() != null) {
-        diffBuilder.setOldValue(e.getValue().oldValue().toString());
+      Serializable oldValue = e.getValue().oldValue();
+      if (oldValue != null) {
+        diffBuilder.setOldValue(oldValue.toString());
       }
-      if (e.getValue().newValue() != null) {
-        diffBuilder.setNewValue(e.getValue().newValue().toString());
+      Serializable newValue = e.getValue().newValue();
+      if (newValue != null) {
+        diffBuilder.setNewValue(newValue.toString());
 
       }
       builder.putDiffs(e.getKey(), diffBuilder.build());
