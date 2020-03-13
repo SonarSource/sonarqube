@@ -60,9 +60,11 @@ import org.sonar.api.utils.DateUtils;
  * method {@link #close()} closes the underlying writer.
  * </p>
  *
- *
  * @since 4.2
+ * @deprecated since 8.3 this utility class will be moved out of the API. Use your own JSON dependency
+ * if you need to write JSON from your plugin
  */
+@Deprecated
 public class JsonWriter implements AutoCloseable {
 
   private final com.google.gson.stream.JsonWriter stream;
