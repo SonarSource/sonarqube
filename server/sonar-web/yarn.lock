@@ -1613,6 +1613,15 @@
     "@typescript-eslint/typescript-estree" "2.24.0"
     eslint-scope "^5.0.0"
 
+"@typescript-eslint/experimental-utils@^2.5.0":
+  version "2.23.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@typescript-eslint/experimental-utils/-/experimental-utils-2.23.0.tgz#5d2261c8038ec1698ca4435a8da479c661dc9242"
+  integrity sha1-XSJhyAOOwWmMpENajaR5xmHckkI=
+  dependencies:
+    "@types/json-schema" "^7.0.3"
+    "@typescript-eslint/typescript-estree" "2.23.0"
+    eslint-scope "^5.0.0"
+
 "@typescript-eslint/parser@2.24.0":
   version "2.24.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@typescript-eslint/parser/-/parser-2.24.0.tgz#2cf0eae6e6dd44d162486ad949c126b887f11eb8"
@@ -1622,6 +1631,19 @@
     "@typescript-eslint/experimental-utils" "2.24.0"
     "@typescript-eslint/typescript-estree" "2.24.0"
     eslint-visitor-keys "^1.1.0"
+
+"@typescript-eslint/typescript-estree@2.23.0":
+  version "2.23.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/@typescript-eslint/typescript-estree/-/typescript-estree-2.23.0.tgz#d355960fab96bd550855488dcc34b9a4acac8d36"
+  integrity sha1-01WWD6uWvVUIVUiNzDS5pKysjTY=
+  dependencies:
+    debug "^4.1.1"
+    eslint-visitor-keys "^1.1.0"
+    glob "^7.1.6"
+    is-glob "^4.0.1"
+    lodash "^4.17.15"
+    semver "^6.3.0"
+    tsutils "^3.17.1"
 
 "@typescript-eslint/typescript-estree@2.24.0":
   version "2.24.0"
@@ -4383,10 +4405,10 @@ escodegen@^1.11.1:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-config-sonarqube@0.5.1:
-  version "0.5.1"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/eslint-config-sonarqube/-/eslint-config-sonarqube-0.5.1.tgz#787f7226aea228fcc299dd996d1cc07e2c9f786b"
-  integrity sha1-eH9yJq6iKPzCmd2ZbRzAfiyfeGs=
+eslint-config-sonarqube@0.6.0:
+  version "0.6.0"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/eslint-config-sonarqube/-/eslint-config-sonarqube-0.6.0.tgz#4b507412160876adbd91c26906a3f31fa6f20519"
+  integrity sha1-S1B0EhYIdq29kcJpBqPzH6byBRk=
 
 eslint-import-resolver-node@^0.3.2:
   version "0.3.2"
@@ -4421,6 +4443,13 @@ eslint-plugin-import@2.20.1:
     object.values "^1.1.0"
     read-pkg-up "^2.0.0"
     resolve "^1.12.0"
+
+eslint-plugin-jest@23.8.2:
+  version "23.8.2"
+  resolved "https://repox.jfrog.io/repox/api/npm/npm/eslint-plugin-jest/-/eslint-plugin-jest-23.8.2.tgz#6f28b41c67ef635f803ebd9e168f6b73858eb8d4"
+  integrity sha1-byi0HGfvY1+APr2eFo9rc4WOuNQ=
+  dependencies:
+    "@typescript-eslint/experimental-utils" "^2.5.0"
 
 eslint-plugin-jsx-a11y@6.2.3:
   version "6.2.3"
