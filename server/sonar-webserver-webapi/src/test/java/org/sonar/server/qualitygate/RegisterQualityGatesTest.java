@@ -46,6 +46,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.Metric.ValueType.INT;
@@ -234,6 +235,7 @@ public class RegisterQualityGatesTest {
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_MAINTAINABILITY_RATING_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_COVERAGE_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setValueType(PERCENT.name()).setHidden(false).setDirection(0));
     dbSession.commit();
   }
 
@@ -243,6 +245,8 @@ public class RegisterQualityGatesTest {
     MetricDto newMaintainability = metricDao.selectByKey(dbSession, NEW_MAINTAINABILITY_RATING_KEY);
     MetricDto newCoverage = metricDao.selectByKey(dbSession, NEW_COVERAGE_KEY);
     MetricDto newDuplication = metricDao.selectByKey(dbSession, NEW_DUPLICATED_LINES_DENSITY_KEY);
+    MetricDto newSecurityHotspots = metricDao.selectByKey(dbSession, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
+
 
     QualityGateDto qualityGateDto = qualityGateDao.selectByName(dbSession, BUILT_IN_NAME);
     assertThat(qualityGateDto).isNotNull();
@@ -251,12 +255,13 @@ public class RegisterQualityGatesTest {
     assertThat(gateConditionDao.selectForQualityGate(dbSession, qualityGateDto.getId()))
       .extracting(QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
         QualityGateConditionDto::getErrorThreshold)
-      .containsOnly(
+      .containsExactlyInAnyOrder(
         tuple(newReliability.getId().longValue(), OPERATOR_GREATER_THAN, "1"),
         tuple(newSecurity.getId().longValue(), OPERATOR_GREATER_THAN, "1"),
         tuple(newMaintainability.getId().longValue(), OPERATOR_GREATER_THAN, "1"),
         tuple(newCoverage.getId().longValue(), OPERATOR_LESS_THAN, "80"),
-        tuple(newDuplication.getId().longValue(), OPERATOR_GREATER_THAN, "3"));
+        tuple(newDuplication.getId().longValue(), OPERATOR_GREATER_THAN, "3"),
+        tuple(newSecurityHotspots.getId().longValue(), OPERATOR_LESS_THAN, "100"));
   }
 
   private List<QualityGateConditionDto> createBuiltInConditions(QualityGateDto qg) {
@@ -272,6 +277,8 @@ public class RegisterQualityGatesTest {
       NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, "80"));
     conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
       NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, "3"));
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
+      NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, OPERATOR_LESS_THAN, "100"));
 
     return conditions;
   }

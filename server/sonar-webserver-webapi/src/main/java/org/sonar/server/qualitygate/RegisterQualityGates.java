@@ -46,6 +46,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THAN;
@@ -62,7 +63,8 @@ public class RegisterQualityGates implements Startable {
     new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
     new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold(A_RATING),
     new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("80"),
-    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("3"));
+    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setErrorThreshold("3"),
+    new QualityGateCondition().setMetricKey(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY).setOperator(OPERATOR_LESS_THAN).setErrorThreshold("100"));
 
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
