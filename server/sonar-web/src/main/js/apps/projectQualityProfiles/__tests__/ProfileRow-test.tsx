@@ -45,9 +45,9 @@ it('changes profile', async () => {
   (wrapper.instance() as ProfileRow).mounted = true;
   wrapper.find('Select').prop<Function>('onChange')({ value: 'baz' });
   expect(onChangeProfile).toBeCalledWith('foo', 'baz');
-  expect(wrapper.state().loading).toBeTruthy();
+  expect(wrapper.state().loading).toBe(true);
   await new Promise(setImmediate);
-  expect(wrapper.state().loading).toBeFalsy();
+  expect(wrapper.state().loading).toBe(false);
 });
 
 function randomProfile(key: string) {

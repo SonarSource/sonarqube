@@ -89,7 +89,7 @@ describe('Selectors', () => {
     const foo = { key: 'foo', name: 'Foo' };
     const state = { ...state0, byKey: { foo } };
     expect(getOrganizationByKey(state, 'foo')).toBe(foo);
-    expect(getOrganizationByKey(state, 'bar')).toBeFalsy();
+    expect(getOrganizationByKey(state, 'bar')).toBeUndefined();
   });
 
   it('getMyOrganizations', () => {

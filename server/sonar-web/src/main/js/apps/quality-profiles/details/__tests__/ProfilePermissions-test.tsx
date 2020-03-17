@@ -56,14 +56,14 @@ it('opens add users form', async () => {
   const wrapper = shallow(<ProfilePermissions profile={profile} />);
   expect(searchUsers).toHaveBeenCalled();
   await waitAndUpdate(wrapper);
-  expect(wrapper.find('ProfilePermissionsForm').exists()).toBeFalsy();
+  expect(wrapper.find('ProfilePermissionsForm').exists()).toBe(false);
 
   click(wrapper.find('Button'));
-  expect(wrapper.find('ProfilePermissionsForm').exists()).toBeTruthy();
+  expect(wrapper.find('ProfilePermissionsForm').exists()).toBe(true);
 
   wrapper.find('ProfilePermissionsForm').prop<Function>('onClose')();
   wrapper.update();
-  expect(wrapper.find('ProfilePermissionsForm').exists()).toBeFalsy();
+  expect(wrapper.find('ProfilePermissionsForm').exists()).toBe(false);
 });
 
 it('removes user', () => {

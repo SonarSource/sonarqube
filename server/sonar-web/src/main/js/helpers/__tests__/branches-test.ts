@@ -97,27 +97,27 @@ describe('#isSameBranchLike', () => {
     const foo = mockBranch({ name: 'foo' });
     const foo1 = mockBranch({ name: 'foo-1' });
     const pr = mockPullRequest();
-    expect(isSameBranchLike(main, pr)).toBeFalsy();
-    expect(isSameBranchLike(main, foo1)).toBeFalsy();
-    expect(isSameBranchLike(main, foo)).toBeFalsy();
-    expect(isSameBranchLike(pr, foo1)).toBeFalsy();
-    expect(isSameBranchLike(pr, foo)).toBeFalsy();
-    expect(isSameBranchLike(foo1, foo)).toBeFalsy();
+    expect(isSameBranchLike(main, pr)).toBe(false);
+    expect(isSameBranchLike(main, foo1)).toBe(false);
+    expect(isSameBranchLike(main, foo)).toBe(false);
+    expect(isSameBranchLike(pr, foo1)).toBe(false);
+    expect(isSameBranchLike(pr, foo)).toBe(false);
+    expect(isSameBranchLike(foo1, foo)).toBe(false);
   });
 
   it('compares pull requests', () => {
     expect(
       isSameBranchLike(mockPullRequest({ key: '1234' }), mockPullRequest({ key: '1234' }))
-    ).toBeTruthy();
+    ).toBe(true);
     expect(
       isSameBranchLike(mockPullRequest({ key: '1234' }), mockPullRequest({ key: '5678' }))
-    ).toBeFalsy();
+    ).toBe(false);
   });
 
   it('compares branches', () => {
-    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'foo' }))).toBeTruthy();
-    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'foo' }))).toBeTruthy();
-    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'bar' }))).toBeFalsy();
-    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'bar' }))).toBeFalsy();
+    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'foo' }))).toBe(true);
+    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'foo' }))).toBe(true);
+    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'bar' }))).toBe(false);
+    expect(isSameBranchLike(mockBranch({ name: 'foo' }), mockBranch({ name: 'bar' }))).toBe(false);
   });
 });

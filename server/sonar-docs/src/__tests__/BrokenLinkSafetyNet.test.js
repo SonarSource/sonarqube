@@ -66,7 +66,7 @@ it('should have valid links in trees files', () => {
     };
     tree.forEach(walk);
   });
-  expect(hasErrors).toBeFalsy();
+  expect(hasErrors).toBe(false);
 });
 
 it('should have valid links in suggestions file', () => {
@@ -84,7 +84,7 @@ it('should have valid links in suggestions file', () => {
       }
     });
   });
-  expect(hasErrors).toBeFalsy();
+  expect(hasErrors).toBe(false);
 });
 
 it('should have valid and uniq links in url metadata field', () => {
@@ -103,7 +103,7 @@ it('should have valid and uniq links in url metadata field', () => {
 
     urlLists = [...urlLists, file.frontmatter.url];
   });
-  expect(hasErrors).toBeFalsy();
+  expect(hasErrors).toBe(false);
 });
 
 it('should have valid links pointing to documentation inside pages', () => {
@@ -146,7 +146,7 @@ function checkContentUrl(files) {
       }
     });
   });
-  expect(hasErrors).toBeFalsy();
+  expect(hasErrors).toBe(false);
 }
 
 function urlExists(files, url) {

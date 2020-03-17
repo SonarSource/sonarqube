@@ -39,11 +39,5 @@ it('should not render pull request decoration binding component when the compone
     c => c.key === PULL_REQUEST_DECORATION_BINDING_CATEGORY
   );
 
-  if (!category) {
-    fail('category should be defined');
-  } else {
-    expect(
-      category.renderComponent({ component: undefined, selectedCategory: '' })
-    ).toBeUndefined();
-  }
+  expect(category!.renderComponent({ component: undefined, selectedCategory: '' })).toBeUndefined();
 });

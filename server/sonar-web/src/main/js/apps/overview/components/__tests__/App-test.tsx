@@ -45,7 +45,7 @@ it('should render BranchOverview', () => {
     getWrapper()
       .find(BranchOverview)
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });
 
 function getWrapper(props = {}) {

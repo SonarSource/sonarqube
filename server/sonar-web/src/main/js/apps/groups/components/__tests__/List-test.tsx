@@ -30,7 +30,7 @@ it('should not render "Anyone"', () => {
     shallowRender(false)
       .find('.js-anyone')
       .exists()
-  ).toBeFalsy();
+  ).toBe(false);
 });
 
 function shallowRender(showAnyone = true) {

@@ -138,7 +138,7 @@ describe('hasHistoryData', () => {
           ]
         }
       ])
-    ).toBeTruthy();
+    ).toBe(true);
     expect(
       utils.hasHistoryData([
         {
@@ -157,7 +157,7 @@ describe('hasHistoryData', () => {
           ]
         }
       ])
-    ).toBeTruthy();
+    ).toBe(true);
     expect(
       utils.hasHistoryData([
         {
@@ -167,7 +167,7 @@ describe('hasHistoryData', () => {
           data: [{ x: dates.parseDate('2017-04-27T08:21:32.000Z'), y: 2 }]
         }
       ])
-    ).toBeFalsy();
+    ).toBe(false);
   });
 });
 

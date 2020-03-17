@@ -47,13 +47,13 @@ it('should display a change password button', () => {
     shallowRender({ organizationsEnabled: true })
       .find('UserGroups')
       .exists()
-  ).toBeFalsy();
+  ).toBe(false);
 });
 
 it('should open the correct forms', () => {
   const wrapper = shallowRender();
   click(wrapper.find('.js-user-tokens'));
-  expect(wrapper.find('TokensFormModal').exists()).toBeTruthy();
+  expect(wrapper.find('TokensFormModal').exists()).toBe(true);
 });
 
 function shallowRender(props: Partial<UserListItem['props']> = {}) {

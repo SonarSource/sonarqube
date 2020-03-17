@@ -54,7 +54,7 @@ it('changes default visibility', () => {
 
   modalWrapper.prop<Function>('onClose')();
   wrapper.update();
-  expect(wrapper.find('ChangeDefaultVisibilityForm').exists()).toBeFalsy();
+  expect(wrapper.find('ChangeDefaultVisibilityForm').exists()).toBe(false);
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {

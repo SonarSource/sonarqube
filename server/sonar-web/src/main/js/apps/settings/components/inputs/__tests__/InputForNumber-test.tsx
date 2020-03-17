@@ -31,5 +31,5 @@ it('should render SimpleInput', () => {
   expect(simpleInput.prop('name')).toBe('foo');
   expect(simpleInput.prop('value')).toBe(17);
   expect(simpleInput.prop('type')).toBe('text');
-  expect(simpleInput.prop('onChange')).toBeTruthy();
+  expect(simpleInput.prop('onChange')).toBeDefined();
 });

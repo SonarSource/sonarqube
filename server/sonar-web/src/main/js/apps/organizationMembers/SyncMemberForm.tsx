@@ -61,7 +61,6 @@ export class SyncMemberForm extends React.PureComponent<Props, State> {
       if (membersSync) {
         return this.handleMemberSync();
       }
-      return Promise.resolve();
     });
   };
 

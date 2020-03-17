@@ -32,7 +32,7 @@ describe('getDuplicationBlocksForIndex', () => {
 });
 
 describe('isDuplicationBlockInRemovedComponent', () => {
-  it('should ', () => {
+  it('should', () => {
     expect(
       isDuplicationBlockInRemovedComponent([
         { _ref: '0', from: 2, size: 2 },

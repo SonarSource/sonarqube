@@ -32,25 +32,25 @@ const loggedOut = { isLoggedIn: false };
 
 describe('isCurrentUserMemberOf', () => {
   it('should be a member', () => {
-    expect(isCurrentUserMemberOf(loggedIn, adminOrg, [])).toBeTruthy();
-    expect(isCurrentUserMemberOf(loggedIn, org, [org])).toBeTruthy();
+    expect(isCurrentUserMemberOf(loggedIn, adminOrg, [])).toBe(true);
+    expect(isCurrentUserMemberOf(loggedIn, org, [org])).toBe(true);
   });
 
   it('should not be a member', () => {
-    expect(isCurrentUserMemberOf(loggedIn, undefined, [])).toBeFalsy();
-    expect(isCurrentUserMemberOf(loggedIn, org, [])).toBeFalsy();
-    expect(isCurrentUserMemberOf(loggedIn, org, [randomOrg])).toBeFalsy();
-    expect(isCurrentUserMemberOf(loggedOut, org, [org])).toBeFalsy();
+    expect(isCurrentUserMemberOf(loggedIn, undefined, [])).toBe(false);
+    expect(isCurrentUserMemberOf(loggedIn, org, [])).toBe(false);
+    expect(isCurrentUserMemberOf(loggedIn, org, [randomOrg])).toBe(false);
+    expect(isCurrentUserMemberOf(loggedOut, org, [org])).toBe(false);
   });
 });
 
 describe('hasPrivateAccess', () => {
   it('should have access', () => {
-    expect(hasPrivateAccess(loggedIn, randomOrg, [])).toBeTruthy();
-    expect(hasPrivateAccess(loggedIn, org, [org])).toBeTruthy();
+    expect(hasPrivateAccess(loggedIn, randomOrg, [])).toBe(true);
+    expect(hasPrivateAccess(loggedIn, org, [org])).toBe(true);
   });
 
   it('should not have access', () => {
-    expect(hasPrivateAccess(loggedIn, org, [])).toBeFalsy();
+    expect(hasPrivateAccess(loggedIn, org, [])).toBe(false);
   });
 });

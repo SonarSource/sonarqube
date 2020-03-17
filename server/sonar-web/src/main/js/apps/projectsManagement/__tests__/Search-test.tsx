@@ -58,9 +58,9 @@ it('selects provisioned', () => {
 
 it('does not render provisioned filter for portfolios', () => {
   const wrapper = shallowRender();
-  expect(wrapper.find('Checkbox[id="projects-provisioned"]').exists()).toBeTruthy();
+  expect(wrapper.find('Checkbox[id="projects-provisioned"]').exists()).toBe(true);
   wrapper.setProps({ qualifiers: 'VW' });
-  expect(wrapper.find('Checkbox[id="projects-provisioned"]').exists()).toBeFalsy();
+  expect(wrapper.find('Checkbox[id="projects-provisioned"]').exists()).toBe(false);
 });
 
 it('updates analysis date', () => {
@@ -108,7 +108,7 @@ it('bulk applies permission template', () => {
   expect(wrapper.find('BulkApplyTemplateModal')).toMatchSnapshot();
   wrapper.find('BulkApplyTemplateModal').prop<Function>('onClose')();
   wrapper.update();
-  expect(wrapper.find('BulkApplyTemplateModal').exists()).toBeFalsy();
+  expect(wrapper.find('BulkApplyTemplateModal').exists()).toBe(false);
 });
 
 function shallowRender(props?: { [P in keyof Props]?: Props[P] }) {

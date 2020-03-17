@@ -80,7 +80,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
             <p className="little-spacer-bottom">
               {translate('marketplace.available_under_commercial_license')}
             </p>
-            <a href={plugin.homepageUrl} target="_blank">
+            <a href={plugin.homepageUrl} target="_blank" rel="noopener noreferrer">
               {translate('marketplace.learn_more')}
             </a>
           </div>
@@ -131,7 +131,8 @@ export default class PluginActions extends React.PureComponent<Props, State> {
             <a
               className="js-plugin-terms nowrap little-spacer-left"
               href={plugin.termsAndConditionsUrl}
-              target="_blank">
+              target="_blank"
+              rel="noopener noreferrer">
               {translate('marketplace.terms_and_conditions')}
             </a>
           </p>

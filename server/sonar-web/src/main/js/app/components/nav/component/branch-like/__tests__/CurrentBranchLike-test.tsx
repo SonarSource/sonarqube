@@ -25,7 +25,7 @@ import { ComponentQualifier } from '../../../../../../types/component';
 import { CurrentBranchLike, CurrentBranchLikeProps } from '../CurrentBranchLike';
 
 describe('CurrentBranchLikeRenderer should render correctly for application when', () => {
-  test('there is only one branch and the user can admin the application', () => {
+  it('there is only one branch and the user can admin the application', () => {
     const wrapper = shallowRender({
       component: mockComponent({
         configuration: { showSettings: true },
@@ -36,7 +36,7 @@ describe('CurrentBranchLikeRenderer should render correctly for application when
     expect(wrapper).toMatchSnapshot();
   });
 
-  test("there is only one branch and the user CAN'T admin the application", () => {
+  it("there is only one branch and the user CAN'T admin the application", () => {
     const wrapper = shallowRender({
       component: mockComponent({
         configuration: { showSettings: false },
@@ -47,7 +47,7 @@ describe('CurrentBranchLikeRenderer should render correctly for application when
     expect(wrapper).toMatchSnapshot();
   });
 
-  test('there are many branchlikes', () => {
+  it('there are many branchlikes', () => {
     const wrapper = shallowRender({
       branchesEnabled: true,
       component: mockComponent({
@@ -60,7 +60,7 @@ describe('CurrentBranchLikeRenderer should render correctly for application when
 });
 
 describe('CurrentBranchLikeRenderer should render correctly for project when', () => {
-  test('branches support is disabled', () => {
+  it('branches support is disabled', () => {
     const wrapper = shallowRender({
       branchesEnabled: false,
       component: mockComponent({
@@ -70,7 +70,7 @@ describe('CurrentBranchLikeRenderer should render correctly for project when', (
     expect(wrapper).toMatchSnapshot();
   });
 
-  test('there is only one branchlike', () => {
+  it('there is only one branchlike', () => {
     const wrapper = shallowRender({
       branchesEnabled: true,
       component: mockComponent({
@@ -81,7 +81,7 @@ describe('CurrentBranchLikeRenderer should render correctly for project when', (
     expect(wrapper).toMatchSnapshot();
   });
 
-  test('there are many branchlikes', () => {
+  it('there are many branchlikes', () => {
     const wrapper = shallowRender({
       branchesEnabled: true,
       component: mockComponent({

@@ -27,7 +27,7 @@ interface Props {
 
 export function MenuExternalLink({ title, url }: Props) {
   return (
-    <a href={url} key={title} target="_blank">
+    <a href={url} key={title} target="_blank" rel="noopener noreferrer">
       <h3 className="list-group-item-heading">
         <DetachIcon className="spacer-right" />
         {title}

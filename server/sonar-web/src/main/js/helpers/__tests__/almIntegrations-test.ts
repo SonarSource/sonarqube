@@ -37,19 +37,19 @@ it('#getAlmMembersUrl', () => {
 });
 
 it('#isBitbucket', () => {
-  expect(isBitbucket('bitbucket')).toBeTruthy();
-  expect(isBitbucket('bitbucketcloud')).toBeTruthy();
-  expect(isBitbucket('github')).toBeFalsy();
+  expect(isBitbucket('bitbucket')).toBe(true);
+  expect(isBitbucket('bitbucketcloud')).toBe(true);
+  expect(isBitbucket('github')).toBe(false);
 });
 
 it('#isGithub', () => {
-  expect(isGithub('github')).toBeTruthy();
-  expect(isGithub('bitbucket')).toBeFalsy();
+  expect(isGithub('github')).toBe(true);
+  expect(isGithub('bitbucket')).toBe(false);
 });
 
 it('#isVSTS', () => {
-  expect(isVSTS('microsoft')).toBeTruthy();
-  expect(isVSTS('github')).toBeFalsy();
+  expect(isVSTS('microsoft')).toBe(true);
+  expect(isVSTS('github')).toBe(false);
 });
 
 it('#sanitizeAlmId', () => {

@@ -84,13 +84,13 @@ it('should not render link to activity page for files', () => {
     shallow(<MeasureHeader {...PROPS} />)
       .find('HistoryIcon')
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 
   expect(
     shallow(<MeasureHeader {...PROPS} component={{ ...PROPS.component, qualifier: 'FIL' }} />)
       .find('HistoryIcon')
       .exists()
-  ).toBeFalsy();
+  ).toBe(false);
 });
 
 it('should display secondary measure too', () => {

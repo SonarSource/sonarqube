@@ -34,12 +34,11 @@ interface Props {
 
 interface State {
   content?: string;
-  open: boolean;
 }
 
 export default class DocTooltip extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { open: false };
+  state: State = {};
 
   componentDidMount() {
     this.mounted = true;
@@ -51,19 +50,11 @@ export default class DocTooltip extends React.PureComponent<Props, State> {
       },
       () => {}
     );
-    document.addEventListener('scroll', this.close, true);
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    document.removeEventListener('scroll', this.close, true);
   }
-
-  close = () => {
-    if (this.mounted) {
-      this.setState({ open: false });
-    }
-  };
 
   render() {
     return this.state.content ? (

@@ -151,10 +151,10 @@ it('should set tutorial done', () => {
   const instance = wrapper.instance();
 
   instance.setTutorialDone(false);
-  expect(wrapper.state('isTutorialDone')).toBeFalsy();
+  expect(wrapper.state('isTutorialDone')).toBe(false);
 
   instance.setTutorialDone(true);
-  expect(wrapper.state('isTutorialDone')).toBeTruthy();
+  expect(wrapper.state('isTutorialDone')).toBe(true);
 });
 
 it('should have a spinner', () => {

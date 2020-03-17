@@ -71,7 +71,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
 
   renderSonarCloudLinks() {
     return (
-      <React.Fragment>
+      <>
         <li className="divider" />
         <li>
           <a
@@ -100,13 +100,13 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         <li>
           <ProductNewsMenuItem tag="SonarCloud" />
         </li>
-      </React.Fragment>
+      </>
     );
   }
 
   renderSonarQubeLinks() {
     return (
-      <React.Fragment>
+      <>
         <li className="divider" />
         <li>
           <a href="https://community.sonarsource.com/" rel="noopener noreferrer" target="_blank">
@@ -129,7 +129,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
             'Twitter'
           )}
         </li>
-      </React.Fragment>
+      </>
     );
   }
 

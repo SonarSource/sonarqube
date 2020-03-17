@@ -29,14 +29,14 @@ it('should render textarea', () => {
   expect(textarea.length).toBe(1);
   expect(textarea.prop('name')).toBe('foo');
   expect(textarea.prop('value')).toBe('bar');
-  expect(textarea.prop('onChange')).toBeTruthy();
+  expect(textarea.prop('onChange')).toBeDefined();
 });
 
 it('should call onChange', () => {
   const onChange = jest.fn();
   const textarea = shallowRender({ onChange }).find('textarea');
   expect(textarea.length).toBe(1);
-  expect(textarea.prop('onChange')).toBeTruthy();
+  expect(textarea.prop('onChange')).toBeDefined();
 
   change(textarea, 'qux');
   expect(onChange).toBeCalledWith('qux');

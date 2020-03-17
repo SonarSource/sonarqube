@@ -46,7 +46,7 @@ it('should show all groups', () => {
 it('should open the groups form', () => {
   const wrapper = getWrapper();
   click(wrapper.find('.js-user-groups'));
-  expect(wrapper.find('GroupsForm').exists()).toBeTruthy();
+  expect(wrapper.find('GroupsForm').exists()).toBe(true);
 });
 
 function getWrapper(props = {}) {

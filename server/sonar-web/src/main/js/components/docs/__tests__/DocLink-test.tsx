@@ -116,7 +116,7 @@ it('should not render sonarqube admin link on sonarcloud', () => {
   expect(wrapper.find('SonarQubeAdminLink').dive()).toMatchSnapshot();
 });
 
-it.skip('should render documentation anchor', () => {
+it('should render documentation anchor', () => {
   expect(
     shallow(
       <DocLink appState={{ canAdmin: false }} href="#quality-profiles">

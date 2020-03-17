@@ -153,6 +153,7 @@ class CreationDateFacet extends React.PureComponent<Props & InjectedIntlProps> {
 
       const tooltipEndDate = endDate || new Date();
       const tooltip = (
+        // eslint-disable-next-line react/jsx-fragments
         <React.Fragment>
           {formatMeasure(stats[start], 'SHORT_INT')}
           <br />

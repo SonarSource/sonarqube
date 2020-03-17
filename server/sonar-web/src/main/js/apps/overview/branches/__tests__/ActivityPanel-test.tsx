@@ -45,22 +45,14 @@ it('should correctly pass the leak period start date', () => {
     .find(GraphsHistory)
     .props();
 
-  if (leakPeriodDate) {
-    expect(leakPeriodDate.getTime()).toBe(1503844430000); /* 2017-08-27T16:33:50+0200 */
-  } else {
-    fail('leakPeriodDate should have been set');
-  }
+  expect(leakPeriodDate!.getTime()).toBe(1503844430000); /* 2017-08-27T16:33:50+0200 */
 
   // Leak period start is older than the oldest historic measure.
   ({ leakPeriodDate } = shallowRender({ leakPeriodDate: parseDate('2015-08-27T16:33:50+0200') })
     .find(GraphsHistory)
     .props());
 
-  if (leakPeriodDate) {
-    expect(leakPeriodDate.getTime()).toBe(1477578830000); /* 2016-10-27T16:33:50+0200 */
-  } else {
-    fail('leakPeriodDate should have been set');
-  }
+  expect(leakPeriodDate!.getTime()).toBe(1477578830000); /* 2016-10-27T16:33:50+0200 */
 });
 
 function shallowRender(props: Partial<ActivityPanelProps> = {}) {

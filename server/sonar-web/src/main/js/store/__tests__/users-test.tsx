@@ -95,21 +95,21 @@ describe('getters', () => {
   const john = mockUser({ login: 'john' });
   const state = createState({ currentUser, usersByLogin: { jane, john } });
 
-  test('getCurrentUser', () => {
+  it('getCurrentUser', () => {
     expect(getCurrentUser(state)).toBe(currentUser);
   });
 
-  test('getCurrentUserSetting', () => {
+  it('getCurrentUserSetting', () => {
     expect(getCurrentUserSetting(state, 'notifications.optOut')).toBe('1');
     expect(getCurrentUserSetting(state, 'notifications.readDate')).toBeUndefined();
   });
 
-  test('getUserByLogin', () => {
+  it('getUserByLogin', () => {
     expect(getUserByLogin(state, 'jane')).toBe(jane);
     expect(getUserByLogin(state, 'steve')).toBeUndefined();
   });
 
-  test('getUsersByLogins', () => {
+  it('getUsersByLogins', () => {
     expect(getUsersByLogins(state, ['jane', 'john'])).toEqual([jane, john]);
   });
 });

@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import Search from '../components/Search';
-import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS, STATUSES } from '../constants';
+import { CURRENTS, DEFAULT_FILTERS, STATUSES } from '../constants';
 import { formatDuration } from '../utils';
 
 describe('Constants', () => {
@@ -47,23 +47,20 @@ describe('Search', () => {
 
   it('should render search form', () => {
     const component = shallow(<Search {...defaultProps} />);
-    expect(component.find('SearchBox').exists()).toBeTruthy();
+    expect(component.find('SearchBox').exists()).toBe(true);
   });
 
   it('should not render search form', () => {
     const component = shallow(<Search {...defaultProps} component={{ id: 'ABCD' }} />);
-    expect(component.find('SearchBox').exists()).toBeFalsy();
+    expect(component.find('SearchBox').exists()).toBe(false);
   });
 
-  it('should search', done => {
+  it('should search', () => {
     const searchSpy = jest.fn();
     const component = shallow(<Search {...defaultProps} onFilterUpdate={searchSpy} />);
     const searchInput = component.find('SearchBox');
     searchInput.prop<Function>('onChange')('some search query');
-    setTimeout(() => {
-      expect(searchSpy).toBeCalledWith({ query: 'some search query' });
-      done();
-    }, DEBOUNCE_DELAY);
+    expect(searchSpy).toBeCalledWith({ query: 'some search query' });
   });
 
   it('should reload', () => {

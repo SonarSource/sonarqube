@@ -42,12 +42,8 @@ it('should correctly handle a change of the selected language', () => {
 
   const { onChange } = wrapper.find(Select).props();
 
-  if (!onChange) {
-    fail('onChange should be defined');
-  } else {
-    onChange({ label: '', originalValue: 'CoBoL', value: 'cobol' });
-    expect(push).toHaveBeenCalledWith(expect.objectContaining({ query: { category: 'CoBoL' } }));
-  }
+  onChange!({ label: '', originalValue: 'CoBoL', value: 'cobol' });
+  expect(push).toHaveBeenCalledWith(expect.objectContaining({ query: { category: 'CoBoL' } }));
 });
 
 it('should correctly show the subcategory for a component', () => {

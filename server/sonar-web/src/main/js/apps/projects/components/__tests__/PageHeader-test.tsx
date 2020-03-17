@@ -34,7 +34,7 @@ it('should not render projects total', () => {
     shallowRender({ total: undefined })
       .find('#projects-total')
       .exists()
-  ).toBeFalsy();
+  ).toBe(false);
 });
 
 it('should render disabled sorting options for visualizations', () => {

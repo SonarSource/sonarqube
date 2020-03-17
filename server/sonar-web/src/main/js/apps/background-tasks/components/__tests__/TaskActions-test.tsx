@@ -36,7 +36,7 @@ it('shows stack trace', () => {
   expect(wrapper.find('Stacktrace')).toMatchSnapshot();
   wrapper.find('Stacktrace').prop<Function>('onClose')();
   wrapper.update();
-  expect(wrapper.find('Stacktrace').exists()).toBeFalsy();
+  expect(wrapper.find('Stacktrace').exists()).toBe(false);
 });
 
 it('shows scanner context', () => {
@@ -45,7 +45,7 @@ it('shows scanner context', () => {
   expect(wrapper.find('ScannerContext')).toMatchSnapshot();
   wrapper.find('ScannerContext').prop<Function>('onClose')();
   wrapper.update();
-  expect(wrapper.find('ScannerContext').exists()).toBeFalsy();
+  expect(wrapper.find('ScannerContext').exists()).toBe(false);
 });
 
 it('shows warnings', () => {
@@ -54,7 +54,7 @@ it('shows warnings', () => {
   expect(wrapper.find('AnalysisWarningsModal')).toMatchSnapshot();
   wrapper.find('AnalysisWarningsModal').prop<Function>('onClose')();
   wrapper.update();
-  expect(wrapper.find('AnalysisWarningsModal').exists()).toBeFalsy();
+  expect(wrapper.find('AnalysisWarningsModal').exists()).toBe(false);
 });
 
 function shallowRender(fields?: Partial<T.Task>, props?: Partial<TaskActions['props']>) {

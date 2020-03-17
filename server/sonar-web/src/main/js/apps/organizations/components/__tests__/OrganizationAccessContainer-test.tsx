@@ -78,10 +78,10 @@ describe('component', () => {
 
 describe('access functions', () => {
   it('should correctly handle access to admin only space', () => {
-    expect(
-      hasAdminAccess({ currentUser: loggedInUser, organization: adminOrganization })
-    ).toBeTruthy();
-    expect(hasAdminAccess({ currentUser, organization: adminOrganization })).toBeFalsy();
-    expect(hasAdminAccess({ currentUser: loggedInUser, organization })).toBeFalsy();
+    expect(hasAdminAccess({ currentUser: loggedInUser, organization: adminOrganization })).toBe(
+      true
+    );
+    expect(hasAdminAccess({ currentUser, organization: adminOrganization })).toBe(false);
+    expect(hasAdminAccess({ currentUser: loggedInUser, organization })).toBe(false);
   });
 });

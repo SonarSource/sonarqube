@@ -53,7 +53,8 @@ export default function BuildWrapper(props: Props) {
           className="button"
           download={filenames[props.os]}
           href={`${getBaseUrl()}/static/cpp/${filenames[props.os]}`}
-          target="_blank">
+          target="_blank"
+          rel="noopener noreferrer">
           {translate('download_verb')}
         </a>
       </p>

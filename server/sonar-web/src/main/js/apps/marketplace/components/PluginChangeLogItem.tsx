@@ -47,7 +47,11 @@ export default function PluginChangeLogItem({ release, update }: Props) {
           <DateFormatter date={release.date} />
         </span>
         {release.changeLogUrl && (
-          <a className="js-plugin-changelog-link" href={release.changeLogUrl} target="_blank">
+          <a
+            className="js-plugin-changelog-link"
+            href={release.changeLogUrl}
+            target="_blank"
+            rel="noopener noreferrer">
             {translate('marketplace.release_notes')}
           </a>
         )}

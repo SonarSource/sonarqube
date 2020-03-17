@@ -41,11 +41,11 @@ it('should render correctly for a pull request', () => {
 
 it('should render correctly when the user is not logged in', () => {
   const wrapper = shallowRender({ currentUser: { isLoggedIn: false } });
-  expect(wrapper.find(HomePageSelect).exists()).toBeFalsy();
+  expect(wrapper.find(HomePageSelect).exists()).toBe(false);
 });
 
 describe('#getCurrentPage', () => {
-  test('should return a portfolio page', () => {
+  it('should return a portfolio page', () => {
     expect(
       getCurrentPage(
         mockComponent({ key: 'foo', qualifier: ComponentQualifier.Portfolio }),
@@ -57,7 +57,7 @@ describe('#getCurrentPage', () => {
     });
   });
 
-  test('should return an application page', () => {
+  it('should return an application page', () => {
     expect(
       getCurrentPage(
         mockComponent({ key: 'foo', qualifier: ComponentQualifier.Application }),
@@ -66,7 +66,7 @@ describe('#getCurrentPage', () => {
     ).toEqual({ type: 'APPLICATION', component: 'foo', branch: 'develop' });
   });
 
-  test('should return a project page', () => {
+  it('should return a project page', () => {
     expect(getCurrentPage(mockComponent(), mockBranch({ name: 'feature/foo' }))).toEqual({
       type: 'PROJECT',
       component: 'my-project',

@@ -24,6 +24,7 @@ exports[`should render available plugin correctly 1`] = `
     <a
       className="js-plugin-terms nowrap little-spacer-left"
       href="https://url"
+      rel="noopener noreferrer"
       target="_blank"
     >
       marketplace.terms_and_conditions
@@ -50,6 +51,7 @@ exports[`should render available plugin correctly 2`] = `
       marketplace.available_under_commercial_license
     </p>
     <a
+      rel="noopener noreferrer"
       target="_blank"
     >
       marketplace.learn_more

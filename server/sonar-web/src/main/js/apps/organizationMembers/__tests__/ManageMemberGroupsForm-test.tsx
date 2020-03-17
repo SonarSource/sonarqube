@@ -85,13 +85,13 @@ it('should render', () => {
 
 it('should correctly select the groups', () => {
   const form = getMountedForm();
-  expect(form.instance.isGroupSelected('11')).toBeTruthy();
-  expect(form.instance.isGroupSelected('7')).toBeFalsy();
+  expect(form.instance.isGroupSelected('11')).toBe(true);
+  expect(form.instance.isGroupSelected('7')).toBe(false);
   form.instance.onCheck('11', false);
   form.instance.onCheck('7', true);
   expect(form.wrapper.state('userGroups')).toMatchSnapshot();
-  expect(form.instance.isGroupSelected('11')).toBeFalsy();
-  expect(form.instance.isGroupSelected('7')).toBeTruthy();
+  expect(form.instance.isGroupSelected('11')).toBe(false);
+  expect(form.instance.isGroupSelected('7')).toBe(true);
 });
 
 it('should correctly handle the submit event and close the modal', () => {

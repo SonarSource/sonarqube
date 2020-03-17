@@ -60,7 +60,7 @@ it('reset function should work correctly with view and visualizations', () => {
       visualization="bugs"
     />
   );
-  expect(sidebar.find('ClearAll').exists()).toBeFalsy();
+  expect(sidebar.find('ClearAll').exists()).toBe(false);
   sidebar.setProps({ query: { size: '3' } });
-  expect(sidebar.find('ClearAll').exists()).toBeTruthy();
+  expect(sidebar.find('ClearAll').exists()).toBe(true);
 });

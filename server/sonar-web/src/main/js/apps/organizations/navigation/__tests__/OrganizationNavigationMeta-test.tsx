@@ -48,5 +48,5 @@ it('renders with private badge', () => {
     )
       .find('DocTooltip')
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });

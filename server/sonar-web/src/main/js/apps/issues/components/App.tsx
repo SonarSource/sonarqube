@@ -192,9 +192,10 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const openIssue = this.getOpenIssue(nextProps, this.state.issues);
+    const { issues, selected } = this.state;
+    const openIssue = this.getOpenIssue(nextProps, issues);
 
-    if (openIssue && openIssue.key !== this.state.selected) {
+    if (openIssue && openIssue.key !== selected) {
       this.setState({
         locationsNavigator: false,
         selected: openIssue.key,

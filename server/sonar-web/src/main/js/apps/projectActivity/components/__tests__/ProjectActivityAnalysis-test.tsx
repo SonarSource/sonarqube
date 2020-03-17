@@ -60,11 +60,7 @@ it('should render correctly', () => {
   const timeFormatter = shallowRender()
     .find(TimeFormatter)
     .prop('children');
-  if (!timeFormatter) {
-    fail('TimeFormatter instance not found');
-  } else {
-    expect(timeFormatter('formatted_time')).toMatchSnapshot('formatted time');
-  }
+  expect(timeFormatter!('formatted_time')).toMatchSnapshot('formatted time');
 });
 
 it('should show the correct admin options', () => {

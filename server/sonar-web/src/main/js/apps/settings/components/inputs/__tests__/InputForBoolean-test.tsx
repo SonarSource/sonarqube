@@ -28,7 +28,7 @@ it('should render Toggle', () => {
   expect(toggle.length).toBe(1);
   expect(toggle.prop('name')).toBe('foo');
   expect(toggle.prop('value')).toBe(true);
-  expect(toggle.prop('onChange')).toBeTruthy();
+  expect(toggle.prop('onChange')).toBeDefined();
 });
 
 it('should render Toggle without value', () => {
@@ -38,7 +38,7 @@ it('should render Toggle without value', () => {
   expect(toggle.length).toBe(1);
   expect(toggle.prop('name')).toBe('foo');
   expect(toggle.prop('value')).toBe(false);
-  expect(toggle.prop('onChange')).toBeTruthy();
+  expect(toggle.prop('onChange')).toBeDefined();
   expect(input.find('.note').length).toBe(1);
 });
 
@@ -48,7 +48,7 @@ it('should call onChange', () => {
   const input = shallowRender({ onChange, value: true });
   const toggle = input.find('Toggle');
   expect(toggle.length).toBe(1);
-  expect(toggle.prop('onChange')).toBeTruthy();
+  expect(toggle.prop('onChange')).toBeDefined();
 
   toggle.prop<Function>('onChange')(false);
 

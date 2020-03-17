@@ -55,7 +55,6 @@ export default class DateRangeInput extends React.PureComponent<Props> {
   };
 
   handleToChange = (to: Date | undefined) => {
-    this.setState({ to });
     this.props.onChange({ from: this.from, to });
   };
 

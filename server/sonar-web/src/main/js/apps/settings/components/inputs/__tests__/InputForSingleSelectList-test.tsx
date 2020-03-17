@@ -33,14 +33,14 @@ it('should render Select', () => {
     { value: 'bar', label: 'bar' },
     { value: 'baz', label: 'baz' }
   ]);
-  expect(select.prop('onChange')).toBeTruthy();
+  expect(select.prop('onChange')).toBeDefined();
 });
 
 it('should call onChange', () => {
   const onChange = jest.fn();
   const select = shallowRender({ onChange }).find('Select');
   expect(select.length).toBe(1);
-  expect(select.prop('onChange')).toBeTruthy();
+  expect(select.prop('onChange')).toBeDefined();
 
   select.prop<Function>('onChange')({ value: 'baz', label: 'baz' });
   expect(onChange).toBeCalledWith('baz');

@@ -122,11 +122,11 @@ it('selects and deselects projects', async () => {
 
 it('creates project', () => {
   const wrapper = shallowRender();
-  expect(wrapper.find('CreateProjectForm').exists()).toBeFalsy();
+  expect(wrapper.find('CreateProjectForm').exists()).toBe(false);
 
   wrapper.find('Header').prop<Function>('onProjectCreate')();
   wrapper.update();
-  expect(wrapper.find('CreateProjectForm').exists()).toBeTruthy();
+  expect(wrapper.find('CreateProjectForm').exists()).toBe(true);
 
   wrapper.find('CreateProjectForm').prop<Function>('onProjectCreated')();
   wrapper.update();
@@ -134,7 +134,7 @@ it('creates project', () => {
 
   wrapper.find('CreateProjectForm').prop<Function>('onClose')();
   wrapper.update();
-  expect(wrapper.find('CreateProjectForm').exists()).toBeFalsy();
+  expect(wrapper.find('CreateProjectForm').exists()).toBe(false);
 });
 
 it('changes default project visibility', () => {

@@ -53,10 +53,10 @@ it('removes user', async () => {
     />
   );
   (wrapper.instance() as ProfilePermissionsGroup).mounted = true;
-  expect(wrapper.find('SimpleModal').exists()).toBeFalsy();
+  expect(wrapper.find('SimpleModal').exists()).toBe(false);
 
   click(wrapper.find('DeleteButton'));
-  expect(wrapper.find('SimpleModal').exists()).toBeTruthy();
+  expect(wrapper.find('SimpleModal').exists()).toBe(true);
 
   wrapper.find('SimpleModal').prop<Function>('onSubmit')();
   expect(removeGroup).toBeCalledWith({

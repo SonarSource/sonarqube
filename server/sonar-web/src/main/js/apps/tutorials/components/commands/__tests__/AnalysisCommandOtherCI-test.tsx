@@ -70,34 +70,6 @@ it('should render AnalysisCommandCustom correctly', () => {
   expect(getBuildOptions).toHaveBeenCalled();
 });
 
-// TODO make it work
-// it('should execute function when the user interacts with the component', async () => {
-//   const getBuildOptions = jest.fn().mockReturnValue({
-//     maven: RenderCommandForMaven
-//   });
-//   const onDone = jest.fn();
-//   const setToken = jest.fn();
-//   const wrapper = shallow(
-//     <AnalysisCommandCommon
-//       buildType={'maven'}
-//       component={mockComponent()}
-//       currentUser={mockLoggedInUser()}
-//       getBuildOptions={getBuildOptions}
-//       mode={ProjectAnalysisModes.CI}
-//       onDone={onDone}
-//       organization={organization}
-//       setToken={setToken}
-//       token={token}
-//     />
-//   );
-//
-//   (wrapper.find('RenderCommandForMaven').prop('toggleTokenModal') as Function)();
-//   await waitAndUpdate(wrapper);
-//   (wrapper.find('EditTokenModal').prop('onSave') as Function)();
-//
-//   expect(setToken).toHaveBeenCalledWith(token);
-// });
-
 it('should render RenderCommandForClangOrGCC', () => {
   const render = (token?: string) =>
     shallow(

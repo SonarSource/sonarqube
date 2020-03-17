@@ -126,7 +126,6 @@ export class StartupModal extends React.PureComponent<Props, State> {
           if (!license || !license.isValidEdition) {
             save(LICENSE_PROMPT, toShortNotSoISOString(new Date()), currentUser.login);
             this.setState({ modal: ModalKey.license });
-            return Promise.resolve();
           }
           return Promise.reject();
         });

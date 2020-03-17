@@ -218,7 +218,7 @@ it('should reject submit github settings', async () => {
   expect.assertions(1);
   await expect(
     wrapper.instance().submitProjectAlmBinding(AlmKeys.GitHub, 'github-binding', {})
-  ).rejects.toBe(undefined);
+  ).rejects.toBeUndefined();
 });
 
 it('should accept submit github settings', async () => {

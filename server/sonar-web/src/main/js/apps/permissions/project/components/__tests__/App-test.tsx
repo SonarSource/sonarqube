@@ -88,7 +88,7 @@ describe('should manage state correctly', () => {
     instance.handlePermissionSelect('foo');
     expect(wrapper.state('selectedPermission')).toBe('foo');
     instance.handlePermissionSelect('foo');
-    expect(wrapper.state('selectedPermission')).toBe(undefined);
+    expect(wrapper.state('selectedPermission')).toBeUndefined();
   });
 
   it('should add and remove permission to a group', async () => {

@@ -100,7 +100,7 @@ it("doesn't load branches portfolio", async () => {
   expect(getComponentData).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
   expect(getComponentNavigation).toBeCalledWith({ component: 'portfolioKey', branch: undefined });
   wrapper.update();
-  expect(wrapper.find(Inner).exists()).toBeTruthy();
+  expect(wrapper.find(Inner).exists()).toBe(true);
 });
 
 it('updates branches on change', async () => {
@@ -153,22 +153,22 @@ it('filters correctly the pending tasks for a main branch', () => {
   const branch2 = mockBranch({ name: 'branch-2' });
   const pullRequest = mockPullRequest();
 
-  expect(component.isSameBranch({}, undefined)).toBeTruthy();
-  expect(component.isSameBranch({}, mainBranch)).toBeTruthy();
-  expect(component.isSameBranch({}, branch3)).toBeFalsy();
-  expect(component.isSameBranch({ branch: branch3.name }, branch3)).toBeTruthy();
-  expect(component.isSameBranch({ branch: 'feature' }, branch2)).toBeFalsy();
-  expect(component.isSameBranch({ branch: 'branch-6.6' }, branch2)).toBeFalsy();
-  expect(component.isSameBranch({ branch: branch2.name }, branch2)).toBeTruthy();
-  expect(component.isSameBranch({ branch: 'branch-6.7' }, pullRequest)).toBeFalsy();
-  expect(component.isSameBranch({ pullRequest: pullRequest.key }, pullRequest)).toBeTruthy();
+  expect(component.isSameBranch({}, undefined)).toBe(true);
+  expect(component.isSameBranch({}, mainBranch)).toBe(true);
+  expect(component.isSameBranch({}, branch3)).toBe(false);
+  expect(component.isSameBranch({ branch: branch3.name }, branch3)).toBe(true);
+  expect(component.isSameBranch({ branch: 'feature' }, branch2)).toBe(false);
+  expect(component.isSameBranch({ branch: 'branch-6.6' }, branch2)).toBe(false);
+  expect(component.isSameBranch({ branch: branch2.name }, branch2)).toBe(true);
+  expect(component.isSameBranch({ branch: 'branch-6.7' }, pullRequest)).toBe(false);
+  expect(component.isSameBranch({ pullRequest: pullRequest.key }, pullRequest)).toBe(true);
 
   const currentTask = { pullRequest: pullRequest.key, status: STATUSES.IN_PROGRESS } as T.Task;
   const failedTask = { ...currentTask, status: STATUSES.FAILED };
   const pendingTasks = [currentTask, { branch: branch3.name } as T.Task, {} as T.Task];
-  expect(component.getCurrentTask(currentTask, undefined)).toBe(undefined);
+  expect(component.getCurrentTask(currentTask, undefined)).toBeUndefined();
   expect(component.getCurrentTask(failedTask, mainBranch)).toBe(failedTask);
-  expect(component.getCurrentTask(currentTask, mainBranch)).toBe(undefined);
+  expect(component.getCurrentTask(currentTask, mainBranch)).toBeUndefined();
   expect(component.getCurrentTask(currentTask, pullRequest)).toMatchObject(currentTask);
   expect(component.getPendingTasks(pendingTasks, mainBranch)).toMatchObject([{}]);
   expect(component.getPendingTasks(pendingTasks, pullRequest)).toMatchObject([currentTask]);

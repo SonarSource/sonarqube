@@ -50,7 +50,7 @@ describe('parseError', () => {
     ).resolves.toBe('Error1. Error2');
   });
 
-  it('should parse error and return default message', () => {
+  it('should parse error and return default message if empty object', () => {
     return expect(
       parseError({
         response: {
@@ -60,7 +60,7 @@ describe('parseError', () => {
     ).resolves.toBe('default_error_message');
   });
 
-  it('should parse error and return default message', () => {
+  it('should parse error and return default message if undefined', () => {
     return expect(
       parseError({
         response: {
@@ -135,7 +135,8 @@ describe('requestTryAndRepeatUntil', () => {
       stopRepeat
     );
 
-    expect(promiseResult).rejects.toBe(undefined);
+    // eslint-disable-next-line jest/valid-expect
+    expect(promiseResult).rejects.toBeUndefined();
 
     for (let i = 1; i < 3; i++) {
       jest.runAllTimers();

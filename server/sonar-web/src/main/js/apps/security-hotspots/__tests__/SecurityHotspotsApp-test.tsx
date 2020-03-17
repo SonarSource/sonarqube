@@ -131,7 +131,7 @@ it('should load data correctly when hotspot key list is forced', async () => {
     branch: 'branch-6.7'
   });
   expect(wrapper.state().hotspotKeys).toEqual(hotspotKeys);
-  expect(wrapper.find(SecurityHotspotsAppRenderer).props().isStaticListOfHotspots).toBeTruthy();
+  expect(wrapper.find(SecurityHotspotsAppRenderer).props().isStaticListOfHotspots).toBe(true);
 
   // Reset
   (getSecurityHotspots as jest.Mock).mockClear();

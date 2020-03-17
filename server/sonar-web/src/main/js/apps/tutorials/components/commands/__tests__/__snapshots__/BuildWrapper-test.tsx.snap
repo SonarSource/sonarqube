@@ -27,6 +27,7 @@ exports[`renders correctly 1`] = `
       className="button"
       download="build-wrapper-win-x86.zip"
       href="/static/cpp/build-wrapper-win-x86.zip"
+      rel="noopener noreferrer"
       target="_blank"
     >
       download_verb
@@ -62,6 +63,7 @@ exports[`renders correctly 2`] = `
       className="button"
       download="build-wrapper-linux-x86.zip"
       href="/static/cpp/build-wrapper-linux-x86.zip"
+      rel="noopener noreferrer"
       target="_blank"
     >
       download_verb
@@ -97,6 +99,7 @@ exports[`renders correctly 3`] = `
       className="button"
       download="build-wrapper-macosx-x86.zip"
       href="/static/cpp/build-wrapper-macosx-x86.zip"
+      rel="noopener noreferrer"
       target="_blank"
     >
       download_verb

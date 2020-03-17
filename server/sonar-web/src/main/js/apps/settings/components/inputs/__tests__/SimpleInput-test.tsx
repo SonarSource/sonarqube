@@ -39,7 +39,7 @@ it('should render input', () => {
   expect(input.prop('className')).toContain('input-large');
   expect(input.prop('name')).toBe('foo');
   expect(input.prop('value')).toBe('bar');
-  expect(input.prop('onChange')).toBeTruthy();
+  expect(input.prop('onChange')).toBeDefined();
 });
 
 it('should call onChange', () => {
@@ -55,7 +55,7 @@ it('should call onChange', () => {
     />
   ).find('input');
   expect(input.length).toBe(1);
-  expect(input.prop('onChange')).toBeTruthy();
+  expect(input.prop('onChange')).toBeDefined();
 
   change(input, 'qux');
   expect(onChange).toBeCalledWith('qux');

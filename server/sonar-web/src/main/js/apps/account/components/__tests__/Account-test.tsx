@@ -34,7 +34,7 @@ it('should render correctly', () => {
 
 it('should not render for anonymous user', () => {
   const wrapper = shallowRender({ currentUser: mockCurrentUser({ isLoggedIn: false }) });
-  expect(wrapper.type()).toBe(null);
+  expect(wrapper.type()).toBeNull();
   expect(handleRequiredAuthentication).toBeCalled();
 });
 

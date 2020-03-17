@@ -63,5 +63,5 @@ it('should render correctly a failed delivery', () => {
 it('should display the latest delivery form', () => {
   const wrapper = shallow(<WebhookItemLatestDelivery webhook={webhook} />);
   click(wrapper.find('ButtonIcon'));
-  expect(wrapper.find('LatestDeliveryForm').exists()).toBeTruthy();
+  expect(wrapper.find('LatestDeliveryForm').exists()).toBe(true);
 });

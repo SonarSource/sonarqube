@@ -70,7 +70,7 @@ it('should render only the children', async () => {
   const wrapper = getWrapper({ currentEdition: EditionKey.community });
   await shouldNotHaveModals(wrapper);
   expect(showLicense).toHaveBeenCalledTimes(0);
-  expect(wrapper.find('div').exists()).toBeTruthy();
+  expect(wrapper.find('div').exists()).toBe(true);
 
   await shouldNotHaveModals(getWrapper({ canAdmin: false }));
 
@@ -121,7 +121,7 @@ describe('closeOnboarding', () => {
     wrapper.setState({ modal: ModalKey.onboarding });
     wrapper.instance().closeOnboarding();
 
-    expect(wrapper.state('modal')).toBe(undefined);
+    expect(wrapper.state('modal')).toBeUndefined();
 
     expect(skipOnboarding).toHaveBeenCalledTimes(1);
   });
@@ -134,7 +134,7 @@ describe('openProjectOnboarding', () => {
 
     wrapper.instance().openProjectOnboarding(mockOrganization());
 
-    expect(wrapper.state('modal')).toBe(undefined);
+    expect(wrapper.state('modal')).toBeUndefined();
 
     expect(push).toHaveBeenCalledWith({
       pathname: `/projects/create`,
@@ -145,12 +145,12 @@ describe('openProjectOnboarding', () => {
 
 async function shouldNotHaveModals(wrapper: ShallowWrapper) {
   await waitAndUpdate(wrapper);
-  expect(wrapper.find('LicensePromptModal').exists()).toBeFalsy();
+  expect(wrapper.find('LicensePromptModal').exists()).toBe(false);
 }
 
 async function shouldDisplayLicense(wrapper: ShallowWrapper) {
   await waitAndUpdate(wrapper);
-  expect(wrapper.find('LicensePromptModal').exists()).toBeTruthy();
+  expect(wrapper.find('LicensePromptModal').exists()).toBe(true);
 }
 
 function getWrapper(props: Partial<StartupModal['props']> = {}) {

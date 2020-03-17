@@ -78,7 +78,8 @@ export default class Report extends React.PureComponent<Props, State> {
               <a
                 download={component.name + ' - Executive Report.pdf'}
                 href={getReportUrl(component.key)}
-                target="_blank">
+                target="_blank"
+                rel="noopener noreferrer">
                 {translate('report.print')}
               </a>
             </li>
@@ -102,7 +103,8 @@ export default class Report extends React.PureComponent<Props, State> {
         className="button"
         download={component.name + ' - Executive Report.pdf'}
         href={getReportUrl(component.key)}
-        target="_blank">
+        target="_blank"
+        rel="noopener noreferrer">
         {translate('report.print')}
       </a>
     );

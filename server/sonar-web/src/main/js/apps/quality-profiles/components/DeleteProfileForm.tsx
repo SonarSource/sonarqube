@@ -33,12 +33,11 @@ interface Props {
 
 interface State {
   loading: boolean;
-  name: string | null;
 }
 
 export default class DeleteProfileForm extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { loading: false, name: null };
+  state: State = { loading: false };
 
   componentDidMount() {
     this.mounted = true;

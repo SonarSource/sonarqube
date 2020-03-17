@@ -29,7 +29,7 @@ it('should render correctly', () => {
 it('should open the user creation form', () => {
   const wrapper = getWrapper();
   click(wrapper.find('#users-create'));
-  expect(wrapper.find('UserForm').exists()).toBeTruthy();
+  expect(wrapper.find('UserForm').exists()).toBe(true);
 });
 
 function getWrapper(props = {}) {

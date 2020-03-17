@@ -73,7 +73,7 @@ it('should add extra description', async () => {
   const onChange = jest.fn();
   const wrapper = getWrapper({ canWrite: true, onChange });
   click(wrapper.find('#coding-rules-detail-extend-description'));
-  expect(wrapper.find('textarea').exists()).toBeTruthy();
+  expect(wrapper.find('textarea').exists()).toBe(true);
   change(wrapper.find('textarea'), 'new description');
   click(wrapper.find('#coding-rules-detail-extend-description-submit'));
   await waitAndUpdate(wrapper);

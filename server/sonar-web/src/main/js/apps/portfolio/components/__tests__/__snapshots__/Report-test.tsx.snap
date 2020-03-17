@@ -12,6 +12,7 @@ exports[`renders 2`] = `
         <a
           download="Foo - Executive Report.pdf"
           href="/api/governance_reports/download?componentKey=foo"
+          rel="noopener noreferrer"
           target="_blank"
         >
           report.print

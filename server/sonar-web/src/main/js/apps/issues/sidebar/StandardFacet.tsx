@@ -61,7 +61,6 @@ interface Props {
 }
 
 interface State {
-  cweQuery: string;
   standards: T.Standards;
 }
 
@@ -72,7 +71,6 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   mounted = false;
   property = STANDARDS;
   state: State = {
-    cweQuery: '',
     standards: { owaspTop10: {}, sansTop25: {}, cwe: {}, sonarsourceSecurity: {} }
   };
 

@@ -44,7 +44,7 @@ export function isValidLicense(): Promise<{ isValidLicense: boolean }> {
 export function showLicense(): Promise<License> {
   return getJSON('/api/editions/show_license').catch((response: Response) => {
     if (response && response.status === 404) {
-      return Promise.resolve(undefined);
+      return undefined;
     }
     return throwGlobalError(response);
   });

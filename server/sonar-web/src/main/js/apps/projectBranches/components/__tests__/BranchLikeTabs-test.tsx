@@ -60,7 +60,7 @@ it('should render deletion modal correctly', () => {
     .props()
     .onClose();
   expect(wrapper.state().deleting).toBeUndefined();
-  expect(wrapper.find(DeleteBranchModal).exists()).toBeFalsy();
+  expect(wrapper.find(DeleteBranchModal).exists()).toBe(false);
 
   wrapper
     .find(BranchLikeTable)
@@ -71,7 +71,7 @@ it('should render deletion modal correctly', () => {
     .props()
     .onDelete();
   expect(wrapper.state().deleting).toBeUndefined();
-  expect(wrapper.find(DeleteBranchModal).exists()).toBeFalsy();
+  expect(wrapper.find(DeleteBranchModal).exists()).toBe(false);
   expect(onBranchesChange).toHaveBeenCalled();
 });
 
@@ -91,7 +91,7 @@ it('should render renaming modal correctly', () => {
     .props()
     .onClose();
   expect(wrapper.state().renaming).toBeUndefined();
-  expect(wrapper.find(RenameBranchModal).exists()).toBeFalsy();
+  expect(wrapper.find(RenameBranchModal).exists()).toBe(false);
 
   wrapper
     .find(BranchLikeTable)
@@ -102,7 +102,7 @@ it('should render renaming modal correctly', () => {
     .props()
     .onRename();
   expect(wrapper.state().renaming).toBeUndefined();
-  expect(wrapper.find(RenameBranchModal).exists()).toBeFalsy();
+  expect(wrapper.find(RenameBranchModal).exists()).toBe(false);
   expect(onBranchesChange).toHaveBeenCalled();
 });
 
@@ -114,7 +114,7 @@ it('should NOT render renaming modal for non-main branch', () => {
     .props()
     .onRename(mockPullRequest());
   expect(wrapper.state().renaming).toBeDefined();
-  expect(wrapper.find(RenameBranchModal).exists()).toBeFalsy();
+  expect(wrapper.find(RenameBranchModal).exists()).toBe(false);
 });
 
 function shallowRender(props: Partial<BranchLikeTabs['props']> = {}) {

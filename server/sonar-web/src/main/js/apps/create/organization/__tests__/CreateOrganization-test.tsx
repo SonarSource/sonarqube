@@ -180,11 +180,11 @@ it('should switch tabs', async () => {
   expect(wrapper).toMatchSnapshot();
 
   (wrapper.find('Tabs').prop('onChange') as Function)('manual');
-  expect(wrapper.find('ManualOrganizationCreate').hasClass('hidden')).toBeFalsy();
-  expect(wrapper.find('withRouter(RemoteOrganizationChoose)').hasClass('hidden')).toBeTruthy();
+  expect(wrapper.find('ManualOrganizationCreate').hasClass('hidden')).toBe(false);
+  expect(wrapper.find('withRouter(RemoteOrganizationChoose)').hasClass('hidden')).toBe(true);
   (wrapper.find('Tabs').prop('onChange') as Function)('auto');
-  expect(wrapper.find('withRouter(RemoteOrganizationChoose)').hasClass('hidden')).toBeFalsy();
-  expect(wrapper.find('ManualOrganizationCreate').hasClass('hidden')).toBeTruthy();
+  expect(wrapper.find('withRouter(RemoteOrganizationChoose)').hasClass('hidden')).toBe(false);
+  expect(wrapper.find('ManualOrganizationCreate').hasClass('hidden')).toBe(true);
 });
 
 it('should reload the alm organization when the url query changes', async () => {

@@ -83,7 +83,7 @@ export function fetchPrismicRefs() {
     if (!master) {
       return Promise.reject('No master ref found');
     }
-    return Promise.resolve(master);
+    return master;
   });
 }
 

@@ -25,7 +25,7 @@ import RemoveMemberForm from '../RemoveMemberForm';
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
 const organization = { key: 'myorg', name: 'MyOrg' };
 
-it('should render ', () => {
+it('should render', () => {
   const wrapper = shallow(
     <RemoveMemberForm
       member={member}

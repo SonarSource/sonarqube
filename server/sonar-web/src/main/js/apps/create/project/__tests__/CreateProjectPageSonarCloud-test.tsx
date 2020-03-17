@@ -75,9 +75,9 @@ it('should switch tabs', async () => {
   expect(wrapper).toMatchSnapshot();
 
   wrapper.find('Tabs').prop<Function>('onChange')('manual');
-  expect(wrapper.find('ManualProjectCreate').exists()).toBeTruthy();
+  expect(wrapper.find('ManualProjectCreate').exists()).toBe(true);
   wrapper.find('Tabs').prop<Function>('onChange')('auto');
-  expect(wrapper.find('AutoProjectCreate').exists()).toBeTruthy();
+  expect(wrapper.find('AutoProjectCreate').exists()).toBe(true);
 });
 
 function getWrapper(props = {}) {

@@ -209,7 +209,7 @@ describe('Component classification', () => {
   it('should be file type', () => {
     [ComponentQualifier.File, ComponentQualifier.TestFile].forEach(qual => {
       const component = componentBuilder(qual);
-      expect(utils.isFileType(component)).toBeTruthy();
+      expect(utils.isFileType(component)).toBe(true);
     });
   });
 
@@ -220,7 +220,7 @@ describe('Component classification', () => {
       ComponentQualifier.Application
     ].forEach(qual => {
       const component = componentBuilder(qual);
-      expect(utils.isViewType(component)).toBeTruthy();
+      expect(utils.isViewType(component)).toBe(true);
     });
   });
 });

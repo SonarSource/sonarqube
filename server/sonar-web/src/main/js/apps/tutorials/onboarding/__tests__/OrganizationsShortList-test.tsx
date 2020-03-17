@@ -23,7 +23,7 @@ import { mockOrganization } from '../../../../helpers/testMocks';
 import OrganizationsShortList, { Props } from '../OrganizationsShortList';
 
 it('should render null with no orgs', () => {
-  expect(shallowRender().getElement()).toBe(null);
+  expect(shallowRender().getElement()).toBeNull();
 });
 
 it('should render correctly', () => {

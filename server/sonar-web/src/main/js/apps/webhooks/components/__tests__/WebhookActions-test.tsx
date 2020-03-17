@@ -44,7 +44,7 @@ it('should display the update webhook form', () => {
   const onUpdate = jest.fn(() => Promise.resolve());
   const wrapper = getWrapper({ onUpdate });
   click(wrapper.find('.js-webhook-update'));
-  expect(wrapper.find('CreateWebhookForm').exists()).toBeTruthy();
+  expect(wrapper.find('CreateWebhookForm').exists()).toBe(true);
   wrapper.find('CreateWebhookForm').prop<Function>('onDone')({
     name: webhook.name,
     url: webhook.url
@@ -56,7 +56,7 @@ it('should display the delete webhook form', () => {
   const onDelete = jest.fn(() => Promise.resolve());
   const wrapper = getWrapper({ onDelete });
   click(wrapper.find('.js-webhook-delete'));
-  expect(wrapper.find('DeleteWebhookForm').exists()).toBeTruthy();
+  expect(wrapper.find('DeleteWebhookForm').exists()).toBe(true);
   wrapper.find('DeleteWebhookForm').prop<Function>('onSubmit')();
   expect(onDelete).lastCalledWith(webhook.key);
 });
@@ -65,7 +65,7 @@ it('should display the deliveries form', () => {
   const wrapper = getWrapper({ webhook: { ...webhook, latestDelivery: delivery } });
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('.js-webhook-deliveries'));
-  expect(wrapper.find('DeliveriesForm').exists()).toBeTruthy();
+  expect(wrapper.find('DeliveriesForm').exists()).toBe(true);
 });
 
 function getWrapper(props = {}) {

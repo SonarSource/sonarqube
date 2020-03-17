@@ -31,7 +31,7 @@ it('should render correctly', () => {
 
 it('should not render favorite button if the user is not logged in', () => {
   const wrapper = shallowRender();
-  expect(wrapper.find(Favorite).exists()).toBeFalsy();
+  expect(wrapper.find(Favorite).exists()).toBe(false);
 });
 
 function shallowRender(props?: Partial<HeaderProps>) {

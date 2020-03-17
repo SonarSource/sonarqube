@@ -61,7 +61,10 @@ it('should load more properly', async () => {
   await waitAndUpdate(wrapper);
 
   wrapper.instance().loadMore(mockEvent());
+  await waitAndUpdate(wrapper);
+
   expect(getProfileChangelog).toHaveBeenLastCalledWith(undefined, undefined, expect.anything(), 2);
+  expect(wrapper.state().events?.length).toBe(6);
 });
 
 function shallowRender() {

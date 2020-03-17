@@ -57,7 +57,6 @@ export interface State {
   initialized: boolean;
   metrics: T.Metric[];
   measuresHistory: MeasureHistory[];
-  paging?: T.Paging;
   query: Query;
 }
 
@@ -195,12 +194,11 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
   fetchAllActivities = (topLevelComponent: string) => {
     this.setState({ analysesLoading: true });
     this.loadAllActivities(topLevelComponent).then(
-      ({ analyses, paging }) => {
+      ({ analyses }) => {
         if (this.mounted) {
           this.setState({
             analyses,
-            analysesLoading: false,
-            paging
+            analysesLoading: false
           });
         }
       },
@@ -259,15 +257,14 @@ export default class ProjectActivityAppContainer extends React.PureComponent<Pro
       getAllMetrics(),
       this.fetchMeasuresHistory(graphMetrics)
     ]).then(
-      ([{ analyses, paging }, metrics, measuresHistory]) => {
+      ([{ analyses }, metrics, measuresHistory]) => {
         if (this.mounted) {
           this.setState({
             analyses,
             graphLoading: false,
             initialized: true,
             measuresHistory,
-            metrics: this.filterMetrics(component, metrics),
-            paging
+            metrics: this.filterMetrics(component, metrics)
           });
 
           this.fetchAllActivities(topLevelComponent);

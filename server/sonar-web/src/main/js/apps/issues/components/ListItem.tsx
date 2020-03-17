@@ -39,13 +39,7 @@ interface Props {
   selected: boolean;
 }
 
-interface State {
-  similarIssues: boolean;
-}
-
-export default class ListItem extends React.PureComponent<Props, State> {
-  state: State = { similarIssues: false };
-
+export default class ListItem extends React.PureComponent<Props> {
   handleFilter = (property: string, issue: T.Issue) => {
     const { onFilterChange } = this.props;
 

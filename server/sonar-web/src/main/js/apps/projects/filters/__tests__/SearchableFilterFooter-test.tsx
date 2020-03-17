@@ -39,7 +39,7 @@ it('should render items without the ones in the facet', () => {
   expect(wrapper.find('Select').prop('options')).toMatchSnapshot();
 });
 
-it('should render items without the ones in the facet', () => {
+it('should properly handle a change of the facet value', () => {
   const onQueryChange = jest.fn();
   const wrapper = shallow(
     <SearchableFilterFooter

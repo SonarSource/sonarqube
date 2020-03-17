@@ -40,21 +40,21 @@ it('should render correctly', () => {
 
 it('should react to EditTravisYmlStep onContinue', () => {
   const wrapper = shallowRender();
-  expect(wrapper.find('EditTravisYmlStep').prop('open') as Boolean).toBeFalsy();
+  expect(wrapper.find('EditTravisYmlStep').prop('open') as Boolean).toBe(false);
 
   (wrapper.find('EncryptYourTokenStep').prop('onContinue') as Function)();
 
-  expect(wrapper.find('EditTravisYmlStep').prop('open') as Boolean).toBeTruthy();
+  expect(wrapper.find('EditTravisYmlStep').prop('open') as Boolean).toBe(true);
 });
 
 it('should react to EditTravisYmlStep onOpen', () => {
   const wrapper = shallowRender();
   (wrapper.find('EncryptYourTokenStep').prop('onContinue') as Function)();
-  expect(wrapper.find('EncryptYourTokenStep').prop('open') as Boolean).toBeFalsy();
+  expect(wrapper.find('EncryptYourTokenStep').prop('open') as Boolean).toBe(false);
 
   (wrapper.find('EncryptYourTokenStep').prop('onOpen') as Function)();
 
-  expect(wrapper.find('EncryptYourTokenStep').prop('open') as Boolean).toBeTruthy();
+  expect(wrapper.find('EncryptYourTokenStep').prop('open') as Boolean).toBe(true);
 });
 
 function shallowRender(props: Partial<TutorialProps> = {}) {

@@ -64,7 +64,7 @@ it('should handle Function extensions correctly', async () => {
   expect(stop).toBeCalled();
 });
 
-it('should unmount an extension before starting a new one', async done => {
+it('should unmount an extension before starting a new one', async () => {
   const reactExtension = jest.fn().mockReturnValue(<div className="extension" />);
   (getExtensionStart as jest.Mock).mockResolvedValue(reactExtension);
 
@@ -72,16 +72,13 @@ it('should unmount an extension before starting a new one', async done => {
   await waitAndUpdate(wrapper);
   expect(wrapper.state('extensionElement')).not.toBeUndefined();
 
-  const start = jest.fn((options: any) => {
-    expect(options.el).not.toBeUndefined();
-    done();
-  });
+  const start = jest.fn();
   (getExtensionStart as jest.Mock).mockResolvedValue(start);
 
   wrapper.setProps({ extension: { key: 'bar', name: 'Bar' } });
   await waitAndUpdate(wrapper);
   expect(wrapper.state('extensionElement')).toBeUndefined();
-  expect(start).toBeCalled();
+  expect(start).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<Extension['props']> = {}) {

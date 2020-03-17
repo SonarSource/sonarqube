@@ -101,12 +101,12 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
       getProfileChangelog(query.since, query.to, profile, this.state.page + 1)
         .then((r: any) => {
           if (this.mounted && this.state.events) {
-            this.setState({
-              events: [...this.state.events, ...r.events],
+            this.setState(({ events = [] }) => ({
+              events: [...events, ...r.events],
               total: r.total,
               page: r.p,
               loading: false
-            });
+            }));
           }
         })
         .catch(this.stopLoading);

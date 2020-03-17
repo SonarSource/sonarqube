@@ -96,7 +96,7 @@ it('should handle line popup', async () => {
   expect(wrapper.state('linePopup')).toEqual(linePopup);
 
   wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(linePopup);
-  expect(wrapper.state('linePopup')).toEqual(undefined);
+  expect(wrapper.state('linePopup')).toBeUndefined();
 
   const openLinePopup = { ...linePopup, open: true };
   wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(openLinePopup);

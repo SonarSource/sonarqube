@@ -214,7 +214,7 @@ function identity(str: string) {
 
 function checkInitialState(wrapper: ShallowWrapper) {
   expect(wrapper.state('query')).toBe('');
-  expect(wrapper.state('searchResults')).toBe(undefined);
+  expect(wrapper.state('searchResults')).toBeUndefined();
   expect(wrapper.state('searching')).toBe(false);
   expect(wrapper.state('searchResultsCounts')).toEqual({});
   expect(wrapper.state('showFullList')).toBe(false);

@@ -51,9 +51,9 @@ it('should correctly handle user interactions', () => {
     />
   );
   click(wrapper.find('Button'));
-  expect(wrapper.state('open')).toBeTruthy();
+  expect(wrapper.state('open')).toBe(true);
   (wrapper.instance() as AddMemberForm).closeForm();
-  expect(wrapper.state('open')).toBeFalsy();
+  expect(wrapper.state('open')).toBe(false);
 });
 
 it('should search users', () => {

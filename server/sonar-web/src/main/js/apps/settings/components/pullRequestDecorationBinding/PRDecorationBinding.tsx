@@ -107,7 +107,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   getProjectBinding(project: string): Promise<ProjectAlmBinding | undefined> {
     return getProjectAlmBinding(project).catch((response: Response) => {
       if (response && response.status === 404) {
-        return Promise.resolve(undefined);
+        return undefined;
       }
       return throwGlobalError(response);
     });

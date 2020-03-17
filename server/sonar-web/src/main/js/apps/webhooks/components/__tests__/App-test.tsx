@@ -59,7 +59,7 @@ it('should be in loading status', () => {
 
 it('should fetch webhooks and display them', async () => {
   const wrapper = shallow(<App organization={organization} />);
-  expect(wrapper.state('loading')).toBeTruthy();
+  expect(wrapper.state('loading')).toBe(true);
 
   await new Promise(setImmediate);
   expect(searchWebhooks).toHaveBeenCalledWith({ organization: organization.key });

@@ -37,17 +37,17 @@ describe("ListStyleFacet's callback props", () => {
   const wrapper = shallowRender();
   const instance = wrapper.instance();
 
-  test('#getSearchResultText()', () => {
+  it('#getSearchResultText()', () => {
     expect(instance.getSearchResultText({ name: 'bar' } as TreeComponentWithPath)).toBe('bar');
   });
 
-  test('#getSearchResultKey()', () => {
+  it('#getSearchResultKey()', () => {
     expect(instance.getSearchResultKey({ path: 'foo/bar' } as TreeComponentWithPath)).toBe(
       'foo/bar'
     );
   });
 
-  test('#getFacetItemText()', () => {
+  it('#getFacetItemText()', () => {
     expect(instance.getFacetItemText('foo/bar')).toBe('foo/bar');
   });
 });

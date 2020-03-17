@@ -38,9 +38,9 @@ it('should render for windows', () => {
 });
 
 it('should not render when there is not selection', () => {
-  expect(shallow(<MultipleSelectionHint options={3} values={0} />).type()).toBe(null);
+  expect(shallow(<MultipleSelectionHint options={3} values={0} />).type()).toBeNull();
 });
 
 it('should not render when there are not enough options', () => {
-  expect(shallow(<MultipleSelectionHint options={1} values={1} />).type()).toBe(null);
+  expect(shallow(<MultipleSelectionHint options={1} values={1} />).type()).toBeNull();
 });

@@ -92,19 +92,15 @@ it('should handle keyboard shortcut correctly', () => {
 
   const { onKeyDown } = wrapper.find(SearchBox).props();
 
-  if (!onKeyDown) {
-    fail('onKeyDown should be defined');
-  } else {
-    onKeyDown(mockEvent({ keyCode: KeyCodes.UpArrow }));
-    expect(wrapper.state().selectedBranchLike).toBe(branchLikes[5]);
+  onKeyDown!(mockEvent({ keyCode: KeyCodes.UpArrow }));
+  expect(wrapper.state().selectedBranchLike).toBe(branchLikes[5]);
 
-    onKeyDown(mockEvent({ keyCode: KeyCodes.DownArrow }));
-    onKeyDown(mockEvent({ keyCode: KeyCodes.DownArrow }));
-    expect(wrapper.state().selectedBranchLike).toBe(branchLikes[0]);
+  onKeyDown!(mockEvent({ keyCode: KeyCodes.DownArrow }));
+  onKeyDown!(mockEvent({ keyCode: KeyCodes.DownArrow }));
+  expect(wrapper.state().selectedBranchLike).toBe(branchLikes[0]);
 
-    onKeyDown(mockEvent({ keyCode: KeyCodes.Enter }));
-    expect(push).toHaveBeenCalled();
-  }
+  onKeyDown!(mockEvent({ keyCode: KeyCodes.Enter }));
+  expect(push).toHaveBeenCalled();
 });
 
 const branchLikes = mockSetOfBranchAndPullRequest();

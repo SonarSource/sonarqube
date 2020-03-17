@@ -48,7 +48,7 @@ it('should render for Clang or GCC', () => {
     shallowRender('make')
       .find(RenderCommandForClangOrGCC)
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });
 
 it('should render for Gradle', () => {
@@ -56,7 +56,7 @@ it('should render for Gradle', () => {
     shallowRender('gradle')
       .find(RenderCommandForGradle)
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });
 
 it('should render for Maven', () => {
@@ -64,7 +64,7 @@ it('should render for Maven', () => {
     shallowRender('maven')
       .find(RenderCommandForMaven)
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });
 
 it('should render for other', () => {
@@ -72,7 +72,7 @@ it('should render for other', () => {
     shallowRender('other')
       .find(RenderCommandForOther)
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });
 
 it('should render nothing for unsupported build', () => {
@@ -80,20 +80,20 @@ it('should render nothing for unsupported build', () => {
     shallowRender()
       .find(RenderCommandForOther)
       .exists()
-  ).toBeFalsy();
+  ).toBe(false);
 
   expect(
     shallowRender('anotherBuild')
       .find(RenderCommandForOther)
       .exists()
-  ).toBeFalsy();
+  ).toBe(false);
 });
 
 it('should render nothing when there is no project key', () => {
-  expect(shallow(<RenderCommandForClangOrGCC />).html()).toBe(null);
-  expect(shallow(<RenderCommandForGradle />).html()).toBe(null);
-  expect(shallow(<RenderCommandForMaven />).html()).toBe(null);
-  expect(shallow(<RenderCommandForOther />).html()).toBe(null);
+  expect(shallow(<RenderCommandForClangOrGCC />).html()).toBeNull();
+  expect(shallow(<RenderCommandForGradle />).html()).toBeNull();
+  expect(shallow(<RenderCommandForMaven />).html()).toBeNull();
+  expect(shallow(<RenderCommandForOther />).html()).toBeNull();
 });
 
 it('should render the sonarcloud yaml for travis', () => {
@@ -101,7 +101,7 @@ it('should render the sonarcloud yaml for travis', () => {
   expect(getSonarcloudAddonYml('SonarSource')).toMatchSnapshot();
 });
 
-it('should render the sonarcloud yaml for travis', () => {
+it('should render the sonarcloud yaml for travis - render', () => {
   expect(getSonarcloudAddonYmlRender()).toMatchSnapshot();
   expect(getSonarcloudAddonYmlRender('SonarSource')).toMatchSnapshot();
 });

@@ -22,11 +22,11 @@ import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Plugin } from '../../../api/plugins';
 
-interface Props {
+export interface PluginOrganizationProps {
   plugin: Plugin;
 }
 
-export default function PluginOrganization({ plugin }: Props) {
+export default function PluginOrganization({ plugin }: PluginOrganizationProps) {
   if (!plugin.organizationName) {
     return null;
   }
@@ -37,7 +37,11 @@ export default function PluginOrganization({ plugin }: Props) {
         id="marketplace.developed_by_x"
         values={{
           organization: plugin.organizationUrl ? (
-            <a className="js-plugin-organization" href={plugin.organizationUrl} target="_blank">
+            <a
+              className="js-plugin-organization"
+              href={plugin.organizationUrl}
+              target="_blank"
+              rel="noopener noreferrer">
               {plugin.organizationName}
             </a>
           ) : (

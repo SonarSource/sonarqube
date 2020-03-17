@@ -170,7 +170,7 @@ export class CreateOrganization extends React.PureComponent<Props & WithRouterPr
     return getAlmOrganization({ installationId })
       .then(({ almOrganization, boundOrganization }) => {
         if (boundOrganization) {
-          return Promise.resolve({ almOrganization, boundOrganization });
+          return { almOrganization, boundOrganization };
         }
         return this.setValidOrgKey(almOrganization);
       })

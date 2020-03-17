@@ -29,9 +29,9 @@ it('should correctly toggle facets', () => {
   const wrapper = shallowRender();
   expect(wrapper.state('openFacets').bugs).toBeUndefined();
   (wrapper.instance() as Sidebar).toggleFacet('bugs');
-  expect(wrapper.state('openFacets').bugs).toBeTruthy();
+  expect(wrapper.state('openFacets').bugs).toBe(true);
   (wrapper.instance() as Sidebar).toggleFacet('bugs');
-  expect(wrapper.state('openFacets').bugs).toBeFalsy();
+  expect(wrapper.state('openFacets').bugs).toBe(false);
 });
 
 function shallowRender(props = {}) {

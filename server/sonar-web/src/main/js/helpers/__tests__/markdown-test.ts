@@ -163,7 +163,7 @@ Duis sagittis semper sapien nec tempor. Nullam vehicula nisi vitae nisi interdum
   expect(filterContent(content)).toMatchSnapshot();
 });
 
-it.only('should not break when conditional tags are misused', () => {
+it('should not break when conditional tags are misused', () => {
   const originalConsoleError = console.error;
   console.error = jest.fn();
 

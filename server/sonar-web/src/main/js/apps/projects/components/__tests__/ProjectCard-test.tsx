@@ -45,14 +45,14 @@ const PROJECT: Project = {
 
 it('should show <ProjectCardOverall/> by default', () => {
   const wrapper = shallowRender();
-  expect(wrapper.find('ProjectCardOverall')).toBeTruthy();
-  expect(wrapper.find('ProjectCardLeak')).toBeTruthy();
+  expect(wrapper.find('ProjectCardOverall').exists()).toBe(true);
+  expect(wrapper.find('ProjectCardLeak').exists()).toBe(false);
 });
 
 it('should show <ProjectCardLeak/> when asked', () => {
-  const wrapper = shallowRender();
-  expect(wrapper.find('ProjectCardLeak')).toBeTruthy();
-  expect(wrapper.find('ProjectCardOverall')).toBeTruthy();
+  const wrapper = shallowRender('leak');
+  expect(wrapper.find('ProjectCardLeak').exists()).toBe(true);
+  expect(wrapper.find('ProjectCardOverall').exists()).toBe(false);
 });
 
 function shallowRender(type?: string) {

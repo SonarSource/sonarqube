@@ -48,12 +48,12 @@ it('should display analysis date (and not leak period) when defined', () => {
     shallowRender(PROJECT)
       .find('.project-card-dates')
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
   expect(
     shallowRender({ ...PROJECT, analysisDate: undefined })
       .find('.project-card-dates')
       .exists()
-  ).toBeFalsy();
+  ).toBe(false);
 });
 
 it('should not display the quality gate', () => {
@@ -62,7 +62,7 @@ it('should not display the quality gate', () => {
     shallowRender(project)
       .find('ProjectCardOverallQualityGate')
       .exists()
-  ).toBeFalsy();
+  ).toBe(false);
 });
 
 it('should display tags', () => {
@@ -71,7 +71,7 @@ it('should display tags', () => {
     shallowRender(project)
       .find('TagsList')
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });
 
 it('should display private badge', () => {
@@ -80,7 +80,7 @@ it('should display private badge', () => {
     shallowRender(project)
       .find('Connect(PrivacyBadge)')
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });
 
 it('should display the overall measures and quality gate', () => {

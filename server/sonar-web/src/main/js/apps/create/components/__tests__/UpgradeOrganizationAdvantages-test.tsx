@@ -21,6 +21,6 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import UpgradeOrganizationAdvantages from '../UpgradeOrganizationAdvantages';
 
-it('should render correctly ', () => {
+it('should render correctly', () => {
   expect(shallow(<UpgradeOrganizationAdvantages />)).toMatchSnapshot();
 });

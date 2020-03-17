@@ -51,7 +51,7 @@ const USER_LOGGED_IN = mockLoggedInUser();
 
 it('should display analysis date and leak start date', () => {
   const card = shallowRender(PROJECT);
-  expect(card.find('.project-card-dates').exists()).toBeTruthy();
+  expect(card.find('.project-card-dates').exists()).toBe(true);
   expect(card.find('.project-card-dates').find('.project-card-leak-date')).toHaveLength(1);
   expect(card.find('.project-card-dates').find('DateTimeFormatter')).toHaveLength(1);
 });
@@ -59,7 +59,7 @@ it('should display analysis date and leak start date', () => {
 it('should not display analysis date or leak start date', () => {
   const project = { ...PROJECT, analysisDate: undefined };
   const card = shallowRender(project);
-  expect(card.find('.project-card-dates').exists()).toBeFalsy();
+  expect(card.find('.project-card-dates').exists()).toBe(false);
 });
 
 it('should display tags', () => {
@@ -68,7 +68,7 @@ it('should display tags', () => {
     shallowRender(project)
       .find('TagsList')
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });
 
 it('should display private badge', () => {
@@ -77,7 +77,7 @@ it('should display private badge', () => {
     shallowRender(project)
       .find('Connect(PrivacyBadge)')
       .exists()
-  ).toBeTruthy();
+  ).toBe(true);
 });
 
 it('should display the leak measures and quality gate', () => {

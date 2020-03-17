@@ -17,35 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
-import PageActions from '../PageActions';
+import PluginOrganization, { PluginOrganizationProps } from '../PluginOrganization';
 
 it('should render correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
 });
 
-it('should not render', () => {
-  expect(getWrapper({ loading: true }).type()).toBeNull();
-});
-
-it('should not allow to create a new webhook', () => {
-  expect(getWrapper({ webhooksCount: 10 })).toMatchSnapshot();
-});
-
-it('should display the create form', () => {
-  const onCreate = jest.fn();
-  const wrapper = getWrapper({ onCreate });
-  click(wrapper.find('.js-webhook-create'));
-  expect(wrapper.find('CreateWebhookForm').exists()).toBe(true);
-  wrapper.find('CreateWebhookForm').prop<Function>('onDone')({
-    name: 'foo',
-    url: 'http://foo.bar'
+it('should render correctly with no organization name', () => {
+  const wrapper = shallowRender({
+    plugin: { key: 'test', name: 'test', organizationName: undefined }
   });
-  expect(onCreate).lastCalledWith({ name: 'foo', url: 'http://foo.bar' });
+  expect(wrapper.type()).toBeNull();
 });
 
-function getWrapper(props = {}) {
-  return shallow(<PageActions loading={false} onCreate={jest.fn()} webhooksCount={5} {...props} />);
+function shallowRender(props?: Partial<PluginOrganizationProps>) {
+  return shallow(
+    <PluginOrganization
+      plugin={{ key: 'test', name: 'test', organizationName: 'org', organizationUrl: 'org_url' }}
+      {...props}
+    />
+  );
 }

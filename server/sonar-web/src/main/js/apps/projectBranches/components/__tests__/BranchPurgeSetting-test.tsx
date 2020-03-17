@@ -49,13 +49,9 @@ it('should correctly call the webservice if the user changes the value', () => {
 
   const { onChange } = wrapper.find(Toggle).props();
 
-  if (!onChange) {
-    fail();
-  } else {
-    onChange(false);
-    expect(excludeBranchFromPurge).toHaveBeenCalled();
-    expect(wrapper.state().excludedFromPurge).toBe(true);
-  }
+  onChange!(false);
+  expect(excludeBranchFromPurge).toHaveBeenCalled();
+  expect(wrapper.state().excludedFromPurge).toBe(true);
 });
 
 function shallowRender(props?: Partial<BranchPurgeSetting['props']>) {
