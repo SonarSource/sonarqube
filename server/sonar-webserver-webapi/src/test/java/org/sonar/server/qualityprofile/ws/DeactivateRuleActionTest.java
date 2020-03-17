@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.WebService;
@@ -67,9 +66,8 @@ public class DeactivateRuleActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  @Captor
-  public ArgumentCaptor<Collection<Integer>> ruleIdsCaptor;
 
+  private ArgumentCaptor<Collection<Integer>> ruleIdsCaptor = ArgumentCaptor.forClass(Collection.class);
   private DbClient dbClient = db.getDbClient();
   private QProfileRules qProfileRules = mock(QProfileRules.class);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));

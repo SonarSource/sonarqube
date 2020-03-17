@@ -22,11 +22,8 @@ package org.sonar.server.ce.ws;
 import com.google.common.base.Strings;
 import java.io.ByteArrayInputStream;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.MockitoAnnotations;
 import org.sonar.ce.task.CeTask;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.ce.queue.ReportSubmitter;
@@ -61,19 +58,12 @@ public class SubmitActionTest {
     .setSubmitter(new CeTask.User("UUID_1", "LOGIN_1"))
     .build();
 
-  @Captor
-  ArgumentCaptor<Map<String, String>> map;
-
+  private ArgumentCaptor<Map<String, String>> map = ArgumentCaptor.forClass(Map.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("org1");
   private String organizationKey = defaultOrganizationProvider.get().getKey();
   private ReportSubmitter reportSubmitter = mock(ReportSubmitter.class);
   private SubmitAction underTest = new SubmitAction(reportSubmitter, defaultOrganizationProvider);
   private WsActionTester tester = new WsActionTester(underTest);
-
-  @Before
-  public void setup() {
-    MockitoAnnotations.initMocks(this);
-  }
 
   @Test
   public void submit_task_to_the_queue_and_ask_for_immediate_processing() {

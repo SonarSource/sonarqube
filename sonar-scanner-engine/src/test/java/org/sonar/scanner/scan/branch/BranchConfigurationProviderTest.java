@@ -21,11 +21,8 @@ package org.sonar.scanner.scan.branch;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -46,9 +43,6 @@ public class BranchConfigurationProviderTest {
   private ProjectReactor reactor = mock(ProjectReactor.class);
   private Map<String, String> projectSettings = new HashMap<>();
   private ProjectDefinition root = mock(ProjectDefinition.class);
-
-  @Captor
-  private ArgumentCaptor<Supplier<Map<String, String>>> settingsCaptor;
 
   @Before
   public void setUp() {
