@@ -3,15 +3,14 @@ title: Upgrade the Server
 url: /setup/upgrading/
 ---
 
-<!-- sonarqube -->
 Upgrading across multiple, non-LTS versions is handled automatically. However, if you have an LTS version in your migration path, you must first migrate to this LTS and then migrate to your target version.
 
-Example 1 : 5.1 -> 7.0, migration path is 5.1 -> 5.6.7 LTS -> 6.7.x LTS -> 7.0
-Example 2 : 6.2 -> 6.7, migration path is 6.2 -> 6.7.x LTS (where x is the latest patch available for 6.7 - you don't need to install all the intermediary patches, just take the latest)
+Example 1 : 6.1 -> 8.1, migration path is 6.1 -> 6.7.7 LTS -> 7.9.x LTS -> 8.1
+Example 2 : 7.2 -> 7.9, migration path is 7.2 -> 7.9.x LTS (where x is the latest patch available for 7.9 - you don't need to install all the intermediate patches, just take the latest)
 
 ## Upgrade Guide
 
-This is a generic upgrade guide. Carefully read the [Release Upgrade Notes](/setup/upgrade-notes/) of your target version and of any intermediate version(s).
+This is a generic guide for upgrading across versions of SonarQube. Carefully read the [Release Upgrade Notes](/setup/upgrade-notes/) of your target version and of any intermediate version(s).
 
 [[warning]]
 | Before you start, back up your SonarQube Database. Upgrade problems are rare, but you'll want the backup if anything does happen.
@@ -80,6 +79,9 @@ To upgrade to SonarQube 8.2+:
 No specific Docker operations are needed, just use the new tag.
 
 
+## Edition Upgrade
+If you're moving to a different edition within the same version (upgrade or downgrade) the steps are exactly the same as above, without the need to browse to `http://yourSonarQubeServerURL/setup` or reanalyze your projects.
+
 ## Additional Information
 
 ### Oracle Clean-up
@@ -109,5 +111,3 @@ In case you used the InstallNTService.bat to install SonarQube as a Windows Serv
 ## Release Upgrade Notes
 
 Usually SonarQube releases come with some specific recommendations for upgrading from the previous version. You should read the upgrade notes for each version between your current version and the target version.
-
-<!-- /sonarqube -->
