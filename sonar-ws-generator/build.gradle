@@ -8,6 +8,9 @@ dependencies {
   compile 'com.google.code.gson:gson'
   compile 'com.google.guava:guava'
   compile 'commons-io:commons-io'
+  // transitive dependency of Velocity that must be upgraded
+  // in order to fix a vulnerability
+  compile 'commons-collections:commons-collections:3.2.2'
   compile 'org.apache.velocity:velocity:1.7'
   compile 'org.slf4j:log4j-over-slf4j'
   compile 'org.sonarsource.orchestrator:sonar-orchestrator'
