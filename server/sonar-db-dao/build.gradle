@@ -35,7 +35,7 @@ dependencies {
 
   testRuntime 'com.h2database:h2'
   testRuntime 'com.microsoft.sqlserver:mssql-jdbc'
-  testRuntime 'com.oracle.jdbc:ojdbc8'
+  testRuntime 'com.oracle.database.jdbc:ojdbc8'
   testRuntime 'org.postgresql:postgresql'
 
   testFixturesApi testFixtures(project(':server:sonar-db-core'))
