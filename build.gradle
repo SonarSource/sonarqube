@@ -73,6 +73,10 @@ allprojects {
       }
     }
   }
+
+  task allDependencies {
+    dependsOn 'dependencies'
+  }
 }
 
 apply plugin: 'org.sonarqube'
