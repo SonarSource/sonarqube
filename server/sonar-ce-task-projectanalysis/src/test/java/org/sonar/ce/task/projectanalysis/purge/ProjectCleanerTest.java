@@ -54,24 +54,6 @@ public class ProjectCleanerTest {
   }
 
   @Test
-  public void no_profiling_when_property_is_false() {
-    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, false);
-
-    underTest.purge(mock(DbSession.class), "root", "project", settings.asConfig(), emptySet());
-
-    verify(profiler, never()).dump(anyLong(), any());
-  }
-
-  @Test
-  public void profiling_when_property_is_true() {
-    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
-
-    underTest.purge(mock(DbSession.class), "root", "project", settings.asConfig(), emptySet());
-
-    verify(profiler).dump(anyLong(), any());
-  }
-
-  @Test
   public void call_period_cleaner_index_client_and_purge_dao() {
     settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
 
