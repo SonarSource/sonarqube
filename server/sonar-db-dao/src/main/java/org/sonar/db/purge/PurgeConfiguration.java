@@ -20,14 +20,11 @@
 package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.PurgeConstants;
@@ -36,17 +33,15 @@ public class PurgeConfiguration {
 
   private final String rootUuid;
   private final String projectUuid;
-  private final Collection<String> scopesWithoutHistoricalData;
   private final int maxAgeInDaysOfClosedIssues;
   private final Optional<Integer> maxAgeInDaysOfInactiveBranches;
   private final System2 system2;
   private final Set<String> disabledComponentUuids;
 
-  public PurgeConfiguration(String rootUuid, String projectUuid, Collection<String> scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
+  public PurgeConfiguration(String rootUuid, String projectUuid, int maxAgeInDaysOfClosedIssues,
     Optional<Integer> maxAgeInDaysOfInactiveBranches, System2 system2, Set<String> disabledComponentUuids) {
     this.rootUuid = rootUuid;
     this.projectUuid = projectUuid;
-    this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
     this.system2 = system2;
     this.disabledComponentUuids = disabledComponentUuids;
@@ -54,7 +49,7 @@ public class PurgeConfiguration {
   }
 
   public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, String rootUuid, String projectUuid, Set<String> disabledComponentUuids) {
-    return new PurgeConfiguration(rootUuid, projectUuid, Arrays.asList(Scopes.DIRECTORY, Scopes.FILE), config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
+    return new PurgeConfiguration(rootUuid, projectUuid, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
       config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_BRANCHES_AND_PRS), System2.INSTANCE, disabledComponentUuids);
   }
 
@@ -72,10 +67,6 @@ public class PurgeConfiguration {
    */
   public String projectUuid() {
     return projectUuid;
-  }
-
-  public Collection<String> getScopesWithoutHistoricalData() {
-    return scopesWithoutHistoricalData;
   }
 
   public Set<String> getDisabledComponentUuids() {

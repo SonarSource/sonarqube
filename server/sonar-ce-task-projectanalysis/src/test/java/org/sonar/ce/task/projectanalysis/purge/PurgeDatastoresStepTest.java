@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Predicate;
@@ -40,11 +38,11 @@ import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.projectanalysis.step.BaseStepTest;
+import org.sonar.ce.task.projectanalysis.util.WrapInSingleElementArray;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.DbClient;
 import org.sonar.server.project.Project;
-import org.sonar.ce.task.projectanalysis.util.WrapInSingleElementArray;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,7 +50,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
@@ -91,41 +88,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
     verify_call_purge_method_of_the_purge_task(project);
   }
-
-  @DataProvider
-  public static Object[][] nonRootProjectComponentTypes() {
-    return dataproviderFromComponentTypeValues(input -> input.isReportType() && input != Component.Type.PROJECT);
-  }
-
-  @Test
-  @UseDataProvider("nonRootProjectComponentTypes")
-  public void do_not_call_purge_method_of_the_purge_task_for_other_report_components(Component.Type type) {
-    Component component = ReportComponent.builder(type, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
-
-    verify_do_not_call_purge_method_of_the_purge_task(component);
-  }
-
-  @DataProvider
-  public static Object[][] nonRootViewsComponentTypes() {
-    return dataproviderFromComponentTypeValues(input -> input.isViewsType() && input != Component.Type.VIEW);
-  }
-
-  @Test
-  @UseDataProvider("nonRootViewsComponentTypes")
-  public void do_not_call_purge_method_of_the_purge_task_for_other_views_components(Component.Type type) {
-    Component component = ViewsComponent.builder(type, PROJECT_KEY).setUuid(PROJECT_UUID).build();
-
-    verify_do_not_call_purge_method_of_the_purge_task(component);
-  }
-
-  private void verify_do_not_call_purge_method_of_the_purge_task(Component component) {
-    treeRootHolder.setRoot(component);
-
-    underTest.execute(new TestComputationStepContext());
-
-    verifyNoMoreInteractions(projectCleaner);
-  }
-
+  
   private void verify_call_purge_method_of_the_purge_task(Component project) {
     treeRootHolder.setRoot(project);
     when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().asConfig());

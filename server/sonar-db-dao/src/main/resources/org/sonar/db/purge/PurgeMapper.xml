@@ -128,19 +128,6 @@
       </foreach>
   </delete>
 
-  <delete id="deleteComponentMeasures" parameterType="map">
-    delete from project_measures
-    where
-      analysis_uuid in
-      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid,jdbcType=VARCHAR}
-      </foreach>
-      and component_uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid,jdbcType=VARCHAR}
-      </foreach>
-  </delete>
-
   <delete id="deleteAnalysisDuplications" parameterType="map">
     delete from duplications_index
     where

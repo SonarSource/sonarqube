@@ -22,13 +22,8 @@ package org.sonar.db.purge;
 import java.util.Date;
 import java.util.Optional;
 import org.junit.Test;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.config.PurgeConstants;
-import org.sonar.core.config.PurgeProperties;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,10 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PurgeConfigurationTest {
   @Test
   public void should_delete_all_closed_issues() {
-    PurgeConfiguration conf = new PurgeConfiguration("root", "project", emptySet(), 0, Optional.empty(), System2.INSTANCE, emptySet());
+    PurgeConfiguration conf = new PurgeConfiguration("root", "project", 0, Optional.empty(), System2.INSTANCE, emptySet());
     assertThat(conf.maxLiveDateOfClosedIssues()).isNull();
 
-    conf = new PurgeConfiguration("root", "project", emptySet(), -1, Optional.empty(), System2.INSTANCE, emptySet());
+    conf = new PurgeConfiguration("root", "project", -1, Optional.empty(), System2.INSTANCE, emptySet());
     assertThat(conf.maxLiveDateOfClosedIssues()).isNull();
   }
 
@@ -47,7 +42,7 @@ public class PurgeConfigurationTest {
   public void should_delete_only_old_closed_issues() {
     Date now = DateUtils.parseDate("2013-05-18");
 
-    PurgeConfiguration conf = new PurgeConfiguration("root", "project", emptySet(), 30, Optional.empty(), System2.INSTANCE, emptySet());
+    PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.empty(), System2.INSTANCE, emptySet());
     Date toDate = conf.maxLiveDateOfClosedIssues(now);
 
     assertThat(toDate.getYear()).isEqualTo(113);// =2013
@@ -57,7 +52,7 @@ public class PurgeConfigurationTest {
 
   @Test
   public void should_have_empty_branch_purge_date() {
-    PurgeConfiguration conf = new PurgeConfiguration("root", "project", emptySet(), 30, Optional.of(10), System2.INSTANCE, emptySet());
+    PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.of(10), System2.INSTANCE, emptySet());
     assertThat(conf.maxLiveDateOfInactiveBranches()).isNotEmpty();
     long tenDaysAgo = DateUtils.addDays(new Date(System2.INSTANCE.now()), -10).getTime();
     assertThat(conf.maxLiveDateOfInactiveBranches().get().getTime()).isBetween(tenDaysAgo - 5000, tenDaysAgo + 5000);
@@ -65,20 +60,8 @@ public class PurgeConfigurationTest {
 
   @Test
   public void should_calculate_branch_purge_date() {
-    PurgeConfiguration conf = new PurgeConfiguration("root", "project", emptySet(), 30, Optional.empty(), System2.INSTANCE, emptySet());
+    PurgeConfiguration conf = new PurgeConfiguration("root", "project", 30, Optional.empty(), System2.INSTANCE, emptySet());
     assertThat(conf.maxLiveDateOfInactiveBranches()).isEmpty();
   }
 
-  @Test
-  public void delete_files_and_directories() {
-    MapSettings settings = new MapSettings(new PropertyDefinitions(PurgeProperties.all()));
-    settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
-    Date now = new Date();
-
-    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings.asConfig(), "root", "project", emptySet());
-
-    assertThat(underTest.getScopesWithoutHistoricalData())
-      .containsExactlyInAnyOrder(Scopes.DIRECTORY, Scopes.FILE);
-    assertThat(underTest.maxLiveDateOfClosedIssues(now)).isEqualTo(DateUtils.addDays(now, -5));
-  }
 }

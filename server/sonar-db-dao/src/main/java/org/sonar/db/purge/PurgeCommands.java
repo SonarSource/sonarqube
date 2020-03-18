@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -53,10 +52,6 @@ class PurgeCommands {
   @VisibleForTesting
   PurgeCommands(DbSession session, PurgeProfiler profiler, System2 system2) {
     this(session, session.getMapper(PurgeMapper.class), profiler, system2);
-  }
-
-  List<String> selectSnapshotUuids(PurgeSnapshotQuery query) {
-    return purgeMapper.selectAnalysisIdsAndUuids(query).stream().map(IdUuidPair::getUuid).collect(Collectors.toList());
   }
 
   List<IdUuidPair> selectSnapshotIdUuids(PurgeSnapshotQuery query) {
@@ -308,24 +303,6 @@ class PurgeCommands {
 
     profiler.start("deleteComponentMeasures (project_measures)");
     Lists.partition(componentUuids, MAX_RESOURCES_PER_QUERY).forEach(purgeMapper::fullDeleteComponentMeasures);
-    session.commit();
-    profiler.stop();
-  }
-
-  void deleteComponentMeasures(List<String> analysisUuids, List<String> componentUuids) {
-    if (analysisUuids.isEmpty() || componentUuids.isEmpty()) {
-      return;
-    }
-
-    List<List<String>> analysisUuidsPartitions = Lists.partition(analysisUuids, MAX_SNAPSHOTS_PER_QUERY);
-    List<List<String>> componentUuidsPartitions = Lists.partition(componentUuids, MAX_RESOURCES_PER_QUERY);
-
-    profiler.start("deleteComponentMeasures");
-    for (List<String> analysisUuidsPartition : analysisUuidsPartitions) {
-      for (List<String> componentUuidsPartition : componentUuidsPartitions) {
-        purgeMapper.deleteComponentMeasures(analysisUuidsPartition, componentUuidsPartition);
-      }
-    }
     session.commit();
     profiler.stop();
   }

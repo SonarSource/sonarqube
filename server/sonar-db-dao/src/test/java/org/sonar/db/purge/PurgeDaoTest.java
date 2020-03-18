@@ -41,7 +41,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.UuidFactoryFast;
@@ -85,7 +84,6 @@ import org.sonar.db.webhook.WebhookDto;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
@@ -216,7 +214,7 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
+  public void shouldDeleteNonHistoricalData() {
     MetricDto metricWithHistory = db.measures().insertMetric(t -> t.setDeleteHistoricalData(false));
     MetricDto metricWithoutHistory = db.measures().insertMetric(t -> t.setDeleteHistoricalData(true));
     ComponentDto project = db.components().insertPrivateProject();
@@ -234,8 +232,7 @@ public class PurgeDaoTest {
     db.measures().insertMeasure(otherProject, otherOldAnalysis, metricWithHistory);
     db.measures().insertMeasure(otherProject, otherOldAnalysis, metricWithoutHistory);
 
-    PurgeConfiguration conf = new PurgeConfiguration(project.uuid(), project.uuid(), asList(Scopes.DIRECTORY, Scopes.FILE),
-      30, Optional.of(30), System2.INSTANCE, emptySet());
+    PurgeConfiguration conf = new PurgeConfiguration(project.uuid(), project.uuid(), 30, Optional.of(30), System2.INSTANCE, emptySet());
 
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -1739,7 +1736,7 @@ public class PurgeDaoTest {
   }
 
   private static PurgeConfiguration newConfigurationWith30Days(String rootUuid) {
-    return new PurgeConfiguration(rootUuid, rootUuid, emptyList(), 30, Optional.of(30), System2.INSTANCE, emptySet());
+    return new PurgeConfiguration(rootUuid, rootUuid, 30, Optional.of(30), System2.INSTANCE, emptySet());
   }
 
   private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootUuid, String projectUuid) {
@@ -1747,7 +1744,7 @@ public class PurgeDaoTest {
   }
 
   private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootUuid, String projectUuid, Set<String> disabledComponentUuids) {
-    return new PurgeConfiguration(rootUuid, projectUuid, emptyList(), 30, Optional.of(30), system2, disabledComponentUuids);
+    return new PurgeConfiguration(rootUuid, projectUuid, 30, Optional.of(30), system2, disabledComponentUuids);
   }
 
   private Stream<String> uuidsOfAnalysesOfRoot(ComponentDto rootComponent) {
