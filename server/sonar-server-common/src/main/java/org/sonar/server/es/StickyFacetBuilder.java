@@ -110,10 +110,6 @@ public class StickyFacetBuilder {
     return facetFilter;
   }
 
-  public FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolQueryBuilder facetFilter, int size) {
-    return buildTopFacetAggregation(fieldName, facetName, facetFilter, size, t -> t);
-  }
-
   private FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolQueryBuilder facetFilter, int size,
     Function<TermsAggregationBuilder, AggregationBuilder> additionalAggregationFilter) {
     TermsAggregationBuilder termsAggregation = buildTermsFacetAggregation(fieldName, facetName, size);

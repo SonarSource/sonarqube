@@ -45,6 +45,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT
 
 public class Facets {
 
+  public static final String SELECTED_SUB_AGG_NAME_SUFFIX = "_selected";
   public static final String TOTAL = "total";
   private static final java.lang.String NO_DATA_PREFIX = "no_data_";
 
@@ -105,7 +106,7 @@ public class Facets {
     if (facetName.contains("__") && !facetName.startsWith("__")) {
       facetName = facetName.substring(0, facetName.indexOf("__"));
     }
-    facetName = facetName.replace("_selected", "");
+    facetName = facetName.replace(SELECTED_SUB_AGG_NAME_SUFFIX, "");
     LinkedHashMap<String, Long> facet = getOrCreateFacet(facetName);
     for (Terms.Bucket value : aggregation.getBuckets()) {
       List<Aggregation> aggregationList = value.getAggregations().asList();
