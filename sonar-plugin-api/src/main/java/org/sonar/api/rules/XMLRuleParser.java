@@ -24,13 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
@@ -54,7 +54,7 @@ public final class XMLRuleParser {
   private static final Map<String, String> TYPE_MAP = typeMapWithDeprecatedValues();
 
   public List<Rule> parse(File file) {
-    try (Reader reader = new InputStreamReader(FileUtils.openInputStream(file), UTF_8)) {
+    try (Reader reader = new InputStreamReader(Files.newInputStream(file.toPath()), UTF_8)) {
       return parse(reader);
 
     } catch (IOException e) {

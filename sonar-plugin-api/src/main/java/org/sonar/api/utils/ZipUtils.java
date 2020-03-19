@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.function.Predicate;
@@ -175,8 +176,8 @@ public final class ZipUtils {
   }
 
   public static void zipDir(File dir, File zip) throws IOException {
-    try (OutputStream out = FileUtils.openOutputStream(zip);
-      ZipOutputStream zout = new ZipOutputStream(out)) {
+    try (OutputStream out = Files.newOutputStream(zip.toPath());
+         ZipOutputStream zout = new ZipOutputStream(out)) {
       doZipDir(dir, zout);
     }
   }
