@@ -28,7 +28,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 

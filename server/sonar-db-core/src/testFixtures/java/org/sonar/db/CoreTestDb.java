@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.AssumptionViolatedException;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;

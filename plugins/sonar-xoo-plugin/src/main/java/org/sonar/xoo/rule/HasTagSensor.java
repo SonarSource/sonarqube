@@ -67,7 +67,7 @@ public class HasTagSensor extends AbstractXooRuleSensor {
             NewIssue newIssue = context.newIssue();
             newIssue
               .forRule(ruleKey)
-              .gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))
+              .gap(context.config().getDouble(EFFORT_TO_FIX_PROPERTY).orElse(null))
               .at(newIssue.newLocation()
                 .on(inputFile)
                 .at(inputFile.newRange(lineCounter[0], startIndex, lineCounter[0], startIndex + tag.length())))

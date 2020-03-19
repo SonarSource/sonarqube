@@ -27,6 +27,7 @@ import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectBuilder.Context;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -51,7 +52,7 @@ public class ProjectBuildersExecutorTest {
 
     exception.expectMessage("Failed to execute project builder: Mock for ProjectBuilder");
     exception.expect(MessageException.class);
-    new ProjectBuildersExecutor(projectBuilders).execute(reactor);
+    new ProjectBuildersExecutor(mock(GlobalConfiguration.class), projectBuilders).execute(reactor);
   }
 
   @Test
@@ -61,7 +62,7 @@ public class ProjectBuildersExecutorTest {
 
     exception.expectMessage("Failed to execute project builder: org.sonar.scanner.scan.ProjectBuildersExecutorTest$MyProjectBuilder");
     exception.expect(MessageException.class);
-    new ProjectBuildersExecutor(projectBuilders).execute(reactor);
+    new ProjectBuildersExecutor(mock(GlobalConfiguration.class), projectBuilders).execute(reactor);
   }
 
   static class MyProjectBuilder extends ProjectBuilder {

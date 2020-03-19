@@ -24,7 +24,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.SearchResult;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 
 /**
  * @author Evgeny Mandrikov
@@ -42,11 +42,11 @@ public class LdapGroupMapping {
   /**
    * Constructs mapping from Sonar settings.
    */
-  public LdapGroupMapping(Settings settings, String settingsPrefix) {
-    this.baseDn = settings.getString(settingsPrefix + ".group.baseDn");
-    this.idAttribute = StringUtils.defaultString(settings.getString(settingsPrefix + ".group.idAttribute"), DEFAULT_ID_ATTRIBUTE);
+  public LdapGroupMapping(Configuration config, String settingsPrefix) {
+    this.baseDn = config.get(settingsPrefix + ".group.baseDn").orElse(null);
+    this.idAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".group.idAttribute").orElse(null), DEFAULT_ID_ATTRIBUTE);
 
-    String req = StringUtils.defaultString(settings.getString(settingsPrefix + ".group.request"), DEFAULT_REQUEST);
+    String req = StringUtils.defaultString(config.get(settingsPrefix + ".group.request").orElse(null), DEFAULT_REQUEST);
     this.requiredUserAttributes = StringUtils.substringsBetween(req, "{", "}");
     for (int i = 0; i < requiredUserAttributes.length; i++) {
       req = StringUtils.replace(req, "{" + requiredUserAttributes[i] + "}", "{" + i + "}");

@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.AssumptionViolatedException;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.db.dialect.H2;
 import org.sonar.process.logging.LogbackHelper;
 

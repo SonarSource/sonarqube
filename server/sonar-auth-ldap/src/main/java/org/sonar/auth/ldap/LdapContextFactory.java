@@ -35,7 +35,6 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -75,15 +74,15 @@ public class LdapContextFactory {
   private final String realm;
   private final String referral;
 
-  public LdapContextFactory(Settings settings, String settingsPrefix, String ldapUrl) {
-    this.authentication = StringUtils.defaultString(settings.getString(settingsPrefix + ".authentication"), DEFAULT_AUTHENTICATION);
-    this.factory = StringUtils.defaultString(settings.getString(settingsPrefix + ".contextFactoryClass"), DEFAULT_FACTORY);
-    this.realm = settings.getString(settingsPrefix + ".realm");
+  public LdapContextFactory(org.sonar.api.config.Configuration config, String settingsPrefix, String ldapUrl) {
+    this.authentication = StringUtils.defaultString(config.get(settingsPrefix + ".authentication").orElse(null), DEFAULT_AUTHENTICATION);
+    this.factory = StringUtils.defaultString(config.get(settingsPrefix + ".contextFactoryClass").orElse(null), DEFAULT_FACTORY);
+    this.realm = config.get(settingsPrefix + ".realm").orElse(null);
     this.providerUrl = ldapUrl;
-    this.startTLS = settings.getBoolean(settingsPrefix + ".StartTLS");
-    this.username = settings.getString(settingsPrefix + ".bindDn");
-    this.password = settings.getString(settingsPrefix + ".bindPassword");
-    this.referral = getReferralsMode(settings, settingsPrefix + ".followReferrals");
+    this.startTLS = config.getBoolean(settingsPrefix + ".StartTLS").orElse(false);
+    this.username = config.get(settingsPrefix + ".bindDn").orElse(null);
+    this.password = config.get(settingsPrefix + ".bindPassword").orElse(null);
+    this.referral = getReferralsMode(config, settingsPrefix + ".followReferrals");
   }
 
   /**
@@ -224,12 +223,9 @@ public class LdapContextFactory {
     return referral;
   }
 
-  private static String getReferralsMode(Settings settings, String followReferralsSettingKey) {
-    if (settings.hasKey(followReferralsSettingKey)) {
-      return settings.getBoolean(followReferralsSettingKey) ? REFERRALS_FOLLOW_MODE : REFERRALS_IGNORE_MODE;
-    }
+  private static String getReferralsMode(org.sonar.api.config.Configuration config, String followReferralsSettingKey) {
     // By default follow referrals
-    return REFERRALS_FOLLOW_MODE;
+    return config.getBoolean(followReferralsSettingKey).orElse(true) ? REFERRALS_FOLLOW_MODE : REFERRALS_IGNORE_MODE;
   }
 
   @Override

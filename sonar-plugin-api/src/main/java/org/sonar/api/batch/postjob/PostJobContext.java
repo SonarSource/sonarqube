@@ -22,19 +22,12 @@ package org.sonar.api.batch.postjob;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.Settings;
 
 /**
  * See {@link PostJob#execute(PostJobContext)}
  * @since 5.2
  */
 public interface PostJobContext {
-
-  /**
-   * @deprecated since 6.5 use {@link #config()}
-   */
-  @Deprecated
-  Settings settings();
 
   /**
    * Get configuration of the current project.

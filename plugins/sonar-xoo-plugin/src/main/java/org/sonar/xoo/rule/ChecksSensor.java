@@ -50,7 +50,7 @@ public class ChecksSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     Checks<Check> checks = checkFactory.create(XooRulesDefinition.XOO_REPOSITORY);
-    checks.addAnnotatedChecks(Check.ALL);
+    checks.addAnnotatedChecks((Object[]) Check.ALL);
     FilePredicates p = context.fileSystem().predicates();
     for (InputFile file : context.fileSystem().inputFiles(p.and(p.hasLanguages(Xoo.KEY), p.hasType(Type.MAIN)))) {
       for (Check check : checks.all()) {

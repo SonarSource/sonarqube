@@ -21,7 +21,7 @@ package org.sonar.server.platform;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;

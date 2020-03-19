@@ -22,19 +22,12 @@ package org.sonar.xoo.extensions;
 import java.io.File;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.Settings;
 
 public class XooProjectBuilder extends ProjectBuilder {
 
-  private Settings settings;
-
-  public XooProjectBuilder(Settings settings) {
-    this.settings = settings;
-  }
-
   @Override
   public void build(Context context) {
-    if (!settings.getBoolean("sonar.xoo.enableProjectBuilder")) {
+    if (!context.config().getBoolean("sonar.xoo.enableProjectBuilder").orElse(false)) {
       return;
     }
     ProjectDefinition root = context.projectReactor().getRoot();

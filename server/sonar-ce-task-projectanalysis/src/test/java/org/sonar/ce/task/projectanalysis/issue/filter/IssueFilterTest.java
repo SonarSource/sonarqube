@@ -26,7 +26,7 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.component.Component;

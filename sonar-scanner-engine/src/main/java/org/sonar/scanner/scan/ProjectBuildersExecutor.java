@@ -27,25 +27,28 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
 public class ProjectBuildersExecutor {
 
   private static final Logger LOG = Loggers.get(ProjectBuildersExecutor.class);
 
+  private final GlobalConfiguration globalConfig;
   private final ProjectBuilder[] projectBuilders;
 
-  public ProjectBuildersExecutor(ProjectBuilder... projectBuilders) {
+  public ProjectBuildersExecutor(GlobalConfiguration globalConfig, ProjectBuilder... projectBuilders) {
+    this.globalConfig = globalConfig;
     this.projectBuilders = projectBuilders;
   }
 
-  public ProjectBuildersExecutor() {
-    this(new ProjectBuilder[0]);
+  public ProjectBuildersExecutor(GlobalConfiguration globalConfig) {
+    this(globalConfig, new ProjectBuilder[0]);
   }
 
   public void execute(ProjectReactor reactor) {
     if (projectBuilders.length > 0) {
       Profiler profiler = Profiler.create(LOG).startInfo("Execute project builders");
-      ProjectBuilderContext context = new ProjectBuilderContext(reactor);
+      ProjectBuilderContext context = new ProjectBuilderContext(reactor, globalConfig);
 
       for (ProjectBuilder projectBuilder : projectBuilders) {
         try {

@@ -21,7 +21,7 @@ package org.sonar.ce.task.projectanalysis.analysis;
 
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.db.DbClient;
 import org.sonar.db.component.BranchType;

@@ -93,6 +93,7 @@ public class XooPlugin implements Plugin {
         .description("Comma-separated list of suffixes for files to analyze. To not filter, leave the list empty.")
         .subCategory("General")
         .onQualifiers(Qualifiers.PROJECT)
+        .multiValues(true)
         .build(),
       // Used by DuplicationsTest and IssueFilterOnCommonRulesTest. If not declared it is not returned by api/settings
       PropertyDefinition.builder("sonar.cpd.xoo.minimumTokens")

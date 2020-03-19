@@ -19,8 +19,7 @@
  */
 package org.sonar.xoo;
 
-import java.util.Arrays;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Language;
 
 public class Xoo implements Language {
@@ -30,10 +29,10 @@ public class Xoo implements Language {
   public static final String FILE_SUFFIXES_KEY = "sonar.xoo.file.suffixes";
   public static final String DEFAULT_FILE_SUFFIXES = ".xoo";
 
-  private final Settings settings;
+  private final Configuration config;
 
-  public Xoo(Settings settings) {
-    this.settings = settings;
+  public Xoo(Configuration config) {
+    this.config = config;
   }
 
   @Override
@@ -48,6 +47,6 @@ public class Xoo implements Language {
 
   @Override
   public String[] getFileSuffixes() {
-    return Arrays.stream(settings.getStringArray(FILE_SUFFIXES_KEY)).filter(s -> s != null && !s.trim().isEmpty()).toArray(String[]::new);
+    return config.getStringArray(FILE_SUFFIXES_KEY);
   }
 }

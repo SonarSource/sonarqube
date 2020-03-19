@@ -53,7 +53,7 @@ public class CreateIssueByInternalKeySensor implements Sensor {
 
   private static void createIssues(InputFile file, SensorContext context) {
     ActiveRule rule = context.activeRules().findByInternalKey(XooRulesDefinition.XOO_REPOSITORY,
-      context.settings().getString(INTERNAL_KEY_PROPERTY));
+      context.config().get(INTERNAL_KEY_PROPERTY).orElse(null));
     if (rule != null) {
       NewIssue newIssue = context.newIssue();
       newIssue

@@ -25,7 +25,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 
 import static java.util.function.Function.identity;
 import static org.sonar.api.config.internal.MultivalueProperty.parseAsCsv;

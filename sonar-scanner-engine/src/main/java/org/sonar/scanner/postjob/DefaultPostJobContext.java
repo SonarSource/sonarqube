@@ -23,23 +23,15 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.Settings;
 
 public class DefaultPostJobContext implements PostJobContext {
 
   private final Configuration config;
   private final AnalysisMode analysisMode;
-  private final Settings mutableSettings;
 
-  public DefaultPostJobContext(Configuration config, Settings mutableSettings, AnalysisMode analysisMode) {
+  public DefaultPostJobContext(Configuration config, AnalysisMode analysisMode) {
     this.config = config;
-    this.mutableSettings = mutableSettings;
     this.analysisMode = analysisMode;
-  }
-
-  @Override
-  public Settings settings() {
-    return mutableSettings;
   }
 
   @Override

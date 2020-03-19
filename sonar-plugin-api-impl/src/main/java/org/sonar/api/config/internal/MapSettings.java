@@ -23,9 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;

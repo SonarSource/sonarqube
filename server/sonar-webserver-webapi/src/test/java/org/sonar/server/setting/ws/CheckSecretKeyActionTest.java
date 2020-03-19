@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.Encryption;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;

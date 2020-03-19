@@ -44,7 +44,7 @@ public class KerberosTest {
   @Test
   public void test() {
     MapSettings settings = configure();
-    LdapRealm ldapRealm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
+    LdapRealm ldapRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
 
     ldapRealm.init();
 
@@ -61,7 +61,7 @@ public class KerberosTest {
   public void wrong_bind_password() {
     MapSettings settings = configure()
       .setProperty("ldap.bindPassword", "wrong_bind_password");
-    LdapRealm ldapRealm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
+    LdapRealm ldapRealm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
     try {
       ldapRealm.init();
       Assert.fail();

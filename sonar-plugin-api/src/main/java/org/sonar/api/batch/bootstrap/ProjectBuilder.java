@@ -20,6 +20,7 @@
 package org.sonar.api.batch.bootstrap;
 
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 
 /**
@@ -40,13 +41,15 @@ import org.sonar.api.scanner.ScannerSide;
 @Deprecated
 public abstract class ProjectBuilder {
 
-  /**
-   * Plugins can use the implementation {@link org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext}
-   * for their unit tests.
-   */
   @Deprecated
   public interface Context {
     ProjectReactor projectReactor();
+
+    /**
+     * Global config (command line arguments, global scanner properties).
+     * @since 8.3 Only as a replacement for injecting Settings
+     */
+    Configuration config();
   }
 
   /**

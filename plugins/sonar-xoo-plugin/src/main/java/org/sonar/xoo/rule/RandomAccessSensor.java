@@ -49,7 +49,7 @@ public class RandomAccessSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
-    File f = new File(context.settings().getString(SONAR_XOO_RANDOM_ACCESS_ISSUE_PATHS));
+    File f = new File(context.config().get(SONAR_XOO_RANDOM_ACCESS_ISSUE_PATHS).orElseThrow(() -> new IllegalStateException("Required property")));
     FileSystem fs = context.fileSystem();
     FilePredicates p = fs.predicates();
     try {

@@ -26,7 +26,7 @@ import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.Encryption;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.Logger;

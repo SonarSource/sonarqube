@@ -45,7 +45,7 @@ public class LdapSearchTest {
 
   @BeforeClass
   public static void init() {
-    contextFactories = new LdapSettingsManager(LdapSettingsFactory.generateSimpleAnonymousAccessSettings(server, null), new LdapAutodiscovery()).getContextFactories();
+    contextFactories = new LdapSettingsManager(LdapSettingsFactory.generateSimpleAnonymousAccessSettings(server, null).asConfig(), new LdapAutodiscovery()).getContextFactories();
   }
 
   @Test

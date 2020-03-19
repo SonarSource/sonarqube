@@ -44,7 +44,7 @@ public class LdapAuthenticatorTest {
   public void testNoConnection() {
     exampleServer.disableAnonymousAccess();
     try {
-      LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE),
+      LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(),
         new LdapAutodiscovery());
       LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
       authenticator.authenticate("godin", "secret1");
@@ -55,7 +55,7 @@ public class LdapAuthenticatorTest {
 
   @Test
   public void testSimple() {
-    LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE),
+    LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(),
       new LdapAutodiscovery());
     LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
@@ -74,7 +74,7 @@ public class LdapAuthenticatorTest {
   @Test
   public void testSimpleMultiLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
-      LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_SIMPLE), new LdapAutodiscovery());
+      LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_SIMPLE).asConfig(), new LdapAutodiscovery());
     LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     assertThat(authenticator.authenticate("godin", "secret1")).isTrue();
@@ -95,7 +95,7 @@ public class LdapAuthenticatorTest {
 
   @Test
   public void testSasl() {
-    LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_CRAM_MD5),
+    LdapSettingsManager settingsManager = new LdapSettingsManager(LdapSettingsFactory.generateAuthenticationSettings(exampleServer, null, LdapContextFactory.AUTH_METHOD_CRAM_MD5).asConfig(),
       new LdapAutodiscovery());
     LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
@@ -111,7 +111,7 @@ public class LdapAuthenticatorTest {
   @Test
   public void testSaslMultipleLdap() {
     LdapSettingsManager settingsManager = new LdapSettingsManager(
-      LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_CRAM_MD5), new LdapAutodiscovery());
+      LdapSettingsFactory.generateAuthenticationSettings(exampleServer, infosupportServer, LdapContextFactory.AUTH_METHOD_CRAM_MD5).asConfig(), new LdapAutodiscovery());
     LdapAuthenticator authenticator = new LdapAuthenticator(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     assertThat(authenticator.authenticate("godin", "secret1")).isTrue();

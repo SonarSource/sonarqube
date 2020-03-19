@@ -77,7 +77,6 @@ import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.MetadataLoader;
@@ -105,7 +104,7 @@ import static java.util.Collections.unmodifiableMap;
  */
 public class SensorContextTester implements SensorContext {
 
-  private Settings settings;
+  private MapSettings settings;
   private DefaultFileSystem fs;
   private ActiveRules activeRules;
   private InMemorySensorStorage sensorStorage;
@@ -132,8 +131,7 @@ public class SensorContextTester implements SensorContext {
     return new SensorContextTester(moduleBaseDir);
   }
 
-  @Override
-  public Settings settings() {
+  public MapSettings settings() {
     return settings;
   }
 
@@ -142,7 +140,7 @@ public class SensorContextTester implements SensorContext {
     return new ConfigurationBridge(settings);
   }
 
-  public SensorContextTester setSettings(Settings settings) {
+  public SensorContextTester setSettings(MapSettings settings) {
     this.settings = settings;
     return this;
   }

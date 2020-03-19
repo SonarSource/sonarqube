@@ -20,7 +20,7 @@
 package org.sonar.auth.ldap;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -43,11 +43,11 @@ public class LdapUserMapping {
   /**
    * Constructs mapping from Sonar settings.
    */
-  public LdapUserMapping(Settings settings, String settingsPrefix) {
+  public LdapUserMapping(Configuration config, String settingsPrefix) {
     String usesrBaseDnSettingKey = settingsPrefix + ".user.baseDn";
-    String usersBaseDn = settings.getString(usesrBaseDnSettingKey);
+    String usersBaseDn = config.get(usesrBaseDnSettingKey).orElse(null);
     if (usersBaseDn == null) {
-      String realm = settings.getString(settingsPrefix + ".realm");
+      String realm = config.get(settingsPrefix + ".realm").orElse(null);
       if (realm != null) {
         LOG.warn("Auto-discovery feature is deprecated, please use '{}' to specify user search dn", usesrBaseDnSettingKey);
         usersBaseDn = LdapAutodiscovery.getDnsDomainDn(realm);
@@ -55,10 +55,10 @@ public class LdapUserMapping {
     }
 
     this.baseDn = usersBaseDn;
-    this.realNameAttribute = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.realNameAttribute"), DEFAULT_NAME_ATTRIBUTE);
-    this.emailAttribute = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.emailAttribute"), DEFAULT_EMAIL_ATTRIBUTE);
+    this.realNameAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".user.realNameAttribute").orElse(null), DEFAULT_NAME_ATTRIBUTE);
+    this.emailAttribute = StringUtils.defaultString(config.get(settingsPrefix + ".user.emailAttribute").orElse(null), DEFAULT_EMAIL_ATTRIBUTE);
 
-    String req = StringUtils.defaultString(settings.getString(settingsPrefix + ".user.request"), DEFAULT_REQUEST);
+    String req = StringUtils.defaultString(config.get(settingsPrefix + ".user.request").orElse(null), DEFAULT_REQUEST);
     req = StringUtils.replace(req, "{login}", "{0}");
     this.request = req;
   }

@@ -28,7 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.Encryption;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;

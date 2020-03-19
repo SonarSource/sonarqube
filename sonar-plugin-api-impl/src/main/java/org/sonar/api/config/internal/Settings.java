@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.config;
+package org.sonar.api.config.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +32,9 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;

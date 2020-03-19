@@ -40,7 +40,6 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 
 import static java.util.Collections.singletonList;

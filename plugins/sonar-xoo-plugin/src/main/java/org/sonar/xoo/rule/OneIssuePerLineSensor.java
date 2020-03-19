@@ -63,7 +63,7 @@ public class OneIssuePerLineSensor implements Sensor {
 
   private void createIssues(InputFile file, SensorContext context, String repo) {
     RuleKey ruleKey = RuleKey.of(repo, RULE_KEY);
-    String severity = context.settings().getString(FORCE_SEVERITY_PROPERTY);
+    String severity = context.config().get(FORCE_SEVERITY_PROPERTY).orElse(null);
     for (int line = 1; line <= file.lines(); line++) {
       NewIssue newIssue = context.newIssue();
       newIssue
@@ -74,9 +74,9 @@ public class OneIssuePerLineSensor implements Sensor {
           .message("This issue is generated on each line"))
         .overrideSeverity(severity != null ? Severity.valueOf(severity) : null);
       if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
-        newIssue.gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
+        newIssue.gap(context.config().getDouble(EFFORT_TO_FIX_PROPERTY).orElse(null));
       } else {
-        newIssue.gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
+        newIssue.gap(context.config().getDouble(EFFORT_TO_FIX_PROPERTY).orElse(null));
       }
       newIssue.save();
     }

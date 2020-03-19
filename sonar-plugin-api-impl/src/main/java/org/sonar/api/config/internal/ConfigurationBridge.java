@@ -20,7 +20,6 @@
 package org.sonar.api.config.internal;
 
 import java.util.Optional;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.Configuration;
 
 /**

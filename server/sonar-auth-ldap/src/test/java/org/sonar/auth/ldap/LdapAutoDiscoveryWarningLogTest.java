@@ -45,7 +45,7 @@ public class LdapAutoDiscoveryWarningLogTest {
   public void does_not_display_log_when_not_using_auto_discovery() {
     MapSettings settings = new MapSettings()
       .setProperty("ldap.url", server.getUrl());
-    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
+    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
     assertThat(realm.getName()).isEqualTo("LDAP");
 
     realm.init();
@@ -58,7 +58,7 @@ public class LdapAutoDiscoveryWarningLogTest {
     LdapAutodiscovery ldapAutodiscovery = mock(LdapAutodiscovery.class);
     when(ldapAutodiscovery.getLdapServers("example.org")).thenReturn(singletonList(new LdapAutodiscovery.LdapSrvRecord(server.getUrl(), 1, 1)));
     // ldap.url setting is not set
-    LdapRealm realm = new LdapRealm(new LdapSettingsManager(new MapSettings().setProperty("ldap.realm", "example.org"),
+    LdapRealm realm = new LdapRealm(new LdapSettingsManager(new MapSettings().setProperty("ldap.realm", "example.org").asConfig(),
       ldapAutodiscovery));
 
     realm.init();
@@ -70,7 +70,7 @@ public class LdapAutoDiscoveryWarningLogTest {
   public void display_warning_log_when_using_auto_discovery_to_detect_user_baseDn_on_single_server() {
     // ldap.user.baseDn setting is not set
     MapSettings settings = new MapSettings().setProperty("ldap.url", server.getUrl()).setProperty("ldap.realm", "example.org");
-    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
+    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
 
     realm.init();
 
@@ -88,7 +88,7 @@ public class LdapAutoDiscoveryWarningLogTest {
       .setProperty("ldap.example.realm", "example.org")
       .setProperty("ldap.infosupport.url", server2.getUrl())
       .setProperty("ldap.infosupport.realm", "infosupport.org");
-    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
+    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
 
     realm.init();
 

@@ -21,7 +21,7 @@ package org.sonar.scanner.bootstrap;
 
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.config.Encryption;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.scanner.config.DefaultConfiguration;
 

@@ -24,7 +24,7 @@ import com.sonar.orchestrator.db.DatabaseClient;
 import com.sonar.orchestrator.db.DatabaseFactory;
 import com.sonar.orchestrator.db.DefaultDatabase;
 import java.util.function.Consumer;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;

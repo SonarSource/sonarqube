@@ -28,7 +28,7 @@ public class LdapGroupMappingTest {
 
   @Test
   public void defaults() {
-    LdapGroupMapping groupMapping = new LdapGroupMapping(new MapSettings(), "ldap");
+    LdapGroupMapping groupMapping = new LdapGroupMapping(new MapSettings().asConfig(), "ldap");
 
     assertThat(groupMapping.getBaseDn()).isNull();
     assertThat(groupMapping.getIdAttribute()).isEqualTo("cn");
@@ -46,7 +46,7 @@ public class LdapGroupMappingTest {
   public void custom_request() {
     MapSettings settings = new MapSettings()
       .setProperty("ldap.group.request", "(&(|(objectClass=posixGroup)(objectClass=groupOfUniqueNames))(|(memberUid={uid})(uniqueMember={dn})))");
-    LdapGroupMapping groupMapping = new LdapGroupMapping(settings, "ldap");
+    LdapGroupMapping groupMapping = new LdapGroupMapping(settings.asConfig(), "ldap");
 
     assertThat(groupMapping.getRequest()).isEqualTo("(&(|(objectClass=posixGroup)(objectClass=groupOfUniqueNames))(|(memberUid={0})(uniqueMember={1})))");
     assertThat(groupMapping.getRequiredUserAttributes()).isEqualTo(new String[] {"uid", "dn"});

@@ -68,14 +68,13 @@ public class ModuleSensorContextTest {
     settings = new MapSettings();
     sensorStorage = mock(SensorStorage.class);
     runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime);
+    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), fs, activeRules, sensorStorage, runtime);
   }
 
   @Test
   public void shouldProvideComponents() {
     assertThat(adaptor.activeRules()).isEqualTo(activeRules);
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
-    assertThat(adaptor.settings()).isEqualTo(settings);
     assertThat(adaptor.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
     assertThat(adaptor.runtime()).isEqualTo(runtime);
 

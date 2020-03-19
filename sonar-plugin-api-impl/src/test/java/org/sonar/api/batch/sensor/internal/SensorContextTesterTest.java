@@ -28,23 +28,22 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.error.AnalysisError;
 import org.sonar.api.batch.sensor.error.NewAnalysisError;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
@@ -72,10 +71,10 @@ public class SensorContextTesterTest {
 
   @Test
   public void testSettings() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty("foo", "bar");
     tester.setSettings(settings);
-    assertThat(tester.settings().getString("foo")).isEqualTo("bar");
+    assertThat(tester.config().get("foo")).contains("bar");
   }
 
   @Test

@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.config.internal.MapSettings;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class DefaultPostJobContextTest {
@@ -36,12 +35,7 @@ public class DefaultPostJobContextTest {
   public void setUp() {
     settings = new MapSettings();
     AnalysisMode analysisMode = mock(AnalysisMode.class);
-    context = new DefaultPostJobContext(settings.asConfig(), settings, analysisMode);
-  }
-
-  @Test
-  public void testSettings() {
-    assertThat(context.settings()).isSameAs(settings);
+    context = new DefaultPostJobContext(settings.asConfig(), analysisMode);
   }
 
   @Test(expected=UnsupportedOperationException.class)

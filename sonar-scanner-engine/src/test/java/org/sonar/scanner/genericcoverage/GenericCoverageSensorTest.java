@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Encryption;
+import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.config.DefaultConfiguration;

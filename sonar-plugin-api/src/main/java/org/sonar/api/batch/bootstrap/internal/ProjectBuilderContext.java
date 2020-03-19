@@ -22,6 +22,7 @@ package org.sonar.api.batch.bootstrap.internal;
 
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Configuration;
 
 /**
  * Context that is passed to {@link org.sonar.api.batch.bootstrap.ProjectBuilder} as parameter.
@@ -34,9 +35,11 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 public class ProjectBuilderContext implements ProjectBuilder.Context {
 
   private final ProjectReactor reactor;
+  private final Configuration configuration;
 
-  public ProjectBuilderContext(ProjectReactor reactor) {
+  public ProjectBuilderContext(ProjectReactor reactor, Configuration configuration) {
     this.reactor = reactor;
+    this.configuration = configuration;
   }
 
   @Override
@@ -44,4 +47,8 @@ public class ProjectBuilderContext implements ProjectBuilder.Context {
     return reactor;
   }
 
+  @Override
+  public Configuration config() {
+    return configuration;
+  }
 }

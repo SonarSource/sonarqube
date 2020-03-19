@@ -21,7 +21,7 @@ package org.sonar.auth.ldap;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.security.UserDetails;
 import org.sonar.auth.ldap.server.LdapServer;
 
@@ -44,8 +44,8 @@ public class LdapUsersProviderTest {
 
   @Test
   public void test() {
-    Settings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
-    LdapSettingsManager settingsManager = new LdapSettingsManager(settings, new LdapAutodiscovery());
+    MapSettings settings = LdapSettingsFactory.generateSimpleAnonymousAccessSettings(exampleServer, infosupportServer);
+    LdapSettingsManager settingsManager = new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery());
     LdapUsersProvider usersProvider = new LdapUsersProvider(settingsManager.getContextFactories(), settingsManager.getUserMappings());
 
     UserDetails details;

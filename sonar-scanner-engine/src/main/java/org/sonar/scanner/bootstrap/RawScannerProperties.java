@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Encryption;
+import org.sonar.api.config.internal.Encryption;
 
 /**
  * Properties that are coming from scanner.

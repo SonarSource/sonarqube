@@ -40,7 +40,7 @@ public class LdapRealmTest {
   public void normal() {
     MapSettings settings = new MapSettings()
       .setProperty("ldap.url", server.getUrl());
-    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
+    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
     assertThat(realm.getName()).isEqualTo("LDAP");
     realm.init();
     assertThat(realm.doGetAuthenticator()).isInstanceOf(LdapAuthenticator.class);
@@ -53,7 +53,7 @@ public class LdapRealmTest {
     MapSettings settings = new MapSettings()
       .setProperty("ldap.url", "ldap://no-such-host")
       .setProperty("ldap.group.baseDn", "cn=groups,dc=example,dc=org");
-    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings, new LdapAutodiscovery()));
+    LdapRealm realm = new LdapRealm(new LdapSettingsManager(settings.asConfig(), new LdapAutodiscovery()));
     assertThat(realm.getName()).isEqualTo("LDAP");
     try {
       realm.init();

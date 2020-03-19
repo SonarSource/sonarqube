@@ -22,7 +22,7 @@ package org.sonar.api.batch.bootstrap;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,8 +36,11 @@ public class ProjectBuilderTest {
     // this reactor is created and provided by Sonar
     final ProjectReactor projectReactor = new ProjectReactor(ProjectDefinition.create());
 
-    ProjectBuilder builder = new ProjectBuilderSample(new MapSettings());
-    builder.build(new ProjectBuilderContext(projectReactor));
+    ProjectBuilder builder = new ProjectBuilderSample();
+    final MapSettings settings = new MapSettings();
+    settings.setProperty("foo", "bar");
+    final Configuration configuration = settings.asConfig();
+    builder.build(new ProjectBuilderContext(projectReactor, configuration));
 
     assertThat(projectReactor.getProjects().size(), is(2));
     ProjectDefinition root = projectReactor.getRoot();
@@ -47,17 +50,12 @@ public class ProjectBuilderTest {
   }
 
   final static class ProjectBuilderSample extends ProjectBuilder {
-    private Settings conf;
-
-    public ProjectBuilderSample(Settings conf) {
-      // A real implementation should for example use the settings
-      this.conf = conf;
-    }
 
     @Override
-    protected void build(ProjectReactor reactor) {
+    public void build(Context context) {
+      assertThat(context.config().get("foo")).contains("bar");
       // change name of root project
-      ProjectDefinition root = reactor.getRoot();
+      ProjectDefinition root = context.projectReactor().getRoot();
       root.setName("Name changed by plugin");
 
       // add sub-project

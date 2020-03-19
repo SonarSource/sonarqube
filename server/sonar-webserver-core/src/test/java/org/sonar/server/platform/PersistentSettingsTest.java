@@ -21,7 +21,7 @@ package org.sonar.server.platform;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;

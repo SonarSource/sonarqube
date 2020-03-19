@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.ConfigurationBridge;
 
 import static java.util.Objects.requireNonNull;
