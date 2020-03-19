@@ -45,13 +45,13 @@ public class SubAggregationHelperTest {
   @Test
   public void buildTermsAggregation_adds_term_subaggregation_with_minDoc_1_and_default_sort() {
     String aggName = randomAlphabetic(10);
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
 
     Stream.of(
       underTest,
       underTestWithCustomSubAgg)
       .forEach(t -> {
-        TermsAggregationBuilder agg = t.buildTermsAggregation(aggName, topAggregation);
+        TermsAggregationBuilder agg = t.buildTermsAggregation(aggName, topAggregation, null);
 
         assertThat(agg.getName()).isEqualTo(aggName);
         assertThat(agg.field()).isEqualTo(topAggregation.getFieldName());
@@ -64,9 +64,9 @@ public class SubAggregationHelperTest {
   @Test
   public void buildTermsAggregation_adds_custom_order_from_constructor() {
     String aggName = randomAlphabetic(10);
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
 
-    TermsAggregationBuilder agg = underTestWithCustomsSubAggAndOrder.buildTermsAggregation(aggName, topAggregation);
+    TermsAggregationBuilder agg = underTestWithCustomsSubAggAndOrder.buildTermsAggregation(aggName, topAggregation, null);
 
     assertThat(agg.getName()).isEqualTo(aggName);
     assertThat(agg.field()).isEqualTo(topAggregation.getFieldName());
@@ -76,13 +76,13 @@ public class SubAggregationHelperTest {
   @Test
   public void buildTermsAggregation_adds_custom_sub_agg_from_constructor() {
     String aggName = randomAlphabetic(10);
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
 
     Stream.of(
       underTestWithCustomSubAgg,
       underTestWithCustomsSubAggAndOrder)
       .forEach(t -> {
-        TermsAggregationBuilder agg = t.buildTermsAggregation(aggName, topAggregation);
+        TermsAggregationBuilder agg = t.buildTermsAggregation(aggName, topAggregation, null);
 
         assertThat(agg.getName()).isEqualTo(aggName);
         assertThat(agg.field()).isEqualTo(topAggregation.getFieldName());
@@ -95,14 +95,14 @@ public class SubAggregationHelperTest {
   public void buildTermsAggregation_adds_custom_size_if_TermTopAggregation_specifies_one() {
     String aggName = randomAlphabetic(10);
     int customSize = 1 + new Random().nextInt(400);
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, customSize);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
 
     Stream.of(
       underTest,
       underTestWithCustomSubAgg,
       underTestWithCustomsSubAggAndOrder)
       .forEach(t -> {
-        TermsAggregationBuilder agg = t.buildTermsAggregation(aggName, topAggregation);
+        TermsAggregationBuilder agg = t.buildTermsAggregation(aggName, topAggregation, customSize);
 
         assertThat(agg.getName()).isEqualTo(aggName);
         assertThat(agg.field()).isEqualTo(topAggregation.getFieldName());
@@ -113,7 +113,7 @@ public class SubAggregationHelperTest {
   @Test
   public void buildSelectedItemsAggregation_returns_empty_if_no_selected_item() {
     String aggName = randomAlphabetic(10);
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
 
     Stream.of(
       underTest,
@@ -125,7 +125,7 @@ public class SubAggregationHelperTest {
   @Test
   public void buildSelectedItemsAggregation_does_not_add_custom_order_from_constructor() {
     String aggName = randomAlphabetic(10);
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
     String[] selected = randomNonEmptySelected();
 
     TermsAggregationBuilder agg = underTestWithCustomsSubAggAndOrder.buildSelectedItemsAggregation(aggName, topAggregation, selected)
@@ -139,7 +139,7 @@ public class SubAggregationHelperTest {
   @Test
   public void buildSelectedItemsAggregation_adds_custom_sub_agg_from_constructor() {
     String aggName = randomAlphabetic(10);
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
     String[] selected = randomNonEmptySelected();
 
     Stream.of(

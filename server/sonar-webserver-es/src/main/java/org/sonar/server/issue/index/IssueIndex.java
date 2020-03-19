@@ -81,7 +81,6 @@ import org.sonar.server.es.Sorting;
 import org.sonar.server.es.searchrequest.RequestFiltersComputer;
 import org.sonar.server.es.searchrequest.RequestFiltersComputer.AllFilters;
 import org.sonar.server.es.searchrequest.SubAggregationHelper;
-import org.sonar.server.es.searchrequest.TermTopAggregationDef;
 import org.sonar.server.es.searchrequest.TopAggregationDef;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition;
 import org.sonar.server.es.searchrequest.TopAggregationHelper;
@@ -248,15 +247,18 @@ public class IssueIndex {
 
     private final String name;
     private final TopAggregationDefinition topAggregation;
+    private final Integer numberOfTerms;
 
-    Facet(String name, String fieldName, boolean sticky, int size) {
+    Facet(String name, String fieldName, boolean sticky, int numberOfTerms) {
       this.name = name;
-      this.topAggregation = new TermTopAggregationDef(fieldName, sticky, size);
+      this.topAggregation = new TopAggregationDef(fieldName, sticky);
+      this.numberOfTerms = numberOfTerms;
     }
 
     Facet(String name, String fieldName, boolean sticky) {
       this.name = name;
       this.topAggregation = new TopAggregationDef(fieldName, sticky);
+      this.numberOfTerms = null;
     }
 
     public String getName() {
@@ -271,8 +273,10 @@ public class IssueIndex {
       return topAggregation;
     }
 
-    public TermTopAggregationDef getTermTopAggregationDef() {
-      return (TermTopAggregationDef) topAggregation;
+    public int getNumberOfTerms() {
+      checkState(numberOfTerms != null, "numberOfTerms should have been provided in constructor");
+
+      return numberOfTerms;
     }
   }
 
@@ -656,9 +660,9 @@ public class IssueIndex {
     }
 
     FilterAggregationBuilder topAggregation = aggregationHelper.buildTermTopAggregation(
-      facet.getName(), facet.getTermTopAggregationDef(),
+      facet.getName(), facet.getTopAggregationDef(), facet.getNumberOfTerms(),
       NO_EXTRA_FILTER,
-      t -> aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(facet.getName(), facet.getTermTopAggregationDef(), selectedValues)
+      t -> aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(facet.getName(), facet.getTopAggregationDef(), selectedValues)
         .ifPresent(t::subAggregation));
     esRequest.addAggregation(topAggregation);
   }
@@ -669,7 +673,7 @@ public class IssueIndex {
     }
 
     AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(
-      SEVERITIES.getName(), SEVERITIES.getTermTopAggregationDef(),
+      SEVERITIES.getName(), SEVERITIES.getTopAggregationDef(), SEVERITIES.getNumberOfTerms(),
       // Ignore severity of Security HotSpots
       filter -> filter.mustNot(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name())),
       NO_OTHER_SUBAGGREGATION);
@@ -682,7 +686,7 @@ public class IssueIndex {
     }
 
     AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(
-      RESOLUTIONS.getName(), RESOLUTIONS.getTermTopAggregationDef(),
+      RESOLUTIONS.getName(), RESOLUTIONS.getTopAggregationDef(), RESOLUTIONS.getNumberOfTerms(),
       NO_EXTRA_FILTER,
       t -> {
         // add aggregation of type "missing" to return count of unresolved issues in the facet
@@ -712,7 +716,8 @@ public class IssueIndex {
     };
 
     AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(
-      ASSIGNEES.getName(), ASSIGNEES.getTermTopAggregationDef(), NO_EXTRA_FILTER, assigneeAggregations);
+      ASSIGNEES.getName(), ASSIGNEES.getTopAggregationDef(), ASSIGNEES.getNumberOfTerms(),
+      NO_EXTRA_FILTER, assigneeAggregations);
     esRequest.addAggregation(aggregation);
   }
 
@@ -802,11 +807,13 @@ public class IssueIndex {
     if (options.getFacets().contains(ASSIGNED_TO_ME.getName()) && !StringUtils.isEmpty(uuid)) {
       AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(
         ASSIGNED_TO_ME.getName(),
-        ASSIGNED_TO_ME.getTermTopAggregationDef(),
+        ASSIGNED_TO_ME.getTopAggregationDef(),
+        ASSIGNED_TO_ME.getNumberOfTerms(),
         NO_EXTRA_FILTER,
         t -> {
           // add sub-aggregation to return issue count for current user
-          aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTermTopAggregationDef(), new String[] {uuid})
+          aggregationHelper.getSubAggregationHelper()
+            .buildSelectedItemsAggregation(ASSIGNED_TO_ME.getName(), ASSIGNED_TO_ME.getTopAggregationDef(), new String[] {uuid})
             .ifPresent(t::subAggregation);
         });
       esRequest.addAggregation(aggregation);

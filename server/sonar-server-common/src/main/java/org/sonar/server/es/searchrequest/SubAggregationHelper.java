@@ -62,12 +62,15 @@ public class SubAggregationHelper {
     this.order = order == null ? ORDER_BY_BUCKET_SIZE_DESC : order;
   }
 
-  public TermsAggregationBuilder buildTermsAggregation(String name, TermTopAggregationDef topAggregation) {
+  public TermsAggregationBuilder buildTermsAggregation(String name,
+    TopAggregationDefinition topAggregation, @Nullable Integer numberOfTerms) {
     TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(name)
       .field(topAggregation.getFieldName())
       .order(order)
       .minDocCount(TERM_AGGREGATION_MIN_DOC_COUNT);
-    topAggregation.getMaxTerms().ifPresent(termsAggregation::size);
+    if (numberOfTerms != null) {
+      termsAggregation.size(numberOfTerms);
+    }
     if (subAggregation != null) {
       termsAggregation = termsAggregation.subAggregation(subAggregation);
     }

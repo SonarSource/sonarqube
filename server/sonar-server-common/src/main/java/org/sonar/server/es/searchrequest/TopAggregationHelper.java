@@ -20,6 +20,7 @@
 package org.sonar.server.es.searchrequest;
 
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -78,12 +79,13 @@ public class TopAggregationHelper {
 
   /**
    * Same as {@link #buildTopAggregation(String, TopAggregationDefinition, Consumer, Consumer)} with built-in addition of a
-   * top-term sub aggregation based field defined by {@link TermTopAggregationDef#getFieldName()}.
+   * top-term sub aggregation based field defined by {@link TopAggregationDefinition#getFieldName()}.
    */
-  public FilterAggregationBuilder buildTermTopAggregation(String topAggregationName, TermTopAggregationDef topAggregation,
+  public FilterAggregationBuilder buildTermTopAggregation(String topAggregationName,
+    TopAggregationDefinition topAggregation, @Nullable Integer numberOfTerms,
     Consumer<BoolQueryBuilder> extraFilters, Consumer<FilterAggregationBuilder> otherSubAggregations) {
     Consumer<FilterAggregationBuilder> subAggregations = t -> {
-      t.subAggregation(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation));
+      t.subAggregation(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, numberOfTerms));
       otherSubAggregations.accept(t);
     };
     return buildTopAggregation(topAggregationName, topAggregation, extraFilters, subAggregations);

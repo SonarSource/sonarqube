@@ -145,11 +145,12 @@ public class TopAggregationHelperTest {
   @Test
   public void buildTermTopAggregation_adds_term_subaggregation_from_subAggregationHelper() {
     String topAggregationName = randomAlphabetic(10);
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation)).thenReturn(termSubAgg);
+    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(topAggregationName, topAggregation,
+    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+      topAggregationName, topAggregation, null,
       NO_EXTRA_FILTER, NO_OTHER_SUBAGGREGATION);
 
     assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
@@ -159,16 +160,17 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTermTopAggregation_adds_subAggregation_from_lambda_parameter() {
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
     AggregationBuilder[] subAggs = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> AggregationBuilders.min("subAgg_" + i))
       .toArray(AggregationBuilder[]::new);
     String topAggregationName = randomAlphabetic(10);
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation)).thenReturn(termSubAgg);
+    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
     AggregationBuilder[] allSubAggs = Stream.concat(Arrays.stream(subAggs), Stream.of(termSubAgg)).toArray(AggregationBuilder[]::new);
 
-    AggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(topAggregationName, topAggregation,
+    AggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+      topAggregationName, topAggregation, null,
       NO_EXTRA_FILTER, t -> Arrays.stream(subAggs).forEach(t::subAggregation));
 
     assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
@@ -178,17 +180,18 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTermTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation() {
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
-    TermTopAggregationDef otherTopAggregation = new TermTopAggregationDef("acme", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
+    TopAggregationDef otherTopAggregation = new TopAggregationDef("acme", false);
     BoolQueryBuilder computerFilter = boolQuery();
     BoolQueryBuilder otherFilter = boolQuery();
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
     when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
     String topAggregationName = randomAlphabetic(10);
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation)).thenReturn(termSubAgg);
+    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(topAggregationName, topAggregation,
+    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+      topAggregationName, topAggregation, null,
       NO_EXTRA_FILTER, NO_OTHER_SUBAGGREGATION);
 
     assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
@@ -197,16 +200,17 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTermTopAggregation_has_empty_filter_when_FiltersComputer_returns_empty_for_TopAggregation() {
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
-    TermTopAggregationDef otherTopAggregation = new TermTopAggregationDef("acme", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
+    TopAggregationDef otherTopAggregation = new TopAggregationDef("acme", false);
     BoolQueryBuilder otherFilter = boolQuery();
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
     when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
     String topAggregationName = randomAlphabetic(10);
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation)).thenReturn(termSubAgg);
+    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(topAggregationName, topAggregation,
+    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+      topAggregationName, topAggregation, null,
       NO_EXTRA_FILTER, NO_OTHER_SUBAGGREGATION);
 
     assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
@@ -216,17 +220,18 @@ public class TopAggregationHelperTest {
   @Test
   public void buildTermTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation_and_extra_one() {
     String topAggregationName = randomAlphabetic(10);
-    TermTopAggregationDef topAggregation = new TermTopAggregationDef("bar", false, null);
-    TermTopAggregationDef otherTopAggregation = new TermTopAggregationDef("acme", false, null);
+    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
+    TopAggregationDef otherTopAggregation = new TopAggregationDef("acme", false);
     BoolQueryBuilder computerFilter = boolQuery();
     BoolQueryBuilder otherFilter = boolQuery();
     BoolQueryBuilder extraFilter = boolQuery();
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
     when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation)).thenReturn(termSubAgg);
+    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(topAggregationName, topAggregation,
+    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+      topAggregationName, topAggregation, null,
       t -> t.must(extraFilter), NO_OTHER_SUBAGGREGATION);
 
     assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
