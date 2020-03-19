@@ -89,7 +89,6 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
@@ -255,15 +254,6 @@ public class IssueIndex {
 
     public int getSize() {
       return size;
-    }
-
-    public static Facet of(String name) {
-      return stream(values())
-        .filter(f -> f.getName().equals(name))
-        .reduce((a, b) -> {
-          throw new IllegalStateException("Multiple facets with same name: " + a + ", " + b);
-        })
-        .orElseThrow(() -> new IllegalArgumentException(String.format("Facet name '%s' hasn't been found", name)));
     }
   }
 
