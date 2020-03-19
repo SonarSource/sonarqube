@@ -222,11 +222,11 @@ public class FileSystemMediumTest {
         .build())
       .execute();
 
-    assertThat(logTester.logs()).contains("'src/main/sample.java' indexed with no language");
+    assertThat(logTester.logs()).containsAnyOf("'src/main/sample.java' indexed with no language", "'src\\main\\sample.java' indexed with no language");
     assertThat(logTester.logs()).contains("3 files indexed");
     assertThat(logTester.logs()).contains("'src/main/sample.xoo' generated metadata with charset 'UTF-8'");
-    assertThat(String.join("\n", logTester.logs())).doesNotContain("'src/main/sample.java' generated metadata");
-    assertThat(String.join("\n", logTester.logs())).doesNotContain("'src/test/sample.java' generated metadata");
+    assertThat(logTester.logs()).doesNotContain("'src/main/sample.java' generated metadata", "'src\\main\\sample.java' generated metadata");
+    assertThat(logTester.logs()).doesNotContain("'src/test/sample.java' generated metadata", "'src\\test\\sample.java' generated metadata");
     DefaultInputFile javaInputFile = (DefaultInputFile) result.inputFile("src/main/sample.java");
 
     thrown.expect(IllegalStateException.class);
