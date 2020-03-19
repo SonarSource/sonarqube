@@ -112,13 +112,6 @@ public interface CoreProperties {
   String CATEGORY_SECURITY = "security";
 
   /**
-   * @since 2.11
-   * @deprecated since 6.0
-   */
-  @Deprecated
-  String CATEGORY_JAVA = "java";
-
-  /**
    * @since 3.3
    */
   String CATEGORY_EXCLUSIONS = "exclusions";
@@ -207,29 +200,6 @@ public interface CoreProperties {
   boolean CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE = false;
 
   /**
-   * @deprecated since 6.3. This feature is not supported anymore
-   * @see <a href="https://jira.sonarsource.com/browse/SONAR-7762">SONAR-7762/a>
-   */
-  @Deprecated
-  String CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY = "sonar.allowUsersToSignUp";
-
-  /**
-   * @deprecated since 6.4. The default group is hardcoded to 'sonar-users'
-   * @see <a href="https://jira.sonarsource.com/browse/SONAR-9014">SONAR-9014/a>
-   */
-  @Deprecated
-  String CORE_DEFAULT_GROUP = "sonar.defaultGroup";
-
-  /**
-   * @deprecated since 6.4. The default group is hardcoded to 'sonar-users'
-   * @see <a href="https://jira.sonarsource.com/browse/SONAR-9014">SONAR-9014/a>
-   */
-  @Deprecated
-  String CORE_DEFAULT_GROUP_DEFAULT_VALUE = "sonar-users";
-
-  boolean CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE = false;
-
-  /**
    * @deprecated since 2.14. See http://jira.sonarsource.com/browse/SONAR-3153. Replaced by {@link #CORE_AUTHENTICATOR_REALM}.
    */
   @Deprecated
@@ -276,15 +246,6 @@ public interface CoreProperties {
   String SERVER_BASE_URL = "sonar.core.serverBaseURL";
 
   /**
-   * @see #SERVER_BASE_URL
-   * @since 2.10
-   * @deprecated since 5.6. This constant default value is incorrect if a host and/or a port and/or a context have been configured.
-   *             The correct default value when {@link #SERVER_BASE_URL} is not set is provided by {@link Server#getURL()}.
-   */
-  @Deprecated
-  String SERVER_BASE_URL_DEFAULT_VALUE = "http://localhost:9000";
-
-  /**
    * @since 2.11
    * @deprecated since 6.7
    */
@@ -295,27 +256,6 @@ public interface CoreProperties {
    * @since 3.5
    */
   String CPD_EXCLUSIONS = "sonar.cpd.exclusions";
-
-  /**
-   * @since 2.11
-   * @deprecated in 6.7. See {@link Server#getPermanentServerId()}
-   */
-  @Deprecated
-  String ORGANISATION = "sonar.organisation";
-
-  /**
-   * @since 2.11
-   * @deprecated in 6.7. See {@link Server#getPermanentServerId()}
-   */
-  @Deprecated
-  String PERMANENT_SERVER_ID = "sonar.server_id";
-
-  /**
-   * @since 2.11
-   * @deprecated in 6.7. See {@link Server#getPermanentServerId()}
-   */
-  @Deprecated
-  String SERVER_ID_IP_ADDRESS = "sonar.server_id.ip_address";
 
   /**
    * @since 3.3
@@ -376,13 +316,6 @@ public interface CoreProperties {
 
   /**
    * @since 4.0
-   * @deprecated replaced in 5.2 by the permission 'provisioning'
-   */
-  @Deprecated
-  String CORE_PREVENT_AUTOMATIC_PROJECT_CREATION = "sonar.preventAutoProjectCreation";
-
-  /**
-   * @since 4.0
    */
   String WORKING_DIRECTORY = "sonar.working.directory";
 
@@ -393,27 +326,6 @@ public interface CoreProperties {
    */
   String GLOBAL_WORKING_DIRECTORY = "sonar.globalWorking.directory";
   String GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE = "";
-
-  /**
-   * @since 4.2
-   * @deprecated no more used since 5.5
-   */
-  @Deprecated
-  String CORE_AUTHENTICATOR_LOCAL_USERS = "sonar.security.localUsers";
-
-  /**
-   * @since 4.0
-   * @deprecated no more used since 6.3. See https://jira.sonarsource.com/browse/SONAR-8610
-   */
-  @Deprecated
-  String HOURS_IN_DAY = "sonar.technicalDebt.hoursInDay";
-
-  /**
-   * @since 4.5
-   * @deprecated no used anymore since 5.2
-   */
-  @Deprecated
-  String SIZE_METRIC = "sonar.technicalDebt.sizeMetric";
 
   /**
    * @since 4.5
@@ -474,13 +386,6 @@ public interface CoreProperties {
    * @since 5.0
    */
   String SCM_PROVIDER_KEY = "sonar.scm.provider";
-
-  /**
-   * @since 5.1
-   * @deprecated since 6.3. No longer taken into consideration as all files are always imported.
-   */
-  @Deprecated
-  String IMPORT_UNKNOWN_FILES_KEY = "sonar.import_unknown_files";
 
   /**
    * @since 5.1

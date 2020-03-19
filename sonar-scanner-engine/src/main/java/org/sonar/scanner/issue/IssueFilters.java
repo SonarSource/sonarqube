@@ -20,11 +20,10 @@
 package org.sonar.scanner.issue;
 
 import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
-import org.sonar.scanner.ProjectInfo;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 /**
@@ -34,20 +33,18 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 public class IssueFilters {
   private final IssueFilterChain filterChain;
   private final DefaultInputProject project;
-  private final ProjectInfo projectInfo;
 
-  public IssueFilters(DefaultInputProject project, ProjectInfo projectInfo, IssueFilter[] exclusionFilters) {
+  public IssueFilters(DefaultInputProject project, IssueFilter[] exclusionFilters) {
     this.project = project;
     this.filterChain = new DefaultIssueFilterChain(exclusionFilters);
-    this.projectInfo = projectInfo;
   }
 
-  public IssueFilters(DefaultInputProject project, ProjectInfo projectInfo) {
-    this(project, projectInfo, new IssueFilter[0]);
+  public IssueFilters(DefaultInputProject project) {
+    this(project, new IssueFilter[0]);
   }
 
   public boolean accept(InputComponent component, ScannerReport.Issue rawIssue) {
-    FilterableIssue fIssue = new DefaultFilterableIssue(project, projectInfo, rawIssue, component);
+    FilterableIssue fIssue = new DefaultFilterableIssue(project, rawIssue, component);
     return filterChain.accept(fIssue);
   }
 

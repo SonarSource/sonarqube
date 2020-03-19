@@ -29,7 +29,7 @@ import org.sonar.api.server.ServerSide;
  * Main component that provides translation facilities.
  *
  * @since 2.10
- * @deprecated since 7.8 as plugins as no reason to use it anymore
+ * @deprecated since 7.8 as plugins have no reason to use it anymore
  */
 @ServerSide
 @ComputeEngineSide

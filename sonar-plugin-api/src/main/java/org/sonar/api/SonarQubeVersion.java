@@ -137,19 +137,6 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 @Deprecated
 public class SonarQubeVersion {
-  /**
-   * Constant for version 5.5
-   * @deprecated in 6.0. Please define your own constants.
-   */
-  @Deprecated
-  public static final Version V5_5 = Version.create(5, 5);
-
-  /**
-   * Constant for version 5.6
-   * @deprecated in 6.0. Please define your own constants.
-   */
-  @Deprecated
-  public static final Version V5_6 = Version.create(5, 6);
 
   private final Version version;
 

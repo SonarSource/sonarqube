@@ -19,30 +19,26 @@
  */
 package org.sonar.scanner.issue;
 
-import java.util.Date;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-import org.sonar.scanner.ProjectInfo;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 
 @ThreadSafe
 public class DefaultFilterableIssue implements FilterableIssue {
   private final Issue rawIssue;
   private final InputComponent component;
-  private final ProjectInfo projectInfo;
   private DefaultInputProject project;
 
-  public DefaultFilterableIssue(DefaultInputProject project, ProjectInfo projectInfo, Issue rawIssue, InputComponent component) {
+  public DefaultFilterableIssue(DefaultInputProject project, Issue rawIssue, InputComponent component) {
     this.project = project;
-    this.projectInfo = projectInfo;
     this.rawIssue = rawIssue;
     this.component = component;
   }
@@ -87,11 +83,6 @@ public class DefaultFilterableIssue implements FilterableIssue {
   @Override
   public Double gap() {
     return rawIssue.getGap() != 0 ? rawIssue.getGap() : null;
-  }
-
-  @Override
-  public Date creationDate() {
-    return projectInfo.getAnalysisDate();
   }
 
   @Override

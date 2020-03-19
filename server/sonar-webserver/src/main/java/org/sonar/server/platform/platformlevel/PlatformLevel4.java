@@ -192,8 +192,6 @@ import org.sonar.server.telemetry.TelemetryDaemon;
 import org.sonar.server.telemetry.TelemetryDataJsonWriter;
 import org.sonar.server.telemetry.TelemetryDataLoaderImpl;
 import org.sonar.server.text.MacroInterpreter;
-import org.sonar.server.ui.DeprecatedViews;
-import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoaderImpl;
 import org.sonar.server.ui.ws.NavigationWsModule;
@@ -250,12 +248,10 @@ public class PlatformLevel4 extends PlatformLevel {
       LogOAuthWarning.class,
       PluginDownloader.class,
       PluginUninstaller.class,
-      DeprecatedViews.class,
       PageRepository.class,
       ResourceTypes.class,
       DefaultResourceTypes.get(),
       SettingsChangeNotifier.class,
-      PageDecorations.class,
       ServerWs.class,
       BackendCleanup.class,
       IndexDefinitions.class,
