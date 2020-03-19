@@ -321,7 +321,7 @@ public class MeasureDtoToMeasureTest {
 
   @Test
   public void toMeasure_should_not_loose_decimals_of_float_values() {
-    MetricImpl metric = new MetricImpl(42, "double", "name", Metric.MetricType.FLOAT, 5, null, false);
+    MetricImpl metric = new MetricImpl(42, "double", "name", Metric.MetricType.FLOAT, 5, null, false, false);
     MeasureDto measureDto = new MeasureDto()
       .setValue(0.12345);
 

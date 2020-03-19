@@ -44,9 +44,6 @@ public interface MeasureMapper {
 
   List<MeasureDto> selectByQueryOnSingleComponent(@Param("query") MeasureQuery query);
 
-  List<PastMeasureDto> selectPastMeasuresOnSingleAnalysis(@Param("componentUuid") String componentUuid, @Param("analysisUuid") String analysisUuid,
-    @Param("metricIds") List<Integer> metricIds);
-
   List<MeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("query") PastMeasureQuery query);
 
   void insert(MeasureDto measureDto);

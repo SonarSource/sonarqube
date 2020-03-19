@@ -55,6 +55,8 @@ public interface Metric {
    */
   int getDecimalScale();
 
+  boolean isDeleteHistoricalData();
+
   enum MetricType {
     INT(Measure.ValueType.INT),
     MILLISEC(Measure.ValueType.LONG),

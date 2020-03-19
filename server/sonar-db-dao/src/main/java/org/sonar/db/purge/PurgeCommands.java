@@ -134,15 +134,6 @@ class PurgeCommands {
 
     deleteAnalysisDuplications(analysisUuidsPartitions);
 
-    profiler.start("deleteSnapshotWastedMeasures (project_measures)");
-    List<Long> metricIdsWithoutHistoricalData = purgeMapper.selectMetricIdsWithoutHistoricalData();
-    if (!metricIdsWithoutHistoricalData.isEmpty()) {
-      analysisUuidsPartitions
-        .forEach(analysisUuidsPartition -> purgeMapper.deleteAnalysisWastedMeasures(analysisUuidsPartition, metricIdsWithoutHistoricalData));
-      session.commit();
-    }
-    profiler.stop();
-
     profiler.start("updatePurgeStatusToOne (snapshots)");
     analysisUuidsPartitions.forEach(purgeMapper::updatePurgeStatusToOne);
     session.commit();

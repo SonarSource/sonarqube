@@ -58,10 +58,6 @@
         and pb.updated_at &lt; #{toDate}
   </select>
 
-  <select id="selectMetricIdsWithoutHistoricalData" resultType="long">
-    select id from metrics where delete_historical_data=${_true}
-  </select>
-
   <select id="selectRootAndModulesOrSubviewsByProjectUuid" resultType="IdUuidPair" parameterType="String">
     select
       p.id, p.uuid
@@ -171,20 +167,6 @@
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
         #{analysisUuid,jdbcType=VARCHAR}
       </foreach>
-  </delete>
-
-  <delete id="deleteAnalysisWastedMeasures" parameterType="map">
-    delete from project_measures
-    <where>
-      analysis_uuid in
-      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
-        #{analysisUuid}
-      </foreach>
-      and metric_id in
-      <foreach collection="metricIds" open="(" item="metricId" separator="," close=")">
-        #{metricId,jdbcType=INTEGER}
-      </foreach>
-    </where>
   </delete>
 
   <update id="updatePurgeStatusToOne" parameterType="map">

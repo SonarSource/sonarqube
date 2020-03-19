@@ -20,8 +20,6 @@
 package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.Map;
-import java.util.function.Predicate;
-import javax.annotation.Nonnull;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
@@ -87,11 +85,6 @@ public class PersistMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void visitDirectory(Component directory) {
-      // measures of directories are never read. No need to persist them.
-    }
-
-    @Override
     public void visitView(Component view) {
       persistMeasures(view);
     }
@@ -112,27 +105,17 @@ public class PersistMeasuresStep implements ComputationStep {
 
       for (Map.Entry<String, Measure> e : measures.entrySet()) {
         Measure measure = e.getValue();
-        if (!NonEmptyMeasure.INSTANCE.test(measure)) {
+        if (measure.isEmpty()) {
           continue;
         }
         String metricKey = e.getKey();
         Metric metric = metricRepository.getByKey(metricKey);
-        MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
-        measureDao.insert(session, measureDto);
-        inserts++;
+        if (!metric.isDeleteHistoricalData()) {
+          MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
+          measureDao.insert(session, measureDto);
+          inserts++;
+        }
       }
     }
-
   }
-
-
-  private enum NonEmptyMeasure implements Predicate<Measure> {
-    INSTANCE;
-
-    @Override
-    public boolean test(@Nonnull Measure input) {
-      return input.getValueType() != Measure.ValueType.NO_VALUE || input.hasVariation() || input.getData() != null;
-    }
-  }
-
 }

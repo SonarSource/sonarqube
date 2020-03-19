@@ -47,6 +47,8 @@ public class MetricDtoToMetricTest {
       assertThat(metric.getType()).isEqualTo(metricType);
       assertThat(metric.isBestValueOptimized()).isFalse();
       assertThat(metric.getBestValue()).isEqualTo(SOME_BEST_VALUE);
+      assertThat(metric.isDeleteHistoricalData()).isTrue();
+
     }
   }
 
@@ -67,6 +69,7 @@ public class MetricDtoToMetricTest {
       .setShortName(metricType.name() + "_name")
       .setValueType(metricType.name())
       .setBestValue(SOME_BEST_VALUE)
+      .setDeleteHistoricalData(true)
       .setEnabled(true);
   }
 }

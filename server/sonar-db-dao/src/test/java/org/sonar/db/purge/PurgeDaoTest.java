@@ -88,7 +88,6 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -211,43 +210,6 @@ public class PurgeDaoTest {
     // branch1 wasn't deleted since it was being analyzed!
     assertThat(uuidsIn("components")).containsOnly(project.uuid(), nonMainBranch.uuid(), branch1.uuid());
     assertThat(uuidsIn("projects")).containsOnly(project.uuid());
-  }
-
-  @Test
-  public void shouldDeleteNonHistoricalData() {
-    MetricDto metricWithHistory = db.measures().insertMetric(t -> t.setDeleteHistoricalData(false));
-    MetricDto metricWithoutHistory = db.measures().insertMetric(t -> t.setDeleteHistoricalData(true));
-    ComponentDto project = db.components().insertPrivateProject();
-    SnapshotDto lastAnalysis = db.components().insertSnapshot(project, t -> t.setLast(true));
-    SnapshotDto oldAnalysis = db.components().insertSnapshot(project, t -> t.setLast(false));
-    db.measures().insertMeasure(project, lastAnalysis, metricWithHistory);
-    db.measures().insertMeasure(project, lastAnalysis, metricWithoutHistory);
-    db.measures().insertMeasure(project, oldAnalysis, metricWithHistory);
-    db.measures().insertMeasure(project, oldAnalysis, metricWithoutHistory);
-    ComponentDto otherProject = db.components().insertPrivateProject();
-    SnapshotDto otherLastAnalysis = db.components().insertSnapshot(otherProject, t -> t.setLast(true));
-    SnapshotDto otherOldAnalysis = db.components().insertSnapshot(otherProject, t -> t.setLast(false));
-    db.measures().insertMeasure(otherProject, otherLastAnalysis, metricWithHistory);
-    db.measures().insertMeasure(otherProject, otherLastAnalysis, metricWithoutHistory);
-    db.measures().insertMeasure(otherProject, otherOldAnalysis, metricWithHistory);
-    db.measures().insertMeasure(otherProject, otherOldAnalysis, metricWithoutHistory);
-
-    PurgeConfiguration conf = new PurgeConfiguration(project.uuid(), project.uuid(), 30, Optional.of(30), System2.INSTANCE, emptySet());
-
-    underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
-    dbSession.commit();
-
-    assertThat(db.select("select metric_id as \"METRIC\",analysis_uuid as \"ANALYSIS\" from project_measures"))
-      .extracting(t -> ((Long) t.get("METRIC")).intValue(), t -> t.get("ANALYSIS"))
-      .containsOnly(
-        tuple(metricWithHistory.getId(), lastAnalysis.getUuid()),
-        tuple(metricWithoutHistory.getId(), lastAnalysis.getUuid()),
-        tuple(metricWithHistory.getId(), oldAnalysis.getUuid()),
-
-        tuple(metricWithHistory.getId(), otherLastAnalysis.getUuid()),
-        tuple(metricWithoutHistory.getId(), otherLastAnalysis.getUuid()),
-        tuple(metricWithHistory.getId(), otherOldAnalysis.getUuid()),
-        tuple(metricWithoutHistory.getId(), otherOldAnalysis.getUuid()));
   }
 
   @Test

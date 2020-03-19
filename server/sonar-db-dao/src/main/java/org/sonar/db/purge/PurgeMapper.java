@@ -54,10 +54,6 @@ public interface PurgeMapper {
 
   void fullDeleteComponentMeasures(@Param("componentUuids") List<String> componentUuids);
 
-  List<Long> selectMetricIdsWithoutHistoricalData();
-
-  void deleteAnalysisWastedMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("metricIds") List<Long> metricIds);
-
   /**
    * Purge status flag is used to not attempt to remove duplications & historical data of analyses
    * for which we already removed them.

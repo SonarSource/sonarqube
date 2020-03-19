@@ -65,6 +65,7 @@ public class MeasureQuery {
     this.metricKeys = metricKeys;
   }
 
+  @CheckForNull
   public String getAnalysisUuid() {
     return analysisUuid;
   }

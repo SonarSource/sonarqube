@@ -97,16 +97,6 @@
     </if>
   </sql>
 
-  <select id="selectPastMeasuresOnSingleAnalysis" parameterType="map" resultType="org.sonar.db.measure.PastMeasureDto">
-    select pm.id as id, pm.metric_id as metricId, pm.value as value
-    from project_measures pm
-    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
-    where
-    pm.component_uuid = #{componentUuid,jdbcType=VARCHAR}
-    and analysis.uuid = #{analysisUuid,jdbcType=VARCHAR}
-    and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
-  </select>
-
   <select id="selectPastMeasuresOnSeveralAnalyses" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/>
     from project_measures pm

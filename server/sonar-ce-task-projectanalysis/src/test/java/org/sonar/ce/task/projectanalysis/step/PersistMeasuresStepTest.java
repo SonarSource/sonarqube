@@ -54,6 +54,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   private static final Metric STRING_METRIC = new Metric.Builder("string-metric", "String metric", Metric.ValueType.STRING).create();
   private static final Metric INT_METRIC = new Metric.Builder("int-metric", "int metric", Metric.ValueType.INT).create();
+  private static final Metric NON_HISTORICAL_METRIC = new Metric.Builder("nh-metric", "nh metric", Metric.ValueType.INT).setDeleteHistoricalData(true).create();
 
   private static final String ANALYSIS_UUID = "a1";
 
@@ -80,8 +81,24 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     MetricDto stringMetricDto = db.measures().insertMetric(m -> m.setKey(STRING_METRIC.getKey()).setValueType(Metric.ValueType.STRING.name()));
     MetricDto intMetricDto = db.measures().insertMetric(m -> m.setKey(INT_METRIC.getKey()).setValueType(Metric.ValueType.INT.name()));
+    MetricDto nhMetricDto = db.measures().insertMetric(m -> m.setKey(NON_HISTORICAL_METRIC.getKey()).setValueType(Metric.ValueType.INT.name()));
     metricRepository.add(stringMetricDto.getId(), STRING_METRIC);
     metricRepository.add(intMetricDto.getId(), INT_METRIC);
+    metricRepository.add(nhMetricDto.getId(), NON_HISTORICAL_METRIC);
+  }
+
+  @Test
+  public void measures_on_non_historical_metrics_are_not_persisted() {
+    prepareProject();
+    measureRepository.addRawMeasure(REF_1, NON_HISTORICAL_METRIC.getKey(), newMeasureBuilder().create(1));
+    measureRepository.addRawMeasure(REF_1, INT_METRIC.getKey(), newMeasureBuilder().create(2));
+
+    TestComputationStepContext context = execute();
+
+    assertThatMeasureIsNotPersisted("project-uuid", NON_HISTORICAL_METRIC);
+    MeasureDto persistedMeasure = selectMeasure("project-uuid", INT_METRIC).get();
+    assertThat(persistedMeasure.getValue()).isEqualTo(2);
+    assertNbOfInserts(context, 1);
   }
 
   @Test

@@ -150,6 +150,10 @@ public interface Measure {
    */
   double getVariation();
 
+  default boolean isEmpty() {
+    return getValueType() == ValueType.NO_VALUE && !hasVariation() && getData() == null;
+  }
+
   static NewMeasureBuilder newMeasureBuilder() {
     return new NewMeasureBuilder();
   }

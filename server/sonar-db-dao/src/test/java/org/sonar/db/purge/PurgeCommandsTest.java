@@ -116,44 +116,6 @@ public class PurgeCommandsTest {
     assertThat(countDuplications(analysis4)).isZero();
   }
 
-  @Test
-  public void purgeAnalyses_deletes_measures_of_metrics_without_historical_data() {
-    MetricDto noHistoryMetric = dbTester.measures().insertMetric(t -> t.setDeleteHistoricalData(true));
-    MetricDto withHistoryMetric = dbTester.measures().insertMetric(t -> t.setDeleteHistoricalData(false));
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project);
-    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project);
-    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project);
-    SnapshotDto analysis4 = dbTester.components().insertSnapshot(project);
-    int count = 1 + random.nextInt(12);
-    for (SnapshotDto analysis : Arrays.asList(analysis1, analysis2, analysis3, analysis4)) {
-      IntStream.range(0, count).forEach(i -> {
-        dbTester.measures().insertMeasure(project, analysis, noHistoryMetric);
-        dbTester.measures().insertMeasure(project, analysis, withHistoryMetric);
-      });
-    }
-
-    underTest.purgeAnalyses(toIdUuidPairs(analysis1));
-    assertThat(countMeasures(analysis1, noHistoryMetric)).isZero();
-    assertThat(countMeasures(analysis1, withHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis2, noHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis2, withHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis3, noHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis3, withHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis4, noHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis4, withHistoryMetric)).isEqualTo(count);
-
-    underTest.purgeAnalyses(toIdUuidPairs(analysis1, analysis3, analysis4));
-    assertThat(countMeasures(analysis1, withHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis2, noHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis2, noHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis2, withHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis3, noHistoryMetric)).isZero();
-    assertThat(countMeasures(analysis3, withHistoryMetric)).isEqualTo(count);
-    assertThat(countMeasures(analysis4, noHistoryMetric)).isZero();
-    assertThat(countMeasures(analysis4, withHistoryMetric)).isEqualTo(count);
-  }
-
   /**
    * Test that SQL queries execution do not fail with a huge number of parameter
    */

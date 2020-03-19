@@ -64,7 +64,7 @@ public class MetricRepositoryRule extends ExternalResource implements MetricRepo
       id, coreMetric.getKey(), coreMetric.getName(),
       convert(coreMetric.getType()),
       coreMetric.getDecimalScale(),
-      coreMetric.getBestValue(), coreMetric.isOptimizedBestValue());
+      coreMetric.getBestValue(), coreMetric.isOptimizedBestValue(), coreMetric.getDeleteHistoricalData());
   }
 
   private static Metric.MetricType convert(org.sonar.api.measures.Metric.ValueType coreMetricType) {

@@ -74,15 +74,6 @@ public class MeasureDao implements Dao {
     return mapper(dbSession).selectByQueryOnSingleComponent(query);
   }
 
-  public List<PastMeasureDto> selectPastMeasures(DbSession dbSession, String componentUuid, String analysisUuid, Collection<Integer> metricIds) {
-    if (metricIds.isEmpty()) {
-      return emptyList();
-    }
-    return executeLargeInputs(
-      metricIds,
-      ids -> mapper(dbSession).selectPastMeasuresOnSingleAnalysis(componentUuid, analysisUuid, ids));
-  }
-
   /**
    * Select measures of:
    * - one component
