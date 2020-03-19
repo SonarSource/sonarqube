@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.metric;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.util.cache.DoubleCache;

@@ -19,19 +19,16 @@
  */
 package org.sonar.ce.task.projectanalysis.metric;
 
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.picocontainer.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 
 public class MetricRepositoryImpl implements MetricRepository, Startable {
@@ -50,8 +47,8 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<MetricDto> metricList = dbClient.metricDao().selectEnabled(dbSession);
-      this.metricsByKey = from(metricList).transform(MetricDtoToMetric.INSTANCE).uniqueIndex(MetricToKey.INSTANCE);
-      this.metricsById = from(metricList).transform(MetricDtoToMetric.INSTANCE).uniqueIndex(MetricToId.INSTANCE);
+      this.metricsByKey = metricList.stream().map(MetricDtoToMetric.INSTANCE).collect(Collectors.toMap(Metric::getKey, x -> x));
+      this.metricsById = metricList.stream().map(MetricDtoToMetric.INSTANCE).collect(Collectors.toMap(m -> (long) m.getId(), x -> x));
     }
   }
 
@@ -87,7 +84,7 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
 
   @Override
   public Iterable<Metric> getAll() {
-    return FluentIterable.from(metricsByKey.values()).toSet();
+    return metricsByKey.values();
   }
 
   private void verifyMetricsInitialized() {
@@ -95,25 +92,4 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
       throw new IllegalStateException("Metric cache has not been initialized");
     }
   }
-
-  private enum MetricToKey implements Function<Metric, String> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public String apply(@Nonnull Metric metric) {
-      return metric.getKey();
-    }
-  }
-
-  private enum MetricToId implements Function<Metric, Long> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public Long apply(@Nonnull Metric metric) {
-      return (long) metric.getId();
-    }
-  }
-
 }
