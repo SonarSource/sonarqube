@@ -22,6 +22,7 @@ package org.sonar.server.component.ws;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,6 +77,7 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
@@ -83,7 +85,6 @@ import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProje
 import static org.sonar.server.component.ws.ProjectMeasuresQueryValidator.NON_METRIC_SORT_KEYS;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -123,8 +124,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setChangelog(
-        new Change("8.0", "Field 'id' from response has been removed")
-      )
+        new Change("8.0", "Field 'id' from response has been removed"))
       .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setHandler(this);
 
@@ -138,7 +138,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setSince("6.3");
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
-      .setPossibleValues(SUPPORTED_FACETS.stream().sorted().collect(MoreCollectors.toList(SUPPORTED_FACETS.size())));
+      .setPossibleValues(Arrays.stream(ProjectMeasuresIndex.Facet.values())
+        .map(ProjectMeasuresIndex.Facet::getName)
+        .sorted()
+        .collect(toList(ProjectMeasuresIndex.Facet.values().length)));
     action
       .createParam(PARAM_FILTER)
       .setMinimumLength(2)
@@ -193,7 +196,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
       .setDefaultValue(SORT_BY_NAME)
       .setPossibleValues(
-        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().collect(MoreCollectors.toList(METRIC_KEYS.size() + NON_METRIC_SORT_KEYS.size())))
+        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().collect(toList(METRIC_KEYS.size() + NON_METRIC_SORT_KEYS.size())))
       .setSince("6.4");
     action.createParam(Param.ASCENDING)
       .setDescription("Ascending sort")
@@ -280,7 +283,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     List<Long> favoriteDbIds = props.stream()
       .map(PropertyDto::getResourceId)
-      .collect(MoreCollectors.toList(props.size()));
+      .collect(toList(props.size()));
 
     return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds).stream()
       .filter(ComponentDto::isEnabled)

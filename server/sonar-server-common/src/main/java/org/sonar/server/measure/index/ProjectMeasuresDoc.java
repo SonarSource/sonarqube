@@ -35,19 +35,19 @@ import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_DISTRIB_LANGUAGE;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_DISTRIB_NCLOC;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
-import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_LANGUAGE_DISTRIBUTION;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_UUID;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.SUB_FIELD_DISTRIB_LANGUAGE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.SUB_FIELD_DISTRIB_NCLOC;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.SUB_FIELD_MEASURES_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.SUB_FIELD_MEASURES_VALUE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresDoc extends BaseDoc {
@@ -119,8 +119,8 @@ public class ProjectMeasuresDoc extends BaseDoc {
     setMeasures(
       measures.entrySet().stream()
         .map(entry -> ImmutableMap.<String, Object>of(
-          FIELD_MEASURES_KEY, entry.getKey(),
-          FIELD_MEASURES_VALUE, entry.getValue()))
+          SUB_FIELD_MEASURES_KEY, entry.getKey(),
+          SUB_FIELD_MEASURES_VALUE, entry.getValue()))
         .collect(MoreCollectors.toList()));
     return this;
   }
@@ -131,11 +131,11 @@ public class ProjectMeasuresDoc extends BaseDoc {
   }
 
   public Collection<Map<String, Object>> getNclocLanguageDistribution() {
-    return getField(FIELD_NCLOC_LANGUAGE_DISTRIBUTION);
+    return getField(FIELD_NCLOC_DISTRIBUTION);
   }
 
   public ProjectMeasuresDoc setNclocLanguageDistribution(Collection<Map<String, Object>> distribution) {
-    setField(FIELD_NCLOC_LANGUAGE_DISTRIBUTION, distribution);
+    setField(FIELD_NCLOC_DISTRIBUTION, distribution);
     return this;
   }
 
@@ -143,8 +143,8 @@ public class ProjectMeasuresDoc extends BaseDoc {
     setNclocLanguageDistribution(
       distribution.entrySet().stream()
         .map(entry -> ImmutableMap.<String, Object>of(
-          FIELD_DISTRIB_LANGUAGE, entry.getKey(),
-          FIELD_DISTRIB_NCLOC, entry.getValue()))
+          SUB_FIELD_DISTRIB_LANGUAGE, entry.getKey(),
+          SUB_FIELD_DISTRIB_NCLOC, entry.getValue()))
         .collect(MoreCollectors.toList()));
     return this;
   }
