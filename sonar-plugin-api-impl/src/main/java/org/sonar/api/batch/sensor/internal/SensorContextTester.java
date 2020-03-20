@@ -131,6 +131,7 @@ public class SensorContextTester implements SensorContext {
     return new SensorContextTester(moduleBaseDir);
   }
 
+  @Override
   public MapSettings settings() {
     return settings;
   }

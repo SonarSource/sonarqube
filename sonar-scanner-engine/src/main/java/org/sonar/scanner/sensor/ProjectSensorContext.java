@@ -50,6 +50,7 @@ import org.sonar.api.batch.sensor.rule.internal.DefaultAdHocRule;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.Settings;
 import org.sonar.api.scanner.fs.InputProject;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
@@ -59,6 +60,7 @@ public class ProjectSensorContext implements SensorContext {
 
   static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
 
+  private final Settings mutableSettings;
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final SensorStorage sensorStorage;
@@ -66,14 +68,20 @@ public class ProjectSensorContext implements SensorContext {
   private final SonarRuntime sonarRuntime;
   private final Configuration config;
 
-  public ProjectSensorContext(DefaultInputProject project, Configuration config, FileSystem fs, ActiveRules activeRules,
+  public ProjectSensorContext(DefaultInputProject project, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
     SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
     this.project = project;
     this.config = config;
+    this.mutableSettings = mutableSettings;
     this.fs = fs;
     this.activeRules = activeRules;
     this.sensorStorage = sensorStorage;
     this.sonarRuntime = sonarRuntime;
+  }
+
+  @Override
+  public Settings settings() {
+    return mutableSettings;
   }
 
   @Override

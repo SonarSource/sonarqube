@@ -31,27 +31,17 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.trim;
 
 /**
- * @deprecated since 6.5 use {@link Configuration}
+ * Implementation of the deprecated Settings interface
  */
-@ServerSide
-@ComputeEngineSide
-@ScannerSide
-@SonarLintSide
-@Deprecated
-public abstract class Settings {
+public abstract class Settings extends org.sonar.api.config.Settings {
 
   private final PropertyDefinitions definitions;
   private final Encryption encryption;
@@ -118,6 +108,7 @@ public abstract class Settings {
   /**
    * @return {@code true} if the property has a non-default value, else {@code false}.
    */
+  @Override
   public boolean hasKey(String key) {
     return getRawString(key).isPresent();
   }
@@ -143,6 +134,7 @@ public abstract class Settings {
    * @throws IllegalStateException if value is encrypted but fails to be decrypted.
    */
   @CheckForNull
+  @Override
   public String getString(String key) {
     String effectiveKey = definitions.validKey(key);
     Optional<String> value = getRawString(effectiveKey);
@@ -166,6 +158,7 @@ public abstract class Settings {
    *
    * @return {@code true} if the effective value is {@code "true"}, else {@code false}.
    */
+  @Override
   public boolean getBoolean(String key) {
     String value = getString(key);
     return StringUtils.isNotEmpty(value) && Boolean.parseBoolean(value);
@@ -177,6 +170,7 @@ public abstract class Settings {
    * @return the value as {@code int}. If the property does not have value nor default value, then {@code 0} is returned.
    * @throws NumberFormatException if value is not empty and is not a parsable integer
    */
+  @Override
   public int getInt(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -191,6 +185,7 @@ public abstract class Settings {
    * @return the value as {@code long}. If the property does not have value nor default value, then {@code 0L} is returned.
    * @throws NumberFormatException if value is not empty and is not a parsable {@code long}
    */
+  @Override
   public long getLong(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -206,6 +201,7 @@ public abstract class Settings {
    * @throws RuntimeException if value is not empty and is not in accordance with {@link DateUtils#DATE_FORMAT}.
    */
   @CheckForNull
+  @Override
   public Date getDate(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -221,6 +217,7 @@ public abstract class Settings {
    * @throws RuntimeException if value is not empty and is not in accordance with {@link DateUtils#DATETIME_FORMAT}.
    */
   @CheckForNull
+  @Override
   public Date getDateTime(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -236,6 +233,7 @@ public abstract class Settings {
    * @throws NumberFormatException if value is not empty and is not a parsable number
    */
   @CheckForNull
+  @Override
   public Float getFloat(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -255,6 +253,7 @@ public abstract class Settings {
    * @throws NumberFormatException if value is not empty and is not a parsable number
    */
   @CheckForNull
+  @Override
   public Double getDouble(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -277,6 +276,7 @@ public abstract class Settings {
    * <li>"one, , three" -&gt; ["one", "", "three"]</li>
    * </ul>
    */
+  @Override
   public String[] getStringArray(String key) {
     String effectiveKey = definitions.validKey(key);
     Optional<PropertyDefinition> def = getDefinition(effectiveKey);
@@ -300,6 +300,7 @@ public abstract class Settings {
    * @return non-null array of lines. The line termination characters are excluded.
    * @since 3.2
    */
+  @Override
   public String[] getStringLines(String key) {
     String value = getString(key);
     if (StringUtils.isEmpty(value)) {
@@ -311,6 +312,7 @@ public abstract class Settings {
   /**
    * Value is split and trimmed.
    */
+  @Override
   public String[] getStringArrayBySeparator(String key, String separator) {
     String value = getString(key);
     if (value != null) {
@@ -451,6 +453,7 @@ public abstract class Settings {
     return this;
   }
 
+  @Override
   public List<String> getKeysStartingWith(String prefix) {
     return getProperties().keySet().stream()
       .filter(key -> StringUtils.startsWith(key, prefix))

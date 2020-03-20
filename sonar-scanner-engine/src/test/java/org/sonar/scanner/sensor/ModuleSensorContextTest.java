@@ -68,7 +68,7 @@ public class ModuleSensorContextTest {
     settings = new MapSettings();
     sensorStorage = mock(SensorStorage.class);
     runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY);
-    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), fs, activeRules, sensorStorage, runtime);
+    adaptor = new ModuleSensorContext(mock(DefaultInputProject.class), mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, sensorStorage, runtime);
   }
 
   @Test
