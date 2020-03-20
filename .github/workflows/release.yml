@@ -1,0 +1,40 @@
+name: Release
+# This workflow is triggered when publishing a GitHub release
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Start release process
+    steps:
+      # Not sure why this is needed... Fixes issue with running the action.
+      - name: Checkout release action
+        uses: actions/checkout@v2
+        with:
+          repository: SonarSource/gh-action_LT_release
+      - name: Run release action
+        id: run_release
+        uses: SonarSource/gh-action_LT_release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_ORG_TOKEN }}
+      - name: Log outputs
+        if: always()
+        run: |
+          echo "${{ steps.run_release.outputs.releasability }}"
+          echo "${{ steps.run_release.outputs.release }}"
+      - name: Notify success on Slack
+        uses: Ilshidur/action-slack@2.0.0
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        with:
+          args: "Release successful for {{ GITHUB_REPOSITORY }} by {{ GITHUB_ACTOR }}"
+      - name: Notify failures on Slack
+        uses: Ilshidur/action-slack@2.0.0
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        with:
+          args: "Release failed, see the logs at https://github.com/{{ GITHUB_REPOSITORY }}/actions by {{ GITHUB_ACTOR }}"
