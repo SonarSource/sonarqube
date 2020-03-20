@@ -19,10 +19,13 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import rehypeRaw from 'rehype-raw';
+import rehypeReact from 'rehype-react';
 import remark from 'remark';
 import remarkCustomBlocks from 'remark-custom-blocks';
-import reactRenderer from 'remark-react';
+import remarkRehype from 'remark-rehype';
 import slug from 'remark-slug';
+import MetaData from 'sonar-ui-common/components/ui/update-center/MetaData';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
 import DocImg from './DocImg';
@@ -69,18 +72,22 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
       success: { classes: 'alert alert-success' },
       collapse: { classes: 'collapse' }
     })
-      .use(reactRenderer, {
-        remarkReactComponents: {
+      .use(remarkRehype, { allowDangerousHTML: true })
+      .use(rehypeRaw)
+      .use(rehypeReact, {
+        createElement: React.createElement,
+        components: {
           div: Block,
           // use custom link to render documentation anchors
           a: isTooltip
             ? withChildProps(DocTooltipLink, childProps)
             : withChildProps(DocLink, { onAnchorClick: this.handleAnchorClick }),
           // use custom img tag to render documentation images
-          img: DocImg
-        },
-        toHast: {},
-        sanitize: false
+          img: DocImg,
+          'update-center': ({ updatecenterkey }: { updatecenterkey: string }) => (
+            <MetaData updateCenterKey={updatecenterkey} />
+          )
+        }
       })
       .use(slug);
 

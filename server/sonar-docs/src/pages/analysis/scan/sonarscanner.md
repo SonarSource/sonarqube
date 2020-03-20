@@ -3,16 +3,10 @@ title: SonarScanner
 url: /analysis/scan/sonarscanner/
 ---
 
-[[info]]
-| **Download SonarScanner 4.2** - Compatible with SonarQube 6.7+ (LTS)
-| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/SQSCANNER) – [Source](https://github.com/Sonarsource/sonar-scanner-cli)   
-|
-| [Linux 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-linux.zip) |
-| [Windowx 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-windows.zip) |
-| [Mac OS X 64-bit](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873-macosx.zip) |
-| [Any*](https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.2.0.1873.zip) |
-| [Docker](https://hub.docker.com/r/sonarsource/sonar-scanner-cli)
-| *Requires a pre-installed JVM - with the same requirements as the SonarQube server.
+<!-- static -->
+<!-- update_center:scannercli -->
+<!-- /static -->
+<update-center updatecenterkey="scannercli"></update-center>
 
 The SonarScanner is the scanner to use when there is no specific scanner for your build system.
 

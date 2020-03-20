@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import * as React from 'react';
+import MetaData from 'sonar-ui-common/components/ui/update-center/MetaData';
 import DocMarkdownBlock from '../DocMarkdownBlock';
 
 const CONTENT = `
@@ -42,20 +43,11 @@ Risus placerat, efficitur enim ut, pellentesque sem. Mauris non lorem auctor, co
 `;
 
 // mock `remark` & co to work around the issue with cjs imports
-jest.mock('remark', () => {
-  const remark = require.requireActual('remark');
-  return { default: remark };
-});
-
-jest.mock('remark-react', () => {
-  const remarkReact = require.requireActual('remark-react');
-  return { default: remarkReact };
-});
-
-jest.mock('remark-slug', () => {
-  const remarkSlug = require.requireActual('remark-slug');
-  return { default: remarkSlug };
-});
+jest.mock('remark', () => ({ default: jest.requireActual('remark') }));
+jest.mock('remark-rehype', () => ({ default: jest.requireActual('remark-rehype') }));
+jest.mock('rehype-raw', () => ({ default: jest.requireActual('rehype-raw') }));
+jest.mock('rehype-react', () => ({ default: jest.requireActual('rehype-react') }));
+jest.mock('remark-slug', () => ({ default: jest.requireActual('remark-slug') }));
 
 jest.mock('../../../helpers/system', () => ({
   getInstance: jest.fn(),
@@ -86,6 +78,13 @@ it('should render a sticky TOC if available', () => {
   const wrapper = shallowRender({ content: CONTENT, stickyToc: true });
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('DocToc').exists()).toBe(true);
+});
+
+it('should correctly render update-center tags', () => {
+  const wrapper = mount(
+    <DocMarkdownBlock content='<update-center updatecenterkey="abap"></update-center>' />
+  );
+  expect(wrapper.find(MetaData).length).toBe(1);
 });
 
 function shallowRender(props: Partial<DocMarkdownBlock['props']> = {}) {

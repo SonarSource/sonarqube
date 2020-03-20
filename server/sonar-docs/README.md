@@ -301,20 +301,35 @@ Note that an iframe is **not** a self-closing tag. This means that the following
 
 ```
 
-#### Dynamic Plugin Version Info
+#### Dynamic Plugin/Scanner Version Info
 
-_Note: at this time, this is only supported for the static documentation, and will be stripped from the embedded documentation._
+You can dynamically include a plugin/scanner version block to any page, using the following special tag:
 
-You can dynamically include a plugin version block to any page, using the following special tag:
+For static documentation, use:
 
 ```html
-<!-- update_center:PLUGIN_KEY -->
+<!-- update_center:{PLUGIN/SCANNER}_KEY -->
+```
+
+For embedded documentation, use: 
+```html
+<update-center updatecenterkey="{PLUGIN/SCANNER}_KEY"></update-center>
 ```
 
 For example, for Sonar Java, use:
 
 ```html
 <!-- update_center:java -->
+or
+<update-center updatecenterkey="java"></update-center>
+```
+
+For gradle's scanner, use:
+
+```html
+<!-- update_center:sonargradle -->
+or
+<update-center updatecenterkey="sonargradle"></update-center>
 ```
 
 You can include multiple boxes per page, if needed.

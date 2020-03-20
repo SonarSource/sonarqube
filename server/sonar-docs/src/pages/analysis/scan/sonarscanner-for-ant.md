@@ -3,11 +3,10 @@ title: SonarScanner for Ant
 url: /analysis/scan/sonarscanner-for-ant/
 ---
 
-[[info]]
-| **Download SonarScanner for Ant 2.7** - Compatible with SonarQube 6.7+ (LTS)  
-| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://jira.sonarsource.com/browse/ANTTASK) – [Source](https://github.com/SonarSource/sonar-scanner-ant) 
-|
-| [Download](https://binaries.sonarsource.com/Distribution/sonarqube-ant-task/sonarqube-ant-task-2.7.0.1612.jar)
+<!-- static -->
+<!-- update_center:scannerant -->
+<!-- /static -->
+<update-center updatecenterkey="scannerant"></update-center>
 
 The SonarScanner for Ant provides a `task` to allow integration of SonarQube analysis into an Apache Ant build script.
 

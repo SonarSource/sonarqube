@@ -3,15 +3,10 @@ title: SonarScanner for MSBuild
 url: /analysis/scan/sonarscanner-for-msbuild/
 ---
 
-[[info]]
-| **Download SonarScanner for MSBuild 4.8.0.12008** - Compatible with [SonarQube 7.9+ (LTS)](https://www.sonarqube.org/sonarqube-7-9-lts/)
-| By [SonarSource](https://www.sonarsource.com/) – GNU LGPL 3 – [Issue Tracker](https://github.com/SonarSource/sonar-scanner-msbuild/issues) – [Source](https://github.com/SonarSource/sonar-scanner-msbuild)
-|
-| [.NET Framework 4.6+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.8.0.12008/sonar-scanner-msbuild-4.8.0.12008-net46.zip) |
-| [.NET Core 2.0+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.8.0.12008/sonar-scanner-msbuild-4.8.0.12008-netcoreapp2.0.zip) |
-| [.NET Core 3.0+](https://github.com/SonarSource/sonar-scanner-msbuild/releases/download/4.8.0.12008/sonar-scanner-msbuild-4.8.0.12008-netcoreapp3.0.zip) |
-| [.NET Core Global Tool](https://www.nuget.org/packages/dotnet-sonarscanner)
-
+<!-- static -->
+<!-- update_center:scannermsbuild -->
+<!-- /static -->
+<update-center updatecenterkey="scannermsbuild"></update-center>
 
 The SonarScanner for MSBuild is the recommended way to launch an analysis for projects/solutions using MSBuild or dotnet command as a build tool. It is the result of a [collaboration between SonarSource and Microsoft](http://www.sonarqube.org/announcing-sonarqube-integration-with-msbuild-and-team-build/). 
 

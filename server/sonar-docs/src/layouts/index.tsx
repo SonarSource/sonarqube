@@ -23,8 +23,8 @@ import { MarkdownRemark, MarkdownRemarkConnection } from '../@types/graphql-type
 import Footer from '../components/Footer';
 import HeaderListProvider from '../components/HeaderListProvider';
 import HeadingsLink from '../components/HeadingsLink';
-import PluginMetaData from '../components/PluginMetaData';
 import Sidebar from '../components/Sidebar';
+import UpdateCenterMetaDataInjector from '../components/UpdateCenterMetaDataInjector';
 import './layout.css';
 
 const version = process.env.GATSBY_DOCS_VERSION || '1.0';
@@ -95,7 +95,7 @@ export default function Layout({ children, location }: Props) {
                 <div className="markdown-container">{children}</div>
               </div>
               <Footer />
-              <PluginMetaData location={location} />
+              <UpdateCenterMetaDataInjector location={location} />
             </div>
           </div>
         )}
