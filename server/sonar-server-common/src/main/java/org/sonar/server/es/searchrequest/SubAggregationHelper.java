@@ -63,9 +63,9 @@ public class SubAggregationHelper {
   }
 
   public TermsAggregationBuilder buildTermsAggregation(String name,
-    TopAggregationDefinition topAggregation, @Nullable Integer numberOfTerms) {
+    TopAggregationDefinition<?> topAggregation, @Nullable Integer numberOfTerms) {
     TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(name)
-      .field(topAggregation.getFieldName())
+      .field(topAggregation.getFilterScope().getFieldName())
       .order(order)
       .minDocCount(TERM_AGGREGATION_MIN_DOC_COUNT);
     if (numberOfTerms != null) {
@@ -77,7 +77,7 @@ public class SubAggregationHelper {
     return termsAggregation;
   }
 
-  public <T> Optional<TermsAggregationBuilder> buildSelectedItemsAggregation(String name, TopAggregationDefinition topAggregation, T[] selected) {
+  public <T> Optional<TermsAggregationBuilder> buildSelectedItemsAggregation(String name, TopAggregationDefinition<?> topAggregation, T[] selected) {
     if (selected.length <= 0) {
       return Optional.empty();
     }
@@ -89,7 +89,7 @@ public class SubAggregationHelper {
 
     TermsAggregationBuilder selectedTerms = AggregationBuilders.terms(name + Facets.SELECTED_SUB_AGG_NAME_SUFFIX)
       .size(max(MAXIMUM_NUMBER_OF_SELECTED_ITEMS_WHOSE_DOC_COUNT_WILL_BE_CALCULATED, includes.length()))
-      .field(topAggregation.getFieldName())
+      .field(topAggregation.getFilterScope().getFieldName())
       .includeExclude(new IncludeExclude(includes, null));
     if (subAggregation != null) {
       selectedTerms = selectedTerms.subAggregation(subAggregation);

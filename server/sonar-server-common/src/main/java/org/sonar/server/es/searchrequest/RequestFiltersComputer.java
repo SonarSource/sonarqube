@@ -34,6 +34,7 @@ import javax.annotation.concurrent.Immutable;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -52,15 +53,15 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
  * </ul>
  * <p>
  * To be able to provide accurate filters, all {@link TopAggregationDefinition} instances for which
- * {@link #getTopAggregationFilter(TopAggregationDefinition)} may be called, must be declared in the constructor.
+ * {@link #getTopAggregationFilter(TopAggregationDefinition)} may be called, must all be declared in the constructor.
  */
 public class RequestFiltersComputer {
 
-  private final Set<TopAggregationDefinition> topAggregations;
-  private final Map<FilterNameAndFieldName, QueryBuilder> postFilters;
-  private final Map<FilterNameAndFieldName, QueryBuilder> queryFilters;
+  private final Set<TopAggregationDefinition<?>> topAggregations;
+  private final Map<FilterNameAndScope, QueryBuilder> postFilters;
+  private final Map<FilterNameAndScope, QueryBuilder> queryFilters;
 
-  public RequestFiltersComputer(AllFilters allFilters, Set<TopAggregationDefinition> topAggregations) {
+  public RequestFiltersComputer(AllFilters allFilters, Set<TopAggregationDefinition<?>> topAggregations) {
     this.topAggregations = ImmutableSet.copyOf(topAggregations);
     this.postFilters = computePostFilters((AllFiltersImpl) allFilters, topAggregations);
     this.queryFilters = computeQueryFilter((AllFiltersImpl) allFilters, postFilters);
@@ -73,20 +74,20 @@ public class RequestFiltersComputer {
   /**
    * Any filter of the query which can not be applied to all top-aggregations must be applied as a PostFilter.
    * <p>
-   * A filter applying to some field can not be applied to the query when at least one sticky top-aggregation is enabled
-   * which applies to that field <strong>and</strong> a top-aggregation is enabled on that field.
+   * A filter with a given {@link FilterScope} can not be applied to the query when at least one sticky top-aggregation
+   * is enabled which has the same {@link FilterScope}.
    */
-  private static Map<FilterNameAndFieldName, QueryBuilder> computePostFilters(AllFiltersImpl allFilters,
-    Set<TopAggregationDefinition> topAggregations) {
-    Set<String> enabledStickyTopAggregationtedFieldNames = topAggregations.stream()
+  private static Map<FilterNameAndScope, QueryBuilder> computePostFilters(AllFiltersImpl allFilters,
+    Set<TopAggregationDefinition<?>> topAggregations) {
+    Set<FilterScope> enabledStickyTopAggregationtedFieldNames = topAggregations.stream()
       .filter(TopAggregationDefinition::isSticky)
-      .map(TopAggregationDefinition::getFieldName)
+      .map(TopAggregationDefinition::getFilterScope)
       .collect(MoreCollectors.toSet(topAggregations.size()));
 
     // use LinkedHashMap over MoreCollectors.uniqueIndex to preserve order and write UTs more easily
-    Map<FilterNameAndFieldName, QueryBuilder> res = new LinkedHashMap<>();
+    Map<FilterNameAndScope, QueryBuilder> res = new LinkedHashMap<>();
     allFilters.internalStream()
-      .filter(e -> enabledStickyTopAggregationtedFieldNames.contains(e.getKey().getFieldName()))
+      .filter(e -> enabledStickyTopAggregationtedFieldNames.contains(e.getKey().getFilterScope()))
       .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, "Duplicate: %s", e.getKey()));
     return res;
   }
@@ -99,12 +100,12 @@ public class RequestFiltersComputer {
    * (typical case is a filter on the field aggregated to implement sticky facet behavior), this filter can
    * not be applied to the query and therefor must be applied as PostFilter.
    */
-  private static Map<FilterNameAndFieldName, QueryBuilder> computeQueryFilter(AllFiltersImpl allFilters,
-    Map<FilterNameAndFieldName, QueryBuilder> postFilters) {
-    Set<FilterNameAndFieldName> postFilterKeys = postFilters.keySet();
+  private static Map<FilterNameAndScope, QueryBuilder> computeQueryFilter(AllFiltersImpl allFilters,
+    Map<FilterNameAndScope, QueryBuilder> postFilters) {
+    Set<FilterNameAndScope> postFilterKeys = postFilters.keySet();
 
     // use LinkedHashMap over MoreCollectors.uniqueIndex to preserve order and write UTs more easily
-    Map<FilterNameAndFieldName, QueryBuilder> res = new LinkedHashMap<>();
+    Map<FilterNameAndScope, QueryBuilder> res = new LinkedHashMap<>();
     allFilters.internalStream()
       .filter(e -> !postFilterKeys.contains(e.getKey()))
       .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, "Duplicate: %s", e.getKey()));
@@ -133,26 +134,27 @@ public class RequestFiltersComputer {
   }
 
   /**
-   * The {@link BoolQueryBuilder} to apply to the top aggregation for the specified {@link TopAggregationDef}.
+   * The {@link BoolQueryBuilder} to apply to the top aggregation for the specified {@link SimpleFieldTopAggregationDefinition}.
    * <p>
    * The filter of the aggregations for a top-aggregation will either be:
    * <ul>
-   *     <li>the same as PostFilter, if the top-aggregation is non-sticky or the field the top-aggregation applies
-   *         to is not being filtered</li>
-   *     <li>or the same as PostFilter minus any filter which applies to the field for the top-aggregation (if it's sticky)</li>
+   *     <li>the same as PostFilter, if the top-aggregation is non-sticky or none have the same FilterScope as
+   *         {@code topAggregation}</li>
+   *     <li>or the same as PostFilter minus any filter which applies to the same {@link FilterScope} of
+   *         {@code topAggregation}for the (<strong>if it's sticky</strong>)</li>
    * </ul>
    *
    * @throws IllegalArgumentException if specified {@link TopAggregationDefinition} has not been specified in the constructor
    */
-  public Optional<BoolQueryBuilder> getTopAggregationFilter(TopAggregationDefinition topAggregation) {
+  public Optional<BoolQueryBuilder> getTopAggregationFilter(TopAggregationDefinition<?> topAggregation) {
     checkArgument(topAggregations.contains(topAggregation), "topAggregation must have been declared in constructor");
     return toBoolQuery(
       postFilters,
-      (e, v) -> !topAggregation.isSticky() || !topAggregation.getFieldName().equals(e.getFieldName()));
+      (e, v) -> !topAggregation.isSticky() || !topAggregation.getFilterScope().intersect(e.getFilterScope()));
   }
 
-  private static Optional<BoolQueryBuilder> toBoolQuery(Map<FilterNameAndFieldName, QueryBuilder> queryFilters,
-    BiPredicate<FilterNameAndFieldName, QueryBuilder> predicate) {
+  private static Optional<BoolQueryBuilder> toBoolQuery(Map<FilterNameAndScope, QueryBuilder> queryFilters,
+    BiPredicate<FilterNameAndScope, QueryBuilder> predicate) {
     if (queryFilters.isEmpty()) {
       return empty();
     }
@@ -178,13 +180,7 @@ public class RequestFiltersComputer {
     /**
      * @throws IllegalArgumentException if a filter with the specified name has already been added
      */
-    AllFilters addFilter(String name, String fieldName, @Nullable QueryBuilder filter);
-
-    /**
-     * Convenience method for usage of {@link #addFilter(String, String, QueryBuilder)} when name of the filter is
-     * the same as the field name.
-     */
-    AllFilters addFilter(String fieldName, @Nullable QueryBuilder filter);
+    AllFilters addFilter(String name, FilterScope filterScope, @Nullable QueryBuilder filter);
 
     Stream<QueryBuilder> stream();
   }
@@ -194,24 +190,19 @@ public class RequestFiltersComputer {
      * Usage of LinkedHashMap only benefits unit tests by providing predictability of the order of the filters.
      * ES doesn't care of the order.
      */
-    private final Map<FilterNameAndFieldName, QueryBuilder> filters = new LinkedHashMap<>();
+    private final Map<FilterNameAndScope, QueryBuilder> filters = new LinkedHashMap<>();
 
     @Override
-    public AllFilters addFilter(String fieldName, @Nullable QueryBuilder filter) {
-      return addFilter(fieldName, fieldName, filter);
-    }
-
-    @Override
-    public AllFilters addFilter(String name, String fieldName, @Nullable QueryBuilder filter) {
+    public AllFilters addFilter(String name, FilterScope filterScope, @Nullable QueryBuilder filter) {
       requireNonNull(name, "name can't be null");
-      requireNonNull(fieldName, "fieldName can't be null");
+      requireNonNull(filterScope, "filterScope can't be null");
 
       if (filter == null) {
         return this;
       }
 
       checkArgument(
-        filters.put(new FilterNameAndFieldName(name, fieldName), filter) == null,
+        filters.put(new FilterNameAndScope(name, filterScope), filter) == null,
         "A filter with name %s has already been added", name);
       return this;
     }
@@ -221,7 +212,7 @@ public class RequestFiltersComputer {
       return filters.values().stream();
     }
 
-    private Stream<Map.Entry<FilterNameAndFieldName, QueryBuilder>> internalStream() {
+    private Stream<Map.Entry<FilterNameAndScope, QueryBuilder>> internalStream() {
       return filters.entrySet().stream();
     }
   }
@@ -233,17 +224,17 @@ public class RequestFiltersComputer {
    * This saves from using two internal maps.
    */
   @Immutable
-  private static final class FilterNameAndFieldName {
+  private static final class FilterNameAndScope {
     private final String filterName;
-    private final String fieldName;
+    private final FilterScope filterScope;
 
-    public FilterNameAndFieldName(String filterName, String fieldName) {
+    private FilterNameAndScope(String filterName, FilterScope filterScope) {
       this.filterName = filterName;
-      this.fieldName = fieldName;
+      this.filterScope = filterScope;
     }
 
-    public String getFieldName() {
-      return fieldName;
+    public FilterScope getFilterScope() {
+      return filterScope;
     }
 
     @Override
@@ -254,7 +245,7 @@ public class RequestFiltersComputer {
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      FilterNameAndFieldName that = (FilterNameAndFieldName) o;
+      FilterNameAndScope that = (FilterNameAndScope) o;
       return filterName.equals(that.filterName);
     }
 

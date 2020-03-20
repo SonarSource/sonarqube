@@ -52,7 +52,7 @@ public class TopAggregationHelperTest {
   @Test
   public void buildTopAggregation_fails_with_ISE_if_no_subaggregation_added_by_lambda() {
     String aggregationName = "name";
-    TopAggregationDefinition topAggregation = new TopAggregationDef("bar", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
 
     assertThatThrownBy(() -> underTest.buildTopAggregation(aggregationName, topAggregation, NO_EXTRA_FILTER, NO_OTHER_SUBAGGREGATION))
       .isInstanceOf(IllegalStateException.class)
@@ -61,7 +61,7 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTopAggregation_adds_subAggregation_from_lambda_parameter() {
-    TopAggregationDefinition topAggregation = new TopAggregationDef("bar", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
     AggregationBuilder[] subAggs = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> AggregationBuilders.min("subAgg_" + i))
       .toArray(AggregationBuilder[]::new);
@@ -77,8 +77,8 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation() {
-    TopAggregationDefinition topAggregation = new TopAggregationDef("bar", false);
-    TopAggregationDefinition otherTopAggregation = new TopAggregationDef("acme", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
+    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
     BoolQueryBuilder computerFilter = boolQuery();
     BoolQueryBuilder otherFilter = boolQuery();
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
@@ -95,8 +95,8 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTopAggregation_has_empty_filter_when_FiltersComputer_returns_empty_for_TopAggregation() {
-    TopAggregationDefinition topAggregation = new TopAggregationDef("bar", false);
-    TopAggregationDefinition otherTopAggregation = new TopAggregationDef("acme", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
+    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
     BoolQueryBuilder otherFilter = boolQuery();
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
     when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
@@ -113,8 +113,8 @@ public class TopAggregationHelperTest {
   @Test
   public void buildTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation_and_extra_one() {
     String topAggregationName = randomAlphabetic(10);
-    TopAggregationDefinition topAggregation = new TopAggregationDef("bar", false);
-    TopAggregationDefinition otherTopAggregation = new TopAggregationDef("acme", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
+    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
     BoolQueryBuilder computerFilter = boolQuery();
     BoolQueryBuilder otherFilter = boolQuery();
     BoolQueryBuilder extraFilter = boolQuery();
@@ -132,7 +132,7 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTopAggregation_does_not_add_subaggregation_from_subAggregationHelper() {
-    TopAggregationDefinition topAggregation = new TopAggregationDef("bar", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
     MinAggregationBuilder subAggregation = AggregationBuilders.min("donut");
     String topAggregationName = randomAlphabetic(10);
@@ -145,7 +145,7 @@ public class TopAggregationHelperTest {
   @Test
   public void buildTermTopAggregation_adds_term_subaggregation_from_subAggregationHelper() {
     String topAggregationName = randomAlphabetic(10);
-    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
     TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
     when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
 
@@ -160,7 +160,7 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTermTopAggregation_adds_subAggregation_from_lambda_parameter() {
-    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
     AggregationBuilder[] subAggs = IntStream.range(0, 1 + new Random().nextInt(12))
       .mapToObj(i -> AggregationBuilders.min("subAgg_" + i))
       .toArray(AggregationBuilder[]::new);
@@ -180,8 +180,8 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTermTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation() {
-    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
-    TopAggregationDef otherTopAggregation = new TopAggregationDef("acme", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
+    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
     BoolQueryBuilder computerFilter = boolQuery();
     BoolQueryBuilder otherFilter = boolQuery();
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
@@ -200,8 +200,8 @@ public class TopAggregationHelperTest {
 
   @Test
   public void buildTermTopAggregation_has_empty_filter_when_FiltersComputer_returns_empty_for_TopAggregation() {
-    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
-    TopAggregationDef otherTopAggregation = new TopAggregationDef("acme", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
+    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
     BoolQueryBuilder otherFilter = boolQuery();
     when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
     when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
@@ -220,8 +220,8 @@ public class TopAggregationHelperTest {
   @Test
   public void buildTermTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation_and_extra_one() {
     String topAggregationName = randomAlphabetic(10);
-    TopAggregationDef topAggregation = new TopAggregationDef("bar", false);
-    TopAggregationDef otherTopAggregation = new TopAggregationDef("acme", false);
+    SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
+    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
     BoolQueryBuilder computerFilter = boolQuery();
     BoolQueryBuilder otherFilter = boolQuery();
     BoolQueryBuilder extraFilter = boolQuery();

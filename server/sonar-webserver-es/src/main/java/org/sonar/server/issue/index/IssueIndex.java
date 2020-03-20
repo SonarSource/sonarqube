@@ -80,9 +80,10 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.es.searchrequest.RequestFiltersComputer;
 import org.sonar.server.es.searchrequest.RequestFiltersComputer.AllFilters;
+import org.sonar.server.es.searchrequest.SimpleFieldTopAggregationDefinition;
 import org.sonar.server.es.searchrequest.SubAggregationHelper;
-import org.sonar.server.es.searchrequest.TopAggregationDef;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition;
+import org.sonar.server.es.searchrequest.TopAggregationDefinition.SimpleFieldFilterScope;
 import org.sonar.server.es.searchrequest.TopAggregationHelper;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 import org.sonar.server.permission.index.AuthorizationDoc;
@@ -107,6 +108,8 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.BaseDoc.epochMillisToEpochSeconds;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
+import static org.sonar.server.es.searchrequest.TopAggregationDefinition.NON_STICKY;
+import static org.sonar.server.es.searchrequest.TopAggregationDefinition.STICKY;
 import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_EXTRA_FILTER;
 import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_OTHER_SUBAGGREGATION;
 import static org.sonar.server.issue.index.IssueIndex.Facet.ASSIGNED_TO_ME;
@@ -217,10 +220,8 @@ public class IssueIndex {
     .filter(termQuery(FIELD_ISSUE_STATUS, Issue.STATUS_REVIEWED))
     .filter(termQuery(FIELD_ISSUE_RESOLUTION, Issue.RESOLUTION_FIXED));
 
-  private static final boolean STICKY = true;
-  private static final boolean NON_STICKY = false;
   private static final Object[] NO_SELECTED_VALUES = {0};
-  private static final TopAggregationDefinition EFFORT_TOP_AGGREGATION = new TopAggregationDef(FIELD_ISSUE_EFFORT, NON_STICKY);
+  private static final SimpleFieldTopAggregationDefinition EFFORT_TOP_AGGREGATION = new SimpleFieldTopAggregationDefinition(FIELD_ISSUE_EFFORT, NON_STICKY);
 
   public enum Facet {
     SEVERITIES(PARAM_SEVERITIES, FIELD_ISSUE_SEVERITY, STICKY, Severity.ALL.size()),
@@ -246,18 +247,18 @@ public class IssueIndex {
     SONARSOURCE_SECURITY(PARAM_SONARSOURCE_SECURITY, FIELD_ISSUE_SQ_SECURITY_CATEGORY, STICKY, DEFAULT_FACET_SIZE);
 
     private final String name;
-    private final TopAggregationDefinition topAggregation;
+    private final SimpleFieldTopAggregationDefinition topAggregation;
     private final Integer numberOfTerms;
 
     Facet(String name, String fieldName, boolean sticky, int numberOfTerms) {
       this.name = name;
-      this.topAggregation = new TopAggregationDef(fieldName, sticky);
+      this.topAggregation = new SimpleFieldTopAggregationDefinition(fieldName, sticky);
       this.numberOfTerms = numberOfTerms;
     }
 
     Facet(String name, String fieldName, boolean sticky) {
       this.name = name;
-      this.topAggregation = new TopAggregationDef(fieldName, sticky);
+      this.topAggregation = new SimpleFieldTopAggregationDefinition(fieldName, sticky);
       this.numberOfTerms = null;
     }
 
@@ -266,10 +267,14 @@ public class IssueIndex {
     }
 
     public String getFieldName() {
-      return topAggregation.getFieldName();
+      return topAggregation.getFilterScope().getFieldName();
     }
 
-    public TopAggregationDefinition getTopAggregationDef() {
+    public TopAggregationDefinition.FilterScope getFilterScope() {
+      return topAggregation.getFilterScope();
+    }
+
+    public SimpleFieldTopAggregationDefinition getTopAggregationDef() {
       return topAggregation;
     }
 
@@ -389,41 +394,54 @@ public class IssueIndex {
 
   private AllFilters createAllFilters(IssueQuery query) {
     AllFilters filters = RequestFiltersComputer.newAllFilters();
-    filters.addFilter("__indexType", FIELD_INDEX_TYPE, termQuery(FIELD_INDEX_TYPE, TYPE_ISSUE.getName()));
-    filters.addFilter("__authorization", "parent", createAuthorizationFilter());
+    filters.addFilter("__indexType", new SimpleFieldFilterScope(FIELD_INDEX_TYPE), termQuery(FIELD_INDEX_TYPE, TYPE_ISSUE.getName()));
+    filters.addFilter("__authorization", new SimpleFieldFilterScope("parent"), createAuthorizationFilter());
 
     // Issue is assigned Filter
     if (BooleanUtils.isTrue(query.assigned())) {
-      filters.addFilter(IS_ASSIGNED_FILTER, FIELD_ISSUE_ASSIGNEE_UUID, existsQuery(FIELD_ISSUE_ASSIGNEE_UUID));
+      filters.addFilter(IS_ASSIGNED_FILTER, Facet.ASSIGNEES.getFilterScope(), existsQuery(FIELD_ISSUE_ASSIGNEE_UUID));
     } else if (BooleanUtils.isFalse(query.assigned())) {
-      filters.addFilter(IS_ASSIGNED_FILTER, FIELD_ISSUE_ASSIGNEE_UUID, boolQuery().mustNot(existsQuery(FIELD_ISSUE_ASSIGNEE_UUID)));
+      filters.addFilter(IS_ASSIGNED_FILTER, ASSIGNEES.getFilterScope(), boolQuery().mustNot(existsQuery(FIELD_ISSUE_ASSIGNEE_UUID)));
     }
 
     // Issue is Resolved Filter
     if (BooleanUtils.isTrue(query.resolved())) {
-      filters.addFilter("__isResolved", FIELD_ISSUE_RESOLUTION, existsQuery(FIELD_ISSUE_RESOLUTION));
+      filters.addFilter("__isResolved", Facet.RESOLUTIONS.getFilterScope(), existsQuery(FIELD_ISSUE_RESOLUTION));
     } else if (BooleanUtils.isFalse(query.resolved())) {
-      filters.addFilter("__isResolved", FIELD_ISSUE_RESOLUTION, boolQuery().mustNot(existsQuery(FIELD_ISSUE_RESOLUTION)));
+      filters.addFilter("__isResolved", Facet.RESOLUTIONS.getFilterScope(), boolQuery().mustNot(existsQuery(FIELD_ISSUE_RESOLUTION)));
     }
 
     // Field Filters
-    filters.addFilter(FIELD_ISSUE_KEY, createTermsFilter(FIELD_ISSUE_KEY, query.issueKeys()));
-    filters.addFilter(FIELD_ISSUE_ASSIGNEE_UUID, createTermsFilter(FIELD_ISSUE_ASSIGNEE_UUID, query.assignees()));
-    filters.addFilter(FIELD_ISSUE_LANGUAGE, createTermsFilter(FIELD_ISSUE_LANGUAGE, query.languages()));
-    filters.addFilter(FIELD_ISSUE_TAGS, createTermsFilter(FIELD_ISSUE_TAGS, query.tags()));
-    filters.addFilter(FIELD_ISSUE_TYPE, createTermsFilter(FIELD_ISSUE_TYPE, query.types()));
-    filters.addFilter(FIELD_ISSUE_RESOLUTION, createTermsFilter(FIELD_ISSUE_RESOLUTION, query.resolutions()));
-    filters.addFilter(FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
-    filters.addFilter(FIELD_ISSUE_RULE_ID, createTermsFilter(
-      FIELD_ISSUE_RULE_ID,
-      query.rules().stream().map(IssueDoc::formatRuleId).collect(toList())));
-    filters.addFilter(FIELD_ISSUE_STATUS, createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
-    filters.addFilter(FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
-    filters.addFilter(FIELD_ISSUE_OWASP_TOP_10, createTermsFilter(FIELD_ISSUE_OWASP_TOP_10, query.owaspTop10()));
-    filters.addFilter(FIELD_ISSUE_SANS_TOP_25, createTermsFilter(FIELD_ISSUE_SANS_TOP_25, query.sansTop25()));
-    filters.addFilter(FIELD_ISSUE_CWE, createTermsFilter(FIELD_ISSUE_CWE, query.cwe()));
+    filters.addFilter(FIELD_ISSUE_KEY, new SimpleFieldFilterScope(FIELD_ISSUE_KEY), createTermsFilter(FIELD_ISSUE_KEY, query.issueKeys()));
+    filters.addFilter(FIELD_ISSUE_ASSIGNEE_UUID, ASSIGNEES.getFilterScope(), createTermsFilter(FIELD_ISSUE_ASSIGNEE_UUID, query.assignees()));
+    filters.addFilter(FIELD_ISSUE_LANGUAGE, LANGUAGES.getFilterScope(), createTermsFilter(FIELD_ISSUE_LANGUAGE, query.languages()));
+    filters.addFilter(FIELD_ISSUE_TAGS, TAGS.getFilterScope(), createTermsFilter(FIELD_ISSUE_TAGS, query.tags()));
+    filters.addFilter(FIELD_ISSUE_TYPE, TYPES.getFilterScope(), createTermsFilter(FIELD_ISSUE_TYPE, query.types()));
+    filters.addFilter(
+      FIELD_ISSUE_RESOLUTION, RESOLUTIONS.getFilterScope(),
+      createTermsFilter(FIELD_ISSUE_RESOLUTION, query.resolutions()));
+    filters.addFilter(
+      FIELD_ISSUE_AUTHOR_LOGIN, AUTHOR.getFilterScope(),
+      createTermsFilter(FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
+    filters.addFilter(
+      FIELD_ISSUE_RULE_ID, RULES.getFilterScope(), createTermsFilter(
+        FIELD_ISSUE_RULE_ID,
+        query.rules().stream().map(IssueDoc::formatRuleId).collect(toList())));
+    filters.addFilter(FIELD_ISSUE_STATUS, STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
+    filters.addFilter(
+      FIELD_ISSUE_ORGANIZATION_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_ORGANIZATION_UUID),
+      createTermFilter(FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
+    filters.addFilter(
+      FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10.getFilterScope(),
+      createTermsFilter(FIELD_ISSUE_OWASP_TOP_10, query.owaspTop10()));
+    filters.addFilter(
+      FIELD_ISSUE_SANS_TOP_25, SANS_TOP_25.getFilterScope(),
+      createTermsFilter(FIELD_ISSUE_SANS_TOP_25, query.sansTop25()));
+    filters.addFilter(FIELD_ISSUE_CWE, CWE.getFilterScope(), createTermsFilter(FIELD_ISSUE_CWE, query.cwe()));
     addSeverityFilter(query, filters);
-    filters.addFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, createTermsFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, query.sonarsourceSecurity()));
+    filters.addFilter(
+      FIELD_ISSUE_SQ_SECURITY_CATEGORY, SONARSOURCE_SECURITY.getFilterScope(),
+      createTermsFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, query.sonarsourceSecurity()));
 
     addComponentRelatedFilters(query, filters);
     addDatesFilter(filters, query);
@@ -434,10 +452,13 @@ public class IssueIndex {
   private static void addSeverityFilter(IssueQuery query, AllFilters allFilters) {
     QueryBuilder severityFieldFilter = createTermsFilter(FIELD_ISSUE_SEVERITY, query.severities());
     if (severityFieldFilter != null) {
-      allFilters.addFilter(FIELD_ISSUE_SEVERITY, boolQuery()
-        .must(severityFieldFilter)
-        // Ignore severity of Security HotSpots
-        .mustNot(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name())));
+      allFilters.addFilter(
+        FIELD_ISSUE_SEVERITY,
+        SEVERITIES.getFilterScope(),
+        boolQuery()
+          .must(severityFieldFilter)
+          // Ignore severity of Security HotSpots
+          .mustNot(termQuery(FIELD_ISSUE_TYPE, SECURITY_HOTSPOT.name())));
     }
   }
 
@@ -455,23 +476,22 @@ public class IssueIndex {
     QueryBuilder fileFilter = createTermsFilter(FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
 
     if (BooleanUtils.isTrue(query.onComponentOnly())) {
-      filters.addFilter(FIELD_ISSUE_COMPONENT_UUID, componentFilter);
+      filters.addFilter(FIELD_ISSUE_COMPONENT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_COMPONENT_UUID), componentFilter);
     } else {
       filters.addFilter(
-        FIELD_ISSUE_PROJECT_UUID,
+        FIELD_ISSUE_PROJECT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_PROJECT_UUID),
         createTermsFilter(FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
       filters.addFilter(
-        "__module",
-        FIELD_ISSUE_MODULE_PATH,
+        "__module", new SimpleFieldFilterScope(FIELD_ISSUE_MODULE_PATH),
         createTermsFilter(FIELD_ISSUE_MODULE_PATH, query.moduleRootUuids()));
       filters.addFilter(
-        FIELD_ISSUE_MODULE_UUID,
+        FIELD_ISSUE_MODULE_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_MODULE_UUID),
         createTermsFilter(FIELD_ISSUE_MODULE_UUID, query.moduleUuids()));
       filters.addFilter(
-        FIELD_ISSUE_DIRECTORY_PATH,
+        FIELD_ISSUE_DIRECTORY_PATH, new SimpleFieldFilterScope(FIELD_ISSUE_DIRECTORY_PATH),
         createTermsFilter(FIELD_ISSUE_DIRECTORY_PATH, query.directories()));
       filters.addFilter(
-        FIELD_ISSUE_COMPONENT_UUID,
+        FIELD_ISSUE_COMPONENT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_COMPONENT_UUID),
         fileFilter == null ? componentFilter : fileFilter);
     }
   }
@@ -481,11 +501,10 @@ public class IssueIndex {
       return;
     }
     allFilters.addFilter(
-      "__is_main_branch",
-      FIELD_ISSUE_IS_MAIN_BRANCH,
+      "__is_main_branch", new SimpleFieldFilterScope(FIELD_ISSUE_IS_MAIN_BRANCH),
       createTermFilter(FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(query.isMainBranch())));
     allFilters.addFilter(
-      FIELD_ISSUE_BRANCH_UUID,
+      FIELD_ISSUE_BRANCH_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_BRANCH_UUID),
       createTermFilter(FIELD_ISSUE_BRANCH_UUID, query.branchUuid()));
   }
 
@@ -497,10 +516,10 @@ public class IssueIndex {
     String branchUuid = query.branchUuid();
     boolean onApplicationBranch = branchUuid != null && !viewUuids.isEmpty();
     if (onApplicationBranch) {
-      allFilters.addFilter("__view", createViewFilter(singletonList(query.branchUuid())));
+      allFilters.addFilter("__view", new SimpleFieldFilterScope("view"), createViewFilter(singletonList(query.branchUuid())));
     } else {
-      allFilters.addFilter("__is_main_branch", createTermFilter(FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(true)));
-      allFilters.addFilter("__view", createViewFilter(viewUuids));
+      allFilters.addFilter("__is_main_branch", new SimpleFieldFilterScope(FIELD_ISSUE_IS_MAIN_BRANCH), createTermFilter(FIELD_ISSUE_IS_MAIN_BRANCH, Boolean.toString(true)));
+      allFilters.addFilter("__view", new SimpleFieldFilterScope("view"), createViewFilter(viewUuids));
     }
   }
 
@@ -525,7 +544,7 @@ public class IssueIndex {
 
   private static RequestFiltersComputer newFilterComputer(SearchOptions options, AllFilters allFilters) {
     Collection<String> facetNames = options.getFacets();
-    Set<TopAggregationDefinition> facets = Stream.concat(
+    Set<TopAggregationDefinition<?>> facets = Stream.concat(
       Stream.of(EFFORT_TOP_AGGREGATION),
       facetNames.stream()
         .map(FACETS_BY_NAME::get)
@@ -589,16 +608,14 @@ public class IssueIndex {
 
     if (createdAfter != null) {
       filters.addFilter(
-        "__createdAfter",
-        FIELD_ISSUE_FUNC_CREATED_AT,
+        "__createdAfter", CREATED_AT.getFilterScope(),
         QueryBuilders
           .rangeQuery(FIELD_ISSUE_FUNC_CREATED_AT)
           .from(BaseDoc.dateToEpochSeconds(createdAfter.date()), createdAfter.inclusive()));
     }
     if (createdBefore != null) {
       filters.addFilter(
-        "__createdBefore",
-        FIELD_ISSUE_FUNC_CREATED_AT,
+        "__createdBefore", CREATED_AT.getFilterScope(),
         QueryBuilders
           .rangeQuery(FIELD_ISSUE_FUNC_CREATED_AT)
           .lt(BaseDoc.dateToEpochSeconds(createdBefore)));
@@ -606,8 +623,7 @@ public class IssueIndex {
     Date createdAt = query.createdAt();
     if (createdAt != null) {
       filters.addFilter(
-        "__createdAt",
-        FIELD_ISSUE_FUNC_CREATED_AT,
+        "__createdAt", CREATED_AT.getFilterScope(),
         termQuery(FIELD_ISSUE_FUNC_CREATED_AT, BaseDoc.dateToEpochSeconds(createdAt)));
     }
   }
@@ -618,7 +634,7 @@ public class IssueIndex {
     createdAfterByProjectUuids.forEach((projectUuid, createdAfterDate) -> boolQueryBuilder.should(boolQuery()
       .filter(termQuery(FIELD_ISSUE_PROJECT_UUID, projectUuid))
       .filter(rangeQuery(FIELD_ISSUE_FUNC_CREATED_AT).from(BaseDoc.dateToEpochSeconds(createdAfterDate.date()), createdAfterDate.inclusive()))));
-    allFilters.addFilter("createdAfterByProjectUuids", boolQueryBuilder);
+    allFilters.addFilter("createdAfterByProjectUuids", new SimpleFieldFilterScope("TODO::???"), boolQueryBuilder);
   }
 
   private void validateCreationDateBounds(@Nullable Date createdBefore, @Nullable Date createdAfter) {

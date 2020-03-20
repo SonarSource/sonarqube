@@ -20,33 +20,52 @@
 package org.sonar.server.es.searchrequest;
 
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TopAggregationDefTest {
+public class SimpleFieldTopAggregationDefinitionTest {
+  private static final Random RANDOM = new Random();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void fieldName_cannot_be_null() {
-    boolean sticky = new Random().nextBoolean();
+    boolean sticky = RANDOM.nextBoolean();
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("fieldName can't be null");
 
-    new TopAggregationDef(null, sticky);
+    new SimpleFieldTopAggregationDefinition(null, sticky);
   }
 
   @Test
   public void getters() {
     String fieldName = RandomStringUtils.randomAlphabetic(12);
     boolean sticky = new Random().nextBoolean();
-    TopAggregationDef underTest = new TopAggregationDef(fieldName, sticky);
+    SimpleFieldTopAggregationDefinition underTest = new SimpleFieldTopAggregationDefinition(fieldName, sticky);
 
-    assertThat(underTest.getFieldName()).isEqualTo(fieldName);
+    assertThat(underTest.getFilterScope().getFieldName()).isEqualTo(fieldName);
     assertThat(underTest.isSticky()).isEqualTo(sticky);
+  }
+
+  @Test
+  public void getFilterScope_always_returns_the_same_instance() {
+    String fieldName = randomAlphabetic(12);
+    boolean sticky = RANDOM.nextBoolean();
+    SimpleFieldTopAggregationDefinition underTest = new SimpleFieldTopAggregationDefinition(fieldName, sticky);
+
+    Set<TopAggregationDefinition.FilterScope> filterScopes = IntStream.range(0, 2 + RANDOM.nextInt(200))
+      .mapToObj(i -> underTest.getFilterScope())
+      .collect(Collectors.toSet());
+
+    assertThat(filterScopes).hasSize(1);
   }
 }

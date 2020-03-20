@@ -20,29 +20,32 @@
 package org.sonar.server.es.searchrequest;
 
 import javax.annotation.concurrent.Immutable;
+import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 
 import static java.util.Objects.requireNonNull;
 
 /**
- * Default implementation of {@link TopAggregationDefinition}.
+ * Implementation of {@link TopAggregationDefinition} with a filter scope for a simple field.
  */
 @Immutable
-public final class TopAggregationDef implements TopAggregationDefinition {
-  private final String fieldName;
+public final class SimpleFieldTopAggregationDefinition implements TopAggregationDefinition<FilterScope> {
+  private final FilterScope filterScope;
   private final boolean sticky;
 
-  public TopAggregationDef(String fieldName, boolean sticky) {
-    this.fieldName = requireNonNull(fieldName, "fieldName can't be null");
+  public SimpleFieldTopAggregationDefinition(String fieldName, boolean sticky) {
+    requireNonNull(fieldName, "fieldName can't be null");
+    this.filterScope = new SimpleFieldFilterScope(fieldName);
     this.sticky = sticky;
   }
 
   @Override
-  public String getFieldName() {
-    return fieldName;
+  public FilterScope getFilterScope() {
+    return filterScope;
   }
 
   @Override
   public boolean isSticky() {
     return sticky;
   }
+
 }

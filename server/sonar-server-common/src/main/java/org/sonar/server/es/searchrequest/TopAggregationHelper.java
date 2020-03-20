@@ -62,7 +62,7 @@ public class TopAggregationHelper {
    * @throws IllegalStateException if no sub-aggregation has been added
    * @return the aggregation, that can be added on top level of the elasticsearch request
    */
-  public FilterAggregationBuilder buildTopAggregation(String topAggregationName, TopAggregationDefinition topAggregation,
+  public FilterAggregationBuilder buildTopAggregation(String topAggregationName, TopAggregationDefinition<?> topAggregation,
     Consumer<BoolQueryBuilder> extraFilters, Consumer<FilterAggregationBuilder> subAggregations) {
     BoolQueryBuilder filter = filterComputer.getTopAggregationFilter(topAggregation)
       .orElseGet(QueryBuilders::boolQuery);
@@ -79,10 +79,11 @@ public class TopAggregationHelper {
 
   /**
    * Same as {@link #buildTopAggregation(String, TopAggregationDefinition, Consumer, Consumer)} with built-in addition of a
-   * top-term sub aggregation based field defined by {@link TopAggregationDefinition#getFieldName()}.
+   * top-term sub aggregation based field defined by {@link TopAggregationDefinition.FilterScope#getFieldName()} of
+   * {@link TopAggregationDefinition#getFilterScope()}.
    */
   public FilterAggregationBuilder buildTermTopAggregation(String topAggregationName,
-    TopAggregationDefinition topAggregation, @Nullable Integer numberOfTerms,
+    TopAggregationDefinition<?> topAggregation, @Nullable Integer numberOfTerms,
     Consumer<BoolQueryBuilder> extraFilters, Consumer<FilterAggregationBuilder> otherSubAggregations) {
     Consumer<FilterAggregationBuilder> subAggregations = t -> {
       t.subAggregation(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, numberOfTerms));
