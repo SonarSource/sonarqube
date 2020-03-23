@@ -76,7 +76,8 @@ module.exports = ({ production = true, release = false }) => {
     optimization: {
       splitChunks: {
         chunks: 'all',
-        automaticNameDelimiter: '-'
+        automaticNameDelimiter: '-',
+        maxSize: 310000
       },
       minimize: production && release
     }
@@ -204,7 +205,7 @@ module.exports = ({ production = true, release = false }) => {
           ? {
               // ignore source maps and documentation chunk
               assetFilter: assetFilename =>
-                !assetFilename.endsWith('.map') && !assetFilename.startsWith('js/docs.'),
+                !assetFilename.endsWith('.map') && !assetFilename.startsWith('js/docs'),
               maxAssetSize: 310000,
               hints: 'error'
             }

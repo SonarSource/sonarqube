@@ -59,7 +59,8 @@ export default class ExtendProfileForm extends React.PureComponent<Props, State>
     this.setState({ name: event.currentTarget.value });
   };
 
-  handleFormSubmit = async () => {
+  handleFormSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (this.canSubmit(this.state)) {
       const { organization, profile: parentProfile } = this.props;
       const { name } = this.state;
@@ -97,7 +98,7 @@ export default class ExtendProfileForm extends React.PureComponent<Props, State>
 
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose} size="small">
-        <form>
+        <form onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>
           </div>
@@ -124,8 +125,7 @@ export default class ExtendProfileForm extends React.PureComponent<Props, State>
             <DeferredSpinner className="spacer-right" loading={this.state.loading} />
             <SubmitButton
               disabled={this.state.loading || !this.canSubmit(this.state)}
-              id="extend-profile-submit"
-              onClick={this.handleFormSubmit}>
+              id="extend-profile-submit">
               {translate('extend')}
             </SubmitButton>
             <ResetButtonLink id="extend-profile-cancel" onClick={this.props.onClose}>

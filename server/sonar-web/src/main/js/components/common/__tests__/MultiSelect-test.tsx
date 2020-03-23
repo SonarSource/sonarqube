@@ -51,6 +51,13 @@ it('should render multiselect with selected elements', () => {
 });
 
 it('should render with the focus inside the search input', () => {
-  const multiselect = mount(<MultiSelect {...props} />);
+  /*
+   * Need to attach to document body to have it set to `document.activeElement`
+   * See: https://github.com/jsdom/jsdom/issues/2723#issuecomment-580163361
+   */
+  const multiselect = mount(<MultiSelect {...props} />, { attachTo: document.body });
+
   expect(multiselect.find('input').getDOMNode()).toBe(document.activeElement);
+
+  multiselect.unmount();
 });

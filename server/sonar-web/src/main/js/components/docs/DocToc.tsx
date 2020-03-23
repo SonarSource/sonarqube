@@ -48,6 +48,25 @@ export default class DocToc extends React.PureComponent<Props, State> {
 
   state: State = { anchors: [] };
 
+  constructor(props: Props) {
+    super(props);
+    this.debouncedScrollHandler = debounce(this.scrollHandler);
+  }
+
+  static getDerivedStateFromProps(props: Props) {
+    const { content } = props;
+    return { anchors: DocToc.getAnchors(content) };
+  }
+
+  componentDidMount() {
+    window.addEventListener('scroll', this.debouncedScrollHandler, true);
+    this.scrollHandler();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.debouncedScrollHandler, true);
+  }
+
   static getAnchors = memoize((content: string) => {
     const file: { contents: JSX.Element } = remark()
       .use(reactRenderer)
@@ -80,25 +99,6 @@ export default class DocToc extends React.PureComponent<Props, State> {
     }
     return [];
   });
-
-  static getDerivedStateFromProps(props: Props) {
-    const { content } = props;
-    return { anchors: DocToc.getAnchors(content) };
-  }
-
-  constructor(props: Props) {
-    super(props);
-    this.debouncedScrollHandler = debounce(this.scrollHandler);
-  }
-
-  componentDidMount() {
-    window.addEventListener('scroll', this.debouncedScrollHandler, true);
-    this.scrollHandler();
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('scroll', this.debouncedScrollHandler, true);
-  }
 
   scrollHandler = () => {
     // eslint-disable-next-line react/no-find-dom-node

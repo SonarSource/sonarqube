@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { mockEvent, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { changeProfileParent, createQualityProfile } from '../../../../api/quality-profiles';
 import { mockQualityProfile } from '../../../../helpers/testMocks';
 import ExtendProfileForm from '../ExtendProfileForm';
@@ -40,12 +40,10 @@ it('should correctly create a new profile and extend the existing one', async ()
   const name = 'New name';
   const wrapper = shallowRender({ organization, profile });
 
-  click(wrapper.find('SubmitButton'));
-  expect(createQualityProfile).not.toHaveBeenCalled();
-  expect(changeProfileParent).not.toHaveBeenCalled();
+  expect(wrapper.find('SubmitButton').props().disabled).toBe(true);
 
   wrapper.setState({ name }).update();
-  click(wrapper.find('SubmitButton'));
+  wrapper.instance().handleFormSubmit(mockEvent());
   await waitAndUpdate(wrapper);
 
   const data = new FormData();
@@ -57,7 +55,7 @@ it('should correctly create a new profile and extend the existing one', async ()
 });
 
 function shallowRender(props: Partial<ExtendProfileForm['props']> = {}) {
-  return shallow(
+  return shallow<ExtendProfileForm>(
     <ExtendProfileForm
       onClose={jest.fn()}
       onExtend={jest.fn()}

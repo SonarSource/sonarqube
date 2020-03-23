@@ -23,6 +23,7 @@ exports[`should render 1`] = `
     onMouseDown={[Function]}
     onStart={[Function]}
     onStop={[Function]}
+    scale={1}
     transform={null}
   >
     <div

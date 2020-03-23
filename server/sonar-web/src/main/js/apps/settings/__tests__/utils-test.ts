@@ -175,7 +175,7 @@ describe('sanitizeTranslation', () => {
     <span title=malformed attribs' do=don't id=foo checked onclick="a<b">Bar</span>`);
 
     expect(clean.replace(/\s+/g, '')).toBe(
-      `Clickyalert("&lt;b&gt;hi&lt;/b&gt;");&lt;divid=notarealtagonclick=notcode()&gt;&lt;notatag&lt;&lt;&lt;allinonetextblock&gt;&gt;&gt;Makesurethat&lt;%#somephpcodeherewrite("$horriblySyntacticConstruct1");%&gt;*/alert('hi');*/alert('hi');--&gt;*/alert('hi');--&gt;'}--&gt;--&gt;&lt;!--Zoicks--&gt;sectioninHTML]]&gt;Bar`
+      `Clickyalert("&lt;b&gt;hi&lt;/b&gt;");&lt;divid=notarealtagonclick=notcode()&gt;&lt;notatag&lt;&lt;&lt;allinonetextblock&gt;&gt;&gt;&lt;%#somephpcodeherewrite("$horriblySyntacticConstruct1");%&gt;*/alert('hi');*/alert('hi');--&gt;*/alert('hi');--&gt;'}--&gt;--&gt;&lt;!--Zoicks--&gt;sectioninHTML]]&gt;Bar`
     );
   });
 });

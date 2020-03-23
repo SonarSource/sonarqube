@@ -22,9 +22,32 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { Logout } from '../Logout';
 
+const originalLocation = window.location;
+
+beforeAll(() => {
+  const location = {
+    ...window.location,
+    replace: jest.fn()
+  };
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: location
+  });
+});
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'location', {
+    writable: true,
+    value: originalLocation
+  });
+});
+
 it('should logout correctly', async () => {
   const doLogout = jest.fn().mockResolvedValue(true);
-  window.location.replace = jest.fn();
 
   const wrapper = shallowRender({ doLogout });
   await waitAndUpdate(wrapper);
@@ -35,7 +58,6 @@ it('should logout correctly', async () => {
 
 it('should not redirect if logout fails', async () => {
   const doLogout = jest.fn().mockRejectedValue(false);
-  window.location.replace = jest.fn();
 
   const wrapper = shallowRender({ doLogout });
   await waitAndUpdate(wrapper);

@@ -45,7 +45,7 @@ export class DocLink extends React.PureComponent<Props> {
   };
 
   render() {
-    const { children, href, customProps, ...other } = this.props;
+    const { appState, children, href, customProps, ...other } = this.props;
     if (href && href.startsWith('#')) {
       return (
         <a href="#" onClick={this.handleClickOnAnchor}>
@@ -61,7 +61,7 @@ export class DocLink extends React.PureComponent<Props> {
         return <SonarQubeLink url={href}>{children}</SonarQubeLink>;
       } else if (href.startsWith(SONARQUBE_ADMIN_LINK)) {
         return (
-          <SonarQubeAdminLink canAdmin={this.props.appState.canAdmin} url={href}>
+          <SonarQubeAdminLink canAdmin={appState.canAdmin} url={href}>
             {children}
           </SonarQubeAdminLink>
         );

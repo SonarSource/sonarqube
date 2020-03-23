@@ -110,21 +110,17 @@ exports[`should render simple markdown 1`] = `
   <div
     className="markdown-content"
   >
-    <Block
+    <p
       key="h-1"
     >
-      <p
+      this is 
+      <em
         key="h-2"
       >
-        this is 
-        <em
-          key="h-3"
-        >
-          bold
-        </em>
-         text
-      </p>
-    </Block>
+        bold
+      </em>
+       text
+    </p>
   </div>
 </div>
 `;
@@ -132,7 +128,7 @@ exports[`should render simple markdown 1`] = `
 exports[`should render with custom props for links 1`] = `
 <withChildProps
   href="#quality-profiles"
-  key="h-3"
+  key="h-2"
 >
   link
 </withChildProps>
@@ -141,7 +137,7 @@ exports[`should render with custom props for links 1`] = `
 exports[`should use custom component for links 1`] = `
 <withChildProps
   href="/quality-profiles"
-  key="h-3"
+  key="h-2"
 >
   link
 </withChildProps>

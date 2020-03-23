@@ -6,7 +6,9 @@ exports[`should render correctly 1`] = `
   onRequestClose={[MockFunction]}
   size="small"
 >
-  <form>
+  <form
+    onSubmit={[Function]}
+  >
     <div
       className="modal-head"
     >
@@ -54,7 +56,6 @@ exports[`should render correctly 1`] = `
       <SubmitButton
         disabled={true}
         id="extend-profile-submit"
-        onClick={[Function]}
       >
         extend
       </SubmitButton>
