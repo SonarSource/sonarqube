@@ -45,10 +45,10 @@ public class NotificationDbTester {
   public void assertExists(String channel, String dispatcher, int userId, @Nullable ComponentDto component) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
-      .setComponentId(component == null ? null : component.getId())
+      .setComponentUuid(component == null ? null : component.uuid())
       .setUserId(userId)
       .build(), dbSession).stream()
-      .filter(prop -> component == null ? prop.getResourceId() == null : prop.getResourceId() != null)
+      .filter(prop -> component == null ? prop.getComponentUuid() == null : prop.getComponentUuid() != null)
       .collect(MoreCollectors.toList());
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getValue()).isEqualTo("true");
@@ -57,7 +57,7 @@ public class NotificationDbTester {
   public void assertDoesNotExist(String channel, String dispatcher, int userId, @Nullable ComponentDto component) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
-      .setComponentId(component == null ? null : component.getId())
+      .setComponentUuid(component == null ? null : component.uuid())
       .setUserId(userId)
       .build(), dbSession);
     assertThat(result).isEmpty();

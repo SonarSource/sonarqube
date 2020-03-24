@@ -20,16 +20,15 @@
 package org.sonar.server.permission;
 
 import java.util.List;
-import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
 
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.permission.PermissionChange.Operation.ADD;
 import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
  * Adds and removes user permissions. Both global and project scopes are supported.
@@ -58,30 +57,31 @@ public class UserPermissionChanger {
   }
 
   private static boolean isImplicitlyAlreadyDone(UserPermissionChange change) {
-    return change.getProjectId()
-      .map(projectId -> isImplicitlyAlreadyDone(projectId, change))
-      .orElse(false);
+    if (change.getProject() != null) {
+      return isImplicitlyAlreadyDone(change.getProject(), change);
+    }
+    return false;
   }
 
-  private static boolean isImplicitlyAlreadyDone(ProjectId projectId, UserPermissionChange change) {
-    return isAttemptToAddPublicPermissionToPublicComponent(change, projectId);
+  private static boolean isImplicitlyAlreadyDone(ProjectUuid project, UserPermissionChange change) {
+    return isAttemptToAddPublicPermissionToPublicComponent(change, project);
   }
 
-  private static boolean isAttemptToAddPublicPermissionToPublicComponent(UserPermissionChange change, ProjectId projectId) {
-    return !projectId.isPrivate()
+  private static boolean isAttemptToAddPublicPermissionToPublicComponent(UserPermissionChange change, ProjectUuid project) {
+    return !project.isPrivate()
       && change.getOperation() == ADD
       && PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
   private static void ensureConsistencyWithVisibility(UserPermissionChange change) {
-    change.getProjectId()
-      .ifPresent(projectId -> checkRequest(
-        !isAttemptToRemovePublicPermissionFromPublicComponent(change, projectId),
-        "Permission %s can't be removed from a public component", change.getPermission()));
+    if (change.getProject() != null) {
+      checkRequest(!isAttemptToRemovePublicPermissionFromPublicComponent(change, change.getProject()),
+        "Permission %s can't be removed from a public component", change.getPermission());
+    }
   }
 
-  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(UserPermissionChange change, ProjectId projectId) {
-    return !projectId.isPrivate()
+  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(UserPermissionChange change, ProjectUuid projectUuid) {
+    return !projectUuid.isPrivate()
       && change.getOperation() == REMOVE
       && PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
@@ -90,7 +90,7 @@ public class UserPermissionChanger {
     if (loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
       return false;
     }
-    UserPermissionDto dto = new UserPermissionDto(change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getNullableProjectId());
+    UserPermissionDto dto = new UserPermissionDto(change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getProjectUuid());
     dbClient.userPermissionDao().insert(dbSession, dto);
     return true;
   }
@@ -100,9 +100,9 @@ public class UserPermissionChanger {
       return false;
     }
     checkOtherAdminsExist(dbSession, change);
-    Optional<ProjectId> projectId = change.getProjectId();
-    if (projectId.isPresent()) {
-      dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getId(), change.getPermission(), projectId.get().getId());
+    String projectUuid = change.getProjectUuid();
+    if (projectUuid != null) {
+      dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getId(), change.getPermission(), projectUuid);
     } else {
       dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getId(), change.getPermission(), change.getOrganizationUuid());
     }
@@ -110,11 +110,9 @@ public class UserPermissionChanger {
   }
 
   private List<String> loadExistingPermissions(DbSession dbSession, UserPermissionChange change) {
-    Optional<ProjectId> projectId = change.getProjectId();
-    if (projectId.isPresent()) {
-      return dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession,
-        change.getUserId().getId(),
-        projectId.get().getId());
+    String projectUuid = change.getProjectUuid();
+    if (projectUuid != null) {
+      return dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, change.getUserId().getId(), projectUuid);
     }
     return dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession,
       change.getUserId().getId(),
@@ -122,7 +120,7 @@ public class UserPermissionChanger {
   }
 
   private void checkOtherAdminsExist(DbSession dbSession, UserPermissionChange change) {
-    if (SYSTEM_ADMIN.equals(change.getPermission()) && !change.getProjectId().isPresent()) {
+    if (SYSTEM_ADMIN.equals(change.getPermission()) && change.getProjectUuid() == null) {
       int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUserPermission(dbSession,
         change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId());
       checkRequest(remaining > 0, "Last user with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN);

@@ -51,12 +51,12 @@ public class ReadOnlyPropertiesDao extends PropertiesDao {
   }
 
   @Override
-  public void deleteProjectProperty(String key, Long projectId) {
+  public void deleteProjectProperty(String key, String projectUuid) {
     // do nothing
   }
 
   @Override
-  public void deleteProjectProperty(String key, Long projectId, DbSession session) {
+  public void deleteProjectProperty(String key, String projectUuid, DbSession session) {
     // do nothing
   }
 

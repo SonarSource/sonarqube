@@ -70,9 +70,9 @@ public class WebIssueStorageTest {
     ComponentDto project = db.components().insertPrivateProject(organizationDto);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    long componentId = underTest.component(db.getSession(), new DefaultIssue().setComponentUuid(file.uuid())).getId();
+    String componentUuid = underTest.component(db.getSession(), new DefaultIssue().setComponentUuid(file.uuid())).uuid();
 
-    assertThat(componentId).isEqualTo(file.getId());
+    assertThat(componentUuid).isEqualTo(file.uuid());
   }
 
   @Test
@@ -81,9 +81,9 @@ public class WebIssueStorageTest {
     ComponentDto project = db.components().insertPrivateProject(organizationDto);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    long projectId = underTest.project(db.getSession(), new DefaultIssue().setProjectUuid(project.uuid())).getId();
+    String projectUuid = underTest.project(db.getSession(), new DefaultIssue().setProjectUuid(project.uuid())).uuid();
 
-    assertThat(projectId).isEqualTo(project.getId());
+    assertThat(projectUuid).isEqualTo(project.uuid());
   }
 
   @Test

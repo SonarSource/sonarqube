@@ -195,7 +195,7 @@ public class ComponentIndexerTest {
     indexProject(project, PROJECT_CREATION);
     assertThatIndexContainsOnly(project, file);
 
-    db.getDbClient().componentDao().delete(db.getSession(), file.getId());
+    db.getDbClient().componentDao().delete(db.getSession(), file.uuid());
 
     IndexingResult result = indexProject(project, ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
     assertThatIndexContainsOnly(project, file);
@@ -223,8 +223,8 @@ public class ComponentIndexerTest {
     indexProject(project, PROJECT_CREATION);
     assertThatIndexHasSize(2);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.getId());
-    db.getDbClient().componentDao().delete(db.getSession(), file.getId());
+    db.getDbClient().componentDao().delete(db.getSession(), project.uuid());
+    db.getDbClient().componentDao().delete(db.getSession(), file.uuid());
     indexProject(project, PROJECT_DELETION);
 
     assertThatIndexHasSize(0);

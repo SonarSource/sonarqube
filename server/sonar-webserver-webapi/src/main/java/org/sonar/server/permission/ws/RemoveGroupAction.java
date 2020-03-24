@@ -25,13 +25,13 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.permission.GroupIdOrAnyone;
 import org.sonar.server.permission.GroupPermissionChange;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ProjectId;
+import org.sonar.server.permission.ProjectUuid;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.permission.GroupIdOrAnyone;
 
 import static java.util.Arrays.asList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
@@ -88,14 +88,14 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupIdOrAnyone group = wsSupport.findGroup(dbSession, request);
-      Optional<ProjectId> projectId = wsSupport.findProjectId(dbSession, request);
+      Optional<ProjectUuid> project = wsSupport.findProjectUuid(dbSession, request);
 
-      checkProjectAdmin(userSession, group.getOrganizationUuid(), projectId);
+      checkProjectAdmin(userSession, group.getOrganizationUuid(), project);
 
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,
         request.mandatoryParam(PARAM_PERMISSION),
-        projectId.orElse(null),
+        project.orElse(null),
         group, permissionService);
       permissionUpdater.apply(dbSession, asList(change));
     }

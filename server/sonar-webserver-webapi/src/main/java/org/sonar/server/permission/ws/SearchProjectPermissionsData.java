@@ -36,14 +36,14 @@ import static com.google.common.collect.ImmutableTable.copyOf;
 class SearchProjectPermissionsData {
   private final List<ComponentDto> rootComponents;
   private final Paging paging;
-  private final Table<Long, String, Integer> userCountByProjectIdAndPermission;
-  private final Table<Long, String, Integer> groupCountByProjectIdAndPermission;
+  private final Table<String, String, Integer> userCountByProjectUuidAndPermission;
+  private final Table<String, String, Integer> groupCountByProjectUuidAndPermission;
 
   private SearchProjectPermissionsData(Builder builder) {
     this.rootComponents = copyOf(builder.projects);
     this.paging = builder.paging;
-    this.userCountByProjectIdAndPermission = copyOf(builder.userCountByProjectIdAndPermission);
-    this.groupCountByProjectIdAndPermission = copyOf(builder.groupCountByProjectIdAndPermission);
+    this.userCountByProjectUuidAndPermission = copyOf(builder.userCountByProjectUuidAndPermission);
+    this.groupCountByProjectUuidAndPermission = copyOf(builder.groupCountByProjectUuidAndPermission);
   }
 
   static Builder newBuilder() {
@@ -58,27 +58,27 @@ class SearchProjectPermissionsData {
     return paging;
   }
 
-  int userCount(long rootComponentId, String permission) {
-    return firstNonNull(userCountByProjectIdAndPermission.get(rootComponentId, permission), 0);
+  int userCount(String rootComponentUuid, String permission) {
+    return firstNonNull(userCountByProjectUuidAndPermission.get(rootComponentUuid, permission), 0);
   }
 
-  int groupCount(long rootComponentId, String permission) {
-    return firstNonNull(groupCountByProjectIdAndPermission.get(rootComponentId, permission), 0);
+  int groupCount(String rootComponentUuid, String permission) {
+    return firstNonNull(groupCountByProjectUuidAndPermission.get(rootComponentUuid, permission), 0);
   }
 
-  Set<String> permissions(long rootComponentId) {
+  Set<String> permissions(String rootComponentUuid) {
     return FluentIterable.from(
       Iterables.concat(
-        userCountByProjectIdAndPermission.row(rootComponentId).keySet(),
-        groupCountByProjectIdAndPermission.row(rootComponentId).keySet()))
+        userCountByProjectUuidAndPermission.row(rootComponentUuid).keySet(),
+        groupCountByProjectUuidAndPermission.row(rootComponentUuid).keySet()))
       .toSortedSet(Ordering.natural());
   }
 
   static class Builder {
     private List<ComponentDto> projects;
     private Paging paging;
-    private Table<Long, String, Integer> userCountByProjectIdAndPermission;
-    private Table<Long, String, Integer> groupCountByProjectIdAndPermission;
+    private Table<String, String, Integer> userCountByProjectUuidAndPermission;
+    private Table<String, String, Integer> groupCountByProjectUuidAndPermission;
 
     private Builder() {
       // prevents instantiation outside main class
@@ -86,8 +86,8 @@ class SearchProjectPermissionsData {
 
     SearchProjectPermissionsData build() {
       checkState(projects != null);
-      checkState(userCountByProjectIdAndPermission != null);
-      checkState(groupCountByProjectIdAndPermission != null);
+      checkState(userCountByProjectUuidAndPermission != null);
+      checkState(groupCountByProjectUuidAndPermission != null);
 
       return new SearchProjectPermissionsData(this);
     }
@@ -102,13 +102,13 @@ class SearchProjectPermissionsData {
       return this;
     }
 
-    Builder userCountByProjectIdAndPermission(Table<Long, String, Integer> userCountByProjectIdAndPermission) {
-      this.userCountByProjectIdAndPermission = userCountByProjectIdAndPermission;
+    Builder userCountByProjectIdAndPermission(Table<String, String, Integer> userCountByProjectIdAndPermission) {
+      this.userCountByProjectUuidAndPermission = userCountByProjectIdAndPermission;
       return this;
     }
 
-    Builder groupCountByProjectIdAndPermission(Table<Long, String, Integer> groupCountByProjectIdAndPermission) {
-      this.groupCountByProjectIdAndPermission = groupCountByProjectIdAndPermission;
+    Builder groupCountByProjectIdAndPermission(Table<String, String, Integer> groupCountByProjectIdAndPermission) {
+      this.groupCountByProjectUuidAndPermission = groupCountByProjectIdAndPermission;
       return this;
     }
   }

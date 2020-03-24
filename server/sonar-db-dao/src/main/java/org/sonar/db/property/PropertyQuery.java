@@ -24,12 +24,12 @@ import javax.annotation.Nullable;
 public class PropertyQuery {
 
   private final String key;
-  private final Long componentId;
+  private final String componentUuid;
   private final Integer userId;
 
   private PropertyQuery(Builder builder) {
     this.key = builder.key;
-    this.componentId = builder.componentId;
+    this.componentUuid = builder.componentUuid;
     this.userId = builder.userId;
   }
 
@@ -37,8 +37,8 @@ public class PropertyQuery {
     return key;
   }
 
-  public Long componentId() {
-    return componentId;
+  public String componentUuid() {
+    return componentUuid;
   }
 
   public Integer userId() {
@@ -51,7 +51,7 @@ public class PropertyQuery {
 
   public static class Builder {
     private String key;
-    private Long componentId;
+    private String componentUuid;
     private Integer userId;
 
     public Builder setKey(String key) {
@@ -59,8 +59,8 @@ public class PropertyQuery {
       return this;
     }
 
-    public Builder setComponentId(@Nullable Long componentId) {
-      this.componentId = componentId;
+    public Builder setComponentUuid(@Nullable String componentUuid) {
+      this.componentUuid = componentUuid;
       return this;
     }
 

@@ -36,7 +36,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.assertj.core.api.ListAssert;
@@ -337,22 +336,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void get_by_ids() {
-    ComponentDto project1 = db.components().insertPrivateProject();
-    ComponentDto project2 = db.components().insertPrivateProject();
-
-    List<ComponentDto> results = underTest.selectByIds(dbSession, asList(project1.getId(), project2.getId()));
-
-    assertThat(results)
-      .extracting(ComponentDto::uuid, ComponentDto::getDbKey)
-      .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), project1.getDbKey()),
-        tuple(project2.uuid(), project2.getDbKey()));
-
-    assertThat(underTest.selectByIds(dbSession, singletonList(0L))).isEmpty();
-  }
-
-  @Test
   public void get_by_uuids() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
@@ -390,31 +373,6 @@ public class ComponentDaoTest {
     assertThat(underTest.selectExistingUuids(dbSession, asList(project1.uuid(), project2.uuid()))).containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
     assertThat(underTest.selectExistingUuids(dbSession, asList(project1.uuid(), "unknown"))).containsExactlyInAnyOrder(project1.uuid());
     assertThat(underTest.selectExistingUuids(dbSession, singletonList("unknown"))).isEmpty();
-  }
-
-  @Test
-  public void get_by_id() {
-    ComponentDto project = db.components().insertPrivateProject();
-
-    assertThat(underTest.selectById(dbSession, project.getId())).isNotNull();
-  }
-
-  @Test
-  public void get_by_id_on_disabled_component() {
-    ComponentDto enabledProject = db.components().insertPrivateProject();
-    ComponentDto disabledProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
-
-    Optional<ComponentDto> result = underTest.selectById(dbSession, disabledProject.getId());
-    assertThat(result).isPresent();
-    assertThat(result.get().isEnabled()).isFalse();
-  }
-
-  @Test
-  public void get_nullable_by_id() {
-    ComponentDto project = db.components().insertPrivateProject();
-
-    assertThat(underTest.selectById(dbSession, project.getId())).isPresent();
-    assertThat(underTest.selectById(dbSession, 0L)).isEmpty();
   }
 
   @Test
@@ -1215,16 +1173,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void countByQuery_throws_IAE_if_too_many_component_ids() {
-    Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(toSet());
-    ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(PROJECT)
-      .setComponentIds(ids);
-
-    assertThatCountByQueryThrowsIAE(query, "Too many component ids in query");
-  }
-
-  @Test
   public void countByQuery_throws_IAE_if_too_many_component_keys() {
     Set<String> keys = IntStream.range(0, 1_010).mapToObj(String::valueOf).collect(toSet());
     ComponentQuery.Builder query = ComponentQuery.builder()
@@ -1404,7 +1352,7 @@ public class ComponentDaoTest {
     ComponentDto project1 = db.components().insertPrivateProject(db.getDefaultOrganization(), (t) -> t.setDbKey("PROJECT_1"));
     db.components().insertPrivateProject(db.getDefaultOrganization(), (t) -> t.setDbKey("PROJECT_2"));
 
-    underTest.delete(dbSession, project1.getId());
+    underTest.delete(dbSession, project1.uuid());
     dbSession.commit();
 
     assertThat(underTest.selectByKey(dbSession, "PROJECT_1")).isEmpty();
@@ -1417,16 +1365,6 @@ public class ComponentDaoTest {
     expectedException.expectMessage("organizationUuid can't be null");
 
     underTest.selectByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY, 1, 1);
-  }
-
-  @Test
-  public void selectByQuery_throws_IAE_if_too_many_component_ids() {
-    Set<Long> ids = LongStream.range(0L, 1_010L).boxed().collect(toSet());
-    ComponentQuery.Builder query = ComponentQuery.builder()
-      .setQualifiers(PROJECT)
-      .setComponentIds(ids);
-
-    assertThatSelectByQueryThrowsIAE(query, "Too many component ids in query");
   }
 
   @Test
@@ -1673,34 +1611,6 @@ public class ComponentDaoTest {
     assertThat(underTest.selectByQuery(dbSession, privateProjectsQuery, 0, 10)).extracting(ComponentDto::getDbKey).containsExactly("private-key");
     assertThat(underTest.selectByQuery(dbSession, publicProjectsQuery, 0, 10)).extracting(ComponentDto::getDbKey).containsExactly("public-key");
     assertThat(underTest.selectByQuery(dbSession, allProjectsQuery, 0, 10)).extracting(ComponentDto::getDbKey).containsOnly("public-key", "private-key");
-  }
-
-  @Test
-  public void selectByQuery_on_empty_list_of_component_id() {
-    db.components().insertPrivateProject();
-    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(PROJECT).setComponentIds(emptySet()).build();
-
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
-    int count = underTest.countByQuery(dbSession, dbQuery);
-
-    assertThat(result).isEmpty();
-    assertThat(count).isEqualTo(0);
-  }
-
-  @Test
-  public void selectByQuery_on_component_ids() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto sonarqube = db.components().insertComponent(newPrivateProjectDto(organizationDto));
-    ComponentDto jdk8 = db.components().insertComponent(newPrivateProjectDto(organizationDto));
-    ComponentDto cLang = db.components().insertComponent(newPrivateProjectDto(organizationDto));
-
-    ComponentQuery query = ComponentQuery.builder().setQualifiers(PROJECT)
-      .setComponentIds(newHashSet(sonarqube.getId(), jdk8.getId())).build();
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
-
-    assertThat(result).hasSize(2).extracting(ComponentDto::getId)
-      .containsOnlyOnce(sonarqube.getId(), jdk8.getId())
-      .doesNotContain(cLang.getId());
   }
 
   @Test

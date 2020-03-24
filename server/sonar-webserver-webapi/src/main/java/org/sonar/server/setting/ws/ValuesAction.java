@@ -85,7 +85,7 @@ public class ValuesAction implements SettingsWsAction {
   private final boolean isSonarCloud;
 
   public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions,
-                      SettingsWsSupport settingsWsSupport, Configuration configuration) {
+    SettingsWsSupport settingsWsSupport, Configuration configuration) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
@@ -215,19 +215,15 @@ public class ValuesAction implements SettingsWsAction {
    */
   private Multimap<String, Setting> loadComponentSettings(DbSession dbSession, Set<String> keys, ComponentDto component) {
     List<String> componentUuids = DOT_SPLITTER.splitToList(component.moduleUuidPath());
-    List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
-    Set<Long> componentIds = componentDtos.stream().map(ComponentDto::getId).collect(Collectors.toSet());
-    Map<Long, String> uuidsById = componentDtos.stream().collect(Collectors.toMap(ComponentDto::getId, ComponentDto::uuid));
-    List<PropertyDto> properties = dbClient.propertiesDao().selectPropertiesByKeysAndComponentIds(dbSession, keys, componentIds);
-    List<PropertyDto> propertySets = dbClient.propertiesDao().selectPropertiesByKeysAndComponentIds(dbSession, getPropertySetKeys(properties), componentIds);
+    List<PropertyDto> properties = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, keys, componentUuids);
+    List<PropertyDto> propertySets = dbClient.propertiesDao().selectPropertiesByKeysAndComponentUuids(dbSession, getPropertySetKeys(properties), componentUuids);
 
     Multimap<String, Setting> settingsByUuid = TreeMultimap.create(Ordering.explicit(componentUuids), Ordering.arbitrary());
     for (PropertyDto propertyDto : properties) {
-      Long componentId = propertyDto.getResourceId();
-      String componentUuid = uuidsById.get(componentId);
+      String componentUuid = propertyDto.getComponentUuid();
       String propertyKey = propertyDto.getKey();
       settingsByUuid.put(componentUuid,
-        Setting.createFromDto(propertyDto, getPropertySets(propertyKey, propertySets, componentId), propertyDefinitions.get(propertyKey)));
+        Setting.createFromDto(propertyDto, getPropertySets(propertyKey, propertySets, componentUuid), propertyDefinitions.get(propertyKey)));
     }
     return settingsByUuid;
   }
@@ -240,9 +236,9 @@ public class ValuesAction implements SettingsWsAction {
       .collect(Collectors.toSet());
   }
 
-  private static List<PropertyDto> getPropertySets(String propertyKey, List<PropertyDto> propertySets, @Nullable Long componentId) {
+  private static List<PropertyDto> getPropertySets(String propertyKey, List<PropertyDto> propertySets, @Nullable String componentUuid) {
     return propertySets.stream()
-      .filter(propertyDto -> Objects.equals(propertyDto.getResourceId(), componentId))
+      .filter(propertyDto -> Objects.equals(propertyDto.getComponentUuid(), componentUuid))
       .filter(propertyDto -> propertyDto.getKey().startsWith(propertyKey + "."))
       .collect(Collectors.toList());
   }
@@ -284,7 +280,7 @@ public class ValuesAction implements SettingsWsAction {
     private void setInherited(Setting setting, Settings.Setting.Builder valueBuilder) {
       boolean isDefault = setting.isDefault();
       boolean isGlobal = !requestedComponent.isPresent();
-      boolean isOnComponent = requestedComponent.isPresent() && Objects.equals(setting.getComponentId(), requestedComponent.get().getId());
+      boolean isOnComponent = requestedComponent.isPresent() && Objects.equals(setting.getComponentUuid(), requestedComponent.get().uuid());
       boolean isSet = isGlobal || isOnComponent;
       valueBuilder.setInherited(isDefault || !isSet);
     }

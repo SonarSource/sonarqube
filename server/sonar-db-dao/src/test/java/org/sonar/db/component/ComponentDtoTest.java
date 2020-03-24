@@ -32,7 +32,6 @@ public class ComponentDtoTest {
   @Test
   public void setters_and_getters() {
     ComponentDto componentDto = new ComponentDto()
-      .setId(1L)
       .setDbKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setName("RequestContext.java")
       .setLongName("org.struts.RequestContext")
@@ -44,7 +43,6 @@ public class ComponentDtoTest {
       .setCopyComponentUuid("uuid_5")
       .setRootUuid("uuid_3");
 
-    assertThat(componentDto.getId()).isEqualTo(1L);
     assertThat(componentDto.getDbKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(componentDto.getBranch()).isNull();
     assertThat(componentDto.name()).isEqualTo("RequestContext.java");

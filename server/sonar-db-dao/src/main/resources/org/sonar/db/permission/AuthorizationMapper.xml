@@ -9,7 +9,7 @@
     inner join groups_users gu on gr.group_id=gu.group_id
     where
     gr.organization_uuid=#{organizationUuid, jdbcType=VARCHAR} and
-    gr.resource_id is null and
+    gr.component_uuid is null and
     gu.user_id=#{userId, jdbcType=INTEGER}
 
     union
@@ -19,7 +19,7 @@
     where
     gr.organization_uuid=#{organizationUuid, jdbcType=VARCHAR} and
     gr.group_id is null and
-    gr.resource_id is null
+    gr.component_uuid is null
 
     union
 
@@ -28,7 +28,7 @@
     where
     ur.organization_uuid=#{organizationUuid, jdbcType=VARCHAR} and
     ur.user_id=#{userId, jdbcType=INTEGER}
-    and ur.resource_id is null
+    and ur.component_uuid is null
   </select>
 
   <select id="selectOrganizationPermissionsOfAnonymous" parameterType="map" resultType="string">
@@ -36,7 +36,7 @@
     from group_roles gr
     where
     gr.organization_uuid=#{organizationUuid, jdbcType=VARCHAR} and
-    gr.resource_id is null and
+    gr.component_uuid is null and
     gr.group_id is null
   </select>
 
@@ -49,7 +49,7 @@
       where
       gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
       gr.role = #{permission, jdbcType=VARCHAR} and
-      gr.resource_id is null and
+      gr.component_uuid is null and
       gr.group_id is not null and
       gr.group_id != #{excludedGroupId, jdbcType=INTEGER}
 
@@ -59,7 +59,7 @@
       from user_roles ur
       where
       ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
-      ur.resource_id is null and
+      ur.component_uuid is null and
       ur.role = #{permission, jdbcType=VARCHAR}
     ) remaining
   </select>
@@ -73,7 +73,7 @@
     where
     gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.resource_id is null and
+    gr.component_uuid is null and
     gr.group_id is not null and
     gu.user_id != #{excludedUserId, jdbcType=INTEGER}
 
@@ -83,7 +83,7 @@
     from user_roles ur
     where
     ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
-    ur.resource_id is null and
+    ur.component_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR} and
     ur.user_id != #{excludedUserId, jdbcType=INTEGER}
     ) remaining
@@ -96,7 +96,7 @@
     where
     gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.resource_id is null and
+    gr.component_uuid is null and
     gr.group_id is not null
 
     union
@@ -105,7 +105,7 @@
     from user_roles ur
     where
     ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
-    ur.resource_id is null and
+    ur.component_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR}
   </select>
 
@@ -118,7 +118,7 @@
     where
     gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.resource_id is null and
+    gr.component_uuid is null and
     gr.group_id is not null and
     (gu.group_id != #{groupId, jdbcType=INTEGER} or gu.user_id != #{userId, jdbcType=INTEGER})
 
@@ -128,7 +128,7 @@
     from user_roles ur
     where
     ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
-    ur.resource_id is null and
+    ur.component_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR}
     ) remaining
   </select>
@@ -142,7 +142,7 @@
     where
     gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.resource_id is null and
+    gr.component_uuid is null and
     gr.group_id is not null
 
     union
@@ -151,7 +151,7 @@
     from user_roles ur
     where
     ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
-    ur.resource_id is null and
+    ur.component_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR} and
     ur.user_id != #{userId, jdbcType=INTEGER}
     ) remaining
@@ -163,7 +163,7 @@
     inner join groups_users gu on gr.group_id = gu.group_id
     where
     gr.role = #{permission, jdbcType=VARCHAR} and
-    gr.resource_id is null and
+    gr.component_uuid is null and
     gr.group_id is not null and
     gu.user_id = #{userId, jdbcType=INTEGER}
 
@@ -172,14 +172,14 @@
     select ur.organization_uuid
     from user_roles ur
     where
-    ur.resource_id is null and
+    ur.component_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR} and
     ur.user_id = #{userId, jdbcType=INTEGER}
   </select>
 
-  <select id="keepAuthorizedProjectIdsForUser" parameterType="map" resultType="long">
+  <select id="keepAuthorizedProjectUuidsForUser" parameterType="map" resultType="String">
     select
-      gr.resource_id
+      gr.component_uuid
     from
       group_roles gr
     where
@@ -196,41 +196,24 @@
             and gr.group_id = gu.group_id
         )
       )
-      and <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-            gr.resource_id=#{element, jdbcType=BIGINT}
+      and <foreach collection="projectUuids" open="(" close=")" item="element" index="index" separator=" or ">
+            gr.component_uuid=#{element, jdbcType=VARCHAR}
           </foreach>
 
     union
 
     select
-      p.id
+      p.uuid
     from
       user_roles ur
     inner join components p on
-      p.id = ur.resource_id
+      p.uuid = ur.component_uuid
     where
       ur.role=#{role, jdbcType=VARCHAR}
       and ur.user_id=#{userId, jdbcType=INTEGER}
-      and <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-        p.id=#{element, jdbcType=BIGINT}
+      and <foreach collection="projectUuids" open="(" close=")" item="element" index="index" separator=" or ">
+        p.uuid=#{element, jdbcType=VARCHAR}
       </foreach>
-
-    union
-
-    <include refid="sqlSelectPublicProjectsIfRole"/>
-  </select>
-
-  <select id="keepAuthorizedProjectIdsForAnonymous" parameterType="map" resultType="long">
-    select
-      gr.resource_id
-    from
-      group_roles gr
-    where
-      gr.role=#{role, jdbcType=VARCHAR}
-      and gr.group_id is null
-      and <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-            gr.resource_id=#{element, jdbcType=BIGINT}
-          </foreach>
 
     union
 
@@ -239,70 +222,32 @@
 
   <sql id="sqlSelectPublicProjectsIfRole">
     select
-    p.id
+    p.uuid
     from
     components p
     where
-    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-      p.id=#{element ,jdbcType=BIGINT}
+    <foreach collection="projectUuids" open="(" close=")" item="element" index="index" separator=" or ">
+      p.uuid=#{element ,jdbcType=VARCHAR}
     </foreach>
     and p.private = ${_false}
     and #{role, jdbcType=VARCHAR} in ('user','codeviewer')
   </sql>
 
-  <select id="keepAuthorizedProjectUuidsForUser" parameterType="map" resultType="String">
-    select p.uuid
-    from components p
-    inner join group_roles gr on p.id = gr.resource_id
+    <select id="keepAuthorizedProjectUuidsForAnonymous" parameterType="map" resultType="String">
+    select
+      gr.component_uuid
+    from
+      group_roles gr
     where
-      gr.role = #{permission, jdbcType=VARCHAR}
-      and (gr.group_id is null or exists (
-        select 1 from groups_users gu
-        where
-          gu.user_id = #{userId, jdbcType=INTEGER}
-          and gr.group_id = gu.group_id)
-      )
-      and p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid, jdbcType=VARCHAR}</foreach>
+      gr.role=#{role, jdbcType=VARCHAR}
+      and gr.group_id is null
+      and <foreach collection="projectUuids" open="(" close=")" item="element" index="index" separator=" or ">
+            gr.component_uuid=#{element, jdbcType=VARCHAR}
+          </foreach>
 
     union
 
-    select p.uuid
-    from components p
-    inner join user_roles ur on p.id = ur.resource_id
-    where
-      ur.role=#{permission, jdbcType=VARCHAR}
-      and ur.user_id=#{userId, jdbcType=INTEGER}
-      and p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid, jdbcType=VARCHAR}</foreach>
-
-    <if test="permission == 'user' or permission == 'codeviewer'">
-      union
-
-      select p.uuid
-      from components p
-      where
-        p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid, jdbcType=VARCHAR}</foreach>
-        and p.private = ${_false}
-    </if>
-  </select>
-
-  <select id="keepAuthorizedProjectUuidsForAnonymous" parameterType="map" resultType="String">
-    select p.uuid
-    from components p
-    inner join group_roles gr on p.id = gr.resource_id
-    where
-      gr.role=#{permission, jdbcType=VARCHAR}
-      and gr.group_id is null
-      and p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid, jdbcType=VARCHAR}</foreach>
-
-    <if test="permission == 'user' or permission == 'codeviewer'">
-      union
-
-      select p.uuid
-      from components p
-      where
-      p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid, jdbcType=VARCHAR}</foreach>
-      and p.private = ${_false}
-    </if>
+    <include refid="sqlSelectPublicProjectsIfRole"/>
   </select>
 
   <select id="keepAuthorizedUsersForRoleAndProject" parameterType="map" resultType="int">
@@ -313,7 +258,7 @@
     inner join group_roles gr on
       gr.group_id=gu.group_id
     where
-      gr.resource_id=#{componentId, jdbcType=BIGINT}
+      gr.component_uuid=#{componentUuid, jdbcType=VARCHAR}
       and gr.role=#{role, jdbcType=VARCHAR}
       and gu.user_id in
         <foreach collection="userIds" open="(" close=")" item="id" separator=",">
@@ -327,7 +272,7 @@
     from
       user_roles ur
     where
-      ur.resource_id=#{componentId, jdbcType=BIGINT}
+      ur.component_uuid=#{componentUuid, jdbcType=VARCHAR}
       and ur.role=#{role, jdbcType=VARCHAR}
       and ur.user_id IN
         <foreach collection="userIds" open="(" close=")" item="id" separator=",">
@@ -351,7 +296,7 @@
         from
           components p
         where
-          p.id =#{componentId, jdbcType=BIGINT}
+          p.uuid =#{componentUuid, jdbcType=VARCHAR}
           and p.private = ${_false}
           and #{role, jdbcType=VARCHAR} in ('user','codeviewer')
       )
@@ -360,7 +305,7 @@
   <select id="selectProjectPermissions" parameterType="map" resultType="String">
     select ur.role
     from user_roles ur
-    inner join components p on p.id = ur.resource_id
+    inner join components p on p.uuid = ur.component_uuid
     where
       p.uuid = #{projectUuid, jdbcType=VARCHAR} and
       p.organization_uuid = ur.organization_uuid and
@@ -371,7 +316,7 @@
     select gr.role
     from group_roles gr
     inner join groups_users gu on gr.group_id = gu.group_id
-    inner join components p on p.id = gr.resource_id
+    inner join components p on p.uuid = gr.component_uuid
     where
       p.uuid = #{projectUuid, jdbcType=VARCHAR} and
       p.organization_uuid = gr.organization_uuid and
@@ -392,7 +337,7 @@
     from
       group_roles gr
     inner join components p on
-      p.id = gr.resource_id
+      p.uuid = gr.component_uuid
     where
       p.uuid = #{projectUuid, jdbcType=VARCHAR}
       and p.organization_uuid = gr.organization_uuid
@@ -409,7 +354,7 @@
     inner join user_roles ur on
       ur.user_id = u.id
       and ur.role=#{permission, jdbcType=VARCHAR}
-      and ur.resource_id is null
+      and ur.component_uuid is null
     where
       u.email is not null
 
@@ -425,7 +370,7 @@
     inner join group_roles gr on
       gr.group_id = gu.group_id
       and gr.role = #{permission, jdbcType=VARCHAR}
-      and gr.resource_id is null
+      and gr.component_uuid is null
     where
       u.email is not null
 
@@ -440,7 +385,7 @@
         exists (
           select 1
           from user_roles ur
-          inner join components p on p.id = ur.resource_id and p.organization_uuid = ur.organization_uuid
+          inner join components p on p.uuid = ur.component_uuid and p.organization_uuid = ur.organization_uuid
           where
             p.kee =  #{projectKey, jdbcType=VARCHAR}
             and ur.role = #{permission, jdbcType=VARCHAR}
@@ -448,7 +393,7 @@
         ) or exists (
           select 1
           from components p
-          inner join group_roles gr on gr.resource_id = p.id and gr.organization_uuid = p.organization_uuid
+          inner join group_roles gr on gr.component_uuid = p.uuid and gr.organization_uuid = p.organization_uuid
           inner join groups_users gu on gu.group_id = gr.group_id
           where
             p.kee  =  #{projectKey, jdbcType=VARCHAR}

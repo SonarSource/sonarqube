@@ -56,7 +56,7 @@ import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class AuthorizationDaoTest {
 
-  private static final Long PROJECT_ID = 300L;
+  private static final String PROJECT_UUID = "uuid";
   private static final int MISSING_ID = -1;
   private static final String A_PERMISSION = "a-permission";
   private static final String DOES_NOT_EXIST = "does-not-exist";
@@ -71,8 +71,8 @@ public class AuthorizationDaoTest {
   private UserDto user;
   private GroupDto group1;
   private GroupDto group2;
-  private Set<Long> randomPublicProjectIds;
-  private Set<Long> randomPrivateProjectIds;
+  private Set<String> randomPublicProjectUuids;
+  private Set<String> randomPrivateProjectUuids;
   private Set<Integer> randomExistingUserIds;
   private String randomPermission = "p" + random.nextInt();
 
@@ -86,13 +86,11 @@ public class AuthorizationDaoTest {
       .map(i -> db.users().insertUser().getId())
       .boxed()
       .collect(MoreCollectors.toSet());
-    randomPublicProjectIds = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
-      .mapToLong(i -> db.components().insertPublicProject(organization).getId())
-      .boxed()
+    randomPublicProjectUuids = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
+      .mapToObj(i -> db.components().insertPublicProject(organization).uuid())
       .collect(MoreCollectors.toSet());
-    randomPrivateProjectIds = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
-      .mapToLong(i -> db.components().insertPrivateProject(organization).getId())
-      .boxed()
+    randomPrivateProjectUuids = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
+      .mapToObj(i -> db.components().insertPrivateProject(organization).uuid())
       .collect(MoreCollectors.toSet());
   }
 
@@ -259,202 +257,200 @@ public class AuthorizationDaoTest {
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_group_AnyOne_if_project_set_is_empty_on_public_project() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), null, UserRole.USER))
+  public void keepAuthorizedProjectUuids_returns_empty_for_group_AnyOne_if_project_set_is_empty_on_public_project() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, Collections.emptySet(), null, UserRole.USER))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_user_if_project_set_is_empty_on_public_project() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), user.getId(), UserRole.USER))
+  public void keepAuthorizedProjectUuids_returns_empty_for_user_if_project_set_is_empty_on_public_project() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, Collections.emptySet(), user.getId(), UserRole.USER))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_group_AnyOne_for_non_existent_projects() {
-    Set<Long> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
-      .mapToLong(i -> 3_562 + i)
-      .boxed()
+  public void keepAuthorizedProjectUuids_returns_empty_for_group_AnyOne_for_non_existent_projects() {
+    Set<String> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
+      .mapToObj(i -> Integer.toString(3_562 + i))
       .collect(MoreCollectors.toSet());
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomNonProjectsSet, null, UserRole.USER))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomNonProjectsSet, null, UserRole.USER))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_user_for_non_existent_projects() {
-    Set<Long> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
-      .mapToLong(i -> 9_666 + i)
-      .boxed()
+  public void keepAuthorizedProjectUuids_returns_empty_for_user_for_non_existent_projects() {
+    Set<String> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
+      .mapToObj(i ->  Integer.toString(9_666 + i))
       .collect(MoreCollectors.toSet());
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomNonProjectsSet, user.getId(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomNonProjectsSet, user.getId(), UserRole.USER))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_any_public_project_for_group_AnyOne_without_any_permission_in_DB_and_permission_USER() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPublicProjectIds, null, UserRole.USER))
-      .containsAll(randomPublicProjectIds);
+  public void keepAuthorizedProjectUuids_returns_any_public_project_for_group_AnyOne_without_any_permission_in_DB_and_permission_USER() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPublicProjectUuids, null, UserRole.USER))
+      .containsAll(randomPublicProjectUuids);
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_any_public_project_for_user_without_any_permission_in_DB_and_permission_USER() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPublicProjectIds, user.getId(), UserRole.USER))
-      .containsAll(randomPublicProjectIds);
+  public void keepAuthorizedProjectUuids_returns_any_public_project_for_user_without_any_permission_in_DB_and_permission_USER() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPublicProjectUuids, user.getId(), UserRole.USER))
+      .containsAll(randomPublicProjectUuids);
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_any_public_project_for_group_AnyOne_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPublicProjectIds, null, UserRole.CODEVIEWER))
-      .containsAll(randomPublicProjectIds);
+  public void keepAuthorizedProjectUuids_returns_any_public_project_for_group_AnyOne_without_any_permission_in_DB_and_permission_CODEVIEWER() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPublicProjectUuids, null, UserRole.CODEVIEWER))
+      .containsAll(randomPublicProjectUuids);
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_any_public_project_for_user_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPublicProjectIds, user.getId(), UserRole.CODEVIEWER))
-      .containsAll(randomPublicProjectIds);
+  public void keepAuthorizedProjectUuids_returns_any_public_project_for_user_without_any_permission_in_DB_and_permission_CODEVIEWER() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPublicProjectUuids, user.getId(), UserRole.CODEVIEWER))
+      .containsAll(randomPublicProjectUuids);
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_other_permission_for_group_AnyOne_on_public_project_without_any_permission_in_DB() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPublicProjectIds, null, randomPermission))
+  public void keepAuthorizedProjectUuids_returns_empty_for_other_permission_for_group_AnyOne_on_public_project_without_any_permission_in_DB() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPublicProjectUuids, null, randomPermission))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_any_permission_for_user_on_public_project_without_any_permission_in_DB() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPublicProjectIds, user.getId(), randomPermission))
+  public void keepAuthorizedProjectUuids_returns_empty_for_any_permission_for_user_on_public_project_without_any_permission_in_DB() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPublicProjectUuids, user.getId(), randomPermission))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_public_project_if_user_is_granted_project_permission_directly() {
+  public void keepAuthorizedProjectUuids_returns_public_project_if_user_is_granted_project_permission_directly() {
     ComponentDto project = db.components().insertPublicProject(organization);
     ComponentDto otherProject = db.components().insertPublicProject(organization);
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), otherUser.getId(), randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), otherUser.getId(), randomPermission))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(otherProject.getId()), user.getId(), randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(otherProject.uuid()), user.getId(), randomPermission))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), user.getId(), randomPermission))
-      .containsOnly(project.getId());
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), user.getId(), "another perm"))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), user.getId(), randomPermission))
+      .containsOnly(project.uuid());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), user.getId(), "another perm"))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_public_project_if_user_is_granted_project_permission_by_group() {
+  public void keepAuthorizedProjectUuids_returns_public_project_if_user_is_granted_project_permission_by_group() {
     ComponentDto project = db.components().insertPublicProject(organization);
     ComponentDto otherProject = db.components().insertPublicProject(organization);
     UserDto otherUser = db.users().insertUser();
     db.users().insertMember(group1, user);
     db.users().insertProjectPermissionOnGroup(group1, randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), user.getId(), randomPermission))
-      .containsOnly(project.getId());
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(otherProject.getId()), user.getId(), randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), user.getId(), randomPermission))
+      .containsOnly(project.uuid());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(otherProject.uuid()), user.getId(), randomPermission))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), otherUser.getId(), randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), otherUser.getId(), randomPermission))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), user.getId(), "another perm"))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), user.getId(), "another perm"))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_public_project_if_group_AnyOne_is_granted_project_permission_directly() {
+  public void keepAuthorizedProjectUuids_returns_public_project_if_group_AnyOne_is_granted_project_permission_directly() {
     ComponentDto project = db.components().insertPublicProject(organization);
     ComponentDto otherProject = db.components().insertPublicProject(organization);
     db.users().insertProjectPermissionOnAnyone(randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), null, randomPermission))
-      .containsOnly(project.getId());
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), null, "another perm"))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), null, randomPermission))
+      .containsOnly(project.uuid());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), null, "another perm"))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(otherProject.getId()), null, randomPermission))
-      .isEmpty();
-  }
-
-  @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_user_on_private_project_without_any_permission_in_DB_and_permission_USER() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, user.getId(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(otherProject.uuid()), null, randomPermission))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_group_AnyOne_on_private_project_without_any_permission_in_DB_and_permission_USER() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, null, UserRole.USER))
+  public void keepAuthorizedProjectUuids_returns_empty_for_user_on_private_project_without_any_permission_in_DB_and_permission_USER() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPrivateProjectUuids, user.getId(), UserRole.USER))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_user_on_private_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, user.getId(), UserRole.CODEVIEWER))
+  public void keepAuthorizedProjectUuids_returns_empty_for_group_AnyOne_on_private_project_without_any_permission_in_DB_and_permission_USER() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPrivateProjectUuids, null, UserRole.USER))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_group_AnyOne_on_private_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, null, UserRole.CODEVIEWER))
+  public void keepAuthorizedProjectUuids_returns_empty_for_user_on_private_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPrivateProjectUuids, user.getId(), UserRole.CODEVIEWER))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_user_and_any_permission_on_private_project_without_any_permission_in_DB() {
+  public void keepAuthorizedProjectUuids_returns_empty_for_group_AnyOne_on_private_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPrivateProjectUuids, null, UserRole.CODEVIEWER))
+      .isEmpty();
+  }
+
+  @Test
+  public void keepAuthorizedProjectUuids_returns_empty_for_user_and_any_permission_on_private_project_without_any_permission_in_DB() {
     PermissionsTestHelper.ALL_PERMISSIONS
       .forEach(perm -> {
-        assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, user.getId(), perm))
+        assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPrivateProjectUuids, user.getId(), perm))
           .isEmpty();
       });
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, user.getId(), randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPrivateProjectUuids, user.getId(), randomPermission))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_empty_for_group_AnyOne_and_any_permission_on_private_project_without_any_permission_in_DB() {
+  public void keepAuthorizedProjectUuids_returns_empty_for_group_AnyOne_and_any_permission_on_private_project_without_any_permission_in_DB() {
     PermissionsTestHelper.ALL_PERMISSIONS
       .forEach(perm -> {
-        assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, null, perm))
+        assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPrivateProjectUuids, null, perm))
           .isEmpty();
       });
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, randomPrivateProjectIds, null, randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, randomPrivateProjectUuids, null, randomPermission))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_private_project_if_user_is_granted_project_permission_directly() {
+  public void keepAuthorizedProjectUuids_returns_private_project_if_user_is_granted_project_permission_directly() {
     ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto otherProject = db.components().insertPrivateProject(organization);
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), user.getId(), randomPermission))
-      .containsOnly(project.getId());
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), user.getId(), "another perm"))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), user.getId(), randomPermission))
+      .containsOnly(project.uuid());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), user.getId(), "another perm"))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(otherProject.getId()), user.getId(), randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(otherProject.uuid()), user.getId(), randomPermission))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), otherUser.getId(), randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), otherUser.getId(), randomPermission))
       .isEmpty();
   }
 
   @Test
-  public void keepAuthorizedProjectIds_returns_private_project_if_user_is_granted_project_permission_by_group() {
+  public void keepAuthorizedProjectUuids_returns_private_project_if_user_is_granted_project_permission_by_group() {
     ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto otherProject = db.components().insertPrivateProject(organization);
     UserDto otherUser = db.users().insertUser();
     db.users().insertMember(group1, user);
     db.users().insertProjectPermissionOnGroup(group1, randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), user.getId(), randomPermission))
-      .containsOnly(project.getId());
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), user.getId(), "another perm"))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), user.getId(), randomPermission))
+      .containsOnly(project.uuid());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), user.getId(), "another perm"))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(otherProject.getId()), user.getId(), randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(otherProject.uuid()), user.getId(), randomPermission))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, singleton(project.getId()), otherUser.getId(), randomPermission))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, singleton(project.uuid()), otherUser.getId(), randomPermission))
       .isEmpty();
   }
 
@@ -470,14 +466,14 @@ public class AuthorizationDaoTest {
     db.users().insertMember(group, user);
     db.users().insertProjectPermissionOnGroup(group, UserRole.USER, project1);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project2.getId(), project3.getId()), user.getId(), UserRole.USER))
-      .containsOnly(project2.getId(), project3.getId());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(project2.uuid(), project3.uuid()), user.getId(), UserRole.USER))
+      .containsOnly(project2.uuid(), project3.uuid());
 
     // user does not have the role "admin"
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project2.getId()), user.getId(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(project2.uuid()), user.getId(), UserRole.ADMIN))
       .isEmpty();
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), user.getId(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, Collections.emptySet(), user.getId(), UserRole.ADMIN))
       .isEmpty();
   }
 
@@ -493,11 +489,11 @@ public class AuthorizationDaoTest {
     db.users().insertProjectPermissionOnGroup(group, UserRole.USER, project2);
     db.users().insertProjectPermissionOnGroup(group, UserRole.USER, project3);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project2.getId(), project3.getId()), user1.getId(), UserRole.USER))
-      .containsOnly(project2.getId(), project3.getId());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(project2.uuid(), project3.uuid()), user1.getId(), UserRole.USER))
+      .containsOnly(project2.uuid(), project3.uuid());
 
     // group does not have the role "admin"
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project2.getId(), project3.getId()), user1.getId(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(project2.uuid(), project3.uuid()), user1.getId(), UserRole.ADMIN))
       .isEmpty();
   }
 
@@ -509,21 +505,12 @@ public class AuthorizationDaoTest {
     GroupDto group = db.users().insertGroup(organization);
     db.users().insertMembers(group, user1);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId(), project2.getId()), null, UserRole.USER))
-      .containsOnly(project1.getId(), project2.getId());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(project1.uuid(), project2.uuid()), null, UserRole.USER))
+      .containsOnly(project1.uuid(), project2.uuid());
 
     // group does not have the role "admin"
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId()), null, "admin"))
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(project1.uuid()), null, "admin"))
       .isEmpty();
-  }
-
-  @Test
-  public void keepAuthorizedProjectIds_should_be_able_to_handle_lots_of_projects() {
-    List<ComponentDto> projects = IntStream.range(0, 2000).mapToObj(i -> db.components().insertPublicProject(organization)).collect(Collectors.toList());
-
-    Collection<Long> ids = projects.stream().map(ComponentDto::getId).collect(Collectors.toSet());
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, ids, null, UserRole.USER))
-      .containsOnly(ids.toArray(new Long[0]));
   }
 
   @Test
@@ -540,7 +527,7 @@ public class AuthorizationDaoTest {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPublicProject(organization);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, Collections.emptySet(), UserRole.USER, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, Collections.emptySet(), UserRole.USER, project.uuid()))
       .isEmpty();
   }
 
@@ -552,7 +539,7 @@ public class AuthorizationDaoTest {
       .boxed()
       .collect(MoreCollectors.toSet());
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomNonExistingUserIdsSet, UserRole.USER, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomNonExistingUserIdsSet, UserRole.USER, project.uuid()))
       .isEmpty();
   }
 
@@ -560,7 +547,7 @@ public class AuthorizationDaoTest {
   public void keepAuthorizedUsersForRoleAndProject_returns_any_users_for_public_project_without_any_permission_in_DB_and_permission_USER() {
     ComponentDto project = db.components().insertPublicProject(organization);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, UserRole.USER, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, UserRole.USER, project.uuid()))
       .containsAll(randomExistingUserIds);
   }
 
@@ -568,7 +555,7 @@ public class AuthorizationDaoTest {
   public void keepAuthorizedUsersForRoleAndProject_returns_any_users_for_public_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
     ComponentDto project = db.components().insertPublicProject(organization);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, UserRole.CODEVIEWER, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, UserRole.CODEVIEWER, project.uuid()))
       .containsAll(randomExistingUserIds);
   }
 
@@ -576,7 +563,7 @@ public class AuthorizationDaoTest {
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_any_users_on_public_project_without_any_permission_in_DB() {
     ComponentDto project = db.components().insertPublicProject(organization);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, randomPermission, project.uuid()))
       .isEmpty();
   }
 
@@ -587,13 +574,13 @@ public class AuthorizationDaoTest {
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.uuid()))
       .containsOnly(user.getId());
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.uuid()))
       .isEmpty();
   }
 
@@ -605,13 +592,13 @@ public class AuthorizationDaoTest {
     db.users().insertMember(group1, user);
     db.users().insertProjectPermissionOnGroup(group1, randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.uuid()))
       .containsOnly(user.getId());
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.uuid()))
       .isEmpty();
   }
 
@@ -622,13 +609,13 @@ public class AuthorizationDaoTest {
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnAnyone(randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.uuid()))
       .isEmpty();
   }
 
@@ -636,7 +623,7 @@ public class AuthorizationDaoTest {
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_any_user_on_private_project_without_any_permission_in_DB_and_permission_USER() {
     ComponentDto project = db.components().insertPrivateProject(organization);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, UserRole.USER, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, UserRole.USER, project.uuid()))
       .isEmpty();
   }
 
@@ -644,7 +631,7 @@ public class AuthorizationDaoTest {
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_any_user_on_private_project_without_any_permission_in_DB_and_permission_CODEVIEWER() {
     ComponentDto project = db.components().insertPrivateProject(organization);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, UserRole.CODEVIEWER, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, UserRole.CODEVIEWER, project.uuid()))
       .isEmpty();
   }
 
@@ -654,10 +641,10 @@ public class AuthorizationDaoTest {
 
     PermissionsTestHelper.ALL_PERMISSIONS
       .forEach(perm -> {
-        assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, perm, project.getId()))
+        assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, perm, project.uuid()))
           .isEmpty();
       });
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, randomExistingUserIds, randomPermission, project.uuid()))
       .isEmpty();
   }
 
@@ -668,13 +655,13 @@ public class AuthorizationDaoTest {
     UserDto otherUser = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.uuid()))
       .containsOnly(user.getId());
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.uuid()))
       .isEmpty();
   }
 
@@ -686,13 +673,13 @@ public class AuthorizationDaoTest {
     db.users().insertMember(group1, user);
     db.users().insertProjectPermissionOnGroup(group1, randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, project.uuid()))
       .containsOnly(user.getId());
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), "another perm", project.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(user.getId()), randomPermission, otherProject.uuid()))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.getId()))
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, singleton(otherUser.getId()), randomPermission, project.uuid()))
       .isEmpty();
   }
 
@@ -715,7 +702,7 @@ public class AuthorizationDaoTest {
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
       // Only 100 and 101 has 'user' role on project
-      newHashSet(100, 101, 102), "user", PROJECT_ID)).isEmpty();
+      newHashSet(100, 101, 102), "user", PROJECT_UUID)).isEmpty();
   }
 
   @Test
@@ -723,7 +710,7 @@ public class AuthorizationDaoTest {
     List<UserDto> users = IntStream.range(0, 2000).mapToObj(i -> db.users().insertUser()).collect(Collectors.toList());
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
-      users.stream().map(UserDto::getId).collect(Collectors.toSet()), "user", PROJECT_ID)).isEmpty();
+      users.stream().map(UserDto::getId).collect(Collectors.toSet()), "user", PROJECT_UUID)).isEmpty();
   }
 
   @Test

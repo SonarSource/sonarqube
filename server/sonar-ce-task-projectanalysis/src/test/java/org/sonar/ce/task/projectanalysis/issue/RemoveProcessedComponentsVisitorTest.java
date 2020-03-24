@@ -57,7 +57,7 @@ public class RemoveProcessedComponentsVisitorTest {
   @Test
   public void also_remove_moved_files() {
     String uuid2 = "uuid2";
-    OriginalFile movedFile = new OriginalFile(0, uuid2, "key");
+    OriginalFile movedFile = new OriginalFile(uuid2, "key");
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.of(movedFile));
 
     underTest.afterComponent(component);

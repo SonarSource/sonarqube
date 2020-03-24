@@ -23,15 +23,10 @@ import javax.annotation.CheckForNull;
 
 public class ProjectQprofileAssociationDto {
 
-  private Long projectId;
   private String projectUuid;
   private String projectKey;
   private String projectName;
   private String profileKey;
-
-  public Long getProjectId() {
-    return projectId;
-  }
 
   public String getProjectUuid() {
     return projectUuid;

@@ -7,7 +7,7 @@
     select
       u.id as userId,
       ur.organization_uuid as organizationUuid,
-      ur.resource_id as componentId,
+      ur.component_uuid as componentUuid,
       ur.role as permission
     <include refid="sqlQueryJoins" />
     <where>
@@ -33,14 +33,14 @@
     from users u
     left join user_roles ur on ur.user_id = u.id and ur.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <choose>
-      <when test="query.componentId == null">
-        and ur.resource_id is null
+      <when test="query.componentUuid == null">
+        and ur.component_uuid is null
       </when>
       <otherwise>
-        and ur.resource_id = #{query.componentId,jdbcType=BIGINT}
+        and ur.component_uuid = #{query.componentUuid,jdbcType=VARCHAR}
       </otherwise>
     </choose>
-    left join components p on ur.resource_id = p.id
+    left join components p on ur.component_uuid = p.uuid
     inner join organization_members om on u.id=om.user_id and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <where>
       <include refid="sqlQueryFilters" />
@@ -60,7 +60,7 @@
   <sql id="sqlQueryJoins">
     from users u
     left join user_roles ur on ur.user_id = u.id
-    left join components p on ur.resource_id = p.id
+    left join components p on ur.component_uuid = p.uuid
     inner join organization_members om on u.id=om.user_id and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
   </sql>
 
@@ -77,7 +77,7 @@
       and ur.organization_uuid = om.organization_uuid
       and ur.role is not null
       <if test="query.componentUuid==null">
-        and ur.resource_id is null
+        and ur.component_uuid is null
       </if>
       <if test="query.componentUuid!=null">
         and p.uuid = #{query.componentUuid,jdbcType=VARCHAR}
@@ -94,7 +94,7 @@
     where
     ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     ur.user_id = #{userId,jdbcType=INTEGER} and
-    ur.resource_id is null
+    ur.component_uuid is null
   </select>
 
   <select id="selectProjectPermissionsOfUser" parameterType="map" resultType="string">
@@ -102,17 +102,17 @@
     from user_roles ur
     where
     ur.user_id = #{userId,jdbcType=INTEGER} and
-    ur.resource_id = #{projectId,jdbcType=BIGINT}
+    ur.component_uuid = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="countUsersByProjectPermission" resultType="org.sonar.db.permission.CountPerProjectPermission">
-    select ur.resource_id as componentId, ur.role as permission, count(u.login) as count
+    select ur.component_uuid as componentUuid, ur.role as permission, count(u.login) as count
     from users u
     inner join user_roles ur on ur.user_id = u.id
-    inner join components p on p.id = ur.resource_id
+    inner join components p on p.uuid = ur.component_uuid
     where u.active = ${_true}
-    and p.id in <foreach collection="projectIds" open="(" close=")" item="projectId" separator=",">#{projectId}</foreach>
-    group by ur.resource_id, ur.role
+    and p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" separator=",">#{projectUuid}</foreach>
+    group by ur.component_uuid, ur.role
   </select>
 
   <select id="selectUserIdsWithPermissionOnProjectBut" resultType="Integer">
@@ -121,7 +121,7 @@
     from
       user_roles ur1
     where
-      ur1.resource_id = #{projectId,jdbcType=BIGINT}
+      ur1.component_uuid = #{projectUuid,jdbcType=VARCHAR}
       and role &lt;&gt; #{permission,jdbcType=VARCHAR}
       and not exists (
         select
@@ -129,7 +129,7 @@
         from
           user_roles ur2
         where
-          ur2.resource_id = ur1.resource_id
+          ur2.component_uuid = ur1.component_uuid
           and ur2.user_id = ur1.user_id
           and role = #{permission,jdbcType=VARCHAR}
       )
@@ -139,12 +139,12 @@
     insert into user_roles (
     organization_uuid,
     user_id,
-    resource_id,
+    component_uuid,
     role
     ) values (
     #{organizationUuid,jdbcType=VARCHAR},
     #{userId,jdbcType=INTEGER},
-    #{componentId,jdbcType=BIGINT},
+    #{componentUuid,jdbcType=VARCHAR},
     #{permission,jdbcType=VARCHAR}
     )
   </insert>
@@ -155,7 +155,7 @@
     role = #{permission,jdbcType=VARCHAR} and
     user_id = #{userId,jdbcType=INTEGER} and
     organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
-    resource_id is null
+    component_uuid is null
   </delete>
 
   <delete id="deleteProjectPermission" parameterType="map">
@@ -163,20 +163,20 @@
     where
     role = #{permission,jdbcType=VARCHAR} and
     user_id = #{userId,jdbcType=INTEGER} and
-    resource_id = #{projectId,jdbcType=BIGINT}
+    component_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteProjectPermissions" parameterType="map">
     delete from user_roles
     where
-    resource_id = #{projectId,jdbcType=BIGINT}
+    component_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteProjectPermissionOfAnyUser" parameterType="map">
     delete from
       user_roles
     where
-      resource_id = #{projectId,jdbcType=BIGINT}
+      component_uuid = #{projectUuid,jdbcType=VARCHAR}
       and role = #{permission,jdbcType=VARCHAR}
   </delete>
 

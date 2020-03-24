@@ -100,7 +100,7 @@ public class MovedIssueVisitorTest {
     DefaultIssue issue = mockIssue("other component uuid");
     when(issue.toString()).thenReturn("[bad issue, bad!]");
     when(movedFilesRepository.getOriginalFile(FILE))
-      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(6451, "original uuid", "original key")));
+      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile("original uuid", "original key")));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Issue [bad issue, bad!] doesn't belong to file original uuid registered as original " +
@@ -111,7 +111,7 @@ public class MovedIssueVisitorTest {
 
   @Test
   public void onIssue_update_component_and_module_fields_to_component_and_flag_issue_has_changed() {
-    MovedFilesRepository.OriginalFile originalFile = new MovedFilesRepository.OriginalFile(6451, "original uuid", "original key");
+    MovedFilesRepository.OriginalFile originalFile = new MovedFilesRepository.OriginalFile("original uuid", "original key");
     DefaultIssue issue = mockIssue(originalFile.getUuid());
     when(movedFilesRepository.getOriginalFile(FILE))
       .thenReturn(Optional.of(originalFile));

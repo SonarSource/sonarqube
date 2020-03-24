@@ -27,17 +27,17 @@ import javax.annotation.Nullable;
  */
 public class ProjectQgateAssociationDto {
 
-  private Long id;
+  private String uuid;
   private String key;
   private String name;
   private String gateId;
 
-  public Long getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public ProjectQgateAssociationDto setId(Long id) {
-    this.id = id;
+  public ProjectQgateAssociationDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

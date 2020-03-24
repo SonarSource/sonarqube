@@ -42,7 +42,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
-import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
@@ -147,19 +146,6 @@ public class DeselectActionTest {
   }
 
   @Test
-  public void fail_when_no_project_id() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
-
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
-      .setParam("projectId", valueOf((Long) 1L))
-      .setParam("organization", organization.getKey())
-      .execute();
-  }
-
-  @Test
   public void fail_when_no_project_key() {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
@@ -232,22 +218,6 @@ public class DeselectActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_id() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.getId()));
-
-    ws.newRequest()
-      .setParam("projectId", String.valueOf(branch.getId()))
-      .setParam("organization", organization.getKey())
-      .execute();
-  }
-
-  @Test
   public void definition() {
     WebService.Action def = ws.getDef();
 
@@ -255,13 +225,13 @@ public class DeselectActionTest {
     assertThat(def.isPost()).isTrue();
     assertThat(def.since()).isEqualTo("4.3");
     assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
-      tuple("6.6", "The parameter 'gateId' was removed"));
+      tuple("6.6", "The parameter 'gateId' was removed"),
+      tuple("8.3", "The parameter 'projectId' was removed"));
 
     assertThat(def.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("projectKey", false),
-        tuple("projectId", false),
+        tuple("projectKey", true),
         tuple("organization", false));
   }
 

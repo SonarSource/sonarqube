@@ -241,9 +241,9 @@ public class UserUpdaterUpdateTest {
     ComponentDto anotherProject = db.components().insertPrivateProject();
     db.properties().insertProperties(
       new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()),
-      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setResourceId(project1.getId()),
-      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setResourceId(project2.getId()),
-      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setResourceId(anotherProject.getId()));
+      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project1.uuid()),
+      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue(oldUser.getLogin()).setComponentUuid(project2.uuid()),
+      new PropertyDto().setKey(DEFAULT_ISSUE_ASSIGNEE).setValue("another login").setComponentUuid(anotherProject.uuid()));
     userIndexer.indexOnStartup(null);
 
     underTest.updateAndCommit(session, oldUser, new UpdateUser()
@@ -251,12 +251,12 @@ public class UserUpdaterUpdateTest {
       });
 
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setKey(DEFAULT_ISSUE_ASSIGNEE).build(), db.getSession()))
-      .extracting(PropertyDto::getValue, PropertyDto::getResourceId)
+      .extracting(PropertyDto::getValue, PropertyDto::getComponentUuid)
       .containsOnly(
         tuple("new_login", null),
-        tuple("new_login", project1.getId()),
-        tuple("new_login", project2.getId()),
-        tuple("another login", anotherProject.getId()));
+        tuple("new_login", project1.uuid()),
+        tuple("new_login", project2.uuid()),
+        tuple("another login", anotherProject.uuid()));
   }
 
   @Test

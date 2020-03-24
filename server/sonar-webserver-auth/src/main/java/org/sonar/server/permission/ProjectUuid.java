@@ -17,23 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.purge;
+package org.sonar.server.permission;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.annotation.concurrent.Immutable;
+import org.sonar.db.component.ComponentDto;
 
-class IdUuidPairs {
-  private IdUuidPairs() {
-    // prevents instantiation
+import static java.util.Objects.requireNonNull;
+
+/**
+ * Reference to a project by its db  uuid.
+ *
+ */
+@Immutable
+public class ProjectUuid {
+
+  private final String uuid;
+  private final boolean isPrivate;
+
+  public ProjectUuid(ComponentDto project) {
+    this.uuid = requireNonNull(project.uuid());
+    this.isPrivate = project.isPrivate();
   }
 
-  public static List<Long> ids(List<IdUuidPair> pairs) {
-    return pairs.stream().map(IdUuidPair::getId).collect(Collectors.toCollection(() -> new ArrayList<>(pairs.size())));
+  public String getUuid() {
+    return uuid;
   }
 
-  public static List<String> uuids(List<IdUuidPair> pairs) {
-    return pairs.stream().map(IdUuidPair::getUuid).collect(Collectors.toCollection(() -> new ArrayList<>(pairs.size())));
+  public boolean isPrivate() {
+    return isPrivate;
   }
-
 }

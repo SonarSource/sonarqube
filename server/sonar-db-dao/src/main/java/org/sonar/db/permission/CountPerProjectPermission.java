@@ -25,7 +25,7 @@ import com.google.common.annotations.VisibleForTesting;
  * Count the number of users or groups for a given project and permission
  */
 public class CountPerProjectPermission {
-  private long componentId;
+  private String componentUuid;
   private String permission;
   private int count;
 
@@ -34,14 +34,14 @@ public class CountPerProjectPermission {
   }
 
   @VisibleForTesting
-  CountPerProjectPermission(long componentId, String permission, int count) {
-    this.componentId = componentId;
+  CountPerProjectPermission(String componentUuid, String permission, int count) {
+    this.componentUuid = componentUuid;
     this.permission = permission;
     this.count = count;
   }
 
-  public long getComponentId() {
-    return componentId;
+  public String getComponentUuid() {
+    return componentUuid;
   }
 
   public String getPermission() {

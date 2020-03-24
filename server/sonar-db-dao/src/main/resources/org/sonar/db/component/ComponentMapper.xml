@@ -3,7 +3,6 @@
 <mapper namespace="org.sonar.db.component.ComponentMapper">
 
   <sql id="componentColumns">
-    p.id,
     p.organization_uuid as organizationUuid,
     p.uuid as uuid,
     p.uuid_path as uuidPath,
@@ -54,13 +53,6 @@
       (p.kee=#{dbKey,jdbcType=VARCHAR} OR p.kee=#{key,jdbcType=VARCHAR})
       and pb.kee=#{branch,jdbcType=VARCHAR}
       and pb.branch_type='PULL_REQUEST'
-  </select>
-
-  <select id="selectById" parameterType="long" resultType="Component">
-    SELECT
-    <include refid="componentColumns"/>
-    FROM components p
-    where p.id = #{id,jdbcType=BIGINT}
   </select>
 
   <select id="selectByUuid" parameterType="String" resultType="Component">
@@ -129,18 +121,6 @@
     </foreach>
     AND pb.kee=#{branch,jdbcType=VARCHAR}
     </where>
-  </select>
-
-  <select id="selectByIds" parameterType="long" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from components p
-    where
-      p.enabled=${_true}
-      and p.id in
-      <foreach collection="ids" open="(" close=")" item="id" separator=",">
-        #{id,jdbcType=BIGINT}
-      </foreach>
   </select>
 
   <select id="selectByUuids" parameterType="String" resultType="Component">
@@ -285,13 +265,13 @@
       and p.qualifier = 'BRC'
   </select>
 
-  <select id="countComponentByOrganizationAndId" resultType="int">
+  <select id="countComponentByOrganizationAndUuid" resultType="int">
     select
       count(1)
     from components p
     where
       p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-      and p.id = #{componentId,jdbcType=BIGINT}
+      and p.uuid = #{componentUuid,jdbcType=BIGINT}
   </select>
 
   <select id="selectByQuery" resultType="Component">
@@ -302,7 +282,7 @@
   </select>
 
   <select id="countByQuery" resultType="int">
-    select count(p.id)
+    select count(p.uuid)
     <include refid="sqlSelectByQuery"/>
   </select>
 
@@ -324,12 +304,6 @@
           <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
             #{qualifier,jdbcType=VARCHAR}
           </foreach>
-      </if>
-      <if test="query.componentIds!=null">
-        and p.id in
-        <foreach collection="query.componentIds" item="componentId" open="(" close=")" separator=",">
-          #{componentId,jdbcType=BIGINT}
-        </foreach>
       </if>
       <if test="query.componentKeys!=null">
         and p.kee in
@@ -549,7 +523,6 @@
 
   <select id="scrollAllFilesForFileMove" parameterType="map" resultType="org.sonar.db.component.FileMoveRowDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
-      p.id,
       p.uuid as uuid,
       p.kee as kee,
       p.path as path,
@@ -565,7 +538,7 @@
       and p.path is not null
   </select>
 
-  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Component">
     INSERT INTO components (
       organization_uuid,
       kee,
@@ -740,8 +713,8 @@
       and private &lt;&gt; #{isPrivate,jdbcType=BOOLEAN}
   </update>
 
-  <delete id="delete" parameterType="long">
-    DELETE FROM components WHERE id=#{id,jdbcType=BIGINT}
+  <delete id="delete" parameterType="String">
+    DELETE FROM components WHERE uuid=#{componentUuid,jdbcType=VARCHAR}
   </delete>
 
   <select id="selectAllSiblingComponentKeysHavingOpenIssues" resultType="KeyWithUuid">

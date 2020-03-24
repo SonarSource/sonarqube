@@ -34,7 +34,6 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.DefaultBranchImpl;
-import org.sonar.ce.task.projectanalysis.component.MutableDbIdsRepositoryRule;
 import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ProjectViewAttributes;
@@ -85,8 +84,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
-  public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
-  @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setOrganizationUuid(ORGANIZATION_UUID, QUALITY_GATE_UUID);
 
@@ -106,7 +103,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);
-    underTest = new PersistComponentsStep(dbClient, treeRootHolder, dbIdsRepository, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, system2, disabledComponentsHolder, analysisMetadataHolder, branchPersister, projectPersister);
   }
 
   @Override

@@ -35,13 +35,13 @@ import static java.util.Objects.requireNonNull;
 
 final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, PropertiesRow> {
 
-  PropertiesRowAssert(DbTester dbTester, String propertyKey, @Nullable Integer userId, @Nullable Integer componentId) {
+  PropertiesRowAssert(DbTester dbTester, String propertyKey, @Nullable Integer userId, @Nullable String componentUuid) {
     super(
       asInternalProperty(
         dbTester,
         () -> " where prop_key='" + propertyKey + "'" +
           " and user_id" + (userId == null ? " is null" : "='" + userId + "'") +
-          " and resource_id" + (componentId == null ? " is null" : "='" + componentId + "'")),
+          " and component_uuid" + (componentUuid == null ? " is null" : "='" + componentUuid + "'")),
       PropertiesRowAssert.class);
   }
 
@@ -58,7 +58,8 @@ final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, Prop
     String whereClause = whereClauseSupplier.get();
     List<Map<String, Object>> rows = dbTester.select(
       "select" +
-        " prop_key as \"key\", user_id as \"userId\", resource_id as \"resourceId\", is_empty as \"isEmpty\", text_value as \"textValue\", clob_value as \"clobValue\", created_at as \"createdAt\""
+        " prop_key as \"key\", user_id as \"userId\", component_uuid as \"componentUuid\", is_empty as \"isEmpty\", "
+        + "text_value as \"textValue\", clob_value as \"clobValue\", created_at as \"createdAt\""
         +
         " from properties" +
         whereClause);
@@ -71,7 +72,7 @@ final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, Prop
       return new PropertiesRow(
         (String) row.get("key"),
         userId == null ? null : userId.intValue(),
-        (Long) row.get("resourceId"),
+        (String) row.get("componentUuid"),
         toBoolean(row.get("isEmpty")),
         (String) row.get("textValue"),
         (String) row.get("clobValue"),
@@ -124,21 +125,21 @@ final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, Prop
     return this;
   }
 
-  public PropertiesRowAssert hasNoResourceId() {
+  public PropertiesRowAssert hasNoComponentUuid() {
     isNotNull();
 
-    if (actual.getResourceId() != null) {
-      failWithMessage("Expected PropertiesRow to have column RESOURCE_ID to be null but was <%s>", actual.getResourceId());
+    if (actual.getComponentUuid() != null) {
+      failWithMessage("Expected PropertiesRow to have column COMPONENT_UUID to be null but was <%s>", actual.getComponentUuid());
     }
 
     return this;
   }
 
-  public PropertiesRowAssert hasResourceId(long expected) {
+  public PropertiesRowAssert hasComponentUuid(String expected) {
     isNotNull();
 
-    if (!Objects.equals(actual.getResourceId(), expected)) {
-      failWithMessage("Expected PropertiesRow to have column RESOURCE_ID to be <%s> but was <%s>", true, actual.getResourceId());
+    if (!Objects.equals(actual.getComponentUuid(), expected)) {
+      failWithMessage("Expected PropertiesRow to have column COMPONENT_UUID to be <%s> but was <%s>", true, actual.getComponentUuid());
     }
 
     return this;

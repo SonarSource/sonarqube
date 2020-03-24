@@ -136,22 +136,6 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).selectOrganizationUuidsOfUserWithGlobalPermission(userId, permission);
   }
 
-  /**
-   * @deprecated replaced by {@link #keepAuthorizedProjectUuids(DbSession, Collection, Integer, String)}
-   */
-  @Deprecated
-  public Set<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String permission) {
-    return executeLargeInputsIntoSet(
-      componentIds,
-      partition -> {
-        if (userId == null) {
-          return mapper(dbSession).keepAuthorizedProjectIdsForAnonymous(permission, partition);
-        }
-        return mapper(dbSession).keepAuthorizedProjectIdsForUser(userId, permission, partition);
-      },
-      partitionSize -> partitionSize / 2);
-  }
-
   public Set<String> keepAuthorizedProjectUuids(DbSession dbSession, Collection<String> projectUuids, @Nullable Integer userId, String permission) {
     return executeLargeInputsIntoSet(
       projectUuids,
@@ -168,10 +152,10 @@ public class AuthorizationDao implements Dao {
    * Keep only authorized user that have the given permission on a given project.
    * Please Note that if the permission is 'Anyone' is NOT taking into account by this method.
    */
-  public Collection<Integer> keepAuthorizedUsersForRoleAndProject(DbSession dbSession, Collection<Integer> userIds, String role, long projectId) {
+  public Collection<Integer> keepAuthorizedUsersForRoleAndProject(DbSession dbSession, Collection<Integer> userIds, String role, String projectUuid) {
     return executeLargeInputs(
       userIds,
-      partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndProject(role, projectId, partitionOfIds),
+      partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndProject(role, projectUuid, partitionOfIds),
       partitionSize -> partitionSize / 3);
   }
 

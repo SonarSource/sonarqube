@@ -34,22 +34,22 @@ public class PropertyDtoTest {
 
   @Test
   public void testEquals() {
-    assertThat(new PropertyDto().setKey("123").setResourceId(123L)).isEqualTo(new PropertyDto().setKey("123").setResourceId(123L));
-    assertThat(new PropertyDto().setKey("1234").setResourceId(123L)).isNotEqualTo(new PropertyDto().setKey("123").setResourceId(123L));
-    assertThat(new PropertyDto().setKey("1234").setResourceId(123L)).isNotEqualTo(null);
-    assertThat(new PropertyDto().setKey("1234").setResourceId(123L)).isNotEqualTo(new Object());
+    assertThat(new PropertyDto().setKey("123").setComponentUuid("uuid123")).isEqualTo(new PropertyDto().setKey("123").setComponentUuid("uuid123"));
+    assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotEqualTo(new PropertyDto().setKey("123").setComponentUuid("uuid123"));
+    assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotEqualTo(null);
+    assertThat(new PropertyDto().setKey("1234").setComponentUuid("uuid123")).isNotEqualTo(new Object());
   }
 
   @Test
   public void testHashCode() {
-    assertThat(new PropertyDto().setKey("123").setResourceId(123L).hashCode()).isNotNull();
-    assertThat(new PropertyDto().setKey("123").setResourceId(123L).hashCode())
-      .isEqualTo(new PropertyDto().setKey("123").setResourceId(123L).hashCode());
+    assertThat(new PropertyDto().setKey("123").setComponentUuid("uuid123").hashCode()).isNotNull();
+    assertThat(new PropertyDto().setKey("123").setComponentUuid("uuid123").hashCode())
+      .isEqualTo(new PropertyDto().setKey("123").setComponentUuid("uuid123").hashCode());
   }
 
   @Test
   public void testToString() {
-    assertThat(new PropertyDto().setKey("foo:bar").setValue("value").setResourceId(123L).setUserId(456).toString()).isEqualTo("PropertyDto{foo:bar, value, 123, 456}");
+    assertThat(new PropertyDto().setKey("foo:bar").setValue("value").setComponentUuid("uuid123").setUserId(456).toString()).isEqualTo("PropertyDto{foo:bar, value, uuid123, 456}");
   }
 
   @Test

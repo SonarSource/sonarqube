@@ -84,8 +84,8 @@ public class AddActionTest {
     assertThat(favorites).hasSize(1);
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
-      .extracting(PropertyDto::getResourceId, PropertyDto::getUserId, PropertyDto::getKey)
-      .containsOnly(project.getId(), user.getId(), "favourite");
+      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getKey)
+      .containsOnly(project.uuid(), user.getId(), "favourite");
   }
 
   @Test
@@ -104,8 +104,8 @@ public class AddActionTest {
     assertThat(favorites).hasSize(1);
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
-      .extracting(PropertyDto::getResourceId, PropertyDto::getUserId, PropertyDto::getKey)
-      .containsOnly(file.getId(), user.getId(), "favourite");
+      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getKey)
+      .containsOnly(file.uuid(), user.getId(), "favourite");
   }
 
   @Test

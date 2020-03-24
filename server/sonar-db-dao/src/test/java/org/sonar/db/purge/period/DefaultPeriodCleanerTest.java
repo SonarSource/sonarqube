@@ -28,7 +28,6 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
-import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeableAnalysisDto;
@@ -58,9 +57,9 @@ public class DefaultPeriodCleanerTest {
 
     InOrder inOrder = Mockito.inOrder(dao, filter1, filter2);
     inOrder.verify(filter1).log();
-    inOrder.verify(dao, times(1)).deleteAnalyses(eq(session), eq(profiler), eq(ImmutableList.of(new IdUuidPair(999, "u999"))));
+    inOrder.verify(dao, times(1)).deleteAnalyses(eq(session), eq(profiler), eq(ImmutableList.of("u999")));
     inOrder.verify(filter2).log();
-    inOrder.verify(dao, times(1)).deleteAnalyses(eq(session), eq(profiler), eq(ImmutableList.of(new IdUuidPair(456, "u456"))));
+    inOrder.verify(dao, times(1)).deleteAnalyses(eq(session), eq(profiler), eq(ImmutableList.of( "u456")));
     inOrder.verifyNoMoreInteractions();
   }
 

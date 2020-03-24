@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission;
 
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.permission.OrganizationPermission;
@@ -37,16 +36,16 @@ public abstract class PermissionChange {
   private final Operation operation;
   private final String organizationUuid;
   private final String permission;
-  private final ProjectId projectId;
+  private final ProjectUuid projectUuid;
   protected final PermissionService permissionService;
 
-  public PermissionChange(Operation operation, String organizationUuid, String permission, @Nullable ProjectId projectId, PermissionService permissionService) {
+  public PermissionChange(Operation operation, String organizationUuid, String permission, @Nullable ProjectUuid projectUuid, PermissionService permissionService) {
     this.operation = requireNonNull(operation);
     this.organizationUuid = requireNonNull(organizationUuid);
     this.permission = requireNonNull(permission);
-    this.projectId = projectId;
+    this.projectUuid = projectUuid;
     this.permissionService = permissionService;
-    if (projectId == null) {
+    if (projectUuid == null) {
       checkRequest(permissionService.getAllOrganizationPermissions().stream().anyMatch(p -> p.getKey().equals(permission)),
         "Invalid global permission '%s'. Valid values are %s", permission,
         permissionService.getAllOrganizationPermissions().stream().map(OrganizationPermission::getKey).collect(toList()));
@@ -68,23 +67,13 @@ public abstract class PermissionChange {
     return permission;
   }
 
-  public Optional<ProjectId> getProjectId() {
-    return Optional.ofNullable(projectId);
+  @CheckForNull
+  public ProjectUuid getProject() {
+    return projectUuid;
   }
 
-  /**
-   * Shortcut based on {@link #getProjectId()}
-   */
   @CheckForNull
   public String getProjectUuid() {
-    return projectId == null ? null : projectId.getUuid();
-  }
-
-  /**
-   * Shortcut based on {@link #getProjectId()}
-   */
-  @CheckForNull
-  public Long getNullableProjectId() {
-    return projectId == null ? null : projectId.getId();
+    return projectUuid == null ? null : projectUuid.getUuid();
   }
 }

@@ -32,7 +32,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ProjectId;
+import org.sonar.server.permission.ProjectUuid;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
@@ -104,14 +104,14 @@ public class AddUserAction implements PermissionsWsAction {
       checkArgument(organizationKey == null || org.getKey().equals(organizationKey), "Organization key is incorrect.");
       wsSupport.checkMembership(dbSession, org, user);
 
-      Optional<ProjectId> projectId = project.map(ProjectId::new);
-      checkProjectAdmin(userSession, org.getUuid(), projectId);
+      Optional<ProjectUuid> projectUuid = project.map(ProjectUuid::new);
+      checkProjectAdmin(userSession, org.getUuid(), projectUuid);
 
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.ADD,
         org.getUuid(),
         request.mandatoryParam(PARAM_PERMISSION),
-        projectId.orElse(null),
+        projectUuid.orElse(null),
         user, permissionService);
       permissionUpdater.apply(dbSession, singletonList(change));
     }

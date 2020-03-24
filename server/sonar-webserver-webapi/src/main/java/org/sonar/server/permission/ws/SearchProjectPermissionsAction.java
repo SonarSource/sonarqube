@@ -43,7 +43,7 @@ import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.CountPerProjectPermission;
 import org.sonar.server.permission.PermissionPrivilegeChecker;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.ProjectId;
+import org.sonar.server.permission.ProjectUuid;
 import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
@@ -56,8 +56,8 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -141,7 +141,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     com.google.common.base.Optional<ProjectWsRef> projectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
     if (projectRef.isPresent()) {
       ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, projectRef.get());
-      PermissionPrivilegeChecker.checkProjectAdmin(userSession, project.getOrganizationUuid(), Optional.of(new ProjectId(project)));
+      PermissionPrivilegeChecker.checkProjectAdmin(userSession, project.getOrganizationUuid(), Optional.of(new ProjectUuid(project)));
     } else {
       userSession.checkLoggedIn().checkIsSystemAdministrator();
     }
@@ -159,13 +159,13 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
         .setKey(rootComponent.getDbKey())
         .setQualifier(rootComponent.qualifier())
         .setName(rootComponent.name());
-      for (String permission : data.permissions(rootComponent.getId())) {
+      for (String permission : data.permissions(rootComponent.uuid())) {
         rootComponentBuilder.addPermissions(
           permissionResponse
             .clear()
             .setKey(permission)
-            .setUsersCount(data.userCount(rootComponent.getId(), permission))
-            .setGroupsCount(data.groupCount(rootComponent.getId(), permission)));
+            .setUsersCount(data.userCount(rootComponent.uuid(), permission))
+            .setGroupsCount(data.groupCount(rootComponent.uuid(), permission)));
       }
       response.addProjects(rootComponentBuilder);
     }
@@ -201,12 +201,12 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     SearchProjectPermissionsData.Builder data = newBuilder();
     int countRootComponents = countRootComponents(dbSession, request);
     List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
-    List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentDto::getId);
+    List<String> rootComponentUuids = Lists.transform(rootComponents, ComponentDto::uuid);
 
     data.rootComponents(rootComponents)
             .paging(paging(request, countRootComponents))
-            .userCountByProjectIdAndPermission(userCountByRootComponentIdAndPermission(dbSession, rootComponentIds))
-            .groupCountByProjectIdAndPermission(groupCountByRootComponentIdAndPermission(dbSession, rootComponentIds));
+            .userCountByProjectIdAndPermission(userCountByRootComponentUuidAndPermission(dbSession, rootComponentUuids))
+            .groupCountByProjectIdAndPermission(groupCountByRootComponentIdAndPermission(dbSession, rootComponentUuids));
 
     return data.build();
   }
@@ -244,24 +244,24 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
             : (new String[] {requestQualifier});
   }
 
-  private Table<Long, String, Integer> userCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {
-    final Table<Long, String, Integer> userCountByRootComponentIdAndPermission = TreeBasedTable.create();
+  private Table<String, String, Integer> userCountByRootComponentUuidAndPermission(DbSession dbSession, List<String> rootComponentUuids) {
+    final Table<String, String, Integer> userCountByRootComponentUuidAndPermission = TreeBasedTable.create();
 
-    dbClient.userPermissionDao().countUsersByProjectPermission(dbSession, rootComponentIds).forEach(
-            row -> userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount()));
+    dbClient.userPermissionDao().countUsersByProjectPermission(dbSession, rootComponentUuids).forEach(
+            row -> userCountByRootComponentUuidAndPermission.put(row.getComponentUuid(), row.getPermission(), row.getCount()));
 
-    return userCountByRootComponentIdAndPermission;
+    return userCountByRootComponentUuidAndPermission;
   }
 
-  private Table<Long, String, Integer> groupCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {
-    final Table<Long, String, Integer> userCountByRootComponentIdAndPermission = TreeBasedTable.create();
+  private Table<String, String, Integer> groupCountByRootComponentIdAndPermission(DbSession dbSession, List<String> rootComponentUuids) {
+    final Table<String, String, Integer> userCountByRootComponentUuidAndPermission = TreeBasedTable.create();
 
-    dbClient.groupPermissionDao().groupsCountByComponentIdAndPermission(dbSession, rootComponentIds, context -> {
+    dbClient.groupPermissionDao().groupsCountByComponentUuidAndPermission(dbSession, rootComponentUuids, context -> {
       CountPerProjectPermission row = (CountPerProjectPermission) context.getResultObject();
-      userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount());
+      userCountByRootComponentUuidAndPermission.put(row.getComponentUuid(), row.getPermission(), row.getCount());
     });
 
-    return userCountByRootComponentIdAndPermission;
+    return userCountByRootComponentUuidAndPermission;
   }
 
   private static class SearchProjectPermissionsRequest {

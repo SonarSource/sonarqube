@@ -25,7 +25,7 @@ public class GroupPermissionDto {
 
   private String organizationUuid;
   private Integer groupId;
-  private Long resourceId;
+  private String componentUuid;
   private String role;
 
   public Integer getGroupId() {
@@ -50,12 +50,12 @@ public class GroupPermissionDto {
   }
 
   @Nullable
-  public Long getResourceId() {
-    return resourceId;
+  public String getComponentUuid() {
+    return componentUuid;
   }
 
-  public GroupPermissionDto setResourceId(@Nullable Long resourceId) {
-    this.resourceId = resourceId;
+  public GroupPermissionDto setComponentUuid(@Nullable String componentUuid) {
+    this.componentUuid = componentUuid;
     return this;
   }
 

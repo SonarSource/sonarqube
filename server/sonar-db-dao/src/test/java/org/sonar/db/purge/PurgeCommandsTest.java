@@ -19,6 +19,7 @@
  */
 package org.sonar.db.purge;
 
+import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -26,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.After;
@@ -54,6 +56,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,7 +90,7 @@ public class PurgeCommandsTest {
    */
   @Test
   public void should_not_fail_when_deleting_huge_number_of_analyses() {
-    new PurgeCommands(dbTester.getSession(), profiler, system2).deleteAnalyses(getHugeNumberOfIdUuidPairs());
+    new PurgeCommands(dbTester.getSession(), profiler, system2).deleteAnalyses(getHugeNumberOfUuids());
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 
@@ -103,13 +106,13 @@ public class PurgeCommandsTest {
       IntStream.range(0, count).forEach(i -> insertDuplication(project, analysis));
     }
 
-    underTest.purgeAnalyses(toIdUuidPairs(analysis1));
+    underTest.purgeAnalyses(ImmutableList.of(analysis1.getUuid()));
     assertThat(countDuplications(analysis1)).isZero();
     assertThat(countDuplications(analysis2)).isEqualTo(count);
     assertThat(countDuplications(analysis3)).isEqualTo(count);
     assertThat(countDuplications(analysis4)).isEqualTo(count);
 
-    underTest.purgeAnalyses(toIdUuidPairs(analysis1, analysis3, analysis4));
+    underTest.purgeAnalyses(ImmutableList.of(analysis1.getUuid(), analysis3.getUuid(), analysis4.getUuid()));
     assertThat(countDuplications(analysis1)).isZero();
     assertThat(countDuplications(analysis2)).isEqualTo(count);
     assertThat(countDuplications(analysis3)).isZero();
@@ -121,7 +124,7 @@ public class PurgeCommandsTest {
    */
   @Test
   public void purgeAnalyses_should_not_fail_when_purging_huge_number_of_analyses() {
-    new PurgeCommands(dbTester.getSession(), profiler, system2).purgeAnalyses(getHugeNumberOfIdUuidPairs());
+    new PurgeCommands(dbTester.getSession(), profiler, system2).purgeAnalyses(getHugeNumberOfUuids());
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 
@@ -354,15 +357,15 @@ public class PurgeCommandsTest {
       .mapToObj(i -> dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus()))
       .collect(toList());
 
-    underTest.deleteAnalyses(toIdUuidPairs(analyses.get(0)));
+    underTest.deleteAnalyses(singletonList(analyses.get(0).getUuid()));
     assertThat(uuidsOfAnalysesOfRoot(projectOrView))
       .containsOnly(analyses.stream().skip(1).map(SnapshotDto::getUuid).toArray(String[]::new));
 
-    underTest.deleteAnalyses(toIdUuidPairs(analyses.stream().skip(1).limit(3)));
+    underTest.deleteAnalyses(analyses.stream().map(SnapshotDto::getUuid).skip(1).limit(3).collect(Collectors.toList()));
     assertThat(uuidsOfAnalysesOfRoot(projectOrView))
       .containsOnly(analyses.stream().skip(4).map(SnapshotDto::getUuid).toArray(String[]::new));
 
-    underTest.deleteAnalyses(toIdUuidPairs(analyses.stream()));
+    underTest.deleteAnalyses(analyses.stream().map(SnapshotDto::getUuid).collect(Collectors.toList()));
     assertThat(uuidsOfAnalysesOfRoot(projectOrView)).isEmpty();
   }
 
@@ -384,7 +387,7 @@ public class PurgeCommandsTest {
       insertRandomEventComponentChange(otherAnalysis);
     });
 
-    underTest.deleteAnalyses(toIdUuidPairs(analysis));
+    underTest.deleteAnalyses(singletonList(analysis.getUuid()));
 
     assertThat(countEventComponentChangesOf(analysis)).isZero();
     assertThat(countEventComponentChangesOf(otherAnalysis)).isEqualTo(count);
@@ -402,7 +405,7 @@ public class PurgeCommandsTest {
       dbTester.events().insertEvent(otherAnalysis);
     });
 
-    underTest.deleteAnalyses(toIdUuidPairs(analysis));
+    underTest.deleteAnalyses(singletonList(analysis.getUuid()));
 
     assertThat(countEventsOf(analysis)).isZero();
     assertThat(countEventsOf(otherAnalysis)).isEqualTo(count);
@@ -425,7 +428,7 @@ public class PurgeCommandsTest {
         });
       });
 
-    underTest.deleteAnalyses(toIdUuidPairs(analysis));
+    underTest.deleteAnalyses(singletonList(analysis.getUuid()));
 
     assertThat(countMeasuresOf(analysis)).isZero();
     assertThat(countMeasuresOf(otherAnalysis)).isEqualTo(count * 2);
@@ -443,7 +446,7 @@ public class PurgeCommandsTest {
       insertRandomAnalysisProperty(otherAnalysis);
     });
 
-    underTest.deleteAnalyses(toIdUuidPairs(analysis));
+    underTest.deleteAnalyses(singletonList(analysis.getUuid()));
 
     assertThat(countAnalysisPropertiesOf(analysis)).isZero();
     assertThat(countAnalysisPropertiesOf(otherAnalysis)).isEqualTo(count);
@@ -500,7 +503,7 @@ public class PurgeCommandsTest {
     addPermissions(organization, project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
-    purgeCommands.deletePermissions(project.getId());
+    purgeCommands.deletePermissions(project.uuid());
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
     assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(1);
@@ -513,7 +516,7 @@ public class PurgeCommandsTest {
     addPermissions(organization, project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
-    purgeCommands.deletePermissions(project.getId());
+    purgeCommands.deletePermissions(project.uuid());
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(1);
     assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(1);
@@ -526,7 +529,7 @@ public class PurgeCommandsTest {
     addPermissions(organization, project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
-    purgeCommands.deletePermissions(project.getId());
+    purgeCommands.deletePermissions(project.uuid());
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
     assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(1);
@@ -710,22 +713,12 @@ public class PurgeCommandsTest {
     return dbTester.countSql("select count(1) from snapshots where component_uuid='" + projectOrView.uuid() + "' and status='" + status + "' and islast=" + bool);
   }
 
-  private static List<IdUuidPair> toIdUuidPairs(SnapshotDto... analyses) {
-    return toIdUuidPairs(Arrays.stream(analyses));
-  }
-
-  private static List<IdUuidPair> toIdUuidPairs(Stream<SnapshotDto> analyses) {
-    return analyses
-      .map(a -> new IdUuidPair(a.getId(), a.getUuid()))
-      .collect(toList());
-  }
-
-  private List<IdUuidPair> getHugeNumberOfIdUuidPairs() {
-    List<IdUuidPair> hugeNbOfSnapshotIds = newArrayList();
+  private List<String> getHugeNumberOfUuids() {
+    List<String> hugeNbOfSnapshotUuids = newArrayList();
     for (long i = 0; i < 4500; i++) {
-      hugeNbOfSnapshotIds.add(new IdUuidPair(i, "uuid_" + i));
+      hugeNbOfSnapshotUuids.add("uuid_" + i);
     }
-    return hugeNbOfSnapshotIds;
+    return hugeNbOfSnapshotUuids;
   }
 
   @DataProvider

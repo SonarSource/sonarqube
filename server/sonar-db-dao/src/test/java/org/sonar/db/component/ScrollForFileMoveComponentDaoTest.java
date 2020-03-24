@@ -217,8 +217,8 @@ public class ScrollForFileMoveComponentDaoTest {
       dtos.add(resultContext.getResultObject());
     }
 
-    private java.util.Optional<FileMoveRowDto> getById(long id) {
-      return dtos.stream().filter(t -> t.getId() == id).findAny();
+    private java.util.Optional<FileMoveRowDto> getByUuid(String uuid) {
+      return dtos.stream().filter(t -> t.getUuid().equals(uuid)).findAny();
     }
 
   }
@@ -240,7 +240,7 @@ public class ScrollForFileMoveComponentDaoTest {
   }
 
   private static void verifyFileMoveRowDto(RecordingResultHandler resultHander, ComponentAndSource componentAndSource) {
-    FileMoveRowDto dto = resultHander.getById(componentAndSource.component.getId()).get();
+    FileMoveRowDto dto = resultHander.getByUuid(componentAndSource.component.uuid()).get();
     assertThat(dto.getKey()).isEqualTo(componentAndSource.component.getDbKey());
     assertThat(dto.getUuid()).isEqualTo(componentAndSource.component.uuid());
     assertThat(dto.getPath()).isEqualTo(componentAndSource.component.path());

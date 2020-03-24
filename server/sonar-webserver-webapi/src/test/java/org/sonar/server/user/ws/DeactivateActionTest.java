@@ -143,12 +143,12 @@ public class DeactivateActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.properties().insertProperty(newUserPropertyDto(user));
     db.properties().insertProperty(newUserPropertyDto(user));
-    db.properties().insertProperty(newUserPropertyDto(user).setResourceId(project.getId()));
+    db.properties().insertProperty(newUserPropertyDto(user).setComponentUuid(project.uuid()));
 
     deactivate(user.getLogin());
 
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).build(), dbSession)).isEmpty();
-    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).setComponentId(project.getId()).build(), dbSession)).isEmpty();
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).setComponentUuid(project.uuid()).build(), dbSession)).isEmpty();
   }
 
   @Test
@@ -164,7 +164,7 @@ public class DeactivateActionTest {
     deactivate(user.getLogin());
 
     assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), db.getDefaultOrganization().getUuid())).isEmpty();
-    assertThat(db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), project.getId())).isEmpty();
+    assertThat(db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), project.uuid())).isEmpty();
   }
 
   @Test
@@ -201,9 +201,9 @@ public class DeactivateActionTest {
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto anotherProject = db.components().insertPrivateProject();
-    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setResourceId(project.getId()));
-    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setResourceId(anotherProject.getId()));
-    db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin()).setResourceId(anotherProject.getId()));
+    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setComponentUuid(project.uuid()));
+    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setComponentUuid(anotherProject.uuid()));
+    db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin()).setComponentUuid(anotherProject.uuid()));
 
     deactivate(user.getLogin());
 

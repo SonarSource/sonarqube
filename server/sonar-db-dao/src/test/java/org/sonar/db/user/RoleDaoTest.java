@@ -50,7 +50,7 @@ public class RoleDaoTest {
   private ComponentDto project2;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp()  {
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
     project1 = db.components().insertPrivateProject();
@@ -58,22 +58,22 @@ public class RoleDaoTest {
   }
 
   @Test
-  public void selectComponentIdsByPermissionAndUserId_throws_IAR_if_permission_USER_is_specified() {
+  public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_USER_is_specified() {
     expectUnsupportedUserAndCodeViewerPermission();
 
-    underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.USER, new Random().nextInt(55));
+    underTest.selectComponentUuidsByPermissionAndUserId(dbSession, UserRole.USER, new Random().nextInt(55));
   }
 
   @Test
-  public void selectComponentIdsByPermissionAndUserId_throws_IAR_if_permission_CODEVIEWER_is_specified() {
+  public void selectComponentUuidsByPermissionAndUserId_throws_IAR_if_permission_CODEVIEWER_is_specified() {
     expectUnsupportedUserAndCodeViewerPermission();
 
-    underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.CODEVIEWER, new Random().nextInt(55));
+    underTest.selectComponentUuidsByPermissionAndUserId(dbSession, UserRole.CODEVIEWER, new Random().nextInt(55));
   }
 
   private void expectUnsupportedUserAndCodeViewerPermission() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Permissions [user, codeviewer] are not supported by selectComponentIdsByPermissionAndUserId");
+    expectedException.expectMessage("Permissions [user, codeviewer] are not supported by selectComponentUuidsByPermissionAndUserId");
   }
 
   @Test
@@ -87,9 +87,9 @@ public class RoleDaoTest {
     // project permission on another permission - not returned
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, project1);
 
-    List<Long> projectIds = underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, user1.getId());
+    List<String> projectUuids = underTest.selectComponentUuidsByPermissionAndUserId(dbSession, UserRole.ADMIN, user1.getId());
 
-    assertThat(projectIds).containsExactly(project1.getId(), project2.getId());
+    assertThat(projectUuids).containsExactly(project1.uuid(), project2.uuid());
   }
 
   @Test
@@ -108,9 +108,9 @@ public class RoleDaoTest {
     // project permission on another permission - not returned
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ISSUE_ADMIN, project1);
 
-    List<Long> result = underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, user1.getId());
+    List<String> result = underTest.selectComponentUuidsByPermissionAndUserId(dbSession, UserRole.ADMIN, user1.getId());
 
-    assertThat(result).containsExactly(project1.getId(), project2.getId());
+    assertThat(result).containsExactly(project1.uuid(), project2.uuid());
   }
 
   @Test
@@ -130,9 +130,9 @@ public class RoleDaoTest {
     db.getSession().commit();
 
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group1.getId())).isEmpty();
-    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group1.getId(), project.getId())).isEmpty();
+    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group1.getId(), project.uuid())).isEmpty();
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group2.getId())).containsOnly("gateadmin");
-    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group2.getId(), project.getId())).containsOnly("admin");
+    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group2.getId(), project.uuid())).containsOnly("admin");
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), null)).containsOnly("scan", "provisioning");
   }
 }

@@ -146,7 +146,7 @@ public class BackendCleanupTest {
     dbTester.properties().insertProperty(new PropertyDto()
       .setKey("sonar.profile.java")
       .setValue("Sonar Way")
-      .setResourceId(project.getId())
+      .setComponentUuid(project.uuid())
     );
   }
 

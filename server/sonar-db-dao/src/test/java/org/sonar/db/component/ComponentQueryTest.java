@@ -79,10 +79,8 @@ public class ComponentQueryTest {
   public void empty_list_of_components() {
     Supplier<ComponentQuery.Builder> query = () -> ComponentQuery.builder().setQualifiers(PROJECT);
 
-    assertThat(query.get().setComponentIds(emptySet()).build().hasEmptySetOfComponents()).isTrue();
     assertThat(query.get().setComponentKeys(emptySet()).build().hasEmptySetOfComponents()).isTrue();
     assertThat(query.get().setComponentUuids(emptySet()).build().hasEmptySetOfComponents()).isTrue();
-    assertThat(query.get().setComponentIds(singleton(404L)).build().hasEmptySetOfComponents()).isFalse();
     assertThat(query.get().setComponentKeys(singleton("P1")).build().hasEmptySetOfComponents()).isFalse();
     assertThat(query.get().setComponentUuids(singleton("U1")).build().hasEmptySetOfComponents()).isFalse();
   }

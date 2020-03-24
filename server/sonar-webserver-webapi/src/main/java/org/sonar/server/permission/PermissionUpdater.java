@@ -22,7 +22,6 @@ package org.sonar.server.permission;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
@@ -49,9 +48,9 @@ public class PermissionUpdater {
     List<String> projectOrViewUuids = new ArrayList<>();
     for (PermissionChange change : changes) {
       boolean changed = doApply(dbSession, change);
-      Optional<ProjectId> projectId = change.getProjectId();
-      if (changed && projectId.isPresent()) {
-        projectOrViewUuids.add(projectId.get().getUuid());
+      String projectUuid = change.getProjectUuid();
+      if (changed && projectUuid != null) {
+        projectOrViewUuids.add(projectUuid);
       }
     }
     projectIndexers.commitAndIndexByProjectUuids(dbSession, projectOrViewUuids, ProjectIndexer.Cause.PERMISSION_CHANGE);

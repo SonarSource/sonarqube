@@ -60,7 +60,7 @@ public class PermissionIndexerDao {
     "      user_roles.user_id  AS user_id, " +
     "      NULL  AS group_id " +
     "      FROM components c " +
-    "      INNER JOIN user_roles ON user_roles.resource_id = c.id AND user_roles.role = 'user' " +
+    "      INNER JOIN user_roles ON user_roles.component_uuid = c.uuid AND user_roles.role = 'user' " +
     "      WHERE " +
     "        (c.qualifier = 'TRK' " +
     "         or  c.qualifier = 'VW' " +
@@ -77,7 +77,7 @@ public class PermissionIndexerDao {
     "      NULL  AS user_id, " +
     "      groups.id  AS group_id " +
     "      FROM components c " +
-    "      INNER JOIN group_roles ON group_roles.resource_id = c.id AND group_roles.role = 'user' " +
+    "      INNER JOIN group_roles ON group_roles.component_uuid = c.uuid AND group_roles.role = 'user' " +
     "      INNER JOIN groups ON groups.id = group_roles.group_id " +
     "      WHERE " +
     "        (c.qualifier = 'TRK' " +

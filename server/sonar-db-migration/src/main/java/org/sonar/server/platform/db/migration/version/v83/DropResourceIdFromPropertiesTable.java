@@ -17,11 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.component;
+package org.sonar.server.platform.db.migration.version.v83;
 
-public interface MutableDbIdsRepository extends DbIdsRepository {
-  /**
-   * @throws IllegalStateException if the component id for the specified component has already been set
-   */
-  DbIdsRepository setComponentId(Component component, long componentId);
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+
+public class DropResourceIdFromPropertiesTable extends DdlChange {
+
+  static final String TABLE = "properties";
+  static final String COLUMN = "resource_id";
+
+  public DropResourceIdFromPropertiesTable(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE, COLUMN).build());
+  }
 }

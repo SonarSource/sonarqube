@@ -47,12 +47,12 @@ public class NotificationUpdater {
    */
   public void add(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable ComponentDto project) {
     String key = String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel);
-    Long projectId = project == null ? null : project.getId();
+    String projectUuid = project == null ? null : project.uuid();
 
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
       PropertyQuery.builder()
         .setKey(key)
-        .setComponentId(projectId)
+        .setComponentUuid(projectUuid)
         .setUserId(user.getId())
         .build(),
       dbSession).stream()
@@ -65,7 +65,7 @@ public class NotificationUpdater {
       .setKey(key)
       .setUserId(user.getId())
       .setValue(PROP_NOTIFICATION_VALUE)
-      .setResourceId(projectId));
+      .setComponentUuid(projectUuid));
   }
 
   /**
@@ -73,12 +73,12 @@ public class NotificationUpdater {
    */
   public void remove(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable ComponentDto project) {
     String key = String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel);
-    Long projectId = project == null ? null : project.getId();
+    String projectUuid = project == null ? null : project.uuid();
 
     List<PropertyDto> existingNotification = dbClient.propertiesDao().selectByQuery(
       PropertyQuery.builder()
         .setKey(key)
-        .setComponentId(projectId)
+        .setComponentUuid(projectUuid)
         .setUserId(user.getId())
         .build(),
       dbSession).stream()
@@ -90,10 +90,10 @@ public class NotificationUpdater {
       .setKey(key)
       .setUserId(user.getId())
       .setValue(PROP_NOTIFICATION_VALUE)
-      .setResourceId(projectId));
+      .setComponentUuid(projectUuid));
   }
 
   private static Predicate<PropertyDto> notificationScope(@Nullable ComponentDto project) {
-    return prop -> project == null ? (prop.getResourceId() == null) : (prop.getResourceId() != null);
+    return prop -> project == null ? (prop.getComponentUuid() == null) : (prop.getComponentUuid() != null);
   }
 }

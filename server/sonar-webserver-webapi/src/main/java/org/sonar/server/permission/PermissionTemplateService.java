@@ -120,8 +120,8 @@ public class PermissionTemplateService {
   }
 
   private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable Integer projectCreatorUserId) {
-    dbClient.groupPermissionDao().deleteByRootComponentId(dbSession, project.getId());
-    dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project.getId());
+    dbClient.groupPermissionDao().deleteByRootComponentUuid(dbSession, project.uuid());
+    dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project.uuid());
 
     List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getId());
     String organizationUuid = template.getOrganizationUuid();
@@ -129,7 +129,7 @@ public class PermissionTemplateService {
       .stream()
       .filter(up -> permissionValidForProject(project, up.getPermission()))
       .forEach(up -> {
-        UserPermissionDto dto = new UserPermissionDto(organizationUuid, up.getPermission(), up.getUserId(), project.getId());
+        UserPermissionDto dto = new UserPermissionDto(organizationUuid, up.getPermission(), up.getUserId(), project.uuid());
         dbClient.userPermissionDao().insert(dbSession, dto);
       });
 
@@ -143,7 +143,7 @@ public class PermissionTemplateService {
           .setOrganizationUuid(organizationUuid)
           .setGroupId(isAnyone(gp.getGroupName()) ? null : gp.getGroupId())
           .setRole(gp.getPermission())
-          .setResourceId(project.getId());
+          .setComponentUuid(project.uuid());
         dbClient.groupPermissionDao().insert(dbSession, dto);
       });
 
@@ -158,7 +158,7 @@ public class PermissionTemplateService {
         .filter(up -> permissionValidForProject(project, up.getPermission()))
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
-          UserPermissionDto dto = new UserPermissionDto(organizationUuid, c.getPermission(), projectCreatorUserId, project.getId());
+          UserPermissionDto dto = new UserPermissionDto(organizationUuid, c.getPermission(), projectCreatorUserId, project.uuid());
           dbClient.userPermissionDao().insert(dbSession, dto);
         });
     }

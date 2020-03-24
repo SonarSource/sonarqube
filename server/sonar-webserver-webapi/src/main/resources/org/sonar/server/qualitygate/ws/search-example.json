@@ -6,13 +6,11 @@
   },
   "results": [
     {
-      "id": 1,
       "name": "Simple Java project analyzed with the SonarQube Runner",
       "key": "somple-java",
       "selected": true
     },
     {
-      "id": 4,
       "name": "My Project",
       "key": "my-project",
       "selected": false

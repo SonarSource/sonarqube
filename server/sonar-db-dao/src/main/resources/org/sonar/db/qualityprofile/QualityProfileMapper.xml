@@ -335,7 +335,6 @@
   <select id="selectSelectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
     select
       pp.id as id,
-      pj.id as projectId,
       pj.uuid as projectUuid,
       pj.kee as projectKey,
       pj.name as projectName,
@@ -352,7 +351,7 @@
   </select>
 
   <select id="selectDeselectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
-    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
+    SELECT pp.id as id, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
     FROM components pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
     AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
@@ -364,7 +363,7 @@
   </select>
 
   <select id="selectProjectAssociations" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
-    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
+    SELECT pp.id as id, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
     FROM components pj
     LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
     AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}

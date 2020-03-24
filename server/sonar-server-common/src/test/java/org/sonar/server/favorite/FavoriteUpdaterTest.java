@@ -62,7 +62,7 @@ public class FavoriteUpdaterTest {
     underTest.add(dbSession, project, null, true);
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setComponentId(project.getId())
+      .setComponentUuid(project.uuid())
       .build(), dbSession)).isEmpty();
   }
 
@@ -126,14 +126,14 @@ public class FavoriteUpdaterTest {
   private void assertFavorite(ComponentDto project, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setUserId(user.getId())
-      .setComponentId(project.getId())
+      .setComponentUuid(project.uuid())
       .build(), dbSession)).hasSize(1);
   }
 
   private void assertNoFavorite(ComponentDto project, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setUserId(user.getId())
-      .setComponentId(project.getId())
+      .setComponentUuid(project.uuid())
       .build(), dbSession)).isEmpty();
   }
 }

@@ -30,7 +30,6 @@ import static org.sonar.db.component.ComponentValidator.checkDescription;
 
 public class ResourceDto {
 
-  private Long id;
   private String uuid;
   private String projectUuid;
   private String moduleUuid;
@@ -48,15 +47,6 @@ public class ResourceDto {
   private String language;
   private String copyComponentUuid;
   private Date createdAt;
-
-  public Long getId() {
-    return id;
-  }
-
-  public ResourceDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
 
   public String getUuid() {
     return uuid;

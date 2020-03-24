@@ -271,7 +271,7 @@ public class IntegrateIssuesVisitorTest {
   public void remove_uuid_of_original_file_from_componentsWithUnprocessedIssues_if_component_has_one() {
     String originalFileUuid = "original file uuid";
     when(movedFilesRepository.getOriginalFile(FILE))
-      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(4851, originalFileUuid, "original file key")));
+      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(originalFileUuid, "original file key")));
 
     underTest.visitAny(FILE);
   }

@@ -121,8 +121,8 @@ public class OrganisationSupportTest {
     List<GroupPermissionDto> result = new ArrayList<>();
     dbTester.getDbClient().groupPermissionDao().selectAllPermissionsByGroupId(dbTester.getSession(), defaultOrganization.getUuid(), defaultGroupId,
       context -> result.add((GroupPermissionDto) context.getResultObject()));
-    assertThat(result).extracting(GroupPermissionDto::getResourceId, GroupPermissionDto::getRole).containsOnly(
-      tuple(null, "user"), tuple(project.getId(), "codeviewer"));
+    assertThat(result).extracting(GroupPermissionDto::getComponentUuid, GroupPermissionDto::getRole).containsOnly(
+      tuple(null, "user"), tuple(project.uuid(), "codeviewer"));
   }
 
   @Test

@@ -29,10 +29,10 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.permission.ProjectId;
+import org.sonar.server.permission.GroupIdOrAnyone;
+import org.sonar.server.permission.ProjectUuid;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.template.WsTemplateRef;
-import org.sonar.server.permission.GroupIdOrAnyone;
 import org.sonar.server.usergroups.ws.GroupWsRef;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonarqube.ws.client.permission.PermissionsWsParameters;
@@ -59,9 +59,9 @@ public class PermissionWsSupport {
     return groupWsSupport.findOrganizationByKey(dbSession, organizationKey);
   }
 
-  public Optional<ProjectId> findProjectId(DbSession dbSession, Request request) {
+  public Optional<ProjectUuid> findProjectUuid(DbSession dbSession, Request request) {
     return findProject(dbSession, request)
-      .map(ProjectId::new);
+      .map(ProjectUuid::new);
   }
 
   public Optional<ComponentDto> findProject(DbSession dbSession, Request request) {

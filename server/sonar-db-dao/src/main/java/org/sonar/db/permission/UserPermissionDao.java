@@ -75,10 +75,10 @@ public class UserPermissionDao implements Dao {
   /**
    * Count the number of users per permission for a given list of projects
    *
-   * @param projectIds a non-null list of project ids to filter on. If empty then an empty list is returned.
+   * @param projectUuids a non-null list of project uuids to filter on. If empty then an empty list is returned.
    */
-  public List<CountPerProjectPermission> countUsersByProjectPermission(DbSession dbSession, Collection<Long> projectIds) {
-    return executeLargeInputs(projectIds, mapper(dbSession)::countUsersByProjectPermission);
+  public List<CountPerProjectPermission> countUsersByProjectPermission(DbSession dbSession, Collection<String> projectUuids) {
+    return executeLargeInputs(projectUuids, mapper(dbSession)::countUsersByProjectPermission);
   }
 
   /**
@@ -95,12 +95,12 @@ public class UserPermissionDao implements Dao {
    *
    * @return the project permissions. An empty list is returned if project or user do not exist.
    */
-  public List<String> selectProjectPermissionsOfUser(DbSession dbSession, int userId, long projectId) {
-    return mapper(dbSession).selectProjectPermissionsOfUser(userId, projectId);
+  public List<String> selectProjectPermissionsOfUser(DbSession dbSession, int userId, String projectUuid) {
+    return mapper(dbSession).selectProjectPermissionsOfUser(userId, projectUuid);
   }
 
-  public Set<Integer> selectUserIdsWithPermissionOnProjectBut(DbSession session, long projectId, String permission) {
-    return mapper(session).selectUserIdsWithPermissionOnProjectBut(projectId, permission);
+  public Set<Integer> selectUserIdsWithPermissionOnProjectBut(DbSession session, String projectUuid, String permission) {
+    return mapper(session).selectUserIdsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
   public void insert(DbSession dbSession, UserPermissionDto dto) {
@@ -109,14 +109,14 @@ public class UserPermissionDao implements Dao {
   }
 
   private static void ensureComponentPermissionConsistency(DbSession dbSession, UserPermissionDto dto) {
-    if (dto.getComponentId() == null) {
+    if (dto.getComponentUuid() == null) {
       return;
     }
     ComponentMapper componentMapper = dbSession.getMapper(ComponentMapper.class);
     checkArgument(
-      componentMapper.countComponentByOrganizationAndId(dto.getOrganizationUuid(), dto.getComponentId()) == 1,
+      componentMapper.countComponentByOrganizationAndUuid(dto.getOrganizationUuid(), dto.getComponentUuid()) == 1,
       "Can't insert permission '%s' for component with id '%s' in organization with uuid '%s' because this component does not belong to organization with uuid '%s'",
-      dto.getPermission(), dto.getComponentId(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
+      dto.getPermission(), dto.getComponentUuid(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
   }
 
   /**
@@ -129,22 +129,22 @@ public class UserPermissionDao implements Dao {
   /**
    * Removes a single project permission from user
    */
-  public void deleteProjectPermission(DbSession dbSession, int userId, String permission, long projectId) {
-    mapper(dbSession).deleteProjectPermission(userId, permission, projectId);
+  public void deleteProjectPermission(DbSession dbSession, int userId, String permission, String projectUuid) {
+    mapper(dbSession).deleteProjectPermission(userId, permission, projectUuid);
   }
 
   /**
    * Deletes all the permissions defined on a project
    */
-  public void deleteProjectPermissions(DbSession dbSession, long projectId) {
-    mapper(dbSession).deleteProjectPermissions(projectId);
+  public void deleteProjectPermissions(DbSession dbSession, String projectUuid) {
+    mapper(dbSession).deleteProjectPermissions(projectUuid);
   }
 
   /**
    * Deletes the specified permission on the specified project for any user.
    */
-  public int deleteProjectPermissionOfAnyUser(DbSession dbSession, long projectId, String permission) {
-    return mapper(dbSession).deleteProjectPermissionOfAnyUser(projectId, permission);
+  public int deleteProjectPermissionOfAnyUser(DbSession dbSession, String projectUuid, String permission) {
+    return mapper(dbSession).deleteProjectPermissionOfAnyUser(projectUuid, permission);
   }
 
   public void deleteByOrganization(DbSession dbSession, String organizationUuid) {

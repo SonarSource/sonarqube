@@ -63,7 +63,6 @@ public class PurgeMapperTest {
     ComponentDto project = randomPublicOrPrivateProject();
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(project.uuid()))
-      .extracting(IdUuidPair::getUuid)
       .containsOnly(project.uuid());
   }
 
@@ -75,7 +74,6 @@ public class PurgeMapperTest {
     ComponentDto module3 = db.components().insertComponent(ComponentTesting.newModuleDto(project));
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(project.uuid()))
-      .extracting(IdUuidPair::getUuid)
       .containsOnly(project.uuid(), module1.uuid(), module2.uuid(), module3.uuid());
   }
 
@@ -88,7 +86,6 @@ public class PurgeMapperTest {
     ComponentDto view = db.components().insertView();
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
-      .extracting(IdUuidPair::getUuid)
       .containsOnly(view.uuid());
   }
 
@@ -97,7 +94,6 @@ public class PurgeMapperTest {
     ComponentDto view = db.components().insertPublicApplication(db.getDefaultOrganization());
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
-      .extracting(IdUuidPair::getUuid)
       .containsOnly(view.uuid());
   }
 
@@ -109,7 +105,6 @@ public class PurgeMapperTest {
     ComponentDto subview3 = db.components().insertComponent(ComponentTesting.newSubView(view));
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
-      .extracting(IdUuidPair::getUuid)
       .containsOnly(view.uuid(), subview1.uuid(), subview2.uuid(), subview3.uuid());
   }
 
@@ -120,7 +115,6 @@ public class PurgeMapperTest {
     db.components().insertComponent(ComponentTesting.newProjectCopy("a", view, privateProject));
 
     assertThat(purgeMapper.selectRootAndModulesOrSubviewsByProjectUuid(view.uuid()))
-      .extracting(IdUuidPair::getUuid)
       .containsOnly(view.uuid());
   }
 

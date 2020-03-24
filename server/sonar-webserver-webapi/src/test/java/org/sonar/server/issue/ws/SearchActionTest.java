@@ -1023,7 +1023,7 @@ public class SearchActionTest {
       new GroupPermissionDto()
         .setOrganizationUuid(project.getOrganizationUuid())
         .setGroupId(null)
-        .setResourceId(project.getId())
+        .setComponentUuid(project.uuid())
         .setRole(permission));
     session.commit();
     userSession.logIn().addProjectPermission(permission, project);

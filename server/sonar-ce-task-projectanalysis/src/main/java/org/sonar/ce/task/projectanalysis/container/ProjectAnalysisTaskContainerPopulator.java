@@ -32,7 +32,6 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderImpl;
 import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.projectanalysis.component.BranchPersisterImpl;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepositoryImpl;
-import org.sonar.ce.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.DisabledComponentsHolderImpl;
 import org.sonar.ce.task.projectanalysis.component.ProjectPersister;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
@@ -208,7 +207,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
       ConfigurationRepositoryImpl.class,
-      DbIdsRepositoryImpl.class,
       DisabledComponentsHolderImpl.class,
       QualityGateServiceImpl.class,
       EvaluationResultTextConverterImpl.class,

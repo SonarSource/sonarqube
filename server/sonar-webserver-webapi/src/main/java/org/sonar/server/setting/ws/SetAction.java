@@ -175,16 +175,16 @@ public class SetAction implements SettingsWsAction {
     int[] fieldIds = IntStream.rangeClosed(1, request.getFieldValues().size()).toArray();
     String inlinedFieldKeys = IntStream.of(fieldIds).mapToObj(String::valueOf).collect(COMMA_JOINER);
     String key = persistedKey(request);
-    Long componentId = component.isPresent() ? component.get().getId() : null;
+    String componentUuid = component.isPresent() ? component.get().uuid() : null;
 
     deleteSettings(dbSession, component, key);
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(inlinedFieldKeys).setResourceId(componentId));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey(key).setValue(inlinedFieldKeys).setComponentUuid(componentUuid));
 
     List<String> fieldValues = request.getFieldValues();
     IntStream.of(fieldIds).boxed()
       .flatMap(i -> readOneFieldValues(fieldValues.get(i - 1), request.getKey()).entrySet().stream()
         .map(entry -> new KeyValue(key + "." + i + "." + entry.getKey(), entry.getValue())))
-      .forEach(keyValue -> dbClient.propertiesDao().saveProperty(dbSession, toFieldProperty(keyValue, componentId)));
+      .forEach(keyValue -> dbClient.propertiesDao().saveProperty(dbSession, toFieldProperty(keyValue, componentUuid)));
 
     return inlinedFieldKeys;
   }
@@ -321,14 +321,14 @@ public class SetAction implements SettingsWsAction {
       .setValue(value);
 
     if (component.isPresent()) {
-      property.setResourceId(component.get().getId());
+      property.setComponentUuid(component.get().uuid());
     }
 
     return property;
   }
 
-  private static PropertyDto toFieldProperty(KeyValue keyValue, @Nullable Long componentId) {
-    return new PropertyDto().setKey(keyValue.key).setValue(keyValue.value).setResourceId(componentId);
+  private static PropertyDto toFieldProperty(KeyValue keyValue, @Nullable String componentUuid) {
+    return new PropertyDto().setKey(keyValue.key).setValue(keyValue.value).setComponentUuid(componentUuid);
   }
 
   private static class KeyValue {

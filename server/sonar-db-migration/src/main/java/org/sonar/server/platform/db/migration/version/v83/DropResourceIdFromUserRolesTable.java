@@ -17,40 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
+package org.sonar.server.platform.db.migration.version.v83;
 
-import javax.annotation.concurrent.Immutable;
-import org.sonar.db.component.ComponentDto;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static java.util.Objects.requireNonNull;
+public class DropResourceIdFromUserRolesTable extends DdlChange {
 
-/**
- * Reference to a project by its db id or uuid. The field "id" should
- * be removed as soon as backend is fully based on uuids.
- *
- */
-@Immutable
-public class ProjectId {
+  static final String TABLE = "user_roles";
+  static final String COLUMN = "resource_id";
 
-  private final long id;
-  private final String uuid;
-  private final boolean isPrivate;
-
-  public ProjectId(ComponentDto project) {
-    this.id = requireNonNull(project.getId());
-    this.uuid = requireNonNull(project.uuid());
-    this.isPrivate = project.isPrivate();
+  public DropResourceIdFromUserRolesTable(Database db) {
+    super(db);
   }
 
-  public long getId() {
-    return id;
-  }
-
-  public String getUuid() {
-    return uuid;
-  }
-
-  public boolean isPrivate() {
-    return isPrivate;
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE).setName("user_roles_resource").build());
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE, COLUMN).build());
   }
 }

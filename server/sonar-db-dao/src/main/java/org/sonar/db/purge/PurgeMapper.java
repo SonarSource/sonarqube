@@ -27,12 +27,12 @@ import org.apache.ibatis.annotations.Param;
 
 public interface PurgeMapper {
 
-  List<IdUuidPair> selectAnalysisIdsAndUuids(PurgeSnapshotQuery query);
+  List<String> selectAnalysisUuids(PurgeSnapshotQuery query);
 
   /**
    * Returns the list of modules/subviews and the application/view/project for the specified project_uuid.
    */
-  List<IdUuidPair> selectRootAndModulesOrSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
+  List<String> selectRootAndModulesOrSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
 
   Set<String> selectDisabledComponentsWithFileSource(@Param("projectUuid") String projectUuid);
 
@@ -64,7 +64,7 @@ public interface PurgeMapper {
 
   void deleteProjectLinksByProjectUuid(@Param("rootUuid") String rootUuid);
 
-  void deletePropertiesByComponentIds(@Param("componentIds") List<Long> componentIds);
+  void deletePropertiesByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
   void deleteComponentsByProjectUuid(@Param("rootUuid") String rootUuid);
 
@@ -72,9 +72,9 @@ public interface PurgeMapper {
 
   void deleteComponentsByUuids(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteGroupRolesByComponentId(@Param("rootId") long rootId);
+  void deleteGroupRolesByComponentUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteUserRolesByComponentId(@Param("rootId") long rootId);
+  void deleteUserRolesByComponentUuid(@Param("rootUuid") String rootUuid);
 
   void deleteManualMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
@@ -95,7 +95,7 @@ public interface PurgeMapper {
   @CheckForNull
   String selectSpecificAnalysisNewCodePeriod(@Param("projectUuid") String projectUuid);
 
-  List<IdUuidPair> selectDisabledComponentsWithoutIssues(@Param("projectUuid") String projectUuid);
+  List<String> selectDisabledComponentsWithoutIssues(@Param("projectUuid") String projectUuid);
 
   void deleteIssuesFromKeys(@Param("keys") List<String> keys);
 

@@ -34,20 +34,20 @@ public interface GroupPermissionMapper {
   int countGroupsByQuery(@Param("query") PermissionQuery query);
 
   List<GroupPermissionDto> selectByGroupIds(@Param("organizationUuid") String organizationUuid,
-    @Param("groupIds") List<Integer> groupIds, @Nullable @Param("projectId") Long projectId);
+    @Param("groupIds") List<Integer> groupIds, @Nullable @Param("projectUuid") String projectUuid);
 
-  void groupsCountByProjectIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
+  void groupsCountByProjectUuidAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 
   void insert(GroupPermissionDto dto);
 
   void delete(@Param("permission") String permission, @Param("organizationUuid") String organizationUuid,
-    @Nullable @Param("groupId") Integer groupId, @Nullable @Param("rootComponentId") Long rootComponentId);
+    @Nullable @Param("groupId") Integer groupId, @Nullable @Param("rootComponentUuid") String rootComponentUuid);
 
   List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
     @Nullable @Param("groupId") Integer groupId);
 
   List<String> selectProjectPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
-    @Nullable @Param("groupId") Integer groupId, @Param("projectId") long projectId);
+    @Nullable @Param("groupId") Integer groupId, @Param("projectUuid") String projectUuid);
 
   void selectAllPermissionsByGroupId(@Param("organizationUuid") String organizationUuid,
     @Param("groupId") Integer groupId, ResultHandler resultHandler);
@@ -57,13 +57,13 @@ public interface GroupPermissionMapper {
    * permission, <strong>excluding group "AnyOne"</strong> (which implies the returned {@code Set} can't contain
    * {@code null}).
    */
-  Set<Integer> selectGroupIdsWithPermissionOnProjectBut(@Param("projectId") long projectId, @Param("role") String permission);
+  Set<Integer> selectGroupIdsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("role") String permission);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
-  void deleteByRootComponentId(@Param("rootComponentId") long componentId);
+  void deleteByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
 
-  int deleteByRootComponentIdAndGroupId(@Param("rootComponentId") long rootComponentId, @Nullable @Param("groupId") Integer groupId);
+  int deleteByRootComponentUuidAndGroupId(@Param("rootComponentUuid") String rootComponentUuid, @Nullable @Param("groupId") Integer groupId);
 
-  int deleteByRootComponentIdAndPermission(@Param("rootComponentId") long rootComponentId, @Param("permission") String permission);
+  int deleteByRootComponentUuidAndPermission(@Param("rootComponentUuid") String rootComponentUuid, @Param("permission") String permission);
 }

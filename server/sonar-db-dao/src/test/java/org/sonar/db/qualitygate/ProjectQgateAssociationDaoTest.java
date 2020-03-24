@@ -57,11 +57,11 @@ public class ProjectQgateAssociationDaoTest {
       .build());
 
     assertThat(result)
-      .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getKey, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getKey, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
       .containsExactlyInAnyOrder(
-        tuple(project1.getId(), project1.getKey(), project1.name(), qualityGate1.getId().toString()),
-        tuple(project2.getId(), project2.getKey(), project2.name(), qualityGate1.getId().toString()),
-        tuple(project3.getId(), project3.getKey(), project3.name(), null));
+        tuple(project1.uuid(), project1.getKey(), project1.name(), qualityGate1.getId().toString()),
+        tuple(project2.uuid(), project2.getKey(), project2.name(), qualityGate1.getId().toString()),
+        tuple(project3.uuid(), project3.getKey(), project3.name(), null));
   }
 
   @Test
@@ -78,17 +78,17 @@ public class ProjectQgateAssociationDaoTest {
       .qualityGate(qualityGate)
       .membership(ProjectQgateAssociationQuery.IN)
       .build()))
-      .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
       .containsExactlyInAnyOrder(
-        tuple(project1.getId(), project1.name(), qualityGate.getId().toString()),
-        tuple(project2.getId(), project2.name(), qualityGate.getId().toString()));
+        tuple(project1.uuid(), project1.name(), qualityGate.getId().toString()),
+        tuple(project2.uuid(), project2.name(), qualityGate.getId().toString()));
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
       .membership(ProjectQgateAssociationQuery.OUT)
       .build()))
-      .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
-      .containsExactlyInAnyOrder(tuple(project3.getId(), project3.name(), null));
+      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .containsExactlyInAnyOrder(tuple(project3.uuid(), project3.name(), null));
   }
 
   @Test
@@ -105,15 +105,15 @@ public class ProjectQgateAssociationDaoTest {
       .qualityGate(qualityGate)
       .projectSearch("one")
       .build()))
-      .extracting(ProjectQgateAssociationDto::getId)
-      .containsExactlyInAnyOrder(project1.getId());
+      .extracting(ProjectQgateAssociationDto::getUuid)
+      .containsExactlyInAnyOrder(project1.uuid());
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
       .projectSearch("project")
       .build()))
-      .extracting(ProjectQgateAssociationDto::getId)
-      .containsExactlyInAnyOrder(project1.getId(), project2.getId(), project3.getId());
+      .extracting(ProjectQgateAssociationDto::getUuid)
+      .containsExactlyInAnyOrder(project1.uuid(), project2.uuid(), project3.uuid());
   }
 
   @Test
@@ -127,8 +127,8 @@ public class ProjectQgateAssociationDaoTest {
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
       .build()))
-      .extracting(ProjectQgateAssociationDto::getId)
-      .containsExactly(project1.getId(), project3.getId(), project2.getId());
+      .extracting(ProjectQgateAssociationDto::getUuid)
+      .containsExactly(project1.uuid(), project3.uuid(), project2.uuid());
   }
 
   @Test
@@ -147,8 +147,8 @@ public class ProjectQgateAssociationDaoTest {
       .build());
 
     assertThat(result)
-      .extracting(ProjectQgateAssociationDto::getId)
-      .containsExactlyInAnyOrder(project.getId());
+      .extracting(ProjectQgateAssociationDto::getUuid)
+      .containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test

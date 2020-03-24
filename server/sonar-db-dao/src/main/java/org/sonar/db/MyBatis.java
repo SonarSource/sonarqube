@@ -111,7 +111,6 @@ import org.sonar.db.property.InternalPropertiesMapper;
 import org.sonar.db.property.InternalPropertyDto;
 import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.ScrapPropertyDto;
-import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeMapper;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
@@ -187,7 +186,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("Group", GroupDto.class);
     confBuilder.loadAlias("GroupMembership", GroupMembershipDto.class);
     confBuilder.loadAlias("GroupPermission", GroupPermissionDto.class);
-    confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
     confBuilder.loadAlias("InternalProperty", InternalPropertyDto.class);
     confBuilder.loadAlias("InternalComponentProperty", InternalComponentPropertyDto.class);
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);

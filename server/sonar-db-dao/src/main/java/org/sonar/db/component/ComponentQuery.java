@@ -35,7 +35,6 @@ public class ComponentQuery {
   private final boolean partialMatchOnKey;
   private final String[] qualifiers;
   private final Boolean isPrivate;
-  private final Set<Long> componentIds;
   private final Set<String> componentUuids;
   private final Set<String> componentKeys;
   private final Long analyzedBefore;
@@ -48,7 +47,6 @@ public class ComponentQuery {
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
     this.partialMatchOnKey = builder.partialMatchOnKey == null ? false : builder.partialMatchOnKey;
     this.qualifiers = builder.qualifiers;
-    this.componentIds = builder.componentIds;
     this.componentUuids = builder.componentUuids;
     this.componentKeys = builder.componentKeys;
     this.isPrivate = builder.isPrivate;
@@ -81,11 +79,6 @@ public class ComponentQuery {
    */
   public boolean isPartialMatchOnKey() {
     return partialMatchOnKey;
-  }
-
-  @CheckForNull
-  public Set<Long> getComponentIds() {
-    return componentIds;
   }
 
   @CheckForNull
@@ -128,7 +121,7 @@ public class ComponentQuery {
   }
 
   boolean hasEmptySetOfComponents() {
-    return Stream.of(componentIds, componentKeys, componentUuids)
+    return Stream.of(componentKeys, componentUuids)
       .anyMatch(list -> list != null && list.isEmpty());
   }
 
@@ -141,7 +134,6 @@ public class ComponentQuery {
     private Boolean partialMatchOnKey;
     private String[] qualifiers;
     private Boolean isPrivate;
-    private Set<Long> componentIds;
     private Set<String> componentUuids;
     private Set<String> componentKeys;
     private Long analyzedBefore;
@@ -165,11 +157,6 @@ public class ComponentQuery {
 
     public Builder setQualifiers(String... qualifiers) {
       this.qualifiers = qualifiers;
-      return this;
-    }
-
-    public Builder setComponentIds(@Nullable Set<Long> componentIds) {
-      this.componentIds = componentIds;
       return this;
     }
 

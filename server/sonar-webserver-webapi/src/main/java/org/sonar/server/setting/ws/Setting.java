@@ -35,7 +35,7 @@ public class Setting {
   private static final Splitter DOT_SPLITTER = Splitter.on(".").omitEmptyStrings();
 
   private final String key;
-  private final Long componentId;
+  private final String componentUuid;
   private final String value;
   private final PropertyDefinition definition;
   private final List<Map<String, String>> propertySets;
@@ -44,7 +44,7 @@ public class Setting {
   private Setting(PropertyDto propertyDto, List<PropertyDto> propertyDtoSetValues, @Nullable PropertyDefinition definition) {
     this.key = propertyDto.getKey();
     this.value = propertyDto.getValue();
-    this.componentId = propertyDto.getResourceId();
+    this.componentUuid = propertyDto.getComponentUuid();
     this.definition = definition;
     this.propertySets = buildPropertySetValuesAsMap(key, propertyDtoSetValues);
     this.isDefault = false;
@@ -53,7 +53,7 @@ public class Setting {
   private Setting(PropertyDefinition definition) {
     this.key = definition.key();
     this.value = definition.defaultValue();
-    this.componentId = null;
+    this.componentUuid = null;
     this.definition = definition;
     this.propertySets = Collections.emptyList();
     this.isDefault = true;
@@ -72,8 +72,8 @@ public class Setting {
   }
 
   @CheckForNull
-  public Long getComponentId() {
-    return componentId;
+  public String getComponentUuid() {
+    return componentUuid;
   }
 
   @CheckForNull

@@ -435,12 +435,12 @@ public class PermissionTemplateServiceTest {
 
   private List<String> selectProjectPermissionsOfGroup(OrganizationDto organizationDto, @Nullable GroupDto groupDto, ComponentDto project) {
     return dbTester.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(session,
-      organizationDto.getUuid(), groupDto != null ? groupDto.getId() : null, project.getId());
+      organizationDto.getUuid(), groupDto != null ? groupDto.getId() : null, project.uuid());
   }
 
   private List<String> selectProjectPermissionsOfUser(UserDto userDto, ComponentDto project) {
     return dbTester.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(session,
-      userDto.getId(), project.getId());
+      userDto.getId(), project.uuid());
   }
 
   @Test

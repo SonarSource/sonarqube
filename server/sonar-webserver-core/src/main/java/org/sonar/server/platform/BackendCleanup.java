@@ -54,7 +54,7 @@ public class BackendCleanup {
     "notifications", "project_links", "project_measures", "components", "projects",
     "snapshots", "file_sources", "webhook_deliveries"
   };
-  private static final String[] RESOURCE_RELATED_TABLES = {
+  private static final String[] COMPONENT_RELATED_TABLES = {
     "group_roles", "user_roles", "properties"
   };
   private static final Map<String, TableCleaner> TABLE_CLEANERS = ImmutableMap.of(
@@ -137,9 +137,8 @@ public class BackendCleanup {
         // commit is useless on some databases
         connection.commit();
       }
-      // Clear resource related tables
-      for (String table : RESOURCE_RELATED_TABLES) {
-        statement.execute("DELETE FROM " + table + " WHERE resource_id IS NOT NULL");
+      for (String table : COMPONENT_RELATED_TABLES) {
+        statement.execute("DELETE FROM " + table + " WHERE component_uuid IS NOT NULL");
         connection.commit();
       }
     }

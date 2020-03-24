@@ -19,10 +19,10 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -32,7 +32,6 @@ import org.sonar.db.qualitygate.QualityGateDto;
 
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -49,29 +48,23 @@ public class SelectAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION_SELECT)
       .setDescription("Associate a project to a quality gate.<br>" +
-          "The '%s' or '%s' must be provided.<br>" +
-          "Project id as a numeric value is deprecated since 6.1. Please use the id similar to '%s'.<br>" +
-          "Requires one of the following permissions:" +
-          "<ul>" +
-          "  <li>'Administer Quality Gates'</li>" +
-          "  <li>'Administer' right on the specified project</li>" +
-          "</ul>",
-        PARAM_PROJECT_ID, PARAM_PROJECT_KEY,
-        Uuids.UUID_EXAMPLE_02)
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Gates'</li>" +
+        "  <li>'Administer' right on the specified project</li>" +
+        "</ul>")
       .setPost(true)
       .setSince("4.3")
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(new Change("8.3", "The parameter 'projectId' was removed"));
 
     action.createParam(PARAM_GATE_ID)
       .setDescription("Quality gate id")
       .setRequired(true)
       .setExampleValue("1");
 
-    action.createParam(PARAM_PROJECT_ID)
-      .setDescription("Project id. Project id as an numeric value is deprecated since 6.1")
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
-
     action.createParam(PARAM_PROJECT_KEY)
+      .setRequired(true)
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setSince("6.1");
@@ -82,13 +75,12 @@ public class SelectAction implements QualityGatesWsAction {
   @Override
   public void handle(Request request, Response response) {
     long gateId = request.mandatoryParamAsLong(PARAM_GATE_ID);
-    String projectKey = request.param(PARAM_PROJECT_KEY);
-    String projectId = request.param(PARAM_PROJECT_ID);
+    String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, gateId);
-      ProjectDto project = wsSupport.getProject(dbSession, organization, projectKey, projectId);
+      ProjectDto project = wsSupport.getProject(dbSession, organization, projectKey);
       wsSupport.checkCanAdminProject(organization, project);
 
       QualityGateDto currentQualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid());

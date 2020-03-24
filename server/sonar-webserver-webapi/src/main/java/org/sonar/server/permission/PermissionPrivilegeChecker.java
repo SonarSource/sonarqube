@@ -42,15 +42,15 @@ public class PermissionPrivilegeChecker {
    * defined.
    * @throws org.sonar.server.exceptions.ForbiddenException if user is not administrator
    */
-  public static void checkProjectAdmin(UserSession userSession, String organizationUuid, Optional<ProjectId> projectId) {
+  public static void checkProjectAdmin(UserSession userSession, String organizationUuid, Optional<ProjectUuid> projectUuid) {
     userSession.checkLoggedIn();
 
     if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organizationUuid)) {
       return;
     }
 
-    if (projectId.isPresent()) {
-      userSession.checkComponentUuidPermission(UserRole.ADMIN, projectId.get().getUuid());
+    if (projectUuid.isPresent()) {
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, projectUuid.get().getUuid());
     } else {
       throw insufficientPrivilegesException();
     }

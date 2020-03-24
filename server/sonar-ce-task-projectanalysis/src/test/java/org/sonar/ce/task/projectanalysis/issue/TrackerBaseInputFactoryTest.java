@@ -86,7 +86,7 @@ public class TrackerBaseInputFactoryTest {
     String originalUuid = "original uuid";
 
     when(movedFilesRepository.getOriginalFile(FILE)).thenReturn(
-      Optional.of(new MovedFilesRepository.OriginalFile(6542, originalUuid, "original key")));
+      Optional.of(new MovedFilesRepository.OriginalFile(originalUuid, "original key")));
 
     underTest.create(FILE).getLineHashSequence();
 
@@ -106,7 +106,7 @@ public class TrackerBaseInputFactoryTest {
     String originalUuid = "original uuid";
 
     when(movedFilesRepository.getOriginalFile(FILE)).thenReturn(
-      Optional.of(new MovedFilesRepository.OriginalFile(6542, originalUuid, "original key")));
+      Optional.of(new MovedFilesRepository.OriginalFile(originalUuid, "original key")));
 
     underTest.create(FILE).getIssues();
 

@@ -145,7 +145,7 @@ public class SetActionTest {
     callForProjectSettingByKey("my.key", "my project value", project.getDbKey());
 
     assertGlobalSetting("my.key", "my global value");
-    assertComponentSetting("my.key", "my project value", project.getId());
+    assertComponentSetting("my.key", "my project value", project.uuid());
     assertThat(settingsChangeNotifier.wasCalled).isFalse();
   }
 
@@ -156,7 +156,7 @@ public class SetActionTest {
 
     callForProjectSettingByKey("my.key", "my value", project.getDbKey());
 
-    assertComponentSetting("my.key", "my value", project.getId());
+    assertComponentSetting("my.key", "my value", project.uuid());
   }
 
   @Test
@@ -164,12 +164,12 @@ public class SetActionTest {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
     ComponentDto project = db.components().insertPrivateProject();
     propertyDb.insertProperty(newComponentPropertyDto("my.key", "my project value", project));
-    assertComponentSetting("my.key", "my project value", project.getId());
+    assertComponentSetting("my.key", "my project value", project.uuid());
     logInAsProjectAdministrator(project);
 
     callForProjectSettingByKey("my.key", "my new project value", project.getDbKey());
 
-    assertComponentSetting("my.key", "my new project value", project.getId());
+    assertComponentSetting("my.key", "my new project value", project.uuid());
   }
 
   @Test
@@ -313,12 +313,12 @@ public class SetActionTest {
     assertGlobalSetting("my.key", "1");
     assertGlobalSetting("my.key.1.firstField", "oldFirstValue");
     assertGlobalSetting("my.key.1.secondField", "oldSecondValue");
-    Long projectId = project.getId();
-    assertComponentSetting("my.key", "1,2", projectId);
-    assertComponentSetting("my.key.1.firstField", "firstValue", projectId);
-    assertComponentSetting("my.key.1.secondField", "secondValue", projectId);
-    assertComponentSetting("my.key.2.firstField", "anotherFirstValue", projectId);
-    assertComponentSetting("my.key.2.secondField", "anotherSecondValue", projectId);
+    String projectUuid = project.uuid();
+    assertComponentSetting("my.key", "1,2", projectUuid);
+    assertComponentSetting("my.key.1.firstField", "firstValue", projectUuid);
+    assertComponentSetting("my.key.1.secondField", "secondValue", projectUuid);
+    assertComponentSetting("my.key.2.firstField", "anotherFirstValue", projectUuid);
+    assertComponentSetting("my.key.2.secondField", "anotherSecondValue", projectUuid);
     assertThat(settingsChangeNotifier.wasCalled).isFalse();
   }
 
@@ -643,7 +643,7 @@ public class SetActionTest {
 
     callForProjectSettingByKey("my.key", "My Value", module.getDbKey());
 
-    assertComponentSetting("my.key", "My Value", module.getId());
+    assertComponentSetting("my.key", "My Value", module.uuid());
   }
 
   private void failForPropertyWithoutDefinitionOnUnsupportedComponent(ComponentDto root, ComponentDto component) {
@@ -962,7 +962,7 @@ public class SetActionTest {
     PropertyDto result = dbClient.propertiesDao().selectGlobalProperty(key);
 
     assertThat(result)
-      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getResourceId)
+      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getComponentUuid)
       .containsExactly(key, value, null);
   }
 
@@ -974,13 +974,13 @@ public class SetActionTest {
       .containsExactly(tuple(key, value, userId));
   }
 
-  private void assertComponentSetting(String key, String value, long componentId) {
-    PropertyDto result = dbClient.propertiesDao().selectProjectProperty(componentId, key);
+  private void assertComponentSetting(String key, String value, String componentUuid) {
+    PropertyDto result = dbClient.propertiesDao().selectProjectProperty(componentUuid, key);
 
     assertThat(result)
       .isNotNull()
-      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getResourceId)
-      .containsExactly(key, value, componentId);
+      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getComponentUuid)
+      .containsExactly(key, value, componentUuid);
   }
 
   private void callForGlobalSetting(@Nullable String key, @Nullable String value) {

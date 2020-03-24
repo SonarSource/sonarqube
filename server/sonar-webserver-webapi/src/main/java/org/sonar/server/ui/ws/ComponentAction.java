@@ -245,7 +245,7 @@ public class ComponentAction implements NavigationWsAction {
     PropertyQuery propertyQuery = PropertyQuery.builder()
       .setUserId(userSession.getUserId())
       .setKey("favourite")
-      .setComponentId(component.getId())
+      .setComponentUuid(component.uuid())
       .build();
     List<PropertyDto> componentFavourites = dbClient.propertiesDao().selectByQuery(propertyQuery, session);
     return componentFavourites.size() == 1;

@@ -36,7 +36,7 @@ public class DbVersion83Test {
 
   @Test
   public void verify_migration_count() {
-    verifyMigrationCount(underTest, 2);
+    verifyMigrationCount(underTest, 12);
   }
 
 }

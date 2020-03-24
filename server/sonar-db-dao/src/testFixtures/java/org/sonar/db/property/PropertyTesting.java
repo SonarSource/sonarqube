@@ -35,21 +35,21 @@ public class PropertyTesting {
   }
 
   public static PropertyDto newGlobalPropertyDto(String key, String value) {
-    return newPropertyDto(key, value, (Long) null, null);
+    return newPropertyDto(key, value, (String) null, null);
   }
 
   public static PropertyDto newGlobalPropertyDto() {
-    return newPropertyDto((Long) null, null);
+    return newPropertyDto((String) null, null);
   }
 
   public static PropertyDto newComponentPropertyDto(String key, String value, ComponentDto component) {
-    checkNotNull(component.getId());
-    return newPropertyDto(key, value, component.getId(), null);
+    checkNotNull(component.uuid());
+    return newPropertyDto(key, value, component.uuid(), null);
   }
 
   public static PropertyDto newComponentPropertyDto(ComponentDto component) {
-    checkNotNull(component.getId());
-    return newPropertyDto(component.getId(), null);
+    checkNotNull(component.uuid());
+    return newPropertyDto(component.uuid(), null);
   }
 
   public static PropertyDto newUserPropertyDto(String key, String value, UserDto user) {
@@ -63,31 +63,31 @@ public class PropertyTesting {
   }
 
   public static PropertyDto newPropertyDto(String key, String value, ComponentDto component, UserDto user) {
-    checkNotNull(component.getId());
+    checkNotNull(component.uuid());
     checkNotNull(user.getId());
-    return newPropertyDto(key, value, component.getId(), user.getId());
+    return newPropertyDto(key, value, component.uuid(), user.getId());
   }
 
   public static PropertyDto newPropertyDto(ComponentDto component, UserDto user) {
-    checkNotNull(component.getId());
+    checkNotNull(component.uuid());
     checkNotNull(user.getId());
-    return newPropertyDto(component.getId(), user.getId());
+    return newPropertyDto(component.uuid(), user.getId());
   }
 
-  private static PropertyDto newPropertyDto(@Nullable Long componentId, @Nullable Integer userId) {
+  private static PropertyDto newPropertyDto(@Nullable String componentUuid, @Nullable Integer userId) {
     String key = String.valueOf(cursor);
     cursor++;
     String value = String.valueOf(cursor);
     cursor++;
-    return newPropertyDto(key, value, componentId, userId);
+    return newPropertyDto(key, value, componentUuid, userId);
   }
 
-  private static PropertyDto newPropertyDto(String key, String value, @Nullable Long componentId, @Nullable Integer userId) {
+  private static PropertyDto newPropertyDto(String key, String value, @Nullable String componentUuid, @Nullable Integer userId) {
     PropertyDto propertyDto = new PropertyDto()
       .setKey(key)
       .setValue(value);
-    if (componentId != null) {
-      propertyDto.setResourceId(componentId);
+    if (componentUuid != null) {
+      propertyDto.setComponentUuid(componentUuid);
     }
     if (userId != null) {
       propertyDto.setUserId(userId);

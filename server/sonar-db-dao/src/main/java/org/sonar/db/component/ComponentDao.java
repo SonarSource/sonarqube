@@ -72,10 +72,6 @@ public class ComponentDao implements Dao {
     return session.getMapper(ComponentMapper.class);
   }
 
-  public Optional<ComponentDto> selectById(DbSession session, long id) {
-    return Optional.ofNullable(mapper(session).selectById(id));
-  }
-
   public Optional<ComponentDto> selectByUuid(DbSession session, String uuid) {
     return Optional.ofNullable(mapper(session).selectByUuid(uuid));
   }
@@ -145,10 +141,6 @@ public class ComponentDao implements Dao {
 
   public List<FilePathWithHashDto> selectEnabledFilesFromProject(DbSession session, String rootComponentUuid) {
     return mapper(session).selectEnabledFilesFromProject(rootComponentUuid);
-  }
-
-  public List<ComponentDto> selectByIds(DbSession session, Collection<Long> ids) {
-    return executeLargeInputs(ids, mapper(session)::selectByIds);
   }
 
   public List<ComponentDto> selectByUuids(DbSession session, Collection<String> uuids) {
@@ -386,12 +378,11 @@ public class ComponentDao implements Dao {
     mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
   }
 
-  public void delete(DbSession session, long componentId) {
-    mapper(session).delete(componentId);
+  public void delete(DbSession session, String componentUuid) {
+    mapper(session).delete(componentUuid);
   }
 
   private static void checkThatNotTooManyComponents(ComponentQuery query) {
-    checkThatNotTooManyConditions(query.getComponentIds(), "Too many component ids in query");
     checkThatNotTooManyConditions(query.getComponentKeys(), "Too many component keys in query");
     checkThatNotTooManyConditions(query.getComponentUuids(), "Too many component UUIDs in query");
   }

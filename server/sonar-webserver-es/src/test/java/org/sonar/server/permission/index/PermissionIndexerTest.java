@@ -85,7 +85,7 @@ public class PermissionIndexerTest {
     assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);
 
     // Simulate a indexation issue
-    db.getDbClient().componentDao().delete(db.getSession(), project1.getId());
+    db.getDbClient().componentDao().delete(db.getSession(), project1.uuid());
     underTest.prepareForRecovery(db.getSession(), asList(project1.uuid()), ProjectIndexer.Cause.PROJECT_DELETION);
     assertThat(db.countRowsOfTable(db.getSession(), "es_queue")).isEqualTo(1);
     Collection<EsQueueDto> esQueueDtos = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), Long.MAX_VALUE, 2);
@@ -304,7 +304,7 @@ public class PermissionIndexerTest {
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_CREATION);
     verifyAuthorized(project, user);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.getId());
+    db.getDbClient().componentDao().delete(db.getSession(), project.uuid());
     indexPermissions(project, ProjectIndexer.Cause.PROJECT_DELETION);
 
     verifyNotAuthorized(project, user);

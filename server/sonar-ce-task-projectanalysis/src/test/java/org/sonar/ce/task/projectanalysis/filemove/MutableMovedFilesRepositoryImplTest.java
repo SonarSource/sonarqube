@@ -39,7 +39,7 @@ public class MutableMovedFilesRepositoryImplTest {
     ViewsComponent.builder(Component.Type.SUBVIEW, 1).build(),
     ViewsComponent.builder(Component.Type.PROJECT_VIEW, 1).build()
   };
-  private static final MovedFilesRepository.OriginalFile SOME_ORIGINAL_FILE = new MovedFilesRepository.OriginalFile(100, "uuid for 100", "key for 100");
+  private static final MovedFilesRepository.OriginalFile SOME_ORIGINAL_FILE = new MovedFilesRepository.OriginalFile("uuid for 100", "key for 100");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -81,10 +81,10 @@ public class MutableMovedFilesRepositoryImplTest {
     underTest.setOriginalFile(SOME_FILE, SOME_ORIGINAL_FILE);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Original file OriginalFile{id=100, uuid='uuid for 100', key='key for 100'} " +
+    expectedException.expectMessage("Original file OriginalFile{uuid='uuid for 100', key='key for 100'} " +
       "already registered for file ReportComponent{ref=1, key='key_1', type=FILE}");
 
-    underTest.setOriginalFile(SOME_FILE, new MovedFilesRepository.OriginalFile(987, "uudi", "key"));
+    underTest.setOriginalFile(SOME_FILE, new MovedFilesRepository.OriginalFile("uudi", "key"));
   }
 
   @Test

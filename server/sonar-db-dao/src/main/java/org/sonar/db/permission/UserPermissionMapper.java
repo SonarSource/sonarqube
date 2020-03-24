@@ -43,14 +43,14 @@ public interface UserPermissionMapper {
 
   /**
    * Count the number of users per permission for a given list of projects.
-   * @param projectIds a non-null and non-empty list of project ids
+   * @param projectUuids a non-null and non-empty list of project ids
    */
-  List<CountPerProjectPermission> countUsersByProjectPermission(@Param("projectIds") List<Long> projectIds);
+  List<CountPerProjectPermission> countUsersByProjectPermission(@Param("projectUuids") List<String> projectUuids);
 
   /**
    * select id of users with at least one permission on the specified project but which do not have the specified permission.
    */
-  Set<Integer> selectUserIdsWithPermissionOnProjectBut(@Param("projectId") long projectId, @Param("permission") String permission);
+  Set<Integer> selectUserIdsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
 
   void insert(UserPermissionDto dto);
 
@@ -58,15 +58,15 @@ public interface UserPermissionMapper {
     @Param("organizationUuid") String organizationUuid);
 
   void deleteProjectPermission(@Param("userId") int userId, @Param("permission") String permission,
-    @Param("projectId") long projectId);
+    @Param("projectUuid") String projectUuid);
 
-  void deleteProjectPermissions(@Param("projectId") long projectId);
+  void deleteProjectPermissions(@Param("projectUuid") String projectUuid);
 
-  int deleteProjectPermissionOfAnyUser(@Param("projectId") long projectId, @Param("permission") String permission);
+  int deleteProjectPermissionOfAnyUser(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
 
   List<String> selectGlobalPermissionsOfUser(@Param("userId") int userId, @Param("organizationUuid") String organizationUuid);
 
-  List<String> selectProjectPermissionsOfUser(@Param("userId") int userId, @Param("projectId") long projectId);
+  List<String> selectProjectPermissionsOfUser(@Param("userId") int userId, @Param("projectUuid") String projectUuid);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 

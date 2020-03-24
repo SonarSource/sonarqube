@@ -49,7 +49,7 @@ public class FavoriteUpdater {
     List<PropertyDto> existingFavoriteOnComponent = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
       .setUserId(userId)
-      .setComponentId(componentDto.getId())
+      .setComponentUuid(componentDto.uuid())
       .build(), dbSession);
     checkArgument(existingFavoriteOnComponent.isEmpty(), "Component '%s' is already a favorite", componentDto.getDbKey());
 
@@ -60,7 +60,7 @@ public class FavoriteUpdater {
     }
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
-      .setResourceId(componentDto.getId())
+      .setComponentUuid(componentDto.uuid())
       .setUserId(userId));
   }
 
@@ -75,7 +75,7 @@ public class FavoriteUpdater {
 
     int result = dbClient.propertiesDao().delete(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
-      .setResourceId(component.getId())
+      .setComponentUuid(component.uuid())
       .setUserId(userId));
     checkArgument(result == 1, "Component '%s' is not a favorite", component.getDbKey());
   }

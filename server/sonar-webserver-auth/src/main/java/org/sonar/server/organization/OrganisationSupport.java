@@ -92,7 +92,7 @@ public class OrganisationSupport {
         dbClient.groupPermissionDao().insert(dbSession,
           new GroupPermissionDto().setOrganizationUuid(defaultOrganizationUuid).setGroupId(membersGroup.getId())
             .setRole(groupPermissionDto.getRole())
-            .setResourceId(groupPermissionDto.getResourceId()));
+            .setComponentUuid(groupPermissionDto.getComponentUuid()));
       });
   }
 

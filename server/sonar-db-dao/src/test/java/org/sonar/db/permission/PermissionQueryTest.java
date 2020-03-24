@@ -46,7 +46,6 @@ public class PermissionQueryTest {
       .build();
 
     assertThat(query.getComponentUuid()).isEqualTo(project.uuid());
-    assertThat(query.getComponentId()).isEqualTo(project.getId());
     assertThat(query.getOrganizationUuid()).isEqualTo("ORGANIZATION_UUID");
     assertThat(query.getPermission()).isEqualTo("user");
     assertThat(query.getSearchQuery()).isEqualTo("sonar");

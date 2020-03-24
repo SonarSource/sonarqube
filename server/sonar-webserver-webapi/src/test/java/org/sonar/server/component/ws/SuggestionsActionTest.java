@@ -399,7 +399,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexOnStartup(null);
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    db.getDbClient().componentDao().delete(db.getSession(), project.getId());
+    db.getDbClient().componentDao().delete(db.getSession(), project.uuid());
     db.commit();
 
     SuggestionsWsResponse response = ws.newRequest()

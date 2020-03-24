@@ -201,7 +201,7 @@ public class FileMoveDetectionStep implements ComputationStep {
       dbClient.componentDao().scrollAllFilesForFileMove(dbSession, rootHolder.getRoot().getUuid(),
         resultContext -> {
           FileMoveRowDto row = resultContext.getResultObject();
-          builder.add(new DbComponent(row.getId(), row.getKey(), row.getUuid(), row.getPath(), row.getLineCount()));
+          builder.add(new DbComponent(row.getKey(), row.getUuid(), row.getPath(), row.getLineCount()));
         });
       return builder.build().stream()
         .collect(MoreCollectors.uniqueIndex(DbComponent::getUuid));
@@ -363,27 +363,21 @@ public class FileMoveDetectionStep implements ComputationStep {
   }
 
   private static MovedFilesRepository.OriginalFile toOriginalFile(DbComponent dbComponent) {
-    return new MovedFilesRepository.OriginalFile(dbComponent.getId(), dbComponent.getUuid(), dbComponent.getKey());
+    return new MovedFilesRepository.OriginalFile(dbComponent.getUuid(), dbComponent.getKey());
   }
 
   @Immutable
   private static final class DbComponent {
-    private final long id;
     private final String key;
     private final String uuid;
     private final String path;
     private final int lineCount;
 
-    private DbComponent(long id, String key, String uuid, String path, int lineCount) {
-      this.id = id;
+    private DbComponent(String key, String uuid, String path, int lineCount) {
       this.key = key;
       this.uuid = uuid;
       this.path = path;
       this.lineCount = lineCount;
-    }
-
-    public long getId() {
-      return id;
     }
 
     public String getKey() {

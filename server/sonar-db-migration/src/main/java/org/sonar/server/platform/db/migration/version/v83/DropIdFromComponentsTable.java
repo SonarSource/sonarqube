@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.component;
+package org.sonar.server.platform.db.migration.version.v83;
 
-import static org.sonar.ce.task.projectanalysis.component.ComponentFunctions.toComponentUuid;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-/**
- * Cache of persisted component (component id and snapshot id) that can be used in the persistence steps
- */
-public class DbIdsRepositoryImpl implements MutableDbIdsRepository {
+public class DropIdFromComponentsTable extends DdlChange {
 
-  private final MapBasedDbIdsRepository<String> delegate = new MapBasedDbIdsRepository<>(toComponentUuid());
+  static final String TABLE_NAME = "components";
+  static final String INDEX_NAME = "pk_projects";
+  static final String COLUMN_NAME = "id";
 
-  @Override
-  public DbIdsRepository setComponentId(Component component, long componentId) {
-    return delegate.setComponentId(component, componentId);
+  public DropIdFromComponentsTable(Database db) {
+    super(db);
   }
-
   @Override
-  public long getComponentId(Component component) {
-    return delegate.getComponentId(component);
-  }
+  public void execute(Context context) throws SQLException {
 
+    context.execute(new DropConstraintBuilder(getDialect()).setTable(TABLE_NAME).setName(INDEX_NAME).build());
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, COLUMN_NAME).build());
+  }
 }

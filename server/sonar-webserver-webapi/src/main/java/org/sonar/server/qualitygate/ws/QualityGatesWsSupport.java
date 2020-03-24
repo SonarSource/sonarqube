@@ -45,8 +45,6 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class QualityGatesWsSupport {
@@ -124,29 +122,10 @@ public class QualityGatesWsSupport {
     throw insufficientPrivilegesException();
   }
 
-  ProjectDto getProject(DbSession dbSession, OrganizationDto organization, @Nullable String projectKey, @Nullable String projectId) {
-    ProjectDto project;
-    if (projectId != null) {
-      project = getProjectById(dbSession, projectId);
-    } else if (projectKey != null) {
-      project = componentFinder.getProjectByKey(dbSession, projectKey);
-    } else {
-      throw new IllegalArgumentException(String.format("Must specify %s or %s", PARAM_PROJECT_KEY, PARAM_PROJECT_ID));
-    }
-
+  ProjectDto getProject(DbSession dbSession, OrganizationDto organization, String projectKey) {
+    ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
     checkProjectBelongsToOrganization(organization, project);
     return project;
-  }
-
-  ProjectDto getProjectById(DbSession dbSession, String projectId) {
-    try {
-      long dbId = Long.parseLong(projectId);
-      return dbClient.componentDao().selectById(dbSession, dbId)
-        .flatMap(c -> dbClient.projectDao().selectByUuid(dbSession, c.uuid()))
-        .orElseThrow(() -> new NotFoundException(String.format("Project '%s' not found", projectId)));
-    } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Invalid id: " + projectId);
-    }
   }
 
   void checkProjectBelongsToOrganization(OrganizationDto organization, ProjectDto project) {

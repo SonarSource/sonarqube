@@ -330,7 +330,6 @@ public class FileMoveDetectionStepTest {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).containsExactly(file2);
     MovedFilesRepository.OriginalFile originalFile = movedFilesRepository.getOriginalFile(file2).get();
-    assertThat(originalFile.getId()).isEqualTo(dtos[0].getId());
     assertThat(originalFile.getKey()).isEqualTo(dtos[0].getDbKey());
     assertThat(originalFile.getUuid()).isEqualTo(dtos[0].uuid());
     assertThat(addedFileRepository.getComponents()).isEmpty();
@@ -496,11 +495,9 @@ public class FileMoveDetectionStepTest {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).containsOnly(file3, file6);
     MovedFilesRepository.OriginalFile originalFile2 = movedFilesRepository.getOriginalFile(file3).get();
-    assertThat(originalFile2.getId()).isEqualTo(dtos[0].getId());
     assertThat(originalFile2.getKey()).isEqualTo(dtos[0].getDbKey());
     assertThat(originalFile2.getUuid()).isEqualTo(dtos[0].uuid());
     MovedFilesRepository.OriginalFile originalFile5 = movedFilesRepository.getOriginalFile(file6).get();
-    assertThat(originalFile5.getId()).isEqualTo(dtos[3].getId());
     assertThat(originalFile5.getKey()).isEqualTo(dtos[3].getDbKey());
     assertThat(originalFile5.getUuid()).isEqualTo(dtos[3].uuid());
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isGreaterThan(MIN_REQUIRED_SCORE);

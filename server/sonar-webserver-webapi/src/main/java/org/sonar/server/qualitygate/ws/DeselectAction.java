@@ -23,13 +23,11 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -55,14 +53,11 @@ public class DeselectAction implements QualityGatesWsAction {
       .setPost(true)
       .setSince("4.3")
       .setHandler(this)
-      .setChangelog(new Change("6.6", "The parameter 'gateId' was removed"));
-
-    action.createParam(PARAM_PROJECT_ID)
-      .setDescription("Project id")
-      .setDeprecatedSince("6.1")
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+      .setChangelog(new Change("6.6", "The parameter 'gateId' was removed"),
+        new Change("8.3", "The parameter 'projectId' was removed"));
 
     action.createParam(PARAM_PROJECT_KEY)
+      .setRequired(true)
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setSince("6.1");
@@ -74,7 +69,7 @@ public class DeselectAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      ProjectDto project = wsSupport.getProject(dbSession, organization, request.param(PARAM_PROJECT_KEY), request.param(PARAM_PROJECT_ID));
+      ProjectDto project = wsSupport.getProject(dbSession, organization, request.mandatoryParam(PARAM_PROJECT_KEY));
       dissociateProject(dbSession, organization, project);
       response.noContent();
     }

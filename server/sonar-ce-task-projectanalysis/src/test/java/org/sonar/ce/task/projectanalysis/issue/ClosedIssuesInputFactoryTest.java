@@ -65,7 +65,7 @@ public class ClosedIssuesInputFactoryTest {
     String originalComponentUuid = randomAlphanumeric(12);
     ReportComponent component = ReportComponent.builder(Component.Type.FILE, 1).setUuid(componentUuid).build();
     when(movedFilesRepository.getOriginalFile(component))
-      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(1, originalComponentUuid, randomAlphanumeric(2))));
+      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(originalComponentUuid, randomAlphanumeric(2))));
 
     Input<DefaultIssue> input = underTest.create(component);
 

@@ -126,7 +126,6 @@ public class SearchAction implements QualityGatesWsAction {
 
       for (ProjectQgateAssociationDto project : paginatedProjects) {
         createResponse.addResultsBuilder()
-          .setId(project.getId())
           .setName(project.getName())
           .setKey(project.getKey())
           .setSelected(project.getGateId() != null);
@@ -147,8 +146,8 @@ public class SearchAction implements QualityGatesWsAction {
       // Meanwhile root is explicitly handled.
       return projects;
     }
-    List<Long> projectIds = projects.stream().map(ProjectQgateAssociationDto::getId).collect(MoreCollectors.toList());
-    Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIds, userSession.getUserId(), UserRole.USER);
-    return projects.stream().filter(project -> authorizedProjectIds.contains(project.getId())).collect(MoreCollectors.toList());
+    List<String> projectUuids = projects.stream().map(ProjectQgateAssociationDto::getUuid).collect(MoreCollectors.toList());
+    Collection<String> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, projectUuids, userSession.getUserId(), UserRole.USER);
+    return projects.stream().filter(project -> authorizedProjectIds.contains(project.getUuid())).collect(MoreCollectors.toList());
   }
 }

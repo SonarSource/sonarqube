@@ -481,7 +481,7 @@ public class ResetActionTest {
   }
 
   private void assertProjectPropertyDoesNotExist(ComponentDto component, String key) {
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(component.getId()).setKey(key).build(), dbSession)).isEmpty();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(component.uuid()).setKey(key).build(), dbSession)).isEmpty();
   }
 
   private void assertProjectPropertyDoesNotExist(String key) {
@@ -489,7 +489,7 @@ public class ResetActionTest {
   }
 
   private void assertProjectPropertyExists(String key) {
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentId(project.getId()).setKey(key).build(), dbSession)).isNotEmpty();
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.uuid()).setKey(key).build(), dbSession)).isNotEmpty();
   }
 
   private void assertUserPropertyExists(String key, UserDto user) {

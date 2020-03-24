@@ -4,7 +4,6 @@
 <mapper namespace="org.sonar.db.component.ComponentKeyUpdaterMapper">
 
   <resultMap id="resourceResultMap" type="Resource">
-    <id property="id" column="id"/>
     <result property="key" column="kee"/>
     <result property="uuid" column="uuid"/>
     <result property="deprecatedKey" column="deprecated_kee"/>
@@ -42,7 +41,7 @@
   <update id="updateComponent" parameterType="Resource">
     update components
     set kee = #{key,jdbcType=VARCHAR}, deprecated_kee = #{deprecatedKey,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=BIGINT}
+    where uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 
   <update id="updateProject">

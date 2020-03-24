@@ -281,11 +281,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .build(),
       dbSession);
 
-    List<Long> favoriteDbIds = props.stream()
-      .map(PropertyDto::getResourceId)
-      .collect(toList(props.size()));
+    List<String> favoriteDbUuids = props.stream()
+      .map(PropertyDto::getComponentUuid)
+      .collect(MoreCollectors.toList(props.size()));
 
-    return dbClient.componentDao().selectByIds(dbSession, favoriteDbIds).stream()
+    return dbClient.componentDao().selectByUuids(dbSession, favoriteDbUuids).stream()
       .filter(ComponentDto::isEnabled)
       .filter(f -> f.qualifier().equals(Qualifiers.PROJECT))
       .map(ComponentDto::uuid)

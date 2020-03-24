@@ -38,8 +38,6 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.BranchPersister;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.ce.task.projectanalysis.component.DbIdsRepositoryImpl;
-import org.sonar.ce.task.projectanalysis.component.MutableDbIdsRepository;
 import org.sonar.ce.task.projectanalysis.component.MutableDisabledComponentsHolder;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitor;
@@ -62,25 +60,21 @@ import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
 
 /**
  * Persist report components
- * Also feed the components cache {@link DbIdsRepositoryImpl} with component ids
  */
 public class PersistComponentsStep implements ComputationStep {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
-  private final MutableDbIdsRepository dbIdsRepository;
   private final System2 system2;
   private final MutableDisabledComponentsHolder disabledComponentsHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final BranchPersister branchPersister;
   private final ProjectPersister projectPersister;
 
-  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder,
-    MutableDbIdsRepository dbIdsRepository, System2 system2,
+  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, System2 system2,
     MutableDisabledComponentsHolder disabledComponentsHolder, AnalysisMetadataHolder analysisMetadataHolder,
     BranchPersister branchPersister, ProjectPersister projectPersister) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
-    this.dbIdsRepository = dbIdsRepository;
     this.system2 = system2;
     this.disabledComponentsHolder = disabledComponentsHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -172,6 +166,7 @@ public class PersistComponentsStep implements ComputationStep {
     private final DbSession dbSession;
     @Nullable
     private final String mainBranchProjectUuid;
+    private int componentRef = 1;
 
     PersistComponentStepsVisitor(Map<String, ComponentDto> existingComponentDtosByUuids, DbSession dbSession, @Nullable String mainBranchProjectUuid) {
       super(
@@ -238,7 +233,6 @@ public class PersistComponentsStep implements ComputationStep {
 
     private ComponentDto persistAndPopulateCache(Component component, ComponentDto dto) {
       ComponentDto projectDto = persistComponent(dto);
-      addToCache(component, projectDto);
       return projectDto;
     }
 
@@ -271,10 +265,6 @@ public class PersistComponentsStep implements ComputationStep {
         existingComponent.setQualifier(updateDto.getBQualifier());
       }
       return existingComponent;
-    }
-
-    private void addToCache(Component component, ComponentDto componentDto) {
-      dbIdsRepository.setComponentId(component, componentDto.getId());
     }
 
     public ComponentDto createForProject(Component project) {

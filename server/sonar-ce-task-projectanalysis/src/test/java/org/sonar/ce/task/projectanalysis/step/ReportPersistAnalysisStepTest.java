@@ -28,7 +28,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.period.Period;
@@ -65,7 +64,6 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
   public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
   private System2 system2 = mock(System2.class);
-  private DbIdsRepositoryImpl dbIdsRepository;
   private DbClient dbClient = dbTester.getDbClient();
   private long analysisDate;
   private long now;
@@ -77,7 +75,6 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     analysisMetadataHolder.setAnalysisDate(analysisDate);
     analysisMetadataHolder.setScmRevision(REVISION_ID);
-    dbIdsRepository = new DbIdsRepositoryImpl();
 
     now = DateUtils.parseDateQuietly("2015-06-02").getTime();
 
@@ -121,10 +118,6 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
       .build();
     treeRootHolder.setRoot(project);
 
-    dbIdsRepository.setComponentId(project, projectDto.getId());
-    dbIdsRepository.setComponentId(directory, directoryDto.getId());
-    dbIdsRepository.setComponentId(file, fileDto.getId());
-
     underTest.execute(new TestComputationStepContext());
 
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
@@ -139,9 +132,6 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(projectSnapshot.getBuildDate()).isEqualTo(now);
     assertThat(projectSnapshot.getRevision()).isEqualTo(REVISION_ID);
-
-    assertThat(dbIdsRepository.getComponentId(directory)).isEqualTo(directoryDto.getId());
-    assertThat(dbIdsRepository.getComponentId(file)).isEqualTo(fileDto.getId());
   }
 
   @Test
@@ -156,7 +146,6 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
-    dbIdsRepository.setComponentId(project, projectDto.getId());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -192,10 +181,6 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory).build();
     treeRootHolder.setRoot(project);
 
-    dbIdsRepository.setComponentId(project, projectDto.getId());
-    dbIdsRepository.setComponentId(directory, directoryDto.getId());
-    dbIdsRepository.setComponentId(file, fileDto.getId());
-
     underTest.execute(new TestComputationStepContext());
 
     SnapshotDto newProjectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
@@ -212,7 +197,6 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
-    dbIdsRepository.setComponentId(project, projectDto.getId());
 
     underTest.execute(new TestComputationStepContext());
 

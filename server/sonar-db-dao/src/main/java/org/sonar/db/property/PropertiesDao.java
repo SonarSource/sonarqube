@@ -109,8 +109,8 @@ public class PropertiesDao implements Dao {
 
   private static PreparedStatement createStatement(String projectUuid, Collection<String> dispatcherKeys, Connection connection) throws SQLException {
     String sql = "SELECT count(1) FROM properties pp " +
-      "left outer join components pj on pp.resource_id = pj.id " +
-      "where pp.user_id is not null and (pp.resource_id is null or pj.uuid=?) " +
+      "left outer join components pj on pp.component_uuid = pj.uuid " +
+      "where pp.user_id is not null and (pp.component_uuid is null or pj.uuid=?) " +
       "and (" + repeat("pp.prop_key like ?", " or ", dispatcherKeys.size()) + ")";
     PreparedStatement res = connection.prepareStatement(sql);
     res.setString(1, projectUuid);
@@ -155,32 +155,32 @@ public class PropertiesDao implements Dao {
   }
 
   @CheckForNull
-  public PropertyDto selectProjectProperty(long componentId, String propertyKey) {
+  public PropertyDto selectProjectProperty(String projectUuid, String propertyKey) {
     try (DbSession session = mybatis.openSession(false)) {
-      return selectProjectProperty(session, componentId, propertyKey);
+      return selectProjectProperty(session, projectUuid, propertyKey);
     }
   }
 
   @CheckForNull
-  public PropertyDto selectProjectProperty(DbSession dbSession, long componentId, String propertyKey) {
-    return getMapper(dbSession).selectByKey(new PropertyDto().setKey(propertyKey).setResourceId(componentId));
+  public PropertyDto selectProjectProperty(DbSession dbSession, String projectUuid, String propertyKey) {
+    return getMapper(dbSession).selectByKey(new PropertyDto().setKey(propertyKey).setComponentUuid(projectUuid));
   }
 
   public List<PropertyDto> selectByQuery(PropertyQuery query, DbSession session) {
     return getMapper(session).selectByQuery(query);
   }
 
-  public List<PropertyDto> selectGlobalPropertiesByKeys(DbSession session, Set<String> keys) {
+  public List<PropertyDto> selectGlobalPropertiesByKeys(DbSession session, Collection<String> keys) {
     return executeLargeInputs(keys, partitionKeys -> getMapper(session).selectByKeys(partitionKeys));
   }
 
-  public List<PropertyDto> selectPropertiesByKeysAndComponentIds(DbSession session, Set<String> keys, Set<Long> componentIds) {
-    return executeLargeInputs(keys, partitionKeys -> executeLargeInputs(componentIds,
-      partitionComponentIds -> getMapper(session).selectByKeysAndComponentIds(partitionKeys, partitionComponentIds)));
+  public List<PropertyDto> selectPropertiesByKeysAndComponentUuids(DbSession session, Collection<String> keys, Collection<String> componentUuids) {
+    return executeLargeInputs(keys, partitionKeys -> executeLargeInputs(componentUuids,
+      partitionComponentUuids -> getMapper(session).selectByKeysAndComponentUuids(partitionKeys, partitionComponentUuids)));
   }
 
-  public List<PropertyDto> selectPropertiesByComponentIds(DbSession session, Set<Long> componentIds) {
-    return executeLargeInputs(componentIds, getMapper(session)::selectByComponentIds);
+  public List<PropertyDto> selectPropertiesByComponentUuids(DbSession session, Collection<String> componentUuids) {
+    return executeLargeInputs(componentUuids, getMapper(session)::selectByComponentUuids);
   }
 
   public List<PropertyDto> selectByKeyAndMatchingValue(DbSession session, String key, String value) {
@@ -200,22 +200,21 @@ public class PropertiesDao implements Dao {
    * @throws IllegalArgumentException if {@link PropertyDto#getKey()} is {@code null} or empty
    */
   public void saveProperty(DbSession session, PropertyDto property) {
-    save(getMapper(session), property.getKey(), property.getUserId(), property.getResourceId(), property.getValue());
+    save(getMapper(session), property.getKey(), property.getUserId(), property.getComponentUuid(), property.getValue());
   }
 
   private void save(PropertiesMapper mapper,
-    String key, @Nullable Integer userId, @Nullable Long componentId,
-    @Nullable String value) {
+    String key, @Nullable Integer userId, @Nullable String componentUuid, @Nullable String value) {
     checkKey(key);
 
     long now = system2.now();
-    mapper.delete(key, userId, componentId);
+    mapper.delete(key, userId, componentUuid);
     if (isEmpty(value)) {
-      mapper.insertAsEmpty(key, userId, componentId, now);
+      mapper.insertAsEmpty(key, userId, componentUuid, now);
     } else if (mustBeStoredInClob(value)) {
-      mapper.insertAsClob(key, userId, componentId, value, now);
+      mapper.insertAsClob(key, userId, componentUuid, value, now);
     } else {
-      mapper.insertAsText(key, userId, componentId, value, now);
+      mapper.insertAsText(key, userId, componentUuid, value, now);
     }
   }
 
@@ -250,18 +249,18 @@ public class PropertiesDao implements Dao {
   }
 
   public int delete(DbSession dbSession, PropertyDto dto) {
-    return getMapper(dbSession).delete(dto.getKey(), dto.getUserId(), dto.getResourceId());
+    return getMapper(dbSession).delete(dto.getKey(), dto.getUserId(), dto.getComponentUuid());
   }
 
-  public void deleteProjectProperty(String key, Long projectId) {
+  public void deleteProjectProperty(String key, String projectUuid) {
     try (DbSession session = mybatis.openSession(false)) {
-      deleteProjectProperty(key, projectId, session);
+      deleteProjectProperty(key, projectUuid, session);
       session.commit();
     }
   }
 
-  public void deleteProjectProperty(String key, Long projectId, DbSession session) {
-    getMapper(session).deleteProjectProperty(key, projectId);
+  public void deleteProjectProperty(String key, String projectUuid, DbSession session) {
+    getMapper(session).deleteProjectProperty(key, projectUuid);
   }
 
   public void deleteProjectProperties(String key, String value, DbSession session) {

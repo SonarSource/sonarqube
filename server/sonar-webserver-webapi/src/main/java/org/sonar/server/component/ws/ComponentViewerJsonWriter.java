@@ -99,7 +99,7 @@ public class ComponentViewerJsonWriter {
 
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
         .setKey("favourite")
-        .setComponentId(component.getId())
+        .setComponentUuid(component.uuid())
         .setUserId(userSession.getUserId())
         .build(),
       session);

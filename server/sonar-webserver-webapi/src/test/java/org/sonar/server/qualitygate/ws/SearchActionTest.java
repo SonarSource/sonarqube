@@ -84,8 +84,8 @@ public class SearchActionTest {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(response.getResultsList())
-      .extracting(Result::getId, Result::getKey, Result::getName)
-      .containsExactlyInAnyOrder(tuple(project.getId(), project.getKey(), project.name()));
+      .extracting(Result::getKey, Result::getName)
+      .containsExactlyInAnyOrder(tuple(project.getKey(), project.name()));
   }
 
   @Test
@@ -100,8 +100,8 @@ public class SearchActionTest {
       .executeProtobuf(SearchResponse.class);
 
     assertThat(response.getResultsList())
-      .extracting(Result::getId, Result::getName)
-      .containsExactlyInAnyOrder(tuple(project.getId(), project.name()));
+      .extracting(Result::getKey, Result::getName)
+      .containsExactlyInAnyOrder(tuple(project.getKey(), project.name()));
   }
 
   @Test

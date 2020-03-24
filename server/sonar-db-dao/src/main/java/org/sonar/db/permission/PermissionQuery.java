@@ -49,7 +49,6 @@ public class PermissionQuery {
   private final String permission;
   // filter on project, else filter org permissions
   private final String componentUuid;
-  private final Long componentId;
 
   // filter on login, email or name of users or groups
   private final String searchQuery;
@@ -68,7 +67,6 @@ public class PermissionQuery {
     this.permission = builder.permission;
     this.withAtLeastOnePermission = builder.withAtLeastOnePermission;
     this.componentUuid = builder.componentUuid;
-    this.componentId = builder.componentId;
     this.searchQuery = builder.searchQuery;
     this.searchQueryToSql = builder.searchQuery == null ? null : buildLikeValue(builder.searchQuery, WildcardPosition.BEFORE_AND_AFTER);
     this.searchQueryToSqlLowercase = searchQueryToSql == null ? null : searchQueryToSql.toLowerCase(Locale.ENGLISH);
@@ -92,11 +90,6 @@ public class PermissionQuery {
   @CheckForNull
   public String getComponentUuid() {
     return componentUuid;
-  }
-
-  @CheckForNull
-  public Long getComponentId() {
-    return componentId;
   }
 
   @CheckForNull
@@ -130,7 +123,6 @@ public class PermissionQuery {
     private String permission;
     private String organizationUuid;
     private String componentUuid;
-    private Long componentId;
     private String searchQuery;
     private boolean withAtLeastOnePermission;
 
@@ -148,12 +140,11 @@ public class PermissionQuery {
     }
 
     public Builder setComponent(ComponentDto component) {
-      return setComponent(component.uuid(), component.getId());
+      return setComponent(component.uuid());
     }
 
-    public Builder setComponent(String componentUuid, long componentId) {
+    public Builder setComponent(String componentUuid) {
       this.componentUuid = componentUuid;
-      this.componentId = componentId;
       return this;
     }
 

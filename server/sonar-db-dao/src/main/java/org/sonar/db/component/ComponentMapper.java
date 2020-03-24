@@ -40,9 +40,6 @@ public interface ComponentMapper {
   ComponentDto selectPrByKeyAndBranchKey(@Param("key") String key, @Param("dbKey") String dbKey, @Param("branch") String branch);
 
   @CheckForNull
-  ComponentDto selectById(long id);
-
-  @CheckForNull
   ComponentDto selectByUuid(String uuid);
 
   @CheckForNull
@@ -58,8 +55,6 @@ public interface ComponentMapper {
   List<ComponentDto> selectByDbKeys(@Param("dbKeys") Collection<String> dbKeys);
 
   List<ComponentDto> selectByKeysAndBranch(@Param("keys") Collection<String> keys, @Param("branch") String branch);
-
-  List<ComponentDto> selectByIds(@Param("ids") Collection<Long> ids);
 
   List<ComponentDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
@@ -77,7 +72,7 @@ public interface ComponentMapper {
    * @return 1 or 0. Either because the organization uuid is not the one of the component or because the component does
    * not exist.
    */
-  int countComponentByOrganizationAndId(@Param("organizationUuid") String organizationUuid, @Param("componentId") long componentId);
+  int countComponentByOrganizationAndUuid(@Param("organizationUuid") String organizationUuid, @Param("componentUuid") String componentUuid);
 
   List<ComponentDto> selectByQuery(@Nullable @Param("organizationUuid") String organizationUuid, @Param("query") ComponentQuery query, RowBounds rowBounds);
 
@@ -154,7 +149,7 @@ public interface ComponentMapper {
 
   void setPrivateForRootComponentUuid(@Param("projectUuid") String projectUuid, @Param("isPrivate") boolean isPrivate);
 
-  void delete(long componentId);
+  void delete(String componentUuid);
 
   List<KeyWithUuidDto> selectAllSiblingComponentKeysHavingOpenIssues(@Param("referenceBranchUuid") String referenceBranchUuid,
     @Param("currentBranchUuid") String currentBranchUuid);

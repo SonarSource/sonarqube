@@ -17,36 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.purge;
+package org.sonar.server.platform.db.migration.version.v83;
 
-import com.google.common.collect.Lists;
-import java.util.List;
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.test.TestUtils;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.sql.Types.VARCHAR;
 
-public class IdUuidPairsTest {
-  @Test
-  public void extract_ids() {
-    List<IdUuidPair> idUuidPairList = Lists.newArrayList(new IdUuidPair(1L, "ABCD"), new IdUuidPair(2L, "EFGH"));
+public class AddComponentUuidColumnToPropertiesTest {
+  private static final String TABLE_NAME = "properties";
 
-    List<Long> ids = IdUuidPairs.ids(idUuidPairList);
+  @Rule
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(AddComponentUuidColumnToPropertiesTest.class, "schema.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-    assertThat(ids).containsOnly(1L, 2L);
-  }
-
-  @Test
-  public void is_non_instantiable() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(IdUuidPairs.class)).isTrue();
-  }
+  private AddComponentUuidColumnToProperties underTest = new AddComponentUuidColumnToProperties(dbTester.database());
 
   @Test
-  public void extract_uuids() {
-    List<IdUuidPair> idUuidPairList = Lists.newArrayList(new IdUuidPair(1L, "ABCD"), new IdUuidPair(2L, "EFGH"));
-
-    List<String> uuids = IdUuidPairs.uuids(idUuidPairList);
-
-    assertThat(uuids).containsOnly("ABCD", "EFGH");
+  public void column_has_been_created() throws SQLException {
+    underTest.execute();
+    dbTester.assertTableExists(TABLE_NAME);
+    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 50, true);
   }
+
 }

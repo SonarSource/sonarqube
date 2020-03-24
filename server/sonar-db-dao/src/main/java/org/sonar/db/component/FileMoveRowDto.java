@@ -20,15 +20,10 @@
 package org.sonar.db.component;
 
 public class FileMoveRowDto {
-  private long id;
   private String kee;
   private String uuid;
   private String path;
   private int lineCount;
-
-  public long getId() {
-    return id;
-  }
 
   public String getKey() {
     return kee;
@@ -49,8 +44,7 @@ public class FileMoveRowDto {
   @Override
   public String toString() {
     return "FileMoveRowDto{" +
-      "id=" + id +
-      ", kee='" + kee + '\'' +
+      "kee='" + kee + '\'' +
       ", uuid='" + uuid + '\'' +
       ", path='" + path + '\'' +
       ", lineCount=" + lineCount +

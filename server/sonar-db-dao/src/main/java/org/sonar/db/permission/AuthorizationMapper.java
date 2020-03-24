@@ -50,15 +50,11 @@ public interface AuthorizationMapper {
 
   Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(@Param("userId") int userId, @Param("permission") String permission);
 
-  Set<Long> keepAuthorizedProjectIdsForAnonymous(@Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
+  List<Integer> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentUuid") String componentUuid, @Param("userIds") List<Integer> userIds);
 
-  Set<Long> keepAuthorizedProjectIdsForUser(@Param("userId") int userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
+  Set<String> keepAuthorizedProjectUuidsForUser(@Param("userId") int userId, @Param("role") String role, @Param("projectUuids") Collection<String> projectUuids);
 
-  List<Integer> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentId") long componentId, @Param("userIds") List<Integer> userIds);
-
-  Set<String> keepAuthorizedProjectUuidsForUser(@Param("userId") int userId, @Param("permission") String permission, @Param("projectUuids") Collection<String> projectUuids);
-
-  Set<String> keepAuthorizedProjectUuidsForAnonymous(@Param("permission") String permission, @Param("projectUuids") Collection<String> projectUuids);
+  Set<String> keepAuthorizedProjectUuidsForAnonymous(@Param("role") String role, @Param("projectUuids") Collection<String> projectUuids);
 
   Set<String> selectProjectPermissions(@Param("projectUuid") String projectUuid, @Param("userId") long userId);
 

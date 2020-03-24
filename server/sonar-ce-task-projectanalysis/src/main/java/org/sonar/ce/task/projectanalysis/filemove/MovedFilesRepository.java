@@ -35,18 +35,12 @@ public interface MovedFilesRepository {
   Optional<OriginalFile> getOriginalFile(Component file);
 
   final class OriginalFile {
-    private final long id;
     private final String uuid;
     private final String key;
 
-    public OriginalFile(long id, String uuid, String key) {
-      this.id = id;
+    public OriginalFile(String uuid, String key) {
       this.uuid = requireNonNull(uuid, "uuid can not be null");
       this.key = requireNonNull(key, "key can not be null");
-    }
-
-    public long getId() {
-      return id;
     }
 
     public String getUuid() {
@@ -77,8 +71,7 @@ public interface MovedFilesRepository {
     @Override
     public String toString() {
       return "OriginalFile{" +
-          "id=" + id +
-          ", uuid='" + uuid + '\'' +
+          "uuid='" + uuid + '\'' +
           ", key='" + key + '\'' +
           '}';
     }

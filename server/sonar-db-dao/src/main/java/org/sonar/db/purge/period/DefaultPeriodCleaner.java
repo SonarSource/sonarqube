@@ -29,7 +29,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
-import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeableAnalysisDto;
@@ -69,12 +68,8 @@ public class DefaultPeriodCleaner {
     }
     purgeDao.deleteAnalyses(
       session, profiler,
-      snapshots.stream().map(DefaultPeriodCleaner::toIdUuidPair).collect(MoreCollectors.toList(snapshots.size())));
+      snapshots.stream().map(PurgeableAnalysisDto::getAnalysisUuid).collect(MoreCollectors.toList(snapshots.size())));
     return snapshots;
-  }
-
-  private static IdUuidPair toIdUuidPair(PurgeableAnalysisDto snapshot) {
-    return new IdUuidPair(snapshot.getAnalysisId(), snapshot.getAnalysisUuid());
   }
 
   private List<PurgeableAnalysisDto> selectAnalysesOfComponent(String componentUuid, DbSession session) {
