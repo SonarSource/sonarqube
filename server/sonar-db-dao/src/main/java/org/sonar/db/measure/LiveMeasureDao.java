@@ -33,7 +33,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.KeyType;
 import org.sonar.db.dialect.Dialect;
 
-import static java.util.Collections.singletonList;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -74,18 +73,17 @@ public class LiveMeasureDao implements Dao {
       componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricKeys(componentUuids, metricKeys));
   }
 
-  public Optional<LiveMeasureDto> selectByComponentUuidAndMetricKey(DbSession dbSession, String componentUuid, String metricKey) {
-    LiveMeasureDto liveMeasureDto = mapper(dbSession).selectByComponentUuidAndMetricKey(componentUuid, metricKey);
-    return Optional.ofNullable(liveMeasureDto);
+  public List<LiveMeasureDto> selectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys) {
+    if (metricKeys.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return mapper(dbSession).selectByComponentUuidAndMetricKeys(componentUuid, metricKeys);
   }
 
   public Optional<LiveMeasureDto> selectMeasure(DbSession dbSession, String componentUuid, String metricKey) {
-    List<LiveMeasureDto> measures = selectByComponentUuidsAndMetricKeys(dbSession, singletonList(componentUuid), singletonList(metricKey));
-    // couple of columns [component_uuid, metric_id] is unique. List can't have more than 1 item.
-    if (measures.size() == 1) {
-      return Optional.of(measures.get(0));
-    }
-    return Optional.empty();
+    LiveMeasureDto liveMeasureDto = mapper(dbSession).selectByComponentUuidAndMetricKey(componentUuid, metricKey);
+    return Optional.ofNullable(liveMeasureDto);
   }
 
   public void selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query, ResultHandler<LiveMeasureDto> resultHandler) {

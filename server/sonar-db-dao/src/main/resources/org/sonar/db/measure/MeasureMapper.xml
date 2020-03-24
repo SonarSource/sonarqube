@@ -37,63 +37,10 @@
     s.uuid = #{analysisUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByQueryOnProjects" parameterType="map" resultType="Measure">
-    select <include refid="measureColumns"/> from project_measures pm
-    <include refid="selectByQueryCommonJoins"/>
-    where
-    <include refid="selectByQueryCommonFilters"/>
-    and analysis.component_uuid=pm.component_uuid
-    and analysis.component_uuid in
-    <foreach item="projectUuid" collection="query.getProjectUuids()" open="(" separator="," close=")">
-      #{projectUuid,jdbcType=VARCHAR}
-    </foreach>
-  </select>
-
-  <select id="selectByQueryOnComponents" parameterType="map" resultType="Measure">
-    select <include refid="measureColumns"/> from project_measures pm
-    <include refid="selectByQueryCommonJoins"/>
-    where
-    <include refid="selectByQueryCommonFilters"/>
-    and analysis.component_uuid=#{query.projectUuid,jdbcType=VARCHAR}
-    and pm.component_uuid in
-    <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
-      #{componentUuid,jdbcType=VARCHAR}
-    </foreach>
-  </select>
-
-  <select id="selectByQueryOnSingleComponent" parameterType="map" resultType="Measure">
-    select <include refid="measureColumns"/> from project_measures pm
-    <include refid="selectByQueryCommonJoins"/>
-    inner join components p on p.project_uuid=analysis.component_uuid
-    and p.uuid=pm.component_uuid
-    where
-    <include refid="selectByQueryCommonFilters"/>
-    and pm.component_uuid=#{query.componentUuid,jdbcType=VARCHAR}
-  </select>
-
   <sql id="selectByQueryCommonJoins">
     inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     <if test="query.getMetricKeys() != null">
       inner join metrics m on m.id = pm.metric_id
-    </if>
-  </sql>
-
-  <sql id="selectByQueryCommonFilters">
-    <if test="query.getAnalysisUuid() == null">
-      analysis.islast=${_true}
-    </if>
-    <if test="query.getAnalysisUuid() != null">
-      analysis.uuid = #{query.analysisUuid,jdbcType=VARCHAR}
-    </if>
-    <if test="query.getMetricIds() != null">
-      and pm.metric_id in
-      <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
-    </if>
-    <if test="query.getMetricKeys() != null">
-      and m.name in
-      <foreach item="metricKey" collection="query.getMetricKeys()" open="(" separator="," close=")">
-        #{metricKey,jdbcType=VARCHAR}
-      </foreach>
     </if>
   </sql>
 

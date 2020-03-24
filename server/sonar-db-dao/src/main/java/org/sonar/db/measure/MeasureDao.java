@@ -26,9 +26,6 @@ import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
-import static java.util.Collections.emptyList;
-import static org.sonar.db.DatabaseUtils.executeLargeInputs;
-
 public class MeasureDao implements Dao {
 
   public Optional<MeasureDto> selectLastMeasure(DbSession dbSession, String componentUuid, String metricKey) {
@@ -37,41 +34,6 @@ public class MeasureDao implements Dao {
 
   public Optional<MeasureDto> selectMeasure(DbSession dbSession, String analysisUuid, String componentUuid, String metricKey) {
     return Optional.ofNullable(mapper(dbSession).selectMeasure(analysisUuid, componentUuid, metricKey));
-  }
-
-  /**
-   * Selects the measures of either the last analysis (when {@link MeasureQuery#analysisUuid} is {@code null}) or of the
-   * specified analysis (given by {@link MeasureQuery#analysisUuid}).
-   * The components can be specified either as :
-   * - A list of projects in {@link MeasureQuery#projectUuids}
-   * - A list of components in {@link MeasureQuery#componentUuids} with one mandatory project in {@link MeasureQuery#projectUuids}
-   * - One single component in  {@link MeasureQuery#componentUuids}
-   * <p>
-   * Returned measure can optionally be filtered metric (either by specifying {@link MeasureQuery#metricIds}
-   * or {@link MeasureQuery#metricKeys}).
-   * </p>
-   */
-  public List<MeasureDto> selectByQuery(DbSession dbSession, MeasureQuery query) {
-    if (query.returnsEmpty()) {
-      return emptyList();
-    }
-    if (query.isOnComponents()) {
-      return executeLargeInputs(
-        query.getComponentUuids(),
-        componentUuids -> {
-          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
-          return mapper(dbSession).selectByQueryOnComponents(pageQuery);
-        });
-    }
-    if (query.isOnProjects()) {
-      return executeLargeInputs(
-        query.getProjectUuids(),
-        projectUuids -> {
-          MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfProjectUuids(query, projectUuids);
-          return mapper(dbSession).selectByQueryOnProjects(pageQuery);
-        });
-    }
-    return mapper(dbSession).selectByQueryOnSingleComponent(query);
   }
 
   /**

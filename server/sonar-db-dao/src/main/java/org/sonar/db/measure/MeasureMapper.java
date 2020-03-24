@@ -38,12 +38,6 @@ public interface MeasureMapper {
     @Param("metricKey") String metricKey
   );
 
-  List<MeasureDto> selectByQueryOnProjects(@Param("query") MeasureQuery query);
-
-  List<MeasureDto> selectByQueryOnComponents(@Param("query") MeasureQuery query);
-
-  List<MeasureDto> selectByQueryOnSingleComponent(@Param("query") MeasureQuery query);
-
   List<MeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("query") PastMeasureQuery query);
 
   void insert(MeasureDto measureDto);

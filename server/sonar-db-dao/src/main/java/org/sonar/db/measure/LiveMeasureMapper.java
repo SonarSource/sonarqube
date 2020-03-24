@@ -21,11 +21,9 @@ package org.sonar.db.measure;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.KeyType;
 
@@ -37,6 +35,10 @@ public interface LiveMeasureMapper {
 
   List<LiveMeasureDto> selectByComponentUuidsAndMetricKeys(
     @Param("componentUuids") Collection<String> componentUuids,
+    @Param("metricKeys") Collection<String> metricKeys);
+
+  List<LiveMeasureDto> selectByComponentUuidAndMetricKeys(
+    @Param("componentUuid")String componentUuid,
     @Param("metricKeys") Collection<String> metricKeys);
 
   void scrollSelectByComponentUuidAndMetricKeys(
