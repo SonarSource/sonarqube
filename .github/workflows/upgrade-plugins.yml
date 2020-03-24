@@ -1,11 +1,7 @@
 name: Upgrade SonarQube bundled plugins
 on:
-# use push to test the bot
-#  push:
-#    branches-ignore:
-#      - 'bot/upgrade_plugins**'
   schedule:
-    # at 9 every Monday
+    # At 9:00 every Monday
     - cron:  '0 9 * * MON'
 
 jobs:
@@ -39,5 +35,6 @@ jobs:
           PULL_REQUEST_TITLE: ${{ steps.upgrade-plugins.outputs.commit_message }}
           PULL_REQUEST_BODY: Auto-generated pull request to apply plugin upgrades. Release notes in [${{ steps.upgrade-plugins.outputs.jira_ticket }}](https://jira.sonarsource.com/browse/${{ steps.upgrade-plugins.outputs.jira_ticket }}).
           PULL_REQUEST_BRANCH: bot/upgrade_plugins
+          PULL_REQUEST_REVIEWERS: wouter-admiraal-sonarsource
           BRANCH_SUFFIX: timestamp
           PULL_REQUEST_LABELS: bot
