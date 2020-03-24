@@ -415,7 +415,7 @@ subprojects {
 
     node {
       version = '10.15.3'
-      yarnVersion = '1.15.2'
+      yarnVersion = '1.22.0'
       download = true
     }
   }
@@ -548,7 +548,7 @@ dependencyUpdates {
     boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview', 'jre12'].any { qualifier ->
       it.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
     }
- 
+
     // Exclude upgrades on new major versions :
     //   com.hazelcast:hazelcast [3.12.3 -> 4.0.0]
     rejected |= !it.candidate.version.substring(0, 2).equals(it.currentVersion.substring(0, 2))

@@ -42,6 +42,15 @@ build.dependsOn(yarn_run)
   dependsOn(yarn)
 }
 
+// Check for known vulnerabilities
+yarn_audit {
+  inputs.file('package.json')
+  outputs.cacheIf { false }
+  args = ['--groups', 'dependencies', '--level', 'high']
+  ignoreExitValue = true
+  dependsOn(yarn)
+}
+
 def sources = fileTree(dir: "src") + fileTree(dir: "scripts") + fileTree(dir: "config")
 
 task licenseCheckWeb(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {

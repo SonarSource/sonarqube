@@ -80,6 +80,15 @@ clean.dependsOn(cleanYarn_run)
   dependsOn(yarn)
 }
 
+// Check for known vulnerabilities
+yarn_audit {
+  inputs.file('package.json')
+  outputs.cacheIf { false }
+  args = ['--groups', 'dependencies', '--level', 'high']
+  ignoreExitValue = true
+  dependsOn(yarn)
+}
+
 task zip(type: Zip) {
   def archiveDir = "$version"
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
