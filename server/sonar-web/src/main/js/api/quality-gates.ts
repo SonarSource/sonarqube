@@ -117,7 +117,7 @@ export function searchProjects(data: {
   selected?: string;
 }): Promise<{
   paging: T.Paging;
-  results: Array<{ id: string; key: string; name: string; selected: boolean }>;
+  results: Array<{ key: string; name: string; selected: boolean }>;
 }> {
   return getJSON('/api/qualitygates/search', data).catch(throwGlobalError);
 }
@@ -125,8 +125,7 @@ export function searchProjects(data: {
 export function associateGateWithProject(data: {
   gateId: number;
   organization?: string;
-  projectKey?: string;
-  projectId?: string;
+  projectKey: string;
 }): Promise<void | Response> {
   return post('/api/qualitygates/select', data).catch(throwGlobalError);
 }
@@ -134,8 +133,7 @@ export function associateGateWithProject(data: {
 export function dissociateGateWithProject(data: {
   gateId: number;
   organization?: string;
-  projectKey?: string;
-  projectId?: string;
+  projectKey: string;
 }): Promise<void | Response> {
   return post('/api/qualitygates/deselect', data).catch(throwGlobalError);
 }

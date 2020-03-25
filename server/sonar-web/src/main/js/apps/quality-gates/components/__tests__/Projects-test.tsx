@@ -90,7 +90,7 @@ it('should handle selection properly', async () => {
 
   expect(associateGateWithProject).toHaveBeenCalledWith(
     expect.objectContaining({
-      projectId: 'toto'
+      projectKey: 'toto'
     })
   );
   expect(wrapper.state().needToReload).toBe(true);
@@ -103,7 +103,7 @@ it('should handle deselection properly', async () => {
 
   expect(dissociateGateWithProject).toHaveBeenCalledWith(
     expect.objectContaining({
-      projectId: 'tata'
+      projectKey: 'tata'
     })
   );
   expect(wrapper.state().needToReload).toBe(true);

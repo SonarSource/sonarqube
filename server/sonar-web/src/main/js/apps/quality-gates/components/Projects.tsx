@@ -39,7 +39,7 @@ interface Props {
 interface State {
   needToReload: boolean;
   lastSearchParams?: SelectListSearchParams;
-  projects: Array<{ id: string; key: string; name: string; selected: boolean }>;
+  projects: Array<{ key: string; name: string; selected: boolean }>;
   projectsTotalCount?: number;
   selectedProjects: string[];
 }
@@ -81,7 +81,7 @@ export default class Projects extends React.PureComponent<Props, State> {
           const projects = more ? [...prevState.projects, ...data.results] : data.results;
           const newSelectedProjects = data.results
             .filter(project => project.selected)
-            .map(project => project.id);
+            .map(project => project.key);
           const selectedProjects = more
             ? [...prevState.selectedProjects, ...newSelectedProjects]
             : newSelectedProjects;
@@ -97,40 +97,40 @@ export default class Projects extends React.PureComponent<Props, State> {
       }
     });
 
-  handleSelect = (id: string) =>
+  handleSelect = (key: string) =>
     associateGateWithProject({
       gateId: this.props.qualityGate.id,
       organization: this.props.organization,
-      projectId: id
+      projectKey: key
     }).then(() => {
       if (this.mounted) {
         this.setState(prevState => ({
           needToReload: true,
-          selectedProjects: [...prevState.selectedProjects, id]
+          selectedProjects: [...prevState.selectedProjects, key]
         }));
       }
     });
 
-  handleUnselect = (id: string) =>
+  handleUnselect = (key: string) =>
     dissociateGateWithProject({
       gateId: this.props.qualityGate.id,
       organization: this.props.organization,
-      projectId: id
+      projectKey: key
     }).then(() => {
       if (this.mounted) {
         this.setState(prevState => ({
           needToReload: true,
-          selectedProjects: without(prevState.selectedProjects, id)
+          selectedProjects: without(prevState.selectedProjects, key)
         }));
       }
     });
 
-  renderElement = (id: string): React.ReactNode => {
-    const project = find(this.state.projects, { id });
+  renderElement = (key: string): React.ReactNode => {
+    const project = find(this.state.projects, { key });
     return (
       <div className="select-list-list-item">
         {project === undefined ? (
-          id
+          key
         ) : (
           <>
             {project.name}
@@ -145,7 +145,7 @@ export default class Projects extends React.PureComponent<Props, State> {
   render() {
     return (
       <SelectList
-        elements={this.state.projects.map(project => project.id)}
+        elements={this.state.projects.map(project => project.key)}
         elementsTotalCount={this.state.projectsTotalCount}
         labelAll={translate('quality_gates.projects.all')}
         labelSelected={translate('quality_gates.projects.with')}
