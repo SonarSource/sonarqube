@@ -36,9 +36,9 @@ import org.sonarqube.ws.UserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
  * Factorizes code about user groups between web services
@@ -162,6 +162,7 @@ public class GroupWsSupport {
 
   private static void defineGroupIdWsParameter(WebService.NewAction action) {
     action.createParam(PARAM_GROUP_ID)
+      .setDeprecatedSince("8.3")
       .setDescription("Group id")
       .setExampleValue("42");
   }

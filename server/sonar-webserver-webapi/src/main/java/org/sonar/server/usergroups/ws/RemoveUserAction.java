@@ -31,13 +31,13 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineGroupWsParameters;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.defineLoginWsParameter;
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class RemoveUserAction implements UserGroupsWsAction {
 

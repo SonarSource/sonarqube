@@ -45,6 +45,7 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.UserGroups.Group;
@@ -80,8 +81,10 @@ public class SearchAction implements UserGroupsWsAction {
       .addFieldsParam(ALL_FIELDS)
       .addPagingParams(100, MAX_LIMIT)
       .addSearchQuery("sonar-users", "names")
-      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"),
-        new Change("6.4", "'default' response field has been added"));
+      .setChangelog(
+        new Change("6.4", "Paging response fields moved to a Paging object"),
+        new Change("6.4", "'default' response field has been added"),
+        new Change("8.3", "field " + PARAM_GROUP_ID + "in the response is deprecated"));
 
     action.createParam(PARAM_ORGANIZATION_KEY)
       .setDescription("Key of organization. If not set then groups are searched in default organization.")
