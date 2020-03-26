@@ -72,7 +72,7 @@ public abstract class StringFieldBuilder<U extends FieldAware<U>, T extends Stri
   }
 
   /**
-   * Norms consume useless memory if string field is used for filtering or aggregations.
+   * Norms consume useless memory if string field is used solely for filtering or aggregations.
    *
    * https://www.elastic.co/guide/en/elasticsearch/reference/2.3/norms.html
    * https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html#field-norm

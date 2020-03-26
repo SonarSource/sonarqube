@@ -22,10 +22,12 @@ package org.sonar.server.measure.index;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,6 +39,8 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.permission.index.AuthorizationScope;
+import org.sonar.server.permission.index.IndexPermissions;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -44,14 +48,18 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_KEY_UPDATE;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_TAGS_UPDATE;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
+import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 
 public class ProjectMeasuresIndexerTest {
 
@@ -63,6 +71,21 @@ public class ProjectMeasuresIndexerTest {
   public DbTester db = DbTester.create(system2);
 
   private ProjectMeasuresIndexer underTest = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
+
+  @Test
+  public void test_getAuthorizationScope() {
+    AuthorizationScope scope = underTest.getAuthorizationScope();
+    assertThat(scope.getIndexType().getIndex()).isEqualTo(ProjectMeasuresIndexDefinition.DESCRIPTOR);
+    assertThat(scope.getIndexType().getType()).isEqualTo(TYPE_AUTHORIZATION);
+
+    Predicate<IndexPermissions> projectPredicate = scope.getProjectPredicate();
+    IndexPermissions project = new IndexPermissions("P1", Qualifiers.PROJECT);
+    IndexPermissions app = new IndexPermissions("P1", Qualifiers.APP);
+    IndexPermissions file = new IndexPermissions("F1", Qualifiers.FILE);
+    assertThat(projectPredicate.test(project)).isTrue();
+    assertThat(projectPredicate.test(app)).isTrue();
+    assertThat(projectPredicate.test(file)).isFalse();
+  }
 
   @Test
   public void index_nothing() {
@@ -81,6 +104,7 @@ public class ProjectMeasuresIndexerTest {
     underTest.indexOnStartup(emptySet());
 
     assertThatIndexContainsOnly(project1, project2, project3);
+    assertThatQualifierIs("TRK", project1, project2, project3);
   }
 
   /**
@@ -106,6 +130,38 @@ public class ProjectMeasuresIndexerTest {
   }
 
   @Test
+  public void indexOnStartup_indexes_all_applications() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application1 = db.components().insertPrivateApplication(organization);
+    ComponentDto application2 = db.components().insertPrivateApplication(organization);
+    ComponentDto application3 = db.components().insertPrivateApplication(organization);
+
+    underTest.indexOnStartup(emptySet());
+
+    assertThatIndexContainsOnly(application1, application2, application3);
+    assertThatQualifierIs("APP", application1, application2, application3);
+  }
+
+  @Test
+  public void indexOnStartup_indexes_projects_and_applications() {
+    OrganizationDto organization = db.organizations().insert();
+
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject();
+
+    ComponentDto application1 = db.components().insertPrivateApplication(organization);
+    ComponentDto application2 = db.components().insertPrivateApplication(organization);
+    ComponentDto application3 = db.components().insertPrivateApplication(organization);
+
+    underTest.indexOnStartup(emptySet());
+
+    assertThatIndexContainsOnly(project1, project2, project3, application1, application2, application3);
+    assertThatQualifierIs("TRK", project1, project2, project3);
+    assertThatQualifierIs("APP", application1, application2, application3);
+  }
+
+  @Test
   public void indexOnAnalysis_indexes_provisioned_project() {
     ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto project2 = db.components().insertPrivateProject();
@@ -113,6 +169,16 @@ public class ProjectMeasuresIndexerTest {
     underTest.indexOnAnalysis(project1.uuid());
 
     assertThatIndexContainsOnly(project1);
+  }
+
+  @Test
+  public void indexOnAnalysis_indexes_provisioned_application() {
+    ComponentDto app1 = db.components().insertPrivateApplication();
+    ComponentDto app2 = db.components().insertPrivateApplication();
+
+    underTest.indexOnAnalysis(app1.uuid());
+
+    assertThatIndexContainsOnly(app1);
   }
 
   @Test
@@ -169,9 +235,10 @@ public class ProjectMeasuresIndexerTest {
   }
 
   @Test
-  public void do_nothing_if_no_projects_to_index() {
+  public void do_nothing_if_no_projects_and_apps_to_index() {
     // this project should not be indexed
     db.components().insertPrivateProject();
+    db.components().insertPrivateApplication();
 
     underTest.index(db.getSession(), emptyList());
 
@@ -243,6 +310,28 @@ public class ProjectMeasuresIndexerTest {
   private void assertThatIndexContainsOnly(ComponentDto... expectedProjects) {
     assertThat(es.getIds(TYPE_PROJECT_MEASURES)).containsExactlyInAnyOrder(
       Arrays.stream(expectedProjects).map(ComponentDto::uuid).toArray(String[]::new));
+  }
+
+  private void assertThatQualifierIs(String qualifier, ComponentDto... expectedComponents) {
+    String[] expectedComponentUuids = Arrays.stream(expectedComponents).map(ComponentDto::uuid).toArray(String[]::new);
+    assertThatQualifierIs(qualifier, expectedComponentUuids);
+  }
+
+  private void assertThatQualifierIs(String qualifier, SnapshotDto... expectedComponents) {
+    String[] expectedComponentUuids = Arrays.stream(expectedComponents).map(SnapshotDto::getComponentUuid).toArray(String[]::new);
+    assertThatQualifierIs(qualifier, expectedComponentUuids);
+  }
+
+  private void assertThatQualifierIs(String qualifier, String... componentsUuid) {
+    SearchRequestBuilder request = es.client()
+      .prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
+      .setQuery(boolQuery()
+        .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
+        .filter(termQuery(FIELD_QUALIFIER, qualifier))
+        .filter(termsQuery(FIELD_UUID, componentsUuid)));
+    assertThat(request.get().getHits().getHits())
+      .extracting(SearchHit::getId)
+      .containsExactlyInAnyOrder(componentsUuid);
   }
 
   private IndexingResult recover() {

@@ -21,6 +21,7 @@ package org.sonar.server.measure.index;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -33,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -58,12 +60,12 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -97,6 +99,9 @@ public class ProjectMeasuresIndexTest {
   private static final ComponentDto PROJECT1 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("Project-1").setName("Project 1").setDbKey("key-1");
   private static final ComponentDto PROJECT2 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("Project-2").setName("Project 2").setDbKey("key-2");
   private static final ComponentDto PROJECT3 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("Project-3").setName("Project 3").setDbKey("key-3");
+  private static final ComponentDto APP1 = ComponentTesting.newApplication(ORG).setUuid("App-1").setName("App 1").setDbKey("app-key-1");
+  private static final ComponentDto APP2 = ComponentTesting.newApplication(ORG).setUuid("App-2").setName("App 2").setDbKey("app-key-2");
+  private static final ComponentDto APP3 = ComponentTesting.newApplication(ORG).setUuid("App-3").setName("App 3").setDbKey("app-key-3");
   private static final UserDto USER1 = newUserDto();
   private static final UserDto USER2 = newUserDto();
   private static final GroupDto GROUP1 = newGroupDto();
@@ -491,58 +496,79 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void return_only_projects_authorized_for_user() {
-    indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2));
-    indexForUser(USER2, newDoc(PROJECT3));
+  public void filter_on_qualifier() {
+    index(newDoc(PROJECT1), newDoc(PROJECT2),  newDoc(PROJECT3),
+      newDoc(APP1), newDoc(APP2), newDoc(APP3));
 
-    userSession.logIn(USER1);
-    assertResults(new ProjectMeasuresQuery(), PROJECT1, PROJECT2);
+    assertResults(new ProjectMeasuresQuery(),
+      APP1, APP2, APP3, PROJECT1, PROJECT2, PROJECT3);
+
+    assertResults(new ProjectMeasuresQuery().setQualifiers(Sets.newHashSet(PROJECT, APP)),
+      APP1, APP2, APP3, PROJECT1, PROJECT2, PROJECT3);
+
+    assertResults(new ProjectMeasuresQuery().setQualifiers(Sets.newHashSet(PROJECT)),
+      PROJECT1, PROJECT2, PROJECT3);
+
+    assertResults(new ProjectMeasuresQuery().setQualifiers(Sets.newHashSet(APP)),
+      APP1, APP2, APP3);
   }
 
   @Test
-  public void return_only_projects_authorized_for_user_groups() {
-    indexForGroup(GROUP1, newDoc(PROJECT1), newDoc(PROJECT2));
+  public void return_only_projects_and_applications_authorized_for_user() {
+    indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2),
+      newDoc(APP1), newDoc(APP2));
+    indexForUser(USER2, newDoc(PROJECT3), newDoc(APP3));
+
+    userSession.logIn(USER1);
+    assertResults(new ProjectMeasuresQuery(), APP1, APP2, PROJECT1, PROJECT2);
+  }
+
+  @Test
+  public void return_only_projects_and_applications_authorized_for_user_groups() {
+    indexForGroup(GROUP1, newDoc(PROJECT1), newDoc(PROJECT2),
+      newDoc(APP1), newDoc(APP2));
     indexForGroup(GROUP2, newDoc(PROJECT3));
 
     userSession.logIn().setGroups(GROUP1);
-    assertResults(new ProjectMeasuresQuery(), PROJECT1, PROJECT2);
+    assertResults(new ProjectMeasuresQuery(), APP1, APP2, PROJECT1, PROJECT2);
   }
 
   @Test
-  public void return_only_projects_authorized_for_user_and_groups() {
-    indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2));
+  public void return_only_projects_and_applications_authorized_for_user_and_groups() {
+    indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2),
+      newDoc(APP1), newDoc(APP2));
     indexForGroup(GROUP1, newDoc(PROJECT3));
 
     userSession.logIn(USER1).setGroups(GROUP1);
-    assertResults(new ProjectMeasuresQuery(), PROJECT1, PROJECT2, PROJECT3);
+    assertResults(new ProjectMeasuresQuery(), APP1, APP2, PROJECT1, PROJECT2, PROJECT3);
   }
 
   @Test
-  public void anonymous_user_can_only_access_projects_authorized_for_anyone() {
-    index(newDoc(PROJECT1));
-    indexForUser(USER1, newDoc(PROJECT2));
+  public void anonymous_user_can_only_access_projects_and_applications_authorized_for_anyone() {
+    index(newDoc(PROJECT1), newDoc(APP1));
+    indexForUser(USER1, newDoc(PROJECT2), newDoc(APP2));
 
     userSession.anonymous();
-    assertResults(new ProjectMeasuresQuery(), PROJECT1);
+    assertResults(new ProjectMeasuresQuery(), APP1, PROJECT1);
   }
 
   @Test
-  public void root_user_can_access_all_projects() {
-    indexForUser(USER1, newDoc(PROJECT1));
+  public void root_user_can_access_all_projects_and_applications() {
+    indexForUser(USER1, newDoc(PROJECT1), newDoc(APP1));
     // connecting with a root but not USER1
     userSession.logIn().setRoot();
 
-    assertResults(new ProjectMeasuresQuery(), PROJECT1);
+    assertResults(new ProjectMeasuresQuery(), APP1, PROJECT1);
   }
 
   @Test
-  public void return_all_projects_when_setIgnoreAuthorization_is_true() {
-    indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2));
-    indexForUser(USER2, newDoc(PROJECT3));
+  public void return_all_projects_and_applications_when_setIgnoreAuthorization_is_true() {
+    indexForUser(USER1, newDoc(PROJECT1), newDoc(PROJECT2), newDoc(APP1), newDoc(APP2));
+    indexForUser(USER2, newDoc(PROJECT3), newDoc(APP3));
     userSession.logIn(USER1);
 
-    assertResults(new ProjectMeasuresQuery().setIgnoreAuthorization(false), PROJECT1, PROJECT2);
-    assertResults(new ProjectMeasuresQuery().setIgnoreAuthorization(true), PROJECT1, PROJECT2, PROJECT3);
+    assertResults(new ProjectMeasuresQuery().setIgnoreAuthorization(false), APP1, APP2, PROJECT1, PROJECT2);
+    assertResults(new ProjectMeasuresQuery().setIgnoreAuthorization(true), APP1, APP2, APP3, PROJECT1, PROJECT2, PROJECT3);
   }
 
   @Test
@@ -1239,10 +1265,11 @@ public class ProjectMeasuresIndexTest {
     assertThat(underTest.search(new ProjectMeasuresQuery().setIgnoreWarning(true), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY)).containsOnly(
       entry(ERROR.name(), 4L),
       entry(OK.name(), 2L));
-    assertThat(underTest.search(new ProjectMeasuresQuery().setIgnoreWarning(false), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY)).containsOnly(
-      entry(ERROR.name(), 4L),
-      entry(WARN.name(), 0L),
-      entry(OK.name(), 2L));
+    assertThat(underTest.search(new ProjectMeasuresQuery().setIgnoreWarning(false), new SearchOptions().addFacets(ALERT_STATUS_KEY)).getFacets().get(ALERT_STATUS_KEY))
+      .containsOnly(
+        entry(ERROR.name(), 4L),
+        entry(WARN.name(), 0L),
+        entry(OK.name(), 2L));
   }
 
   @Test
@@ -1539,7 +1566,8 @@ public class ProjectMeasuresIndexTest {
       .setOrganizationUuid(project.getOrganizationUuid())
       .setId(project.uuid())
       .setKey(project.getDbKey())
-      .setName(project.name());
+      .setName(project.name())
+      .setQualifier(project.qualifier());
   }
 
   private static ProjectMeasuresDoc newDoc() {

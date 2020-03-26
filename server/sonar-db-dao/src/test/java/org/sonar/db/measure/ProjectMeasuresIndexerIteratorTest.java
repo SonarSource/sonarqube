@@ -22,7 +22,6 @@ package org.sonar.db.measure;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,12 +30,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +45,6 @@ import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
-import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
 public class ProjectMeasuresIndexerIteratorTest {
@@ -67,7 +63,6 @@ public class ProjectMeasuresIndexerIteratorTest {
     ComponentDto project = dbTester.components().insertPrivateProject(organization,
       c -> c.setDbKey("Project-Key").setName("Project Name"),
       p -> p.setTags(newArrayList("platform", "java")));
-    ProjectDto projectDto = dbTester.components().getProjectDto(project);
 
     SnapshotDto analysis = dbTester.components().insertSnapshot(project);
     MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
@@ -83,7 +78,32 @@ public class ProjectMeasuresIndexerIteratorTest {
     assertThat(doc.getProject().getUuid()).isEqualTo(project.uuid());
     assertThat(doc.getProject().getKey()).isEqualTo("Project-Key");
     assertThat(doc.getProject().getName()).isEqualTo("Project Name");
+    assertThat(doc.getProject().getQualifier()).isEqualTo("TRK");
     assertThat(doc.getProject().getTags()).containsExactly("platform", "java");
+    assertThat(doc.getProject().getAnalysisDate()).isNotNull().isEqualTo(analysis.getCreatedAt());
+    assertThat(doc.getMeasures().getNumericMeasures()).containsOnly(entry(metric1.getKey(), 10d), entry(metric2.getKey(), 20d));
+  }
+
+  @Test
+  public void return_application_measure() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateApplication(organization,
+      c -> c.setDbKey("App-Key").setName("App Name"));
+
+    SnapshotDto analysis = dbTester.components().insertSnapshot(project);
+    MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
+    MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
+    dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d));
+    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(20d));
+
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
+
+    assertThat(docsById).hasSize(1);
+    ProjectMeasures doc = docsById.get(project.uuid());
+    assertThat(doc).isNotNull();
+    assertThat(doc.getProject().getUuid()).isEqualTo(project.uuid());
+    assertThat(doc.getProject().getKey()).isEqualTo("App-Key");
+    assertThat(doc.getProject().getName()).isEqualTo("App Name");
     assertThat(doc.getProject().getAnalysisDate()).isNotNull().isEqualTo(analysis.getCreatedAt());
     assertThat(doc.getMeasures().getNumericMeasures()).containsOnly(entry(metric1.getKey(), 10d), entry(metric2.getKey(), 20d));
   }

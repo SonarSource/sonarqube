@@ -37,16 +37,18 @@ public class ProjectMeasuresQuery {
   public static final String SORT_BY_LAST_ANALYSIS_DATE = "analysisDate";
 
   private List<MetricCriterion> metricCriteria = new ArrayList<>();
-  private Metric.Level qualityGateStatus;
-  private String organizationUuid;
-  private Set<String> projectUuids;
-  private Set<String> languages;
-  private Set<String> tags;
+  private Metric.Level qualityGateStatus = null;
+  private String organizationUuid = null;
+  private Set<String> projectUuids = null;
+  private Set<String> languages = null;
+  private Set<String> tags = null;
+  private Set<String> qualifiers = null;
   private String sort = SORT_BY_NAME;
   private boolean asc = true;
-  private String queryText;
-  private boolean ignoreAuthorization;
-  private boolean ignoreWarning;
+
+  private String queryText = null;
+  private boolean ignoreAuthorization = false;
+  private boolean ignoreWarning = false;
 
   public ProjectMeasuresQuery addMetricCriterion(MetricCriterion metricCriterion) {
     this.metricCriteria.add(metricCriterion);
@@ -144,6 +146,15 @@ public class ProjectMeasuresQuery {
 
   public ProjectMeasuresQuery setIgnoreWarning(boolean ignoreWarning) {
     this.ignoreWarning = ignoreWarning;
+    return this;
+  }
+
+  public Optional<Set<String>> getQualifiers() {
+    return Optional.ofNullable(qualifiers);
+  }
+
+  public ProjectMeasuresQuery setQualifiers(@Nullable Set<String> qualifiers) {
+    this.qualifiers = qualifiers;
     return this;
   }
 

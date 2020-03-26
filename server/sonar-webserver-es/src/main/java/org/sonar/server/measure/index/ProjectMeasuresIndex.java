@@ -119,6 +119,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.SUB_FIELD_MEASURES_KEY;
@@ -377,6 +378,9 @@ public class ProjectMeasuresIndex {
       termQuery(FIELD_ORGANIZATION_UUID, organizationUuid)));
 
     query.getTags().ifPresent(tags -> filters.addFilter(FIELD_TAGS, TAGS.getFilterScope(), termsQuery(FIELD_TAGS, tags)));
+
+    query.getQualifiers()
+      .ifPresent(qualifiers -> filters.addFilter(FIELD_QUALIFIER, new SimpleFieldFilterScope(FIELD_QUALIFIER), termsQuery(FIELD_QUALIFIER, qualifiers)));
 
     query.getQueryText()
       .map(ProjectsTextSearchQueryFactory::createQuery)

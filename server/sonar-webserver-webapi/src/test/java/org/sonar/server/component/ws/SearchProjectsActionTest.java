@@ -26,6 +26,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -35,9 +36,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.EditionProvider.Edition;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -67,6 +71,8 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
@@ -78,6 +84,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
+import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
@@ -103,6 +110,7 @@ public class SearchProjectsActionTest {
   private static final String NCLOC = "ncloc";
   private static final String COVERAGE = "coverage";
   private static final String NEW_COVERAGE = "new_coverage";
+  private static final String LEAK_PROJECTS_KEY = "leak_projects";
   private static final String QUALITY_GATE_STATUS = "alert_status";
   private static final String ANALYSIS_DATE = "analysisDate";
   private static final String IS_FAVOURITE_CRITERION = "isFavorite";
@@ -126,15 +134,26 @@ public class SearchProjectsActionTest {
     return new Object[][] {{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
   }
 
+  @DataProvider
+  public static Object[][] component_qualifiers_for_valid_editions() {
+    return new Object[][] {
+      {new String[] {Qualifiers.PROJECT}, Edition.COMMUNITY},
+      {new String[] {Qualifiers.PROJECT}, Edition.DEVELOPER},
+      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.ENTERPRISE},
+      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DATACENTER},
+    };
+  }
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
+  private PlatformEditionProvider editionProviderMock = mock(PlatformEditionProvider.class);
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(dbClient, es.client()));
   private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
   private ProjectsInWarning projectsInWarning = new ProjectsInWarning();
 
-  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, projectsInWarning));
+  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, projectsInWarning, editionProviderMock));
 
   private RequestBuilder request = SearchProjectsRequest.builder();
 
@@ -600,6 +619,63 @@ public class SearchProjectsActionTest {
   }
 
   @Test
+  @UseDataProvider("component_qualifiers_for_valid_editions")
+  public void filter_projects_and_apps_by_editions(String[] qualifiers, Edition edition) {
+    when(editionProviderMock.get()).thenReturn(Optional.of(edition));
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto portfolio1 = insertPortfolio(organization);
+    ComponentDto portfolio2 = insertPortfolio(organization);
+
+    ComponentDto application1 = insertApplication(organization);
+    ComponentDto application2 = insertApplication(organization);
+    ComponentDto application3 = insertApplication(organization);
+
+    ComponentDto project1 = insertProject(organization);
+    ComponentDto project2 = insertProject(organization);
+    ComponentDto project3 = insertProject(organization);
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsCount()).isEqualTo(
+      Stream.of(application1, application2, application3, project1, project2, project3)
+        .filter(c -> Stream.of(qualifiers).anyMatch(s -> s.equals(c.qualifier())))
+        .count());
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
+      .containsExactly(
+        Stream.of(application1, application2, application3, project1, project2, project3)
+          .filter(c -> Stream.of(qualifiers).anyMatch(s -> s.equals(c.qualifier())))
+          .map(ComponentDto::getDbKey)
+          .toArray(String[]::new));
+  }
+
+  @Test
+  public void should_return_projects_only_when_no_edition() {
+    when(editionProviderMock.get()).thenReturn(Optional.empty());
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+
+    ComponentDto portfolio1 = insertPortfolio(organization);
+    ComponentDto portfolio2 = insertPortfolio(organization);
+
+    insertApplication(organization);
+    insertApplication(organization);
+    insertApplication(organization);
+
+    ComponentDto project1 = insertProject(organization);
+    ComponentDto project2 = insertProject(organization);
+    ComponentDto project3 = insertProject(organization);
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsCount()).isEqualTo(3);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
+      .containsExactly(Stream.of(project1, project2, project3).map(ComponentDto::getDbKey).toArray(String[]::new));
+  }
+
+  @Test
   public void do_not_return_isFavorite_if_anonymous_user() {
     userSession.anonymous();
     OrganizationDto organization = db.organizations().insert();
@@ -1061,6 +1137,7 @@ public class SearchProjectsActionTest {
 
   @Test
   public void return_leak_period_date() {
+    when(editionProviderMock.get()).thenReturn(Optional.of(Edition.ENTERPRISE));
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project1 = db.components().insertPublicProject(organization);
@@ -1073,6 +1150,13 @@ public class SearchProjectsActionTest {
     // No snapshot on project 3
     ComponentDto project3 = db.components().insertPublicProject(organization);
     authorizationIndexerTester.allowOnlyAnyone(project3);
+
+    MetricDto leakProjects = db.measures().insertMetric(c -> c.setKey(LEAK_PROJECTS_KEY).setValueType(DATA.name()));
+    ComponentDto application1 = insertApplication(organization,
+      new Measure(leakProjects, c -> c.setData("{\"leakProjects\":[{\"id\": 1, \"leak\":20000000000}, {\"id\": 2, \"leak\":10000000000}]}")));
+    db.components().insertSnapshot(application1);
+
+    authorizationIndexerTester.allowOnlyAnyone(application1);
     projectMeasuresIndexer.indexOnStartup(null);
 
     SearchProjectsWsResponse result = call(request.setAdditionalFields(singletonList("leakPeriodDate")));
@@ -1081,7 +1165,8 @@ public class SearchProjectsActionTest {
       .containsOnly(
         tuple(project1.getDbKey(), true, formatDateTime(new Date(10_000_000_000L))),
         tuple(project2.getDbKey(), false, ""),
-        tuple(project3.getDbKey(), false, ""));
+        tuple(project3.getDbKey(), false, ""),
+        tuple(application1.getDbKey(), true, formatDateTime(new Date(10_000_000_000L))));
   }
 
   @Test
@@ -1199,6 +1284,25 @@ public class SearchProjectsActionTest {
     authorizationIndexerTester.allowOnlyAnyone(project);
     projectMeasuresIndexer.indexOnAnalysis(project.uuid());
     return project;
+  }
+
+  private ComponentDto insertApplication(OrganizationDto organizationDto, Measure... measures) {
+    return insertApplication(organizationDto, defaults(), measures);
+  }
+
+  private ComponentDto insertApplication(OrganizationDto organizationDto, Consumer<ComponentDto> componentConsumer, Measure... measures) {
+    ComponentDto application = db.components().insertPublicApplication(organizationDto, componentConsumer);
+    Arrays.stream(measures).forEach(m -> db.measures().insertLiveMeasure(application, m.metric, m.consumer));
+    authorizationIndexerTester.allowOnlyAnyone(application);
+    projectMeasuresIndexer.indexOnAnalysis(application.uuid());
+    return application;
+  }
+
+  private ComponentDto insertPortfolio(OrganizationDto organizationDto) {
+    ComponentDto portfolio = db.components().insertPublicPortfolio(organizationDto);
+    authorizationIndexerTester.allowOnlyAnyone(portfolio);
+    projectMeasuresIndexer.indexOnAnalysis(portfolio.uuid());
+    return portfolio;
   }
 
   private static class Measure {

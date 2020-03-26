@@ -19,6 +19,7 @@
       "organization": "my-org-key-1",
       "key": "my_project",
       "name": "My Project 1",
+      "qualifier": "TRK",
       "isFavorite": true,
       "tags": [
         "finance",
@@ -30,6 +31,7 @@
       "organization": "my-org-key-1",
       "key": "another_project",
       "name": "My Project 2",
+      "qualifier": "TRK",
       "isFavorite": false,
       "tags": [],
       "visibility": "public"
@@ -38,6 +40,7 @@
       "organization": "my-org-key-2",
       "key": "third_project",
       "name": "My Project 3",
+      "qualifier": "TRK",
       "isFavorite": false,
       "tags": [
         "sales",

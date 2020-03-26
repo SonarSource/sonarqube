@@ -44,10 +44,11 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_ORGANIZATION_UUID = "organizationUuid";
 
   /**
-   * Project key. Only projects (qualifier=TRK)
+   * Project key. Only projects and applications (qualifier=TRK, APP)
    */
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
+  public static final String FIELD_QUALIFIER = "qualifier";
   public static final String FIELD_ANALYSED_AT = "analysedAt";
   public static final String FIELD_QUALITY_GATE_STATUS = "qualityGateStatus";
   public static final String FIELD_TAGS = "tags";
@@ -97,6 +98,7 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ORGANIZATION_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_QUALIFIER).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
     mapping.keywordFieldBuilder(FIELD_QUALITY_GATE_STATUS).build();
     mapping.keywordFieldBuilder(FIELD_TAGS).build();

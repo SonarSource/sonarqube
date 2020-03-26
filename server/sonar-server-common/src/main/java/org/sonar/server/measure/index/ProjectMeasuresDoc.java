@@ -41,6 +41,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NCLOC_DISTRIBUTION;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALIFIER;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_UUID;
@@ -93,6 +94,15 @@ public class ProjectMeasuresDoc extends BaseDoc {
 
   public ProjectMeasuresDoc setName(String s) {
     setField(FIELD_NAME, s);
+    return this;
+  }
+
+  public String getQualifier() {
+    return getField(FIELD_QUALIFIER);
+  }
+
+  public ProjectMeasuresDoc setQualifier(String s) {
+    setField(FIELD_QUALIFIER, s);
     return this;
   }
 

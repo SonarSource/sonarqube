@@ -296,7 +296,8 @@ public class ProjectMeasuresIndexTextSearchTest {
       .setOrganizationUuid(project.getOrganizationUuid())
       .setId(project.uuid())
       .setKey(project.getDbKey())
-      .setName(project.name());
+      .setName(project.name())
+      .setQualifier(project.qualifier());
   }
 
   private static ProjectMeasuresDoc newDoc(ComponentDto project, String metric1, Object value1) {

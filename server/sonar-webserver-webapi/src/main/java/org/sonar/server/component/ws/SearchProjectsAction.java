@@ -20,7 +20,9 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -44,6 +47,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.core.platform.EditionProvider.Edition;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -102,18 +107,24 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private static final String ORGANIZATIONS = "organizations";
   private static final String ANALYSIS_DATE = "analysisDate";
   private static final String LEAK_PERIOD_DATE = "leakPeriodDate";
+  private static final String METRIC_LEAK_PROJECTS_KEY = "leak_projects";
+  private static final String HTML_UL_START_TAG = "<ul>";
+  private static final String HTML_UL_END_TAG = "</ul>";
   private static final Set<String> POSSIBLE_FIELDS = newHashSet(ALL, ORGANIZATIONS, ANALYSIS_DATE, LEAK_PERIOD_DATE);
 
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
   private final UserSession userSession;
   private final ProjectsInWarning projectsInWarning;
+  private final PlatformEditionProvider editionProvider;
 
-  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession, ProjectsInWarning projectsInWarning) {
+  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession, ProjectsInWarning projectsInWarning,
+    PlatformEditionProvider editionProvider) {
     this.dbClient = dbClient;
     this.index = index;
     this.userSession = userSession;
     this.projectsInWarning = projectsInWarning;
+    this.editionProvider = editionProvider;
   }
 
   @Override
@@ -250,6 +261,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .map(OrganizationDto::getUuid)
       .ifPresent(query::setOrganizationUuid);
 
+    Set<String> qualifiersBasedOnEdition = getQualifiersBasedOnEdition(query);
+    query.setQualifiers(qualifiersBasedOnEdition);
+
     ProjectMeasuresQueryValidator.validate(query);
 
     SearchIdResult<String> esResults = index.search(query, new SearchOptions()
@@ -260,7 +274,40 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Ordering<ProjectDto> ordering = Ordering.explicit(projectUuids).onResultOf(ProjectDto::getUuid);
     List<ProjectDto> projects = ordering.immutableSortedCopy(dbClient.projectDao().selectByUuids(dbSession, new HashSet<>(projectUuids)));
     Map<String, SnapshotDto> analysisByProjectUuid = getSnapshots(dbSession, request, projectUuids);
-    return new SearchResults(projects, favoriteProjectUuids, esResults, analysisByProjectUuid, query);
+
+    Map<String, Long> applicationsLeakPeriod = getApplicationsLeakPeriod(dbSession, request, qualifiersBasedOnEdition, projectUuids);
+
+    return new SearchResults(projects, favoriteProjectUuids, esResults, analysisByProjectUuid, applicationsLeakPeriod, query);
+  }
+
+  private Set<String> getQualifiersBasedOnEdition(ProjectMeasuresQuery query) {
+    Set<String> availableQualifiers = getQualifiersFromEdition();
+    Set<String> requestQualifiers = query.getQualifiers().orElse(availableQualifiers);
+
+    Set<String> resolvedQualifiers = requestQualifiers.stream()
+      .filter(availableQualifiers::contains)
+      .collect(Collectors.toSet());
+    if (!resolvedQualifiers.isEmpty()) {
+      return resolvedQualifiers;
+    } else {
+      throw new IllegalArgumentException("Invalid qualifier, available are: " + String.join(",", availableQualifiers));
+    }
+  }
+
+  private Set<String> getQualifiersFromEdition() {
+    Optional<Edition> edition = editionProvider.get();
+
+    if (!edition.isPresent()) {
+      return Sets.newHashSet(Qualifiers.PROJECT);
+    }
+
+    switch (edition.get()) {
+      case ENTERPRISE:
+      case DATACENTER:
+        return Sets.newHashSet(Qualifiers.PROJECT, Qualifiers.APP);
+      default:
+        return Sets.newHashSet(Qualifiers.PROJECT);
+    }
   }
 
   private static boolean hasFavoriteFilter(List<Criterion> criteria) {
@@ -287,7 +334,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     return dbClient.componentDao().selectByUuids(dbSession, favoriteDbUuids).stream()
       .filter(ComponentDto::isEnabled)
-      .filter(f -> f.qualifier().equals(Qualifiers.PROJECT))
+      .filter(f -> f.qualifier().equals(Qualifiers.PROJECT) || f.qualifier().equals(Qualifiers.APP))
       .map(ComponentDto::uuid)
       .collect(MoreCollectors.toSet());
   }
@@ -298,6 +345,19 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .stream()
         .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid));
     }
+    return emptyMap();
+  }
+
+  private Map<String, Long> getApplicationsLeakPeriod(DbSession dbSession, SearchProjectsRequest request, Set<String> qualifiers, List<String> projectUuids) {
+    if (qualifiers.contains(Qualifiers.APP) && request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
+      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricKeys(dbSession, projectUuids, Collections.singleton(METRIC_LEAK_PROJECTS_KEY))
+        .stream()
+        .filter(lm -> !Objects.isNull(lm.getDataAsString()))
+        .map(lm -> Maps.immutableEntry(lm.getComponentUuid(), ApplicationLeakProjects.parse(lm.getDataAsString()).getOldestLeak()))
+        .filter(entry -> entry.getValue().isPresent())
+        .collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().get().getLeak()));
+    }
+
     return emptyMap();
   }
 
@@ -324,8 +384,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid) {
-    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
-      userSession.isLoggedIn());
+    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults.favoriteProjectUuids,
+      searchResults.analysisByProjectUuid, searchResults.applicationsLeakPeriods, userSession.isLoggedIn());
 
     Map<String, OrganizationDto> organizationsByUuidForAdditionalInfo = new HashMap<>();
     if (request.additionalFields.contains(ORGANIZATIONS)) {
@@ -438,11 +498,13 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final Set<String> favoriteProjectUuids;
     private final boolean isUserLoggedIn;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
+    private final Map<String, Long> applicationsLeakPeriod;
 
     private DbToWsComponent(SearchProjectsRequest request, Map<String, OrganizationDto> organizationsByUuid, Set<String> favoriteProjectUuids,
-      Map<String, SnapshotDto> analysisByProjectUuid, boolean isUserLoggedIn) {
+      Map<String, SnapshotDto> analysisByProjectUuid, Map<String, Long> applicationsLeakPeriod, boolean isUserLoggedIn) {
       this.request = request;
       this.analysisByProjectUuid = analysisByProjectUuid;
+      this.applicationsLeakPeriod = applicationsLeakPeriod;
       this.wsComponent = Component.newBuilder();
       this.organizationsByUuid = organizationsByUuid;
       this.favoriteProjectUuids = favoriteProjectUuids;
@@ -459,6 +521,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setOrganization(organizationDto.getKey())
         .setKey(dbProject.getKey())
         .setName(dbProject.getName())
+        .setQualifier(dbProject.getQualifier())
         .setVisibility(Visibility.getLabel(dbProject.isPrivate()));
       wsComponent.getTagsBuilder().addAllTags(dbProject.getTags());
 
@@ -468,7 +531,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
           wsComponent.setAnalysisDate(formatDateTime(snapshotDto.getCreatedAt()));
         }
         if (request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
-          ofNullable(snapshotDto.getPeriodDate()).ifPresent(leakPeriodDate -> wsComponent.setLeakPeriodDate(formatDateTime(leakPeriodDate)));
+          if (Qualifiers.APP.equals(dbProject.getQualifier())) {
+            ofNullable(applicationsLeakPeriod.get(dbProject.getUuid())).ifPresent(leakPeriodDate -> wsComponent.setLeakPeriodDate(formatDateTime(leakPeriodDate)));
+          } else {
+            ofNullable(snapshotDto.getPeriodDate()).ifPresent(leakPeriodDate -> wsComponent.setLeakPeriodDate(formatDateTime(leakPeriodDate)));
+          }
         }
       }
 
@@ -485,16 +552,18 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final Set<String> favoriteProjectUuids;
     private final Facets facets;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
+    private final Map<String, Long> applicationsLeakPeriods;
     private final ProjectMeasuresQuery query;
     private final int total;
 
     private SearchResults(List<ProjectDto> projects, Set<String> favoriteProjectUuids, SearchIdResult<String> searchResults, Map<String, SnapshotDto> analysisByProjectUuid,
-      ProjectMeasuresQuery query) {
+      Map<String, Long> applicationsLeakPeriods, ProjectMeasuresQuery query) {
       this.projects = projects;
       this.favoriteProjectUuids = favoriteProjectUuids;
       this.total = (int) searchResults.getTotal();
       this.facets = searchResults.getFacets();
       this.analysisByProjectUuid = analysisByProjectUuid;
+      this.applicationsLeakPeriods = applicationsLeakPeriods;
       this.query = query;
     }
   }

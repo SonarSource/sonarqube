@@ -51,7 +51,8 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE
 
 public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
-  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_PROJECT_MEASURES, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
+  private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(TYPE_PROJECT_MEASURES,
+    project -> Qualifiers.PROJECT.equals(project.getQualifier()) || Qualifiers.APP.equals(project.getQualifier()));
   private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(TYPE_PROJECT_MEASURES);
 
   private final DbClient dbClient;
@@ -170,6 +171,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       .setOrganizationUuid(project.getOrganizationUuid())
       .setKey(project.getKey())
       .setName(project.getName())
+      .setQualifier(project.getQualifier())
       .setQualityGateStatus(projectMeasures.getMeasures().getQualityGateStatus())
       .setTags(project.getTags())
       .setAnalysedAt(analysisDate == null ? null : new Date(analysisDate))
