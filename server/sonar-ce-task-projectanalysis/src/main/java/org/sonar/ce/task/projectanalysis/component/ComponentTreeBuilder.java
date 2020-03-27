@@ -213,16 +213,16 @@ public class ComponentTreeBuilder {
   }
 
   public Component buildChangedComponentTreeRoot(Component project) {
-    return buildChangedComponentTree(project, "");
+    return buildChangedComponentTree(project);
   }
 
   @Nullable
-  private static Component buildChangedComponentTree(Component component, String parentPath) {
+  private static Component buildChangedComponentTree(Component component) {
     switch (component.getType()) {
       case PROJECT:
         return buildChangedProject(component);
       case DIRECTORY:
-        return buildChangedDirectory(component, parentPath);
+        return buildChangedDirectory(component);
       case FILE:
         return buildChangedFile(component);
       default:
@@ -231,14 +231,14 @@ public class ComponentTreeBuilder {
   }
 
   private static Component buildChangedProject(Component component) {
-    return changedComponentBuilder(component, "", "")
+    return changedComponentBuilder(component, "")
       .setProjectAttributes(new ProjectAttributes(component.getProjectAttributes()))
       .addChildren(buildChangedComponentChildren(component))
       .build();
   }
 
   @Nullable
-  private static Component buildChangedDirectory(Component component, String parentPath) {
+  private static Component buildChangedDirectory(Component component) {
     List<Component> children = buildChangedComponentChildren(component);
     if (children.isEmpty()) {
       return null;
@@ -246,11 +246,12 @@ public class ComponentTreeBuilder {
 
     if (children.size() == 1 && children.get(0).getType() == Component.Type.DIRECTORY) {
       Component child = children.get(0);
-      return changedComponentBuilder(child, parentPath, child.getName())
+      String shortName = component.getShortName() + "/" + child.getShortName();
+      return changedComponentBuilder(child, shortName)
         .addChildren(child.getChildren())
         .build();
     } else {
-      return changedComponentBuilder(component, parentPath, component.getName())
+      return changedComponentBuilder(component, component.getShortName())
         .addChildren(children)
         .build();
     }
@@ -258,12 +259,12 @@ public class ComponentTreeBuilder {
 
   private static List<Component> buildChangedComponentChildren(Component component) {
     return component.getChildren().stream()
-      .map(c -> ComponentTreeBuilder.buildChangedComponentTree(c, component.getName()))
+      .map(ComponentTreeBuilder::buildChangedComponentTree)
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toList());
   }
 
-  private static ComponentImpl.Builder changedComponentBuilder(Component component, String parentPath, String path) {
+  private static ComponentImpl.Builder changedComponentBuilder(Component component, String newShortName) {
     return ComponentImpl.builder(component.getType())
       .setUuid(component.getUuid())
       .setDbKey(component.getDbKey())
@@ -271,7 +272,7 @@ public class ComponentTreeBuilder {
       .setStatus(component.getStatus())
       .setReportAttributes(component.getReportAttributes())
       .setName(component.getName())
-      .setShortName(removeStart(removeStart(path, parentPath), "/"))
+      .setShortName(newShortName)
       .setDescription(component.getDescription());
   }
 

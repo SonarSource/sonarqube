@@ -194,6 +194,29 @@ public class BuildComponentTreeStepTest {
     context.getStatistics().assertValue("components", 7);
   }
 
+  /**
+   * SONAR-13262
+   */
+  @Test
+  public void verify_tree_is_correctly_built_in_prs_with_repeated_names() {
+    setAnalysisMetadataHolder(true);
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_PROJECT_KEY + "/file.js"));
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    // modified root
+    Component mRoot = treeRootHolder.getRoot();
+    verifyComponent(mRoot, Component.Type.PROJECT, ROOT_REF, 1);
+
+    Component dir = mRoot.getChildren().get(0);
+    assertThat(dir.getName()).isEqualTo(REPORT_PROJECT_KEY);
+    assertThat(dir.getShortName()).isEqualTo(REPORT_PROJECT_KEY);
+
+    verifyComponent(dir, Component.Type.DIRECTORY, null, 1);
+  }
+
   @Test
   public void compute_keys_and_uuids() {
     setAnalysisMetadataHolder();
@@ -273,11 +296,7 @@ public class BuildComponentTreeStepTest {
 
   @Test
   public void generate_keys_when_using_main_branch() {
-    Branch branch = new DefaultBranchImpl();
-    analysisMetadataHolder.setRootComponentRef(ROOT_REF)
-      .setAnalysisDate(ANALYSIS_DATE)
-      .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)))
-      .setBranch(branch);
+    setAnalysisMetadataHolder();
     BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder, reportModulesPath);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
     reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_PATH_1));
@@ -498,6 +517,7 @@ public class BuildComponentTreeStepTest {
     ScannerReport.Component.Builder builder = ScannerReport.Component.newBuilder()
       .setType(componentType)
       .setRef(componentRef)
+      .setName(key)
       .setStatus(status)
       .setLines(1)
       .setKey(key);
@@ -559,7 +579,7 @@ public class BuildComponentTreeStepTest {
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
       .setBranch(branch)
-      .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY)));
+      .setProject(Project.from(newPrivateProjectDto(newOrganizationDto()).setDbKey(REPORT_PROJECT_KEY).setName(REPORT_PROJECT_KEY)));
   }
 
   public static ScannerReport.Metadata createReportMetadata(@Nullable String projectVersion, @Nullable String buildString) {
