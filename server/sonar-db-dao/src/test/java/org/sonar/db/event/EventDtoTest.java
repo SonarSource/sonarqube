@@ -28,7 +28,6 @@ public class EventDtoTest {
   @Test
   public void test_getters_and_setters() {
     EventDto dto = new EventDto()
-      .setId(1L)
       .setAnalysisUuid("uuid_1")
       .setComponentUuid("ABCD")
       .setName("1.0")
@@ -38,7 +37,6 @@ public class EventDtoTest {
       .setDate(1413407091086L)
       .setCreatedAt(1225630680000L);
 
-    assertThat(dto.getId()).isEqualTo(1L);
     assertThat(dto.getAnalysisUuid()).isEqualTo("uuid_1");
     assertThat(dto.getComponentUuid()).isEqualTo("ABCD");
     assertThat(dto.getName()).isEqualTo("1.0");

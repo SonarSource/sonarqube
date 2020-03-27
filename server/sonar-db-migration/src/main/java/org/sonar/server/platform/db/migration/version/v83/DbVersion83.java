@@ -39,6 +39,11 @@ public class DbVersion83 implements DbVersion {
       .add(3310, "Remove column 'resource_id' in 'user_roles'", DropResourceIdFromUserRolesTable.class)
       .add(3311, "Remove column 'id' in 'components'", DropIdFromComponentsTable.class)
 
+      // Migration on EVENTS table
+      .add(3400, "Drop primary key on 'ID' column of 'EVENTS' table", DropPrimaryKeyOnIdColumnOfEventsTable.class)
+      .add(3401, "Add primary key on 'UUID' column of 'EVENTS' table", AddPrimaryKeyOnUuidColumnOfEventsTable.class)
+      .add(3402, "Drop column 'ID' of 'EVENTS' table", DropIdColumnOfEventsTable.class);
+
     ;
   }
 }

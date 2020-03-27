@@ -17,27 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.event;
+package org.sonar.server.platform.db.migration.version.v83;
 
-import java.util.List;
-import javax.annotation.Nullable;
-import org.apache.ibatis.annotations.Param;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public interface EventMapper {
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-  EventDto selectByUuid(String uuid);
+public class DropIdColumnOfEventsTableTest {
 
-  List<EventDto> selectByComponentUuid(String componentUuid);
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropIdColumnOfEventsTableTest.class, "schema.sql");
 
-  List<EventDto> selectByAnalysisUuid(String analysisUuid);
+  private DropIdColumnOfEventsTable underTest = new DropIdColumnOfEventsTable(db.database());
 
-  List<EventDto> selectByAnalysisUuids(@Param("analysisUuids") List<String> list);
+  @Test
+  public void execute() throws SQLException {
+    underTest.execute();
 
-  List<EventDto> selectVersions(@Param("componentUuid") String componentUuid);
+    db.assertColumnDoesNotExist("events", "id");
+  }
 
-  void insert(EventDto dto);
+  @Test
+  public void migration_is_not_re_entrant() throws SQLException {
+    underTest.execute();
 
-  void update(@Param("uuid") String uuid, @Param("name") @Nullable String name, @Param("description") @Nullable String description);
+    assertThatThrownBy(() -> underTest.execute()).isInstanceOf(IllegalStateException.class);
+  }
 
-  void deleteByUuid(String uuid);
 }

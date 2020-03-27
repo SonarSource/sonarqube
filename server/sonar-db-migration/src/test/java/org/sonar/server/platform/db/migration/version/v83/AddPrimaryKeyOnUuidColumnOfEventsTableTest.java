@@ -19,24 +19,31 @@
  */
 package org.sonar.server.platform.db.migration.version.v83;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class DbVersion83Test {
+public class AddPrimaryKeyOnUuidColumnOfEventsTableTest {
 
-  private DbVersion underTest = new DbVersion83();
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(AddPrimaryKeyOnUuidColumnOfEventsTableTest.class, "schema.sql");
+
+  private AddPrimaryKeyOnUuidColumnOfEventsTable underTest = new AddPrimaryKeyOnUuidColumnOfEventsTable(db.database());
 
   @Test
-  public void migrationNumber_starts_at_3300() {
-    verifyMinimumMigrationNumber(underTest, 3300);
+  public void execute() throws SQLException {
+    underTest.execute();
+
+    db.assertPrimaryKey("events", "pk_events", "uuid");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 15);
-  }
+  public void migration_is_not_re_entrant() throws SQLException {
+    underTest.execute();
 
+    assertThatThrownBy(() -> underTest.execute()).isInstanceOf(IllegalStateException.class);
+  }
 }

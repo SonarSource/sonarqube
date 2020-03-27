@@ -46,6 +46,7 @@ import static org.sonar.server.platform.db.migration.def.TinyIntColumnDef.newTin
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.MAX_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.PRIMARY_KEY_PREFIX;
 import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.ColumnFlag.AUTO_INCREMENT;
 
 public class CreateInitialSchema extends DdlChange {
@@ -1176,7 +1177,7 @@ public class CreateInitialSchema extends DdlChange {
       .addColumn(newTinyIntColumnDefBuilder().setColumnName("ad_hoc_type").setIsNullable(true).build())
       .addColumn(TECHNICAL_CREATED_AT_COL)
       .addColumn(TECHNICAL_UPDATED_AT_COL)
-      .withPkConstraintName("pk_" + tableName)
+      .withPkConstraintName(PRIMARY_KEY_PREFIX + tableName)
       .build());
   }
 

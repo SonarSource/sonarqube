@@ -357,6 +357,18 @@ public class AbstractDbTester<T extends TestDb> extends ExternalResource {
     }
   }
 
+  public void assertNoPrimaryKey(String tableName) {
+    try (Connection connection = getConnection()) {
+      PK pk = pkOf(connection, tableName.toUpperCase(Locale.ENGLISH));
+      if (pk == null) {
+        pkOf(connection, tableName.toLowerCase(Locale.ENGLISH));
+      }
+      assertThat(pk).as("Primary key is still defined on table %s", tableName).isNull();
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to check primary key", e);
+    }
+  }
+
   @CheckForNull
   private PK pkOf(Connection connection, String tableName) throws SQLException {
     try (ResultSet resultSet = connection.getMetaData().getPrimaryKeys(null, null, tableName)) {

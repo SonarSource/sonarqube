@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.event;
+package org.sonar.server.platform.db.migration.version.v83.util;
 
-import java.util.List;
-import javax.annotation.Nullable;
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
 
-public interface EventMapper {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-  EventDto selectByUuid(String uuid);
+public class AddPrimaryKeyBuilderTest {
 
-  List<EventDto> selectByComponentUuid(String componentUuid);
+  private static final String TABLE_NAME = "issues";
 
-  List<EventDto> selectByAnalysisUuid(String analysisUuid);
+  @Test
+  public void generate() {
+    String sql = new AddPrimaryKeyBuilder(TABLE_NAME, "id").build();
 
-  List<EventDto> selectByAnalysisUuids(@Param("analysisUuids") List<String> list);
+    assertThat(sql).isEqualTo("ALTER TABLE issues ADD CONSTRAINT pk_issues PRIMARY KEY (id)");
+  }
 
-  List<EventDto> selectVersions(@Param("componentUuid") String componentUuid);
-
-  void insert(EventDto dto);
-
-  void update(@Param("uuid") String uuid, @Param("name") @Nullable String name, @Param("description") @Nullable String description);
-
-  void deleteByUuid(String uuid);
+  @Test
+  public void fail_when_table_name_is_invalid() {
+    assertThatThrownBy(() -> new AddPrimaryKeyBuilder("abcdefghijklmnopqrstuvwxyz", "id").build())
+      .isInstanceOf(IllegalArgumentException.class);
+  }
 }

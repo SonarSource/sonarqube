@@ -111,7 +111,7 @@ public class PersistEventsStep implements ComputationStep {
     private void deletePreviousEventsHavingSameVersion(DbSession session, String version, Component component) {
       for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, component.getUuid())) {
         if (Objects.equals(dto.getCategory(), EventDto.CATEGORY_VERSION) && Objects.equals(dto.getName(), version)) {
-          dbClient.eventDao().delete(session, dto.getId());
+          dbClient.eventDao().delete(session, dto.getUuid());
         }
       }
     }

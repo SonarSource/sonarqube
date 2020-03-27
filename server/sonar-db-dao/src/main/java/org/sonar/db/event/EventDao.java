@@ -59,10 +59,6 @@ public class EventDao implements Dao {
     mapper(dbSession).update(uuid, name, description);
   }
 
-  public void delete(DbSession session, Long id) {
-    mapper(session).deleteById(id);
-  }
-
   public void delete(DbSession session, String uuid) {
     mapper(session).deleteByUuid(uuid);
   }

@@ -36,8 +36,9 @@ import static java.util.Locale.ENGLISH;
 import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.PRIMARY_KEY_PREFIX;
 
 public class DropPrimaryKeySqlGenerator {
+
   private final Database db;
-  private final GetConstraintHelper getConstraintHelper;
+  private GetConstraintHelper getConstraintHelper;
 
   public DropPrimaryKeySqlGenerator(Database db, GetConstraintHelper getConstraintHelper) {
     this.db = db;

@@ -208,17 +208,6 @@ public class EventDaoTest {
   }
 
   @Test
-  public void delete_by_id() {
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
-    EventDto eventDto = dbTester.events().insertEvent(newEvent(analysis).setUuid("A1"));
-
-    underTest.delete(dbTester.getSession(), eventDto.getId());
-    dbTester.getSession().commit();
-
-    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(0);
-  }
-
-  @Test
   public void delete_by_uuid() {
     dbTester.events().insertEvent(newEvent(newAnalysis(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()))).setUuid("E1"));
 

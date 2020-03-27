@@ -33,7 +33,6 @@ public class EventDto {
   public static final String CATEGORY_PROFILE = "Profile";
   public static final String CATEGORY_DEFINITION_CHANGE = "Definition change";
 
-  private Long id;
   private String uuid;
   private String analysisUuid;
   private String componentUuid;
@@ -43,15 +42,6 @@ public class EventDto {
   private Long date;
   private Long createdAt;
   private String data;
-
-  public Long getId() {
-    return id;
-  }
-
-  public EventDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
 
   public String getUuid() {
     return uuid;

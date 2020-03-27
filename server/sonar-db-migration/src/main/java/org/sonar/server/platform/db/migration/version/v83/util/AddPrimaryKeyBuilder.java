@@ -17,27 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.event;
+package org.sonar.server.platform.db.migration.version.v83.util;
 
-import java.util.List;
-import javax.annotation.Nullable;
-import org.apache.ibatis.annotations.Param;
+import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
+import static org.sonar.server.platform.db.migration.def.Validations.validateTableName;
+import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.PRIMARY_KEY_PREFIX;
 
-public interface EventMapper {
+public class AddPrimaryKeyBuilder {
 
-  EventDto selectByUuid(String uuid);
+  private final String tableName;
+  private final String primaryKey;
 
-  List<EventDto> selectByComponentUuid(String componentUuid);
+  public AddPrimaryKeyBuilder(String tableName, String column) {
+    this.tableName = validateTableName(tableName);
+    this.primaryKey = column;
+  }
 
-  List<EventDto> selectByAnalysisUuid(String analysisUuid);
+  public String build() {
+    checkState(primaryKey != null, "Primary key is missing");
+    return format("ALTER TABLE %s ADD CONSTRAINT %s%s PRIMARY KEY (%s)", tableName, PRIMARY_KEY_PREFIX, tableName, primaryKey);
+  }
 
-  List<EventDto> selectByAnalysisUuids(@Param("analysisUuids") List<String> list);
-
-  List<EventDto> selectVersions(@Param("componentUuid") String componentUuid);
-
-  void insert(EventDto dto);
-
-  void update(@Param("uuid") String uuid, @Param("name") @Nullable String name, @Param("description") @Nullable String description);
-
-  void deleteByUuid(String uuid);
 }

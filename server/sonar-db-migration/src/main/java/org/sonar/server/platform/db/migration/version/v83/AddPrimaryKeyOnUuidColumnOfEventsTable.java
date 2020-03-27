@@ -17,27 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.event;
+package org.sonar.server.platform.db.migration.version.v83;
 
-import java.util.List;
-import javax.annotation.Nullable;
-import org.apache.ibatis.annotations.Param;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.util.AddPrimaryKeyBuilder;
 
-public interface EventMapper {
+public class AddPrimaryKeyOnUuidColumnOfEventsTable extends DdlChange {
 
-  EventDto selectByUuid(String uuid);
+  public AddPrimaryKeyOnUuidColumnOfEventsTable(Database db) {
+    super(db);
+  }
 
-  List<EventDto> selectByComponentUuid(String componentUuid);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddPrimaryKeyBuilder("events", "uuid").build());
+  }
 
-  List<EventDto> selectByAnalysisUuid(String analysisUuid);
-
-  List<EventDto> selectByAnalysisUuids(@Param("analysisUuids") List<String> list);
-
-  List<EventDto> selectVersions(@Param("componentUuid") String componentUuid);
-
-  void insert(EventDto dto);
-
-  void update(@Param("uuid") String uuid, @Param("name") @Nullable String name, @Param("description") @Nullable String description);
-
-  void deleteByUuid(String uuid);
 }
