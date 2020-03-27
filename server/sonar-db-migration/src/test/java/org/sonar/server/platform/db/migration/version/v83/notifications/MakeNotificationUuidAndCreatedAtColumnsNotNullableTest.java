@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.notifications;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static java.sql.Types.BIGINT;
+import static java.sql.Types.VARCHAR;
 
-public class DbVersion83Test {
+public class MakeNotificationUuidAndCreatedAtColumnsNotNullableTest {
 
-  private DbVersion underTest = new DbVersion83();
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeNotificationUuidAndCreatedAtColumnsNotNullableTest.class, "schema.sql");
+
+  private MigrationStep underTest = new MakeNotificationUuidAndCreatedAtColumnsNotNullable(db.database());
 
   @Test
-  public void migrationNumber_starts_at_3300() {
-    verifyMinimumMigrationNumber(underTest, 3300);
-  }
+  public void created_at_and_uuid_columns_are_not_null() throws SQLException {
+    underTest.execute();
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationNotEmpty(underTest);
+    db.assertColumnDefinition("notifications", "uuid", VARCHAR, null, false);
+    db.assertColumnDefinition("notifications", "created_at", BIGINT, null, false);
   }
-
 }

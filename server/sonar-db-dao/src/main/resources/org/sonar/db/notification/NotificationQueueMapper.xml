@@ -5,12 +5,12 @@
 <mapper namespace="org.sonar.db.notification.NotificationQueueMapper">
 
   <insert id="insert" parameterType="NotificationQueue" useGeneratedKeys="false">
-    INSERT INTO notifications (data)
-    VALUES (#{data})
+    INSERT INTO notifications (uuid,data,created_at)
+    VALUES (#{uuid},#{data},#{createdAt})
   </insert>
 
-  <delete id="delete" parameterType="long">
-    delete from notifications where id=#{id}
+  <delete id="delete" parameterType="String">
+    delete from notifications where uuid=#{uuid}
   </delete>
 
   <select id="count" resultType="long">
@@ -18,25 +18,25 @@
   </select>
 
   <select id="findOldest" parameterType="int" resultType="NotificationQueue">
-    select id, data
+    select uuid, data, created_at
     from notifications
-    order by id asc
+    order by created_at asc
     limit #{count}
   </select>
 
   <!-- SQL Server -->
   <select id="findOldest" parameterType="int" resultType="NotificationQueue" databaseId="mssql">
-    select top (#{count}) id, data
+    select top (#{count}) uuid, data, created_at
     from notifications
-    order by id asc
+    order by created_at asc
   </select>
 
   <!-- Oracle -->
   <select id="findOldest" parameterType="int" resultType="NotificationQueue" databaseId="oracle">
     select * from (select
-    id, data
+    uuid, data, created_at
     from notifications
-    order by id asc
+    order by created_at asc
     )
     where rownum &lt;= #{count}
   </select>

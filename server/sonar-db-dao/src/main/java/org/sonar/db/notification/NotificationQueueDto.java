@@ -35,15 +35,16 @@ import org.sonar.api.utils.SonarException;
  */
 public class NotificationQueueDto {
 
-  private Long id;
+  private String uuid;
   private byte[] data;
+  private long createdAt;
 
-  public Long getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public NotificationQueueDto setId(Long id) {
-    this.id = id;
+  NotificationQueueDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 
@@ -53,6 +54,15 @@ public class NotificationQueueDto {
 
   public NotificationQueueDto setData(byte[] data) {
     this.data = data;
+    return this;
+  }
+
+  public long getCreatedAt() {
+    return createdAt;
+  }
+
+  NotificationQueueDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
     return this;
   }
 

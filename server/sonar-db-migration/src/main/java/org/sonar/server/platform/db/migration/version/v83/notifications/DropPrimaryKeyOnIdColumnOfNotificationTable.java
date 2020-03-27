@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.notification;
+package org.sonar.server.platform.db.migration.version.v83.notifications;
 
-import java.util.List;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 
-/**
- * @since 3.7.1
- */
-public interface NotificationQueueMapper {
+public class DropPrimaryKeyOnIdColumnOfNotificationTable extends DdlChange {
 
-  void insert(NotificationQueueDto actionPlanDto);
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
 
-  void delete(String uuid);
+  public DropPrimaryKeyOnIdColumnOfNotificationTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
+    super(db);
+    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
+  }
 
-  List<NotificationQueueDto> findOldest(int count);
-
-  long count();
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(dropPrimaryKeySqlGenerator.generate("notifications", "notifications","id"));
+  }
 
 }

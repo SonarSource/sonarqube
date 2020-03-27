@@ -21,6 +21,8 @@ package org.sonar.db.notification;
 
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -28,15 +30,21 @@ import org.sonar.db.MyBatis;
 public class NotificationQueueDao implements Dao {
 
   private final MyBatis mybatis;
+  private System2 system2;
+  private UuidFactory uuidFactory;
 
-  public NotificationQueueDao(MyBatis mybatis) {
+  public NotificationQueueDao(MyBatis mybatis, System2 system2, UuidFactory uuidFactory) {
     this.mybatis = mybatis;
+    this.system2 = system2;
+    this.uuidFactory = uuidFactory;
   }
 
   public void insert(List<NotificationQueueDto> dtos) {
     try (DbSession session = mybatis.openSession(true)) {
       NotificationQueueMapper mapper = session.getMapper(NotificationQueueMapper.class);
       for (NotificationQueueDto dto : dtos) {
+        dto.setUuid(uuidFactory.create());
+        dto.setCreatedAt(system2.now());
         mapper.insert(dto);
       }
       session.commit();
@@ -47,7 +55,7 @@ public class NotificationQueueDao implements Dao {
     try (DbSession session = mybatis.openSession(true)) {
       NotificationQueueMapper mapper = session.getMapper(NotificationQueueMapper.class);
       for (NotificationQueueDto dto : dtos) {
-        mapper.delete(dto.getId());
+        mapper.delete(dto.getUuid());
       }
       session.commit();
     }

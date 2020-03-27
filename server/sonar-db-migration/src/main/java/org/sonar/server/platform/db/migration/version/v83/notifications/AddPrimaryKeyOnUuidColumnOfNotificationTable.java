@@ -17,21 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.notification;
+package org.sonar.server.platform.db.migration.version.v83.notifications;
 
-import java.util.List;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.util.AddPrimaryKeyBuilder;
 
-/**
- * @since 3.7.1
- */
-public interface NotificationQueueMapper {
+public class AddPrimaryKeyOnUuidColumnOfNotificationTable extends DdlChange {
 
-  void insert(NotificationQueueDto actionPlanDto);
+  public AddPrimaryKeyOnUuidColumnOfNotificationTable(Database db) {
+    super(db);
+  }
 
-  void delete(String uuid);
-
-  List<NotificationQueueDto> findOldest(int count);
-
-  long count();
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddPrimaryKeyBuilder("notifications", "uuid").build());
+  }
 
 }

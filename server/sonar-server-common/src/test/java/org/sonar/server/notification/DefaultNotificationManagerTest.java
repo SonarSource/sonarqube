@@ -38,7 +38,10 @@ import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.EmailSubscriberDto;
@@ -83,6 +86,7 @@ public class DefaultNotificationManagerTest {
   private AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
+  private System2 system2 = mock(System2.class);
 
   @Before
   public void setUp() {
@@ -93,6 +97,7 @@ public class DefaultNotificationManagerTest {
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);
     when(dbClient.notificationQueueDao()).thenReturn(notificationQueueDao);
     when(dbClient.authorizationDao()).thenReturn(authorizationDao);
+    when(system2.now()).thenReturn(0L);
 
     underTest = new DefaultNotificationManager(new NotificationChannel[] {emailChannel, twitterChannel}, dbClient);
   }
@@ -345,7 +350,8 @@ public class DefaultNotificationManagerTest {
     String projectKey = randomAlphabetic(6);
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey))
       .thenReturn(
-        newHashSet(EmailSubscriberDto.create("user1", false, "user1@foo"), EmailSubscriberDto.create("user3", false, "user3@foo"), EmailSubscriberDto.create("user3", true, "user3@foo")));
+        newHashSet(EmailSubscriberDto.create("user1", false, "user1@foo"), EmailSubscriberDto.create("user3", false, "user3@foo"),
+          EmailSubscriberDto.create("user3", true, "user3@foo")));
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
       .thenReturn(newHashSet("user3"));
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))
@@ -370,7 +376,8 @@ public class DefaultNotificationManagerTest {
     Set<String> logins = ImmutableSet.of("user1", "user2", "user3");
     when(propertiesDao.findEmailSubscribersForNotification(dbSession, dispatcherKey, "EmailNotificationChannel", projectKey, logins))
       .thenReturn(
-        newHashSet(EmailSubscriberDto.create("user1", false, "user1@foo"), EmailSubscriberDto.create("user3", false, "user3@foo"), EmailSubscriberDto.create("user3", true, "user3@foo")));
+        newHashSet(EmailSubscriberDto.create("user1", false, "user1@foo"), EmailSubscriberDto.create("user3", false, "user3@foo"),
+          EmailSubscriberDto.create("user3", true, "user3@foo")));
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user3", "user4"), projectKey, globalPermission))
       .thenReturn(newHashSet("user3"));
     when(authorizationDao.keepAuthorizedLoginsOnProject(dbSession, newHashSet("user1", "user3"), projectKey, projectPermission))

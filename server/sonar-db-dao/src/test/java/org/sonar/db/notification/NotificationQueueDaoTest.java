@@ -21,22 +21,27 @@ package org.sonar.db.notification;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.notification.NotificationQueueDto.toNotificationQueueDto;
 
 public class NotificationQueueDaoTest {
 
+  private final System2 system2 = mock(System2.class);
+
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(system2);
 
   private NotificationQueueDao dao = db.getDbClient().notificationQueueDao();
 
@@ -63,41 +68,45 @@ public class NotificationQueueDaoTest {
 
   @Test
   public void should_delete_notification() {
-    List<NotificationQueueDto> notifs = IntStream.range(0, 30 + new Random().nextInt(20))
+    List<NotificationQueueDto> notifs = IntStream.range(0, 30)
       .mapToObj(i -> toNotificationQueueDto(new Notification("foo_" + i)))
       .collect(toList());
     dao.insert(notifs);
     db.commit();
 
-    List<Long> ids = selectAllIds();
+    List<String> uuids = selectAllUuid();
 
-    dao.delete(ids.stream().limit(10).map(id -> new NotificationQueueDto().setId(id)).collect(toList()));
+    dao.delete(uuids.stream().limit(10).map(uuid -> new NotificationQueueDto().setUuid(uuid)).collect(toList()));
 
-    assertThat(selectAllIds()).containsOnly(ids.stream().skip(10).toArray(Long[]::new));
+    assertThat(selectAllUuid()).containsOnly(uuids.stream().skip(10).toArray(String[]::new));
   }
 
   @Test
   public void should_findOldest() {
-    List<NotificationQueueDto> notifs = IntStream.range(0, 20)
+    when(system2.now()).thenAnswer(new Answer<Long>() {
+      private long counter;
+
+      @Override
+      public Long answer(InvocationOnMock invocationOnMock) {
+        counter++;
+        return counter;
+      }
+    });
+
+    List<NotificationQueueDto> notifs = IntStream.range(0, 5)
       .mapToObj(i -> toNotificationQueueDto(new Notification("foo_" + i)))
       .collect(toList());
     dao.insert(notifs);
     db.commit();
 
-    List<Long> ids = selectAllIds();
-
     assertThat(dao.selectOldest(3))
-      .extracting(NotificationQueueDto::getId)
-      .containsOnly(ids.stream().limit(3).toArray(Long[]::new));
-
-    assertThat(dao.selectOldest(22))
-      .extracting(NotificationQueueDto::getId)
-      .containsOnly(ids.toArray(new Long[0]));
+      .extracting(NotificationQueueDto::getUuid)
+      .containsExactlyElementsOf(Arrays.asList("1", "2", "3"));
   }
 
-  private List<Long> selectAllIds() {
-    return db.select("select id as \"ID\" from notifications").stream()
-      .map(t -> (Long) t.get("ID"))
+  private List<String> selectAllUuid() {
+    return db.select("select uuid as \"UUID\" from notifications order by created_at asc").stream()
+      .map(t -> (String) t.get("UUID"))
       .collect(toList());
   }
 }

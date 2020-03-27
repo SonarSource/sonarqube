@@ -17,26 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.notifications;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class DbVersion83Test {
+public class DropIdColumnOfNotificationTableTest {
 
-  private DbVersion underTest = new DbVersion83();
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropIdColumnOfNotificationTableTest.class, "schema.sql");
+
+  private MigrationStep underTest = new DropIdColumnOfNotificationTable(db.database());
 
   @Test
-  public void migrationNumber_starts_at_3300() {
-    verifyMinimumMigrationNumber(underTest, 3300);
+  public void execute() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDoesNotExist("notifications", "id");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationNotEmpty(underTest);
+  public void migration_is_not_re_entrant() throws SQLException {
+    underTest.execute();
+
+    assertThatThrownBy(() -> underTest.execute()).isInstanceOf(IllegalStateException.class);
   }
 
 }

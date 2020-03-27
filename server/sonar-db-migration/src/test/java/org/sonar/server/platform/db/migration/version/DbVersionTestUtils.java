@@ -52,6 +52,12 @@ public class DbVersionTestUtils {
     assertThat(registry.migrationNumbers).hasSize(migrationCount);
   }
 
+  public static void verifyMigrationNotEmpty(DbVersion underTest) {
+    TestMigrationStepRegistry registry = new TestMigrationStepRegistry();
+    underTest.addSteps(registry);
+    assertThat(registry.migrationNumbers).isNotEmpty();
+  }
+
   private static class TestMigrationStepRegistry implements MigrationStepRegistry {
     private Set<Long> migrationNumbers = new HashSet<>();
 

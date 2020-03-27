@@ -36,8 +36,10 @@ import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -59,13 +61,13 @@ public class DefaultNotificationManager implements NotificationManager {
   private NotificationChannel[] notificationChannels;
   private final DbClient dbClient;
 
+
   private boolean alreadyLoggedDeserializationIssue = false;
 
   /**
    * Default constructor used by Pico
    */
-  public DefaultNotificationManager(NotificationChannel[] channels,
-    DbClient dbClient) {
+  public DefaultNotificationManager(NotificationChannel[] channels, DbClient dbClient) {
     this.notificationChannels = channels;
     this.dbClient = dbClient;
   }
