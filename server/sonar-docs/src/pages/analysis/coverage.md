@@ -73,5 +73,5 @@ VB.NET|`sonar.vbnet.xunit.reportsPaths`|Paths to xUnit execution reports. Multip
 
 1. Run the SonarScanner.MSBuild.exe `begin` command, specifying the absolute path where the reports _will be_ available using the `/d:propertyKey="path"` syntax ("propertyKey" depends on the tool)
 1. Build your project using MSBuild
-1. Run your test tool, instructing it to produce a report at the same location specified earlier to the MSBuild SonarQube Runner
+1. Run your test tool, instructing it to produce a report at the same location specified earlier to the MSBuild SonarQube Runner ([How to generate reports with different tools](https://community.sonarsource.com/t/coverage-test-data-generate-reports-for-c-vb-net/9871)) 
 1. Run the SonarScanner.MSBuild.exe `end` command

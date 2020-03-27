@@ -22,6 +22,6 @@ Currently an error will be thrown when an issue is raised on a line of code cont
 
 ## Related Pages
 * [Importing External Issues](/analysis/external-issues/) (VSTest, NUnit, MSTest, xUnit)
-* [Test Coverage & Execution](/analysis/coverage/) (Visual Studio Code Coverage, dotCover, OpenCover, NCover 3)
+* [Test Coverage & Execution](/analysis/coverage/) (Visual Studio Code Coverage, dotCover, OpenCover, Coverlet, NCover 3)
 * [SonarScanner for MSBuild](/analysis/scan/sonarscanner-for-msbuild/)
 * [SonarScanner for Azure DevOps](/analysis/scan/sonarscanner-for-azure-devops/)
