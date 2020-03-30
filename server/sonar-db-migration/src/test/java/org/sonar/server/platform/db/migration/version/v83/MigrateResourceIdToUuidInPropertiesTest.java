@@ -56,6 +56,8 @@ public class MigrateResourceIdToUuidInPropertiesTest {
       new Tuple(1L, 1L, "uuid1", "key", "value"),
       new Tuple(3L, null, null, "key", "value"));
 
+    // reentrant
+    underTest.execute();
   }
 
   private void insertProperty(@Nullable Integer resourceId) {

@@ -40,12 +40,12 @@ public class DropResourceIdFromGroupRolesTableTest {
   @Test
   public void column_has_been_dropped() throws SQLException {
     dbTester.assertColumnDefinition(TABLE_NAME, "resource_id", INTEGER, null, true);
-    dbTester.assertUniqueIndex(TABLE_NAME, "UNIQ_GROUP_ROLES", "organization_uuid", "group_id", "resource_id", "role");
-    dbTester.assertIndex(TABLE_NAME, "GROUP_ROLES_RESOURCE", "resource_id");
+    dbTester.assertUniqueIndex(TABLE_NAME, "uniq_group_roles", "organization_uuid", "group_id", "resource_id", "role");
+    dbTester.assertIndex(TABLE_NAME, "group_roles_resource", "resource_id");
 
     underTest.execute();
     dbTester.assertColumnDoesNotExist(TABLE_NAME, "resource_id");
-    dbTester.assertIndexDoesNotExist(TABLE_NAME, "UNIQ_GROUP_ROLES");
-    dbTester.assertIndexDoesNotExist(TABLE_NAME, "GROUP_ROLES_RESOURCE");
+    dbTester.assertIndexDoesNotExist(TABLE_NAME, "group_roles_resource");
+    dbTester.assertUniqueIndex(TABLE_NAME, "uniq_group_roles", "organization_uuid", "group_id", "component_uuid", "role");
   }
 }

@@ -41,7 +41,7 @@ public class AddComponentUuidColumnToPropertiesTest {
   public void column_has_been_created() throws SQLException {
     underTest.execute();
     dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 50, true);
+    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 40, true);
   }
 
 }

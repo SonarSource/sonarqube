@@ -24,10 +24,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
+import org.sonar.server.platform.db.migration.version.v83.util.GetConstraintHelper;
 
 import static java.sql.Types.INTEGER;
 import static org.sonar.server.platform.db.migration.version.v83.DropIdFromComponentsTable.COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v83.DropIdFromComponentsTable.INDEX_NAME;
 import static org.sonar.server.platform.db.migration.version.v83.DropIdFromComponentsTable.TABLE_NAME;
 
 public class DropIdFromComponentsTableTest {
@@ -36,14 +37,13 @@ public class DropIdFromComponentsTableTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DropIdFromComponentsTable underTest = new DropIdFromComponentsTable(dbTester.database());
+  private DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(dbTester.database(), new GetConstraintHelper(dbTester.database()));
+  private DropIdFromComponentsTable underTest = new DropIdFromComponentsTable(dbTester.database(), dropPrimaryKeySqlGenerator);
 
   @Test
   public void column_has_been_dropped() throws SQLException {
     dbTester.assertColumnDefinition(TABLE_NAME, COLUMN_NAME, INTEGER, null, false);
     underTest.execute();
     dbTester.assertColumnDoesNotExist(TABLE_NAME, COLUMN_NAME);
-    dbTester.assertIndexDoesNotExist(TABLE_NAME, INDEX_NAME);
-
   }
 }

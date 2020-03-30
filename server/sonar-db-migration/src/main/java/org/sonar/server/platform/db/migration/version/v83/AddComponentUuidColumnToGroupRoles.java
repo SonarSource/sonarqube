@@ -26,14 +26,12 @@ import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class AddComponentUuidColumnToGroupRoles  extends DdlChange {
+public class AddComponentUuidColumnToGroupRoles extends DdlChange {
   private static final String TABLE = "group_roles";
   private static final String NEW_COLUMN = "component_uuid";
   private static final String INDEX1 = "group_roles_component_uuid";
-  private static final String INDEX2 = "group_roles_uniq";
 
   public AddComponentUuidColumnToGroupRoles(Database db) {
     super(db);
@@ -43,7 +41,7 @@ public class AddComponentUuidColumnToGroupRoles  extends DdlChange {
   public void execute(Context context) throws SQLException {
     VarcharColumnDef column = newVarcharColumnDefBuilder()
       .setColumnName(NEW_COLUMN)
-      .setLimit(50)
+      .setLimit(VarcharColumnDef.UUID_SIZE)
       .setIsNullable(true)
       .build();
     context.execute(new AddColumnsBuilder(getDialect(), TABLE)
@@ -56,17 +54,5 @@ public class AddComponentUuidColumnToGroupRoles  extends DdlChange {
       .setName(INDEX1)
       .setUnique(false);
     context.execute(index1.build());
-
-
-    CreateIndexBuilder index2 = new CreateIndexBuilder()
-      .setTable(TABLE)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(40).build())
-      .addColumn(newIntegerColumnDefBuilder().setColumnName("group_id").build())
-      .addColumn(column)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("role").setLimit(64).build())
-      .setName(INDEX2)
-      .setUnique(true);
-    context.execute(index2.build());
-
   }
 }

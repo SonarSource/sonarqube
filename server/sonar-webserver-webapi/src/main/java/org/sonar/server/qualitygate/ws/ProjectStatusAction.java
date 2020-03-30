@@ -100,7 +100,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
 
     action.createParam(PARAM_PROJECT_ID)
       .setSince("5.4")
-      .setDescription("Project id. Doesn't work with branches or pull requests")
+      .setDescription("Project UUID. Doesn't work with branches or pull requests")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action.createParam(PARAM_PROJECT_KEY)

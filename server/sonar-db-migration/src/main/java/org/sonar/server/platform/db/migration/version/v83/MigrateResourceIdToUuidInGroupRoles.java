@@ -31,25 +31,21 @@ public class MigrateResourceIdToUuidInGroupRoles extends DataChange {
 
   @Override protected void execute(Context context) throws SQLException {
     // remove roles associated with invalid resource
-    context.prepareUpsert(
-      "delete from group_roles gp where gp.resource_id is not null "
-        + "and not exists (select 1 from components c where gp.resource_id = c.id)")
+    context.prepareUpsert("delete from group_roles "
+      + "where group_roles.resource_id is not null and not exists (select 1 from components c where group_roles.resource_id = c.id)")
       .execute();
 
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select gp.id as gp_id, c.uuid as c_uuid from group_roles gp left join components c on gp.resource_id = c.id");
+    massUpdate.select("select gp.id as gp_id, c.uuid as c_uuid from group_roles gp, components c where gp.resource_id = c.id and gp.component_uuid is null");
     massUpdate.update("update group_roles set component_uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {
       String componentUuid = row.getString(2);
-      if (componentUuid != null) {
-        Long propertyId = row.getLong(1);
+      Long propertyId = row.getLong(1);
 
-        update.setString(1, componentUuid)
-          .setLong(2, propertyId);
-        return true;
-      }
-      return false;
+      update.setString(1, componentUuid)
+        .setLong(2, propertyId);
+      return true;
     });
   }
 }

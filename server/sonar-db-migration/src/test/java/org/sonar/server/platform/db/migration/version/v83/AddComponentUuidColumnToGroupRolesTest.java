@@ -41,8 +41,7 @@ public class AddComponentUuidColumnToGroupRolesTest {
   public void column_has_been_created() throws SQLException {
     underTest.execute();
     dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 50, true);
-    dbTester.assertUniqueIndex(TABLE_NAME, "group_roles_uniq", "organization_uuid", "group_id", "component_uuid", "role");
+    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 40, true);
     dbTester.assertIndex(TABLE_NAME, "group_roles_component_uuid", "component_uuid");
   }
 

@@ -21,14 +21,21 @@ package org.sonar.server.platform.db.migration.version.v83;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
+
+import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class DropResourceIdFromGroupRolesTable extends DdlChange {
 
   static final String TABLE = "group_roles";
   static final String COLUMN = "resource_id";
+  static final String INDEX = "uniq_group_roles";
+
 
   public DropResourceIdFromGroupRolesTable(Database db) {
     super(db);
@@ -36,8 +43,18 @@ public class DropResourceIdFromGroupRolesTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE).setName("uniq_group_roles").build());
+    context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE).setName(INDEX).build());
     context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE).setName("group_roles_resource").build());
     context.execute(new DropColumnsBuilder(getDialect(), TABLE, COLUMN).build());
+
+    CreateIndexBuilder index = new CreateIndexBuilder()
+      .setTable(TABLE)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(VarcharColumnDef.UUID_SIZE).build())
+      .addColumn(newIntegerColumnDefBuilder().setColumnName("group_id").build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(VarcharColumnDef.UUID_SIZE).build())
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("role").setLimit(64).build())
+      .setName(INDEX)
+      .setUnique(true);
+    context.execute(index.build());
   }
 }

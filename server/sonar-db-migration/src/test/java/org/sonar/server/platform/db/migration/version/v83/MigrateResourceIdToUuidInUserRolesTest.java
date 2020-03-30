@@ -55,6 +55,9 @@ public class MigrateResourceIdToUuidInUserRolesTest {
       .collect(Collectors.toList())).containsExactlyInAnyOrder(
       new Tuple(1L, 1L, "uuid1", 1L),
       new Tuple(3L, null, null, 1L));
+
+    // reentrant
+    underTest.execute();
   }
 
   private void insertRole(@Nullable Integer resourceId) {

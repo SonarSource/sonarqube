@@ -31,26 +31,21 @@ public class MigrateResourceIdToUuidInProperties extends DataChange {
 
   @Override protected void execute(Context context) throws SQLException {
     // remove properties associated with invalid resource
-    context.prepareUpsert(
-      "delete from properties p where p.resource_id is not null "
-        + "and not exists (select 1 from components c where p.resource_id = c.id)")
+    context.prepareUpsert("delete from properties where properties.resource_id is not null and not exists (select 1 from components c where properties.resource_id = c.id)")
       .execute();
 
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select p.id as p_id, c.uuid as c_uuid from properties p left join components c on p.resource_id = c.id");
+    massUpdate.select("select p.id as p_id, c.uuid as c_uuid from properties p, components c where p.resource_id = c.id and p.component_uuid is null");
     massUpdate.update("update properties set component_uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {
       String componentUuid = row.getString(2);
-      if (componentUuid != null) {
-        Long propertyId = row.getLong(1);
+      Long propertyId = row.getLong(1);
 
-        update.setString(1, componentUuid)
-          .setLong(2, propertyId);
-        return true;
-      }
-      return false;
+      update.setString(1, componentUuid)
+        .setLong(2, propertyId);
+      return true;
     });
   }
 }

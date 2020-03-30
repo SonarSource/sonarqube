@@ -32,25 +32,21 @@ public class MigrateResourceIdToUuidInUserRoles extends DataChange {
   @Override protected void execute(Context context) throws SQLException {
     // remove roles associated with invalid resource
     context.prepareUpsert(
-      "delete from user_roles ur where ur.resource_id is not null "
-        + "and not exists (select 1 from components c where ur.resource_id = c.id)")
+      "delete from user_roles where user_roles.resource_id is not null and not exists (select 1 from components c where user_roles.resource_id = c.id)")
       .execute();
 
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select ur.id as ur_id, c.uuid as c_uuid from user_roles ur left join components c on ur.resource_id = c.id");
+    massUpdate.select("select ur.id as ur_id, c.uuid as c_uuid from user_roles ur, components c where ur.resource_id = c.id and ur.component_uuid is null");
     massUpdate.update("update user_roles set component_uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {
       String componentUuid = row.getString(2);
-      if (componentUuid != null) {
-        Long id = row.getLong(1);
+      Long id = row.getLong(1);
 
-        update.setString(1, componentUuid)
-          .setLong(2, id);
-        return true;
-      }
-      return false;
+      update.setString(1, componentUuid)
+        .setLong(2, id);
+      return true;
     });
   }
 }

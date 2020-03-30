@@ -53,6 +53,8 @@ import static org.sonar.server.platform.db.migration.def.Validations.validateTab
 
 public class CreateTableBuilder {
 
+  public static final String PRIMARY_KEY_PREFIX = "pk_";
+
   private final Dialect dialect;
   private final String tableName;
   private final List<ColumnDef> columnDefs = new ArrayList<>();
@@ -234,7 +236,7 @@ public class CreateTableBuilder {
 
   private void appendPkConstraintName(StringBuilder res) {
     if (pkConstraintName == null) {
-      res.append("pk_").append(tableName);
+      res.append(PRIMARY_KEY_PREFIX).append(tableName);
     } else {
       res.append(pkConstraintName.toLowerCase(Locale.ENGLISH));
     }

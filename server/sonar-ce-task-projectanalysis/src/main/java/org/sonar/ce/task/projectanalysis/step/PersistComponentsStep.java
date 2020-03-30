@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -27,8 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -51,7 +50,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Optional.ofNullable;
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
@@ -166,7 +164,6 @@ public class PersistComponentsStep implements ComputationStep {
     private final DbSession dbSession;
     @Nullable
     private final String mainBranchProjectUuid;
-    private int componentRef = 1;
 
     PersistComponentStepsVisitor(Map<String, ComponentDto> existingComponentDtosByUuids, DbSession dbSession, @Nullable String mainBranchProjectUuid) {
       super(
@@ -395,9 +392,9 @@ public class PersistComponentsStep implements ComputationStep {
   private static void setParentModuleProperties(ComponentDto componentDto, PathAwareVisitor.Path<ComponentDtoHolder> path) {
     componentDto.setProjectUuid(path.root().getDto().uuid());
 
-    ComponentDto parentModule = from(path.getCurrentPath())
-      .filter(ParentModulePathElement.INSTANCE)
-      .first()
+    ComponentDto parentModule = StreamSupport.stream(path.getCurrentPath().spliterator(), false)
+      .filter(p -> p.getComponent().getType() == Component.Type.PROJECT)
+      .findFirst()
       .get()
       .getElement().getDto();
     componentDto.setUuidPath(formatUuidPathFromParent(path.parent().getDto()));
@@ -446,14 +443,4 @@ public class PersistComponentsStep implements ComputationStep {
       this.dto = dto;
     }
   }
-
-  private enum ParentModulePathElement implements Predicate<PathAwareVisitor.PathElement<ComponentDtoHolder>> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull PathAwareVisitor.PathElement<ComponentDtoHolder> input) {
-      return input.getComponent().getType() == Component.Type.PROJECT;
-    }
-  }
-
 }

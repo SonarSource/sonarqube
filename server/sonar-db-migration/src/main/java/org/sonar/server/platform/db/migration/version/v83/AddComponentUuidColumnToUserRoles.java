@@ -41,18 +41,18 @@ public class AddComponentUuidColumnToUserRoles extends DdlChange {
   public void execute(Context context) throws SQLException {
     VarcharColumnDef column = newVarcharColumnDefBuilder()
       .setColumnName(NEW_COLUMN)
-      .setLimit(50)
+      .setLimit(VarcharColumnDef.UUID_SIZE)
       .setIsNullable(true)
       .build();
     context.execute(new AddColumnsBuilder(getDialect(), TABLE)
       .addColumn(column)
       .build());
 
-    CreateIndexBuilder index1 = new CreateIndexBuilder()
+    CreateIndexBuilder index = new CreateIndexBuilder()
       .setTable(TABLE)
       .addColumn(column)
       .setName(INDEX)
       .setUnique(false);
-    context.execute(index1.build());
+    context.execute(index.build());
   }
 }

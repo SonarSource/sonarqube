@@ -22,22 +22,24 @@ package org.sonar.server.platform.db.migration.version.v83;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 
 public class DropIdFromComponentsTable extends DdlChange {
 
+  static final String ORIGINAL_TABLE_NAME = "projects";
   static final String TABLE_NAME = "components";
-  static final String INDEX_NAME = "pk_projects";
   static final String COLUMN_NAME = "id";
 
-  public DropIdFromComponentsTable(Database db) {
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
+
+  public DropIdFromComponentsTable(Database db,  DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
     super(db);
+    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
   }
   @Override
   public void execute(Context context) throws SQLException {
-
-    context.execute(new DropConstraintBuilder(getDialect()).setTable(TABLE_NAME).setName(INDEX_NAME).build());
+    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, ORIGINAL_TABLE_NAME, COLUMN_NAME));
     context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, COLUMN_NAME).build());
   }
 }
