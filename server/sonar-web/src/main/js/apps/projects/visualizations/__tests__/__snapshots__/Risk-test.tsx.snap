@@ -27,7 +27,7 @@ exports[`renders 1`] = `
             className="text-left"
           >
             <div
-              className="little-spacer-bottom"
+              className="little-spacer-bottom display-flex-center display-flex-space-between"
             >
               <strong>
                 Foo

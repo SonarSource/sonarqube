@@ -19,69 +19,53 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier } from '../../../../types/component';
 import ProjectCardOverallMeasures from '../ProjectCardOverallMeasures';
 
 it('should render correctly with all data', () => {
-  const measures = {
-    alert_status: 'ERROR',
-    bugs: '17',
-    code_smells: '132',
-    coverage: '88.3',
-    duplicated_lines_density: '9.8',
-    ncloc: '2053',
-    reliability_rating: '1.0',
-    security_rating: '1.0',
-    sqale_rating: '1.0',
-    vulnerabilities: '0'
-  };
-  const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
-  expect(wrapper).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should not render coverage', () => {
+  expect(
+    shallowRender({ coverage: undefined })
+      .find('[data-key="coverage"]')
+      .exists()
+  ).toBe(false);
+});
+
+it('should render empty', () => {
+  expect(shallowRender({ ncloc: undefined })).toMatchSnapshot('project');
+  expect(shallowRender({ ncloc: undefined }, ComponentQualifier.Application)).toMatchSnapshot(
+    'application'
+  );
+});
+
+it('should render ncloc correctly', () => {
+  expect(shallowRender({ ncloc: '16549887' }).find('[data-key="ncloc"]')).toMatchSnapshot();
+});
+
+function shallowRender(
+  overriddenMeasures: T.Dict<string | undefined> = {},
+  componentQualifier?: ComponentQualifier
+) {
   const measures = {
     alert_status: 'ERROR',
     bugs: '17',
     code_smells: '132',
+    coverage: '88.3',
     duplicated_lines_density: '9.8',
     ncloc: '2053',
     reliability_rating: '1.0',
     security_rating: '1.0',
     sqale_rating: '1.0',
-    vulnerabilities: '0'
+    vulnerabilities: '0',
+    ...overriddenMeasures
   };
-  const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
-  expect(wrapper.find('[data-key="coverage"]').exists()).toBe(false);
-});
-
-it('should render empty', () => {
-  const measures = {
-    alert_status: 'ERROR',
-    bugs: '17',
-    code_smells: '132',
-    coverage: '88.3',
-    duplicated_lines_density: '9.8',
-    reliability_rating: '1.0',
-    security_rating: '1.0',
-    sqale_rating: '1.0',
-    vulnerabilities: '0'
-  };
-  expect(shallow(<ProjectCardOverallMeasures measures={measures} />)).toMatchSnapshot();
-});
-
-it('should render ncloc correctly', () => {
-  const measures = {
-    alert_status: 'ERROR',
-    bugs: '17',
-    code_smells: '132',
-    coverage: '88.3',
-    ncloc: '16549887',
-    duplicated_lines_density: '9.8',
-    reliability_rating: '1.0',
-    security_rating: '1.0',
-    sqale_rating: '1.0',
-    vulnerabilities: '0'
-  };
-  const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
-  expect(wrapper.find('[data-key="ncloc"]')).toMatchSnapshot();
-});
+  return shallow(
+    <ProjectCardOverallMeasures
+      componentQualifier={componentQualifier ?? ComponentQualifier.Project}
+      measures={measures}
+    />
+  );
+}

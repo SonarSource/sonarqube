@@ -144,8 +144,16 @@ th.hide-overflow {
   padding-top: var(--gridSize) !important;
 }
 
+.padded-right {
+  padding-right: var(--gridSize) !important;
+}
+
 .padded-bottom {
   padding-bottom: var(--gridSize) !important;
+}
+
+.padded-left {
+  padding-left: var(--gridSize) !important;
 }
 
 .little-padded-top {

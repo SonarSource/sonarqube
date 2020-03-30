@@ -23,21 +23,29 @@ import SizeRating from 'sonar-ui-common/components/ui/SizeRating';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Measure from '../../../components/measure/Measure';
 import CoverageRating from '../../../components/ui/CoverageRating';
+import { ComponentQualifier } from '../../../types/component';
 import ProjectCardLanguagesContainer from './ProjectCardLanguagesContainer';
 import ProjectCardRatingMeasure from './ProjectCardRatingMeasure';
 
 interface Props {
+  componentQualifier: ComponentQualifier;
   measures: T.Dict<string | undefined>;
 }
 
-export default function ProjectCardOverallMeasures({ measures }: Props) {
+export default function ProjectCardOverallMeasures({ componentQualifier, measures }: Props) {
   if (measures === undefined) {
     return null;
   }
 
   const { ncloc } = measures;
   if (!ncloc) {
-    return <div className="note">{translate('overview.project.main_branch_empty')}</div>;
+    return (
+      <div className="note big-spacer-top">
+        {componentQualifier === ComponentQualifier.Application
+          ? translate('portfolio.app.empty')
+          : translate('overview.project.main_branch_empty')}
+      </div>
+    );
   }
 
   return (

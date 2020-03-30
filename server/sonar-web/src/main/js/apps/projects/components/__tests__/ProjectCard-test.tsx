@@ -19,11 +19,15 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockCurrentUser } from '../../../../helpers/testMocks';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { Project } from '../../types';
 import ProjectCard from '../ProjectCard';
 
-const ORGANIZATION = { key: 'org', name: 'org' };
+jest.mock(
+  'date-fns/difference_in_milliseconds',
+  () => () => 1000 * 60 * 60 * 24 * 30 * 8 // ~ 8 months
+);
 
 const MEASURES = {
   alert_status: 'OK',
@@ -34,36 +38,91 @@ const MEASURES = {
 
 const PROJECT: Project = {
   analysisDate: '2017-01-01',
-  leakPeriodDate: '2016-12-01',
   key: 'foo',
   measures: MEASURES,
   name: 'Foo',
   organization: { key: 'org', name: 'org' },
+  qualifier: ComponentQualifier.Project,
   tags: [],
   visibility: 'public'
 };
 
-it('should show <ProjectCardOverall/> by default', () => {
-  const wrapper = shallowRender();
-  expect(wrapper.find('ProjectCardOverall').exists()).toBe(true);
-  expect(wrapper.find('ProjectCardLeak').exists()).toBe(false);
+const USER_LOGGED_OUT = mockCurrentUser();
+const USER_LOGGED_IN = mockLoggedInUser();
+
+it('should display analysis date (and not leak period) when defined', () => {
+  expect(
+    shallowRender(PROJECT)
+      .find('.project-card-dates')
+      .exists()
+  ).toBe(true);
+  expect(
+    shallowRender({ ...PROJECT, analysisDate: undefined })
+      .find('.project-card-dates')
+      .exists()
+  ).toBe(false);
 });
 
-it('should show <ProjectCardLeak/> when asked', () => {
-  const wrapper = shallowRender('leak');
-  expect(wrapper.find('ProjectCardLeak').exists()).toBe(true);
-  expect(wrapper.find('ProjectCardOverall').exists()).toBe(false);
+it('should not display the quality gate', () => {
+  const project = { ...PROJECT, analysisDate: undefined };
+  expect(
+    shallowRender(project)
+      .find('ProjectCardOverallQualityGate')
+      .exists()
+  ).toBe(false);
 });
 
-function shallowRender(type?: string) {
+it('should display tags', () => {
+  const project = { ...PROJECT, tags: ['foo', 'bar'] };
+  expect(
+    shallowRender(project)
+      .find('TagsList')
+      .exists()
+  ).toBe(true);
+});
+
+it('should display private badge', () => {
+  const project: Project = { ...PROJECT, visibility: 'private' };
+  expect(
+    shallowRender(project)
+      .find('Connect(PrivacyBadge)')
+      .exists()
+  ).toBe(true);
+});
+
+it('should display the overall measures and quality gate', () => {
+  expect(shallowRender(PROJECT)).toMatchSnapshot();
+});
+
+it('should display not analyzed yet', () => {
+  expect(shallowRender({ ...PROJECT, analysisDate: undefined })).toMatchSnapshot();
+});
+
+it('should display configure analysis button for logged in user', () => {
+  expect(shallowRender({ ...PROJECT, analysisDate: undefined }, USER_LOGGED_IN)).toMatchSnapshot();
+});
+
+it('should display applications', () => {
+  expect(
+    shallowRender({ ...PROJECT, qualifier: ComponentQualifier.Application })
+  ).toMatchSnapshot();
+  expect(
+    shallowRender({
+      ...PROJECT,
+      qualifier: ComponentQualifier.Application,
+      measures: { ...MEASURES, projects: '3' }
+    })
+  ).toMatchSnapshot('with project count');
+});
+
+function shallowRender(project: Project, user: T.CurrentUser = USER_LOGGED_OUT) {
   return shallow(
     <ProjectCard
-      currentUser={mockCurrentUser()}
-      handleFavorite={jest.fn}
-      height={200}
-      organization={ORGANIZATION}
-      project={PROJECT}
-      type={type}
+      currentUser={user}
+      handleFavorite={jest.fn()}
+      height={100}
+      organization={undefined}
+      project={project}
     />
   );
 }

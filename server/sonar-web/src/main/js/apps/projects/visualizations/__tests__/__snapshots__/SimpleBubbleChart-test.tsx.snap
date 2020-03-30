@@ -13,6 +13,61 @@ exports[`renders 1`] = `
     items={
       Array [
         Object {
+          "color": "#00aa00",
+          "key": "app",
+          "link": Object {
+            "pathname": "/dashboard",
+            "query": Object {
+              "branch": undefined,
+              "id": "app",
+            },
+          },
+          "size": 32478,
+          "tooltip": <div
+            className="text-left"
+          >
+            <div
+              className="little-spacer-bottom display-flex-center display-flex-space-between"
+            >
+              <strong>
+                App
+              </strong>
+              <div
+                className="big-spacer-left nowrap"
+              >
+                <QualifierIcon
+                  className="little-spacer-right"
+                  fill="currentColor"
+                  qualifier="APP"
+                />
+                qualifier.APP
+              </div>
+            </div>
+            <div>
+              metric.complexity.name
+              : 
+              23
+            </div>
+            <div>
+              metric.coverage.name
+              : 
+              87.3%
+            </div>
+            <div>
+              metric.ncloc.name
+              : 
+              32,478
+            </div>
+            <div>
+              metric.security_rating.name
+              : 
+              A
+            </div>
+          </div>,
+          "x": 23.1,
+          "y": 87.3,
+        },
+        Object {
           "color": "#b0d513",
           "key": "foo",
           "link": Object {
@@ -27,7 +82,7 @@ exports[`renders 1`] = `
             className="text-left"
           >
             <div
-              className="little-spacer-bottom"
+              className="little-spacer-bottom display-flex-center display-flex-space-between"
             >
               <strong>
                 Foo

@@ -20,6 +20,7 @@
 import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { BranchParameters } from '../types/branch-like';
+import { ComponentQualifier } from '../types/component';
 
 export interface BaseSearchProjectsParameters {
   analyzedBefore?: string;
@@ -207,6 +208,7 @@ export interface Component {
   name: string;
   isFavorite?: boolean;
   analysisDate?: string;
+  qualifier: ComponentQualifier;
   tags: string[];
   visibility: T.Visibility;
   leakPeriodDate?: string;

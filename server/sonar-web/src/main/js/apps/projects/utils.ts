@@ -24,6 +24,7 @@ import { Facet, searchProjects } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
 import { getOrganizations } from '../../api/organizations';
 import { getPeriodValue, isDiffMetric } from '../../helpers/measures';
+import { MetricKey } from '../../types/metrics';
 import { convertToFilter, Query } from './query';
 
 interface SortingOption {
@@ -92,44 +93,67 @@ const PAGE_SIZE = 50;
 const PAGE_SIZE_VISUALIZATIONS = 99;
 
 const METRICS = [
-  'alert_status',
-  'bugs',
-  'reliability_rating',
-  'vulnerabilities',
-  'security_rating',
-  'security_hotspots_reviewed',
-  'security_review_rating',
-  'code_smells',
-  'sqale_rating',
-  'duplicated_lines_density',
-  'coverage',
-  'ncloc',
-  'ncloc_language_distribution'
+  MetricKey.alert_status,
+  MetricKey.bugs,
+  MetricKey.reliability_rating,
+  MetricKey.vulnerabilities,
+  MetricKey.security_rating,
+  MetricKey.security_hotspots_reviewed,
+  MetricKey.security_review_rating,
+  MetricKey.code_smells,
+  MetricKey.sqale_rating,
+  MetricKey.duplicated_lines_density,
+  MetricKey.coverage,
+  MetricKey.ncloc,
+  MetricKey.ncloc_language_distribution,
+  MetricKey.projects
 ];
 
 const LEAK_METRICS = [
-  'alert_status',
-  'new_bugs',
-  'new_reliability_rating',
-  'new_vulnerabilities',
-  'new_security_rating',
-  'new_security_hotspots_reviewed',
-  'new_security_review_rating',
-  'new_code_smells',
-  'new_maintainability_rating',
-  'new_coverage',
-  'new_duplicated_lines_density',
-  'new_lines'
+  MetricKey.alert_status,
+  MetricKey.new_bugs,
+  MetricKey.new_reliability_rating,
+  MetricKey.new_vulnerabilities,
+  MetricKey.new_security_rating,
+  MetricKey.new_security_hotspots_reviewed,
+  MetricKey.new_security_review_rating,
+  MetricKey.new_code_smells,
+  MetricKey.new_maintainability_rating,
+  MetricKey.new_coverage,
+  MetricKey.new_duplicated_lines_density,
+  MetricKey.new_lines,
+  MetricKey.projects
 ];
 
 const METRICS_BY_VISUALIZATION: T.Dict<string[]> = {
-  risk: ['reliability_rating', 'security_rating', 'coverage', 'ncloc', 'sqale_index'],
+  risk: [
+    MetricKey.reliability_rating,
+    MetricKey.security_rating,
+    MetricKey.coverage,
+    MetricKey.ncloc,
+    MetricKey.sqale_index
+  ],
   // x, y, size, color
-  reliability: ['ncloc', 'reliability_remediation_effort', 'bugs', 'reliability_rating'],
-  security: ['ncloc', 'security_remediation_effort', 'vulnerabilities', 'security_rating'],
-  maintainability: ['ncloc', 'sqale_index', 'code_smells', 'sqale_rating'],
-  coverage: ['complexity', 'coverage', 'uncovered_lines'],
-  duplications: ['ncloc', 'duplicated_lines_density', 'duplicated_blocks']
+  reliability: [
+    MetricKey.ncloc,
+    MetricKey.reliability_remediation_effort,
+    MetricKey.bugs,
+    MetricKey.reliability_rating
+  ],
+  security: [
+    MetricKey.ncloc,
+    MetricKey.security_remediation_effort,
+    MetricKey.vulnerabilities,
+    MetricKey.security_rating
+  ],
+  maintainability: [
+    MetricKey.ncloc,
+    MetricKey.sqale_index,
+    MetricKey.code_smells,
+    MetricKey.sqale_rating
+  ],
+  coverage: [MetricKey.complexity, MetricKey.coverage, MetricKey.uncovered_lines],
+  duplications: [MetricKey.ncloc, MetricKey.duplicated_lines_density, MetricKey.duplicated_blocks]
 };
 
 export const FACETS = [

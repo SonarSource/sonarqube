@@ -180,9 +180,17 @@ exports[`should render correctly with all data 1`] = `
 </div>
 `;
 
-exports[`should render empty 1`] = `
+exports[`should render empty: application 1`] = `
 <div
-  className="note"
+  className="note big-spacer-top"
+>
+  portfolio.app.empty
+</div>
+`;
+
+exports[`should render empty: project 1`] = `
+<div
+  className="note big-spacer-top"
 >
   overview.project.main_branch_empty
 </div>

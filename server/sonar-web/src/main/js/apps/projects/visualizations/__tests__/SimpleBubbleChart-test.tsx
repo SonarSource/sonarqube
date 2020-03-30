@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier } from '../../../../types/component';
 import { Project } from '../../types';
 import SimpleBubbleChart from '../SimpleBubbleChart';
 
@@ -27,8 +28,16 @@ it('renders', () => {
     key: 'foo',
     measures: { complexity: '17.2', coverage: '53.5', ncloc: '1734', security_rating: '2' },
     name: 'Foo',
+    qualifier: ComponentQualifier.Project,
     tags: [],
     visibility: 'public'
+  };
+  const app = {
+    ...project1,
+    key: 'app',
+    measures: { complexity: '23.1', coverage: '87.3', ncloc: '32478', security_rating: '1' },
+    name: 'App',
+    qualifier: ComponentQualifier.Application
   };
   expect(
     shallow(
@@ -36,7 +45,7 @@ it('renders', () => {
         colorMetric="security_rating"
         displayOrganizations={false}
         helpText="foobar"
-        projects={[project1]}
+        projects={[app, project1]}
         sizeMetric={{ key: 'ncloc', type: 'INT' }}
         xMetric={{ key: 'complexity', type: 'INT' }}
         yMetric={{ key: 'coverage', type: 'PERCENT' }}

@@ -22,6 +22,7 @@ import * as React from 'react';
 import { get, save } from 'sonar-ui-common/helpers/storage';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { isSonarCloud } from '../../../../helpers/system';
+import { ComponentQualifier } from '../../../../types/component';
 import { AllProjects } from '../AllProjects';
 
 jest.mock('../ProjectsList', () => ({
@@ -212,7 +213,16 @@ function shallowRender(
   );
   wrapper.setState({
     loading: false,
-    projects: [{ key: 'foo', measures: {}, name: 'Foo', tags: [], visibility: 'public' }],
+    projects: [
+      {
+        key: 'foo',
+        measures: {},
+        name: 'Foo',
+        qualifier: ComponentQualifier.Project,
+        tags: [],
+        visibility: 'public'
+      }
+    ],
     total: 0
   });
   return wrapper;

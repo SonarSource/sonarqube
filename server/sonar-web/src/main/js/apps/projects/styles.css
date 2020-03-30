@@ -77,12 +77,6 @@
   white-space: nowrap;
 }
 
-.project-card-dates {
-  width: 100%;
-  margin-top: 10px;
-  margin-bottom: -10px;
-}
-
 .project-card-leak-date {
   padding: 4px 8px;
   margin: -5px -4px -5px 24px;

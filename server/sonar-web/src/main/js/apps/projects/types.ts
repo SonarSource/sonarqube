@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ComponentQualifier } from '../../types/component';
+
 export interface Project {
   analysisDate?: string;
   isFavorite?: boolean;
@@ -25,6 +27,8 @@ export interface Project {
   measures: T.Dict<string>;
   name: string;
   organization?: { key: string; name: string };
+  projects?: number;
+  qualifier: ComponentQualifier;
   tags: string[];
   visibility: T.Visibility;
 }

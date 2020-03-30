@@ -20,11 +20,13 @@
 import * as React from 'react';
 import BubbleChart from 'sonar-ui-common/components/charts/BubbleChart';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import ColorRatingsLegend from '../../../components/charts/ColorRatingsLegend';
 import { RATING_COLORS } from '../../../helpers/constants';
 import { getProjectUrl } from '../../../helpers/urls';
+import { ComponentQualifier } from '../../../types/component';
 import { Project } from '../types';
 
 const X_METRIC = 'sqale_index';
@@ -77,7 +79,20 @@ export default class Risk extends React.PureComponent<Props> {
 
     return (
       <div className="text-left">
-        <div className="little-spacer-bottom">{fullProjectName}</div>
+        <div className="little-spacer-bottom display-flex-center display-flex-space-between">
+          {fullProjectName}
+
+          {project.qualifier === ComponentQualifier.Application && (
+            <div className="big-spacer-left nowrap">
+              <QualifierIcon
+                className="little-spacer-right"
+                fill="currentColor"
+                qualifier={ComponentQualifier.Application}
+              />
+              {translate('qualifier.APP')}
+            </div>
+          )}
+        </div>
         {this.getMetricTooltip({ key: COLOR_METRIC_1, type: COLOR_METRIC_TYPE }, color1)}
         {this.getMetricTooltip({ key: COLOR_METRIC_2, type: COLOR_METRIC_TYPE }, color2)}
         {this.getMetricTooltip({ key: Y_METRIC, type: Y_METRIC_TYPE }, y)}

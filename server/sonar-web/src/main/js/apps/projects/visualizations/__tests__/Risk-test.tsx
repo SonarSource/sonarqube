@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier } from '../../../../types/component';
 import { Project } from '../../types';
 import Risk from '../Risk';
 
@@ -27,6 +28,7 @@ it('renders', () => {
     key: 'foo',
     measures: { complexity: '17.2', coverage: '53.5', ncloc: '1734' },
     name: 'Foo',
+    qualifier: ComponentQualifier.Project,
     tags: [],
     visibility: 'public'
   };
