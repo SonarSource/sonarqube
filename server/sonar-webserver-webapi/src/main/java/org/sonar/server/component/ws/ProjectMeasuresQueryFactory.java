@@ -20,6 +20,7 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -27,21 +28,24 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.Level;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.component.ws.FilterParser.Criterion;
-import org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
+import org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Locale.ENGLISH;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.IN;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_QUALIFIER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 class ProjectMeasuresQueryFactory {
@@ -54,6 +58,7 @@ class ProjectMeasuresQueryFactory {
     .put(IS_FAVORITE_CRITERION.toLowerCase(ENGLISH), (criterion, query) -> processIsFavorite(criterion))
     .put(FILTER_LANGUAGES, ProjectMeasuresQueryFactory::processLanguages)
     .put(FILTER_TAGS, ProjectMeasuresQueryFactory::processTags)
+    .put(FILTER_QUALIFIER, ProjectMeasuresQueryFactory::processQualifier)
     .put(QUERY_KEY, ProjectMeasuresQueryFactory::processQuery)
     .put(ALERT_STATUS_KEY, ProjectMeasuresQueryFactory::processQualityGateStatus)
     .build();
@@ -108,6 +113,17 @@ class ProjectMeasuresQueryFactory {
       return;
     }
     throw new IllegalArgumentException("Tags should be set either by using 'tags = java' or 'tags IN (finance, platform)'");
+  }
+
+  private static void processQualifier(Criterion criterion, ProjectMeasuresQuery query) {
+    checkOperator(criterion);
+    checkValue(criterion);
+    Operator operator = criterion.getOperator();
+    String value = criterion.getValue();
+    checkArgument(EQ.equals(operator), "Only equals operator is available for qualifier criteria");
+    String qualifier = Stream.of(Qualifiers.APP, Qualifiers.PROJECT).filter(q -> q.equalsIgnoreCase(value)).findFirst()
+      .orElseThrow(() -> new IllegalArgumentException(format("Unknown qualifier : '%s'", value)));
+    query.setQualifiers(Sets.newHashSet(qualifier));
   }
 
   private static void processQuery(Criterion criterion, ProjectMeasuresQuery query) {

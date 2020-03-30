@@ -35,13 +35,13 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.EQ;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.GT;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.IN;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LT;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LTE;
-import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 
 public class ProjectMeasuresQueryFactoryTest {
 
@@ -114,6 +114,30 @@ public class ProjectMeasuresQueryFactoryTest {
     expectedException.expectMessage("Unknown quality gate status : 'unknown'");
 
     newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("alert_status").setOperator(EQ).setValue("unknown").build()), emptySet());
+  }
+
+  @Test
+  public void create_query_on_qualifier() {
+    ProjectMeasuresQuery query = newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("qualifier").setOperator(EQ).setValue("APP").build()),
+      emptySet());
+
+    assertThat(query.getQualifiers().get()).containsOnly("APP");
+  }
+
+  @Test
+  public void fail_to_create_query_on_qualifier_when_operator_is_not_equal() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Only equals operator is available for qualifier criteria");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("qualifier").setOperator(GT).setValue("APP").build()), emptySet());
+  }
+
+  @Test
+  public void fail_to_create_query_on_qualifier_when_value_is_incorrect() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Unknown qualifier : 'unknown'");
+
+    newProjectMeasuresQuery(singletonList(Criterion.builder().setKey("qualifier").setOperator(EQ).setValue("unknown").build()), emptySet());
   }
 
   @Test

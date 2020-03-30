@@ -70,6 +70,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -102,6 +103,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_QUALIFIER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 @RunWith(DataProviderRunner.class)
@@ -144,6 +146,22 @@ public class SearchProjectsActionTest {
     };
   }
 
+  @DataProvider
+  public static Object[][] community_or_developer_edition() {
+    return new Object[][] {
+      {Edition.COMMUNITY},
+      {Edition.DEVELOPER},
+    };
+  }
+
+  @DataProvider
+  public static Object[][] enterprise_or_datacenter_edition() {
+    return new Object[][] {
+      {Edition.ENTERPRISE},
+      {Edition.DATACENTER},
+    };
+  }
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
@@ -172,7 +190,7 @@ public class SearchProjectsActionTest {
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
     assertThat(def.params().stream().map(Param::key).collect(toList())).containsOnly("organization", "filter", "facets", "s", "asc", "ps", "p", "f");
-    assertThat(def.changelog()).hasSize(1);
+    assertThat(def.changelog()).hasSize(2);
 
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
@@ -215,7 +233,7 @@ public class SearchProjectsActionTest {
     Param facets = def.param("facets");
     assertThat(facets.defaultValue()).isNull();
     assertThat(facets.possibleValues()).containsOnly("ncloc", "duplicated_lines_density", "coverage", "sqale_rating", "reliability_rating", "security_rating", "alert_status",
-      "languages", "tags", "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density", "new_lines",
+      "languages", "tags", "qualifier", "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density", "new_lines",
       "security_review_rating", "security_hotspots_reviewed", "new_security_hotspots_reviewed", "new_security_review_rating");
   }
 
@@ -620,7 +638,7 @@ public class SearchProjectsActionTest {
 
   @Test
   @UseDataProvider("component_qualifiers_for_valid_editions")
-  public void filter_projects_and_apps_by_editions(String[] qualifiers, Edition edition) {
+  public void default_filter_projects_and_apps_by_editions(String[] qualifiers, Edition edition) {
     when(editionProviderMock.get()).thenReturn(Optional.of(edition));
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
@@ -673,6 +691,81 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsList()).extracting(Component::getKey)
       .containsExactly(Stream.of(project1, project2, project3).map(ComponentDto::getDbKey).toArray(String[]::new));
+  }
+
+  @Test
+  @UseDataProvider("enterprise_or_datacenter_edition")
+  public void filter_projects_and_apps_by_APP_qualifier_when_ee_dc(Edition edition) {
+    when(editionProviderMock.get()).thenReturn(Optional.of(edition));
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application1 = insertApplication(organization);
+    ComponentDto application2 = insertApplication(organization);
+    ComponentDto application3 = insertApplication(organization);
+
+    insertProject(organization);
+    insertProject(organization);
+    insertProject(organization);
+
+    SearchProjectsWsResponse result = call(request.setFilter("qualifier = APP"));
+
+    assertThat(result.getComponentsCount())
+      .isEqualTo(3);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
+      .containsExactly(
+        Stream.of(application1, application2, application3)
+          .map(ComponentDto::getDbKey)
+          .toArray(String[]::new));
+  }
+
+  @Test
+  @UseDataProvider("enterprise_or_datacenter_edition")
+  public void filter_projects_and_apps_by_TRK_qualifier_when_ee_or_dc(Edition edition) {
+    when(editionProviderMock.get()).thenReturn(Optional.of(edition));
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+
+    insertApplication(organization);
+    insertApplication(organization);
+    insertApplication(organization);
+
+    ComponentDto project1 = insertProject(organization);
+    ComponentDto project2 = insertProject(organization);
+    ComponentDto project3 = insertProject(organization);
+
+    SearchProjectsWsResponse result = call(request.setFilter("qualifier = TRK"));
+
+    assertThat(result.getComponentsCount())
+      .isEqualTo(3);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey)
+      .containsExactly(
+        Stream.of(project1, project2, project3)
+          .map(ComponentDto::getDbKey)
+          .toArray(String[]::new));
+  }
+
+  @Test
+  @UseDataProvider("community_or_developer_edition")
+  public void fail_when_qualifier_filter_by_APP_set_when_ce_or_de(Edition edition) {
+    when(editionProviderMock.get()).thenReturn(Optional.of(edition));
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+
+    assertThatThrownBy(() -> call(request.setFilter("qualifiers = APP")))
+      .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  @UseDataProvider("enterprise_or_datacenter_edition")
+  public void fail_when_qualifier_filter_invalid_when_ee_or_dc(Edition edition) {
+    when(editionProviderMock.get()).thenReturn(Optional.of(edition));
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+
+    assertThatThrownBy(() -> call(request.setFilter("qualifiers = BLA")))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -820,6 +913,54 @@ public class SearchProjectsActionTest {
         tuple("finance", 1L),
         tuple("platform", 1L),
         tuple("marketing", 0L));
+  }
+
+  @Test
+  public void return_qualifiers_facet() {
+    when(editionProviderMock.get()).thenReturn(Optional.of(Edition.ENTERPRISE));
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application1 = insertApplication(organization);
+    ComponentDto application2 = insertApplication(organization);
+    ComponentDto application3 = insertApplication(organization);
+    ComponentDto application4 = insertApplication(organization);
+
+    ComponentDto project1 = insertProject(organization);
+    ComponentDto project2 = insertProject(organization);
+    ComponentDto project3 = insertProject(organization);
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(FILTER_QUALIFIER)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> FILTER_QUALIFIER.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("APP", 4L),
+        tuple("TRK", 3L));
+  }
+
+  @Test
+  public void return_qualifiers_facet_with_qualifiers_having_no_project_if_qualifiers_is_in_filter() {
+    when(editionProviderMock.get()).thenReturn(Optional.of(Edition.ENTERPRISE));
+    userSession.logIn();
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto application1 = insertApplication(organization);
+    ComponentDto application2 = insertApplication(organization);
+    ComponentDto application3 = insertApplication(organization);
+    ComponentDto application4 = insertApplication(organization);
+
+    SearchProjectsWsResponse result = call(request.setFilter("qualifier = APP").setFacets(singletonList(FILTER_QUALIFIER)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> FILTER_QUALIFIER.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("APP", 4L),
+        tuple("TRK", 0L));
   }
 
   @Test

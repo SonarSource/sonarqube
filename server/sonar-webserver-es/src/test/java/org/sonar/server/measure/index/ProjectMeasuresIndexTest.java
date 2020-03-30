@@ -34,7 +34,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -73,6 +72,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_QUALIFIER;
 
 @RunWith(DataProviderRunner.class)
 public class ProjectMeasuresIndexTest {
@@ -1374,6 +1374,80 @@ public class ProjectMeasuresIndexTest {
     assertThat(result).containsOnly(
       entry("java", 2L),
       entry("xoo", 1L));
+  }
+
+  @Test
+  public void facet_qualifier() {
+    index(
+      // 2 docs with qualifier APP
+      newDoc().setQualifier(APP),
+      newDoc().setQualifier(APP),
+      // 4 docs with qualifier TRK
+      newDoc().setQualifier(PROJECT),
+      newDoc().setQualifier(PROJECT),
+      newDoc().setQualifier(PROJECT),
+      newDoc().setQualifier(PROJECT));
+
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(FILTER_QUALIFIER)).getFacets().get(FILTER_QUALIFIER);
+
+    assertThat(result).containsOnly(
+      entry(APP, 2L),
+      entry(PROJECT, 4L));
+  }
+
+  @Test
+  public void facet_qualifier_is_sticky() {
+    index(
+      // 2 docs with qualifier APP
+      newDoc(NCLOC, 10d, COVERAGE, 0d).setQualifier(APP),
+      newDoc(NCLOC, 10d, COVERAGE, 0d).setQualifier(APP),
+      // 4 docs with qualifier TRK
+      newDoc(NCLOC, 100d, COVERAGE, 0d).setQualifier(PROJECT),
+      newDoc(NCLOC, 5000d, COVERAGE, 40d).setQualifier(PROJECT),
+      newDoc(NCLOC, 12000d, COVERAGE, 50d).setQualifier(PROJECT),
+      newDoc(NCLOC, 13000d, COVERAGE, 60d).setQualifier(PROJECT));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery()
+      .setQualifiers(Sets.newHashSet(PROJECT))
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 55d)),
+      new SearchOptions().addFacets(FILTER_QUALIFIER, NCLOC)).getFacets();
+
+    // Sticky facet on qualifier does not take into account qualifier filter
+    assertThat(facets.get(FILTER_QUALIFIER)).containsOnly(
+      entry(APP, 2L),
+      entry(PROJECT, 3L));
+    // But facet on ncloc does well take into into filters
+    assertThat(facets.get(NCLOC)).containsExactly(
+      entry("*-1000.0", 1L),
+      entry("1000.0-10000.0", 1L),
+      entry("10000.0-100000.0", 1L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
+  }
+
+  @Test
+  public void facet_qualifier_contains_only_app_and_projects_authorized_for_user() {
+    // User can see these projects
+    indexForUser(USER1,
+      // 3 docs with qualifier APP, PROJECT
+      newDoc().setQualifier(APP),
+      newDoc().setQualifier(APP),
+      newDoc().setQualifier(PROJECT));
+
+    // User cannot see these projects
+    indexForUser(USER2,
+      // 4 docs with qualifier PROJECT
+      newDoc().setQualifier(PROJECT),
+      newDoc().setQualifier(PROJECT),
+      newDoc().setQualifier(PROJECT),
+      newDoc().setQualifier(PROJECT));
+
+    userSession.logIn(USER1);
+    LinkedHashMap<String, Long> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(FILTER_QUALIFIER)).getFacets().get(FILTER_QUALIFIER);
+
+    assertThat(result).containsOnly(
+      entry(APP, 2L),
+      entry(PROJECT, 1L));
   }
 
   @Test

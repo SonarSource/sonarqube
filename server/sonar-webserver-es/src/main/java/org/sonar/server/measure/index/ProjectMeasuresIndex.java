@@ -52,6 +52,7 @@ import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -127,6 +128,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_QUALIFIER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE;
 
@@ -158,6 +160,7 @@ public class ProjectMeasuresIndex {
     NEW_SECURITY_HOTSPOTS_REVIEWED(new RangeMeasureFacet(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_REVIEW_RATING_THRESHOLDS)),
     ALERT_STATUS(new MeasureFacet(ALERT_STATUS_KEY, ProjectMeasuresIndex::buildAlertStatusFacet)),
     LANGUAGES(FILTER_LANGUAGES, FIELD_LANGUAGES, STICKY, ProjectMeasuresIndex::buildLanguageFacet),
+    QUALIFIER(FILTER_QUALIFIER, FIELD_QUALIFIER, STICKY, ProjectMeasuresIndex::buildQualifierFacet),
     TAGS(FILTER_TAGS, FIELD_TAGS, STICKY, ProjectMeasuresIndex::buildTagsFacet);
 
     private final String name;
@@ -339,6 +342,14 @@ public class ProjectMeasuresIndex {
         .stream()
         .filter(qgs -> !(projectMeasuresQuery.isIgnoreWarning() && qgs.getKey().equals(Metric.Level.WARN.name())))
         .map(entry -> new KeyedFilter(entry.getKey(), termQuery(FIELD_QUALITY_GATE_STATUS, entry.getValue())))
+        .toArray(KeyedFilter[]::new));
+  }
+
+  private static AbstractAggregationBuilder<?> createQualifierFacet() {
+    return filters(
+      FILTER_QUALIFIER,
+      Stream.of(Qualifiers.APP, Qualifiers.PROJECT)
+        .map(qualifier -> new KeyedFilter(qualifier, termQuery(FIELD_QUALIFIER, qualifier)))
         .toArray(KeyedFilter[]::new));
   }
 
@@ -591,6 +602,13 @@ public class ProjectMeasuresIndex {
     return topAggregationHelper.buildTermTopAggregation(
       FILTER_TAGS, facet.getTopAggregationDef(), FACET_DEFAULT_SIZE,
       NO_EXTRA_FILTER, extraSubAgg);
+  }
+
+  private static FilterAggregationBuilder buildQualifierFacet(Facet facet, ProjectMeasuresQuery query, TopAggregationHelper topAggregationHelper) {
+    return topAggregationHelper.buildTopAggregation(
+      facet.getName(), facet.getTopAggregationDef(),
+      NO_EXTRA_FILTER,
+      t -> t.subAggregation(createQualifierFacet()));
   }
 
 }

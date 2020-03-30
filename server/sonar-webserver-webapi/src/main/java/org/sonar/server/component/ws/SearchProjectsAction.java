@@ -135,6 +135,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
       .setInternal(true)
       .setChangelog(
+        new Change("8.3", "Add 'qualifier' filter and facet"),
         new Change("8.0", "Field 'id' from response has been removed"))
       .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setHandler(this);
@@ -159,49 +160,55 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setDescription("Filter of projects on name, key, measure value, quality gate, language, tag or whether a project is a favorite or not.<br>" +
         "The filter must be encoded to form a valid URL (for example '=' must be replaced by '%3D').<br>" +
         "Examples of use:" +
-        "<ul>" +
+        HTML_UL_START_TAG +
         " <li>to filter my favorite projects with a failed quality gate and a coverage greater than or equals to 60% and a coverage strictly lower than 80%:<br>" +
         "   <code>filter=\"alert_status = ERROR and isFavorite and coverage >= 60 and coverage < 80\"</code></li>" +
         " <li>to filter projects with a reliability, security and maintainability rating equals or worse than B:<br>" +
         "   <code>filter=\"reliability_rating>=2 and security_rating>=2 and sqale_rating>=2\"</code></li>" +
         " <li>to filter projects without duplication data:<br>" +
         "   <code>filter=\"duplicated_lines_density = NO_DATA\"</code></li>" +
-        "</ul>" +
+        HTML_UL_END_TAG +
         "To filter on project name or key, use the 'query' keyword, for instance : <code>filter='query = \"Sonar\"'</code>.<br>" +
         "<br>" +
         "To filter on a numeric metric, provide the metric key.<br>" +
         "These are the supported metric keys:<br>" +
-        "<ul>" +
+        HTML_UL_START_TAG +
         METRIC_KEYS.stream().sorted().map(key -> "<li>" + key + "</li>").collect(Collectors.joining()) +
-        "</ul>" +
+        HTML_UL_END_TAG +
         "<br>" +
         "To filter on a rating, provide the corresponding metric key (ex: reliability_rating for reliability rating).<br>" +
         "The possible values are:" +
-        "<ul>" +
+        HTML_UL_START_TAG +
         " <li>'1' for rating A</li>" +
         " <li>'2' for rating B</li>" +
         " <li>'3' for rating C</li>" +
         " <li>'4' for rating D</li>" +
         " <li>'5' for rating E</li>" +
-        "</ul>" +
+        HTML_UL_END_TAG +
         "To filter on a Quality Gate status use the metric key 'alert_status'. Only the '=' operator can be used.<br>" +
         "The possible values are:" +
-        "<ul>" +
+        HTML_UL_START_TAG +
         " <li>'OK' for Passed</li>" +
         " <li>'WARN' for Warning</li>" +
         " <li>'ERROR' for Failed</li>" +
-        "</ul>" +
+        HTML_UL_END_TAG +
         "To filter on language keys use the language key: " +
-        "<ul>" +
+        HTML_UL_START_TAG +
         " <li>to filter on a single language you can use 'language = java'</li>" +
         " <li>to filter on several languages you must use 'language IN (java, js)'</li>" +
-        "</ul>" +
+        HTML_UL_END_TAG +
         "Use the WS api/languages/list to find the key of a language.<br> " +
         "To filter on tags use the 'tag' keyword:" +
-        "<ul> " +
+        HTML_UL_START_TAG +
         " <li>to filter on one tag you can use <code>tag = finance</code></li>" +
         " <li>to filter on several tags you must use <code>tag in (offshore, java)</code></li>" +
-        "</ul>");
+        HTML_UL_END_TAG +
+        "To filter on a qualifier use key 'qualifier'. Only the '=' operator can be used.<br>" +
+        "The possible values are:" +
+        HTML_UL_START_TAG +
+        " <li>TRK - for projects</li>" +
+        " <li>APP - for applications</li>" +
+        HTML_UL_END_TAG);
     action.createParam(Param.SORT)
       .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), last analysis date (using '%s'), or by project name.",
         ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
@@ -289,6 +296,20 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .collect(Collectors.toSet());
     if (!resolvedQualifiers.isEmpty()) {
       return resolvedQualifiers;
+    } else {
+      throw new IllegalArgumentException("Invalid qualifier, available are: " + String.join(",", availableQualifiers));
+    }
+  }
+
+  private void filterQualifiersBasedOnEdition(ProjectMeasuresQuery query) {
+    Set<String> availableQualifiers = getQualifiersFromEdition();
+    Set<String> requestQualifiers = query.getQualifiers().orElse(availableQualifiers);
+
+    Set<String> resolvedQualifiers = requestQualifiers.stream()
+      .filter(availableQualifiers::contains)
+      .collect(Collectors.toSet());
+    if (!resolvedQualifiers.isEmpty()) {
+      query.setQualifiers(resolvedQualifiers);
     } else {
       throw new IllegalArgumentException("Invalid qualifier, available are: " + String.join(",", availableQualifiers));
     }

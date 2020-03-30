@@ -51,6 +51,7 @@ public class ProjectsWsParameters {
 
   public static final String FILTER_LANGUAGES = "languages";
   public static final String FILTER_TAGS = "tags";
+  public static final String FILTER_QUALIFIER = "qualifier";
 
   private ProjectsWsParameters() {
     // static utils only
