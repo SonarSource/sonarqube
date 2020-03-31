@@ -1,3 +1,11 @@
+pluginManagement {
+  repositories {
+    maven {
+      url 'https://repox.jfrog.io/repox/plugins.gradle.org/'
+    }
+  }
+}
+
 rootProject.name = 'sonarqube'
 
 include 'plugins:sonar-xoo-plugin'
@@ -55,4 +63,3 @@ buildCache {
     enabled = !isCiServer
   }
 }
-
