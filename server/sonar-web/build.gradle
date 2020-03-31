@@ -10,7 +10,7 @@ sonarqube {
   }
 }
 
-apply plugin: 'com.moowork.node'
+apply plugin: 'com.github.node-gradle.node'
 
 def webappDir = "${buildDir}/webapp"
 
