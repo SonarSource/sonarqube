@@ -20,7 +20,6 @@ exports[`renders 1`] = `
     ]
   }
   property="size"
-  query={Object {}}
   renderOption={[Function]}
 />
 `;

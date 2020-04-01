@@ -31,7 +31,6 @@ export interface Props {
   maxFacetValue?: number;
   onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
-  query: T.Dict<any>;
   value?: any;
 }
 
@@ -48,7 +47,6 @@ export default function QualityGateFilter(props: Props) {
       options={options}
       organization={props.organization}
       property="gate"
-      query={props.query}
       renderOption={renderOption}
       value={props.value}
     />

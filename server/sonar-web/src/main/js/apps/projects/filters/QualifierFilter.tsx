@@ -18,54 +18,50 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SizeRating from 'sonar-ui-common/components/ui/SizeRating';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getSizeRatingAverageValue, getSizeRatingLabel } from 'sonar-ui-common/helpers/ratings';
+import { ComponentQualifier } from '../../../types/component';
 import { Facet } from '../types';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 
-export interface Props {
-  className?: string;
+export interface QualifierFilterProps {
   facet?: Facet;
   maxFacetValue?: number;
   onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
-  property?: string;
-  value?: any;
+  value: ComponentQualifier | undefined;
 }
 
-export default function SizeFilter(props: Props) {
-  const { property = 'size' } = props;
+const options = [ComponentQualifier.Project, ComponentQualifier.Application];
+
+export default function QualifierFilter(props: QualifierFilterProps) {
+  const { facet, maxFacetValue, organization, value } = props;
 
   return (
     <Filter
-      className={props.className}
-      facet={props.facet}
-      getFacetValueForOption={getFacetValueForOption}
-      header={<FilterHeader name={translate('metric_domain.Size')} />}
-      highlightUnder={1}
-      maxFacetValue={props.maxFacetValue}
+      facet={facet}
+      header={<FilterHeader name={translate('projects.facets.qualifier')} />}
+      maxFacetValue={maxFacetValue}
       onQueryChange={props.onQueryChange}
-      options={[1, 2, 3, 4, 5]}
-      organization={props.organization}
-      property={property}
+      options={options}
+      organization={organization}
+      property="qualifier"
       renderOption={renderOption}
-      value={props.value}
+      value={value}
     />
   );
 }
 
-function getFacetValueForOption(facet: Facet, option: number) {
-  const map = ['*-1000.0', '1000.0-10000.0', '10000.0-100000.0', '100000.0-500000.0', '500000.0-*'];
-  return facet[map[option - 1]];
-}
-
-function renderOption(option: number, selected: boolean) {
+function renderOption(option: string, selected: boolean) {
   return (
-    <span>
-      <SizeRating muted={!selected} small={true} value={getSizeRatingAverageValue(option)} />
-      <span className="spacer-left">{getSizeRatingLabel(option)}</span>
+    <span className="display-flex-center">
+      <QualifierIcon
+        className="spacer-right"
+        fill={selected ? undefined : 'currentColor'}
+        qualifier={option}
+      />
+      {translate('qualifier', option)}
     </span>
   );
 }

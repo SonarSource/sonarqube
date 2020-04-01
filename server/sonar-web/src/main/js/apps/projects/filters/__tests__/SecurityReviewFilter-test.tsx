@@ -22,7 +22,7 @@ import * as React from 'react';
 import SecurityReviewFilter from '../SecurityReviewFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<SecurityReviewFilter onQueryChange={jest.fn()} query={{}} />);
+  const wrapper = shallow(<SecurityReviewFilter onQueryChange={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

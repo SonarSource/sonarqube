@@ -22,7 +22,7 @@ import * as React from 'react';
 import DuplicationsFilter from '../DuplicationsFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<DuplicationsFilter onQueryChange={jest.fn()} query={{}} />);
+  const wrapper = shallow(<DuplicationsFilter onQueryChange={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

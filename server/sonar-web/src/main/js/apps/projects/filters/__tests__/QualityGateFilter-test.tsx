@@ -38,5 +38,5 @@ it('should render with warning facet', () => {
 });
 
 function shallowRender(props: Partial<Props> = {}) {
-  return shallow(<QualityGateFilter onQueryChange={jest.fn()} query={{}} {...props} />);
+  return shallow(<QualityGateFilter onQueryChange={jest.fn()} {...props} />);
 }

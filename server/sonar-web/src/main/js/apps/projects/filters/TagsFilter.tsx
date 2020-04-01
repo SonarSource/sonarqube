@@ -121,7 +121,6 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
         options={this.getSortedOptions(this.props.facet)}
         organization={this.props.organization}
         property={property}
-        query={this.props.query}
         renderOption={this.renderOption}
         value={this.props.value}
       />

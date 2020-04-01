@@ -53,14 +53,6 @@ exports[`should render the languages facet with the selected languages 1`] = `
     ]
   }
   property="languages"
-  query={
-    Object {
-      "languages": Array [
-        "java",
-        "cs",
-      ],
-    }
-  }
   renderOption={[Function]}
   value={
     Array [
@@ -242,11 +234,6 @@ exports[`should render the languages without the ones in the facet 1`] = `
     ]
   }
   property="languages"
-  query={
-    Object {
-      "languages": null,
-    }
-  }
   renderOption={[Function]}
 />
 `;

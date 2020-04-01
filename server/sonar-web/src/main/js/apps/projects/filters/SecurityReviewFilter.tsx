@@ -32,7 +32,6 @@ export interface Props {
   onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
   property?: string;
-  query: T.Dict<any>;
   value?: any;
 }
 
@@ -53,14 +52,12 @@ export default function SecurityReviewFilter(props: Props) {
       facet={props.facet}
       header={
         <FilterHeader name={translate('metric_domain.SecurityReview')}>
-          {
-            <span className="note little-spacer-left">
-              {'( '}
-              <SecurityHotspotIcon className="little-spacer-right" />
-              {translate('metric.security_hotspots.name')}
-              {' )'}
-            </span>
-          }
+          <span className="note little-spacer-left">
+            {'( '}
+            <SecurityHotspotIcon className="little-spacer-right" />
+            {translate('metric.security_hotspots.name')}
+            {' )'}
+          </span>
         </FilterHeader>
       }
       highlightUnder={1}
@@ -69,7 +66,6 @@ export default function SecurityReviewFilter(props: Props) {
       options={[1, 2, 3, 4, 5]}
       organization={props.organization}
       property={property}
-      query={props.query}
       renderOption={renderOption}
       value={props.value}
     />

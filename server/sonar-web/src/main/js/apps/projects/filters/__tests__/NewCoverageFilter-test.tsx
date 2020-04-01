@@ -22,5 +22,5 @@ import * as React from 'react';
 import NewCoverageFilter from '../NewCoverageFilter';
 
 it('renders', () => {
-  expect(shallow(<NewCoverageFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
+  expect(shallow(<NewCoverageFilter onQueryChange={jest.fn()} />)).toMatchSnapshot();
 });

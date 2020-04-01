@@ -22,7 +22,7 @@ import * as React from 'react';
 import CoverageFilter from '../CoverageFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<CoverageFilter onQueryChange={jest.fn()} query={{}} />);
+  const wrapper = shallow(<CoverageFilter onQueryChange={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

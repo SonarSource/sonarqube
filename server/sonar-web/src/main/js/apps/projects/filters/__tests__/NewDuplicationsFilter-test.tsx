@@ -22,5 +22,5 @@ import * as React from 'react';
 import NewDuplicationsFilter from '../NewDuplicationsFilter';
 
 it('renders', () => {
-  expect(shallow(<NewDuplicationsFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
+  expect(shallow(<NewDuplicationsFilter onQueryChange={jest.fn()} />)).toMatchSnapshot();
 });

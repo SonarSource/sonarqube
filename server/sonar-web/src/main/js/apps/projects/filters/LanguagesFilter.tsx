@@ -79,7 +79,6 @@ export default class LanguagesFilter extends React.Component<Props> {
         options={this.getSortedOptions(this.props.facet)}
         organization={this.props.organization}
         property={property}
-        query={this.props.query}
         renderOption={this.renderOption}
         value={this.props.value}
       />

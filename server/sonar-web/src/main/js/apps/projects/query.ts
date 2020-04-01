@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ComponentQualifier } from '../../types/component';
 import { VISUALIZATIONS } from './utils';
 
 type Level = 'ERROR' | 'WARN' | 'OK';
@@ -38,6 +39,7 @@ export interface Query {
   size?: number;
   new_lines?: number;
   languages?: string[];
+  qualifier?: ComponentQualifier;
   tags?: string[];
   search?: string;
   sort?: string;
@@ -65,6 +67,7 @@ export function parseUrlQuery(urlQuery: T.RawQuery): Query {
     new_lines: getAsNumericRating(urlQuery['new_lines']),
     languages: getAsStringArray(urlQuery['languages']),
     tags: getAsStringArray(urlQuery['tags']),
+    qualifier: getAsQualifier(urlQuery['qualifier']),
     search: getAsString(urlQuery['search']),
     sort: getAsString(urlQuery['sort']),
     view: getView(urlQuery['view']),
@@ -106,7 +109,7 @@ export function convertToFilter(query: Query, isFavorite: boolean): string {
     'new_maintainability'
   ].forEach(property => pushMetricToArray(query, property, conditions, convertIssuesRating));
 
-  ['languages', 'tags'].forEach(property =>
+  ['languages', 'tags', 'qualifier'].forEach(property =>
     pushMetricToArray(query, property, conditions, convertArrayMetric)
   );
 
@@ -158,6 +161,10 @@ function getAsStringArray(value: any): string[] | undefined {
     return undefined;
   }
   return value.split(',');
+}
+
+function getAsQualifier(value: string | undefined): ComponentQualifier | undefined {
+  return value ? (value as ComponentQualifier) : undefined;
 }
 
 function getView(value: any): string | undefined {
@@ -251,7 +258,8 @@ function mapPropertyToMetric(property?: string): string | undefined {
     gate: 'alert_status',
     languages: 'languages',
     tags: 'tags',
-    search: 'query'
+    search: 'query',
+    qualifier: 'qualifier'
   };
   return property && map[property];
 }

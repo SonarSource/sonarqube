@@ -35,7 +35,6 @@ export interface Props {
   onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
   property?: string;
-  query: T.Dict<any>;
   value?: any;
 }
 
@@ -55,7 +54,6 @@ export default function CoverageFilter(props: Props) {
       options={[1, 2, 3, 4, 5, 6]}
       organization={props.organization}
       property={property}
-      query={props.query}
       renderOption={renderOption}
       value={props.value}
     />

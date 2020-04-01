@@ -19,8 +19,20 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ReliabilityFilter from '../ReliabilityFilter';
+import { ComponentQualifier } from '../../../../types/component';
+import Filter from '../Filter';
+import QualifierFilter, { QualifierFilterProps } from '../QualifierFilter';
 
 it('renders', () => {
-  expect(shallow(<ReliabilityFilter onQueryChange={jest.fn()} />)).toMatchSnapshot();
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+
+  const { renderOption } = wrapper.find(Filter).props();
+  expect(renderOption(ComponentQualifier.Application, false)).toMatchSnapshot(
+    'renderOption result'
+  );
 });
+
+function shallowRender(props: Partial<QualifierFilterProps> = {}) {
+  return shallow(<QualifierFilter onQueryChange={jest.fn()} value={undefined} {...props} />);
+}

@@ -166,7 +166,8 @@ export const FACETS = [
   'ncloc',
   'alert_status',
   'languages',
-  'tags'
+  'tags',
+  'qualifier'
 ];
 
 export const LEAK_FACETS = [
@@ -179,7 +180,8 @@ export const LEAK_FACETS = [
   'new_lines',
   'alert_status',
   'languages',
-  'tags'
+  'tags',
+  'qualifier'
 ];
 
 const REVERSED_FACETS = ['coverage', 'new_coverage'];
@@ -333,7 +335,8 @@ const propertyToMetricMap: T.Dict<string | undefined> = {
   gate: 'alert_status',
   languages: 'languages',
   tags: 'tags',
-  search: 'query'
+  search: 'query',
+  qualifier: 'qualifier'
 };
 
 const metricToPropertyMap = invert(propertyToMetricMap);

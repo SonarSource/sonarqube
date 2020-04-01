@@ -28,13 +28,11 @@ import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pag
 import { get, save } from 'sonar-ui-common/helpers/storage';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { OnboardingContext } from '../../../app/components/OnboardingContext';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../../components/search-navigator.css';
-import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
-import OrganizationEmpty from '../../organizations/components/OrganizationEmpty';
+import { ComponentQualifier } from '../../../types/component';
 import { hasFilterParams, hasVisualizationParams, parseUrlQuery, Query } from '../query';
 import '../styles.css';
 import { Facets, Project } from '../types';
@@ -49,13 +47,13 @@ interface Props {
   isFavorite: boolean;
   location: Pick<Location, 'pathname' | 'query'>;
   organization: T.Organization | undefined;
+  qualifiers: ComponentQualifier[];
   router: Pick<Router, 'push' | 'replace'>;
   storageOptionsSuffix?: string;
 }
 
 interface State {
   facets?: Facets;
-  initialLoading: boolean;
   loading: boolean;
   pageIndex?: number;
   projects?: Project[];
@@ -72,7 +70,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { initialLoading: true, loading: true, query: {} };
+    this.state = { loading: true, query: {} };
   }
 
   componentDidMount() {
@@ -83,23 +81,13 @@ export class AllProjects extends React.PureComponent<Props, State> {
       return;
     }
     this.handleQueryChange(true);
-    this.updateFooterClass();
+    addSideBarClass();
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.location.query !== this.props.location.query) {
       this.handleQueryChange(false);
     }
-
-    if (
-      prevProps.organization &&
-      this.props.organization &&
-      prevProps.organization.key !== this.props.organization.key
-    ) {
-      this.setState({ initialLoading: true });
-    }
-
-    this.updateFooterClass();
   }
 
   componentWillUnmount() {
@@ -113,7 +101,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
       if (this.mounted) {
         this.setState({
           facets: response.facets,
-          initialLoading: false,
           loading: false,
           pageIndex: 1,
           projects: response.projects,
@@ -232,26 +219,13 @@ export class AllProjects extends React.PureComponent<Props, State> {
 
   stopLoading = () => {
     if (this.mounted) {
-      this.setState({ initialLoading: false, loading: false });
+      this.setState({ loading: false });
     }
   };
 
   updateLocationQuery = (newQuery: T.RawQuery) => {
     const query = omitBy({ ...this.props.location.query, ...newQuery }, x => !x);
     this.props.router.push({ pathname: this.props.location.pathname, query });
-  };
-
-  updateFooterClass = () => {
-    const { organization } = this.props;
-    const { initialLoading, projects } = this.state;
-    const isOrganizationContext = isSonarCloud() && organization;
-    const isEmpty = projects && projects.length === 0;
-
-    if (isOrganizationContext && (initialLoading || isEmpty)) {
-      removeSideBarClass();
-    } else {
-      addSideBarClass();
-    }
   };
 
   renderSide = () => (
@@ -267,12 +241,12 @@ export class AllProjects extends React.PureComponent<Props, State> {
               />
 
               <PageSidebar
+                applicationsEnabled={this.props.qualifiers.includes(ComponentQualifier.Application)}
                 facets={this.state.facets}
                 onClearAll={this.handleClearAll}
                 onQueryChange={this.updateLocationQuery}
                 organization={this.props.organization}
                 query={this.state.query}
-                showFavoriteFilter={!isSonarCloud()}
                 view={this.getView()}
                 visualization={this.getVisualization()}
               />
@@ -316,7 +290,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
       <div className="layout-page-main-inner">
         {this.state.projects && (
           <Visualizations
-            displayOrganizations={!this.props.organization && isSonarCloud()}
+            displayOrganizations={false}
             projects={this.state.projects}
             sort={this.state.query.sort}
             total={this.state.total}
@@ -350,51 +324,19 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { organization } = this.props;
-    const { projects } = this.state;
-    const isOrganizationContext = isSonarCloud() && organization;
-    const initialLoading = isOrganizationContext && this.state.initialLoading;
-    const organizationEmpty =
-      isOrganizationContext &&
-      projects &&
-      projects.length === 0 &&
-      !this.state.loading &&
-      !hasFilterParams(this.state.query);
-
     return (
       <div className="layout-page projects-page" id="projects-page">
         <Suggestions suggestions="projects" />
         <Helmet defer={false} title={translate('projects.page')} />
 
-        {initialLoading ? (
-          <div className="display-flex-space-around width-100 huge-spacer-top">
-            <DeferredSpinner />
-          </div>
-        ) : (
-          <>
-            {!organizationEmpty && this.renderSide()}
+        {this.renderSide()}
 
-            <div className="layout-page-main">
-              <A11ySkipTarget anchor="projects_main" />
+        <div className="layout-page-main">
+          <A11ySkipTarget anchor="projects_main" />
 
-              {organizationEmpty && organization ? (
-                <OnboardingContext.Consumer>
-                  {openProjectOnboarding => (
-                    <OrganizationEmpty
-                      openProjectOnboarding={openProjectOnboarding}
-                      organization={organization}
-                    />
-                  )}
-                </OnboardingContext.Consumer>
-              ) : (
-                <>
-                  {this.renderHeader()}
-                  {this.renderMain()}
-                </>
-              )}
-            </div>
-          </>
-        )}
+          {this.renderHeader()}
+          {this.renderMain()}
+        </div>
       </div>
     );
   }

@@ -22,7 +22,7 @@ import * as React from 'react';
 import SizeFilter from '../SizeFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<SizeFilter onQueryChange={jest.fn()} query={{}} />);
+  const wrapper = shallow(<SizeFilter onQueryChange={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

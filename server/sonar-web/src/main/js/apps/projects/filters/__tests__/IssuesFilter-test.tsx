@@ -22,9 +22,7 @@ import * as React from 'react';
 import IssuesFilter from '../IssuesFilter';
 
 it('renders', () => {
-  const wrapper = shallow(
-    <IssuesFilter name="bugs" onQueryChange={jest.fn()} property="bugs" query={{}} />
-  );
+  const wrapper = shallow(<IssuesFilter name="bugs" onQueryChange={jest.fn()} property="bugs" />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

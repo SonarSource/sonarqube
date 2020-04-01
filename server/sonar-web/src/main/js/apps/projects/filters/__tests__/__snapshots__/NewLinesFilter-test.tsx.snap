@@ -21,7 +21,6 @@ exports[`renders 1`] = `
     ]
   }
   property="new_lines"
-  query={Object {}}
   renderOption={[Function]}
 />
 `;

@@ -108,6 +108,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private static final String ANALYSIS_DATE = "analysisDate";
   private static final String LEAK_PERIOD_DATE = "leakPeriodDate";
   private static final String METRIC_LEAK_PROJECTS_KEY = "leak_projects";
+  private static final String HTML_POSSIBLE_VALUES_TEXT = "The possible values are:";
   private static final String HTML_UL_START_TAG = "<ul>";
   private static final String HTML_UL_END_TAG = "</ul>";
   private static final Set<String> POSSIBLE_FIELDS = newHashSet(ALL, ORGANIZATIONS, ANALYSIS_DATE, LEAK_PERIOD_DATE);
@@ -177,7 +178,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         HTML_UL_END_TAG +
         "<br>" +
         "To filter on a rating, provide the corresponding metric key (ex: reliability_rating for reliability rating).<br>" +
-        "The possible values are:" +
+        HTML_POSSIBLE_VALUES_TEXT +
         HTML_UL_START_TAG +
         " <li>'1' for rating A</li>" +
         " <li>'2' for rating B</li>" +
@@ -186,7 +187,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>'5' for rating E</li>" +
         HTML_UL_END_TAG +
         "To filter on a Quality Gate status use the metric key 'alert_status'. Only the '=' operator can be used.<br>" +
-        "The possible values are:" +
+        HTML_POSSIBLE_VALUES_TEXT +
         HTML_UL_START_TAG +
         " <li>'OK' for Passed</li>" +
         " <li>'WARN' for Warning</li>" +
@@ -204,7 +205,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>to filter on several tags you must use <code>tag in (offshore, java)</code></li>" +
         HTML_UL_END_TAG +
         "To filter on a qualifier use key 'qualifier'. Only the '=' operator can be used.<br>" +
-        "The possible values are:" +
+        HTML_POSSIBLE_VALUES_TEXT +
         HTML_UL_START_TAG +
         " <li>TRK - for projects</li>" +
         " <li>APP - for applications</li>" +
@@ -296,20 +297,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .collect(Collectors.toSet());
     if (!resolvedQualifiers.isEmpty()) {
       return resolvedQualifiers;
-    } else {
-      throw new IllegalArgumentException("Invalid qualifier, available are: " + String.join(",", availableQualifiers));
-    }
-  }
-
-  private void filterQualifiersBasedOnEdition(ProjectMeasuresQuery query) {
-    Set<String> availableQualifiers = getQualifiersFromEdition();
-    Set<String> requestQualifiers = query.getQualifiers().orElse(availableQualifiers);
-
-    Set<String> resolvedQualifiers = requestQualifiers.stream()
-      .filter(availableQualifiers::contains)
-      .collect(Collectors.toSet());
-    if (!resolvedQualifiers.isEmpty()) {
-      query.setQualifiers(resolvedQualifiers);
     } else {
       throw new IllegalArgumentException("Invalid qualifier, available are: " + String.join(",", availableQualifiers));
     }

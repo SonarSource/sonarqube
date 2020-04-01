@@ -19,48 +19,70 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import PageSidebar from '../PageSidebar';
+import PageSidebar, { PageSidebarProps } from '../PageSidebar';
 
 it('should render correctly', () => {
-  const sidebar = shallow(
-    <PageSidebar
-      onClearAll={jest.fn()}
-      onQueryChange={jest.fn()}
-      query={{ size: '3' }}
-      showFavoriteFilter={true}
-      view="overall"
-      visualization="risk"
-    />
-  );
+  const sidebar = shallowRender({
+    query: { size: '3' },
+    view: 'overall',
+    visualization: 'risk'
+  });
+
+  expect(sidebar).toMatchSnapshot();
+});
+
+it('should render correctly with no applications', () => {
+  const sidebar = shallowRender({
+    applicationsEnabled: false,
+    query: { size: '3' },
+    view: 'overall',
+    visualization: 'risk'
+  });
+
   expect(sidebar).toMatchSnapshot();
 });
 
 it('should render `leak` view correctly', () => {
-  const sidebar = shallow(
-    <PageSidebar
-      onClearAll={jest.fn()}
-      onQueryChange={jest.fn()}
-      query={{ view: 'leak' }}
-      showFavoriteFilter={true}
-      view="leak"
-      visualization="risk"
-    />
-  );
+  const sidebar = shallowRender({
+    query: { view: 'leak' },
+    view: 'leak',
+    visualization: 'risk'
+  });
+  expect(sidebar).toMatchSnapshot();
+});
+
+it('should render `leak` view correctly with no applications', () => {
+  const sidebar = shallowRender({
+    applicationsEnabled: false,
+    query: { view: 'leak' },
+    view: 'leak',
+    visualization: 'risk'
+  });
   expect(sidebar).toMatchSnapshot();
 });
 
 it('reset function should work correctly with view and visualizations', () => {
-  const sidebar = shallow(
-    <PageSidebar
-      onClearAll={jest.fn()}
-      onQueryChange={jest.fn()}
-      query={{ view: 'visualizations', visualization: 'bugs' }}
-      showFavoriteFilter={true}
-      view="visualizations"
-      visualization="bugs"
-    />
-  );
+  const sidebar = shallowRender({
+    query: { view: 'visualizations', visualization: 'bugs' },
+    view: 'visualizations',
+    visualization: 'bugs'
+  });
+
   expect(sidebar.find('ClearAll').exists()).toBe(false);
   sidebar.setProps({ query: { size: '3' } });
   expect(sidebar.find('ClearAll').exists()).toBe(true);
 });
+
+function shallowRender(overrides: Partial<PageSidebarProps> = {}) {
+  return shallow(
+    <PageSidebar
+      applicationsEnabled={true}
+      onClearAll={jest.fn()}
+      onQueryChange={jest.fn()}
+      query={{ view: 'visualizations', visualization: 'bugs' }}
+      view="overall"
+      visualization="bugs"
+      {...overrides}
+    />
+  );
+}

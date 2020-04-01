@@ -17,6 +17,5 @@ exports[`renders 1`] = `
   name="Maintainability"
   onQueryChange={[MockFunction]}
   property="maintainability"
-  query={Object {}}
 />
 `;

@@ -60,15 +60,14 @@ it('renders facet bar chart', () => {
   ).toMatchSnapshot();
 });
 
-function shallowRender(props?: any) {
-  return shallow(
+function shallowRender(overrides: Partial<Filter['props']> = {}) {
+  return shallow<Filter>(
     <Filter
       onQueryChange={jest.fn()}
       options={[1, 2, 3]}
       property="foo"
-      query={{}}
       renderOption={option => option}
-      {...props}
+      {...overrides}
     />
   );
 }

@@ -30,6 +30,7 @@ import NewLinesFilter from '../filters/NewLinesFilter';
 import NewMaintainabilityFilter from '../filters/NewMaintainabilityFilter';
 import NewReliabilityFilter from '../filters/NewReliabilityFilter';
 import NewSecurityFilter from '../filters/NewSecurityFilter';
+import QualifierFilter from '../filters/QualifierFilter';
 import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
@@ -41,23 +42,31 @@ import { Facets } from '../types';
 import ClearAll from './ClearAll';
 import FavoriteFilterContainer from './FavoriteFilterContainer';
 
-interface Props {
+export interface PageSidebarProps {
+  applicationsEnabled: boolean;
   facets?: Facets;
   onClearAll: () => void;
   onQueryChange: (change: T.RawQuery) => void;
   organization?: { key: string };
   query: T.RawQuery;
-  showFavoriteFilter: boolean;
   view: string;
   visualization: string;
 }
 
-export default function PageSidebar(props: Props) {
-  const { facets, onQueryChange, query, organization, view, visualization } = props;
+export default function PageSidebar(props: PageSidebarProps) {
+  const {
+    applicationsEnabled,
+    facets,
+    onQueryChange,
+    query,
+    organization,
+    view,
+    visualization
+  } = props;
   const isFiltered = hasFilterParams(query);
   const isLeakView = view === 'leak';
   const maxFacetValue = getMaxFacetValue(facets);
-  const facetProps = { onQueryChange, maxFacetValue, organization, query };
+  const facetProps = { onQueryChange, maxFacetValue, organization };
 
   let linkQuery: T.RawQuery | undefined = undefined;
   if (view !== 'overall') {
@@ -70,9 +79,7 @@ export default function PageSidebar(props: Props) {
 
   return (
     <div>
-      {props.showFavoriteFilter && (
-        <FavoriteFilterContainer organization={organization} query={linkQuery} />
-      )}
+      <FavoriteFilterContainer organization={organization} query={linkQuery} />
 
       <div className="projects-facets-header clearfix">
         {isFiltered && <ClearAll onClearAll={props.onClearAll} />}
@@ -161,9 +168,22 @@ export default function PageSidebar(props: Props) {
       <LanguagesFilterContainer
         {...facetProps}
         facet={getFacet(facets, 'languages')}
+        query={query}
         value={query.languages}
       />
-      <TagsFilter {...facetProps} facet={getFacet(facets, 'tags')} value={query.tags} />
+      {applicationsEnabled && (
+        <QualifierFilter
+          {...facetProps}
+          facet={getFacet(facets, 'qualifier')}
+          value={query.qualifier}
+        />
+      )}
+      <TagsFilter
+        {...facetProps}
+        facet={getFacet(facets, 'tags')}
+        query={query}
+        value={query.tags}
+      />
     </div>
   );
 }

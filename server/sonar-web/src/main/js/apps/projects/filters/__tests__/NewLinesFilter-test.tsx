@@ -22,7 +22,7 @@ import * as React from 'react';
 import NewLinesFilter from '../NewLinesFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<NewLinesFilter onQueryChange={jest.fn()} query={{}} />);
+  const wrapper = shallow(<NewLinesFilter onQueryChange={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

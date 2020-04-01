@@ -18,69 +18,93 @@ exports[`should render \`leak\` view correctly 1`] = `
   </div>
   <QualityGateFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "view": "leak",
-      }
-    }
   />
   <NewReliabilityFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "view": "leak",
-      }
-    }
   />
   <NewSecurityFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "view": "leak",
-      }
-    }
   />
   <SecurityReviewFilter
     className="leak-facet-box"
     onQueryChange={[MockFunction]}
     property="new_security_review_rating"
-    query={
-      Object {
-        "view": "leak",
-      }
-    }
   />
   <NewMaintainabilityFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "view": "leak",
-      }
-    }
   />
   <NewCoverageFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "view": "leak",
-      }
-    }
   />
   <NewDuplicationsFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "view": "leak",
-      }
-    }
   />
   <NewLinesFilter
+    onQueryChange={[MockFunction]}
+  />
+  <Connect(LanguagesFilter)
     onQueryChange={[MockFunction]}
     query={
       Object {
         "view": "leak",
       }
     }
+  />
+  <QualifierFilter
+    onQueryChange={[MockFunction]}
+  />
+  <TagsFilter
+    onQueryChange={[MockFunction]}
+    query={
+      Object {
+        "view": "leak",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should render \`leak\` view correctly with no applications 1`] = `
+<div>
+  <Connect(FavoriteFilter)
+    query={
+      Object {
+        "view": "leak",
+      }
+    }
+  />
+  <div
+    className="projects-facets-header clearfix"
+  >
+    <h3>
+      filters
+    </h3>
+  </div>
+  <QualityGateFilter
+    onQueryChange={[MockFunction]}
+  />
+  <NewReliabilityFilter
+    onQueryChange={[MockFunction]}
+  />
+  <NewSecurityFilter
+    onQueryChange={[MockFunction]}
+  />
+  <SecurityReviewFilter
+    className="leak-facet-box"
+    onQueryChange={[MockFunction]}
+    property="new_security_review_rating"
+  />
+  <NewMaintainabilityFilter
+    onQueryChange={[MockFunction]}
+  />
+  <NewCoverageFilter
+    onQueryChange={[MockFunction]}
+  />
+  <NewDuplicationsFilter
+    onQueryChange={[MockFunction]}
+  />
+  <NewLinesFilter
+    onQueryChange={[MockFunction]}
   />
   <Connect(LanguagesFilter)
     onQueryChange={[MockFunction]}
@@ -116,67 +140,87 @@ exports[`should render correctly 1`] = `
   </div>
   <QualityGateFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "size": "3",
-      }
-    }
   />
   <ReliabilityFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "size": "3",
-      }
-    }
   />
   <SecurityFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "size": "3",
-      }
-    }
   />
   <SecurityReviewFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "size": "3",
-      }
-    }
   />
   <MaintainabilityFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "size": "3",
-      }
-    }
   />
   <CoverageFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "size": "3",
-      }
-    }
   />
   <DuplicationsFilter
     onQueryChange={[MockFunction]}
-    query={
-      Object {
-        "size": "3",
-      }
-    }
   />
   <SizeFilter
+    onQueryChange={[MockFunction]}
+    value="3"
+  />
+  <Connect(LanguagesFilter)
     onQueryChange={[MockFunction]}
     query={
       Object {
         "size": "3",
       }
     }
+  />
+  <QualifierFilter
+    onQueryChange={[MockFunction]}
+  />
+  <TagsFilter
+    onQueryChange={[MockFunction]}
+    query={
+      Object {
+        "size": "3",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`should render correctly with no applications 1`] = `
+<div>
+  <Connect(FavoriteFilter) />
+  <div
+    className="projects-facets-header clearfix"
+  >
+    <ClearAll
+      onClearAll={[MockFunction]}
+    />
+    <h3>
+      filters
+    </h3>
+  </div>
+  <QualityGateFilter
+    onQueryChange={[MockFunction]}
+  />
+  <ReliabilityFilter
+    onQueryChange={[MockFunction]}
+  />
+  <SecurityFilter
+    onQueryChange={[MockFunction]}
+  />
+  <SecurityReviewFilter
+    onQueryChange={[MockFunction]}
+  />
+  <MaintainabilityFilter
+    onQueryChange={[MockFunction]}
+  />
+  <CoverageFilter
+    onQueryChange={[MockFunction]}
+  />
+  <DuplicationsFilter
+    onQueryChange={[MockFunction]}
+  />
+  <SizeFilter
+    onQueryChange={[MockFunction]}
     value="3"
   />
   <Connect(LanguagesFilter)

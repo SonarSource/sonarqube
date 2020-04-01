@@ -22,7 +22,5 @@ import * as React from 'react';
 import NewMaintainabilityFilter from '../NewMaintainabilityFilter';
 
 it('renders', () => {
-  expect(
-    shallow(<NewMaintainabilityFilter onQueryChange={jest.fn()} query={{}} />)
-  ).toMatchSnapshot();
+  expect(shallow(<NewMaintainabilityFilter onQueryChange={jest.fn()} />)).toMatchSnapshot();
 });

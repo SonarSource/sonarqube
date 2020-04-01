@@ -22,5 +22,5 @@ import * as React from 'react';
 import SecurityFilter from '../SecurityFilter';
 
 it('renders', () => {
-  expect(shallow(<SecurityFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
+  expect(shallow(<SecurityFilter onQueryChange={jest.fn()} />)).toMatchSnapshot();
 });

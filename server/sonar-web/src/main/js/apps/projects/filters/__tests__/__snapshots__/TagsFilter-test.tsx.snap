@@ -86,14 +86,6 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
     ]
   }
   property="tags"
-  query={
-    Object {
-      "languages": Array [
-        "java",
-        "ad",
-      ],
-    }
-  }
   renderOption={[Function]}
   value={
     Array [
@@ -145,14 +137,6 @@ exports[`should render the tags facet with the selected tags 1`] = `
     ]
   }
   property="tags"
-  query={
-    Object {
-      "tags": Array [
-        "lang",
-        "sonar",
-      ],
-    }
-  }
   renderOption={[Function]}
   value={
     Array [
@@ -292,11 +276,6 @@ exports[`should render the tags without the ones in the facet 1`] = `
     ]
   }
   property="tags"
-  query={
-    Object {
-      "tags": null,
-    }
-  }
   renderOption={[Function]}
 />
 `;
@@ -354,11 +333,6 @@ exports[`should render the tags without the ones in the facet 2`] = `
     ]
   }
   property="tags"
-  query={
-    Object {
-      "tags": null,
-    }
-  }
   renderOption={[Function]}
 />
 `;

@@ -19,11 +19,12 @@
  */
 import { connect } from 'react-redux';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
-import { areThereCustomOrganizations, getCurrentUser, Store } from '../../../store/rootReducer';
+import { getAppState, getCurrentUser, Store } from '../../../store/rootReducer';
+import { ComponentQualifier } from '../../../types/component';
 
 const stateToProps = (state: Store) => ({
   currentUser: getCurrentUser(state),
-  organizationsEnabled: areThereCustomOrganizations(state)
+  qualifiers: getAppState(state).qualifiers as ComponentQualifier[]
 });
 
 export default connect(stateToProps)(lazyLoadComponent(() => import('./AllProjects')));

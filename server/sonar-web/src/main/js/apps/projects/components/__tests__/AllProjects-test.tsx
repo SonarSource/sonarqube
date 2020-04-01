@@ -20,8 +20,6 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { get, save } from 'sonar-ui-common/helpers/storage';
-import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { isSonarCloud } from '../../../../helpers/system';
 import { ComponentQualifier } from '../../../../types/component';
 import { AllProjects } from '../AllProjects';
 
@@ -57,14 +55,11 @@ jest.mock('sonar-ui-common/helpers/storage', () => ({
   save: jest.fn()
 }));
 
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
-
 const fetchProjects = require('../../utils').fetchProjects as jest.Mock;
 
 beforeEach(() => {
   (get as jest.Mock).mockImplementation(() => null);
   (save as jest.Mock).mockClear();
-  (isSonarCloud as jest.Mock).mockReturnValue(false);
   fetchProjects.mockClear();
 });
 
@@ -166,28 +161,6 @@ it('changes perspective to risk visualization', () => {
   expect(save).toHaveBeenCalledWith('sonarqube.projects.visualization', 'risk', undefined);
 });
 
-it('renders correctly empty organization', async () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(true);
-  const wrapper = shallow(
-    <AllProjects
-      currentUser={{ isLoggedIn: true }}
-      isFavorite={false}
-      location={{ pathname: '/projects', query: {} }}
-      organization={{ key: 'foo', name: 'Foo' }}
-      router={{ push: jest.fn(), replace: jest.fn() }}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
-  await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setState({
-    loading: false,
-    projects: [{ key: 'foo', measures: {}, name: 'Foo' }],
-    total: 0
-  });
-  expect(wrapper).toMatchSnapshot();
-});
-
 it('handles favorite projects', () => {
   const wrapper = shallowRender();
   expect(wrapper.state('projects')).toMatchSnapshot();
@@ -207,6 +180,7 @@ function shallowRender(
       isFavorite={false}
       location={{ pathname: '/projects', query: {} }}
       organization={undefined}
+      qualifiers={[ComponentQualifier.Project, ComponentQualifier.Application]}
       router={{ push, replace }}
       {...props}
     />
