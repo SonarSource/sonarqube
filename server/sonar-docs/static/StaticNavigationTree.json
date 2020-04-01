@@ -77,9 +77,14 @@
         ]
       },
       "/analysis/coverage/",
-      "/analysis/external-issues/",
+      {
+        "title": "Importing External Issues",
+        "children": [
+		  "/analysis/external-issues/",
+		  "/analysis/generic-issue/"
+		]
+      },
       "/analysis/background-tasks/",
-      "/analysis/generic-issue/",
       "/analysis/generic-test/",
 	  {
         "title": "Pull Request Analysis",

@@ -1,14 +1,14 @@
 ---
-title: Generic Issue Data
+title: Generic Issue Import Format
 url: /analysis/generic-issue/
 ---
 
-{instance} supports a generic import format for raising "external" issues in code. It is intended to allow you to import the issues from your favorite linter even if no plugin exists for it.
+SonarQube supports a generic import format for raising external issues in code. You can use this format to import issues from your favorite linter even if there's no plugin for it. SonarQube also supports many third-party issue report formats, see [Importing Third-Party Issues](/analysis/external-issues/) for more information.
 
-External issues suffer from two important limitations:
+There are a couple of limitations with importing external issues:
 
-* they cannot be managed within {instance}; for instance, there is no ability to mark them False Positive.
-* the activation of the rules that raise these issues cannot be managed within {instance}. In fact, external rules are not visible in the Rules page or reflected in any Quality Profile.
+* you can't manage them within SonarQube; for instance, there is no ability to mark them False Positive.
+* you can't manage the activation of the rules that raise these issues within SonarQube. External rules aren't visible on the Rules page or reflected in Quality Profiles.
 
 External issues and the rules that raise them must be managed in the configuration of your linter. 
 
