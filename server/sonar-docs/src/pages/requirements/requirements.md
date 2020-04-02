@@ -148,3 +148,11 @@ CONFIG_SECCOMP_FILTER=y
 CONFIG_SECCOMP=y
 ```
 For more detail, see the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/breaking-changes-5.6.html).
+
+### Fonts
+Generating [Executive Reports](/project-administration/portfolio-pdf-configuration/) requires that fonts be installed on the server hosting SonarQube. On Windows servers, this is a given. However, this is not always the case for Linux servers.
+
+The following should be ensured:
+
+* [Fontconfig](https://en.wikipedia.org/wiki/Fontconfig) is installed on the server hosting SonarQube
+* A package of [FreeType](https://www.freetype.org/) fonts is installed on the SonarQube server. The exact packages available will vary by distribution, but a commonly used package is `libfreetype6`
