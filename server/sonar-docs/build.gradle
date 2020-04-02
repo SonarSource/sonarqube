@@ -112,11 +112,23 @@ publishing {
 
 artifactory {
   publish {
-    contextUrl = System.getenv('ARTIFACTORY_URL')
     repository {
       repoKey = System.getenv('ARTIFACTORY_DEPLOY_REPO_PRIVATE')
-      username = System.getenv('ARTIFACTORY_DEPLOY_USERNAME_PRIVATE')
-      password = System.getenv('ARTIFACTORY_DEPLOY_PASSWORD_PRIVATE')
+      username = System.getenv('ARTIFACTORY_DEPLOY_USERNAME_PRIVATE') ?: project.properties.artifactoryUsername
+      password = System.getenv('ARTIFACTORY_DEPLOY_PASSWORD_PRIVATE') ?: project.properties.artifactoryPaswword
+    }
+    defaults {
+      properties = [
+          'build.name'      : 'sonar-enterprise',
+          'build.number'    : System.getenv('BUILD_NUMBER'),
+          'pr.branch.target': System.getenv('GITHUB_BASE_BRANCH'),
+          'pr.number'       : System.getenv('PULL_REQUEST'),
+          'vcs.branch'      : System.getenv('GITHUB_BRANCH'),
+          'vcs.revision'    : System.getenv('GIT_SHA1'),
+          'version'         : version
+      ]
+      publishPom = true
+      publishIvy = false
     }
   }
 }
