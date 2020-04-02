@@ -20,11 +20,13 @@
 package org.sonar.server.projecttag.ws;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.projecttag.TagsWsSupport;
 
 public class ProjectTagsWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      TagsWsSupport.class,
       ProjectTagsWs.class,
       SetAction.class,
       SearchAction.class

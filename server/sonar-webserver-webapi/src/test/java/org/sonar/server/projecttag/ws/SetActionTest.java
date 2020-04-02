@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -38,6 +37,7 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.projecttag.TagsWsSupport;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -47,12 +47,11 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
 public class SetActionTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
@@ -64,7 +63,9 @@ public class SetActionTest {
 
   private TestProjectIndexers projectIndexers = new TestProjectIndexers();
 
-  private WsActionTester ws = new WsActionTester(new SetAction(dbClient, TestComponentFinder.from(db), userSession, projectIndexers, System2.INSTANCE));
+  private TagsWsSupport tagsWsSupport = new TagsWsSupport(dbClient, TestComponentFinder.from(db), userSession, projectIndexers, System2.INSTANCE);
+
+  private WsActionTester ws = new WsActionTester(new SetAction(dbClient, tagsWsSupport));
 
   @Before
   public void setUp() {
@@ -93,7 +94,8 @@ public class SetActionTest {
 
   @Test
   public void override_existing_tags() {
-    project = db.components().insertPrivateProjectDto(c -> {}, p -> p.setTagsString("marketing,languages"));
+    project = db.components().insertPrivateProjectDto(c -> {
+    }, p -> p.setTagsString("marketing,languages"));
 
     call(project.getKey(), "finance,offshore,platform");
 
@@ -118,43 +120,38 @@ public class SetActionTest {
 
   @Test
   public void fail_if_tag_does_not_respect_format() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("_finance_' is invalid. Project tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
-
-    call(project.getKey(), "_finance_");
+    assertThatThrownBy(() -> call(project.getKey(), "_finance_"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Tag '_finance_' is invalid. Tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
   }
 
   @Test
   public void fail_if_not_project_admin() {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(ForbiddenException.class);
-
-    call(project.getKey(), "platform");
+    assertThatThrownBy(() -> call(project.getKey(), "platform"))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test
   public void fail_if_no_project() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    call(null, "platform");
+    assertThatThrownBy(() -> call(null, "platform"))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_no_tags() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    call(project.getKey(), null);
+    assertThatThrownBy(() -> call(project.getKey(), null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void fail_if_component_is_a_view() {
     ComponentDto view = db.components().insertView(v -> v.setDbKey("VIEW_KEY"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'VIEW_KEY' not found");
-
-    call(view.getKey(), "point-of-view");
+    assertThatThrownBy(() -> call(view.getKey(), "point-of-view"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'VIEW_KEY' not found");
   }
 
   @Test
@@ -162,10 +159,9 @@ public class SetActionTest {
     ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
     ComponentDto module = db.components().insertComponent(newModuleDto(projectComponent).setDbKey("MODULE_KEY"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'MODULE_KEY' not found");
-
-    call(module.getKey(), "modz");
+    assertThatThrownBy(() -> call(module.getKey(), "modz"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'MODULE_KEY' not found");
   }
 
   @Test
@@ -173,10 +169,9 @@ public class SetActionTest {
     ComponentDto projectComponent = dbClient.componentDao().selectByUuid(dbSession, project.getUuid()).get();
     ComponentDto file = db.components().insertComponent(newFileDto(projectComponent).setDbKey("FILE_KEY"));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'FILE_KEY' not found");
-
-    call(file.getKey(), "secret");
+    assertThatThrownBy(() -> call(file.getKey(), "secret"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'FILE_KEY' not found");
   }
 
   @Test
@@ -186,10 +181,9 @@ public class SetActionTest {
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
-
-    call(branch.getDbKey(), "secret");
+    assertThatThrownBy(() -> call(branch.getDbKey(), "secret"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project '%s' not found", branch.getDbKey()));
   }
 
   @Test

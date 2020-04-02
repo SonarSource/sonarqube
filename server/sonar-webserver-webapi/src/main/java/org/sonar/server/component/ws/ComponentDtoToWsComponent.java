@@ -20,6 +20,7 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -69,9 +70,7 @@ class ComponentDtoToWsComponent {
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(project.getQualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(project.isPrivate()));
-      if (Qualifiers.PROJECT.equals(project.getQualifier())) {
-        wsComponent.getTagsBuilder().addAllTags(project.getTags());
-      }
+      wsComponent.getTagsBuilder().addAllTags(project.getTags());
     }
 
     return wsComponent;
@@ -106,7 +105,7 @@ class ComponentDtoToWsComponent {
       });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));
-      if (Qualifiers.PROJECT.equals(dto.qualifier()) && dto.getBranch() != null && parentProjectDto != null) {
+      if (Arrays.asList(Qualifiers.PROJECT, Qualifiers.APP).contains(dto.qualifier()) && dto.getBranch() != null && parentProjectDto != null) {
         wsComponent.getTagsBuilder().addAllTags(parentProjectDto.getTags());
       }
     }

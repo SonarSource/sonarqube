@@ -32,7 +32,7 @@ public interface ProjectIndexers {
   /**
    * Commits the DB transaction and indexes the specified projects, if needed (according to
    * "cause" parameter).
-   * IMPORTANT - UUIDs must relate to projects only. Modules, directories and files are forbidden
+   * IMPORTANT - UUIDs must relate to applications and projects only. Modules, directories and files are forbidden
    * and will lead to lack of indexing.
    */
   void commitAndIndexByProjectUuids(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
