@@ -35,7 +35,6 @@ public class SnapshotDtoTest {
   @Test
   public void test_getter_and_setter() {
     SnapshotDto snapshotDto = new SnapshotDto()
-      .setId(10L)
       .setBuildDate(parseDate("2014-07-02").getTime())
       .setComponentUuid("uuid_21")
       .setLast(true)
@@ -45,7 +44,6 @@ public class SnapshotDtoTest {
       .setPeriodParam("param1")
       .setPeriodDate(parseDate("2014-06-01").getTime());
 
-    assertThat(snapshotDto.getId()).isEqualTo(10L);
     assertThat(snapshotDto.getBuildDate()).isEqualTo(parseDate("2014-07-02").getTime());
     assertThat(snapshotDto.getComponentUuid()).isEqualTo("uuid_21");
     assertThat(snapshotDto.getLast()).isTrue();

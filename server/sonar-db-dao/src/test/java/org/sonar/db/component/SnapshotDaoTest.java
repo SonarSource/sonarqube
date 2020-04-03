@@ -92,7 +92,6 @@ public class SnapshotDaoTest {
       .setRevision("sha1"));
 
     SnapshotDto result = underTest.selectByUuid(db.getSession(), "ABCD").get();
-    assertThat(result.getId()).isNotNull();
     assertThat(result.getUuid()).isEqualTo("ABCD");
     assertThat(result.getComponentUuid()).isEqualTo(project.uuid());
     assertThat(result.getStatus()).isEqualTo("P");
@@ -165,7 +164,7 @@ public class SnapshotDaoTest {
 
     List<SnapshotDto> result = underTest.selectLastAnalysesByRootComponentUuids(dbSession, newArrayList(firstProject.uuid(), secondProject.uuid()));
 
-    assertThat(result).extracting(SnapshotDto::getId).containsOnly(lastSnapshotOfFirstProject.getId(), lastSnapshotOfSecondProject.getId());
+    assertThat(result).extracting(SnapshotDto::getUuid).containsOnly(lastSnapshotOfFirstProject.getUuid(), lastSnapshotOfSecondProject.getUuid());
   }
 
   @Test
@@ -373,7 +372,6 @@ public class SnapshotDaoTest {
       .setBuildDate(1500000000006L)
       .setCreatedAt(1403042400000L));
 
-    assertThat(dto.getId()).isNotNull();
     assertThat(dto.getUuid()).isNotNull();
     assertThat(dto.getComponentUuid()).isEqualTo(project.uuid());
     assertThat(dto.getStatus()).isEqualTo("P");

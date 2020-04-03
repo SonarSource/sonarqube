@@ -24,7 +24,6 @@
 
   <select id="selectPurgeableAnalyses" parameterType="String" resultType="PurgeableAnalysis">
     select
-      s.id as "analysisId",
       s.uuid as "analysisUuid",
       s.created_at as "date",
       case when ve.analysis_uuid is not null then ${_true} else ${_false} end as "hasEvents",

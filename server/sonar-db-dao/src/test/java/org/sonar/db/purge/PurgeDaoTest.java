@@ -19,7 +19,6 @@
  */
 package org.sonar.db.purge;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
@@ -305,11 +304,11 @@ public class PurgeDaoTest {
     ComponentDto otherProject = db.components().insertPrivateProject();
     SnapshotDto otherAnalysis1 = db.components().insertSnapshot(otherProject);
 
-    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(analysis1.getUuid()));
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), singletonList(analysis1.getUuid()));
 
     assertThat(uuidsIn("snapshots")).containsOnly(analysis2.getUuid(), analysis3.getUuid(), otherAnalysis1.getUuid());
 
-    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), ImmutableList.of(analysis1.getUuid(), analysis3.getUuid(), otherAnalysis1.getUuid()));
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), asList(analysis1.getUuid(), analysis3.getUuid(), otherAnalysis1.getUuid()));
 
     assertThat(uuidsIn("snapshots")).containsOnly(analysis2.getUuid());
   }
@@ -344,7 +343,7 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("events"))
       .containsOnly(projectEvent1.getUuid(), projectEvent2.getUuid(), projectEvent3.getUuid());
 
-    underTest.deleteAnalyses(dbSession, new PurgeProfiler(),  singletonList(projectAnalysis1.getUuid()));
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), singletonList(projectAnalysis1.getUuid()));
     assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
       .containsOnly(projectAnalysis2.getUuid());
     assertThat(db.countRowsOfTable("event_component_changes"))
@@ -360,7 +359,7 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("events"))
       .containsOnly(projectEvent2.getUuid(), projectEvent3.getUuid());
 
-    underTest.deleteAnalyses(dbSession, new PurgeProfiler(),  singletonList(projectAnalysis3.getUuid()));
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), singletonList(projectAnalysis3.getUuid()));
     assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
       .containsOnly(projectAnalysis2.getUuid());
     assertThat(db.countRowsOfTable("event_component_changes"))
@@ -368,7 +367,7 @@ public class PurgeDaoTest {
     assertThat(uuidsIn("events"))
       .containsOnly(projectEvent2.getUuid());
 
-    underTest.deleteAnalyses(dbSession, new PurgeProfiler(),  singletonList(projectAnalysis2.getUuid()));
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), singletonList(projectAnalysis2.getUuid()));
     assertThat(db.countRowsOfTable("event_component_changes"))
       .isZero();
     assertThat(db.countRowsOfTable("events"))
@@ -1670,4 +1669,5 @@ public class PurgeDaoTest {
       .stream()
       .map(t -> (String) t.get("UUID"));
   }
+
 }

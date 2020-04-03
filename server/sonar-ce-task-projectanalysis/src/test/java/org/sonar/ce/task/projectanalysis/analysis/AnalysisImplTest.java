@@ -37,25 +37,12 @@ public class AnalysisImplTest {
   @Test
   public void build_snapshot() {
     Analysis analysis = new Analysis.Builder()
-      .setId(ID)
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build();
 
-    assertThat(analysis.getId()).isEqualTo(ID);
     assertThat(analysis.getUuid()).isEqualTo(UUID);
     assertThat(analysis.getCreatedAt()).isEqualTo(CREATED_AT);
-  }
-
-  @Test
-  public void fail_with_NPE_when_building_snapshot_without_id() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("id cannot be null");
-
-    new Analysis.Builder()
-      .setUuid(UUID)
-      .setCreatedAt(CREATED_AT)
-      .build();
   }
 
   @Test
@@ -64,7 +51,6 @@ public class AnalysisImplTest {
     thrown.expectMessage("uuid cannot be null");
 
     new Analysis.Builder()
-      .setId(ID)
       .setCreatedAt(CREATED_AT)
       .build();
   }
@@ -75,7 +61,6 @@ public class AnalysisImplTest {
     thrown.expectMessage("createdAt cannot be null");
 
     new Analysis.Builder()
-      .setId(ID)
       .setUuid(UUID)
       .build();
   }
@@ -83,45 +68,34 @@ public class AnalysisImplTest {
   @Test
   public void test_toString() {
     assertThat(new Analysis.Builder()
-      .setId(ID)
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build().toString())
-        .isEqualTo("Analysis{id=10, uuid='uuid ', createdAt=123456789}");
+        .isEqualTo("Analysis{uuid='uuid ', createdAt=123456789}");
   }
 
   @Test
   public void test_equals_and_hascode() {
     Analysis analysis = new Analysis.Builder()
-      .setId(ID)
       .setUuid(UUID)
       .setCreatedAt(CREATED_AT)
       .build();
     Analysis sameAnalysis = new Analysis.Builder()
-      .setId(ID)
       .setUuid(UUID)
-      .setCreatedAt(CREATED_AT)
-      .build();
-    Analysis sameAnalysisNotSameUuid = new Analysis.Builder()
-      .setId(ID)
-      .setUuid("other uuid")
       .setCreatedAt(CREATED_AT)
       .build();
     Analysis otherAnalysis = new Analysis.Builder()
-      .setId(11L)
-      .setUuid(UUID)
+      .setUuid("other uuid")
       .setCreatedAt(CREATED_AT)
       .build();
 
     assertThat(analysis).isEqualTo(analysis);
     assertThat(analysis).isEqualTo(sameAnalysis);
-    assertThat(analysis).isEqualTo(sameAnalysisNotSameUuid);
     assertThat(analysis).isNotEqualTo(otherAnalysis);
     assertThat(analysis).isNotEqualTo(null);
 
     assertThat(analysis.hashCode()).isEqualTo(analysis.hashCode());
     assertThat(analysis.hashCode()).isEqualTo(sameAnalysis.hashCode());
-    assertThat(analysis.hashCode()).isEqualTo(sameAnalysisNotSameUuid.hashCode());
     assertThat(analysis.hashCode()).isNotEqualTo(otherAnalysis.hashCode());
   }
 }

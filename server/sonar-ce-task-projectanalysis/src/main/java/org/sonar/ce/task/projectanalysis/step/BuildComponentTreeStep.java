@@ -143,7 +143,6 @@ public class BuildComponentTreeStep implements ComputationStep {
 
   private static Analysis toAnalysis(SnapshotDto dto) {
     return new Analysis.Builder()
-      .setId(dto.getId())
       .setUuid(dto.getUuid())
       .setCreatedAt(dto.getCreatedAt())
       .build();

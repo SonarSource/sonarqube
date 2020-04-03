@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.analysis;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -28,18 +29,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Immutable
 public class Analysis {
 
-  private long id;
   private String uuid;
   private long createdAt;
 
   private Analysis(Builder builder) {
-    this.id = builder.id;
     this.uuid = builder.uuid;
     this.createdAt = builder.createdAt;
-  }
-
-  public long getId() {
-    return id;
   }
 
   public String getUuid() {
@@ -52,16 +47,9 @@ public class Analysis {
 
   public static final class Builder {
     @CheckForNull
-    private Long id;
-    @CheckForNull
     private String uuid;
     @CheckForNull
     private Long createdAt;
-
-    public Builder setId(long id) {
-      this.id = id;
-      return this;
-    }
 
     public Builder setUuid(String uuid) {
       this.uuid = uuid;
@@ -74,7 +62,6 @@ public class Analysis {
     }
 
     public Analysis build() {
-      checkNotNull(id, "id cannot be null");
       checkNotNull(uuid, "uuid cannot be null");
       checkNotNull(createdAt, "createdAt cannot be null");
       return new Analysis(this);
@@ -91,19 +78,18 @@ public class Analysis {
     }
 
     Analysis analysis = (Analysis) o;
-    return id == analysis.id;
+    return Objects.equals(uuid, analysis.uuid);
   }
 
   @Override
   public int hashCode() {
-    return (int) (id ^ (id >>> 32));
+    return Objects.hash(uuid);
   }
 
   @Override
   public String toString() {
     return "Analysis{" +
-      "id=" + id +
-      ", uuid='" + uuid + '\'' +
+      "uuid='" + uuid + '\'' +
       ", createdAt=" + createdAt +
       '}';
   }

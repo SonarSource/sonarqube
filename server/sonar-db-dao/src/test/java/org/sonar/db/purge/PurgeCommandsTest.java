@@ -19,7 +19,6 @@
  */
 package org.sonar.db.purge;
 
-import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -27,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.After;
@@ -56,8 +54,8 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
@@ -101,18 +99,18 @@ public class PurgeCommandsTest {
     SnapshotDto analysis2 = dbTester.components().insertSnapshot(project);
     SnapshotDto analysis3 = dbTester.components().insertSnapshot(project);
     SnapshotDto analysis4 = dbTester.components().insertSnapshot(project);
-    int count = 1 + random.nextInt(12);
-    for (SnapshotDto analysis : Arrays.asList(analysis1, analysis2, analysis3, analysis4)) {
+    int count = 8;
+    for (SnapshotDto analysis : asList(analysis1, analysis2, analysis3, analysis4)) {
       IntStream.range(0, count).forEach(i -> insertDuplication(project, analysis));
     }
 
-    underTest.purgeAnalyses(ImmutableList.of(analysis1.getUuid()));
+    underTest.purgeAnalyses(singletonList(analysis1.getUuid()));
     assertThat(countDuplications(analysis1)).isZero();
     assertThat(countDuplications(analysis2)).isEqualTo(count);
     assertThat(countDuplications(analysis3)).isEqualTo(count);
     assertThat(countDuplications(analysis4)).isEqualTo(count);
 
-    underTest.purgeAnalyses(ImmutableList.of(analysis1.getUuid(), analysis3.getUuid(), analysis4.getUuid()));
+    underTest.purgeAnalyses(asList(analysis1.getUuid(), analysis3.getUuid(), analysis4.getUuid()));
     assertThat(countDuplications(analysis1)).isZero();
     assertThat(countDuplications(analysis2)).isEqualTo(count);
     assertThat(countDuplications(analysis3)).isZero();
@@ -155,7 +153,7 @@ public class PurgeCommandsTest {
   public void deleteComponents_delete_tree_of_components_of_a_view(OrganizationDto organizationDto, ComponentDto view) {
     dbTester.organizations().insert(organizationDto);
     dbTester.components().insertComponent(view);
-    ComponentDto otherView = dbTester.components().insertView(organizationDto);
+    ComponentDto otherView = dbTester.components().insertPrivatePortfolio(organizationDto);
     Stream.of(view, otherView).forEach(vw -> {
       dbTester.components().insertSubView(vw);
       dbTester.components().insertComponent(newProjectCopy(dbTester.components().insertPrivateProject(), vw));
@@ -231,7 +229,7 @@ public class PurgeCommandsTest {
   public void deleteAnalyses_by_rootUuid_deletes_event_component_changes(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
     ComponentDto otherProject = dbTester.components().insertPrivateProject();
-    int count = 1 + new Random().nextInt(20);
+    int count = 5;
     IntStream.range(0, count).forEach(i -> {
       insertRandomEventComponentChange(projectOrView);
       insertRandomEventComponentChange(otherProject);
@@ -252,7 +250,7 @@ public class PurgeCommandsTest {
     ComponentDto otherProject = dbTester.components().insertPrivateProject();
     SnapshotDto otherAnalysis1 = dbTester.components().insertSnapshot(otherProject);
     SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject);
-    int count = 1 + new Random().nextInt(20);
+    int count = 7;
     IntStream.range(0, count).forEach(i -> {
       dbTester.events().insertEvent(analysis1);
       dbTester.events().insertEvent(analysis2);
@@ -279,7 +277,7 @@ public class PurgeCommandsTest {
     ComponentDto otherProject = dbTester.components().insertPrivateProject();
     SnapshotDto otherAnalysis1 = dbTester.components().insertSnapshot(otherProject);
     SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject);
-    int count = 1 + new Random().nextInt(20);
+    int count = 5;
     Stream.of(metric1, metric2)
       .forEach(metric -> {
         IntStream.range(0, count).forEach(i -> {
@@ -307,7 +305,7 @@ public class PurgeCommandsTest {
     ComponentDto otherProject = dbTester.components().insertPrivateProject();
     SnapshotDto otherAnalysis1 = dbTester.components().insertSnapshot(otherProject);
     SnapshotDto otherAnalysis2 = dbTester.components().insertSnapshot(otherProject);
-    int count = 1 + new Random().nextInt(20);
+    int count = 5;
     IntStream.range(0, count).forEach(i -> {
       insertRandomAnalysisProperty(analysis1);
       insertRandomAnalysisProperty(analysis2);
@@ -353,19 +351,20 @@ public class PurgeCommandsTest {
   @UseDataProvider("projectsAndViews")
   public void deleteAnalyses_by_analyses_deletes_specified_analysis(ComponentDto projectOrView) {
     dbTester.components().insertComponent(projectOrView);
-    List<SnapshotDto> analyses = IntStream.range(0, 5 + random.nextInt(10))
-      .mapToObj(i -> dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus()))
-      .collect(toList());
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_PROCESSED));
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_PROCESSED));
+    SnapshotDto analysis3 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_UNPROCESSED));
+    SnapshotDto analysis4 = dbTester.components().insertSnapshot(projectOrView, s -> s.setStatus(STATUS_UNPROCESSED));
 
-    underTest.deleteAnalyses(singletonList(analyses.get(0).getUuid()));
+    underTest.deleteAnalyses(singletonList(analysis1.getUuid()));
     assertThat(uuidsOfAnalysesOfRoot(projectOrView))
-      .containsOnly(analyses.stream().skip(1).map(SnapshotDto::getUuid).toArray(String[]::new));
+      .containsOnly(analysis2.getUuid(), analysis3.getUuid(), analysis4.getUuid());
 
-    underTest.deleteAnalyses(analyses.stream().map(SnapshotDto::getUuid).skip(1).limit(3).collect(Collectors.toList()));
+    underTest.deleteAnalyses(asList(analysis2.getUuid(), analysis3.getUuid()));
     assertThat(uuidsOfAnalysesOfRoot(projectOrView))
-      .containsOnly(analyses.stream().skip(4).map(SnapshotDto::getUuid).toArray(String[]::new));
+      .containsOnly(analysis4.getUuid());
 
-    underTest.deleteAnalyses(analyses.stream().map(SnapshotDto::getUuid).collect(Collectors.toList()));
+    underTest.deleteAnalyses(asList(analysis1.getUuid(), analysis2.getUuid(), analysis3.getUuid(), analysis4.getUuid()));
     assertThat(uuidsOfAnalysesOfRoot(projectOrView)).isEmpty();
   }
 
@@ -381,7 +380,7 @@ public class PurgeCommandsTest {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus());
     SnapshotDto otherAnalysis = dbTester.components().insertSnapshot(projectOrView);
-    int count = 1 + new Random().nextInt(20);
+    int count = 5;
     IntStream.range(0, count).forEach(i -> {
       insertRandomEventComponentChange(analysis);
       insertRandomEventComponentChange(otherAnalysis);
@@ -399,7 +398,7 @@ public class PurgeCommandsTest {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus());
     SnapshotDto otherAnalysis = dbTester.components().insertSnapshot(projectOrView);
-    int count = 1 + new Random().nextInt(20);
+    int count = 5;
     IntStream.range(0, count).forEach(i -> {
       dbTester.events().insertEvent(analysis);
       dbTester.events().insertEvent(otherAnalysis);
@@ -419,7 +418,7 @@ public class PurgeCommandsTest {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus());
     SnapshotDto otherAnalysis = dbTester.components().insertSnapshot(projectOrView);
-    int count = 1 + new Random().nextInt(20);
+    int count = 5;
     Stream.of(metric1, metric2)
       .forEach(metric -> {
         IntStream.range(0, count).forEach(i -> {
@@ -440,7 +439,7 @@ public class PurgeCommandsTest {
     dbTester.components().insertComponent(projectOrView);
     SnapshotDto analysis = dbTester.components().insertSnapshot(projectOrView, randomLastAndStatus());
     SnapshotDto otherAnalysis = dbTester.components().insertSnapshot(projectOrView);
-    int count = 1 + new Random().nextInt(20);
+    int count = 4;
     IntStream.range(0, count).forEach(i -> {
       insertRandomAnalysisProperty(analysis);
       insertRandomAnalysisProperty(otherAnalysis);
@@ -461,7 +460,7 @@ public class PurgeCommandsTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(projectOrView));
     ComponentDto otherProject = dbTester.components().insertPrivateProject();
     ComponentDto otherFile = dbTester.components().insertComponent(newFileDto(otherProject));
-    int count = 5 + random.nextInt(10);
+    int count = 5;
     IntStream.range(0, count).forEach(i -> {
       Stream.of(rule1, rule2).forEach(rule -> {
         dbTester.issues().insertIssue(t -> t.setRule(rule).setProject(projectOrView).setComponent(projectOrView));
@@ -483,7 +482,7 @@ public class PurgeCommandsTest {
     RuleDefinitionDto rule = dbTester.rules().insert();
     dbTester.components().insertComponent(projectOrView);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(projectOrView));
-    int count = 5 + random.nextInt(10);
+    int count = 5;
     IntStream.range(0, count).forEach(i -> {
       IssueDto issue = dbTester.issues().insertIssue(t -> t.setRule(rule).setProject(projectOrView).setComponent(projectOrView));
       dbTester.issues().insertChange(issue);
@@ -542,19 +541,19 @@ public class PurgeCommandsTest {
     BranchDto branch = newBranchDto(project);
     dbTester.components().insertProjectBranch(project, branch);
 
-    //global settings
+    // global settings
     dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
 
-    //project settings
+    // project settings
     dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "20");
 
-    //branch settings
+    // branch settings
     dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deleteNewCodePeriods(branch.getUuid());
 
-    //should delete branch settings only
+    // should delete branch settings only
     assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(2);
   }
 
@@ -565,19 +564,19 @@ public class PurgeCommandsTest {
     BranchDto branch = newBranchDto(project);
     dbTester.components().insertProjectBranch(project, branch);
 
-    //global settings
+    // global settings
     dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
 
-    //project settings
+    // project settings
     dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "20");
 
-    //branch settings
+    // branch settings
     dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deleteNewCodePeriods(project.uuid());
 
-    //should delete branch and project settings only
+    // should delete branch and project settings only
     assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(1);
   }
 
@@ -588,19 +587,19 @@ public class PurgeCommandsTest {
     BranchDto branch = newBranchDto(project);
     dbTester.components().insertProjectBranch(project, branch);
 
-    //global settings
+    // global settings
     dbTester.newCodePeriods().insert(NewCodePeriodType.PREVIOUS_VERSION, null);
 
-    //project settings
+    // project settings
     dbTester.newCodePeriods().insert(project.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "20");
 
-    //branch settings
+    // branch settings
     dbTester.newCodePeriods().insert(project.uuid(), branch.getUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "1");
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deleteNewCodePeriods(null);
 
-    //should delete branch and project settings only
+    // should delete branch and project settings only
     assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(3);
   }
 

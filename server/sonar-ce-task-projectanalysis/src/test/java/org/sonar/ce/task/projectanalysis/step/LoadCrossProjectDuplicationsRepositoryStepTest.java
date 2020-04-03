@@ -54,10 +54,12 @@ import org.sonar.duplications.block.ByteArray;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
@@ -111,7 +113,6 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     dbSession.commit();
 
     baseProjectAnalysis = new Analysis.Builder()
-      .setId(projectSnapshot.getId())
       .setUuid(projectSnapshot.getUuid())
       .setCreatedAt(projectSnapshot.getCreatedAt())
       .build();
@@ -145,12 +146,12 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setStartTokenIndex(0)
       .setEndTokenIndex(10)
       .build();
-    batchReportReader.putDuplicationBlocks(FILE_REF, asList(originBlock));
+    batchReportReader.putDuplicationBlocks(FILE_REF, singletonList(originBlock));
 
     underTest.execute(new TestComputationStepContext());
 
     verify(integrateCrossProjectDuplications).computeCpd(CURRENT_FILE,
-      asList(
+      singletonList(
         new Block.Builder()
           .setResourceId(CURRENT_FILE_KEY)
           .setBlockHash(new ByteArray(hash))
@@ -158,7 +159,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
           .setLines(originBlock.getStartLine(), originBlock.getEndLine())
           .setUnit(originBlock.getStartTokenIndex(), originBlock.getEndTokenIndex())
           .build()),
-      asList(
+      singletonList(
         new Block.Builder()
           .setResourceId(otherFile.getDbKey())
           .setBlockHash(new ByteArray(hash))
@@ -283,7 +284,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setStartTokenIndex(0)
       .setEndTokenIndex(10)
       .build();
-    batchReportReader.putDuplicationBlocks(FILE_REF, asList(originBlock));
+    batchReportReader.putDuplicationBlocks(FILE_REF, singletonList(originBlock));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -299,7 +300,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyZeroInteractions(integrateCrossProjectDuplications);
+    verifyNoInteractions(integrateCrossProjectDuplications);
   }
 
   @Test
@@ -314,11 +315,11 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setStartTokenIndex(0)
       .setEndTokenIndex(10)
       .build();
-    batchReportReader.putDuplicationBlocks(FILE_REF, asList(originBlock));
+    batchReportReader.putDuplicationBlocks(FILE_REF, singletonList(originBlock));
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyZeroInteractions(integrateCrossProjectDuplications);
+    verifyNoInteractions(integrateCrossProjectDuplications);
   }
 
   private ComponentDto createProject(String projectKey) {

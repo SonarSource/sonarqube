@@ -62,10 +62,9 @@ import static org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStep.M
 
 public class FileMoveDetectionStepTest {
 
-  private static final long SNAPSHOT_ID = 98765;
+  private static final String SNAPSHOT_UUID = "uuid_1";
   private static final Analysis ANALYSIS = new Analysis.Builder()
-    .setId(SNAPSHOT_ID)
-    .setUuid("uuid_1")
+    .setUuid(SNAPSHOT_UUID)
     .setCreatedAt(86521)
     .build();
   private static final int ROOT_REF = 1;

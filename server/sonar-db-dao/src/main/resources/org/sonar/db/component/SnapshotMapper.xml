@@ -3,7 +3,6 @@
 <mapper namespace="org.sonar.db.component.SnapshotMapper">
 
   <sql id="snapshotColumns">
-    s.id,
     s.uuid as uuid,
     s.component_uuid as componentUuId,
     s.created_at as createdAt,
@@ -157,7 +156,7 @@
     where uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 
-  <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Snapshot" useGeneratedKeys="false">
     insert into snapshots (
       uuid,
       component_uuid,

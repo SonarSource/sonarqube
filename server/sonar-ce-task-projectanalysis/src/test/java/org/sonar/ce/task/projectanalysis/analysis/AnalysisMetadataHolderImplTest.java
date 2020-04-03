@@ -47,7 +47,6 @@ import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 public class AnalysisMetadataHolderImplTest {
 
   private static Analysis baseProjectAnalysis = new Analysis.Builder()
-    .setId(1)
     .setUuid("uuid_1")
     .setCreatedAt(123456789L)
     .build();

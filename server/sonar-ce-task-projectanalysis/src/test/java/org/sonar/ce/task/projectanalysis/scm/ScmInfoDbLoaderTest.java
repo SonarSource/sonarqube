@@ -52,10 +52,8 @@ public class ScmInfoDbLoaderTest {
   static final int FILE_REF = 1;
   static final Component FILE = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").build();
   static final long DATE_1 = 123456789L;
-  static final long DATE_2 = 1234567810L;
 
   static Analysis baseProjectAnalysis = new Analysis.Builder()
-    .setId(1)
     .setUuid("uuid_1")
     .setCreatedAt(123456789L)
     .build();
