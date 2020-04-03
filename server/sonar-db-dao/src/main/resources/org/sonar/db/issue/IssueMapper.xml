@@ -5,7 +5,6 @@
 <mapper namespace="org.sonar.db.issue.IssueMapper">
 
   <sql id="issueColumns">
-    i.id,
     i.kee as kee,
     i.rule_id as ruleId,
     i.severity as severity,
@@ -99,7 +98,7 @@
   </sql>
 
 
-  <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
+  <insert id="insert" parameterType="Issue" useGeneratedKeys="false">
     INSERT INTO issues (kee, rule_id, severity, manual_severity,
     message, line, locations, gap, effort, status, tags,
     resolution, checksum, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,

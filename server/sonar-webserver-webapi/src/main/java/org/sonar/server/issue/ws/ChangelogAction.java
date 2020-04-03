@@ -98,9 +98,9 @@ public class ChangelogAction implements IssuesWsAction {
 
   private boolean isMember(DbSession dbSession, IssueDto issue) {
     Optional<ComponentDto> project = dbClient.componentDao().selectByUuid(dbSession, issue.getProjectUuid());
-    checkState(project.isPresent(), "Cannot find the project with uuid %s from issue.id %s", issue.getProjectUuid(), issue.getId());
+    checkState(project.isPresent(), "Cannot find the project with uuid %s from issue with key %s", issue.getProjectUuid(), issue.getKey());
     Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, project.get().getOrganizationUuid());
-    checkState(organization.isPresent(), "Cannot find the organization with uuid %s from issue.id %s", project.get().getOrganizationUuid(), issue.getId());
+    checkState(organization.isPresent(), "Cannot find the organization with uuid %s from issue with key %s", project.get().getOrganizationUuid(), issue.getKey());
     return userSession.hasMembership(organization.get());
   }
 }

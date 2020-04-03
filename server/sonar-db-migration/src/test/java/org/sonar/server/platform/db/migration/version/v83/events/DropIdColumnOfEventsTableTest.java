@@ -17,25 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.events;
 
 import java.sql.SQLException;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public class DropIdColumnOfEventsTable extends DdlChange {
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-  private Database db;
+public class DropIdColumnOfEventsTableTest {
 
-  public DropIdColumnOfEventsTable(Database db) {
-    super(db);
-    this.db = db;
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropIdColumnOfEventsTableTest.class, "schema.sql");
+
+  private DropIdColumnOfEventsTable underTest = new DropIdColumnOfEventsTable(db.database());
+
+  @Test
+  public void execute() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDoesNotExist("events", "id");
   }
 
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(db.getDialect(), "events", "id").build());
+  @Test
+  public void migration_is_not_re_entrant() throws SQLException {
+    underTest.execute();
+
+    assertThatThrownBy(() -> underTest.execute()).isInstanceOf(IllegalStateException.class);
   }
 
 }

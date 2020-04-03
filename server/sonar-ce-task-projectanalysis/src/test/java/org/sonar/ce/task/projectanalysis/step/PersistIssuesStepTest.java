@@ -60,7 +60,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -258,10 +257,9 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     ArgumentCaptor<IssueDto> issueDtoCaptor = ArgumentCaptor.forClass(IssueDto.class);
     verify(conflictResolver).resolve(eq(defaultIssue), issueDtoCaptor.capture(), any(IssueMapper.class));
-    assertThat(issueDtoCaptor.getValue().getId()).isEqualTo(issue.getId());
+    assertThat(issueDtoCaptor.getValue().getKey()).isEqualTo(issue.getKey());
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "0"), entry("updates", "1"), entry("merged", "1"));
-
   }
 
   @Test

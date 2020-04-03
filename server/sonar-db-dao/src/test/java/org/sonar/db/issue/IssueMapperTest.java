@@ -93,7 +93,6 @@ public class IssueMapperTest {
 
     IssueDto result = underTest.selectByKey("ABCDE");
     assertThat(result).isNotNull();
-    assertThat(result.getId()).isNotNull();
     assertThat(result.getKey()).isEqualTo("ABCDE");
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
@@ -153,7 +152,6 @@ public class IssueMapperTest {
 
     IssueDto result = underTest.selectByKey("ABCDE");
     assertThat(result).isNotNull();
-    assertThat(result.getId()).isNotNull();
     assertThat(result.getKey()).isEqualTo("ABCDE");
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getProjectUuid()).isEqualTo(project.uuid());

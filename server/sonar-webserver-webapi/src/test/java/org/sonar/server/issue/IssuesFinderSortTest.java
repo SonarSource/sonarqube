@@ -35,9 +35,9 @@ public class IssuesFinderSortTest {
 
   @Test
   public void should_sort_by_status() {
-    IssueDto issue1 = new IssueDto().setId(1L).setStatus("CLOSED");
-    IssueDto issue2 = new IssueDto().setId(2L).setStatus("REOPENED");
-    IssueDto issue3 = new IssueDto().setId(3L).setStatus("OPEN");
+    IssueDto issue1 = new IssueDto().setKee("A").setStatus("CLOSED");
+    IssueDto issue2 = new IssueDto().setKee("B").setStatus("REOPENED");
+    IssueDto issue3 = new IssueDto().setKee("C").setStatus("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(false).build();
@@ -53,9 +53,9 @@ public class IssuesFinderSortTest {
 
   @Test
   public void should_sort_by_severity() {
-    IssueDto issue1 = new IssueDto().setId(1L).setSeverity("INFO");
-    IssueDto issue2 = new IssueDto().setId(2L).setSeverity("BLOCKER");
-    IssueDto issue3 = new IssueDto().setId(3L).setSeverity("MAJOR");
+    IssueDto issue1 = new IssueDto().setKee("A").setSeverity("INFO");
+    IssueDto issue2 = new IssueDto().setKee("B").setSeverity("BLOCKER");
+    IssueDto issue3 = new IssueDto().setKee("C").setSeverity("MAJOR");
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true).build();
@@ -71,9 +71,9 @@ public class IssuesFinderSortTest {
 
   @Test
   public void should_sort_by_desc_severity() {
-    IssueDto issue1 = new IssueDto().setId(1L).setSeverity("INFO");
-    IssueDto issue2 = new IssueDto().setId(2L).setSeverity("BLOCKER");
-    IssueDto issue3 = new IssueDto().setId(3L).setSeverity("MAJOR");
+    IssueDto issue1 = new IssueDto().setKee("A").setSeverity("INFO");
+    IssueDto issue2 = new IssueDto().setKee("B").setSeverity("BLOCKER");
+    IssueDto issue3 = new IssueDto().setKee("C").setSeverity("MAJOR");
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(false).build();
@@ -93,9 +93,9 @@ public class IssuesFinderSortTest {
     Date date1 = DateUtils.addDays(date, -3);
     Date date2 = DateUtils.addDays(date, -2);
     Date date3 = DateUtils.addDays(date, -1);
-    IssueDto issue1 = new IssueDto().setId(1L).setIssueCreationDate(date1);
-    IssueDto issue2 = new IssueDto().setId(2L).setIssueCreationDate(date3);
-    IssueDto issue3 = new IssueDto().setId(3L).setIssueCreationDate(date2);
+    IssueDto issue1 = new IssueDto().setKee("A").setIssueCreationDate(date1);
+    IssueDto issue2 = new IssueDto().setKee("B").setIssueCreationDate(date3);
+    IssueDto issue3 = new IssueDto().setKee("C").setIssueCreationDate(date2);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(false).build();
@@ -115,9 +115,9 @@ public class IssuesFinderSortTest {
     Date date1 = DateUtils.addDays(date, -3);
     Date date2 = DateUtils.addDays(date, -2);
     Date date3 = DateUtils.addDays(date, -1);
-    IssueDto issue1 = new IssueDto().setId(1L).setIssueUpdateDate(date1);
-    IssueDto issue2 = new IssueDto().setId(2L).setIssueUpdateDate(date3);
-    IssueDto issue3 = new IssueDto().setId(3L).setIssueUpdateDate(date2);
+    IssueDto issue1 = new IssueDto().setKee("A").setIssueUpdateDate(date1);
+    IssueDto issue2 = new IssueDto().setKee("B").setIssueUpdateDate(date3);
+    IssueDto issue3 = new IssueDto().setKee("C").setIssueUpdateDate(date2);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(false).build();
@@ -137,9 +137,9 @@ public class IssuesFinderSortTest {
     Date date1 = DateUtils.addDays(date, -3);
     Date date2 = DateUtils.addDays(date, -2);
     Date date3 = DateUtils.addDays(date, -1);
-    IssueDto issue1 = new IssueDto().setId(1L).setIssueCloseDate(date1);
-    IssueDto issue2 = new IssueDto().setId(2L).setIssueCloseDate(date3);
-    IssueDto issue3 = new IssueDto().setId(3L).setIssueCloseDate(date2);
+    IssueDto issue1 = new IssueDto().setKee("A").setIssueCloseDate(date1);
+    IssueDto issue2 = new IssueDto().setKee("B").setIssueCloseDate(date3);
+    IssueDto issue3 = new IssueDto().setKee("C").setIssueCloseDate(date2);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3);
 
     IssueQuery query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(false).build();
@@ -155,10 +155,10 @@ public class IssuesFinderSortTest {
 
   @Test
   public void should_not_sort_with_null_sort() {
-    IssueDto issue1 = new IssueDto().setId(1L).setAssigneeUuid("perceval");
-    IssueDto issue2 = new IssueDto().setId(2L).setAssigneeUuid("arthur");
-    IssueDto issue3 = new IssueDto().setId(3L).setAssigneeUuid("vincent");
-    IssueDto issue4 = new IssueDto().setId(4L).setAssigneeUuid(null);
+    IssueDto issue1 = new IssueDto().setKee("A").setAssigneeUuid("perceval");
+    IssueDto issue2 = new IssueDto().setKee("B").setAssigneeUuid("arthur");
+    IssueDto issue3 = new IssueDto().setKee("C").setAssigneeUuid("vincent");
+    IssueDto issue4 = new IssueDto().setKee("D").setAssigneeUuid(null);
     List<IssueDto> dtoList = newArrayList(issue1, issue2, issue3, issue4);
 
     IssueQuery query = IssueQuery.builder().sort(null).build();

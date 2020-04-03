@@ -17,33 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.issues;
 
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
-import org.sonar.server.platform.db.migration.version.v83.util.GetConstraintHelper;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class DropPrimaryKeyOnIdColumnOfEventsTableTest {
+public class AddPrimaryKeyOnKeeColumnOfIssuesTableTest {
 
-  private static final String TABLE_NAME = "events";
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(DropPrimaryKeyOnIdColumnOfEventsTableTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(AddPrimaryKeyOnKeeColumnOfIssuesTableTest.class, "schema.sql");
 
-  private DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(db.database(), new GetConstraintHelper(db.database()));
-
-  private DropPrimaryKeyOnIdColumnOfEventsTable underTest = new DropPrimaryKeyOnIdColumnOfEventsTable(db.database(), dropPrimaryKeySqlGenerator);
+  private AddPrimaryKeyOnKeeColumnOfIssuesTable underTest = new AddPrimaryKeyOnKeeColumnOfIssuesTable(db.database());
 
   @Test
   public void execute() throws SQLException {
     underTest.execute();
 
-    db.assertNoPrimaryKey(TABLE_NAME);
+    db.assertPrimaryKey("issues", "pk_issues", "kee");
   }
 
   @Test

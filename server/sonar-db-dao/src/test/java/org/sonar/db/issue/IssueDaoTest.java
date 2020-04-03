@@ -79,7 +79,6 @@ public class IssueDaoTest {
 
     IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
     assertThat(issue.getKee()).isEqualTo(ISSUE_KEY1);
-    assertThat(issue.getId()).isGreaterThan(0L);
     assertThat(issue.getComponentUuid()).isEqualTo(FILE_UUID);
     assertThat(issue.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(issue.getRuleId()).isEqualTo(RULE.getId());

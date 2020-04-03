@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.issues;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 import org.sonar.server.platform.db.migration.version.v83.util.AddPrimaryKeyBuilder;
 
-public class AddPrimaryKeyOnUuidColumnOfEventsTable extends DdlChange {
+public class AddPrimaryKeyOnKeeColumnOfIssuesTable extends DdlChange {
 
-  public AddPrimaryKeyOnUuidColumnOfEventsTable(Database db) {
+  public AddPrimaryKeyOnKeeColumnOfIssuesTable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AddPrimaryKeyBuilder("events", "uuid").build());
+    context.execute(new AddPrimaryKeyBuilder("issues", "kee").build());
   }
 
 }

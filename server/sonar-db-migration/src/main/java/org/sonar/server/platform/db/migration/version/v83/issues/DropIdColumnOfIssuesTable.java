@@ -17,25 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.issues;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 
-public class DropPrimaryKeyOnIdColumnOfEventsTable extends DdlChange {
+public class DropIdColumnOfIssuesTable extends DdlChange {
 
-  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
+  private Database db;
 
-  public DropPrimaryKeyOnIdColumnOfEventsTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
+  public DropIdColumnOfIssuesTable(Database db) {
     super(db);
-    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
+    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate("events", "events", "id"));
+    context.execute(new DropColumnsBuilder(db.getDialect(), "issues", "id").build());
   }
 
 }

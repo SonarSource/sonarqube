@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.issues;
 
 import java.sql.SQLException;
 import org.junit.Rule;
@@ -26,18 +26,18 @@ import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class DropIdColumnOfEventsTableTest {
+public class DropIdColumnOfIssuesTableTest {
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(DropIdColumnOfEventsTableTest.class, "schema.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(DropIdColumnOfIssuesTableTest.class, "schema.sql");
 
-  private DropIdColumnOfEventsTable underTest = new DropIdColumnOfEventsTable(db.database());
+  private DropIdColumnOfIssuesTable underTest = new DropIdColumnOfIssuesTable(db.database());
 
   @Test
   public void execute() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDoesNotExist("events", "id");
+    db.assertColumnDoesNotExist("issues", "id");
   }
 
   @Test

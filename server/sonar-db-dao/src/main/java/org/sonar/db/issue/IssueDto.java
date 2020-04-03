@@ -54,7 +54,6 @@ public final class IssueDto implements Serializable {
   private static final Joiner TAGS_JOINER = Joiner.on(TAGS_SEPARATOR).skipNulls();
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
-  private Long id;
   private int type;
   private String kee;
   private String componentUuid;
@@ -188,15 +187,6 @@ public final class IssueDto implements Serializable {
 
   public String getKey() {
     return getKee();
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public IssueDto setId(@Nullable Long id) {
-    this.id = id;
-    return this;
   }
 
   public String getKee() {
