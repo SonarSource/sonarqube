@@ -2,12 +2,12 @@ name: Upgrade SonarQube bundled plugins
 on:
   schedule:
     # At 9:00 every Monday
-    - cron:  '0 9 * * MON'
+    - cron: "0 9 * * MON"
 
 jobs:
   upgrade-plugins-job:
     # prevent job to run on public repository sonarsource/sonarqube (where action sources are not available)
-    if: github.repository == 'sonarsource/sonar-enterprise' 
+    if: github.repository == 'sonarsource/sonar-enterprise'
     runs-on: ubuntu-latest
     name: Upgrades the version of plugins bundled into SonarQube
     steps:
@@ -23,7 +23,6 @@ jobs:
           JIRA_LOGIN: ${{ secrets.JIRA_LOGIN }}
           JIRA_PASSWORD: ${{ secrets.JIRA_PASSWORD }}
           REPOX_API_KEY: ${{ secrets.REPOX_API_KEY }}
-          REPOX_LOGIN: ${{ secrets.REPOX_LOGIN }}
         with:
           build_gradle_path: build.gradle
       - name: Create Pull Request
@@ -33,8 +32,15 @@ jobs:
           COMMIT_MESSAGE: ${{ steps.upgrade-plugins.outputs.commit_message }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_ORG_TOKEN }}
           PULL_REQUEST_TITLE: ${{ steps.upgrade-plugins.outputs.commit_message }}
-          PULL_REQUEST_BODY: Auto-generated pull request to apply plugin upgrades. Release notes in [${{ steps.upgrade-plugins.outputs.jira_ticket }}](https://jira.sonarsource.com/browse/${{ steps.upgrade-plugins.outputs.jira_ticket }}).
+          PULL_REQUEST_BODY: Auto-generated pull request to apply plugin upgrades.
           PULL_REQUEST_BRANCH: bot/upgrade_plugins
           PULL_REQUEST_REVIEWERS: wouter-admiraal-sonarsource
           BRANCH_SUFFIX: timestamp
           PULL_REQUEST_LABELS: bot
+      - name: Notify failures on Slack
+        if: failure()
+        uses: Ilshidur/action-slack@2.0.0
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        with:
+          args: "Failed to create a PR for updating plugins, see the logs at https://github.com/SonarSource/sonar-enterprise/actions"
