@@ -26,6 +26,7 @@ import static org.sonar.db.user.UserTokenValidator.checkTokenHash;
 
 public class UserTokenDto {
 
+  private String uuid;
   private String userUuid;
   private String name;
   private String tokenHash;
@@ -37,6 +38,14 @@ public class UserTokenDto {
   private Long lastConnectionDate;
 
   private Long createdAt;
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
 
   public String getUserUuid() {
     return userUuid;

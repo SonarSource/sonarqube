@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
@@ -32,7 +33,14 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserTokenDao implements Dao {
 
+  private UuidFactory uuidFactory;
+
+  public UserTokenDao(UuidFactory uuidFactory) {
+    this.uuidFactory = uuidFactory;
+  }
+
   public void insert(DbSession dbSession, UserTokenDto userTokenDto) {
+    userTokenDto.setUuid(uuidFactory.create());
     mapper(dbSession).insert(userTokenDto);
   }
 

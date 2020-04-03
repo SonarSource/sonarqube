@@ -4,6 +4,7 @@
 <mapper namespace="org.sonar.db.user.UserTokenMapper">
 
   <sql id="userTokensColumns">
+    t.uuid as "uuid",
     t.user_uuid as "userUuid",
     t.name as "name",
     t.token_hash as "tokenHash",
@@ -11,13 +12,15 @@
     t.created_at as "createdAt"
   </sql>
 
-  <insert id="insert" parameterType="UserToken" keyColumn="id" useGeneratedKeys="false" keyProperty="id">
+  <insert id="insert" parameterType="UserToken" useGeneratedKeys="false">
     insert into user_tokens (
+    uuid,
     user_uuid,
     name,
     token_hash,
     created_at
     ) values (
+    #{uuid, jdbcType=VARCHAR},
     #{userUuid, jdbcType=VARCHAR},
     #{name, jdbcType=VARCHAR},
     #{tokenHash, jdbcType=VARCHAR},

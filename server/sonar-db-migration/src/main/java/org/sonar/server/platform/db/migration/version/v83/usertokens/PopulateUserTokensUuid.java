@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.notifications;
+package org.sonar.server.platform.db.migration.version.v83.usertokens;
 
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -27,33 +27,25 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class PopulateNotificationUuidAndCreatedAt extends DataChange {
+public class PopulateUserTokensUuid extends DataChange {
 
   private final UuidFactory uuidFactory;
-  private final System2 system2;
 
-  public PopulateNotificationUuidAndCreatedAt(Database db, UuidFactory uuidFactory, System2 system2) {
+  public PopulateUserTokensUuid(Database db, UuidFactory uuidFactory) {
     super(db);
     this.uuidFactory = uuidFactory;
-    this.system2 = system2;
   }
 
   @Override
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from notifications where uuid is null order by id asc");
-    massUpdate.update("update notifications set uuid = ?, created_at = ? where id = ?");
+    massUpdate.select("select id from user_tokens where uuid is null order by id asc");
+    massUpdate.update("update user_tokens set uuid = ? where id = ?");
 
-    // now - 7 days, to have previous notification in the past
-    long lastWeek = system2.now() - (1000 * 60 * 60 * 24 * 7);
-
-    AtomicLong cpt = new AtomicLong(0);
     massUpdate.execute((row, update) -> {
       update.setString(1, uuidFactory.create());
-      update.setLong(2, lastWeek + cpt.longValue());
-      update.setLong(3, row.getLong(1));
-      cpt.addAndGet(1);
+      update.setLong(2, row.getLong(1));
       return true;
     });
   }

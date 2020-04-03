@@ -49,6 +49,7 @@ public class UserTokenDaoTest {
 
     UserTokenDto userTokenFromDb = underTest.selectByTokenHash(db.getSession(), userToken.getTokenHash());
     assertThat(userTokenFromDb).isNotNull();
+    assertThat(userTokenFromDb.getUuid()).isEqualTo(userToken.getUuid());
     assertThat(userTokenFromDb.getName()).isEqualTo(userToken.getName());
     assertThat(userTokenFromDb.getCreatedAt()).isEqualTo(userToken.getCreatedAt());
     assertThat(userTokenFromDb.getTokenHash()).isEqualTo(userToken.getTokenHash());

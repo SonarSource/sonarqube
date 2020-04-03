@@ -61,6 +61,12 @@ import org.sonar.server.platform.db.migration.version.v83.projectmeasures.Popula
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.AddPrimaryKeyOnUuidColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropIdColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropPrimaryKeyOnIdColumnOfSnapshotsTable;
+import org.sonar.server.platform.db.migration.version.v83.usertokens.AddPrimaryKeyOnUuidColumnOfUserTokensTable;
+import org.sonar.server.platform.db.migration.version.v83.usertokens.AddUuidColumnToUserTokens;
+import org.sonar.server.platform.db.migration.version.v83.usertokens.DropIdColumnOfUserTokensTable;
+import org.sonar.server.platform.db.migration.version.v83.usertokens.DropPrimaryKeyOnIdColumnOfUserTokensTable;
+import org.sonar.server.platform.db.migration.version.v83.usertokens.MakeUserTokensUuidNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.usertokens.PopulateUserTokensUuid;
 
 public class DbVersion83 implements DbVersion {
   @Override
@@ -136,6 +142,21 @@ public class DbVersion83 implements DbVersion {
       .add(3437, "Drop primary key on 'ID' column of 'PROJECT_MEASURES' table", DropPrimaryKeyOnIdColumnOfProjectMeasuresTable.class)
       .add(3438, "Add primary key on 'UUID' column of 'PROJECT_MEASURES' table", AddPrimaryKeyOnUuidColumnOfProjectMeasuresTable.class)
       .add(3439, "Drop column 'ID' of 'PROJECT_MEASURES' table", DropIdColumnOfProjectMeasuresTable.class)
+
+      // Migration of USER_TOKENS table
+      .add(3440, "Add 'UUID' column on 'USER_TOKENS' table", AddUuidColumnToUserTokens.class)
+      .add(3441, "Populate 'uuid' for 'USER_TOKENS'", PopulateUserTokensUuid.class)
+      .add(3442, "Make 'uuid' column not nullable for user_tokens", MakeUserTokensUuidNotNullable.class)
+      .add(3443, "Drop primary key on 'ID' column of 'USER_TOKENS' table", DropPrimaryKeyOnIdColumnOfUserTokensTable.class)
+      .add(3444, "Add primary key on 'UUID' column of 'USER_TOKENS' table", AddPrimaryKeyOnUuidColumnOfUserTokensTable.class)
+      .add(3445, "Drop column 'ID' of 'USER_TOKENS' table", DropIdColumnOfUserTokensTable.class)
+
+
+
+
+
+
+
     ;
   }
 }
