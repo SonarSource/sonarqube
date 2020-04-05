@@ -15,11 +15,11 @@ Applications and Portfolios are both aggregations of projects, but they have dif
 
 ## Application Setup
 
-Applications are created and edited in the global Portfolio administration interface: **Administration > Configuration > Portfolios**. For more, see [Configuring Portfolios and Applications](/project-administration/configuring-portfolios-and-applications/). Applications must be created initially by a user with global administration rights, but after set-up, administration of an individual Application can be delegated to other users.
+Applications are created and edited in the global Portfolio administration interface: **Administration > Configuration > Portfolios**. For more, see [Managing Applications](/project-administration/managing-applications/). Applications must be created initially by a user with global administration rights, but after set-up, administration of an individual Application can be delegated to other users.
 
 ### Populating Application Data
 
-An Application is automatically re-calculated after each analysis of one of its projects. If you want immediate (re)calculation, a user with administration rights on the Application can use the **Recompute** button in the Application-level **Administration > Edit Definition** interface. The global Portfolio administration interface: **Administration > Configuration > Portfolios** offers the ability to queue re-computation of all Applications and Portfolios at once.
+An Application is automatically re-calculated after each analysis of one of its projects. If you want immediate (re)calculation, a user with administration rights on the Application can use the **Recompute** button in the Application-level **Application Settings > Edit Definition** interface. The global Portfolio administration interface: **Administration > Configuration > Portfolios** offers the ability to queue re-computation of all Applications and Portfolios at once.
 
 ## Applications and Branch Analysis
 

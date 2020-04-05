@@ -53,4 +53,4 @@ You can subscribe to receive a PDF by email by selecting **Subscribe** from the 
 
 **Note:** You will only receive the PDF if the Portfolio is computed.
 
-Portfolios are created and edited in the global Portfolio administration interface: **Administration > Configuration > Portfolios**. For more information, see [Configuring Portfolios and Applications](/project-administration/configuring-portfolios-and-applications/).
+Portfolios are created and edited in the global Portfolio administration interface: **Administration > Configuration > Portfolios**. For more information, see [Managing Portfolios](/project-administration/managing-portfolios/).
