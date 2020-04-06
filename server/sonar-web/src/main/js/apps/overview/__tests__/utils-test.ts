@@ -62,7 +62,7 @@ function mockMeasure() {
         }),
         mockQualityGateStatusCondition({
           metric: MetricKey.new_duplicated_lines_density,
-          level: 'WARNING',
+          level: 'OK',
           warning: '5'
         })
       ]

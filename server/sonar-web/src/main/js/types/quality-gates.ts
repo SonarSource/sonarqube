@@ -44,7 +44,7 @@ export interface QualityGateApplicationStatusCondition {
   metric: string;
   periodIndex?: number;
   onLeak?: boolean;
-  status: string;
+  status: T.Status;
   value: string;
   warningThreshold?: string;
 }
@@ -67,7 +67,7 @@ export interface QualityGateStatus {
 export interface QualityGateStatusCondition {
   actual?: string;
   error?: string;
-  level: string;
+  level: T.Status;
   metric: string;
   op: string;
   period?: number;

@@ -24,6 +24,7 @@ import { getMeasuresAndMeta } from '../../../../api/measures';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockQualityGateStatusCondition } from '../../../../helpers/mocks/quality-gates';
 import { mockComponent } from '../../../../helpers/testMocks';
+import { PR_METRICS } from '../../utils';
 import { PullRequestOverview } from '../PullRequestOverview';
 
 jest.mock('../../../../api/measures', () => {
@@ -103,13 +104,22 @@ it('should render correctly for a failed QG', async () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should correctly handle a WS failure', async () => {
-  (getMeasuresAndMeta as jest.Mock).mockRejectedValueOnce({});
-  const fetchBranchStatus = jest.fn().mockRejectedValue({});
-  const wrapper = shallowRender({ fetchBranchStatus });
-
+it('should correctly fetch all required metrics for a passing QG', async () => {
+  const wrapper = shallowRender({ conditions: [] });
   await waitAndUpdate(wrapper);
-  expect(wrapper.type()).toBeNull();
+  expect(getMeasuresAndMeta).toBeCalledWith('my-project', PR_METRICS, expect.any(Object));
+});
+
+it('should correctly fetch all required metrics for a failing QG', async () => {
+  const wrapper = shallowRender({
+    conditions: [mockQualityGateStatusCondition({ level: 'ERROR', metric: 'foo' })]
+  });
+  await waitAndUpdate(wrapper);
+  expect(getMeasuresAndMeta).toBeCalledWith(
+    'my-project',
+    [...PR_METRICS, 'foo'],
+    expect.any(Object)
+  );
 });
 
 function shallowRender(props: Partial<PullRequestOverview['props']> = {}) {
