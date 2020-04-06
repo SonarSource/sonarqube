@@ -43,6 +43,11 @@ it('should render an app correctly', () => {
   expect(shallowRender({ component })).toMatchSnapshot('default');
 });
 
+it('should render without description', () => {
+  const component = mockComponent({ description: undefined });
+  expect(shallowRender({ component })).toMatchSnapshot();
+});
+
 it('should handle missing quality profiles and quality gates', () => {
   expect(
     shallowRender({

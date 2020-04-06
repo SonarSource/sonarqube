@@ -22,8 +22,9 @@ import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { setProjectTags } from '../../../../../../api/components';
+import { setApplicationTags, setProjectTags } from '../../../../../../api/components';
 import TagsList from '../../../../../../components/tags/TagsList';
+import { ComponentQualifier } from '../../../../../../types/component';
 import MetaTagsSelector from './MetaTagsSelector';
 
 interface Props {
@@ -46,11 +47,24 @@ export default class MetaTags extends React.PureComponent<Props> {
     right: containerPos.width - eltPos.width
   });
 
+  setTags = (values: string[]) => {
+    const { component } = this.props;
+
+    if (component.qualifier === ComponentQualifier.Application) {
+      return setApplicationTags({
+        application: component.key,
+        tags: values.join(',')
+      });
+    } else {
+      return setProjectTags({
+        project: component.key,
+        tags: values.join(',')
+      });
+    }
+  };
+
   handleSetProjectTags = (values: string[]) => {
-    setProjectTags({
-      project: this.props.component.key,
-      tags: values.join(',')
-    }).then(
+    this.setTags(values).then(
       () => this.props.onComponentChange({ tags: values }),
       () => {}
     );
@@ -62,7 +76,7 @@ export default class MetaTags extends React.PureComponent<Props> {
 
     if (this.canUpdateTags()) {
       return (
-        <div className="project-info-tags" ref={card => (this.card = card)}>
+        <div className="big-spacer-top project-info-tags" ref={card => (this.card = card)}>
           <Dropdown
             closeOnClick={false}
             closeOnClickOutside={true}

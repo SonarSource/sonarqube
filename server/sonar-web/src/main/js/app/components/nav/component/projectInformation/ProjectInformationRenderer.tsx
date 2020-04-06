@@ -53,27 +53,23 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
       </div>
 
       <div className="overflow-y-auto">
-        {(component.description || !isApp) && (
-          <div className="big-padded bordered-bottom">
-            <div className="display-flex-center">
-              <h3 className="spacer-right">{translate('project.info.description')}</h3>
-              {component.visibility && (
-                <PrivacyBadgeContainer
-                  organization={undefined}
-                  qualifier={component.qualifier}
-                  tooltipProps={{ projectKey: component.key }}
-                  visibility={component.visibility}
-                />
-              )}
-            </div>
-
-            {component.description && <p className="spacer-bottom">{component.description}</p>}
-
-            {!isApp && (
-              <MetaTags component={component} onComponentChange={props.onComponentChange} />
+        <div className="big-padded bordered-bottom">
+          <div className="display-flex-center">
+            <h3 className="spacer-right">{translate('project.info.description')}</h3>
+            {component.visibility && (
+              <PrivacyBadgeContainer
+                organization={undefined}
+                qualifier={component.qualifier}
+                tooltipProps={{ projectKey: component.key }}
+                visibility={component.visibility}
+              />
             )}
           </div>
-        )}
+
+          {component.description && <p>{component.description}</p>}
+
+          <MetaTags component={component} onComponentChange={props.onComponentChange} />
+        </div>
 
         <div className="big-padded bordered-bottom it__project-loc-value">
           <MetaSize component={component} measures={measures} />

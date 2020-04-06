@@ -19,36 +19,65 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { setApplicationTags, setProjectTags } from '../../../../../../../api/components';
 import { mockComponent } from '../../../../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../../../../types/component';
 import MetaTags from '../MetaTags';
 
-const component = mockComponent({
-  configuration: {
-    showSettings: false
-  }
-});
+jest.mock('../../../../../../../api/components', () => ({
+  setApplicationTags: jest.fn().mockResolvedValue(true),
+  setProjectTags: jest.fn().mockResolvedValue(true)
+}));
 
-const componentWithTags = mockComponent({
-  key: 'my-second-project',
-  tags: ['foo', 'bar'],
-  configuration: {
-    showSettings: true
-  },
-  name: 'MySecondProject'
+beforeEach(() => {
+  jest.clearAllMocks();
 });
 
 it('should render without tags and admin rights', () => {
-  expect(
-    shallow(<MetaTags component={component} onComponentChange={jest.fn()} />, {
-      disableLifecycleMethods: true
-    })
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
 });
 
 it('should render with tags and admin rights', () => {
-  expect(
-    shallow(<MetaTags component={componentWithTags} onComponentChange={jest.fn()} />, {
-      disableLifecycleMethods: true
-    })
-  ).toMatchSnapshot();
+  const component = mockComponent({
+    key: 'my-second-project',
+    tags: ['foo', 'bar'],
+    configuration: {
+      showSettings: true
+    },
+    name: 'MySecondProject'
+  });
+
+  expect(shallowRender({ component })).toMatchSnapshot();
 });
+
+it('should set tags for a project', () => {
+  const wrapper = shallowRender();
+
+  wrapper.instance().handleSetProjectTags(['tag1', 'tag2']);
+
+  expect(setProjectTags).toHaveBeenCalled();
+  expect(setApplicationTags).not.toHaveBeenCalled();
+});
+
+it('should set tags for an app', () => {
+  const wrapper = shallowRender({
+    component: mockComponent({ qualifier: ComponentQualifier.Application })
+  });
+
+  wrapper.instance().handleSetProjectTags(['tag1', 'tag2']);
+
+  expect(setProjectTags).not.toHaveBeenCalled();
+  expect(setApplicationTags).toHaveBeenCalled();
+});
+
+function shallowRender(overrides: Partial<MetaTags['props']> = {}) {
+  const component = mockComponent({
+    configuration: {
+      showSettings: false
+    }
+  });
+
+  return shallow<MetaTags>(
+    <MetaTags component={component} onComponentChange={jest.fn()} {...overrides} />
+  );
+}

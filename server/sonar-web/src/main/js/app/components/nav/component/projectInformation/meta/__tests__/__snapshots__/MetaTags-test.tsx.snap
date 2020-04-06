@@ -2,7 +2,7 @@
 
 exports[`should render with tags and admin rights 1`] = `
 <div
-  className="project-info-tags"
+  className="big-spacer-top project-info-tags"
 >
   <Dropdown
     closeOnClick={false}

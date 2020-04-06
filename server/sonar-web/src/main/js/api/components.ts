@@ -86,6 +86,10 @@ export function searchProjectTags(data?: { ps?: number; q?: string }): Promise<a
   return getJSON('/api/project_tags/search', data).catch(throwGlobalError);
 }
 
+export function setApplicationTags(data: { application: string; tags: string }): Promise<void> {
+  return post('/api/applications/set_tags', data);
+}
+
 export function setProjectTags(data: { project: string; tags: string }): Promise<void> {
   return post('/api/project_tags/set', data);
 }
