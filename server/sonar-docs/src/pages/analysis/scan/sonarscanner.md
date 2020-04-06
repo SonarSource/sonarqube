@@ -35,7 +35,6 @@ If you need more debug information you can add one of the following to your comm
 ## Use
 Create a configuration file in the root directory of the project: `sonar-project.properties`
 ```
-sonar-project.properties
 # must be unique in a given SonarQube instance
 sonar.projectKey=my:project
 
@@ -75,14 +74,14 @@ Additional analysis parameters can be defined in this project configuration file
 
 ## Alternate Analysis Directory
 If the files to be analyzed are not in the directory where the analysis starts from, use the `sonar.projectBaseDir` property to move analysis to a different directory. E.G. analysis begins from `jenkins/jobs/myjob/workspace` but the files to be analyzed are in `ftpdrop/cobol/project1`.
+This is configured in `sonar-project.properties` as follows:
 ```
-sonar-project.properties
 sonar.projectBaseDir=/home/ftpdrop/cobol/project1
 sonar.sources=src
 sonar.cobol.copy.directories=/copy
-For more, see the listing of analysis parameters.
 ```
 
+More parameters can be configured, see [Analysis Parameters](/analysis/analysis-parameters/) for details.
 
 ## Troubleshooting
 **Java heap space error or java.lang.OutOfMemoryError**  
