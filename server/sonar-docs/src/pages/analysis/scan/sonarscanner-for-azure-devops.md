@@ -137,13 +137,13 @@ In your build pipeline, insert the following steps in the order they appear here
       ```
       build-wrapper-macosx-x86/build-wrapper-macos-x86 --out-dir <output directory> xcodebuild -project myproject.xcodeproj -configuration Release clean build
       ```
-4. Add a **Run Code Analysis** task to run the code analysis and make the results available to <!-- sonarcloud -->SonarCloud<!-- /sonarcloud --><!-- sonarqube -->SonarQube<!-- /sonarqube -->.\
-   Consider running this task right after the previous one as the build environment should not be significantly altered before running the analysis. 
-5. Optionally, add a **Publish Quality Gate Result** task <!-- sonarcloud --> (required if you want to check the Quality Gate in a release pipeline). <!-- sonarcloud -->
+4. Add a **Run Code Analysis** task to run the code analysis and make the results available to <!-- sonarcloud -->SonarCloud<!-- /sonarcloud --><!-- sonarqube -->SonarQube<!-- /sonarqube -->. Consider running this task right after the previous one as the build environment should not be significantly altered before running the analysis.
+5. Optionally, add a **Publish Quality Gate Result** task <!-- sonarcloud --> (required if you want to check the Quality Gate in a release pipeline). <!-- /sonarcloud -->
 
 Once all this is done, you can trigger a build.
 
-## Analysing other project types
+## Analyzing other project types
+
 If you are not developing a .NET application or a Java project, here is the standard way to trigger an analysis:
 
 1. In your build definition, add:
@@ -179,11 +179,11 @@ Pull request analysis is supported for any type of Git repositories. To activate
 
 1. In the **Branch policies** page of your main development branches (e.g. "master"), add a build policy that runs your build definition
 1. Create an Azure DevOps token with "Code (read and write)" scope
-1. <!-- sonarqube -->In SonarQube, in the **[Administration > General Settings > Pull Requests](/#sonarqube-admin#/admin/settings?category=pull_request)** page,<!-- /sonarqube --><!-- sonarcloud -->In SonarCloud,<!-- /sonarcloud --> set this token in the **VSTS/TFS** section
+2. <!-- sonarqube -->In SonarQube, in the **[Administration > General Settings > ALM Integration](/#sonarqube-admin#/admin/settings?category=almintegration)** page,set this token in the **Azure DevOps Server** tab, you can also set multiple configurations, starting from Enterprise Edition. <!-- /sonarqube --><!-- sonarcloud -->In SonarCloud, in the **Administration > General Settings > Pull Request** page of your project, set the token in the **Personal Access Token** field under **Integrate with Azure DevOps Services**<!-- /sonarcloud -->
 
 Next time some code is pushed in the branch of a pull request, the build definition will execute a scan on the code and publish the results in {instance} which will decorate the pull request in TFS.
 
-
+_Note : The number of comments posted in a PR is limited to 50. If this limit has been reached, a message will be displayed as a comment, with a link to the rest of the issues on SonarQube. Please note also that this comment will not disappear upon resolution of an issue, but only upon a new build, with less than 50 issues remaining._
 
 ## FAQ
 **Is it possible to trigger analyses on Linux or macOS agents?**  
