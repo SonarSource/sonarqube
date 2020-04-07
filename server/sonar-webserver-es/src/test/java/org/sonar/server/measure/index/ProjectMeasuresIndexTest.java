@@ -497,7 +497,7 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void filter_on_qualifier() {
-    index(newDoc(PROJECT1), newDoc(PROJECT2),  newDoc(PROJECT3),
+    index(newDoc(PROJECT1), newDoc(PROJECT2), newDoc(PROJECT3),
       newDoc(APP1), newDoc(APP2), newDoc(APP3));
 
     assertResults(new ProjectMeasuresQuery(),
@@ -1610,6 +1610,51 @@ public class ProjectMeasuresIndexTest {
       entry("java", 2L), entry("cs", 1L), entry("js", 1L), entry("python", 1L), entry("kotlin", 1L));
     assertThat(result.getNclocByLanguage()).containsOnly(
       entry("java", 500L), entry("cs", 250L), entry("js", 50L), entry("python", 100L), entry("kotlin", 404L));
+  }
+
+  @Test
+  public void search_statistics_should_ignore_applications() {
+    es.putDocuments(TYPE_PROJECT_MEASURES,
+      // insert projects
+      newDoc(ComponentTesting.newPrivateProjectDto(ORG), "lines", 10, "coverage", 80)
+        .setLanguages(Arrays.asList("java", "cs", "js"))
+        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 200, "cs", 250, "js", 50)),
+      newDoc(ComponentTesting.newPrivateProjectDto(ORG), "lines", 20, "coverage", 80)
+        .setLanguages(Arrays.asList("java", "python", "kotlin"))
+        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)),
+
+      // insert applications
+      newDoc(ComponentTesting.newApplication(ORG), "lines", 1000, "coverage", 70)
+        .setLanguages(Arrays.asList("java", "python", "kotlin"))
+        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)),
+      newDoc(ComponentTesting.newApplication(ORG), "lines", 20, "coverage", 80)
+        .setLanguages(Arrays.asList("java", "python", "kotlin"))
+        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)));
+
+    ProjectMeasuresStatistics result = underTest.searchTelemetryStatistics();
+
+    assertThat(result.getProjectCount()).isEqualTo(2);
+    assertThat(result.getProjectCountByLanguage()).containsOnly(
+      entry("java", 2L), entry("cs", 1L), entry("js", 1L), entry("python", 1L), entry("kotlin", 1L));
+    assertThat(result.getNclocByLanguage()).containsOnly(
+      entry("java", 500L), entry("cs", 250L), entry("js", 50L), entry("python", 100L), entry("kotlin", 404L));
+  }
+
+  @Test
+  public void search_statistics_should_count_0_if_no_projects() {
+    es.putDocuments(TYPE_PROJECT_MEASURES,
+      // insert applications
+      newDoc(ComponentTesting.newApplication(ORG), "lines", 1000, "coverage", 70)
+        .setLanguages(Arrays.asList("java", "python", "kotlin"))
+        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)),
+      newDoc(ComponentTesting.newApplication(ORG), "lines", 20, "coverage", 80)
+        .setLanguages(Arrays.asList("java", "python", "kotlin"))
+        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "python", 100, "kotlin", 404)));
+
+    ProjectMeasuresStatistics result = underTest.searchTelemetryStatistics();
+
+    assertThat(result.getProjectCount()).isEqualTo(0);
+    assertThat(result.getProjectCountByLanguage()).isEmpty();
   }
 
   @Test

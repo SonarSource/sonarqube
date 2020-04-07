@@ -242,7 +242,9 @@ public class ProjectMeasuresIndex {
       .setFetchSource(false)
       .setSize(0);
 
-    BoolQueryBuilder esFilter = boolQuery();
+    BoolQueryBuilder esFilter = boolQuery()
+      .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
+      .filter(termQuery(FIELD_QUALIFIER, Qualifiers.PROJECT));
     request.setQuery(esFilter);
     request.addAggregation(AggregationBuilders.terms(FIELD_LANGUAGES)
       .field(FIELD_LANGUAGES)
