@@ -49,8 +49,12 @@ final class PropertiesRowAssert extends AbstractAssert<PropertiesRowAssert, Prop
     super(asInternalProperty(dbTester, () -> " where prop_key='" + key + "'"), PropertiesRowAssert.class);
   }
 
-  PropertiesRowAssert(DbTester dbTester, long id) {
-    super(asInternalProperty(dbTester, () -> " where id=" + id), PropertiesRowAssert.class);
+  private PropertiesRowAssert(PropertiesRow propertiesRow) {
+    super(propertiesRow, PropertiesRowAssert.class);
+  }
+
+  public static PropertiesRowAssert byUuid(DbTester dbTester, String uuid){
+    return new PropertiesRowAssert(asInternalProperty(dbTester, () -> " where uuid='" + uuid + "'"));
   }
 
   @CheckForNull

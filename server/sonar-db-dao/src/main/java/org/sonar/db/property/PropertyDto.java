@@ -29,10 +29,20 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class PropertyDto {
   private static final int MAX_KEY_LENGTH = 512;
 
+  private String uuid;
   private String key;
   private String value;
   private String componentUuid;
   private Integer userId;
+
+  String getUuid() {
+    return uuid;
+  }
+
+  PropertyDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
 
   public String getKey() {
     return key;

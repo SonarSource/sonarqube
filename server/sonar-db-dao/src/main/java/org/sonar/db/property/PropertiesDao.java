@@ -31,8 +31,10 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.ibatis.annotations.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.EmailSubscriberDto;
@@ -51,10 +53,12 @@ public class PropertiesDao implements Dao {
 
   private final MyBatis mybatis;
   private final System2 system2;
+  private UuidFactory uuidFactory;
 
-  public PropertiesDao(MyBatis mybatis, System2 system2) {
+  public PropertiesDao(MyBatis mybatis, System2 system2, UuidFactory uuidFactory) {
     this.mybatis = mybatis;
     this.system2 = system2;
+    this.uuidFactory = uuidFactory;
   }
 
   /**
@@ -203,18 +207,19 @@ public class PropertiesDao implements Dao {
     save(getMapper(session), property.getKey(), property.getUserId(), property.getComponentUuid(), property.getValue());
   }
 
-  private void save(PropertiesMapper mapper,
-    String key, @Nullable Integer userId, @Nullable String componentUuid, @Nullable String value) {
+  private void save(PropertiesMapper mapper, String key,
+                    @Nullable Integer userId, @Nullable String componentUuid, @Nullable String value) {
     checkKey(key);
 
     long now = system2.now();
     mapper.delete(key, userId, componentUuid);
+    String uuid = uuidFactory.create();
     if (isEmpty(value)) {
-      mapper.insertAsEmpty(key, userId, componentUuid, now);
+      mapper.insertAsEmpty(uuid, key, userId, componentUuid, now);
     } else if (mustBeStoredInClob(value)) {
-      mapper.insertAsClob(key, userId, componentUuid, value, now);
+      mapper.insertAsClob(uuid, key, userId, componentUuid, value, now);
     } else {
-      mapper.insertAsText(key, userId, componentUuid, value, now);
+      mapper.insertAsText(uuid, key, userId, componentUuid, value, now);
     }
   }
 
@@ -286,13 +291,13 @@ public class PropertiesDao implements Dao {
   }
 
   public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, int userId) {
-    List<Long> ids = getMapper(dbSession).selectIdsByOrganizationAndUser(organizationUuid, userId);
-    executeLargeInputsWithoutOutput(ids, subList -> getMapper(dbSession).deleteByIds(subList));
+    List<String> uuids = getMapper(dbSession).selectUuidsByOrganizationAndUser(organizationUuid, userId);
+    executeLargeInputsWithoutOutput(uuids, subList -> getMapper(dbSession).deleteByUuids(subList));
   }
 
   public void deleteByOrganizationAndMatchingLogin(DbSession dbSession, String organizationUuid, String login, List<String> propertyKeys) {
-    List<Long> ids = getMapper(dbSession).selectIdsByOrganizationAndMatchingLogin(organizationUuid, login, propertyKeys);
-    executeLargeInputsWithoutOutput(ids, list -> getMapper(dbSession).deleteByIds(list));
+    List<String> uuids = getMapper(dbSession).selectIdsByOrganizationAndMatchingLogin(organizationUuid, login, propertyKeys);
+    executeLargeInputsWithoutOutput(uuids, list -> getMapper(dbSession).deleteByUuids(list));
   }
 
   public void deleteByKeyAndValue(DbSession dbSession, String key, String value) {

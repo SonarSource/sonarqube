@@ -201,8 +201,8 @@
     </where>
   </select>
 
-  <select id="selectIdsByOrganizationAndUser" parameterType="map" resultType="long">
-    select py.id
+  <select id="selectUuidsByOrganizationAndUser" parameterType="map" resultType="String">
+    select py.uuid
     from properties py
       inner join components ps on py.component_uuid = ps.uuid
     where
@@ -210,8 +210,8 @@
     and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectIdsByOrganizationAndMatchingLogin" parameterType="String" resultType="long">
-    select py.id
+  <select id="selectIdsByOrganizationAndMatchingLogin" parameterType="String" resultType="String">
+    select py.uuid
     from properties py
       inner join components ps on py.component_uuid = ps.uuid
     where
@@ -236,6 +236,7 @@
   <insert id="insertAsEmpty" parameterType="Map" useGeneratedKeys="false">
     insert into properties
     (
+      uuid,
       prop_key,
       component_uuid,
       user_id,
@@ -243,6 +244,7 @@
       created_at
     )
     values (
+      #{uuid},
       #{key},
       #{componentUuid},
       #{userId,jdbcType=INTEGER},
@@ -254,6 +256,7 @@
   <insert id="insertAsText" parameterType="Map" useGeneratedKeys="false">
     insert into properties
     (
+      uuid,
       prop_key,
       component_uuid,
       user_id,
@@ -262,6 +265,7 @@
       created_at
     )
     values (
+      #{uuid},
       #{key},
       #{componentUuid},
       #{userId,jdbcType=INTEGER},
@@ -274,6 +278,7 @@
   <insert id="insertAsClob" parameterType="Map" useGeneratedKeys="false">
    insert into properties
     (
+      uuid,
       prop_key,
       component_uuid,
       user_id,
@@ -282,6 +287,7 @@
       created_at
     )
     values (
+      #{uuid},
       #{key},
       #{componentUuid},
       #{userId,jdbcType=INTEGER},
@@ -370,12 +376,12 @@
     </where>
   </delete>
 
-  <delete id="deleteByIds" parameterType="long">
+  <delete id="deleteByUuids" parameterType="String">
     delete from properties
     where
-    id in
-    <foreach collection="ids" open="(" close=")" item="id" separator=",">
-      #{id}
+    uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid}
     </foreach>
   </delete>
 

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -105,9 +106,4 @@ public class PropertyDbTester {
     return this;
   }
 
-  public PropertyDbTester insertEmptyInternal(String key) {
-    dbClient.internalPropertiesDao().saveAsEmpty(dbSession, key);
-    dbSession.commit();
-    return this;
-  }
 }

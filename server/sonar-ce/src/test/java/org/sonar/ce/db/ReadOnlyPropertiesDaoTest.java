@@ -21,6 +21,8 @@ package org.sonar.ce.db;
 
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.property.PropertyDto;
@@ -33,7 +35,8 @@ public class ReadOnlyPropertiesDaoTest {
   private DbSession dbSession = mock(DbSession.class);
   private PropertyDto propertyDto = mock(PropertyDto.class);
   private PropertyDto oldPropertyDto = mock(PropertyDto.class);
-  private ReadOnlyPropertiesDao underTest = new ReadOnlyPropertiesDao(myBatis, System2.INSTANCE);
+  private UuidFactory uuidFactory = new SequenceUuidFactory();
+  private ReadOnlyPropertiesDao underTest = new ReadOnlyPropertiesDao(myBatis, System2.INSTANCE, uuidFactory);
 
   @Test
   public void insertProperty() {

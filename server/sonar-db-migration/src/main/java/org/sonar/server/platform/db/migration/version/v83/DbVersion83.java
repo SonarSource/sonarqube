@@ -117,24 +117,6 @@ import org.sonar.server.platform.db.migration.version.v83.notifications.DropIdCo
 import org.sonar.server.platform.db.migration.version.v83.notifications.DropPrimaryKeyOnIdColumnOfNotificationTable;
 import org.sonar.server.platform.db.migration.version.v83.notifications.MakeNotificationUuidAndCreatedAtColumnsNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.notifications.PopulateNotificationUuidAndCreatedAt;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.AddPrimaryKeyOnUuidColumnOfPermTemplatesGroupsTable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.AddUuidColumnToPermTemplatesGroupsTable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.DropIdColumnOfPermTemplatesGroupsTable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.DropPrimaryKeyOnIdColumnOfPermTemplatesGroupsTable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.MakePermTemplatesGroupsUuidColumnNotNullable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.PopulatePermTemplatesGroupsUuid;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.AddUuidColumnToPermTemplatesUsersTable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.DropIdColumnOfPermTemplatesUsersTable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.MakePermTemplatesUsersUuidColumnNotNullable;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.PopulatePermTemplatesUsersUuid;
-import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.AddPrimaryKeyOnUuidColumnOfPermTplCharacteristicsTable;
-import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.AddUuidColumnToPermTplCharacteristicsTable;
-import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.DropIdColumnOfPermTplCharacteristicsTable;
-import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable;
-import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.MakePermTplCharacteristicsUuidColumnNotNullable;
-import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.PopulatePermTplCharacteristicsUuid;
 import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.AddPrimaryKeyOnUuidColumnOfPermissionTemplatesTable;
 import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.AddUuidColumnToPermissionTemplates;
 import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.DropIdColumnOfPermissionTemplatesTable;
@@ -156,12 +138,51 @@ import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk
 import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtplcharacteristics.DropUniqueIndexOnTemplateIdAndPermissionKeyColumnsOfPermTplCharacteristicsTable;
 import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtplcharacteristics.MakePermTplCharacteristicsTemplateUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtplcharacteristics.PopulatePermTplCharacteristicsTemplateUuidColumn;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.AddPrimaryKeyOnUuidColumnOfPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.AddUuidColumnToPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.DropIdColumnOfPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.DropPrimaryKeyOnIdColumnOfPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.MakePermTemplatesGroupsUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.PopulatePermTemplatesGroupsUuid;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.AddUuidColumnToPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.DropIdColumnOfPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.MakePermTemplatesUsersUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.PopulatePermTemplatesUsersUuid;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.AddPrimaryKeyOnUuidColumnOfPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.AddUuidColumnToPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.DropIdColumnOfPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.MakePermTplCharacteristicsUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.PopulatePermTplCharacteristicsUuid;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.AddPrimaryKeyOnUuidColumnOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.AddUuidColumnToProjectMeasures;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.DropIdColumnOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.DropPrimaryKeyOnIdColumnOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.MakeProjectMeasuresUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.PopulateProjectMeasureUuid;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.AddPrimaryKeyOnUuidColumnOfProjectQProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.AddUuidColumnToProjectQProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.DropIdColumnOfProjectQProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.DropPrimaryKeyOnIdColumnOfProjectQProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.MakeProjectQProfilesUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.PopulateProjectQProfilesUuid;
+import org.sonar.server.platform.db.migration.version.v83.properties.AddComponentUuidColumnToProperties;
+import org.sonar.server.platform.db.migration.version.v83.properties.AddPrimaryKeyOnUuidColumnOfPropertiesTable;
+import org.sonar.server.platform.db.migration.version.v83.properties.AddUuidColumnToProperties;
+import org.sonar.server.platform.db.migration.version.v83.properties.DropIdColumnOfPropertiesTable;
+import org.sonar.server.platform.db.migration.version.v83.properties.DropPrimaryKeyOnIdColumnOfPropertiesTable;
+import org.sonar.server.platform.db.migration.version.v83.properties.DropResourceIdFromPropertiesTable;
+import org.sonar.server.platform.db.migration.version.v83.properties.MakePropertiesUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.properties.MigrateResourceIdToUuidInProperties;
+import org.sonar.server.platform.db.migration.version.v83.properties.PopulatePropertiesUuid;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.AddPrimaryKeyOnUuidColumnOfQualityGateConditionsTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.AddUuidColumnToQualityGateConditionsTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.DropIdColumnOfQualityGateConditionsTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.MakeQualityGateConditionsUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.PopulateQualityGateConditionsUuid;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.AddPrimaryKeyOnUuidColumnOfRulesParametersTable;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.AddUuidColumnToRulesParameters;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.DropIdColumnOfRulesParametersTable;
@@ -172,21 +193,6 @@ import org.sonar.server.platform.db.migration.version.v83.rulesparameters.fk.Add
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.fk.DropRulesParameterIdColumnOfActiveRuleParametersTable;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.fk.MakeActiveRuleParametersRulesParameterUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.fk.PopulateActiveRuleParametersRulesParameterUuid;
-import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.AddPrimaryKeyOnUuidColumnOfProjectQProfilesTable;
-import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.AddUuidColumnToProjectQProfilesTable;
-import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.DropIdColumnOfProjectQProfilesTable;
-import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.DropPrimaryKeyOnIdColumnOfProjectQProfilesTable;
-import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.MakeProjectQProfilesUuidColumnNotNullable;
-import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.PopulateProjectQProfilesUuid;
-import org.sonar.server.platform.db.migration.version.v83.properties.AddComponentUuidColumnToProperties;
-import org.sonar.server.platform.db.migration.version.v83.properties.DropResourceIdFromPropertiesTable;
-import org.sonar.server.platform.db.migration.version.v83.properties.MigrateResourceIdToUuidInProperties;
-import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.AddPrimaryKeyOnUuidColumnOfQualityGateConditionsTable;
-import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.AddUuidColumnToQualityGateConditionsTable;
-import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.DropIdColumnOfQualityGateConditionsTable;
-import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable;
-import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.MakeQualityGateConditionsUuidColumnNotNullable;
-import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.PopulateQualityGateConditionsUuid;
 import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.AddPrimaryKeyOnUuidColumnOfRulesProfilesTable;
 import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.AddUuidColumnToRulesProfilesTable;
 import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.DropIdColumnOfRulesProfilesTable;
@@ -518,6 +524,14 @@ public class DbVersion83 implements DbVersion {
       .add(3588, "Drop primary key on 'ID' column of 'RULES_PROFILES' table", DropPrimaryKeyOnIdColumnOfRulesProfilesTable.class)
       .add(3589, "Add primary key on 'UUID' column of 'RULES_PROFILES' table", AddPrimaryKeyOnUuidColumnOfRulesProfilesTable.class)
       .add(3590, "Drop column 'ID' of 'RULES_PROFILES' table", DropIdColumnOfRulesProfilesTable.class)
+
+      // Migration of PROPERTIES table
+      .add(3591, "Add 'uuid' column for 'PROPERTIES'", AddUuidColumnToProperties.class)
+      .add(3592, "Populate 'uuid' for 'PROPERTIES'", PopulatePropertiesUuid.class)
+      .add(3593, "Make 'uuid' column not nullable for 'PROPERTIES'", MakePropertiesUuidColumnNotNullable.class)
+      .add(3594, "Drop primary key on 'ID' column of 'PROPERTIES' table", DropPrimaryKeyOnIdColumnOfPropertiesTable.class)
+      .add(3595, "Add primary key on 'UUID' column of 'PROPERTIES' table", AddPrimaryKeyOnUuidColumnOfPropertiesTable.class)
+      .add(3596, "Drop column 'ID' of 'PROPERTIES' table", DropIdColumnOfPropertiesTable.class)
 
     ;
   }
