@@ -59,7 +59,7 @@ public class SettingsUpdaterTest {
   PropertyDbTester propertyDb = new PropertyDbTester(db);
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  PropertyDefinitions definitions = new PropertyDefinitions();
+  PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   ComponentDto project;
 
   SettingsUpdater underTest= new SettingsUpdater(dbClient, definitions);

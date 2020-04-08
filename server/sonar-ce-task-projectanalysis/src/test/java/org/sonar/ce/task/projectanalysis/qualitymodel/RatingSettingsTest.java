@@ -27,6 +27,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +38,7 @@ import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS
 
 public class RatingSettingsTest {
 
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
+  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, CorePropertyDefinitions.all()));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

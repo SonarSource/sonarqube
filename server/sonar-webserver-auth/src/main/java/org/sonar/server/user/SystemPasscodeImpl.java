@@ -27,11 +27,12 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.log.Loggers;
 
+import static org.sonar.process.ProcessProperties.Property.WEB_SYSTEM_PASS_CODE;
+
 @ServerSide
 public class SystemPasscodeImpl implements SystemPasscode, Startable {
 
   public static final String PASSCODE_HTTP_HEADER = "X-Sonar-Passcode";
-  public static final String PASSCODE_CONF_PROPERTY = "sonar.web.systemPasscode";
 
   private final Configuration configuration;
   private String configuredPasscode;
@@ -52,7 +53,7 @@ public class SystemPasscodeImpl implements SystemPasscode, Startable {
 
   @Override
   public void start() {
-    Optional<String> passcodeOpt = configuration.get(PASSCODE_CONF_PROPERTY)
+    Optional<String> passcodeOpt = configuration.get(WEB_SYSTEM_PASS_CODE.getKey())
       // if present, result is never empty string
       .map(StringUtils::trimToNull);
 

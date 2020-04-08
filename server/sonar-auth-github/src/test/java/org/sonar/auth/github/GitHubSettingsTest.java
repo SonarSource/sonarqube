@@ -22,12 +22,13 @@ package org.sonar.auth.github;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GitHubSettingsTest {
 
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(GitHubSettings.definitions()));
+  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitHubSettings.definitions()));
 
   private GitHubSettings underTest = new GitHubSettings(settings.asConfig());
 

@@ -28,6 +28,7 @@ import org.mockito.verification.Timeout;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.utils.System2;
 
 import static java.util.Collections.singleton;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -43,7 +44,7 @@ public class NotificationDaemonTest {
 
   @Before
   public void setUp() {
-    MapSettings settings = new MapSettings(new PropertyDefinitions(NotificationDaemon.class)).setProperty("sonar.notifications.delay", 1L);
+    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, NotificationDaemon.class)).setProperty("sonar.notifications.delay", 1L);
 
     underTest = new NotificationDaemon(settings.asConfig(), manager, notificationService);
     inOrder = Mockito.inOrder(notificationService);

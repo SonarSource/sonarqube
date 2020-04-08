@@ -27,15 +27,16 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -48,7 +49,7 @@ public class SamlIdentityProviderTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(SamlSettings.definitions()));
+  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
 
   private SamlIdentityProvider underTest = new SamlIdentityProvider(new SamlSettings(settings.asConfig()));
 

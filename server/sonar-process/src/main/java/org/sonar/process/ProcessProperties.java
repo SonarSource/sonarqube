@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import com.google.common.collect.ImmutableSet;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,10 +63,14 @@ public class ProcessProperties {
     PATH_TEMP("sonar.path.temp", "temp"),
     PATH_WEB("sonar.path.web", "web"),
 
+    LOG_LEVEL("sonar.log.level"),
     LOG_LEVEL_APP("sonar.log.level.app"),
     LOG_LEVEL_WEB("sonar.log.level.web"),
     LOG_LEVEL_CE("sonar.log.level.ce"),
     LOG_LEVEL_ES("sonar.log.level.es"),
+    LOG_ROLLING_POLICY("sonar.log.rollingPolicy"),
+    LOG_MAX_FILES("sonar.log.maxFiles"),
+    LOG_CONSOLE("sonar.log.console"),
 
     SEARCH_HOST("sonar.search.host", InetAddress.getLoopbackAddress().getHostAddress()),
     SEARCH_PORT("sonar.search.port", "9001"),
@@ -76,10 +81,19 @@ public class ProcessProperties {
     SEARCH_MINIMUM_MASTER_NODES("sonar.search.minimumMasterNodes"),
     SEARCH_INITIAL_STATE_TIMEOUT("sonar.search.initialStateTimeout"),
 
+    WEB_HOST("sonar.web.host"),
     WEB_JAVA_OPTS("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     WEB_JAVA_ADDITIONAL_OPTS("sonar.web.javaAdditionalOpts", ""),
+    WEB_CONTEXT("sonar.web.context"),
     WEB_PORT("sonar.web.port"),
     WEB_GRACEFUL_STOP_TIMEOUT("sonar.web.gracefulStopTimeOutInMs", "" + 4 * 60 * 1_000L),
+    WEB_HTTP_MIN_THREADS("sonar.web.http.minThreads"),
+    WEB_HTTP_MAX_THREADS("sonar.web.http.maxThreads"),
+    WEB_HTTP_ACCEPT_COUNT("sonar.web.http.acceptCount"),
+    WEB_SESSION_TIMEOUT_IN_MIN("sonar.web.sessionTimeoutInMinutes"),
+    WEB_SYSTEM_PASS_CODE("sonar.web.systemPasscode"),
+    WEB_ACCESSLOGS_ENABLE("sonar.web.accessLogs.enable"),
+    WEB_ACCESSLOGS_PATTERN("sonar.web.accessLogs.pattern"),
 
     CE_JAVA_OPTS("sonar.ce.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     CE_JAVA_ADDITIONAL_OPTS("sonar.ce.javaAdditionalOpts", ""),
@@ -92,7 +106,7 @@ public class ProcessProperties {
     HTTP_PROXY_USER("http.proxyUser"),
     HTTP_PROXY_PASSWORD("http.proxyPassword"),
     HTTP_NON_PROXY_HOSTS("http.nonProxyHosts", "localhost|127.*|[::1]"),
-    HTTP_AUTH_NLM_DOMAN("http.auth.ntlm.domain"),
+    HTTP_AUTH_NTLM_DOMAIN("http.auth.ntlm.domain"),
     SOCKS_PROXY_HOST("socksProxyHost"),
     SOCKS_PROXY_PORT("socksProxyPort"),
 
@@ -116,6 +130,23 @@ public class ProcessProperties {
     SONAR_SECURITY_REALM("sonar.security.realm"),
     SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE("sonar.authenticator.ignoreStartupFailure", "false"),
 
+    LDAP_SERVERS("ldap.servers"),
+    LDAP_URL("ldap.url"),
+    LDAP_BIND_DN("ldap.bindDn"),
+    LDAP_BIND_PASSWORD("ldap.bindPassword"),
+    LDAP_AUTHENTICATION("ldap.authentication"),
+    LDAP_REALM("ldap.realm"),
+    LDAP_CONTEXT_FACTORY_CLASS("ldap.contextFactoryClass"),
+    LDAP_START_TLS("ldap.StartTLS"),
+    LDAP_FOLLOW_REFERRALS("ldap.followReferrals"),
+    LDAP_USER_BASE_DN("ldap.user.baseDn"),
+    LDAP_USER_REQUEST("ldap.user.request"),
+    LDAP_USER_REAL_NAME_ATTRIBUTE("ldap.user.realNameAttribute"),
+    LDAP_USER_EMAIL_ATTRIBUTE("ldap.user.emailAttribute"),
+    LDAP_GROUP_BASE_DN("ldap.group.baseDn"),
+    LDAP_GROUP_REQUEST("ldap.group.request"),
+    LDAP_GROUP_ID_ATTRIBUTE("ldap.group.idAttribute"),
+
     SONAR_TELEMETRY_ENABLE("sonar.telemetry.enable", "true"),
     SONAR_TELEMETRY_URL("sonar.telemetry.url", "https://telemetry.sonarsource.com/sonarqube"),
     SONAR_TELEMETRY_FREQUENCY_IN_SECONDS("sonar.telemetry.frequencyInSeconds", "21600"),
@@ -135,6 +166,26 @@ public class ProcessProperties {
 
     // whether the blue/green deployment of server is enabled
     BLUE_GREEN_ENABLED("sonar.blueGreenEnabled", "false");
+
+    /**
+     * Properties that are defined for each LDAP server from the `ldap.servers` property
+     */
+    public static final Set<String> MULTI_SERVER_LDAP_SETTINGS = ImmutableSet.of(
+      "ldap.*.url",
+      "ldap.*.bindDn",
+      "ldap.*.bindPassword",
+      "ldap.*.authentication",
+      "ldap.*.realm",
+      "ldap.*.contextFactoryClass",
+      "ldap.*.StartTLS",
+      "ldap.*.followReferrals",
+      "ldap.*.user.baseDn",
+      "ldap.*.user.request",
+      "ldap.*.user.realNameAttribute",
+      "ldap.*.user.emailAttribute",
+      "ldap.*.group.baseDn",
+      "ldap.*.group.request",
+      "ldap.*.group.idAttribute");
 
     private final String key;
     private final String defaultValue;

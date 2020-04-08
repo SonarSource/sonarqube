@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +39,7 @@ public class UrlSettingsTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
+  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, CorePropertyDefinitions.all()));
 
   @Test
   public void use_default_context_path() {

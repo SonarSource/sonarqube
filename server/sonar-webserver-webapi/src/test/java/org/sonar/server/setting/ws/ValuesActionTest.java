@@ -89,7 +89,7 @@ public class ValuesActionTest {
   private DbClient dbClient = db.getDbClient();
   private PropertyDbTester propertyDb = new PropertyDbTester(db);
   private ComponentDbTester componentDb = new ComponentDbTester(db);
-  private PropertyDefinitions definitions = new PropertyDefinitions();
+  private PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private SettingsWsSupport support = new SettingsWsSupport(defaultOrganizationProvider, userSession);
   private ComponentDto project;

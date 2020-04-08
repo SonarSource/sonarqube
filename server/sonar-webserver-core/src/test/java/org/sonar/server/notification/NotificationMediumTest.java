@@ -23,10 +23,11 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +69,7 @@ public class NotificationMediumTest {
     when(qualityGateChange.getType()).thenReturn("qgate-changes");
     when(manager.getFromQueue()).thenReturn(notification).thenReturn(null);
 
-    MapSettings settings = new MapSettings(new PropertyDefinitions(NotificationDaemon.class)).setProperty("sonar.notifications.delay", 1L);
+    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, NotificationDaemon.class)).setProperty("sonar.notifications.delay", 1L);
 
     underTest = new NotificationDaemon(settings.asConfig(), manager, service);
   }

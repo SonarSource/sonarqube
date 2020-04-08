@@ -19,6 +19,7 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -30,9 +31,12 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.System2;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PropertyDefinitionsTest {
   @Rule
@@ -44,14 +48,14 @@ public class PropertyDefinitionsTest {
       PropertyDefinition.builder("foo").name("Foo").build(),
       PropertyDefinition.builder("one").name("One").build(),
       PropertyDefinition.builder("two").name("Two").defaultValue("2").build());
-    PropertyDefinitions def = new PropertyDefinitions(list);
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE, list);
 
     assertProperties(def);
   }
 
   @Test
   public void should_inspect_plugin_objects() {
-    PropertyDefinitions def = new PropertyDefinitions(
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE,
       PropertyDefinition.builder("foo").name("Foo").build(),
       PropertyDefinition.builder("one").name("One").build(),
       PropertyDefinition.builder("two").name("Two").defaultValue("2").build());
@@ -61,21 +65,21 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void should_inspect_annotation_plugin_objects() {
-    PropertyDefinitions def = new PropertyDefinitions(new PluginWithProperty(), new PluginWithProperties());
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE, new PluginWithProperty(), new PluginWithProperties());
 
     assertProperties(def);
   }
 
   @Test
   public void should_inspect_plugin_classes() {
-    PropertyDefinitions def = new PropertyDefinitions(PluginWithProperty.class, PluginWithProperties.class);
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE, PluginWithProperty.class, PluginWithProperties.class);
 
     assertProperties(def);
   }
 
   @Test
   public void test_categories() {
-    PropertyDefinitions def = new PropertyDefinitions(
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE,
       PropertyDefinition.builder("inCateg").name("In Categ").category("categ").build(),
       PropertyDefinition.builder("noCateg").name("No categ").build());
 
@@ -85,7 +89,7 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void test_categories_on_annotation_plugin() {
-    PropertyDefinitions def = new PropertyDefinitions(Categories.class);
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE, Categories.class);
 
     assertThat(def.getCategory("inCateg")).isEqualTo("categ");
     assertThat(def.getCategory("noCateg")).isEqualTo("");
@@ -93,7 +97,7 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void test_default_category() {
-    PropertyDefinitions def = new PropertyDefinitions();
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE);
     def.addComponent(PropertyDefinition.builder("inCateg").name("In Categ").category("categ").build(), "default");
     def.addComponent(PropertyDefinition.builder("noCateg").name("No categ").build(), "default");
 
@@ -103,7 +107,7 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void test_default_category_on_annotation_plugin() {
-    PropertyDefinitions def = new PropertyDefinitions();
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE);
     def.addComponent(Categories.class, "default");
     assertThat(def.getCategory("inCateg")).isEqualTo("categ");
     assertThat(def.getCategory("noCateg")).isEqualTo("default");
@@ -111,7 +115,7 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void should_return_special_categories() {
-    PropertyDefinitions def = new PropertyDefinitions();
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE);
 
     assertThat(def.propertiesByCategory(null).get(new Category("general")).keySet()).containsOnly(new SubCategory("email"));
     assertThat(def.propertiesByCategory(null).get(new Category("general")).keySet().iterator().next().isSpecial()).isTrue();
@@ -123,7 +127,7 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void should_group_by_category() {
-    PropertyDefinitions def = new PropertyDefinitions(
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE,
       PropertyDefinition.builder("global1").name("Global1").category("catGlobal1").build(),
       PropertyDefinition.builder("global2").name("Global2").category("catGlobal1").build(),
       PropertyDefinition.builder("global3").name("Global3").category("catGlobal2").build(),
@@ -142,7 +146,7 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void should_group_by_subcategory() {
-    PropertyDefinitions def = new PropertyDefinitions(
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE,
       PropertyDefinition.builder("global1").name("Global1").category("catGlobal1").subCategory("sub1").build(),
       PropertyDefinition.builder("global2").name("Global2").category("catGlobal1").subCategory("sub2").build(),
       PropertyDefinition.builder("global3").name("Global3").category("catGlobal1").build(),
@@ -155,7 +159,7 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void should_group_by_category_on_annotation_plugin() {
-    PropertyDefinitions def = new PropertyDefinitions(ByCategory.class);
+    PropertyDefinitions def = new PropertyDefinitions(System2.INSTANCE, ByCategory.class);
 
     assertThat(def.propertiesByCategory(null).keySet()).contains(new Category("catglobal1"), new Category("catglobal2"));
     assertThat(def.propertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly(new Category("catproject"));
@@ -176,7 +180,7 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void validKey_throws_NPE_if_key_is_null() {
-    PropertyDefinitions underTest = new PropertyDefinitions();
+    PropertyDefinitions underTest = new PropertyDefinitions(System2.INSTANCE);
 
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("key can't be null");
@@ -186,7 +190,7 @@ public class PropertyDefinitionsTest {
 
   @Test
   public void get_throws_NPE_if_key_is_null() {
-    PropertyDefinitions underTest = new PropertyDefinitions();
+    PropertyDefinitions underTest = new PropertyDefinitions(System2.INSTANCE);
 
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("key can't be null");
@@ -199,21 +203,48 @@ public class PropertyDefinitionsTest {
     Random random = new Random();
     String key = RandomStringUtils.randomAlphanumeric(4);
     String deprecatedKey = RandomStringUtils.randomAlphanumeric(4);
-    PropertyDefinitions underTest = new PropertyDefinitions(singletonList(
+    PropertyDefinitions underTest = new PropertyDefinitions(System2.INSTANCE, singletonList(
       PropertyDefinition.builder(key)
         .deprecatedKey(deprecatedKey)
         .build()));
 
     String untrimmedKey = blank(random) + deprecatedKey + blank(random);
     assertThat(underTest.get(untrimmedKey).key())
-        .describedAs("expecting key %s being returned for get(%s)", key, untrimmedKey)
-        .isEqualTo(key);
+      .describedAs("expecting key %s being returned for get(%s)", key, untrimmedKey)
+      .isEqualTo(key);
   }
 
   private static String blank(Random random) {
     StringBuilder b = new StringBuilder();
     IntStream.range(0, random.nextInt(3)).mapToObj(s -> " ").forEach(b::append);
     return b.toString();
+  }
+
+  @Test
+  public void get_value_from_env() {
+    System2 system = mock(System2.class);
+    when(system.envVariable("FOO")).thenReturn("777");
+    when(system.envVariable("ONE")).thenReturn("888");
+    when(system.envVariable("SOME_COMPLETELY_RANDOM_ENV_VAR")).thenReturn("999");
+
+    PropertyDefinitions underTest = new PropertyDefinitions(system, new PluginWithProperty(), new PluginWithProperties());
+
+    assertThat(underTest.getValueFromEnv("foo")).hasValue("777");
+    assertThat(underTest.getValueFromEnv("one")).hasValue("888");
+    assertThat(underTest.getValueFromEnv("two")).isEmpty();
+    assertThat(underTest.getValueFromEnv("some.unrecognizable.prop")).isEmpty();
+  }
+
+  @Test
+  public void get_all_properties_set_in_env() {
+    System2 system = mock(System2.class);
+    when(system.envVariable("FOO")).thenReturn("777");
+    when(system.envVariable("ONE")).thenReturn("888");
+    when(system.envVariable("SOME_COMPLETELY_RANDOM_ENV_VAR")).thenReturn("999");
+
+    PropertyDefinitions underTest = new PropertyDefinitions(system, new PluginWithProperty(), new PluginWithProperties());
+
+    assertThat(underTest.getAllPropertiesSetInEnv()).containsExactlyInAnyOrderEntriesOf(ImmutableMap.of("foo", "777", "one", "888"));
   }
 
   @Property(key = "foo", name = "Foo")

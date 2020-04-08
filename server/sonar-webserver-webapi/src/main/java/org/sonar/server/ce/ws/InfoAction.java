@@ -23,9 +23,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.queue.CeQueue;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.user.AbstractUserSession;
 import org.sonar.server.user.SystemPasscode;
-import org.sonar.server.user.SystemPasscodeImpl;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Ce;
@@ -46,7 +46,7 @@ public class InfoAction implements CeWsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("info")
       .setDescription("Gets information about Compute Engine. Requires the system administration permission or " +
-        "system passcode (see " + SystemPasscodeImpl.PASSCODE_CONF_PROPERTY + " in sonar.properties).")
+        "system passcode (see " + ProcessProperties.Property.WEB_SYSTEM_PASS_CODE + " in sonar.properties).")
       .setSince("7.2")
       .setInternal(true)
       .setHandler(this)

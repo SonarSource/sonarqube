@@ -85,7 +85,7 @@ public class ListDefinitionsActionTest {
   private DbClient dbClient = db.getDbClient();
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private ComponentDto project;
-  private PropertyDefinitions propertyDefinitions = new PropertyDefinitions();
+  private PropertyDefinitions propertyDefinitions = new PropertyDefinitions(System2.INSTANCE);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private SettingsWsSupport support = new SettingsWsSupport(defaultOrganizationProvider, userSession);
   private WsActionTester ws = new WsActionTester(

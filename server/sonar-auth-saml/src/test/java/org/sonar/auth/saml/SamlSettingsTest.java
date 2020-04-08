@@ -28,6 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +38,7 @@ public class SamlSettingsTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(SamlSettings.definitions()));
+  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
 
   private SamlSettings underTest = new SamlSettings(settings.asConfig());
 

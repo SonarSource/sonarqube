@@ -91,7 +91,7 @@ public class SetActionTest {
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
 
   private I18nRule i18n = new I18nRule();
-  private PropertyDefinitions definitions = new PropertyDefinitions();
+  private PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   private FakeSettingsNotifier settingsChangeNotifier = new FakeSettingsNotifier(dbClient);
   private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private SettingValidations validations = new SettingValidations(definitions, dbClient, i18n);

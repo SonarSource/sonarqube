@@ -23,19 +23,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.api.utils.System2;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 
 /**
  * Metadata of all the properties declared by plugins
@@ -48,17 +52,22 @@ import static java.util.Objects.requireNonNull;
 public final class PropertyDefinitions {
 
   private final Map<String, PropertyDefinition> definitions = new HashMap<>();
+  private final Map<String, String> propertyValueFromEnvironment = new HashMap<>();
   private final Map<String, Category> categories = new HashMap<>();
   private final Map<String, SubCategory> subcategories = new HashMap<>();
 
   // deprecated key -> new key
   private final Map<String, String> deprecatedKeys = new HashMap<>();
 
-  public PropertyDefinitions(Object... components) {
+  private final System2 system;
+
+  public PropertyDefinitions(System2 system, Object... components) {
+    this.system = system;
     addComponents(Arrays.asList(components));
   }
 
-  public PropertyDefinitions(Collection<PropertyDefinition> components) {
+  public PropertyDefinitions(System2 system, Collection<PropertyDefinition> components) {
+    this.system = system;
     addComponents(components);
   }
 
@@ -108,6 +117,8 @@ public final class PropertyDefinitions {
   private PropertyDefinitions add(PropertyDefinition definition, String defaultCategory) {
     if (!definitions.containsKey(definition.key())) {
       definitions.put(definition.key(), definition);
+      String envVar = definition.key().toUpperCase(Locale.ENGLISH).replace('.', '_').replace('-', '_');
+      ofNullable(system.envVariable(envVar)).ifPresent(value -> propertyValueFromEnvironment.put(definition.key(), value));
       String category = StringUtils.defaultIfBlank(definition.category(), defaultCategory);
       categories.put(definition.key(), new Category(category));
       String subcategory = StringUtils.defaultIfBlank(definition.subCategory(), category);
@@ -122,6 +133,14 @@ public final class PropertyDefinitions {
   @CheckForNull
   public PropertyDefinition get(String key) {
     return definitions.get(validKey(key));
+  }
+
+  public Optional<String> getValueFromEnv(String key) {
+    return ofNullable(propertyValueFromEnvironment.get(key));
+  }
+
+  public Map<String, String> getAllPropertiesSetInEnv() {
+    return new HashMap<>(propertyValueFromEnvironment);
   }
 
   public Collection<PropertyDefinition> getAll() {

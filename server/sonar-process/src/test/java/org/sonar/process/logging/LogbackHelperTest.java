@@ -502,7 +502,7 @@ public class LogbackHelperTest {
     assertThat(encoder).isInstanceOf(LayoutWrappingEncoder.class);
     Layout layout = ((LayoutWrappingEncoder) encoder).getLayout();
     assertThat(layout).isInstanceOf(LogbackJsonLayout.class);
-    assertThat(((LogbackJsonLayout)layout).getProcessKey()).isEqualTo("web");
+    assertThat(((LogbackJsonLayout) layout).getProcessKey()).isEqualTo("web");
   }
 
   private LogLevelConfig.Builder newLogLevelConfig() {
@@ -529,6 +529,25 @@ public class LogbackHelperTest {
       {Level.TRACE},
       {Level.ALL}
     };
+  }
+
+  @Test
+  public void log_to_console_setting_missing() {
+    assertThat(underTest.isAllLogsToConsoleEnabled(new Props(new Properties()))).isFalse();
+  }
+
+  @Test
+  public void log_to_console_setting_enabled() {
+    Properties properties = new Properties();
+    properties.setProperty("sonar.log.console", "true");
+    assertThat(underTest.isAllLogsToConsoleEnabled(new Props(properties))).isTrue();
+  }
+
+  @Test
+  public void log_to_console_setting_disabled() {
+    Properties properties = new Properties();
+    properties.setProperty("sonar.log.console", "false");
+    assertThat(underTest.isAllLogsToConsoleEnabled(new Props(properties))).isFalse();
   }
 
   public static class MemoryAppender extends AppenderBase<ILoggingEvent> {

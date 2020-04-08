@@ -40,6 +40,7 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.System2;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Objects.requireNonNull;
@@ -88,7 +89,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
   }
 
   protected ComponentContainer(MutablePicoContainer picoContainer) {
-    this(picoContainer, new PropertyDefinitions());
+    this(picoContainer, new PropertyDefinitions(System2.INSTANCE));
   }
 
   protected ComponentContainer(MutablePicoContainer picoContainer, PropertyDefinitions propertyDefinitions) {

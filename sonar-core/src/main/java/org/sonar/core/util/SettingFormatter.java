@@ -20,6 +20,9 @@
 package org.sonar.core.util;
 
 import java.util.Locale;
+import org.apache.commons.lang.StringUtils;
+
+import static org.apache.commons.lang.StringUtils.trim;
 
 public final class SettingFormatter {
   private SettingFormatter() {
@@ -28,5 +31,17 @@ public final class SettingFormatter {
 
   public static String fromJavaPropertyToEnvVariable(String property) {
     return property.toUpperCase(Locale.ENGLISH).replace('.', '_').replace('-', '_');
+  }
+
+  /**
+   * Value is split and trimmed.
+   */
+  public static String[] getStringArrayBySeparator(String value, String separator) {
+    String[] strings = StringUtils.splitByWholeSeparator(value, separator);
+    String[] result = new String[strings.length];
+    for (int index = 0; index < strings.length; index++) {
+      result[index] = trim(strings[index]);
+    }
+    return result;
   }
 }

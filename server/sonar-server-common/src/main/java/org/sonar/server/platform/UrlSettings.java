@@ -27,12 +27,12 @@ import org.sonar.api.server.ServerSide;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
+import static org.sonar.process.ProcessProperties.Property.WEB_CONTEXT;
+import static org.sonar.process.ProcessProperties.Property.WEB_HOST;
 
 @ComputeEngineSide
 @ServerSide
 public class UrlSettings {
-  private static final String PROPERTY_CONTEXT = "sonar.web.context";
-
   private static final int DEFAULT_PORT = 9000;
   private static final int DEFAULT_HTTP_PORT = 80;
   private static final String ALL_IPS_HOST = "0.0.0.0";
@@ -43,7 +43,7 @@ public class UrlSettings {
 
   public UrlSettings(Configuration config) {
     this.config = config;
-    this.contextPath = config.get(PROPERTY_CONTEXT).orElse("")
+    this.contextPath = config.get(WEB_CONTEXT.getKey()).orElse("")
       // Remove trailing slashes
       .replaceFirst("(\\/+)$", "");
   }
@@ -66,9 +66,9 @@ public class UrlSettings {
   }
 
   private String computeBaseUrl() {
-    String host = config.get("sonar.web.host").orElse("");
+    String host = config.get(WEB_HOST.getKey()).orElse("");
     int port = config.getInt("sonar.web.port").orElse(0);
-    String context = config.get(PROPERTY_CONTEXT).orElse("");
+    String context = config.get(WEB_CONTEXT.getKey()).orElse("");
 
     StringBuilder res = new StringBuilder();
     res.append("http://");

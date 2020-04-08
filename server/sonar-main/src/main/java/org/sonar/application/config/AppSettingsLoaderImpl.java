@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URISyntaxException;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -33,6 +33,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.extension.ServiceLoaderWrapper;
+import org.sonar.core.util.SettingFormatter;
 import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessProperties;
@@ -40,8 +41,11 @@ import org.sonar.process.Props;
 import org.sonar.process.System2;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.stream;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.SettingFormatter.fromJavaPropertyToEnvVariable;
+import static org.sonar.process.ProcessProperties.Property.LDAP_SERVERS;
+import static org.sonar.process.ProcessProperties.Property.MULTI_SERVER_LDAP_SETTINGS;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 public class AppSettingsLoaderImpl implements AppSettingsLoader {
@@ -73,7 +77,37 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
   @Override
   public AppSettings load() {
     Properties p = loadPropertiesFile(homeDir);
-    fetchSettingsFromEnvironment(system, p);
+    Set<String> keysOverridableFromEnv = stream(ProcessProperties.Property.values()).map(ProcessProperties.Property::getKey)
+      .collect(Collectors.toSet());
+    keysOverridableFromEnv.addAll(p.stringPropertyNames());
+
+    // 1st pass to load static properties
+    Props staticProps = reloadProperties(keysOverridableFromEnv, p);
+    keysOverridableFromEnv.addAll(getDynamicPropertiesKeys(staticProps));
+
+    // 2nd pass to load dynamic properties like `ldap.*.url` or `ldap.*.baseDn` which keys depend on values of static
+    // properties loaded in 1st step
+    Props props = reloadProperties(keysOverridableFromEnv, p);
+
+    new ProcessProperties(serviceLoaderWrapper).completeDefaults(props);
+    stream(consumers).forEach(c -> c.accept(props));
+    return new AppSettingsImpl(props);
+  }
+
+  private static Set<String> getDynamicPropertiesKeys(Props p) {
+    Set<String> dynamicPropertiesKeys = new HashSet<>();
+    String ldapServersValue = p.value(LDAP_SERVERS.getKey());
+    if (ldapServersValue != null) {
+      stream(SettingFormatter.getStringArrayBySeparator(ldapServersValue, ",")).forEach(
+        ldapServer -> MULTI_SERVER_LDAP_SETTINGS.forEach(
+          multiLdapSetting -> dynamicPropertiesKeys.add(multiLdapSetting.replace("*", ldapServer))));
+    }
+
+    return dynamicPropertiesKeys;
+  }
+
+  private Props reloadProperties(Set<String> keysOverridableFromEnv, Properties p) {
+    loadPropertiesFromEnvironment(system, p, keysOverridableFromEnv);
     p.putAll(CommandLineParser.parseArguments(cliArguments));
     p.setProperty(PATH_HOME.getKey(), homeDir.getAbsolutePath());
     p = ConfigurationUtils.interpolateVariables(p, system.getenv());
@@ -81,18 +115,11 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     // the difference between Properties and Props is that the latter
     // supports decryption of values, so it must be used when values
     // are accessed
-    Props props = new Props(p);
-    new ProcessProperties(serviceLoaderWrapper).completeDefaults(props);
-    Arrays.stream(consumers).forEach(c -> c.accept(props));
-
-    return new AppSettingsImpl(props);
+    return new Props(p);
   }
 
-  private static void fetchSettingsFromEnvironment(System2 system, Properties properties) {
-    Set<String> possibleSettings = Arrays.stream(ProcessProperties.Property.values()).map(ProcessProperties.Property::getKey)
-      .collect(Collectors.toSet());
-    possibleSettings.addAll(properties.stringPropertyNames());
-    possibleSettings.forEach(key -> {
+  private static void loadPropertiesFromEnvironment(System2 system, Properties properties, Set<String> overridableSettings) {
+    overridableSettings.forEach(key -> {
       String environmentVarName = fromJavaPropertyToEnvVariable(key);
       Optional<String> envVarValue = ofNullable(system.getenv(environmentVarName));
       envVarValue.ifPresent(value -> properties.put(key, value));

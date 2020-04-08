@@ -41,6 +41,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -75,7 +76,7 @@ public class MapSettingsTest {
 
   @Before
   public void init_definitions() {
-    definitions = new PropertyDefinitions();
+    definitions = new PropertyDefinitions(System2.INSTANCE);
     definitions.addComponent(Init.class);
   }
 
@@ -129,7 +130,7 @@ public class MapSettingsTest {
   public void set_property_string_throws_NPE_if_key_is_null() {
     String key = randomAlphanumeric(3);
 
-    Settings underTest = new MapSettings(new PropertyDefinitions(singletonList(PropertyDefinition.builder(key).multiValues(true).build())));
+    Settings underTest = new MapSettings(new PropertyDefinitions(System2.INSTANCE, singletonList(PropertyDefinition.builder(key).multiValues(true).build())));
 
     expectKeyNullNPE();
 
@@ -160,7 +161,7 @@ public class MapSettingsTest {
   public void set_property_string_array_trims_key() {
     String key = randomAlphanumeric(3);
 
-    Settings underTest = new MapSettings(new PropertyDefinitions(singletonList(PropertyDefinition.builder(key).multiValues(true).build())));
+    Settings underTest = new MapSettings(new PropertyDefinitions(System2.INSTANCE, singletonList(PropertyDefinition.builder(key).multiValues(true).build())));
 
     Random random = new Random();
     String blankBefore = blank(random);

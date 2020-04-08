@@ -25,6 +25,10 @@ import org.apache.catalina.startup.Tomcat;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
+import static org.sonar.process.ProcessProperties.Property.WEB_HOST;
+import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_ACCEPT_COUNT;
+import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_MAX_THREADS;
+import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_MIN_THREADS;
 
 /**
  * Configuration of Tomcat connectors
@@ -53,7 +57,7 @@ class TomcatConnectors {
 
     Connector connector = new Connector(HTTP_PROTOCOL);
     connector.setURIEncoding("UTF-8");
-    connector.setProperty("address", props.value("sonar.web.host", "0.0.0.0"));
+    connector.setProperty("address", props.value(WEB_HOST.getKey(), "0.0.0.0"));
     connector.setProperty("socket.soReuseAddress", "true");
     // see https://tomcat.apache.org/tomcat-8.5-doc/config/http.html
     connector.setProperty("relaxedQueryChars", "\"<>[\\]^`{|}");
@@ -75,9 +79,9 @@ class TomcatConnectors {
 
   private static void configurePool(Props props, Connector connector) {
     connector.setProperty("acceptorThreadCount", String.valueOf(2));
-    connector.setProperty("minSpareThreads", String.valueOf(props.valueAsInt("sonar.web.http.minThreads", 5)));
-    connector.setProperty("maxThreads", String.valueOf(props.valueAsInt("sonar.web.http.maxThreads", 50)));
-    connector.setProperty("acceptCount", String.valueOf(props.valueAsInt("sonar.web.http.acceptCount", 25)));
+    connector.setProperty("minSpareThreads", String.valueOf(props.valueAsInt(WEB_HTTP_MIN_THREADS.getKey(), 5)));
+    connector.setProperty("maxThreads", String.valueOf(props.valueAsInt(WEB_HTTP_MAX_THREADS.getKey(), 50)));
+    connector.setProperty("acceptCount", String.valueOf(props.valueAsInt(WEB_HTTP_ACCEPT_COUNT.getKey(), 25)));
   }
 
   private static void configureCompression(Connector connector) {

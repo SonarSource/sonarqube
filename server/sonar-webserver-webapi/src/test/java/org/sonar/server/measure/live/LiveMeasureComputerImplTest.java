@@ -39,6 +39,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -399,7 +400,7 @@ public class LiveMeasureComputerImplTest {
     when(qGateComputer.getMetricsRelatedTo(qualityGate)).thenReturn(singleton(CoreMetrics.ALERT_STATUS_KEY));
     when(qGateComputer.refreshGateStatus(eq(project), same(qualityGate), any(MeasureMatrix.class)))
       .thenReturn(newQualityGate);
-    MapSettings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
+    MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, CorePropertyDefinitions.all()));
     ProjectConfigurationLoader configurationLoader = new TestProjectConfigurationLoader(settings.asConfig());
 
     LiveMeasureComputerImpl underTest = new LiveMeasureComputerImpl(db.getDbClient(), formulaFactory, qGateComputer, configurationLoader, projectIndexer);

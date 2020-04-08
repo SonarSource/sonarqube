@@ -88,6 +88,27 @@ public class AppSettingsLoaderImplTest {
   }
 
   @Test
+  public void load_multi_ldap_settings() throws IOException {
+    when(system.getenv()).thenReturn(ImmutableMap.of(
+      "LDAP_FOO_URL", "url1",
+      "LDAP_RANDOM_PROP", "5"));
+    when(system.getenv("LDAP_FOO_URL")).thenReturn("url1");
+    when(system.getenv("LDAP_RANDOM_PROP")).thenReturn("5");
+    File homeDir = temp.newFolder();
+    File propsFile = new File(homeDir, "conf/sonar.properties");
+    FileUtils.write(propsFile, "ldap.servers=foo,bar\n" +
+      "ldap.bar.url=url2", UTF_8);
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
+
+    AppSettings settings = underTest.load();
+
+    assertThat(settings.getProps().rawProperties()).contains(
+      entry("ldap.servers", "foo,bar"),
+      entry("ldap.foo.url", "url1"),
+      entry("ldap.bar.url", "url2"));
+  }
+
+  @Test
   public void throws_ISE_if_file_fails_to_be_loaded() throws Exception {
     File homeDir = temp.newFolder();
     File propsFileAsDir = new File(homeDir, "conf/sonar.properties");

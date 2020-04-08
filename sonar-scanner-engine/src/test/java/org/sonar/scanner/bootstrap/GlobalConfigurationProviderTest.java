@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +35,6 @@ import static org.mockito.Mockito.when;
 
 public class GlobalConfigurationProviderTest {
 
-  public static final String SOME_VALUE = "some_value";
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Rule
@@ -53,7 +53,7 @@ public class GlobalConfigurationProviderTest {
   public void should_load_global_settings() {
     when(globalServerSettings.properties()).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true"));
 
-    GlobalConfiguration globalConfig = new GlobalConfigurationProvider().provide(globalServerSettings, scannerProps, new PropertyDefinitions());
+    GlobalConfiguration globalConfig = new GlobalConfigurationProvider().provide(globalServerSettings, scannerProps, new PropertyDefinitions(System2.INSTANCE));
 
     assertThat(globalConfig.get("sonar.cpd.cross")).hasValue("true");
   }

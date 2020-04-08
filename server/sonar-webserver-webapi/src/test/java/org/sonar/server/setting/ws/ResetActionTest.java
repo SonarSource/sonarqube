@@ -81,7 +81,7 @@ public class ResetActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ComponentFinder componentFinder = TestComponentFinder.from(db);
-  private PropertyDefinitions definitions = new PropertyDefinitions();
+  private PropertyDefinitions definitions = new PropertyDefinitions(System2.INSTANCE);
   private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private SettingValidations settingValidations = new SettingValidations(definitions, dbClient, i18n);
   private ComponentDto project;

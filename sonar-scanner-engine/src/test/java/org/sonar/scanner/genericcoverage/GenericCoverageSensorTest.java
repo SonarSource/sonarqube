@@ -24,8 +24,9 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.scan.ProjectConfiguration;
@@ -41,7 +42,7 @@ public class GenericCoverageSensorTest {
   public void loadAllReportPaths() {
     Map<String, String> settings = new HashMap<>();
     settings.put(GenericCoverageSensor.REPORT_PATHS_PROPERTY_KEY, "report.xml,report2.xml");
-    PropertyDefinitions defs = new PropertyDefinitions(GenericCoverageSensor.properties());
+    PropertyDefinitions defs = new PropertyDefinitions(System2.INSTANCE, GenericCoverageSensor.properties());
     DefaultConfiguration config = new ProjectConfiguration(defs, new Encryption(null), settings);
 
     Set<String> reportPaths = new GenericCoverageSensor(config).loadReportPaths();

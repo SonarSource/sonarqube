@@ -40,13 +40,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.time.DateUtils.addSeconds;
+import static org.sonar.process.ProcessProperties.Property.WEB_SESSION_TIMEOUT_IN_MIN;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 
 @ServerSide
 public class JwtHttpHandler {
-
-  private static final String SESSION_TIMEOUT_IN_MINUTES_PROPERTY = "sonar.web.sessionTimeoutInMinutes";
   private static final int SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES = 3 * 24 * 60;
   private static final int MAX_SESSION_TIMEOUT_IN_MINUTES = 3 * 30 * 24 * 60;
 
@@ -175,10 +174,11 @@ public class JwtHttpHandler {
   }
 
   private static int getSessionTimeoutInSeconds(Configuration config) {
-    int minutes = config.getInt(SESSION_TIMEOUT_IN_MINUTES_PROPERTY).orElse(SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES);
-    checkArgument(minutes > 0, "Property %s must be strictly positive. Got %s", SESSION_TIMEOUT_IN_MINUTES_PROPERTY, minutes);
-    checkArgument(minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES, "Property %s must not be greater than 3 months (%s minutes). Got %s minutes",
-      SESSION_TIMEOUT_IN_MINUTES_PROPERTY, MAX_SESSION_TIMEOUT_IN_MINUTES, minutes);
+    int minutes = config.getInt(WEB_SESSION_TIMEOUT_IN_MIN.getKey()).orElse(SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES);
+    checkArgument(minutes > 0, "Property %s must be strictly positive. Got %s", WEB_SESSION_TIMEOUT_IN_MIN.getKey(), minutes);
+    checkArgument(minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES,
+      "Property %s must not be greater than 3 months (%s minutes). Got %s minutes", WEB_SESSION_TIMEOUT_IN_MIN.getKey(),
+      MAX_SESSION_TIMEOUT_IN_MINUTES, minutes);
     return minutes * 60;
   }
 

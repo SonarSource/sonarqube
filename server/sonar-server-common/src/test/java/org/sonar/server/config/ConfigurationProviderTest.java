@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.config.PropertyDefinition.builder;
@@ -38,7 +39,7 @@ public class ConfigurationProviderTest {
   private final String nonDeclaredKey = RandomStringUtils.randomAlphabetic(3);
   private final String nonMultivalueKey = RandomStringUtils.randomAlphabetic(3);
   private final String multivalueKey = RandomStringUtils.randomAlphabetic(3);
-  private final MapSettings settings = new MapSettings(new PropertyDefinitions(
+  private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE,
     builder(nonMultivalueKey).multiValues(false).build(),
     builder(multivalueKey).multiValues(true).build()));
 

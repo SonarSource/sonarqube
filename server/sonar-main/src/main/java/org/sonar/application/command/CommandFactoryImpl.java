@@ -39,7 +39,7 @@ import static org.sonar.process.ProcessProperties.Property.CE_JAVA_ADDITIONAL_OP
 import static org.sonar.process.ProcessProperties.Property.CE_JAVA_OPTS;
 import static org.sonar.process.ProcessProperties.Property.HTTPS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.Property.HTTPS_PROXY_PORT;
-import static org.sonar.process.ProcessProperties.Property.HTTP_AUTH_NLM_DOMAN;
+import static org.sonar.process.ProcessProperties.Property.HTTP_AUTH_NTLM_DOMAIN;
 import static org.sonar.process.ProcessProperties.Property.HTTP_NON_PROXY_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.Property.HTTP_PROXY_PORT;
@@ -65,7 +65,7 @@ public class CommandFactoryImpl implements CommandFactory {
     HTTP_NON_PROXY_HOSTS.getKey(),
     HTTPS_PROXY_HOST.getKey(),
     HTTPS_PROXY_PORT.getKey(),
-    HTTP_AUTH_NLM_DOMAN.getKey(),
+    HTTP_AUTH_NTLM_DOMAIN.getKey(),
     SOCKS_PROXY_HOST.getKey(),
     SOCKS_PROXY_PORT.getKey()};
 

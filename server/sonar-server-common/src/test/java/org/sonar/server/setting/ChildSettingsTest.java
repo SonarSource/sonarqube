@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +47,7 @@ public class ChildSettingsTest {
   public void childSettings_should_retrieve_parent_settings() {
     String multipleValuesKey = randomAlphanumeric(19);
     PropertyDefinition multipleValues = PropertyDefinition.builder(multipleValuesKey).multiValues(true).build();
-    MapSettings parent = new MapSettings(new PropertyDefinitions(Collections.singletonList(multipleValues)));
+    MapSettings parent = new MapSettings(new PropertyDefinitions(System2.INSTANCE, Collections.singletonList(multipleValues)));
     ChildSettings underTest = new ChildSettings(parent);
 
     parent.setProperty(randomAlphanumeric(10), randomAlphanumeric(20));

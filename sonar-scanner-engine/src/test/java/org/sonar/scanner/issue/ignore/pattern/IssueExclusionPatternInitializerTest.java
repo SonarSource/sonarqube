@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.System2;
 import org.sonar.core.config.IssueExclusionProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +35,7 @@ public class IssueExclusionPatternInitializerTest {
 
   @Before
   public void init() {
-    settings = new MapSettings(new PropertyDefinitions(IssueExclusionProperties.all()));
+    settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, IssueExclusionProperties.all()));
   }
 
   @Test

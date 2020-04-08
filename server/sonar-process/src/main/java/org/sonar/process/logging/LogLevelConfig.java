@@ -32,11 +32,12 @@ import java.util.stream.Stream;
 import org.sonar.process.ProcessId;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.process.ProcessProperties.Property.LOG_LEVEL;
 
 public final class LogLevelConfig {
-  private static final String SONAR_LOG_LEVEL_PROPERTY = "sonar.log.level";
+  private static final String SONAR_LOG_LEVEL_PROPERTY = LOG_LEVEL.getKey();
   private static final String PROCESS_NAME_PLACEHOLDER = "XXXX";
-  private static final String SONAR_PROCESS_LOG_LEVEL_PROPERTY = "sonar.log.level." + PROCESS_NAME_PLACEHOLDER;
+  private static final String SONAR_PROCESS_LOG_LEVEL_PROPERTY = SONAR_LOG_LEVEL_PROPERTY + "." + PROCESS_NAME_PLACEHOLDER;
 
   private final Map<String, List<String>> configuredByProperties;
   private final Map<String, Level> configuredByHardcodedLevel;

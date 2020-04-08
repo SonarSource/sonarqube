@@ -21,9 +21,9 @@ package org.sonar.ce.task.projectanalysis.purge;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 import org.sonar.core.config.PurgeConstants;
 import org.sonar.core.config.PurgeProperties;
 import org.sonar.db.DbSession;
@@ -34,9 +34,7 @@ import org.sonar.db.purge.period.DefaultPeriodCleaner;
 
 import static java.util.Collections.emptySet;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class ProjectCleanerTest {
@@ -46,7 +44,7 @@ public class ProjectCleanerTest {
   private PurgeProfiler profiler = mock(PurgeProfiler.class);
   private DefaultPeriodCleaner periodCleaner = mock(DefaultPeriodCleaner.class);
   private PurgeListener purgeListener = mock(PurgeListener.class);
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(PurgeProperties.all()));
+  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, PurgeProperties.all()));
 
   @Before
   public void before() {

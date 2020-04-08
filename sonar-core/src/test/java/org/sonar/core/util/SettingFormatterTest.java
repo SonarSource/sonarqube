@@ -30,4 +30,16 @@ public class SettingFormatterTest {
     String output = SettingFormatter.fromJavaPropertyToEnvVariable("some.randomProperty-123.test");
     assertThat(output).isEqualTo("SOME_RANDOMPROPERTY_123_TEST");
   }
+
+  @Test
+  public void test_getStringArrayBySeparator_on_input_with_separator() {
+    String[] result = SettingFormatter.getStringArrayBySeparator(" abc, DeF  , ghi", ",");
+    assertThat(result).containsExactly("abc", "DeF", "ghi");
+  }
+
+  @Test
+  public void test_getStringArrayBySeparator_on_input_without_separator() {
+    String[] result = SettingFormatter.getStringArrayBySeparator(" abc, DeF  , ghi", ";");
+    assertThat(result).containsExactly("abc, DeF  , ghi");
+  }
 }

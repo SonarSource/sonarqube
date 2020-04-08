@@ -23,15 +23,16 @@ import ch.qos.logback.classic.Level;
 import java.io.File;
 import java.util.Properties;
 import org.sonar.process.ProcessId;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.logging.Log4JPropertiesBuilder;
 import org.sonar.process.logging.LogLevelConfig;
 import org.sonar.process.logging.RootLoggerConfig;
 
+import static org.sonar.process.ProcessProperties.Property.LOG_CONSOLE;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public class EsLogging {
-  private static final String ALL_LOGS_TO_CONSOLE_PROPERTY = "sonar.log.console";
 
   public Properties createProperties(Props props, File logDir) {
     Log4JPropertiesBuilder log4JPropertiesBuilder = new Log4JPropertiesBuilder(props);
@@ -51,12 +52,11 @@ public class EsLogging {
     return log4JPropertiesBuilder.get();
   }
 
-
   /**
    * Finds out whether we are in testing environment (usually ITs) and logs of all processes must be forward to
-   * App's System.out. This is specified by the value of property {@link #ALL_LOGS_TO_CONSOLE_PROPERTY}.
+   * App's System.out. This is specified by the value of property {@link ProcessProperties.Property#LOG_CONSOLE}.
    */
   private static boolean isAllLogsToConsoleEnabled(Props props) {
-    return props.valueAsBoolean(ALL_LOGS_TO_CONSOLE_PROPERTY, false);
+    return props.valueAsBoolean(LOG_CONSOLE.getKey(), false);
   }
 }

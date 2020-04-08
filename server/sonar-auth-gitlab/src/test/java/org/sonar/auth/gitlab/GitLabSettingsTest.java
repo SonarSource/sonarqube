@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOW_USERS_TO_SIGNUP;
@@ -44,7 +45,7 @@ public class GitLabSettingsTest {
 
   @Before
   public void prepare() {
-    settings = new MapSettings(new PropertyDefinitions(GitLabSettings.definitions()));
+    settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, GitLabSettings.definitions()));
     config = new GitLabSettings(settings.asConfig());
   }
 
@@ -54,7 +55,6 @@ public class GitLabSettingsTest {
 
     settings.setProperty(GITLAB_AUTH_URL, "https://gitlab.com/api/");
     assertThat(config.url()).isEqualTo("https://gitlab.com/api");
-
 
     settings.setProperty(GITLAB_AUTH_URL, "https://gitlab.com/api");
     assertThat(config.url()).isEqualTo("https://gitlab.com/api");

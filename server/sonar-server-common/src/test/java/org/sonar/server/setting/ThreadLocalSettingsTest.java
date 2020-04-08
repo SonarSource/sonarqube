@@ -33,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.Property;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -70,7 +71,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void can_not_add_property_if_no_cache() {
-    underTest = create(Collections.emptyMap());
+    underTest = create(system, Collections.emptyMap());
 
     underTest.set("foo", "wiz");
 
@@ -79,7 +80,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void can_not_remove_system_property_if_no_cache() {
-    underTest = create(ImmutableMap.of("foo", "bar"));
+    underTest = create(system, ImmutableMap.of("foo", "bar"));
 
     underTest.remove("foo");
 
@@ -88,7 +89,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void add_property_to_cache() {
-    underTest = create(Collections.emptyMap());
+    underTest = create(system, Collections.emptyMap());
 
     underTest.load();
     underTest.set("foo", "bar");
@@ -101,7 +102,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void remove_property_from_cache() {
-    underTest = create(Collections.emptyMap());
+    underTest = create(system, Collections.emptyMap());
 
     underTest.load();
     underTest.set("foo", "bar");
@@ -120,7 +121,7 @@ public class ThreadLocalSettingsTest {
   @Test
   public void getProperties_does_not_fail_on_duplicated_key() {
     insertPropertyIntoDb("foo", "from_db");
-    underTest = create(ImmutableMap.of("foo", "from_system"));
+    underTest = create(system, ImmutableMap.of("foo", "from_system"));
 
     assertThat(underTest.get("foo")).hasValue("from_system");
     assertThat(underTest.getProperties().get("foo")).isEqualTo("from_system");
@@ -130,27 +131,31 @@ public class ThreadLocalSettingsTest {
   public void load_encryption_secret_key_from_system_properties() throws Exception {
     File secretKey = temp.newFile();
 
-    underTest = create(ImmutableMap.of("foo", "bar", "sonar.secretKeyPath", secretKey.getAbsolutePath()));
+    underTest = create(system, ImmutableMap.of("foo", "bar", "sonar.secretKeyPath", secretKey.getAbsolutePath()));
 
     assertThat(underTest.getEncryption().hasSecretKey()).isTrue();
   }
 
   @Test
   public void encryption_secret_key_is_undefined_by_default() {
-    underTest = create(ImmutableMap.of("foo", "bar", "sonar.secretKeyPath", "unknown/path/to/sonar-secret.txt"));
+    underTest = create(system, ImmutableMap.of("foo", "bar", "sonar.secretKeyPath", "unknown/path/to/sonar-secret.txt"));
 
     assertThat(underTest.getEncryption().hasSecretKey()).isFalse();
   }
 
-  private ThreadLocalSettings create(Map<String, String> systemProps) {
+  private ThreadLocalSettings create(System2 system, Map<String, String> systemProps) {
+    PropertyDefinitions definitions = new PropertyDefinitions(system);
+    definitions.addComponents(CorePropertyDefinitions.all());
+    definitions.addComponent(new AnnotatedTestClass());
+
     Properties p = new Properties();
     p.putAll(systemProps);
-    return new ThreadLocalSettings(system, new PropertyDefinitions(CorePropertyDefinitions.all()), p, dbSettingLoader);
+    return new ThreadLocalSettings(definitions, p, dbSettingLoader);
   }
 
   @Test
   public void load_system_properties() {
-    underTest = create(ImmutableMap.of("foo", "1", "bar", "2"));
+    underTest = create(system, ImmutableMap.of("foo", "1", "bar", "2"));
 
     assertThat(underTest.get("foo")).hasValue("1");
     assertThat(underTest.get("missing")).isNotPresent();
@@ -160,17 +165,19 @@ public class ThreadLocalSettingsTest {
   @Test
   public void load_core_properties_from_environment() {
     when(system.envVariable("SONAR_FORCEAUTHENTICATION")).thenReturn("true");
-    underTest = create(ImmutableMap.of());
+    when(system.envVariable("SONAR_ANNOTATION_TEST_PROP")).thenReturn("113");
+    underTest = create(system, ImmutableMap.of());
 
     assertThat(underTest.get("sonar.forceAuthentication")).hasValue("true");
+    assertThat(underTest.get("sonar.annotation.test.prop")).hasValue("113");
     assertThat(underTest.get("missing")).isNotPresent();
-    assertThat(underTest.getProperties()).containsOnly(entry("sonar.forceAuthentication", "true"));
+    assertThat(underTest.getProperties()).containsOnly(entry("sonar.forceAuthentication", "true"), entry("sonar.annotation.test.prop", "113"));
   }
 
   @Test
   public void database_properties_are_not_cached_by_default() {
     insertPropertyIntoDb("foo", "from db");
-    underTest = create(Collections.emptyMap());
+    underTest = create(system, Collections.emptyMap());
 
     assertThat(underTest.get("foo")).hasValue("from db");
 
@@ -182,7 +189,7 @@ public class ThreadLocalSettingsTest {
   @Test
   public void system_settings_have_precedence_over_database() {
     insertPropertyIntoDb("foo", "from db");
-    underTest = create(ImmutableMap.of("foo", "from system"));
+    underTest = create(system, ImmutableMap.of("foo", "from system"));
 
     assertThat(underTest.get("foo")).hasValue("from system");
   }
@@ -191,7 +198,7 @@ public class ThreadLocalSettingsTest {
   public void getProperties_are_all_properties_with_value() {
     insertPropertyIntoDb("db", "from db");
     insertPropertyIntoDb("empty", "");
-    underTest = create(ImmutableMap.of("system", "from system"));
+    underTest = create(system, ImmutableMap.of("system", "from system"));
 
     assertThat(underTest.getProperties()).containsOnly(entry("system", "from system"), entry("db", "from db"), entry("empty", ""));
   }
@@ -199,7 +206,7 @@ public class ThreadLocalSettingsTest {
   @Test
   public void getProperties_is_not_cached_in_thread_cache() {
     insertPropertyIntoDb("foo", "bar");
-    underTest = create(Collections.emptyMap());
+    underTest = create(system, Collections.emptyMap());
     underTest.load();
 
     assertThat(underTest.getProperties())
@@ -219,7 +226,7 @@ public class ThreadLocalSettingsTest {
   public void load_creates_a_thread_specific_cache() throws InterruptedException {
     insertPropertyIntoDb(A_KEY, "v1");
 
-    underTest = create(Collections.emptyMap());
+    underTest = create(system, Collections.emptyMap());
     underTest.load();
 
     assertThat(underTest.get(A_KEY)).hasValue("v1");
@@ -239,7 +246,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void load_invalidates_cache_if_unload_has_not_been_called() {
-    underTest = create(emptyMap());
+    underTest = create(system, emptyMap());
     underTest.load();
     underTest.set("foo", "bar");
     // unload() is not called
@@ -250,7 +257,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void keep_in_thread_cache_the_fact_that_a_property_is_not_in_db() {
-    underTest = create(Collections.emptyMap());
+    underTest = create(system, Collections.emptyMap());
     underTest.load();
     assertThat(underTest.get(A_KEY)).isNotPresent();
 
@@ -263,7 +270,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void change_setting_loader() {
-    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties());
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(system), new Properties());
 
     assertThat(underTest.getSettingLoader()).isNotNull();
 
@@ -274,7 +281,7 @@ public class ThreadLocalSettingsTest {
 
   @Test
   public void cache_db_calls_if_property_is_not_persisted() {
-    underTest = create(Collections.emptyMap());
+    underTest = create(system, Collections.emptyMap());
     underTest.load();
     assertThat(underTest.get(A_KEY)).isNotPresent();
     assertThat(underTest.get(A_KEY)).isNotPresent();
@@ -286,7 +293,7 @@ public class ThreadLocalSettingsTest {
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
     doThrow(toBeThrown).when(settingLoaderMock).loadAll();
-    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(system), new Properties(), settingLoaderMock);
 
     assertThat(underTest.getProperties())
       .isEmpty();
@@ -297,7 +304,7 @@ public class ThreadLocalSettingsTest {
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
     doThrow(toBeThrown).when(settingLoaderMock).loadAll();
-    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(system), new Properties(), settingLoaderMock);
     underTest.load();
 
     assertThat(underTest.getProperties())
@@ -316,7 +323,7 @@ public class ThreadLocalSettingsTest {
       .doAnswer(invocationOnMock -> ImmutableMap.of(key, value2))
       .when(settingLoaderMock)
       .loadAll();
-    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(system), new Properties(), settingLoaderMock);
 
     underTest.load();
     assertThat(underTest.getProperties())
@@ -340,7 +347,7 @@ public class ThreadLocalSettingsTest {
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
     String key = randomAlphanumeric(3);
     doThrow(toBeThrown).when(settingLoaderMock).load(key);
-    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(system), new Properties(), settingLoaderMock);
 
     assertThat(underTest.get(key)).isEmpty();
   }
@@ -351,7 +358,7 @@ public class ThreadLocalSettingsTest {
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
     String key = randomAlphanumeric(3);
     doThrow(toBeThrown).when(settingLoaderMock).load(key);
-    underTest = new ThreadLocalSettings(system, new PropertyDefinitions(), new Properties(), settingLoaderMock);
+    underTest = new ThreadLocalSettings(new PropertyDefinitions(system), new Properties(), settingLoaderMock);
     underTest.load();
 
     assertThat(underTest.get(key)).isEmpty();
@@ -416,5 +423,15 @@ public class ThreadLocalSettingsTest {
     public Map<String, String> loadAll() {
       return unmodifiableMap(map);
     }
+  }
+
+  @org.sonar.api.Properties({
+    @Property(
+      key = "sonar.annotation.test.prop",
+      defaultValue = "60",
+      name = "Test annotation property",
+      global = false)
+  })
+  class AnnotatedTestClass {
   }
 }

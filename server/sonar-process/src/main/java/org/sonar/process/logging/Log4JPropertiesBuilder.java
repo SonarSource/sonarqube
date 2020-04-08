@@ -28,10 +28,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MessageException;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static org.sonar.process.ProcessProperties.Property.LOG_LEVEL;
+import static org.sonar.process.ProcessProperties.Property.LOG_MAX_FILES;
+import static org.sonar.process.ProcessProperties.Property.LOG_ROLLING_POLICY;
 
 public class Log4JPropertiesBuilder extends AbstractLogHelper {
   private static final String ROOT_LOGGER_NAME = "rootLogger";
@@ -70,8 +74,8 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
    * <p>
    * <ul>
    * <li>the file's name will use the prefix defined in {@link RootLoggerConfig#getProcessId()#getLogFilenamePrefix()}.</li>
-   * <li>the file will follow the rotation policy defined in property {@link #ROLLING_POLICY_PROPERTY} and
-   * the max number of files defined in property {@link #MAX_FILES_PROPERTY}</li>
+   * <li>the file will follow the rotation policy defined in property {@link ProcessProperties.Property#LOG_ROLLING_POLICY} and
+   * the max number of files defined in property {@link org.sonar.process.ProcessProperties.Property#LOG_MAX_FILES}</li>
    * <li>the logs will follow the specified log pattern</li>
    * </ul>
    * </p>
@@ -106,8 +110,8 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
   }
 
   private RollingPolicy createRollingPolicy(File logDir, String filenamePrefix) {
-    String rollingPolicy = props.value(ROLLING_POLICY_PROPERTY, "time:yyyy-MM-dd");
-    int maxFiles = props.valueAsInt(MAX_FILES_PROPERTY, 7);
+    String rollingPolicy = props.value(LOG_ROLLING_POLICY.getKey(), "time:yyyy-MM-dd");
+    int maxFiles = props.valueAsInt(LOG_MAX_FILES.getKey(), 7);
     if (maxFiles <= 0) {
       maxFiles = UNLIMITED_MAX_FILES;
     }
@@ -119,7 +123,7 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
     } else if ("none".equals(rollingPolicy)) {
       return new NoRollingPolicy(filenamePrefix, logDir);
     } else {
-      throw new MessageException(format("Unsupported value for property %s: %s", ROLLING_POLICY_PROPERTY, rollingPolicy));
+      throw new MessageException(format("Unsupported value for property %s: %s", LOG_ROLLING_POLICY.getKey(), rollingPolicy));
     }
   }
 
@@ -128,7 +132,7 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
       throw new IllegalArgumentException("Value of LogLevelConfig#rootLoggerName must be \"" + ROOT_LOGGER_NAME + "\"");
     }
 
-    Level propertyValueAsLevel = getPropertyValueAsLevel(props, SONAR_LOG_LEVEL_PROPERTY);
+    Level propertyValueAsLevel = getPropertyValueAsLevel(props, LOG_LEVEL.getKey());
     boolean traceGloballyEnabled = propertyValueAsLevel == Level.TRACE;
 
     List<String> loggerNames = Stream.of(

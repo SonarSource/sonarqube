@@ -23,8 +23,9 @@ import org.junit.Test;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.config.internal.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static org.apache.commons.lang.StringUtils.repeat;
@@ -36,7 +37,7 @@ public class SettingsSectionTest {
 
   private static final String PASSWORD_PROPERTY = "sonar.password";
 
-  private PropertyDefinitions defs = new PropertyDefinitions(PropertyDefinition.builder(PASSWORD_PROPERTY).type(PropertyType.PASSWORD).build());
+  private PropertyDefinitions defs = new PropertyDefinitions(System2.INSTANCE, PropertyDefinition.builder(PASSWORD_PROPERTY).type(PropertyType.PASSWORD).build());
   private Settings settings = new MapSettings(defs);
   private SettingsSection underTest = new SettingsSection(settings);
 

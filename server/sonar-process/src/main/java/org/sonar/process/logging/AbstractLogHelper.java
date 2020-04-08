@@ -28,9 +28,6 @@ import static java.lang.String.format;
 
 public abstract class AbstractLogHelper {
   static final Level[] ALLOWED_ROOT_LOG_LEVELS = new Level[] {Level.TRACE, Level.DEBUG, Level.INFO};
-  static final String SONAR_LOG_LEVEL_PROPERTY = "sonar.log.level";
-  static final String ROLLING_POLICY_PROPERTY = "sonar.log.rollingPolicy";
-  static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
 
   private static final String PROCESS_NAME_PLACEHOLDER = "XXXX";
   private static final String THREAD_ID_PLACEHOLDER = "ZZZZ";

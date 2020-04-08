@@ -32,6 +32,7 @@ import org.sonar.process.Props;
 import static java.lang.String.format;
 import static org.sonar.process.ProcessProperties.Property.PATH_DATA;
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
+import static org.sonar.process.ProcessProperties.Property.WEB_CONTEXT;
 
 /**
  * Configures Tomcat contexts:
@@ -41,8 +42,6 @@ import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
  * </ul>
  */
 public class TomcatContexts {
-
-  private static final String PROPERTY_CONTEXT = "sonar.web.context";
   private static final String WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR = "web/deploy";
 
   private final Fs fs;
@@ -68,11 +67,11 @@ public class TomcatContexts {
   }
 
   static String getContextPath(Props props) {
-    String context = props.value(PROPERTY_CONTEXT, "");
+    String context = props.value(WEB_CONTEXT.getKey(), "");
     if ("/".equals(context)) {
       context = "";
     } else if (!"".equals(context) && context != null && !context.startsWith("/")) {
-      throw MessageException.of(format("Value of '%s' must start with a forward slash: '%s'", PROPERTY_CONTEXT, context));
+      throw MessageException.of(format("Value of '%s' must start with a forward slash: '%s'", WEB_CONTEXT.getKey(), context));
     }
     return context;
   }

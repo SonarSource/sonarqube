@@ -47,10 +47,15 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.process.MessageException;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
+import static org.sonar.process.ProcessProperties.Property.LOG_CONSOLE;
+import static org.sonar.process.ProcessProperties.Property.LOG_LEVEL;
+import static org.sonar.process.ProcessProperties.Property.LOG_MAX_FILES;
+import static org.sonar.process.ProcessProperties.Property.LOG_ROLLING_POLICY;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 
 /**
@@ -58,7 +63,6 @@ import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
  */
 public class LogbackHelper extends AbstractLogHelper {
 
-  private static final String ALL_LOGS_TO_CONSOLE_PROPERTY = "sonar.log.console";
   private static final String LOGBACK_LOGGER_NAME_PATTERN = "%logger{20}";
 
   public LogbackHelper() {
@@ -118,7 +122,7 @@ public class LogbackHelper extends AbstractLogHelper {
     LoggerContext rootContext = getRootContext();
     logLevelConfig.getConfiguredByProperties().forEach((key, value) -> applyLevelByProperty(props, rootContext.getLogger(key), value));
     logLevelConfig.getConfiguredByHardcodedLevel().forEach((key, value) -> applyHardcodedLevel(rootContext, key, value));
-    Level propertyValueAsLevel = getPropertyValueAsLevel(props, SONAR_LOG_LEVEL_PROPERTY);
+    Level propertyValueAsLevel = getPropertyValueAsLevel(props, LOG_LEVEL.getKey());
     boolean traceGloballyEnabled = propertyValueAsLevel == Level.TRACE;
     logLevelConfig.getOffUnlessTrace().forEach(logger -> applyHardUnlessTrace(rootContext, logger, traceGloballyEnabled));
     return rootContext;
@@ -169,8 +173,8 @@ public class LogbackHelper extends AbstractLogHelper {
    * <p>
    * <ul>
    * <li>the file's name will use the prefix defined in {@link RootLoggerConfig#getProcessId()#getLogFilenamePrefix()}.</li>
-   * <li>the file will follow the rotation policy defined in property {@link #ROLLING_POLICY_PROPERTY} and
-   * the max number of files defined in property {@link #MAX_FILES_PROPERTY}</li>
+   * <li>the file will follow the rotation policy defined in property {@link ProcessProperties.Property#LOG_ROLLING_POLICY} and
+   * the max number of files defined in property {@link org.sonar.process.ProcessProperties.Property#LOG_MAX_FILES}</li>
    * <li>the logs will follow the specified log encoder</li>
    * </ul>
    * </p>
@@ -204,10 +208,10 @@ public class LogbackHelper extends AbstractLogHelper {
 
   /**
    * Finds out whether we are in testing environment (usually ITs) and logs of all processes must be forward to
-   * App's System.out. This is specified by the value of property {@link #ALL_LOGS_TO_CONSOLE_PROPERTY}.
+   * App's System.out. This is specified by the value of property {@link ProcessProperties.Property#LOG_CONSOLE}.
    */
   public boolean isAllLogsToConsoleEnabled(Props props) {
-    return props.valueAsBoolean(ALL_LOGS_TO_CONSOLE_PROPERTY, false);
+    return props.valueAsBoolean(LOG_CONSOLE.getKey(), false);
   }
 
   public Level getLoggerLevel(String loggerName) {
@@ -241,8 +245,8 @@ public class LogbackHelper extends AbstractLogHelper {
   }
 
   public RollingPolicy createRollingPolicy(Context ctx, Props props, String filenamePrefix) {
-    String rollingPolicy = props.value(ROLLING_POLICY_PROPERTY, "time:yyyy-MM-dd");
-    int maxFiles = props.valueAsInt(MAX_FILES_PROPERTY, 7);
+    String rollingPolicy = props.value(LOG_ROLLING_POLICY.getKey(), "time:yyyy-MM-dd");
+    int maxFiles = props.valueAsInt(LOG_MAX_FILES.getKey(), 7);
     File logsDir = props.nonNullValueAsFile(PATH_LOGS.getKey());
 
     if (rollingPolicy.startsWith("time:")) {
@@ -255,7 +259,7 @@ public class LogbackHelper extends AbstractLogHelper {
       return new NoRollingPolicy(ctx, filenamePrefix, logsDir, maxFiles);
 
     } else {
-      throw new MessageException(format("Unsupported value for property %s: %s", ROLLING_POLICY_PROPERTY, rollingPolicy));
+      throw new MessageException(format("Unsupported value for property %s: %s", LOG_ROLLING_POLICY.getKey(), rollingPolicy));
     }
   }
 

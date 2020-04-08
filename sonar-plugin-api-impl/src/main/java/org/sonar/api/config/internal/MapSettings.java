@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.utils.System2;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
@@ -42,7 +43,7 @@ public class MapSettings extends Settings {
   private final ConfigurationBridge configurationBridge;
 
   public MapSettings() {
-    this(new PropertyDefinitions());
+    this(new PropertyDefinitions(System2.INSTANCE));
   }
 
   public MapSettings(PropertyDefinitions definitions) {

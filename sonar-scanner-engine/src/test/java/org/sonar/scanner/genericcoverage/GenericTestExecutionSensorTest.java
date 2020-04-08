@@ -28,14 +28,15 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.scan.ProjectConfiguration;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,7 +58,7 @@ public class GenericTestExecutionSensorTest {
 
     Map<String, String> settings = new HashMap<>();
     settings.put(GenericTestExecutionSensor.OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY, "report.xml");
-    PropertyDefinitions defs = new PropertyDefinitions(GenericTestExecutionSensor.properties());
+    PropertyDefinitions defs = new PropertyDefinitions(System2.INSTANCE, GenericTestExecutionSensor.properties());
     DefaultConfiguration config = new ProjectConfiguration(defs, new Encryption(null), settings);
 
     new GenericTestExecutionSensor(mock(TestPlanBuilder.class), config).execute(context);
