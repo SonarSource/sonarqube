@@ -162,6 +162,8 @@ Follow these steps for your first installation:
 	$> docker volume create --name sonarqube_extensions
 	$> docker volume create --name sonarqube_logs
 	``` 
+	[[warning]]
+    | Make sure you're using [volumes](https://docs.docker.com/storage/volumes/) as shown with the above commands, and not [bind mounts](https://docs.docker.com/storage/bind-mounts/). Using bind mounts prevents plugins and languages from populating correctly.
 
 2. Drivers for supported databases (except Oracle) are already provided. If you're using an Oracle database, you need to add the JDBC driver to the `sonar_extensions` volume. To do this:
 
