@@ -20,7 +20,6 @@
   </sql>
 
   <sql id="columns">
-    ca.id,
     ca.uuid,
     ca.task_type as taskType,
     ca.component_uuid as componentUuid,
@@ -62,20 +61,20 @@
       <include refid="countWarnings"/>
     <include refid="sqlSelectByQuery" />
     order by
-      ca.created_at desc, id desc
+      ca.created_at desc, uuid desc
     limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="mssql">
     select * from (
-    select row_number() over(order by ca.created_at desc, id desc) as number,
+    select row_number() over(order by ca.created_at desc, uuid desc) as number,
       <include refid="columns"/>,
       <include refid="countWarnings"/>
       <include refid="sqlSelectByQuery" />
       ) as query
     where
       query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by createdAt desc, id desc
+    order by createdAt desc, uuid desc
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="oracle">
@@ -85,7 +84,7 @@
         <include refid="columns"/>,
         <include refid="countWarnings"/>
         <include refid="sqlSelectByQuery" />
-        order by ca.created_at desc, ca.id desc
+        order by ca.created_at desc, ca.uuid desc
       ) t
     ) t
     where

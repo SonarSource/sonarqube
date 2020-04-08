@@ -21,6 +21,9 @@ package org.sonar.server.platform.db.migration.version.v83;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.server.platform.db.migration.version.v83.ceactivity.AddPrimaryKeyOnUuidColumnOfCeActivityTable;
+import org.sonar.server.platform.db.migration.version.v83.ceactivity.DropIdColumnOfCeActivityTable;
+import org.sonar.server.platform.db.migration.version.v83.ceactivity.DropPrimaryKeyOnIdColumnOfCeActivityTable;
 import org.sonar.server.platform.db.migration.version.v83.cequeue.AddPrimaryKeyOnUuidColumnOfCeQueueTable;
 import org.sonar.server.platform.db.migration.version.v83.cequeue.DropIdColumnOfCeQueueTable;
 import org.sonar.server.platform.db.migration.version.v83.cequeue.DropPrimaryKeyOnIdColumnOfCeQueueTable;
@@ -81,11 +84,16 @@ public class DbVersion83 implements DbVersion {
       .add(3413, "Add primary key on 'UUID' column of 'SNAPSHOTS' table", AddPrimaryKeyOnUuidColumnOfSnapshotsTable.class)
       .add(3414, "Drop column 'ID' of 'SNAPSHOTS' table", DropIdColumnOfSnapshotsTable.class)
 
-      // Migration on ce_queue table
+      // Migration on CE_QUEUE table
       .add(3415, "Drop unique index on 'uuid' column of 'CE_QUEUE' table", DropUniqueIndexOnUuidColumnOfCeQueueTable.class)
       .add(3416, "Drop primary key on 'ID' column of 'CE_QUEUE' table", DropPrimaryKeyOnIdColumnOfCeQueueTable.class)
       .add(3417, "Add primary key on 'UUID' column of 'CE_QUEUE' table", AddPrimaryKeyOnUuidColumnOfCeQueueTable.class)
       .add(3418, "Drop column 'ID' of 'CE_QUEUE' table", DropIdColumnOfCeQueueTable.class)
+
+      // Migration on CE_ACTIVITY table
+      .add(3419, "Drop primary key on 'ID' column of 'CE_ACTIVITY' table", DropPrimaryKeyOnIdColumnOfCeActivityTable.class)
+      .add(3420, "Add primary key on 'UUID' column of 'CE_ACTIVITY' table", AddPrimaryKeyOnUuidColumnOfCeActivityTable.class)
+      .add(3421, "Drop column 'ID' of 'CE_ACTIVITY' table", DropIdColumnOfCeActivityTable.class)
 
     ;
   }

@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
-
 public class RenameProjectsTableToComponentsTest {
   private static final String TABLE_NAME = "projects";
   private static final String NEW_TABLE_NAME = "components";

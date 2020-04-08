@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v82.CreateProjectsTable;
 
 import static java.sql.Types.BIGINT;
 import static java.sql.Types.BOOLEAN;
