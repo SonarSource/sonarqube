@@ -50,7 +50,6 @@ export default function CreateProjectModeSelection(props: CreateProjectModeSelec
             alt="" // Should be ignored by screen readers
             height={80}
             src={`${getBaseUrl()}/images/sonarcloud/analysis/manual.svg`}
-            width={80}
           />
           <div className="medium big-spacer-top">
             {translate('onboarding.create_project.select_method.manual')}

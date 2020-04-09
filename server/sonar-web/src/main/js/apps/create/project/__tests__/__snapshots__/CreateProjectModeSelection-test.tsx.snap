@@ -28,7 +28,6 @@ exports[`should render correctly: default 1`] = `
         alt=""
         height={80}
         src="/images/sonarcloud/analysis/manual.svg"
-        width={80}
       />
       <div
         className="medium big-spacer-top"
@@ -86,7 +85,6 @@ exports[`should render correctly: loading bbs instances 1`] = `
         alt=""
         height={80}
         src="/images/sonarcloud/analysis/manual.svg"
-        width={80}
       />
       <div
         className="medium big-spacer-top"
@@ -150,7 +148,6 @@ exports[`should render correctly: no bbs instances 1`] = `
         alt=""
         height={80}
         src="/images/sonarcloud/analysis/manual.svg"
-        width={80}
       />
       <div
         className="medium big-spacer-top"
@@ -222,7 +219,6 @@ exports[`should render correctly: too many bbs instances 1`] = `
         alt=""
         height={80}
         src="/images/sonarcloud/analysis/manual.svg"
-        width={80}
       />
       <div
         className="medium big-spacer-top"
