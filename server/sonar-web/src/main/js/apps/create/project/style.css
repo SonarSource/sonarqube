@@ -145,10 +145,6 @@
   max-width: 500px;
 }
 
-.create-project-import-bbs i.icon-radio {
-  flex-shrink: 0;
-}
-
 .create-project-import-bbs .open .boxed-group-header {
   border-bottom: 1px solid var(--barBorderColor);
 }
