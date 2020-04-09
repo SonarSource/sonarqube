@@ -269,7 +269,7 @@ public class IssuesChangesNotificationBuilder {
         return false;
       }
       Rule that = (Rule) o;
-      return key.equals(that.key) && ruleType.equals(that.ruleType) && name.equals(that.name);
+      return key.equals(that.key) && ruleType == that.ruleType && name.equals(that.name);
     }
 
     @Override
