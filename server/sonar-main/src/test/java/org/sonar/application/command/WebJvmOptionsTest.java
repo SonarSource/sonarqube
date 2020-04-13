@@ -48,7 +48,7 @@ public class WebJvmOptionsTest {
     when(javaVersion.isAtLeastJava11()).thenReturn(false);
     underTest = new WebJvmOptions(tmpDir, javaVersion);
     assertThat(underTest.getAll()).containsExactly(
-      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
+      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(), "-XX:-OmitStackTraceInFastThrow");
   }
 
   @Test
@@ -57,7 +57,7 @@ public class WebJvmOptionsTest {
     underTest = new WebJvmOptions(tmpDir, javaVersion);
 
     assertThat(underTest.getAll()).containsExactly(
-      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
+      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(), "-XX:-OmitStackTraceInFastThrow",
       "--add-opens=java.base/java.util=ALL-UNNAMED",
       "--add-opens=java.base/java.lang=ALL-UNNAMED",
       "--add-opens=java.base/java.io=ALL-UNNAMED",

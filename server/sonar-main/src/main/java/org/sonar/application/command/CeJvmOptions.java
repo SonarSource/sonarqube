@@ -34,6 +34,7 @@ public class CeJvmOptions extends JvmOptions<CeJvmOptions> {
     res.put("-Djava.awt.headless=", "true");
     res.put("-Dfile.encoding=", "UTF-8");
     res.put("-Djava.io.tmpdir=", tmpDir.getAbsolutePath());
+    res.put("-XX:-OmitStackTraceInFastThrow", "");
 
     if (javaVersion.isAtLeastJava11()) {
       // avoid illegal reflective access operations done by MyBatis

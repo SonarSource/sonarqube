@@ -48,7 +48,7 @@ public class CeJvmOptionsTest {
     when(javaVersion.isAtLeastJava11()).thenReturn(false);
     underTest = new CeJvmOptions(tmpDir, javaVersion);
     assertThat(underTest.getAll()).containsExactly(
-      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath());
+      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(), "-XX:-OmitStackTraceInFastThrow");
   }
 
   @Test
@@ -56,7 +56,7 @@ public class CeJvmOptionsTest {
     when(javaVersion.isAtLeastJava11()).thenReturn(true);
     underTest = new CeJvmOptions(tmpDir, javaVersion);
     assertThat(underTest.getAll()).containsExactly(
-      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(),
+      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(), "-XX:-OmitStackTraceInFastThrow",
       "--add-opens=java.base/java.util=ALL-UNNAMED");
   }
 }
