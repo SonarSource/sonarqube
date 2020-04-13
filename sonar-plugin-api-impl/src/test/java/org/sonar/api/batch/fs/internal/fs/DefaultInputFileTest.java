@@ -45,6 +45,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
+import org.sonar.api.notifications.AnalysisWarnings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -246,7 +247,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void checkValidRange() {
-    Metadata metadata = new FileMetadata().readMetadata(new StringReader("bla bla a\nabcde"));
+    Metadata metadata = new FileMetadata(mock(AnalysisWarnings.class)).readMetadata(new StringReader("bla bla a\nabcde"));
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
 
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 1)).start().line()).isEqualTo(1);
@@ -272,7 +273,7 @@ public class DefaultInputFileTest {
 
   @Test
   public void selectLine() {
-    Metadata metadata = new FileMetadata().readMetadata(new StringReader("bla bla a\nabcde\n\nabc"));
+    Metadata metadata = new FileMetadata(mock(AnalysisWarnings.class)).readMetadata(new StringReader("bla bla a\nabcde\n\nabc"));
     DefaultInputFile file = new DefaultInputFile(new DefaultIndexedFile("ABCDE", Paths.get("module"), MODULE_RELATIVE_PATH, null), f -> f.setMetadata(metadata));
 
     assertThat(file.selectLine(1).start().line()).isEqualTo(1);

@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -44,12 +44,10 @@ import static org.mockito.Mockito.mock;
 
 public class IssueExclusionsRegexpScannerTest {
   private DefaultInputFile javaFile;
-  private IssueExclusionPatternInitializer patternsInitializer = mock(IssueExclusionPatternInitializer.class);
-
   private List<Pattern> allFilePatterns;
   private List<DoubleRegexpMatcher> blockPatterns;
   private IssueExclusionsRegexpScanner regexpScanner;
-  private FileMetadata fileMetadata = new FileMetadata();
+  private FileMetadata fileMetadata = new FileMetadata(mock(AnalysisWarnings.class));
 
   @Before
   public void init() {

@@ -31,6 +31,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.PathUtils;
 
 /**
@@ -207,7 +208,8 @@ public class TestInputFileBuilder {
   }
 
   public TestInputFileBuilder initMetadata(String content) {
-    return setMetadata(new FileMetadata().readMetadata(new StringReader(content)));
+    AnalysisWarnings analysisWarnings = (warning) -> {};
+    return setMetadata(new FileMetadata(analysisWarnings).readMetadata(new StringReader(content)));
   }
 
   public DefaultInputFile build() {

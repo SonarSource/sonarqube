@@ -54,7 +54,7 @@ public class MetadataGeneratorTest {
 
   @Before
   public void setUp() {
-    FileMetadata metadata = new FileMetadata();
+    FileMetadata metadata = new FileMetadata(mock(AnalysisWarnings.class));
     IssueExclusionsLoader issueExclusionsLoader = new IssueExclusionsLoader(mock(IssueExclusionPatternInitializer.class), mock(IgnoreIssuesFilter.class),
       mock(AnalysisWarnings.class));
     generator = new MetadataGenerator(statusDetection, metadata, issueExclusionsLoader);

@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.internal.charhandler.FileHashComputer;
 import org.sonar.api.batch.fs.internal.charhandler.LineCounter;
 import org.sonar.api.batch.fs.internal.charhandler.LineHashComputer;
 import org.sonar.api.batch.fs.internal.charhandler.LineOffsetCounter;
+import org.sonar.api.notifications.AnalysisWarnings;
 
 /**
  * Computes hash of files. Ends of Lines are ignored, so files with
@@ -43,13 +44,18 @@ import org.sonar.api.batch.fs.internal.charhandler.LineOffsetCounter;
 public class FileMetadata {
   private static final char LINE_FEED = '\n';
   private static final char CARRIAGE_RETURN = '\r';
+  private final AnalysisWarnings analysisWarnings;
+
+  public FileMetadata(AnalysisWarnings analysisWarnings) {
+    this.analysisWarnings = analysisWarnings;
+  }
 
   /**
    * Compute hash of a file ignoring line ends differences.
    * Maximum performance is needed.
    */
   public Metadata readMetadata(InputStream stream, Charset encoding, String filePath, @Nullable CharHandler otherHandler) {
-    LineCounter lineCounter = new LineCounter(filePath, encoding);
+    LineCounter lineCounter = new LineCounter(analysisWarnings, filePath, encoding);
     FileHashComputer fileHashComputer = new FileHashComputer(filePath);
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
 
@@ -73,7 +79,7 @@ public class FileMetadata {
    * For testing purpose
    */
   public Metadata readMetadata(Reader reader) {
-    LineCounter lineCounter = new LineCounter("fromString", StandardCharsets.UTF_16);
+    LineCounter lineCounter = new LineCounter(analysisWarnings, "fromString", StandardCharsets.UTF_16);
     FileHashComputer fileHashComputer = new FileHashComputer("fromString");
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
     CharHandler[] handlers = {lineCounter, fileHashComputer, lineOffsetCounter};
