@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -101,13 +103,14 @@ public class SearchAction implements HotspotsWsAction {
   private final UserSession userSession;
   private final IssueIndex issueIndex;
   private final HotspotWsResponseFormatter responseFormatter;
+  private System2 system2;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex,
-    HotspotWsResponseFormatter responseFormatter) {
+  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex, HotspotWsResponseFormatter responseFormatter, System2 system2) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.responseFormatter = responseFormatter;
+    this.system2 = system2;
   }
 
   @Override
@@ -292,10 +295,11 @@ public class SearchAction implements HotspotsWsAction {
         builder.mainBranch(false);
       }
 
-      if (wsRequest.isSinceLeakPeriod()) {
-        dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, p.uuid())
+      if (wsRequest.isSinceLeakPeriod() && !wsRequest.getPullRequest().isPresent()) {
+        Date sinceDate = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, p.uuid())
           .map(s -> longToDate(s.getPeriodDate()))
-          .ifPresent(d -> builder.createdAfter(d, false));
+          .orElseGet(() -> new Date(system2.now()));
+        builder.createdAfter(sinceDate, false);
       }
     });
     if (!hotspotKeys.isEmpty()) {

@@ -307,7 +307,7 @@ public class SearchAction implements IssuesWsAction {
       .setExampleValue("1m2w (1 month 2 weeks)");
     action.createParam(PARAM_SINCE_LEAK_PERIOD)
       .setDescription("To retrieve issues created since the leak period.<br>" +
-        "If this parameter is set to a truthy value, createdAfter must not be set and one component id or key must be provided.")
+        "If this parameter is set to a truthy value, createdAfter must not be set and one component uuid or key must be provided.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
   }

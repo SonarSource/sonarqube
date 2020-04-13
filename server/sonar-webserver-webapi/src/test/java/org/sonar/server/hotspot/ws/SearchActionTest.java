@@ -40,6 +40,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
@@ -50,7 +51,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -104,6 +104,7 @@ public class SearchActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
+  private TestSystem2 system2 = new TestSystem2();
   private DbClient dbClient = dbTester.getDbClient();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
@@ -113,7 +114,7 @@ public class SearchActionTest {
   private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
   private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
 
-  private SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex, responseFormatter);
+  private SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex, responseFormatter, system2);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -724,8 +725,8 @@ public class SearchActionTest {
       .setParam("hotspots", IntStream.range(2, 10).mapToObj(String::valueOf).collect(joining(",")))
       .setParam("onlyMine", "true")
       .execute())
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Parameter 'onlyMine' can be used with parameter 'projectKey' only");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter 'onlyMine' can be used with parameter 'projectKey' only");
   }
 
   @Test
@@ -738,8 +739,8 @@ public class SearchActionTest {
       .setParam("projectKey", project.getKey())
       .setParam("onlyMine", "true")
       .execute())
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Parameter 'onlyMine' requires user to be logged in");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Parameter 'onlyMine' requires user to be logged in");
   }
 
   @Test
@@ -1340,7 +1341,7 @@ public class SearchActionTest {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam("sinceLeakPeriod", "true"))
-        .executeProtobuf(SearchWsResponse.class);
+      .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Stream.concat(
@@ -1348,6 +1349,69 @@ public class SearchActionTest {
         atLeakPeriod.stream())
         .map(IssueDto::getKey)
         .toArray(String[]::new));
+  }
+
+  @Test
+  public void returns_nothing_when_sinceLeakPeriod_is_true_and_no_period_exists() {
+    long referenceDate = 800_996_999_332L;
+
+    system2.setNow(referenceDate + 10_000);
+    ComponentDto project = dbTester.components().insertPublicProject();
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    dbTester.components().insertSnapshot(project, t -> t.setPeriodDate(referenceDate).setLast(false));
+    dbTester.components().insertSnapshot(project, t -> t.setPeriodDate(null).setLast(true));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto afterRef = dbTester.issues().insertHotspot(rule, project, file, t -> t.setIssueCreationTime(referenceDate + 1000));
+    IssueDto atRef = dbTester.issues().insertHotspot(rule, project, file, t -> t.setType(SECURITY_HOTSPOT).setIssueCreationTime(referenceDate));
+    IssueDto beforeRef = dbTester.issues().insertHotspot(rule, project, file, t -> t.setIssueCreationTime(referenceDate - 1000));
+    indexIssues();
+
+    SearchWsResponse responseAll = newRequest(project)
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseAll.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(Stream.of(afterRef, atRef, beforeRef)
+        .map(IssueDto::getKey)
+        .toArray(String[]::new));
+
+    SearchWsResponse responseOnLeak = newRequest(project,
+      t -> t.setParam("sinceLeakPeriod", "true"))
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseOnLeak.getHotspotsList()).isEmpty();
+  }
+
+  @Test
+  public void returnsall_issues_when_sinceLeakPeriod_is_true_and_is_pr() {
+    long referenceDate = 800_996_999_332L;
+
+    system2.setNow(referenceDate + 10_000);
+    ComponentDto project = dbTester.components().insertPublicProject();
+    ComponentDto pr = dbTester.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setKey("pr"));
+    userSessionRule.registerComponents(project);
+    indexPermissions();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(pr));
+    dbTester.components().insertSnapshot(project, t -> t.setPeriodDate(referenceDate).setLast(true));
+    dbTester.components().insertSnapshot(pr, t -> t.setPeriodDate(null).setLast(true));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT);
+    IssueDto afterRef = dbTester.issues().insertHotspot(rule, pr, file, t -> t.setIssueCreationTime(referenceDate + 1000));
+    IssueDto atRef = dbTester.issues().insertHotspot(rule, pr, file, t -> t.setType(SECURITY_HOTSPOT).setIssueCreationTime(referenceDate));
+    IssueDto beforeRef = dbTester.issues().insertHotspot(rule, pr, file, t -> t.setIssueCreationTime(referenceDate - 1000));
+    indexIssues();
+
+    SearchWsResponse responseAll = newRequest(project).setParam("pullRequest", "pr")
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseAll.getHotspotsList())
+      .extracting(SearchWsResponse.Hotspot::getKey)
+      .containsExactlyInAnyOrder(Stream.of(afterRef, atRef, beforeRef)
+        .map(IssueDto::getKey)
+        .toArray(String[]::new));
+
+    SearchWsResponse responseOnLeak = newRequest(project,
+      t -> t.setParam("sinceLeakPeriod", "true").setParam("pullRequest", "pr"))
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(responseOnLeak.getHotspotsList()).hasSize(3);
   }
 
   @Test
@@ -1375,7 +1439,7 @@ public class SearchActionTest {
         return insertHotspot(rule, project, fileWithHotspot, issueDto -> issueDto.setKee("hotspot-" + i)
           .setAssigneeUuid("assignee-uuid")
           .setAuthorLogin("joe")
-          .setMessage("message-" +i)
+          .setMessage("message-" + i)
           .setLine(10 + i)
           .setIssueCreationTime(time)
           .setIssueUpdateTime(time)

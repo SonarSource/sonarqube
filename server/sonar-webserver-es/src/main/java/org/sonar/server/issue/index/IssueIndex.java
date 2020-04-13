@@ -638,7 +638,7 @@ public class IssueIndex {
   }
 
   private void validateCreationDateBounds(@Nullable Date createdBefore, @Nullable Date createdAfter) {
-    Preconditions.checkArgument(createdAfter == null || createdAfter.before(new Date(system.now())),
+    Preconditions.checkArgument(createdAfter == null || createdAfter.compareTo(new Date(system.now())) <= 0,
       "Start bound cannot be in the future");
     Preconditions.checkArgument(createdAfter == null || createdBefore == null || createdAfter.before(createdBefore),
       "Start bound cannot be larger or equal to end bound");
