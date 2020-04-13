@@ -45,12 +45,12 @@ public class InfoAction implements SystemWsAction {
       .setDescription("Get detailed information about system configuration.<br/>" +
         "Requires 'Administer' permissions.")
       .setSince("5.1")
-      .setInternal(true)
       .setResponseExample(getClass().getResource("info-example.json"))
       .setHandler(this);
 
     action.setChangelog(
-      new Change("5.5", "Becomes internal to easily update result")
+      new Change("5.5", "Becomes internal to easily update result"),
+      new Change("8.3", "Becomes public")
     );
   }
 

@@ -45,7 +45,7 @@ public class InfoActionTest {
   @Test
   public void test_definition() {
     assertThat(ws.getDef().key()).isEqualTo("info");
-    assertThat(ws.getDef().isInternal()).isTrue();
+    assertThat(ws.getDef().isInternal()).isFalse();
     assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
     assertThat(ws.getDef().params()).isEmpty();
   }
