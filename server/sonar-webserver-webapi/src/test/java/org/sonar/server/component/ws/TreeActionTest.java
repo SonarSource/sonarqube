@@ -110,7 +110,7 @@ public class TreeActionTest {
     assertThat(component.exampleValue()).isNotNull();
 
     Param branch = action.param(PARAM_BRANCH);
-    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isInternal()).isFalse();
     assertThat(branch.isRequired()).isFalse();
     assertThat(branch.since()).isEqualTo("6.6");
   }

@@ -84,12 +84,12 @@ public class ShowActionTest {
     assertThat(component.exampleValue()).isNotNull();
 
     WebService.Param branch = action.param(PARAM_BRANCH);
-    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isInternal()).isFalse();
     assertThat(branch.isRequired()).isFalse();
     assertThat(branch.since()).isEqualTo("6.6");
 
     WebService.Param pullRequest = action.param(PARAM_PULL_REQUEST);
-    assertThat(pullRequest.isInternal()).isTrue();
+    assertThat(pullRequest.isInternal()).isFalse();
     assertThat(pullRequest.isRequired()).isFalse();
     assertThat(pullRequest.since()).isEqualTo("7.1");
   }

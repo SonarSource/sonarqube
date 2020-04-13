@@ -361,15 +361,13 @@ public class SearchAction implements IssuesWsAction {
       .setExampleValue("bdd82933-3070-4903-9188-7d8749e8bb92");
 
     action.createParam(PARAM_BRANCH)
-      .setDescription("Branch key")
+      .setDescription("Branch key. Not available in the community edition.")
       .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setInternal(true)
       .setSince("6.6");
 
     action.createParam(PARAM_PULL_REQUEST)
-      .setDescription("Pull request id")
+      .setDescription("Pull request id. Not available in the community edition.")
       .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
-      .setInternal(true)
       .setSince("7.1");
 
     action.createParam(PARAM_ORGANIZATION)

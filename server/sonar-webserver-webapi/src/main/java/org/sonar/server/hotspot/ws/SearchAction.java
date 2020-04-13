@@ -129,13 +129,11 @@ public class SearchAction implements HotspotsWsAction {
         PARAM_HOTSPOTS))
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(PARAM_BRANCH)
-      .setDescription("Branch key")
-      .setExampleValue(KEY_BRANCH_EXAMPLE_001)
-      .setInternal(true);
+      .setDescription("Branch key. Not available in the community edition.")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
     action.createParam(PARAM_PULL_REQUEST)
-      .setDescription("Pull request id")
-      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001)
-      .setInternal(true);
+      .setDescription("Pull request id. Not available in the community edition.")
+      .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
     action.createParam(PARAM_HOTSPOTS)
       .setDescription(format(
         "Comma-separated list of Security Hotspot keys. This parameter is required unless %s is provided.",

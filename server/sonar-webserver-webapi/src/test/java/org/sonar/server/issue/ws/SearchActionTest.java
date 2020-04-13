@@ -1107,7 +1107,7 @@ public class SearchActionTest {
       .matches(p -> p.since().equals("6.4"));
 
     WebService.Param branch = def.param(PARAM_BRANCH);
-    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isInternal()).isFalse();
     assertThat(branch.isRequired()).isFalse();
     assertThat(branch.since()).isEqualTo("6.6");
 

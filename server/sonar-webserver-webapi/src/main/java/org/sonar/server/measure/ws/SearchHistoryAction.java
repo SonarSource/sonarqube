@@ -98,15 +98,13 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_BRANCH)
-      .setDescription("Branch key")
+      .setDescription("Branch key. Not available in the community edition.")
       .setSince("6.6")
-      .setInternal(true)
       .setExampleValue(KEY_BRANCH_EXAMPLE_001);
 
     action.createParam(PARAM_PULL_REQUEST)
-      .setDescription("Pull request id")
+      .setDescription("Pull request id. Not available in the community edition.")
       .setSince("7.1")
-      .setInternal(true)
       .setExampleValue(KEY_PULL_REQUEST_EXAMPLE_001);
 
     action.createParam(PARAM_METRICS)
