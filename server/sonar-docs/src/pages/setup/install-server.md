@@ -269,7 +269,7 @@ To fix this issue, the rights of the `sonarqube` Oracle user must be decreased t
 ### Failed to connect to the Marketplace via proxy
 
 Double check that settings for proxy are correctly set in `$SONARQUBE_HOME/conf/sonar.properties`.
-Note that if your proxy username contains "\" (backslash), then it should be escaped - for example username "domain\user" in file should look like:
+Note that if your proxy username contains a backslash, then it should be escaped - for example username "domain\user" in file should look like:
 
 ```
 http.proxyUser=domain\\user
