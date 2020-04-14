@@ -3,8 +3,6 @@ title: Install the Server as a Cluster
 url: /setup/install-cluster/
 ---
 
-<!-- sonarqube -->
-
 _Running SonarQube as a Cluster is only possible with a [Data Center Edition](https://www.sonarsource.com/plans-and-pricing/data-center/)_.
 
 The Data Center Edition allows SonarQube to run in a clustered configuration to make it resilient to failures.
@@ -170,5 +168,3 @@ The following is an example of the default SonarQube cluster installation proces
 5. Configure the load balancer to proxy with both application nodes.
 
 Congratulations, you have a fully-functional SonarQube cluster.  Once these steps are complete, take a break and a coffee, then you can [Operate your Cluster](/setup/operate-cluster/).
-
-<!-- /sonarqube -->

@@ -1,42 +1,62 @@
 ---
-title: Get Started in Two Minutes Guide
+title: Try Out SonarQube
 url: /setup/get-started-2-minutes/
 ---
+You've heard about how [SonarQube](https://www.sonarqube.org/) can help you write cleaner and safer code, and now you're ready to try it out for yourself. This guide shows you how to install a local instance of SonarQube and analyze a project. Installing a local instance gets you up and running quickly, so you can experience SonarQube first hand.
 
-[[info]]
-| This guides shows you how to install a demo instance. When you are ready to move to production, take some time to read the [Install the Server](/setup/install-server/) documentation.
+Once you're ready to set up a production instance, take a look at the [Install SonarQube](/setup/install-server/) documentation.
 
-## Installing from a zip file
+## Installing a local instance of SonarQube
+You can install SonarQube from either the [zip file](https://www.sonarqube.org/downloads/) or the [Docker image](https://hub.docker.com/_/sonarqube/). Click the method you prefer below to expand the installation instructions: 
 
-1. [Download](https://www.sonarqube.org/downloads/) the SonarQube Community Edition.
+[[collapse]]
+| ## From a zip file
+|
+| 1. [Download](https://www.sonarqube.org/downloads/) the SonarQube Community Edition zip file.
+|
+| 2. As a **non-`root` user**, unzip it, let's say in _C:\sonarqube_ or _/opt/sonarqube_.
+|
+| 3. As a **non-`root` user**, start the SonarQube Server:
+|
+|    ```
+|    # On Windows, execute:
+|    C:\sonarqube\bin\windows-x86-64\StartSonar.bat
+|
+|    # On other operating systems, as a non-root user execute:
+|    /opt/sonarqube/bin/[OS]/sonar.sh console
+|    ```
+|
+|   ![](/images/info.svg) If your instance fails to start, check your [logs](/setup/troubleshooting/) to find the cause.
+|
+| 4. Log in to [http://localhost:9000](http://localhost:9000) using System Administrator credentials (login=admin, password=admin).
 
-2. As a **non-`root` user**, unzip it, let's say in _C:\sonarqube_ or _/opt/sonarqube_.
+[[collapse]]
+| ## From a Docker image
+| Find the Community Edition Docker image on [Docker Hub](https://hub.docker.com/_/sonarqube/).
+|
+| 1. Start the server by running:
+|
+| ```console
+| $ docker run -d --name sonarqube -p 9000:9000 <image_name>
+| ```
+|
+| 2. Log in to [http://localhost:9000](http://localhost:9000) with System Administrator credentials (login=admin, password=admin).
 
-3. As a **non-`root` user**, start the SonarQube Server:
+## Analyzing a Project
+Now that you're logged in to your local SonarQube instance, let's analyze a project: 
 
-   ```
-   # On Windows, execute:
-   C:\sonarqube\bin\windows-x86-xx\StartSonar.bat
+1. Click the **Create new project** button.
 
-   # On other operating systems, as a non-root user execute:
-   /opt/sonarqube/bin/[OS]/sonar.sh console
-   ```
+1. When asked **How do you want to create your project**, select **Manually**.
 
-   ![](/images/info.svg) If your instance fails to start, check your [logs](/setup/troubleshooting/) to find the cause.
+1. Give your project a **Project key** and a **Display name** and click the **Set Up** button.
 
-4. Log in to [http://localhost:9000](http://localhost:9000) with System Administrator credentials (login=admin, password=admin).
+1. Under **Provide a token**, select **Generate a token**. Give your token a name, click the **Generate** button, and click **Continue**.
 
-5. Click the **Create new project** button to analyze your first project.
+1. Select your project's main language under **Run analysis on your project**, and follow the instructions to analyze your project. Here you'll download and execute a Scanner on your code (if you're using Maven or Gradle, the Scanner is automatically downloaded).
 
-## Using Docker
-Images of the Community, Developer, and Enterprise Editions are available on [Docker Hub](https://hub.docker.com/_/sonarqube/).
+After successfully analyzing your code, you'll see your first analysis on SonarQube:
 
-1. Start the server by running:
+![successful analysis](/images/successfulproject.png)
 
-```console
-$ docker run -d --name sonarqube -p 9000:9000 <image_name>
-```
 
-2. Log in to [http://localhost:9000](http://localhost:9000) with System Administrator credentials (login=admin, password=admin).
-
-3. Click the **Create new project** button to analyze your first project.

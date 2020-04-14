@@ -5,7 +5,7 @@ url: /setup/install-server/
 
 ## Installing the Database
 
-Several [database engines](/requirements/requirements/) are supported. Be sure to follow the requirements listed for your database, they are real requirements not recommendations.
+Several [database engines](/requirements/requirements/) are supported. Be sure to follow the requirements listed for your database. They are real requirements not recommendations.
 
 Create an empty schema and a `sonarqube` user. Grant this `sonarqube` user permissions to `create`, `update`, and `delete` objects for this schema.
 
@@ -72,11 +72,11 @@ Create an empty schema and a `sonarqube` user. Grant this `sonarqube` user permi
 |ALTER USER mySonarUser SET search_path to mySonarQubeSchema
 |```
 
-## Installing the Server from the ZIP file
+## Installing SonarQube from the ZIP file
 
 First, check the [requirements](/requirements/requirements/). Then download and unzip the [distribution](http://www.sonarqube.org/downloads/) (do not unzip into a directory starting with a digit). 
 
-SonarQube cannot be run as `root` on Unix-based systems, so create a dedicated user account to use for SonarQube if necessary.
+SonarQube cannot be run as `root` on Unix-based systems, so create a dedicated user account for SonarQube if necessary.
 
 _$SONARQUBE-HOME_ (below) refers to the path to the directory where the SonarQube distribution has been unzipped.
 
@@ -143,7 +143,7 @@ wrapper.java.command=/path/to/my/jdk/bin/java
 - Running SonarQube [behind a Proxy](/setup/operate-server/)
 - Monitoring and adjusting [Java Process Memory](/instance-administration/monitoring/)
 
-## Installing the Server from the Docker Image
+## Installing SonarQube from the Docker Image
 
 See your SonarQube version below for instructions on installing the server from a Docker image.
 
