@@ -20,10 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import {
-  formatMeasure,
-  getMinDecimalsCountToBeDistinctFromThreshold
-} from 'sonar-ui-common/helpers/measures';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getLeakValue } from '../../../components/measure/utils';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { findMeasure } from '../../../helpers/measures';
@@ -33,7 +30,6 @@ import {
   getMeasurementLabelKeys,
   getMeasurementLinesMetricKey,
   getMeasurementMetricKey,
-  getThreshold,
   MeasurementType
 } from '../utils';
 
@@ -105,12 +101,7 @@ export default class MeasurementLabel extends React.Component<Props> {
         className="overview-measures-value text-light"
         component={component.key}
         metric={metric}>
-        {formatMeasure(value, 'PERCENT', {
-          decimals: getMinDecimalsCountToBeDistinctFromThreshold(
-            parseFloat(value),
-            getThreshold(measures, metric)
-          )
-        })}
+        {formatMeasure(value, 'PERCENT', { decimals: 2, omitExtraDecimalZeros: true })}
       </DrilldownLink>
     );
     const label = this.getLabelText();

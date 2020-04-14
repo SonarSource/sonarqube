@@ -25,7 +25,6 @@ import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CoverageRating from '../../components/ui/CoverageRating';
 import { MetricKey } from '../../types/metrics';
-import { QualityGateStatusConditionEnhanced } from '../../types/quality-gates';
 
 export const METRICS: string[] = [
   // quality gate
@@ -218,38 +217,4 @@ export function getMeasurementLabelKeys(type: MeasurementType, useDiffMetric: bo
       : MEASUREMENTS_MAP[type].expandedLabelKey,
     labelKey: MEASUREMENTS_MAP[type].labelKey
   };
-}
-
-/*
- * Extract a specific metric's threshold from the quality gate details
- */
-export function getThreshold(
-  measures: T.MeasureEnhanced[],
-  metricKey: MetricKey | string
-): number | undefined {
-  const detailsMeasure = measures.find(
-    measure => measure.metric.key === MetricKey.quality_gate_details
-  );
-  if (detailsMeasure && detailsMeasure.value) {
-    const details = safeParse(detailsMeasure.value);
-    const conditions: QualityGateStatusConditionEnhanced[] = details.conditions || [];
-
-    const condition = conditions.find(c => c.metric === metricKey);
-    if (condition) {
-      return parseFloat(
-        (condition.level === 'ERROR' ? condition.error : condition.warning) as string
-      );
-    }
-  }
-  return undefined;
-}
-
-function safeParse(json: string) {
-  try {
-    return JSON.parse(json);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
-    return {};
-  }
 }

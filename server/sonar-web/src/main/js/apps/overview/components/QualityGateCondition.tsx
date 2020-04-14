@@ -22,10 +22,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import {
-  formatMeasure,
-  getMinDecimalsCountToBeDistinctFromThreshold
-} from 'sonar-ui-common/helpers/measures';
+import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import Measure from '../../../components/measure/Measure';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
@@ -128,22 +125,16 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
       : measure.value) as string;
 
     let operator = translate('quality_gates.operator', condition.op);
-    let decimals: number | undefined = undefined;
 
     if (metric.type === 'RATING') {
       operator = translate('quality_gates.operator', condition.op, 'rating');
-    } else if (metric.type === 'PERCENT') {
-      decimals = getMinDecimalsCountToBeDistinctFromThreshold(
-        parseFloat(actual),
-        parseFloat(threshold)
-      );
     }
 
     return this.wrapWithLink(
       <div className="overview-quality-gate-condition-container display-flex-center">
         <div className="overview-quality-gate-condition-value text-center">
           <Measure
-            decimals={decimals}
+            decimals={2}
             metricKey={measure.metric.key}
             metricType={measure.metric.type}
             value={actual}

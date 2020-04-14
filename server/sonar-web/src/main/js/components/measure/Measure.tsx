@@ -50,7 +50,10 @@ export default function Measure({
   }
 
   if (metricType !== 'RATING') {
-    const formattedValue = formatMeasure(value, metricType, { decimals });
+    const formattedValue = formatMeasure(value, metricType, {
+      decimals,
+      omitExtraDecimalZeros: metricType === 'PERCENT'
+    });
     return <span className={className}>{formattedValue != null ? formattedValue : '–'}</span>;
   }
 
