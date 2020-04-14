@@ -23,7 +23,7 @@ import * as React from 'react';
 import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getApplicationLeak } from '../../../../api/application';
-import { getMeasuresAndMeta } from '../../../../api/measures';
+import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
 import { getProjectActivity } from '../../../../api/projectActivity';
 import {
   getApplicationQualityGate,
@@ -47,7 +47,7 @@ jest.mock('sonar-ui-common/helpers/dates', () => ({
 jest.mock('../../../../api/measures', () => {
   const { mockMeasure, mockMetric } = require.requireActual('../../../../helpers/testMocks');
   return {
-    getMeasuresAndMeta: jest.fn((_, metricKeys: string[]) => {
+    getMeasuresWithPeriodAndMetrics: jest.fn((_, metricKeys: string[]) => {
       const metrics: T.Metric[] = [];
       const measures: T.Measure[] = [];
       metricKeys.forEach(key => {
@@ -184,7 +184,7 @@ describe('project overview', () => {
     const wrapper = shallowRender();
     await waitAndUpdate(wrapper);
     expect(getQualityGateProjectStatus).toBeCalled();
-    expect(getMeasuresAndMeta).toBeCalled();
+    expect(getMeasuresWithPeriodAndMetrics).toBeCalled();
 
     // Check the conditions got correctly enhanced with measure meta data.
     const { qgStatuses } = wrapper.state();
@@ -220,7 +220,7 @@ describe('project overview', () => {
   });
 
   it('should correctly flag a project as empty', async () => {
-    (getMeasuresAndMeta as jest.Mock).mockResolvedValueOnce({ component: {} });
+    (getMeasuresWithPeriodAndMetrics as jest.Mock).mockResolvedValueOnce({ component: {} });
 
     const wrapper = shallowRender();
     await waitAndUpdate(wrapper);
@@ -245,7 +245,7 @@ describe('application overview', () => {
     await waitAndUpdate(wrapper);
     expect(getApplicationQualityGate).toBeCalled();
     expect(getApplicationLeak).toBeCalled();
-    expect(getMeasuresAndMeta).toBeCalled();
+    expect(getMeasuresWithPeriodAndMetrics).toBeCalled();
 
     // Check the conditions got correctly enhanced with measure meta data.
     const { qgStatuses } = wrapper.state();
@@ -300,7 +300,7 @@ describe('application overview', () => {
   });
 
   it('should correctly flag an application as empty', async () => {
-    (getMeasuresAndMeta as jest.Mock).mockResolvedValueOnce({ component: {} });
+    (getMeasuresWithPeriodAndMetrics as jest.Mock).mockResolvedValueOnce({ component: {} });
 
     const wrapper = shallowRender({ component });
     await waitAndUpdate(wrapper);

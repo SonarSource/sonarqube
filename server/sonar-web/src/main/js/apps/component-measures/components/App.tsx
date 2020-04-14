@@ -34,16 +34,16 @@ import {
   removeSideBarClass,
   removeWhitePageClass
 } from 'sonar-ui-common/helpers/pages';
-import { getMeasuresAndMeta } from '../../../api/measures';
+import { getMeasuresWithPeriod } from '../../../api/measures';
 import { getAllMetrics } from '../../../api/metrics';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { enhanceMeasure } from '../../../components/measure/utils';
 import '../../../components/search-navigator.css';
 import { getBranchLikeQuery, isPullRequest, isSameBranchLike } from '../../../helpers/branch-like';
-import { getLeakPeriod } from '../../../helpers/periods';
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import Sidebar from '../sidebar/Sidebar';
 import '../style.css';
 import {
@@ -137,21 +137,15 @@ export class App extends React.PureComponent<Props, State> {
 
     const filteredKeys = getMeasuresPageMetricKeys(metrics, branchLike);
 
-    getMeasuresAndMeta(componentKey, filteredKeys, {
-      additionalFields: 'periods',
-      ...getBranchLikeQuery(branchLike)
-    }).then(
-      ({ component, periods }) => {
+    getMeasuresWithPeriod(componentKey, filteredKeys, getBranchLikeQuery(branchLike)).then(
+      ({ component, period }) => {
         if (this.mounted) {
           const measures = banQualityGateMeasure(component).map(measure =>
             enhanceMeasure(measure, metrics)
           );
 
-          const newBugs = measures.find(measure => measure.metric.key === 'new_bugs');
-          const applicationPeriods = newBugs ? [{ index: 1 } as T.Period] : [];
-          const leakPeriod = getLeakPeriod(
-            component.qualifier === 'APP' ? applicationPeriods : periods
-          );
+          const leakPeriod =
+            component.qualifier === ComponentQualifier.Project ? period : undefined;
 
           this.setState({
             loading: false,

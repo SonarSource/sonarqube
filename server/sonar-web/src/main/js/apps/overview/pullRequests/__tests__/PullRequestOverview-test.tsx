@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getMeasuresAndMeta } from '../../../../api/measures';
+import { getMeasuresWithMetrics } from '../../../../api/measures';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockQualityGateStatusCondition } from '../../../../helpers/mocks/quality-gates';
 import { mockComponent } from '../../../../helpers/testMocks';
@@ -30,7 +30,7 @@ import { PullRequestOverview } from '../PullRequestOverview';
 jest.mock('../../../../api/measures', () => {
   const { mockMeasure, mockMetric } = require.requireActual('../../../../helpers/testMocks');
   return {
-    getMeasuresAndMeta: jest.fn().mockResolvedValue({
+    getMeasuresWithMetrics: jest.fn().mockResolvedValue({
       component: {
         measures: [
           mockMeasure({ metric: 'new_bugs' }),
@@ -73,7 +73,7 @@ it('should render correctly for a passed QG', async () => {
 
   expect(wrapper.find('QualityGateConditions').exists()).toBe(false);
 
-  expect(getMeasuresAndMeta).toBeCalled();
+  expect(getMeasuresWithMetrics).toBeCalled();
   expect(fetchBranchStatus).toBeCalled();
 });
 
@@ -107,7 +107,7 @@ it('should render correctly for a failed QG', async () => {
 it('should correctly fetch all required metrics for a passing QG', async () => {
   const wrapper = shallowRender({ conditions: [] });
   await waitAndUpdate(wrapper);
-  expect(getMeasuresAndMeta).toBeCalledWith('my-project', PR_METRICS, expect.any(Object));
+  expect(getMeasuresWithMetrics).toBeCalledWith('my-project', PR_METRICS, expect.any(Object));
 });
 
 it('should correctly fetch all required metrics for a failing QG', async () => {
@@ -115,7 +115,7 @@ it('should correctly fetch all required metrics for a failing QG', async () => {
     conditions: [mockQualityGateStatusCondition({ level: 'ERROR', metric: 'foo' })]
   });
   await waitAndUpdate(wrapper);
-  expect(getMeasuresAndMeta).toBeCalledWith(
+  expect(getMeasuresWithMetrics).toBeCalledWith(
     'my-project',
     [...PR_METRICS, 'foo'],
     expect.any(Object)

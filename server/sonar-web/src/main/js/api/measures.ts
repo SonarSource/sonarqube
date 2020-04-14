@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
+import { getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { BranchParameters } from '../types/branch-like';
 
@@ -27,15 +27,52 @@ export function getMeasures(
   return getJSON('/api/measures/component', data).then(r => r.component.measures, throwGlobalError);
 }
 
-export function getMeasuresAndMeta(
+interface MeasuresAndMetaWithMetrics {
+  component: T.ComponentMeasure;
+  metrics: T.Metric[];
+}
+
+export function getMeasuresWithMetrics(
   component: string,
   metrics: string[],
-  additional: RequestData = {}
-): Promise<{ component: T.ComponentMeasure; metrics?: T.Metric[]; periods?: T.Period[] }> {
+  branchParameters?: BranchParameters
+): Promise<MeasuresAndMetaWithMetrics> {
   return getJSON('/api/measures/component', {
-    ...additional,
+    additionalFields: 'metrics',
     component,
-    metricKeys: metrics.join(',')
+    metricKeys: metrics.join(','),
+    ...branchParameters
+  }).catch(throwGlobalError);
+}
+
+interface MeasuresAndMetaWithPeriod {
+  component: T.ComponentMeasure;
+  period: T.Period;
+}
+
+export function getMeasuresWithPeriod(
+  component: string,
+  metrics: string[],
+  branchParameters?: BranchParameters
+): Promise<MeasuresAndMetaWithPeriod> {
+  return getJSON('/api/measures/component', {
+    additionalFields: 'period',
+    component,
+    metricKeys: metrics.join(','),
+    ...branchParameters
+  }).catch(throwGlobalError);
+}
+
+export function getMeasuresWithPeriodAndMetrics(
+  component: string,
+  metrics: string[],
+  branchParameters?: BranchParameters
+): Promise<MeasuresAndMetaWithPeriod & MeasuresAndMetaWithMetrics> {
+  return getJSON('/api/measures/component', {
+    additionalFields: 'period,metrics',
+    component,
+    metricKeys: metrics.join(','),
+    ...branchParameters
   }).catch(throwGlobalError);
 }
 

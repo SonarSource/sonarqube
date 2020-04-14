@@ -556,7 +556,7 @@ declare namespace T {
 
   export interface Period {
     date: string;
-    index: number;
+    index?: number;
     mode: PeriodMode | NewCodePeriodSettingType;
     modeParam?: string;
     parameter?: string;

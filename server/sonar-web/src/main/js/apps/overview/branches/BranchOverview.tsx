@@ -22,7 +22,7 @@ import * as React from 'react';
 import { parseDate, toNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { isDefined } from 'sonar-ui-common/helpers/types';
 import { getApplicationLeak } from '../../../api/application';
-import { getMeasuresAndMeta } from '../../../api/measures';
+import { getMeasuresWithPeriodAndMetrics } from '../../../api/measures';
 import { getProjectActivity } from '../../../api/projectActivity';
 import { getApplicationQualityGate, getQualityGateProjectStatus } from '../../../api/quality-gates';
 import { getTimeMachineData } from '../../../api/time-machine';
@@ -37,7 +37,6 @@ import {
   isSameBranchLike
 } from '../../../helpers/branch-like';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
-import { getLeakPeriod } from '../../../helpers/periods';
 import {
   extractStatusConditionsFromApplicationStatusChildProject,
   extractStatusConditionsFromProjectStatus
@@ -66,7 +65,7 @@ interface State {
   measures?: T.MeasureEnhanced[];
   measuresHistory?: MeasureHistory[];
   metrics?: T.Metric[];
-  periods?: T.Period[];
+  period?: T.Period;
   qgStatuses?: QualityGateStatus[];
 }
 
@@ -124,7 +123,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       application: component.key,
       ...getBranchLikeQuery(branchLike)
     });
-    const { measures: appMeasures, metrics, periods } = await this.loadMeasuresAndMeta(
+    const { measures: appMeasures, metrics, period } = await this.loadMeasuresAndMeta(
       component.key
     );
 
@@ -183,7 +182,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
             loadingStatus: false,
             measures: appMeasures,
             metrics,
-            periods,
+            period,
             qgStatuses
           });
         }
@@ -216,7 +215,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         : METRICS;
 
     this.loadMeasuresAndMeta(key, metricKeys).then(
-      ({ measures, metrics, periods }) => {
+      ({ measures, metrics, period }) => {
         if (this.mounted && measures) {
           const { ignoredConditions, status } = projectStatus;
           const conditions = extractStatusConditionsFromProjectStatus(projectStatus);
@@ -234,7 +233,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
             loadingStatus: false,
             measures,
             metrics,
-            periods,
+            period,
             qgStatuses: [qgStatus]
           });
         } else if (this.mounted) {
@@ -252,14 +251,15 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   loadMeasuresAndMeta = (componentKey: string, metricKeys: string[] = []) => {
     const { branchLike } = this.props;
 
-    return getMeasuresAndMeta(componentKey, metricKeys.length > 0 ? metricKeys : METRICS, {
-      additionalFields: 'metrics,periods',
-      ...getBranchLikeQuery(branchLike)
-    }).then(({ component: { measures }, metrics, periods }) => {
+    return getMeasuresWithPeriodAndMetrics(
+      componentKey,
+      metricKeys.length > 0 ? metricKeys : METRICS,
+      getBranchLikeQuery(branchLike)
+    ).then(({ component: { measures }, metrics, period }) => {
       return {
         measures: enhanceMeasuresWithMetrics(measures || [], metrics || []),
         metrics,
-        periods
+        period
       };
     });
   };
@@ -381,12 +381,11 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       measures,
       measuresHistory,
       metrics,
-      periods,
+      period,
       qgStatuses
     } = this.state;
 
-    const leakPeriod =
-      component.qualifier === ComponentQualifier.Application ? appLeak : getLeakPeriod(periods);
+    const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
 
     const projectIsEmpty =
       loadingStatus === false &&

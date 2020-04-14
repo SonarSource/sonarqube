@@ -25,7 +25,7 @@ import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isDefined } from 'sonar-ui-common/helpers/types';
-import { getMeasuresAndMeta } from '../../../api/measures';
+import { getMeasuresWithMetrics } from '../../../api/measures';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
@@ -128,15 +128,12 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
           uniq([...PR_METRICS, ...conditions.filter(c => c.level !== 'OK').map(c => c.metric)])
         : PR_METRICS;
 
-    getMeasuresAndMeta(key, metricKeys, {
-      additionalFields: 'metrics',
-      ...getBranchLikeQuery(branchLike)
-    }).then(
+    getMeasuresWithMetrics(key, metricKeys, getBranchLikeQuery(branchLike)).then(
       ({ component, metrics }) => {
         if (this.mounted && component.measures) {
           this.setState({
             loading: false,
-            measures: enhanceMeasuresWithMetrics(component.measures || [], metrics || [])
+            measures: enhanceMeasuresWithMetrics(component.measures || [], metrics)
           });
         }
       },

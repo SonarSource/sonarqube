@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getMeasuresAndMeta } from '../../../../api/measures';
+import { getMeasuresWithPeriod } from '../../../../api/measures';
 import { mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent, mockIssue, mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { App } from '../App';
@@ -59,13 +59,13 @@ jest.mock('../../../../api/metrics', () => ({
 }));
 
 jest.mock('../../../../api/measures', () => ({
-  getMeasuresAndMeta: jest.fn()
+  getMeasuresWithPeriod: jest.fn()
 }));
 
 beforeEach(() => {
-  (getMeasuresAndMeta as jest.Mock).mockResolvedValue({
+  (getMeasuresWithPeriod as jest.Mock).mockResolvedValue({
     component: { measures: [{ metric: 'coverage', value: '80.0' }] },
-    periods: [{ index: '1' }]
+    period: { mode: 'previous_version' }
   });
 });
 
@@ -86,9 +86,9 @@ it('should render a measure overview', async () => {
 });
 
 it('should render a message when there are no measures', async () => {
-  (getMeasuresAndMeta as jest.Mock).mockResolvedValue({
+  (getMeasuresWithPeriod as jest.Mock).mockResolvedValue({
     component: { measures: [] },
-    periods: [{ index: '1' }]
+    period: { mode: 'previous_version' }
   });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
