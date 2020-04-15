@@ -22,9 +22,9 @@ import { Link } from 'react-router';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
+import DateTooltipFormatter from 'sonar-ui-common/components/intl/DateTooltipFormatter';
 import { Project } from '../../api/components';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
-import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
 import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 

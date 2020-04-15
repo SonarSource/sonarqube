@@ -22,8 +22,8 @@ import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import UserListItem from '../UserListItem';
 
-jest.mock('../../../../components/intl/DateFromNow');
-jest.mock('../../../../components/intl/DateTimeFormatter');
+jest.mock('sonar-ui-common/components/intl/DateFromNow');
+jest.mock('sonar-ui-common/components/intl/DateTimeFormatter');
 
 const user: T.User = {
   active: true,

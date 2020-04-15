@@ -22,12 +22,12 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
+import TimeFormatter from 'sonar-ui-common/components/intl/TimeFormatter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl, getReturnUrl } from 'sonar-ui-common/helpers/urls';
 import { getMigrationStatus, getSystemStatus, migrateDatabase } from '../../../api/system';
 import InstanceMessage from '../../../components/common/InstanceMessage';
-import DateFromNow from '../../../components/intl/DateFromNow';
-import TimeFormatter from '../../../components/intl/TimeFormatter';
 import { isSonarCloud } from '../../../helpers/system';
 import '../styles.css';
 

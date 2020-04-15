@@ -20,8 +20,8 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { DropdownOverlay } from 'sonar-ui-common/components/controls/Dropdown';
+import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
-import DateFormatter from '../../intl/DateFormatter';
 
 interface Props {
   line: T.SourceLine;

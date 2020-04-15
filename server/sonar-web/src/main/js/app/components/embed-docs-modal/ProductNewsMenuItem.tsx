@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import ChevronRightIcon from 'sonar-ui-common/components/icons/ChevronRightIcon';
+import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { fetchPrismicNews, fetchPrismicRefs, PrismicNews } from '../../../api/news';
-import DateFormatter from '../../../components/intl/DateFormatter';
 import PlaceholderBar from '../../../components/ui/PlaceholderBar';
 import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 

@@ -20,10 +20,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
+import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import HomePageSelect from '../../../../components/controls/HomePageSelect';
-import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import { isBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';

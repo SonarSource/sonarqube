@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
+import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DateFromNow from '../../../components/intl/DateFromNow';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 
 interface Props {
   date?: string;

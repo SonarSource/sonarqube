@@ -21,11 +21,11 @@ import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
+import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
 import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
 import { BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';

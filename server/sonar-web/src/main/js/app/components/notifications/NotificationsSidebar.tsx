@@ -22,10 +22,10 @@ import * as differenceInSeconds from 'date-fns/difference_in_seconds';
 import * as React from 'react';
 import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
+import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { PrismicFeatureNews } from '../../../api/news';
-import DateFormatter from '../../../components/intl/DateFormatter';
 
 export interface Props {
   fetchMoreFeatureNews: () => void;

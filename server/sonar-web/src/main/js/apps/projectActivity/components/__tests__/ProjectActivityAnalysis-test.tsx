@@ -21,9 +21,9 @@
 import { mount, shallow } from 'enzyme';
 import * as React from 'react';
 import { IntlProvider } from 'react-intl';
+import TimeFormatter from 'sonar-ui-common/components/intl/TimeFormatter';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import TimeFormatter from '../../../../components/intl/TimeFormatter';
 import { mockAnalysisEvent, mockParsedAnalysis } from '../../../../helpers/testMocks';
 import AddEventForm from '../forms/AddEventForm';
 import RemoveAnalysisForm from '../forms/RemoveAnalysisForm';

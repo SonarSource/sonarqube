@@ -22,12 +22,12 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
+import DateFromNowHourPrecision from 'sonar-ui-common/components/intl/DateFromNowHourPrecision';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { limitComponentName } from 'sonar-ui-common/helpers/path';
 import { revokeToken } from '../../../api/user-tokens';
-import DateFormatter from '../../../components/intl/DateFormatter';
-import DateFromNowHourPrecision from '../../../components/intl/DateFromNowHourPrecision';
 
 export type TokenDeleteConfirmation = 'inline' | 'modal';
 

@@ -23,13 +23,13 @@ import { throttle } from 'lodash';
 import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
+import TimeFormatter from 'sonar-ui-common/components/intl/TimeFormatter';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getProjectActivity } from '../../../api/projectActivity';
-import DateFormatter from '../../../components/intl/DateFormatter';
-import TimeFormatter from '../../../components/intl/TimeFormatter';
 import Events from '../../projectActivity/components/Events';
 import { getAnalysesByVersionByDay } from '../../projectActivity/utils';
 

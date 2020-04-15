@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 import BulletListIcon from 'sonar-ui-common/components/icons/BulletListIcon';
+import DateFromNowHourPrecision from 'sonar-ui-common/components/intl/DateFromNowHourPrecision';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DateFromNowHourPrecision from '../../../components/intl/DateFromNowHourPrecision';
 import Avatar from '../../../components/ui/Avatar';
 import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';

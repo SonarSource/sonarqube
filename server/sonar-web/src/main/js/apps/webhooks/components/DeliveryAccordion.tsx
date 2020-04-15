@@ -21,8 +21,8 @@ import * as React from 'react';
 import BoxedGroupAccordion from 'sonar-ui-common/components/controls/BoxedGroupAccordion';
 import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
+import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import { getDelivery } from '../../../api/webhooks';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import DeliveryItem from './DeliveryItem';
 
 interface Props {

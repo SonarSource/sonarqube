@@ -22,8 +22,8 @@ import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import BulletListIcon from 'sonar-ui-common/components/icons/BulletListIcon';
+import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import LatestDeliveryForm from './LatestDeliveryForm';
 
 interface Props {

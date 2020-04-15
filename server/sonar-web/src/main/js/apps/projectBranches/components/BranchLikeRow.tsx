@@ -21,10 +21,10 @@ import * as React from 'react';
 import ActionsDropdown, {
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import BranchStatus from '../../../components/common/BranchStatus';
 import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
-import DateFromNow from '../../../components/intl/DateFromNow';
 import {
   getBranchLikeDisplayName,
   isBranch,

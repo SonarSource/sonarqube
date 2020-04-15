@@ -22,10 +22,12 @@ import * as differenceInDays from 'date-fns/difference_in_days';
 import * as React from 'react';
 import { InjectedIntlProps, injectIntl } from 'react-intl';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import DateFormatter, { longFormatterOption } from 'sonar-ui-common/components/intl/DateFormatter';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
+import DateTimeFormatter, {
+  formatterOption
+} from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import DateFormatter, { longFormatterOption } from '../../../components/intl/DateFormatter';
-import DateFromNow from '../../../components/intl/DateFromNow';
-import DateTimeFormatter, { formatterOption } from '../../../components/intl/DateTimeFormatter';
 import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 
 interface Props {

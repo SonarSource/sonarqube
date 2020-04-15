@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import DateFromNow from '../../../components/intl/DateFromNow';
 import { ApplicationPeriod } from '../../../types/application';
 
 export interface ApplicationLeakPeriodInfoProps {

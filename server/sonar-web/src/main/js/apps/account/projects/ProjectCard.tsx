@@ -21,10 +21,10 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
+import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import Level from 'sonar-ui-common/components/ui/Level';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import DateFromNow from '../../../components/intl/DateFromNow';
-import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import MetaLink from '../../../app/components/nav/component/projectInformation/meta/MetaLink';
 import { orderLinks } from '../../../helpers/projectLinks';
 

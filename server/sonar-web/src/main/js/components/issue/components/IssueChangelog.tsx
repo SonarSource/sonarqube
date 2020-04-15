@@ -22,8 +22,8 @@ import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
-import DateFromNow from '../../intl/DateFromNow';
-import DateTimeFormatter from '../../intl/DateTimeFormatter';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
+import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import ChangelogPopup from '../popups/ChangelogPopup';
 
 interface Props {

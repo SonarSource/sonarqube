@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
+import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DateFormatter from '../../../../components/intl/DateFormatter';
 import { SystemUpgrade } from '../../../../types/system';
 
 interface Props {
