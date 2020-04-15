@@ -21,6 +21,10 @@ package org.sonar.server.platform.db.migration.version.v83;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.server.platform.db.migration.version.v83.cequeue.AddPrimaryKeyOnUuidColumnOfCeQueueTable;
+import org.sonar.server.platform.db.migration.version.v83.cequeue.DropIdColumnOfCeQueueTable;
+import org.sonar.server.platform.db.migration.version.v83.cequeue.DropPrimaryKeyOnIdColumnOfCeQueueTable;
+import org.sonar.server.platform.db.migration.version.v83.cequeue.DropUniqueIndexOnUuidColumnOfCeQueueTable;
 import org.sonar.server.platform.db.migration.version.v83.events.AddPrimaryKeyOnUuidColumnOfEventsTable;
 import org.sonar.server.platform.db.migration.version.v83.events.DropIdColumnOfEventsTable;
 import org.sonar.server.platform.db.migration.version.v83.events.DropPrimaryKeyOnIdColumnOfEventsTable;
@@ -76,6 +80,12 @@ public class DbVersion83 implements DbVersion {
       .add(3412, "Drop primary key on 'ID' column of 'SNAPSHOTS' table", DropPrimaryKeyOnIdColumnOfSnapshotsTable.class)
       .add(3413, "Add primary key on 'UUID' column of 'SNAPSHOTS' table", AddPrimaryKeyOnUuidColumnOfSnapshotsTable.class)
       .add(3414, "Drop column 'ID' of 'SNAPSHOTS' table", DropIdColumnOfSnapshotsTable.class)
+
+      // Migration on ce_queue table
+      .add(3415, "Drop unique index on 'uuid' column of 'CE_QUEUE' table", DropUniqueIndexOnUuidColumnOfCeQueueTable.class)
+      .add(3416, "Drop primary key on 'ID' column of 'CE_QUEUE' table", DropPrimaryKeyOnIdColumnOfCeQueueTable.class)
+      .add(3417, "Add primary key on 'UUID' column of 'CE_QUEUE' table", AddPrimaryKeyOnUuidColumnOfCeQueueTable.class)
+      .add(3418, "Drop column 'ID' of 'CE_QUEUE' table", DropIdColumnOfCeQueueTable.class)
 
     ;
   }

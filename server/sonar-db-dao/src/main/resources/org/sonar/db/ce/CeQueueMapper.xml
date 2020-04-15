@@ -16,16 +16,16 @@
     cq.updated_at as updatedAt
   </sql>
 
-  <sql id="orderByDateAndId">
+  <sql id="orderByDateAndUuid">
     order by
       cq.created_at asc,
-      cq.id asc
+      cq.uuid asc
   </sql>
 
-  <sql id="orderByDescDateAndId">
+  <sql id="orderByDescDateAndUuid">
     order by
       cq.created_at desc,
-      cq.id desc
+      cq.uuid desc
   </sql>
 
   <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeQueueDto">
@@ -90,7 +90,7 @@
       ce_queue cq
     where
       cq.main_component_uuid=#{mainComponentUuid,jdbcType=VARCHAR}
-    <include refid="orderByDateAndId"/>
+    <include refid="orderByDateAndUuid"/>
   </select>
 
   <select id="selectAllInAscOrder" resultType="org.sonar.db.ce.CeQueueDto">
@@ -98,14 +98,14 @@
       <include refid="columns"/>
     from
       ce_queue cq
-    <include refid="orderByDateAndId"/>
+    <include refid="orderByDateAndUuid"/>
   </select>
 
   <select id="selectByQueryInDescOrder" resultType="org.sonar.db.ce.CeQueueDto">
     select
     <include refid="columns"/>
     <include refid="sqlSelectByQuery"/>
-    <include refid="orderByDescDateAndId"/>
+    <include refid="orderByDescDateAndUuid"/>
   </select>
 
   <select id="countByQuery" resultType="int">
@@ -173,8 +173,7 @@
 
   <sql id="columnsSelectEligibleForPeek">
     cq.uuid as "uuid",
-    cq.created_at as "created_at",
-    cq.id as "id"
+    cq.created_at as "created_at"
   </sql>
 
   <sql id="sqlSelectEligibleForPeek">
@@ -197,7 +196,7 @@
   <sql id="orderBySelectEligibleForPeek">
     order by
       created_at asc,
-      id asc
+      uuid asc
   </sql>
 
   <select id="selectPending" resultType="org.sonar.db.ce.CeQueueDto">
