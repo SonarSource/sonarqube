@@ -23,10 +23,17 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 public class MeasureDao implements Dao {
+
+  private final UuidFactory uuidFactory;
+
+  public MeasureDao(UuidFactory uuidFactory) {
+    this.uuidFactory = uuidFactory;
+  }
 
   public Optional<MeasureDto> selectLastMeasure(DbSession dbSession, String componentUuid, String metricKey) {
     return Optional.ofNullable(mapper(dbSession).selectLastMeasure(componentUuid, metricKey));
@@ -50,11 +57,13 @@ public class MeasureDao implements Dao {
   }
 
   public void insert(DbSession session, MeasureDto measureDto) {
+    measureDto.setUuid(uuidFactory.create());
     mapper(session).insert(measureDto);
   }
 
   public void insert(DbSession session, Collection<MeasureDto> items) {
     for (MeasureDto item : items) {
+      item.setUuid(uuidFactory.create());
       insert(session, item);
     }
   }

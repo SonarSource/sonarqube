@@ -4,6 +4,7 @@
 <mapper namespace="org.sonar.db.measure.MeasureMapper">
 
   <sql id="measureColumns">
+    pm.uuid as uuid,
     pm.metric_id as metricId,
     pm.component_uuid as componentUuid,
     pm.analysis_uuid as analysisUuid,
@@ -62,6 +63,7 @@
 
   <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
     insert into project_measures (
+    uuid,
     value,
     metric_id,
     component_uuid,
@@ -72,6 +74,7 @@
     variation_value_1,
     measure_data)
     VALUES (
+    #{uuid, jdbcType=VARCHAR},
     #{value, jdbcType=DOUBLE},
     #{metricId, jdbcType=INTEGER},
     #{componentUuid, jdbcType=VARCHAR},

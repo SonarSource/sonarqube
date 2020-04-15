@@ -191,11 +191,13 @@ public class MeasureDaoTest {
   private void verifyMeasure(String componentUuid, String metricKey, String analysisUuid, String value) {
     Optional<MeasureDto> measure = underTest.selectMeasure(db.getSession(), analysisUuid, componentUuid, metricKey);
     assertThat(measure.map(MeasureDto::getData)).contains(value);
+    assertThat(measure.map(MeasureDto::getUuid)).isNotEmpty();
   }
 
   private void verifyMeasure(String componentUuid, String metricKey, String value) {
     Optional<MeasureDto> measure = underTest.selectLastMeasure(db.getSession(), componentUuid, metricKey);
     assertThat(measure.map(MeasureDto::getData)).contains(value);
+    assertThat(measure.map(MeasureDto::getUuid)).isNotEmpty();
   }
 
   private void verifyNoMeasure(String componentUuid, String metricKey, String analysisUuid) {

@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 public class MeasureDto {
   private static final int MAX_TEXT_VALUE_LENGTH = 4000;
 
+  private String uuid;
   private Double value;
   private String textValue;
   private byte[] dataValue;
@@ -36,6 +37,14 @@ public class MeasureDto {
   private String componentUuid;
   private String analysisUuid;
   private int metricId;
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
 
   @CheckForNull
   public Double getValue() {
