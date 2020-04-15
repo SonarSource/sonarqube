@@ -21,7 +21,7 @@ package org.sonar.db.duplication;
 
 public final class DuplicationUnitDto {
 
-  private long id;
+  private String uuid;
   private String analysisUuid;
   private String componentUuid;
 
@@ -33,12 +33,12 @@ public final class DuplicationUnitDto {
   // Return by join
   private String componentKey;
 
-  public long getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public DuplicationUnitDto setId(long id) {
-    this.id = id;
+  public DuplicationUnitDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

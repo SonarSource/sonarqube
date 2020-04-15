@@ -22,12 +22,19 @@ package org.sonar.db.duplication;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class DuplicationDao implements Dao {
+
+  private final UuidFactory uuidFactory;
+
+  public DuplicationDao(UuidFactory uuidFactory) {
+    this.uuidFactory = uuidFactory;
+  }
 
   /**
    * @param analysisUuid snapshot id of the project from the previous analysis (islast=true)
@@ -43,9 +50,10 @@ public class DuplicationDao implements Dao {
    * Note that generated ids are not returned.
    */
   public void insert(DbSession session, DuplicationUnitDto dto) {
+    dto.setUuid(uuidFactory.create());
     session.getMapper(DuplicationMapper.class).batchInsert(dto);
   }
-  
+
   public List<DuplicationUnitDto> selectComponent(DbSession session, String componentUuid, String analysisUuid) {
     return session.getMapper(DuplicationMapper.class).selectComponent(componentUuid, analysisUuid);
   }

@@ -5,7 +5,7 @@
 
   <select id="selectCandidates" parameterType="map" resultType="DuplicationUnit">
     SELECT DISTINCT
-    duplication_block.id as id,
+    duplication_block.uuid as uuid,
     duplication_block.analysis_uuid as analysisUuid,
     duplication_block.component_uuid as componentUuid,
     duplication_block.hash as hash,
@@ -28,7 +28,7 @@
   
   <select id="selectComponent" parameterType="map" resultType="DuplicationUnit">
     SELECT DISTINCT
-    dup.id as id,
+    dup.uuid as uuid,
     dup.analysis_uuid as analysisUuid,
     dup.component_uuid as componentUuid,
     dup.hash as hash,
@@ -43,11 +43,11 @@
 
   <insert id="batchInsert" parameterType="DuplicationUnit" useGeneratedKeys="false">
     INSERT INTO duplications_index (
-    analysis_uuid, component_uuid, hash,
+    uuid, analysis_uuid, component_uuid, hash,
     index_in_file, start_line, end_line
     )
     VALUES (
-    #{analysisUuid,jdbcType=VARCHAR}, #{componentUuid,jdbcType=VARCHAR}, #{hash,jdbcType=VARCHAR},
+    #{uuid,jdbcType=VARCHAR}, #{analysisUuid,jdbcType=VARCHAR}, #{componentUuid,jdbcType=VARCHAR}, #{hash,jdbcType=VARCHAR},
     #{indexInFile,jdbcType=INTEGER}, #{startLine,jdbcType=INTEGER}, #{endLine,jdbcType=INTEGER}
     )
   </insert>

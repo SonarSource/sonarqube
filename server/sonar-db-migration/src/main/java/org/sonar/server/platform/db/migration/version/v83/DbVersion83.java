@@ -28,6 +28,12 @@ import org.sonar.server.platform.db.migration.version.v83.cequeue.AddPrimaryKeyO
 import org.sonar.server.platform.db.migration.version.v83.cequeue.DropIdColumnOfCeQueueTable;
 import org.sonar.server.platform.db.migration.version.v83.cequeue.DropPrimaryKeyOnIdColumnOfCeQueueTable;
 import org.sonar.server.platform.db.migration.version.v83.cequeue.DropUniqueIndexOnUuidColumnOfCeQueueTable;
+import org.sonar.server.platform.db.migration.version.v83.duplicationsindex.AddPrimaryKeyOnUuidColumnOfDuplicationsIndexTable;
+import org.sonar.server.platform.db.migration.version.v83.duplicationsindex.AddUuidToDuplicationsIndexTable;
+import org.sonar.server.platform.db.migration.version.v83.duplicationsindex.DropIdColumnOfDuplicationsIndexTable;
+import org.sonar.server.platform.db.migration.version.v83.duplicationsindex.DropPrimaryKeyOnIdColumnOfDuplicationsIndexTable;
+import org.sonar.server.platform.db.migration.version.v83.duplicationsindex.MakeDuplicationsIndexUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.duplicationsindex.PopulateDuplicationsIndexUuid;
 import org.sonar.server.platform.db.migration.version.v83.events.AddPrimaryKeyOnUuidColumnOfEventsTable;
 import org.sonar.server.platform.db.migration.version.v83.events.DropIdColumnOfEventsTable;
 import org.sonar.server.platform.db.migration.version.v83.events.DropPrimaryKeyOnIdColumnOfEventsTable;
@@ -95,6 +101,13 @@ public class DbVersion83 implements DbVersion {
       .add(3420, "Add primary key on 'UUID' column of 'CE_ACTIVITY' table", AddPrimaryKeyOnUuidColumnOfCeActivityTable.class)
       .add(3421, "Drop column 'ID' of 'CE_ACTIVITY' table", DropIdColumnOfCeActivityTable.class)
 
+      // Migration of DUPLICATIONS_INDEX table
+      .add(3422, "Add 'uuid' columns for DUPLICATIONS_INDEX", AddUuidToDuplicationsIndexTable.class)
+      .add(3423, "Populate 'uuid' columns for DUPLICATIONS_INDEX", PopulateDuplicationsIndexUuid.class)
+      .add(3424, "Make 'uuid' column not nullable for DUPLICATIONS_INDEX", MakeDuplicationsIndexUuidColumnNotNullable.class)
+      .add(3425, "Drop primary key on 'ID' column of 'DUPLICATIONS_INDEX' table", DropPrimaryKeyOnIdColumnOfDuplicationsIndexTable.class)
+      .add(3426, "Add primary key on 'UUID' column of 'DUPLICATIONS_INDEX' table", AddPrimaryKeyOnUuidColumnOfDuplicationsIndexTable.class)
+      .add(3427, "Drop column 'ID' of 'DUPLICATIONS_INDEX' table", DropIdColumnOfDuplicationsIndexTable.class)
     ;
   }
 }

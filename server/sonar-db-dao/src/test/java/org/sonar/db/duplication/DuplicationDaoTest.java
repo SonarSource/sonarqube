@@ -134,6 +134,7 @@ public class DuplicationDaoTest {
     assertThat(blocks).hasSize(1);
 
     DuplicationUnitDto block = blocks.get(0);
+    Assertions.assertThat(block.getUuid()).isNotNull();
     Assertions.assertThat(block.getComponentKey()).isNull();
     Assertions.assertThat(block.getComponentUuid()).isEqualTo(project3.uuid());
     Assertions.assertThat(block.getHash()).isEqualTo("bb");
@@ -152,11 +153,12 @@ public class DuplicationDaoTest {
     insert(project, analysis, "bb", 0, 1, 2);
 
     List<Map<String, Object>> rows = db.select("select " +
-      "analysis_uuid as \"ANALYSIS\", component_uuid as \"COMPONENT\", hash as \"HASH\", " +
+      "uuid as \"UUID\", analysis_uuid as \"ANALYSIS\", component_uuid as \"COMPONENT\", hash as \"HASH\", " +
       "index_in_file as \"INDEX\", start_line as \"START\", end_line as \"END\"" +
       " from duplications_index");
     Assertions.assertThat(rows).hasSize(1);
     Map<String, Object> row = rows.get(0);
+    Assertions.assertThat(row.get("UUID")).isNotNull();
     Assertions.assertThat(row.get("ANALYSIS")).isEqualTo(analysis.getUuid());
     Assertions.assertThat(row.get("COMPONENT")).isEqualTo(project.uuid());
     Assertions.assertThat(row.get("HASH")).isEqualTo("bb");
