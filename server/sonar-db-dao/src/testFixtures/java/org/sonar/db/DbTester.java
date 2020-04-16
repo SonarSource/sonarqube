@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.alm.AlmDbTester;
 import org.sonar.db.alm.integration.pat.AlmPatsDbTester;
 import org.sonar.db.almsettings.AlmSettingsDbTester;
@@ -68,6 +69,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
  */
 public class DbTester extends AbstractDbTester<TestDbImpl> {
 
+  private final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final System2 system2;
   private DbClient client;
   private DbSession session = null;
@@ -158,7 +160,7 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     TransientPicoContainer ioc = new TransientPicoContainer();
     ioc.addComponent(db.getMyBatis());
     ioc.addComponent(system2);
-    ioc.addComponent(new SequenceUuidFactory());
+    ioc.addComponent(uuidFactory);
     for (Class daoClass : DaoModule.classes()) {
       ioc.addComponent(daoClass);
     }
