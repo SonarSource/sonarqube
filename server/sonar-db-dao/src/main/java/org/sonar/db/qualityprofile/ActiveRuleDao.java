@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -46,6 +47,12 @@ public class ActiveRuleDao implements Dao {
   private static final String ACTIVE_RULE_IS_ALREADY_PERSISTED = "ActiveRule is already persisted";
   private static final String ACTIVE_RULE_PARAM_IS_NOT_PERSISTED = "ActiveRuleParam is not persisted";
   private static final String ACTIVE_RULE_PARAM_IS_ALREADY_PERSISTED = "ActiveRuleParam is already persisted";
+
+  private final UuidFactory uuidFactory;
+
+  public ActiveRuleDao(UuidFactory uuidFactory) {
+    this.uuidFactory = uuidFactory;
+  }
 
   public Optional<ActiveRuleDto> selectByKey(DbSession dbSession, ActiveRuleKey key) {
     return Optional.ofNullable(mapper(dbSession).selectByKey(key.getRuleProfileUuid(), key.getRuleKey().repository(), key.getRuleKey().rule()));
@@ -143,26 +150,27 @@ public class ActiveRuleDao implements Dao {
 
   public ActiveRuleParamDto insertParam(DbSession dbSession, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
     checkArgument(activeRule.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
-    checkArgument(activeRuleParam.getId() == null, ACTIVE_RULE_PARAM_IS_ALREADY_PERSISTED);
+    checkArgument(activeRuleParam.getUuid() == null, ACTIVE_RULE_PARAM_IS_ALREADY_PERSISTED);
     Preconditions.checkNotNull(activeRuleParam.getRulesParameterId(), RULE_PARAM_IS_NOT_PERSISTED);
 
     activeRuleParam.setActiveRuleId(activeRule.getId());
+    activeRuleParam.setUuid(uuidFactory.create());
     mapper(dbSession).insertParameter(activeRuleParam);
     return activeRuleParam;
   }
 
   public void updateParam(DbSession dbSession, ActiveRuleParamDto activeRuleParam) {
-    Preconditions.checkNotNull(activeRuleParam.getId(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
+    Preconditions.checkNotNull(activeRuleParam.getUuid(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
     mapper(dbSession).updateParameter(activeRuleParam);
   }
 
   public void deleteParam(DbSession dbSession, ActiveRuleParamDto activeRuleParam) {
-    Preconditions.checkNotNull(activeRuleParam.getId(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
-    deleteParamById(dbSession, activeRuleParam.getId());
+    Preconditions.checkNotNull(activeRuleParam.getUuid(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
+    deleteParamById(dbSession, activeRuleParam.getUuid());
   }
 
-  public void deleteParamById(DbSession dbSession, int id) {
-    mapper(dbSession).deleteParameter(id);
+  public void deleteParamById(DbSession dbSession, String uuid) {
+    mapper(dbSession).deleteParameter(uuid);
   }
 
   public void deleteParamsByRuleParamOfAllOrganizations(DbSession dbSession, RuleParamDto param) {

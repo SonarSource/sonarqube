@@ -194,20 +194,22 @@
   <!-- Parameters -->
 
   <sql id="activeRuleParamColumns">
-    p.id,
+    p.uuid,
     p.active_rule_id as activeRuleId,
     p.rules_parameter_id as rulesParameterId,
     p.rules_parameter_key as kee,
     p.value as value
   </sql>
 
-  <insert id="insertParameter" parameterType="ActiveRuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertParameter" parameterType="ActiveRuleParam" useGeneratedKeys="false">
     insert into active_rule_parameters (
+      uuid,
       active_rule_id,
       rules_parameter_id,
       rules_parameter_key,
       value
     ) values (
+      #{uuid, jdbcType=VARCHAR},
       #{activeRuleId, jdbcType=BIGINT},
       #{rulesParameterId, jdbcType=BIGINT},
       #{key, jdbcType=VARCHAR},
@@ -218,11 +220,11 @@
   <update id="updateParameter" parameterType="ActiveRuleParam">
     UPDATE active_rule_parameters SET
     value=#{value, jdbcType=VARCHAR}
-    WHERE id=#{id, jdbcType=BIGINT}
+    WHERE uuid=#{uuid, jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteParameters" parameterType="int">
-    DELETE FROM active_rule_parameters WHERE active_rule_id=#{id, jdbcType=BIGINT}
+    DELETE FROM active_rule_parameters WHERE active_rule_id=#{activeRuleId, jdbcType=BIGINT}
   </delete>
 
   <delete id="deleteParametersByRuleProfileUuids" parameterType="String">
@@ -238,8 +240,8 @@
     )
   </delete>
 
-  <delete id="deleteParameter" parameterType="int">
-    DELETE FROM active_rule_parameters WHERE id=#{id, jdbcType=BIGINT}
+  <delete id="deleteParameter" parameterType="String">
+    DELETE FROM active_rule_parameters WHERE uuid=#{uuid, jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteParamsByActiveRuleIds" parameterType="Integer">

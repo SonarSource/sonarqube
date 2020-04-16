@@ -321,7 +321,7 @@ public class RuleUpdater {
     @Override
     public void accept(@Nonnull ActiveRuleParamDto activeRuleParamDto) {
       if (activeRuleParamDto.getKey().equals(key)) {
-        dbClient.activeRuleDao().deleteParamById(dbSession, activeRuleParamDto.getId());
+        dbClient.activeRuleDao().deleteParamById(dbSession, activeRuleParamDto.getUuid());
       }
     }
   }

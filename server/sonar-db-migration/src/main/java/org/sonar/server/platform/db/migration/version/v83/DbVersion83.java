@@ -21,6 +21,12 @@ package org.sonar.server.platform.db.migration.version.v83;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.server.platform.db.migration.version.v83.activeruleparameters.AddPrimaryKeyOnUuidColumnOfActiveRuleParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.activeruleparameters.AddUuidColumnToActiveRuleParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.activeruleparameters.DropIdColumnOfActiveRuleParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.activeruleparameters.DropPrimaryKeyOnIdColumnOfActiveRuleParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.activeruleparameters.MakeActiveRuleParametersUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.activeruleparameters.PopulateActiveRuleParametersUuid;
 import org.sonar.server.platform.db.migration.version.v83.ceactivity.AddPrimaryKeyOnUuidColumnOfCeActivityTable;
 import org.sonar.server.platform.db.migration.version.v83.ceactivity.DropIdColumnOfCeActivityTable;
 import org.sonar.server.platform.db.migration.version.v83.ceactivity.DropPrimaryKeyOnIdColumnOfCeActivityTable;
@@ -108,6 +114,14 @@ public class DbVersion83 implements DbVersion {
       .add(3425, "Drop primary key on 'ID' column of 'DUPLICATIONS_INDEX' table", DropPrimaryKeyOnIdColumnOfDuplicationsIndexTable.class)
       .add(3426, "Add primary key on 'UUID' column of 'DUPLICATIONS_INDEX' table", AddPrimaryKeyOnUuidColumnOfDuplicationsIndexTable.class)
       .add(3427, "Drop column 'ID' of 'DUPLICATIONS_INDEX' table", DropIdColumnOfDuplicationsIndexTable.class)
+
+      // Migration of ACTIVE_RULE_PARAMS table
+      .add(3428, "Add 'uuid' column for 'ACTIVE_RULE_PARAMS' table", AddUuidColumnToActiveRuleParametersTable.class)
+      .add(3429, "Populate 'uuid' column for 'ACTIVE_RULE_PARAMS' table", PopulateActiveRuleParametersUuid.class)
+      .add(3430, "Make 'uuid' column not nullable for 'ACTIVE_RULE_PARAMS' table", MakeActiveRuleParametersUuidColumnNotNullable.class)
+      .add(3431, "Drop primary key on 'ID' column of 'ACTIVE_RULE_PARAMS' table", DropPrimaryKeyOnIdColumnOfActiveRuleParametersTable.class)
+      .add(3432, "Add primary key on 'UUID' column of 'ACTIVE_RULE_PARAMS' table", AddPrimaryKeyOnUuidColumnOfActiveRuleParametersTable.class)
+      .add(3433, "Drop column 'ID' of 'ACTIVE_RULE_PARAMS' table", DropIdColumnOfActiveRuleParametersTable.class)
     ;
   }
 }

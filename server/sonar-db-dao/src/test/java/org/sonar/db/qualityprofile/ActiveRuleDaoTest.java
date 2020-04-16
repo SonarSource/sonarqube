@@ -28,11 +28,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -462,7 +462,7 @@ public class ActiveRuleDaoTest {
     List<ActiveRuleParamDto> reloaded = underTest.selectParamsByActiveRuleId(dbSession, activeRule.getId());
     assertThat(reloaded).hasSize(1);
     assertThat(reloaded.get(0))
-      .matches(p -> Objects.equals(p.getId(), activeRuleParam.getId()))
+      .matches(p -> Objects.equals(p.getUuid(), activeRuleParam.getUuid()))
       .matches(p -> p.getKey().equals(activeRuleParam.getKey()))
       .matches(p -> p.getActiveRuleId().equals(activeRule.getId()))
       .matches(p -> p.getRulesParameterId().equals(rule1Param1.getId()))
@@ -486,7 +486,7 @@ public class ActiveRuleDaoTest {
 
     underTest.insertParam(dbSession,
       createFor(profile1, rule1).setId(100),
-      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setId(100));
+      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setUuid("uuid-1"));
   }
 
   @Test
@@ -511,7 +511,7 @@ public class ActiveRuleDaoTest {
     List<ActiveRuleParamDto> reloaded = underTest.selectParamsByActiveRuleId(dbSession, activeRule.getId());
     assertThat(reloaded).hasSize(1);
     assertThat(reloaded.get(0))
-      .matches(p -> Objects.equals(p.getId(), activeRuleParam.getId()))
+      .matches(p -> Objects.equals(p.getUuid(), activeRuleParam.getUuid()))
       .matches(p -> p.getKey().equals(activeRuleParam.getKey()))
       .matches(p -> p.getActiveRuleId().equals(activeRule.getId()))
       .matches(p -> p.getRulesParameterId().equals(rule1Param1.getId()))

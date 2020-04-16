@@ -29,18 +29,18 @@ import org.sonar.db.rule.RuleParamDto;
 
 public class ActiveRuleParamDto {
 
-  private Integer id;
+  private String uuid;
   private Integer activeRuleId;
   private Integer rulesParameterId;
   private String kee;
   private String value;
 
-  public Integer getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public ActiveRuleParamDto setId(Integer id) {
-    this.id = id;
+  public ActiveRuleParamDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

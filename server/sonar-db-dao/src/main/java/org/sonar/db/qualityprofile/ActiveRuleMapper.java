@@ -69,7 +69,7 @@ public interface ActiveRuleMapper {
 
   void deleteParametersByRuleProfileUuids(@Param("rulesProfileUuids") Collection<String> rulesProfileUuids);
 
-  void deleteParameter(int activeRuleParamId);
+  void deleteParameter(String activeRuleParamUuid);
 
   void deleteParamsByActiveRuleIds(@Param("activeRuleIds") Collection<Integer> activeRuleIds);
 
