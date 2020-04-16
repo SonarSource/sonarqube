@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.MessageException;
 import org.sonar.process.NetworkUtils;
@@ -48,7 +47,6 @@ import static org.sonar.process.ProcessProperties.Property.AUTH_JWT_SECRET;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_HZ_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_HZ_PORT;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_WEB_STARTUP_LEADER;
@@ -94,9 +92,6 @@ public class ClusterSettings implements Consumer<Props> {
         AddressAndPort searchHost = parseAndCheckHost(SEARCH_HOST, requireValue(props, SEARCH_HOST));
         ensureLocalButNotLoopbackAddress(SEARCH_HOST, searchHost);
         requireValue(props, SEARCH_PORT);
-        if (props.contains(CLUSTER_NODE_HZ_PORT.getKey())) {
-          LoggerFactory.getLogger(getClass()).warn("Property {} is ignored on search nodes since 7.2", CLUSTER_NODE_HZ_PORT.getKey());
-        }
         break;
       default:
         throw new UnsupportedOperationException("Unknown value: " + nodeType);
