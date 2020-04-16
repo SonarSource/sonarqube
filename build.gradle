@@ -476,6 +476,10 @@ subprojects {
     includes(['**/*.java', '**/*.js', '**/*.ts', '**/*.tsx', '**/*.css'])
   }
 
+  tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+  }
+
   publishing {
     publications {
       mavenJava(MavenPublication) {

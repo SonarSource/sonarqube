@@ -148,7 +148,7 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
     from(tasks.getByPath(':server:sonar-web:yarn_run').outputs) { a ->
       if (official) {
          project(':private:branding').fileTree('src').visit { b ->
-           if (!b.isDirectory) {
+           if (!b.isDirectory()) {
              a.exclude b.relativePath.toString()
            }
          }
