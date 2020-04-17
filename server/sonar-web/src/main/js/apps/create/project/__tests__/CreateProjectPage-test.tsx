@@ -17,34 +17,68 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../../helpers/system';
-import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
-import CreateProjectPage from '../CreateProjectPage';
+import { addWhitePageClass } from 'sonar-ui-common/helpers/pages';
+import { getAlmSettings } from '../../../../api/alm-settings';
+import { mockLocation, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
+import { AlmKeys } from '../../../../types/alm-settings';
+import { CreateProjectPage } from '../CreateProjectPage';
+import { CreateProjectModes } from '../types';
 
-jest.mock('../../../../helpers/system', () => ({
-  isSonarCloud: jest.fn().mockReturnValue(false)
+jest.mock('../../../../api/alm-settings', () => ({
+  getAlmSettings: jest.fn().mockResolvedValue([{ alm: AlmKeys.Bitbucket, key: 'foo' }])
 }));
 
-it('should render correctly for SonarQube', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+jest.mock('sonar-ui-common/helpers/pages', () => ({
+  addWhitePageClass: jest.fn(),
+  removeWhitePageClass: jest.fn()
+}));
+
+beforeEach(jest.clearAllMocks);
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(getAlmSettings).toBeCalled();
 });
 
-it('should render correctly for SonarCloud', () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(true);
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot();
+it('should render correctly if no branch support', () => {
+  expect(shallowRender({ appState: { branchesEnabled: false } })).toMatchSnapshot();
+  expect(getAlmSettings).not.toBeCalled();
 });
 
-function shallowRender(props = {}) {
-  return shallow(
+it('should render correctly if the manual method is selected', () => {
+  const push = jest.fn();
+  const location = { query: { mode: CreateProjectModes.Manual } };
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+
+  wrapper.instance().handleModeSelect(CreateProjectModes.Manual);
+  expect(push).toBeCalledWith(expect.objectContaining(location));
+
+  expect(wrapper.setProps({ location: mockLocation(location) })).toMatchSnapshot();
+  expect(addWhitePageClass).toBeCalled();
+});
+
+it('should render correctly if the BBS method is selected', () => {
+  const push = jest.fn();
+  const location = { query: { mode: CreateProjectModes.BitbucketServer } };
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+
+  wrapper.instance().handleModeSelect(CreateProjectModes.BitbucketServer);
+  expect(push).toBeCalledWith(expect.objectContaining(location));
+
+  expect(wrapper.setProps({ location: mockLocation(location) })).toMatchSnapshot();
+  expect(addWhitePageClass).toBeCalled();
+});
+
+function shallowRender(props: Partial<CreateProjectPage['props']> = {}) {
+  return shallow<CreateProjectPage>(
     <CreateProjectPage
+      appState={{ branchesEnabled: true }}
+      currentUser={mockLoggedInUser()}
       location={mockLocation()}
-      params={{}}
       router={mockRouter()}
-      routes={[]}
       {...props}
     />
   );

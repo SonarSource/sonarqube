@@ -43,10 +43,9 @@ it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should correctly create a public project', async () => {
+it('should correctly create a project', async () => {
   const onProjectCreate = jest.fn();
   const wrapper = shallowRender({ onProjectCreate });
-  wrapper.find('withRouter(OrganizationInput)').prop<Function>('onChange')({ key: 'foo' });
 
   change(wrapper.find('input#project-key'), 'bar');
   change(wrapper.find('input#project-name'), 'Bar');
@@ -55,29 +54,7 @@ it('should correctly create a public project', async () => {
   submit(wrapper.find('form'));
   expect(createProject).toBeCalledWith({
     project: 'bar',
-    name: 'Bar',
-    organization: 'foo',
-    visibility: 'public'
-  });
-
-  await waitAndUpdate(wrapper);
-  expect(onProjectCreate).toBeCalledWith(['bar']);
-});
-
-it('should correctly create a private project', async () => {
-  const onProjectCreate = jest.fn();
-  const wrapper = shallowRender({ onProjectCreate });
-  wrapper.find('withRouter(OrganizationInput)').prop<Function>('onChange')({ key: 'bar' });
-
-  change(wrapper.find('input#project-key'), 'bar');
-  change(wrapper.find('input#project-name'), 'Bar');
-
-  submit(wrapper.find('form'));
-  expect(createProject).toBeCalledWith({
-    project: 'bar',
-    name: 'Bar',
-    organization: 'bar',
-    visibility: 'private'
+    name: 'Bar'
   });
 
   await waitAndUpdate(wrapper);
@@ -157,12 +134,7 @@ function shallowRender(props: Partial<ManualProjectCreate['props']> = {}) {
   return shallow<ManualProjectCreate>(
     <ManualProjectCreate
       currentUser={{ groups: [], isLoggedIn: true, login: 'foo', name: 'Foo', scmAccounts: [] }}
-      fetchMyOrganizations={jest.fn()}
       onProjectCreate={jest.fn()}
-      userOrganizations={[
-        { key: 'foo', name: 'Foo' },
-        { key: 'bar', name: 'Bar', subscription: 'PAID' }
-      ]}
       {...props}
     />
   );

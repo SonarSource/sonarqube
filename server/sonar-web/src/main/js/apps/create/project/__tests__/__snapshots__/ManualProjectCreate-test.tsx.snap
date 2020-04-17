@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
     title="onboarding.create_project.setup_manually"
   />
   <div
-    className="create-project"
+    className="create-project-manual"
   >
     <div
       className="flex-1 huge-spacer-right"
@@ -15,23 +15,6 @@ exports[`should render correctly 1`] = `
         className="manual-project-create"
         onSubmit={[Function]}
       >
-        <withRouter(OrganizationInput)
-          onChange={[Function]}
-          organization=""
-          organizations={
-            Array [
-              Object {
-                "key": "foo",
-                "name": "Foo",
-              },
-              Object {
-                "key": "bar",
-                "name": "Bar",
-                "subscription": "PAID",
-              },
-            ]
-          }
-        />
         <ValidationInput
           className="form-field"
           description="onboarding.create_project.project_key.description"

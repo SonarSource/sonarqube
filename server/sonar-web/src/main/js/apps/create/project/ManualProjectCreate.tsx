@@ -25,19 +25,13 @@ import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createProject, doesComponentExists } from '../../../api/components';
-import { isSonarCloud } from '../../../helpers/system';
-import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
-import OrganizationInput from './OrganizationInput';
 
 interface Props {
   branchesEnabled?: boolean;
   currentUser: T.LoggedInUser;
-  fetchMyOrganizations?: () => Promise<void>;
   onProjectCreate: (projectKeys: string[]) => void;
-  organization?: string;
-  userOrganizations?: T.Organization[];
 }
 
 interface State {
@@ -46,8 +40,6 @@ interface State {
   projectNameError?: string;
   projectKey: string;
   projectKeyError?: string;
-  selectedOrganization?: T.Organization;
-  selectedVisibility?: T.Visibility;
   submitting: boolean;
   touched: boolean;
   validating: boolean;
@@ -64,7 +56,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       projectKey: '',
       projectName: '',
       projectNameChanged: false,
-      selectedOrganization: this.getInitialSelectedOrganization(props),
       submitting: false,
       touched: false,
       validating: false
@@ -102,43 +93,15 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       });
   };
 
-  canChoosePrivate = (selectedOrganization: T.Organization | undefined) => {
-    return Boolean(selectedOrganization && selectedOrganization.subscription === 'PAID');
-  };
-
   canSubmit(state: State): state is ValidState {
-    const {
-      projectKey,
-      projectKeyError,
-      projectName,
-      projectNameError,
-      selectedOrganization
-    } = state;
+    const { projectKey, projectKeyError, projectName, projectNameError } = state;
     return Boolean(
       projectKeyError === undefined &&
         projectNameError === undefined &&
         projectKey.length > 0 &&
-        projectName.length > 0 &&
-        (!isSonarCloud() || selectedOrganization)
+        projectName.length > 0
     );
   }
-
-  getInitialSelectedOrganization = (props: Props) => {
-    if (props.organization) {
-      return this.getOrganization(props.organization);
-    } else if (props.userOrganizations && props.userOrganizations.length === 1) {
-      return props.userOrganizations[0];
-    } else {
-      return undefined;
-    }
-  };
-
-  getOrganization = (organizationKey: string) => {
-    return (
-      this.props.userOrganizations &&
-      this.props.userOrganizations.find(({ key }: T.Organization) => key === organizationKey)
-    );
-  };
 
   handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -147,9 +110,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       this.setState({ submitting: true });
       createProject({
         project: state.projectKey,
-        name: (state.projectName || state.projectKey).trim(),
-        organization: state.selectedOrganization && state.selectedOrganization.key,
-        visibility: this.state.selectedVisibility
+        name: (state.projectName || state.projectKey).trim()
       }).then(
         ({ project }) => this.props.onProjectCreate([project.key]),
         () => {
@@ -159,37 +120,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
         }
       );
     }
-  };
-
-  handleOrganizationSelect = ({ key }: T.Organization) => {
-    const selectedOrganization = this.getOrganization(key);
-    let { selectedVisibility } = this.state;
-
-    if (selectedVisibility === undefined) {
-      selectedVisibility = this.canChoosePrivate(selectedOrganization) ? 'private' : 'public';
-    }
-
-    this.setState({
-      selectedOrganization,
-      selectedVisibility
-    });
-  };
-
-  handleOrganizationUpgrade = () => {
-    this.props.fetchMyOrganizations!().then(
-      () => {
-        this.setState(prevState => {
-          if (prevState.selectedOrganization) {
-            const selectedOrganization = this.getOrganization(prevState.selectedOrganization.key);
-            return {
-              selectedOrganization
-            };
-          }
-          return null;
-        });
-      },
-      () => {}
-    );
   };
 
   handleProjectKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -222,10 +152,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     });
   };
 
-  handleVisibilityChange = (selectedVisibility: T.Visibility) => {
-    this.setState({ selectedVisibility });
-  };
-
   validateKey = (projectKey: string) => {
     return projectKey.length > 400 || !/^[\w-.:]*[a-zA-Z]+[\w-.:]*$/.test(projectKey)
       ? translate('onboarding.create_project.project_key.error')
@@ -244,7 +170,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       projectKeyError,
       projectName,
       projectNameError,
-      selectedOrganization,
       submitting,
       touched,
       validating
@@ -254,7 +179,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
     const projectKeyIsValid = touched && !validating && projectKeyError === undefined;
     const projectNameIsInvalid = touched && projectNameError !== undefined;
     const projectNameIsValid = touched && projectNameError === undefined;
-    const canChoosePrivate = this.canChoosePrivate(selectedOrganization);
 
     return (
       <>
@@ -263,17 +187,9 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
           title={translate('onboarding.create_project.setup_manually')}
         />
 
-        <div className="create-project">
+        <div className="create-project-manual">
           <div className="flex-1 huge-spacer-right">
             <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
-              {isSonarCloud() && this.props.userOrganizations && (
-                <OrganizationInput
-                  onChange={this.handleOrganizationSelect}
-                  organization={selectedOrganization ? selectedOrganization.key : ''}
-                  organizations={this.props.userOrganizations}
-                />
-              )}
-
               <ValidationInput
                 className="form-field"
                 description={translate('onboarding.create_project.project_key.description')}
@@ -329,16 +245,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
               <DeferredSpinner className="spacer-left" loading={submitting} />
             </form>
           </div>
-
-          {isSonarCloud() && selectedOrganization && (
-            <div className="create-project-side-sticky">
-              <UpgradeOrganizationBox
-                className={classNames('animated', { open: !canChoosePrivate })}
-                onOrganizationUpgrade={this.handleOrganizationUpgrade}
-                organization={selectedOrganization}
-              />
-            </div>
-          )}
         </div>
       </>
     );

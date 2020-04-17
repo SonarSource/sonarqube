@@ -32,117 +32,14 @@
   z-index: var(--pageMainZIndex);
 }
 
-.create-project {
-  display: flex !important;
-  justify-content: space-between;
-}
-
-.create-project-repository {
-  display: flex;
-  align-items: center;
-  min-width: 500px;
-  height: 40px;
-  border: 1px solid var(--barBorderColor);
-  padding: var(--gridSize) calc(var(--gridSize) * 2);
-  margin-bottom: calc(var(--gridSize));
-  box-sizing: border-box;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.create-project-repository.disabled {
-  background-color: var(--disableGrayBg);
-  border-color: var(--disableGrayBorder);
-  cursor: default;
-}
-
-.create-project-repository.imported {
-  cursor: default;
-}
-
-.create-project-repository.selected {
-  background-color: var(--lightBlue);
-  border-color: var(--darkBlue);
-}
-
-.create-project-repository:not(.imported):not(.disabled):hover,
-.create-project-repository:not(.imported):not(.disabled):focus,
-.create-project-repository:not(.imported):not(.disabled):active {
-  border-color: var(--blue);
-  box-shadow: none;
-}
-
-.create-project-side-with-search {
-  margin-top: calc(4 * var(--gridSize));
-}
-
-.create-project-side-sticky {
-  position: sticky;
-  top: 68px;
-}
-
-.create-project-setup {
-  display: flex;
-  overflow: hidden;
-  opacity: 0;
-  flex-direction: column;
-  height: 0;
-  width: 450px;
-  margin-bottom: 0;
-  color: #fff;
-  background-color: var(--sonarcloudBlue900);
-  border: none;
-  border-radius: 3px;
-  transition: height 0.5s ease, opacity 0.4s ease-out, margin-bottom 0.5s ease-in;
-}
-
-.create-project-setup.open {
-  opacity: 1;
-  height: 160px;
-  margin-bottom: calc(2.5 * var(--gridSize));
-}
-
-.create-project-setup h2 {
-  color: #fff;
-  font-weight: 700;
-  font-size: var(--bigFontSize);
-}
-
-.create-project-setup .boxed-group-inner {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.create-project-setup .button {
-  border-color: var(--sonarcloudBlue500);
-  background-color: var(--sonarcloudBlue500);
-  color: #fff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-}
-
-.create-project-setup .button:hover,
-.create-project-setup .button:focus {
-  border-color: var(--sonarcloudBlue600);
-  background-color: var(--sonarcloudBlue600);
-}
-
-.create-project-actions {
-  min-width: 500px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0 8px 16px;
-  border-left: 1px solid transparent;
-}
-
-.create-project-actions .icon-checkbox {
-  margin-right: 8px;
-}
-
 .create-project-modes {
   margin: 0 auto;
   max-width: 500px;
+}
+
+.create-project-manual {
+  display: flex !important;
+  justify-content: space-between;
 }
 
 .create-project-import-bbs .open .boxed-group-header {
