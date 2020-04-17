@@ -458,7 +458,7 @@ public class RuleUpdaterTest {
     db.getDbClient().activeRuleDao().insert(dbSession, activeRuleDto);
     db.getDbClient().activeRuleDao().insertParam(dbSession, activeRuleDto, new ActiveRuleParamDto()
       .setActiveRuleUuid(activeRuleDto.getUuid())
-      .setRulesParameterId(ruleParam1.getId())
+      .setRulesParameterUuid(ruleParam1.getUuid())
       .setKey(ruleParam1.getName())
       .setValue(ruleParam1.getDefaultValue()));
     dbSession.commit();

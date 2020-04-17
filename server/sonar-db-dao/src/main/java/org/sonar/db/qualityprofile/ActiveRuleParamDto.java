@@ -31,7 +31,7 @@ public class ActiveRuleParamDto {
 
   private String uuid;
   private String activeRuleUuid;
-  private Integer rulesParameterId;
+  private String rulesParameterUuid;
   private String kee;
   private String value;
 
@@ -53,13 +53,13 @@ public class ActiveRuleParamDto {
     return this;
   }
 
-  public Integer getRulesParameterId() {
-    return rulesParameterId;
+  public String getRulesParameterUuid() {
+    return rulesParameterUuid;
   }
 
   // TODO set private or drop
-  public ActiveRuleParamDto setRulesParameterId(Integer rulesParameterId) {
-    this.rulesParameterId = rulesParameterId;
+  public ActiveRuleParamDto setRulesParameterUuid(String rulesParameterUuid) {
+    this.rulesParameterUuid = rulesParameterUuid;
     return this;
   }
 
@@ -87,10 +87,10 @@ public class ActiveRuleParamDto {
   }
 
   public static ActiveRuleParamDto createFor(RuleParamDto param) {
-    Preconditions.checkArgument(param.getId() != null, "Parameter is not persisted");
+    Preconditions.checkArgument(param.getUuid() != null, "Parameter is not persisted");
     return new ActiveRuleParamDto()
       .setKey(param.getName())
-      .setRulesParameterId(param.getId());
+      .setRulesParameterUuid(param.getUuid());
   }
 
   public static Map<String, ActiveRuleParamDto> groupByKey(Collection<ActiveRuleParamDto> params) {

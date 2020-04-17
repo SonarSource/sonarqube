@@ -28,19 +28,19 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class RuleParamDto {
 
-  private Integer id;
+  private String uuid;
   private Integer ruleId;
   private String name;
   private String type;
   private String defaultValue;
   private String description;
 
-  public Integer getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public RuleParamDto setId(Integer id) {
-    this.id = id;
+  public RuleParamDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

@@ -251,7 +251,7 @@ public class QProfileFactoryImplTest {
     ActiveRuleDto activeRuleDto = db.qualityProfiles().activateRule(profile, rule);
 
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
-      .setRulesParameterId(ruleParam.getId())
+      .setRulesParameterUuid(ruleParam.getUuid())
       .setKey("foo")
       .setValue("bar");
     db.getDbClient().activeRuleDao().insertParam(dbSession, activeRuleDto, activeRuleParam);
@@ -277,7 +277,7 @@ public class QProfileFactoryImplTest {
     db.getDbClient().activeRuleDao().insert(dbSession, activeRuleDto);
 
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
-      .setRulesParameterId(ruleParam.getId())
+      .setRulesParameterUuid(ruleParam.getUuid())
       .setKey("foo")
       .setValue("bar");
     db.getDbClient().activeRuleDao().insertParam(dbSession, activeRuleDto, activeRuleParam);

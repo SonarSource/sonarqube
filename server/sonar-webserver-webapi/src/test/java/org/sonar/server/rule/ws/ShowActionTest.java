@@ -421,7 +421,7 @@ public class ShowActionTest {
     QProfileDto qProfile = db.qualityProfiles().insert(organization);
     ActiveRuleDto activeRule = db.qualityProfiles().activateRule(qProfile, rule);
     db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRule, new ActiveRuleParamDto()
-      .setRulesParameterId(ruleParam.getId())
+      .setRulesParameterUuid(ruleParam.getUuid())
       .setKey(ruleParam.getName())
       .setValue(".*?"));
     db.commit();

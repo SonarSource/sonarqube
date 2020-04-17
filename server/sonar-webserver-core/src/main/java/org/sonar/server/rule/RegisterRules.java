@@ -554,7 +554,7 @@ public class RegisterRules implements Startable {
         profiler.start();
         dbClient.activeRuleDao().deleteParamsByRuleParamOfAllOrganizations(session, paramDto);
         profiler.stopDebug(format("Propagate deleted param with name %s to active rules of rule %s", paramDto.getName(), rule.getKey()));
-        dbClient.ruleDao().deleteRuleParam(session, paramDto.getId());
+        dbClient.ruleDao().deleteRuleParam(session, paramDto.getUuid());
       } else {
         if (mergeParam(paramDto, paramDef)) {
           dbClient.ruleDao().updateRuleParam(session, rule, paramDto);

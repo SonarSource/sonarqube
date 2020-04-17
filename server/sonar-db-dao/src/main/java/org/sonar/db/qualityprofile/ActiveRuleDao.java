@@ -153,7 +153,7 @@ public class ActiveRuleDao implements Dao {
   public ActiveRuleParamDto insertParam(DbSession dbSession, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
     checkArgument(activeRule.getUuid() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
     checkArgument(activeRuleParam.getUuid() == null, ACTIVE_RULE_PARAM_IS_ALREADY_PERSISTED);
-    Preconditions.checkNotNull(activeRuleParam.getRulesParameterId(), RULE_PARAM_IS_NOT_PERSISTED);
+    Preconditions.checkNotNull(activeRuleParam.getRulesParameterUuid(), RULE_PARAM_IS_NOT_PERSISTED);
 
     activeRuleParam.setActiveRuleUuid(activeRule.getUuid());
     activeRuleParam.setUuid(uuidFactory.create());

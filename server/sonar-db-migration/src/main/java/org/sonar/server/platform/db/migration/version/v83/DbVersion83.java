@@ -115,6 +115,16 @@ import org.sonar.server.platform.db.migration.version.v83.projectmeasures.DropId
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.DropPrimaryKeyOnIdColumnOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.MakeProjectMeasuresUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.PopulateProjectMeasureUuid;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.AddPrimaryKeyOnUuidColumnOfRulesParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.AddUuidColumnToRulesParameters;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.DropIdColumnOfRulesParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.DropPrimaryKeyOnIdColumnOfRulesParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.MakeRulesParametersUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.PopulateRulesParametersUuid;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.fk.AddRulesParameterUuidColumnToActiveRuleParameters;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.fk.DropRulesParameterIdColumnOfActiveRuleParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.fk.MakeActiveRuleParametersRulesParameterUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.rulesparameters.fk.PopulateActiveRuleParametersRulesParameterUuid;
 import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.AddPrimaryKeyOnUuidColumnOfProjectQProfilesTable;
 import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.AddUuidColumnToProjectQProfilesTable;
 import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.DropIdColumnOfProjectQProfilesTable;
@@ -329,6 +339,22 @@ public class DbVersion83 implements DbVersion {
       .add(3515, "Add primary key on 'UUID' column of 'ACTIVE_RULES' table", AddPrimaryKeyOnUuidColumnOfActiveRulesTable.class)
       .add(3516, "Drop column 'ID' of 'ACTIVE_RULES' table", DropIdColumnOfActiveRulesTable.class)
       .add(3517, "Drop column 'active_rule_id' of 'ACTIVE_RULE_PARAMETERS' table", DropActiveRuleIdColumnOfActiveRuleParametersTable.class)
+
+      // Migration on RULES_PARAMETERS table - populate uuid column
+      .add(3518, "Add 'uuid' column for 'RULES_PARAMETERS'", AddUuidColumnToRulesParameters.class)
+      .add(3519, "Populate 'uuid' column for 'RULES_PARAMETERS'", PopulateRulesParametersUuid.class)
+      .add(3520, "Make 'uuid' column not nullable for 'RULES_PARAMETERS'", MakeRulesParametersUuidColumnNotNullable.class)
+
+      // Migration of ACTIVE_RULE_PARAMS FK to RULES_PARAMETERS, switch from ruleParamId to ruleParamUuid
+      .add(3521, "Add 'rules_parameter_uuid' column for 'ACTIVE_RULE_PARAMS' table", AddRulesParameterUuidColumnToActiveRuleParameters.class)
+      .add(3522, "Populate 'rules_parameter_uuid' column for 'ACTIVE_RULE_PARAMS' table", PopulateActiveRuleParametersRulesParameterUuid.class)
+      .add(3523, "Make 'rules_parameter_uuid' column not nullable for 'ACTIVE_RULE_PARAMS' table", MakeActiveRuleParametersRulesParameterUuidColumnNotNullable.class)
+      .add(3524, "Drop column 'rules_parameter_id' of 'ACTIVE_RULE_PARAMS' table", DropRulesParameterIdColumnOfActiveRuleParametersTable.class)
+
+      // Migration on RULES_PARAMETERS table change PK
+      .add(3525, "Drop primary key on 'ID' column of 'RULES_PARAMETERS' table", DropPrimaryKeyOnIdColumnOfRulesParametersTable.class)
+      .add(3526, "Add primary key on 'UUID' column of 'RULES_PARAMETERS' table", AddPrimaryKeyOnUuidColumnOfRulesParametersTable.class)
+      .add(3527, "Drop column 'ID' of 'RULES_PARAMETERS' table", DropIdColumnOfRulesParametersTable.class)
 
     ;
   }

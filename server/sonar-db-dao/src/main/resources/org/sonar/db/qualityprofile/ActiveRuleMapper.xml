@@ -198,7 +198,7 @@
   <sql id="activeRuleParamColumns">
     p.uuid,
     p.active_rule_uuid as activeRuleUuid,
-    p.rules_parameter_id as rulesParameterId,
+    p.rules_parameter_uuid as rulesParameterUuid,
     p.rules_parameter_key as kee,
     p.value as value
   </sql>
@@ -207,13 +207,13 @@
     insert into active_rule_parameters (
       uuid,
       active_rule_uuid,
-      rules_parameter_id,
+      rules_parameter_uuid,
       rules_parameter_key,
       value
     ) values (
       #{uuid, jdbcType=VARCHAR},
       #{activeRuleUuid, jdbcType=VARCHAR},
-      #{rulesParameterId, jdbcType=BIGINT},
+      #{rulesParameterUuid, jdbcType=BIGINT},
       #{key, jdbcType=VARCHAR},
       #{value, jdbcType=VARCHAR}
     )

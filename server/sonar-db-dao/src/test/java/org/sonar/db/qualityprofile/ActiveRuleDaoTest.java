@@ -465,7 +465,7 @@ public class ActiveRuleDaoTest {
       .matches(p -> Objects.equals(p.getUuid(), activeRuleParam.getUuid()))
       .matches(p -> p.getKey().equals(activeRuleParam.getKey()))
       .matches(p -> p.getActiveRuleUuid().equals(activeRule.getUuid()))
-      .matches(p -> p.getRulesParameterId().equals(rule1Param1.getId()))
+      .matches(p -> p.getRulesParameterUuid().equals(rule1Param1.getUuid()))
       .matches(p -> p.getValue().equals("foo"));
   }
 
@@ -496,7 +496,7 @@ public class ActiveRuleDaoTest {
 
     underTest.insertParam(dbSession,
       createFor(profile1, rule1).setUuid("uuid"),
-      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setRulesParameterId(null));
+      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setRulesParameterUuid(null));
   }
 
   @Test
@@ -514,7 +514,7 @@ public class ActiveRuleDaoTest {
       .matches(p -> Objects.equals(p.getUuid(), activeRuleParam.getUuid()))
       .matches(p -> p.getKey().equals(activeRuleParam.getKey()))
       .matches(p -> p.getActiveRuleUuid().equals(activeRule.getUuid()))
-      .matches(p -> p.getRulesParameterId().equals(rule1Param1.getId()))
+      .matches(p -> p.getRulesParameterUuid().equals(rule1Param1.getUuid()))
       .matches(p -> p.getValue().equals("bar"));
   }
 

@@ -831,7 +831,7 @@ public class RuleDaoTest {
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleParamDto ruleDto = ruleDtos.get(0);
-    assertThat(ruleDto.getId()).isEqualTo(ruleParam.getId());
+    assertThat(ruleDto.getUuid()).isEqualTo(ruleParam.getUuid());
     assertThat(ruleDto.getName()).isEqualTo(ruleParam.getName());
     assertThat(ruleDto.getDescription()).isEqualTo(ruleParam.getDescription());
     assertThat(ruleDto.getType()).isEqualTo(ruleParam.getType());
@@ -899,7 +899,7 @@ public class RuleDaoTest {
     List<RuleParamDto> params = underTest.selectRuleParamsByRuleKey(db.getSession(), rule.getKey());
     assertThat(params).hasSize(1);
     RuleParamDto param = new RuleParamDto()
-      .setId(ruleParam.getId())
+      .setUuid(ruleParam.getUuid())
       .setRuleId(rule.getId())
       // Name will not be updated
       .setName("format")
@@ -920,7 +920,7 @@ public class RuleDaoTest {
     RuleParamDto ruleParam = db.rules().insertRuleParam(rule);
     assertThat(underTest.selectRuleParamsByRuleKey(db.getSession(), rule.getKey())).hasSize(1);
 
-    underTest.deleteRuleParam(db.getSession(), ruleParam.getId());
+    underTest.deleteRuleParam(db.getSession(), ruleParam.getUuid());
 
     assertThat(underTest.selectRuleParamsByRuleKey(db.getSession(), rule.getKey())).isEmpty();
   }

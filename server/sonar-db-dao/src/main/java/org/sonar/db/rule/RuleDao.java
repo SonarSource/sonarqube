@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
@@ -42,6 +43,12 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class RuleDao implements Dao {
+
+  private final UuidFactory uuidFactory;
+
+  public RuleDao(UuidFactory uuidFactory) {
+    this.uuidFactory = uuidFactory;
+  }
 
   public Optional<RuleDto> selectByKey(DbSession session, String organizationUuid, RuleKey key) {
     RuleDto res = mapper(session).selectByKey(organizationUuid, key);
@@ -235,19 +242,21 @@ public class RuleDao implements Dao {
   public void insertRuleParam(DbSession session, RuleDefinitionDto rule, RuleParamDto param) {
     checkNotNull(rule.getId(), "Rule id must be set");
     param.setRuleId(rule.getId());
+
+    param.setUuid(uuidFactory.create());
     mapper(session).insertParameter(param);
   }
 
   public RuleParamDto updateRuleParam(DbSession session, RuleDefinitionDto rule, RuleParamDto param) {
     checkNotNull(rule.getId(), "Rule id must be set");
-    checkNotNull(param.getId(), "Rule parameter is not yet persisted must be set");
+    checkNotNull(param.getUuid(), "Rule parameter is not yet persisted must be set");
     param.setRuleId(rule.getId());
     mapper(session).updateParameter(param);
     return param;
   }
 
-  public void deleteRuleParam(DbSession session, int ruleParameterId) {
-    mapper(session).deleteParameter(ruleParameterId);
+  public void deleteRuleParam(DbSession session, String ruleParameterUuid) {
+    mapper(session).deleteParameter(ruleParameterUuid);
   }
 
   public Set<DeprecatedRuleKeyDto> selectAllDeprecatedRuleKeys(DbSession session) {
