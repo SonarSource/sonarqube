@@ -19,12 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { mockGithubBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
 import GithubForm, { GithubFormProps } from '../GithubForm';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ formData: mockGithubDefinition() })).toMatchSnapshot();
+  expect(shallowRender({ formData: mockGithubBindingDefinition() })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<GithubFormProps> = {}) {

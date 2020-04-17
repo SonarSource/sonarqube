@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import BackIcon from 'sonar-ui-common/components/icons/BackIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import InstanceMessage from '../../../components/common/InstanceMessage';
 import { isVSTS } from '../../../helpers/almIntegrations';
-import ProjectAnalysisStep from '../components/ProjectAnalysisStep';
-import TokenStep from '../components/TokenStep';
-import '../styles.css';
+import InstanceMessage from '../../common/InstanceMessage';
+import ProjectAnalysisStep from './ProjectAnalysisStep';
+import TokenStep from './TokenStep';
 
 export enum Steps {
   ANALYSIS,
@@ -33,6 +34,7 @@ export enum Steps {
 interface Props {
   component: T.Component;
   currentUser: T.LoggedInUser;
+  onBack?: () => void;
 }
 
 interface State {
@@ -40,7 +42,7 @@ interface State {
   token?: string;
 }
 
-export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
+export default class ManualTutorial extends React.PureComponent<Props, State> {
   state: State = { step: Steps.TOKEN };
 
   handleTokenDone = (token: string) => {
@@ -59,7 +61,19 @@ export default class AnalyzeTutorial extends React.PureComponent<Props, State> {
     return (
       <>
         <div className="page-header big-spacer-bottom">
-          <h1 className="page-title">{translate('onboarding.project_analysis.header')}</h1>
+          <h1 className="page-title">
+            {this.props.onBack !== undefined && (
+              <Tooltip overlay={translate('onboarding.tutorial.return_to_list')}>
+                <a
+                  aria-label={translate('onboarding.tutorial.return_to_list')}
+                  className="link-no-underline big-spacer-right"
+                  onClick={this.props.onBack}>
+                  <BackIcon />
+                </a>
+              </Tooltip>
+            )}
+            {translate('onboarding.project_analysis.header')}
+          </h1>
           <p className="page-description">
             <InstanceMessage message={translate('onboarding.project_analysis.description')} />
           </p>

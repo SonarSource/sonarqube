@@ -27,17 +27,21 @@ import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon'
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { AlmKeys, AlmSettingsInstance, ProjectAlmBinding } from '../../../../types/alm-settings';
+import {
+  AlmKeys,
+  AlmSettingsInstance,
+  ProjectAlmBindingResponse
+} from '../../../../types/alm-settings';
 import InputForBoolean from '../inputs/InputForBoolean';
 
 export interface PRDecorationBindingRendererProps {
-  formData: ProjectAlmBinding;
+  formData: T.Omit<ProjectAlmBindingResponse, 'alm'>;
   instances: AlmSettingsInstance[];
   isChanged: boolean;
   isConfigured: boolean;
   isValid: boolean;
   loading: boolean;
-  onFieldChange: (id: keyof ProjectAlmBinding, value: string | boolean) => void;
+  onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
   onReset: () => void;
   onSubmit: () => void;
   saving: boolean;
@@ -52,8 +56,8 @@ interface LabelProps {
 }
 
 interface CommonFieldProps extends LabelProps {
-  onFieldChange: (id: keyof ProjectAlmBinding, value: string | boolean) => void;
-  propKey: keyof ProjectAlmBinding;
+  onFieldChange: (id: keyof ProjectAlmBindingResponse, value: string | boolean) => void;
+  propKey: keyof ProjectAlmBindingResponse;
 }
 
 function optionRenderer(instance: AlmSettingsInstance) {

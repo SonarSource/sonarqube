@@ -21,7 +21,7 @@ import * as React from 'react';
 import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
-interface RenderOptionsProps {
+export interface RenderOptionsProps {
   checked: string | undefined;
   name: string;
   onCheck: (checked: string) => void;
@@ -30,7 +30,7 @@ interface RenderOptionsProps {
   titleLabelKey?: string;
 }
 
-export function RenderOptions({
+export default function RenderOptions({
   checked,
   onCheck,
   optionLabelKey,

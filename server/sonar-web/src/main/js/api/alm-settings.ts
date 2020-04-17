@@ -23,14 +23,14 @@ import {
   AlmSettingsBindingDefinitions,
   AlmSettingsInstance,
   AzureBindingDefinition,
-  AzureProjectAlmBinding,
+  AzureProjectAlmBindingParams,
   BitbucketBindingDefinition,
-  BitbucketProjectAlmBinding,
+  BitbucketProjectAlmBindingParams,
   GithubBindingDefinition,
-  GithubProjectAlmBinding,
+  GithubProjectAlmBindingParams,
   GitlabBindingDefinition,
-  GitlabProjectAlmBinding,
-  ProjectAlmBinding
+  GitlabProjectAlmBindingParams,
+  ProjectAlmBindingResponse
 } from '../types/alm-settings';
 
 export function getAlmDefinitions(): Promise<AlmSettingsBindingDefinitions> {
@@ -87,7 +87,7 @@ export function countBindedProjects(almSetting: string) {
     .catch(throwGlobalError);
 }
 
-export function getProjectAlmBinding(project: string): Promise<ProjectAlmBinding> {
+export function getProjectAlmBinding(project: string): Promise<ProjectAlmBindingResponse> {
   return getJSON('/api/alm_settings/get_binding', { project });
 }
 
@@ -95,18 +95,18 @@ export function deleteProjectAlmBinding(project: string): Promise<void> {
   return post('/api/alm_settings/delete_binding', { project }).catch(throwGlobalError);
 }
 
-export function setProjectAzureBinding(data: AzureProjectAlmBinding) {
+export function setProjectAzureBinding(data: AzureProjectAlmBindingParams) {
   return post('/api/alm_settings/set_azure_binding', data).catch(throwGlobalError);
 }
 
-export function setProjectBitbucketBinding(data: BitbucketProjectAlmBinding) {
+export function setProjectBitbucketBinding(data: BitbucketProjectAlmBindingParams) {
   return post('/api/alm_settings/set_bitbucket_binding', data).catch(throwGlobalError);
 }
 
-export function setProjectGithubBinding(data: GithubProjectAlmBinding) {
+export function setProjectGithubBinding(data: GithubProjectAlmBindingParams) {
   return post('/api/alm_settings/set_github_binding', data).catch(throwGlobalError);
 }
 
-export function setProjectGitlabBinding(data: GitlabProjectAlmBinding) {
+export function setProjectGitlabBinding(data: GitlabProjectAlmBindingParams) {
   return post('/api/alm_settings/set_gitlab_binding', data).catch(throwGlobalError);
 }

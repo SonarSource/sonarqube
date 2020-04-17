@@ -20,8 +20,9 @@
 import * as React from 'react';
 import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isLanguageConfigured, LanguageConfig } from '../utils';
-import { RenderOptions } from './RenderOptions';
+import RenderOptions from '../components/RenderOptions';
+import { LanguageConfig } from '../types';
+import { isLanguageConfigured } from '../utils';
 
 interface Props {
   component: T.Component;

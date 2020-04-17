@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { mockGithubBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
 import { GithubBindingDefinition } from '../../../../../types/alm-settings';
 import AlmBindingDefinitionForm from '../AlmBindingDefinitionForm';
 
@@ -29,14 +29,14 @@ it('should render correctly', () => {
 });
 
 it('should reset if the props change', () => {
-  const bindingDefinition = mockGithubDefinition();
+  const bindingDefinition = mockGithubBindingDefinition();
   const wrapper = shallowRender({ bindingDefinition });
 
   wrapper.setState({ formData: { ...bindingDefinition, appId: 'newAppId' }, touched: true });
   wrapper.setProps({ bindingDefinition: { ...bindingDefinition } });
   expect(wrapper.state('touched')).toBe(true);
 
-  wrapper.setProps({ bindingDefinition: mockGithubDefinition({ key: 'diffKey' }) });
+  wrapper.setProps({ bindingDefinition: mockGithubBindingDefinition({ key: 'diffKey' }) });
   expect(wrapper.state('touched')).toBe(false);
 });
 
@@ -90,7 +90,7 @@ it('should handle cancelling', () => {
     onCancel
   });
 
-  wrapper.setState({ formData: mockGithubDefinition() });
+  wrapper.setState({ formData: mockGithubBindingDefinition() });
   wrapper.instance().handleCancel();
 
   expect(wrapper.state().formData).toBe(bindingDefinition);
@@ -99,7 +99,7 @@ it('should handle cancelling', () => {
 
 it('should handle deleting', () => {
   const onDelete = jest.fn();
-  const bindingDefinition = mockGithubDefinition();
+  const bindingDefinition = mockGithubBindingDefinition();
   const wrapper = shallowRender({
     bindingDefinition,
     onDelete
@@ -113,14 +113,14 @@ it('should (dis)allow submit by validating its state', () => {
   const wrapper = shallowRender();
   expect(wrapper.instance().canSubmit()).toBe(false);
 
-  wrapper.setState({ formData: mockGithubDefinition(), touched: true });
+  wrapper.setState({ formData: mockGithubBindingDefinition(), touched: true });
   expect(wrapper.instance().canSubmit()).toBe(true);
 
-  wrapper.setState({ formData: mockGithubDefinition({ key: '' }), touched: true });
+  wrapper.setState({ formData: mockGithubBindingDefinition({ key: '' }), touched: true });
   wrapper.setProps({ hideKeyField: true });
   expect(wrapper.instance().canSubmit()).toBe(true);
 
-  wrapper.setState({ formData: mockGithubDefinition({ url: '' }), touched: true });
+  wrapper.setState({ formData: mockGithubBindingDefinition({ url: '' }), touched: true });
   wrapper.setProps({ optionalFields: ['url'] });
   expect(wrapper.instance().canSubmit()).toBe(true);
 });

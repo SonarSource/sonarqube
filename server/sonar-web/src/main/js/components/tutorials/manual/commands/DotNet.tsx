@@ -20,32 +20,44 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import CodeSnippet from '../../../../components/common/CodeSnippet';
-import InstanceMessage from '../../../../components/common/InstanceMessage';
+import CodeSnippet from '../../../common/CodeSnippet';
+import InstanceMessage from '../../../common/InstanceMessage';
+import MSBuildScanner from './MSBuildScanner';
 
 export interface Props {
   host: string;
   organization?: string;
-  projectKey?: string;
+  projectKey: string;
+  small?: boolean;
   token: string;
 }
 
-export default function JavaMaven(props: Props) {
-  const command = [
-    'mvn sonar:sonar',
-    props.projectKey && `-Dsonar.projectKey=${props.projectKey}`,
-    props.organization && `-Dsonar.organization=${props.organization}`,
-    `-Dsonar.host.url=${props.host}`,
-    `-Dsonar.login=${props.token}`
+export default function DotNet(props: Props) {
+  const command1 = [
+    'SonarScanner.MSBuild.exe begin',
+    `/k:"${props.projectKey}"`,
+    props.organization && `/d:sonar.organization="${props.organization}"`,
+    `/d:sonar.host.url="${props.host}"`,
+    `/d:sonar.login="${props.token}"`
   ];
+
+  const command2 = 'MsBuild.exe /t:Rebuild';
+
+  const command3 = ['SonarScanner.MSBuild.exe end', `/d:sonar.login="${props.token}"`];
 
   return (
     <div>
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.java.maven.header')}</h4>
-      <p className="spacer-bottom markdown">
-        <InstanceMessage message={translate('onboarding.analysis.java.maven.text')} />
-      </p>
-      <CodeSnippet snippet={command} />
+      <MSBuildScanner />
+
+      <h4 className="huge-spacer-top spacer-bottom">
+        {translate('onboarding.analysis.msbuild.execute')}
+      </h4>
+      <InstanceMessage message={translate('onboarding.analysis.msbuild.execute.text')}>
+        {transformedMessage => <p className="spacer-bottom markdown">{transformedMessage}</p>}
+      </InstanceMessage>
+      <CodeSnippet isOneLine={true} snippet={command1} />
+      <CodeSnippet isOneLine={false} snippet={command2} />
+      <CodeSnippet isOneLine={props.small} snippet={command3} />
       <p className="big-spacer-top markdown">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.docs')}
@@ -53,19 +65,14 @@ export default function JavaMaven(props: Props) {
           values={{
             link: (
               <a
-                href="http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
+                href="http://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html"
                 rel="noopener noreferrer"
                 target="_blank">
-                {translate('onboarding.analysis.java.maven.docs_link')}
+                {translate('onboarding.analysis.msbuild.docs_link')}
               </a>
             )
           }}
         />
-      </p>
-      <p className="big-spacer-top markdown">
-        {props.projectKey
-          ? translate('onboarding.analysis.auto_refresh_after_analysis')
-          : translate('onboarding.analysis.browse_url_after_analysis')}
       </p>
     </div>
   );

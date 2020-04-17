@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import { LanguageConfig } from '../../utils';
+import { LanguageConfig } from '../../types';
 import { getProjectKey } from '../ProjectAnalysisStep';
 import DotNet from './DotNet';
 import JavaGradle from './JavaGradle';

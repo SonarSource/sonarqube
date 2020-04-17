@@ -20,7 +20,7 @@
 import * as React from 'react';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import Step from '../../tutorials/components/Step';
+import Step from '../../../components/tutorials/components/Step';
 
 interface Props {
   children: React.ReactNode;

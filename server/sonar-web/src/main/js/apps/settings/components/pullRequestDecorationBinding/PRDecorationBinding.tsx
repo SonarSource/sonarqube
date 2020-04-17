@@ -28,27 +28,33 @@ import {
   setProjectGitlabBinding
 } from '../../../../api/alm-settings';
 import throwGlobalError from '../../../../app/utils/throwGlobalError';
-import { AlmKeys, AlmSettingsInstance, ProjectAlmBinding } from '../../../../types/alm-settings';
+import {
+  AlmKeys,
+  AlmSettingsInstance,
+  ProjectAlmBindingResponse
+} from '../../../../types/alm-settings';
 import PRDecorationBindingRenderer from './PRDecorationBindingRenderer';
+
+type FormData = T.Omit<ProjectAlmBindingResponse, 'alm'>;
 
 interface Props {
   component: T.Component;
 }
 
 interface State {
-  formData: ProjectAlmBinding;
+  formData: FormData;
   instances: AlmSettingsInstance[];
   isChanged: boolean;
   isConfigured: boolean;
   isValid: boolean;
   loading: boolean;
-  orignalData?: ProjectAlmBinding;
+  orignalData?: FormData;
   saving: boolean;
   success: boolean;
 }
 
 const REQUIRED_FIELDS_BY_ALM: {
-  [almKey in AlmKeys]: Array<keyof T.Omit<ProjectAlmBinding, 'key'>>;
+  [almKey in AlmKeys]: Array<keyof T.Omit<FormData, 'key'>>;
 } = {
   [AlmKeys.Azure]: [],
   [AlmKeys.Bitbucket]: ['repository', 'slug'],
@@ -104,7 +110,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
       });
   };
 
-  getProjectBinding(project: string): Promise<ProjectAlmBinding | undefined> {
+  getProjectBinding(project: string): Promise<ProjectAlmBindingResponse | undefined> {
     return getProjectAlmBinding(project).catch((response: Response) => {
       if (response && response.status === 404) {
         return undefined;
@@ -144,7 +150,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   submitProjectAlmBinding(
     alm: AlmKeys,
     key: string,
-    almSpecificFields?: T.Omit<ProjectAlmBinding, 'key'>
+    almSpecificFields?: T.Omit<FormData, 'key'>
   ): Promise<void> {
     const almSetting = key;
     const project = this.props.component.key;
@@ -225,13 +231,13 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
   };
 
   isDataSame(
-    { key, repository = '', slug = '', summaryCommentEnabled = false }: ProjectAlmBinding,
+    { key, repository = '', slug = '', summaryCommentEnabled = false }: FormData,
     {
       key: oKey = '',
       repository: oRepository = '',
       slug: oSlug = '',
       summaryCommentEnabled: osummaryCommentEnabled = false
-    }: ProjectAlmBinding
+    }: FormData
   ) {
     return (
       key === oKey &&
@@ -241,7 +247,7 @@ export default class PRDecorationBinding extends React.PureComponent<Props, Stat
     );
   }
 
-  handleFieldChange = (id: keyof ProjectAlmBinding, value: string | boolean) => {
+  handleFieldChange = (id: keyof ProjectAlmBindingResponse, value: string | boolean) => {
     this.setState(({ formData, orignalData }) => {
       const newFormData = {
         ...formData,

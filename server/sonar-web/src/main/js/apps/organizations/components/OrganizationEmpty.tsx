@@ -22,7 +22,7 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import OnboardingAddMembersIcon from 'sonar-ui-common/components/icons/OnboardingAddMembersIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import '../../tutorials/styles.css';
+import '../../../components/tutorials/styles.css';
 import './OrganizationEmpty.css';
 
 interface Props {

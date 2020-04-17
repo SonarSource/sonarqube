@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGithubDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { mockGithubBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
 import GithubTab, { GithubTabProps } from '../GithubTab';
 
 it('should render correctly', () => {
@@ -31,7 +31,7 @@ function shallowRender(props: Partial<GithubTabProps> = {}) {
   return shallow(
     <GithubTab
       branchesEnabled={true}
-      definitions={[mockGithubDefinition()]}
+      definitions={[mockGithubBindingDefinition()]}
       loading={false}
       multipleAlmEnabled={true}
       onDelete={jest.fn()}

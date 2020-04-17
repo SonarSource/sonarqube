@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAzureDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { mockAzureBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
 import AzureTab, { AzureTabProps } from '../AzureTab';
 
 it('should render correctly', () => {
@@ -29,7 +29,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<AzureTabProps> = {}) {
   return shallow(
     <AzureTab
-      definitions={[mockAzureDefinition()]}
+      definitions={[mockAzureBindingDefinition()]}
       loading={false}
       multipleAlmEnabled={true}
       onDelete={jest.fn()}

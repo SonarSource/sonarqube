@@ -26,8 +26,8 @@ import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { generateToken, getTokens, revokeToken } from '../../../api/user-tokens';
+import Step from '../components/Step';
 import { getUniqueTokenName } from '../utils';
-import Step from './Step';
 
 interface Props {
   currentUser: Pick<T.LoggedInUser, 'login'>;

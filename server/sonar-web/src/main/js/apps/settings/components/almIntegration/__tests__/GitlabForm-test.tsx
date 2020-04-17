@@ -19,12 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockGitlabDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { mockGitlabBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
 import GitlabForm, { GitlabFormProps } from '../GitlabForm';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ formData: mockGitlabDefinition() })).toMatchSnapshot();
+  expect(shallowRender({ formData: mockGitlabBindingDefinition() })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<GitlabFormProps> = {}) {

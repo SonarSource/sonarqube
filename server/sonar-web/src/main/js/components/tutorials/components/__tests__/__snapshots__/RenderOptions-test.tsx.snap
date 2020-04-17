@@ -1,0 +1,81 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<div
+  className="big-spacer-top"
+>
+  <RadioToggle
+    disabled={false}
+    name=""
+    onCheck={[MockFunction]}
+    options={
+      Array [
+        Object {
+          "label": "foo.bar.foo",
+          "value": "foo",
+        },
+        Object {
+          "label": "foo.bar.baz",
+          "value": "baz",
+        },
+      ]
+    }
+    value={null}
+  />
+</div>
+`;
+
+exports[`should render correctly: option checked 1`] = `
+<div
+  className="big-spacer-top"
+>
+  <RadioToggle
+    disabled={false}
+    name=""
+    onCheck={[MockFunction]}
+    options={
+      Array [
+        Object {
+          "label": "foo.bar.foo",
+          "value": "foo",
+        },
+        Object {
+          "label": "foo.bar.baz",
+          "value": "baz",
+        },
+      ]
+    }
+    value="baz"
+  />
+</div>
+`;
+
+exports[`should render correctly: with title 1`] = `
+<div
+  className="big-spacer-top"
+>
+  <h4
+    className="spacer-bottom"
+  >
+    title.key
+  </h4>
+  <RadioToggle
+    disabled={false}
+    name=""
+    onCheck={[MockFunction]}
+    options={
+      Array [
+        Object {
+          "label": "foo.bar.foo",
+          "value": "foo",
+        },
+        Object {
+          "label": "foo.bar.baz",
+          "value": "baz",
+        },
+      ]
+    }
+    value={null}
+  />
+</div>
+`;

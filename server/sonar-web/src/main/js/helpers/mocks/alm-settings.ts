@@ -36,7 +36,7 @@ export function mockAlmSettingsInstance(
   };
 }
 
-export function mockAzureDefinition(
+export function mockAzureBindingDefinition(
   overrides: Partial<AzureBindingDefinition> = {}
 ): AzureBindingDefinition {
   return {
@@ -46,7 +46,7 @@ export function mockAzureDefinition(
   };
 }
 
-export function mockBitbucketDefinition(
+export function mockBitbucketBindingDefinition(
   overrides: Partial<BitbucketBindingDefinition> = {}
 ): BitbucketBindingDefinition {
   return {
@@ -57,7 +57,7 @@ export function mockBitbucketDefinition(
   };
 }
 
-export function mockGithubDefinition(
+export function mockGithubBindingDefinition(
   overrides: Partial<GithubBindingDefinition> = {}
 ): GithubBindingDefinition {
   return {
@@ -69,7 +69,7 @@ export function mockGithubDefinition(
   };
 }
 
-export function mockGitlabDefinition(
+export function mockGitlabBindingDefinition(
   overrides: Partial<GitlabBindingDefinition> = {}
 ): GitlabBindingDefinition {
   return {

@@ -19,32 +19,23 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import AnalyzeTutorial from '../AnalyzeTutorial';
+import RenderOptions, { RenderOptionsProps } from '../RenderOptions';
 
-Date.now = jest.fn().mockReturnValue(1540457859031);
-
-const component = {
-  key: 'foo',
-  analysisDate: '2016-01-01',
-  breadcrumbs: [],
-  name: 'Foo',
-  organization: 'org',
-  qualifier: 'TRK',
-  version: '0.0.1'
-};
-
-const loggedInUser: T.LoggedInUser = {
-  groups: [],
-  isLoggedIn: true,
-  login: 'luke',
-  name: 'Skywalker',
-  scmAccounts: []
-};
-
-it('renders correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ checked: 'baz' })).toMatchSnapshot('option checked');
+  expect(shallowRender({ titleLabelKey: 'title.key' })).toMatchSnapshot('with title');
 });
 
-function getWrapper(props = {}) {
-  return shallow(<AnalyzeTutorial component={component} currentUser={loggedInUser} {...props} />);
+function shallowRender(props: Partial<RenderOptionsProps> = {}) {
+  return shallow<RenderOptionsProps>(
+    <RenderOptions
+      checked={undefined}
+      name="bar"
+      onCheck={jest.fn()}
+      optionLabelKey="foo.bar"
+      options={['foo', 'baz']}
+      {...props}
+    />
+  );
 }

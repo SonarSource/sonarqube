@@ -20,56 +20,52 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import CodeSnippet from '../../../../components/common/CodeSnippet';
-import InstanceMessage from '../../../../components/common/InstanceMessage';
-import { quote } from '../../utils';
-import SQScanner from './SQScanner';
+import CodeSnippet from '../../../common/CodeSnippet';
+import InstanceMessage from '../../../common/InstanceMessage';
 
 export interface Props {
   host: string;
   organization?: string;
-  os: string;
-  projectKey: string;
+  projectKey?: string;
   token: string;
 }
 
-export default function Other(props: Props) {
-  const q = quote(props.os);
+export default function JavaMaven(props: Props) {
   const command = [
-    props.os === 'win' ? 'sonar-scanner.bat' : 'sonar-scanner',
-    '-D' + q(`sonar.projectKey=${props.projectKey}`),
-    props.organization && '-D' + q(`sonar.organization=${props.organization}`),
-    '-D' + q('sonar.sources=.'),
-    '-D' + q(`sonar.host.url=${props.host}`),
-    '-D' + q(`sonar.login=${props.token}`)
+    'mvn sonar:sonar',
+    props.projectKey && `-Dsonar.projectKey=${props.projectKey}`,
+    props.organization && `-Dsonar.organization=${props.organization}`,
+    `-Dsonar.host.url=${props.host}`,
+    `-Dsonar.login=${props.token}`
   ];
 
   return (
     <div>
-      <SQScanner os={props.os} />
-
-      <h4 className="huge-spacer-top spacer-bottom">
-        {translate('onboarding.analysis.sq_scanner.execute')}
-      </h4>
-      <InstanceMessage message={translate('onboarding.analysis.sq_scanner.execute.text')}>
-        {transformedMessage => <p className="spacer-bottom markdown">{transformedMessage}</p>}
-      </InstanceMessage>
-      <CodeSnippet isOneLine={props.os === 'win'} snippet={command} />
+      <h4 className="spacer-bottom">{translate('onboarding.analysis.java.maven.header')}</h4>
+      <p className="spacer-bottom markdown">
+        <InstanceMessage message={translate('onboarding.analysis.java.maven.text')} />
+      </p>
+      <CodeSnippet snippet={command} />
       <p className="big-spacer-top markdown">
         <FormattedMessage
-          defaultMessage={translate('onboarding.analysis.sq_scanner.docs')}
-          id="onboarding.analysis.sq_scanner.docs"
+          defaultMessage={translate('onboarding.analysis.docs')}
+          id="onboarding.analysis.docs"
           values={{
             link: (
               <a
-                href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
+                href="http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
                 rel="noopener noreferrer"
                 target="_blank">
-                {translate('onboarding.analysis.sq_scanner.docs_link')}
+                {translate('onboarding.analysis.java.maven.docs_link')}
               </a>
             )
           }}
         />
+      </p>
+      <p className="big-spacer-top markdown">
+        {props.projectKey
+          ? translate('onboarding.analysis.auto_refresh_after_analysis')
+          : translate('onboarding.analysis.browse_url_after_analysis')}
       </p>
     </div>
   );

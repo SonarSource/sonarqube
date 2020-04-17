@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { mockAzureDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { mockAzureBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
 import { AlmKeys, AzureBindingDefinition } from '../../../../../types/alm-settings';
 import AlmTab from '../AlmTab';
 
@@ -37,7 +37,7 @@ it('should handle cancel', async () => {
   const wrapper = shallowRender();
 
   wrapper.setState({
-    editedDefinition: mockAzureDefinition()
+    editedDefinition: mockAzureBindingDefinition()
   });
 
   wrapper.instance().handleCancel();
@@ -48,7 +48,7 @@ it('should handle cancel', async () => {
 });
 
 it('should handle edit', async () => {
-  const config = mockAzureDefinition();
+  const config = mockAzureBindingDefinition();
   const wrapper = shallowRender({ definitions: [config] });
   wrapper.instance().handleEdit(config.key);
   await waitAndUpdate(wrapper);
@@ -58,7 +58,7 @@ it('should handle edit', async () => {
 it('should create config', async () => {
   const onUpdateDefinitions = jest.fn();
   const createConfiguration = jest.fn(() => Promise.resolve());
-  const config = mockAzureDefinition();
+  const config = mockAzureBindingDefinition();
   const wrapper = shallowRender({ createConfiguration, onUpdateDefinitions });
 
   wrapper.instance().handleCreate();
@@ -75,7 +75,7 @@ it('should create config', async () => {
 it('should update config', async () => {
   const onUpdateDefinitions = jest.fn();
   const updateConfiguration = jest.fn(() => Promise.resolve());
-  const config = mockAzureDefinition();
+  const config = mockAzureBindingDefinition();
   const wrapper = shallowRender({ onUpdateDefinitions, updateConfiguration });
   wrapper.setState({ editedDefinition: config });
 
@@ -96,7 +96,7 @@ function shallowRender(props: Partial<AlmTab<AzureBindingDefinition>['props']> =
       alm={AlmKeys.Azure}
       createConfiguration={jest.fn()}
       defaultBinding={DEFAULT_BINDING}
-      definitions={[mockAzureDefinition()]}
+      definitions={[mockAzureBindingDefinition()]}
       form={jest.fn()}
       loading={false}
       multipleAlmEnabled={true}

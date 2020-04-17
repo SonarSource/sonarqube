@@ -47,7 +47,6 @@ import { hasAdvancedALMIntegration, sanitizeAlmId } from '../../../helpers/almIn
 import { getOrganizationUrl } from '../../../helpers/urls';
 import { skipOnboarding } from '../../../store/users';
 import { deleteOrganization } from '../../organizations/actions';
-import '../../tutorials/styles.css'; // TODO remove me
 import { createOrganization } from './actions';
 import AlmApplicationInstalling from './AlmApplicationInstalling';
 import AutoOrganizationCreate from './AutoOrganizationCreate';

@@ -22,8 +22,8 @@ import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
+import Step from '../../../components/tutorials/components/Step';
 import { getExtensionStart } from '../../../helpers/extensions';
-import Step from '../../tutorials/components/Step';
 import BillingFormShim from '../components/BillingFormShim';
 import PlanSelect, { Plan } from './PlanSelect';
 

@@ -48,35 +48,32 @@ export interface GitlabBindingDefinition extends AlmBindingDefinition {
   url?: string;
 }
 
-export interface ProjectAlmBinding {
+export interface ProjectAlmBindingResponse {
+  alm: AlmKeys;
   key: string;
   repository?: string;
   slug?: string;
   summaryCommentEnabled?: boolean;
 }
 
-export interface AzureProjectAlmBinding {
+export interface ProjectAlmBindingParams {
   almSetting: string;
   project: string;
 }
 
-export interface BitbucketProjectAlmBinding {
-  almSetting: string;
-  project: string;
+export interface AzureProjectAlmBindingParams extends ProjectAlmBindingParams {}
+
+export interface BitbucketProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository: string;
   slug: string;
 }
 
-export interface GithubProjectAlmBinding {
-  almSetting: string;
-  project: string;
+export interface GithubProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository: string;
   summaryCommentEnabled: boolean;
 }
 
-export interface GitlabProjectAlmBinding {
-  almSetting: string;
-  project: string;
+export interface GitlabProjectAlmBindingParams extends ProjectAlmBindingParams {
   repository?: string;
 }
 
@@ -87,8 +84,8 @@ export interface AlmSettingsInstance {
 }
 
 export interface AlmSettingsBindingDefinitions {
-  azure: AzureBindingDefinition[];
-  bitbucket: BitbucketBindingDefinition[];
-  github: GithubBindingDefinition[];
-  gitlab: GitlabBindingDefinition[];
+  [AlmKeys.Azure]: AzureBindingDefinition[];
+  [AlmKeys.Bitbucket]: BitbucketBindingDefinition[];
+  [AlmKeys.GitHub]: GithubBindingDefinition[];
+  [AlmKeys.GitLab]: GitlabBindingDefinition[];
 }

@@ -19,12 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockAzureDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { mockAzureBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
 import AzureForm, { AzureFormProps } from '../AzureForm';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ formData: mockAzureDefinition() })).toMatchSnapshot();
+  expect(shallowRender({ formData: mockAzureBindingDefinition() })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<AzureFormProps> = {}) {

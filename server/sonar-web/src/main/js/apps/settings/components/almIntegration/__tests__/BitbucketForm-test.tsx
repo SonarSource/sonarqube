@@ -19,12 +19,12 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockBitbucketDefinition } from '../../../../../helpers/mocks/alm-settings';
+import { mockBitbucketBindingDefinition } from '../../../../../helpers/mocks/alm-settings';
 import BitbucketForm, { BitbucketFormProps } from '../BitbucketForm';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ formData: mockBitbucketDefinition() })).toMatchSnapshot();
+  expect(shallowRender({ formData: mockBitbucketBindingDefinition() })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<BitbucketFormProps> = {}) {

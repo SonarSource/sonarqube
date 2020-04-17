@@ -22,12 +22,12 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import AnalyzeTutorial from '../../../components/tutorials/manual/AnalyzeTutorial';
 import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
 import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
-import AnalyzeTutorial from '../../tutorials/analyzeProject/AnalyzeTutorial';
 
 interface Props {
   branchLike?: BranchLike;

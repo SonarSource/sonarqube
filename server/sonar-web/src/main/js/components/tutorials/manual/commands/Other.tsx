@@ -20,55 +20,52 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import CodeSnippet from '../../../../components/common/CodeSnippet';
-import InstanceMessage from '../../../../components/common/InstanceMessage';
-import MSBuildScanner from './MSBuildScanner';
+import CodeSnippet from '../../../common/CodeSnippet';
+import InstanceMessage from '../../../common/InstanceMessage';
+import { quote } from '../../utils';
+import SQScanner from './SQScanner';
 
 export interface Props {
   host: string;
   organization?: string;
+  os: string;
   projectKey: string;
-  small?: boolean;
   token: string;
 }
 
-export default function DotNet(props: Props) {
-  const command1 = [
-    'SonarScanner.MSBuild.exe begin',
-    `/k:"${props.projectKey}"`,
-    props.organization && `/d:sonar.organization="${props.organization}"`,
-    `/d:sonar.host.url="${props.host}"`,
-    `/d:sonar.login="${props.token}"`
+export default function Other(props: Props) {
+  const q = quote(props.os);
+  const command = [
+    props.os === 'win' ? 'sonar-scanner.bat' : 'sonar-scanner',
+    '-D' + q(`sonar.projectKey=${props.projectKey}`),
+    props.organization && '-D' + q(`sonar.organization=${props.organization}`),
+    '-D' + q('sonar.sources=.'),
+    '-D' + q(`sonar.host.url=${props.host}`),
+    '-D' + q(`sonar.login=${props.token}`)
   ];
-
-  const command2 = 'MsBuild.exe /t:Rebuild';
-
-  const command3 = ['SonarScanner.MSBuild.exe end', `/d:sonar.login="${props.token}"`];
 
   return (
     <div>
-      <MSBuildScanner />
+      <SQScanner os={props.os} />
 
       <h4 className="huge-spacer-top spacer-bottom">
-        {translate('onboarding.analysis.msbuild.execute')}
+        {translate('onboarding.analysis.sq_scanner.execute')}
       </h4>
-      <InstanceMessage message={translate('onboarding.analysis.msbuild.execute.text')}>
+      <InstanceMessage message={translate('onboarding.analysis.sq_scanner.execute.text')}>
         {transformedMessage => <p className="spacer-bottom markdown">{transformedMessage}</p>}
       </InstanceMessage>
-      <CodeSnippet isOneLine={true} snippet={command1} />
-      <CodeSnippet isOneLine={false} snippet={command2} />
-      <CodeSnippet isOneLine={props.small} snippet={command3} />
+      <CodeSnippet isOneLine={props.os === 'win'} snippet={command} />
       <p className="big-spacer-top markdown">
         <FormattedMessage
-          defaultMessage={translate('onboarding.analysis.docs')}
-          id="onboarding.analysis.docs"
+          defaultMessage={translate('onboarding.analysis.sq_scanner.docs')}
+          id="onboarding.analysis.sq_scanner.docs"
           values={{
             link: (
               <a
-                href="http://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html"
+                href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
                 rel="noopener noreferrer"
                 target="_blank">
-                {translate('onboarding.analysis.msbuild.docs_link')}
+                {translate('onboarding.analysis.sq_scanner.docs_link')}
               </a>
             )
           }}
