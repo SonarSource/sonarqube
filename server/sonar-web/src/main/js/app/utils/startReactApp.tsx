@@ -62,7 +62,6 @@ import qualityProfilesRoutes from '../../apps/quality-profiles/routes';
 import sessionsRoutes from '../../apps/sessions/routes';
 import settingsRoutes from '../../apps/settings/routes';
 import systemRoutes from '../../apps/system/routes';
-import onboardingRoutes from '../../apps/tutorials/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
@@ -143,6 +142,7 @@ function renderRedirects() {
       <Redirect from="/system/index" to="/admin/system" />
       <Redirect from="/view" to="/portfolio" />
       <Redirect from="/users" to="/admin/users" />
+      <Redirect from="/onboarding" to="/projects/create" />
     </>
   );
 }
@@ -301,7 +301,6 @@ export default function startReactApp(
                       )}
                     />
                     <Route path="issues" component={Issues} />
-                    <RouteWithChildRoutes path="onboarding" childRoutes={onboardingRoutes} />
                     <RouteWithChildRoutes path="organizations" childRoutes={organizationsRoutes} />
                     <RouteWithChildRoutes path="projects" childRoutes={projectsRoutes} />
                     <RouteWithChildRoutes path="quality_gates" childRoutes={qualityGatesRoutes} />

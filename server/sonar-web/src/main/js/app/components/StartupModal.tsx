@@ -26,16 +26,11 @@ import { hasMessage } from 'sonar-ui-common/helpers/l10n';
 import { get, save } from 'sonar-ui-common/helpers/storage';
 import { showLicense } from '../../api/marketplace';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
-import { isSonarCloud } from '../../helpers/system';
 import { isLoggedIn } from '../../helpers/users';
 import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
 import { skipOnboarding } from '../../store/users';
 import { EditionKey } from '../../types/editions';
-import { OnboardingContext } from './OnboardingContext';
 
-const OnboardingModal = lazyLoadComponent(() =>
-  import('../../apps/tutorials/onboarding/OnboardingModal')
-);
 const LicensePromptModal = lazyLoadComponent(
   () => import('../../apps/marketplace/components/LicensePromptModal'),
   'LicensePromptModal'
@@ -62,13 +57,8 @@ interface WithRouterProps {
 
 type Props = StateProps & DispatchProps & OwnProps & WithRouterProps;
 
-export enum ModalKey {
-  license,
-  onboarding
-}
-
 interface State {
-  modal?: ModalKey;
+  open?: boolean;
 }
 
 const LICENSE_PROMPT = 'sonarqube.license.prompt';
@@ -77,92 +67,41 @@ export class StartupModal extends React.PureComponent<Props, State> {
   state: State = {};
 
   componentDidMount() {
-    this.tryAutoOpenLicense().catch(this.tryAutoOpenOnboarding);
+    this.tryAutoOpenLicense();
   }
 
-  closeOnboarding = () => {
-    this.setState(state => {
-      if (state.modal !== ModalKey.license) {
-        this.props.skipOnboarding();
-        return { modal: undefined };
-      }
-      return null;
-    });
-  };
-
   closeLicense = () => {
-    this.setState(state => {
-      if (state.modal === ModalKey.license) {
-        return { modal: undefined };
-      }
-      return null;
-    });
-  };
-
-  openOnboarding = () => {
-    this.setState({ modal: ModalKey.onboarding });
-  };
-
-  openProjectOnboarding = (organization?: T.Organization) => {
-    this.setState({ modal: undefined });
-    const state: { organization?: string; tab?: string } = {};
-    if (organization) {
-      state.organization = organization.key;
-      state.tab = organization.alm ? 'auto' : 'manual';
-    }
-    this.props.router.push({ pathname: `/projects/create`, state });
+    this.setState({ open: false });
   };
 
   tryAutoOpenLicense = () => {
     const { canAdmin, currentEdition, currentUser } = this.props;
     const hasLicenseManager = hasMessage('license.prompt.title');
-    const hasLicensedEdition = currentEdition && currentEdition !== 'community';
+    const hasLicensedEdition = currentEdition && currentEdition !== EditionKey.community;
 
     if (canAdmin && hasLicensedEdition && isLoggedIn(currentUser) && hasLicenseManager) {
       const lastPrompt = get(LICENSE_PROMPT, currentUser.login);
 
       if (!lastPrompt || differenceInDays(new Date(), parseDate(lastPrompt)) >= 1) {
-        return showLicense().then(license => {
-          if (!license || !license.isValidEdition) {
-            save(LICENSE_PROMPT, toShortNotSoISOString(new Date()), currentUser.login);
-            this.setState({ modal: ModalKey.license });
-          }
-          return Promise.reject();
-        });
+        showLicense()
+          .then(license => {
+            if (!license || !license.isValidEdition) {
+              save(LICENSE_PROMPT, toShortNotSoISOString(new Date()), currentUser.login);
+              this.setState({ open: true });
+            }
+          })
+          .catch(() => {});
       }
-    }
-    return Promise.reject();
-  };
-
-  tryAutoOpenOnboarding = () => {
-    if (
-      isSonarCloud() &&
-      this.props.currentUser.showOnboardingTutorial &&
-      ![
-        '/about',
-        '/documentation',
-        '/onboarding',
-        '/projects/create',
-        '/create-organization'
-      ].some(path => this.props.location.pathname.startsWith(path))
-    ) {
-      this.openOnboarding();
     }
   };
 
   render() {
-    const { modal } = this.state;
+    const { open } = this.state;
     return (
-      <OnboardingContext.Provider value={this.openProjectOnboarding}>
+      <>
         {this.props.children}
-        {modal === ModalKey.license && <LicensePromptModal onClose={this.closeLicense} />}
-        {modal === ModalKey.onboarding && (
-          <OnboardingModal
-            onClose={this.closeOnboarding}
-            onOpenProjectOnboarding={this.openProjectOnboarding}
-          />
-        )}
-      </OnboardingContext.Provider>
+        {open && <LicensePromptModal onClose={this.closeLicense} />}
+      </>
     );
   }
 }

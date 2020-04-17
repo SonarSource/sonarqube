@@ -19,18 +19,14 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../../helpers/system';
+import { mockComponent } from '../../../../helpers/testMocks';
 import LanguageForm from '../LanguageForm';
-
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
-
-beforeEach(() => {
-  (isSonarCloud as jest.Mock<any>).mockImplementation(() => false);
-});
 
 it('selects java', () => {
   const onDone = jest.fn();
-  const wrapper = shallow(<LanguageForm onDone={onDone} onReset={jest.fn()} />);
+  const wrapper = shallow(
+    <LanguageForm component={mockComponent()} onDone={onDone} onReset={jest.fn()} />
+  );
 
   (wrapper.find('RadioToggle').prop('onCheck') as Function)('java');
   wrapper.update();
@@ -39,29 +35,20 @@ it('selects java', () => {
 
 it('selects c#', () => {
   const onDone = jest.fn();
-  const wrapper = shallow(<LanguageForm onDone={onDone} onReset={jest.fn()} />);
+  const wrapper = shallow(
+    <LanguageForm component={mockComponent()} onDone={onDone} onReset={jest.fn()} />
+  );
 
   (wrapper.find('RadioToggle').prop('onCheck') as Function)('dotnet');
-  wrapper.update();
-  expect(wrapper).toMatchSnapshot();
-
-  (wrapper.find('NewProjectForm').prop('onDone') as Function)('project-foo');
-  expect(onDone).lastCalledWith({ language: 'dotnet', projectKey: 'project-foo' });
-});
-
-it('selects c-family', () => {
-  (isSonarCloud as jest.Mock<any>).mockImplementation(() => true);
-  const onDone = jest.fn();
-  const wrapper = shallow(<LanguageForm onDone={onDone} onReset={jest.fn()} />);
-
-  (wrapper.find('RadioToggle').prop('onCheck') as Function)('c-family');
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });
 
 it('selects other', () => {
   const onDone = jest.fn();
-  const wrapper = shallow(<LanguageForm onDone={onDone} onReset={jest.fn()} />);
+  const wrapper = shallow(
+    <LanguageForm component={mockComponent()} onDone={onDone} onReset={jest.fn()} />
+  );
 
   (wrapper.find('RadioToggle').prop('onCheck') as Function)('other');
   wrapper.update();

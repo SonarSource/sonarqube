@@ -25,7 +25,7 @@ import LanguageForm from './LanguageForm';
 import Step from './Step';
 
 interface Props {
-  component?: T.Component;
+  component: T.Component;
   displayRowLayout?: boolean;
   onFinish?: (projectKey?: string) => void;
   onReset?: VoidFunction;

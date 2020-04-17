@@ -25,18 +25,6 @@ export interface LanguageConfig {
   projectKey?: string;
 }
 
-export interface StepProps {
-  component?: T.Component;
-  finished?: boolean;
-  hasStepAfter?: (hasStepAfter: boolean) => void;
-  onContinue: VoidFunction;
-  onOpen: VoidFunction;
-  open: boolean;
-  organization?: string;
-  stepNumber: number;
-  token?: string;
-}
-
 export function isLanguageConfigured(config?: LanguageConfig) {
   if (!config) {
     return false;

@@ -21,11 +21,9 @@ import * as React from 'react';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import { LanguageConfig } from '../../utils';
 import { getProjectKey } from '../ProjectAnalysisStep';
-import ClangGCC from './ClangGCC';
 import DotNet from './DotNet';
 import JavaGradle from './JavaGradle';
 import JavaMaven from './JavaMaven';
-import Msvc from './Msvc';
 import Other from './Other';
 
 interface Props {
@@ -84,41 +82,6 @@ export default class AnalysisCommand extends React.PureComponent<Props> {
     );
   };
 
-  renderCommandForMSVC = () => {
-    const { component, languageConfig, small, token } = this.props;
-    const projectKey = getProjectKey(languageConfig, component);
-    if (!projectKey || !token) {
-      return null;
-    }
-    return (
-      <Msvc
-        host={getHostUrl()}
-        organization={this.props.organization}
-        projectKey={projectKey}
-        small={small}
-        token={token}
-      />
-    );
-  };
-
-  renderCommandForClangGCC = () => {
-    const { component, languageConfig, small, token } = this.props;
-    const projectKey = getProjectKey(languageConfig, component);
-    if (!languageConfig || !projectKey || !languageConfig.os || !token) {
-      return null;
-    }
-    return (
-      <ClangGCC
-        host={getHostUrl()}
-        organization={this.props.organization}
-        os={languageConfig.os}
-        projectKey={projectKey}
-        small={small}
-        token={token}
-      />
-    );
-  };
-
   renderCommandForOther = () => {
     const { component, languageConfig, token } = this.props;
     const projectKey = getProjectKey(languageConfig, component);
@@ -145,10 +108,6 @@ export default class AnalysisCommand extends React.PureComponent<Props> {
         : this.renderCommandForGradle();
     } else if (languageConfig.language === 'dotnet') {
       return this.renderCommandForDotNet();
-    } else if (languageConfig.language === 'c-family') {
-      return languageConfig.cFamilyCompiler === 'msvc'
-        ? this.renderCommandForMSVC()
-        : this.renderCommandForClangGCC();
     } else {
       return this.renderCommandForOther();
     }

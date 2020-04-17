@@ -8,23 +8,6 @@ exports[`display c# command 1`] = `
 />
 `;
 
-exports[`display c-family command 1`] = `
-<Msvc
-  host="HOST"
-  projectKey="project-foo"
-  token="myToken"
-/>
-`;
-
-exports[`display c-family command 2`] = `
-<ClangGCC
-  host="HOST"
-  os="linux"
-  projectKey="project-foo"
-  token="myToken"
-/>
-`;
-
 exports[`display java command 1`] = `
 <JavaGradle
   host="HOST"

@@ -20,13 +20,11 @@
 import * as React from 'react';
 import RadioToggle from 'sonar-ui-common/components/controls/RadioToggle';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isSonarCloud } from '../../../helpers/system';
 import { isLanguageConfigured, LanguageConfig } from '../utils';
-import NewProjectForm from './NewProjectForm';
 import { RenderOptions } from './RenderOptions';
 
 interface Props {
-  component?: T.Component;
+  component: T.Component;
   config?: LanguageConfig;
   onDone: (config: LanguageConfig) => void;
   onReset: VoidFunction;
@@ -39,6 +37,7 @@ export interface RenderOSProps {
   os: string | undefined;
   setOS: (os: string) => void;
 }
+
 export function RenderOS(props: RenderOSProps) {
   return (
     <RenderOptions
@@ -77,20 +76,8 @@ export default class LanguageForm extends React.PureComponent<Props, State> {
     this.setState({ javaBuild }, this.handleChange);
   };
 
-  handleCFamilyCompilerChange = (cFamilyCompiler: string) => {
-    this.setState({ cFamilyCompiler }, this.handleChange);
-  };
-
   handleOSChange = (os: string) => {
     this.setState({ os }, this.handleChange);
-  };
-
-  handleProjectKeyDone = (projectKey: string) => {
-    this.setState({ projectKey }, this.handleChange);
-  };
-
-  handleProjectKeyDelete = () => {
-    this.setState({ projectKey: undefined }, this.handleChange);
   };
 
   renderJavaBuild = () => (
@@ -104,44 +91,9 @@ export default class LanguageForm extends React.PureComponent<Props, State> {
     />
   );
 
-  renderCFamilyCompiler = () => (
-    <RenderOptions
-      checked={this.state.cFamilyCompiler}
-      name="c-family-compiler"
-      onCheck={this.handleCFamilyCompilerChange}
-      optionLabelKey="onboarding.language.c-family.compiler"
-      options={['msvc', 'clang-gcc']}
-      titleLabelKey="onboarding.language.c-family.compiler"
-    />
-  );
-
-  renderProjectKey = () => {
-    const { cFamilyCompiler, language, os } = this.state;
-    const needProjectKey =
-      language === 'dotnet' ||
-      (language === 'c-family' &&
-        (cFamilyCompiler === 'msvc' || (cFamilyCompiler === 'clang-gcc' && os !== undefined))) ||
-      (language === 'other' && os !== undefined);
-
-    if (!needProjectKey || this.props.component) {
-      return null;
-    }
-
-    return (
-      <NewProjectForm
-        onDelete={this.handleProjectKeyDelete}
-        onDone={this.handleProjectKeyDone}
-        organization={this.props.organization}
-        projectKey={this.state.projectKey}
-      />
-    );
-  };
-
   render() {
-    const { cFamilyCompiler, language } = this.state;
-    const languages = isSonarCloud()
-      ? ['java', 'dotnet', 'c-family', 'other']
-      : ['java', 'dotnet', 'other'];
+    const { language } = this.state;
+    const languages = ['java', 'dotnet', 'other'];
 
     return (
       <>
@@ -158,11 +110,7 @@ export default class LanguageForm extends React.PureComponent<Props, State> {
           />
         </div>
         {language === 'java' && this.renderJavaBuild()}
-        {language === 'c-family' && this.renderCFamilyCompiler()}
-        {((language === 'c-family' && cFamilyCompiler === 'clang-gcc') || language === 'other') && (
-          <RenderOS os={this.state.os} setOS={this.handleOSChange} />
-        )}
-        {this.renderProjectKey()}
+        {language === 'other' && <RenderOS os={this.state.os} setOS={this.handleOSChange} />}
       </>
     );
   }

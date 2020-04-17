@@ -31,60 +31,6 @@ exports[`selects c# 1`] = `
       value="dotnet"
     />
   </div>
-  <NewProjectForm
-    onDelete={[Function]}
-    onDone={[Function]}
-  />
-</Fragment>
-`;
-
-exports[`selects c-family 1`] = `
-<Fragment>
-  <div>
-    <h4
-      className="spacer-bottom"
-    >
-      onboarding.language
-    </h4>
-    <RadioToggle
-      disabled={false}
-      name="language"
-      onCheck={[Function]}
-      options={
-        Array [
-          Object {
-            "label": "onboarding.language.java",
-            "value": "java",
-          },
-          Object {
-            "label": "onboarding.language.dotnet",
-            "value": "dotnet",
-          },
-          Object {
-            "label": "onboarding.language.c-family",
-            "value": "c-family",
-          },
-          Object {
-            "label": "onboarding.language.other",
-            "value": "other",
-          },
-        ]
-      }
-      value="c-family"
-    />
-  </div>
-  <RenderOptions
-    name="c-family-compiler"
-    onCheck={[Function]}
-    optionLabelKey="onboarding.language.c-family.compiler"
-    options={
-      Array [
-        "msvc",
-        "clang-gcc",
-      ]
-    }
-    titleLabelKey="onboarding.language.c-family.compiler"
-  />
 </Fragment>
 `;
 

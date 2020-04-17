@@ -21,10 +21,6 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import AnalysisCommand from '../AnalysisCommand';
 
-jest.mock('../../../../../helpers/system', () => ({
-  isSonarCloud: jest.fn().mockReturnValue(true)
-}));
-
 jest.mock('sonar-ui-common/helpers/urls', () => ({
   getHostUrl: () => 'HOST'
 }));
@@ -41,24 +37,6 @@ it('display java command', () => {
 it('display c# command', () => {
   expect(
     getWrapper({ languageConfig: { language: 'dotnet', projectKey: 'project-foo' } })
-  ).toMatchSnapshot();
-});
-
-it('display c-family command', () => {
-  expect(
-    getWrapper({
-      languageConfig: { language: 'c-family', cFamilyCompiler: 'msvc', projectKey: 'project-foo' }
-    })
-  ).toMatchSnapshot();
-  expect(
-    getWrapper({
-      languageConfig: {
-        language: 'c-family',
-        cFamilyCompiler: 'clang-gcc',
-        os: 'linux',
-        projectKey: 'project-foo'
-      }
-    })
   ).toMatchSnapshot();
 });
 

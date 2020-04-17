@@ -25,7 +25,6 @@ import {
   requestTryAndRepeatUntil
 } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { AlmLanguagesStats } from '../apps/tutorials/analyzeProject/utils';
 
 export function bindAlmOrganization(data: { installationId: string; organization: string }) {
   return post('/api/alm_integration/bind_organization', data).catch(throwGlobalError);
@@ -83,7 +82,7 @@ export function provisionProject(data: {
   }).catch(throwGlobalError);
 }
 
-export function getGithubLanguages(url: string): Promise<AlmLanguagesStats> {
+export function getGithubLanguages(url: string): Promise<T.Dict<number>> {
   // We don't want to throwGlobalError
   const apiUrl = url.replace('https://github.com/', 'https://api.github.com/repos/');
   return getCorsJSON(`${apiUrl}/languages`);
