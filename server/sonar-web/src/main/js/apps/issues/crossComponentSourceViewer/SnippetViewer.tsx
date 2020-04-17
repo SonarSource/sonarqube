@@ -51,7 +51,7 @@ interface Props {
   issue: Pick<T.Issue, 'key' | 'textRange' | 'line'>;
   issuePopup?: { issue: string; name: string };
   issuesByLine: T.IssuesByLine;
-  last: boolean;
+  lastSnippetOfLastGroup: boolean;
   linePopup?: T.LinePopup;
   loadDuplications: (line: T.SourceLine) => void;
   locations: T.FlowLocation[];
@@ -190,7 +190,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
       displaySCM,
       issue,
       issuesByLine = {},
-      last,
+      lastSnippetOfLastGroup,
       locationsByLine,
       openIssuesByLine,
       snippet
@@ -207,7 +207,7 @@ export default class SnippetViewer extends React.PureComponent<Props> {
         .map(k => parseInt(k, 10))
         .filter(l => inSnippet(l, snippet) && (l === issueLine || openIssuesByLine[l]))
     );
-    const verticalBuffer = last
+    const verticalBuffer = lastSnippetOfLastGroup
       ? Math.max(0, LINES_BELOW_ISSUE - (bottomLine - lowestVisibleIssue))
       : 0;
 

@@ -30,7 +30,7 @@ import {
   mockSourceLine,
   mockSourceViewerFile
 } from '../../../../helpers/testMocks';
-import ComponentSourceSnippetViewer from '../ComponentSourceSnippetViewer';
+import ComponentSourceSnippetGroupViewer from '../ComponentSourceSnippetGroupViewer';
 
 jest.mock('../../../../api/components', () => ({
   getSources: jest.fn().mockResolvedValue([])
@@ -261,15 +261,15 @@ describe('getNodes', () => {
     locations: [],
     sources: []
   };
-  const wrapper = mount<ComponentSourceSnippetViewer>(
-    <ComponentSourceSnippetViewer
+  const wrapper = mount<ComponentSourceSnippetGroupViewer>(
+    <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
       duplications={undefined}
       duplicationsByLine={undefined}
       highlightedLocationMessage={{ index: 0, text: '' }}
       issue={mockIssue()}
       issuesByLine={{}}
-      last={false}
+      lastSnippetGroup={false}
       linePopup={undefined}
       loadDuplications={jest.fn()}
       locations={[]}
@@ -319,15 +319,15 @@ describe('getHeight', () => {
     locations: [],
     sources: []
   };
-  const wrapper = mount<ComponentSourceSnippetViewer>(
-    <ComponentSourceSnippetViewer
+  const wrapper = mount<ComponentSourceSnippetGroupViewer>(
+    <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
       duplications={undefined}
       duplicationsByLine={undefined}
       highlightedLocationMessage={{ index: 0, text: '' }}
       issue={mockIssue()}
       issuesByLine={{}}
-      last={false}
+      lastSnippetGroup={false}
       linePopup={undefined}
       loadDuplications={jest.fn()}
       locations={[]}
@@ -367,21 +367,21 @@ describe('getHeight', () => {
   });
 });
 
-function shallowRender(props: Partial<ComponentSourceSnippetViewer['props']> = {}) {
+function shallowRender(props: Partial<ComponentSourceSnippetGroupViewer['props']> = {}) {
   const snippetGroup: T.SnippetGroup = {
     component: mockSourceViewerFile(),
     locations: [],
     sources: []
   };
-  return shallow<ComponentSourceSnippetViewer>(
-    <ComponentSourceSnippetViewer
+  return shallow<ComponentSourceSnippetGroupViewer>(
+    <ComponentSourceSnippetGroupViewer
       branchLike={mockMainBranch()}
       duplications={undefined}
       duplicationsByLine={undefined}
       highlightedLocationMessage={{ index: 0, text: '' }}
       issue={mockIssue()}
       issuesByLine={{}}
-      last={false}
+      lastSnippetGroup={false}
       linePopup={undefined}
       loadDuplications={jest.fn()}
       locations={[]}
@@ -427,7 +427,7 @@ function mockDom(refNode: HTMLDivElement) {
 }
 
 function mockDomForSizes(
-  componentWrapper: ReactWrapper<{}, {}, ComponentSourceSnippetViewer>,
+  componentWrapper: ReactWrapper<{}, {}, ComponentSourceSnippetGroupViewer>,
   { wrapperHeight = 0, tableHeight = 0 }
 ) {
   const wrapper = mount(<div className="snippet" />).getDOMNode();

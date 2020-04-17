@@ -38,7 +38,7 @@ import { SourceViewerContext } from '../../../components/SourceViewer/SourceView
 import { WorkspaceContext } from '../../../components/workspace/context';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { BranchLike } from '../../../types/branch-like';
-import ComponentSourceSnippetViewer from './ComponentSourceSnippetViewer';
+import ComponentSourceSnippetGroupViewer from './ComponentSourceSnippetGroupViewer';
 import { groupLocationsByComponent } from './utils';
 
 interface Props {
@@ -244,13 +244,13 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
               // eslint-disable-next-line react/no-array-index-key
               key={`${issue.key}-${this.props.selectedFlowIndex || 0}-${i}`}
               value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}>
-              <ComponentSourceSnippetViewer
+              <ComponentSourceSnippetGroupViewer
                 branchLike={this.props.branchLike}
                 highlightedLocationMessage={this.props.highlightedLocationMessage}
                 issue={issue}
                 issuePopup={this.state.issuePopup}
                 issuesByLine={issuesByComponent[snippetGroup.component.key] || {}}
-                last={i === locationsByComponent.length - 1}
+                lastSnippetGroup={i === locationsByComponent.length - 1}
                 loadDuplications={this.fetchDuplications}
                 locations={snippetGroup.locations || []}
                 onIssueChange={this.props.onIssueChange}

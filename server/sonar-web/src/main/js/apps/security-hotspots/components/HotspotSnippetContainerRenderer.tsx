@@ -84,7 +84,7 @@ export default function HotspotSnippetContainerRenderer(
               index={0}
               issue={hotspot}
               issuesByLine={{}}
-              last={false}
+              lastSnippetOfLastGroup={false}
               linePopup={linePopup}
               loadDuplications={noop}
               locations={[]}

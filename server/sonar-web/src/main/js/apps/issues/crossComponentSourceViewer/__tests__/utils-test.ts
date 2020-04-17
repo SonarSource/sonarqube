@@ -93,9 +93,9 @@ describe('createSnippets', () => {
       })
     ];
     const results = createSnippets({
+      component: '',
       locations,
-      issue: mockIssue(false, locations[1]),
-      addIssueLocation: false
+      issue: mockIssue(false, locations[1])
     });
 
     expect(results).toHaveLength(1);
@@ -115,9 +115,9 @@ describe('createSnippets', () => {
       })
     ];
     const results = createSnippets({
+      component: '',
       locations,
-      issue: mockIssue(false, locations[2]),
-      addIssueLocation: false
+      issue: mockIssue(false, locations[2])
     });
 
     expect(results).toHaveLength(2);
@@ -141,9 +141,9 @@ describe('createSnippets', () => {
       })
     ];
     const results = createSnippets({
+      component: '',
       locations,
-      issue: mockIssue(false, locations[0]),
-      addIssueLocation: false
+      issue: mockIssue(false, locations[0])
     });
 
     expect(results).toHaveLength(2);
@@ -160,16 +160,20 @@ describe('createSnippets', () => {
         textRange: { startLine: 42, startOffset: 2, endLine: 42, endOffset: 3 }
       })
     ];
+    const issue = mockIssue(false, {
+      secondaryLocations: [mockFlowLocation()],
+      textRange: { startLine: 12, endLine: 12, startOffset: 0, endOffset: 0 }
+    });
     const results = createSnippets({
+      component: issue.component,
       locations,
-      issue: mockIssue(false, {
-        textRange: { startLine: 12, endLine: 12, startOffset: 0, endOffset: 0 }
-      }),
-      addIssueLocation: true
+      issue
     });
 
     expect(results).toHaveLength(3);
     expect(results[0]).toEqual({ index: 0, start: 7, end: 21 });
+    // the third snippet (index 2) should be second, because it comes before in the code!
+    expect(results[1]).toEqual({ index: 2, start: 37, end: 47 });
   });
 
   it('should work for location with no textrange', () => {
@@ -178,13 +182,14 @@ describe('createSnippets', () => {
         textRange: { startLine: 85, startOffset: 2, endLine: 85, endOffset: 3 }
       })
     ];
-
+    const issue = mockIssue(false, {
+      secondaryLocations: [mockFlowLocation()],
+      textRange: undefined
+    });
     const results = createSnippets({
+      component: issue.component,
       locations,
-      issue: mockIssue(false, {
-        textRange: undefined
-      }),
-      addIssueLocation: true
+      issue
     });
 
     expect(results).toHaveLength(2);

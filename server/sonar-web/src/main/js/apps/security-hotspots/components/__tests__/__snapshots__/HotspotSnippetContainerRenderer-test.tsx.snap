@@ -238,7 +238,7 @@ exports[`should render correctly: with sourcelines 1`] = `
           }
         }
         issuesByLine={Object {}}
-        last={false}
+        lastSnippetOfLastGroup={false}
         loadDuplications={[Function]}
         locations={Array []}
         locationsByLine={Object {}}

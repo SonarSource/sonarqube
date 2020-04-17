@@ -92,15 +92,19 @@ it('should handle line popup', async () => {
   await waitAndUpdate(wrapper);
 
   const linePopup = { component: 'foo', index: 0, line: 16, name: 'b.tsx' };
-  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(linePopup);
+  wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('onLinePopupToggle')(linePopup);
   expect(wrapper.state('linePopup')).toEqual(linePopup);
 
-  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(linePopup);
+  wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('onLinePopupToggle')(linePopup);
   expect(wrapper.state('linePopup')).toBeUndefined();
 
   const openLinePopup = { ...linePopup, open: true };
-  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(openLinePopup);
-  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('onLinePopupToggle')(openLinePopup);
+  wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('onLinePopupToggle')(
+    openLinePopup
+  );
+  wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('onLinePopupToggle')(
+    openLinePopup
+  );
   expect(wrapper.state('linePopup')).toEqual(linePopup);
 });
 
@@ -112,7 +116,7 @@ it('should handle duplication popup', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
 
-  wrapper.find('ComponentSourceSnippetViewer').prop<Function>('loadDuplications')(
+  wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('loadDuplications')(
     'foo',
     mockSourceLine()
   );
@@ -130,7 +134,7 @@ it('should handle duplication popup', async () => {
   });
 
   expect(
-    wrapper.find('ComponentSourceSnippetViewer').prop<Function>('renderDuplicationPopup')(
+    wrapper.find('ComponentSourceSnippetGroupViewer').prop<Function>('renderDuplicationPopup')(
       mockSourceViewerFile(),
       0,
       16

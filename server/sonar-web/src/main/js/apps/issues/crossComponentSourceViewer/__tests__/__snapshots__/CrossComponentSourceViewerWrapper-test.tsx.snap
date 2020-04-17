@@ -47,7 +47,7 @@ exports[`should render correctly 2`] = `
       }
     }
   >
-    <ComponentSourceSnippetViewer
+    <ComponentSourceSnippetGroupViewer
       issue={
         Object {
           "actions": Array [],
@@ -151,7 +151,7 @@ exports[`should render correctly 2`] = `
         }
       }
       issuesByLine={Object {}}
-      last={true}
+      lastSnippetGroup={true}
       loadDuplications={[Function]}
       locations={
         Array [
