@@ -42,7 +42,7 @@ function collision([startA, endA]: number[], [startB, endB]: number[]) {
   return !(startA > endB + MERGE_DISTANCE || endA < startB - MERGE_DISTANCE);
 }
 
-function getPrimaryLocation(issue: T.Issue): T.FlowLocation {
+export function getPrimaryLocation(issue: T.Issue): T.FlowLocation {
   return {
     component: issue.component,
     textRange: issue.textRange || {
@@ -128,6 +128,7 @@ export function linesForSnippets(snippets: T.Snippet[], componentLines: T.LineMa
 }
 
 export function groupLocationsByComponent(
+  issue: T.Issue,
   locations: T.FlowLocation[],
   components: { [key: string]: T.SnippetsByComponent }
 ) {
@@ -135,14 +136,25 @@ export function groupLocationsByComponent(
   let currentGroup: T.SnippetGroup;
   const groups: T.SnippetGroup[] = [];
 
+  const addGroup = (loc: T.FlowLocation) => {
+    currentGroup = {
+      ...(components[loc.component] || unknownComponent(loc.component)),
+      locations: []
+    };
+    groups.push(currentGroup);
+    currentComponent = loc.component;
+  };
+
+  if (
+    issue.secondaryLocations.length > 0 &&
+    locations.every(loc => loc.component !== issue.component)
+  ) {
+    addGroup(getPrimaryLocation(issue));
+  }
+
   locations.forEach((loc, index) => {
     if (loc.component !== currentComponent) {
-      currentGroup = {
-        ...(components[loc.component] || unknownComponent(loc.component)),
-        locations: []
-      };
-      groups.push(currentGroup);
-      currentComponent = loc.component;
+      addGroup(loc);
     }
     loc.index = index;
     currentGroup.locations.push(loc);

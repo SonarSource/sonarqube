@@ -88,10 +88,13 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   }
 
   createSnippetsFromProps() {
+    const { issue, snippetGroup } = this.props;
+
     const snippets = createSnippets({
-      locations: this.props.snippetGroup.locations,
-      issue: this.props.issue,
-      addIssueLocation: this.props.issue.secondaryLocations.length > 0
+      locations: snippetGroup.locations,
+      issue,
+      addIssueLocation:
+        issue.secondaryLocations.length > 0 && snippetGroup.component.key === issue.component
     });
 
     this.setState({ snippets });
@@ -354,7 +357,8 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
   render() {
     const { branchLike, duplications, issue, issuesByLine, last, snippetGroup } = this.props;
     const { additionalLines, loading, snippets } = this.state;
-    const locations = locationsByLine([issue]);
+    const locations =
+      issue.component === snippetGroup.component.key ? locationsByLine([issue]) : {};
 
     const fullyShown =
       snippets.length === 1 &&
@@ -366,6 +370,10 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
       ...snippetGroup.sources,
       ...additionalLines
     });
+
+    const isFlow = issue.secondaryLocations.length === 0;
+    const includeIssueLocation = (index: number) =>
+      isFlow ? last && index === snippets.length - 1 : index === 0;
 
     return (
       <div
@@ -385,8 +393,8 @@ export default class ComponentSourceSnippetViewer extends React.PureComponent<Pr
             {this.renderSnippet({
               snippet,
               index: snippets[index].index,
-              issuesByLine: last ? issuesByLine : {},
-              locationsByLine: last && index === snippets.length - 1 ? locations : {},
+              issuesByLine,
+              locationsByLine: includeIssueLocation(index) ? locations : {},
               last: last && index === snippets.length - 1
             })}
           </div>

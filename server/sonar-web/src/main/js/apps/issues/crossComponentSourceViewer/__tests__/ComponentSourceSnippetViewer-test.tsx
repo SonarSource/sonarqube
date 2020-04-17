@@ -54,21 +54,55 @@ it('should render correctly with secondary locations', () => {
   const snippetGroup: T.SnippetGroup = {
     locations: [
       mockFlowLocation({
-        component: 'a',
+        component: issue.component,
         textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
       }),
       mockFlowLocation({
-        component: 'a',
+        component: issue.component,
         textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 }
       })
     ],
-    ...mockSnippetsByComponent('a', [...range(2, 17), ...range(29, 39), ...range(69, 79)])
+    ...mockSnippetsByComponent(issue.component, [
+      ...range(2, 17),
+      ...range(29, 39),
+      ...range(69, 79)
+    ])
   };
   const wrapper = shallowRender({ issue, snippetGroup });
   expect(wrapper.state('snippets')).toHaveLength(3);
   expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 2, end: 16 });
   expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 29, end: 39 });
   expect(wrapper.state('snippets')[2]).toEqual({ index: 2, start: 69, end: 79 });
+});
+
+it('should render correctly with flows', () => {
+  // issue with flows but no secondary locations
+  const issue = mockIssue(true, {
+    secondaryLocations: [],
+    textRange: { startLine: 7, endLine: 7, startOffset: 5, endOffset: 10 }
+  });
+
+  const snippetGroup: T.SnippetGroup = {
+    locations: [
+      mockFlowLocation({
+        component: issue.component,
+        textRange: { startLine: 34, endLine: 34, startOffset: 0, endOffset: 0 }
+      }),
+      mockFlowLocation({
+        component: issue.component,
+        textRange: { startLine: 74, endLine: 74, startOffset: 0, endOffset: 0 }
+      })
+    ],
+    ...mockSnippetsByComponent(issue.component, [
+      ...range(2, 17),
+      ...range(29, 39),
+      ...range(69, 79)
+    ])
+  };
+  const wrapper = shallowRender({ issue, snippetGroup });
+  expect(wrapper.state('snippets')).toHaveLength(2);
+  expect(wrapper.state('snippets')[0]).toEqual({ index: 0, start: 29, end: 39 });
+  expect(wrapper.state('snippets')[1]).toEqual({ index: 1, start: 69, end: 79 });
 });
 
 it('should expand block', async () => {

@@ -31,7 +31,7 @@ import {
   isDuplicationBlockInRemovedComponent
 } from '../../../components/SourceViewer/helpers/duplications';
 import {
-  duplicationsByLine,
+  duplicationsByLine as getDuplicationsByLine,
   issuesByComponentAndLine
 } from '../../../components/SourceViewer/helpers/indexing';
 import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
@@ -99,7 +99,7 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
           this.setState(state => ({
             duplicatedFiles: r.files,
             duplications: r.duplications,
-            duplicationsByLine: duplicationsByLine(r.duplications),
+            duplicationsByLine: getDuplicationsByLine(r.duplications),
             linePopup:
               r.duplications.length === 1
                 ? { component, index: 0, line: line.line, name: 'duplications' }
@@ -223,9 +223,10 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
       );
     }
 
+    const { issue, locations } = this.props;
     const { components, duplications, duplicationsByLine, linePopup } = this.state;
     const issuesByComponent = issuesByComponentAndLine(this.props.issues);
-    const locationsByComponent = groupLocationsByComponent(this.props.locations, components);
+    const locationsByComponent = groupLocationsByComponent(issue, locations, components);
 
     return (
       <div>
@@ -240,12 +241,13 @@ export default class CrossComponentSourceViewerWrapper extends React.PureCompone
           }
           return (
             <SourceViewerContext.Provider
-              key={`${this.props.issue.key}-${this.props.selectedFlowIndex || 0}-${i}`}
+              // eslint-disable-next-line react/no-array-index-key
+              key={`${issue.key}-${this.props.selectedFlowIndex || 0}-${i}`}
               value={{ branchLike: this.props.branchLike, file: snippetGroup.component }}>
               <ComponentSourceSnippetViewer
                 branchLike={this.props.branchLike}
                 highlightedLocationMessage={this.props.highlightedLocationMessage}
-                issue={this.props.issue}
+                issue={issue}
                 issuePopup={this.state.issuePopup}
                 issuesByLine={issuesByComponent[snippetGroup.component.key] || {}}
                 last={i === locationsByComponent.length - 1}

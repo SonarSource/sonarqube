@@ -26,11 +26,12 @@ import { createSnippets, expandSnippet, groupLocationsByComponent } from '../uti
 
 describe('groupLocationsByComponent', () => {
   it('should handle empty args', () => {
-    expect(groupLocationsByComponent([], {})).toEqual([]);
+    expect(groupLocationsByComponent(mockIssue(), [], {})).toEqual([]);
   });
 
   it('should group correctly', () => {
     const results = groupLocationsByComponent(
+      mockIssue(),
       [
         mockFlowLocation({
           textRange: { startLine: 16, startOffset: 10, endLine: 16, endOffset: 14 }
@@ -50,6 +51,7 @@ describe('groupLocationsByComponent', () => {
 
   it('should preserve step order when jumping between files', () => {
     const results = groupLocationsByComponent(
+      mockIssue(),
       [
         mockFlowLocation({
           component: 'A.js',
