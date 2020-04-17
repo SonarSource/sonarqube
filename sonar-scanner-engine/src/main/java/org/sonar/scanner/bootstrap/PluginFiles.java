@@ -92,8 +92,14 @@ public class PluginFiles {
   private Optional<File> download(InstalledPlugin plugin) {
     GetRequest request = new GetRequest("api/plugins/download")
       .setParam("plugin", plugin.key)
-      .setParam("acceptCompressions", PACK200)
       .setTimeOutInMs(5 * 60_000);
+
+    try {
+      Class.forName("java.util.jar.Pack200");
+      request.setParam("acceptCompressions", PACK200);
+    } catch (ClassNotFoundException e) {
+      // ignore and don't use any compression
+    }
 
     File downloadedFile = newTempFile();
     LOGGER.debug("Download plugin '{}' to '{}'", plugin.key, downloadedFile);
