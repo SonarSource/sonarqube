@@ -246,26 +246,6 @@ Once your server is installed and running, you may also want to [Install Plugins
 
 ## Troubleshooting/FAQ
 
-### Failed to start SonarQube with Oracle due to bad `USERS` table structure
-
-When other `USERS` tables exist in the Oracle DB, if the `sonarqube` user has read access on this other `USERS` table, the SonarQube web server can't start and an exception like the following one is thrown:
-
-```
-ActiveRecord::ActiveRecordError: ORA-00904: "TOTO": invalid identifier
-: INSERT INTO users (login, name, email, crypted_password, salt, 
-created_at, updated_at, remember_token, remember_token_expires_at, toto, id)
-VALUES('admin', 'Administrator', '', 'bba4c8a0f808f9798cf8b1c153a4bb4f9178cf59', '2519754f77ea67e5d7211cd1414698f465aacebb',
-TIMESTAMP'2011-06-24 22:09:14', TIMESTAMP'2011-06-24 22:09:14', null, null, null, ?)
-ActiveRecord::ActiveRecordError: ORA-00904: "TOTO": invalid identifier
- 
-: INSERT INTO users (login, name, email, crypted_password, salt, 
-created_at, updated_at, remember_token, remember_token_expires_at, toto, id)
-VALUES('admin', 'Administrator', '', 'bba4c8a0f808f9798cf8b1c153a4bb4f9178cf59', 
-'2519754f77ea67e5d7211cd1414698f465aacebb', TIMESTAMP'2011-06-24 22:09:14', TIMESTAMP'2011-06-24 22:09:14', null, null, null, ?)
-```
-
-To fix this issue, the rights of the `sonarqube` Oracle user must be decreased to remove read access on the other `USERS` table(s).
-
 ### Failed to connect to the Marketplace via proxy
 
 Double check that settings for proxy are correctly set in `$SONARQUBE_HOME/conf/sonar.properties`.
