@@ -23,7 +23,7 @@ import java.util.Date;
 
 public class PermissionTemplateUserDto {
   private String uuid;
-  private Long templateId;
+  private String templateUuid;
   private Integer userId;
   private String permission;
   private String userName;
@@ -40,12 +40,12 @@ public class PermissionTemplateUserDto {
     return this;
   }
 
-  public Long getTemplateId() {
-    return templateId;
+  public String getTemplateUuid() {
+    return templateUuid;
   }
 
-  public PermissionTemplateUserDto setTemplateId(Long templateId) {
-    this.templateId = templateId;
+  public PermissionTemplateUserDto setTemplateUuid(String templateUuid) {
+    this.templateUuid = templateUuid;
     return this;
   }
 

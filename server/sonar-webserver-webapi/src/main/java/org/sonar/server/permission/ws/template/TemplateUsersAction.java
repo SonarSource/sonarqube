@@ -106,10 +106,10 @@ public class TemplateUsersAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       PermissionQuery query = buildQuery(wsRequest, template);
-      int total = dbClient.permissionTemplateDao().countUserLoginsByQueryAndTemplate(dbSession, query, template.getId());
+      int total = dbClient.permissionTemplateDao().countUserLoginsByQueryAndTemplate(dbSession, query, template.getUuid());
       Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
       List<UserDto> users = findUsers(dbSession, query, template);
-      List<PermissionTemplateUserDto> permissionTemplateUsers = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateIdAndUserLogins(dbSession, template.getId(),
+      List<PermissionTemplateUserDto> permissionTemplateUsers = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateIdAndUserLogins(dbSession, template.getUuid(),
         users.stream().map(UserDto::getLogin).collect(Collectors.toList()));
       Permissions.UsersWsResponse templateUsersResponse = buildResponse(users, permissionTemplateUsers, paging);
       writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
@@ -150,7 +150,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
   }
 
   private List<UserDto> findUsers(DbSession dbSession, PermissionQuery query, PermissionTemplateDto template) {
-    List<String> orderedLogins = dbClient.permissionTemplateDao().selectUserLoginsByQueryAndTemplate(dbSession, query, template.getId());
+    List<String> orderedLogins = dbClient.permissionTemplateDao().selectUserLoginsByQueryAndTemplate(dbSession, query, template.getUuid());
     return Ordering.explicit(orderedLogins).onResultOf(UserDto::getLogin).immutableSortedCopy(dbClient.userDao().selectByLogins(dbSession, orderedLogins));
   }
 

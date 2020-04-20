@@ -35,9 +35,9 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
@@ -99,7 +99,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       PermissionQuery query = buildPermissionQuery(wsRequest, template);
-      int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getOrganizationUuid(), template.getId());
+      int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getOrganizationUuid(), template.getUuid());
       Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
       List<GroupDto> groups = findGroups(dbSession, query, template);
       List<PermissionTemplateGroupDto> groupPermissions = findGroupPermissions(dbSession, groups, template);
@@ -143,7 +143,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
   }
 
   private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery, PermissionTemplateDto template) {
-    List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getId());
+    List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getUuid());
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, template.getOrganizationUuid(), orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
       groups.add(0, new GroupDto().setId(0).setName(DefaultGroups.ANYONE));
@@ -153,6 +153,6 @@ public class TemplateGroupsAction implements PermissionsWsAction {
 
   private List<PermissionTemplateGroupDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, PermissionTemplateDto template) {
     List<String> names = groups.stream().map(GroupDto::getName).collect(Collectors.toList());
-    return dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateIdAndGroupNames(dbSession, template.getId(), names);
+    return dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateIdAndGroupNames(dbSession, template.getUuid(), names);
   }
 }

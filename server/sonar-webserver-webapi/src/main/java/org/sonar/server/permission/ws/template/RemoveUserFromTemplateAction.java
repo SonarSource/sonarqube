@@ -27,10 +27,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 
@@ -101,7 +101,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
 
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
-      dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getId(), user.getId(), permission);
+      dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getUuid(), user.getId(), permission);
       dbSession.commit();
     }
   }

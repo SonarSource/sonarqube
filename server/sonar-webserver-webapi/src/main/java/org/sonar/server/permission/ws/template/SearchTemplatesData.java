@@ -32,16 +32,16 @@ import static com.google.common.collect.ImmutableTable.copyOf;
 class SearchTemplatesData {
   private final List<PermissionTemplateDto> templates;
   private final ResolvedDefaultTemplates defaultTemplates;
-  private final Table<Long, String, Integer> userCountByTemplateIdAndPermission;
-  private final Table<Long, String, Integer> groupCountByTemplateIdAndPermission;
-  private final Table<Long, String, Boolean> withProjectCreatorByTemplateIdAndPermission;
+  private final Table<String, String, Integer> userCountByTemplateUuidAndPermission;
+  private final Table<String, String, Integer> groupCountByTemplateUuidAndPermission;
+  private final Table<String, String, Boolean> withProjectCreatorByTemplateUuidAndPermission;
 
   private SearchTemplatesData(Builder builder) {
     this.templates = copyOf(builder.templates);
     this.defaultTemplates = builder.defaultTemplates;
-    this.userCountByTemplateIdAndPermission = copyOf(builder.userCountByTemplateIdAndPermission);
-    this.groupCountByTemplateIdAndPermission = copyOf(builder.groupCountByTemplateIdAndPermission);
-    this.withProjectCreatorByTemplateIdAndPermission = copyOf(builder.withProjectCreatorByTemplateIdAndPermission);
+    this.userCountByTemplateUuidAndPermission = copyOf(builder.userCountByTemplateUuidAndPermission);
+    this.groupCountByTemplateUuidAndPermission = copyOf(builder.groupCountByTemplateUuidAndPermission);
+    this.withProjectCreatorByTemplateUuidAndPermission = copyOf(builder.withProjectCreatorByTemplateUuidAndPermission);
   }
 
   public static Builder builder() {
@@ -56,24 +56,24 @@ class SearchTemplatesData {
     return defaultTemplates;
   }
 
-  public int userCount(long templateId, String permission) {
-    return firstNonNull(userCountByTemplateIdAndPermission.get(templateId, permission), 0);
+  public int userCount(String templateUuid, String permission) {
+    return firstNonNull(userCountByTemplateUuidAndPermission.get(templateUuid, permission), 0);
   }
 
-  public int groupCount(long templateId, String permission) {
-    return firstNonNull(groupCountByTemplateIdAndPermission.get(templateId, permission), 0);
+  public int groupCount(String templateUuid, String permission) {
+    return firstNonNull(groupCountByTemplateUuidAndPermission.get(templateUuid, permission), 0);
   }
 
-  public boolean withProjectCreator(long templateId, String permission) {
-    return firstNonNull(withProjectCreatorByTemplateIdAndPermission.get(templateId, permission), false);
+  public boolean withProjectCreator(String templateUuid, String permission) {
+    return firstNonNull(withProjectCreatorByTemplateUuidAndPermission.get(templateUuid, permission), false);
   }
 
   public static class Builder {
     private List<PermissionTemplateDto> templates;
     private ResolvedDefaultTemplates defaultTemplates;
-    private Table<Long, String, Integer> userCountByTemplateIdAndPermission;
-    private Table<Long, String, Integer> groupCountByTemplateIdAndPermission;
-    private Table<Long, String, Boolean> withProjectCreatorByTemplateIdAndPermission;
+    private Table<String, String, Integer> userCountByTemplateUuidAndPermission;
+    private Table<String, String, Integer> groupCountByTemplateUuidAndPermission;
+    private Table<String, String, Boolean> withProjectCreatorByTemplateUuidAndPermission;
 
     private Builder() {
       // prevents instantiation outside main class
@@ -82,9 +82,9 @@ class SearchTemplatesData {
     public SearchTemplatesData build() {
       checkState(templates != null);
       checkState(defaultTemplates != null);
-      checkState(userCountByTemplateIdAndPermission != null);
-      checkState(groupCountByTemplateIdAndPermission != null);
-      checkState(withProjectCreatorByTemplateIdAndPermission != null);
+      checkState(userCountByTemplateUuidAndPermission != null);
+      checkState(groupCountByTemplateUuidAndPermission != null);
+      checkState(withProjectCreatorByTemplateUuidAndPermission != null);
 
       return new SearchTemplatesData(this);
     }
@@ -99,18 +99,18 @@ class SearchTemplatesData {
       return this;
     }
 
-    public Builder userCountByTemplateIdAndPermission(Table<Long, String, Integer> userCountByTemplateIdAndPermission) {
-      this.userCountByTemplateIdAndPermission = userCountByTemplateIdAndPermission;
+    public Builder userCountByTemplateUuidAndPermission(Table<String, String, Integer> userCountByTemplateUuidAndPermission) {
+      this.userCountByTemplateUuidAndPermission = userCountByTemplateUuidAndPermission;
       return this;
     }
 
-    public Builder groupCountByTemplateIdAndPermission(Table<Long, String, Integer> groupCountByTemplateIdAndPermission) {
-      this.groupCountByTemplateIdAndPermission = groupCountByTemplateIdAndPermission;
+    public Builder groupCountByTemplateUuidAndPermission(Table<String, String, Integer> groupCountByTemplateUuidAndPermission) {
+      this.groupCountByTemplateUuidAndPermission = groupCountByTemplateUuidAndPermission;
       return this;
     }
 
-    public Builder withProjectCreatorByTemplateIdAndPermission(Table<Long, String, Boolean> withProjectCreatorByTemplateIdAndPermission) {
-      this.withProjectCreatorByTemplateIdAndPermission = withProjectCreatorByTemplateIdAndPermission;
+    public Builder withProjectCreatorByTemplateUuidAndPermission(Table<String, String, Boolean> withProjectCreatorByTemplateUuidAndPermission) {
+      this.withProjectCreatorByTemplateUuidAndPermission = withProjectCreatorByTemplateUuidAndPermission;
       return this;
     }
   }

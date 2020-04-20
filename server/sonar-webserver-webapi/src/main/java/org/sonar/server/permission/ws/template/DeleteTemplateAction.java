@@ -29,16 +29,17 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.DefaultTemplatesResolver;
+import org.sonar.server.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -91,7 +92,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
       DefaultTemplates defaultTemplates = retrieveDefaultTemplates(dbSession, template);
 
       checkTemplateUuidIsNotDefault(template, defaultTemplates);
-      dbClient.permissionTemplateDao().deleteById(dbSession, template.getId());
+      dbClient.permissionTemplateDao().deleteByUuid(dbSession, template.getUuid());
       updateViewDefaultTemplateWhenGovernanceIsNotInstalled(dbSession, template, defaultTemplates);
 
       dbSession.commit();
@@ -118,7 +119,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
   }
 
   private void checkTemplateUuidIsNotDefault(PermissionTemplateDto template, DefaultTemplates defaultTemplates) {
-    DefaultTemplatesResolverImpl.ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(defaultTemplates);
+    ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(defaultTemplates);
     checkRequest(!resolvedDefaultTemplates.getProject().equals(template.getUuid()),
       "It is not possible to delete the default permission template for projects");
     resolvedDefaultTemplates.getApplication()

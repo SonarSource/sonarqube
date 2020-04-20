@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 
 public class PermissionTemplateDto {
 
-  private Long id;
   private String name;
   private String organizationUuid;
   private String uuid;
@@ -33,15 +32,6 @@ public class PermissionTemplateDto {
   private String keyPattern;
   private Date createdAt;
   private Date updatedAt;
-
-  public Long getId() {
-    return id;
-  }
-
-  public PermissionTemplateDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
 
   public String getOrganizationUuid() {
     return organizationUuid;
@@ -58,23 +48,6 @@ public class PermissionTemplateDto {
 
   public PermissionTemplateDto setName(String name) {
     this.name = name;
-    return this;
-  }
-
-  /**
-   * @deprecated since 5.2 use {@link #getUuid()}
-   */
-  @Deprecated
-  public String getKee() {
-    return uuid;
-  }
-
-  /**
-   * @deprecated since 5.2 use {@link #setUuid(String)}
-   */
-  @Deprecated
-  public PermissionTemplateDto setKee(String kee) {
-    this.uuid = kee;
     return this;
   }
 

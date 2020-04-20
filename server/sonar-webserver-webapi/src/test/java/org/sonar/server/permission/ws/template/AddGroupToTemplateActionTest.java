@@ -217,6 +217,6 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, String permission) {
     PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
-      .selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getId());
+      .selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getUuid());
   }
 }

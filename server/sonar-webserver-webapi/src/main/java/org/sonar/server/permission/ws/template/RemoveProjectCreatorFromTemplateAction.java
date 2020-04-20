@@ -30,9 +30,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 
@@ -99,7 +99,7 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       PermissionTemplateCharacteristicDao dao = dbClient.permissionTemplateCharacteristicDao();
-      dao.selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getId())
+      dao.selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getUuid())
         .ifPresent(permissionTemplateCharacteristicDto -> updateTemplateCharacteristic(dbSession, permissionTemplateCharacteristicDto));
     }
   }

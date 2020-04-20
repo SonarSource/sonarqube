@@ -173,7 +173,7 @@ public class DeleteActionTest {
     insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), PermissionTemplateTesting.newPermissionTemplateDto());
-    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getId(), group.getId(), "perm");
+    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), group.getId(), "perm");
     db.commit();
     loginAsAdminOnDefaultOrganization();
     assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(1);

@@ -313,14 +313,14 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   }
 
   private void addUserToTemplate(PermissionTemplateUserDto dto) {
-    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), dto.getTemplateId(), dto.getUserId(), dto.getPermission());
+    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), dto.getTemplateUuid(), dto.getUserId(), dto.getPermission());
     db.commit();
   }
 
   private static PermissionTemplateUserDto newPermissionTemplateUser(String permission, PermissionTemplateDto template, UserDto user) {
     return newPermissionTemplateUserDto()
       .setPermission(permission)
-      .setTemplateId(template.getId())
+      .setTemplateUuid(template.getUuid())
       .setUserId(user.getId());
   }
 

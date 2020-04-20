@@ -59,13 +59,13 @@ public class GroupWithPermissionTemplateDaoTest {
     GroupDto group3 = db.users().insertGroup(organization, "Group-3");
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), ADMIN);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group2.getId(), PROVISIONING);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group1.getId(), USER);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group1.getId(), ADMIN);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group2.getId(), PROVISIONING);
 
     PermissionTemplateDto anotherTemplate = permissionTemplateDbTester.insertTemplate(organization);
-    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), null, USER);
-    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), group1.getId(), PROVISIONING);
+    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getUuid(), null, USER);
+    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getUuid(), group1.getId(), PROVISIONING);
 
     assertThat(selectGroupNamesByQueryAndTemplate(builder(), organization, template))
       .containsOnly("Group-1", "Group-2", "Group-3", "Anyone");
@@ -82,7 +82,7 @@ public class GroupWithPermissionTemplateDaoTest {
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("p-2"), organization, template))
       .containsOnly("Group-2");
 
-    assertThat(selectGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().build(), organization, 123L))
+    assertThat(selectGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().build(), organization, "123"))
       .isEmpty();
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("unknown"), organization, template))
       .isEmpty();
@@ -99,7 +99,7 @@ public class GroupWithPermissionTemplateDaoTest {
     permissionTemplateDbTester.addGroupToTemplate(template, group3, UserRole.USER);
 
     PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
-    assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getId()))
+    assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getUuid()))
       .containsExactly("Anyone", group3.getName(), group1.getName(), group2.getName());
   }
 
@@ -115,7 +115,7 @@ public class GroupWithPermissionTemplateDaoTest {
     permissionTemplateDbTester.addGroupToTemplate(template, db.users().selectGroup(organization, lastGroupName).get(), UserRole.USER);
 
     PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
-    assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getId()))
+    assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getUuid()))
       .hasSize(DEFAULT_PAGE_SIZE)
       .startsWith("Anyone", lastGroupName, "Group-1");
   }
@@ -134,7 +134,7 @@ public class GroupWithPermissionTemplateDaoTest {
     permissionTemplateDbTester.addGroupToTemplate(template, db.users().selectGroup(organization, lastGroupName).get(), UserRole.USER);
 
     PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
-    assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getId()))
+    assertThat(underTest.selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getUuid()))
       .hasSize(DEFAULT_PAGE_SIZE)
       .startsWith("Anyone", lastGroupName, "Group-1");
   }
@@ -159,7 +159,7 @@ public class GroupWithPermissionTemplateDaoTest {
 
     GroupDto group = db.users().insertGroup(organization, "Group");
     PermissionTemplateDto otherTemplate = permissionTemplateDbTester.insertTemplate(organization);
-    permissionTemplateDbTester.addGroupToTemplate(otherTemplate.getId(), group.getId(), USER);
+    permissionTemplateDbTester.addGroupToTemplate(otherTemplate.getUuid(), group.getId(), USER);
 
     assertThat(selectGroupNamesByQueryAndTemplate(builder().setSearchQuery("nyo"), organization, template))
       .containsExactly("Anyone");
@@ -173,13 +173,13 @@ public class GroupWithPermissionTemplateDaoTest {
     GroupDto group3 = db.users().insertGroup(organization, "Group-3");
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate(organization);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), ADMIN);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group2.getId(), PROVISIONING);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group1.getId(), USER);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group1.getId(), ADMIN);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group2.getId(), PROVISIONING);
 
     PermissionTemplateDto anotherTemplate = permissionTemplateDbTester.insertTemplate(organization);
-    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), null, USER);
-    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), group1.getId(), PROVISIONING);
+    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getUuid(), null, USER);
+    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getUuid(), group1.getId(), PROVISIONING);
 
     assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()), organization, template))
       .isEqualTo(4);
@@ -195,7 +195,7 @@ public class GroupWithPermissionTemplateDaoTest {
     assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("p-2"), organization, template))
       .isEqualTo(1);
 
-    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().build(), organization, 123L))
+    assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().build(), organization, "123"))
       .isZero();
     assertThat(countGroupNamesByQueryAndTemplate(builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("unknown"), organization, template))
       .isZero();
@@ -208,33 +208,33 @@ public class GroupWithPermissionTemplateDaoTest {
     GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), ADMIN);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group2.getId(), PROVISIONING);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group1.getId(), USER);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group1.getId(), ADMIN);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group2.getId(), PROVISIONING);
 
     PermissionTemplateDto anotherTemplate = permissionTemplateDbTester.insertTemplate();
-    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), null, USER);
-    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), group1.getId(), PROVISIONING);
+    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getUuid(), null, USER);
+    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getUuid(), group1.getId(), PROVISIONING);
 
-    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getId(), asList("Group-1")))
+    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getUuid(), asList("Group-1")))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(group1.getId(), "Group-1", USER),
         tuple(group1.getId(), "Group-1", ADMIN));
 
-    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, anotherTemplate.getId(), asList("Group-1")))
+    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, anotherTemplate.getUuid(), asList("Group-1")))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(group1.getId(), "Group-1", PROVISIONING));
 
-    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, anotherTemplate.getId(), asList("Anyone")))
+    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, anotherTemplate.getUuid(), asList("Anyone")))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(0, "Anyone", USER));
 
-    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getId(), asList("Group-1", "Group-2", "Anyone"))).hasSize(3);
-    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getId(), asList("Unknown"))).isEmpty();
-    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getId(), Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getUuid(), asList("Group-1", "Group-2", "Anyone"))).hasSize(3);
+    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getUuid(), asList("Unknown"))).isEmpty();
+    assertThat(underTest.selectGroupPermissionsByTemplateIdAndGroupNames(session, template.getUuid(), Collections.emptyList())).isEmpty();
   }
 
   @Test
@@ -244,43 +244,43 @@ public class GroupWithPermissionTemplateDaoTest {
     GroupDto group3 = db.users().insertGroup(newGroupDto().setName("Group-3"));
 
     PermissionTemplateDto template = permissionTemplateDbTester.insertTemplate();
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), USER);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group1.getId(), ADMIN);
-    permissionTemplateDbTester.addGroupToTemplate(template.getId(), group2.getId(), PROVISIONING);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group1.getId(), USER);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group1.getId(), ADMIN);
+    permissionTemplateDbTester.addGroupToTemplate(template.getUuid(), group2.getId(), PROVISIONING);
 
     PermissionTemplateDto anotherTemplate = permissionTemplateDbTester.insertTemplate();
-    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), null, USER);
-    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getId(), group1.getId(), PROVISIONING);
+    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getUuid(), null, USER);
+    permissionTemplateDbTester.addGroupToTemplate(anotherTemplate.getUuid(), group1.getId(), PROVISIONING);
 
-    assertThat(underTest.selectGroupPermissionsByTemplateId(session, template.getId()))
+    assertThat(underTest.selectGroupPermissionsByTemplateUuid(session, template.getUuid()))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(group1.getId(), "Group-1", USER),
         tuple(group1.getId(), "Group-1", ADMIN),
         tuple(group2.getId(), "Group-2", PROVISIONING));
-    assertThat(underTest.selectGroupPermissionsByTemplateId(session, anotherTemplate.getId()))
+    assertThat(underTest.selectGroupPermissionsByTemplateUuid(session, anotherTemplate.getUuid()))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(group1.getId(), "Group-1", PROVISIONING),
         tuple(0, "Anyone", USER));
 
-    assertThat(underTest.selectGroupPermissionsByTemplateId(session, 321L)).isEmpty();
+    assertThat(underTest.selectGroupPermissionsByTemplateUuid(session, "321")).isEmpty();
   }
 
   private List<String> selectGroupNamesByQueryAndTemplate(PermissionQuery.Builder queryBuilder, OrganizationDto organization, PermissionTemplateDto permissionTemplateDto) {
-    return selectGroupNamesByQueryAndTemplate(queryBuilder.setOrganizationUuid(organization.getUuid()).build(), organization, permissionTemplateDto.getId());
+    return selectGroupNamesByQueryAndTemplate(queryBuilder.setOrganizationUuid(organization.getUuid()).build(), organization, permissionTemplateDto.getUuid());
   }
 
-  private List<String> selectGroupNamesByQueryAndTemplate(PermissionQuery query, OrganizationDto organization, long templateId) {
-    return underTest.selectGroupNamesByQueryAndTemplate(session, query, templateId);
+  private List<String> selectGroupNamesByQueryAndTemplate(PermissionQuery query, OrganizationDto organization, String templateUuid) {
+    return underTest.selectGroupNamesByQueryAndTemplate(session, query, templateUuid);
   }
 
   private int countGroupNamesByQueryAndTemplate(PermissionQuery.Builder queryBuilder, OrganizationDto organization, PermissionTemplateDto permissionTemplateDto) {
-    return countGroupNamesByQueryAndTemplate(queryBuilder.build(), organization, permissionTemplateDto.getId());
+    return countGroupNamesByQueryAndTemplate(queryBuilder.build(), organization, permissionTemplateDto.getUuid());
   }
 
-  private int countGroupNamesByQueryAndTemplate(PermissionQuery query, OrganizationDto organization, long templateId) {
-    return underTest.countGroupNamesByQueryAndTemplate(session, query, organization.getUuid(), templateId);
+  private int countGroupNamesByQueryAndTemplate(PermissionQuery query, OrganizationDto organization, String templateUuid) {
+    return underTest.countGroupNamesByQueryAndTemplate(session, query, organization.getUuid(), templateUuid);
   }
 
 }

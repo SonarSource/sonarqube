@@ -25,20 +25,20 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.permission.GroupIdOrAnyone;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.permission.GroupIdOrAnyone;
 
 import static java.lang.String.format;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.fromRequest;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class AddGroupToTemplateAction implements PermissionsWsAction {
@@ -82,15 +82,15 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
       PermissionTemplateDto template = support.findTemplate(dbSession, fromRequest(request));
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
-      if (!groupAlreadyAdded(dbSession, template.getId(), permission, groupId)) {
-        dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), groupId.getId(), permission);
+      if (!groupAlreadyAdded(dbSession, template.getUuid(), permission, groupId)) {
+        dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), groupId.getId(), permission);
         dbSession.commit();
       }
     }
     response.noContent();
   }
 
-  private boolean groupAlreadyAdded(DbSession dbSession, long templateId, String permission, GroupIdOrAnyone group) {
-    return dbClient.permissionTemplateDao().hasGroupsWithPermission(dbSession, templateId, permission, group.getId());
+  private boolean groupAlreadyAdded(DbSession dbSession, String templateUuid, String permission, GroupIdOrAnyone group) {
+    return dbClient.permissionTemplateDao().hasGroupsWithPermission(dbSession, templateUuid, permission, group.getId());
   }
 }

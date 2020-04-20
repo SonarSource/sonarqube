@@ -102,16 +102,16 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
       UserId user = wsSupport.findUser(dbSession, userLogin);
       wsSupport.checkMembership(dbSession, organizationDto, user);
 
-      if (!isUserAlreadyAdded(dbSession, organizationDto, template.getId(), userLogin, permission)) {
-        dbClient.permissionTemplateDao().insertUserPermission(dbSession, template.getId(), user.getId(), permission);
+      if (!isUserAlreadyAdded(dbSession, organizationDto, template.getUuid(), userLogin, permission)) {
+        dbClient.permissionTemplateDao().insertUserPermission(dbSession, template.getUuid(), user.getId(), permission);
         dbSession.commit();
       }
     }
   }
 
-  private boolean isUserAlreadyAdded(DbSession dbSession, OrganizationDto organizationDto, long templateId, String userLogin, String permission) {
+  private boolean isUserAlreadyAdded(DbSession dbSession, OrganizationDto organizationDto, String templateUuid, String userLogin, String permission) {
     PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(organizationDto.getUuid()).setPermission(permission).build();
-    List<String> usersWithPermission = dbClient.permissionTemplateDao().selectUserLoginsByQueryAndTemplate(dbSession, permissionQuery, templateId);
+    List<String> usersWithPermission = dbClient.permissionTemplateDao().selectUserLoginsByQueryAndTemplate(dbSession, permissionQuery, templateUuid);
     return usersWithPermission.stream().anyMatch(s -> s.equals(userLogin));
   }
 

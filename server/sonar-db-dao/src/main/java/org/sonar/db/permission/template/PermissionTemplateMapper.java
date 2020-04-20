@@ -36,13 +36,13 @@ public interface PermissionTemplateMapper {
 
   void update(PermissionTemplateDto permissionTemplate);
 
-  void deleteById(long templateId);
+  void deleteByUuid(String templateUuid);
 
-  void deleteByIds(@Param("templateIds") List<Long> templateIds);
+  void deleteByUuids(@Param("templateUuids") List<String> templateUuids);
 
-  void deleteUserPermissionsByTemplateId(long templateId);
+  void deleteUserPermissionsByTemplateUuid(String templateUuid);
 
-  void deleteUserPermissionsByTemplateIds(@Param("templateIds") List<Long> templateIds);
+  void deleteUserPermissionsByTemplateUuids(@Param("templateUuids") List<String> templateUuids);
 
   void deleteUserPermissionsByOrganization(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
 
@@ -50,17 +50,17 @@ public interface PermissionTemplateMapper {
 
   void deleteUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
-  void deleteGroupPermissionsByTemplateId(long templateId);
+  void deleteGroupPermissionsByTemplateUuid(String templateUuid);
 
-  void deleteGroupPermissionsByTemplateIds(@Param("templateIds") List<Long> templateIds);
+  void deleteGroupPermissionsByTemplateUuids(@Param("templateUuids") List<String> templateUuids);
 
   void deleteGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
 
   PermissionTemplateDto selectByUuid(String templateUuid);
 
-  List<PermissionTemplateUserDto> selectUserPermissionsByTemplateIdAndUserLogins(@Param("templateId") long templateId, @Param("logins") List<String> logins);
+  List<PermissionTemplateUserDto> selectUserPermissionsByTemplateUuidAndUserLogins(@Param("templateUuid") String templateUuid, @Param("logins") List<String> logins);
 
-  List<PermissionTemplateGroupDto> selectGroupPermissionsByTemplateIdAndGroupNames(@Param("templateId") long templateId, @Param("groups") List<String> groups);
+  List<PermissionTemplateGroupDto> selectGroupPermissionsByTemplateUuidAndGroupNames(@Param("templateUuid") String templateUuid, @Param("groups") List<String> groups);
 
   void insertUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
@@ -70,25 +70,25 @@ public interface PermissionTemplateMapper {
 
   PermissionTemplateDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
 
-  List<String> selectUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId, RowBounds rowBounds);
+  List<String> selectUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid, RowBounds rowBounds);
 
-  int countUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateId") long templateId);
+  int countUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid);
 
-  List<String> selectGroupNamesByQueryAndTemplate(@Param("templateId") long templateId, @Param("query") PermissionQuery query, RowBounds rowBounds);
+  List<String> selectGroupNamesByQueryAndTemplate(@Param("templateUuid") String templateUuid, @Param("query") PermissionQuery query, RowBounds rowBounds);
 
-  int countGroupNamesByQueryAndTemplate(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Param("templateId") long templateId);
+  int countGroupNamesByQueryAndTemplate(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid);
 
   List<PermissionTemplateDto> selectAll(@Param("organizationUuid") String organizationUuid, @Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
 
-  void usersCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
+  void usersCountByTemplateUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
 
-  void groupsCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
+  void groupsCountByTemplateUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
 
-  List<String> selectPotentialPermissionsByUserIdAndTemplateId(@Param("userId") @Nullable Integer currentUserId, @Param("templateId") long templateId);
+  List<String> selectPotentialPermissionsByUserIdAndTemplateUuid(@Param("userId") @Nullable Integer currentUserId, @Param("templateUuid") String templateUuid);
 
-  int countGroupsWithPermission(@Param("templateId") long templateId, @Param("permission") String permission, @Nullable @Param("groupId") Integer groupId);
+  int countGroupsWithPermission(@Param("templateUuid") String templateUuid, @Param("permission") String permission, @Nullable @Param("groupId") Integer groupId);
 
-  List<Long> selectTemplateIdsByOrganization(@Param("organizationUuid") String organizationUuid);
+  List<String> selectTemplateUuidsByOrganization(@Param("organizationUuid") String organizationUuid);
 
   List<PermissionTemplateGroupDto> selectAllGroupPermissionTemplatesByGroupId(@Param("groupId") Long groupId);
 

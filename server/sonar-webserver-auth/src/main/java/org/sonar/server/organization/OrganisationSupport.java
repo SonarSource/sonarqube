@@ -106,7 +106,7 @@ public class OrganisationSupport {
     List<PermissionTemplateGroupDto> sonarUsersPermissionTemplates = dbClient.permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(dbSession,
       sonarUsersGroup.getId());
     sonarUsersPermissionTemplates.forEach(permissionTemplateGroup -> dbClient.permissionTemplateDao().insertGroupPermission(dbSession,
-      permissionTemplateGroup.getTemplateId(), membersGroup.getId(), permissionTemplateGroup.getPermission()));
+      permissionTemplateGroup.getTemplateUuid(), membersGroup.getId(), permissionTemplateGroup.getPermission()));
   }
 
   private List<Integer> disableTemplateRulesAndCustomRules(DbSession dbSession) {

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.startup;
 
+import java.util.Date;
+import java.util.Optional;
 import org.picocontainer.Startable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.log.Logger;
@@ -32,9 +34,6 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-
-import java.util.Date;
-import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -122,7 +121,7 @@ public class RegisterPermissionTemplates implements Startable {
   }
 
   private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, GroupDto group) {
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group.getId(), permission);
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getId(), permission);
   }
 
 }

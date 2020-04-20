@@ -57,35 +57,35 @@ public class PermissionTemplateDbTester {
   }
 
   public void addGroupToTemplate(PermissionTemplateDto permissionTemplate, GroupDto group, String permission) {
-    addGroupToTemplate(permissionTemplate.getId(), group.getId(), permission);
+    addGroupToTemplate(permissionTemplate.getUuid(), group.getId(), permission);
   }
 
-  public void addGroupToTemplate(long templateId, @Nullable Integer groupId, String permission) {
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, templateId, groupId, permission);
+  public void addGroupToTemplate(String templateUuid, @Nullable Integer groupId, String permission) {
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, templateUuid, groupId, permission);
     db.commit();
   }
 
   public void addAnyoneToTemplate(PermissionTemplateDto permissionTemplate, String permission) {
-    addGroupToTemplate(permissionTemplate.getId(), null, permission);
+    addGroupToTemplate(permissionTemplate.getUuid(), null, permission);
   }
 
   public void addUserToTemplate(PermissionTemplateDto permissionTemplate, UserDto user, String permission) {
-    addUserToTemplate(permissionTemplate.getId(), user.getId(), permission);
+    addUserToTemplate(permissionTemplate.getUuid(), user.getId(), permission);
   }
 
-  public void addUserToTemplate(long templateId, int userId, String permission) {
-    dbClient.permissionTemplateDao().insertUserPermission(dbSession, templateId, userId, permission);
+  public void addUserToTemplate(String templateUuid, int userId, String permission) {
+    dbClient.permissionTemplateDao().insertUserPermission(dbSession, templateUuid, userId, permission);
     db.commit();
   }
 
   public void addProjectCreatorToTemplate(PermissionTemplateDto permissionTemplate, String permission) {
-    addProjectCreatorToTemplate(permissionTemplate.getId(), permission);
+    addProjectCreatorToTemplate(permissionTemplate.getUuid(), permission);
   }
 
-  public void addProjectCreatorToTemplate(long templateId, String permission) {
+  public void addProjectCreatorToTemplate(String templateUuid, String permission) {
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, newPermissionTemplateCharacteristicDto()
       .setWithProjectCreator(true)
-      .setTemplateId(templateId)
+      .setTemplateUuid(templateUuid)
       .setPermission(permission));
     db.commit();
   }

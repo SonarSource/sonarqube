@@ -197,13 +197,13 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
   }
 
   private void addGroupToTemplate(PermissionTemplateDto template, @Nullable Integer groupId, String permission) {
-    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getId(), groupId, permission);
+    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), groupId, permission);
     db.commit();
   }
 
   private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, String permission) {
     PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
-      .selectGroupNamesByQueryAndTemplate(db.getSession(), permissionQuery, template.getId());
+      .selectGroupNamesByQueryAndTemplate(db.getSession(), permissionQuery, template.getUuid());
   }
 }

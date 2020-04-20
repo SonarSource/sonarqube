@@ -74,7 +74,8 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   @Before
   public void setUp() {
     DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithoutViews);
-    underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews, permissionServiceWithoutViews));
+    underTestWithoutViews = new WsActionTester(
+      new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews, permissionServiceWithoutViews));
     i18n.setProjectPermissions();
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
   }
@@ -92,12 +93,12 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     GroupDto group2 = db.users().insertGroup(organization);
     GroupDto group3 = db.users().insertGroup(organization);
 
-    addUserToTemplate(projectTemplate.getId(), user1.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getId(), user2.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getId(), user3.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getId(), user1.getId(), UserRole.CODEVIEWER);
-    addGroupToTemplate(projectTemplate.getId(), group1.getId(), UserRole.ADMIN);
-    addPermissionTemplateWithProjectCreator(projectTemplate.getId(), UserRole.ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user1.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user2.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user3.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user1.getId(), UserRole.CODEVIEWER);
+    addGroupToTemplate(projectTemplate.getUuid(), group1.getId(), UserRole.ADMIN);
+    addPermissionTemplateWithProjectCreator(projectTemplate.getUuid(), UserRole.ADMIN);
 
     db.organizations().setDefaultTemplates(projectTemplate, null, null);
 
@@ -123,18 +124,18 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     GroupDto group2 = db.users().insertGroup(organization);
     GroupDto group3 = db.users().insertGroup(organization);
 
-    addUserToTemplate(projectTemplate.getId(), user1.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getId(), user2.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getId(), user3.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getId(), user1.getId(), UserRole.CODEVIEWER);
-    addGroupToTemplate(projectTemplate.getId(), group1.getId(), UserRole.ADMIN);
-    addPermissionTemplateWithProjectCreator(projectTemplate.getId(), UserRole.ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user1.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user2.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user3.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user1.getId(), UserRole.CODEVIEWER);
+    addGroupToTemplate(projectTemplate.getUuid(), group1.getId(), UserRole.ADMIN);
+    addPermissionTemplateWithProjectCreator(projectTemplate.getUuid(), UserRole.ADMIN);
 
-    addUserToTemplate(portfoliosTemplate.getId(), user1.getId(), UserRole.USER);
-    addUserToTemplate(portfoliosTemplate.getId(), user2.getId(), UserRole.USER);
-    addGroupToTemplate(portfoliosTemplate.getId(), group1.getId(), UserRole.ISSUE_ADMIN);
-    addGroupToTemplate(portfoliosTemplate.getId(), group2.getId(), UserRole.ISSUE_ADMIN);
-    addGroupToTemplate(portfoliosTemplate.getId(), group3.getId(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(portfoliosTemplate.getUuid(), user1.getId(), UserRole.USER);
+    addUserToTemplate(portfoliosTemplate.getUuid(), user2.getId(), UserRole.USER);
+    addGroupToTemplate(portfoliosTemplate.getUuid(), group1.getId(), UserRole.ISSUE_ADMIN);
+    addGroupToTemplate(portfoliosTemplate.getUuid(), group2.getId(), UserRole.ISSUE_ADMIN);
+    addGroupToTemplate(portfoliosTemplate.getUuid(), group3.getId(), UserRole.ISSUE_ADMIN);
 
     db.organizations().setDefaultTemplates(projectTemplate, applicationsTemplate, portfoliosTemplate);
 
@@ -213,7 +214,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate(org);
     db.organizations().setDefaultTemplates(projectDefaultTemplate, null, null);
     PermissionTemplateDto templateInOrg = insertProjectTemplate(org);
-    insertProjectTemplate(db.getDefaultOrganization());
+    insertProjectTemplate("uuid-1", db.getDefaultOrganization());
     db.commit();
     userSession.addPermission(ADMINISTER, org);
 
@@ -266,7 +267,8 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
           "    {" +
           "      \"key\": \"securityhotspotadmin\"," +
           "      \"name\": \"Administer Security Hotspots\"," +
-          "      \"description\": \"Detect a Vulnerability from a \\\"Security Hotspot\\\". Reject, clear, accept, reopen a \\\"Security Hotspot\\\" (users also need \\\"Browse\\\" permissions).\"" +
+          "      \"description\": \"Detect a Vulnerability from a \\\"Security Hotspot\\\". Reject, clear, accept, reopen a \\\"Security Hotspot\\\" (users also need \\\"Browse\\\" permissions).\""
+          +
           "    }," +
           "    {" +
           "      \"key\": \"scan\"," +
@@ -281,7 +283,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
           "    }" +
           "  ]" +
           "}");
-   }
+  }
 
   @Test
   public void display_all_project_permissions_with_views() {
@@ -314,7 +316,8 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
           "    {" +
           "      \"key\": \"securityhotspotadmin\"," +
           "      \"name\": \"Administer Security Hotspots\"," +
-          "      \"description\": \"Detect a Vulnerability from a \\\"Security Hotspot\\\". Reject, clear, accept, reopen a \\\"Security Hotspot\\\" (users also need \\\"Browse\\\" permissions).\"" +
+          "      \"description\": \"Detect a Vulnerability from a \\\"Security Hotspot\\\". Reject, clear, accept, reopen a \\\"Security Hotspot\\\" (users also need \\\"Browse\\\" permissions).\""
+          +
           "    }," +
           "    {" +
           "      \"key\": \"scan\"," +
@@ -332,9 +335,13 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   }
 
   private PermissionTemplateDto insertProjectTemplate(OrganizationDto org) {
+    return insertProjectTemplate(UUID_EXAMPLE_01, org);
+  }
+
+  private PermissionTemplateDto insertProjectTemplate(String uuid, OrganizationDto org) {
     return insertTemplate(newPermissionTemplateDto()
       .setOrganizationUuid(org.getUuid())
-      .setUuid(UUID_EXAMPLE_01)
+      .setUuid(uuid)
       .setName("Default template for Projects")
       .setDescription("Template for new projects")
       .setKeyPattern(null)
@@ -370,21 +377,21 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     return insert;
   }
 
-  private void addGroupToTemplate(long templateId, @Nullable Integer groupId, String permission) {
-    dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateId, groupId, permission);
+  private void addGroupToTemplate(String templateUuid, @Nullable Integer groupId, String permission) {
+    dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateUuid, groupId, permission);
     db.getSession().commit();
   }
 
-  private void addUserToTemplate(long templateId, int userId, String permission) {
-    dbClient.permissionTemplateDao().insertUserPermission(db.getSession(), templateId, userId, permission);
+  private void addUserToTemplate(String templateUuid, int userId, String permission) {
+    dbClient.permissionTemplateDao().insertUserPermission(db.getSession(), templateUuid, userId, permission);
     db.getSession().commit();
   }
 
-  private void addPermissionTemplateWithProjectCreator(long templateId, String permission) {
+  private void addPermissionTemplateWithProjectCreator(String templateUuid, String permission) {
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
       .setUuid(Uuids.createFast())
       .setWithProjectCreator(true)
-      .setTemplateId(templateId)
+      .setTemplateUuid(templateUuid)
       .setPermission(permission)
       .setCreatedAt(1_000_000_000L)
       .setUpdatedAt(2_000_000_000L));

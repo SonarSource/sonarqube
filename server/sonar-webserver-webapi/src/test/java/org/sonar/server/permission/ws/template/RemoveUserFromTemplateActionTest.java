@@ -36,8 +36,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
-import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.permission.RequestValidator;
+import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
 
@@ -217,11 +217,11 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   private List<String> getLoginsInTemplateAndPermission(PermissionTemplateDto template, String permission) {
     PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
-      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, template.getId());
+      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, template.getUuid());
   }
 
   private void addUserToTemplate(UserDto user, PermissionTemplateDto template, String permission) {
-    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), template.getId(), user.getId(), permission);
+    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), template.getUuid(), user.getId(), permission);
     db.commit();
   }
 

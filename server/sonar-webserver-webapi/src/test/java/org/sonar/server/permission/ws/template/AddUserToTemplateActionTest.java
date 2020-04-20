@@ -236,7 +236,7 @@ public class AddUserToTemplateActionTest extends BasePermissionWsTest<AddUserToT
   private List<String> getLoginsInTemplateAndPermission(PermissionTemplateDto template, String permission) {
     PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
-      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, template.getId());
+      .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, template.getUuid());
   }
 
   private void addUserAsMemberOfOrganization(OrganizationDto organization) {

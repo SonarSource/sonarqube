@@ -182,7 +182,7 @@ public class RegisterPermissionTemplatesTest {
   }
 
   private List<PermissionTemplateGroupDto> selectGroupPermissions(PermissionTemplateDto template) {
-    return db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateId(db.getSession(), template.getId());
+    return db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateUuid(db.getSession(), template.getUuid());
   }
 
   private void expectGroupPermission(List<PermissionTemplateGroupDto> groupPermissions, String expectedPermission,

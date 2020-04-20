@@ -31,9 +31,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 
@@ -100,7 +100,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       Optional<PermissionTemplateCharacteristicDto> templatePermission = dbClient.permissionTemplateCharacteristicDao()
-        .selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getId());
+        .selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getUuid());
       if (templatePermission.isPresent()) {
         updateTemplatePermission(dbSession, templatePermission.get());
       } else {
@@ -114,7 +114,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
       .setUuid(Uuids.create())
       .setPermission(request.getPermission())
-      .setTemplateId(template.getId())
+      .setTemplateUuid(template.getUuid())
       .setWithProjectCreator(true)
       .setCreatedAt(now)
       .setUpdatedAt(now));

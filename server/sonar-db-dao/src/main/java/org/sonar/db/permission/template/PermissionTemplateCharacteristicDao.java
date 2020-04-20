@@ -30,12 +30,12 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class PermissionTemplateCharacteristicDao implements Dao {
 
-  public List<PermissionTemplateCharacteristicDto> selectByTemplateIds(DbSession dbSession, List<Long> templateIds) {
-    return executeLargeInputs(templateIds, partitionOfTemplateIds -> mapper(dbSession).selectByTemplateIds(partitionOfTemplateIds));
+  public List<PermissionTemplateCharacteristicDto> selectByTemplateUuids(DbSession dbSession, List<String> templateUuids) {
+    return executeLargeInputs(templateUuids, partitionOfTemplateUuids -> mapper(dbSession).selectByTemplateUuids(partitionOfTemplateUuids));
   }
 
-  public Optional<PermissionTemplateCharacteristicDto> selectByPermissionAndTemplateId(DbSession dbSession, String permission, long templateId) {
-    PermissionTemplateCharacteristicDto dto = mapper(dbSession).selectByPermissionAndTemplateId(permission, templateId);
+  public Optional<PermissionTemplateCharacteristicDto> selectByPermissionAndTemplateId(DbSession dbSession, String permission, String templateUuid) {
+    PermissionTemplateCharacteristicDto dto = mapper(dbSession).selectByPermissionAndTemplateUuid(permission, templateUuid);
     return Optional.ofNullable(dto);
   }
 

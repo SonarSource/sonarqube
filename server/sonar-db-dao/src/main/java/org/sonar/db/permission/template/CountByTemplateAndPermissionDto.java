@@ -20,16 +20,16 @@
 package org.sonar.db.permission.template;
 
 public class CountByTemplateAndPermissionDto {
-  private long templateId;
+  private String templateUuid;
   private String permission;
   private int count;
 
-  public long getTemplateId() {
-    return templateId;
+  public String getTemplateUuid() {
+    return templateUuid;
   }
 
-  public void setTemplateId(long templateId) {
-    this.templateId = templateId;
+  public void setTemplateUuid(String templateUuid) {
+    this.templateUuid = templateUuid;
   }
 
   public String getPermission() {

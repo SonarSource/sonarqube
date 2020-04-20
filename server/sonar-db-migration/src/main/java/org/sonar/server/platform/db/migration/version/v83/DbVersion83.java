@@ -135,6 +135,27 @@ import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics
 import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable;
 import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.MakePermTplCharacteristicsUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.PopulatePermTplCharacteristicsUuid;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.AddPrimaryKeyOnUuidColumnOfPermissionTemplatesTable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.AddUuidColumnToPermissionTemplates;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.DropIdColumnOfPermissionTemplatesTable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.DropKeeColumnOfPermissionTemplatesTable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.DropPrimaryKeyOnIdColumnOfPermissionTemplatesTable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.MakePermissionTemplateUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.PopulatePermissionTemplatesUuid;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtemplatesgroups.AddTemplateUuidColumnToPermTemplatesGroups;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtemplatesgroups.DropTemplateIdColumnOfPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtemplatesgroups.MakePermTemplatesGroupsTemplateUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtemplatesgroups.PopulatePermTemplatesGroupsTemplateUuidColumn;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtemplatesusers.AddTemplateUuidColumnToPermTemplatesUsers;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtemplatesusers.DropTemplateIdColumnOfPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtemplatesusers.MakePermTemplatesUsersTemplateUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtemplatesusers.PopulatePermTemplatesUsersTemplateUuidColumn;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtplcharacteristics.AddTemplateUuidColumnToPermTplCharacteristics;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtplcharacteristics.AddUniqueIndexOnTemplateUuidAndPermissionKeyColumnsOfPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtplcharacteristics.DropTemplateIdColumnOfPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtplcharacteristics.DropUniqueIndexOnTemplateIdAndPermissionKeyColumnsOfPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtplcharacteristics.MakePermTplCharacteristicsTemplateUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permissiontemplates.fk.permtplcharacteristics.PopulatePermTplCharacteristicsTemplateUuidColumn;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.AddPrimaryKeyOnUuidColumnOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.AddUuidColumnToProjectMeasures;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.DropIdColumnOfProjectMeasuresTable;
@@ -419,6 +440,40 @@ public class DbVersion83 implements DbVersion {
       .add(3551, "Drop column 'METRIC_ID' of 'LIVE_MEASURES' table", DropMetricIdColumnOfLiveMeasuresTable.class)
       .add(3552, "Drop column 'METRIC_ID' of 'MANUAL_MEASURES' table", DropMetricIdColumnOfManualMeasuresTable.class)
       .add(3553, "Drop column 'ID' of 'METRICS' table", DropIdColumnOfMetricsTable.class)
+
+      // Migration of PERMISSION_TEMPLATES table
+      .add(3554, "Add 'UUID' column on 'PERMISSION_TEMPLATES' table", AddUuidColumnToPermissionTemplates.class)
+      .add(3555, "Populate 'uuid' for 'PERMISSION_TEMPLATES'", PopulatePermissionTemplatesUuid.class)
+      .add(3556, "Make 'uuid' column not nullable for user_tokens", MakePermissionTemplateUuidColumnNotNullable.class)
+
+      // Migration of PERM_TEMPLATES_GROUPS FK to PERMISSION_TEMPLATES, switch from templateId to templateUuid
+      .add(3557, "Add 'template_uuid' column for 'PERM_TEMPLATES_GROUPS' table", AddTemplateUuidColumnToPermTemplatesGroups.class)
+      .add(3558, "Populate 'template_uuid' column for 'PERM_TEMPLATES_GROUPS' table", PopulatePermTemplatesGroupsTemplateUuidColumn.class)
+      .add(3559, "Make 'template_uuid' column not nullable for 'PERM_TEMPLATES_GROUPS' table", MakePermTemplatesGroupsTemplateUuidColumnNotNullable.class)
+      .add(3560, "Drop column 'template_id' of 'PERM_TEMPLATES_GROUPS' table", DropTemplateIdColumnOfPermTemplatesGroupsTable.class)
+
+      // Migration of PERM_TEMPLATES_USERS FK to PERMISSION_TEMPLATES, switch from templateId to templateUuid
+      .add(3561, "Add 'template_uuid' column for 'PERM_TEMPLATES_USERS' table", AddTemplateUuidColumnToPermTemplatesUsers.class)
+      .add(3562, "Populate 'template_uuid' column for 'PERM_TEMPLATES_USERS' table", PopulatePermTemplatesUsersTemplateUuidColumn.class)
+      .add(3563, "Make 'template_uuid' column not nullable for 'PERM_TEMPLATES_USERS' table", MakePermTemplatesUsersTemplateUuidColumnNotNullable.class)
+      .add(3564, "Drop column 'template_id' of 'PERM_TEMPLATES_USERS' table", DropTemplateIdColumnOfPermTemplatesUsersTable.class)
+
+      // Migration of PERM_TPL_CHARACTERISTICS FK to PERMISSION_TEMPLATES, switch from templateId to templateUuid
+      .add(3565, "Add 'template_uuid' column for 'PERM_TPL_CHARACTERISTICS' table", AddTemplateUuidColumnToPermTplCharacteristics.class)
+      .add(3566, "Populate 'template_uuid' column for 'PERM_TPL_CHARACTERISTICS' table", PopulatePermTplCharacteristicsTemplateUuidColumn.class)
+      .add(3567, "Make 'template_uuid' column not nullable for 'PERM_TPL_CHARACTERISTICS' table", MakePermTplCharacteristicsTemplateUuidColumnNotNullable.class)
+      .add(3568, "Drop unique constraint on 'template_id', 'permission_key' columns 'PERM_TPL_CHARACTERISTICS' table",
+        DropUniqueIndexOnTemplateIdAndPermissionKeyColumnsOfPermTplCharacteristicsTable.class)
+      .add(3569, "Add unique constraint on 'template_uuid', 'permission_key' columns 'PERM_TPL_CHARACTERISTICS' table",
+        AddUniqueIndexOnTemplateUuidAndPermissionKeyColumnsOfPermTplCharacteristicsTable.class)
+
+      .add(3570, "Drop column 'template_id' of 'PERM_TPL_CHARACTERISTICS' table", DropTemplateIdColumnOfPermTplCharacteristicsTable.class)
+
+      .add(3571, "Drop primary key on 'ID' column of 'PERMISSION_TEMPLATES' table", DropPrimaryKeyOnIdColumnOfPermissionTemplatesTable.class)
+      .add(3572, "Add primary key on 'UUID' column of 'PERMISSION_TEMPLATES' table", AddPrimaryKeyOnUuidColumnOfPermissionTemplatesTable.class)
+
+      .add(3573, "Drop column 'ID' of 'PERMISSION_TEMPLATES' table", DropIdColumnOfPermissionTemplatesTable.class)
+      .add(3574, "Drop column 'KEE' of 'PERMISSION_TEMPLATES' table", DropKeeColumnOfPermissionTemplatesTable.class)
 
     ;
   }

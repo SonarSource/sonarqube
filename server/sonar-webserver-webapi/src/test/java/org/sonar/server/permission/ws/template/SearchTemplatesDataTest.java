@@ -35,9 +35,9 @@ public class SearchTemplatesDataTest {
   SearchTemplatesData.Builder underTest = SearchTemplatesData.builder()
     .defaultTemplates(new DefaultTemplatesResolverImpl.ResolvedDefaultTemplates("template_uuid", null, null))
     .templates(singletonList(newPermissionTemplateDto()))
-    .userCountByTemplateIdAndPermission(HashBasedTable.create())
-    .groupCountByTemplateIdAndPermission(HashBasedTable.create())
-    .withProjectCreatorByTemplateIdAndPermission(HashBasedTable.create());
+    .userCountByTemplateUuidAndPermission(HashBasedTable.create())
+    .groupCountByTemplateUuidAndPermission(HashBasedTable.create())
+    .withProjectCreatorByTemplateUuidAndPermission(HashBasedTable.create());
 
   @Test
   public void fail_if_templates_is_null() {
@@ -58,7 +58,7 @@ public class SearchTemplatesDataTest {
   @Test
   public void fail_if_user_count_is_null() {
     expectedException.expect(IllegalStateException.class);
-    underTest.userCountByTemplateIdAndPermission(null);
+    underTest.userCountByTemplateUuidAndPermission(null);
 
     underTest.build();
   }
@@ -66,7 +66,7 @@ public class SearchTemplatesDataTest {
   @Test
   public void fail_if_group_count_is_null() {
     expectedException.expect(IllegalStateException.class);
-    underTest.groupCountByTemplateIdAndPermission(null);
+    underTest.groupCountByTemplateUuidAndPermission(null);
 
     underTest.build();
   }
@@ -74,7 +74,7 @@ public class SearchTemplatesDataTest {
   @Test
   public void fail_if_with_project_creators_is_null() {
     expectedException.expect(IllegalStateException.class);
-    underTest.withProjectCreatorByTemplateIdAndPermission(null);
+    underTest.withProjectCreatorByTemplateUuidAndPermission(null);
 
     underTest.build();
   }

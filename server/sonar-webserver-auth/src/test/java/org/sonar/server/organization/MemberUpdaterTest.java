@@ -248,15 +248,15 @@ public class MemberUpdaterTest {
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
     PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate(anotherOrganization);
     String permission = "browse";
-    db.permissionTemplates().addUserToTemplate(template.getId(), user.getId(), permission);
-    db.permissionTemplates().addUserToTemplate(template.getId(), anotherUser.getId(), permission);
-    db.permissionTemplates().addUserToTemplate(anotherTemplate.getId(), user.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), anotherUser.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getId(), permission);
 
     underTest.removeMember(db.getSession(), organization, user);
 
-    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), template.getId())).extracting(PermissionTemplateUserDto::getUserId)
+    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), template.getUuid())).extracting(PermissionTemplateUserDto::getUserId)
       .containsOnly(anotherUser.getId());
-    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId)
+    assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), anotherTemplate.getUuid())).extracting(PermissionTemplateUserDto::getUserId)
       .containsOnly(user.getId());
   }
 
