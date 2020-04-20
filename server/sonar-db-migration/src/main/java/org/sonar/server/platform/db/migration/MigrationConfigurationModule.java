@@ -30,7 +30,7 @@ import org.sonar.server.platform.db.migration.version.v81.DbVersion81;
 import org.sonar.server.platform.db.migration.version.v82.DbVersion82;
 import org.sonar.server.platform.db.migration.version.v83.DbVersion83;
 import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
-import org.sonar.server.platform.db.migration.version.v83.util.GetConstraintHelper;
+import org.sonar.server.platform.db.migration.version.v83.util.SqlHelper;
 
 public class MigrationConfigurationModule extends Module {
   @Override
@@ -52,7 +52,7 @@ public class MigrationConfigurationModule extends Module {
       MigrationHistoryMeddler.class,
 
       // Only needed for 8.3
-      GetConstraintHelper.class,
+      SqlHelper.class,
       DropPrimaryKeySqlGenerator.class);
   }
 }

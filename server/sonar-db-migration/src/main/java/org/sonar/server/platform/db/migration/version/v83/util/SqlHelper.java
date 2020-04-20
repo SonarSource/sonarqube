@@ -28,11 +28,11 @@ import org.sonar.db.Database;
 
 import static java.lang.String.format;
 
-public class GetConstraintHelper {
+public class SqlHelper {
 
   private final Database db;
 
-  public GetConstraintHelper(Database db) {
+  public SqlHelper(Database db) {
     this.db = db;
   }
 
@@ -64,6 +64,18 @@ public class GetConstraintHelper {
         return rs.getString(1);
       }
       throw contraintNotFoundException(tableName);
+    }
+  }
+
+  String getPostgresSqlSequence(String tableName, String columnName) throws SQLException {
+    try (Connection connection = db.getDataSource().getConnection();
+         PreparedStatement pstmt = connection
+           .prepareStatement(format("SELECT pg_get_serial_sequence('%s', '%s')", tableName, columnName));
+         ResultSet rs = pstmt.executeQuery()) {
+      if (rs.next()) {
+        return rs.getString(1);
+      }
+      throw new IllegalStateException(format("Cannot find sequence for table '%s' on column '%s'", tableName, columnName));
     }
   }
 

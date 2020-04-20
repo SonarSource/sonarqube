@@ -35,7 +35,7 @@ public class DropPrimaryKeyOnIdColumnOfCeActivityTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate("ce_activity", "ce_activity","id"));
+    context.execute(dropPrimaryKeySqlGenerator.generate("ce_activity", "id"));
   }
 
 }

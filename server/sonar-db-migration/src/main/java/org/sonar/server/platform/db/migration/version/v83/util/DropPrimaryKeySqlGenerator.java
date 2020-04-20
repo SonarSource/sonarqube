@@ -32,39 +32,38 @@ import org.sonar.db.dialect.PostgreSql;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.Locale.ENGLISH;
-import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.PRIMARY_KEY_PREFIX;
 
 public class DropPrimaryKeySqlGenerator {
 
   private final Database db;
-  private GetConstraintHelper getConstraintHelper;
+  private SqlHelper sqlHelper;
 
-  public DropPrimaryKeySqlGenerator(Database db, GetConstraintHelper getConstraintHelper) {
+  public DropPrimaryKeySqlGenerator(Database db, SqlHelper sqlHelper) {
     this.db = db;
-    this.getConstraintHelper = getConstraintHelper;
+    this.sqlHelper = sqlHelper;
   }
 
-  public List<String> generate(String tableName, String originalTableName, String columnName) throws SQLException {
+  public List<String> generate(String tableName, String columnName) throws SQLException {
     Dialect dialect = db.getDialect();
     switch (dialect.getId()) {
       case PostgreSql.ID:
-        return generateForPostgresSql(tableName, originalTableName, columnName, getConstraintHelper.getPostgresSqlConstraint(tableName));
+        return generateForPostgresSql(tableName, columnName, sqlHelper.getPostgresSqlConstraint(tableName));
       case MsSql.ID:
-        return generateForMsSql(tableName, getConstraintHelper.getMssqlConstraint(tableName));
+        return generateForMsSql(tableName, sqlHelper.getMssqlConstraint(tableName));
       case Oracle.ID:
-        return generateForOracle(tableName, getConstraintHelper.getOracleConstraint(tableName));
+        return generateForOracle(tableName, sqlHelper.getOracleConstraint(tableName));
       case H2.ID:
-        return generateForH2(tableName, originalTableName, columnName);
+        return generateForH2(tableName, columnName, sqlHelper.getH2Constraint(tableName));
       default:
         throw new IllegalStateException(format("Unsupported database '%s'", dialect.getId()));
     }
   }
 
-  private static List<String> generateForPostgresSql(String tableName, String originalTableName, String column, String constraintName) {
+  private List<String> generateForPostgresSql(String tableName, String column, String constraintName) throws SQLException {
+    String sequence = sqlHelper.getPostgresSqlSequence(tableName, column);
     return asList(
       format("ALTER TABLE %s ALTER COLUMN %s DROP DEFAULT", tableName, column),
-      format("DROP SEQUENCE %s_%s_seq", originalTableName, column),
+      format("DROP SEQUENCE %s", sequence),
       format("ALTER TABLE %s DROP CONSTRAINT %s", tableName, constraintName));
   }
 
@@ -79,9 +78,9 @@ public class DropPrimaryKeySqlGenerator {
     return singletonList(format("ALTER TABLE %s DROP CONSTRAINT %s", tableName, constraintName));
   }
 
-  private static List<String> generateForH2(String tableName, String originalTableName, String column) {
+  private static List<String> generateForH2(String tableName, String column, String constraintName) {
     return asList(
-      format("ALTER TABLE %s DROP CONSTRAINT %s%s", tableName, PRIMARY_KEY_PREFIX.toUpperCase(ENGLISH), originalTableName),
+      format("ALTER TABLE %s DROP CONSTRAINT %s", tableName, constraintName),
       format("ALTER TABLE %s ALTER COLUMN %s INTEGER NOT NULL", tableName, column));
   }
 

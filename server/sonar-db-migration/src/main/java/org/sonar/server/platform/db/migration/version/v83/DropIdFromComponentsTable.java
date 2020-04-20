@@ -27,7 +27,6 @@ import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySql
 
 public class DropIdFromComponentsTable extends DdlChange {
 
-  static final String ORIGINAL_TABLE_NAME = "projects";
   static final String TABLE_NAME = "components";
   static final String COLUMN_NAME = "id";
 
@@ -39,7 +38,7 @@ public class DropIdFromComponentsTable extends DdlChange {
   }
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, ORIGINAL_TABLE_NAME, COLUMN_NAME));
+    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, COLUMN_NAME));
     context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, COLUMN_NAME).build());
   }
 }

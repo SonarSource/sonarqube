@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
-import org.sonar.server.platform.db.migration.version.v83.util.GetConstraintHelper;
+import org.sonar.server.platform.db.migration.version.v83.util.SqlHelper;
 
 import static java.sql.Types.INTEGER;
 import static org.sonar.server.platform.db.migration.version.v83.DropIdFromComponentsTable.COLUMN_NAME;
@@ -37,7 +37,7 @@ public class DropIdFromComponentsTableTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(dbTester.database(), new GetConstraintHelper(dbTester.database()));
+  private DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(dbTester.database(), new SqlHelper(dbTester.database()));
   private DropIdFromComponentsTable underTest = new DropIdFromComponentsTable(dbTester.database(), dropPrimaryKeySqlGenerator);
 
   @Test

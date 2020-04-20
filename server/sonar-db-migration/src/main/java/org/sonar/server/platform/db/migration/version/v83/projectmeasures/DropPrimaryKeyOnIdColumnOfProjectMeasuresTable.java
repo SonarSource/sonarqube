@@ -35,7 +35,7 @@ public class DropPrimaryKeyOnIdColumnOfProjectMeasuresTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate("project_measures", "project_measures", "id"));
+    context.execute(dropPrimaryKeySqlGenerator.generate("project_measures",  "id"));
   }
 
 }

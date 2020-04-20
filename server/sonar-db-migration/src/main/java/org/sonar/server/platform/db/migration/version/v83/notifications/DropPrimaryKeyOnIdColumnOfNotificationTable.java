@@ -35,7 +35,7 @@ public class DropPrimaryKeyOnIdColumnOfNotificationTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate("notifications", "notifications","id"));
+    context.execute(dropPrimaryKeySqlGenerator.generate("notifications", "id"));
   }
 
 }

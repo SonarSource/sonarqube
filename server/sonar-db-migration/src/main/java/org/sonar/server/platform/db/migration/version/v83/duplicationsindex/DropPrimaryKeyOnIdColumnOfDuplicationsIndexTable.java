@@ -35,7 +35,7 @@ public class DropPrimaryKeyOnIdColumnOfDuplicationsIndexTable extends DdlChange 
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate("duplications_index", "duplications_index", "id"));
+    context.execute(dropPrimaryKeySqlGenerator.generate("duplications_index", "id"));
   }
 
 }

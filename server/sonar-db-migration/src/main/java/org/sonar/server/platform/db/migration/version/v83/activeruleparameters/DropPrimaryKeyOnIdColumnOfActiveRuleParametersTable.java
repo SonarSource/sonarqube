@@ -35,7 +35,7 @@ public class DropPrimaryKeyOnIdColumnOfActiveRuleParametersTable extends DdlChan
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate("active_rule_parameters", "active_rule_parameters", "id"));
+    context.execute(dropPrimaryKeySqlGenerator.generate("active_rule_parameters", "id"));
   }
 
 }

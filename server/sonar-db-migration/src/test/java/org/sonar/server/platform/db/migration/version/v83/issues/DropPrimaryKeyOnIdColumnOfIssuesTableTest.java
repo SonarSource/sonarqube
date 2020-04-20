@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
-import org.sonar.server.platform.db.migration.version.v83.util.GetConstraintHelper;
+import org.sonar.server.platform.db.migration.version.v83.util.SqlHelper;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -35,7 +35,7 @@ public class DropPrimaryKeyOnIdColumnOfIssuesTableTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DropPrimaryKeyOnIdColumnOfIssuesTableTest.class, "schema.sql");
 
-  private DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(db.database(), new GetConstraintHelper(db.database()));
+  private DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(db.database(), new SqlHelper(db.database()));
 
   private DropPrimaryKeyOnIdColumnOfIssuesTable underTest = new DropPrimaryKeyOnIdColumnOfIssuesTable(db.database(), dropPrimaryKeySqlGenerator);
 
