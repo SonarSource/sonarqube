@@ -58,6 +58,12 @@ import org.sonar.server.platform.db.migration.version.v83.grouproles.DropResourc
 import org.sonar.server.platform.db.migration.version.v83.grouproles.MakeGroupRolesUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.grouproles.MigrateResourceIdToUuidInGroupRoles;
 import org.sonar.server.platform.db.migration.version.v83.grouproles.PopulateGroupRolesUuid;
+import org.sonar.server.platform.db.migration.version.v83.issuechanges.AddPrimaryKeyOnUuidColumnOfIssueChangesTable;
+import org.sonar.server.platform.db.migration.version.v83.issuechanges.AddUuidColumnToIssueChangesTable;
+import org.sonar.server.platform.db.migration.version.v83.issuechanges.DropIdColumnOfIssueChangesTable;
+import org.sonar.server.platform.db.migration.version.v83.issuechanges.DropPrimaryKeyOnIdColumnOfIssueChangesTable;
+import org.sonar.server.platform.db.migration.version.v83.issuechanges.MakeIssueChangesUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.issuechanges.PopulateIssueChangesUuid;
 import org.sonar.server.platform.db.migration.version.v83.issues.AddPrimaryKeyOnKeeColumnOfIssuesTable;
 import org.sonar.server.platform.db.migration.version.v83.issues.DropIdColumnOfIssuesTable;
 import org.sonar.server.platform.db.migration.version.v83.issues.DropPrimaryKeyOnIdColumnOfIssuesTable;
@@ -88,6 +94,12 @@ import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.Popul
 import org.sonar.server.platform.db.migration.version.v83.properties.AddComponentUuidColumnToProperties;
 import org.sonar.server.platform.db.migration.version.v83.properties.DropResourceIdFromPropertiesTable;
 import org.sonar.server.platform.db.migration.version.v83.properties.MigrateResourceIdToUuidInProperties;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.AddPrimaryKeyOnUuidColumnOfQualityGateConditionsTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.AddUuidColumnToQualityGateConditionsTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.DropIdColumnOfQualityGateConditionsTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.MakeQualityGateConditionsUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.PopulateQualityGateConditionsUuid;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.AddPrimaryKeyOnUuidColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropIdColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropPrimaryKeyOnIdColumnOfSnapshotsTable;
@@ -234,6 +246,46 @@ public class DbVersion83 implements DbVersion {
       .add(3476, "Drop primary key on 'ID' column of 'FILE_SOURCES' table", DropPrimaryKeyOnIdColumnOfFileSourcesTable.class)
       .add(3477, "Add primary key on 'UUID' column of 'FILE_SOURCES' table", AddPrimaryKeyOnUuidColumnOfFileSourcesTable.class)
       .add(3478, "Drop column 'ID' of 'FILE_SOURCES' table", DropIdColumnOfFileSourcesTable.class)
+
+      // Migration of GROUP_ROLES table
+      .add(3479, "Add 'UUID' column on 'GROUP_ROLES' table", AddUuidColumnToGroupRolesTable.class)
+      .add(3480, "Populate 'uuid' for 'GROUP_ROLES'", PopulateGroupRolesUuid.class)
+      .add(3481, "Make 'uuid' column not nullable for 'GROUP_ROLES'", MakeGroupRolesUuidColumnNotNullable.class)
+      .add(3482, "Drop primary key on 'ID' column of 'GROUP_ROLES' table", DropPrimaryKeyOnIdColumnOfGroupRolesTable.class)
+      .add(3483, "Add primary key on 'UUID' column of 'GROUP_ROLES' table", AddPrimaryKeyOnUuidColumnOfGroupRolesTable.class)
+      .add(3484, "Drop column 'ID' of 'GROUP_ROLES' table", DropIdColumnOfGroupRolesTable.class)
+
+      // Migration of USER_ROLES table
+      .add(3485, "Add 'UUID' column on 'USER_ROLES' table", AddUuidColumnToUserRolesTable.class)
+      .add(3486, "Populate 'uuid' for 'USER_ROLES'", PopulateUserRolesUuid.class)
+      .add(3487, "Make 'uuid' column not nullable for 'USER_ROLES'", MakeUserRolesUuidColumnNotNullable.class)
+      .add(3488, "Drop primary key on 'ID' column of 'USER_ROLES' table", DropPrimaryKeyOnIdColumnOfUserRolesTable.class)
+      .add(3489, "Add primary key on 'UUID' column of 'USER_ROLES' table", AddPrimaryKeyOnUuidColumnOfUserRolesTable.class)
+      .add(3490, "Drop column 'ID' of 'USER_ROLES' table", DropIdColumnOfUserRolesTable.class)
+
+      // Migration of FILE_SOURCES table
+      .add(3491, "Add 'UUID' column on 'FILE_SOURCES' table", AddUuidColumnToFileSourcesTable.class)
+      .add(3492, "Populate 'uuid' for 'FILE_SOURCES'", PopulateFileSourcesUuid.class)
+      .add(3493, "Make 'uuid' column not nullable for 'FILE_SOURCES'", MakeFileSourcesUuidColumnNotNullable.class)
+      .add(3494, "Drop primary key on 'ID' column of 'FILE_SOURCES' table", DropPrimaryKeyOnIdColumnOfFileSourcesTable.class)
+      .add(3495, "Add primary key on 'UUID' column of 'FILE_SOURCES' table", AddPrimaryKeyOnUuidColumnOfFileSourcesTable.class)
+      .add(3496, "Drop column 'ID' of 'FILE_SOURCES' table", DropIdColumnOfFileSourcesTable.class)
+
+      // Migration of ISSUE_CHANGES table
+      .add(3464, "Add 'UUID' column on 'ISSUE_CHANGES' table", AddUuidColumnToIssueChangesTable.class)
+      .add(3465, "Populate 'uuid' for 'ISSUE_CHANGES'", PopulateIssueChangesUuid.class)
+      .add(3466, "Make 'uuid' column not nullable for 'ISSUE_CHANGES'", MakeIssueChangesUuidColumnNotNullable.class)
+      .add(3467, "Drop primary key on 'ID' column of 'ISSUE_CHANGES' table", DropPrimaryKeyOnIdColumnOfIssueChangesTable.class)
+      .add(3468, "Add primary key on 'UUID' column of 'ISSUE_CHANGES' table", AddPrimaryKeyOnUuidColumnOfIssueChangesTable.class)
+      .add(3469, "Drop column 'ID' of 'ISSUE_CHANGES' table", DropIdColumnOfIssueChangesTable.class)
+
+      // Migration of QUALITY_GATE_CONDITIONS table
+      .add(3470, "Add 'UUID' column on 'QUALITY_GATE_CONDITIONS' table", AddUuidColumnToQualityGateConditionsTable.class)
+      .add(3471, "Populate 'uuid' for 'QUALITY_GATE_CONDITIONS'", PopulateQualityGateConditionsUuid.class)
+      .add(3472, "Make 'uuid' column not nullable for 'QUALITY_GATE_CONDITIONS'", MakeQualityGateConditionsUuidColumnNotNullable.class)
+      .add(3473, "Drop primary key on 'ID' column of 'QUALITY_GATE_CONDITIONS' table", DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable.class)
+      .add(3474, "Add primary key on 'UUID' column of 'QUALITY_GATE_CONDITIONS' table", AddPrimaryKeyOnUuidColumnOfQualityGateConditionsTable.class)
+      .add(3475, "Drop column 'ID' of 'QUALITY_GATE_CONDITIONS' table", DropIdColumnOfQualityGateConditionsTable.class)
     ;
   }
 }
