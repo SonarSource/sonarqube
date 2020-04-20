@@ -6,7 +6,7 @@
 
   <select id="selectByFileUuid" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
     select
-      id,
+      uuid,
       project_uuid as projectUuid,
       file_uuid as fileUuid,
       created_at as createdAt,
@@ -26,7 +26,7 @@
 
   <select id="selectHashesForProject" parameterType="map" resultType="org.sonar.db.source.FileSourceDto">
     select
-      id,
+      uuid,
       file_uuid as fileUuid,
       data_hash as dataHash,
       src_hash as srcHash,
@@ -63,9 +63,10 @@
       file_uuid = #{fileUuid,jdbcType=VARCHAR}
   </select>
 
-  <insert id="insert" parameterType="org.sonar.db.source.FileSourceDto" useGeneratedKeys="false">
+  <insert id="insert" parameterType="org.sonar.db.source.FileSourceDto">
     insert into file_sources
     (
+      uuid,
       project_uuid,
       file_uuid,
       created_at,
@@ -80,6 +81,7 @@
     )
     values
     (
+      #{uuid,jdbcType=VARCHAR},
       #{projectUuid,jdbcType=VARCHAR},
       #{fileUuid,jdbcType=VARCHAR},
       #{createdAt,jdbcType=BIGINT},
@@ -107,7 +109,7 @@
       src_hash = #{srcHash,jdbcType=VARCHAR},
       revision = #{revision,jdbcType=VARCHAR}
     where
-      id = #{id,jdbcType=INTEGER}
+      uuid = #{uuid,jdbcType=VARCHAR}
   </update>
 
 </mapper>

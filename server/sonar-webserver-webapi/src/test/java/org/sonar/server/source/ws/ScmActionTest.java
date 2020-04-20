@@ -27,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -78,6 +79,7 @@ public class ScmActionTest {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder().addLines(
@@ -95,6 +97,7 @@ public class ScmActionTest {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder()
@@ -119,6 +122,7 @@ public class ScmActionTest {
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder()
@@ -142,6 +146,7 @@ public class ScmActionTest {
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder()
@@ -164,6 +169,7 @@ public class ScmActionTest {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder()
@@ -187,6 +193,7 @@ public class ScmActionTest {
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder().build()));

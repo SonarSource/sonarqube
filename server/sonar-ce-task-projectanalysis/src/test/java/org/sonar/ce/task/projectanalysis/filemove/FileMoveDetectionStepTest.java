@@ -46,6 +46,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.source.SourceLinesHashRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.hash.SourceLineHashesComputer;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -594,6 +595,7 @@ public class FileMoveDetectionStepTest {
           stream(content).forEach(linesHashesComputer::addLine);
         }
         FileSourceDto fileSourceDto = new FileSourceDto()
+          .setUuid(Uuids.createFast())
           .setFileUuid(file.uuid())
           .setProjectUuid(file.projectUuid())
           .setLineHashes(linesHashesComputer.getLineHashes());

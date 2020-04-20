@@ -25,7 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -51,7 +51,6 @@ import static org.junit.Assert.fail;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.process.ProcessProperties.Property.SONARCLOUD_ENABLED;
 
 public class ProjectDataLoaderTest {
   @Rule
@@ -220,6 +219,7 @@ public class ProjectDataLoaderTest {
 
   private static FileSourceDto newFileSourceDto(ComponentDto file) {
     return new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setFileUuid(file.uuid())
       .setProjectUuid(file.projectUuid())
       .setDataHash("0263047cd758c68c27683625f072f010")

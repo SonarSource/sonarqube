@@ -38,6 +38,7 @@ import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.step.BaseStepTest;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -328,6 +329,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     // Existing sources
     long past = 150000L;
     dbClient.fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE1_UUID)
       .setSrcHash("5b4bd9815cdb17b8ceae19eb1810c34c")
@@ -421,6 +423,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     String dataHash = DigestUtils.md5Hex(data);
 
     FileSourceDto dto = new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE1_UUID)
       .setSrcHash("sourceHash")

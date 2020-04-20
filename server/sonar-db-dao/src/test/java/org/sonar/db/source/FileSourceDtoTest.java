@@ -44,17 +44,17 @@ public class FileSourceDtoTest {
 
   @Test
   public void getSourceData_throws_ISE_with_id_fileUuid_and_projectUuid_in_message_when_data_cant_be_read() {
-    long id = 12L;
+    String uuid = "uuid";
     String fileUuid = "file uuid";
     String projectUuid = "project uuid";
     FileSourceDto underTest = new FileSourceDto()
       .setBinaryData(new byte[] {1, 2, 3, 4, 5})
-      .setId(id)
+      .setUuid(uuid)
       .setFileUuid(fileUuid)
       .setProjectUuid(projectUuid);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to decompress and deserialize source data [id=" + id + ",fileUuid=" + fileUuid + ",projectUuid=" + projectUuid + "]");
+    expectedException.expectMessage("Fail to decompress and deserialize source data [uuid=" + uuid + ",fileUuid=" + fileUuid + ",projectUuid=" + projectUuid + "]");
 
     underTest.getSourceData();
   }

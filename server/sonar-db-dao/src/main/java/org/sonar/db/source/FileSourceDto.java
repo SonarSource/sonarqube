@@ -46,7 +46,7 @@ public class FileSourceDto {
   public static final Splitter LINES_HASHES_SPLITTER = on('\n');
   public static final int LINE_COUNT_NOT_POPULATED = -1;
 
-  private Long id;
+  private String uuid;
   private String projectUuid;
   private String fileUuid;
   private long createdAt;
@@ -80,12 +80,12 @@ public class FileSourceDto {
     return this;
   }
 
-  public Long getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public FileSourceDto setId(Long id) {
-    this.id = id;
+  public FileSourceDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 
@@ -125,7 +125,7 @@ public class FileSourceDto {
       return decodeRegularSourceData(binaryData);
     } catch (IOException e) {
       throw new IllegalStateException(
-        format("Fail to decompress and deserialize source data [id=%s,fileUuid=%s,projectUuid=%s]", id, fileUuid, projectUuid),
+        format("Fail to decompress and deserialize source data [uuid=%s,fileUuid=%s,projectUuid=%s]", uuid, fileUuid, projectUuid),
         e);
     }
   }

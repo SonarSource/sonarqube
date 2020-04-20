@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
@@ -56,7 +57,7 @@ public class SourceServiceTest {
   @Before
   public void injectFakeLines() {
     FileSourceDto dto = new FileSourceDto();
-    dto.setFileUuid(FILE_UUID).setProjectUuid("PROJECT_UUID");
+    dto.setFileUuid(FILE_UUID).setUuid(Uuids.createFast()).setProjectUuid("PROJECT_UUID");
     dto.setSourceData(FileSourceTesting.newFakeData(10).build());
     dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), dto);
     dbTester.commit();

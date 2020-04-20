@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
@@ -115,6 +116,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       FileSourceDto previousDto = previousFileSourcesByUuid.get(file.getUuid());
       if (previousDto == null) {
         FileSourceDto dto = new FileSourceDto()
+          .setUuid(Uuids.create())
           .setProjectUuid(projectUuid)
           .setFileUuid(file.getUuid())
           .setBinaryData(binaryData)

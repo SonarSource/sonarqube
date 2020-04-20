@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
@@ -143,6 +144,7 @@ public class IndexActionTest {
 
   private void insertFileWithData(ComponentDto file, DbFileSources.Data fileData) {
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(file.projectUuid())
       .setFileUuid(file.uuid())
       .setSourceData(fileData));

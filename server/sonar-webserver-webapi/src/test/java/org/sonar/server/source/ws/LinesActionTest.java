@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
@@ -127,6 +128,7 @@ public class LinesActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(branch.uuid())
       .setFileUuid(file.uuid())
       .setSourceData(FileSourceTesting.newFakeData(3).build()));
@@ -150,6 +152,7 @@ public class LinesActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(branch.uuid())
       .setFileUuid(file.uuid())
       .setSourceData(FileSourceTesting.newFakeData(3).build()));
@@ -398,6 +401,7 @@ public class LinesActionTest {
   private ComponentDto insertFileWithData(DbFileSources.Data fileData, ComponentDto project) {
     ComponentDto file = insertFile(project);
     db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(project.projectUuid())
       .setFileUuid(file.uuid())
       .setSourceData(fileData));

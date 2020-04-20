@@ -25,6 +25,7 @@ import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -43,6 +44,7 @@ public class FileSourceTester {
   @SafeVarargs
   public final FileSourceDto insertFileSource(ComponentDto file, Consumer<FileSourceDto>... dtoPopulators) {
     FileSourceDto dto = new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(file.projectUuid())
       .setFileUuid(file.uuid())
       .setSrcHash(randomAlphanumeric(50))
@@ -55,13 +57,14 @@ public class FileSourceTester {
     Arrays.stream(dtoPopulators).forEach(c -> c.accept(dto));
     db.getDbClient().fileSourceDao().insert(db.getSession(), dto);
     db.commit();
-    dto.setId(db.getDbClient().fileSourceDao().selectByFileUuid(db.getSession(), dto.getFileUuid()).getId());
+    dto.setUuid(db.getDbClient().fileSourceDao().selectByFileUuid(db.getSession(), dto.getFileUuid()).getUuid());
     return dto;
   }
 
   @SafeVarargs
   public final FileSourceDto insertFileSource(ComponentDto file, int numLines, Consumer<FileSourceDto>... dtoPopulators) {
     FileSourceDto dto = new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid(file.projectUuid())
       .setFileUuid(file.uuid())
       .setSrcHash(randomAlphanumeric(50))

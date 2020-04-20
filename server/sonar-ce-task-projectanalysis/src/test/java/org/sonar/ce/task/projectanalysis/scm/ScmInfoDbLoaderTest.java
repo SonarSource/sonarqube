@@ -37,6 +37,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids;
 import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryRule;
 import org.sonar.core.hash.SourceHashComputer;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.protobuf.DbFileSources;
@@ -182,6 +183,7 @@ public class ScmInfoDbLoaderTest {
       builder.setScmRevision(revision);
     }
     dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setLineHashes(Collections.singletonList("lineHash"))
       .setFileUuid(fileUuid)
       .setProjectUuid("PROJECT_UUID")

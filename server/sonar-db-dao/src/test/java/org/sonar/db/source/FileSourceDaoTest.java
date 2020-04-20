@@ -37,6 +37,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -108,6 +109,7 @@ public class FileSourceDaoTest {
   @Test
   public void insert() {
     FileSourceDto expected = new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -139,6 +141,7 @@ public class FileSourceDaoTest {
   @Test
   public void insert_does_not_fail_on_FileSourceDto_with_only_non_nullable_data() {
     FileSourceDto fileSourceDto = new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid("Foo")
       .setFileUuid("Bar")
       .setCreatedAt(1500000000000L)
@@ -150,6 +153,7 @@ public class FileSourceDaoTest {
   @Test
   public void selectSourceByFileUuid_reads_source_without_line_hashes() {
     FileSourceDto fileSourceDto = new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid("Foo")
       .setFileUuid("Bar")
       .setCreatedAt(1500000000000L)
@@ -166,6 +170,7 @@ public class FileSourceDaoTest {
   @Test
   public void selectLineHashes_does_not_fail_when_lineshashes_is_null() {
     underTest.insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -182,6 +187,7 @@ public class FileSourceDaoTest {
   @Test
   public void selectLineHashesVersion_returns_without_significant_code_by_default() {
     underTest.insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -199,6 +205,7 @@ public class FileSourceDaoTest {
   @Test
   public void selectLineHashesVersion_succeeds() {
     underTest.insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -217,6 +224,7 @@ public class FileSourceDaoTest {
   @Test
   public void readLineHashesStream_does_not_fail_when_lineshashes_is_null() {
     underTest.insert(dbSession, new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -338,7 +346,7 @@ public class FileSourceDaoTest {
     FileSourceDto expected = dbTester.fileSources().insertFileSource(file);
 
     underTest.update(dbSession, new FileSourceDto()
-      .setId(expected.getId())
+      .setUuid(expected.getUuid())
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE1_UUID")
       .setBinaryData("updated data".getBytes())
@@ -369,6 +377,7 @@ public class FileSourceDaoTest {
   public void update_to_no_line_hashes() {
     ImmutableList<String> lineHashes = of("a", "b", "c");
     FileSourceDto fileSourceDto = new FileSourceDto()
+      .setUuid(Uuids.createFast())
       .setProjectUuid("Foo")
       .setFileUuid("Bar")
       .setLineHashes(lineHashes)
@@ -381,7 +390,7 @@ public class FileSourceDaoTest {
     assertThat(resBefore.getLineCount()).isEqualTo(lineHashes.size());
     assertThat(resBefore.getLineHashes()).isEqualTo(lineHashes);
 
-    fileSourceDto.setId(resBefore.getId());
+    fileSourceDto.setUuid(resBefore.getUuid());
     fileSourceDto.setLineHashes(emptyList());
     underTest.update(dbSession, fileSourceDto);
     dbSession.commit();
