@@ -32,6 +32,7 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -674,7 +675,7 @@ public class UpdateVisibilityActionTest {
   }
 
   private void unsafeInsertProjectPermissionOnUser(ComponentDto component, UserDto user, String permission) {
-    UserPermissionDto dto = new UserPermissionDto(component.getOrganizationUuid(), permission, user.getId(), component.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), component.getOrganizationUuid(), permission, user.getId(), component.uuid());
     dbTester.getDbClient().userPermissionDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
   }

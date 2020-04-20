@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -413,7 +414,7 @@ public class UserPermissionDaoTest {
 
     // global permission exists -> delete it, but not the project permission with the same name !
     underTest.deleteGlobalPermission(dbSession, user1.getId(), "perm1", organization.getUuid());
-    assertThat(db.countSql(dbSession, "select count(id) from user_roles where role='perm1' and component_uuid is null")).isEqualTo(0);
+    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='perm1' and component_uuid is null")).isEqualTo(0);
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(4);
   }
 
@@ -758,27 +759,27 @@ public class UserPermissionDaoTest {
   }
 
   private UserPermissionDto addGlobalPermission(OrganizationDto org, String permission, UserDto user) {
-    UserPermissionDto dto = new UserPermissionDto(org.getUuid(), permission, user.getId(), null);
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), org.getUuid(), permission, user.getId(), null);
     underTest.insert(dbSession, dto);
     db.commit();
     return dto;
   }
 
   private UserPermissionDto addProjectPermission(OrganizationDto org, String permission, UserDto user, ComponentDto project) {
-    UserPermissionDto dto = new UserPermissionDto(org.getUuid(), permission, user.getId(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), org.getUuid(), permission, user.getId(), project.uuid());
     underTest.insert(dbSession, dto);
     db.commit();
     return dto;
   }
 
   private void assertThatProjectPermissionDoesNotExist(UserDto user, String permission, ComponentDto project) {
-    assertThat(db.countSql(dbSession, "select count(id) from user_roles where role='" + permission + "' and user_id=" + user.getId()
+    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='" + permission + "' and user_id=" + user.getId()
       + " and component_uuid='" + project.uuid() + "'"))
       .isEqualTo(0);
   }
 
   private void assertThatProjectHasNoPermissions(ComponentDto project) {
-    assertThat(db.countSql(dbSession, "select count(id) from user_roles where component_uuid='" + project.uuid() + "'")).isEqualTo(0);
+    assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where component_uuid='" + project.uuid() + "'")).isEqualTo(0);
   }
 
   private void assertOrgPermissionsOfUser(UserDto user, OrganizationDto organization, OrganizationPermission... permissions) {

@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchMapper;
@@ -148,7 +149,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, Integer userId) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(component.getOrganizationUuid(), permission, userId, component.uuid()));
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), component.getOrganizationUuid(), permission, userId, component.uuid()));
   }
 
   private void insertProjectPermissionOnGroup(DbSession dbSession, ComponentDto component, String permission, Integer groupId) {

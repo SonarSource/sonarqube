@@ -20,6 +20,7 @@
 package org.sonar.server.permission;
 
 import java.util.List;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
@@ -90,7 +91,7 @@ public class UserPermissionChanger {
     if (loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
       return false;
     }
-    UserPermissionDto dto = new UserPermissionDto(change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getProjectUuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getProjectUuid());
     dbClient.userPermissionDao().insert(dbSession, dto);
     return true;
   }

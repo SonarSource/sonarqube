@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -129,7 +130,7 @@ public class PermissionTemplateService {
       .stream()
       .filter(up -> permissionValidForProject(project, up.getPermission()))
       .forEach(up -> {
-        UserPermissionDto dto = new UserPermissionDto(organizationUuid, up.getPermission(), up.getUserId(), project.uuid());
+        UserPermissionDto dto = new UserPermissionDto(Uuids.create(), organizationUuid, up.getPermission(), up.getUserId(), project.uuid());
         dbClient.userPermissionDao().insert(dbSession, dto);
       });
 
@@ -158,7 +159,7 @@ public class PermissionTemplateService {
         .filter(up -> permissionValidForProject(project, up.getPermission()))
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
-          UserPermissionDto dto = new UserPermissionDto(organizationUuid, c.getPermission(), projectCreatorUserId, project.uuid());
+          UserPermissionDto dto = new UserPermissionDto(Uuids.create(), organizationUuid, c.getPermission(), projectCreatorUserId, project.uuid());
           dbClient.userPermissionDao().insert(dbSession, dto);
         });
     }

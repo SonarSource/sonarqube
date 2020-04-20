@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -321,7 +322,7 @@ public class UserDbTester {
    */
   @Deprecated
   public UserPermissionDto insertPermissionOnUser(OrganizationDto org, UserDto user, String permission) {
-    UserPermissionDto dto = new UserPermissionDto(org.getUuid(), permission, user.getId(), null);
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), org.getUuid(), permission, user.getId(), null);
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
@@ -351,7 +352,7 @@ public class UserDbTester {
     checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
-    UserPermissionDto dto = new UserPermissionDto(project.getOrganizationUuid(), permission, user.getId(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), project.getOrganizationUuid(), permission, user.getId(), project.uuid());
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
     db.commit();
     return dto;

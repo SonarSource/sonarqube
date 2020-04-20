@@ -23,7 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class UserPermissionDto {
-
+  private String uuid;
   private String organizationUuid;
   private String permission;
   private int userId;
@@ -33,11 +33,16 @@ public class UserPermissionDto {
     // used by MyBatis
   }
 
-  public UserPermissionDto(String organizationUuid, String permission, int userId, @Nullable String componentUuid) {
+  public UserPermissionDto(String uuid, String organizationUuid, String permission, int userId, @Nullable String componentUuid) {
+    this.uuid = uuid;
     this.organizationUuid = organizationUuid;
     this.permission = permission;
     this.userId = userId;
     this.componentUuid = componentUuid;
+  }
+
+  public String getUuid() {
+    return uuid;
   }
 
   public String getPermission() {
