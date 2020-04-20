@@ -44,12 +44,6 @@ public class QGateWithOrgDto extends QualityGateDto {
   }
 
   @Override
-  public QGateWithOrgDto setId(Long id) {
-    super.setId(id);
-    return this;
-  }
-
-  @Override
   public QGateWithOrgDto setName(String name) {
     super.setName(name);
     return this;

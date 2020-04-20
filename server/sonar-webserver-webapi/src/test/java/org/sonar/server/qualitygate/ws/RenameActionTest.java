@@ -77,12 +77,12 @@ public class RenameActionTest {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     ws.newRequest()
-      .setParam("id", qualityGate.getId().toString())
+      .setParam("id", qualityGate.getUuid())
       .setParam("name", "new name")
       .setParam("organization", organization.getKey())
       .execute();
 
-    assertThat(db.getDbClient().qualityGateDao().selectById(db.getSession(), qualityGate.getId()).getName()).isEqualTo("new name");
+    assertThat(db.getDbClient().qualityGateDao().selectByUuid(db.getSession(), qualityGate.getUuid()).getName()).isEqualTo("new name");
   }
 
   @Test
@@ -92,12 +92,12 @@ public class RenameActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("old name"));
 
     QualityGate result = ws.newRequest()
-      .setParam("id", qualityGate.getId().toString())
+      .setParam("id", qualityGate.getUuid())
       .setParam("name", "new name")
       .setParam("organization", organization.getKey())
       .executeProtobuf(QualityGate.class);
 
-    assertThat(result.getId()).isEqualTo(qualityGate.getId());
+    assertThat(result.getId()).isEqualTo(qualityGate.getUuid());
     assertThat(result.getName()).isEqualTo("new name");
   }
 
@@ -108,12 +108,12 @@ public class RenameActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("name"));
 
     ws.newRequest()
-      .setParam("id", qualityGate.getId().toString())
+      .setParam("id", qualityGate.getUuid())
       .setParam("name", "name")
       .setParam("organization", organization.getKey())
       .execute();
 
-    assertThat(db.getDbClient().qualityGateDao().selectById(db.getSession(), qualityGate.getId()).getName()).isEqualTo("name");
+    assertThat(db.getDbClient().qualityGateDao().selectByUuid(db.getSession(), qualityGate.getUuid()).getName()).isEqualTo("name");
   }
 
   @Test
@@ -124,11 +124,11 @@ public class RenameActionTest {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
 
     QualityGate result = ws.newRequest()
-      .setParam("id", qualityGate.getId().toString())
+      .setParam("id", qualityGate.getUuid())
       .setParam("name", "new name")
       .executeProtobuf(QualityGate.class);
 
-    assertThat(result.getId()).isEqualTo(qualityGate.getId());
+    assertThat(result.getId()).isEqualTo(qualityGate.getUuid());
     assertThat(result.getName()).isEqualTo("new name");
   }
 
@@ -142,7 +142,7 @@ public class RenameActionTest {
     expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
 
     ws.newRequest()
-      .setParam("id", qualityGate.getId().toString())
+      .setParam("id", qualityGate.getUuid())
       .setParam("name", "name")
       .setParam("organization", organization.getKey())
       .execute();
@@ -158,7 +158,7 @@ public class RenameActionTest {
     expectedException.expectMessage("The 'name' parameter is missing");
 
     ws.newRequest()
-      .setParam("id", qualityGate.getId().toString())
+      .setParam("id", qualityGate.getUuid())
       .setParam("name", "")
       .setParam("organization", organization.getKey())
       .execute();
@@ -175,7 +175,7 @@ public class RenameActionTest {
     expectedException.expectMessage(format("Name '%s' has already been taken", qualityGate2.getName()));
 
     ws.newRequest()
-      .setParam("id", qualityGate1.getId().toString())
+      .setParam("id", qualityGate1.getUuid())
       .setParam("name", qualityGate2.getName())
       .setParam("organization", organization.getKey())
       .execute();
@@ -204,7 +204,7 @@ public class RenameActionTest {
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
-      .setParam("id", qualityGate.getId().toString())
+      .setParam("id", qualityGate.getUuid())
       .setParam("name", "new name")
       .setParam("organization", organization.getKey())
       .execute();

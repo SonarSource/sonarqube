@@ -57,10 +57,10 @@ public class ProjectQgateAssociationDaoTest {
       .build());
 
     assertThat(result)
-      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getKey, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getKey, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateUuid)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), project1.getKey(), project1.name(), qualityGate1.getId().toString()),
-        tuple(project2.uuid(), project2.getKey(), project2.name(), qualityGate1.getId().toString()),
+        tuple(project1.uuid(), project1.getKey(), project1.name(), qualityGate1.getUuid()),
+        tuple(project2.uuid(), project2.getKey(), project2.name(), qualityGate1.getUuid()),
         tuple(project3.uuid(), project3.getKey(), project3.name(), null));
   }
 
@@ -78,16 +78,16 @@ public class ProjectQgateAssociationDaoTest {
       .qualityGate(qualityGate)
       .membership(ProjectQgateAssociationQuery.IN)
       .build()))
-      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateUuid)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), project1.name(), qualityGate.getId().toString()),
-        tuple(project2.uuid(), project2.name(), qualityGate.getId().toString()));
+        tuple(project1.uuid(), project1.name(), qualityGate.getUuid()),
+        tuple(project2.uuid(), project2.name(), qualityGate.getUuid()));
 
     assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
       .qualityGate(qualityGate)
       .membership(ProjectQgateAssociationQuery.OUT)
       .build()))
-      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .extracting(ProjectQgateAssociationDto::getUuid, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateUuid)
       .containsExactlyInAnyOrder(tuple(project3.uuid(), project3.name(), null));
   }
 

@@ -76,19 +76,19 @@ public class ListAction implements QualityGatesWsAction {
   }
 
   private ListWsResponse buildResponse(OrganizationDto organization, Collection<QualityGateDto> qualityGates, @Nullable QualityGateDto defaultQualityGate) {
-    Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
+    String defaultUuid = defaultQualityGate == null ? null : defaultQualityGate.getUuid();
     ListWsResponse.Builder builder = ListWsResponse.newBuilder()
       .setActions(ListWsResponse.RootActions.newBuilder().setCreate(wsSupport.isQualityGateAdmin(organization)))
       .addAllQualitygates(qualityGates.stream()
         .map(qualityGate -> QualityGate.newBuilder()
-          .setId(qualityGate.getId())
+          .setId(qualityGate.getUuid())
           .setName(qualityGate.getName())
-          .setIsDefault(qualityGate.getId().equals(defaultId))
+          .setIsDefault(qualityGate.getUuid().equals(defaultUuid))
           .setIsBuiltIn(qualityGate.isBuiltIn())
           .setActions(wsSupport.getActions(organization, qualityGate, defaultQualityGate))
           .build())
         .collect(toList()));
-    ofNullable(defaultId).ifPresent(builder::setDefault);
+    ofNullable(defaultUuid).ifPresent(builder::setDefault);
     return builder.build();
   }
 

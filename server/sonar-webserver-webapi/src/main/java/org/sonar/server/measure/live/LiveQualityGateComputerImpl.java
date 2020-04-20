@@ -67,7 +67,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
     QualityGateDto gateDto = qGateFinder.getQualityGate(dbSession, organization, project)
       .orElseThrow(() -> new IllegalStateException(format("Quality Gate not found for project %s", project.getKey())))
       .getQualityGate();
-    Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, gateDto.getId());
+    Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, gateDto.getUuid());
     Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid)
       .collect(toHashSet(conditionDtos.size()));
     Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream()
@@ -83,7 +83,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
       conditions = conditions.filter(Condition::isOnLeakPeriod);
     }
 
-    return new QualityGate(String.valueOf(gateDto.getId()), gateDto.getName(), conditions.collect(toHashSet(conditionDtos.size())));
+    return new QualityGate(String.valueOf(gateDto.getUuid()), gateDto.getName(), conditions.collect(toHashSet(conditionDtos.size())));
   }
 
   @Override

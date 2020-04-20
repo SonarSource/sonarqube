@@ -67,7 +67,7 @@ public class LoadQualityGateStepTest {
     Condition condition = new Condition(metric, Condition.Operator.GREATER_THAN.getDbValue(), "1.0");
 
     when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
-    QualityGate defaultGate = new QualityGate(1, "qg", Arrays.asList(variation, condition));
+    QualityGate defaultGate = new QualityGate("1", "qg", Arrays.asList(variation, condition));
     when(qualityGateService.findDefaultQualityGate(any(Organization.class))).thenReturn(defaultGate);
 
     underTest.execute(new TestComputationStepContext());
@@ -87,7 +87,7 @@ public class LoadQualityGateStepTest {
 
   @Test
   public void execute_sets_QualityGate_if_it_can_be_found_by_service() {
-    QualityGate qualityGate = new QualityGate(10, "name", emptyList());
+    QualityGate qualityGate = new QualityGate("10", "name", emptyList());
 
     when(analysisMetadataHolder.getProject()).thenReturn(mock(Project.class));
     when(qualityGateService.findQualityGate(any(Project.class))).thenReturn(Optional.of(qualityGate));

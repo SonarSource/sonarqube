@@ -62,7 +62,7 @@ public class LoadQualityGateStep implements ComputationStep {
   }
 
   private static Optional<QualityGate> filterQGForPR(Optional<QualityGate> qualityGate) {
-    return qualityGate.map(qg -> new QualityGate(qg.getId(), qg.getName(),
+    return qualityGate.map(qg -> new QualityGate(qg.getUuid(), qg.getName(),
       qg.getConditions().stream().filter(Condition::useVariation).collect(Collectors.toList())));
   }
 

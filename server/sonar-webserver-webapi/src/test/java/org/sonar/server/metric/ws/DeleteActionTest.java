@@ -118,8 +118,8 @@ public class DeleteActionTest {
 
     newRequest().setParam("keys", "custom-key").execute();
 
-    assertThat(dbClient.gateConditionDao().selectForQualityGate(db.getSession(), qualityGate1.getId())).isEmpty();
-    assertThat(dbClient.gateConditionDao().selectForQualityGate(db.getSession(), qualityGate2.getId()))
+    assertThat(dbClient.gateConditionDao().selectForQualityGate(db.getSession(), qualityGate1.getUuid())).isEmpty();
+    assertThat(dbClient.gateConditionDao().selectForQualityGate(db.getSession(), qualityGate2.getUuid()))
       .extracting(QualityGateConditionDto::getMetricUuid).containsOnly(nonCustomMetric.getUuid());
   }
 

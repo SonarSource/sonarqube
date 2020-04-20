@@ -42,7 +42,7 @@ public class RemoveLeakPeriodPropertiesTest {
   @Test
   public void remove_default_quality_gate_property() throws SQLException {
     for (long i = 1; i <= TOTAL_NUMBER_OF_PROPERTIES; i++) {
-      insertQualityGateProperty(i, i + 100);
+      insertQualityGateProperty(i, String.valueOf(i + 100));
     }
 
     int propertiesCount = dbTester.countRowsOfTable(PROPERTIES_TABLE_NAME);
@@ -58,12 +58,12 @@ public class RemoveLeakPeriodPropertiesTest {
     underTest.execute();
   }
 
-  private void insertQualityGateProperty(Long projectId, Long qualityGateId) {
+  private void insertQualityGateProperty(Long projectId, String qualityGateUuid) {
     dbTester.executeInsert(PROPERTIES_TABLE_NAME,
       "prop_key", "sonar.leak.period",
       "resource_id", projectId,
       "is_empty", false,
-      "text_value", Long.toString(qualityGateId),
+      "text_value", qualityGateUuid,
       "created_at", Instant.now().toEpochMilli());
   }
 }

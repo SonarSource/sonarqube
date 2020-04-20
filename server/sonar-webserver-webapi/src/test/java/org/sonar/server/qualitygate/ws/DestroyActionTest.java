@@ -76,11 +76,11 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getId().toString())
+      .setParam(PARAM_ID, qualityGate.getUuid())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGate.getId())).isNull();
+    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, qualityGate.getUuid())).isNull();
   }
 
   @Test
@@ -91,11 +91,11 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGate.getId()))
+      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGate.getId())).isNull();
+    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, qualityGate.getUuid())).isNull();
   }
 
   @Test
@@ -110,7 +110,7 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGate.getId()))
+      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
@@ -138,7 +138,7 @@ public class DestroyActionTest {
     expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", builtInQualityGate.getName()));
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(builtInQualityGate.getId()))
+      .setParam(PARAM_ID, valueOf(builtInQualityGate.getUuid()))
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
@@ -153,26 +153,10 @@ public class DestroyActionTest {
     QGateWithOrgDto otherQualityGate = db.qualityGates().insertQualityGate(otherOrganization);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGate.getId()))
+      .setParam(PARAM_ID, valueOf(qualityGate.getUuid()))
       .execute();
 
-    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndId(dbSession, defaultOrganization, qualityGate.getId())).isNull();
-  }
-
-  @Test
-  public void fail_when_invalid_id() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
-
-    String invalidId = "invalid-id";
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("The 'id' parameter cannot be parsed as a long value: %s", invalidId));
-
-    ws.newRequest()
-      .setParam(PARAM_ID, invalidId)
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
+    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndUuid(dbSession, defaultOrganization, qualityGate.getUuid())).isNull();
   }
 
   @Test
@@ -198,7 +182,7 @@ public class DestroyActionTest {
     expectedException.expectMessage("The default quality gate cannot be removed");
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(defaultQualityGate.getId()))
+      .setParam(PARAM_ID, valueOf(defaultQualityGate.getUuid()))
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
@@ -226,7 +210,7 @@ public class DestroyActionTest {
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
-      .setParam(PARAM_ID, qualityGate.getId().toString())
+      .setParam(PARAM_ID, qualityGate.getUuid())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }

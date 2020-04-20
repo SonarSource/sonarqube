@@ -70,19 +70,19 @@ public class RenameAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    long id = QualityGatesWs.parseId(request, PARAM_ID);
+    String uuid = request.mandatoryParam(PARAM_ID);
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QualityGateDto qualityGate = rename(dbSession, organization, id, request.mandatoryParam(PARAM_NAME));
+      QualityGateDto qualityGate = rename(dbSession, organization, uuid, request.mandatoryParam(PARAM_NAME));
       writeProtobuf(QualityGate.newBuilder()
-        .setId(qualityGate.getId())
+        .setId(qualityGate.getUuid())
         .setName(qualityGate.getName())
         .build(), request, response);
     }
   }
 
-  private QualityGateDto rename(DbSession dbSession, OrganizationDto organization, long id, String name) {
-    QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, id);
+  private QualityGateDto rename(DbSession dbSession, OrganizationDto organization, String uuid, String name) {
+    QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
     wsSupport.checkCanEdit(qualityGate);
     checkNotAlreadyExists(dbSession, organization, qualityGate, name);
     qualityGate.setName(name);
@@ -93,7 +93,7 @@ public class RenameAction implements QualityGatesWsAction {
 
   private void checkNotAlreadyExists(DbSession dbSession, OrganizationDto organization, QualityGateDto qualityGate, String name) {
     QualityGateDto existingQgate = dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organization, name);
-    boolean isModifyingCurrentQgate = existingQgate == null || existingQgate.getId().equals(qualityGate.getId());
+    boolean isModifyingCurrentQgate = existingQgate == null || existingQgate.getUuid().equals(qualityGate.getUuid());
     checkArgument(isModifyingCurrentQgate, "Name '%s' has already been taken", name);
   }
 

@@ -77,14 +77,14 @@ public class CreateConditionAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    int gateId = request.mandatoryParamAsInt(PARAM_GATE_ID);
+    String gateUuid = request.mandatoryParam(PARAM_GATE_ID);
     String metric = request.mandatoryParam(PARAM_METRIC);
     String operator = request.mandatoryParam(PARAM_OPERATOR);
     String error = request.mandatoryParam(PARAM_ERROR);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, gateId);
+      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
       wsSupport.checkCanEdit(qualityGate);
       QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, error);
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()

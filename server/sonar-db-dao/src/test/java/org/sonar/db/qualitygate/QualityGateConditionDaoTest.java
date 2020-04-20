@@ -44,7 +44,7 @@ public class QualityGateConditionDaoTest {
 
   @Test
   public void testInsert() {
-    QualityGateConditionDto newCondition = insertQGCondition(1L, "2", "GT", "20");
+    QualityGateConditionDto newCondition = insertQGCondition("1", "2", "GT", "20");
 
     assertThat(newCondition.getUuid()).isNotNull();
     QualityGateConditionDto actual = underTest.selectByUuid(newCondition.getUuid(), dbSession);
@@ -53,15 +53,15 @@ public class QualityGateConditionDaoTest {
 
   @Test
   public void testSelectForQualityGate() {
-    long qg1Id = 1L;
-    long qg2Id = 2L;
+    String qg1Uuid = "1";
+    String qg2Uuid = "2";
     int qg1Conditions = 2 + new Random().nextInt(5);
     int qg2Conditions = 10 + new Random().nextInt(5);
 
-    IntStream.range(0, qg1Conditions).forEach(i -> insertQGCondition(qg1Id));
-    IntStream.range(0, qg2Conditions).forEach(i -> insertQGCondition(qg2Id));
+    IntStream.range(0, qg1Conditions).forEach(i -> insertQGCondition(qg1Uuid));
+    IntStream.range(0, qg2Conditions).forEach(i -> insertQGCondition(qg2Uuid));
 
-    Collection<QualityGateConditionDto> conditions = underTest.selectForQualityGate(dbSession, qg1Id);
+    Collection<QualityGateConditionDto> conditions = underTest.selectForQualityGate(dbSession, qg1Uuid);
     assertThat(conditions).hasSize(qg1Conditions);
     assertThat(conditions)
       .extracting("uuid")
@@ -69,7 +69,7 @@ public class QualityGateConditionDaoTest {
         .sorted(Comparator.comparing(QualityGateConditionDto::getCreatedAt))
         .map(QualityGateConditionDto::getUuid).toArray());
 
-    conditions = underTest.selectForQualityGate(dbSession, qg2Id);
+    conditions = underTest.selectForQualityGate(dbSession, qg2Uuid);
     assertThat(conditions).hasSize(qg2Conditions);
     assertThat(conditions)
       .extracting("uuid")
@@ -78,12 +78,12 @@ public class QualityGateConditionDaoTest {
         .map(QualityGateConditionDto::getUuid)
         .toArray());
 
-    assertThat(underTest.selectForQualityGate(dbSession, 5)).isEmpty();
+    assertThat(underTest.selectForQualityGate(dbSession, "5")).isEmpty();
   }
 
   @Test
   public void testSelectByUuid() {
-    QualityGateConditionDto condition = insertQGCondition(1L, "2", "GT", "20");
+    QualityGateConditionDto condition = insertQGCondition("1", "2", "GT", "20");
 
     assertEquals(underTest.selectByUuid(condition.getUuid(), dbSession), condition);
     assertThat(underTest.selectByUuid("uuid1", dbSession)).isNull();
@@ -91,8 +91,8 @@ public class QualityGateConditionDaoTest {
 
   @Test
   public void testDelete() {
-    QualityGateConditionDto condition1 = insertQGCondition(2L);
-    QualityGateConditionDto condition2 = insertQGCondition(3L);
+    QualityGateConditionDto condition1 = insertQGCondition("2");
+    QualityGateConditionDto condition2 = insertQGCondition("3");
 
     underTest.delete(condition1, dbSession);
     dbSession.commit();
@@ -103,12 +103,12 @@ public class QualityGateConditionDaoTest {
 
   @Test
   public void testUpdate() {
-    QualityGateConditionDto condition1 = insertQGCondition(2L);
-    QualityGateConditionDto condition2 = insertQGCondition(3L);
+    QualityGateConditionDto condition1 = insertQGCondition("2");
+    QualityGateConditionDto condition2 = insertQGCondition("3");
 
     QualityGateConditionDto newCondition1 = new QualityGateConditionDto()
       .setUuid(condition1.getUuid())
-      .setQualityGateId(condition1.getQualityGateId())
+      .setQualityGateUuid(condition1.getQualityGateUuid())
       .setMetricUuid("7")
       .setOperator(">")
       .setErrorThreshold("80");
@@ -124,9 +124,9 @@ public class QualityGateConditionDaoTest {
   public void shouldCleanConditions() {
     MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
     MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false));
-    QualityGateConditionDto condition1 = insertQGCondition(1L, enabledMetric.getUuid());
-    QualityGateConditionDto condition2 = insertQGCondition(1L, disabledMetric.getUuid());
-    QualityGateConditionDto condition3 = insertQGCondition(1L, "299");
+    QualityGateConditionDto condition1 = insertQGCondition("1", enabledMetric.getUuid());
+    QualityGateConditionDto condition2 = insertQGCondition("1", disabledMetric.getUuid());
+    QualityGateConditionDto condition3 = insertQGCondition("1", "299");
 
     underTest.deleteConditionsWithInvalidMetrics(dbTester.getSession());
     dbTester.commit();
@@ -137,18 +137,18 @@ public class QualityGateConditionDaoTest {
     assertThat(underTest.selectByUuid(condition3.getUuid(), dbSession)).isNull();
   }
 
-  private QualityGateConditionDto insertQGCondition(long qualityGateId) {
-    return insertQGCondition(qualityGateId, randomAlphabetic(2));
+  private QualityGateConditionDto insertQGCondition(String qualityGateUuid) {
+    return insertQGCondition(qualityGateUuid, randomAlphabetic(2));
   }
 
-  private QualityGateConditionDto insertQGCondition(long qualityGateId, String metricUuid) {
-    return insertQGCondition(qualityGateId, metricUuid, randomAlphabetic(2), randomAlphabetic(3));
+  private QualityGateConditionDto insertQGCondition(String qualityGateUuid, String metricUuid) {
+    return insertQGCondition(qualityGateUuid, metricUuid, randomAlphabetic(2), randomAlphabetic(3));
   }
 
-  private QualityGateConditionDto insertQGCondition(long qualityGateId, String metricUuid, String operator, String threshold) {
+  private QualityGateConditionDto insertQGCondition(String qualityGateUuid, String metricUuid, String operator, String threshold) {
     QualityGateConditionDto res = new QualityGateConditionDto()
       .setUuid(Uuids.create())
-      .setQualityGateId(qualityGateId)
+      .setQualityGateUuid(qualityGateUuid)
       .setMetricUuid(metricUuid)
       .setOperator(operator)
       .setErrorThreshold(threshold);
@@ -158,7 +158,7 @@ public class QualityGateConditionDaoTest {
   }
 
   private void assertEquals(QualityGateConditionDto actual, QualityGateConditionDto expected) {
-    assertThat(actual.getQualityGateId()).isEqualTo(expected.getQualityGateId());
+    assertThat(actual.getQualityGateUuid()).isEqualTo(expected.getQualityGateUuid());
     assertThat(actual.getMetricUuid()).isEqualTo(expected.getMetricUuid());
     assertThat(actual.getOperator()).isEqualTo(expected.getOperator());
     assertThat(actual.getErrorThreshold()).isEqualTo(expected.getErrorThreshold());

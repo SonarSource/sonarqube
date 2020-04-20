@@ -28,18 +28,18 @@ import static com.google.common.collect.FluentIterable.from;
 
 @Immutable
 public class QualityGate {
-  private final long id;
+  private final String uuid;
   private final String name;
   private final Set<Condition> conditions;
 
-  public QualityGate(long id, String name, Iterable<Condition> conditions) {
-    this.id = id;
+  public QualityGate(String uuid, String name, Iterable<Condition> conditions) {
+    this.uuid = uuid;
     this.name = Objects.requireNonNull(name);
     this.conditions = from(conditions).filter(notNull()).toSet();
   }
 
-  public long getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
   public String getName() {

@@ -26,9 +26,9 @@ import org.sonar.server.project.Project;
 public interface QualityGateService {
 
   /**
-   * Retrieve the {@link QualityGate} from the database with the specified id, if it exists.
+   * Retrieve the {@link QualityGate} from the database with the specified uuid, if it exists.
    */
-  Optional<QualityGate> findById(long id);
+  Optional<QualityGate> findByUuid(String uuid);
 
   /**
    * Retrieve the {@link QualityGate} from the database using organization.

@@ -97,7 +97,7 @@ public class LiveQualityGateComputerImplTest {
 
     QualityGate result = underTest.loadQualityGate(db.getSession(), organization, project, branch);
 
-    assertThat(result.getId()).isEqualTo("" + gate.getId());
+    assertThat(result.getId()).isEqualTo("" + gate.getUuid());
     assertThat(result.getConditions())
       .extracting(Condition::getMetricKey, Condition::getOperator, Condition::getErrorThreshold)
       .containsExactlyInAnyOrder(

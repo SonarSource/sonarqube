@@ -90,9 +90,9 @@ public class QualityGateConditionsUpdater {
     String errorThreshold) {
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
     validateCondition(metric, operator, errorThreshold);
-    checkConditionDoesNotExistOnSameMetric(getConditions(dbSession, qualityGate.getId()), metric);
+    checkConditionDoesNotExistOnSameMetric(getConditions(dbSession, qualityGate.getUuid()), metric);
 
-    QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
+    QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateUuid(qualityGate.getUuid())
       .setUuid(Uuids.create())
       .setMetricUuid(metric.getUuid()).setMetricKey(metric.getKey())
       .setOperator(operator)
@@ -123,8 +123,8 @@ public class QualityGateConditionsUpdater {
     return metric;
   }
 
-  private Collection<QualityGateConditionDto> getConditions(DbSession dbSession, long qGateId) {
-    return dbClient.gateConditionDao().selectForQualityGate(dbSession, qGateId);
+  private Collection<QualityGateConditionDto> getConditions(DbSession dbSession, String qGateUuid) {
+    return dbClient.gateConditionDao().selectForQualityGate(dbSession, qGateUuid);
   }
 
   private static void validateCondition(MetricDto metric, String operator, String errorThreshold) {

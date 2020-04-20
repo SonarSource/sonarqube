@@ -42,7 +42,11 @@ public abstract class BaseService {
   }
 
   protected <T extends Message> T call(BaseRequest request, Parser<T> parser) {
-    request.setMediaType(MediaTypes.PROTOBUF);
+    return call(request, parser, MediaTypes.PROTOBUF);
+  }
+
+  protected <T extends Message> T call(BaseRequest request, Parser<T> parser, String mediaType) {
+    request.setMediaType(mediaType);
     WsResponse response = call(request);
     return convert(response, parser);
   }

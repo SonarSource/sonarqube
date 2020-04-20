@@ -118,7 +118,7 @@ public class CreateActionTest {
       .executeProtobuf(CreateResponse.class);
 
     assertThat(response.getName()).isEqualTo(qualityGate.getName());
-    assertThat(response.getId()).isNotEqualTo(qualityGate.getId());
+    assertThat(response.getId()).isNotEqualTo(qualityGate.getUuid());
   }
 
   @Test

@@ -22,6 +22,7 @@ package org.sonar.db.qualitygate;
 import java.util.Collection;
 import java.util.Date;
 import javax.annotation.CheckForNull;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -29,7 +30,14 @@ import org.sonar.db.organization.OrganizationDto;
 
 public class QualityGateDao implements Dao {
 
+  private final UuidFactory uuidFactory;
+
+  public QualityGateDao(UuidFactory uuidFactory) {
+    this.uuidFactory = uuidFactory;
+  }
+
   public QualityGateDto insert(DbSession session, QualityGateDto newQualityGate) {
+    newQualityGate.setUuid(uuidFactory.create());
     mapper(session).insertQualityGate(newQualityGate.setCreatedAt(new Date()));
 
     return newQualityGate;
@@ -49,11 +57,6 @@ public class QualityGateDao implements Dao {
   }
 
   @CheckForNull
-  public QualityGateDto selectById(DbSession session, long id) {
-    return mapper(session).selectById(id);
-  }
-
-  @CheckForNull
   public QualityGateDto selectByUuid(DbSession session, String uuid) {
     return mapper(session).selectByUuid(uuid);
   }
@@ -66,11 +69,6 @@ public class QualityGateDao implements Dao {
   @CheckForNull
   public QGateWithOrgDto selectByOrganizationAndName(DbSession session, OrganizationDto organization, String name) {
     return mapper(session).selectByNameAndOrganization(name, organization.getUuid());
-  }
-
-  @CheckForNull
-  public QGateWithOrgDto selectByOrganizationAndId(DbSession session, OrganizationDto organization, long id) {
-    return mapper(session).selectByIdAndOrganization(id, organization.getUuid());
   }
 
   public QGateWithOrgDto selectDefault(DbSession dbSession, OrganizationDto organization) {

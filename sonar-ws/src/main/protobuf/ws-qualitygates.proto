@@ -75,7 +75,7 @@ message GetByProjectResponse {
 }
 
 message QualityGate {
-  optional int64 id = 1;
+  optional string id = 1;
   optional string name = 2;
   optional bool default = 3;
 }
@@ -96,7 +96,7 @@ message AppResponse {
 
 // POST api/qualitygates/create
 message CreateResponse {
-  optional int64 id = 1;
+  optional string id = 1;
   optional string name = 2;
 }
 
@@ -118,7 +118,7 @@ message UpdateConditionResponse {
 
 // GET api/qualitygates/show
 message ShowWsResponse {
-  optional int64 id = 1;
+  optional string id = 1;
   optional string name = 2;
   repeated Condition conditions = 3;
   optional bool isBuiltIn = 4;
@@ -150,11 +150,11 @@ message SearchResponse {
 message ListWsResponse {
   repeated QualityGate qualitygates = 1;
   // Deprecated since 7.0
-  optional int64 default = 2;
+  optional string default = 2;
   optional RootActions actions = 3;
 
   message QualityGate {
-    optional int64 id = 1;
+    optional string id = 1;
     optional string name = 2;
     optional bool isDefault = 3;
     optional bool isBuiltIn = 4;

@@ -30,7 +30,6 @@ import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.server.qualitygate.ws.QualityGatesWs.parseId;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -75,19 +74,19 @@ public class CopyAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    Long id = parseId(request, PARAM_ID);
+    String uuid = request.mandatoryParam(PARAM_ID);
     String destinationName = request.mandatoryParam(PARAM_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
-      QualityGateDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, id);
+      QualityGateDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
       QualityGateDto copy = qualityGateUpdater.copy(dbSession, organization, qualityGate, destinationName);
       dbSession.commit();
 
       writeProtobuf(newBuilder()
-        .setId(copy.getId())
+        .setId(copy.getUuid())
         .setName(copy.getName())
         .build(), request, response);
     }

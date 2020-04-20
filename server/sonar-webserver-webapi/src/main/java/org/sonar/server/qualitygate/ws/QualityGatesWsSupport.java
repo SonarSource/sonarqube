@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -61,10 +62,10 @@ public class QualityGatesWsSupport {
     this.componentFinder = componentFinder;
   }
 
-  public QGateWithOrgDto getByOrganizationAndId(DbSession dbSession, OrganizationDto organization, long qualityGateId) {
+  public QGateWithOrgDto getByOrganizationAndUuid(DbSession dbSession, OrganizationDto organization, String qualityGateUuid) {
     return checkFound(
-      dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGateId),
-      "No quality gate has been found for id %s in organization %s", qualityGateId, organization.getName());
+      dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, qualityGateUuid),
+      "No quality gate has been found for id %s in organization %s", qualityGateUuid, organization.getName());
   }
 
   QualityGateConditionDto getCondition(DbSession dbSession, String uuid) {
@@ -86,8 +87,7 @@ public class QualityGatesWsSupport {
   }
 
   Qualitygates.Actions getActions(OrganizationDto organization, QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
-    Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
-    boolean isDefault = qualityGate.getId().equals(defaultId);
+    boolean isDefault = defaultQualityGate != null && Objects.equals(defaultQualityGate.getUuid(), qualityGate.getUuid());
     boolean isBuiltIn = qualityGate.isBuiltIn();
     boolean isQualityGateAdmin = isQualityGateAdmin(organization);
     return Qualitygates.Actions.newBuilder()

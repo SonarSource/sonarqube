@@ -52,7 +52,7 @@ public class QualityGateFinderTest {
     Optional<QualityGateFinder.QualityGateData> result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project);
 
     assertThat(result).isPresent();
-    assertThat(result.get().getQualityGate().getId()).isEqualTo(dbQualityGate.getId());
+    assertThat(result.get().getQualityGate().getUuid()).isEqualTo(dbQualityGate.getUuid());
     assertThat(result.get().isDefault()).isTrue();
   }
 
@@ -66,7 +66,7 @@ public class QualityGateFinderTest {
     Optional<QualityGateFinder.QualityGateData> result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project);
 
     assertThat(result).isPresent();
-    assertThat(result.get().getQualityGate().getId()).isEqualTo(dbQualityGate.getId());
+    assertThat(result.get().getQualityGate().getUuid()).isEqualTo(dbQualityGate.getUuid());
     assertThat(result.get().isDefault()).isFalse();
   }
 

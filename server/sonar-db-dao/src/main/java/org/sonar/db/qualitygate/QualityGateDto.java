@@ -26,7 +26,6 @@ import java.util.Date;
  */
 public class QualityGateDto {
 
-  private Long id;
   private String name;
   private String uuid;
   private boolean isBuiltIn;
@@ -39,15 +38,6 @@ public class QualityGateDto {
 
   public QualityGateDto setUuid(String uuid) {
     this.uuid = uuid;
-    return this;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public QualityGateDto setId(Long id) {
-    this.id = id;
     return this;
   }
 

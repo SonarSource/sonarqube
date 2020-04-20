@@ -101,7 +101,7 @@ public class SearchAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, request.mandatoryParamAsLong(PARAM_GATE_ID));
+      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, request.mandatoryParam(PARAM_GATE_ID));
 
       ProjectQgateAssociationQuery projectQgateAssociationQuery = ProjectQgateAssociationQuery.builder()
         .qualityGate(qualityGate)
@@ -128,7 +128,7 @@ public class SearchAction implements QualityGatesWsAction {
         createResponse.addResultsBuilder()
           .setName(project.getName())
           .setKey(project.getKey())
-          .setSelected(project.getGateId() != null);
+          .setSelected(project.getGateUuid() != null);
       }
 
       writeProtobuf(createResponse.build(), request, response);

@@ -66,7 +66,7 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject(organization);
 
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -83,13 +83,13 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject(organization);
 
     ws.newRequest()
-      .setParam("gateId", initialQualityGate.getId().toString())
+      .setParam("gateId", initialQualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
 
     ws.newRequest()
-      .setParam("gateId", secondQualityGate.getId().toString())
+      .setParam("gateId", secondQualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -105,13 +105,13 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject(organization);
 
     ws.newRequest()
-      .setParam("gateId", initialQualityGate.getId().toString())
+      .setParam("gateId", initialQualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
 
     ws.newRequest()
-      .setParam("gateId", initialQualityGate.getId().toString())
+      .setParam("gateId", initialQualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -127,7 +127,7 @@ public class SelectActionTest {
     userSession.logIn().addProjectPermission(ADMIN, project);
 
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -143,7 +143,7 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject(organization);
 
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -159,7 +159,7 @@ public class SelectActionTest {
     ComponentDto project = db.components().insertPrivateProject(organization);
 
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .execute();
 
@@ -178,7 +178,7 @@ public class SelectActionTest {
     expectedException.expectMessage(format("Project '%s' doesn't exist in organization '%s'", project.getKey(), organization.getKey()));
 
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -207,7 +207,7 @@ public class SelectActionTest {
 
     expectedException.expect(NotFoundException.class);
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", "unknown")
       .setParam("organization", organization.getKey())
       .execute();
@@ -222,7 +222,7 @@ public class SelectActionTest {
 
     expectedException.expect(ForbiddenException.class);
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -237,7 +237,7 @@ public class SelectActionTest {
 
     expectedException.expect(ForbiddenException.class);
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getDbKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -252,7 +252,7 @@ public class SelectActionTest {
 
     expectedException.expect(ForbiddenException.class);
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", project.getDbKey())
       .setParam("organization", organization.getKey())
       .execute();
@@ -270,7 +270,7 @@ public class SelectActionTest {
     expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
 
     ws.newRequest()
-      .setParam("gateId", qualityGate.getId().toString())
+      .setParam("gateId", qualityGate.getUuid())
       .setParam("projectKey", branch.getDbKey())
       .setParam("organization", organization.getKey())
       .execute();

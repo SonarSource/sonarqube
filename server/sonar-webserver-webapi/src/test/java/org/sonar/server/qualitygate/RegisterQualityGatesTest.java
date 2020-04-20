@@ -207,7 +207,7 @@ public class RegisterQualityGatesTest {
     underTest.start();
 
     assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession)).isNotNull();
-    assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession).getId()).isEqualTo(builtInQualityGate.getId());
+    assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession).getUuid()).isEqualTo(builtInQualityGate.getUuid());
   }
 
   @Test
@@ -215,6 +215,7 @@ public class RegisterQualityGatesTest {
     insertMetrics();
     QualityGateConditionDto conditionDto = new QualityGateConditionDto()
       .setUuid(Uuids.createFast())
+      .setQualityGateUuid("qgate_uuid")
       .setMetricUuid("unknown") // This uuid does not exist
       .setOperator(OPERATOR_GREATER_THAN)
       .setErrorThreshold("1");
@@ -253,7 +254,7 @@ public class RegisterQualityGatesTest {
     assertThat(qualityGateDto).isNotNull();
     assertThat(qualityGateDto.getCreatedAt()).isNotNull();
     assertThat(qualityGateDto.isBuiltIn()).isTrue();
-    assertThat(gateConditionDao.selectForQualityGate(dbSession, qualityGateDto.getId()))
+    assertThat(gateConditionDao.selectForQualityGate(dbSession, qualityGateDto.getUuid()))
       .extracting(QualityGateConditionDto::getMetricUuid, QualityGateConditionDto::getOperator,
         QualityGateConditionDto::getErrorThreshold)
       .containsExactlyInAnyOrder(

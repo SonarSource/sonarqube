@@ -78,8 +78,8 @@ public class ListActionTest {
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getId, QualityGate::getName, QualityGate::getIsDefault)
       .containsExactlyInAnyOrder(
-        tuple(defaultQualityGate.getId(), defaultQualityGate.getName(), true),
-        tuple(otherQualityGate.getId(), otherQualityGate.getName(), false));
+        tuple(defaultQualityGate.getUuid(), defaultQualityGate.getName(), true),
+        tuple(otherQualityGate.getUuid(), otherQualityGate.getName(), false));
   }
 
   @Test
@@ -95,7 +95,7 @@ public class ListActionTest {
 
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getId)
-      .containsExactlyInAnyOrder(qualityGate.getId());
+      .containsExactly(qualityGate.getUuid());
   }
 
   @Test
@@ -112,8 +112,8 @@ public class ListActionTest {
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getId, QualityGate::getIsBuiltIn)
       .containsExactlyInAnyOrder(
-        tuple(qualityGate1.getId(), true),
-        tuple(qualityGate2.getId(), false));
+        tuple(qualityGate1.getUuid(), true),
+        tuple(qualityGate2.getUuid(), false));
   }
 
   @Test
@@ -126,7 +126,7 @@ public class ListActionTest {
       .setParam("organization", organization.getKey())
       .executeProtobuf(ListWsResponse.class);
 
-    assertThat(response.getDefault()).isEqualTo(defaultQualityGate.getId());
+    assertThat(response.getDefault()).isEqualTo(defaultQualityGate.getUuid());
   }
 
   @Test

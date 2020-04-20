@@ -4,19 +4,19 @@
 <mapper namespace="org.sonar.db.qualitygate.QualityGateConditionMapper">
 
   <insert id="insert" parameterType="QualityGateCondition">
-    insert into quality_gate_conditions (uuid, qgate_id, metric_uuid, operator, value_error, created_at, updated_at)
-    values (#{uuid}, #{qualityGateId}, #{metricUuid}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt})
+    insert into quality_gate_conditions (uuid, qgate_uuid, metric_uuid, operator, value_error, created_at, updated_at)
+    values (#{uuid}, #{qualityGateUuid}, #{metricUuid}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt})
   </insert>
 
   <sql id="conditionColumns">
-    uuid, qgate_id as qualityGateId, metric_uuid as metricUuid, operator, value_error as errorThreshold,
+    uuid, qgate_uuid as qualityGateUuid, metric_uuid as metricUuid, operator, value_error as errorThreshold,
     created_at as createdAt, updated_at as updatedAt
   </sql>
 
-  <select id="selectForQualityGate" resultType="QualityGateCondition" parameterType="long">
+  <select id="selectForQualityGate" resultType="QualityGateCondition" parameterType="String">
     select
     <include refid="conditionColumns"/>
-    from quality_gate_conditions where qgate_id=#{qGateId}
+    from quality_gate_conditions where qgate_uuid=#{qGateUuid}
     order by created_at asc
   </select>
 

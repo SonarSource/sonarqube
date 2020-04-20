@@ -30,8 +30,8 @@ public class QualityGateConditionDao implements Dao {
     mapper(session).insert(newQualityGate.setCreatedAt(new Date()));
   }
 
-  public Collection<QualityGateConditionDto> selectForQualityGate(DbSession session, long qGateId) {
-    return mapper(session).selectForQualityGate(qGateId);
+  public Collection<QualityGateConditionDto> selectForQualityGate(DbSession session, String qGateUuid) {
+    return mapper(session).selectForQualityGate(qGateUuid);
   }
 
   public QualityGateConditionDto selectByUuid(String uuid, DbSession session) {

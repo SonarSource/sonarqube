@@ -33,7 +33,7 @@ public class QualityGateConditionDto {
 
   private String uuid;
 
-  private long qualityGateId;
+  private String qualityGateUuid;
 
   private String metricUuid;
 
@@ -56,12 +56,12 @@ public class QualityGateConditionDto {
     return this;
   }
 
-  public long getQualityGateId() {
-    return qualityGateId;
+  public String getQualityGateUuid() {
+    return qualityGateUuid;
   }
 
-  public QualityGateConditionDto setQualityGateId(long qualityGateId) {
-    this.qualityGateId = qualityGateId;
+  public QualityGateConditionDto setQualityGateUuid(String qualityGateUuid) {
+    this.qualityGateUuid = qualityGateUuid;
     return this;
   }
 

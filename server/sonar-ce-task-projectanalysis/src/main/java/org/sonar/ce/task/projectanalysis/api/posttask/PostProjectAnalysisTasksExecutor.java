@@ -219,7 +219,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       org.sonar.ce.task.projectanalysis.qualitygate.QualityGate qualityGate = qualityGateOptional.get();
 
       return new QualityGateImpl(
-        String.valueOf(qualityGate.getId()),
+        qualityGate.getUuid(),
         qualityGate.getName(),
         convert(qualityGateStatusHolder.getStatus()),
         convert(qualityGate.getConditions(), qualityGateStatusHolder.getStatusPerConditions()));

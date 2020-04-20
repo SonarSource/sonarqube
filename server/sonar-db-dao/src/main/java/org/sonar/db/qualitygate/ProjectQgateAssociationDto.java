@@ -30,7 +30,7 @@ public class ProjectQgateAssociationDto {
   private String uuid;
   private String key;
   private String name;
-  private String gateId;
+  private String gateUuid;
 
   public String getUuid() {
     return uuid;
@@ -60,12 +60,12 @@ public class ProjectQgateAssociationDto {
   }
 
   @CheckForNull
-  public String getGateId() {
-    return gateId;
+  public String getGateUuid() {
+    return gateUuid;
   }
 
-  public ProjectQgateAssociationDto setGateId(@Nullable String gateId) {
-    this.gateId = gateId;
+  public ProjectQgateAssociationDto setGateUuid(@Nullable String gateUuid) {
+    this.gateUuid = gateUuid;
     return this;
   }
 

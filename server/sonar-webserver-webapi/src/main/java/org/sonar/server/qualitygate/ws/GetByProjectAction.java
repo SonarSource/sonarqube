@@ -112,7 +112,7 @@ public class GetByProjectAction implements QualityGatesWsAction {
     GetByProjectResponse.Builder response = GetByProjectResponse.newBuilder();
 
     response.getQualityGateBuilder()
-      .setId(qualityGate.getId())
+      .setId(qualityGate.getUuid())
       .setName(qualityGate.getName())
       .setDefault(data.isDefault());
 

@@ -39,6 +39,7 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.ALM;

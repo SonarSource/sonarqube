@@ -113,7 +113,7 @@ public class RegisterQualityGates implements Startable {
     Map<String, String> uuidToKeyMetric = dbClient.metricDao().selectAll(dbSession).stream()
       .collect(toMap(MetricDto::getUuid, MetricDto::getKey));
 
-    List<QualityGateCondition> qualityGateConditions = qualityGateConditionDao.selectForQualityGate(dbSession, builtin.getId())
+    List<QualityGateCondition> qualityGateConditions = qualityGateConditionDao.selectForQualityGate(dbSession, builtin.getUuid())
       .stream()
       .map(dto -> QualityGateCondition.from(dto, uuidToKeyMetric))
       .collect(MoreCollectors.toList());
@@ -123,7 +123,7 @@ public class RegisterQualityGates implements Startable {
     List<QualityGateCondition> qgConditionsToBeDeleted = new ArrayList<>(qualityGateConditions);
     qgConditionsToBeDeleted.removeAll(QUALITY_GATE_CONDITIONS);
     qgConditionsToBeDeleted
-      .forEach(qgc -> qualityGateConditionDao.delete(qgc.toQualityGateDto(builtin.getId()), dbSession));
+      .forEach(qgc -> qualityGateConditionDao.delete(qgc.toQualityGateDto(builtin.getUuid()), dbSession));
 
     // Find all conditions that are not present in qualityGateConditions
     // Those conditions must be created
@@ -203,13 +203,13 @@ public class RegisterQualityGates implements Startable {
       return this;
     }
 
-    public QualityGateConditionDto toQualityGateDto(long qualityGateId) {
+    public QualityGateConditionDto toQualityGateDto(String qualityGateUuid) {
       return new QualityGateConditionDto()
         .setUuid(uuid)
         .setMetricKey(metricKey)
         .setOperator(operator)
         .setErrorThreshold(errorThreshold)
-        .setQualityGateId(qualityGateId);
+        .setQualityGateUuid(qualityGateUuid);
     }
 
     // id does not belongs to equals to be able to be compared with builtin

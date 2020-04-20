@@ -55,10 +55,10 @@ public class QualityGateUpdater {
 
     QualityGateDto destinationGate = create(dbSession, organizationDto, destinationName);
 
-    for (QualityGateConditionDto sourceCondition : dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId())) {
+    for (QualityGateConditionDto sourceCondition : dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getUuid())) {
       dbClient.gateConditionDao().insert(new QualityGateConditionDto()
           .setUuid(Uuids.create())
-          .setQualityGateId(destinationGate.getId())
+          .setQualityGateUuid(destinationGate.getUuid())
           .setMetricUuid(sourceCondition.getMetricUuid())
           .setOperator(sourceCondition.getOperator())
           .setErrorThreshold(sourceCondition.getErrorThreshold()),

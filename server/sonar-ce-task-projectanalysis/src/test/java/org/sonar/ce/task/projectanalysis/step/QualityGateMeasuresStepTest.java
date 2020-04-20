@@ -71,7 +71,7 @@ public class QualityGateMeasuresStepTest {
 
   private static final int PROJECT_REF = 1;
   private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, PROJECT_REF).build();
-  private static final long SOME_QG_ID = 7521551;
+  private static final String SOME_QG_UUID = "7521551";
   private static final String SOME_QG_NAME = "name";
 
   @Rule
@@ -150,7 +150,7 @@ public class QualityGateMeasuresStepTest {
   @Test
   public void new_measures_are_created_even_if_there_is_no_rawMeasure_for_metric_of_condition() {
     Condition equals2Condition = createLessThanCondition(INT_METRIC_1, "2");
-    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(equals2Condition)));
+    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_UUID, SOME_QG_NAME, of(equals2Condition)));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -175,7 +175,7 @@ public class QualityGateMeasuresStepTest {
     Condition equals2Condition = createLessThanCondition(INT_METRIC_1, "2");
     Measure rawMeasure = newMeasureBuilder().create(rawValue, null);
 
-    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(equals2Condition)));
+    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_UUID, SOME_QG_NAME, of(equals2Condition)));
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, rawMeasure);
 
     underTest.execute(new TestComputationStepContext());
@@ -204,7 +204,7 @@ public class QualityGateMeasuresStepTest {
     Condition equalsOneOkCondition = createLessThanCondition(INT_METRIC_2, "2");
     Measure rawMeasure = newMeasureBuilder().create(rawValue, null);
 
-    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(equalsOneErrorCondition, equalsOneOkCondition)));
+    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_UUID, SOME_QG_NAME, of(equalsOneErrorCondition, equalsOneOkCondition)));
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, rawMeasure);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_2_KEY, rawMeasure);
 
@@ -241,7 +241,7 @@ public class QualityGateMeasuresStepTest {
     Condition fixedCondition = createLessThanCondition(INT_METRIC_1, "4");
     Condition periodCondition = createLessThanCondition(INT_METRIC_1, "2");
 
-    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
+    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_UUID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
     Measure measure = newMeasureBuilder().create(rawValue, null);
     measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
 
@@ -259,7 +259,7 @@ public class QualityGateMeasuresStepTest {
     Condition fixedCondition = createLessThanCondition(INT_METRIC_1, "1");
     Condition periodCondition = createLessThanCondition(INT_METRIC_1, "1");
 
-    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
+    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_UUID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
     Measure measure = newMeasureBuilder()
       .setVariation(rawValue)
       .create(rawValue, null);

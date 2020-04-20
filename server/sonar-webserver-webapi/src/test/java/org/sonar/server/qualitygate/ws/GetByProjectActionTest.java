@@ -112,7 +112,7 @@ public class GetByProjectActionTest {
       .executeProtobuf(GetByProjectResponse.class);
 
     Qualitygates.QualityGate qualityGate = result.getQualityGate();
-    assertThat(Long.valueOf(qualityGate.getId())).isEqualTo(dbQualityGate.getId());
+    assertThat(qualityGate.getId()).isEqualTo(dbQualityGate.getUuid());
     assertThat(qualityGate.getName()).isEqualTo(dbQualityGate.getName());
     assertThat(qualityGate.getDefault()).isTrue();
   }

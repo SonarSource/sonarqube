@@ -4,11 +4,10 @@
 <mapper namespace="org.sonar.db.qualitygate.QualityGateMapper">
 
   <sql id="gateColumns">
-      id, name, uuid, is_built_in as isBuiltIn, created_at as createdAt, updated_at as updatedAt
+      uuid, name, is_built_in as isBuiltIn, created_at as createdAt, updated_at as updatedAt
   </sql>
 
   <sql id="qateWithOrgColumns">
-    qg.id as id,
     qg.uuid as uuid,
     qg.name as name,
     qg.is_built_in as isBuiltIn,
@@ -17,7 +16,7 @@
     qg.updated_at as updatedAd
   </sql>
 
-  <insert id="insertQualityGate" parameterType="QualityGate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertQualityGate" parameterType="QualityGate" useGeneratedKeys="false">
     insert into quality_gates (uuid, name, is_built_in, created_at, updated_at)
     values (#{uuid, jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{isBuiltIn, jdbcType=BOOLEAN}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
   </insert>
@@ -72,17 +71,6 @@
       qg.name = #{name, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByIdAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
-    SELECT
-    <include refid="qateWithOrgColumns"/>
-    FROM
-      quality_gates qg
-    INNER JOIN
-      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid AND oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    WHERE
-      qg.id = #{id, jdbcType=BIGINT}
-  </select>
-
   <select id="selectByProjectUuid" parameterType="Map" resultType="org.sonar.db.qualitygate.QualityGateDto">
     SELECT
     <include refid="gateColumns"/>
@@ -90,13 +78,6 @@
     quality_gates qg
     INNER JOIN
     project_qgates pqg ON pqg.quality_gate_uuid = qg.uuid AND pqg.project_uuid = #{projectUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectById" parameterType="long" resultType="QualityGate">
-    select
-    <include refid="gateColumns"/>
-    from quality_gates
-    where id=#{id, jdbcType=BIGINT}
   </select>
 
   <select id="selectBuiltIn" resultType="org.sonar.db.qualitygate.QualityGateDto">

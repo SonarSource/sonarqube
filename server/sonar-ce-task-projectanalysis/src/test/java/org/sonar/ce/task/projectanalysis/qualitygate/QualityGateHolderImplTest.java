@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
 
 public class QualityGateHolderImplTest {
 
-  private static final QualityGate QUALITY_GATE = new QualityGate(4612, "name", emptyList());
+  private static final QualityGate QUALITY_GATE = new QualityGate("4612", "name", emptyList());
 
   @Test(expected = IllegalStateException.class)
   public void getQualityGate_throws_ISE_if_QualityGate_not_set() {

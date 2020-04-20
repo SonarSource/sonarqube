@@ -65,8 +65,8 @@ public class DeleteConditionAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QualityGateConditionDto condition = wsSupport.getCondition(dbSession, conditionUuid);
-      QGateWithOrgDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, condition.getQualityGateId());
-      checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", conditionUuid, condition.getQualityGateId());
+      QGateWithOrgDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, condition.getQualityGateUuid());
+      checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", conditionUuid, condition.getQualityGateUuid());
       wsSupport.checkCanEdit(qualityGateDto);
 
       dbClient.gateConditionDao().delete(condition, dbSession);

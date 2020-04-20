@@ -212,6 +212,15 @@ import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.
 import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable;
 import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.MakeQualityGateConditionsUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.PopulateQualityGateConditionsUuid;
+import org.sonar.server.platform.db.migration.version.v83.qualitygates.AddPrimaryKeyOnUuidColumnOfQGatesTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygates.AddQGateUuidColumnForQGateConditions;
+import org.sonar.server.platform.db.migration.version.v83.qualitygates.DropIdColumnOfQGateTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygates.DropOrphansQGateConditions;
+import org.sonar.server.platform.db.migration.version.v83.qualitygates.DropPrimaryKeyOnIdColumnOfQGatesTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygates.DropQGateIdColumnForQGateConditions;
+import org.sonar.server.platform.db.migration.version.v83.qualitygates.DropUniqueIndexOnUuidColumnOfQualityGatesTable;
+import org.sonar.server.platform.db.migration.version.v83.qualitygates.MakeQGateUuidColumnNotNullableForQGateConditions;
+import org.sonar.server.platform.db.migration.version.v83.qualitygates.PopulateQGateUuidColumnForQGateConditions;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.AddPrimaryKeyOnUuidColumnOfRulesParametersTable;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.AddUuidColumnToRulesParameters;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.DropIdColumnOfRulesParametersTable;
@@ -605,6 +614,19 @@ public class DbVersion83 implements DbVersion {
       .add(3623, "Drop column 'group_id' of 'PERM_TEMPLATES_GROUPS' table", DropGroupIdColumnOfPermTemplatesGroupsTable.class)
       .add(3624, "Drop column 'group_id' of 'QPROFILE_EDIT_GROUPS' table", DropGroupIdColumnOfQProfileEditGroupsTable.class)
       .add(3625, "Drop column 'ID' of 'GROUPS' table", DropIdColumnOfGroupsTable.class)
+
+      // Migration of QUALITY_GATES_CONDITIONS FK to QUALITY_GATES, switch from qgate_id to qgate_uuid
+      .add(3626, "Add 'qgate_uuid' column for quality gates conditions", AddQGateUuidColumnForQGateConditions.class)
+      .add(3627, "Populate 'qgate_uuid' column for quality gates conditions", PopulateQGateUuidColumnForQGateConditions.class)
+      .add(3628, "drop orphans quality gates conditions", DropOrphansQGateConditions.class)
+      .add(3629, "Make 'qgate_uuid' column not nullable for quality gates conditions", MakeQGateUuidColumnNotNullableForQGateConditions.class)
+      .add(3630, "Drop 'qgate_id' column for quality gates conditions", DropQGateIdColumnForQGateConditions.class)
+
+      // Migrations of QUALITY_GATES table
+      .add(3631, "Drop primary key on 'ID' column of 'QUALITY_GATES' table", DropPrimaryKeyOnIdColumnOfQGatesTable.class)
+      .add(3632, "drop unique index on 'UUID' column of 'QUALITY_GATES' table", DropUniqueIndexOnUuidColumnOfQualityGatesTable.class)
+      .add(3633, "Add primary key on 'UUID' column of 'QUALITY_GATES' table", AddPrimaryKeyOnUuidColumnOfQGatesTable.class)
+      .add(3634, "Drop column 'ID' of 'QUALITY_GATES' table", DropIdColumnOfQGateTable.class)
 
     ;
   }

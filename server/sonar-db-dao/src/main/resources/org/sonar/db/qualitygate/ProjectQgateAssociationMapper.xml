@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.qualitygate.ProjectQgateAssociationMapper">
 
 <select id="selectProjects" parameterType="map" resultType="ProjectQgateAssociation">
-    SELECT proj.uuid as uuid, proj.kee as "key", proj.name as name, qg.id as gateId
+    SELECT proj.uuid as uuid, proj.kee as "key", proj.name as name, qg.uuid as gateUuid
     FROM components proj
     LEFT JOIN project_qgates prqg ON prqg.project_uuid=proj.uuid AND prqg.quality_gate_uuid = #{query.gateUuid, jdbcType=VARCHAR}
     LEFT JOIN quality_gates qg ON qg.uuid = prqg.quality_gate_uuid
@@ -16,10 +16,10 @@
     and proj.organization_uuid=#{query.organizationUuid, jdbcType=VARCHAR}
     <choose>
       <when test="query.membership() == 'selected'">
-        and qg.id IS NOT NULL
+        and qg.uuid IS NOT NULL
       </when>
       <when test="query.membership() == 'deselected'">
-        and qg.id IS NULL
+        and qg.uuid IS NULL
       </when>
     </choose>
     <if test="query.projectSearch() != null">

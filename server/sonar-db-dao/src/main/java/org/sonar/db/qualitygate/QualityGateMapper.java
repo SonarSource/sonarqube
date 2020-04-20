@@ -33,13 +33,9 @@ public interface QualityGateMapper {
 
   QualityGateDto selectByName(String name);
 
-  QualityGateDto selectById(long id);
-
   QGateWithOrgDto selectByUuidAndOrganization(@Param("qualityGateUuid") String qualityGateUuid, @Param("organizationUuid") String organizationUuid);
 
   QGateWithOrgDto selectByNameAndOrganization(@Param("name") String name, @Param("organizationUuid") String organizationUuid);
-
-  QGateWithOrgDto selectByIdAndOrganization(@Param("id") long id, @Param("organizationUuid") String organizationUuid);
 
   QGateWithOrgDto selectDefault(@Param("organizationUuid") String organizationUuid);
 

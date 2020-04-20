@@ -54,7 +54,7 @@ public class QualityGateDaoTest {
     underTest.insert(dbSession, newQgate);
     dbSession.commit();
 
-    QualityGateDto reloaded = underTest.selectById(dbSession, newQgate.getId());
+    QualityGateDto reloaded = underTest.selectByUuid(dbSession, newQgate.getUuid());
     assertThat(reloaded.getName()).isEqualTo("My Quality Gate");
     assertThat(reloaded.getUuid()).isEqualTo(newQgate.getUuid());
     assertThat(reloaded.isBuiltIn()).isFalse();
@@ -71,8 +71,8 @@ public class QualityGateDaoTest {
 
     assertThat(underTest.selectByOrganizationAndUuid(dbSession, org, qgate.getUuid())).isNotNull();
     assertThat(underTest.selectByOrganizationAndUuid(dbSession, org, qgate.getUuid()))
-      .extracting(QGateWithOrgDto::getId, QGateWithOrgDto::getUuid, QGateWithOrgDto::getOrganizationUuid, QGateWithOrgDto::getName)
-      .containsExactly(qgate.getId(), qgate.getUuid(), org.getUuid(), qgate.getName());
+      .extracting(QGateWithOrgDto::getUuid, QGateWithOrgDto::getUuid, QGateWithOrgDto::getOrganizationUuid, QGateWithOrgDto::getName)
+      .containsExactly(qgate.getUuid(), qgate.getUuid(), org.getUuid(), qgate.getName());
   }
 
   @Test
@@ -107,8 +107,8 @@ public class QualityGateDaoTest {
   @Test
   public void testSelectById() {
     insertQualityGates();
-    assertThat(underTest.selectById(dbSession, underTest.selectByName(dbSession, "Very strict").getId()).getName()).isEqualTo("Very strict");
-    assertThat(underTest.selectById(dbSession, -1L)).isNull();
+    assertThat(underTest.selectByUuid(dbSession, underTest.selectByName(dbSession, "Very strict").getUuid()).getName()).isEqualTo("Very strict");
+    assertThat(underTest.selectByUuid(dbSession, "-1")).isNull();
   }
 
   @Test
@@ -151,9 +151,9 @@ public class QualityGateDaoTest {
     OrganizationDto otherOrganization = db.organizations().insert();
     QGateWithOrgDto qualityGate3 = db.qualityGates().insertQualityGate(otherOrganization);
 
-    assertThat(underTest.selectByOrganizationAndId(dbSession, organization, qualityGate1.getId()).getUuid()).isEqualTo(qualityGate1.getUuid());
-    assertThat(underTest.selectByOrganizationAndId(dbSession, otherOrganization, qualityGate3.getId()).getUuid()).isEqualTo(qualityGate3.getUuid());
-    assertThat(underTest.selectByOrganizationAndId(dbSession, organization, 123L)).isNull();
+    assertThat(underTest.selectByOrganizationAndUuid(dbSession, organization, qualityGate1.getUuid()).getUuid()).isEqualTo(qualityGate1.getUuid());
+    assertThat(underTest.selectByOrganizationAndUuid(dbSession, otherOrganization, qualityGate3.getUuid()).getUuid()).isEqualTo(qualityGate3.getUuid());
+    assertThat(underTest.selectByOrganizationAndUuid(dbSession, organization, "123")).isNull();
   }
 
   @Test

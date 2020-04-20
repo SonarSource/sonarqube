@@ -82,7 +82,7 @@ public class CreateAction implements QualityGatesWsAction {
 
       QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, organizationDto, name);
       CreateResponse.Builder createResponse = CreateResponse.newBuilder()
-        .setId(newQualityGate.getId())
+        .setId(newQualityGate.getUuid())
         .setName(newQualityGate.getName());
       dbSession.commit();
       writeProtobuf(createResponse.build(), request, response);

@@ -29,7 +29,6 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.server.qualitygate.ws.QualityGatesWs.parseId;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 
 public class SetAsDefaultAction implements QualityGatesWsAction {
@@ -63,12 +62,12 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    Long id = parseId(request, PARAM_ID);
+    String uuid = request.mandatoryParam(PARAM_ID);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
-      QualityGateDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, id);
+      QualityGateDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
       organization.setDefaultQualityGateUuid(qualityGate.getUuid());
       dbClient.organizationDao().update(dbSession, organization);
       dbSession.commit();

@@ -74,12 +74,12 @@ public class SelectAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    long gateId = request.mandatoryParamAsLong(PARAM_GATE_ID);
+    String gateUuid = request.mandatoryParam(PARAM_GATE_ID);
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndId(dbSession, organization, gateId);
+      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
       ProjectDto project = wsSupport.getProject(dbSession, organization, projectKey);
       wsSupport.checkCanAdminProject(organization, project);
 

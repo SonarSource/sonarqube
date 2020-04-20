@@ -85,8 +85,8 @@ public class UpdateConditionAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QualityGateConditionDto condition = wsSupport.getCondition(dbSession, id);
-      QGateWithOrgDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, condition.getQualityGateId());
-      checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", id, condition.getQualityGateId());
+      QGateWithOrgDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, condition.getQualityGateUuid());
+      checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", id, condition.getQualityGateUuid());
       wsSupport.checkCanEdit(qualityGateDto);
       QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, error);
       UpdateConditionResponse.Builder updateConditionResponse = UpdateConditionResponse.newBuilder()

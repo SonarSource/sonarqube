@@ -57,8 +57,7 @@ public class QualitygatesService extends BaseService {
         .setParam("id", request.getId())
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -74,6 +73,17 @@ public class QualitygatesService extends BaseService {
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization()),
       CreateResponse.parser());
+  }
+
+  /**
+   * Use this for to use a JSON payload, useful to parse the quality gate as Long or String
+   */
+  public CreateResponse createJson(CreateRequest request) {
+    return call(
+      new PostRequest(path("create"))
+        .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization()),
+      new QualityGatesServiceCreateResponseJsonParser(), MediaTypes.JSON);
   }
 
   /**
@@ -106,8 +116,7 @@ public class QualitygatesService extends BaseService {
       new PostRequest(path("delete_condition"))
         .setParam("id", request.getId())
         .setParam("organization", request.getOrganization())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -123,8 +132,7 @@ public class QualitygatesService extends BaseService {
         .setParam("organization", request.getOrganization())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -139,8 +147,7 @@ public class QualitygatesService extends BaseService {
       new PostRequest(path("destroy"))
         .setParam("id", request.getId())
         .setParam("organization", request.getOrganization())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -203,8 +210,7 @@ public class QualitygatesService extends BaseService {
         .setParam("id", request.getId())
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -240,8 +246,7 @@ public class QualitygatesService extends BaseService {
         .setParam("organization", request.getOrganization())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -256,8 +261,7 @@ public class QualitygatesService extends BaseService {
       new PostRequest(path("set_as_default"))
         .setParam("id", request.getId())
         .setParam("organization", request.getOrganization())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -288,8 +292,7 @@ public class QualitygatesService extends BaseService {
   public String unsetDefault() {
     return call(
       new PostRequest(path("unset_default"))
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**

@@ -73,7 +73,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class PostProjectAnalysisTasksExecutorTest {
-  private static final long QUALITY_GATE_ID = 98451;
+  private static final String QUALITY_GATE_UUID = "98451";
   private static final String QUALITY_GATE_NAME = "qualityGate name";
   private static final Condition CONDITION_1 = createCondition("metric key 1");
   private static final Condition CONDITION_2 = createCondition("metric key 2");
@@ -110,7 +110,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
   @Before
   public void setUp() {
-    qualityGateHolder.setQualityGate(new QualityGate(QUALITY_GATE_ID, QUALITY_GATE_NAME, of(CONDITION_1, CONDITION_2)));
+    qualityGateHolder.setQualityGate(new QualityGate(QUALITY_GATE_UUID, QUALITY_GATE_NAME, of(CONDITION_1, CONDITION_2)));
     qualityGateStatusHolder.setStatus(QualityGateStatus.OK, ImmutableMap.of(
       CONDITION_1, ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, "value"),
       CONDITION_2, ConditionStatus.NO_VALUE_STATUS));
@@ -346,7 +346,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
     org.sonar.api.ce.posttask.QualityGate qualityGate = taskContextCaptor.getValue().getProjectAnalysis().getQualityGate();
     assertThat(qualityGate.getStatus()).isEqualTo(org.sonar.api.ce.posttask.QualityGate.Status.OK);
-    assertThat(qualityGate.getId()).isEqualTo(String.valueOf(QUALITY_GATE_ID));
+    assertThat(qualityGate.getId()).isEqualTo(String.valueOf(QUALITY_GATE_UUID));
     assertThat(qualityGate.getName()).isEqualTo(QUALITY_GATE_NAME);
     assertThat(qualityGate.getConditions()).hasSize(2);
   }
