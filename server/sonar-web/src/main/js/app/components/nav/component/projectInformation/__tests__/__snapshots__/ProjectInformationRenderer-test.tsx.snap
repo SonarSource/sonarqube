@@ -118,13 +118,8 @@ exports[`should render a private project correctly 1`] = `
         >
           project.info.description
         </h3>
-        <Connect(PrivacyBadge)
+        <PrivacyBadgeContainer
           qualifier="TRK"
-          tooltipProps={
-            Object {
-              "projectKey": "my-project",
-            }
-          }
           visibility="private"
         />
       </div>
@@ -387,13 +382,8 @@ exports[`should render correctly: default 1`] = `
         >
           project.info.description
         </h3>
-        <Connect(PrivacyBadge)
+        <PrivacyBadgeContainer
           qualifier="TRK"
-          tooltipProps={
-            Object {
-              "projectKey": "my-project",
-            }
-          }
           visibility="public"
         />
       </div>
@@ -553,13 +543,8 @@ exports[`should render correctly: no badges 1`] = `
         >
           project.info.description
         </h3>
-        <Connect(PrivacyBadge)
+        <PrivacyBadgeContainer
           qualifier="TRK"
-          tooltipProps={
-            Object {
-              "projectKey": "my-project",
-            }
-          }
           visibility="public"
         />
       </div>
@@ -714,13 +699,8 @@ exports[`should render correctly: no badges, no notifications 1`] = `
         >
           project.info.description
         </h3>
-        <Connect(PrivacyBadge)
+        <PrivacyBadgeContainer
           qualifier="TRK"
-          tooltipProps={
-            Object {
-              "projectKey": "my-project",
-            }
-          }
           visibility="public"
         />
       </div>
@@ -870,13 +850,8 @@ exports[`should render correctly: with notifications 1`] = `
         >
           project.info.description
         </h3>
-        <Connect(PrivacyBadge)
+        <PrivacyBadgeContainer
           qualifier="TRK"
-          tooltipProps={
-            Object {
-              "projectKey": "my-project",
-            }
-          }
           visibility="public"
         />
       </div>

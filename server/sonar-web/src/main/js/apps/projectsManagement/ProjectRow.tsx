@@ -69,12 +69,7 @@ export default class ProjectRow extends React.PureComponent<Props> {
         </td>
 
         <td className="thin nowrap">
-          <PrivacyBadgeContainer
-            organization={organization}
-            qualifier={project.qualifier}
-            tooltipProps={{ projectKey: project.key }}
-            visibility={project.visibility}
-          />
+          <PrivacyBadgeContainer qualifier={project.qualifier} visibility={project.visibility} />
         </td>
 
         <td className="nowrap hide-overflow project-row-text-cell">

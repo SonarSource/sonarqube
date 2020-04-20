@@ -18,49 +18,46 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { WithRouterProps } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { OnboardingContextShape } from '../../../app/components/OnboardingContext';
-import { isSonarCloud } from '../../../helpers/system';
+import { withRouter } from '../../../components/hoc/withRouter';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
 
-interface Props {
+export interface EmptyInstanceProps {
   currentUser: T.CurrentUser;
-  openProjectOnboarding: OnboardingContextShape;
-  organization?: T.Organization;
+  router: WithRouterProps['router'];
 }
 
-export default class EmptyInstance extends React.PureComponent<Props> {
-  analyzeNewProject = () => {
-    this.props.openProjectOnboarding(this.props.organization);
-  };
+export function EmptyInstance(props: EmptyInstanceProps) {
+  const { currentUser, router } = props;
+  const showNewProjectButton =
+    isLoggedIn(currentUser) && hasGlobalPermission(currentUser, 'provisioning');
 
-  render() {
-    const { currentUser, organization } = this.props;
-    const showNewProjectButton = isSonarCloud()
-      ? organization && organization.actions && organization.actions.provision
-      : isLoggedIn(currentUser) && hasGlobalPermission(currentUser, 'provisioning');
-
-    return (
-      <div className="projects-empty-list">
-        <h3>
-          {showNewProjectButton
-            ? translate('projects.no_projects.empty_instance.new_project')
-            : translate('projects.no_projects.empty_instance')}
-        </h3>
-        {showNewProjectButton && (
-          <div>
-            <p className="big-spacer-top">
-              {translate('projects.no_projects.empty_instance.how_to_add_projects')}
-            </p>
-            <p className="big-spacer-top">
-              <Button onClick={this.analyzeNewProject}>
-                {translate('my_account.create_new.TRK')}
-              </Button>
-            </p>
-          </div>
-        )}
-      </div>
-    );
-  }
+  return (
+    <div className="projects-empty-list">
+      <h3>
+        {showNewProjectButton
+          ? translate('projects.no_projects.empty_instance.new_project')
+          : translate('projects.no_projects.empty_instance')}
+      </h3>
+      {showNewProjectButton && (
+        <div>
+          <p className="big-spacer-top">
+            {translate('projects.no_projects.empty_instance.how_to_add_projects')}
+          </p>
+          <p className="big-spacer-top">
+            <Button
+              onClick={() => {
+                router.push('/projects/create');
+              }}>
+              {translate('my_account.create_new.TRK')}
+            </Button>
+          </p>
+        </div>
+      )}
+    </div>
+  );
 }
+
+export default withRouter(EmptyInstance);

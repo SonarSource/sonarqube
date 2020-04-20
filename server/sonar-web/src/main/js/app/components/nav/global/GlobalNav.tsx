@@ -39,7 +39,6 @@ import {
 import { setCurrentUserSetting } from '../../../../store/users';
 import { rawSizes } from '../../../theme';
 import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
-import { OnboardingContext } from '../../OnboardingContext';
 import Search from '../../search/Search';
 import './GlobalNav.css';
 import GlobalNavBranding, { SonarCloudNavBranding } from './GlobalNavBranding';
@@ -193,15 +192,7 @@ export class GlobalNav extends React.PureComponent<Props, State> {
           <EmbedDocsPopupHelper />
           <Search appState={appState} currentUser={currentUser} />
           {isLoggedIn(currentUser) && (
-            <OnboardingContext.Consumer data-test="global-nav-plus">
-              {openProjectOnboarding => (
-                <GlobalNavPlus
-                  appState={appState}
-                  currentUser={currentUser}
-                  openProjectOnboarding={openProjectOnboarding}
-                />
-              )}
-            </OnboardingContext.Consumer>
+            <GlobalNavPlus appState={appState} currentUser={currentUser} />
           )}
           <GlobalNavUserContainer appState={appState} currentUser={currentUser} />
         </ul>

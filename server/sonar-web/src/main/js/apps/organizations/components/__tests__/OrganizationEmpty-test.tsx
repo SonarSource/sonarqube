@@ -33,14 +33,6 @@ it('should render', () => {
   expect(shallowRender()).toMatchSnapshot();
 });
 
-it('should create new project', () => {
-  const openProjectOnboarding = jest.fn();
-  const wrapper = shallowRender({ openProjectOnboarding });
-
-  click(wrapper.find('Button').first());
-  expect(openProjectOnboarding).toBeCalledWith({ key: 'foo', name: 'Foo' });
-});
-
 it('should add members', () => {
   const push = jest.fn();
   const wrapper = shallowRender({ router: mockRouter({ push }) });
@@ -56,11 +48,6 @@ it('should hide add members button when member sync activated', () => {
 
 function shallowRender(props: Partial<OrganizationEmpty['props']> = {}) {
   return shallow(
-    <OrganizationEmpty
-      openProjectOnboarding={jest.fn()}
-      organization={organization}
-      router={mockRouter()}
-      {...props}
-    />
+    <OrganizationEmpty organization={organization} router={mockRouter()} {...props} />
   );
 }

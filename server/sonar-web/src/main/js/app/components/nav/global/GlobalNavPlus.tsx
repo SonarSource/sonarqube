@@ -28,12 +28,10 @@ import { getExtensionStart } from '../../../../helpers/extensions';
 import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
 import { hasGlobalPermission } from '../../../../helpers/users';
-import { OnboardingContextShape } from '../../OnboardingContext';
 
 interface Props {
   appState: Pick<T.AppState, 'qualifiers'>;
   currentUser: T.LoggedInUser;
-  openProjectOnboarding: OnboardingContextShape;
 }
 
 interface State {
@@ -65,7 +63,7 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
 
   handleNewProjectClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.openProjectOnboarding();
+    this.props.router.push('/projects/create');
   };
 
   openCreatePortfolioForm = () => {

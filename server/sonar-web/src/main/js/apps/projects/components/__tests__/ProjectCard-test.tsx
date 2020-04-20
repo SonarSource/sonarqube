@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import PrivacyBadgeContainer from '../../../../components/common/PrivacyBadgeContainer';
 import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { Project } from '../../types';
@@ -85,7 +86,7 @@ it('should display private badge', () => {
   const project: Project = { ...PROJECT, visibility: 'private' };
   expect(
     shallowRender(project)
-      .find('Connect(PrivacyBadge)')
+      .find(PrivacyBadgeContainer)
       .exists()
   ).toBe(true);
 });
@@ -117,12 +118,6 @@ it('should display applications', () => {
 
 function shallowRender(project: Project, user: T.CurrentUser = USER_LOGGED_OUT) {
   return shallow(
-    <ProjectCard
-      currentUser={user}
-      handleFavorite={jest.fn()}
-      height={100}
-      organization={undefined}
-      project={project}
-    />
+    <ProjectCard currentUser={user} handleFavorite={jest.fn()} height={100} project={project} />
   );
 }

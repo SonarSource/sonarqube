@@ -64,9 +64,13 @@ exports[`renders different types of "no projects" 1`] = `
 <div
   className="projects-list"
 >
-  <ContextConsumer>
-    <Component />
-  </ContextConsumer>
+  <withRouter(EmptyInstance)
+    currentUser={
+      Object {
+        "isLoggedIn": true,
+      }
+    }
+  />
 </div>
 `;
 
@@ -82,8 +86,6 @@ exports[`renders different types of "no projects" 3`] = `
 <div
   className="projects-list"
 >
-  <ContextConsumer>
-    <Component />
-  </ContextConsumer>
+  <NoFavoriteProjects />
 </div>
 `;

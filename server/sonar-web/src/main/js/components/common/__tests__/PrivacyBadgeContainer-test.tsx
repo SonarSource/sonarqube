@@ -19,13 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../helpers/system';
-import { PrivacyBadge } from '../PrivacyBadgeContainer';
-
-jest.mock('../../../helpers/system', () => ({ isSonarCloud: jest.fn().mockReturnValue(false) }));
-
-const organization: T.Organization = { key: 'foo', name: 'Foo' };
-const loggedInUser = { isLoggedIn: true, login: 'luke', name: 'Skywalker' };
+import { ComponentQualifier } from '../../../types/component';
+import PrivacyBadge from '../PrivacyBadgeContainer';
 
 it('renders', () => {
   expect(getWrapper()).toMatchSnapshot();
@@ -35,34 +30,8 @@ it('do not render', () => {
   expect(getWrapper({ visibility: 'public' })).toMatchSnapshot();
 });
 
-it('renders public', () => {
-  (isSonarCloud as jest.Mock<any>).mockReturnValueOnce(true);
-  expect(getWrapper({ visibility: 'public' })).toMatchSnapshot();
-});
-
-it('renders public with icon', () => {
-  (isSonarCloud as jest.Mock<any>).mockReturnValueOnce(true);
-  expect(
-    getWrapper({
-      organization: {
-        ...organization,
-        actions: { admin: true },
-        subscription: 'PAID'
-      },
-      visibility: 'public'
-    })
-  ).toMatchSnapshot();
-});
-
 function getWrapper(props = {}) {
   return shallow(
-    <PrivacyBadge
-      currentUser={loggedInUser}
-      organization={organization}
-      qualifier="TRK"
-      userOrganizations={[organization]}
-      visibility="private"
-      {...props}
-    />
+    <PrivacyBadge qualifier={ComponentQualifier.Project} visibility="private" {...props} />
   );
 }

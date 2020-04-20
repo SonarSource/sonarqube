@@ -22,7 +22,6 @@ import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { List, ListRowProps } from 'react-virtualized/dist/commonjs/List';
 import { WindowScroller } from 'react-virtualized/dist/commonjs/WindowScroller';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { OnboardingContext } from '../../../app/components/OnboardingContext';
 import EmptySearch from '../../../components/common/EmptySearch';
 import { Query } from '../query';
 import { Project } from '../types';
@@ -37,7 +36,6 @@ interface Props {
   handleFavorite: (component: string, isFavorite: boolean) => void;
   isFavorite: boolean;
   isFiltered: boolean;
-  organization: T.Organization | undefined;
   projects: Project[];
   query: Query;
 }
@@ -48,27 +46,11 @@ export default class ProjectsList extends React.PureComponent<Props> {
   };
 
   renderNoProjects() {
-    const { currentUser, isFavorite, isFiltered, organization, query } = this.props;
+    const { currentUser, isFavorite, isFiltered, query } = this.props;
     if (isFiltered) {
       return isFavorite ? <EmptyFavoriteSearch query={query} /> : <EmptySearch />;
     }
-    return isFavorite ? (
-      <OnboardingContext.Consumer>
-        {openProjectOnboarding => (
-          <NoFavoriteProjects openProjectOnboarding={openProjectOnboarding} />
-        )}
-      </OnboardingContext.Consumer>
-    ) : (
-      <OnboardingContext.Consumer>
-        {openProjectOnboarding => (
-          <EmptyInstance
-            currentUser={currentUser}
-            openProjectOnboarding={openProjectOnboarding}
-            organization={organization}
-          />
-        )}
-      </OnboardingContext.Consumer>
-    );
+    return isFavorite ? <NoFavoriteProjects /> : <EmptyInstance currentUser={currentUser} />;
   }
 
   renderRow = ({ index, key, style }: ListRowProps) => {
@@ -82,7 +64,6 @@ export default class ProjectsList extends React.PureComponent<Props> {
             handleFavorite={this.props.handleFavorite}
             height={height}
             key={project.key}
-            organization={this.props.organization}
             project={project}
             type={this.props.cardType}
           />

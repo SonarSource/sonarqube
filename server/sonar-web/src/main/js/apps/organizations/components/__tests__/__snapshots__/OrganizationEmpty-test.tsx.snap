@@ -11,21 +11,7 @@ exports[`should hide add members button when member sync activated 1`] = `
   </h3>
   <div
     className="display-flex-space-around huge-spacer-top"
-  >
-    <Button
-      className="button-huge"
-      onClick={[Function]}
-    >
-      <OnboardingProjectIcon
-        className="big-spacer-bottom"
-      />
-      <p
-        className="medium spacer-top"
-      >
-        provisioning.analyze_new_project
-      </p>
-    </Button>
-  </div>
+  />
 </div>
 `;
 
@@ -41,19 +27,6 @@ exports[`should render 1`] = `
   <div
     className="display-flex-space-around huge-spacer-top"
   >
-    <Button
-      className="button-huge"
-      onClick={[Function]}
-    >
-      <OnboardingProjectIcon
-        className="big-spacer-bottom"
-      />
-      <p
-        className="medium spacer-top"
-      >
-        provisioning.analyze_new_project
-      </p>
-    </Button>
     <Button
       className="button-huge"
       onClick={[Function]}

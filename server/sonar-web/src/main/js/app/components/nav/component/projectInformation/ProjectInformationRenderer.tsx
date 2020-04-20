@@ -58,9 +58,7 @@ export function ProjectInformationRenderer(props: ProjectInformationRendererProp
             <h3 className="spacer-right">{translate('project.info.description')}</h3>
             {component.visibility && (
               <PrivacyBadgeContainer
-                organization={undefined}
                 qualifier={component.qualifier}
-                tooltipProps={{ projectKey: component.key }}
                 visibility={component.visibility}
               />
             )}

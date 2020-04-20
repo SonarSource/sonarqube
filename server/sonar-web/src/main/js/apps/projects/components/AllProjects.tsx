@@ -307,7 +307,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
             handleFavorite={this.handleFavorite}
             isFavorite={this.props.isFavorite}
             isFiltered={hasFilterParams(this.state.query)}
-            organization={this.props.organization}
             projects={this.state.projects}
             query={this.state.query}
           />

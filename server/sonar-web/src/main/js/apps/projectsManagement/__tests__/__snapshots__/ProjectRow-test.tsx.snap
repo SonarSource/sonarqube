@@ -47,13 +47,8 @@ exports[`renders 1`] = `
   <td
     className="thin nowrap"
   >
-    <Connect(PrivacyBadge)
+    <PrivacyBadgeContainer
       qualifier="TRK"
-      tooltipProps={
-        Object {
-          "projectKey": "project",
-        }
-      }
       visibility="private"
     />
   </td>
@@ -148,13 +143,8 @@ exports[`renders: portfolio 1`] = `
   <td
     className="thin nowrap"
   >
-    <Connect(PrivacyBadge)
+    <PrivacyBadgeContainer
       qualifier="VW"
-      tooltipProps={
-        Object {
-          "projectKey": "project",
-        }
-      }
       visibility="private"
     />
   </td>
@@ -250,13 +240,8 @@ exports[`renders: with lastAnalysisDate 1`] = `
   <td
     className="thin nowrap"
   >
-    <Connect(PrivacyBadge)
+    <PrivacyBadgeContainer
       qualifier="TRK"
-      tooltipProps={
-        Object {
-          "projectKey": "project",
-        }
-      }
       visibility="private"
     />
   </td>

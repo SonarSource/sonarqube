@@ -81,25 +81,16 @@ beforeEach(() => {
   (fetchPrismicFeatureNews as jest.Mock).mockClear();
 });
 
-it('should render for SonarQube', async () => {
+it('should render correctly', async () => {
   (isSonarCloud as jest.Mock).mockImplementation(() => false);
 
   const wrapper = shallowRender();
 
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot('anonymous users');
   wrapper.setProps({ currentUser: { isLoggedIn: true } });
-  expect(wrapper.find('[data-test="global-nav-plus"]').exists()).toBe(true);
+  expect(wrapper).toMatchSnapshot('logged in users');
 
   await waitAndUpdate(wrapper);
-  expect(fetchPrismicRefs).not.toBeCalled();
-});
-
-it('should render for SonarCloud', () => {
-  (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  const wrapper = shallowRender({ currentUser: { isLoggedIn: true } });
-
-  expect(wrapper).toMatchSnapshot();
-  expect(wrapper.find('[data-test="global-nav-plus"]').exists()).toBe(true);
 });
 
 it('should render correctly if there are new features', async () => {

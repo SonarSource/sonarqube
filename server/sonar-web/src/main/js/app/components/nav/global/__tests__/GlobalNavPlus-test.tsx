@@ -38,10 +38,10 @@ it('render', () => {
 });
 
 it('opens onboarding', () => {
-  const openProjectOnboarding = jest.fn();
-  const wrapper = getOverlayWrapper(getWrapper({ openProjectOnboarding }));
+  const push = jest.fn();
+  const wrapper = getOverlayWrapper(getWrapper({ router: mockRouter({ push }) }));
   click(wrapper.find('.js-new-project'));
-  expect(openProjectOnboarding).toBeCalled();
+  expect(push).toBeCalled();
 });
 
 it('should display create new project link when user has permission only', () => {
@@ -81,7 +81,6 @@ function getWrapper(props = {}, globalPermissions?: string[]) {
           permissions: { global: globalPermissions || ['provisioning'] }
         } as T.LoggedInUser
       }
-      openProjectOnboarding={jest.fn()}
       router={mockRouter()}
       {...props}
     />

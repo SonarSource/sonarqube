@@ -33,7 +33,6 @@ import { ComponentQualifier } from '../../../types/component';
 import { Project } from '../types';
 import { formatDuration } from '../utils';
 import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
-import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
 import ProjectCardOverallMeasures from './ProjectCardOverallMeasures';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 
@@ -41,7 +40,6 @@ interface Props {
   currentUser: T.CurrentUser;
   handleFavorite: (component: string, isFavorite: boolean) => void;
   height: number;
-  organization: T.Organization | undefined;
   project: Project;
   type?: string;
 }
@@ -61,7 +59,7 @@ function getDates(project: Project, type: string | undefined) {
 }
 
 function renderHeader(props: Props) {
-  const { organization, project } = props;
+  const { project } = props;
   const hasTags = project.tags.length > 0;
   return (
     <div className="project-card-header">
@@ -75,16 +73,13 @@ function renderHeader(props: Props) {
         />
       )}
       <h2 className="project-card-name">
-        {!organization && <ProjectCardOrganizationContainer organization={project.organization} />}
         <Link to={getProjectUrl(project.key)}>{project.name}</Link>
       </h2>
       {project.analysisDate && <ProjectCardQualityGate status={project.measures['alert_status']} />}
       <div className="project-card-header-right">
         <PrivacyBadgeContainer
           className="spacer-left"
-          organization={organization || project.organization}
           qualifier={project.qualifier}
-          tooltipProps={{ projectKey: project.key }}
           visibility={project.visibility}
         />
 

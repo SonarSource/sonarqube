@@ -20,24 +20,17 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import OnboardingAddMembersIcon from 'sonar-ui-common/components/icons/OnboardingAddMembersIcon';
-import OnboardingProjectIcon from 'sonar-ui-common/components/icons/OnboardingProjectIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { OnboardingContextShape } from '../../../app/components/OnboardingContext';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
 import '../../tutorials/styles.css';
 import './OrganizationEmpty.css';
 
 interface Props {
-  openProjectOnboarding: OnboardingContextShape;
   organization: T.Organization;
   router: Pick<Router, 'push'>;
 }
 
 export class OrganizationEmpty extends React.PureComponent<Props> {
-  handleNewProjectClick = () => {
-    this.props.openProjectOnboarding(this.props.organization);
-  };
-
   handleAddMembersClick = () => {
     const { organization } = this.props;
     this.props.router.push(`/organizations/${organization.key}/members`);
@@ -51,10 +44,6 @@ export class OrganizationEmpty extends React.PureComponent<Props> {
       <div className="organization-empty">
         <h3 className="text-center">{translate('onboarding.create_organization.ready')}</h3>
         <div className="display-flex-space-around huge-spacer-top">
-          <Button className="button-huge" onClick={this.handleNewProjectClick}>
-            <OnboardingProjectIcon className="big-spacer-bottom" />
-            <p className="medium spacer-top">{translate('provisioning.analyze_new_project')}</p>
-          </Button>
           {!memberSyncActivated && (
             <Button className="button-huge" onClick={this.handleAddMembersClick}>
               <OnboardingAddMembersIcon />

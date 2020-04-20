@@ -17,79 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { sortBy } from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Button } from 'sonar-ui-common/components/controls/buttons';
-import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
-import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { OnboardingContextShape } from '../../../app/components/OnboardingContext';
-import OrganizationListItem from '../../../components/ui/OrganizationListItem';
-import { isSonarCloud } from '../../../helpers/system';
-import { getMyOrganizations, Store } from '../../../store/rootReducer';
 
-interface OwnProps {
-  openProjectOnboarding: OnboardingContextShape;
-}
-
-interface StateProps {
-  organizations: T.Organization[];
-}
-
-export function NoFavoriteProjects(props: StateProps & OwnProps) {
+export default function NoFavoriteProjects() {
   return (
     <div className="projects-empty-list">
       <h3>{translate('projects.no_favorite_projects')}</h3>
-      {isSonarCloud() ? (
-        <div className="spacer-top">
-          <p>{translate('projects.no_favorite_projects.how_to_add_projects')}</p>
-          <div className="huge-spacer-top">
-            <Button onClick={props.openProjectOnboarding}>
-              {translate('provisioning.analyze_new_project')}
-            </Button>
 
-            {props.organizations.length > 0 && (
-              <Dropdown
-                className="display-inline-block big-spacer-left"
-                overlay={
-                  <ul className="menu">
-                    {sortBy(props.organizations, org => org.name.toLowerCase()).map(
-                      organization => (
-                        <OrganizationListItem key={organization.key} organization={organization} />
-                      )
-                    )}
-                  </ul>
-                }>
-                <a className="button" href="#">
-                  {translate('projects.no_favorite_projects.favorite_projects_from_orgs')}
-                  <DropdownIcon className="little-spacer-left" />
-                </a>
-              </Dropdown>
-            )}
-
-            <Link className="button big-spacer-left" to="/explore/projects">
-              {translate('projects.no_favorite_projects.favorite_public_projects')}
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <p className="big-spacer-top">{translate('projects.no_favorite_projects.engagement')}</p>
-          <p className="big-spacer-top">
-            <Link className="button" to="/projects/all">
-              {translate('projects.explore_projects')}
-            </Link>
-          </p>
-        </div>
-      )}
+      <div>
+        <p className="big-spacer-top">{translate('projects.no_favorite_projects.engagement')}</p>
+        <p className="big-spacer-top">
+          <Link className="button" to="/projects/all">
+            {translate('projects.explore_projects')}
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
-
-const mapStateToProps = (state: Store): StateProps => ({
-  organizations: getMyOrganizations(state)
-});
-
-export default connect(mapStateToProps)(NoFavoriteProjects);

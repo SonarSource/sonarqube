@@ -19,32 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { isSonarCloud } from '../../../../helpers/system';
-import { NoFavoriteProjects } from '../NoFavoriteProjects';
-
-jest.mock('../../../../helpers/system', () => ({ isSonarCloud: jest.fn() }));
+import NoFavoriteProjects from '../NoFavoriteProjects';
 
 it('renders', () => {
-  (isSonarCloud as jest.Mock).mockImplementation(() => false);
-  expect(
-    shallow(<NoFavoriteProjects openProjectOnboarding={jest.fn()} organizations={[]} />)
-  ).toMatchSnapshot();
-});
-
-it('renders for SonarCloud without organizations', () => {
-  (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  expect(
-    shallow(<NoFavoriteProjects openProjectOnboarding={jest.fn()} organizations={[]} />)
-  ).toMatchSnapshot();
-});
-
-it('renders for SonarCloud with organizations', () => {
-  (isSonarCloud as jest.Mock).mockImplementation(() => true);
-  const organizations: T.Organization[] = [
-    { actions: { admin: true }, key: 'org1', name: 'org1', projectVisibility: 'public' },
-    { actions: { admin: false }, key: 'org2', name: 'org2', projectVisibility: 'public' }
-  ];
-  expect(
-    shallow(<NoFavoriteProjects openProjectOnboarding={jest.fn()} organizations={organizations} />)
-  ).toMatchSnapshot();
+  expect(shallow(<NoFavoriteProjects />)).toMatchSnapshot();
 });
