@@ -76,8 +76,10 @@ exports[`should render correctly 1`] = `
                   <div
                     className="analysis-selection-button"
                   >
-                    <i
-                      className="icon-radio"
+                    <Radio
+                      checked={false}
+                      onCheck={[Function]}
+                      value=""
                     />
                   </div>
                 </li>
@@ -130,8 +132,10 @@ exports[`should render correctly 1`] = `
                   <div
                     className="analysis-selection-button"
                   >
-                    <i
-                      className="icon-radio"
+                    <Radio
+                      checked={false}
+                      onCheck={[Function]}
+                      value=""
                     />
                   </div>
                 </li>
@@ -231,8 +235,10 @@ exports[`should render correctly 1`] = `
                   <div
                     className="analysis-selection-button"
                   >
-                    <i
-                      className="icon-radio"
+                    <Radio
+                      checked={false}
+                      onCheck={[Function]}
+                      value=""
                     />
                   </div>
                 </li>
@@ -255,8 +261,10 @@ exports[`should render correctly 1`] = `
                   <div
                     className="analysis-selection-button"
                   >
-                    <i
-                      className="icon-radio"
+                    <Radio
+                      checked={false}
+                      onCheck={[Function]}
+                      value=""
                     />
                   </div>
                 </li>

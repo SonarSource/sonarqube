@@ -25,7 +25,6 @@ import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createProject, doesComponentExists } from '../../../api/components';
-import VisibilitySelector from '../../../components/common/VisibilitySelector';
 import { isSonarCloud } from '../../../helpers/system';
 import UpgradeOrganizationBox from '../components/UpgradeOrganizationBox';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
@@ -323,20 +322,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                   value={projectName}
                 />
               </ValidationInput>
-
-              {isSonarCloud() && selectedOrganization && (
-                <div
-                  className={classNames('visibility-select-wrapper', {
-                    open: Boolean(this.state.selectedOrganization)
-                  })}>
-                  <VisibilitySelector
-                    canTurnToPrivate={canChoosePrivate}
-                    onChange={this.handleVisibilityChange}
-                    showDetails={true}
-                    visibility={canChoosePrivate ? this.state.selectedVisibility : 'public'}
-                  />
-                </div>
-              )}
 
               <SubmitButton disabled={!this.canSubmit(this.state) || submitting}>
                 {translate('set_up')}

@@ -19,30 +19,44 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import VisibilitySelector from '../VisibilitySelector';
 
 it('changes visibility', () => {
   const onChange = jest.fn();
-  const wrapper = shallow(
-    <VisibilitySelector canTurnToPrivate={true} onChange={onChange} visibility="public" />
-  );
+  const wrapper = shallowRender({ onChange });
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('#visibility-private'));
+  wrapper
+    .find(Radio)
+    .first()
+    .props()
+    .onCheck('private');
   expect(onChange).toBeCalledWith('private');
 
   wrapper.setProps({ visibility: 'private' });
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('#visibility-public'));
+  wrapper
+    .find(Radio)
+    .first()
+    .props()
+    .onCheck('public');
   expect(onChange).toBeCalledWith('public');
 });
 
 it('renders disabled', () => {
-  expect(
-    shallow(
-      <VisibilitySelector canTurnToPrivate={false} onChange={jest.fn()} visibility="public" />
-    )
-  ).toMatchSnapshot();
+  expect(shallowRender({ canTurnToPrivate: false })).toMatchSnapshot();
 });
+
+function shallowRender(props?: Partial<VisibilitySelector['props']>) {
+  return shallow<VisibilitySelector>(
+    <VisibilitySelector
+      className="test-classname"
+      canTurnToPrivate={true}
+      onChange={jest.fn()}
+      visibility="public"
+      {...props}
+    />
+  );
+}

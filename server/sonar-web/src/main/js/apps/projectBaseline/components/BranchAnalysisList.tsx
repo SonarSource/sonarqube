@@ -21,6 +21,7 @@ import * as classNames from 'classnames';
 import { subDays } from 'date-fns';
 import { throttle } from 'lodash';
 import * as React from 'react';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import Select from 'sonar-ui-common/components/controls/Select';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
@@ -251,10 +252,10 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
                                     )}
 
                                     <div className="analysis-selection-button">
-                                      <i
-                                        className={classNames('icon-radio', {
-                                          'is-checked': analysis.key === this.props.analysis
-                                        })}
+                                      <Radio
+                                        checked={analysis.key === this.props.analysis}
+                                        onCheck={() => {}}
+                                        value=""
                                       />
                                     </div>
                                   </li>

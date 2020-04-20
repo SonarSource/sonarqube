@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Button, DeleteButton, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import AlertErrorIcon from 'sonar-ui-common/components/icons/AlertErrorIcon';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
@@ -141,6 +141,10 @@ export default class TokenStep extends React.PureComponent<Props, State> {
     this.setState({ selection: 'use-existing' });
   };
 
+  handleModeChange = (mode: string) => {
+    this.setState({ selection: mode });
+  };
+
   handleExisingTokenChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ existingToken: event.currentTarget.value });
   };
@@ -154,17 +158,12 @@ export default class TokenStep extends React.PureComponent<Props, State> {
   renderGenerateOption = () => (
     <div>
       {this.state.tokens !== undefined && this.state.tokens.length > 0 ? (
-        <a
-          className="js-new link-base-color link-no-underline"
-          href="#"
-          onClick={this.handleGenerateClick}>
-          <i
-            className={classNames('icon-radio', 'spacer-right', {
-              'is-checked': this.state.selection === 'generate'
-            })}
-          />
+        <Radio
+          checked={this.state.selection === 'generate'}
+          onCheck={this.handleModeChange}
+          value="generate">
           {translate('onboarding.token.generate_token')}
-        </a>
+        </Radio>
       ) : (
         translate('onboarding.token.generate_token')
       )}
@@ -199,17 +198,12 @@ export default class TokenStep extends React.PureComponent<Props, State> {
 
     return (
       <div className="big-spacer-top">
-        <a
-          className="js-new link-base-color link-no-underline"
-          href="#"
-          onClick={this.handleUseExistingClick}>
-          <i
-            className={classNames('icon-radio', 'spacer-right', {
-              'is-checked': this.state.selection === 'use-existing'
-            })}
-          />
+        <Radio
+          checked={this.state.selection === 'use-existing'}
+          onCheck={this.handleModeChange}
+          value="use-existing">
           {translate('onboarding.token.use_existing_token')}
-        </a>
+        </Radio>
         {this.state.selection === 'use-existing' && (
           <div className="big-spacer-top">
             <input

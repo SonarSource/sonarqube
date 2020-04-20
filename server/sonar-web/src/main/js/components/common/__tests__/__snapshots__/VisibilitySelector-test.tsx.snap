@@ -2,109 +2,121 @@
 
 exports[`changes visibility 1`] = `
 <div
-  className="visibility-select"
+  className="test-classname"
 >
-  <a
-    className="link-base-color link-no-underline visibility-select-option"
-    href="#"
-    id="visibility-public"
-    onClick={[Function]}
+  <Radio
+    checked={true}
+    className="huge-spacer-right visibility-public"
+    disabled={false}
+    key="public"
+    onCheck={[MockFunction]}
+    value="public"
   >
-    <i
-      className="icon-radio is-checked"
-    />
-    <span
-      className="spacer-left"
-    >
+    <div>
       visibility.public
-    </span>
-  </a>
-  <a
-    className="link-base-color link-no-underline huge-spacer-left visibility-select-option"
-    href="#"
-    id="visibility-private"
-    onClick={[Function]}
+    </div>
+  </Radio>
+  <Radio
+    checked={false}
+    className="huge-spacer-right visibility-private"
+    disabled={false}
+    key="private"
+    onCheck={[MockFunction]}
+    value="private"
   >
-    <i
-      className="icon-radio"
-    />
-    <span
-      className="spacer-left"
-    >
+    <div>
       visibility.private
-    </span>
-  </a>
+    </div>
+  </Radio>
 </div>
 `;
 
 exports[`changes visibility 2`] = `
 <div
-  className="visibility-select"
+  className="test-classname"
 >
-  <a
-    className="link-base-color link-no-underline visibility-select-option"
-    href="#"
-    id="visibility-public"
-    onClick={[Function]}
+  <Radio
+    checked={false}
+    className="huge-spacer-right visibility-public"
+    disabled={false}
+    key="public"
+    onCheck={
+      [MockFunction] {
+        "calls": Array [
+          Array [
+            "private",
+          ],
+        ],
+        "results": Array [
+          Object {
+            "type": "return",
+            "value": undefined,
+          },
+        ],
+      }
+    }
+    value="public"
   >
-    <i
-      className="icon-radio"
-    />
-    <span
-      className="spacer-left"
-    >
+    <div>
       visibility.public
-    </span>
-  </a>
-  <a
-    className="link-base-color link-no-underline huge-spacer-left visibility-select-option"
-    href="#"
-    id="visibility-private"
-    onClick={[Function]}
+    </div>
+  </Radio>
+  <Radio
+    checked={true}
+    className="huge-spacer-right visibility-private"
+    disabled={false}
+    key="private"
+    onCheck={
+      [MockFunction] {
+        "calls": Array [
+          Array [
+            "private",
+          ],
+        ],
+        "results": Array [
+          Object {
+            "type": "return",
+            "value": undefined,
+          },
+        ],
+      }
+    }
+    value="private"
   >
-    <i
-      className="icon-radio is-checked"
-    />
-    <span
-      className="spacer-left"
-    >
+    <div>
       visibility.private
-    </span>
-  </a>
+    </div>
+  </Radio>
 </div>
 `;
 
 exports[`renders disabled 1`] = `
 <div
-  className="visibility-select"
+  className="test-classname"
 >
-  <a
-    className="link-base-color link-no-underline visibility-select-option"
-    href="#"
-    id="visibility-public"
-    onClick={[Function]}
+  <Radio
+    checked={true}
+    className="huge-spacer-right visibility-public"
+    disabled={false}
+    key="public"
+    onCheck={[MockFunction]}
+    value="public"
   >
-    <i
-      className="icon-radio is-checked"
-    />
-    <span
-      className="spacer-left"
-    >
+    <div>
       visibility.public
-    </span>
-  </a>
-  <span
-    className="huge-spacer-left text-muted cursor-not-allowed visibility-select-option"
-    id="visibility-private"
+    </div>
+  </Radio>
+  <Radio
+    checked={false}
+    className="huge-spacer-right visibility-private"
+    disabled={true}
+    key="private"
+    onCheck={[MockFunction]}
+    value="private"
   >
-    <i
-      className="icon-radio"
-    />
-    <span
-      className="spacer-left"
-    >
+    <div>
       visibility.private
-    </span>
-  </span>
+    </div>
+  </Radio>
 </div>
 `;

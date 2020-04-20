@@ -24,16 +24,13 @@ exports[`generates token 1`] = `
     >
       <div>
         <div>
-          <a
-            className="js-new link-base-color link-no-underline"
-            href="#"
-            onClick={[Function]}
+          <Radio
+            checked={true}
+            onCheck={[Function]}
+            value="generate"
           >
-            <i
-              className="icon-radio spacer-right is-checked"
-            />
             onboarding.token.generate_token
-          </a>
+          </Radio>
           <div
             className="big-spacer-top"
           >
@@ -61,16 +58,13 @@ exports[`generates token 1`] = `
         <div
           className="big-spacer-top"
         >
-          <a
-            className="js-new link-base-color link-no-underline"
-            href="#"
-            onClick={[Function]}
+          <Radio
+            checked={false}
+            onCheck={[Function]}
+            value="use-existing"
           >
-            <i
-              className="icon-radio spacer-right"
-            />
             onboarding.token.use_existing_token
-          </a>
+          </Radio>
         </div>
       </div>
       <div
@@ -122,16 +116,13 @@ exports[`generates token 2`] = `
     >
       <div>
         <div>
-          <a
-            className="js-new link-base-color link-no-underline"
-            href="#"
-            onClick={[Function]}
+          <Radio
+            checked={true}
+            onCheck={[Function]}
+            value="generate"
           >
-            <i
-              className="icon-radio spacer-right is-checked"
-            />
             onboarding.token.generate_token
-          </a>
+          </Radio>
           <div
             className="big-spacer-top"
           >
@@ -156,16 +147,13 @@ exports[`generates token 2`] = `
         <div
           className="big-spacer-top"
         >
-          <a
-            className="js-new link-base-color link-no-underline"
-            href="#"
-            onClick={[Function]}
+          <Radio
+            checked={false}
+            onCheck={[Function]}
+            value="use-existing"
           >
-            <i
-              className="icon-radio spacer-right"
-            />
             onboarding.token.use_existing_token
-          </a>
+          </Radio>
         </div>
       </div>
       <div
@@ -444,16 +432,13 @@ exports[`revokes token 3`] = `
     >
       <div>
         <div>
-          <a
-            className="js-new link-base-color link-no-underline"
-            href="#"
-            onClick={[Function]}
+          <Radio
+            checked={true}
+            onCheck={[Function]}
+            value="generate"
           >
-            <i
-              className="icon-radio spacer-right is-checked"
-            />
             onboarding.token.generate_token
-          </a>
+          </Radio>
           <div
             className="big-spacer-top"
           >
@@ -481,16 +466,13 @@ exports[`revokes token 3`] = `
         <div
           className="big-spacer-top"
         >
-          <a
-            className="js-new link-base-color link-no-underline"
-            href="#"
-            onClick={[Function]}
+          <Radio
+            checked={false}
+            onCheck={[Function]}
+            value="use-existing"
           >
-            <i
-              className="icon-radio spacer-right"
-            />
             onboarding.token.use_existing_token
-          </a>
+          </Radio>
         </div>
       </div>
       <div

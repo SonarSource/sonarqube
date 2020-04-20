@@ -48,44 +48,6 @@ a[class*=' icon-'] {
 }
 
 /*
- * Radio
- */
-.icon-radio {
-  position: relative;
-  display: inline-block;
-  vertical-align: top;
-  width: 14px;
-  height: 14px;
-  margin: 1px;
-  border: 1px solid var(--gray80);
-  border-radius: 12px;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease;
-}
-
-.icon-radio:after {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-radius: 8px;
-  background-color: var(--darkBlue);
-  content: '';
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-a:not(.disabled):hover > .icon-radio {
-  border-color: var(--blue);
-}
-
-.icon-radio.is-checked:after {
-  opacity: 1;
-}
-
-/*
  * Common
  */
 .icon-outline {

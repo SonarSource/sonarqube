@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import ChangeDefaultVisibilityForm from '../ChangeDefaultVisibilityForm';
 
@@ -49,12 +50,11 @@ it('changes visibility', () => {
   const wrapper = shallowRender({ onConfirm });
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('a[data-visibility="private"]'), {
-    currentTarget: {
-      blur() {},
-      dataset: { visibility: 'private' }
-    }
-  });
+  wrapper
+    .find(Radio)
+    .first()
+    .props()
+    .onCheck('private');
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('.js-confirm'));

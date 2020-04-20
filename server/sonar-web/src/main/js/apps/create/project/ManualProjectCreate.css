@@ -21,23 +21,6 @@
   max-width: 700px;
 }
 
-.manual-project-create .visibility-select-option {
-  margin-left: 0 !important;
-  margin-bottom: var(--gridSize);
-  display: flex;
-  align-items: center;
-  font-size: var(--mediumFontSize);
-}
-
-.manual-project-create .visibility-details {
-  display: block;
-  margin: var(--gridSize) 0;
-}
-
-.manual-project-create .visibility-select-wrapper {
-  padding: var(--gridSize) 0 calc(2 * var(--gridSize)) 0;
-}
-
 .manual-project-create .button {
   margin-top: var(--gridSize);
 }

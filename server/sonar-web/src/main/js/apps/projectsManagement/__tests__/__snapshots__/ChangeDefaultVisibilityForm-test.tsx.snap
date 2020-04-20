@@ -19,57 +19,41 @@ exports[`changes visibility 1`] = `
       className="big-spacer-bottom"
       key="public"
     >
-      <p>
-        <a
-          className="link-base-color link-no-underline"
-          data-visibility="public"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="icon-radio spacer-right is-checked"
-          />
-          visibility.public
-        </a>
-      </p>
-      <p
-        className="text-muted spacer-top"
-        style={
-          Object {
-            "paddingLeft": 22,
-          }
-        }
+      <Radio
+        checked={true}
+        disabled={false}
+        onCheck={[Function]}
+        value="public"
       >
-        visibility.public.description.short
-      </p>
+        <div>
+          visibility.public
+          <p
+            className="text-muted spacer-top"
+          >
+            visibility.public.description.short
+          </p>
+        </div>
+      </Radio>
     </div>
     <div
       className="big-spacer-bottom"
       key="private"
     >
-      <p>
-        <a
-          className="link-base-color link-no-underline"
-          data-visibility="private"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="icon-radio spacer-right"
-          />
-          visibility.private
-        </a>
-      </p>
-      <p
-        className="text-muted spacer-top"
-        style={
-          Object {
-            "paddingLeft": 22,
-          }
-        }
+      <Radio
+        checked={false}
+        disabled={false}
+        onCheck={[Function]}
+        value="private"
       >
-        visibility.private.description.short
-      </p>
+        <div>
+          visibility.private
+          <p
+            className="text-muted spacer-top"
+          >
+            visibility.private.description.short
+          </p>
+        </div>
+      </Radio>
     </div>
     <Alert
       variant="warning"
@@ -115,57 +99,41 @@ exports[`changes visibility 2`] = `
       className="big-spacer-bottom"
       key="public"
     >
-      <p>
-        <a
-          className="link-base-color link-no-underline"
-          data-visibility="public"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="icon-radio spacer-right"
-          />
-          visibility.public
-        </a>
-      </p>
-      <p
-        className="text-muted spacer-top"
-        style={
-          Object {
-            "paddingLeft": 22,
-          }
-        }
+      <Radio
+        checked={false}
+        disabled={false}
+        onCheck={[Function]}
+        value="public"
       >
-        visibility.public.description.short
-      </p>
+        <div>
+          visibility.public
+          <p
+            className="text-muted spacer-top"
+          >
+            visibility.public.description.short
+          </p>
+        </div>
+      </Radio>
     </div>
     <div
       className="big-spacer-bottom"
       key="private"
     >
-      <p>
-        <a
-          className="link-base-color link-no-underline"
-          data-visibility="private"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="icon-radio spacer-right is-checked"
-          />
-          visibility.private
-        </a>
-      </p>
-      <p
-        className="text-muted spacer-top"
-        style={
-          Object {
-            "paddingLeft": 22,
-          }
-        }
+      <Radio
+        checked={true}
+        disabled={false}
+        onCheck={[Function]}
+        value="private"
       >
-        visibility.private.description.short
-      </p>
+        <div>
+          visibility.private
+          <p
+            className="text-muted spacer-top"
+          >
+            visibility.private.description.short
+          </p>
+        </div>
+      </Radio>
     </div>
     <Alert
       variant="warning"
@@ -211,54 +179,41 @@ exports[`renders disabled 1`] = `
       className="big-spacer-bottom"
       key="public"
     >
-      <p>
-        <a
-          className="link-base-color link-no-underline"
-          data-visibility="public"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="icon-radio spacer-right is-checked"
-          />
-          visibility.public
-        </a>
-      </p>
-      <p
-        className="text-muted spacer-top"
-        style={
-          Object {
-            "paddingLeft": 22,
-          }
-        }
+      <Radio
+        checked={true}
+        disabled={false}
+        onCheck={[Function]}
+        value="public"
       >
-        visibility.public.description.short
-      </p>
+        <div>
+          visibility.public
+          <p
+            className="text-muted spacer-top"
+          >
+            visibility.public.description.short
+          </p>
+        </div>
+      </Radio>
     </div>
     <div
       className="big-spacer-bottom"
       key="private"
     >
-      <p>
-        <span
-          className="text-muted cursor-not-allowed"
-        >
-          <i
-            className="icon-radio spacer-right"
-          />
-          visibility.private
-        </span>
-      </p>
-      <p
-        className="text-muted spacer-top"
-        style={
-          Object {
-            "paddingLeft": 22,
-          }
-        }
+      <Radio
+        checked={false}
+        disabled={true}
+        onCheck={[Function]}
+        value="private"
       >
-        visibility.private.description.short
-      </p>
+        <div>
+          visibility.private
+          <p
+            className="text-muted spacer-top"
+          >
+            visibility.private.description.short
+          </p>
+        </div>
+      </Radio>
     </div>
   </div>
   <footer

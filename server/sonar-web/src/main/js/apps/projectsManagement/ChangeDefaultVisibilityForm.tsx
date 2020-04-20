@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import * as React from 'react';
 import { Button, ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
+import Radio from 'sonar-ui-common/components/controls/Radio';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
@@ -45,10 +45,7 @@ export default class ChangeDefaultVisibilityForm extends React.PureComponent<Pro
     this.props.onClose();
   };
 
-  handleVisibilityClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    const visibility = event.currentTarget.dataset.visibility as T.Visibility;
+  handleVisibilityChange = (visibility: T.Visibility) => {
     this.setState({ visibility });
   };
 
@@ -63,34 +60,20 @@ export default class ChangeDefaultVisibilityForm extends React.PureComponent<Pro
         <div className="modal-body">
           {['public', 'private'].map(visibility => (
             <div className="big-spacer-bottom" key={visibility}>
-              <p>
-                {visibility === 'private' && !organization.canUpdateProjectsVisibilityToPrivate ? (
-                  <span className="text-muted cursor-not-allowed">
-                    <i
-                      className={classNames('icon-radio', 'spacer-right', {
-                        'is-checked': this.state.visibility === visibility
-                      })}
-                    />
-                    {translate('visibility', visibility)}
-                  </span>
-                ) : (
-                  <a
-                    className="link-base-color link-no-underline"
-                    data-visibility={visibility}
-                    href="#"
-                    onClick={this.handleVisibilityClick}>
-                    <i
-                      className={classNames('icon-radio', 'spacer-right', {
-                        'is-checked': this.state.visibility === visibility
-                      })}
-                    />
-                    {translate('visibility', visibility)}
-                  </a>
-                )}
-              </p>
-              <p className="text-muted spacer-top" style={{ paddingLeft: 22 }}>
-                {translate('visibility', visibility, 'description.short')}
-              </p>
+              <Radio
+                value={visibility}
+                checked={this.state.visibility === visibility}
+                onCheck={this.handleVisibilityChange}
+                disabled={
+                  visibility === 'private' && !organization.canUpdateProjectsVisibilityToPrivate
+                }>
+                <div>
+                  {translate('visibility', visibility)}
+                  <p className="text-muted spacer-top">
+                    {translate('visibility', visibility, 'description.short')}
+                  </p>
+                </div>
+              </Radio>
             </div>
           ))}
 
