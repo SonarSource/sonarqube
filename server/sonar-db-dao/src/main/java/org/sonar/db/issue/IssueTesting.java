@@ -84,6 +84,7 @@ public class IssueTesting {
 
   public static IssueChangeDto newIssuechangeDto(IssueDto issue) {
     return new IssueChangeDto()
+      .setUuid(UuidFactoryFast.getInstance().create())
       .setKey(UuidFactoryFast.getInstance().create())
       .setIssueKey(issue.getKey())
       .setChangeData("data_" + randomAlphanumeric(40))

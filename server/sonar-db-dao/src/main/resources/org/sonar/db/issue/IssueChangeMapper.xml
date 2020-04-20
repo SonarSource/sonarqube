@@ -5,7 +5,7 @@
 <mapper namespace="org.sonar.db.issue.IssueChangeMapper">
 
   <sql id="issueChangeColumns">
-    c.id,
+    c.uuid,
     c.kee as kee,
     c.issue_key as issueKey,
     c.user_login as userUuid,
@@ -16,10 +16,10 @@
     c.issue_change_creation_date as issueChangeCreationDate
   </sql>
 
-  <insert id="insert" parameterType="IssueChange" useGeneratedKeys="false" keyProperty="id">
-    INSERT INTO issue_changes (kee, issue_key, user_login, change_type, change_data, created_at, updated_at,
+  <insert id="insert" parameterType="IssueChange">
+    INSERT INTO issue_changes (kee, uuid, issue_key, user_login, change_type, change_data, created_at, updated_at,
     issue_change_creation_date)
-    VALUES (#{kee,jdbcType=VARCHAR}, #{issueKey,jdbcType=VARCHAR}, #{userUuid,jdbcType=VARCHAR},
+    VALUES (#{kee,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR}, #{issueKey,jdbcType=VARCHAR}, #{userUuid,jdbcType=VARCHAR},
     #{changeType,jdbcType=VARCHAR}, #{changeData,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
     #{updatedAt,jdbcType=BIGINT}, #{issueChangeCreationDate,jdbcType=BIGINT})
   </insert>

@@ -39,6 +39,7 @@ public class IssueChangeMapperTest {
   @Test
   public void insert_diff() {
     IssueChangeDto dto = new IssueChangeDto();
+    dto.setUuid("uuid");
     dto.setKey(null /* no key on field changes */);
     dto.setUserUuid("user_uuid");
     dto.setIssueKey("ABCDE");
@@ -59,6 +60,7 @@ public class IssueChangeMapperTest {
   @Test
   public void insert_comment() {
     IssueChangeDto dto = new IssueChangeDto();
+    dto.setUuid("uuid");
     dto.setKey("COMMENT-1234");
     dto.setUserUuid("user_uuid");
     dto.setIssueKey("ABCDE");
@@ -78,6 +80,7 @@ public class IssueChangeMapperTest {
   }
 
   private void assertEquals(IssueChangeDto expected, IssueChangeDto actual) {
+    assertThat(actual.getUuid()).isEqualTo(expected.getUuid());
     assertThat(actual.getKey()).isEqualTo(expected.getKey());
     assertThat(actual.getUserUuid()).isEqualTo(expected.getUserUuid());
     assertThat(actual.getIssueKey()).isEqualTo(expected.getIssueKey());
