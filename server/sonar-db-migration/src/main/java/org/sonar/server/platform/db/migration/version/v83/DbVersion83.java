@@ -58,6 +58,12 @@ import org.sonar.server.platform.db.migration.version.v83.projectmeasures.DropId
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.DropPrimaryKeyOnIdColumnOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.MakeProjectMeasuresUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.PopulateProjectMeasureUuid;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.AddPrimaryKeyOnUuidColumnOfProjectQProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.AddUuidColumnToProjectQProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.DropIdColumnOfProjectQProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.DropPrimaryKeyOnIdColumnOfProjectQProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.MakeProjectQProfilesUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.PopulateProjectQProfilesUuid;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.AddPrimaryKeyOnUuidColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropIdColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropPrimaryKeyOnIdColumnOfSnapshotsTable;
@@ -151,11 +157,13 @@ public class DbVersion83 implements DbVersion {
       .add(3444, "Add primary key on 'UUID' column of 'USER_TOKENS' table", AddPrimaryKeyOnUuidColumnOfUserTokensTable.class)
       .add(3445, "Drop column 'ID' of 'USER_TOKENS' table", DropIdColumnOfUserTokensTable.class)
 
-
-
-
-
-
+      // Migration on PROJECT_QPROFILES table
+      .add(3446, "Add 'uuid' column for 'PROJECT_QPROFILES'", AddUuidColumnToProjectQProfilesTable.class)
+      .add(3447, "Populate 'uuid' column for 'PROJECT_QPROFILES'", PopulateProjectQProfilesUuid.class)
+      .add(3448, "Make 'uuid' column not nullable for 'PROJECT_QPROFILES'", MakeProjectQProfilesUuidColumnNotNullable.class)
+      .add(3449, "Drop primary key on 'ID' column of 'PROJECT_QPROFILES' table", DropPrimaryKeyOnIdColumnOfProjectQProfilesTable.class)
+      .add(3450, "Add primary key on 'UUID' column of 'PROJECT_QPROFILES' table", AddPrimaryKeyOnUuidColumnOfProjectQProfilesTable.class)
+      .add(3451, "Drop column 'ID' of 'PROJECT_QPROFILES' table", DropIdColumnOfProjectQProfilesTable.class)
 
     ;
   }

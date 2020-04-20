@@ -103,6 +103,7 @@ public interface QualityProfileMapper {
     @Param("languages") Collection<String> languages);
 
   void insertProjectProfileAssociation(
+    @Param("uuid") String uuid,
     @Param("projectUuid") String projectUuid,
     @Param("profileUuid") String profileUuid);
 

@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
@@ -46,8 +47,10 @@ import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 public class QualityProfileDao implements Dao {
 
   private final System2 system;
+  private final UuidFactory uuidFactory;
 
-  public QualityProfileDao(System2 system) {
+  public QualityProfileDao(UuidFactory uuidFactory, System2 system) {
+    this.uuidFactory = uuidFactory;
     this.system = system;
   }
 
@@ -206,7 +209,7 @@ public class QualityProfileDao implements Dao {
   }
 
   public void insertProjectProfileAssociation(DbSession dbSession, ProjectDto project, QProfileDto profile) {
-    mapper(dbSession).insertProjectProfileAssociation(project.getUuid(), profile.getKee());
+    mapper(dbSession).insertProjectProfileAssociation(uuidFactory.create(), project.getUuid(), profile.getKee());
   }
 
   public void deleteProjectProfileAssociation(DbSession dbSession, ProjectDto project, QProfileDto profile) {
