@@ -17,15 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.usertokens;
+package org.sonar.server.platform.db.migration.version.v83.common;
 
+import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.version.v83.common.AddUuidColumnToTable;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 
-public class AddUuidColumnToUserTokens extends AddUuidColumnToTable {
-  private static final String TABLE = "user_tokens";
+public abstract class DropPrimaryKeyOnIdColumn extends DdlChange {
+  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
+  private String tableName;
 
-  public AddUuidColumnToUserTokens(Database db) {
-    super(db, TABLE);
+  public DropPrimaryKeyOnIdColumn(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator, String tableName) {
+    super(db);
+    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
+    this.tableName = tableName;
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(dropPrimaryKeySqlGenerator.generate(tableName,  "id"));
   }
 }

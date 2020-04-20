@@ -19,32 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.projectmeasures;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
-import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.common.AddUuidColumnToTable;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
-
-public class AddUuidColumnToProjectMeasures extends DdlChange {
+public class AddUuidColumnToProjectMeasures extends AddUuidColumnToTable {
   private static final String TABLE = "project_measures";
 
-  private static final VarcharColumnDef uuidColumnDefinition = newVarcharColumnDefBuilder()
-    .setColumnName("uuid")
-    .setIsNullable(true)
-    .setDefaultValue(null)
-    .setLimit(VarcharColumnDef.UUID_SIZE)
-    .build();
-
   public AddUuidColumnToProjectMeasures(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new AddColumnsBuilder(getDialect(), TABLE)
-      .addColumn(uuidColumnDefinition)
-      .build());
+    super(db, TABLE);
   }
 }

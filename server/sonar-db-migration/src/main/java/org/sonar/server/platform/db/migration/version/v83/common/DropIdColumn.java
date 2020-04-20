@@ -17,15 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.usertokens;
+package org.sonar.server.platform.db.migration.version.v83.common;
 
+import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.version.v83.common.AddUuidColumnToTable;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class AddUuidColumnToUserTokens extends AddUuidColumnToTable {
-  private static final String TABLE = "user_tokens";
+public abstract class DropIdColumn extends DdlChange {
+  private Database db;
+  private String tableName;
 
-  public AddUuidColumnToUserTokens(Database db) {
-    super(db, TABLE);
+  public DropIdColumn(Database db, String tableName) {
+    super(db);
+    this.db = db;
+    this.tableName = tableName;
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(db.getDialect(), tableName, "id").build());
+  }
+
 }

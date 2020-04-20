@@ -19,19 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.activeruleparameters;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.common.DropIdColumn;
 
-public class DropIdColumnOfActiveRuleParametersTable extends DdlChange {
+public class DropIdColumnOfActiveRuleParametersTable extends DropIdColumn {
+  private static final String TABLE = "active_rule_parameters";
 
   public DropIdColumnOfActiveRuleParametersTable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(getDialect(), "active_rule_parameters", "id").build());
+    super(db, TABLE);
   }
 }

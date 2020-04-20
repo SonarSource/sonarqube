@@ -19,19 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.notifications;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.common.DropIdColumn;
 
-public class DropIdColumnOfNotificationTable extends DdlChange {
+public class DropIdColumnOfNotificationTable extends DropIdColumn {
+  private static final String TABLE = "notifications";
 
   public DropIdColumnOfNotificationTable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(getDialect(), "notifications", "id").build());
+    super(db, TABLE);
   }
 }

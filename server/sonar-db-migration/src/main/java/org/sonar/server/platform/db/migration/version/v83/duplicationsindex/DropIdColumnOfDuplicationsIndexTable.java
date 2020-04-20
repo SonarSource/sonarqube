@@ -19,19 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.duplicationsindex;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.common.DropIdColumn;
 
-public class DropIdColumnOfDuplicationsIndexTable extends DdlChange {
+public class DropIdColumnOfDuplicationsIndexTable extends DropIdColumn {
+  private static final String TABLE = "duplications_index";
 
   public DropIdColumnOfDuplicationsIndexTable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(getDialect(), "duplications_index", "id").build());
+    super(db, TABLE);
   }
 }

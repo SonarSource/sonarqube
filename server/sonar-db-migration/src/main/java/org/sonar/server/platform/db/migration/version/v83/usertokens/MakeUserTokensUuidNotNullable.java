@@ -19,34 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.usertokens;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
-import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.common.MakeUuidColumnNotNullable;
 
-import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
-
-public class MakeUserTokensUuidNotNullable extends DdlChange {
+public class MakeUserTokensUuidNotNullable extends MakeUuidColumnNotNullable {
   private static final String TABLE = "user_tokens";
 
-  private static final VarcharColumnDef uuidColumnDefinition = newVarcharColumnDefBuilder()
-    .setColumnName("uuid")
-    .setIsNullable(false)
-    .setDefaultValue(null)
-    .setLimit(VarcharColumnDef.UUID_SIZE)
-    .build();
-
   public MakeUserTokensUuidNotNullable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new AlterColumnsBuilder(getDialect(), TABLE)
-      .updateColumn(uuidColumnDefinition)
-      .build());
+    super(db, TABLE);
   }
 }

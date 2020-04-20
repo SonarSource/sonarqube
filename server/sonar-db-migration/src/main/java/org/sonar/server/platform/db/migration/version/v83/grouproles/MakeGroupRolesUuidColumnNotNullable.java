@@ -19,32 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.grouproles;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
-import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.common.MakeUuidColumnNotNullable;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
-
-public class MakeGroupRolesUuidColumnNotNullable extends DdlChange {
+public class MakeGroupRolesUuidColumnNotNullable extends MakeUuidColumnNotNullable {
   private static final String TABLE = "group_roles";
 
-  private static final VarcharColumnDef uuidColumnDefinition = newVarcharColumnDefBuilder()
-    .setColumnName("uuid")
-    .setIsNullable(false)
-    .setDefaultValue(null)
-    .setLimit(VarcharColumnDef.UUID_SIZE)
-    .build();
-
   public MakeGroupRolesUuidColumnNotNullable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new AlterColumnsBuilder(getDialect(), TABLE)
-      .updateColumn(uuidColumnDefinition)
-      .build());
+    super(db, TABLE);
   }
 }

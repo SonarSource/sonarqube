@@ -19,23 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.usertokens;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.common.DropPrimaryKeyOnIdColumn;
 import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 
-public class DropPrimaryKeyOnIdColumnOfUserTokensTable extends DdlChange {
-
-  private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
+public class DropPrimaryKeyOnIdColumnOfUserTokensTable extends DropPrimaryKeyOnIdColumn {
+  private static final String TABLE_NAME = "user_tokens";
 
   public DropPrimaryKeyOnIdColumnOfUserTokensTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
-    super(db);
-    this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
+    super(db, dropPrimaryKeySqlGenerator, TABLE_NAME);
   }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate("user_tokens", "id"));
-  }
-
 }

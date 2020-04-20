@@ -19,23 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.ceactivity;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.common.DropIdColumn;
 
-public class DropIdColumnOfCeActivityTable extends DdlChange {
-
-  private Database db;
+public class DropIdColumnOfCeActivityTable extends DropIdColumn {
+  private static final String TABLE = "ce_activity";
 
   public DropIdColumnOfCeActivityTable(Database db) {
-    super(db);
-    this.db = db;
+    super(db, TABLE);
   }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(db.getDialect(), "ce_activity", "id").build());
-  }
-
 }
