@@ -35,7 +35,7 @@ C#|`sonar.cs.dotcover.reportsPaths`|Path to dotCover coverage report. See _Notes
 C#|`sonar.cs.opencover.reportsPaths`|Path to OpenCover coverage report. See _Notes on importing .NET reports_ below.
 Flex|`sonar.flex.cobertura.reportPaths`|Path to the Cobertura XML reports. Multiple paths may be comma-delimited. May be absolute or relative to the project base directory.
 Go|`sonar.go.coverage.reportPaths`|Comma-delimited list of paths to coverage report files. Path wildcards are supported (see above) since SonarGo 1.1.
-Java / Kotlin / Scala / JVM|`sonar.coverage.jacoco.xmlReportPaths`|Path to JaCoCo XML coverage reports.
+Java / Kotlin / Scala / JVM|`sonar.coverage.jacoco.xmlReportPaths`|Path to JaCoCo XML coverage reports. Path wildcards are supported (see above).
 Java|`sonar.jacoco.reportPaths`![](/images/cross.svg)|**Deprecated. Use `sonar.coverage.jacoco.xmlReportPaths`.** Path to JaCoCo reports in binary format. **Supported only for Java**. 
 JavaScript / TypeScript|`sonar.javascript.lcov.reportPaths`|Comma-delimited list of paths to LCOV coverage report files. Paths may be absolute or relative to project root.
 PHP|`sonar.php.coverage.reportPaths`|Comma-delimited list of paths to Clover XML-format coverage report files. Paths may be absolute or relative to project root.
