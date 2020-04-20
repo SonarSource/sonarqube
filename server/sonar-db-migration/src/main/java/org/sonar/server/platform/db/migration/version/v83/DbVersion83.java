@@ -43,9 +43,21 @@ import org.sonar.server.platform.db.migration.version.v83.duplicationsindex.Popu
 import org.sonar.server.platform.db.migration.version.v83.events.AddPrimaryKeyOnUuidColumnOfEventsTable;
 import org.sonar.server.platform.db.migration.version.v83.events.DropIdColumnOfEventsTable;
 import org.sonar.server.platform.db.migration.version.v83.events.DropPrimaryKeyOnIdColumnOfEventsTable;
+import org.sonar.server.platform.db.migration.version.v83.filesources.AddPrimaryKeyOnUuidColumnOfFileSourcesTable;
+import org.sonar.server.platform.db.migration.version.v83.filesources.AddUuidColumnToFileSourcesTable;
+import org.sonar.server.platform.db.migration.version.v83.filesources.DropIdColumnOfFileSourcesTable;
+import org.sonar.server.platform.db.migration.version.v83.filesources.DropPrimaryKeyOnIdColumnOfFileSourcesTable;
+import org.sonar.server.platform.db.migration.version.v83.filesources.MakeFileSourcesUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.filesources.PopulateFileSourcesUuid;
 import org.sonar.server.platform.db.migration.version.v83.grouproles.AddComponentUuidColumnToGroupRoles;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.AddPrimaryKeyOnUuidColumnOfGroupRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.AddUuidColumnToGroupRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.DropIdColumnOfGroupRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.DropPrimaryKeyOnIdColumnOfGroupRolesTable;
 import org.sonar.server.platform.db.migration.version.v83.grouproles.DropResourceIdFromGroupRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.MakeGroupRolesUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.grouproles.MigrateResourceIdToUuidInGroupRoles;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.PopulateGroupRolesUuid;
 import org.sonar.server.platform.db.migration.version.v83.issues.AddPrimaryKeyOnKeeColumnOfIssuesTable;
 import org.sonar.server.platform.db.migration.version.v83.issues.DropIdColumnOfIssuesTable;
 import org.sonar.server.platform.db.migration.version.v83.issues.DropPrimaryKeyOnIdColumnOfIssuesTable;
@@ -80,8 +92,14 @@ import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.AddPr
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropIdColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropPrimaryKeyOnIdColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.userroles.AddComponentUuidColumnToUserRoles;
+import org.sonar.server.platform.db.migration.version.v83.userroles.AddPrimaryKeyOnUuidColumnOfUserRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.userroles.AddUuidColumnToUserRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.userroles.DropIdColumnOfUserRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.userroles.DropPrimaryKeyOnIdColumnOfUserRolesTable;
 import org.sonar.server.platform.db.migration.version.v83.userroles.DropResourceIdFromUserRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.userroles.MakeUserRolesUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.userroles.MigrateResourceIdToUuidInUserRoles;
+import org.sonar.server.platform.db.migration.version.v83.userroles.PopulateUserRolesUuid;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddPrimaryKeyOnUuidColumnOfUserTokensTable;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddUuidColumnToUserTokens;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.DropIdColumnOfUserTokensTable;
@@ -188,6 +206,34 @@ public class DbVersion83 implements DbVersion {
       .add(3456, "Add primary key on 'UUID' column of 'MANUAL_MEASURES' table", AddPrimaryKeyOnUuidColumnOfManualMeasuresTable.class)
       .add(3457, "Drop column 'ID' of 'MANUAL_MEASURES' table", DropIdColumnOfManualMeasuresTable.class)
 
+      // Migration on CE_ACTIVITY table
+      .add(3458, "Drop primary key on 'ID' column of 'GROUP_ROLES' table", DropPrimaryKeyOnIdColumnOfGroupRolesTable.class)
+      .add(3459, "Add primary key on 'UUID' column of 'GROUP_ROLES' table", AddPrimaryKeyOnUuidColumnOfGroupRolesTable.class)
+      .add(3460, "Drop column 'ID' of 'GROUP_ROLES' table", DropIdColumnOfGroupRolesTable.class)
+
+      // Migration of GROUP_ROLES table
+      .add(3461, "Add 'UUID' column on 'GROUP_ROLES' table", AddUuidColumnToGroupRolesTable.class)
+      .add(3462, "Populate 'uuid' for 'GROUP_ROLES'", PopulateGroupRolesUuid.class)
+      .add(3463, "Make 'uuid' column not nullable for 'GROUP_ROLES'", MakeGroupRolesUuidColumnNotNullable.class)
+      .add(3464, "Drop primary key on 'ID' column of 'GROUP_ROLES' table", DropPrimaryKeyOnIdColumnOfGroupRolesTable.class)
+      .add(3465, "Add primary key on 'UUID' column of 'GROUP_ROLES' table", AddPrimaryKeyOnUuidColumnOfGroupRolesTable.class)
+      .add(3466, "Drop column 'ID' of 'GROUP_ROLES' table", DropIdColumnOfGroupRolesTable.class)
+
+      // Migration of USER_ROLES table
+      .add(3467, "Add 'UUID' column on 'USER_ROLES' table", AddUuidColumnToUserRolesTable.class)
+      .add(3468, "Populate 'uuid' for 'USER_ROLES'", PopulateUserRolesUuid.class)
+      .add(3469, "Make 'uuid' column not nullable for 'USER_ROLES'", MakeUserRolesUuidColumnNotNullable.class)
+      .add(3470, "Drop primary key on 'ID' column of 'USER_ROLES' table", DropPrimaryKeyOnIdColumnOfUserRolesTable.class)
+      .add(3471, "Add primary key on 'UUID' column of 'USER_ROLES' table", AddPrimaryKeyOnUuidColumnOfUserRolesTable.class)
+      .add(3472, "Drop column 'ID' of 'USER_ROLES' table", DropIdColumnOfUserRolesTable.class)
+
+      // Migration of FILE_SOURCES table
+      .add(3473, "Add 'UUID' column on 'FILE_SOURCES' table", AddUuidColumnToFileSourcesTable.class)
+      .add(3474, "Populate 'uuid' for 'FILE_SOURCES'", PopulateFileSourcesUuid.class)
+      .add(3475, "Make 'uuid' column not nullable for 'FILE_SOURCES'", MakeFileSourcesUuidColumnNotNullable.class)
+      .add(3476, "Drop primary key on 'ID' column of 'FILE_SOURCES' table", DropPrimaryKeyOnIdColumnOfFileSourcesTable.class)
+      .add(3477, "Add primary key on 'UUID' column of 'FILE_SOURCES' table", AddPrimaryKeyOnUuidColumnOfFileSourcesTable.class)
+      .add(3478, "Drop column 'ID' of 'FILE_SOURCES' table", DropIdColumnOfFileSourcesTable.class)
     ;
   }
 }
