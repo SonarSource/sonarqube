@@ -77,7 +77,7 @@ public class UpdateConditionAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    int id = request.mandatoryParamAsInt(PARAM_ID);
+    String id = request.mandatoryParam(PARAM_ID);
     String metric = request.mandatoryParam(PARAM_METRIC);
     String operator = request.mandatoryParam(PARAM_OPERATOR);
     String error = request.mandatoryParam(PARAM_ERROR);
@@ -90,7 +90,8 @@ public class UpdateConditionAction implements QualityGatesWsAction {
       wsSupport.checkCanEdit(qualityGateDto);
       QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, error);
       UpdateConditionResponse.Builder updateConditionResponse = UpdateConditionResponse.newBuilder()
-        .setId(updatedCondition.getId())
+        // TODO
+       // .setId(updatedCondition.getUuid())
         .setMetric(updatedCondition.getMetricKey())
         .setError(updatedCondition.getErrorThreshold())
         .setOp(updatedCondition.getOperator());

@@ -94,6 +94,7 @@ public class QualityGateDbTester {
   @SafeVarargs
   public final QualityGateConditionDto addCondition(QualityGateDto qualityGate, MetricDto metric, Consumer<QualityGateConditionDto>... dtoPopulators) {
     QualityGateConditionDto condition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
+      .setUuid(Uuids.createFast())
       .setMetricId(metric.getId())
       .setOperator("GT")
       .setErrorThreshold(randomNumeric(10));

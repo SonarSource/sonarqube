@@ -153,26 +153,26 @@ public class RegisterQualityGates implements Startable {
   }
 
   private static class QualityGateCondition {
-    private Long id;
+    private String uuid;
     private String metricKey;
     private String operator;
     private String errorThreshold;
 
     public static QualityGateCondition from(QualityGateConditionDto qualityGateConditionDto, Map<Long, String> mapping) {
       return new QualityGateCondition()
-        .setId(qualityGateConditionDto.getId())
+        .setUuid(qualityGateConditionDto.getUuid())
         .setMetricKey(mapping.get(qualityGateConditionDto.getMetricId()))
         .setOperator(qualityGateConditionDto.getOperator())
         .setErrorThreshold(qualityGateConditionDto.getErrorThreshold());
     }
 
     @CheckForNull
-    public Long getId() {
-      return id;
+    public String getUuid() {
+      return uuid;
     }
 
-    public QualityGateCondition setId(Long id) {
-      this.id = id;
+    public QualityGateCondition setUuid(String uuid) {
+      this.uuid = uuid;
       return this;
     }
 
@@ -205,7 +205,7 @@ public class RegisterQualityGates implements Startable {
 
     public QualityGateConditionDto toQualityGateDto(long qualityGateId) {
       return new QualityGateConditionDto()
-        .setId(id)
+        .setUuid(uuid)
         .setMetricKey(metricKey)
         .setOperator(operator)
         .setErrorThreshold(errorThreshold)

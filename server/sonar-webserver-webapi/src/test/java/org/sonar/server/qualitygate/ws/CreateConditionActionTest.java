@@ -205,7 +205,7 @@ public class CreateConditionActionTest {
       .executeProtobuf(CreateConditionResponse.class);
 
     QualityGateConditionDto condition = new ArrayList<>(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId())).get(0);
-    assertThat(response.getId()).isEqualTo(condition.getId());
+    assertThat(response.getId()).isEqualTo(condition.getUuid());
     assertThat(response.getMetric()).isEqualTo(metric.getKey());
     assertThat(response.getOp()).isEqualTo("LT");
     assertThat(response.getError()).isEqualTo("45");

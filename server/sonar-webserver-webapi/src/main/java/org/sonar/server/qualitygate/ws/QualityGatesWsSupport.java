@@ -67,8 +67,8 @@ public class QualityGatesWsSupport {
       "No quality gate has been found for id %s in organization %s", qualityGateId, organization.getName());
   }
 
-  QualityGateConditionDto getCondition(DbSession dbSession, long id) {
-    return checkFound(dbClient.gateConditionDao().selectById(id, dbSession), "No quality gate condition with id '%d'", id);
+  QualityGateConditionDto getCondition(DbSession dbSession, String uuid) {
+    return checkFound(dbClient.gateConditionDao().selectByUuid(uuid, dbSession), "No quality gate condition with uuid '%s'", uuid);
   }
 
   boolean isQualityGateAdmin(OrganizationDto organization) {

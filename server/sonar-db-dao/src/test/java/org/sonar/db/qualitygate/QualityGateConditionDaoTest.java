@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
@@ -45,8 +46,8 @@ public class QualityGateConditionDaoTest {
   public void testInsert() {
     QualityGateConditionDto newCondition = insertQGCondition(1L, 2L, "GT", "20");
 
-    assertThat(newCondition.getId()).isNotNull();
-    QualityGateConditionDto actual = underTest.selectById(newCondition.getId(), dbSession);
+    assertThat(newCondition.getUuid()).isNotNull();
+    QualityGateConditionDto actual = underTest.selectByUuid(newCondition.getUuid(), dbSession);
     assertEquals(actual, newCondition);
   }
 
@@ -63,29 +64,29 @@ public class QualityGateConditionDaoTest {
     Collection<QualityGateConditionDto> conditions = underTest.selectForQualityGate(dbSession, qg1Id);
     assertThat(conditions).hasSize(qg1Conditions);
     assertThat(conditions)
-      .extracting("id")
+      .extracting("uuid")
       .containsExactly(conditions.stream()
         .sorted(Comparator.comparing(QualityGateConditionDto::getCreatedAt))
-        .map(QualityGateConditionDto::getId).toArray());
+        .map(QualityGateConditionDto::getUuid).toArray());
 
     conditions = underTest.selectForQualityGate(dbSession, qg2Id);
     assertThat(conditions).hasSize(qg2Conditions);
     assertThat(conditions)
-      .extracting("id")
+      .extracting("uuid")
       .containsExactly(conditions.stream()
         .sorted(Comparator.comparing(QualityGateConditionDto::getCreatedAt))
-        .map(QualityGateConditionDto::getId)
+        .map(QualityGateConditionDto::getUuid)
         .toArray());
 
     assertThat(underTest.selectForQualityGate(dbSession, 5)).isEmpty();
   }
 
   @Test
-  public void testSelectById() {
+  public void testSelectByUuid() {
     QualityGateConditionDto condition = insertQGCondition(1L, 2L, "GT", "20");
 
-    assertEquals(underTest.selectById(condition.getId(), dbSession), condition);
-    assertThat(underTest.selectById(42L, dbSession)).isNull();
+    assertEquals(underTest.selectByUuid(condition.getUuid(), dbSession), condition);
+    assertThat(underTest.selectByUuid("uuid1", dbSession)).isNull();
   }
 
   @Test
@@ -96,8 +97,8 @@ public class QualityGateConditionDaoTest {
     underTest.delete(condition1, dbSession);
     dbSession.commit();
 
-    assertThat(underTest.selectById(condition1.getId(), dbSession)).isNull();
-    assertThat(underTest.selectById(condition2.getId(), dbSession)).isNotNull();
+    assertThat(underTest.selectByUuid(condition1.getUuid(), dbSession)).isNull();
+    assertThat(underTest.selectByUuid(condition2.getUuid(), dbSession)).isNotNull();
   }
 
   @Test
@@ -106,7 +107,7 @@ public class QualityGateConditionDaoTest {
     QualityGateConditionDto condition2 = insertQGCondition(3L);
 
     QualityGateConditionDto newCondition1 = new QualityGateConditionDto()
-      .setId(condition1.getId())
+      .setUuid(condition1.getUuid())
       .setQualityGateId(condition1.getQualityGateId())
       .setMetricId(7L)
       .setOperator(">")
@@ -115,8 +116,8 @@ public class QualityGateConditionDaoTest {
     dbSession.commit();
 
 
-    assertEquals(underTest.selectById(condition1.getId(), dbSession), newCondition1);
-    assertEquals(underTest.selectById(condition2.getId(), dbSession), condition2);
+    assertEquals(underTest.selectByUuid(condition1.getUuid(), dbSession), newCondition1);
+    assertEquals(underTest.selectByUuid(condition2.getUuid(), dbSession), condition2);
   }
 
   @Test
@@ -131,9 +132,9 @@ public class QualityGateConditionDaoTest {
     dbTester.commit();
 
 
-    assertThat(underTest.selectById(condition1.getId(), dbSession)).isNotNull();
-    assertThat(underTest.selectById(condition2.getId(), dbSession)).isNull();
-    assertThat(underTest.selectById(condition3.getId(), dbSession)).isNull();
+    assertThat(underTest.selectByUuid(condition1.getUuid(), dbSession)).isNotNull();
+    assertThat(underTest.selectByUuid(condition2.getUuid(), dbSession)).isNull();
+    assertThat(underTest.selectByUuid(condition3.getUuid(), dbSession)).isNull();
   }
 
   private QualityGateConditionDto insertQGCondition(long qualityGateId) {
@@ -146,6 +147,7 @@ public class QualityGateConditionDaoTest {
 
   private QualityGateConditionDto insertQGCondition(long qualityGateId, long metricId, String operator, String threshold) {
     QualityGateConditionDto res = new QualityGateConditionDto()
+      .setUuid(Uuids.create())
       .setQualityGateId(qualityGateId)
       .setMetricId(metricId)
       .setOperator(operator)

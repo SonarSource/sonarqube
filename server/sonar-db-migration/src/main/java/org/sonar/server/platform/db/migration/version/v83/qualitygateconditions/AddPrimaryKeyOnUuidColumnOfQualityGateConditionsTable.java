@@ -17,21 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.qualitygate;
+package org.sonar.server.platform.db.migration.version.v83.qualitygateconditions;
 
-import java.util.List;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.util.AddPrimaryKeyBuilder;
 
-public interface QualityGateConditionMapper {
+public class AddPrimaryKeyOnUuidColumnOfQualityGateConditionsTable extends DdlChange {
 
-  void insert(QualityGateConditionDto newCondition);
+  public AddPrimaryKeyOnUuidColumnOfQualityGateConditionsTable(Database db) {
+    super(db);
+  }
 
-  List<QualityGateConditionDto> selectForQualityGate(long qGateId);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddPrimaryKeyBuilder("quality_gate_conditions", "uuid").build());
+  }
 
-  void update(QualityGateConditionDto newCondition);
-
-  QualityGateConditionDto selectByUuid(String uuid);
-
-  void delete(String uuid);
-
-  void deleteConditionsWithInvalidMetrics();
 }

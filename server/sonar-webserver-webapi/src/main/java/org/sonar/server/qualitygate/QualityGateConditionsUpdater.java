@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
@@ -92,6 +93,7 @@ public class QualityGateConditionsUpdater {
     checkConditionDoesNotExistOnSameMetric(getConditions(dbSession, qualityGate.getId()), metric);
 
     QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
+      .setUuid(Uuids.create())
       .setMetricId(metric.getId()).setMetricKey(metric.getKey())
       .setOperator(operator)
       .setErrorThreshold(errorThreshold);

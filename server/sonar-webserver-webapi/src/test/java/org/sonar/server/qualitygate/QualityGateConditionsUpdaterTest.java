@@ -392,7 +392,7 @@ public class QualityGateConditionsUpdaterTest {
   }
 
   private void verifyCondition(QualityGateConditionDto dto, QualityGateDto qualityGate, MetricDto metric, String operator, String error) {
-    QualityGateConditionDto reloaded = db.getDbClient().gateConditionDao().selectById(dto.getId(), db.getSession());
+    QualityGateConditionDto reloaded = db.getDbClient().gateConditionDao().selectByUuid(dto.getUuid(), db.getSession());
     assertThat(reloaded.getQualityGateId()).isEqualTo(qualityGate.getId());
     assertThat(reloaded.getMetricId()).isEqualTo(metric.getId().longValue());
     assertThat(reloaded.getOperator()).isEqualTo(operator);

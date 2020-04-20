@@ -214,6 +214,7 @@ public class RegisterQualityGatesTest {
   public void builtin_quality_gate_with_incorrect_metricId_should_not_throw_an_exception() {
     insertMetrics();
     QualityGateConditionDto conditionDto = new QualityGateConditionDto()
+      .setUuid(Uuids.createFast())
       .setMetricId(-1) // This Id does not exist
       .setOperator(OPERATOR_GREATER_THAN)
       .setErrorThreshold("1");

@@ -31,7 +31,7 @@ public class QualityGateConditionDto {
   public static final String OPERATOR_GREATER_THAN = "GT";
   public static final String OPERATOR_LESS_THAN = "LT";
 
-  private long id;
+  private String uuid;
 
   private long qualityGateId;
 
@@ -47,12 +47,12 @@ public class QualityGateConditionDto {
 
   private Date updatedAt;
 
-  public long getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public QualityGateConditionDto setId(long id) {
-    this.id = id;
+  public QualityGateConditionDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

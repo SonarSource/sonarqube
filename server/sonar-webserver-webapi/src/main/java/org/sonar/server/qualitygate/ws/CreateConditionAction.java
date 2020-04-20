@@ -88,7 +88,8 @@ public class CreateConditionAction implements QualityGatesWsAction {
       wsSupport.checkCanEdit(qualityGate);
       QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, error);
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()
-        .setId(condition.getId())
+        // TODO
+        //.setId(condition.getUuid())
         .setMetric(condition.getMetricKey())
         .setError(condition.getErrorThreshold())
         .setOp(condition.getOperator());

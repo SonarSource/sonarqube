@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.qualitygate;
+package org.sonar.server.platform.db.migration.version.v83.qualitygateconditions;
 
-import java.util.List;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.version.v83.common.DropPrimaryKeyOnIdColumn;
+import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 
-public interface QualityGateConditionMapper {
+public class DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable extends DropPrimaryKeyOnIdColumn {
+  private static final String TABLE_NAME = "quality_gate_conditions";
 
-  void insert(QualityGateConditionDto newCondition);
-
-  List<QualityGateConditionDto> selectForQualityGate(long qGateId);
-
-  void update(QualityGateConditionDto newCondition);
-
-  QualityGateConditionDto selectByUuid(String uuid);
-
-  void delete(String uuid);
-
-  void deleteConditionsWithInvalidMetrics();
+  public DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
+    super(db, dropPrimaryKeySqlGenerator, TABLE_NAME);
+  }
 }

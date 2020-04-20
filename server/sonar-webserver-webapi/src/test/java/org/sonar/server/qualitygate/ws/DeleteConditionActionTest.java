@@ -39,7 +39,6 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
-import static java.lang.String.valueOf;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -84,7 +83,7 @@ public class DeleteConditionActionTest {
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGateCondition.getId()))
+      .setParam(PARAM_ID, qualityGateCondition.getUuid())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
@@ -99,7 +98,7 @@ public class DeleteConditionActionTest {
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGateCondition.getId()))
+      .setParam(PARAM_ID, qualityGateCondition.getUuid())
       .execute();
 
     assertThat(searchConditionsOf(qualityGate)).isEmpty();
@@ -114,7 +113,7 @@ public class DeleteConditionActionTest {
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
 
     TestResponse result = ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGateCondition.getId()))
+      .setParam(PARAM_ID, qualityGateCondition.getUuid())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
@@ -133,7 +132,7 @@ public class DeleteConditionActionTest {
     expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGateCondition.getId()))
+      .setParam(PARAM_ID, qualityGateCondition.getUuid())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
@@ -149,25 +148,25 @@ public class DeleteConditionActionTest {
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGateCondition.getId()))
+      .setParam(PARAM_ID, qualityGateCondition.getUuid())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
-  public void fail_if_condition_id_is_not_found() {
+  public void fail_if_condition_uuid_is_not_found() {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
-    long unknownConditionId = qualityGateCondition.getId() + 42L;
+    String unknownConditionUuid = "unknown";
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate condition with id '" + unknownConditionId + "'");
+    expectedException.expectMessage("No quality gate condition with uuid '" + unknownConditionUuid + "'");
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(unknownConditionId))
+      .setParam(PARAM_ID, unknownConditionUuid)
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
@@ -176,15 +175,15 @@ public class DeleteConditionActionTest {
   public void fail_when_condition_match_unknown_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES, organization);
-    QualityGateConditionDto condition = new QualityGateConditionDto().setQualityGateId(123L);
+    QualityGateConditionDto condition = new QualityGateConditionDto().setUuid("uuid").setQualityGateId(123L);
     db.getDbClient().gateConditionDao().insert(condition, db.getSession());
     db.commit();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getId(), 123L));
+    expectedException.expectMessage(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getUuid(), 123L));
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(condition.getId()))
+      .setParam(PARAM_ID, condition.getUuid())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
@@ -199,10 +198,10 @@ public class DeleteConditionActionTest {
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getId(), qualityGate.getId()));
+    expectedException.expectMessage(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getUuid(), qualityGate.getId()));
 
     ws.newRequest()
-      .setParam(PARAM_ID, valueOf(condition.getId()))
+      .setParam(PARAM_ID, condition.getUuid())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }

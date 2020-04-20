@@ -89,8 +89,8 @@ public class ShowActionTest {
     assertThat(response.getConditionsList())
       .extracting(Condition::getId, Condition::getMetric, Condition::getOp, Condition::getError)
       .containsExactlyInAnyOrder(
-        tuple(condition1.getId(), metric1.getKey(), "GT", condition1.getErrorThreshold()),
-        tuple(condition2.getId(), metric2.getKey(), "LT", condition2.getErrorThreshold()));
+        tuple(condition1.getUuid(), metric1.getKey(), "GT", condition1.getErrorThreshold()),
+        tuple(condition2.getUuid(), metric2.getKey(), "LT", condition2.getErrorThreshold()));
   }
 
   @Test

@@ -3,13 +3,13 @@
 
 <mapper namespace="org.sonar.db.qualitygate.QualityGateConditionMapper">
 
-  <insert id="insert" parameterType="QualityGateCondition" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into quality_gate_conditions (qgate_id, metric_id, operator, value_error, created_at, updated_at)
-    values (#{qualityGateId}, #{metricId}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt})
+  <insert id="insert" parameterType="QualityGateCondition">
+    insert into quality_gate_conditions (uuid, qgate_id, metric_id, operator, value_error, created_at, updated_at)
+    values (#{uuid}, #{qualityGateId}, #{metricId}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt})
   </insert>
 
   <sql id="conditionColumns">
-    id, qgate_id as qualityGateId, metric_id as metricId, operator, value_error as errorThreshold,
+    uuid, qgate_id as qualityGateId, metric_id as metricId, operator, value_error as errorThreshold,
     created_at as createdAt, updated_at as updatedAt
   </sql>
 
@@ -20,14 +20,14 @@
     order by created_at asc
   </select>
 
-  <select id="selectById" parameterType="long" resultType="QualityGateCondition">
+  <select id="selectByUuid" parameterType="String" resultType="QualityGateCondition">
     select
     <include refid="conditionColumns"/>
-    from quality_gate_conditions where id=#{id}
+    from quality_gate_conditions where uuid=#{uuid}
   </select>
 
-  <update id="delete" parameterType="long">
-    delete from quality_gate_conditions where id=#{id}
+  <update id="delete" parameterType="String">
+    delete from quality_gate_conditions where uuid=#{uuid}
   </update>
 
   <update id="update" parameterType="QualityGateCondition">
@@ -36,7 +36,7 @@
     operator=#{operator},
     value_error=#{errorThreshold},
     updated_at=#{updatedAt}
-    where id=#{id}
+    where uuid=#{uuid}
   </update>
 
   <delete id="deleteConditionsWithInvalidMetrics">

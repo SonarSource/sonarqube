@@ -20,6 +20,7 @@
 package org.sonar.server.qualitygate;
 
 import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -56,6 +57,7 @@ public class QualityGateUpdater {
 
     for (QualityGateConditionDto sourceCondition : dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId())) {
       dbClient.gateConditionDao().insert(new QualityGateConditionDto()
+          .setUuid(Uuids.create())
           .setQualityGateId(destinationGate.getId())
           .setMetricId(sourceCondition.getMetricId())
           .setOperator(sourceCondition.getOperator())
