@@ -22,11 +22,20 @@ package org.sonar.db.permission;
 import javax.annotation.Nullable;
 
 public class GroupPermissionDto {
-
+  private String uuid;
   private String organizationUuid;
   private Integer groupId;
   private String componentUuid;
   private String role;
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public GroupPermissionDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
 
   public Integer getGroupId() {
     return groupId;

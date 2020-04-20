@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentMapper;
@@ -114,6 +115,7 @@ public class GroupPermissionDao implements Dao {
   }
 
   public void insert(DbSession dbSession, GroupPermissionDto dto) {
+    dto.setUuid(Uuids.create());
     ensureComponentPermissionConsistency(dbSession, dto);
     ensureGroupPermissionConsistency(dbSession, dto);
     mapper(dbSession).insert(dto);

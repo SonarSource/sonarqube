@@ -20,29 +20,22 @@
 package org.sonar.server.platform.db.migration.version.v83.grouproles;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static java.sql.Types.VARCHAR;
+public class DropIdColumnOfGroupRolesTable extends DdlChange {
 
-public class AddComponentUuidColumnToGroupRolesTest {
-  private static final String TABLE_NAME = "group_roles";
+  private Database db;
 
-  @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(AddComponentUuidColumnToGroupRolesTest.class, "schema.sql");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public DropIdColumnOfGroupRolesTable(Database db) {
+    super(db);
+    this.db = db;
+  }
 
-  private AddComponentUuidColumnToGroupRoles underTest = new AddComponentUuidColumnToGroupRoles(dbTester.database());
-
-  @Test
-  public void column_has_been_created() throws SQLException {
-    underTest.execute();
-    dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 40, true);
-    dbTester.assertIndex(TABLE_NAME, "group_roles_component_uuid", "component_uuid");
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(db.getDialect(), "group_roles", "id").build());
   }
 
 }

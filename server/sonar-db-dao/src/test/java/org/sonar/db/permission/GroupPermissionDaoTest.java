@@ -599,7 +599,7 @@ public class GroupPermissionDaoTest {
     underTest.deleteByRootComponentUuid(dbSession, project1.uuid());
     dbSession.commit();
 
-    assertThat(db.countSql("select count(id) from group_roles where component_uuid='" + project1.uuid() + "'")).isEqualTo(0);
+    assertThat(db.countSql("select count(uuid) from group_roles where component_uuid='" + project1.uuid() + "'")).isEqualTo(0);
     assertThat(db.countRowsOfTable("group_roles")).isEqualTo(2);
   }
 
@@ -619,7 +619,7 @@ public class GroupPermissionDaoTest {
     underTest.deleteByRootComponentUuid(dbSession, project1.uuid());
     dbSession.commit();
 
-    assertThat(db.countSql("select count(id) from group_roles where component_uuid='" + project1.uuid() + "'")).isEqualTo(0);
+    assertThat(db.countSql("select count(uuid) from group_roles where component_uuid='" + project1.uuid() + "'")).isEqualTo(0);
     assertThat(db.countRowsOfTable("group_roles")).isEqualTo(3);
   }
 
@@ -1055,7 +1055,7 @@ public class GroupPermissionDaoTest {
   }
 
   private void assertThatNoPermission(String permission) {
-    assertThat(db.countSql("select count(id) from group_roles where role='" + permission + "'")).isEqualTo(0);
+    assertThat(db.countSql("select count(uuid) from group_roles where role='" + permission + "'")).isEqualTo(0);
   }
 
 }

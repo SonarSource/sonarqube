@@ -22,27 +22,21 @@ package org.sonar.server.platform.db.migration.version.v83.grouproles;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 import static java.sql.Types.VARCHAR;
 
-public class AddComponentUuidColumnToGroupRolesTest {
-  private static final String TABLE_NAME = "group_roles";
-
+public class MakeGroupRolesUuidColumnNotNullableTest {
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(AddComponentUuidColumnToGroupRolesTest.class, "schema.sql");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeGroupRolesUuidColumnNotNullableTest.class, "schema.sql");
 
-  private AddComponentUuidColumnToGroupRoles underTest = new AddComponentUuidColumnToGroupRoles(dbTester.database());
+  private MigrationStep underTest = new MakeGroupRolesUuidColumnNotNullable(db.database());
 
   @Test
-  public void column_has_been_created() throws SQLException {
+  public void uuid_column_is_not_nullable() throws SQLException {
     underTest.execute();
-    dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 40, true);
-    dbTester.assertIndex(TABLE_NAME, "group_roles_component_uuid", "component_uuid");
-  }
 
+    db.assertColumnDefinition("group_roles", "uuid", VARCHAR, null, false);
+  }
 }

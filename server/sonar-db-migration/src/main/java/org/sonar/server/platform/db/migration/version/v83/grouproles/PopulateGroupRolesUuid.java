@@ -20,29 +20,31 @@
 package org.sonar.server.platform.db.migration.version.v83.grouproles;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.db.CoreDbTester;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static java.sql.Types.VARCHAR;
+public class PopulateGroupRolesUuid extends DataChange {
 
-public class AddComponentUuidColumnToGroupRolesTest {
-  private static final String TABLE_NAME = "group_roles";
+  private final UuidFactory uuidFactory;
 
-  @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(AddComponentUuidColumnToGroupRolesTest.class, "schema.sql");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  private AddComponentUuidColumnToGroupRoles underTest = new AddComponentUuidColumnToGroupRoles(dbTester.database());
-
-  @Test
-  public void column_has_been_created() throws SQLException {
-    underTest.execute();
-    dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 40, true);
-    dbTester.assertIndex(TABLE_NAME, "group_roles_component_uuid", "component_uuid");
+  public PopulateGroupRolesUuid(Database db, UuidFactory uuidFactory) {
+    super(db);
+    this.uuidFactory = uuidFactory;
   }
 
+  @Override
+  protected void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select id from group_roles where uuid is null order by id asc");
+    massUpdate.update("update group_roles set uuid = ? where id = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, uuidFactory.create());
+      update.setLong(2, row.getLong(1));
+      return true;
+    });
+  }
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.grouproles;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v83.grouproles.MigrateResourceIdToUuidInGroupRoles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

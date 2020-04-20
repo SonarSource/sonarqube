@@ -55,7 +55,7 @@
 
   <sql id="groupsByQuery">
     from (
-      select g.id as groupId, g.name as name, gr.role as permission, gr.component_uuid as componentUuid, gr.id as id
+      select g.id as groupId, g.name as name, gr.role as permission, gr.component_uuid as componentUuid, gr.uuid as uuid
       from groups g
       left join group_roles gr on g.id = gr.group_id
       <if test="query.componentUuid == null">
@@ -69,7 +69,7 @@
 
     union all
 
-    select 0 as groupId, 'Anyone' as name, gr.role as permission, gr.component_uuid as componentUuid, gr.id as id
+    select 0 as groupId, 'Anyone' as name, gr.role as permission, gr.component_uuid as componentUuid, gr.uuid as uuid
     from group_roles gr
     <where>
       <if test="query.componentUuid == null">
@@ -196,13 +196,15 @@
       )
   </select>
 
-  <insert id="insert" parameterType="GroupPermission" keyColumn="id" useGeneratedKeys="false" keyProperty="id">
+  <insert id="insert" parameterType="GroupPermission">
     insert into group_roles (
+    uuid,
     organization_uuid,
     group_id,
     component_uuid,
     role
     ) values (
+    #{uuid,jdbcType=VARCHAR},
     #{organizationUuid,jdbcType=VARCHAR},
     #{groupId,jdbcType=INTEGER},
     #{componentUuid,jdbcType=BIGINT},

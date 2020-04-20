@@ -17,32 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.db.migration.version.v83.grouproles;
 
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
+import org.sonar.server.platform.db.migration.version.v83.util.SqlHelper;
 
-import static java.sql.Types.VARCHAR;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class AddComponentUuidColumnToGroupRolesTest {
+public class DropPrimaryKeyOnIdColumnOfGroupRolesTableTest {
+
   private static final String TABLE_NAME = "group_roles";
-
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(AddComponentUuidColumnToGroupRolesTest.class, "schema.sql");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public CoreDbTester db = CoreDbTester.createForSchema(DropPrimaryKeyOnIdColumnOfGroupRolesTableTest.class, "schema.sql");
 
-  private AddComponentUuidColumnToGroupRoles underTest = new AddComponentUuidColumnToGroupRoles(dbTester.database());
+  private DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator = new DropPrimaryKeySqlGenerator(db.database(), new SqlHelper(db.database()));
+
+  private DropPrimaryKeyOnIdColumnOfGroupRolesTable underTest = new DropPrimaryKeyOnIdColumnOfGroupRolesTable(db.database(), dropPrimaryKeySqlGenerator);
 
   @Test
-  public void column_has_been_created() throws SQLException {
+  public void execute() throws SQLException {
     underTest.execute();
-    dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 40, true);
-    dbTester.assertIndex(TABLE_NAME, "group_roles_component_uuid", "component_uuid");
+
+    db.assertNoPrimaryKey(TABLE_NAME);
   }
 
+  @Test
+  public void migration_is_not_re_entrant() throws SQLException {
+    underTest.execute();
+
+    assertThatThrownBy(() -> underTest.execute()).isInstanceOf(IllegalStateException.class);
+  }
 }
