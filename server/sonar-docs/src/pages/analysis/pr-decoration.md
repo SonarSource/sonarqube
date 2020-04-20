@@ -7,9 +7,12 @@ _Pull Request decoration is available as part of [Developer Edition](https://red
 
 You can add SonarQube analysis and a Quality Gate to your Pull Requests (PR) in your ALM provider's interface.
 
+[[info]]
+| Pull Request decoration requires a SonarQube analysis to be run on your code. You can find the additional parameters required for PR analysis on the [PR Analysis](/analysis/pull-request/) page.
+
 ## Pull Request Decoration by provider
 
-Click your ALM provider below to expand the instructions on decorating your Pull Requests.
+Click your ALM provider below to expand the instructions on configuring SonarQube for Pull Request decoration.
 
 [[collapse]]
 | ## GitHub Enterprise and GitHub.com
