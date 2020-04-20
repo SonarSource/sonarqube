@@ -132,7 +132,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
 
     return this.wrapWithLink(
       <div className="overview-quality-gate-condition-container display-flex-center">
-        <div className="overview-quality-gate-condition-value text-center">
+        <div className="overview-quality-gate-condition-value text-center spacer-right">
           <Measure
             decimals={2}
             metricKey={measure.metric.key}

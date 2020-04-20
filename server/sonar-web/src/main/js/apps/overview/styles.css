@@ -150,17 +150,14 @@
 
 .overview-quality-gate-condition-container {
   padding: calc(1.5 * var(--gridSize)) var(--gridSize) calc(1.5 * var(--gridSize))
-    calc(4 * var(--gridSize));
+    calc(3 * var(--gridSize));
   border-bottom: 1px solid var(--barBorderColor);
 }
 
 .overview-quality-gate-condition-value {
+  flex: 0 0 20%;
   line-height: 1;
-  margin-right: 10px;
   font-size: var(--bigFontSize);
-
-  /* for consistency with ratings */
-  min-width: 24px;
 }
 
 .overview-quality-gate-condition-value span {

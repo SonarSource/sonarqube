@@ -21,7 +21,7 @@ exports[`new_maintainability_rating 1`] = `
     className="overview-quality-gate-condition-container display-flex-center"
   >
     <div
-      className="overview-quality-gate-condition-value text-center"
+      className="overview-quality-gate-condition-value text-center spacer-right"
     >
       <Measure
         decimals={2}
@@ -63,7 +63,7 @@ exports[`new_open_issues 1`] = `
     className="overview-quality-gate-condition-container display-flex-center"
   >
     <div
-      className="overview-quality-gate-condition-value text-center"
+      className="overview-quality-gate-condition-value text-center spacer-right"
     >
       <Measure
         decimals={2}
@@ -116,7 +116,7 @@ exports[`new_reliability_rating 1`] = `
     className="overview-quality-gate-condition-container display-flex-center"
   >
     <div
-      className="overview-quality-gate-condition-value text-center"
+      className="overview-quality-gate-condition-value text-center spacer-right"
     >
       <Measure
         decimals={2}
@@ -169,7 +169,7 @@ exports[`new_security_rating 1`] = `
     className="overview-quality-gate-condition-container display-flex-center"
   >
     <div
-      className="overview-quality-gate-condition-value text-center"
+      className="overview-quality-gate-condition-value text-center spacer-right"
     >
       <Measure
         decimals={2}
@@ -211,7 +211,7 @@ exports[`open_issues 1`] = `
     className="overview-quality-gate-condition-container display-flex-center"
   >
     <div
-      className="overview-quality-gate-condition-value text-center"
+      className="overview-quality-gate-condition-value text-center spacer-right"
     >
       <Measure
         decimals={2}
@@ -263,7 +263,7 @@ exports[`reliability_rating 1`] = `
     className="overview-quality-gate-condition-container display-flex-center"
   >
     <div
-      className="overview-quality-gate-condition-value text-center"
+      className="overview-quality-gate-condition-value text-center spacer-right"
     >
       <Measure
         decimals={2}
@@ -315,7 +315,7 @@ exports[`security_rating 1`] = `
     className="overview-quality-gate-condition-container display-flex-center"
   >
     <div
-      className="overview-quality-gate-condition-value text-center"
+      className="overview-quality-gate-condition-value text-center spacer-right"
     >
       <Measure
         decimals={2}
@@ -368,7 +368,7 @@ exports[`should work with branch 1`] = `
     className="overview-quality-gate-condition-container display-flex-center"
   >
     <div
-      className="overview-quality-gate-condition-value text-center"
+      className="overview-quality-gate-condition-value text-center spacer-right"
     >
       <Measure
         decimals={2}
@@ -419,7 +419,7 @@ exports[`sqale_rating 1`] = `
     className="overview-quality-gate-condition-container display-flex-center"
   >
     <div
-      className="overview-quality-gate-condition-value text-center"
+      className="overview-quality-gate-condition-value text-center spacer-right"
     >
       <Measure
         decimals={2}
