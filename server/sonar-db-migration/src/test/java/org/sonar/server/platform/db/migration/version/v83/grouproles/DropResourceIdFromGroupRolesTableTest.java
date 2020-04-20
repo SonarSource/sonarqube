@@ -24,24 +24,29 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.DropResourceIdFromGroupRolesTable;
 
-import static java.sql.Types.VARCHAR;
+import static java.sql.Types.INTEGER;
 
-public class AddComponentUuidColumnToPropertiesTest {
-  private static final String TABLE_NAME = "properties";
+public class DropResourceIdFromGroupRolesTableTest {
+  private static final String TABLE_NAME = "group_roles";
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(AddComponentUuidColumnToPropertiesTest.class, "schema.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(DropResourceIdFromGroupRolesTableTest.class, "schema.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddComponentUuidColumnToProperties underTest = new AddComponentUuidColumnToProperties(dbTester.database());
+  private DropResourceIdFromGroupRolesTable underTest = new DropResourceIdFromGroupRolesTable(dbTester.database());
 
   @Test
-  public void column_has_been_created() throws SQLException {
-    underTest.execute();
-    dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 40, true);
-  }
+  public void column_has_been_dropped() throws SQLException {
+    dbTester.assertColumnDefinition(TABLE_NAME, "resource_id", INTEGER, null, true);
+    dbTester.assertUniqueIndex(TABLE_NAME, "uniq_group_roles", "organization_uuid", "group_id", "resource_id", "role");
+    dbTester.assertIndex(TABLE_NAME, "group_roles_resource", "resource_id");
 
+    underTest.execute();
+    dbTester.assertColumnDoesNotExist(TABLE_NAME, "resource_id");
+    dbTester.assertIndexDoesNotExist(TABLE_NAME, "group_roles_resource");
+    dbTester.assertUniqueIndex(TABLE_NAME, "uniq_group_roles", "organization_uuid", "group_id", "component_uuid", "role");
+  }
 }

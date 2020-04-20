@@ -17,23 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.properties;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
-import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class AddComponentUuidColumnToUserRoles extends DdlChange {
-  private static final String TABLE = "user_roles";
+public class AddComponentUuidColumnToProperties extends DdlChange {
+  private static final String TABLE = "properties";
   private static final String NEW_COLUMN = "component_uuid";
-  private static final String INDEX = "user_roles_component_uuid";
 
-  public AddComponentUuidColumnToUserRoles(Database db) {
+  public AddComponentUuidColumnToProperties(Database db) {
     super(db);
   }
 
@@ -47,12 +45,5 @@ public class AddComponentUuidColumnToUserRoles extends DdlChange {
     context.execute(new AddColumnsBuilder(getDialect(), TABLE)
       .addColumn(column)
       .build());
-
-    CreateIndexBuilder index = new CreateIndexBuilder()
-      .setTable(TABLE)
-      .addColumn(column)
-      .setName(INDEX)
-      .setUnique(false);
-    context.execute(index.build());
   }
 }

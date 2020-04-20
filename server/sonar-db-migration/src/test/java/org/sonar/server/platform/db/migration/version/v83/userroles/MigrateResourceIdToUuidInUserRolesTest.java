@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.userroles;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -31,15 +31,15 @@ import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MigrateResourceIdToUuidInGroupRolesTest {
-  private static final String TABLE_NAME = "group_roles";
+public class MigrateResourceIdToUuidInUserRolesTest {
+  private static final String TABLE_NAME = "user_roles";
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(MigrateResourceIdToUuidInGroupRolesTest.class, "schema.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(MigrateResourceIdToUuidInUserRolesTest.class, "schema.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MigrateResourceIdToUuidInGroupRoles underTest = new MigrateResourceIdToUuidInGroupRoles(dbTester.database());
+  private MigrateResourceIdToUuidInUserRoles underTest = new MigrateResourceIdToUuidInUserRoles(dbTester.database());
   private int id = 1;
 
   @Test
@@ -50,8 +50,8 @@ public class MigrateResourceIdToUuidInGroupRolesTest {
     insertRole(null);
 
     underTest.execute();
-    assertThat(dbTester.select("select ID, RESOURCE_ID, COMPONENT_UUID, GROUP_ID from " + TABLE_NAME).stream()
-      .map(e -> new Tuple(e.get("ID"), e.get("RESOURCE_ID"), e.get("COMPONENT_UUID"), e.get("GROUP_ID")))
+    assertThat(dbTester.select("select ID, RESOURCE_ID, COMPONENT_UUID, USER_ID from " + TABLE_NAME).stream()
+      .map(e -> new Tuple(e.get("ID"), e.get("RESOURCE_ID"), e.get("COMPONENT_UUID"), e.get("USER_ID")))
       .collect(Collectors.toList())).containsExactlyInAnyOrder(
       new Tuple(1L, 1L, "uuid1", 1L),
       new Tuple(3L, null, null, 1L));
@@ -64,7 +64,7 @@ public class MigrateResourceIdToUuidInGroupRolesTest {
     dbTester.executeInsert(TABLE_NAME,
       "id", id++,
       "organization_uuid", "org",
-      "group_id", 1,
+      "user_id", 1,
       "resource_id", resourceId,
       "role", "role");
   }

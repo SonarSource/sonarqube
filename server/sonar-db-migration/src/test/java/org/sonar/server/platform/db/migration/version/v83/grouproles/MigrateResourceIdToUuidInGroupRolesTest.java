@@ -28,46 +28,46 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.MigrateResourceIdToUuidInGroupRoles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MigrateResourceIdToUuidInPropertiesTest {
-  private static final String TABLE_NAME = "properties";
+public class MigrateResourceIdToUuidInGroupRolesTest {
+  private static final String TABLE_NAME = "group_roles";
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(MigrateResourceIdToUuidInPropertiesTest.class, "schema.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(MigrateResourceIdToUuidInGroupRolesTest.class, "schema.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MigrateResourceIdToUuidInProperties underTest = new MigrateResourceIdToUuidInProperties(dbTester.database());
+  private MigrateResourceIdToUuidInGroupRoles underTest = new MigrateResourceIdToUuidInGroupRoles(dbTester.database());
   private int id = 1;
 
   @Test
   public void data_has_been_migrated() throws SQLException {
     insertComponent(1, "uuid1");
-    insertProperty(1);
-    insertProperty(2);
-    insertProperty(null);
+    insertRole(1);
+    insertRole(2);
+    insertRole(null);
 
     underTest.execute();
-    assertThat(dbTester.select("select ID, RESOURCE_ID, COMPONENT_UUID, PROP_KEY, TEXT_VALUE from " + TABLE_NAME).stream()
-      .map(e -> new Tuple(e.get("ID"), e.get("RESOURCE_ID"), e.get("COMPONENT_UUID"), e.get("PROP_KEY"), e.get("TEXT_VALUE")))
+    assertThat(dbTester.select("select ID, RESOURCE_ID, COMPONENT_UUID, GROUP_ID from " + TABLE_NAME).stream()
+      .map(e -> new Tuple(e.get("ID"), e.get("RESOURCE_ID"), e.get("COMPONENT_UUID"), e.get("GROUP_ID")))
       .collect(Collectors.toList())).containsExactlyInAnyOrder(
-      new Tuple(1L, 1L, "uuid1", "key", "value"),
-      new Tuple(3L, null, null, "key", "value"));
+      new Tuple(1L, 1L, "uuid1", 1L),
+      new Tuple(3L, null, null, 1L));
 
     // reentrant
     underTest.execute();
   }
 
-  private void insertProperty(@Nullable Integer resourceId) {
+  private void insertRole(@Nullable Integer resourceId) {
     dbTester.executeInsert(TABLE_NAME,
       "id", id++,
-      "prop_key", "key",
+      "organization_uuid", "org",
+      "group_id", 1,
       "resource_id", resourceId,
-      "is_empty", false,
-      "text_value", "value",
-      "created_at", 1000L);
+      "role", "role");
   }
 
   private void insertComponent(int id, String uuid) {

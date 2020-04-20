@@ -17,44 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.userroles;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class DropResourceIdFromGroupRolesTable extends DdlChange {
+public class AddComponentUuidColumnToUserRoles extends DdlChange {
+  private static final String TABLE = "user_roles";
+  private static final String NEW_COLUMN = "component_uuid";
+  private static final String INDEX = "user_roles_component_uuid";
 
-  static final String TABLE = "group_roles";
-  static final String COLUMN = "resource_id";
-  static final String INDEX = "uniq_group_roles";
-
-
-  public DropResourceIdFromGroupRolesTable(Database db) {
+  public AddComponentUuidColumnToUserRoles(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE).setName(INDEX).build());
-    context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE).setName("group_roles_resource").build());
-    context.execute(new DropColumnsBuilder(getDialect(), TABLE, COLUMN).build());
+    VarcharColumnDef column = newVarcharColumnDefBuilder()
+      .setColumnName(NEW_COLUMN)
+      .setLimit(VarcharColumnDef.UUID_SIZE)
+      .setIsNullable(true)
+      .build();
+    context.execute(new AddColumnsBuilder(getDialect(), TABLE)
+      .addColumn(column)
+      .build());
 
     CreateIndexBuilder index = new CreateIndexBuilder()
       .setTable(TABLE)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(VarcharColumnDef.UUID_SIZE).build())
-      .addColumn(newIntegerColumnDefBuilder().setColumnName("group_id").build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(VarcharColumnDef.UUID_SIZE).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("role").setLimit(64).build())
+      .addColumn(column)
       .setName(INDEX)
-      .setUnique(true);
+      .setUnique(false);
     context.execute(index.build());
   }
 }

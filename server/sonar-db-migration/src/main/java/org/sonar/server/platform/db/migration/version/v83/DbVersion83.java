@@ -43,6 +43,9 @@ import org.sonar.server.platform.db.migration.version.v83.duplicationsindex.Popu
 import org.sonar.server.platform.db.migration.version.v83.events.AddPrimaryKeyOnUuidColumnOfEventsTable;
 import org.sonar.server.platform.db.migration.version.v83.events.DropIdColumnOfEventsTable;
 import org.sonar.server.platform.db.migration.version.v83.events.DropPrimaryKeyOnIdColumnOfEventsTable;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.AddComponentUuidColumnToGroupRoles;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.DropResourceIdFromGroupRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.grouproles.MigrateResourceIdToUuidInGroupRoles;
 import org.sonar.server.platform.db.migration.version.v83.issues.AddPrimaryKeyOnKeeColumnOfIssuesTable;
 import org.sonar.server.platform.db.migration.version.v83.issues.DropIdColumnOfIssuesTable;
 import org.sonar.server.platform.db.migration.version.v83.issues.DropPrimaryKeyOnIdColumnOfIssuesTable;
@@ -70,9 +73,15 @@ import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.DropI
 import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.DropPrimaryKeyOnIdColumnOfProjectQProfilesTable;
 import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.MakeProjectQProfilesUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.projectqprofiles.PopulateProjectQProfilesUuid;
+import org.sonar.server.platform.db.migration.version.v83.properties.AddComponentUuidColumnToProperties;
+import org.sonar.server.platform.db.migration.version.v83.properties.DropResourceIdFromPropertiesTable;
+import org.sonar.server.platform.db.migration.version.v83.properties.MigrateResourceIdToUuidInProperties;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.AddPrimaryKeyOnUuidColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropIdColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropPrimaryKeyOnIdColumnOfSnapshotsTable;
+import org.sonar.server.platform.db.migration.version.v83.userroles.AddComponentUuidColumnToUserRoles;
+import org.sonar.server.platform.db.migration.version.v83.userroles.DropResourceIdFromUserRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.userroles.MigrateResourceIdToUuidInUserRoles;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddPrimaryKeyOnUuidColumnOfUserTokensTable;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddUuidColumnToUserTokens;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.DropIdColumnOfUserTokensTable;

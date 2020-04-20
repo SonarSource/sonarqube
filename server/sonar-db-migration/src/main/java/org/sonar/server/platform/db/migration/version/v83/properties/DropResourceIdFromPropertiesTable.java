@@ -17,33 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.properties;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
-import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
+public class DropResourceIdFromPropertiesTable extends DdlChange {
 
-public class AddComponentUuidColumnToProperties extends DdlChange {
-  private static final String TABLE = "properties";
-  private static final String NEW_COLUMN = "component_uuid";
+  static final String TABLE = "properties";
+  static final String COLUMN = "resource_id";
 
-  public AddComponentUuidColumnToProperties(Database db) {
+  public DropResourceIdFromPropertiesTable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    VarcharColumnDef column = newVarcharColumnDefBuilder()
-      .setColumnName(NEW_COLUMN)
-      .setLimit(VarcharColumnDef.UUID_SIZE)
-      .setIsNullable(true)
-      .build();
-    context.execute(new AddColumnsBuilder(getDialect(), TABLE)
-      .addColumn(column)
-      .build());
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE, COLUMN).build());
   }
 }

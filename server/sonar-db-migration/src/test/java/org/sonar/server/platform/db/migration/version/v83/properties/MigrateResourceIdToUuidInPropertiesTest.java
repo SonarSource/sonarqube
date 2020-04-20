@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.properties;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -31,42 +31,43 @@ import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MigrateResourceIdToUuidInUserRolesTest {
-  private static final String TABLE_NAME = "user_roles";
+public class MigrateResourceIdToUuidInPropertiesTest {
+  private static final String TABLE_NAME = "properties";
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(MigrateResourceIdToUuidInUserRolesTest.class, "schema.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(MigrateResourceIdToUuidInPropertiesTest.class, "schema.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MigrateResourceIdToUuidInUserRoles underTest = new MigrateResourceIdToUuidInUserRoles(dbTester.database());
+  private MigrateResourceIdToUuidInProperties underTest = new MigrateResourceIdToUuidInProperties(dbTester.database());
   private int id = 1;
 
   @Test
   public void data_has_been_migrated() throws SQLException {
     insertComponent(1, "uuid1");
-    insertRole(1);
-    insertRole(2);
-    insertRole(null);
+    insertProperty(1);
+    insertProperty(2);
+    insertProperty(null);
 
     underTest.execute();
-    assertThat(dbTester.select("select ID, RESOURCE_ID, COMPONENT_UUID, USER_ID from " + TABLE_NAME).stream()
-      .map(e -> new Tuple(e.get("ID"), e.get("RESOURCE_ID"), e.get("COMPONENT_UUID"), e.get("USER_ID")))
+    assertThat(dbTester.select("select ID, RESOURCE_ID, COMPONENT_UUID, PROP_KEY, TEXT_VALUE from " + TABLE_NAME).stream()
+      .map(e -> new Tuple(e.get("ID"), e.get("RESOURCE_ID"), e.get("COMPONENT_UUID"), e.get("PROP_KEY"), e.get("TEXT_VALUE")))
       .collect(Collectors.toList())).containsExactlyInAnyOrder(
-      new Tuple(1L, 1L, "uuid1", 1L),
-      new Tuple(3L, null, null, 1L));
+      new Tuple(1L, 1L, "uuid1", "key", "value"),
+      new Tuple(3L, null, null, "key", "value"));
 
     // reentrant
     underTest.execute();
   }
 
-  private void insertRole(@Nullable Integer resourceId) {
+  private void insertProperty(@Nullable Integer resourceId) {
     dbTester.executeInsert(TABLE_NAME,
       "id", id++,
-      "organization_uuid", "org",
-      "user_id", 1,
+      "prop_key", "key",
       "resource_id", resourceId,
-      "role", "role");
+      "is_empty", false,
+      "text_value", "value",
+      "created_at", 1000L);
   }
 
   private void insertComponent(int id, String uuid) {

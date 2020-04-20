@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.userroles;
 
 import java.sql.SQLException;
 import org.junit.Rule;
@@ -25,24 +25,25 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
-import static java.sql.Types.VARCHAR;
+import static java.sql.Types.INTEGER;
 
-public class AddComponentUuidColumnToUserRolesTest {
+public class DropResourceIdFromUserRolesTableTest {
   private static final String TABLE_NAME = "user_roles";
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(AddComponentUuidColumnToUserRolesTest.class, "schema.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(DropResourceIdFromUserRolesTableTest.class, "schema.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddComponentUuidColumnToUserRoles underTest = new AddComponentUuidColumnToUserRoles(dbTester.database());
+  private DropResourceIdFromUserRolesTable underTest = new DropResourceIdFromUserRolesTable(dbTester.database());
 
   @Test
-  public void column_has_been_created() throws SQLException {
-    underTest.execute();
-    dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertColumnDefinition(TABLE_NAME, "component_uuid", VARCHAR, 40, true);
-    dbTester.assertIndex(TABLE_NAME, "user_roles_component_uuid", "component_uuid");
-  }
+  public void column_has_been_dropped() throws SQLException {
+    dbTester.assertColumnDefinition(TABLE_NAME, "resource_id", INTEGER, null, true);
+    dbTester.assertIndex(TABLE_NAME, "user_roles_resource", "resource_id");
 
+    underTest.execute();
+    dbTester.assertColumnDoesNotExist(TABLE_NAME, "resource_id");
+    dbTester.assertIndexDoesNotExist(TABLE_NAME, "user_roles_resource");
+  }
 }

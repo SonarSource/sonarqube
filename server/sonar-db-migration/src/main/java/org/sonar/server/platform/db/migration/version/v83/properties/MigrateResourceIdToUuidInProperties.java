@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v83.properties;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class MigrateResourceIdToUuidInGroupRoles extends DataChange {
-  public MigrateResourceIdToUuidInGroupRoles(Database db) {
+public class MigrateResourceIdToUuidInProperties extends DataChange {
+  public MigrateResourceIdToUuidInProperties(Database db) {
     super(db);
   }
 
   @Override protected void execute(Context context) throws SQLException {
-    // remove roles associated with invalid resource
-    context.prepareUpsert("delete from group_roles "
-      + "where group_roles.resource_id is not null and not exists (select 1 from components c where group_roles.resource_id = c.id)")
+    // remove properties associated with invalid resource
+    context.prepareUpsert("delete from properties where properties.resource_id is not null and not exists (select 1 from components c where properties.resource_id = c.id)")
       .execute();
 
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select gp.id as gp_id, c.uuid as c_uuid from group_roles gp, components c where gp.resource_id = c.id and gp.component_uuid is null");
-    massUpdate.update("update group_roles set component_uuid = ? where id = ?");
+
+    massUpdate.select("select p.id as p_id, c.uuid as c_uuid from properties p, components c where p.resource_id = c.id and p.component_uuid is null");
+    massUpdate.update("update properties set component_uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {
       String componentUuid = row.getString(2);
