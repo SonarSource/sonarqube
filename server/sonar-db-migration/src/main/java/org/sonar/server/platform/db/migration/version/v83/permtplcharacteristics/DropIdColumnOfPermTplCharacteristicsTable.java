@@ -22,10 +22,10 @@ package org.sonar.server.platform.db.migration.version.v83.permtplcharacteristic
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.version.v83.common.DropIdColumn;
 
-public class DropIdColumnOfPermTemplatesUsersTable extends DropIdColumn {
-  private static final String TABLE = "perm_templates_users";
+public class DropIdColumnOfPermTplCharacteristicsTable extends DropIdColumn {
+  private static final String TABLE = "perm_tpl_characteristics";
 
-  public DropIdColumnOfPermTemplatesUsersTable(Database db) {
+  public DropIdColumnOfPermTplCharacteristicsTable(Database db) {
     super(db, TABLE);
   }
 }

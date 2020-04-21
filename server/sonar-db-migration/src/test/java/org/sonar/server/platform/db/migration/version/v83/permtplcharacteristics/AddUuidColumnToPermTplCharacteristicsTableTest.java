@@ -56,9 +56,11 @@ public class AddUuidColumnToPermTplCharacteristicsTableTest {
   private void insertPermTplCharacteristics(Long id) {
     db.executeInsert("perm_tpl_characteristics",
       "id", id,
-      "group_id", id + 1,
-      "template_id", id + 2,
-      "permission_reference", "ref" + id);
+      "template_id", id + 1,
+      "permission_key", "key" + id + 2,
+      "with_project_creator", true,
+      "created_at", id + 3,
+      "updated_at", id + 4);
   }
 
 }

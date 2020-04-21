@@ -23,10 +23,10 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.version.v83.common.DropPrimaryKeyOnIdColumn;
 import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 
-public class DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable extends DropPrimaryKeyOnIdColumn {
-  private static final String TABLE_NAME = "perm_templates_users";
+public class DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable extends DropPrimaryKeyOnIdColumn {
+  private static final String TABLE_NAME = "perm_tpl_characteristics";
 
-  public DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
+  public DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
     super(db, dropPrimaryKeySqlGenerator, TABLE_NAME);
   }
 }

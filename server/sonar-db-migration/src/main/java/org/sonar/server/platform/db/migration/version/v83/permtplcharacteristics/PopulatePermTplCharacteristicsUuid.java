@@ -25,11 +25,11 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class PopulatePermTemplatesUsersUuid extends DataChange {
+public class PopulatePermTplCharacteristicsUuid extends DataChange {
 
   private final UuidFactory uuidFactory;
 
-  public PopulatePermTemplatesUsersUuid(Database db, UuidFactory uuidFactory) {
+  public PopulatePermTplCharacteristicsUuid(Database db, UuidFactory uuidFactory) {
     super(db);
     this.uuidFactory = uuidFactory;
   }
@@ -38,8 +38,8 @@ public class PopulatePermTemplatesUsersUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from perm_templates_users where uuid is null order by id asc");
-    massUpdate.update("update perm_templates_users set uuid = ? where id = ?");
+    massUpdate.select("select id from perm_tpl_characteristics where uuid is null order by id asc");
+    massUpdate.update("update perm_tpl_characteristics set uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {
       update.setString(1, uuidFactory.create());

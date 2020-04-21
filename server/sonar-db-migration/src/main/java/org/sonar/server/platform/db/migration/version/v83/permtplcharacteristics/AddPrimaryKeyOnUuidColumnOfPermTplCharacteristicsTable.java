@@ -24,15 +24,15 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 import org.sonar.server.platform.db.migration.version.v83.util.AddPrimaryKeyBuilder;
 
-public class AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable extends DdlChange {
+public class AddPrimaryKeyOnUuidColumnOfPermTplCharacteristicsTable extends DdlChange {
 
-  public AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable(Database db) {
+  public AddPrimaryKeyOnUuidColumnOfPermTplCharacteristicsTable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AddPrimaryKeyBuilder("perm_templates_users", "uuid").build());
+    context.execute(new AddPrimaryKeyBuilder("perm_tpl_characteristics", "uuid").build());
   }
 
 }

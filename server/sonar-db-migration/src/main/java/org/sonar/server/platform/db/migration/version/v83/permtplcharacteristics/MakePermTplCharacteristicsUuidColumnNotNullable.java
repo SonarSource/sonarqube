@@ -22,10 +22,10 @@ package org.sonar.server.platform.db.migration.version.v83.permtplcharacteristic
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.version.v83.common.MakeUuidColumnNotNullable;
 
-public class MakePermTemplatesUsersUuidColumnNotNullable extends MakeUuidColumnNotNullable {
-  private static final String TABLE = "perm_templates_users";
+public class MakePermTplCharacteristicsUuidColumnNotNullable extends MakeUuidColumnNotNullable {
+  private static final String TABLE = "perm_tpl_characteristics";
 
-  public MakePermTemplatesUsersUuidColumnNotNullable(Database db) {
+  public MakePermTplCharacteristicsUuidColumnNotNullable(Database db) {
     super(db, TABLE);
   }
 }

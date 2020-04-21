@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable;
 import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.version.v83.util.SqlHelper;
 

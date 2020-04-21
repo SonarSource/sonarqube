@@ -28,7 +28,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.PopulatePermTplCharacteristicsUuid;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,8 +74,10 @@ public class PopulatePermTplCharacteristicsUuidTest {
   private void insertPermTplCharacteristics(Long id) {
     db.executeInsert("perm_tpl_characteristics",
       "id", id,
-      "group_id", id + 1,
-      "template_id", id + 2,
-      "permission_reference", "ref" + id);
+      "template_id", id + 1,
+      "permission_key", "key" + id + 2,
+      "with_project_creator", true,
+      "created_at", id + 3,
+      "updated_at", id + 4);
   }
 }

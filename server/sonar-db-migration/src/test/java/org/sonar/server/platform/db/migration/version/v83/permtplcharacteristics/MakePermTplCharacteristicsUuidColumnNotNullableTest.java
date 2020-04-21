@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.MakePermTplCharacteristicsUuidColumnNotNullable;
 
 import static java.sql.Types.VARCHAR;
 

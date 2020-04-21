@@ -22,10 +22,10 @@ package org.sonar.server.platform.db.migration.version.v83.permtplcharacteristic
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.version.v83.common.AddUuidColumnToTable;
 
-public class AddUuidColumnToPermTemplatesUsersTable extends AddUuidColumnToTable {
-  private static final String TABLE = "perm_templates_users";
+public class AddUuidColumnToPermTplCharacteristicsTable extends AddUuidColumnToTable {
+  private static final String TABLE = "perm_tpl_characteristics";
 
-  public AddUuidColumnToPermTemplatesUsersTable(Database db) {
+  public AddUuidColumnToPermTplCharacteristicsTable(Database db) {
     super(db, TABLE);
   }
 }
