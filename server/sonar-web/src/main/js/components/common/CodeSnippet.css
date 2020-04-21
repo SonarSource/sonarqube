@@ -40,6 +40,7 @@
   font-size: 11px;
   font-weight: normal;
   user-select: none;
+  background: var(--gray40);
 }
 
 .code-snippet > button:hover,

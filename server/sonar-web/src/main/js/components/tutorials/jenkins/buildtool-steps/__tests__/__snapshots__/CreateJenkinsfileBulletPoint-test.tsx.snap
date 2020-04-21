@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<li
+  className="abs-width-600"
+>
+  <SentenceWithFilename
+    filename="Jenkinsfile"
+    translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.jenkinsfile_step"
+  />
+  <CodeSnippet
+    snippet="foo { bar() }"
+  />
+</li>
+`;
+
+exports[`should render correctly: with alert 1`] = `
+<li
+  className="abs-width-600"
+>
+  <SentenceWithFilename
+    filename="Jenkinsfile"
+    translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.jenkinsfile_step"
+  />
+  <Alert
+    className="spacer-top"
+    variant="info"
+  >
+    <p
+      className="text-middle"
+    >
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "default",
+            "in_jenkins",
+          ]
+        }
+        translationKey="baz.replace"
+      />
+      <HelpTooltip
+        className="little-spacer-left"
+        overlay={
+          <React.Fragment>
+            <p
+              className="spacer-bottom"
+            >
+              <SentenceWithHighlights
+                highlightKeys={
+                  Array [
+                    "path",
+                  ]
+                }
+                translationKey="baz.help1"
+              />
+            </p>
+            <p>
+              <SentenceWithHighlights
+                highlightKeys={
+                  Array [
+                    "path",
+                    "name",
+                  ]
+                }
+                translationKey="baz.help2"
+              />
+            </p>
+          </React.Fragment>
+        }
+      />
+    </p>
+  </Alert>
+  <CodeSnippet
+    snippet="foo { bar() }"
+  />
+</li>
+`;

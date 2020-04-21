@@ -1,0 +1,526 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for Gradle 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        checked="gradle"
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "msbuild",
+            "other",
+          ]
+        }
+      />
+    </li>
+    <Gradle
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </ol>
+  <React.Fragment>
+    <hr
+      className="huge-spacer-top huge-spacer-bottom"
+    />
+    <div
+      className="abs-width-600"
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "all_set",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.jenkins.all_set"
+        />
+      </p>
+      <div
+        className="display-flex-row big-spacer-bottom"
+      >
+        <div>
+          <img
+            alt=""
+            className="big-spacer-right"
+            src="/images/tutorials/commit.svg"
+            width={30}
+          />
+        </div>
+        <div>
+          <p
+            className="little-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.jenkins.commit
+            </strong>
+          </p>
+          <p>
+            onboarding.tutorial.with.jenkins.commit.why
+          </p>
+        </div>
+      </div>
+      <div
+        className="display-flex-row huge-spacer-bottom"
+      >
+        <div>
+          <img
+            alt=""
+            className="big-spacer-right"
+            src="/images/tutorials/refresh.svg"
+            width={30}
+          />
+        </div>
+        <div>
+          <p
+            className="little-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.jenkins.refresh
+            </strong>
+          </p>
+          <p>
+            onboarding.tutorial.with.jenkins.refresh.why
+          </p>
+        </div>
+      </div>
+    </div>
+  </React.Fragment>
+</div>
+`;
+
+exports[`should render correctly for MSBuild 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        checked="msbuild"
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "msbuild",
+            "other",
+          ]
+        }
+      />
+    </li>
+    <MSBuild
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </ol>
+  <React.Fragment>
+    <hr
+      className="huge-spacer-top huge-spacer-bottom"
+    />
+    <div
+      className="abs-width-600"
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "all_set",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.jenkins.all_set"
+        />
+      </p>
+      <div
+        className="display-flex-row big-spacer-bottom"
+      >
+        <div>
+          <img
+            alt=""
+            className="big-spacer-right"
+            src="/images/tutorials/commit.svg"
+            width={30}
+          />
+        </div>
+        <div>
+          <p
+            className="little-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.jenkins.commit
+            </strong>
+          </p>
+          <p>
+            onboarding.tutorial.with.jenkins.commit.why
+          </p>
+        </div>
+      </div>
+      <div
+        className="display-flex-row huge-spacer-bottom"
+      >
+        <div>
+          <img
+            alt=""
+            className="big-spacer-right"
+            src="/images/tutorials/refresh.svg"
+            width={30}
+          />
+        </div>
+        <div>
+          <p
+            className="little-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.jenkins.refresh
+            </strong>
+          </p>
+          <p>
+            onboarding.tutorial.with.jenkins.refresh.why
+          </p>
+        </div>
+      </div>
+    </div>
+  </React.Fragment>
+</div>
+`;
+
+exports[`should render correctly for Maven 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        checked="maven"
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "msbuild",
+            "other",
+          ]
+        }
+      />
+    </li>
+    <Maven
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </ol>
+  <React.Fragment>
+    <hr
+      className="huge-spacer-top huge-spacer-bottom"
+    />
+    <div
+      className="abs-width-600"
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "all_set",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.jenkins.all_set"
+        />
+      </p>
+      <div
+        className="display-flex-row big-spacer-bottom"
+      >
+        <div>
+          <img
+            alt=""
+            className="big-spacer-right"
+            src="/images/tutorials/commit.svg"
+            width={30}
+          />
+        </div>
+        <div>
+          <p
+            className="little-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.jenkins.commit
+            </strong>
+          </p>
+          <p>
+            onboarding.tutorial.with.jenkins.commit.why
+          </p>
+        </div>
+      </div>
+      <div
+        className="display-flex-row huge-spacer-bottom"
+      >
+        <div>
+          <img
+            alt=""
+            className="big-spacer-right"
+            src="/images/tutorials/refresh.svg"
+            width={30}
+          />
+        </div>
+        <div>
+          <p
+            className="little-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.jenkins.refresh
+            </strong>
+          </p>
+          <p>
+            onboarding.tutorial.with.jenkins.refresh.why
+          </p>
+        </div>
+      </div>
+    </div>
+  </React.Fragment>
+</div>
+`;
+
+exports[`should render correctly for Other 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        checked="other"
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "msbuild",
+            "other",
+          ]
+        }
+      />
+    </li>
+    <Other
+      component={
+        Object {
+          "breadcrumbs": Array [],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+  </ol>
+  <React.Fragment>
+    <hr
+      className="huge-spacer-top huge-spacer-bottom"
+    />
+    <div
+      className="abs-width-600"
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        <SentenceWithHighlights
+          highlightKeys={
+            Array [
+              "all_set",
+            ]
+          }
+          translationKey="onboarding.tutorial.with.jenkins.all_set"
+        />
+      </p>
+      <div
+        className="display-flex-row big-spacer-bottom"
+      >
+        <div>
+          <img
+            alt=""
+            className="big-spacer-right"
+            src="/images/tutorials/commit.svg"
+            width={30}
+          />
+        </div>
+        <div>
+          <p
+            className="little-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.jenkins.commit
+            </strong>
+          </p>
+          <p>
+            onboarding.tutorial.with.jenkins.commit.why
+          </p>
+        </div>
+      </div>
+      <div
+        className="display-flex-row huge-spacer-bottom"
+      >
+        <div>
+          <img
+            alt=""
+            className="big-spacer-right"
+            src="/images/tutorials/refresh.svg"
+            width={30}
+          />
+        </div>
+        <div>
+          <p
+            className="little-spacer-bottom"
+          >
+            <strong>
+              onboarding.tutorial.with.jenkins.refresh
+            </strong>
+          </p>
+          <p>
+            onboarding.tutorial.with.jenkins.refresh.why
+          </p>
+        </div>
+      </div>
+    </div>
+  </React.Fragment>
+</div>
+`;
+
+exports[`should render correctly: Step wrapper 1`] = `
+<Step
+  finished={false}
+  open={true}
+  renderForm={[Function]}
+  stepNumber={3}
+  stepTitle="onboarding.tutorial.with.jenkins.jenkinsfile.title"
+/>
+`;
+
+exports[`should render correctly: initial content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "msbuild",
+            "other",
+          ]
+        }
+      />
+    </li>
+  </ol>
+</div>
+`;

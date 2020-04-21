@@ -17,34 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockComponent, mockLoggedInUser } from '../../../../helpers/testMocks';
-import ManualTutorial from '../ManualTutorial';
-import ProjectAnalysisStep from '../ProjectAnalysisStep';
-import TokenStep from '../TokenStep';
+import CreateJenkinsfileBulletPoint, {
+  CreateJenkinsfileBulletPointProps
+} from '../CreateJenkinsfileBulletPoint';
 
-it('renders correctly', () => {
+it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ alertTranslationKeyPart: 'baz' })).toMatchSnapshot('with alert');
 });
 
-it('allows to navigate between steps', () => {
-  const wrapper = shallowRender();
-  const instance = wrapper.instance();
-
-  expect(wrapper.find(TokenStep).props().open).toBe(true);
-
-  instance.handleTokenDone('foo');
-  expect(wrapper.find(TokenStep).props().open).toBe(false);
-  expect(wrapper.find(ProjectAnalysisStep).props().open).toBe(true);
-
-  instance.handleTokenOpen();
-  expect(wrapper.find(TokenStep).props().open).toBe(true);
-  expect(wrapper.find(ProjectAnalysisStep).props().open).toBe(false);
-});
-
-function shallowRender(props: Partial<ManualTutorial['props']> = {}) {
-  return shallow<ManualTutorial>(
-    <ManualTutorial component={mockComponent()} currentUser={mockLoggedInUser()} {...props} />
+function shallowRender(props: Partial<CreateJenkinsfileBulletPointProps> = {}) {
+  return shallow<CreateJenkinsfileBulletPointProps>(
+    <CreateJenkinsfileBulletPoint snippet="foo { bar() }" {...props} />
   );
 }

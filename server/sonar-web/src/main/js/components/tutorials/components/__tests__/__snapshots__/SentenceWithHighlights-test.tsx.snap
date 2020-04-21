@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<FormattedMessage
+  defaultMessage="foo.sentence"
+  id="foo.sentence"
+  values={
+    Object {
+      "hello": <strong>
+        foo.sentence.hello
+      </strong>,
+      "world": <strong>
+        foo.sentence.world
+      </strong>,
+    }
+  }
+/>
+`;

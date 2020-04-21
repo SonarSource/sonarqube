@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <li
+    className="abs-width-600"
+  >
+    <SentenceWithFilename
+      filename="pom.xml"
+      translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step2"
+    />
+    <CodeSnippet
+      snippet="<properties>
+  <sonar.projectKey>my-project</sonar.projectKey>
+</properties>"
+    />
+  </li>
+  <CreateJenkinsfileBulletPoint
+    alertTranslationKeyPart="onboarding.tutorial.with.jenkins.jenkinsfile.maven.step3"
+    snippet="node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('SonarQube Analysis') {
+    def mvn = tool 'Default Maven';
+    withSonarQubeEnv() {
+      sh \\"\${mvn}/bin/mvn sonar:sonar\\"
+    }
+  }
+}"
+  />
+</Fragment>
+`;

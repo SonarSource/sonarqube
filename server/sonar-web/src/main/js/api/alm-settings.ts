@@ -34,7 +34,11 @@ import {
 } from '../types/alm-settings';
 
 export function getAlmDefinitions(): Promise<AlmSettingsBindingDefinitions> {
-  return getJSON('/api/alm_settings/list_definitions').catch(throwGlobalError);
+  return getAlmDefinitionsNoCatch().catch(throwGlobalError);
+}
+
+export function getAlmDefinitionsNoCatch(): Promise<AlmSettingsBindingDefinitions> {
+  return getJSON('/api/alm_settings/list_definitions');
 }
 
 export function getAlmSettings(project?: string): Promise<AlmSettingsInstance[]> {

@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import AnalyzeTutorial from '../../../components/tutorials/manual/AnalyzeTutorial';
+import TutorialSelection from '../../../components/tutorials/TutorialSelection';
 import { getBranchLikeDisplayName, isBranch, isMainBranch } from '../../../helpers/branch-like';
 import { isLoggedIn } from '../../../helpers/users';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
@@ -87,7 +87,7 @@ export function EmptyOverview(props: Props) {
       {isLoggedIn(currentUser) ? (
         <>
           {showWarning && <Alert variant="warning">{warning}</Alert>}
-          {showTutorial && <AnalyzeTutorial component={component} currentUser={currentUser} />}
+          {showTutorial && <TutorialSelection component={component} currentUser={currentUser} />}
         </>
       ) : (
         <Alert variant="warning">{warning}</Alert>

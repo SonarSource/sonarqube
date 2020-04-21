@@ -20,6 +20,11 @@
 .onboarding-step {
   position: relative;
   padding-left: 34px;
+  margin-bottom: var(--gridSize);
+}
+
+.onboarding-step.no-step-number {
+  padding-left: 0;
 }
 
 .onboarding-step:not(.is-open):not(.is-finished) {
@@ -56,4 +61,41 @@
 .onboarding-step.is-finished {
   cursor: pointer;
   outline: none;
+}
+
+.onboarding-step ol.list-styled {
+  list-style: none;
+  padding-left: 0;
+  counter-reset: step-counter;
+}
+
+.onboarding-step .markdown {
+  line-height: inherit;
+}
+
+.onboarding-step ul.list-styled li {
+  margin-top: var(--gridSize);
+  margin-bottom: var(--gridSize);
+}
+
+.onboarding-step ol.list-styled > li {
+  position: relative;
+  counter-increment: step-counter;
+  margin-bottom: calc(2 * var(--gridSize));
+  padding-left: calc(4 * var(--gridSize));
+}
+
+.onboarding-step ol.list-styled > li::before {
+  content: counter(step-counter);
+  color: white;
+  background-color: var(--blue);
+  display: inline-flex;
+  border-radius: 50%;
+  width: 16px;
+  position: absolute;
+  left: 0;
+  font-size: 10px;
+  height: 16px;
+  justify-content: center;
+  align-items: center;
 }

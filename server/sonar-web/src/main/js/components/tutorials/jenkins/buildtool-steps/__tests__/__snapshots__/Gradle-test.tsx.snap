@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <li
+    className="abs-width-600"
+  >
+    <SentenceWithFilename
+      filename="build.gradle"
+      translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.gradle.step2"
+    />
+    <CodeSnippet
+      snippet="plugins {
+  id \\"org.sonarqube\\" version \\"2.7\\"
+}
+
+sonarqube {
+  properties {
+    property \\"sonar.projectKey\\", \\"my-project\\"
+  }
+}"
+    />
+  </li>
+  <CreateJenkinsfileBulletPoint
+    snippet="node {
+  stage('SCM') {
+    checkout scm
+  }
+  stage('SonarQube Analysis') {
+    withSonarQubeEnv() {
+      sh \\"./gradlew sonarqube\\"
+    }
+  }
+}"
+  />
+</Fragment>
+`;

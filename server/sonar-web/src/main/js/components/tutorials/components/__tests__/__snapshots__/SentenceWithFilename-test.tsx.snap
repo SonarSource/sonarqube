@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<span
+  className="markdown"
+>
+  <FormattedMessage
+    defaultMessage="bar.sentence"
+    id="bar.sentence"
+    values={
+      Object {
+        "file": <code>
+          foo.txt
+        </code>,
+      }
+    }
+  />
+</span>
+`;

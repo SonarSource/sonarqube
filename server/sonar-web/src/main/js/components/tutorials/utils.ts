@@ -17,13 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export interface LanguageConfig {
-  language?: string;
-  javaBuild?: string;
-  cFamilyCompiler?: string;
-  os?: string;
-  projectKey?: string;
-}
+import { LanguageConfig } from './types';
 
 export function isLanguageConfigured(config?: LanguageConfig) {
   if (!config) {

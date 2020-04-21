@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: Step wrapper 1`] = `
+<Step
+  finished={true}
+  onOpen={[MockFunction]}
+  open={false}
+  renderForm={[Function]}
+  stepTitle="onboarding.tutorial.with.jenkins.prereqs.title"
+/>
+`;
+
+exports[`should render correctly: content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "must_have",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.prereqs.intro"
+    />
+  </p>
+  <ul
+    className="list-styled big-spacer-bottom"
+  >
+    <li>
+      onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source
+    </li>
+    <li>
+      onboarding.tutorial.with.jenkins.prereqs.plugins.sonar_scanner
+    </li>
+  </ul>
+  <p
+    className="big-spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
+      id="onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/jenkins/"
+          >
+            onboarding.tutorial.with.jenkins.prereqs.step_by_step_guide.link
+          </Link>,
+        }
+      }
+    />
+  </p>
+  <p
+    className="big-spacer-bottom"
+  >
+    onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations
+  </p>
+  <Button
+    onClick={[MockFunction]}
+  >
+    onboarding.tutorial.with.jenkins.prereqs.done
+  </Button>
+</div>
+`;

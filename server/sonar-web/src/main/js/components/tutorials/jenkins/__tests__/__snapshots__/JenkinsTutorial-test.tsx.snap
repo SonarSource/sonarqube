@@ -1,0 +1,82 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<Fragment>
+  <div
+    className="page-header big-spacer-bottom"
+  >
+    <h1
+      className="page-title"
+    >
+      onboarding.tutorial.with.jenkins.title
+    </h1>
+  </div>
+  <PreRequisitesStep
+    onDone={[Function]}
+    onOpen={[Function]}
+    open={true}
+  />
+  <MultiBranchPipelineStep
+    finished={false}
+    onDone={[Function]}
+    onOpen={[Function]}
+    open={false}
+    projectBinding={
+      Object {
+        "alm": "bitbucket",
+        "key": "foo",
+        "repository": "PROJECT_KEY",
+        "slug": "repo-slug",
+      }
+    }
+  />
+  <BitbucketWebhookStep
+    finished={false}
+    onDone={[Function]}
+    onOpen={[Function]}
+    open={false}
+    projectBinding={
+      Object {
+        "alm": "bitbucket",
+        "key": "foo",
+        "repository": "PROJECT_KEY",
+        "slug": "repo-slug",
+      }
+    }
+  />
+  <JenkinsfileStep
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    open={false}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: not Bitbucket binding 1`] = `
+<Alert
+  variant="error"
+>
+  onboarding.tutorial.with.jenkins.only_bitbucket
+</Alert>
+`;

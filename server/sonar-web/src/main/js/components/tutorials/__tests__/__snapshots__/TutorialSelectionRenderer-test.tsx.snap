@@ -1,0 +1,145 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: jenkins tutorial 1`] = `
+<Fragment>
+  <JenkinsTutorial
+    almBinding={
+      Object {
+        "key": "key",
+        "personalAccessToken": "asdf1234",
+        "url": "http://bbs.enterprise.com",
+      }
+    }
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    projectBinding={
+      Object {
+        "alm": "bitbucket",
+        "key": "foo",
+        "repository": "PROJECT_KEY",
+        "slug": "repo-slug",
+      }
+    }
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<i
+  className="spinner"
+/>
+`;
+
+exports[`should render correctly: manual tutorial 1`] = `
+<Fragment>
+  <ManualTutorial
+    component={
+      Object {
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    currentUser={
+      Object {
+        "groups": Array [],
+        "isLoggedIn": true,
+        "login": "luke",
+        "name": "Skywalker",
+        "scmAccounts": Array [],
+      }
+    }
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: selection 1`] = `
+<Fragment>
+  <div
+    className="tutorial-selection"
+  >
+    <header
+      className="spacer-top spacer-bottom padded"
+    >
+      <h1
+        className="text-center big-spacer-bottom"
+      >
+        onboarding.tutorial.choose_method
+      </h1>
+    </header>
+    <div
+      className="display-flex-space-around"
+    >
+      <button
+        className="button button-huge display-flex-column tutorial-mode-jenkins"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/tutorials/jenkins.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.jenkins
+        </div>
+      </button>
+      <button
+        className="button button-huge display-flex-column tutorial-mode-manual"
+        onClick={[Function]}
+        type="button"
+      >
+        <img
+          alt=""
+          height={80}
+          src="/images/sonarcloud/analysis/manual.svg"
+        />
+        <div
+          className="medium big-spacer-top"
+        >
+          onboarding.tutorial.choose_method.manual
+        </div>
+      </button>
+    </div>
+  </div>
+</Fragment>
+`;

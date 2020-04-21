@@ -56,6 +56,12 @@ export interface ProjectAlmBindingResponse {
   summaryCommentEnabled?: boolean;
 }
 
+export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingResponse {
+  alm: AlmKeys.Bitbucket;
+  repository: string;
+  slug: string;
+}
+
 export interface ProjectAlmBindingParams {
   almSetting: string;
   project: string;

@@ -24,25 +24,29 @@ import './Step.css';
 
 interface Props {
   finished?: boolean;
-  onOpen: VoidFunction;
+  onOpen?: VoidFunction;
   open: boolean;
   renderForm: () => React.ReactNode;
-  renderResult: () => React.ReactNode;
-  stepNumber: number;
+  renderResult?: () => React.ReactNode;
+  stepNumber?: number;
   stepTitle: React.ReactNode;
 }
 
 export default function Step(props: Props) {
+  const { finished, open, stepNumber, stepTitle } = props;
   const className = classNames('boxed-group', 'onboarding-step', {
-    'is-open': props.open,
-    'is-finished': props.finished
+    'is-open': open,
+    'is-finished': finished,
+    'no-step-number': stepNumber === undefined
   });
 
-  const clickable = !props.open && props.finished;
+  const clickable = !open && finished && props.onOpen !== undefined;
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    props.onOpen();
+    if (props.onOpen !== undefined) {
+      props.onOpen();
+    }
   };
 
   return (
@@ -51,13 +55,13 @@ export default function Step(props: Props) {
       onClick={clickable ? handleClick : undefined}
       role={clickable ? 'button' : undefined}
       tabIndex={clickable ? 0 : undefined}>
-      <div className="onboarding-step-number">{props.stepNumber}</div>
-      {!props.open && props.renderResult()}
+      {stepNumber !== undefined && <div className="onboarding-step-number">{stepNumber}</div>}
+      {!open && props.renderResult && props.renderResult()}
       <div className="boxed-group-header">
-        <h2>{props.stepTitle}</h2>
+        <h2>{stepTitle}</h2>
       </div>
-      {!props.open && <div className="boxed-group-inner" />}
-      <div className={classNames({ hidden: !props.open })}>{props.renderForm()}</div>
+      {!open && <div className="boxed-group-inner" />}
+      <div className={classNames({ hidden: !open })}>{props.renderForm()}</div>
     </div>
   );
 }

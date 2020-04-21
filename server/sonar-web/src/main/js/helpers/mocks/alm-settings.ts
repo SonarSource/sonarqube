@@ -23,7 +23,9 @@ import {
   AzureBindingDefinition,
   BitbucketBindingDefinition,
   GithubBindingDefinition,
-  GitlabBindingDefinition
+  GitlabBindingDefinition,
+  ProjectAlmBindingResponse,
+  ProjectBitbucketBindingResponse
 } from '../../types/alm-settings';
 
 export function mockAlmSettingsInstance(
@@ -75,6 +77,28 @@ export function mockGitlabBindingDefinition(
   return {
     key: 'foo',
     personalAccessToken: 'foobar',
+    ...overrides
+  };
+}
+
+export function mockProjectAlmBindingResponse(
+  overrides: Partial<ProjectAlmBindingResponse> = {}
+): ProjectAlmBindingResponse {
+  return {
+    alm: AlmKeys.GitHub,
+    key: 'foo',
+    ...overrides
+  };
+}
+
+export function mockProjectBitbucketBindingGet(
+  overrides: Partial<ProjectBitbucketBindingResponse> = {}
+): ProjectBitbucketBindingResponse {
+  return {
+    alm: AlmKeys.Bitbucket,
+    key: 'foo',
+    repository: 'PROJECT_KEY',
+    slug: 'repo-slug',
     ...overrides
   };
 }
