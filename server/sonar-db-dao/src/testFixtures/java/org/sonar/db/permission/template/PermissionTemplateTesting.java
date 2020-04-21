@@ -47,6 +47,7 @@ public class PermissionTemplateTesting {
 
   public static PermissionTemplateGroupDto newPermissionTemplateGroupDto() {
     return new PermissionTemplateGroupDto()
+      .setUuid(Uuids.createFast())
       .setPermission(PermissionsTestHelper.ALL_PERMISSIONS.toArray(new String[0])[RandomUtils.nextInt(PermissionsTestHelper.ALL_PERMISSIONS.size())])
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());
@@ -54,6 +55,7 @@ public class PermissionTemplateTesting {
 
   public static PermissionTemplateCharacteristicDto newPermissionTemplateCharacteristicDto() {
     return new PermissionTemplateCharacteristicDto()
+      .setUuid(Uuids.createFast())
       .setPermission(PermissionsTestHelper.ALL_PERMISSIONS.toArray(new String[0])[RandomUtils.nextInt(PermissionsTestHelper.ALL_PERMISSIONS.size())])
       .setWithProjectCreator(RandomUtils.nextBoolean())
       .setCreatedAt(System.currentTimeMillis())

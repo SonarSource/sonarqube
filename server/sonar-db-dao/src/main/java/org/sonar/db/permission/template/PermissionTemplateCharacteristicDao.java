@@ -46,7 +46,7 @@ public class PermissionTemplateCharacteristicDao implements Dao {
   }
 
   public PermissionTemplateCharacteristicDto update(DbSession dbSession, PermissionTemplateCharacteristicDto templatePermissionDto) {
-    requireNonNull(templatePermissionDto.getId());
+    requireNonNull(templatePermissionDto.getUuid());
     mapper(dbSession).update(templatePermissionDto);
     return templatePermissionDto;
   }

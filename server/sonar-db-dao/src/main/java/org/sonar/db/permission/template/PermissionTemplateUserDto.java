@@ -22,7 +22,7 @@ package org.sonar.db.permission.template;
 import java.util.Date;
 
 public class PermissionTemplateUserDto {
-  private Long id;
+  private String uuid;
   private Long templateId;
   private Integer userId;
   private String permission;
@@ -31,12 +31,12 @@ public class PermissionTemplateUserDto {
   private Date createdAt;
   private Date updatedAt;
 
-  public Long getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public PermissionTemplateUserDto setId(Long id) {
-    this.id = id;
+  public PermissionTemplateUserDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

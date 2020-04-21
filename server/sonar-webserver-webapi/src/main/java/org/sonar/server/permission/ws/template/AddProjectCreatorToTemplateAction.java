@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
@@ -111,6 +112,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
   private void addTemplatePermission(DbSession dbSession, AddProjectCreatorToTemplateRequest request, PermissionTemplateDto template) {
     long now = system.now();
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
+      .setUuid(Uuids.create())
       .setPermission(request.getPermission())
       .setTemplateId(template.getId())
       .setWithProjectCreator(true)

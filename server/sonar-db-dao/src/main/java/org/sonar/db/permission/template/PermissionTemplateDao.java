@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.CountPerProjectPermission;
@@ -160,6 +161,7 @@ public class PermissionTemplateDao implements Dao {
 
   public void insertUserPermission(DbSession session, Long templateId, Integer userId, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
+      .setUuid(Uuids.create())
       .setTemplateId(templateId)
       .setUserId(userId)
       .setPermission(permission)
@@ -189,6 +191,7 @@ public class PermissionTemplateDao implements Dao {
 
   public void insertGroupPermission(DbSession session, long templateId, @Nullable Integer groupId, String permission) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
+      .setUuid(Uuids.create())
       .setTemplateId(templateId)
       .setPermission(permission)
       .setGroupId(groupId)

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 <mapper namespace="org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper">
   <sql id="columns">
-    ptc.id,
+    ptc.uuid,
     ptc.template_id as templateId,
     ptc.permission_key as permission,
     ptc.with_project_creator as withProjectCreator,
@@ -10,11 +10,11 @@
     ptc.updated_at as updatedAt
   </sql>
 
-  <select id="selectById" parameterType="long" resultType="PermissionTemplateCharacteristic">
+  <select id="selectByUuid" parameterType="String" resultType="PermissionTemplateCharacteristic">
     select
     <include refid="columns" />
     from perm_tpl_characteristics ptc
-    where ptc.id=#{id,jdbcType=BIGINT}
+    where ptc.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByTemplateIds" parameterType="long" resultType="PermissionTemplateCharacteristic">
@@ -38,16 +38,17 @@
     order by ptc.created_at
   </select>
 
-  <insert id="insert" parameterType="PermissionTemplateCharacteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into perm_tpl_characteristics(template_id, permission_key, with_project_creator, created_at, updated_at)
-    values(#{templateId, jdbcType=BIGINT}, #{permission, jdbcType=VARCHAR}, #{withProjectCreator, jdbcType=BOOLEAN}, #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT})
+  <insert id="insert" parameterType="PermissionTemplateCharacteristic">
+    insert into perm_tpl_characteristics(uuid, template_id, permission_key, with_project_creator, created_at, updated_at)
+    values(#{uuid, jdbcType=VARCHAR}, #{templateId, jdbcType=BIGINT}, #{permission, jdbcType=VARCHAR},
+    #{withProjectCreator, jdbcType=BOOLEAN}, #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT})
   </insert>
 
   <update id="update" parameterType="PermissionTemplateCharacteristic" useGeneratedKeys="false">
     update perm_tpl_characteristics set
     with_project_creator=#{withProjectCreator, jdbcType=BOOLEAN},
     updated_at=#{updatedAt, jdbcType=BIGINT}
-    where id=#{id}
+    where uuid=#{uuid}
   </update>
 
   <delete id="deleteByTemplateId" parameterType="long">

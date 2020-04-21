@@ -25,19 +25,19 @@ public class PermissionTemplateCharacteristicDto {
 
   private static final int MAX_PERMISSION_KEY_LENGTH = 64;
 
-  private Long id;
+  private String uuid;
   private long templateId;
   private String permission;
   private boolean withProjectCreator;
   private long createdAt;
   private long updatedAt;
 
-  public Long getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public PermissionTemplateCharacteristicDto setId(Long id) {
-    this.id = id;
+  public PermissionTemplateCharacteristicDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

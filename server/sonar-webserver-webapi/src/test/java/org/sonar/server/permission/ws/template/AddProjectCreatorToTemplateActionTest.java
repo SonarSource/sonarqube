@@ -26,6 +26,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -83,6 +84,7 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
     loginAsAdmin(db.getDefaultOrganization());
     PermissionTemplateCharacteristicDto characteristic = db.getDbClient().permissionTemplateCharacteristicDao().insert(db.getSession(),
       new PermissionTemplateCharacteristicDto()
+        .setUuid(Uuids.createFast())
         .setTemplateId(template.getId())
         .setPermission(UserRole.USER)
         .setWithProjectCreator(false)

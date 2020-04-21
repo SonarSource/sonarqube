@@ -79,6 +79,24 @@ import org.sonar.server.platform.db.migration.version.v83.notifications.DropIdCo
 import org.sonar.server.platform.db.migration.version.v83.notifications.DropPrimaryKeyOnIdColumnOfNotificationTable;
 import org.sonar.server.platform.db.migration.version.v83.notifications.MakeNotificationUuidAndCreatedAtColumnsNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.notifications.PopulateNotificationUuidAndCreatedAt;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.AddPrimaryKeyOnUuidColumnOfPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.AddUuidColumnToPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.DropIdColumnOfPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.DropPrimaryKeyOnIdColumnOfPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.MakePermTemplatesGroupsUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.PopulatePermTemplatesGroupsUuid;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.AddUuidColumnToPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.DropIdColumnOfPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.MakePermTemplatesUsersUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permtemplatesusers.PopulatePermTemplatesUsersUuid;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.AddPrimaryKeyOnUuidColumnOfPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.AddUuidColumnToPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.DropIdColumnOfPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.MakePermTplCharacteristicsUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.permtplcharacteristics.PopulatePermTplCharacteristicsUuid;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.AddPrimaryKeyOnUuidColumnOfProjectMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.AddUuidColumnToProjectMeasures;
 import org.sonar.server.platform.db.migration.version.v83.projectmeasures.DropIdColumnOfProjectMeasuresTable;
@@ -286,6 +304,31 @@ public class DbVersion83 implements DbVersion {
       .add(3473, "Drop primary key on 'ID' column of 'QUALITY_GATE_CONDITIONS' table", DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable.class)
       .add(3474, "Add primary key on 'UUID' column of 'QUALITY_GATE_CONDITIONS' table", AddPrimaryKeyOnUuidColumnOfQualityGateConditionsTable.class)
       .add(3475, "Drop column 'ID' of 'QUALITY_GATE_CONDITIONS' table", DropIdColumnOfQualityGateConditionsTable.class)
+
+      // Migration of PERM_TEMPLATES_GROUPS table
+      .add(3476, "Add 'UUID' column on 'PERM_TEMPLATES_GROUPS' table", AddUuidColumnToPermTemplatesGroupsTable.class)
+      .add(3477, "Populate 'uuid' for 'PERM_TEMPLATES_GROUPS'", PopulatePermTemplatesGroupsUuid.class)
+      .add(3478, "Make 'uuid' column not nullable for 'PERM_TEMPLATES_GROUPS'", MakePermTemplatesGroupsUuidColumnNotNullable.class)
+      .add(3479, "Drop primary key on 'ID' column of 'PERM_TEMPLATES_GROUPS' table", DropPrimaryKeyOnIdColumnOfPermTemplatesGroupsTable.class)
+      .add(3480, "Add primary key on 'UUID' column of 'PERM_TEMPLATES_GROUPS' table", AddPrimaryKeyOnUuidColumnOfPermTemplatesGroupsTable.class)
+      .add(3481, "Drop column 'ID' of 'PERM_TEMPLATES_GROUPS' table", DropIdColumnOfPermTemplatesGroupsTable.class)
+
+      // Migration of PERM_TPL_CHARACTERISTICS table
+      .add(3482, "Add 'UUID' column on 'PERM_TPL_CHARACTERISTICS' table", AddUuidColumnToPermTplCharacteristicsTable.class)
+      .add(3483, "Populate 'uuid' for 'PERM_TPL_CHARACTERISTICS'", PopulatePermTplCharacteristicsUuid.class)
+      .add(3484, "Make 'uuid' column not nullable for 'PERM_TPL_CHARACTERISTICS'", MakePermTplCharacteristicsUuidColumnNotNullable.class)
+      .add(3485, "Drop primary key on 'ID' column of 'PERM_TPL_CHARACTERISTICS' table", DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable.class)
+      .add(3486, "Add primary key on 'UUID' column of 'PERM_TPL_CHARACTERISTICS' table", AddPrimaryKeyOnUuidColumnOfPermTplCharacteristicsTable.class)
+      .add(3487, "Drop column 'ID' of 'PERM_TPL_CHARACTERISTICS' table", DropIdColumnOfPermTplCharacteristicsTable.class)
+
+      // Migration of PERM_TEMPLATES_USERS table
+      .add(3488, "Add 'UUID' column on 'PERM_TEMPLATES_USERS' table", AddUuidColumnToPermTemplatesUsersTable.class)
+      .add(3489, "Populate 'uuid' for 'PERM_TEMPLATES_USERS'", PopulatePermTemplatesUsersUuid.class)
+      .add(3490, "Make 'uuid' column not nullable for 'PERM_TEMPLATES_USERS'", MakePermTemplatesUsersUuidColumnNotNullable.class)
+      .add(3491, "Drop primary key on 'ID' column of 'PERM_TEMPLATES_USERS' table", DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable.class)
+      .add(3492, "Add primary key on 'UUID' column of 'PERM_TEMPLATES_USERS' table", AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable.class)
+      .add(3493, "Drop column 'ID' of 'PERM_TEMPLATES_USERS' table", DropIdColumnOfPermTemplatesUsersTable.class)
+
     ;
   }
 }

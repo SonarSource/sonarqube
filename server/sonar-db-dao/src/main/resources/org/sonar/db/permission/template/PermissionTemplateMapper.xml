@@ -103,13 +103,14 @@
   </delete>
 
   <insert id="insertUserPermission" parameterType="PermissionTemplateUser">
-    INSERT INTO perm_templates_users (template_id, user_id, permission_reference, created_at, updated_at)
-    VALUES (#{templateId}, #{userId}, #{permission}, #{createdAt}, #{updatedAt})
+    INSERT INTO perm_templates_users (uuid, template_id, user_id, permission_reference, created_at, updated_at)
+    VALUES (#{uuid}, #{templateId}, #{userId}, #{permission}, #{createdAt}, #{updatedAt})
   </insert>
 
   <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
-    INSERT INTO perm_templates_groups (template_id, group_id, permission_reference, created_at, updated_at)
+    INSERT INTO perm_templates_groups (uuid, template_id, group_id, permission_reference, created_at, updated_at)
     VALUES (
+    #{uuid,jdbcType=VARCHAR},
     #{templateId,jdbcType=BIGINT},
     #{groupId,jdbcType=INTEGER},
     #{permission,jdbcType=VARCHAR},
@@ -247,7 +248,7 @@
   </select>
 
   <sql id="permissionTemplateUserColumns">
-    ptu.id,
+    ptu.uuid,
     ptu.template_id as templateId,
     ptu.permission_reference AS permission,
     ptu.user_id AS userId,
@@ -274,7 +275,7 @@
 
   <select id="selectGroupPermissionsByTemplateIdAndGroupNames" parameterType="Long" resultType="PermissionTemplateGroup">
     SELECT
-      sub.id,
+      sub.uuid,
       sub.templateId,
       sub.permission,
       sub.groupId,
@@ -283,7 +284,7 @@
       sub.updatedAt
     FROM  (
       SELECT
-        ptg.id,
+        ptg.uuid,
         ptg.template_id as templateId,
         ptg.permission_reference AS permission,
         ptg.group_id AS groupId,
@@ -295,7 +296,7 @@
         g.id=ptg.group_id
       UNION ALL
         SELECT
-          ptg.id,
+          ptg.uuid,
           ptg.template_id as templateId,
           ptg.permission_reference AS permission,
           0 AS groupId,
@@ -414,7 +415,7 @@
 
   <select id="selectAllGroupPermissionTemplatesByGroupId" parameterType="Long" resultType="PermissionTemplateGroup">
     SELECT
-      ptg.id,
+      ptg.uuid,
       ptg.template_id as templateId,
       ptg.permission_reference AS permission,
       ptg.group_id AS groupId,

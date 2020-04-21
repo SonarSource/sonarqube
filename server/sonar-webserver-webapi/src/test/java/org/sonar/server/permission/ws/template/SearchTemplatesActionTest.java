@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ResourceTypesRule;
@@ -381,6 +382,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   private void addPermissionTemplateWithProjectCreator(long templateId, String permission) {
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
+      .setUuid(Uuids.createFast())
       .setWithProjectCreator(true)
       .setTemplateId(templateId)
       .setPermission(permission)
