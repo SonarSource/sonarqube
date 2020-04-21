@@ -27,6 +27,7 @@ import SnippetViewer from '../../issues/crossComponentSourceViewer/SnippetViewer
 
 export interface HotspotSnippetContainerRendererProps {
   branchLike?: BranchLike;
+  displayProjectName?: boolean;
   highlightedSymbols: string[];
   hotspot: Hotspot;
   lastLine?: number;
@@ -47,6 +48,7 @@ export default function HotspotSnippetContainerRenderer(
 ) {
   const {
     branchLike,
+    displayProjectName,
     highlightedSymbols,
     hotspot,
     linePopup,
@@ -61,6 +63,7 @@ export default function HotspotSnippetContainerRenderer(
       <SourceViewerHeaderSlim
         branchLike={branchLike}
         expandable={false}
+        displayProjectName={displayProjectName}
         linkToProject={false}
         loading={loading}
         onExpand={noop}

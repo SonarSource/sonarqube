@@ -13,6 +13,7 @@ exports[`should render correctly 1`] = `
         "name": "master",
       }
     }
+    displayProjectName={true}
     expandable={false}
     linkToProject={false}
     loading={false}
@@ -54,6 +55,7 @@ exports[`should render correctly: with sourcelines 1`] = `
         "name": "master",
       }
     }
+    displayProjectName={true}
     expandable={false}
     linkToProject={false}
     loading={false}

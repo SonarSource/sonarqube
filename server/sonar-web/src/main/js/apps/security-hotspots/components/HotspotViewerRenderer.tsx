@@ -125,7 +125,11 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
             </div>
           </div>
 
-          <HotspotSnippetContainer branchLike={branchLike} hotspot={hotspot} />
+          <HotspotSnippetContainer
+            branchLike={branchLike}
+            component={component}
+            hotspot={hotspot}
+          />
           <HotspotViewerTabs hotspot={hotspot} />
           <HotspotReviewHistoryAndComments
             commentTextRef={commentTextRef}

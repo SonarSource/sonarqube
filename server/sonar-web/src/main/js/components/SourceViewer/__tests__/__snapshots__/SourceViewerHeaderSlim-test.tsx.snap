@@ -7,7 +7,9 @@ exports[`should render correctly 1`] = `
   <div
     className="display-flex-center flex-1"
   >
-    <div>
+    <div
+      className="spacer-right"
+    >
       <a
         className="link-with-icon"
         href="/dashboard?id=my-project"
@@ -22,7 +24,7 @@ exports[`should render correctly 1`] = `
       </a>
     </div>
     <div
-      className="spacer-left"
+      className="spacer-right"
     >
       <QualifierIcon
         qualifier="FIL"
@@ -38,7 +40,7 @@ exports[`should render correctly 1`] = `
       </span>
     </div>
     <div
-      className="spacer-left"
+      className="spacer-right"
     >
       <ClipboardIconButton
         className="button-link link-no-underline"
@@ -91,7 +93,9 @@ exports[`should render correctly for subproject 1`] = `
   <div
     className="display-flex-center flex-1"
   >
-    <div>
+    <div
+      className="spacer-right"
+    >
       <a
         className="link-with-icon"
         href="/dashboard?id=my-project"
@@ -109,11 +113,13 @@ exports[`should render correctly for subproject 1`] = `
       qualifier="BRC"
     />
      
-    <span>
+    <span
+      className="spacer-right"
+    >
       Foo
     </span>
     <div
-      className="spacer-left"
+      className="spacer-right"
     >
       <QualifierIcon
         qualifier="FIL"
@@ -129,7 +135,7 @@ exports[`should render correctly for subproject 1`] = `
       </span>
     </div>
     <div
-      className="spacer-left"
+      className="spacer-right"
     >
       <ClipboardIconButton
         className="button-link link-no-underline"
@@ -182,7 +188,9 @@ exports[`should render correctly: no link to project 1`] = `
   <div
     className="display-flex-center flex-1"
   >
-    <div>
+    <div
+      className="spacer-right"
+    >
       <QualifierIcon
         qualifier="TRK"
       />
@@ -192,7 +200,7 @@ exports[`should render correctly: no link to project 1`] = `
       </span>
     </div>
     <div
-      className="spacer-left"
+      className="spacer-right"
     >
       <QualifierIcon
         qualifier="FIL"
@@ -208,7 +216,77 @@ exports[`should render correctly: no link to project 1`] = `
       </span>
     </div>
     <div
-      className="spacer-left"
+      className="spacer-right"
+    >
+      <ClipboardIconButton
+        className="button-link link-no-underline"
+        copyValue="foo/bar.ts"
+      />
+    </div>
+  </div>
+  <div
+    className="flex-0 big-spacer-left"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/issues",
+          "query": Object {
+            "fileUuids": "foo-bar",
+            "id": "my-project",
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      source_viewer.view_all_issues
+    </Link>
+  </div>
+  <DeferredSpinner
+    className="little-spacer-right"
+    timeout={100}
+  >
+    <div
+      className="flex-0 big-spacer-left"
+    >
+      <ButtonIcon
+        className="js-actions"
+        onClick={[MockFunction]}
+      >
+        <ExpandSnippetIcon />
+      </ButtonIcon>
+    </div>
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly: no project name 1`] = `
+<div
+  className="source-viewer-header-slim display-flex-row display-flex-space-between"
+>
+  <div
+    className="display-flex-center flex-1"
+  >
+    <div
+      className="spacer-right"
+    >
+      <QualifierIcon
+        qualifier="FIL"
+      />
+       
+      <span>
+        foo/
+      </span>
+      <span
+        className="component-name-file"
+      >
+        bar.ts
+      </span>
+    </div>
+    <div
+      className="spacer-right"
     >
       <ClipboardIconButton
         className="button-link link-no-underline"

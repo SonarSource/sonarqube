@@ -38,20 +38,23 @@ import './SourceViewerHeaderSlim.css';
 export interface Props {
   branchLike: BranchLike | undefined;
   expandable?: boolean;
+  displayProjectName?: boolean;
   linkToProject?: boolean;
   loading?: boolean;
   onExpand?: () => void;
   sourceViewerFile: T.SourceViewerFile;
 }
 
-export default function SourceViewerHeaderSlim({
-  branchLike,
-  expandable,
-  linkToProject = true,
-  loading,
-  onExpand,
-  sourceViewerFile
-}: Props) {
+export default function SourceViewerHeaderSlim(props: Props) {
+  const {
+    branchLike,
+    expandable,
+    displayProjectName = true,
+    linkToProject = true,
+    loading,
+    onExpand,
+    sourceViewerFile
+  } = props;
   const {
     key,
     measures,
@@ -72,36 +75,38 @@ export default function SourceViewerHeaderSlim({
   return (
     <div className="source-viewer-header-slim display-flex-row display-flex-space-between">
       <div className="display-flex-center flex-1">
-        <div>
-          {linkToProject ? (
-            <a
-              className="link-with-icon"
-              href={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}>
-              {projectNameLabel}
-            </a>
-          ) : (
-            projectNameLabel
-          )}
-        </div>
+        {displayProjectName && (
+          <div className="spacer-right">
+            {linkToProject ? (
+              <a
+                className="link-with-icon"
+                href={getPathUrlAsString(getBranchLikeUrl(project, branchLike))}>
+                {projectNameLabel}
+              </a>
+            ) : (
+              projectNameLabel
+            )}
+          </div>
+        )}
 
         {subProject !== undefined && (
           <>
             <QualifierIcon qualifier={ComponentQualifier.SubProject} />{' '}
-            <span>{subProjectName}</span>
+            <span className="spacer-right">{subProjectName}</span>
           </>
         )}
 
-        <div className="spacer-left">
+        <div className="spacer-right">
           <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
           <span className="component-name-file">{fileFromPath(path)}</span>
         </div>
 
-        <div className="spacer-left">
+        <div className="spacer-right">
           <ClipboardIconButton className="button-link link-no-underline" copyValue={path} />
         </div>
 
         {sourceViewerFile.canMarkAsFavorite && (!branchLike || isMainBranch(branchLike)) && (
-          <div className="nudged-up spacer-left">
+          <div className="nudged-up">
             <Favorite
               className="component-name-favorite"
               component={key}

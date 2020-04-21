@@ -35,6 +35,7 @@ function shallowRender(props?: Partial<HotspotSnippetContainerRendererProps>) {
   return shallow(
     <HotspotSnippetContainerRenderer
       branchLike={mockMainBranch()}
+      displayProjectName={true}
       highlightedSymbols={[]}
       hotspot={mockHotspot()}
       lastLine={undefined}
