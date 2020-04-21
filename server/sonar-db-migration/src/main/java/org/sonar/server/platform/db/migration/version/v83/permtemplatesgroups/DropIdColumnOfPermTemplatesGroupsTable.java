@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.permtemplatesusers;
+package org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups;
 
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.version.v83.common.DropIdColumn;
 
-public class DropIdColumnOfPermTemplatesUsersTable extends DropIdColumn {
-  private static final String TABLE = "perm_templates_users";
+public class DropIdColumnOfPermTemplatesGroupsTable extends DropIdColumn {
+  private static final String TABLE = "perm_templates_groups";
 
-  public DropIdColumnOfPermTemplatesUsersTable(Database db) {
+  public DropIdColumnOfPermTemplatesGroupsTable(Database db) {
     super(db, TABLE);
   }
 }

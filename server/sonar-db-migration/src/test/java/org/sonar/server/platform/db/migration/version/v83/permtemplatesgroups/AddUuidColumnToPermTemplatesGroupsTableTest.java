@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.permtemplategroups;
+package org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups;
 
 import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.AddUuidColumnToPermTemplatesGroupsTable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,8 +35,6 @@ public class AddUuidColumnToPermTemplatesGroupsTableTest {
   public CoreDbTester db = CoreDbTester.createForSchema(AddUuidColumnToPermTemplatesGroupsTableTest.class, "schema.sql");
 
   private DdlChange underTest = new AddUuidColumnToPermTemplatesGroupsTable(db.database());
-
-  private UuidFactoryFast uuidFactory = UuidFactoryFast.getInstance();
 
   @Before
   public void setup() {
@@ -60,7 +56,7 @@ public class AddUuidColumnToPermTemplatesGroupsTableTest {
   private void insertPermTemplatesGroups(Long id) {
     db.executeInsert("perm_templates_groups",
       "id", id,
-      "user_id", id + 1,
+      "group_id", id + 1,
       "template_id", id + 2,
       "permission_reference", "ref" + id);
   }

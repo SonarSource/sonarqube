@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.permtemplatesusers;
+package org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups;
 
 import java.sql.SQLException;
 import org.sonar.core.util.UuidFactory;
@@ -25,11 +25,11 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class PopulatePermTemplatesUsersUuid extends DataChange {
+public class PopulatePermTemplatesGroupsUuid extends DataChange {
 
   private final UuidFactory uuidFactory;
 
-  public PopulatePermTemplatesUsersUuid(Database db, UuidFactory uuidFactory) {
+  public PopulatePermTemplatesGroupsUuid(Database db, UuidFactory uuidFactory) {
     super(db);
     this.uuidFactory = uuidFactory;
   }
@@ -38,8 +38,8 @@ public class PopulatePermTemplatesUsersUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from perm_templates_users where uuid is null order by id asc");
-    massUpdate.update("update perm_templates_users set uuid = ? where id = ?");
+    massUpdate.select("select id from perm_templates_groups where uuid is null order by id asc");
+    massUpdate.update("update perm_templates_groups set uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {
       update.setString(1, uuidFactory.create());

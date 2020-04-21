@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.permtemplatesusers;
+package org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups;
 
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.version.v83.common.MakeUuidColumnNotNullable;
 
-public class MakePermTemplatesUsersUuidColumnNotNullable extends MakeUuidColumnNotNullable {
-  private static final String TABLE = "perm_templates_users";
+public class MakePermTemplatesGroupsUuidColumnNotNullable extends MakeUuidColumnNotNullable {
+  private static final String TABLE = "perm_templates_groups";
 
-  public MakePermTemplatesUsersUuidColumnNotNullable(Database db) {
+  public MakePermTemplatesGroupsUuidColumnNotNullable(Database db) {
     super(db, TABLE);
   }
 }

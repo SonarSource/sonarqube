@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.platform.db.migration.version.v83.permtemplategroups;
+package org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups;
 
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.DropPrimaryKeyOnIdColumnOfPermTemplatesGroupsTable;
 import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 import org.sonar.server.platform.db.migration.version.v83.util.SqlHelper;
 

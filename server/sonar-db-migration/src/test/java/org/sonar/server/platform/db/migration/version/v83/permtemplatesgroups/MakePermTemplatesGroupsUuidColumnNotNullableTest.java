@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.permtemplategroups;
+package org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups;
 
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
-import org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups.MakePermTemplatesGroupsUuidColumnNotNullable;
 
 import static java.sql.Types.VARCHAR;
 

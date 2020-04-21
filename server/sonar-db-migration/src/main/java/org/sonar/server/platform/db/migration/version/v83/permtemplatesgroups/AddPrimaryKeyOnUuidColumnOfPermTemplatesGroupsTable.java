@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.permtemplatesusers;
+package org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 import org.sonar.server.platform.db.migration.version.v83.util.AddPrimaryKeyBuilder;
 
-public class AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable extends DdlChange {
+public class AddPrimaryKeyOnUuidColumnOfPermTemplatesGroupsTable extends DdlChange {
 
-  public AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable(Database db) {
+  public AddPrimaryKeyOnUuidColumnOfPermTemplatesGroupsTable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AddPrimaryKeyBuilder("perm_templates_users", "uuid").build());
+    context.execute(new AddPrimaryKeyBuilder("perm_templates_groups", "uuid").build());
   }
 
 }

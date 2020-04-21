@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.permtemplatesusers;
+package org.sonar.server.platform.db.migration.version.v83.permtemplatesgroups;
 
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.version.v83.common.DropPrimaryKeyOnIdColumn;
 import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
 
-public class DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable extends DropPrimaryKeyOnIdColumn {
-  private static final String TABLE_NAME = "perm_templates_users";
+public class DropPrimaryKeyOnIdColumnOfPermTemplatesGroupsTable extends DropPrimaryKeyOnIdColumn {
+  private static final String TABLE_NAME = "perm_templates_groups";
 
-  public DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
+  public DropPrimaryKeyOnIdColumnOfPermTemplatesGroupsTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
     super(db, dropPrimaryKeySqlGenerator, TABLE_NAME);
   }
 }
