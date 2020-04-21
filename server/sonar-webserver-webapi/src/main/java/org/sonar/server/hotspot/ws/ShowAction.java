@@ -45,7 +45,9 @@ import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.ws.UserResponseFormatter;
 import org.sonar.server.rule.HotspotRuleDescription;
+import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.security.SecurityStandards;
+import org.sonar.server.text.MacroInterpreter;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Hotspots;
 import org.sonarqube.ws.Hotspots.ShowWsResponse;
@@ -69,16 +71,18 @@ public class ShowAction implements HotspotsWsAction {
   private final TextRangeResponseFormatter textRangeFormatter;
   private final UserResponseFormatter userFormatter;
   private final IssueChangeWSSupport issueChangeSupport;
+  private final MacroInterpreter macroInterpreter;
 
   public ShowAction(DbClient dbClient, HotspotWsSupport hotspotWsSupport,
     HotspotWsResponseFormatter responseFormatter, TextRangeResponseFormatter textRangeFormatter,
-    UserResponseFormatter userFormatter, IssueChangeWSSupport issueChangeSupport) {
+    UserResponseFormatter userFormatter, IssueChangeWSSupport issueChangeSupport, MacroInterpreter macroInterpreter) {
     this.dbClient = dbClient;
     this.hotspotWsSupport = hotspotWsSupport;
     this.responseFormatter = responseFormatter;
     this.textRangeFormatter = textRangeFormatter;
     this.userFormatter = userFormatter;
     this.issueChangeSupport = issueChangeSupport;
+    this.macroInterpreter = macroInterpreter;
   }
 
   @Override
@@ -154,18 +158,28 @@ public class ShowAction implements HotspotsWsAction {
     responseBuilder.setCanChangeStatus(hotspotWsSupport.canChangeStatus(components.getProject()));
   }
 
-  private static void formatRule(ShowWsResponse.Builder responseBuilder, RuleDefinitionDto ruleDefinitionDto) {
+  private void formatRule(ShowWsResponse.Builder responseBuilder, RuleDefinitionDto ruleDefinitionDto) {
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(ruleDefinitionDto.getSecurityStandards());
     SecurityStandards.SQCategory sqCategory = securityStandards.getSqCategory();
-    HotspotRuleDescription hotspotRuleDescription = HotspotRuleDescription.from(ruleDefinitionDto);
+
     Hotspots.Rule.Builder ruleBuilder = Hotspots.Rule.newBuilder()
       .setKey(ruleDefinitionDto.getKey().toString())
       .setName(nullToEmpty(ruleDefinitionDto.getName()))
       .setSecurityCategory(sqCategory.getKey())
       .setVulnerabilityProbability(sqCategory.getVulnerability().name());
-    hotspotRuleDescription.getVulnerable().ifPresent(ruleBuilder::setVulnerabilityDescription);
-    hotspotRuleDescription.getRisk().ifPresent(ruleBuilder::setRiskDescription);
-    hotspotRuleDescription.getFixIt().ifPresent(ruleBuilder::setFixRecommendations);
+
+    if (ruleDefinitionDto.isCustomRule()) {
+      String htmlDescription = RuleDescriptionFormatter.getDescriptionAsHtml(ruleDefinitionDto);
+      if (htmlDescription != null) {
+        ruleBuilder.setRiskDescription(macroInterpreter.interpret(htmlDescription));
+      }
+    } else {
+      HotspotRuleDescription hotspotRuleDescription = HotspotRuleDescription.from(ruleDefinitionDto);
+      hotspotRuleDescription.getVulnerable().ifPresent(ruleBuilder::setVulnerabilityDescription);
+      hotspotRuleDescription.getRisk().ifPresent(ruleBuilder::setRiskDescription);
+      hotspotRuleDescription.getFixIt().ifPresent(ruleBuilder::setFixRecommendations);
+    }
+
     responseBuilder.setRule(ruleBuilder.build());
   }
 

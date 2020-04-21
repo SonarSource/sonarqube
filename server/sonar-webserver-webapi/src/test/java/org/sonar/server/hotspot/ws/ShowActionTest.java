@@ -35,6 +35,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,6 +71,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
@@ -83,16 +85,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
 
 @RunWith(DataProviderRunner.class)
 public class ShowActionTest {
   private static final Random RANDOM = new Random();
+  private static final String INTERPRETED = "interpreted";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -104,6 +112,8 @@ public class ShowActionTest {
   private DbClient dbClient = dbTester.getDbClient();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
+  private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
+
   private AvatarResolver avatarResolver = new AvatarResolverImpl();
   private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
   private IssueChangeWSSupport issueChangeSupport = Mockito.mock(IssueChangeWSSupport.class);
@@ -111,8 +121,13 @@ public class ShowActionTest {
   private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
   private TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
 
-  private ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangeSupport);
+  private ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, textRangeFormatter, userFormatter, issueChangeSupport, macroInterpreter);
   private WsActionTester actionTester = new WsActionTester(underTest);
+
+  @Before
+  public void before() {
+    doReturn(INTERPRETED).when(macroInterpreter).interpret(anyString());
+  }
 
   @Test
   public void ws_is_internal() {
@@ -368,6 +383,54 @@ public class ShowActionTest {
       {Issue.STATUS_REVIEWED, Issue.RESOLUTION_FIXED},
       {Issue.STATUS_REVIEWED, Issue.RESOLUTION_SAFE}
     };
+  }
+
+  @Test
+  public void returns_html_description_for_custom_rules() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule.registerComponents(project);
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+
+    String description = "<div>line1\nline2</div>";
+    String parsedDescription = "&lt;div&gt;line1<br/>line2&lt;/div&gt;";
+    String resultingDescription = "!" + parsedDescription + "!";
+
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT,
+      r -> r.setTemplateId(123)
+        .setDescription(description)
+        .setDescriptionFormat(MARKDOWN)
+    );
+
+    doReturn(resultingDescription).when(macroInterpreter).interpret(parsedDescription);
+
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getRule().getRiskDescription()).isEqualTo(resultingDescription);
+  }
+
+  @Test
+  public void handles_null_description_for_custom_rules() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    userSessionRule.registerComponents(project);
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT, r -> r.setTemplateId(123).setDescription(null));
+
+    IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
+    mockChangelogAndCommentsFormattingContext();
+
+    Hotspots.ShowWsResponse response = newRequest(hotspot)
+      .executeProtobuf(Hotspots.ShowWsResponse.class);
+
+    assertThat(response.getRule().getRiskDescription()).isNullOrEmpty();
+
+    verifyNoInteractions(macroInterpreter);
   }
 
   @Test
