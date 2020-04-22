@@ -100,7 +100,9 @@ public class ActiveRuleDao implements Dao {
   public ActiveRuleDto insert(DbSession dbSession, ActiveRuleDto item) {
     checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
     checkArgument(item.getRuleId() != null, RULE_IS_NOT_PERSISTED);
-    checkArgument(item.getId() == null, ACTIVE_RULE_IS_ALREADY_PERSISTED);
+    checkArgument(item.getUuid() == null, ACTIVE_RULE_IS_ALREADY_PERSISTED);
+
+    item.setUuid(uuidFactory.create());
     mapper(dbSession).insert(item);
     return item;
   }
@@ -108,7 +110,7 @@ public class ActiveRuleDao implements Dao {
   public ActiveRuleDto update(DbSession dbSession, ActiveRuleDto item) {
     checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
     checkArgument(item.getRuleId() != null, ActiveRuleDao.RULE_IS_NOT_PERSISTED);
-    checkArgument(item.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
+    checkArgument(item.getUuid() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
     mapper(dbSession).update(item);
     return item;
   }
@@ -116,8 +118,8 @@ public class ActiveRuleDao implements Dao {
   public Optional<ActiveRuleDto> delete(DbSession dbSession, ActiveRuleKey key) {
     Optional<ActiveRuleDto> activeRule = selectByKey(dbSession, key);
     if (activeRule.isPresent()) {
-      mapper(dbSession).deleteParameters(activeRule.get().getId());
-      mapper(dbSession).delete(activeRule.get().getId());
+      mapper(dbSession).deleteParameters(activeRule.get().getUuid());
+      mapper(dbSession).delete(activeRule.get().getUuid());
     }
     return activeRule;
   }
@@ -127,9 +129,9 @@ public class ActiveRuleDao implements Dao {
     DatabaseUtils.executeLargeUpdates(rulesProfileUuids, mapper::deleteByRuleProfileUuids);
   }
 
-  public void deleteByIds(DbSession dbSession, List<Integer> activeRuleIds) {
+  public void deleteByUuids(DbSession dbSession, List<String> activeRuleUuids) {
     ActiveRuleMapper mapper = mapper(dbSession);
-    DatabaseUtils.executeLargeUpdates(activeRuleIds, mapper::deleteByIds);
+    DatabaseUtils.executeLargeUpdates(activeRuleUuids, mapper::deleteByUuids);
   }
 
   public void deleteParametersByRuleProfileUuids(DbSession dbSession, Collection<String> rulesProfileUuids) {
@@ -140,20 +142,20 @@ public class ActiveRuleDao implements Dao {
   /**
    * Nested DTO ActiveRuleParams
    */
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(DbSession dbSession, Integer activeRuleId) {
-    return mapper(dbSession).selectParamsByActiveRuleId(activeRuleId);
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleUuid(DbSession dbSession, String activeRuleUuid) {
+    return mapper(dbSession).selectParamsByActiveRuleUuid(activeRuleUuid);
   }
 
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(final DbSession dbSession, List<Integer> activeRuleIds) {
-    return executeLargeInputs(activeRuleIds, mapper(dbSession)::selectParamsByActiveRuleIds);
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleUuids(final DbSession dbSession, List<String> activeRuleUuids) {
+    return executeLargeInputs(activeRuleUuids, mapper(dbSession)::selectParamsByActiveRuleUuids);
   }
 
   public ActiveRuleParamDto insertParam(DbSession dbSession, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
-    checkArgument(activeRule.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
+    checkArgument(activeRule.getUuid() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
     checkArgument(activeRuleParam.getUuid() == null, ACTIVE_RULE_PARAM_IS_ALREADY_PERSISTED);
     Preconditions.checkNotNull(activeRuleParam.getRulesParameterId(), RULE_PARAM_IS_NOT_PERSISTED);
 
-    activeRuleParam.setActiveRuleId(activeRule.getId());
+    activeRuleParam.setActiveRuleUuid(activeRule.getUuid());
     activeRuleParam.setUuid(uuidFactory.create());
     mapper(dbSession).insertParameter(activeRuleParam);
     return activeRuleParam;
@@ -166,17 +168,17 @@ public class ActiveRuleDao implements Dao {
 
   public void deleteParam(DbSession dbSession, ActiveRuleParamDto activeRuleParam) {
     Preconditions.checkNotNull(activeRuleParam.getUuid(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
-    deleteParamById(dbSession, activeRuleParam.getUuid());
+    deleteParamByUuid(dbSession, activeRuleParam.getUuid());
   }
 
-  public void deleteParamById(DbSession dbSession, String uuid) {
+  public void deleteParamByUuid(DbSession dbSession, String uuid) {
     mapper(dbSession).deleteParameter(uuid);
   }
 
   public void deleteParamsByRuleParamOfAllOrganizations(DbSession dbSession, RuleParamDto param) {
     List<ActiveRuleDto> activeRules = selectByRuleIdOfAllOrganizations(dbSession, param.getRuleId());
     for (ActiveRuleDto activeRule : activeRules) {
-      for (ActiveRuleParamDto activeParam : selectParamsByActiveRuleId(dbSession, activeRule.getId())) {
+      for (ActiveRuleParamDto activeParam : selectParamsByActiveRuleUuid(dbSession, activeRule.getUuid())) {
         if (activeParam.getKey().equals(param.getName())) {
           deleteParam(dbSession, activeParam);
         }
@@ -184,9 +186,9 @@ public class ActiveRuleDao implements Dao {
     }
   }
 
-  public void deleteParamsByActiveRuleIds(DbSession dbSession, List<Integer> activeRuleIds) {
+  public void deleteParamsByActiveRuleUuids(DbSession dbSession, List<String> activeRuleUuids) {
     ActiveRuleMapper mapper = mapper(dbSession);
-    DatabaseUtils.executeLargeUpdates(activeRuleIds, mapper::deleteParamsByActiveRuleIds);
+    DatabaseUtils.executeLargeUpdates(activeRuleUuids, mapper::deleteParamsByActiveRuleUuids);
   }
 
   public Map<String, Long> countActiveRulesByQuery(DbSession dbSession, ActiveRuleCountQuery query) {
@@ -201,11 +203,11 @@ public class ActiveRuleDao implements Dao {
     });
   }
 
-  public void scrollByIdsForIndexing(DbSession dbSession, Collection<Long> ids, Consumer<IndexedActiveRuleDto> consumer) {
+  public void scrollByUuidsForIndexing(DbSession dbSession, Collection<String> uuids, Consumer<IndexedActiveRuleDto> consumer) {
     ActiveRuleMapper mapper = mapper(dbSession);
-    executeLargeInputsWithoutOutput(ids,
+    executeLargeInputsWithoutOutput(uuids,
       pageOfIds -> mapper
-        .scrollByIdsForIndexing(pageOfIds, context -> {
+        .scrollByUuidsForIndexing(pageOfIds, context -> {
           IndexedActiveRuleDto dto = context.getResultObject();
           consumer.accept(dto);
         }));

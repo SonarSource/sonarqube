@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.qualityprofile.QualityProfileExportMapper">
 
   <sql id="exportRuleColumns">
-    a.id as "activeRuleId",
+    a.uuid as "activeRuleUuid",
     a.failure_level as "severity",
     r.plugin_rule_key as "rule",
     r.plugin_name as "repository",
@@ -19,7 +19,7 @@
   </sql>
 
   <sql id="exportRuleParamColumns">
-    p.active_rule_id as activeRuleId,
+    p.active_rule_uuid as activeRuleUuid,
     p.rules_parameter_key as kee,
     p.value as value
   </sql>
@@ -36,12 +36,12 @@
     where oqp.uuid = #{id, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectParamsByActiveRuleIds" parameterType="map" resultType="org.sonar.db.qualityprofile.ExportRuleParamDto">
+  <select id="selectParamsByActiveRuleUuids" parameterType="map" resultType="org.sonar.db.qualityprofile.ExportRuleParamDto">
     select
     <include refid="exportRuleParamColumns"/>
     from active_rule_parameters p
     <where>
-    p.active_rule_id in <foreach collection="activeRuleIds" open="(" close=")" item="activeRuleId" separator=",">#{activeRuleId,jdbcType=INTEGER}</foreach>
+    p.active_rule_uuid in <foreach collection="activeRuleUuids" open="(" close=")" item="activeRuleUuid" separator=",">#{activeRuleUuid,jdbcType=VARCHAR}</foreach>
     </where>
   </select>
 </mapper>

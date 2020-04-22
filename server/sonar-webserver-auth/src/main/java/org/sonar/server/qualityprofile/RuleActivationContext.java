@@ -102,9 +102,9 @@ class RuleActivationContext {
   }
 
   private void register(Collection<ActiveRuleDto> activeRules, Collection<ActiveRuleParamDto> activeRuleParams) {
-    ListMultimap<Integer, ActiveRuleParamDto> paramsByActiveRuleId = activeRuleParams.stream().collect(index(ActiveRuleParamDto::getActiveRuleId));
+    ListMultimap<String, ActiveRuleParamDto> paramsByActiveRuleId = activeRuleParams.stream().collect(index(ActiveRuleParamDto::getActiveRuleUuid));
     for (ActiveRuleDto activeRule : activeRules) {
-      ActiveRuleWrapper wrapper = new ActiveRuleWrapper(activeRule, paramsByActiveRuleId.get(activeRule.getId()));
+      ActiveRuleWrapper wrapper = new ActiveRuleWrapper(activeRule, paramsByActiveRuleId.get(activeRule.getUuid()));
       this.activeRulesByKey.put(activeRule.getKey(), wrapper);
     }
   }

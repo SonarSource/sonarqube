@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.qualityprofile.ActiveRuleMapper">
 
   <sql id="activeRuleColumns">
-    a.id,
+    a.uuid,
     a.profile_id as "profileId",
     a.rule_id as "ruleId",
     a.failure_level as "severity",
@@ -17,7 +17,7 @@
   </sql>
 
   <sql id="orgActiveRuleColumns">
-    a.id,
+    a.uuid,
     a.profile_id as "profileId",
     a.rule_id as "ruleId",
     a.failure_level as "severity",
@@ -37,8 +37,9 @@
     inner join rules r on r.id = a.rule_id
   </sql>
 
-  <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="ActiveRule">
     insert into active_rules (
+      uuid,
       profile_id,
       rule_id,
       failure_level,
@@ -46,6 +47,7 @@
       created_at,
       updated_at
     ) values (
+      #{uuid, jdbcType=VARCHAR},
       #{profileId, jdbcType=BIGINT},
       #{ruleId, jdbcType=BIGINT},
       #{severity, jdbcType=INTEGER},
@@ -62,13 +64,13 @@
       inheritance = #{inheritance, jdbcType=VARCHAR},
       updated_at = #{updatedAt, jdbcType=BIGINT}
     where
-      id = #{id, jdbcType=BIGINT}
+      uuid = #{uuid, jdbcType=BIGINT}
   </update>
 
-  <delete id="delete" parameterType="int">
+  <delete id="delete" parameterType="String">
     delete from active_rules
     where
-      id=#{id, jdbcType=BIGINT}
+      uuid=#{uuid, jdbcType=BIGINT}
   </delete>
 
   <delete id="deleteByRuleProfileUuids" parameterType="String">
@@ -82,11 +84,11 @@
       )
   </delete>
 
-  <delete id="deleteByIds" parameterType="Integer">
+  <delete id="deleteByUuids" parameterType="String">
     delete from active_rules
     where
-      id in
-        <foreach collection="ids" open="(" close=")" item="id" separator=",">#{id, jdbcType=INTEGER}</foreach>
+      uuid in
+        <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
   <select id="selectByKey" parameterType="map" resultType="ActiveRule">
@@ -195,7 +197,7 @@
 
   <sql id="activeRuleParamColumns">
     p.uuid,
-    p.active_rule_id as activeRuleId,
+    p.active_rule_uuid as activeRuleUuid,
     p.rules_parameter_id as rulesParameterId,
     p.rules_parameter_key as kee,
     p.value as value
@@ -204,13 +206,13 @@
   <insert id="insertParameter" parameterType="ActiveRuleParam" useGeneratedKeys="false">
     insert into active_rule_parameters (
       uuid,
-      active_rule_id,
+      active_rule_uuid,
       rules_parameter_id,
       rules_parameter_key,
       value
     ) values (
       #{uuid, jdbcType=VARCHAR},
-      #{activeRuleId, jdbcType=BIGINT},
+      #{activeRuleUuid, jdbcType=VARCHAR},
       #{rulesParameterId, jdbcType=BIGINT},
       #{key, jdbcType=VARCHAR},
       #{value, jdbcType=VARCHAR}
@@ -223,8 +225,8 @@
     WHERE uuid=#{uuid, jdbcType=VARCHAR}
   </update>
 
-  <delete id="deleteParameters" parameterType="int">
-    DELETE FROM active_rule_parameters WHERE active_rule_id=#{activeRuleId, jdbcType=BIGINT}
+  <delete id="deleteParameters" parameterType="String">
+    DELETE FROM active_rule_parameters WHERE active_rule_uuid=#{activeRuleUuid, jdbcType=BIGINT}
   </delete>
 
   <delete id="deleteParametersByRuleProfileUuids" parameterType="String">
@@ -232,7 +234,7 @@
     where exists (
       select 1 from active_rules ar
       inner join rules_profiles rp on rp.id = ar.profile_id
-      where ar.id = active_rule_id
+      where ar.uuid = active_rule_uuid
       and rp.kee in
         <foreach collection="rulesProfileUuids" open="(" close=")" item="rulesProfileUuid" separator=",">
         #{rulesProfileUuid, jdbcType=VARCHAR}
@@ -244,35 +246,35 @@
     DELETE FROM active_rule_parameters WHERE uuid=#{uuid, jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteParamsByActiveRuleIds" parameterType="Integer">
+  <delete id="deleteParamsByActiveRuleUuids" parameterType="String">
     delete from active_rule_parameters
     where
-      active_rule_id in
-    <foreach collection="activeRuleIds" open="(" close=")" item="activeRuleId" separator=",">#{activeRuleId, jdbcType=INTEGER}</foreach>
+      active_rule_uuid in
+    <foreach collection="activeRuleUuids" open="(" close=")" item="activeRuleUuid" separator=",">#{activeRuleUuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
-  <select id="selectParamsByActiveRuleId" parameterType="Integer" resultType="ActiveRuleParam">
+  <select id="selectParamsByActiveRuleUuid" parameterType="String" resultType="ActiveRuleParam">
     select
     <include refid="activeRuleParamColumns"/>
     from active_rule_parameters p
     <where>
-      p.active_rule_id=#{id, jdbcType=BIGINT}
+      p.active_rule_uuid=#{uuid, jdbcType=VARCHAR}
     </where>
   </select>
 
-  <select id="selectParamsByActiveRuleIds" parameterType="map" resultType="ActiveRuleParam">
+  <select id="selectParamsByActiveRuleUuids" parameterType="map" resultType="ActiveRuleParam">
     select
     <include refid="activeRuleParamColumns"/>
     from active_rule_parameters p
     <where>
-      <foreach collection="ids" item="id" open="(" separator=" or " close=")">
-        p.active_rule_id=#{id, jdbcType=BIGINT}
+      <foreach collection="uuids" item="uuid" open="(" separator=" or " close=")">
+        p.active_rule_uuid=#{uuid, jdbcType=VARCHAR}
       </foreach>
     </where>
   </select>
 
   <select id="countActiveRulesByQuery" resultType="KeyLongValue" parameterType="map">
-    select oqp.uuid as "key", count(ar.id) as "value"
+    select oqp.uuid as "key", count(ar.uuid) as "value"
     from active_rules ar
     inner join rules_profiles rp on rp.id = ar.profile_id
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
@@ -301,10 +303,10 @@
     <include refid="scrollAllForIndexingSql"/>
   </select>
 
-  <select id="scrollByIdsForIndexing" parameterType="map" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollByUuidsForIndexing" parameterType="map" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     <include refid="scrollAllForIndexingSql"/>
-    where ar.id in
-    <foreach collection="ids" open="(" close=")" item="id" separator=",">#{id, jdbcType=BIGINT}</foreach>
+    where ar.uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </select>
 
   <select id="scrollByRuleProfileUuidForIndexing" parameterType="String" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
@@ -314,7 +316,7 @@
 
   <sql id="scrollAllForIndexingSql">
     select
-    ar.id as "id",
+    ar.uuid as "uuid",
     ar.failure_level as "severity",
     ar.inheritance as "inheritance",
     r.id as "ruleId",

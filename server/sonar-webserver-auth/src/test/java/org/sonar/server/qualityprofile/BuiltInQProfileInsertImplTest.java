@@ -173,7 +173,7 @@ public class BuiltInQProfileInsertImplTest {
 
   private void verifyActiveRuleInDb(QProfileDto profile, RuleDefinitionDto rule, String expectedSeverity) {
     ActiveRuleDto activeRule = db.getDbClient().activeRuleDao().selectByKey(dbSession, ActiveRuleKey.of(profile, rule.getKey())).get();
-    assertThat(activeRule.getId()).isPositive();
+    assertThat(activeRule.getUuid()).isNotNull();
     assertThat(activeRule.getInheritance()).isNull();
     assertThat(activeRule.doesOverride()).isFalse();
     assertThat(activeRule.getRuleId()).isEqualTo(rule.getId());
@@ -182,7 +182,7 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(activeRule.getCreatedAt()).isPositive();
     assertThat(activeRule.getUpdatedAt()).isPositive();
 
-    List<ActiveRuleParamDto> params = db.getDbClient().activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRule.getId());
+    List<ActiveRuleParamDto> params = db.getDbClient().activeRuleDao().selectParamsByActiveRuleUuid(dbSession, activeRule.getUuid());
     assertThat(params).isEmpty();
 
     QProfileChangeQuery changeQuery = new QProfileChangeQuery(profile.getKee());

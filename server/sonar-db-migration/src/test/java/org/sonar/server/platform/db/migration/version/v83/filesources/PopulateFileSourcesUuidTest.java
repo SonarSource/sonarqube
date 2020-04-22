@@ -74,7 +74,6 @@ public class PopulateFileSourcesUuidTest {
   private void insertFileSources(Long id) {
     db.executeInsert("file_sources",
       "id", id,
-      "uuid", uuidFactory.create(),
       "project_uuid", uuidFactory.create(),
       "file_uuid", uuidFactory.create(),
       "line_count", id + 1,

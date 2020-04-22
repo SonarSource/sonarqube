@@ -37,9 +37,9 @@ public class ActiveRuleDoc extends BaseDoc {
 
   public static final String DOC_ID_PREFIX = "ar_";
 
-  public ActiveRuleDoc(long id) {
+  public ActiveRuleDoc(String uuid) {
     super(TYPE_ACTIVE_RULE, Maps.newHashMapWithExpectedSize(10));
-    setField(FIELD_ACTIVE_RULE_ID, String.valueOf(id));
+    setField(FIELD_ACTIVE_RULE_ID, uuid);
   }
 
   public ActiveRuleDoc(Map<String, Object> source) {
@@ -54,12 +54,12 @@ public class ActiveRuleDoc extends BaseDoc {
     return DOC_ID_PREFIX + activeRuleId;
   }
 
-  public static long activeRuleIdOf(String docId) {
+  public static String activeRuleIdOf(String docId) {
     if (docId.startsWith(DOC_ID_PREFIX)) {
-      return Long.valueOf(docId.substring(DOC_ID_PREFIX.length()));
+      return docId.substring(DOC_ID_PREFIX.length());
     }
     // support for old active rule docId
-    return Long.valueOf(docId);
+    return docId;
   }
 
   @Override

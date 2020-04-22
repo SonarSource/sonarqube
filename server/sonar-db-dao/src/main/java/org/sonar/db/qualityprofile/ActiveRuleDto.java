@@ -36,7 +36,7 @@ public class ActiveRuleDto {
   public static final String INHERITED = ActiveRule.INHERITED;
   public static final String OVERRIDES = ActiveRule.OVERRIDES;
 
-  private Integer id;
+  private String uuid;
   private Integer profileId;
   private Integer ruleId;
   private Integer severity;
@@ -66,12 +66,12 @@ public class ActiveRuleDto {
     return RuleKey.of(repository, ruleField);
   }
 
-  public Integer getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public ActiveRuleDto setId(Integer id) {
-    this.id = id;
+  public ActiveRuleDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

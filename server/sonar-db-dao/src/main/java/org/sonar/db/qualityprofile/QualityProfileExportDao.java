@@ -33,17 +33,17 @@ public class QualityProfileExportDao implements Dao {
   public List<ExportRuleDto> selectRulesByProfile(DbSession dbSession, QProfileDto profile) {
     List<ExportRuleDto> exportRules = mapper(dbSession).selectByProfileUuid(profile.getKee());
 
-    Map<Integer, ExportRuleDto> exportRulesById = exportRules.stream().collect(Collectors.toMap(ExportRuleDto::getActiveRuleId, x -> x));
-    Map<Integer, List<ExportRuleParamDto>> rulesParams = selectParamsByActiveRuleIds(dbSession, exportRulesById.keySet());
+    Map<String, ExportRuleDto> exportRulesByUuid = exportRules.stream().collect(Collectors.toMap(ExportRuleDto::getActiveRuleUuid, x -> x));
+    Map<String, List<ExportRuleParamDto>> rulesParams = selectParamsByActiveRuleUuids(dbSession, exportRulesByUuid.keySet());
 
-    rulesParams.forEach((id, rules) -> exportRulesById.get(id).setParams(rules));
+    rulesParams.forEach((uuid, rules) -> exportRulesByUuid.get(uuid).setParams(rules));
     return exportRules;
   }
 
-  private static Map<Integer, List<ExportRuleParamDto>> selectParamsByActiveRuleIds(DbSession dbSession, Collection<Integer> activeRuleIds) {
-    return executeLargeInputs(activeRuleIds, ids -> mapper(dbSession).selectParamsByActiveRuleIds(ids))
+  private static Map<String, List<ExportRuleParamDto>> selectParamsByActiveRuleUuids(DbSession dbSession, Collection<String> activeRuleUuids) {
+    return executeLargeInputs(activeRuleUuids, uuids -> mapper(dbSession).selectParamsByActiveRuleUuids(uuids))
       .stream()
-      .collect(Collectors.groupingBy(ExportRuleParamDto::getActiveRuleId));
+      .collect(Collectors.groupingBy(ExportRuleParamDto::getActiveRuleUuid));
   }
 
   private static QualityProfileExportMapper mapper(DbSession dbSession) {

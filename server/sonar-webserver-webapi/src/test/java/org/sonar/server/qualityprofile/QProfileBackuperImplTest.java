@@ -402,7 +402,7 @@ public class QProfileBackuperImplTest {
     ActiveRuleDto activeRule = db.qualityProfiles().activateRule(profile, rule);
     ActiveRuleParamDto dto = ActiveRuleParamDto.createFor(param)
       .setValue("20")
-      .setActiveRuleId(activeRule.getId());
+      .setActiveRuleUuid(activeRule.getUuid());
     db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRule, dto);
     return activeRule;
   }

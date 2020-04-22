@@ -70,8 +70,8 @@ public class QProfileComparison {
 
   private void compareActivationParams(DbSession session, ActiveRuleDto leftRule, ActiveRuleDto rightRule, QProfileComparisonResult result) {
     RuleKey key = leftRule.getRuleKey();
-    Map<String, String> leftParams = paramDtoToMap(dbClient.activeRuleDao().selectParamsByActiveRuleId(session, leftRule.getId()));
-    Map<String, String> rightParams = paramDtoToMap(dbClient.activeRuleDao().selectParamsByActiveRuleId(session, rightRule.getId()));
+    Map<String, String> leftParams = paramDtoToMap(dbClient.activeRuleDao().selectParamsByActiveRuleUuid(session, leftRule.getUuid()));
+    Map<String, String> rightParams = paramDtoToMap(dbClient.activeRuleDao().selectParamsByActiveRuleUuid(session, rightRule.getUuid()));
     if (leftParams.equals(rightParams) && leftRule.getSeverityString().equals(rightRule.getSeverityString())) {
       result.same.put(key, leftRule);
     } else {

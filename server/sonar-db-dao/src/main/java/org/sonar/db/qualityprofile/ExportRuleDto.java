@@ -26,7 +26,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.SeverityUtil;
 
 public class ExportRuleDto {
-  private Integer activeRuleId = null;
+  private String activeRuleUuid = null;
   private String repository = null;
   private String rule = null;
   private String name = null;
@@ -43,8 +43,8 @@ public class ExportRuleDto {
     return template != null;
   }
 
-  public Integer getActiveRuleId() {
-    return activeRuleId;
+  public String getActiveRuleUuid() {
+    return activeRuleUuid;
   }
 
   public RuleKey getRuleKey() {

@@ -408,8 +408,8 @@ public class RuleActivator {
         .map(QProfileDto::getRulesProfileUuid)
         .collect(MoreCollectors.toHashSet());
       Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleIds, ruleProfileUuids);
-      List<Integer> activeRuleIds = activeRules.stream().map(ActiveRuleDto::getId).collect(MoreCollectors.toArrayList(activeRules.size()));
-      List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds);
+      List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(MoreCollectors.toArrayList(activeRules.size()));
+      List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids);
       return new DescendantProfilesSupplier.Result(profiles, activeRules, activeRuleParams);
     };
   }
@@ -423,8 +423,8 @@ public class RuleActivator {
   private void completeWithActiveRules(DbSession dbSession, RuleActivationContext.Builder builder, Collection<Integer> ruleIds, Collection<String> ruleProfileUuids) {
     Collection<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRulesAndRuleProfileUuids(dbSession, ruleIds, ruleProfileUuids);
     builder.setActiveRules(activeRules);
-    List<Integer> activeRuleIds = activeRules.stream().map(ActiveRuleDto::getId).collect(MoreCollectors.toArrayList(activeRules.size()));
-    builder.setActiveRuleParams(db.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds));
+    List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(MoreCollectors.toArrayList(activeRules.size()));
+    builder.setActiveRuleParams(db.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids));
   }
 
   private static boolean isSame(ActiveRuleChange change, ActiveRuleWrapper activeRule) {

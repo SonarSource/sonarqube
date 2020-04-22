@@ -34,11 +34,11 @@ public interface ActiveRuleMapper {
 
   void update(ActiveRuleDto dto);
 
-  void delete(int activeRuleId);
+  void delete(String activeRuleUuid);
 
   void deleteByRuleProfileUuids(@Param("rulesProfileUuids") Collection<String> rulesProfileUuids);
 
-  void deleteByIds(@Param("ids") Collection<Integer> ids);
+  void deleteByUuids(@Param("uuids") Collection<String> uuids);
 
   @CheckForNull
   ActiveRuleDto selectByKey(@Param("ruleProfileUuid") String ruleProfileUuid, @Param("repository") String repository, @Param("rule") String rule);
@@ -65,24 +65,24 @@ public interface ActiveRuleMapper {
 
   void updateParameter(ActiveRuleParamDto dto);
 
-  void deleteParameters(int activeRuleId);
+  void deleteParameters(String activeRuleUuid);
 
   void deleteParametersByRuleProfileUuids(@Param("rulesProfileUuids") Collection<String> rulesProfileUuids);
 
   void deleteParameter(String activeRuleParamUuid);
 
-  void deleteParamsByActiveRuleIds(@Param("activeRuleIds") Collection<Integer> activeRuleIds);
+  void deleteParamsByActiveRuleUuids(@Param("activeRuleUuids") Collection<String> activeRuleUuids);
 
-  List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId);
+  List<ActiveRuleParamDto> selectParamsByActiveRuleUuid(String activeRuleUuid);
 
-  List<ActiveRuleParamDto> selectParamsByActiveRuleIds(@Param("ids") List<Integer> ids);
+  List<ActiveRuleParamDto> selectParamsByActiveRuleUuids(@Param("uuids") List<String> uuids);
 
   List<KeyLongValue> countActiveRulesByQuery(@Param("organizationUuid") String organizationUuid, @Param("profileUuids") List<String> profileUuids,
     @Nullable @Param("ruleStatus") RuleStatus ruleStatus, @Param("inheritance") String inheritance);
 
   void scrollAllForIndexing(ResultHandler<IndexedActiveRuleDto> handler);
 
-  void scrollByIdsForIndexing(@Param("ids") Collection<Long> ids, ResultHandler<IndexedActiveRuleDto> handler);
+  void scrollByUuidsForIndexing(@Param("uuids") Collection<String> uuids, ResultHandler<IndexedActiveRuleDto> handler);
 
   void scrollByRuleProfileUuidForIndexing(@Param("ruleProfileUuid") String ruleProfileUuid, ResultHandler<IndexedActiveRuleDto> handler);
 }

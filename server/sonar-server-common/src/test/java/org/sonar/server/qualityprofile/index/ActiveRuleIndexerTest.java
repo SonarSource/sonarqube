@@ -122,7 +122,7 @@ public class ActiveRuleIndexerTest {
 
     commitAndIndex(rule1, ar);
 
-    EsQueueDto expectedItem = EsQueueDto.create(TYPE_ACTIVE_RULE.format(), "ar_" + ar.getId(), "activeRuleId", valueOf(ar.getRuleId()));
+    EsQueueDto expectedItem = EsQueueDto.create(TYPE_ACTIVE_RULE.format(), "ar_" + ar.getUuid(), "activeRuleId", valueOf(ar.getRuleId()));
     assertThatEsQueueContainsExactly(expectedItem);
     es.unlockWrites(TYPE_ACTIVE_RULE);
   }
@@ -196,13 +196,13 @@ public class ActiveRuleIndexerTest {
     List<String> docs = es.getIds(TYPE_ACTIVE_RULE);
     assertThat(docs).hasSize(expected.length);
     for (ActiveRuleDto activeRuleDto : expected) {
-      assertThat(docs).contains("ar_" + activeRuleDto.getId());
+      assertThat(docs).contains("ar_" + activeRuleDto.getUuid());
     }
   }
 
   private void verify(ActiveRuleDoc doc1, QProfileDto profile, ActiveRuleDto activeRule) {
     assertThat(doc1)
-      .matches(doc -> doc.getId().equals("ar_" + activeRule.getId()))
+      .matches(doc -> doc.getId().equals("ar_" + activeRule.getUuid()))
       .matches(doc -> doc.getRuleProfileUuid().equals(profile.getRulesProfileUuid()))
       .matches(doc -> doc.getSeverity().equals(activeRule.getSeverityString()));
   }

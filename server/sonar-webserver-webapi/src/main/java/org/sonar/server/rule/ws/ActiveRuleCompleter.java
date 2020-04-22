@@ -126,14 +126,14 @@ public class ActiveRuleCompleter {
   }
 
   private ListMultimap<ActiveRuleKey, ActiveRuleParamDto> loadParams(DbSession dbSession, List<OrgActiveRuleDto> activeRules) {
-    Map<Integer, ActiveRuleKey> activeRuleIdsByKey = new HashMap<>();
+    Map<String, ActiveRuleKey> activeRuleUuidsByKey = new HashMap<>();
     for (OrgActiveRuleDto activeRule : activeRules) {
-      activeRuleIdsByKey.put(activeRule.getId(), activeRule.getKey());
+      activeRuleUuidsByKey.put(activeRule.getUuid(), activeRule.getKey());
     }
-    List<ActiveRuleParamDto> activeRuleParams = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRules, ActiveRuleDto::getId));
+    List<ActiveRuleParamDto> activeRuleParams = dbClient.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, Lists.transform(activeRules, ActiveRuleDto::getUuid));
     ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRules.size(), 10);
     for (ActiveRuleParamDto activeRuleParam : activeRuleParams) {
-      ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParam.getActiveRuleId());
+      ActiveRuleKey activeRuleKey = activeRuleUuidsByKey.get(activeRuleParam.getActiveRuleUuid());
       activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParam);
     }
 
@@ -142,16 +142,16 @@ public class ActiveRuleCompleter {
 
   List<Rules.Active> completeShow(DbSession dbSession, OrganizationDto organization, RuleDefinitionDto rule) {
     List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleId(dbSession, organization, rule.getId());
-    Map<Integer, ActiveRuleKey> activeRuleIdsByKey = new HashMap<>();
+    Map<String, ActiveRuleKey> activeRuleUuidsByKey = new HashMap<>();
     for (OrgActiveRuleDto activeRuleDto : activeRules) {
-      activeRuleIdsByKey.put(activeRuleDto.getId(), activeRuleDto.getKey());
+      activeRuleUuidsByKey.put(activeRuleDto.getUuid(), activeRuleDto.getKey());
     }
 
-    List<Integer> activeRuleIds = activeRules.stream().map(ActiveRuleDto::getId).collect(Collectors.toList());
-    List<ActiveRuleParamDto> activeRuleParams = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds);
+    List<String> activeRuleUuids = activeRules.stream().map(ActiveRuleDto::getUuid).collect(Collectors.toList());
+    List<ActiveRuleParamDto> activeRuleParams = dbClient.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids);
     ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRules.size(), 10);
     for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams) {
-      ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParamDto.getActiveRuleId());
+      ActiveRuleKey activeRuleKey = activeRuleUuidsByKey.get(activeRuleParamDto.getActiveRuleUuid());
       activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParamDto);
     }
 

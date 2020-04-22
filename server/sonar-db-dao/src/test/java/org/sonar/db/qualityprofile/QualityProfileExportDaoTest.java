@@ -136,8 +136,8 @@ public class QualityProfileExportDaoTest {
     List<ExportRuleDto> results = underTest.selectRulesByProfile(dbSession, profile);
 
     assertThat(results)
-      .extracting("activeRuleId")
-      .containsOnly(activatedRule.getId());
+      .extracting("activeRuleUuid")
+      .containsOnly(activatedRule.getUuid());
 
     assertThat(results.get(0).getParams())
       .extracting("key")
@@ -169,32 +169,32 @@ public class QualityProfileExportDaoTest {
     List<ExportRuleDto> otherProfileResults = underTest.selectRulesByProfile(dbSession, otherProfile);
 
     assertThat(results)
-      .extracting("activeRuleId")
-      .containsOnly(firstActivatedRule.getId(), secondActivatedRule.getId());
+      .extracting("activeRuleUuid")
+      .containsOnly(firstActivatedRule.getUuid(), secondActivatedRule.getUuid());
 
     assertThat(otherProfileResults)
-      .extracting("activeRuleId")
-      .containsOnly(thirdActivatedRule.getId());
+      .extracting("activeRuleUuid")
+      .containsOnly(thirdActivatedRule.getUuid());
 
-    ExportRuleDto firstExportedRule = findExportedRuleById(firstActivatedRule.getId(), results);
+    ExportRuleDto firstExportedRule = findExportedRuleByUuid(firstActivatedRule.getUuid(), results);
     assertThat(firstExportedRule.getParams())
       .extracting("key")
       .containsOnly(ruleParamsOfFirstRule.stream().map(RuleParamDto::getName).toArray());
 
-    ExportRuleDto secondExportedRule = findExportedRuleById(secondActivatedRule.getId(), results);
+    ExportRuleDto secondExportedRule = findExportedRuleByUuid(secondActivatedRule.getUuid(), results);
     assertThat(secondExportedRule.getParams())
       .extracting("key")
       .containsOnly(ruleParamsOfSecondRule.stream().map(RuleParamDto::getName).toArray());
 
-    ExportRuleDto thirdExportedRule = findExportedRuleById(thirdActivatedRule.getId(), otherProfileResults);
+    ExportRuleDto thirdExportedRule = findExportedRuleByUuid(thirdActivatedRule.getUuid(), otherProfileResults);
     assertThat(thirdExportedRule.getParams())
       .extracting("key")
       .containsOnly(ruleParamsOfThirdRule.stream().map(RuleParamDto::getName).toArray());
   }
 
 
-  private ExportRuleDto findExportedRuleById(Integer id, List<ExportRuleDto> results) {
-    Optional<ExportRuleDto> found = results.stream().filter(exportRuleDto -> id.equals(exportRuleDto.getActiveRuleId())).findFirst();
+  private ExportRuleDto findExportedRuleByUuid(String uuid, List<ExportRuleDto> results) {
+    Optional<ExportRuleDto> found = results.stream().filter(exportRuleDto -> uuid.equals(exportRuleDto.getActiveRuleUuid())).findFirst();
     if (!found.isPresent()) {
       Assert.fail();
     }
@@ -241,7 +241,7 @@ public class QualityProfileExportDaoTest {
       ActiveRuleParamDto dto = ActiveRuleParamDto.createFor(ruleParamDto)
         .setKey(ruleParamDto.getName())
         .setValue("20")
-        .setActiveRuleId(activeRule.getId());
+        .setActiveRuleUuid(activeRule.getUuid());
       db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRule, dto);
     });
 

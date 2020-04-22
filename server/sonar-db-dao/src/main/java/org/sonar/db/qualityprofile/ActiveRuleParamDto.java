@@ -30,7 +30,7 @@ import org.sonar.db.rule.RuleParamDto;
 public class ActiveRuleParamDto {
 
   private String uuid;
-  private Integer activeRuleId;
+  private String activeRuleUuid;
   private Integer rulesParameterId;
   private String kee;
   private String value;
@@ -44,12 +44,12 @@ public class ActiveRuleParamDto {
     return this;
   }
 
-  public Integer getActiveRuleId() {
-    return activeRuleId;
+  public String getActiveRuleUuid() {
+    return activeRuleUuid;
   }
 
-  public ActiveRuleParamDto setActiveRuleId(Integer activeRuleId) {
-    this.activeRuleId = activeRuleId;
+  public ActiveRuleParamDto setActiveRuleUuid(String activeRuleUuid) {
+    this.activeRuleUuid = activeRuleUuid;
     return this;
   }
 

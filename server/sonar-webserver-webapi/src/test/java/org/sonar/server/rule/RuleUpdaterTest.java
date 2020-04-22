@@ -457,7 +457,7 @@ public class RuleUpdaterTest {
       .setSeverity(Severity.BLOCKER);
     db.getDbClient().activeRuleDao().insert(dbSession, activeRuleDto);
     db.getDbClient().activeRuleDao().insertParam(dbSession, activeRuleDto, new ActiveRuleParamDto()
-      .setActiveRuleId(activeRuleDto.getId())
+      .setActiveRuleUuid(activeRuleDto.getUuid())
       .setRulesParameterId(ruleParam1.getId())
       .setKey(ruleParam1.getName())
       .setValue(ruleParam1.getDefaultValue()));
@@ -486,7 +486,7 @@ public class RuleUpdaterTest {
     assertThat(activeRuleReloaded.getSeverityString()).isEqualTo(Severity.BLOCKER);
 
     // Verify active rule parameters has been updated
-    List<ActiveRuleParamDto> activeRuleParams = db.getDbClient().activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleReloaded.getId());
+    List<ActiveRuleParamDto> activeRuleParams = db.getDbClient().activeRuleDao().selectParamsByActiveRuleUuid(dbSession, activeRuleReloaded.getUuid());
 
     assertThat(activeRuleParams).hasSize(2);
     Map<String, ActiveRuleParamDto> activeRuleParamsByKey = ActiveRuleParamDto.groupByKey(activeRuleParams);

@@ -20,12 +20,12 @@
 package org.sonar.db.qualityprofile;
 
 public class ExportRuleParamDto {
-  private Integer activeRuleId = null;
+  private String activeRuleUuid = null;
   private String kee = null;
   private String value = null;
 
-  public Integer getActiveRuleId() {
-    return activeRuleId;
+  public String getActiveRuleUuid() {
+    return activeRuleUuid;
   }
 
   public String getKey() {

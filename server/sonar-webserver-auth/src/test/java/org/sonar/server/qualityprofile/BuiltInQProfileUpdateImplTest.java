@@ -357,12 +357,12 @@ public class BuiltInQProfileUpdateImplTest {
     assertThat(activeRule.getCreatedAt()).isNotNull();
     assertThat(activeRule.getUpdatedAt()).isNotNull();
 
-    List<ActiveRuleParamDto> params = db.getDbClient().activeRuleDao().selectParamsByActiveRuleId(db.getSession(), activeRule.getId());
+    List<ActiveRuleParamDto> params = db.getDbClient().activeRuleDao().selectParamsByActiveRuleUuid(db.getSession(), activeRule.getUuid());
     assertThat(params).hasSize(expectedParams.size());
 
     if (changes != null) {
       ActiveRuleChange change = changes.stream()
-        .filter(c -> c.getActiveRule().getId().equals(activeRule.getId()))
+        .filter(c -> c.getActiveRule().getUuid().equals(activeRule.getUuid()))
         .findFirst().orElseThrow(IllegalStateException::new);
       assertThat(change.getInheritance()).isEqualTo(expectedInheritance);
       assertThat(change.getSeverity()).isEqualTo(expectedSeverity);
@@ -371,7 +371,7 @@ public class BuiltInQProfileUpdateImplTest {
   }
 
   private static void assertThatRuleHasParams(DbTester db, ActiveRuleDto activeRule, Tuple... expectedParams) {
-    assertThat(db.getDbClient().activeRuleDao().selectParamsByActiveRuleId(db.getSession(), activeRule.getId()))
+    assertThat(db.getDbClient().activeRuleDao().selectParamsByActiveRuleUuid(db.getSession(), activeRule.getUuid()))
       .extracting(ActiveRuleParamDto::getKey, ActiveRuleParamDto::getValue)
       .containsExactlyInAnyOrder(expectedParams);
   }
