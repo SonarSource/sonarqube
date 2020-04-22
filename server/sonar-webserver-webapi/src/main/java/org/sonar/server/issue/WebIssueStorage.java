@@ -33,6 +33,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -61,12 +62,14 @@ public class WebIssueStorage extends IssueStorage {
   private final RuleFinder ruleFinder;
   private final DbClient dbClient;
   private final IssueIndexer indexer;
+  private final UuidFactory uuidFactory;
 
-  public WebIssueStorage(System2 system2, DbClient dbClient, RuleFinder ruleFinder, IssueIndexer indexer) {
+  public WebIssueStorage(System2 system2, DbClient dbClient, RuleFinder ruleFinder, IssueIndexer indexer, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
     this.indexer = indexer;
+    this.uuidFactory = uuidFactory;
   }
 
   protected DbClient getDbClient() {
@@ -106,7 +109,7 @@ public class WebIssueStorage extends IssueStorage {
     for (DefaultIssue issue : issuesToInsert) {
       IssueDto issueDto = doInsert(session, now, issue);
       inserted.add(issueDto);
-      insertChanges(issueChangeMapper, issue);
+      insertChanges(issueChangeMapper, issue, uuidFactory);
       if (count > BatchSession.MAX_BATCH_SIZE) {
         session.commit();
         count = 0;
@@ -146,7 +149,7 @@ public class WebIssueStorage extends IssueStorage {
         for (DefaultIssue issue : issuesToUpdate) {
           IssueDto issueDto = doUpdate(dbSession, now, issue);
           updated.add(issueDto);
-          insertChanges(issueChangeMapper, issue);
+          insertChanges(issueChangeMapper, issue, uuidFactory);
         }
         dbSession.commit();
       }

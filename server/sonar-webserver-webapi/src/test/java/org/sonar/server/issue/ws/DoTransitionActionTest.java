@@ -30,6 +30,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -101,8 +102,8 @@ public class DoTransitionActionTest {
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
-    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class),
-    issueChangePostProcessor, issuesChangesSerializer);
+    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer, new SequenceUuidFactory()),
+    mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2);

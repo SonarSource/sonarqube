@@ -22,14 +22,16 @@ package org.sonar.server.issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 
 public class IssueStorage {
-  public void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
+  public void insertChanges(IssueChangeMapper mapper, DefaultIssue issue, UuidFactory uuidFactory) {
     for (DefaultIssueComment comment : issue.defaultIssueComments()) {
       if (comment.isNew()) {
         IssueChangeDto changeDto = IssueChangeDto.of(comment);
+        changeDto.setUuid(uuidFactory.create());
         mapper.insert(changeDto);
       }
     }
@@ -37,10 +39,12 @@ public class IssueStorage {
     if (issue.isCopied()) {
       for (FieldDiffs d : issue.changes()) {
         IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), d);
+        changeDto.setUuid(uuidFactory.create());
         mapper.insert(changeDto);
       }
     } else if (!issue.isNew() && diffs != null) {
       IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs);
+      changeDto.setUuid(uuidFactory.create());
       mapper.insert(changeDto);
     }
   }

@@ -29,6 +29,8 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
@@ -54,7 +56,7 @@ public class GroupPermissionChangerTest {
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private GroupPermissionChanger underTest = new GroupPermissionChanger(db.getDbClient());
+  private GroupPermissionChanger underTest = new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory());
   private OrganizationDto org;
   private GroupDto group;
   private ComponentDto privateProject;
@@ -430,6 +432,7 @@ public class GroupPermissionChangerTest {
 
   private void unsafeInsertProjectPermissionOnAnyone(String perm) {
     GroupPermissionDto dto = new GroupPermissionDto()
+      .setUuid(Uuids.createFast())
       .setOrganizationUuid(privateProject.getOrganizationUuid())
       .setGroupId(null)
       .setRole(perm)

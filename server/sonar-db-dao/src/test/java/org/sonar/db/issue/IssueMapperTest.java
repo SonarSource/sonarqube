@@ -42,6 +42,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -478,6 +479,7 @@ public class IssueMapperTest {
     IntStream.range(0, random.nextInt(3)).forEach(i -> diffs.setDiff("key_a" + i, "old_" + i, "new_" + i));
 
     IssueChangeDto changeDto = IssueChangeDto.of(issue.getKey(), diffs);
+    changeDto.setUuid(Uuids.createFast());
     dbTester.getDbClient().issueChangeDao().insert(dbSession, changeDto);
     return changeDto;
   }

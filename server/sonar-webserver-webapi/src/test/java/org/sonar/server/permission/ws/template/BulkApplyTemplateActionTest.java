@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
@@ -74,7 +75,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   @Override
   protected BulkApplyTemplateAction buildWsAction() {
     PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-      projectIndexers, userSession, defaultTemplatesResolver);
+      projectIndexers, userSession, defaultTemplatesResolver, new SequenceUuidFactory());
     return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
   }
 

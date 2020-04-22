@@ -38,6 +38,7 @@ import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.step.BaseStepTest;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -83,7 +84,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void setup() {
     when(system2.now()).thenReturn(NOW);
     when(sourceLinesHashRepository.getLineHashesComputerToPersist(Mockito.any(Component.class))).thenReturn(lineHashesComputer);
-    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, sourceLinesHashRepository, fileSourceDataComputer, fileSourceDataWarnings);
+    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, sourceLinesHashRepository, fileSourceDataComputer, fileSourceDataWarnings, new SequenceUuidFactory());
     initBasicReport(1);
   }
 

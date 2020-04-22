@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
@@ -85,8 +86,8 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(
       new ProjectIndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
-      new UserPermissionChanger(db.getDbClient()),
-      new GroupPermissionChanger(db.getDbClient()));
+      new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
+      new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory()));
   }
 
   protected TestRequest newRequest() {

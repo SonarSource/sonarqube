@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -94,9 +95,11 @@ public class AddCommentActionTest {
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private WebIssueStorage serverIssueStorage = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer);
+  private WebIssueStorage serverIssueStorage = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer,
+    new SequenceUuidFactory());
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
-  private IssueUpdater issueUpdater = new IssueUpdater(dbClient, serverIssueStorage, mock(NotificationManager.class), issueChangePostProcessor, new IssuesChangesNotificationSerializer());
+  private IssueUpdater issueUpdater = new IssueUpdater(dbClient, serverIssueStorage, mock(NotificationManager.class), issueChangePostProcessor,
+    new IssuesChangesNotificationSerializer());
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
@@ -225,8 +228,8 @@ public class AddCommentActionTest {
     UserDto user = dbTester.users().insertUser("john");
     userSession.logIn(user)
       .addProjectPermission(permission,
-      dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get(),
-      dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getComponentUuid()).get());
+        dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get(),
+        dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getComponentUuid()).get());
   }
 
 }

@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -60,7 +61,7 @@ public class OrganisationSupportTest {
   private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(dbTester.getDbClient());
   private RuleIndexer ruleIndexer = spy(new RuleIndexer(es.client(), dbTester.getDbClient()));
   private OrganisationSupport underTest = new OrganisationSupport(dbTester.getDbClient(), defaultOrganizationProvider, organizationFlags,
-    new DefaultGroupCreatorImpl(dbTester.getDbClient()), new DefaultGroupFinder(dbTester.getDbClient()), ruleIndexer);
+    new DefaultGroupCreatorImpl(dbTester.getDbClient()), new DefaultGroupFinder(dbTester.getDbClient()), ruleIndexer, new SequenceUuidFactory());
 
   @Test
   public void enabling_support_saves_internal_property_and_flags_caller_as_root() {

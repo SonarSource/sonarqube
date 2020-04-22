@@ -102,7 +102,7 @@ message CreateResponse {
 
 // POST api/qualitygates/create_condition
 message CreateConditionResponse {
-  optional int64 id = 1;
+  optional string id = 1;
   optional string metric = 2;
   optional string op = 3;
   optional string error = 5;
@@ -110,7 +110,7 @@ message CreateConditionResponse {
 
 // POST api/qualitygates/update_condition
 message UpdateConditionResponse {
-  optional int64 id = 1;
+  optional string id = 1;
   optional string metric = 2;
   optional string op = 3;
   optional string error = 5;
@@ -125,7 +125,7 @@ message ShowWsResponse {
   optional Actions actions = 5;
 
   message Condition {
-    optional int64 id = 1;
+    optional string id = 1;
     optional string metric = 2;
     optional string op = 4;
     optional string error = 6;

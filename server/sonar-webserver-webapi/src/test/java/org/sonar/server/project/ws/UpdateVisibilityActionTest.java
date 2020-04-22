@@ -32,6 +32,7 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -107,7 +108,8 @@ public class UpdateVisibilityActionTest {
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
   private ProjectsWsSupport wsSupport = new ProjectsWsSupport(dbClient, TestDefaultOrganizationProvider.from(dbTester), billingValidations);
-  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester), userSessionRule, projectIndexers, wsSupport);
+  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester),
+    userSessionRule, projectIndexers, wsSupport, new SequenceUuidFactory());
   private WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();
@@ -593,7 +595,6 @@ public class UpdateVisibilityActionTest {
       .containsOnly(UserRole.ADMIN);
   }
 
-
   @Test
   public void fail_to_update_visibility_to_private_when_organization_is_not_allowed_to_use_private_projects() {
     OrganizationDto organization = dbTester.organizations().insert();
@@ -656,6 +657,7 @@ public class UpdateVisibilityActionTest {
 
   private void unsafeInsertProjectPermissionOnAnyone(ComponentDto component, String permission) {
     GroupPermissionDto dto = new GroupPermissionDto()
+      .setUuid(Uuids.createFast())
       .setOrganizationUuid(component.getOrganizationUuid())
       .setGroupId(null)
       .setRole(permission)
@@ -666,6 +668,7 @@ public class UpdateVisibilityActionTest {
 
   private void unsafeInsertProjectPermissionOnGroup(ComponentDto component, GroupDto group, String permission) {
     GroupPermissionDto dto = new GroupPermissionDto()
+      .setUuid(Uuids.createFast())
       .setOrganizationUuid(group.getOrganizationUuid())
       .setGroupId(group.getId())
       .setRole(permission)

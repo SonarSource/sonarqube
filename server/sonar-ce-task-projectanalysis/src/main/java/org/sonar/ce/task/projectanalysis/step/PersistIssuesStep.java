@@ -30,6 +30,7 @@ import org.sonar.ce.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -52,15 +53,17 @@ public class PersistIssuesStep implements ComputationStep {
   private final RuleRepository ruleRepository;
   private final ProtoIssueCache protoIssueCache;
   private final IssueStorage issueStorage;
+  private final UuidFactory uuidFactory;
 
   public PersistIssuesStep(DbClient dbClient, System2 system2, UpdateConflictResolver conflictResolver,
-    RuleRepository ruleRepository, ProtoIssueCache protoIssueCache, IssueStorage issueStorage) {
+    RuleRepository ruleRepository, ProtoIssueCache protoIssueCache, IssueStorage issueStorage, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.conflictResolver = conflictResolver;
     this.ruleRepository = ruleRepository;
     this.protoIssueCache = protoIssueCache;
     this.issueStorage = issueStorage;
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
@@ -112,7 +115,7 @@ public class PersistIssuesStep implements ComputationStep {
       statistics.inserts++;
     });
 
-    addedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i));
+    addedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i, uuidFactory));
   }
 
   private void persistUpdatedIssues(IssueStatistics statistics, List<DefaultIssue> updatedIssues, IssueMapper mapper, IssueChangeMapper changeMapper) {
@@ -140,7 +143,7 @@ public class PersistIssuesStep implements ComputationStep {
         });
     }
 
-    updatedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i));
+    updatedIssues.forEach(i -> issueStorage.insertChanges(changeMapper, i, uuidFactory));
   }
 
   private static void flushSession(DbSession dbSession) {

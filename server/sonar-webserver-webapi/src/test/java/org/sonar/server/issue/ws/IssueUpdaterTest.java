@@ -28,6 +28,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
@@ -89,8 +90,8 @@ public class IssueUpdaterTest {
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private IssueUpdater underTest = new IssueUpdater(dbClient,
-    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), notificationManager, issueChangePostProcessor,
-    issuesChangesSerializer);
+    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer, new SequenceUuidFactory()), notificationManager,
+    issueChangePostProcessor, issuesChangesSerializer);
 
   @Test
   public void update_issue() {

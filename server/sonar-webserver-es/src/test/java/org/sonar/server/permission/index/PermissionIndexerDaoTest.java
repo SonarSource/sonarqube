@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -172,6 +173,7 @@ public class PermissionIndexerDaoTest {
       dbClient.componentDao().insert(dbSession, project);
       projectUuids.add(project.uuid());
       GroupPermissionDto dto = new GroupPermissionDto()
+        .setUuid(Uuids.createFast())
         .setOrganizationUuid(group.getOrganizationUuid())
         .setGroupId(group.getId())
         .setRole(USER)

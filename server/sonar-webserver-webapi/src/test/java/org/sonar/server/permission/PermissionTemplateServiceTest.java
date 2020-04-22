@@ -28,6 +28,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -64,7 +65,8 @@ public class PermissionTemplateServiceTest {
   private DbSession session = dbTester.getSession();
   private ProjectIndexers projectIndexers = new TestProjectIndexers();
 
-  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver);
+  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver,
+    new SequenceUuidFactory());
 
   @Test
   public void apply_does_not_insert_permission_to_group_AnyOne_when_applying_template_on_private_project() {

@@ -140,8 +140,7 @@ public class ShowAction implements QualityGatesWsAction {
       MetricDto metric = metricsById.get(metricId);
       checkState(metric != null, "Could not find metric with id %s", metricId);
       ShowWsResponse.Condition.Builder builder = ShowWsResponse.Condition.newBuilder()
-        // TODO
-        //.setId(condition.getUuid())
+        .setId(condition.getUuid())
         .setMetric(metric.getKey())
         .setOp(condition.getOperator());
       ofNullable(condition.getErrorThreshold()).ifPresent(builder::setError);

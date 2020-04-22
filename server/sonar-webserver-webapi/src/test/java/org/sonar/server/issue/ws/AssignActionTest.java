@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rules.RuleType;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -58,7 +59,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
-import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.tester.UserSessionRule.standalone;
@@ -93,7 +93,7 @@ public class AssignActionTest {
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private AssignAction underTest = new AssignAction(system2, userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer),
+      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer, new SequenceUuidFactory()),
       notificationManager, issueChangePostProcessor, issuesChangesSerializer),
     responseWriter);
   private WsActionTester ws = new WsActionTester(underTest);

@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -59,7 +60,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private PermissionTemplateDto template2;
 
   private PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-    new TestProjectIndexers(), userSession, defaultTemplatesResolver);
+    new TestProjectIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory());
 
   @Override
   protected ApplyTemplateAction buildWsAction() {

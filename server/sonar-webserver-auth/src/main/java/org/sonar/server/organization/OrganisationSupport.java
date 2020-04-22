@@ -22,6 +22,7 @@ package org.sonar.server.organization;
 import java.util.List;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
@@ -43,16 +44,18 @@ public class OrganisationSupport {
   private final DefaultGroupCreator defaultGroupCreator;
   private final DefaultGroupFinder defaultGroupFinder;
   private final RuleIndexer ruleIndexer;
+  private final UuidFactory uuidFactory;
 
   public OrganisationSupport(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
     OrganizationFlags organizationFlags, DefaultGroupCreator defaultGroupCreator, DefaultGroupFinder defaultGroupFinder,
-    RuleIndexer ruleIndexer) {
+    RuleIndexer ruleIndexer, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationFlags = organizationFlags;
     this.defaultGroupCreator = defaultGroupCreator;
     this.defaultGroupFinder = defaultGroupFinder;
     this.ruleIndexer = ruleIndexer;
+    this.uuidFactory = uuidFactory;
   }
 
   public void enable(String login) {
@@ -90,7 +93,10 @@ public class OrganisationSupport {
       context -> {
         GroupPermissionDto groupPermissionDto = (GroupPermissionDto) context.getResultObject();
         dbClient.groupPermissionDao().insert(dbSession,
-          new GroupPermissionDto().setOrganizationUuid(defaultOrganizationUuid).setGroupId(membersGroup.getId())
+          new GroupPermissionDto()
+            .setUuid(uuidFactory.create())
+            .setOrganizationUuid(defaultOrganizationUuid)
+            .setGroupId(membersGroup.getId())
             .setRole(groupPermissionDto.getRole())
             .setComponentUuid(groupPermissionDto.getComponentUuid()));
       });

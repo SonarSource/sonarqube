@@ -43,6 +43,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -104,7 +105,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
     underTest = new PersistIssuesStep(dbClient, system2, conflictResolver, new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder), protoIssueCache,
-      new IssueStorage());
+      new IssueStorage(), new SequenceUuidFactory());
   }
 
   @After

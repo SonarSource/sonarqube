@@ -34,6 +34,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
@@ -119,7 +120,7 @@ public class BulkChangeActionTest {
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
   private WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
     new DefaultRuleFinder(dbClient, TestDefaultOrganizationProvider.from(db)),
-    new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient)));
+    new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient)), new SequenceUuidFactory());
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();

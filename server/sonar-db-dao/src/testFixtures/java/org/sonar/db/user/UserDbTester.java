@@ -223,6 +223,7 @@ public class UserDbTester {
 
   public GroupPermissionDto insertPermissionOnAnyone(OrganizationDto org, String permission) {
     GroupPermissionDto dto = new GroupPermissionDto()
+      .setUuid(Uuids.createFast())
       .setOrganizationUuid(org.getUuid())
       .setGroupId(null)
       .setRole(permission);
@@ -237,6 +238,7 @@ public class UserDbTester {
 
   public GroupPermissionDto insertPermissionOnGroup(GroupDto group, String permission) {
     GroupPermissionDto dto = new GroupPermissionDto()
+      .setUuid(Uuids.createFast())
       .setOrganizationUuid(group.getOrganizationUuid())
       .setGroupId(group.getId())
       .setRole(permission);
@@ -260,6 +262,7 @@ public class UserDbTester {
       "permission %s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     GroupPermissionDto dto = new GroupPermissionDto()
+      .setUuid(Uuids.createFast())
       .setOrganizationUuid(project.getOrganizationUuid())
       .setGroupId(null)
       .setRole(permission)
@@ -280,6 +283,7 @@ public class UserDbTester {
       "%s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
     GroupPermissionDto dto = new GroupPermissionDto()
+      .setUuid(Uuids.createFast())
       .setOrganizationUuid(group.getOrganizationUuid())
       .setGroupId(group.getId())
       .setRole(permission)

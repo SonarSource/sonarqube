@@ -21,6 +21,7 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
@@ -35,9 +36,11 @@ import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 public class GroupPermissionChanger {
 
   private final DbClient dbClient;
+  private final UuidFactory uuidFactory;
 
-  public GroupPermissionChanger(DbClient dbClient) {
+  public GroupPermissionChanger(DbClient dbClient, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
+    this.uuidFactory = uuidFactory;
   }
 
   public boolean apply(DbSession dbSession, GroupPermissionChange change) {
@@ -109,6 +112,7 @@ public class GroupPermissionChanger {
 
     validateNotAnyoneAndAdminPermission(change.getPermission(), change.getGroupIdOrAnyone());
     GroupPermissionDto addedDto = new GroupPermissionDto()
+      .setUuid(uuidFactory.create())
       .setRole(change.getPermission())
       .setOrganizationUuid(change.getOrganizationUuid())
       .setGroupId(change.getGroupIdOrAnyone().getId())

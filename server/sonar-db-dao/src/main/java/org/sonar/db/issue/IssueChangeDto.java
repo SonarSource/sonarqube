@@ -28,7 +28,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.util.Uuids;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;
@@ -62,7 +61,6 @@ public final class IssueChangeDto implements Serializable {
   public static IssueChangeDto of(DefaultIssueComment comment) {
     IssueChangeDto dto = newDto(comment.issueKey());
     dto.setKey(comment.key());
-    dto.setUuid(Uuids.create());
     dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
     dto.setChangeData(comment.markdownText());
     dto.setUserUuid(comment.userUuid());
@@ -73,7 +71,6 @@ public final class IssueChangeDto implements Serializable {
 
   public static IssueChangeDto of(String issueKey, FieldDiffs diffs) {
     IssueChangeDto dto = newDto(issueKey);
-    dto.setUuid(Uuids.create());
     dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
     dto.setChangeData(diffs.toEncodedString());
     dto.setUserUuid(diffs.userUuid());

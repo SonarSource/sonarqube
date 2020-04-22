@@ -27,6 +27,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -224,11 +225,13 @@ public class IssueDbTester {
 
   public IssueChangeDto insertComment(IssueDto issueDto, @Nullable UserDto user, String text) {
     IssueChangeDto issueChangeDto = IssueChangeDto.of(DefaultIssueComment.create(issueDto.getKey(), user == null ? null : user.getUuid(), text));
+    issueChangeDto.setUuid(Uuids.create());
     return insertChange(issueChangeDto);
   }
 
   public void insertFieldDiffs(IssueDto issueDto, FieldDiffs... diffs) {
-    Arrays.stream(diffs).forEach(diff -> db.getDbClient().issueChangeDao().insert(db.getSession(), IssueChangeDto.of(issueDto.getKey(), diff)));
+    Arrays.stream(diffs).forEach(diff -> db.getDbClient().issueChangeDao().insert(db.getSession(), IssueChangeDto.of(issueDto.getKey(), diff)
+    .setUuid(Uuids.createFast())));
     db.commit();
   }
 

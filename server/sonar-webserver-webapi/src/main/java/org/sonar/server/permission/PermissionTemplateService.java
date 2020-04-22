@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.Uuids;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -59,13 +59,15 @@ public class PermissionTemplateService {
   private final ProjectIndexers projectIndexers;
   private final UserSession userSession;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
+  private final UuidFactory uuidFactory;
 
   public PermissionTemplateService(DbClient dbClient, ProjectIndexers projectIndexers, UserSession userSession,
-    DefaultTemplatesResolver defaultTemplatesResolver) {
+    DefaultTemplatesResolver defaultTemplatesResolver, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.projectIndexers = projectIndexers;
     this.userSession = userSession;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
+    this.uuidFactory = uuidFactory;
   }
 
   public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession, String organizationUuid, @Nullable Integer userId, String projectKey) {
@@ -130,7 +132,7 @@ public class PermissionTemplateService {
       .stream()
       .filter(up -> permissionValidForProject(project, up.getPermission()))
       .forEach(up -> {
-        UserPermissionDto dto = new UserPermissionDto(Uuids.create(), organizationUuid, up.getPermission(), up.getUserId(), project.uuid());
+        UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), organizationUuid, up.getPermission(), up.getUserId(), project.uuid());
         dbClient.userPermissionDao().insert(dbSession, dto);
       });
 
@@ -141,6 +143,7 @@ public class PermissionTemplateService {
       .filter(gp -> permissionValidForProject(project, gp.getPermission()))
       .forEach(gp -> {
         GroupPermissionDto dto = new GroupPermissionDto()
+          .setUuid(uuidFactory.create())
           .setOrganizationUuid(organizationUuid)
           .setGroupId(isAnyone(gp.getGroupName()) ? null : gp.getGroupId())
           .setRole(gp.getPermission())
@@ -159,7 +162,7 @@ public class PermissionTemplateService {
         .filter(up -> permissionValidForProject(project, up.getPermission()))
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
-          UserPermissionDto dto = new UserPermissionDto(Uuids.create(), organizationUuid, c.getPermission(), projectCreatorUserId, project.uuid());
+          UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), organizationUuid, c.getPermission(), projectCreatorUserId, project.uuid());
           dbClient.userPermissionDao().insert(dbSession, dto);
         });
     }

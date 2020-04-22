@@ -41,6 +41,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -283,14 +284,18 @@ public class SearchActionTest {
     RuleDefinitionDto rule = newIssueRule().getDefinition();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     dbClient.issueChangeDao().insert(session,
-      new IssueChangeDto().setIssueKey(issue.getKey())
+      new IssueChangeDto()
+        .setUuid(Uuids.createFast())
+        .setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCD")
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(john.getUuid())
         .setIssueChangeCreationDate(parseDateTime("2014-09-09T12:00:00+0000").getTime()));
     dbClient.issueChangeDao().insert(session,
-      new IssueChangeDto().setIssueKey(issue.getKey())
+      new IssueChangeDto()
+        .setUuid(Uuids.createFast())
+        .setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
@@ -316,14 +321,18 @@ public class SearchActionTest {
     RuleDefinitionDto rule = newIssueRule().getDefinition();
     IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     dbClient.issueChangeDao().insert(session,
-      new IssueChangeDto().setIssueKey(issue.getKey())
+      new IssueChangeDto()
+        .setUuid(Uuids.createFast())
+        .setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCD")
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(john.getUuid())
         .setCreatedAt(parseDateTime("2014-09-09T12:00:00+0000").getTime()));
     dbClient.issueChangeDao().insert(session,
-      new IssueChangeDto().setIssueKey(issue.getKey())
+      new IssueChangeDto()
+        .setUuid(Uuids.createFast())
+        .setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
@@ -1146,6 +1155,7 @@ public class SearchActionTest {
   private void grantPermissionToAnyone(ComponentDto project, String permission) {
     dbClient.groupPermissionDao().insert(session,
       new GroupPermissionDto()
+        .setUuid(Uuids.createFast())
         .setOrganizationUuid(project.getOrganizationUuid())
         .setGroupId(null)
         .setComponentUuid(project.uuid())

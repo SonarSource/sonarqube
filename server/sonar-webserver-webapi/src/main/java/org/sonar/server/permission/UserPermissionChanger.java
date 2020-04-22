@@ -20,7 +20,7 @@
 package org.sonar.server.permission;
 
 import java.util.List;
-import org.sonar.core.util.Uuids;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
@@ -37,9 +37,11 @@ import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 public class UserPermissionChanger {
 
   private final DbClient dbClient;
+  private final UuidFactory uuidFactory;
 
-  public UserPermissionChanger(DbClient dbClient) {
+  public UserPermissionChanger(DbClient dbClient, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
+    this.uuidFactory = uuidFactory;
   }
 
   public boolean apply(DbSession dbSession, UserPermissionChange change) {
@@ -91,7 +93,7 @@ public class UserPermissionChanger {
     if (loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
       return false;
     }
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getProjectUuid());
+    UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getProjectUuid());
     dbClient.userPermissionDao().insert(dbSession, dto);
     return true;
   }

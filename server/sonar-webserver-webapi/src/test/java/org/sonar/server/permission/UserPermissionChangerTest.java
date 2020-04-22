@@ -27,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
@@ -59,7 +60,7 @@ public class UserPermissionChangerTest {
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient());
+  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory());
   private OrganizationDto org1;
   private OrganizationDto org2;
   private UserDto user1;

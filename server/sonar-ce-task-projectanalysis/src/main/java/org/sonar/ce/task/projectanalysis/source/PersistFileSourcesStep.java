@@ -35,7 +35,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.step.ComputationStep;
-import org.sonar.core.util.Uuids;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
@@ -50,16 +50,18 @@ public class PersistFileSourcesStep implements ComputationStep {
   private final SourceLinesHashRepository sourceLinesHash;
   private final FileSourceDataComputer fileSourceDataComputer;
   private final FileSourceDataWarnings fileSourceDataWarnings;
+  private final UuidFactory uuidFactory;
 
   public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder,
     SourceLinesHashRepository sourceLinesHash, FileSourceDataComputer fileSourceDataComputer,
-    FileSourceDataWarnings fileSourceDataWarnings) {
+    FileSourceDataWarnings fileSourceDataWarnings, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
     this.sourceLinesHash = sourceLinesHash;
     this.fileSourceDataComputer = fileSourceDataComputer;
     this.fileSourceDataWarnings = fileSourceDataWarnings;
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
@@ -116,7 +118,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       FileSourceDto previousDto = previousFileSourcesByUuid.get(file.getUuid());
       if (previousDto == null) {
         FileSourceDto dto = new FileSourceDto()
-          .setUuid(Uuids.create())
+          .setUuid(uuidFactory.create())
           .setProjectUuid(projectUuid)
           .setFileUuid(file.getUuid())
           .setBinaryData(binaryData)

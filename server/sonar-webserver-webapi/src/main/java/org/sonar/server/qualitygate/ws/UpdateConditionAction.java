@@ -90,8 +90,7 @@ public class UpdateConditionAction implements QualityGatesWsAction {
       wsSupport.checkCanEdit(qualityGateDto);
       QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, error);
       UpdateConditionResponse.Builder updateConditionResponse = UpdateConditionResponse.newBuilder()
-        // TODO
-       // .setId(updatedCondition.getUuid())
+        .setId(updatedCondition.getUuid())
         .setMetric(updatedCondition.getMetricKey())
         .setError(updatedCondition.getErrorThreshold())
         .setOp(updatedCondition.getOperator());

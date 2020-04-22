@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -58,14 +59,16 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final UserSession userSession;
   private final ProjectIndexers projectIndexers;
   private final ProjectsWsSupport projectsWsSupport;
+  private final UuidFactory uuidFactory;
 
   public UpdateVisibilityAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport) {
+    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
     this.projectsWsSupport = projectsWsSupport;
+    this.uuidFactory = uuidFactory;
   }
 
   public void define(WebService.NewController context) {
@@ -154,6 +157,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
   private void insertProjectPermissionOnGroup(DbSession dbSession, ComponentDto component, String permission, Integer groupId) {
     dbClient.groupPermissionDao().insert(dbSession, new GroupPermissionDto()
+      .setUuid(uuidFactory.create())
       .setOrganizationUuid(component.getOrganizationUuid())
       .setComponentUuid(component.uuid())
       .setGroupId(groupId)

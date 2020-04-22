@@ -53,7 +53,7 @@ public class DeleteConditionAction implements QualityGatesWsAction {
     createCondition
       .createParam(PARAM_ID)
       .setRequired(true)
-      .setDescription("Condition ID")
+      .setDescription("Condition UUID")
       .setExampleValue("2");
 
     wsSupport.createOrganizationParam(createCondition);
@@ -61,7 +61,6 @@ public class DeleteConditionAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    // TODO
     String conditionUuid = request.mandatoryParam(PARAM_ID);
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);

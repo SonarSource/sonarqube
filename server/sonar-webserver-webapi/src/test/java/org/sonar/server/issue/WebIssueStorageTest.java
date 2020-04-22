@@ -32,6 +32,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -62,7 +63,8 @@ public class WebIssueStorageTest {
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private IssueIndexer issueIndexer = mock(IssueIndexer.class);
-  private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), issueIndexer);
+  private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), issueIndexer,
+    new SequenceUuidFactory());
 
   @Test
   public void load_component_id_from_db() {
@@ -212,7 +214,7 @@ public class WebIssueStorageTest {
       .containsEntry("STATUS", updated.status())
       .containsEntry("SEVERITY", updated.severity());
 
-    List<Map<String, Object>> rows = db.select("select * from issue_changes order by id");
+    List<Map<String, Object>> rows = db.select("select * from issue_changes order by uuid");
     assertThat(rows).hasSize(2);
     assertThat(rows.get(0))
       .extracting("CHANGE_DATA", "CHANGE_TYPE", "USER_LOGIN")

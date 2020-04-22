@@ -231,6 +231,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     dbClient.groupPermissionDao().insert(
       dbSession,
       new GroupPermissionDto()
+        .setUuid(uuidFactory.create())
         .setOrganizationUuid(group.getOrganizationUuid())
         .setGroupId(group.getId())
         .setRole(permission.getKey()));

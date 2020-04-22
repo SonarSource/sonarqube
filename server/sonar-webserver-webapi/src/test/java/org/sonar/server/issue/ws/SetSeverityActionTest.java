@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -93,8 +94,8 @@ public class SetSeverityActionTest {
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private WsActionTester tester = new WsActionTester(new SetSeverityAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer), mock(NotificationManager.class), issueChangePostProcessor,
-      issuesChangesSerializer),
+      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer, new SequenceUuidFactory()),
+      mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer),
     responseWriter));
 
   @Test
