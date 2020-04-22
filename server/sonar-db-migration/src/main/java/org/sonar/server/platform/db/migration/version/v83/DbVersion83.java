@@ -46,6 +46,12 @@ import org.sonar.server.platform.db.migration.version.v83.events.DropPrimaryKeyO
 import org.sonar.server.platform.db.migration.version.v83.issues.AddPrimaryKeyOnKeeColumnOfIssuesTable;
 import org.sonar.server.platform.db.migration.version.v83.issues.DropIdColumnOfIssuesTable;
 import org.sonar.server.platform.db.migration.version.v83.issues.DropPrimaryKeyOnIdColumnOfIssuesTable;
+import org.sonar.server.platform.db.migration.version.v83.manualmeasures.AddPrimaryKeyOnUuidColumnOfManualMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.manualmeasures.AddUuidColumnToManualMeasures;
+import org.sonar.server.platform.db.migration.version.v83.manualmeasures.DropIdColumnOfManualMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.manualmeasures.DropPrimaryKeyOnIdColumnOfManualMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.manualmeasures.MakeManualMeasuresUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.manualmeasures.PopulateManualMeasureUuid;
 import org.sonar.server.platform.db.migration.version.v83.notifications.AddPrimaryKeyOnUuidColumnOfNotificationTable;
 import org.sonar.server.platform.db.migration.version.v83.notifications.AddUuidAndCreatedAtColumnsToNotification;
 import org.sonar.server.platform.db.migration.version.v83.notifications.DropIdColumnOfNotificationTable;
@@ -164,6 +170,14 @@ public class DbVersion83 implements DbVersion {
       .add(3449, "Drop primary key on 'ID' column of 'PROJECT_QPROFILES' table", DropPrimaryKeyOnIdColumnOfProjectQProfilesTable.class)
       .add(3450, "Add primary key on 'UUID' column of 'PROJECT_QPROFILES' table", AddPrimaryKeyOnUuidColumnOfProjectQProfilesTable.class)
       .add(3451, "Drop column 'ID' of 'PROJECT_QPROFILES' table", DropIdColumnOfProjectQProfilesTable.class)
+
+      // Migration of MANUAL_MEASURES table
+      .add(3452, "Add 'uuid' column for 'MANUAL_MEASURES'", AddUuidColumnToManualMeasures.class)
+      .add(3453, "Populate 'uuid' column for 'MANUAL_MEASURES'", PopulateManualMeasureUuid.class)
+      .add(3454, "Make 'uuid' column not nullable for 'MANUAL_MEASURES'", MakeManualMeasuresUuidColumnNotNullable.class)
+      .add(3455, "Drop primary key on 'ID' column of 'MANUAL_MEASURES' table", DropPrimaryKeyOnIdColumnOfManualMeasuresTable.class)
+      .add(3456, "Add primary key on 'UUID' column of 'MANUAL_MEASURES' table", AddPrimaryKeyOnUuidColumnOfManualMeasuresTable.class)
+      .add(3457, "Drop column 'ID' of 'MANUAL_MEASURES' table", DropIdColumnOfManualMeasuresTable.class)
 
     ;
   }

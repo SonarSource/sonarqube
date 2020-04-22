@@ -76,7 +76,7 @@ public class UpdateActionTest {
     CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(userMeasureCreator, project, metric, m -> m.setValue(0d));
 
     ws.newRequest()
-      .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
+      .setParam(PARAM_ID, String.valueOf(customMeasure.getUuid()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute();
@@ -98,7 +98,7 @@ public class UpdateActionTest {
     CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(userMeasureCreator, project, metric, m -> m.setValue(42d).setTextValue(null));
 
     ws.newRequest()
-      .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
+      .setParam(PARAM_ID, String.valueOf(customMeasure.getUuid()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "1984")
       .execute();
@@ -120,14 +120,14 @@ public class UpdateActionTest {
     CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(userMeasureCreator, project, metric, m -> m.setValue(0d).setCreatedAt(100_000_000L));
 
     String response = ws.newRequest()
-      .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
+      .setParam(PARAM_ID, String.valueOf(customMeasure.getUuid()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute()
       .getInput();
 
     assertJson(response).isSimilarTo("{\n" +
-      "  \"id\": \"" + customMeasure.getId() + "\",\n" +
+      "  \"id\": \"" + customMeasure.getUuid() + "\",\n" +
       "  \"value\": \"new-text-measure-value\",\n" +
       "  \"description\": \"new-custom-measure-description\",\n" +
       "  \"metric\": {\n" +
@@ -151,7 +151,7 @@ public class UpdateActionTest {
     CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(user, project, metric);
 
     ws.newRequest()
-      .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
+      .setParam(PARAM_ID, String.valueOf(customMeasure.getUuid()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .execute();
 
@@ -170,7 +170,7 @@ public class UpdateActionTest {
     CustomMeasureDto customMeasure = db.measures().insertCustomMeasure(user, project, metric);
 
     ws.newRequest()
-      .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
+      .setParam(PARAM_ID, String.valueOf(customMeasure.getUuid()))
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute();
 
@@ -209,7 +209,7 @@ public class UpdateActionTest {
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
-      .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
+      .setParam(PARAM_ID, String.valueOf(customMeasure.getUuid()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "1984")
       .execute();
@@ -226,7 +226,7 @@ public class UpdateActionTest {
     expectedException.expect(UnauthorizedException.class);
 
     ws.newRequest()
-      .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
+      .setParam(PARAM_ID, String.valueOf(customMeasure.getUuid()))
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .setParam(PARAM_VALUE, "1984")
       .execute();

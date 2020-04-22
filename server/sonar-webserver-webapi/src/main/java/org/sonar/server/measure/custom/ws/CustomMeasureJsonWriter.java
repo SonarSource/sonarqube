@@ -60,7 +60,7 @@ public class CustomMeasureJsonWriter {
   public void write(JsonWriter json, CustomMeasureDto measure, MetricDto metric, ComponentDto component, UserDto user, boolean isPending,
     @Nullable Collection<String> fieldsToReturn) {
     json.beginObject();
-    json.prop(FIELD_ID, String.valueOf(measure.getId()));
+    json.prop(FIELD_ID, String.valueOf(measure.getUuid()));
     writeIfNeeded(json, measureValue(measure, metric), FIELD_VALUE, fieldsToReturn);
     writeIfNeeded(json, measure.getDescription(), FIELD_DESCRIPTION, fieldsToReturn);
     if (isFieldNeeded(FIELD_METRIC, fieldsToReturn)) {

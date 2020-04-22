@@ -29,7 +29,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 
 public class DeleteAction implements CustomMeasuresWsAction {
 
@@ -54,18 +54,18 @@ public class DeleteAction implements CustomMeasuresWsAction {
       .setDescription("Delete a custom measure.<br /> Requires 'Administer System' permission or 'Administer' permission on the project.");
 
     action.createParam(PARAM_ID)
-      .setDescription("Id")
-      .setExampleValue("24")
+      .setDescription("d")
+      .setExampleValue("AU-TpxcA-iU5OvuD2FL3")
       .setRequired(true);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    long id = request.mandatoryParamAsLong(PARAM_ID);
+    String id = request.mandatoryParam(PARAM_ID);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectById(dbSession, id);
-      checkArgument(customMeasure != null, "Custom measure with id '%s' does not exist", id);
+      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByUuid(dbSession, id)
+        .orElseThrow(() -> new IllegalArgumentException(format("Custom measure with id '%s' does not exist", id)));
       checkPermission(dbSession, customMeasure);
       dbClient.customMeasureDao().delete(dbSession, id);
       dbSession.commit();

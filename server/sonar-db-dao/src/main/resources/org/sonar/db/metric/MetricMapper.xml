@@ -63,7 +63,7 @@
     left join manual_measures mm on mm.metric_id = m.id and mm.component_uuid=#{componentUuid}
     where m.enabled=${_true}
     and m.user_managed=${_true}
-    and mm.id is null
+    and mm.uuid is null
     ORDER BY UPPER(m.short_name), m.short_name
   </select>
 

@@ -20,9 +20,12 @@
 package org.sonar.db.measure.custom;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -41,7 +44,8 @@ public class CustomMeasureDaoTest {
 
   private DbSession session = db.getSession();
 
-  private CustomMeasureDao underTest = new CustomMeasureDao();
+  private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  private CustomMeasureDao underTest = new CustomMeasureDao(uuidFactory);
 
   @Test
   public void insert() {
@@ -55,8 +59,10 @@ public class CustomMeasureDaoTest {
 
     underTest.insert(session, measure);
 
-    CustomMeasureDto result = underTest.selectById(session, measure.getId());
-    assertThat(result.getId()).isEqualTo(measure.getId());
+    Optional<CustomMeasureDto> optionalResult = underTest.selectByUuid(session, measure.getUuid());
+    assertThat(optionalResult).isNotEmpty();
+    CustomMeasureDto result = optionalResult.get();
+    assertThat(result.getUuid()).isEqualTo(measure.getUuid());
     assertThat(result.getMetricId()).isEqualTo(metric.getId());
     assertThat(result.getComponentUuid()).isEqualTo(project.uuid());
     assertThat(result.getUserUuid()).isEqualTo(user.getUuid());
@@ -76,7 +82,7 @@ public class CustomMeasureDaoTest {
 
     underTest.deleteByMetricIds(session, singletonList(measure.getMetricId()));
 
-    assertThat(underTest.selectById(session, measure.getId())).isNull();
+    assertThat(underTest.selectByUuid(session, measure.getUuid())).isEmpty();
   }
 
   @Test
@@ -88,7 +94,9 @@ public class CustomMeasureDaoTest {
 
     underTest.update(session, measure.setDescription("new-description"));
 
-    assertThat(underTest.selectById(session, measure.getId()).getDescription()).isEqualTo("new-description");
+    Optional<CustomMeasureDto> result = underTest.selectByUuid(session, measure.getUuid());
+    assertThat(result).isNotEmpty();
+    assertThat(result.get().getDescription()).isEqualTo("new-description");
   }
 
   @Test
@@ -98,9 +106,9 @@ public class CustomMeasureDaoTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
     CustomMeasureDto measure = db.measures().insertCustomMeasure(user, project, metric);
 
-    underTest.delete(session, measure.getId());
+    underTest.delete(session, measure.getUuid());
 
-    assertThat(underTest.selectById(session, measure.getId())).isNull();
+    assertThat(underTest.selectByUuid(session, measure.getUuid())).isEmpty();
   }
 
   @Test
@@ -114,11 +122,11 @@ public class CustomMeasureDaoTest {
     CustomMeasureDto measure3 = db.measures().insertCustomMeasure(user, project2, metric);
 
     assertThat(underTest.selectByComponentUuid(session, project1.uuid()))
-      .extracting(CustomMeasureDto::getId, CustomMeasureDto::getComponentUuid)
+      .extracting(CustomMeasureDto::getUuid, CustomMeasureDto::getComponentUuid)
       .containsOnly(
-        tuple(measure1.getId(), project1.uuid()),
-        tuple(measure2.getId(), project1.uuid()))
-      .doesNotContain(tuple(measure3.getId(), project2.uuid()));
+        tuple(measure1.getUuid(), project1.uuid()),
+        tuple(measure2.getUuid(), project1.uuid()))
+      .doesNotContain(tuple(measure3.getUuid(), project2.uuid()));
 
     assertThat(underTest.countByComponentUuid(session, project1.uuid())).isEqualTo(2);
   }
@@ -134,11 +142,11 @@ public class CustomMeasureDaoTest {
     CustomMeasureDto measure3 = db.measures().insertCustomMeasure(user, project2, metric);
 
     assertThat(underTest.selectByComponentUuid(session, project1.uuid(), 0, 100))
-      .extracting(CustomMeasureDto::getId, CustomMeasureDto::getComponentUuid)
+      .extracting(CustomMeasureDto::getUuid, CustomMeasureDto::getComponentUuid)
       .containsOnly(
-        tuple(measure1.getId(), project1.uuid()),
-        tuple(measure2.getId(), project1.uuid()))
-      .doesNotContain(tuple(measure3.getId(), project2.uuid()));
+        tuple(measure1.getUuid(), project1.uuid()),
+        tuple(measure2.getUuid(), project1.uuid()))
+      .doesNotContain(tuple(measure3.getUuid(), project2.uuid()));
   }
 
   @Test
@@ -171,9 +179,9 @@ public class CustomMeasureDaoTest {
     CustomMeasureDto customMeasure3 = db.measures().insertCustomMeasure(user, project, metric, m -> m.setTextValue("other value"));
 
     assertThat(underTest.selectByMetricKeyAndTextValue(session, metric.getKey(), "value"))
-      .extracting(CustomMeasureDto::getId)
-      .containsExactlyInAnyOrder(customMeasure1.getId(), customMeasure2.getId())
-      .doesNotContain(customMeasure3.getId());
+      .extracting(CustomMeasureDto::getUuid)
+      .containsExactlyInAnyOrder(customMeasure1.getUuid(), customMeasure2.getUuid())
+      .doesNotContain(customMeasure3.getUuid());
 
     assertThat(underTest.selectByMetricKeyAndTextValue(session, metric.getKey(), "unknown")).isEmpty();
     assertThat(underTest.selectByMetricKeyAndTextValue(session, "unknown", "value")).isEmpty();

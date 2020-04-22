@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.db.measure.custom.CustomMeasureMapper">
   <sql id="selectColumns">
-    m.id,
+    m.uuid,
     m.metric_id as metricId,
     m.component_uuid as componentUuid,
     m.value,
@@ -14,11 +14,11 @@
     m.updated_at as updatedAt
   </sql>
 
-  <select id="selectById" resultType="CustomMeasure">
+  <select id="selectByUuid" resultType="CustomMeasure">
     select
     <include refid="selectColumns"/>
     from manual_measures m
-    where m.id=#{id}
+    where m.uuid=#{uuid}
   </select>
 
   <select id="selectByMetricId" resultType="CustomMeasure">
@@ -45,14 +45,20 @@
     </where>
   </select>
 
-  <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+  <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="false">
     INSERT INTO manual_measures (
-    metric_id, component_uuid, value, text_value, user_uuid, description, created_at, updated_at
+    uuid, metric_id, component_uuid, value, text_value, user_uuid, description, created_at, updated_at
     )
     VALUES (
-    #{metricId, jdbcType=INTEGER}, #{componentUuid, jdbcType=VARCHAR},
-    #{value, jdbcType=DOUBLE}, #{textValue, jdbcType=VARCHAR}, #{userUuid, jdbcType=VARCHAR},
-    #{description, jdbcType=VARCHAR}, #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT}
+    #{uuid, jdbcType=VARCHAR},
+    #{metricId, jdbcType=INTEGER},
+    #{componentUuid, jdbcType=VARCHAR},
+    #{value, jdbcType=DOUBLE},
+    #{textValue, jdbcType=VARCHAR},
+    #{userUuid, jdbcType=VARCHAR},
+    #{description, jdbcType=VARCHAR},
+    #{createdAt, jdbcType=BIGINT},
+    #{updatedAt, jdbcType=BIGINT}
     )
   </insert>
 
@@ -63,7 +69,7 @@
     description = #{description, jdbcType=VARCHAR},
     user_uuid = #{userUuid, jdbcType=VARCHAR},
     updated_at = #{updatedAt, jdbcType=BIGINT}
-    where id = #{id}
+    where uuid = #{uuid}
   </update>
 
   <delete id="deleteByMetricIds">
@@ -76,7 +82,7 @@
 
   <delete id="delete">
     delete from manual_measures
-    where id=#{id}
+    where uuid=#{uuid}
   </delete>
 
   <select id="countByComponentUuid" resultType="Integer">

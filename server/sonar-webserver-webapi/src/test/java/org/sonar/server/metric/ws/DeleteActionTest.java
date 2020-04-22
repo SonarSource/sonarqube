@@ -101,8 +101,8 @@ public class DeleteActionTest {
 
     newRequest().setParam("keys", "custom-key").execute();
 
-    assertThat(dbClient.customMeasureDao().selectById(db.getSession(), customMeasure.getId())).isNull();
-    assertThat(dbClient.customMeasureDao().selectById(db.getSession(), undeletedCustomMeasure.getId())).isNotNull();
+    assertThat(dbClient.customMeasureDao().selectByUuid(db.getSession(), customMeasure.getUuid())).isEmpty();
+    assertThat(dbClient.customMeasureDao().selectByUuid(db.getSession(), undeletedCustomMeasure.getUuid())).isNotEmpty();
   }
 
   @Test

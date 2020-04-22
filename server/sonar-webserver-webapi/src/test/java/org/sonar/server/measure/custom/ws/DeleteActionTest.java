@@ -57,11 +57,11 @@ public class DeleteActionTest {
   public void project_administrator_can_delete_custom_measures() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    long id = insertCustomMeasure(project);
+    String id = insertCustomMeasure(project);
 
     tester.newRequest().setParam(PARAM_ID, valueOf(id)).execute();
 
-    assertThat(dbClient.customMeasureDao().selectById(dbSession, id)).isNull();
+    assertThat(dbClient.customMeasureDao().selectByUuid(dbSession, id)).isEmpty();
   }
 
   @Test
@@ -75,28 +75,28 @@ public class DeleteActionTest {
   @Test
   public void throw_ForbiddenException_if_not_system_administrator() {
     ComponentDto project = db.components().insertPrivateProject();
-    long id = insertCustomMeasure(project);
+    String uuid = insertCustomMeasure(project);
     userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
-    tester.newRequest().setParam(PARAM_ID, valueOf(id)).execute();
+    tester.newRequest().setParam(PARAM_ID, valueOf(uuid)).execute();
   }
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
     ComponentDto project = db.components().insertPrivateProject();
-    long id = insertCustomMeasure(project);
+    String uuid = insertCustomMeasure(project);
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
-    tester.newRequest().setParam(PARAM_ID, valueOf(id)).execute();
+    tester.newRequest().setParam(PARAM_ID, valueOf(uuid)).execute();
   }
 
-  private long insertCustomMeasure(ComponentDto component) {
+  private String insertCustomMeasure(ComponentDto component) {
     CustomMeasureDto dto = newCustomMeasureDto().setComponentUuid(component.uuid());
     dbClient.customMeasureDao().insert(dbSession, dto);
     dbSession.commit();
-    return dto.getId();
+    return dto.getUuid();
   }
 
 }

@@ -28,11 +28,11 @@ public interface CustomMeasureMapper {
 
   void update(CustomMeasureDto customMeasure);
 
-  void delete(long id);
+  void delete(String uuid);
 
   void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
 
-  CustomMeasureDto selectById(long id);
+  CustomMeasureDto selectByUuid(String uuid);
 
   List<CustomMeasureDto> selectByMetricId(int id);
 

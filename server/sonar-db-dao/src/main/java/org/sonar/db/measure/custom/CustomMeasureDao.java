@@ -20,14 +20,24 @@
 package org.sonar.db.measure.custom;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
+import java.util.Optional;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
+import static java.util.Optional.ofNullable;
+
 public class CustomMeasureDao implements Dao {
+  private final UuidFactory uuidFactory;
+
+  public CustomMeasureDao(UuidFactory uuidFactory) {
+    this.uuidFactory = uuidFactory;
+  }
+
   public void insert(DbSession session, CustomMeasureDto customMeasureDto) {
+    customMeasureDto.setUuid(uuidFactory.create());
     mapper(session).insert(customMeasureDto);
   }
 
@@ -35,17 +45,16 @@ public class CustomMeasureDao implements Dao {
     mapper(session).update(customMeasure);
   }
 
-  public void delete(DbSession session, long id) {
-    mapper(session).delete(id);
+  public void delete(DbSession session, String uuid) {
+    mapper(session).delete(uuid);
   }
 
   public void deleteByMetricIds(DbSession session, List<Integer> metricIds) {
     DatabaseUtils.executeLargeInputsWithoutOutput(metricIds, input -> mapper(session).deleteByMetricIds(metricIds));
   }
 
-  @CheckForNull
-  public CustomMeasureDto selectById(DbSession session, long id) {
-    return mapper(session).selectById(id);
+  public Optional<CustomMeasureDto> selectByUuid(DbSession session, String uuid) {
+    return ofNullable(mapper(session).selectByUuid(uuid));
   }
 
   public List<CustomMeasureDto> selectByMetricId(DbSession session, int metricId) {

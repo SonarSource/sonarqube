@@ -33,8 +33,8 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
@@ -72,7 +72,7 @@ public class UpdateAction implements CustomMeasuresWsAction {
     action.createParam(PARAM_ID)
       .setRequired(true)
       .setDescription("id")
-      .setExampleValue("42");
+      .setExampleValue("AU-TpxcA-iU5OvuD2FL3");
 
     action.createParam(PARAM_VALUE)
       .setExampleValue("true")
@@ -84,14 +84,14 @@ public class UpdateAction implements CustomMeasuresWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    int id = request.mandatoryParamAsInt(PARAM_ID);
+    String uuid = request.mandatoryParam(PARAM_ID);
     String value = request.param(PARAM_VALUE);
     String description = request.param(PARAM_DESCRIPTION);
     checkParameters(value, description);
 
     try (DbSession dbSession = dbClient.openSession(true)) {
-      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectById(dbSession, id);
-      checkArgument(customMeasure != null, "Custom measure with id '%s' does not exist", id);
+      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByUuid(dbSession, uuid)
+        .orElseThrow(() -> new IllegalArgumentException(format("Custom measure with id '%s' does not exist", uuid)));
       int customMetricId = customMeasure.getMetricId();
       MetricDto metric = dbClient.metricDao().selectById(dbSession, customMetricId);
       checkState(metric != null, "Metric with id '%s' does not exist", customMetricId);

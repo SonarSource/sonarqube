@@ -231,7 +231,7 @@ public class CreateActionTest {
 
     CustomMeasureDto customMeasure = db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()).get(0);
     assertJson(response).isSimilarTo("{\n" +
-      "  \"id\": \"" + customMeasure.getId() + "\",\n" +
+      "  \"id\": \"" + customMeasure.getUuid() + "\",\n" +
       "  \"value\": \"custom-measure-free-text\",\n" +
       "  \"description\": \"custom-measure-description\",\n" +
       "  \"metric\": {\n" +
