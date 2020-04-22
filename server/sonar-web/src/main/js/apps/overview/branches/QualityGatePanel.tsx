@@ -24,19 +24,17 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../../components/docs/DocTooltip';
-import { BranchLike } from '../../../types/branch-like';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import QualityGatePanelSection from './QualityGatePanelSection';
 
 export interface QualityGatePanelProps {
-  branchLike?: BranchLike;
   component: Pick<T.Component, 'key' | 'qualifier'>;
   loading?: boolean;
   qgStatuses?: QualityGateStatus[];
 }
 
 export function QualityGatePanel(props: QualityGatePanelProps) {
-  const { branchLike, component, loading, qgStatuses = [] } = props;
+  const { component, loading, qgStatuses = [] } = props;
 
   if (qgStatuses === undefined) {
     return null;
@@ -107,7 +105,6 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
               <div data-test="overview__quality-gate-conditions">
                 {qgStatuses.map(qgStatus => (
                   <QualityGatePanelSection
-                    branchLike={branchLike}
                     component={component}
                     key={qgStatus.key}
                     qgStatus={qgStatus}

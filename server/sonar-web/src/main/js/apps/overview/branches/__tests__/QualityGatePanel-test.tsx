@@ -19,7 +19,6 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import {
   mockQualityGateStatus,
   mockQualityGateStatusConditionEnhanced
@@ -78,7 +77,6 @@ it('should render correctly for applications', () => {
 function shallowRender(props: Partial<QualityGatePanelProps> = {}) {
   return shallow(
     <QualityGatePanel
-      branchLike={mockMainBranch()}
       component={mockComponent()}
       qgStatuses={[mockQualityGateStatus()]}
       {...props}

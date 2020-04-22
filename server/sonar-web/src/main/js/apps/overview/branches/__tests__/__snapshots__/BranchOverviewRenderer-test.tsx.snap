@@ -17,14 +17,6 @@ exports[`should render correctly 1`] = `
         className="width-25 big-spacer-right"
       >
         <Memo(QualityGatePanel)
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           component={
             Object {
               "breadcrumbs": Array [],
@@ -244,14 +236,6 @@ exports[`should render correctly 3`] = `
         className="width-25 big-spacer-right"
       >
         <Memo(QualityGatePanel)
-          branchLike={
-            Object {
-              "analysisDate": "2018-01-01",
-              "excludedFromPurge": true,
-              "isMain": true,
-              "name": "master",
-            }
-          }
           component={
             Object {
               "breadcrumbs": Array [],

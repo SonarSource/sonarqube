@@ -28,3 +28,8 @@ export enum ComponentQualifier {
   SubProject = 'BRC',
   TestFile = 'UTS'
 }
+
+export enum Visibility {
+  Public = 'public',
+  Private = 'private'
+}

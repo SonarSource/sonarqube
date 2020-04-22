@@ -10,14 +10,6 @@ exports[`should render correctly 1`] = `
     quality_gates.conditions.new_code
   </h4>
   <QualityGateConditions
-    branchLike={
-      Object {
-        "analysisDate": "2018-01-01",
-        "excludedFromPurge": true,
-        "isMain": true,
-        "name": "master",
-      }
-    }
     component={
       Object {
         "failedConditions": Array [
@@ -114,14 +106,6 @@ exports[`should render correctly 1`] = `
     quality_gates.conditions.overall_code
   </h4>
   <QualityGateConditions
-    branchLike={
-      Object {
-        "analysisDate": "2018-01-01",
-        "excludedFromPurge": true,
-        "isMain": true,
-        "name": "master",
-      }
-    }
     component={
       Object {
         "failedConditions": Array [
@@ -230,14 +214,6 @@ exports[`should render correctly 2`] = `
     quality_gates.conditions.new_code
   </h4>
   <QualityGateConditions
-    branchLike={
-      Object {
-        "analysisDate": "2018-01-01",
-        "excludedFromPurge": true,
-        "isMain": true,
-        "name": "master",
-      }
-    }
     component={
       Object {
         "failedConditions": Array [
@@ -334,14 +310,6 @@ exports[`should render correctly 2`] = `
     quality_gates.conditions.overall_code
   </h4>
   <QualityGateConditions
-    branchLike={
-      Object {
-        "analysisDate": "2018-01-01",
-        "excludedFromPurge": true,
-        "isMain": true,
-        "name": "master",
-      }
-    }
     component={
       Object {
         "failedConditions": Array [

@@ -36,14 +36,6 @@ exports[`should render correctly for applications 1`] = `
       data-test="overview__quality-gate-conditions"
     >
       <Memo(QualityGatePanelSection)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
         component={
           Object {
             "breadcrumbs": Array [],
@@ -105,14 +97,6 @@ exports[`should render correctly for applications 1`] = `
         }
       />
       <Memo(QualityGatePanelSection)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
         component={
           Object {
             "breadcrumbs": Array [],
@@ -239,14 +223,6 @@ exports[`should render correctly for applications 2`] = `
       data-test="overview__quality-gate-conditions"
     >
       <Memo(QualityGatePanelSection)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
         component={
           Object {
             "breadcrumbs": Array [],
@@ -308,14 +284,6 @@ exports[`should render correctly for applications 2`] = `
         }
       />
       <Memo(QualityGatePanelSection)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
         component={
           Object {
             "breadcrumbs": Array [],
@@ -391,14 +359,6 @@ exports[`should render correctly for projects 1`] = `
       data-test="overview__quality-gate-conditions"
     >
       <Memo(QualityGatePanelSection)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
         component={
           Object {
             "breadcrumbs": Array [],
@@ -551,14 +511,6 @@ exports[`should render correctly for projects 3`] = `
       data-test="overview__quality-gate-conditions"
     >
       <Memo(QualityGatePanelSection)
-        branchLike={
-          Object {
-            "analysisDate": "2018-01-01",
-            "excludedFromPurge": true,
-            "isMain": true,
-            "name": "master",
-          }
-        }
         component={
           Object {
             "breadcrumbs": Array [],

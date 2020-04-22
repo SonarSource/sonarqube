@@ -21,7 +21,7 @@ import { sortBy, uniq } from 'lodash';
 import * as React from 'react';
 import { parseDate, toNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { isDefined } from 'sonar-ui-common/helpers/types';
-import { getApplicationLeak } from '../../../api/application';
+import { getApplicationDetails, getApplicationLeak } from '../../../api/application';
 import { getMeasuresWithPeriodAndMetrics } from '../../../api/measures';
 import { getProjectActivity } from '../../../api/projectActivity';
 import { getApplicationQualityGate, getQualityGateProjectStatus } from '../../../api/quality-gates';
@@ -34,6 +34,7 @@ import {
 import {
   getBranchLikeDisplayName,
   getBranchLikeQuery,
+  isMainBranch,
   isSameBranchLike
 } from '../../../helpers/branch-like';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
@@ -116,7 +117,6 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   loadApplicationStatus = async () => {
     const { branchLike, component } = this.props;
     this.setState({ loadingStatus: true });
-
     // Start by loading the application quality gate info, as well as the meta
     // data for the application as a whole.
     const appStatus = await getApplicationQualityGate({
@@ -124,11 +124,18 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       ...getBranchLikeQuery(branchLike)
     });
     const { measures: appMeasures, metrics, period } = await this.loadMeasuresAndMeta(
-      component.key
+      component.key,
+      branchLike
     );
 
+    const appBranchName =
+      (branchLike && !isMainBranch(branchLike) && getBranchLikeDisplayName(branchLike)) ||
+      undefined;
+
+    const appDetails = await getApplicationDetails(component.key, appBranchName);
+
     // We also need to load the application leak periods separately.
-    getApplicationLeak(component.key, branchLike && getBranchLikeDisplayName(branchLike)).then(
+    getApplicationLeak(component.key, appBranchName).then(
       leaks => {
         if (this.mounted && leaks && leaks.length) {
           const sortedLeaks = sortBy(leaks, leak => {
@@ -152,20 +159,27 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     // information, unfortunately, as they are aggregated.
     Promise.all(
       appStatus.projects.map(project => {
+        const projectDetails = appDetails.projects.find(p => p.key === project.key);
+        const projectBranchLike = projectDetails
+          ? { isMain: projectDetails.isMain, name: projectDetails.branch, excludedFromPurge: false }
+          : undefined;
+
         return this.loadMeasuresAndMeta(
           project.key,
+          projectBranchLike,
           // Only load metrics that apply to failing QG conditions; we don't
           // need the others anyway.
           project.conditions.filter(c => c.status !== 'OK').map(c => c.metric)
         ).then(({ measures }) => ({
           measures,
-          project
+          project,
+          projectBranchLike
         }));
       })
     ).then(
       results => {
         if (this.mounted) {
-          const qgStatuses = results.map(({ measures = [], project }) => {
+          const qgStatuses = results.map(({ measures = [], project, projectBranchLike }) => {
             const { key, name, status } = project;
             const conditions = extractStatusConditionsFromApplicationStatusChildProject(project);
             const failedConditions = this.getFailedConditions(conditions, measures);
@@ -174,7 +188,8 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
               failedConditions,
               key,
               name,
-              status
+              status,
+              branchLike: projectBranchLike
             };
           });
 
@@ -214,7 +229,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         ? uniq([...METRICS, ...projectStatus.conditions.map(c => c.metricKey)])
         : METRICS;
 
-    this.loadMeasuresAndMeta(key, metricKeys).then(
+    this.loadMeasuresAndMeta(key, branchLike, metricKeys).then(
       ({ measures, metrics, period }) => {
         if (this.mounted && measures) {
           const { ignoredConditions, status } = projectStatus;
@@ -226,7 +241,8 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
             failedConditions,
             key,
             name,
-            status
+            status,
+            branchLike
           };
 
           this.setState({
@@ -248,9 +264,11 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     );
   };
 
-  loadMeasuresAndMeta = (componentKey: string, metricKeys: string[] = []) => {
-    const { branchLike } = this.props;
-
+  loadMeasuresAndMeta = (
+    componentKey: string,
+    branchLike?: BranchLike,
+    metricKeys: string[] = []
+  ) => {
     return getMeasuresWithPeriodAndMetrics(
       componentKey,
       metricKeys.length > 0 ? metricKeys : METRICS,

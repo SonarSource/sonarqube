@@ -74,7 +74,6 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
             <div className="display-flex-row">
               <div className="width-25 big-spacer-right">
                 <QualityGatePanel
-                  branchLike={branchLike}
                   component={component}
                   loading={loadingStatus}
                   qgStatuses={qgStatuses}

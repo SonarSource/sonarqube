@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getApplicationLeak } from '../../../../api/application';
+import { getApplicationDetails, getApplicationLeak } from '../../../../api/application';
 import { getMeasuresWithPeriodAndMetrics } from '../../../../api/measures';
 import { getProjectActivity } from '../../../../api/projectActivity';
 import {
@@ -31,7 +31,7 @@ import {
 } from '../../../../api/quality-gates';
 import { getTimeMachineData } from '../../../../api/time-machine';
 import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
-import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
@@ -152,6 +152,19 @@ jest.mock('../../../../api/projectActivity', () => {
 });
 
 jest.mock('../../../../api/application', () => ({
+  getApplicationDetails: jest.fn().mockResolvedValue({
+    branches: [],
+    key: 'key-1',
+    name: 'app',
+    projects: [
+      {
+        branch: 'foo',
+        key: 'KEY-P1',
+        name: 'P1'
+      }
+    ],
+    visibility: 'Private'
+  }),
   getApplicationLeak: jest.fn().mockResolvedValue([
     {
       date: '2017-01-05',
@@ -237,6 +250,13 @@ describe('application overview', () => {
   it('should render correctly', async () => {
     const wrapper = shallowRender({ component });
     await waitAndUpdate(wrapper);
+    expect(wrapper).toMatchSnapshot();
+  });
+
+  it('should fetch correctly other branch', async () => {
+    const wrapper = shallowRender({ branchLike: mockBranch(), component });
+    await waitAndUpdate(wrapper);
+    expect(getApplicationDetails).toHaveBeenCalled();
     expect(wrapper).toMatchSnapshot();
   });
 

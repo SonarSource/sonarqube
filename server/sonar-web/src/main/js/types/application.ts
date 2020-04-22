@@ -17,8 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Branch } from './branch-like';
+import { Visibility } from './component';
+
 export interface ApplicationPeriod {
   date: string;
   project: string;
   projectName: string;
+}
+
+export interface Application {
+  branches: Pick<Branch, 'isMain' | 'name'>[];
+  description?: string;
+  key: string;
+  name: string;
+  projects: ApplicationProject[];
+  visibility: Visibility;
+}
+
+export interface ApplicationProject {
+  branch: string;
+  enabled?: boolean;
+  isMain: boolean;
+  key: string;
+  name: string;
+  selected?: boolean;
 }

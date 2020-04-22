@@ -19,7 +19,7 @@
  */
 import { getJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { ApplicationPeriod } from '../types/application';
+import { Application, ApplicationPeriod } from '../types/application';
 
 export function getApplicationLeak(
   application: string,
@@ -27,6 +27,13 @@ export function getApplicationLeak(
 ): Promise<ApplicationPeriod[]> {
   return getJSON('/api/applications/show_leak', { application, branch }).then(
     r => r.leaks,
+    throwGlobalError
+  );
+}
+
+export function getApplicationDetails(application: string, branch?: string): Promise<Application> {
+  return getJSON('/api/applications/show', { application, branch }).then(
+    r => r.application,
     throwGlobalError
   );
 }
