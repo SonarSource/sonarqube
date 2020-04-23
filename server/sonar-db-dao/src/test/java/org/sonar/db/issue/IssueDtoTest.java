@@ -60,7 +60,7 @@ public class IssueDtoTest {
     IssueDto dto = new IssueDto()
       .setKee("100")
       .setType(RuleType.VULNERABILITY)
-      .setRuleId(1)
+      .setRuleUuid("rule-uuid-1")
       .setRuleKey("squid", "AvoidCycle")
       .setLanguage("xoo")
       .setComponentKey("org.sonar.sample:Sample")
@@ -116,10 +116,10 @@ public class IssueDtoTest {
   public void set_rule() {
     IssueDto dto = new IssueDto()
       .setKee("100")
-      .setRule(new RuleDefinitionDto().setId(1).setRuleKey("AvoidCycle").setRepositoryKey("squid").setIsExternal(true))
+      .setRule(new RuleDefinitionDto().setUuid("uuid-1").setRuleKey("AvoidCycle").setRepositoryKey("squid").setIsExternal(true))
       .setLanguage("xoo");
 
-    assertThat(dto.getRuleId()).isEqualTo(1);
+    assertThat(dto.getRuleUuid()).isEqualTo("uuid-1");
     assertThat(dto.getRuleRepo()).isEqualTo("squid");
     assertThat(dto.getRule()).isEqualTo("AvoidCycle");
     assertThat(dto.getRuleKey().toString()).isEqualTo("squid:AvoidCycle");

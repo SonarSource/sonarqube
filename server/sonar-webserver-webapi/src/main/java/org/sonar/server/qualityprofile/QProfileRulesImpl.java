@@ -56,8 +56,8 @@ public class QProfileRulesImpl implements QProfileRules {
   public List<ActiveRuleChange> activateAndCommit(DbSession dbSession, QProfileDto profile, Collection<RuleActivation> activations) {
     verifyNotBuiltIn(profile);
 
-    Set<Integer> ruleIds = activations.stream().map(RuleActivation::getRuleId).collect(MoreCollectors.toHashSet(activations.size()));
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
+    Set<String> ruleUuids = activations.stream().map(RuleActivation::getRuleUuid).collect(MoreCollectors.toHashSet(activations.size()));
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
     List<ActiveRuleChange> changes = new ArrayList<>();
     for (RuleActivation activation : activations) {
@@ -71,19 +71,19 @@ public class QProfileRulesImpl implements QProfileRules {
   public BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity) {
     verifyNotBuiltIn(profile);
     return doBulk(dbSession, profile, ruleQuery, (context, ruleDefinition) -> {
-      RuleActivation activation = RuleActivation.create(ruleDefinition.getId(), severity, null);
+      RuleActivation activation = RuleActivation.create(ruleDefinition.getUuid(), severity, null);
       return ruleActivator.activate(dbSession, activation, context);
     });
   }
 
   @Override
-  public List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<Integer> ruleIds) {
+  public List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<String> ruleUuids) {
     verifyNotBuiltIn(profile);
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
     List<ActiveRuleChange> changes = new ArrayList<>();
-    for (Integer ruleId : ruleIds) {
-      changes.addAll(ruleActivator.deactivate(dbSession, context, ruleId, false));
+    for (String ruleUuid : ruleUuids) {
+      changes.addAll(ruleActivator.deactivate(dbSession, context, ruleUuid, false));
     }
     activeRuleIndexer.commitAndIndex(dbSession, changes);
     return changes;
@@ -92,14 +92,14 @@ public class QProfileRulesImpl implements QProfileRules {
   @Override
   public BulkChangeResult bulkDeactivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery) {
     verifyNotBuiltIn(profile);
-    return doBulk(dbSession, profile, ruleQuery, (context, ruleDefinition) -> ruleActivator.deactivate(dbSession, context, ruleDefinition.getId(), false));
+    return doBulk(dbSession, profile, ruleQuery, (context, ruleDefinition) -> ruleActivator.deactivate(dbSession, context, ruleDefinition.getUuid(), false));
   }
 
   @Override
   public List<ActiveRuleChange> deleteRule(DbSession dbSession, RuleDefinitionDto rule) {
     List<ActiveRuleChange> changes = new ArrayList<>();
     List<String> activeRuleUuids = new ArrayList<>();
-    db.activeRuleDao().selectByRuleIdOfAllOrganizations(dbSession, rule.getId()).forEach(ar -> {
+    db.activeRuleDao().selectByRuleUuidOfAllOrganizations(dbSession, rule.getUuid()).forEach(ar -> {
       activeRuleUuids.add(ar.getUuid());
       changes.add(new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, ar, rule));
     });
@@ -116,12 +116,12 @@ public class QProfileRulesImpl implements QProfileRules {
 
   private BulkChangeResult doBulk(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, BiFunction<RuleActivationContext, RuleDefinitionDto, List<ActiveRuleChange>> fn) {
     BulkChangeResult result = new BulkChangeResult();
-    Collection<Integer> ruleIds = Sets.newHashSet(ruleIndex.searchAll(ruleQuery));
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
+    Collection<String> ruleUuids = Sets.newHashSet(ruleIndex.searchAll(ruleQuery));
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
-    for (Integer ruleId : ruleIds) {
+    for (String ruleUuid : ruleUuids) {
       try {
-        context.reset(ruleId);
+        context.reset(ruleUuid);
         RuleDefinitionDto ruleDefinition = context.getRule().get();
         List<ActiveRuleChange> changes = fn.apply(context, ruleDefinition);
         result.addChanges(changes);

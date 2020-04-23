@@ -27,7 +27,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 @FunctionalInterface
 public interface DescendantProfilesSupplier {
 
-  Result get(Collection<QProfileDto> profiles, Collection<Integer> ruleIds);
+  Result get(Collection<QProfileDto> profiles, Collection<String> ruleUuids);
 
   final class Result {
     private final Collection<QProfileDto> profiles;

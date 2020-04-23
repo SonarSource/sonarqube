@@ -376,7 +376,7 @@ public class SearchActionTest {
       .toArray(IssueDto[]::new);
     indexIssues();
     IssueDto hotspotWithoutRule = hotspots[RANDOM.nextInt(hotspots.length)];
-    dbTester.executeUpdateSql("delete from rules where id=" + hotspotWithoutRule.getRuleId());
+    dbTester.executeUpdateSql("delete from rules where uuid=?", hotspotWithoutRule.getRuleUuid());
 
     SearchWsResponse response = newRequest(project)
       .executeProtobuf(SearchWsResponse.class);
@@ -1093,7 +1093,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void returns_hotspots_ordered_by_vulnerabilityProbability_score_then_rule_id() {
+  public void returns_hotspots_ordered_by_vulnerabilityProbability_score_then_rule_uuid() {
     ComponentDto project = dbTester.components().insertPublicProject();
     userSessionRule.registerComponents(project);
     indexPermissions();
@@ -1106,10 +1106,10 @@ public class SearchActionTest {
         Set<String> securityStandards = singleton("cwe:" + (cwes == null ? "unknown" : cwes.iterator().next()));
         RuleDefinitionDto rule1 = newRule(
           SECURITY_HOTSPOT,
-          t -> t.setName("rule_" + sqCategory.name() + "_a").setSecurityStandards(securityStandards));
+          t -> t.setUuid(sqCategory.name() + "_a").setName("rule_" + sqCategory.name() + "_a").setSecurityStandards(securityStandards));
         RuleDefinitionDto rule2 = newRule(
           SECURITY_HOTSPOT,
-          t -> t.setName("rule_" + sqCategory.name() + "_b").setSecurityStandards(securityStandards));
+          t -> t.setUuid(sqCategory.name() + "_b").setName("rule_" + sqCategory.name() + "_b").setSecurityStandards(securityStandards));
         return Stream.of(
           newHotspot(rule1, project, file).setKee(sqCategory + "_a"),
           newHotspot(rule2, project, file).setKee(sqCategory + "_b"));
@@ -1419,16 +1419,14 @@ public class SearchActionTest {
     ComponentDto project = dbTester.components().insertPublicProject(componentDto -> componentDto
       .setName("test-project")
       .setLongName("test-project")
-      .setDbKey("com.sonarsource:test-project")
-    );
+      .setDbKey("com.sonarsource:test-project"));
     userSessionRule.registerComponents(project);
     indexPermissions();
     ComponentDto fileWithHotspot = dbTester.components().insertComponent(newFileDto(project)
       .setDbKey("com.sonarsource:test-project:src/main/java/com/sonarsource/FourthClass.java")
       .setName("FourthClass.java")
       .setLongName("src/main/java/com/sonarsource/FourthClass.java")
-      .setPath("src/main/java/com/sonarsource/FourthClass.java")
-    );
+      .setPath("src/main/java/com/sonarsource/FourthClass.java"));
 
     long time = 1577976190000L;
 
@@ -1442,8 +1440,7 @@ public class SearchActionTest {
           .setMessage("message-" + i)
           .setLine(10 + i)
           .setIssueCreationTime(time)
-          .setIssueUpdateTime(time)
-        );
+          .setIssueUpdateTime(time));
       })
       .toArray(IssueDto[]::new);
     indexIssues();

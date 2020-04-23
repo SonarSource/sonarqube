@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -45,11 +46,13 @@ public class AdHocRuleCreator {
   private final DbClient dbClient;
   private final System2 system2;
   private final RuleIndexer ruleIndexer;
+  private final UuidFactory uuidFactory;
 
-  public AdHocRuleCreator(DbClient dbClient, System2 system2, RuleIndexer ruleIndexer) {
+  public AdHocRuleCreator(DbClient dbClient, System2 system2, RuleIndexer ruleIndexer, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.ruleIndexer = ruleIndexer;
+    this.uuidFactory = uuidFactory;
   }
 
   /**
@@ -63,6 +66,7 @@ public class AdHocRuleCreator {
     long now = system2.now();
     if (!existingRuleDtoOpt.isPresent()) {
       RuleDefinitionDto dto = new RuleDefinitionDto()
+        .setUuid(uuidFactory.create())
         .setRuleKey(adHoc.getKey())
         .setIsExternal(true)
         .setIsAdHoc(true)
@@ -73,7 +77,7 @@ public class AdHocRuleCreator {
         .setUpdatedAt(now);
       dao.insert(dbSession, dto);
       metadata = new RuleMetadataDto()
-        .setRuleId(dto.getId())
+        .setRuleUuid(dto.getUuid())
         .setOrganizationUuid(organizationDto.getUuid());
     } else {
       // No need to update the rule, only org specific metadata
@@ -110,7 +114,7 @@ public class AdHocRuleCreator {
     }
 
     RuleDto ruleDto = dao.selectOrFailByKey(dbSession, organizationDto, adHoc.getKey());
-    ruleIndexer.commitAndIndex(dbSession, ruleDto.getId());
+    ruleIndexer.commitAndIndex(dbSession, ruleDto.getUuid());
     return ruleDto;
   }
 

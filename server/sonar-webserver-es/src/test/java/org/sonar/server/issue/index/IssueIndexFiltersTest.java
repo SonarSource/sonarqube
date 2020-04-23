@@ -29,10 +29,10 @@ import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -517,10 +517,10 @@ public class IssueIndexFiltersTest {
     RuleDefinitionDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
-    indexIssues(newDoc("I1", file).setRuleId(ruleDefinitionDto.getId()));
+    indexIssues(newDoc("I1", file).setRuleUuid(ruleDefinitionDto.getUuid()));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().rules(singletonList(ruleDefinitionDto)), "I1");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().rules(singletonList(new RuleDefinitionDto().setId(-1))));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().rules(singletonList(new RuleDefinitionDto().setUuid("uuid-abc"))));
   }
 
   @Test
@@ -530,7 +530,7 @@ public class IssueIndexFiltersTest {
     RuleDefinitionDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
-    indexIssues(newDoc("I1", file).setRuleId(ruleDefinitionDto.getId()).setLanguage("xoo"));
+    indexIssues(newDoc("I1", file).setRuleUuid(ruleDefinitionDto.getUuid()).setLanguage("xoo"));
 
     assertThatSearchReturnsOnly(IssueQuery.builder().languages(singletonList("xoo")), "I1");
     assertThatSearchReturnsEmpty(IssueQuery.builder().languages(singletonList("unknown")));

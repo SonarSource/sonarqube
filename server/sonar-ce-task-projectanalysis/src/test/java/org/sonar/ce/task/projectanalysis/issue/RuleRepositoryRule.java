@@ -33,13 +33,13 @@ import static java.util.Objects.requireNonNull;
 public class RuleRepositoryRule extends ExternalResource implements RuleRepository {
 
   private final Map<RuleKey, Rule> rulesByKey = new HashMap<>();
-  private final Map<Integer, Rule> rulesById = new HashMap<>();
+  private final Map<String, Rule> rulesByUuid = new HashMap<>();
   private final Map<RuleKey, NewAdHocRule> newExternalRulesById = new HashMap<>();
 
   @Override
   protected void after() {
     rulesByKey.clear();
-    rulesById.clear();
+    rulesByUuid.clear();
   }
 
   @Override
@@ -50,8 +50,8 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
   }
 
   @Override
-  public Rule getById(int id) {
-    Rule rule = rulesById.get(id);
+  public Rule getByUuid(String uuid) {
+    Rule rule = rulesByUuid.get(uuid);
     checkArgument(rule != null);
     return rule;
   }
@@ -62,8 +62,8 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
   }
 
   @Override
-  public Optional<Rule> findById(int id) {
-    return Optional.ofNullable(rulesById.get(id));
+  public Optional<Rule> findByUuid(String uuid) {
+    return Optional.ofNullable(rulesByUuid.get(uuid));
   }
 
   @Override
@@ -73,15 +73,15 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
 
   public DumbRule add(RuleKey key) {
     DumbRule rule = new DumbRule(key);
-    rule.setId(key.hashCode());
+    rule.setUuid(key.rule());
     rulesByKey.put(key, rule);
-    rulesById.put(rule.getId(), rule);
+    rulesByUuid.put(rule.getUuid(), rule);
     return rule;
   }
 
   public RuleRepositoryRule add(DumbRule rule) {
     rulesByKey.put(requireNonNull(rule.getKey()), rule);
-    rulesById.put(rule.getId(), rule);
+    rulesByUuid.put(rule.getUuid(), rule);
     return this;
   }
 

@@ -63,7 +63,7 @@ public class IssueIteratorFactoryTest {
         .setEffort(10L)
         .setMessage(null)
         .setLine(444)
-        .setRuleId(rule.getId())
+        .setRuleUuid(rule.getUuid())
         .setIssueAttributes("JIRA=http://jira.com")
         .setTags(ImmutableList.of("tag1", "tag2", "tag3"))
         .setCreatedAt(1400000000000L)
@@ -85,7 +85,7 @@ public class IssueIteratorFactoryTest {
     assertThat(issue.assigneeUuid()).isEqualTo("uuid-of-guy1");
     assertThat(issue.authorLogin()).isEqualTo("guy2");
     assertThat(issue.line()).isEqualTo(444);
-    assertThat(issue.ruleId()).isEqualTo(rule.getId());
+    assertThat(issue.ruleUuid()).isEqualTo(rule.getUuid());
     assertThat(issue.componentUuid()).isEqualTo(file.uuid());
     assertThat(issue.projectUuid()).isEqualTo(file.projectUuid());
     assertThat(issue.moduleUuid()).isEqualTo(file.projectUuid());
@@ -110,14 +110,14 @@ public class IssueIteratorFactoryTest {
       t -> t
         .setAssigneeUuid("uuid-of-guy1")
         .setAuthorLogin("guy2")
-        .setRuleId(rule.getId())
+        .setRuleUuid(rule.getUuid())
         .setIssueAttributes("JIRA=http://jira.com")
         .setEffort(10L)
         .setType(1));
     IssueDto moduleIssue = dbTester.issues().insert(rule, project, module, t -> t
       .setAssigneeUuid("uuid-of-guy2")
       .setAuthorLogin("guy2")
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setIssueAttributes("JIRA=http://jira.com"));
     IssueDto dirIssue = dbTester.issues().insert(rule, project, directory);
     IssueDto projectIssue = dbTester.issues().insert(rule, project, project);

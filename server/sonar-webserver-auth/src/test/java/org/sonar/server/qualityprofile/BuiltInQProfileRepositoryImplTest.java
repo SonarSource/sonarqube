@@ -57,7 +57,7 @@ public class BuiltInQProfileRepositoryImplTest {
   public void create_qprofile_with_rule() {
     RuleDefinitionDto rule1 = db.rules().insert();
     RuleDefinitionDto rule2 = db.rules().insert();
-    RuleDefinitionDto ruleNotToBeActivated = db.rules().insert();
+    db.rules().insert();
     List<DummyProfileDefinition> definitions = singletonList(new DummyProfileDefinition("foo", "foo", false,
       asList(rule1.getKey(), rule2.getKey())));
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(dbClient, new Languages(FOO_LANGUAGE), definitions.toArray(new BuiltInQualityProfilesDefinition[0]));
@@ -68,11 +68,10 @@ public class BuiltInQProfileRepositoryImplTest {
       .extracting(BuiltInQProfile::getName)
       .containsExactlyInAnyOrder("foo");
     assertThat(underTest.get().get(0).getActiveRules())
-      .extracting(ActiveRule::getRuleId, ActiveRule::getRuleKey)
+      .extracting(ActiveRule::getRuleUuid, ActiveRule::getRuleKey)
       .containsExactlyInAnyOrder(
-        tuple(rule1.getId(), rule1.getKey()),
-        tuple(rule2.getId(), rule2.getKey())
-      );
+        tuple(rule1.getUuid(), rule1.getKey()),
+        tuple(rule2.getUuid(), rule2.getKey()));
   }
 
   @Test
@@ -171,7 +170,7 @@ public class BuiltInQProfileRepositoryImplTest {
   @Test
   public void create_qprofile_with_deprecated_rule() {
     RuleDefinitionDto rule1 = db.rules().insert();
-    db.rules().insertDeprecatedKey(d -> d.setRuleId(rule1.getId()).setOldRepositoryKey("oldRepo").setOldRuleKey("oldKey"));
+    db.rules().insertDeprecatedKey(d -> d.setRuleUuid(rule1.getUuid()).setOldRepositoryKey("oldRepo").setOldRuleKey("oldKey"));
     RuleDefinitionDto rule2 = db.rules().insert();
     List<DummyProfileDefinition> definitions = singletonList(new DummyProfileDefinition("foo", "foo", false,
       asList(RuleKey.of("oldRepo", "oldKey"), rule2.getKey())));
@@ -183,11 +182,10 @@ public class BuiltInQProfileRepositoryImplTest {
       .extracting(BuiltInQProfile::getName)
       .containsExactlyInAnyOrder("foo");
     assertThat(underTest.get().get(0).getActiveRules())
-      .extracting(ActiveRule::getRuleId, ActiveRule::getRuleKey)
+      .extracting(ActiveRule::getRuleUuid, ActiveRule::getRuleKey)
       .containsExactlyInAnyOrder(
-        tuple(rule1.getId(), rule1.getKey()),
-        tuple(rule2.getId(), rule2.getKey())
-      );
+        tuple(rule1.getUuid(), rule1.getKey()),
+        tuple(rule2.getUuid(), rule2.getKey()));
   }
 
   @Test
@@ -263,7 +261,7 @@ public class BuiltInQProfileRepositoryImplTest {
     @Override
     public void define(Context context) {
       NewBuiltInQualityProfile builtInQualityProfile = context.createBuiltInQualityProfile(name, language);
-      activeRuleKeys.stream().forEach(activeRuleKey -> builtInQualityProfile.activateRule(activeRuleKey.repository(), activeRuleKey.rule()));
+      activeRuleKeys.forEach(activeRuleKey -> builtInQualityProfile.activateRule(activeRuleKey.repository(), activeRuleKey.rule()));
       builtInQualityProfile.setDefault(defaultProfile);
       builtInQualityProfile.done();
     }

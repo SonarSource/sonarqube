@@ -49,32 +49,32 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
   public List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtInDefinition, RulesProfileDto initialRuleProfile) {
     // Keep reference to all the activated rules before update
-    Set<Integer> deactivatedRuleIds = dbClient.activeRuleDao().selectByRuleProfile(dbSession, initialRuleProfile)
+    Set<String> deactivatedRuleUuids = dbClient.activeRuleDao().selectByRuleProfile(dbSession, initialRuleProfile)
       .stream()
-      .map(ActiveRuleDto::getRuleId)
+      .map(ActiveRuleDto::getRuleUuid)
       .collect(MoreCollectors.toHashSet());
 
     // all rules, including those which are removed from built-in profile
-    Set<Integer> ruleIds = Stream.concat(
-      deactivatedRuleIds.stream(),
-      builtInDefinition.getActiveRules().stream().map(BuiltInQProfile.ActiveRule::getRuleId))
+    Set<String> ruleUuids = Stream.concat(
+      deactivatedRuleUuids.stream(),
+      builtInDefinition.getActiveRules().stream().map(BuiltInQProfile.ActiveRule::getRuleUuid))
       .collect(toSet());
 
     Collection<RuleActivation> activations = new ArrayList<>();
     for (BuiltInQProfile.ActiveRule ar : builtInDefinition.getActiveRules()) {
       RuleActivation activation = convert(ar);
       activations.add(activation);
-      deactivatedRuleIds.remove(activation.getRuleId());
+      deactivatedRuleUuids.remove(activation.getRuleUuid());
     }
 
-    RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, initialRuleProfile, ruleIds);
+    RuleActivationContext context = ruleActivator.createContextForBuiltInProfile(dbSession, initialRuleProfile, ruleUuids);
     List<ActiveRuleChange> changes = new ArrayList<>();
     for (RuleActivation activation : activations) {
       changes.addAll(ruleActivator.activate(dbSession, activation, context));
     }
 
     // these rules are no longer part of the built-in profile
-    deactivatedRuleIds.forEach(ruleKey -> changes.addAll(ruleActivator.deactivate(dbSession, context, ruleKey, false)));
+    deactivatedRuleUuids.forEach(ruleUuid -> changes.addAll(ruleActivator.deactivate(dbSession, context, ruleUuid, false)));
 
     activeRuleIndexer.commitAndIndex(dbSession, changes);
     return changes;
@@ -83,7 +83,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
   private static RuleActivation convert(BuiltInQProfile.ActiveRule ar) {
     Map<String, String> params = ar.getParams().stream()
       .collect(MoreCollectors.uniqueIndex(BuiltInQualityProfilesDefinition.OverriddenParam::key, BuiltInQualityProfilesDefinition.OverriddenParam::overriddenValue));
-    return RuleActivation.create(ar.getRuleId(), ar.getSeverity(), params);
+    return RuleActivation.create(ar.getRuleUuid(), ar.getSeverity(), params);
   }
 
 }

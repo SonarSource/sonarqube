@@ -225,7 +225,7 @@ public class WebIssueStorageTest {
   }
 
   @Test
-  public void rule_id_is_set_on_updated_issue() {
+  public void rule_uuid_is_set_on_updated_issue() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
@@ -235,11 +235,11 @@ public class WebIssueStorageTest {
     Collection<IssueDto> results = underTest.save(db.getSession(), singletonList(issue));
 
     assertThat(results).hasSize(1);
-    assertThat(results.iterator().next().getRuleId()).isEqualTo(rule.getId());
+    assertThat(results.iterator().next().getRuleUuid()).isEqualTo(rule.getUuid());
   }
 
   @Test
-  public void rule_id_is_not_set_on_updated_issue_when_rule_is_removed() {
+  public void rule_uuid_is_not_set_on_updated_issue_when_rule_is_removed() {
     RuleDefinitionDto rule = db.rules().insert(r -> r.setStatus(REMOVED));
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
@@ -249,7 +249,7 @@ public class WebIssueStorageTest {
     Collection<IssueDto> results = underTest.save(db.getSession(), singletonList(issue));
 
     assertThat(results).hasSize(1);
-    assertThat(results.iterator().next().getRuleId()).isNull();
+    assertThat(results.iterator().next().getRuleUuid()).isNull();
   }
 
 }

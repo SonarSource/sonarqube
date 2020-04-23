@@ -28,7 +28,7 @@ public class RuleExtensionForIndexingDto {
 
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
-  private int ruleId;
+  private String ruleUuid;
   private String pluginName;
   private String pluginRuleKey;
   private String organizationUuid;
@@ -52,12 +52,12 @@ public class RuleExtensionForIndexingDto {
     return this;
   }
 
-  public int getRuleId() {
-    return ruleId;
+  public String getRuleUuid() {
+    return ruleUuid;
   }
 
-  public void setRuleId(int ruleId) {
-    this.ruleId = ruleId;
+  public void setRuleUuid(String ruleUuid) {
+    this.ruleUuid = ruleUuid;
   }
 
   public String getOrganizationUuid() {

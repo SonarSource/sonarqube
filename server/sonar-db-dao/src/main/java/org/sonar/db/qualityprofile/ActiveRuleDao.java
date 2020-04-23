@@ -58,16 +58,16 @@ public class ActiveRuleDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByKey(key.getRuleProfileUuid(), key.getRuleKey().repository(), key.getRuleKey().rule()));
   }
 
-  public List<OrgActiveRuleDto> selectByRuleId(DbSession dbSession, OrganizationDto organization, int ruleId) {
-    return mapper(dbSession).selectByRuleId(organization.getUuid(), ruleId);
+  public List<OrgActiveRuleDto> selectByRuleUuid(DbSession dbSession, OrganizationDto organization, String ruleUuid) {
+    return mapper(dbSession).selectByRuleUuid(organization.getUuid(), ruleUuid);
   }
 
-  public List<ActiveRuleDto> selectByRuleIdOfAllOrganizations(DbSession dbSession, int ruleId) {
-    return mapper(dbSession).selectByRuleIdOfAllOrganizations(ruleId);
+  public List<ActiveRuleDto> selectByRuleUuidOfAllOrganizations(DbSession dbSession, String ruleUuid) {
+    return mapper(dbSession).selectByRuleUuidOfAllOrganizations(ruleUuid);
   }
 
-  public List<OrgActiveRuleDto> selectByRuleIds(DbSession dbSession, OrganizationDto organization, List<Integer> ids) {
-    return executeLargeInputs(ids, chunk -> mapper(dbSession).selectByRuleIds(organization.getUuid(), chunk));
+  public List<OrgActiveRuleDto> selectByRuleUuids(DbSession dbSession, OrganizationDto organization, List<String> uuids) {
+    return executeLargeInputs(uuids, chunk -> mapper(dbSession).selectByRuleUuids(organization.getUuid(), chunk));
   }
 
   /**
@@ -89,17 +89,18 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectByRuleProfileUuid(ruleProfileDto.getUuid());
   }
 
-  public Collection<ActiveRuleDto> selectByRulesAndRuleProfileUuids(DbSession dbSession, Collection<Integer> ruleIds, Collection<String> ruleProfileUuids) {
-    if (ruleIds.isEmpty() || ruleProfileUuids.isEmpty()) {
+  public Collection<ActiveRuleDto> selectByRulesAndRuleProfileUuids(DbSession dbSession, Collection<String> ruleUuids, Collection<String> ruleProfileUuids) {
+    if (ruleUuids.isEmpty() || ruleProfileUuids.isEmpty()) {
       return emptyList();
     }
     ActiveRuleMapper mapper = mapper(dbSession);
-    return executeLargeInputs(ruleIds, ruleIdsChunk -> executeLargeInputs(ruleProfileUuids, chunk -> mapper.selectByRuleIdsAndRuleProfileUuids(ruleIdsChunk, chunk)));
+    return executeLargeInputs(ruleUuids,
+      ruleUuidsChunk -> executeLargeInputs(ruleProfileUuids, chunk -> mapper.selectByRuleUuidsAndRuleProfileUuids(ruleUuidsChunk, chunk)));
   }
 
   public ActiveRuleDto insert(DbSession dbSession, ActiveRuleDto item) {
     checkArgument(item.getProfileUuid() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
-    checkArgument(item.getRuleId() != null, RULE_IS_NOT_PERSISTED);
+    checkArgument(item.getRuleUuid() != null, RULE_IS_NOT_PERSISTED);
     checkArgument(item.getUuid() == null, ACTIVE_RULE_IS_ALREADY_PERSISTED);
 
     item.setUuid(uuidFactory.create());
@@ -109,7 +110,7 @@ public class ActiveRuleDao implements Dao {
 
   public ActiveRuleDto update(DbSession dbSession, ActiveRuleDto item) {
     checkArgument(item.getProfileUuid() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
-    checkArgument(item.getRuleId() != null, ActiveRuleDao.RULE_IS_NOT_PERSISTED);
+    checkArgument(item.getRuleUuid() != null, ActiveRuleDao.RULE_IS_NOT_PERSISTED);
     checkArgument(item.getUuid() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
     mapper(dbSession).update(item);
     return item;
@@ -176,7 +177,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public void deleteParamsByRuleParamOfAllOrganizations(DbSession dbSession, RuleParamDto param) {
-    List<ActiveRuleDto> activeRules = selectByRuleIdOfAllOrganizations(dbSession, param.getRuleId());
+    List<ActiveRuleDto> activeRules = selectByRuleUuidOfAllOrganizations(dbSession, param.getRuleUuid());
     for (ActiveRuleDto activeRule : activeRules) {
       for (ActiveRuleParamDto activeParam : selectParamsByActiveRuleUuid(dbSession, activeRule.getUuid())) {
         if (activeParam.getKey().equals(param.getName())) {

@@ -65,7 +65,7 @@ public class QProfileRulesImplTest {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto qProfile = db.qualityProfiles().insert(organization);
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(qProfile.getLanguage()));
-    RuleActivation ruleActivation = RuleActivation.create(rule.getId(), Severity.CRITICAL, Collections.emptyMap());
+    RuleActivation ruleActivation = RuleActivation.create(rule.getUuid(), Severity.CRITICAL, Collections.emptyMap());
 
     qProfileRules.activateAndCommit(db.getSession(), qProfile, singleton(ruleActivation));
 
@@ -81,12 +81,12 @@ public class QProfileRulesImplTest {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto qProfile = db.qualityProfiles().insert(organization);
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(qProfile.getLanguage()));
-    RuleActivation ruleActivation = RuleActivation.create(rule.getId(), Severity.CRITICAL, Collections.emptyMap());
+    RuleActivation ruleActivation = RuleActivation.create(rule.getUuid(), Severity.CRITICAL, Collections.emptyMap());
 
     qProfileRules.activateAndCommit(db.getSession(), qProfile, singleton(ruleActivation));
 
     assertThat(db.getDbClient().qProfileChangeDao().selectByQuery(db.getSession(), new QProfileChangeQuery(qProfile.getKee())))
       .extracting(QProfileChangeDto::getUserUuid, QProfileChangeDto::getDataAsMap)
-      .containsExactlyInAnyOrder(tuple(user.getUuid(), ImmutableMap.of("ruleId", Integer.toString(rule.getId()), "severity", Severity.CRITICAL)));
+      .containsExactlyInAnyOrder(tuple(user.getUuid(), ImmutableMap.of("ruleUuid", rule.getUuid(), "severity", Severity.CRITICAL)));
   }
 }

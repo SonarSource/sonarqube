@@ -30,18 +30,18 @@ import org.elasticsearch.search.SearchHits;
 
 public class SearchIdResult<ID> {
 
-  private final List<ID> ids;
+  private final List<ID> uuids;
   private final Facets facets;
   private final long total;
 
   public SearchIdResult(SearchResponse response, Function<String, ID> converter, TimeZone timeZone) {
     this.facets = new Facets(response, timeZone);
     this.total = response.getHits().getTotalHits();
-    this.ids = convertToIds(response.getHits(), converter);
+    this.uuids = convertToIds(response.getHits(), converter);
   }
 
-  public List<ID> getIds() {
-    return ids;
+  public List<ID> getUuids() {
+    return uuids;
   }
 
   public long getTotal() {

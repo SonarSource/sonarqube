@@ -309,7 +309,7 @@ public class ProjectMeasuresIndexTextSearchTest {
   }
 
   private void assertResults(ProjectMeasuresQuery query, String... expectedProjectUuids) {
-    List<String> result = underTest.search(query, new SearchOptions()).getIds();
+    List<String> result = underTest.search(query, new SearchOptions()).getUuids();
     assertThat(result).containsExactly(expectedProjectUuids);
   }
 

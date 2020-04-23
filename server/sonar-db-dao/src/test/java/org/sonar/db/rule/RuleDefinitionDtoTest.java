@@ -19,41 +19,39 @@
  */
 package org.sonar.db.rule;
 
-import java.util.Random;
 import org.junit.Test;
+import org.sonar.core.util.Uuids;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class RuleDefinitionDtoTest {
 
-  private static final Random RANDOM = new Random();
-
   @Test
-  public void equals_is_based_on_id() {
-    int id = RANDOM.nextInt(153151);
-    RuleDefinitionDto dto = newRule().setId(id);
+  public void equals_is_based_on_uuid() {
+    String uuid = Uuids.createFast();
+    RuleDefinitionDto dto = newRule().setUuid(uuid);
 
     assertThat(dto).isEqualTo(dto);
-    assertThat(dto).isEqualTo(newRule().setId(id));
-    assertThat(dto).isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setId(id));
+    assertThat(dto).isEqualTo(newRule().setUuid(uuid));
+    assertThat(dto).isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(uuid));
     assertThat(dto).isNotEqualTo(null);
     assertThat(dto).isNotEqualTo(new Object());
-    assertThat(dto).isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setId(id - 1));
-    assertThat(dto).isNotEqualTo(newRule().setId(id + 1));
+    assertThat(dto).isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(Uuids.createFast()));
+    assertThat(dto).isNotEqualTo(newRule().setUuid(Uuids.createFast()));
   }
 
   @Test
-  public void hashcode_is_based_on_id() {
-    int id = RANDOM.nextInt(153151);
-    RuleDefinitionDto dto = newRule().setId(id);
+  public void hashcode_is_based_on_uuid() {
+    String uuid = Uuids.createFast();
+    RuleDefinitionDto dto = newRule().setUuid(uuid);
 
     assertThat(dto.hashCode()).isEqualTo(dto.hashCode());
-    assertThat(dto.hashCode()).isEqualTo(newRule().setId(id).hashCode());
-    assertThat(dto.hashCode()).isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setId(id).hashCode());
+    assertThat(dto.hashCode()).isEqualTo(newRule().setUuid(uuid).hashCode());
+    assertThat(dto.hashCode()).isEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(uuid).hashCode());
     assertThat(dto.hashCode()).isNotEqualTo(null);
     assertThat(dto.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(dto.hashCode()).isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setId(id - 1).hashCode());
-    assertThat(dto.hashCode()).isNotEqualTo(newRule().setId(id + 1).hashCode());
+    assertThat(dto.hashCode()).isNotEqualTo(newRule().setRuleKey(dto.getRuleKey()).setUuid(Uuids.createFast()).hashCode());
+    assertThat(dto.hashCode()).isNotEqualTo(newRule().setUuid(Uuids.createFast()).hashCode());
   }
 }

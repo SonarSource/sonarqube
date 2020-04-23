@@ -38,14 +38,14 @@ public interface RuleRepository {
   /**
    * @throws IllegalArgumentException when there is no Rule for the specified RuleKey in the repository
    */
-  Rule getById(int id);
+  Rule getByUuid(String uuid);
 
   /**
    * @throws NullPointerException if {@code key} is {@code null}
    */
   Optional<Rule> findByKey(RuleKey key);
 
-  Optional<Rule> findById(int id);
+  Optional<Rule> findByUuid(String uuid);
 
   void addOrUpdateAddHocRuleIfNeeded(RuleKey ruleKey, Supplier<NewAdHocRule> ruleSupplier);
 

@@ -72,16 +72,16 @@ public class QualityProfileExportDaoTest {
   public void selectRulesByProfile_verify_columns() {
     String language = "java";
     RuleDefinitionDto ruleTemplate = createRule(language);
-    RuleDefinitionDto customRule = createRule(language, RuleStatus.READY, ruleTemplate.getId());
+    RuleDefinitionDto customRule = createRule(language, RuleStatus.READY, ruleTemplate.getUuid());
     RuleMetadataDto customRuleMetadata = createRuleMetadata(new RuleMetadataDto()
-      .setRuleId(customRule.getId())
+      .setRuleUuid(customRule.getUuid())
       .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setNoteData("Extended description")
       .setTags(Sets.newHashSet("tag1", "tag2", "tag3")));
 
     RuleDefinitionDto rule = createRule(language, RuleStatus.READY, null);
     RuleMetadataDto ruleMetadata = createRuleMetadata(new RuleMetadataDto()
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setOrganizationUuid(db.getDefaultOrganization().getUuid()));
 
     QProfileDto profile = createProfile(language);
@@ -92,7 +92,7 @@ public class QualityProfileExportDaoTest {
     assertThat(results).isNotNull();
     assertThat(results).isNotEmpty();
 
-    //verify custom rule
+    // verify custom rule
     ExportRuleDto exportCustomRuleDto = results.stream().filter(ExportRuleDto::isCustomRule).findFirst().get();
     assertThat(exportCustomRuleDto).isNotNull();
     assertThat(exportCustomRuleDto.isCustomRule()).isTrue();
@@ -108,7 +108,7 @@ public class QualityProfileExportDaoTest {
     ActiveRuleDto activeCustomRule = activeRules.stream().filter(activeRuleDto -> activeRuleDto.getRuleKey().equals(customRule.getKey())).findFirst().get();
     assertThat(exportCustomRuleDto.getSeverityString()).isEqualTo(activeCustomRule.getSeverityString());
 
-    //verify regular rule
+    // verify regular rule
     ExportRuleDto exportRuleDto = results.stream().filter(regularRule -> !regularRule.isCustomRule()).findFirst().get();
     assertThat(exportRuleDto).isNotNull();
     assertThat(exportRuleDto.isCustomRule()).isFalse();
@@ -192,7 +192,6 @@ public class QualityProfileExportDaoTest {
       .containsOnly(ruleParamsOfThirdRule.stream().map(RuleParamDto::getName).toArray());
   }
 
-
   private ExportRuleDto findExportedRuleByUuid(String uuid, List<ExportRuleDto> results) {
     Optional<ExportRuleDto> found = results.stream().filter(exportRuleDto -> uuid.equals(exportRuleDto.getActiveRuleUuid())).findFirst();
     if (!found.isPresent()) {
@@ -204,7 +203,7 @@ public class QualityProfileExportDaoTest {
   private List<RuleParamDto> addParamsToRule(RuleDefinitionDto firstRule, int numberOfParams) {
     return IntStream.range(0, numberOfParams)
       .mapToObj(value -> db.rules().insertRuleParam(firstRule,
-        ruleParamDto -> ruleParamDto.setName("name_" + firstRule.getId() + "_" + value)))
+        ruleParamDto -> ruleParamDto.setName("name_" + firstRule.getUuid() + "_" + value)))
       .collect(Collectors.toList());
   }
 
@@ -216,8 +215,9 @@ public class QualityProfileExportDaoTest {
     return createRule(language, status, null);
   }
 
-  private RuleDefinitionDto createRule(String language, RuleStatus status, @Nullable Integer templateId) {
-    return db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setRepositoryKey("repoKey").setLanguage(language).setStatus(status).setTemplateId(templateId));
+  private RuleDefinitionDto createRule(String language, RuleStatus status, @Nullable String templateUuid) {
+    return db.rules().insert(ruleDefinitionDto -> ruleDefinitionDto.setRepositoryKey("repoKey").setLanguage(language).setStatus(status)
+      .setTemplateUuid(templateUuid));
   }
 
   private RuleMetadataDto createRuleMetadata(RuleMetadataDto metadataDto) {

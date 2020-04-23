@@ -27,11 +27,11 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
@@ -47,7 +47,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
-import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -80,7 +79,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     RuleDefinitionDto rule = db.rules().insert(RuleKey.of("java", "S001"));
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user, ImmutableMap.of(
-      "ruleId", valueOf(rule.getId()),
+      "ruleUuid", rule.getUuid(),
       "severity", "MINOR",
       "inheritance", ActiveRuleInheritance.INHERITED.name(),
       "param_foo", "foo_value",
@@ -123,7 +122,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user,
       ImmutableMap.of(
-        "ruleId", valueOf(rule.getId()),
+        "ruleUuid", rule.getUuid(),
         "severity", "MINOR"));
 
     String response = ws.newRequest()
@@ -156,7 +155,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
       ImmutableMap.of(
-        "ruleId", valueOf(rule.getId()),
+        "ruleUuid", rule.getUuid(),
         "severity", "MINOR"));
 
     String response = ws.newRequest()
@@ -189,7 +188,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
       ImmutableMap.of(
-        "ruleId", valueOf(rule.getId()),
+        "ruleUuid", rule.getUuid(),
         "severity", "MINOR"));
 
     String response = ws.newRequest()
@@ -239,7 +238,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
       ImmutableMap.of(
-        "ruleId", valueOf(rule.getId()),
+        "ruleUuid", rule.getUuid(),
         "severity", "MINOR"));
 
     assertJson(ws.newRequest()
@@ -279,13 +278,13 @@ public class ChangelogActionTest {
     RuleDefinitionDto rule1 = db.rules().insert();
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null,
       ImmutableMap.of(
-        "ruleId", valueOf(rule1.getId()),
+        "ruleUuid", rule1.getUuid(),
         "severity", "MINOR"));
     system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:43+0100").getTime());
     UserDto user = db.users().insertUser();
     RuleDefinitionDto rule2 = db.rules().insert();
     insertChange(profile, ActiveRuleChange.Type.DEACTIVATED, user,
-      ImmutableMap.of("ruleId", valueOf(rule2.getId())));
+      ImmutableMap.of("ruleUuid", rule2.getUuid()));
 
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
@@ -323,7 +322,7 @@ public class ChangelogActionTest {
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
-      ImmutableMap.of("ruleId", "123"));
+      ImmutableMap.of("ruleUuid", "123"));
 
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
@@ -352,7 +351,7 @@ public class ChangelogActionTest {
     insertChange(c -> c.setRulesProfileUuid(qualityProfile.getRulesProfileUuid())
       .setUserUuid("UNKNOWN")
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
-      .setData(ImmutableMap.of("ruleId", rule.getId())));
+      .setData(ImmutableMap.of("ruleUuid", rule.getUuid())));
 
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
@@ -384,7 +383,7 @@ public class ChangelogActionTest {
     RuleDefinitionDto rule = db.rules().insert();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, db.users().insertUser(),
       ImmutableMap.of(
-        "ruleId", valueOf(rule.getId()),
+        "ruleUuid", rule.getUuid(),
         "severity", "MINOR"));
 
     String response = ws.newRequest()
@@ -412,7 +411,7 @@ public class ChangelogActionTest {
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
       ImmutableMap.of(
-        "ruleId", valueOf(rule.getId()),
+        "ruleUuid", rule.getUuid(),
         "severity", "MINOR"));
 
     expectedException.expect(NotFoundException.class);
@@ -451,23 +450,23 @@ public class ChangelogActionTest {
     insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user1.getUuid())
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
-      .setData(ImmutableMap.of("severity", "CRITICAL", "ruleId", valueOf(rule1.getId()))));
+      .setData(ImmutableMap.of("severity", "CRITICAL", "ruleUuid", rule1.getUuid())));
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:18+0100").getTime());
     RuleDefinitionDto rule2 = db.rules().insert(RuleKey.of("squid", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("padme.amidala").setName("Padme Amidala"));
-    QProfileChangeDto change2 = insertChange(c -> c.setRulesProfileUuid(profileUuid)
+    insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user2.getUuid())
       .setChangeType(ActiveRuleChange.Type.DEACTIVATED.name())
-      .setData(ImmutableMap.of("ruleId", valueOf(rule2.getId()))));
+      .setData(ImmutableMap.of("ruleUuid", rule2.getUuid())));
 
     system2.setNow(DateUtils.parseDateTime("2014-09-12T15:20:46+0200").getTime());
     RuleDefinitionDto rule3 = db.rules().insert(RuleKey.of("squid", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
     UserDto user3 = db.users().insertUser(u -> u.setLogin("obiwan.kenobi").setName("Obiwan Kenobi"));
-    QProfileChangeDto change3 = insertChange(c -> c.setRulesProfileUuid(profileUuid)
+    insertChange(c -> c.setRulesProfileUuid(profileUuid)
       .setUserUuid(user3.getUuid())
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
-      .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*$", "ruleId", valueOf(rule3.getId()))));
+      .setData(ImmutableMap.of("severity", "MAJOR", "param_format", "^[A-Z][a-zA-Z0-9]*$", "ruleUuid", rule3.getUuid())));
 
     String response = ws.newRequest()
       .setMethod("GET")

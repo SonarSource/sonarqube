@@ -404,7 +404,8 @@ public class BuiltInQProfileUpdateImplTest {
   }
 
   private void assertThatRuleIsDeactivated(QProfileDto profile, RuleDefinitionDto rule) {
-    Collection<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRulesAndRuleProfileUuids(db.getSession(), singletonList(rule.getId()), singletonList(profile.getRulesProfileUuid()));
+    Collection<ActiveRuleDto> activeRules = db.getDbClient().activeRuleDao().selectByRulesAndRuleProfileUuids(
+      db.getSession(), singletonList(rule.getUuid()), singletonList(profile.getRulesProfileUuid()));
     assertThat(activeRules).isEmpty();
   }
 
@@ -440,7 +441,7 @@ public class BuiltInQProfileUpdateImplTest {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setProfileUuid(profile.getUuid())
       .setSeverity(severity.name())
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setCreatedAt(PAST)
       .setUpdatedAt(PAST);
     db.getDbClient().activeRuleDao().insert(db.getSession(), dto);

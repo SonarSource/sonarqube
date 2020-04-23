@@ -175,7 +175,7 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(activeRule.getUuid()).isNotNull();
     assertThat(activeRule.getInheritance()).isNull();
     assertThat(activeRule.doesOverride()).isFalse();
-    assertThat(activeRule.getRuleId()).isEqualTo(rule.getId());
+    assertThat(activeRule.getRuleUuid()).isEqualTo(rule.getUuid());
     assertThat(activeRule.getProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(activeRule.getSeverityString()).isEqualTo(expectedSeverity);
     assertThat(activeRule.getCreatedAt()).isPositive();
@@ -186,7 +186,7 @@ public class BuiltInQProfileInsertImplTest {
 
     QProfileChangeQuery changeQuery = new QProfileChangeQuery(profile.getKee());
     QProfileChangeDto change = db.getDbClient().qProfileChangeDao().selectByQuery(dbSession, changeQuery).stream()
-      .filter(c -> c.getDataAsMap().get("ruleId").equals(String.valueOf(rule.getId())))
+      .filter(c -> c.getDataAsMap().get("ruleUuid").equals(rule.getUuid()))
       .findFirst()
       .get();
     assertThat(change.getChangeType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());

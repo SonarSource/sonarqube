@@ -31,7 +31,7 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import static java.util.Objects.requireNonNull;
 
 public class DumbRule implements Rule {
-  private Integer id;
+  private String uuid;
   private RuleKey key;
   private String name;
   private String language;
@@ -45,13 +45,13 @@ public class DumbRule implements Rule {
 
   public DumbRule(RuleKey key) {
     this.key = key;
-    this.id = key.hashCode();
+    this.uuid = key.rule();
     this.name = "name_" + key;
   }
 
   @Override
-  public int getId() {
-    return requireNonNull(id);
+  public String getUuid() {
+    return requireNonNull(uuid);
   }
 
   @Override
@@ -105,8 +105,8 @@ public class DumbRule implements Rule {
     return isAdHoc;
   }
 
-  public DumbRule setId(Integer id) {
-    this.id = id;
+  public DumbRule setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

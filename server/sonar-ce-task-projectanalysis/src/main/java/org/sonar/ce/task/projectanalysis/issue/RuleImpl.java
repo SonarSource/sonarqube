@@ -36,7 +36,7 @@ import static com.google.common.collect.Sets.union;
 @Immutable
 public class RuleImpl implements Rule {
 
-  private final int id;
+  private final String uuid;
   private final RuleKey key;
   private final String name;
   private final String language;
@@ -49,7 +49,7 @@ public class RuleImpl implements Rule {
   private final boolean isAdHoc;
 
   public RuleImpl(RuleDto dto) {
-    this.id = dto.getId();
+    this.uuid = dto.getUuid();
     this.key = dto.getKey();
     this.name = dto.getName();
     this.language = dto.getLanguage();
@@ -63,8 +63,8 @@ public class RuleImpl implements Rule {
   }
 
   @Override
-  public int getId() {
-    return id;
+  public String getUuid() {
+    return this.uuid;
   }
 
   @Override
@@ -129,7 +129,7 @@ public class RuleImpl implements Rule {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-      .add("id", id)
+      .add("uuid", uuid)
       .add("key", key)
       .add("name", name)
       .add("language", language)

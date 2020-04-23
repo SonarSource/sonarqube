@@ -34,7 +34,6 @@ import org.sonar.api.rule.RuleStatus;
 public class DefaultRule implements Rule {
 
   private final RuleKey key;
-  private final Integer id;
   private final String name;
   private final String severity;
   private final String type;
@@ -45,7 +44,6 @@ public class DefaultRule implements Rule {
 
   public DefaultRule(NewRule newRule) {
     this.key = newRule.key;
-    this.id = newRule.id;
     this.name = newRule.name;
     this.severity = newRule.severity;
     this.type = newRule.type;
@@ -63,11 +61,6 @@ public class DefaultRule implements Rule {
   @Override
   public RuleKey key() {
     return key;
-  }
-
-  @CheckForNull
-  public Integer id() {
-    return id;
   }
 
   @Override

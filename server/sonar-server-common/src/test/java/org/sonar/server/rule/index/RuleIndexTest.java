@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -111,10 +110,10 @@ public class RuleIndexTest {
     createRule();
     index();
 
-    SearchIdResult results = underTest.search(new RuleQuery(), new SearchOptions());
+    SearchIdResult<String> results = underTest.search(new RuleQuery(), new SearchOptions());
 
     assertThat(results.getTotal()).isEqualTo(2);
-    assertThat(results.getIds()).hasSize(2);
+    assertThat(results.getUuids()).hasSize(2);
   }
 
   @Test
@@ -132,15 +131,15 @@ public class RuleIndexTest {
 
     // key
     RuleQuery query = new RuleQuery().setQueryText("X001");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).containsOnly(js1.getId(), cobol1.getId());
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(js1.getUuid(), cobol1.getUuid());
 
     // partial key does not match
     query = new RuleQuery().setQueryText("X00");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
 
     // repo:key -> nice-to-have !
     query = new RuleQuery().setQueryText("javascript:X001");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).containsOnly(js1.getId());
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(js1.getUuid());
   }
 
   @Test
@@ -151,7 +150,7 @@ public class RuleIndexTest {
     index();
 
     RuleQuery query = new RuleQuery().setQueryText("x001");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).containsOnly(ruleDto.getId());
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(ruleDto.getUuid());
   }
 
   @Test
@@ -170,11 +169,11 @@ public class RuleIndexTest {
     // key
     RuleQuery query = new RuleQuery().setKey(RuleKey.of("javascript", "X001").toString());
 
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(1);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(1);
 
     // partial key does not match
     query = new RuleQuery().setKey("X001");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -184,19 +183,19 @@ public class RuleIndexTest {
 
     // substring
     RuleQuery query = new RuleQuery().setQueryText("test");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(1);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(1);
 
     // substring
     query = new RuleQuery().setQueryText("partial match");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(1);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(1);
 
     // case-insensitive
     query = new RuleQuery().setQueryText("TESTING");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(1);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(1);
 
     // not found
     query = new RuleQuery().setQueryText("not present");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -205,8 +204,8 @@ public class RuleIndexTest {
     index();
 
     RuleQuery protectedCharsQuery = new RuleQuery().setQueryText(rule.getName());
-    List<Integer> results = underTest.search(protectedCharsQuery, new SearchOptions()).getIds();
-    assertThat(results).containsOnly(rule.getId());
+    List<String> results = underTest.search(protectedCharsQuery, new SearchOptions()).getUuids();
+    assertThat(results).containsOnly(rule.getUuid());
   }
 
   @Test
@@ -231,39 +230,40 @@ public class RuleIndexTest {
     index();
 
     // partial match at word boundary
-    assertThat(underTest.search(new RuleQuery().setQueryText("CWE"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule1.getId(), rule2.getId(), rule3.getId());
+    assertThat(underTest.search(new RuleQuery().setQueryText("CWE"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule1.getUuid(), rule2.getUuid(), rule3.getUuid());
 
     // full match
-    assertThat(underTest.search(new RuleQuery().setQueryText("CWE-123"), new SearchOptions()).getIds()).containsExactly(rule1.getId());
+    assertThat(underTest.search(new RuleQuery().setQueryText("CWE-123"), new SearchOptions()).getUuids()).containsExactly(rule1.getUuid());
 
     // match somewhere else in the text
-    assertThat(underTest.search(new RuleQuery().setQueryText("CWE-1000"), new SearchOptions()).getIds()).containsExactly(rule3.getId());
-    assertThat(underTest.search(new RuleQuery().setQueryText("CWE 1000"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule3.getId(), rule1.getId());
+    assertThat(underTest.search(new RuleQuery().setQueryText("CWE-1000"), new SearchOptions()).getUuids()).containsExactly(rule3.getUuid());
+    assertThat(underTest.search(new RuleQuery().setQueryText("CWE 1000"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule3.getUuid(), rule1.getUuid());
 
     // several words
-    assertThat(underTest.search(new RuleQuery().setQueryText("great rule"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule1.getId(), rule2.getId(), rule3.getId());
-    assertThat(underTest.search(new RuleQuery().setQueryText("rule Another"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule2.getId(), rule3.getId());
+    assertThat(underTest.search(new RuleQuery().setQueryText("great rule"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule1.getUuid(), rule2.getUuid(),
+      rule3.getUuid());
+    assertThat(underTest.search(new RuleQuery().setQueryText("rule Another"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule2.getUuid(), rule3.getUuid());
 
     // no matches
-    assertThat(underTest.search(new RuleQuery().setQueryText("unexisting"), new SearchOptions()).getIds()).isEmpty();
-    assertThat(underTest.search(new RuleQuery().setQueryText("great rule unexisting"), new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("unexisting"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("great rule unexisting"), new SearchOptions()).getUuids()).isEmpty();
 
     // stopwords
-    assertThat(underTest.search(new RuleQuery().setQueryText("and"), new SearchOptions()).getIds()).isEmpty();
-    assertThat(underTest.search(new RuleQuery().setQueryText("great and shiny"), new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("and"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("great and shiny"), new SearchOptions()).getUuids()).isEmpty();
 
     // html
-    assertThat(underTest.search(new RuleQuery().setQueryText("h1"), new SearchOptions()).getIds()).isEmpty();
-    assertThat(underTest.search(new RuleQuery().setQueryText("style"), new SearchOptions()).getIds()).isEmpty();
-    assertThat(underTest.search(new RuleQuery().setQueryText("special"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule4.getId());
-    assertThat(underTest.search(new RuleQuery().setQueryText("geeks formatting inside tables"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule4.getId());
+    assertThat(underTest.search(new RuleQuery().setQueryText("h1"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("style"), new SearchOptions()).getUuids()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("special"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule4.getUuid());
+    assertThat(underTest.search(new RuleQuery().setQueryText("geeks formatting inside tables"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule4.getUuid());
 
     // long words
-    assertThat(underTest.search(new RuleQuery().setQueryText("missunderstand"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule5.getId());
-    assertThat(underTest.search(new RuleQuery().setQueryText("missunderstandings"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule5.getId());
-    assertThat(underTest.search(new RuleQuery().setQueryText("alsdkjfnadklsjfnadkdfnsksdjfn"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule5.getId());
-    assertThat(underTest.search(new RuleQuery().setQueryText("internationalization"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule5.getId());
-    assertThat(underTest.search(new RuleQuery().setQueryText("internationalizationBlaBla"), new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("missunderstand"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
+    assertThat(underTest.search(new RuleQuery().setQueryText("missunderstandings"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
+    assertThat(underTest.search(new RuleQuery().setQueryText("alsdkjfnadklsjfnadkdfnsksdjfn"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
+    assertThat(underTest.search(new RuleQuery().setQueryText("internationalization"), new SearchOptions()).getUuids()).containsExactlyInAnyOrder(rule5.getUuid());
+    assertThat(underTest.search(new RuleQuery().setQueryText("internationalizationBlaBla"), new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -277,16 +277,16 @@ public class RuleIndexTest {
     index();
 
     RuleQuery query = new RuleQuery().setRepositories(asList("checkstyle", "pmd"));
-    SearchIdResult results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsExactly(pmd.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    assertThat(results.getUuids()).containsExactly(pmd.getUuid());
 
     // no results
     query = new RuleQuery().setRepositories(singletonList("checkstyle"));
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setRepositories(emptyList());
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).containsOnly(findbugs.getId(), pmd.getId());
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(findbugs.getUuid(), pmd.getUuid());
   }
 
   @Test
@@ -336,7 +336,7 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_types() {
-    RuleDefinitionDto codeSmell = createRule(setType(CODE_SMELL));
+    createRule(setType(CODE_SMELL));
     RuleDefinitionDto vulnerability = createRule(setType(VULNERABILITY));
     RuleDefinitionDto bug1 = createRule(setType(BUG));
     RuleDefinitionDto bug2 = createRule(setType(BUG));
@@ -344,26 +344,26 @@ public class RuleIndexTest {
 
     // find all
     RuleQuery query = new RuleQuery();
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(4);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(4);
 
     // type3 in filter
     query = new RuleQuery().setTypes(of(VULNERABILITY));
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).containsOnly(vulnerability.getId());
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(vulnerability.getUuid());
 
     query = new RuleQuery().setTypes(of(BUG));
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).containsOnly(bug1.getId(), bug2.getId());
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).containsOnly(bug1.getUuid(), bug2.getUuid());
 
     // types in query => nothing
     query = new RuleQuery().setQueryText("code smell bug vulnerability");
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
 
     // null list => no filter
     query = new RuleQuery().setTypes(emptySet());
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(4);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(4);
 
     // null list => no filter
     query = new RuleQuery().setTypes(null);
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(4);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(4);
   }
 
   @Test
@@ -374,23 +374,23 @@ public class RuleIndexTest {
 
     // find all
     RuleQuery query = new RuleQuery();
-    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).hasSize(2);
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    assertThat(results.getUuids()).hasSize(2);
 
     // Only template
     query = new RuleQuery().setIsTemplate(true);
     results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsOnly(ruleIsTemplate.getId());
+    assertThat(results.getUuids()).containsOnly(ruleIsTemplate.getUuid());
 
     // Only not template
     query = new RuleQuery().setIsTemplate(false);
     results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsOnly(ruleNoTemplate.getId());
+    assertThat(results.getUuids()).containsOnly(ruleNoTemplate.getUuid());
 
     // null => no filter
     query = new RuleQuery().setIsTemplate(null);
     results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsOnly(ruleIsTemplate.getId(), ruleNoTemplate.getId());
+    assertThat(results.getUuids()).containsOnly(ruleIsTemplate.getUuid(), ruleNoTemplate.getUuid());
   }
 
   @Test
@@ -401,57 +401,57 @@ public class RuleIndexTest {
 
     // Only external
     RuleQuery query = new RuleQuery().setIncludeExternal(true);
-    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsOnly(ruleIsExternal.getId(), ruleIsNotExternal.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    assertThat(results.getUuids()).containsOnly(ruleIsExternal.getUuid(), ruleIsNotExternal.getUuid());
 
     // Only not external
     query = new RuleQuery().setIncludeExternal(false);
     results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsOnly(ruleIsNotExternal.getId());
+    assertThat(results.getUuids()).containsOnly(ruleIsNotExternal.getUuid());
   }
 
   @Test
   public void search_by_template_key() {
     RuleDefinitionDto template = createRule(setIsTemplate(true));
-    RuleDefinitionDto customRule = createRule(setTemplateId(template.getId()));
+    RuleDefinitionDto customRule = createRule(setTemplateId(template.getUuid()));
     index();
 
     // find all
     RuleQuery query = new RuleQuery();
-    SearchIdResult results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).hasSize(2);
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    assertThat(results.getUuids()).hasSize(2);
 
     // Only custom rule
     query = new RuleQuery().setTemplateKey(template.getKey().toString());
     results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsOnly(customRule.getId());
+    assertThat(results.getUuids()).containsOnly(customRule.getUuid());
 
     // null => no filter
     query = new RuleQuery().setTemplateKey(null);
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(2);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
   }
 
   @Test
   public void search_by_any_of_languages() {
-    RuleDefinitionDto java = createRule(setLanguage("java"));
+    createRule(setLanguage("java"));
     RuleDefinitionDto javascript = createRule(setLanguage("js"));
     index();
 
     RuleQuery query = new RuleQuery().setLanguages(asList("cobol", "js"));
-    SearchIdResult results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsOnly(javascript.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    assertThat(results.getUuids()).containsOnly(javascript.getUuid());
 
     // no results
     query = new RuleQuery().setLanguages(singletonList("cpp"));
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setLanguages(emptyList());
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(2);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setLanguages(null);
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(2);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
   }
 
   @Test
@@ -462,8 +462,8 @@ public class RuleIndexTest {
     index();
 
     RuleQuery query = new RuleQuery().setCwe(of("543"));
-    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions().addFacets("cwe"));
-    assertThat(results.getIds()).containsOnly(rule1.getId(), rule2.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("cwe"));
+    assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
   @Test
@@ -474,8 +474,8 @@ public class RuleIndexTest {
     index();
 
     RuleQuery query = new RuleQuery().setOwaspTop10(of("a5", "a10"));
-    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions().addFacets("owaspTop10"));
-    assertThat(results.getIds()).containsOnly(rule1.getId(), rule2.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("owaspTop10"));
+    assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
   @Test
@@ -486,8 +486,8 @@ public class RuleIndexTest {
     index();
 
     RuleQuery query = new RuleQuery().setSansTop25(of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE));
-    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions().addFacets("sansTop25"));
-    assertThat(results.getIds()).containsOnly(rule1.getId(), rule2.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("sansTop25"));
+    assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid());
   }
 
   @Test
@@ -498,8 +498,8 @@ public class RuleIndexTest {
     index();
 
     RuleQuery query = new RuleQuery().setSonarsourceSecurity(of("sql-injection", "open-redirect"));
-    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
-    assertThat(results.getIds()).containsOnly(rule1.getId(), rule3.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions().addFacets("sonarsourceSecurity"));
+    assertThat(results.getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
   }
 
   @Test
@@ -548,25 +548,25 @@ public class RuleIndexTest {
 
   @Test
   public void search_by_any_of_severities() {
-    RuleDefinitionDto blocker = createRule(setSeverity(BLOCKER));
+    createRule(setSeverity(BLOCKER));
     RuleDefinitionDto info = createRule(setSeverity(INFO));
     index();
 
     RuleQuery query = new RuleQuery().setSeverities(asList(INFO, MINOR));
-    SearchIdResult results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsOnly(info.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    assertThat(results.getUuids()).containsOnly(info.getUuid());
 
     // no results
     query = new RuleQuery().setSeverities(singletonList(MINOR));
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setSeverities(emptyList());
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(2);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setSeverities();
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(2);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
   }
 
   @Test
@@ -576,20 +576,20 @@ public class RuleIndexTest {
     index();
 
     RuleQuery query = new RuleQuery().setStatuses(asList(RuleStatus.DEPRECATED, RuleStatus.READY));
-    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsOnly(ready.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    assertThat(results.getUuids()).containsOnly(ready.getUuid());
 
     // no results
     query = new RuleQuery().setStatuses(singletonList(RuleStatus.DEPRECATED));
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setStatuses(emptyList());
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(2);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setStatuses(null);
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(2);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(2);
   }
 
   @Test
@@ -630,11 +630,11 @@ public class RuleIndexTest {
   }
 
   private void verifySearch(RuleQuery query, RuleDefinitionDto... expectedRules) {
-    SearchIdResult<Integer> result = underTest.search(query, new SearchOptions());
+    SearchIdResult<String> result = underTest.search(query, new SearchOptions());
     assertThat(result.getTotal()).isEqualTo((long) expectedRules.length);
-    assertThat(result.getIds()).hasSize(expectedRules.length);
+    assertThat(result.getUuids()).hasSize(expectedRules.length);
     for (RuleDefinitionDto expectedRule : expectedRules) {
-      assertThat(result.getIds()).contains(expectedRule.getId());
+      assertThat(result.getUuids()).contains(expectedRule.getUuid());
     }
   }
 
@@ -720,13 +720,13 @@ public class RuleIndexTest {
   }
 
   private void verifyFacet(RuleQuery query, String facet, Map.Entry<String, Long>... expectedBuckets) {
-    SearchIdResult<Integer> result = underTest.search(query, new SearchOptions().addFacets(facet));
+    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(facet));
     assertThat(result.getFacets().get(facet))
       .containsOnly(expectedBuckets);
   }
 
   private void verifyNoFacet(RuleQuery query, String facet) {
-    SearchIdResult<Integer> result = underTest.search(query, new SearchOptions().addFacets(facet));
+    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(facet));
     assertThat(result.getFacets().get(facet)).isNull();
   }
 
@@ -848,7 +848,7 @@ public class RuleIndexTest {
 
     RuleQuery query = new RuleQuery();
 
-    assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(9);
+    assertThat(underTest.search(query, new SearchOptions()).getUuids()).hasSize(9);
   }
 
   /**
@@ -861,7 +861,7 @@ public class RuleIndexTest {
 
     RuleQuery query = new RuleQuery().setOrganization(organization);
 
-    SearchIdResult result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
+    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
       FACET_TAGS, FACET_TYPES)));
     Map<String, LinkedHashMap<String, Long>> facets = result.getFacets().getAll();
     assertThat(facets).hasSize(4);
@@ -882,9 +882,9 @@ public class RuleIndexTest {
 
     RuleQuery query = new RuleQuery().setOrganization(organization).setLanguages(ImmutableList.of("cpp"));
 
-    SearchIdResult result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES,
+    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES,
       FACET_REPOSITORIES, FACET_TAGS)));
-    assertThat(result.getIds()).hasSize(3);
+    assertThat(result.getUuids()).hasSize(3);
     assertThat(result.getFacets().getAll()).hasSize(3);
     assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java", "cobol");
     assertThat(result.getFacets().get(FACET_REPOSITORIES).keySet()).containsOnly("foo");
@@ -896,7 +896,7 @@ public class RuleIndexTest {
     rangeClosed(1, 101).forEach(i -> db.rules().insert(r -> r.setLanguage("lang" + i)));
     index();
 
-    SearchIdResult result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_LANGUAGES)));
+    SearchIdResult<String> result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_LANGUAGES)));
 
     assertThat(result.getFacets().get(FACET_LANGUAGES).size()).isEqualTo(100);
   }
@@ -906,7 +906,7 @@ public class RuleIndexTest {
     rangeClosed(1, 11).forEach(i -> db.rules().insert(r -> r.setRepositoryKey("repo" + i)));
     index();
 
-    SearchIdResult result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_REPOSITORIES)));
+    SearchIdResult<String> result = underTest.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(FACET_REPOSITORIES)));
 
     assertThat(result.getFacets().get(FACET_REPOSITORIES).size()).isEqualTo(10);
   }
@@ -921,7 +921,7 @@ public class RuleIndexTest {
     RuleQuery query = new RuleQuery().setOrganization(organization);
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
 
-    SearchIdResult result = underTest.search(query, options);
+    SearchIdResult<String> result = underTest.search(query, options);
     assertThat(result.getFacets().get(FACET_TAGS)).contains(entry("bla", 1L));
   }
 
@@ -935,7 +935,7 @@ public class RuleIndexTest {
     RuleQuery query = new RuleQuery()
       .setOrganization(db.getDefaultOrganization());
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
-    SearchIdResult result = underTest.search(query, options);
+    SearchIdResult<String> result = underTest.search(query, options);
     assertThat(result.getFacets().get(FACET_TAGS).size()).isEqualTo(100);
     assertThat(result.getFacets().get(FACET_TAGS)).contains(entry("tag0", 1L), entry("tag25", 1L), entry("tag99", 1L));
     assertThat(result.getFacets().get(FACET_TAGS)).doesNotContain(entry("tagA", 1L));
@@ -952,7 +952,7 @@ public class RuleIndexTest {
       .setOrganization(db.getDefaultOrganization())
       .setTags(singletonList("tagA"));
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
-    SearchIdResult result = underTest.search(query, options);
+    SearchIdResult<String> result = underTest.search(query, options);
     assertThat(result.getFacets().get(FACET_TAGS).size()).isEqualTo(101);
     assertThat(result.getFacets().get(FACET_TAGS).entrySet()).extracting(e -> entry(e.getKey(), e.getValue())).contains(
 
@@ -974,7 +974,7 @@ public class RuleIndexTest {
     RuleQuery query = new RuleQuery().setOrganization(organization2);
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
 
-    SearchIdResult result = underTest.search(query, options);
+    SearchIdResult<String> result = underTest.search(query, options);
     assertThat(result.getFacets().get(FACET_TAGS).entrySet()).extracting(e -> entry(e.getKey(), e.getValue())).containsExactly(
       entry("bla2", 1L));
   }
@@ -985,7 +985,7 @@ public class RuleIndexTest {
     RuleQuery query = new RuleQuery().setOrganization(organization);
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
 
-    SearchIdResult result = underTest.search(query, options);
+    SearchIdResult<String> result = underTest.search(query, options);
     assertThat(result.getFacets().get(FACET_TAGS)).isNotNull();
   }
 
@@ -1013,9 +1013,9 @@ public class RuleIndexTest {
       .setLanguages(ImmutableList.of("cpp"))
       .setTags(ImmutableList.of("T2"));
 
-    SearchIdResult result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
+    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
       FACET_TAGS)));
-    assertThat(result.getIds()).hasSize(1);
+    assertThat(result.getUuids()).hasSize(1);
     Facets facets = result.getFacets();
     assertThat(facets.getAll()).hasSize(3);
     assertThat(facets.get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java");
@@ -1040,9 +1040,9 @@ public class RuleIndexTest {
       .setTags(ImmutableList.of("T2"))
       .setTypes(asList(BUG, CODE_SMELL));
 
-    SearchIdResult result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS,
+    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS,
       FACET_TYPES)));
-    assertThat(result.getIds()).hasSize(2);
+    assertThat(result.getUuids()).hasSize(2);
     assertThat(result.getFacets().getAll()).hasSize(4);
     assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java");
     assertThat(result.getFacets().get(FACET_REPOSITORIES).keySet()).containsOnly("foo", "xoo");
@@ -1059,13 +1059,13 @@ public class RuleIndexTest {
 
     // ascending
     RuleQuery query = new RuleQuery().setSortField(RuleIndexDefinition.FIELD_RULE_NAME);
-    SearchIdResult<Integer> results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsExactly(abc.getId(), abcd.getId(), fgh.getId());
+    SearchIdResult<String> results = underTest.search(query, new SearchOptions());
+    assertThat(results.getUuids()).containsExactly(abc.getUuid(), abcd.getUuid(), fgh.getUuid());
 
     // descending
     query = new RuleQuery().setSortField(RuleIndexDefinition.FIELD_RULE_NAME).setAscendingSort(false);
     results = underTest.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsExactly(fgh.getId(), abcd.getId(), abc.getId());
+    assertThat(results.getUuids()).containsExactly(fgh.getUuid(), abcd.getUuid(), abc.getUuid());
   }
 
   @Test
@@ -1075,8 +1075,8 @@ public class RuleIndexTest {
     RuleDefinitionDto older = createRule(setCreatedAt(1000L), setUpdatedAt(2000L));
     index();
 
-    SearchIdResult<Integer> results = underTest.search(new RuleQuery(), new SearchOptions());
-    assertThat(results.getIds()).containsExactly(oldest.getId(), older.getId(), old.getId());
+    SearchIdResult<String> results = underTest.search(new RuleQuery(), new SearchOptions());
+    assertThat(results.getUuids()).containsExactly(oldest.getUuid(), older.getUuid(), old.getUuid());
   }
 
   @Test
@@ -1100,27 +1100,27 @@ public class RuleIndexTest {
     // from 0 to 1 included
     SearchOptions options = new SearchOptions();
     options.setOffset(0).setLimit(2);
-    SearchIdResult results = underTest.search(new RuleQuery(), options);
+    SearchIdResult<String> results = underTest.search(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
-    assertThat(results.getIds()).hasSize(2);
+    assertThat(results.getUuids()).hasSize(2);
 
     // from 0 to 9 included
     options.setOffset(0).setLimit(10);
     results = underTest.search(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
-    assertThat(results.getIds()).hasSize(3);
+    assertThat(results.getUuids()).hasSize(3);
 
     // from 2 to 11 included
     options.setOffset(2).setLimit(10);
     results = underTest.search(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
-    assertThat(results.getIds()).hasSize(1);
+    assertThat(results.getUuids()).hasSize(1);
 
     // from 2 to 11 included
     options.setOffset(2).setLimit(0);
     results = underTest.search(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
-    assertThat(results.getIds()).hasSize(1);
+    assertThat(results.getUuids()).hasSize(1);
   }
 
   @Test
@@ -1153,16 +1153,16 @@ public class RuleIndexTest {
     index();
 
     // inactive rules on profile
-    List<SearchHit> ruleDocs = es.getDocuments(TYPE_RULE);
-    List<SearchHit> activeRuleDocs = es.getDocuments(TYPE_ACTIVE_RULE);
+    es.getDocuments(TYPE_RULE);
+    es.getDocuments(TYPE_ACTIVE_RULE);
     assertThat(underTest.searchAll(new RuleQuery().setActivation(false).setQProfile(profile2)))
       .toIterable()
-      .containsOnly(rule2.getId(), rule3.getId());
+      .containsOnly(rule2.getUuid(), rule3.getUuid());
 
     // active rules on profile
     assertThat(underTest.searchAll(new RuleQuery().setActivation(true).setQProfile(profile2)))
       .toIterable()
-      .containsOnly(rule1.getId());
+      .containsOnly(rule1.getUuid());
   }
 
   private String[] get101Tags() {

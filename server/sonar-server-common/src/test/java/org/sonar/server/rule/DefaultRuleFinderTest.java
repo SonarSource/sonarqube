@@ -97,15 +97,6 @@ public class DefaultRuleFinderTest {
 
   @Test
   public void should_success_finder_wrap() {
-    // has Id
-    assertThat(underTest.findById(rule1.getId()).getId()).isEqualTo(rule1.getId());
-
-    // should_find_by_id
-    assertThat(underTest.findById(rule3.getId()).getConfigKey()).isEqualTo("Checker/Treewalker/AnnotationUseStyleCheck");
-
-    // should_not_find_disabled_rule_by_id
-    assertThat(underTest.findById(rule2.getId())).isNull();
-
     // should_find_by_key
     Rule rule = underTest.findByKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck");
     assertThat(rule).isNotNull();
@@ -120,7 +111,7 @@ public class DefaultRuleFinderTest {
     assertThat(underTest.findAll(RuleQuery.create().withRepositoryKey("checkstyle"))).hasSize(2);
 
     // find_all_enabled
-    assertThat(underTest.findAll(RuleQuery.create())).extracting("id").containsOnly(rule1.getId(), rule3.getId(), rule4.getId());
+    assertThat(underTest.findAll(RuleQuery.create())).extracting("ruleKey").containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
     assertThat(underTest.findAll(RuleQuery.create())).hasSize(3);
 
     // do_not_find_disabled_rules
@@ -131,28 +122,9 @@ public class DefaultRuleFinderTest {
   }
 
   @Test
-  public void find_id_return_null_on_removed_rule() {
-    // find rule with id 2 is REMOVED
-    assertThat(underTest.findById(rule2.getId())).isNull();
-  }
-
-  @Test
   public void find_all_not_include_removed_rule() {
-    // find rule with id 2 is REMOVED
-    assertThat(underTest.findAll(RuleQuery.create())).extracting("id").containsOnly(rule1.getId(), rule3.getId(), rule4.getId());
-  }
-
-  @Test
-  public void findById_populates_system_tags_but_not_tags() {
-    RuleDefinitionDto ruleDefinition = dbTester.rules()
-      .insert(t -> t.setSystemTags(ImmutableSet.of(randomAlphanumeric(5), randomAlphanumeric(6))));
-    OrganizationDto organization = dbTester.organizations().insert();
-    dbTester.rules().insertRule(organization);
-
-    Rule rule = underTest.findById(ruleDefinition.getId());
-    assertThat(rule.getSystemTags())
-      .containsOnlyElementsOf(ruleDefinition.getSystemTags());
-    assertThat(rule.getTags()).isEmpty();
+    // rule 3 is REMOVED
+    assertThat(underTest.findAll(RuleQuery.create())).extracting("ruleKey").containsOnly(rule1.getKey(), rule3.getKey(), rule4.getKey());
   }
 
   @Test

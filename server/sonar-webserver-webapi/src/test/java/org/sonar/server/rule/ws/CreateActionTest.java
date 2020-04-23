@@ -27,6 +27,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
@@ -73,10 +75,11 @@ public class CreateActionTest {
   public EsTester es = EsTester.create();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private UuidFactory uuidFactory = new SequenceUuidFactory();
 
   private WsActionTester ws = new WsActionTester(new CreateAction(db.getDbClient(),
     new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(),
-      TestDefaultOrganizationProvider.from(db)),
+      TestDefaultOrganizationProvider.from(db), uuidFactory),
     new RuleMapper(new Languages(), createMacroInterpreter()),
     new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
 
@@ -94,7 +97,7 @@ public class CreateActionTest {
     // Template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"), db.getDefaultOrganization()).setType(CODE_SMELL);
     db.rules().insert(templateRule.getDefinition());
-    db.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleId(templateRule.getId()));
+    db.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleUuid(templateRule.getUuid()));
     db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
 
     String result = ws.newRequest()

@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
@@ -100,10 +101,6 @@ public class RuleDbTester {
     return insert(newHotspotRule());
   }
 
-  public RuleDefinitionDto insertHotspotRule(RuleKey key) {
-    return insert(newHotspotRule(key));
-  }
-
   @SafeVarargs
   public final RuleDefinitionDto insertHotspotRule(Consumer<RuleDefinitionDto>... populaters) {
     RuleDefinitionDto rule = newHotspotRule();
@@ -111,21 +108,15 @@ public class RuleDbTester {
     return insert(rule);
   }
 
-  public RuleDefinitionDto insertHotspotRule(RuleKey key, Consumer<RuleDefinitionDto> populater) {
-    RuleDefinitionDto rule = newHotspotRule(key);
-    populater.accept(rule);
-    return insert(rule);
-  }
-
-  private static RuleDefinitionDto newHotspotRule(RuleKey key) {
-    return newRule(key).setType(SECURITY_HOTSPOT);
-  }
-
   private static RuleDefinitionDto newHotspotRule() {
     return newRule().setType(SECURITY_HOTSPOT);
   }
 
   public RuleDefinitionDto insert(RuleDefinitionDto rule) {
+    if (rule.getUuid() == null) {
+      rule.setUuid(Uuids.createFast());
+    }
+
     db.getDbClient().ruleDao().insert(db.getSession(), rule);
     db.commit();
     return rule;
@@ -172,10 +163,14 @@ public class RuleDbTester {
   }
 
   public RuleDto insertRule(RuleDto ruleDto) {
+    if (ruleDto.getUuid() == null) {
+      ruleDto.setUuid(Uuids.createFast());
+    }
+
     insert(ruleDto.getDefinition());
     RuleMetadataDto metadata = ruleDto.getMetadata();
     if (metadata.getOrganizationUuid() != null) {
-      db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), metadata.setRuleId(ruleDto.getId()));
+      db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), metadata.setRuleUuid(ruleDto.getUuid()));
       db.commit();
     }
     return ruleDto;
@@ -199,6 +194,11 @@ public class RuleDbTester {
   public RuleDto insertRule(Consumer<RuleDto> populateRuleDto) {
     RuleDto ruleDto = newRuleDto();
     populateRuleDto.accept(ruleDto);
+
+    if (ruleDto.getUuid() == null) {
+      ruleDto.setUuid(Uuids.createFast());
+    }
+
     return insertRule(ruleDto);
   }
 
@@ -212,7 +212,7 @@ public class RuleDbTester {
 
   public RuleParamDto insertRuleParam(RuleDto rule) {
     RuleParamDto param = new RuleParamDto();
-    param.setRuleId(rule.getId());
+    param.setRuleUuid(rule.getUuid());
     param.setName(randomAlphabetic(10));
     param.setType(RuleParamType.STRING.type());
     db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule.getDefinition(), param);
@@ -221,7 +221,7 @@ public class RuleDbTester {
   }
 
   public RuleDto insertRule(RuleDefinitionDto ruleDefinition, RuleMetadataDto ruleMetadata) {
-    db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), ruleMetadata.setRuleId(ruleDefinition.getId()));
+    db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), ruleMetadata.setRuleUuid(ruleDefinition.getUuid()));
     db.commit();
     return new RuleDto(ruleDefinition, ruleMetadata);
   }

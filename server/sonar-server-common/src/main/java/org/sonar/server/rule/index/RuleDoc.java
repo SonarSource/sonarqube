@@ -40,7 +40,6 @@ import org.sonar.server.security.SecurityStandards.SQCategory;
 
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 
-
 /**
  * Implementation of Rule based on an Elasticsearch document
  */
@@ -61,11 +60,11 @@ public class RuleDoc extends BaseDoc {
   }
 
   private String idAsString() {
-    return getField(RuleIndexDefinition.FIELD_RULE_ID);
+    return getField(RuleIndexDefinition.FIELD_RULE_UUID);
   }
 
-  public RuleDoc setId(int ruleId) {
-    setField(RuleIndexDefinition.FIELD_RULE_ID, String.valueOf(ruleId));
+  public RuleDoc setUuid(String ruleUuid) {
+    setField(RuleIndexDefinition.FIELD_RULE_UUID, ruleUuid);
     return this;
   }
 
@@ -271,7 +270,7 @@ public class RuleDoc extends BaseDoc {
 
   public static RuleDoc of(RuleForIndexingDto dto, SecurityStandards securityStandards) {
     RuleDoc ruleDoc = new RuleDoc()
-      .setId(dto.getId())
+      .setUuid(dto.getUuid())
       .setKey(dto.getRuleKey().toString())
       .setRepository(dto.getRepository())
       .setInternalKey(dto.getInternalKey())

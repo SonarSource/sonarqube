@@ -33,13 +33,13 @@ import org.sonar.api.rule.Severity;
 @Immutable
 public class RuleActivation {
 
-  private final int ruleId;
+  private final String ruleUuid;
   private final boolean reset;
   private final String severity;
   private final Map<String, String> parameters = new HashMap<>();
 
-  private RuleActivation(int ruleId, boolean reset, @Nullable String severity, @Nullable Map<String, String> parameters) {
-    this.ruleId = ruleId;
+  private RuleActivation(String ruleUuid, boolean reset, @Nullable String severity, @Nullable Map<String, String> parameters) {
+    this.ruleUuid = ruleUuid;
     this.reset = reset;
     this.severity = severity;
     if (severity != null && !Severity.ALL.contains(severity)) {
@@ -52,16 +52,16 @@ public class RuleActivation {
     }
   }
 
-  public static RuleActivation createReset(int ruleId) {
-    return new RuleActivation(ruleId, true, null, null);
+  public static RuleActivation createReset(String ruleUuid) {
+    return new RuleActivation(ruleUuid, true, null, null);
   }
 
-  public static RuleActivation create(int ruleId, @Nullable String severity, @Nullable Map<String, String> parameters) {
-    return new RuleActivation(ruleId, false, severity, parameters);
+  public static RuleActivation create(String ruleUuid, @Nullable String severity, @Nullable Map<String, String> parameters) {
+    return new RuleActivation(ruleUuid, false, severity, parameters);
   }
 
-  public static RuleActivation create(int ruleId) {
-    return create(ruleId, null, null);
+  public static RuleActivation create(String ruleUuid) {
+    return create(ruleUuid, null, null);
   }
 
   /**
@@ -72,8 +72,8 @@ public class RuleActivation {
     return severity;
   }
 
-  public int getRuleId() {
-    return ruleId;
+  public String getRuleUuid() {
+    return ruleUuid;
   }
 
   @CheckForNull

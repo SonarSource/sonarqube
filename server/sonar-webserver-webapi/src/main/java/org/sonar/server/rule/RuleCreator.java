@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -36,6 +35,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -63,13 +63,16 @@ public class RuleCreator {
   private final DbClient dbClient;
   private final TypeValidations typeValidations;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final UuidFactory uuidFactory;
 
-  public RuleCreator(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, TypeValidations typeValidations, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public RuleCreator(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, TypeValidations typeValidations,
+    DefaultOrganizationProvider defaultOrganizationProvider, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.ruleIndexer = ruleIndexer;
     this.dbClient = dbClient;
     this.typeValidations = typeValidations;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.uuidFactory = uuidFactory;
   }
 
   public RuleKey create(DbSession dbSession, NewCustomRule newRule) {
@@ -86,10 +89,10 @@ public class RuleCreator {
 
     RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
     Optional<RuleDefinitionDto> definition = loadRule(dbSession, customRuleKey);
-    int customRuleId = definition.map(d -> updateExistingRule(d, newRule, dbSession))
+    String customRuleUuid = definition.map(d -> updateExistingRule(d, newRule, dbSession))
       .orElseGet(() -> createCustomRule(customRuleKey, newRule, templateRule, dbSession));
 
-    ruleIndexer.commitAndIndex(dbSession, customRuleId);
+    ruleIndexer.commitAndIndex(dbSession, customRuleUuid);
     return customRuleKey;
   }
 
@@ -103,33 +106,29 @@ public class RuleCreator {
       .stream()
       .collect(Collectors.toMap(
         RuleDto::getKey,
-        Function.identity())
-      );
+        Function.identity()));
 
     checkArgument(!templateRules.isEmpty() && templateKeys.size() == templateRules.size(), "Rule template keys should exists for each custom rule!");
     templateRules.values().forEach(ruleDto -> {
-        checkArgument(ruleDto.isTemplate(), "This rule is not a template rule: %s", ruleDto.getKey().toString());
-        checkArgument(ruleDto.getStatus() != RuleStatus.REMOVED, TEMPLATE_KEY_NOT_EXIST_FORMAT, ruleDto.getKey().toString());
-      }
-    );
+      checkArgument(ruleDto.isTemplate(), "This rule is not a template rule: %s", ruleDto.getKey().toString());
+      checkArgument(ruleDto.getStatus() != RuleStatus.REMOVED, TEMPLATE_KEY_NOT_EXIST_FORMAT, ruleDto.getKey().toString());
+    });
 
-    List<Integer> customRuleIds = newRules.stream()
+    List<String> customRuleUuids = newRules.stream()
       .map(newCustomRule -> {
-          RuleDto templateRule = templateRules.get(newCustomRule.templateKey());
-          validateCustomRule(newCustomRule, dbSession, templateRule.getKey());
-          RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newCustomRule.ruleKey());
-          return createCustomRule(customRuleKey, newCustomRule, templateRule, dbSession);
-        }
-      )
+        RuleDto templateRule = templateRules.get(newCustomRule.templateKey());
+        validateCustomRule(newCustomRule, dbSession, templateRule.getKey());
+        RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newCustomRule.ruleKey());
+        return createCustomRule(customRuleKey, newCustomRule, templateRule, dbSession);
+      })
       .collect(Collectors.toList());
 
-    ruleIndexer.commitAndIndex(dbSession, customRuleIds);
+    ruleIndexer.commitAndIndex(dbSession, customRuleUuids);
     return newRules.stream()
       .map(newCustomRule -> {
-          RuleDto templateRule = templateRules.get(newCustomRule.templateKey());
-          return RuleKey.of(templateRule.getRepositoryKey(), newCustomRule.ruleKey());
-        }
-      )
+        RuleDto templateRule = templateRules.get(newCustomRule.templateKey());
+        return RuleKey.of(templateRule.getRepositoryKey(), newCustomRule.ruleKey());
+      })
       .collect(Collectors.toList());
   }
 
@@ -160,7 +159,6 @@ public class RuleCreator {
     checkRequest(errors.isEmpty(), errors);
   }
 
-  @CheckForNull
   private void validateParam(RuleParamDto ruleParam, @Nullable String value) {
     if (value != null) {
       RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
@@ -195,11 +193,12 @@ public class RuleCreator {
     return dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey);
   }
 
-  private int createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
+  private String createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
     RuleDefinitionDto ruleDefinition = new RuleDefinitionDto()
+      .setUuid(uuidFactory.create())
       .setRuleKey(ruleKey)
       .setPluginKey(templateRuleDto.getPluginKey())
-      .setTemplateId(templateRuleDto.getId())
+      .setTemplateUuid(templateRuleDto.getUuid())
       .setConfigKey(templateRuleDto.getConfigKey())
       .setName(newRule.name())
       .setDescription(newRule.markdownDescription())
@@ -225,7 +224,7 @@ public class RuleCreator {
     if (!tags.isEmpty()) {
       RuleMetadataDto ruleMetadata = new RuleMetadataDto()
         .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
-        .setRuleId(ruleDefinition.getId())
+        .setRuleUuid(ruleDefinition.getUuid())
         .setTags(tags)
         .setCreatedAt(system2.now())
         .setUpdatedAt(system2.now());
@@ -236,7 +235,7 @@ public class RuleCreator {
       String customRuleParamValue = Strings.emptyToNull(newRule.parameter(templateRuleParamDto.getName()));
       createCustomRuleParams(customRuleParamValue, ruleDefinition, templateRuleParamDto, dbSession);
     }
-    return ruleDefinition.getId();
+    return ruleDefinition.getUuid();
   }
 
   private void createCustomRuleParams(@Nullable String paramValue, RuleDefinitionDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession) {
@@ -248,7 +247,7 @@ public class RuleCreator {
     dbClient.ruleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
-  private int updateExistingRule(RuleDefinitionDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
+  private String updateExistingRule(RuleDefinitionDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
@@ -260,7 +259,7 @@ public class RuleCreator {
     } else {
       throw new IllegalArgumentException(format("A rule with the key '%s' already exists", ruleDto.getKey().rule()));
     }
-    return ruleDto.getId();
+    return ruleDto.getUuid();
   }
 
 }

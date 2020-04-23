@@ -83,6 +83,7 @@ public class RuleIndexerTest {
   private final RuleIndexer underTest = new RuleIndexer(es.client(), dbClient);
   private DbSession dbSession = dbTester.getSession();
   private RuleDefinitionDto rule = new RuleDefinitionDto()
+    .setUuid("rule-uuid")
     .setRuleKey("S001")
     .setRepositoryKey("xoo")
     .setConfigKey("S1")
@@ -108,7 +109,7 @@ public class RuleIndexerTest {
   @Test
   public void index() {
     dbClient.ruleDao().insert(dbSession, rule);
-    underTest.commitAndIndex(dbSession, rule.getId());
+    underTest.commitAndIndex(dbSession, rule.getUuid());
 
     assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
   }
@@ -118,12 +119,12 @@ public class RuleIndexerTest {
     // Create and Index rule
     dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
     dbSession.commit();
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
     assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
 
     // Remove rule
     dbTester.getDbClient().ruleDao().update(dbTester.getSession(), rule.setStatus(RuleStatus.READY).setUpdatedAt(2000000000000L));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
   }
@@ -131,14 +132,14 @@ public class RuleIndexerTest {
   @Test
   public void index_rule_extension_with_long_id() {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKeyOfMaximumLength()));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
     OrganizationDto organization = dbTester.organizations().insert();
     RuleMetadataDto metadata = RuleTesting.newRuleMetadata(rule, organization).setTags(ImmutableSet.of("bla"));
     dbTester.getDbClient().ruleDao().insertOrUpdate(dbTester.getSession(), metadata);
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid(), organization);
 
     RuleExtensionDoc doc = new RuleExtensionDoc()
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setScope(RuleExtensionScope.organization(organization.getUuid()));
     assertThat(
       es.client()
@@ -153,22 +154,22 @@ public class RuleIndexerTest {
   @Test
   public void delete_rule_extension_from_index_when_setting_rule_tags_to_empty() {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKeyOfMaximumLength()));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
     OrganizationDto organization = dbTester.organizations().insert();
     RuleMetadataDto metadata = RuleTesting.newRuleMetadata(rule, organization).setTags(ImmutableSet.of("bla"));
     dbTester.getDbClient().ruleDao().insertOrUpdate(dbTester.getSession(), metadata);
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid(), organization);
 
     // index tags
     RuleExtensionDoc doc = new RuleExtensionDoc()
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setScope(RuleExtensionScope.organization(organization.getUuid()));
     assertThat(es.getIds(TYPE_RULE_EXTENSION)).contains(doc.getId());
 
     // update db table "rules_metadata" with empty tags and delete tags from index
     metadata = RuleTesting.newRuleMetadata(rule, organization).setTags(emptySet());
     dbTester.getDbClient().ruleDao().insertOrUpdate(dbTester.getSession(), metadata);
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid(), organization);
     assertThat(es.getIds(TYPE_RULE_EXTENSION)).doesNotContain(doc.getId());
   }
 
@@ -176,7 +177,7 @@ public class RuleIndexerTest {
   public void index_long_rule_description() {
     String description = IntStream.range(0, 100000).map(i -> i % 100).mapToObj(Integer::toString).collect(joining(" "));
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setDescription(description));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
 
     assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(1);
   }
@@ -193,7 +194,7 @@ public class RuleIndexerTest {
       .setSecurityStandards(standards)
       .setDescription(VALID_HOTSPOT_RULE_DESCRIPTION));
     OrganizationDto organization = dbTester.organizations().insert();
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid(), organization);
 
     assertThat(logTester.getLogs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN).get(0))
@@ -229,7 +230,7 @@ public class RuleIndexerTest {
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription(description));
     OrganizationDto organization = dbTester.organizations().insert();
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid(), organization);
 
     assertThat(logTester.getLogs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN).get(0))
@@ -252,7 +253,7 @@ public class RuleIndexerTest {
       .setType(RuleType.SECURITY_HOTSPOT)
       .setDescription(randomAlphabetic(30)));
     OrganizationDto organization = dbTester.organizations().insert();
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid(), organization);
 
     assertThat(logTester.getLogs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN).get(0))
@@ -269,7 +270,7 @@ public class RuleIndexerTest {
         "<h2>Ask Yourself Whether</h2>\n" +
         "foo"));
     OrganizationDto organization = dbTester.organizations().insert();
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid(), organization);
 
     assertThat(logTester.getLogs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN).get(0))
@@ -287,7 +288,7 @@ public class RuleIndexerTest {
         "<h2>Recommended Secure Coding Practices</h2>\n" +
         "foo"));
     OrganizationDto organization = dbTester.organizations().insert();
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid(), organization);
 
     assertThat(logTester.getLogs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN).get(0))
@@ -304,7 +305,7 @@ public class RuleIndexerTest {
         "<h2>Recommended Secure Coding Practices</h2>\n" +
         "foo"));
     OrganizationDto organization = dbTester.organizations().insert();
-    underTest.commitAndIndex(dbTester.getSession(), rule.getId(), organization);
+    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid(), organization);
 
     assertThat(logTester.getLogs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN).get(0))

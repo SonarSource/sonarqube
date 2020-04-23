@@ -53,7 +53,7 @@ public class UpdateConflictResolverTest {
     IssueDto issueDto = new IssueDto()
       .setKee("ABCDE")
       .setType(CODE_SMELL)
-      .setRuleId(10)
+      .setRuleUuid("uuid-10")
       .setRuleKey("squid", "AvoidCycles")
       .setProjectUuid("U1")
       .setComponentUuid("U2")
@@ -97,7 +97,7 @@ public class UpdateConflictResolverTest {
     // Issue as seen and changed by end-user
     IssueDto dbIssue = new IssueDto()
       .setKee("ABCDE")
-      .setRuleId(10)
+      .setRuleUuid("uuid-10")
       .setRuleKey("squid", "AvoidCycles")
       .setComponentUuid("100")
       .setComponentKey("struts:org.apache.struts.Action")

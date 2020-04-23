@@ -67,7 +67,6 @@ public class AssignActionTest {
 
   private static final String PREVIOUS_ASSIGNEE = "previous";
   private static final String CURRENT_USER_LOGIN = "john";
-  private static final String CURRENT_USER_UUID = "1";
 
   private static final long PAST = 10_000_000_000L;
   private static final long NOW = 50_000_000_000L;
@@ -98,6 +97,8 @@ public class AssignActionTest {
     responseWriter);
   private WsActionTester ws = new WsActionTester(underTest);
 
+  private UserDto currentUser;
+
   @Test
   public void assign_to_someone() {
     IssueDto issue = newIssueWithBrowsePermission();
@@ -124,10 +125,10 @@ public class AssignActionTest {
       .setParam("assignee", "_me")
       .execute();
 
-    checkIssueAssignee(issue.getKey(), CURRENT_USER_UUID);
+    checkIssueAssignee(issue.getKey(), currentUser.getUuid());
     Optional<IssueDto> optionalIssueDto = dbClient.issueDao().selectByKey(session, issue.getKey());
     assertThat(optionalIssueDto).isPresent();
-    assertThat(optionalIssueDto.get().getAssigneeUuid()).isEqualTo(CURRENT_USER_UUID);
+    assertThat(optionalIssueDto.get().getAssigneeUuid()).isEqualTo(currentUser.getUuid());
     assertThat(issueChangePostProcessor.wasCalled()).isFalse();
   }
 
@@ -210,8 +211,7 @@ public class AssignActionTest {
       h -> h
         .setAssigneeUuid(PREVIOUS_ASSIGNEE)
         .setCreatedAt(PAST).setIssueCreationTime(PAST)
-        .setUpdatedAt(PAST).setIssueUpdateTime(PAST)
-    );
+        .setUpdatedAt(PAST).setIssueUpdateTime(PAST));
 
     setUserWithBrowsePermission(hotspot);
     UserDto arthur = insertUser("arthur");
@@ -311,8 +311,8 @@ public class AssignActionTest {
   }
 
   private void setUserWithPermission(IssueDto issue, String permission) {
-    UserDto user = insertUser(CURRENT_USER_LOGIN);
-    userSession.logIn(user)
+    currentUser = insertUser(CURRENT_USER_LOGIN);
+    userSession.logIn(currentUser)
       .addProjectPermission(permission,
         dbClient.componentDao().selectByUuid(db.getSession(), issue.getProjectUuid()).get(),
         dbClient.componentDao().selectByUuid(db.getSession(), issue.getComponentUuid()).get());

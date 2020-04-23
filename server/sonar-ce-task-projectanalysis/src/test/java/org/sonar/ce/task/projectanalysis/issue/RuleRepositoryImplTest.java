@@ -30,6 +30,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -52,14 +53,12 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class RuleRepositoryImplTest {
-
-  private static final RuleDto AB_RULE = createABRuleDto()
-    .setId(9688);
+  private static final RuleDto AB_RULE = createABRuleDto().setUuid("rule-uuid");
   private static final RuleKey AB_RULE_DEPRECATED_KEY_1 = RuleKey.of("old_a", "old_b");
   private static final RuleKey AB_RULE_DEPRECATED_KEY_2 = RuleKey.of(AB_RULE.getRepositoryKey(), "old_b");
   private static final RuleKey DEPRECATED_KEY_OF_NON_EXITING_RULE = RuleKey.of("some_rep", "some_key");
   private static final RuleKey AC_RULE_KEY = RuleKey.of("a", "c");
-  private static final int AC_RULE_ID = 684;
+  private static final String AC_RULE_UUID = "uuid-684";
   private static final String ORGANIZATION_UUID = "org-1";
   private static final String QUALITY_GATE_UUID = "QUALITY_GATE_UUID";
 
@@ -77,7 +76,7 @@ public class RuleRepositoryImplTest {
   private RuleDao ruleDao = mock(RuleDao.class);
 
   private RuleIndexer ruleIndexer = mock(RuleIndexer.class);
-  private AdHocRuleCreator adHocRuleCreator = new AdHocRuleCreator(db.getDbClient(), System2.INSTANCE, ruleIndexer);
+  private AdHocRuleCreator adHocRuleCreator = new AdHocRuleCreator(db.getDbClient(), System2.INSTANCE, ruleIndexer, new SequenceUuidFactory());
   private RuleRepositoryImpl underTest = new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder);
 
   @Before
@@ -87,17 +86,17 @@ public class RuleRepositoryImplTest {
     when(ruleDao.selectAll(any(DbSession.class), eq(ORGANIZATION_UUID))).thenReturn(ImmutableList.of(AB_RULE));
     DeprecatedRuleKeyDto abDeprecatedRuleKey1 = deprecatedRuleKeyOf(AB_RULE, AB_RULE_DEPRECATED_KEY_1);
     DeprecatedRuleKeyDto abDeprecatedRuleKey2 = deprecatedRuleKeyOf(AB_RULE, AB_RULE_DEPRECATED_KEY_2);
-    DeprecatedRuleKeyDto deprecatedRuleOfNonExistingRule = deprecatedRuleKeyOf(77777, DEPRECATED_KEY_OF_NON_EXITING_RULE);
+    DeprecatedRuleKeyDto deprecatedRuleOfNonExistingRule = deprecatedRuleKeyOf("unknown-rule-uuid", DEPRECATED_KEY_OF_NON_EXITING_RULE);
     when(ruleDao.selectAllDeprecatedRuleKeys(any(DbSession.class))).thenReturn(ImmutableSet.of(
       abDeprecatedRuleKey1, abDeprecatedRuleKey2, deprecatedRuleOfNonExistingRule));
   }
 
   private static DeprecatedRuleKeyDto deprecatedRuleKeyOf(RuleDto ruleDto, RuleKey deprecatedRuleKey) {
-    return deprecatedRuleKeyOf(ruleDto.getId(), deprecatedRuleKey);
+    return deprecatedRuleKeyOf(ruleDto.getUuid(), deprecatedRuleKey);
   }
 
-  private static DeprecatedRuleKeyDto deprecatedRuleKeyOf(int ruleId, RuleKey deprecatedRuleKey) {
-    return new DeprecatedRuleKeyDto().setRuleId(ruleId)
+  private static DeprecatedRuleKeyDto deprecatedRuleKeyOf(String ruleUuid, RuleKey deprecatedRuleKey) {
+    return new DeprecatedRuleKeyDto().setRuleUuid(ruleUuid)
       .setOldRepositoryKey(deprecatedRuleKey.repository())
       .setOldRuleKey(deprecatedRuleKey.rule());
   }
@@ -127,7 +126,7 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void first_call_to_getById_triggers_call_to_db_and_any_subsequent_get_or_find_call_does_not() {
-    underTest.getById(AB_RULE.getId());
+    underTest.getByUuid(AB_RULE.getUuid());
 
     verify(ruleDao, times(1)).selectAll(any(DbSession.class), eq(ORGANIZATION_UUID));
 
@@ -136,7 +135,7 @@ public class RuleRepositoryImplTest {
 
   @Test
   public void first_call_to_findById_triggers_call_to_db_and_any_subsequent_get_or_find_call_does_not() {
-    underTest.findById(AB_RULE.getId());
+    underTest.findByUuid(AB_RULE.getUuid());
 
     verify(ruleDao, times(1)).selectAll(any(DbSession.class), eq(ORGANIZATION_UUID));
 
@@ -237,30 +236,30 @@ public class RuleRepositoryImplTest {
   }
 
   @Test
-  public void getById_returns_Rule_if_it_exists_in_DB() {
-    Rule rule = underTest.getById(AB_RULE.getId());
+  public void getByUuid_returns_Rule_if_it_exists_in_DB() {
+    Rule rule = underTest.getByUuid(AB_RULE.getUuid());
 
     assertIsABRule(rule);
   }
 
   @Test
-  public void getById_throws_IAE_if_rules_does_not_exist_in_DB() {
+  public void getByUuid_throws_IAE_if_rules_does_not_exist_in_DB() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Can not find rule for id " + AC_RULE_ID + ". This rule does not exist in DB");
+    expectedException.expectMessage("Can not find rule for uuid " + AC_RULE_UUID + ". This rule does not exist in DB");
 
-    underTest.getById(AC_RULE_ID);
+    underTest.getByUuid(AC_RULE_UUID);
   }
 
   @Test
-  public void findById_returns_absent_if_rule_does_not_exist_in_DB() {
-    Optional<Rule> rule = underTest.findById(AC_RULE_ID);
+  public void findByUuid_returns_absent_if_rule_does_not_exist_in_DB() {
+    Optional<Rule> rule = underTest.findByUuid(AC_RULE_UUID);
 
     assertThat(rule).isEmpty();
   }
 
   @Test
-  public void findById_returns_Rule_if_it_exists_in_DB() {
-    Optional<Rule> rule = underTest.findById(AB_RULE.getId());
+  public void findByUuid_returns_Rule_if_it_exists_in_DB() {
+    Optional<Rule> rule = underTest.findByUuid(AB_RULE.getUuid());
 
     assertIsABRule(rule.get());
   }
@@ -295,8 +294,8 @@ public class RuleRepositoryImplTest {
     Rule rule = underTest.getByKey(ruleKey);
     assertThat(rule).isNotNull();
 
-    assertThat(underTest.getById(ruleDefinitionDto.get().getId())).isNotNull();
-    verify(ruleIndexer).commitAndIndex(db.getSession(), ruleDefinitionDto.get().getId());
+    assertThat(underTest.getByUuid(ruleDefinitionDto.get().getUuid())).isNotNull();
+    verify(ruleIndexer).commitAndIndex(db.getSession(), ruleDefinitionDto.get().getUuid());
   }
 
   private void expectNullRuleKeyNPE() {
@@ -312,10 +311,10 @@ public class RuleRepositoryImplTest {
     underTest.findByKey(AB_RULE.getKey());
     assertNoCallToDb();
     reset(ruleDao);
-    underTest.getById(AB_RULE.getId());
+    underTest.getByUuid(AB_RULE.getUuid());
     assertNoCallToDb();
     reset(ruleDao);
-    underTest.findById(AB_RULE.getId());
+    underTest.findByUuid(AB_RULE.getUuid());
     assertNoCallToDb();
   }
 
@@ -325,7 +324,7 @@ public class RuleRepositoryImplTest {
 
   private void assertIsABRule(Rule rule) {
     assertThat(rule).isNotNull();
-    assertThat(rule.getId()).isEqualTo(AB_RULE.getId());
+    assertThat(rule.getUuid()).isEqualTo(AB_RULE.getUuid());
     assertThat(rule.getKey()).isEqualTo(AB_RULE.getKey());
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
@@ -334,7 +333,6 @@ public class RuleRepositoryImplTest {
   private static RuleDto createABRuleDto() {
     RuleKey ruleKey = RuleKey.of("a", "b");
     return new RuleDto()
-      .setId(ruleKey.hashCode())
       .setRepositoryKey(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
       .setStatus(RuleStatus.REMOVED)

@@ -23,19 +23,23 @@ import javax.annotation.CheckForNull;
 
 public class IndexedActiveRuleDto {
   private String uuid;
-  private int ruleId;
+  private String ruleUuid;
   private int severity;
   private String inheritance;
   private String repository;
   private String key;
   private String ruleProfileUuid;
 
+  public IndexedActiveRuleDto() {
+    // nothing to do here
+  }
+
   public String getUuid() {
     return uuid;
   }
 
-  public int getRuleId() {
-    return ruleId;
+  public String getRuleUuid() {
+    return ruleUuid;
   }
 
   public int getSeverity() {

@@ -142,12 +142,12 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
   private Map<RuleKey, RuleDefinitionDto> loadRuleDefinitionsByRuleKey() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<RuleDefinitionDto> ruleDefinitions = dbClient.ruleDao().selectAllDefinitions(dbSession);
-      Multimap<Integer, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleId = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
-        .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleId));
+      Multimap<String, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleId = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
+        .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleUuid));
       Map<RuleKey, RuleDefinitionDto> rulesByRuleKey = new HashMap<>();
       for (RuleDefinitionDto ruleDefinition : ruleDefinitions) {
         rulesByRuleKey.put(ruleDefinition.getKey(), ruleDefinition);
-        deprecatedRuleKeysByRuleId.get(ruleDefinition.getId()).forEach(t -> rulesByRuleKey.put(RuleKey.of(t.getOldRepositoryKey(), t.getOldRuleKey()), ruleDefinition));
+        deprecatedRuleKeysByRuleId.get(ruleDefinition.getUuid()).forEach(t -> rulesByRuleKey.put(RuleKey.of(t.getOldRepositoryKey(), t.getOldRuleKey()), ruleDefinition));
       }
       return rulesByRuleKey;
     }
@@ -198,7 +198,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       RuleKey ruleKey = RuleKey.of(builtInActiveRule.repoKey(), builtInActiveRule.ruleKey());
       RuleDefinitionDto ruleDefinition = rulesByRuleKey.get(ruleKey);
       checkState(ruleDefinition != null, "Rule with key '%s' not found", ruleKey);
-      builder.addRule(new BuiltInQProfile.ActiveRule(ruleDefinition.getId(), ruleDefinition.getKey(),
+      builder.addRule(new BuiltInQProfile.ActiveRule(ruleDefinition.getUuid(), ruleDefinition.getKey(),
         builtInActiveRule.overriddenSeverity(), builtInActiveRule.overriddenParams()));
     });
     return builder;

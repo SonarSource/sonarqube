@@ -25,6 +25,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
 
@@ -37,7 +38,7 @@ public class IssueQueryTest {
 
   @Test
   public void build_query() {
-    RuleDefinitionDto rule = new RuleDefinitionDto().setId(nextInt(1000));
+    RuleDefinitionDto rule = new RuleDefinitionDto().setUuid(Uuids.createFast());
     PeriodStart filterDate = new IssueQuery.PeriodStart(new Date(10_000_000_000L), false);
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))

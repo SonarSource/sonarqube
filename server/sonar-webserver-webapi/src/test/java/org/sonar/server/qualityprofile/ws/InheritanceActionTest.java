@@ -148,7 +148,7 @@ public class InheritanceActionTest {
     RuleDefinitionDto rule1 = db.rules().insert();
     RuleDefinitionDto rule2 = db.rules().insert();
     RuleDefinitionDto rule3 = db.rules().insert();
-    ruleIndexer.commitAndIndex(db.getSession(), asList(rule1.getId(), rule2.getId(), rule3.getId()));
+    ruleIndexer.commitAndIndex(db.getSession(), asList(rule1.getUuid(), rule2.getUuid(), rule3.getUuid()));
 
     QProfileDto parent = db.qualityProfiles().insert(organization);
     db.qualityProfiles().activateRule(parent, rule1);
@@ -182,7 +182,7 @@ public class InheritanceActionTest {
   public void inheritance_ignores_removed_rules() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule = db.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
-    ruleIndexer.commitAndIndex(db.getSession(), rule.getId());
+    ruleIndexer.commitAndIndex(db.getSession(), rule.getUuid());
 
     QProfileDto profile = db.qualityProfiles().insert(organization);
     db.qualityProfiles().activateRule(profile, rule);
@@ -207,7 +207,7 @@ public class InheritanceActionTest {
   public void inheritance_no_family() {
     // Simple profile, no parent, no child
     OrganizationDto organization = db.organizations().insert();
-    QProfileDto remi = createProfile(organization,"xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
+    QProfileDto remi = createProfile(organization, "xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
 
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, remi.getLanguage())
@@ -281,7 +281,7 @@ public class InheritanceActionTest {
       .setUpdatedAt(now)
       .setCreatedAt(now);
     dbClient.ruleDao().insert(dbSession, rule);
-    ruleIndexer.commitAndIndex(dbSession, rule.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
     return rule;
   }
 
@@ -296,6 +296,6 @@ public class InheritanceActionTest {
   }
 
   private void overrideActiveRuleSeverity(RuleDefinitionDto rule, QProfileDto profile, String severity) {
-    qProfileRules.activateAndCommit(dbSession, profile, singleton(RuleActivation.create(rule.getId(), severity, null)));
+    qProfileRules.activateAndCommit(dbSession, profile, singleton(RuleActivation.create(rule.getUuid(), severity, null)));
   }
 }

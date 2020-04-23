@@ -176,7 +176,7 @@ public class RegisterRulesTest {
 
     // verify index
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), db.getDefaultOrganization(), RULE_KEY2);
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(rule1.getId(), rule2.getId(), hotspotRule.getId());
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid(), hotspotRule.getUuid());
     verifyIndicesMarkedAsInitialized();
 
     // verify repositories
@@ -239,8 +239,8 @@ public class RegisterRulesTest {
     RuleDefinitionDto rule = rules.iterator().next();
 
     // verify index
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
-      .containsExactly(rule.getId());
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids())
+      .containsExactly(rule.getUuid());
     verifyIndicesMarkedAsInitialized();
 
     // register no rule
@@ -256,7 +256,7 @@ public class RegisterRulesTest {
       .containsExactly(REMOVED);
 
     // verify index
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids())
       .isEmpty();
     verifyIndicesNotMarkedAsInitialized();
   }
@@ -284,7 +284,7 @@ public class RegisterRulesTest {
 
     // verify index
     assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(numberOfRules);
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids())
       .isNotEmpty();
 
     // register no rule
@@ -298,7 +298,7 @@ public class RegisterRulesTest {
 
     // verify index (documents are still in the index, but all are removed)
     assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(numberOfRules);
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds())
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids())
       .isEmpty();
   }
 
@@ -321,7 +321,7 @@ public class RegisterRulesTest {
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY1);
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY2);
     RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, HOTSPOT_RULE_KEY);
-    assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()), valueOf(hotspotRule.getId()));
+    assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).containsOnly(valueOf(rule1.getUuid()), valueOf(rule2.getUuid()), valueOf(hotspotRule.getUuid()));
     verifyIndicesMarkedAsInitialized();
 
     // user adds tags and sets markdown note
@@ -367,7 +367,7 @@ public class RegisterRulesTest {
     assertThat(rule3.getStatus()).isEqualTo(READY);
 
     // verify index
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(rule1.getId(), rule3.getId());
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
 
     // verify repositories
     assertThat(dbClient.ruleRepositoryDao().selectAll(db.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
@@ -475,11 +475,11 @@ public class RegisterRulesTest {
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of("squid", "rule"));
 
     // insert custom rule
-    dbClient.ruleDao().insert(db.getSession(), new RuleDefinitionDto()
+    db.rules().insert(new RuleDefinitionDto()
       .setRuleKey(RuleKey.of("squid", "custom"))
       .setLanguage("java")
       .setScope(Scope.ALL)
-      .setTemplateId(rule1.getId())
+      .setTemplateUuid(rule1.getUuid())
       .setName("custom1"));
     db.commit();
 
@@ -515,8 +515,8 @@ public class RegisterRulesTest {
     });
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of(repository, ruleKey1));
-    SearchIdResult<Integer> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
-    assertThat(searchRule1.getIds()).containsOnly(rule1.getId());
+    SearchIdResult<String> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
+    assertThat(searchRule1.getUuids()).containsOnly(rule1.getUuid());
     assertThat(searchRule1.getTotal()).isEqualTo(1);
 
     when(system.now()).thenReturn(DATE2.getTime());
@@ -531,12 +531,12 @@ public class RegisterRulesTest {
 
     // rule2 is actually rule1
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of(repository, ruleKey2));
-    assertThat(rule2.getId()).isEqualTo(rule1.getId());
+    assertThat(rule2.getUuid()).isEqualTo(rule1.getUuid());
     assertThat(rule2.getName()).isEqualTo("Name2");
     assertThat(rule2.getDescription()).isEqualTo(rule1.getDescription());
 
-    SearchIdResult<Integer> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
-    assertThat(searchRule2.getIds()).containsOnly(rule2.getId());
+    SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
+    assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
     assertThat(searchRule2.getTotal()).isEqualTo(1);
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isEqualTo(0);
   }
@@ -557,8 +557,8 @@ public class RegisterRulesTest {
     });
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of(repository1, ruleKey));
-    SearchIdResult<Integer> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
-    assertThat(searchRule1.getIds()).containsOnly(rule1.getId());
+    SearchIdResult<String> searchRule1 = ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions());
+    assertThat(searchRule1.getUuids()).containsOnly(rule1.getUuid());
     assertThat(searchRule1.getTotal()).isEqualTo(1);
 
     when(system.now()).thenReturn(DATE2.getTime());
@@ -573,12 +573,12 @@ public class RegisterRulesTest {
 
     // rule2 is actually rule1
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of(repository2, ruleKey));
-    assertThat(rule2.getId()).isEqualTo(rule1.getId());
+    assertThat(rule2.getUuid()).isEqualTo(rule1.getUuid());
     assertThat(rule2.getName()).isEqualTo("Name2");
     assertThat(rule2.getDescription()).isEqualTo(rule1.getDescription());
 
-    SearchIdResult<Integer> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
-    assertThat(searchRule2.getIds()).containsOnly(rule2.getId());
+    SearchIdResult<String> searchRule2 = ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions());
+    assertThat(searchRule2.getUuids()).containsOnly(rule2.getUuid());
     assertThat(searchRule2.getTotal()).isEqualTo(1);
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getTotal()).isEqualTo(0);
   }
@@ -598,8 +598,8 @@ public class RegisterRulesTest {
     });
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of(repo1, ruleKey1));
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getIds())
-      .containsOnly(rule1.getId());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getUuids())
+      .containsOnly(rule1.getUuid());
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(context -> {
@@ -613,12 +613,12 @@ public class RegisterRulesTest {
 
     // rule2 is actually rule1
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of(repo2, ruleKey2));
-    assertThat(rule2.getId()).isEqualTo(rule1.getId());
+    assertThat(rule2.getUuid()).isEqualTo(rule1.getUuid());
     assertThat(rule2.getName()).isEqualTo(rule1.getName());
     assertThat(rule2.getDescription()).isEqualTo(rule1.getDescription());
 
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getIds())
-      .containsOnly(rule2.getId());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText(name), new SearchOptions()).getUuids())
+      .containsOnly(rule2.getUuid());
   }
 
   @DataProvider
@@ -647,8 +647,8 @@ public class RegisterRulesTest {
     });
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of(repository1, ruleKey1));
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getIds())
-      .containsOnly(rule1.getId());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name1"), new SearchOptions()).getUuids())
+      .containsOnly(rule1.getUuid());
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(context -> {
@@ -664,10 +664,10 @@ public class RegisterRulesTest {
 
     // rule2 is actually rule1
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RuleKey.of(repository2, ruleKey2));
-    assertThat(rule2.getId()).isEqualTo(rule1.getId());
+    assertThat(rule2.getUuid()).isEqualTo(rule1.getUuid());
 
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getIds())
-      .containsOnly(rule1.getId());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Name2"), new SearchOptions()).getUuids())
+      .containsOnly(rule1.getUuid());
   }
 
   @Test
@@ -785,7 +785,7 @@ public class RegisterRulesTest {
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY1);
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY2);
     RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, HOTSPOT_RULE_KEY);
-    assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).containsOnly(valueOf(rule1.getId()), valueOf(rule2.getId()), valueOf(hotspotRule.getId()));
+    assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).containsOnly(valueOf(rule1.getUuid()), valueOf(rule2.getUuid()), valueOf(hotspotRule.getUuid()));
 
     assertThat(rule2.getStatus()).isEqualTo(READY);
 
@@ -801,7 +801,7 @@ public class RegisterRulesTest {
     RuleDto rule3 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), defaultOrganization, RULE_KEY3);
     assertThat(rule2.getStatus()).isEqualTo(REMOVED);
 
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(rule1.getId(), rule3.getId());
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
 
     when(system.now()).thenReturn(DATE3.getTime());
     execute(new FakeRepositoryV2());
@@ -812,7 +812,7 @@ public class RegisterRulesTest {
     assertThat(rule2.getStatus()).isEqualTo(REMOVED);
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2.getTime());
 
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(rule1.getId(), rule3.getId());
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
   }
 
   @Test
@@ -836,7 +836,7 @@ public class RegisterRulesTest {
   @Test
   public void remove_system_tags_when_plugin_does_not_provide_any() {
     // Rule already exists in DB, with some system tags
-    dbClient.ruleDao().insert(db.getSession(), new RuleDefinitionDto()
+    db.rules().insert(new RuleDefinitionDto()
       .setRuleKey("rule1")
       .setRepositoryKey("findbugs")
       .setName("Rule One")

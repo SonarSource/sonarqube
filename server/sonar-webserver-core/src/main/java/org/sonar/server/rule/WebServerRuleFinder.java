@@ -19,16 +19,14 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.rules.RuleFinder;
-
 /**
- * {@link RuleFinder} implementation that supports caching used by the Web Server.
+ * {@link ServerRuleFinder} implementation that supports caching used by the Web Server.
  * <p>
  *   Caching is enabled right after loading of rules is done (see {@link RegisterRules}) and disabled
  *   once all startup tasks are done (see {@link org.sonar.server.platform.platformlevel.PlatformLevelStartup}).
  * </p>
  */
-public interface WebServerRuleFinder extends RuleFinder {
+public interface WebServerRuleFinder extends ServerRuleFinder {
   /**
    * Enable caching.
    */

@@ -33,7 +33,6 @@ public class NewRule {
   private static final String DEFAULT_SEVERITY = Severity.defaultSeverity();
 
   final RuleKey key;
-  Integer id;
   String name;
   String description;
   String severity = DEFAULT_SEVERITY;
@@ -44,11 +43,6 @@ public class NewRule {
 
   public NewRule(RuleKey key) {
     this.key = key;
-  }
-
-  public NewRule setId(@Nullable Integer id) {
-    this.id = id;
-    return this;
   }
 
   public NewRule setDescription(@Nullable String description) {
@@ -65,7 +59,7 @@ public class NewRule {
     this.severity = StringUtils.defaultIfBlank(severity, DEFAULT_SEVERITY);
     return this;
   }
-  
+
   public NewRule setType(@Nullable String type) {
     this.type = type;
     return this;

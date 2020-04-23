@@ -64,9 +64,9 @@ public class OrganisationSupport {
       if (!organizationFlags.isEnabled(dbSession)) {
         flagAdminUserAsRoot(dbSession, login);
         createDefaultMembersGroup(dbSession, defaultOrganizationUuid);
-        List<Integer> disabledTemplateAndCustomRuleIds = disableTemplateRulesAndCustomRules(dbSession);
+        List<String> disabledTemplateAndCustomRuleUuids = disableTemplateRulesAndCustomRules(dbSession);
         enableFeature(dbSession);
-        ruleIndexer.commitAndIndex(dbSession, disabledTemplateAndCustomRuleIds);
+        ruleIndexer.commitAndIndex(dbSession, disabledTemplateAndCustomRuleUuids);
       }
     }
   }
@@ -109,7 +109,7 @@ public class OrganisationSupport {
       permissionTemplateGroup.getTemplateUuid(), membersGroup.getUuid(), permissionTemplateGroup.getPermission()));
   }
 
-  private List<Integer> disableTemplateRulesAndCustomRules(DbSession dbSession) {
+  private List<String> disableTemplateRulesAndCustomRules(DbSession dbSession) {
     List<RuleDefinitionDto> rules = dbClient.ruleDao().selectAllDefinitions(dbSession).stream()
       .filter(r -> r.isTemplate() || r.isCustomRule())
       .collect(toList());
@@ -117,7 +117,7 @@ public class OrganisationSupport {
       r.setStatus(RuleStatus.REMOVED);
       dbClient.ruleDao().update(dbSession, r);
     });
-    return rules.stream().map(RuleDefinitionDto::getId).collect(toList());
+    return rules.stream().map(RuleDefinitionDto::getUuid).collect(toList());
   }
 
   private void enableFeature(DbSession dbSession) {

@@ -166,9 +166,9 @@ public class SearchResponseLoader {
   private void loadRules(SearchResponseData preloadedResponseData, Collector collector, DbSession dbSession, SearchResponseData result) {
     List<RuleDefinitionDto> preloadedRules = firstNonNull(preloadedResponseData.getRules(), emptyList());
     result.addRules(preloadedRules);
-    Set<Integer> ruleIdsToLoad = collector.getRuleIds();
-    ruleIdsToLoad.removeAll(preloadedRules.stream().map(RuleDefinitionDto::getId).collect(toList(preloadedRules.size())));
-    result.addRules(dbClient.ruleDao().selectDefinitionByIds(dbSession, ruleIdsToLoad));
+    Set<String> ruleUuidsToLoad = collector.getRuleUuids();
+    ruleUuidsToLoad.removeAll(preloadedRules.stream().map(RuleDefinitionDto::getUuid).collect(toList(preloadedRules.size())));
+    result.addRules(dbClient.ruleDao().selectDefinitionByUuids(dbSession, ruleUuidsToLoad));
   }
 
   private void loadComments(Collector collector, DbSession dbSession, Set<SearchAdditionalField> fields, SearchResponseData result) {
@@ -257,7 +257,7 @@ public class SearchResponseLoader {
     private final Set<String> componentUuids = new HashSet<>();
     private final Set<String> projectUuids = new HashSet<>();
     private final List<String> issueKeys;
-    private final Set<Integer> ruleIds = new HashSet<>();
+    private final Set<String> ruleUuids = new HashSet<>();
     private final Set<String> userUuids = new HashSet<>();
 
     public Collector(List<String> issueKeys) {
@@ -268,7 +268,7 @@ public class SearchResponseLoader {
       for (IssueDto issue : issues) {
         componentUuids.add(issue.getComponentUuid());
         projectUuids.add(issue.getProjectUuid());
-        ruleIds.add(issue.getRuleId());
+        ruleUuids.add(issue.getRuleUuid());
         String issueAssigneeUuid = issue.getAssigneeUuid();
         if (issueAssigneeUuid != null) {
           userUuids.add(issueAssigneeUuid);
@@ -306,9 +306,9 @@ public class SearchResponseLoader {
       }
     }
 
-    void addRuleIds(@Nullable Collection<String> ruleIds) {
-      if (ruleIds != null) {
-        this.ruleIds.addAll(ruleIds.stream().map(Integer::parseInt).collect(MoreCollectors.toList()));
+    void addRuleIds(@Nullable Collection<String> ruleUuids) {
+      if (ruleUuids != null) {
+        this.ruleUuids.addAll(ruleUuids);
       }
     }
 
@@ -330,8 +330,8 @@ public class SearchResponseLoader {
       return projectUuids;
     }
 
-    public Set<Integer> getRuleIds() {
-      return ruleIds;
+    public Set<String> getRuleUuids() {
+      return ruleUuids;
     }
 
     Set<String> getUserUuids() {

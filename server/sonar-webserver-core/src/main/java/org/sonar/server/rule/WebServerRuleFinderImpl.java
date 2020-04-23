@@ -21,19 +21,20 @@ package org.sonar.server.rule;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.db.DbClient;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
 public class WebServerRuleFinderImpl implements WebServerRuleFinder {
   private final DbClient dbClient;
-  private final RuleFinder defaultFinder;
+  private final ServerRuleFinder defaultFinder;
   @VisibleForTesting
-  RuleFinder delegate;
+  ServerRuleFinder delegate;
 
   public WebServerRuleFinderImpl(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
@@ -49,13 +50,6 @@ public class WebServerRuleFinderImpl implements WebServerRuleFinder {
   @Override
   public void stopCaching() {
     this.delegate = this.defaultFinder;
-  }
-
-  @Override
-  @CheckForNull
-  @Deprecated
-  public Rule findById(int ruleId) {
-    return delegate.findById(ruleId);
   }
 
   @Override
@@ -81,4 +75,8 @@ public class WebServerRuleFinderImpl implements WebServerRuleFinder {
     return delegate.findAll(query);
   }
 
+  @Override
+  public Optional<RuleDefinitionDto> findDtoByKey(RuleKey key) {
+    return delegate.findDtoByKey(key);
+  }
 }

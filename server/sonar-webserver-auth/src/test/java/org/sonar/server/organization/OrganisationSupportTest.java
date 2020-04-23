@@ -150,7 +150,7 @@ public class OrganisationSupportTest {
   public void enabling_organizations_should_remove_template_rule_and_custom_rule() {
     RuleDefinitionDto normal = dbTester.rules().insert();
     RuleDefinitionDto template = dbTester.rules().insert(r -> r.setIsTemplate(true));
-    RuleDefinitionDto custom = dbTester.rules().insert(r -> r.setTemplateId(template.getId()));
+    RuleDefinitionDto custom = dbTester.rules().insert(r -> r.setTemplateUuid(template.getUuid()));
 
     UserDto user = dbTester.users().insertUser();
     dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
@@ -172,10 +172,10 @@ public class OrganisationSupportTest {
         tuple(custom.getKey(), RuleStatus.REMOVED));
 
     @SuppressWarnings("unchecked")
-    Class<ArrayList<Integer>> listClass = (Class<ArrayList<Integer>>) (Class) ArrayList.class;
-    ArgumentCaptor<ArrayList<Integer>> indexedRuleKeys = ArgumentCaptor.forClass(listClass);
+    Class<ArrayList<String>> listClass = (Class<ArrayList<String>>) (Class) ArrayList.class;
+    ArgumentCaptor<ArrayList<String>> indexedRuleKeys = ArgumentCaptor.forClass(listClass);
     verify(ruleIndexer).commitAndIndex(any(), indexedRuleKeys.capture());
-    assertThat(indexedRuleKeys.getValue()).containsExactlyInAnyOrder(template.getId(), custom.getId());
+    assertThat(indexedRuleKeys.getValue()).containsExactlyInAnyOrder(template.getUuid(), custom.getUuid());
   }
 
   @Test
@@ -215,6 +215,5 @@ public class OrganisationSupportTest {
   private void verifyRoot(UserDto user, boolean root) {
     dbTester.rootFlag().verify(user.getLogin(), root);
   }
-
 
 }

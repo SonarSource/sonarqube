@@ -114,7 +114,7 @@ public class ChangelogAction implements QProfileWsAction {
 
       List<Change> changelogs = load(dbSession, query);
       Map<String, UserDto> usersByUuid = getUsersByUserUuid(dbSession, changelogs);
-      Map<Integer, RuleDefinitionDto> rulesByRuleIds = getRulesByRuleIds(dbSession, changelogs);
+      Map<String, RuleDefinitionDto> rulesByRuleIds = getRulesByRuleUuids(dbSession, changelogs);
       writeResponse(response.newJsonWriter(), total, page, pageSize, changelogs, usersByUuid, rulesByRuleIds);
     }
   }
@@ -130,19 +130,19 @@ public class ChangelogAction implements QProfileWsAction {
       .collect(uniqueIndex(UserDto::getUuid));
   }
 
-  private Map<Integer, RuleDefinitionDto> getRulesByRuleIds(DbSession dbSession, List<Change> changes) {
-    Set<Integer> ruleIds = changes.stream()
-      .map(c -> c.ruleId)
+  private Map<String, RuleDefinitionDto> getRulesByRuleUuids(DbSession dbSession, List<Change> changes) {
+    Set<String> ruleUuids = changes.stream()
+      .map(c -> c.ruleUuid)
       .filter(Objects::nonNull)
       .collect(toSet());
     return dbClient.ruleDao()
-      .selectDefinitionByIds(dbSession, Lists.newArrayList(ruleIds))
+      .selectDefinitionByUuids(dbSession, Lists.newArrayList(ruleUuids))
       .stream()
-      .collect(uniqueIndex(RuleDefinitionDto::getId));
+      .collect(uniqueIndex(RuleDefinitionDto::getUuid));
   }
 
   private static void writeResponse(JsonWriter json, int total, int page, int pageSize, List<Change> changelogs,
-    Map<String, UserDto> usersByUuid, Map<Integer, RuleDefinitionDto> rulesByRuleIds) {
+    Map<String, UserDto> usersByUuid, Map<String, RuleDefinitionDto> rulesByRuleUuids) {
     json.beginObject();
     json.prop("total", total);
     json.prop(Param.PAGE, page);
@@ -159,7 +159,7 @@ public class ChangelogAction implements QProfileWsAction {
           .prop("authorLogin", user.getLogin())
           .prop("authorName", user.getName());
       }
-      RuleDefinitionDto rule = rulesByRuleIds.get(change.getRuleId());
+      RuleDefinitionDto rule = rulesByRuleUuids.get(change.getRuleUuid());
       if (rule != null) {
         changeWriter
           .prop("ruleKey", rule.getKey().toString())
@@ -198,7 +198,7 @@ public class ChangelogAction implements QProfileWsAction {
     private String severity;
     private String userUuid;
     private String inheritance;
-    private Integer ruleId;
+    private String ruleUuid;
     private final Map<String, String> params = new HashMap<>();
 
     private Change() {
@@ -228,8 +228,8 @@ public class ChangelogAction implements QProfileWsAction {
     }
 
     @CheckForNull
-    public Integer getRuleId() {
-      return ruleId;
+    public String getRuleUuid() {
+      return ruleUuid;
     }
 
     public long getCreatedAt() {
@@ -249,9 +249,9 @@ public class ChangelogAction implements QProfileWsAction {
       change.at = dto.getCreatedAt();
       // see content of data in class org.sonar.server.qualityprofile.ActiveRuleChange
       change.severity = data.get("severity");
-      String ruleId = data.get("ruleId");
-      if (ruleId != null) {
-        change.ruleId = Integer.parseInt(ruleId);
+      String ruleUuid = data.get("ruleUuid");
+      if (ruleUuid != null) {
+        change.ruleUuid = ruleUuid;
       }
       change.inheritance = data.get("inheritance");
       data.entrySet().stream()

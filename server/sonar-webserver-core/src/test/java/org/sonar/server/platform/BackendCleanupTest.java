@@ -19,11 +19,11 @@
  */
 package org.sonar.server.platform;
 
-import java.util.Random;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -146,12 +146,11 @@ public class BackendCleanupTest {
     dbTester.properties().insertProperty(new PropertyDto()
       .setKey("sonar.profile.java")
       .setValue("Sonar Way")
-      .setComponentUuid(project.uuid())
-    );
+      .setComponentUuid(project.uuid()));
   }
 
   private static RuleDoc newRuleDoc() {
-    return new RuleDoc().setId(new Random().nextInt(942)).setKey(RuleTesting.XOO_X1.toString()).setRepository(RuleTesting.XOO_X1.repository());
+    return new RuleDoc().setUuid(Uuids.createFast()).setKey(RuleTesting.XOO_X1.toString()).setRepository(RuleTesting.XOO_X1.repository());
   }
 
   private ComponentDoc newComponentDoc() {

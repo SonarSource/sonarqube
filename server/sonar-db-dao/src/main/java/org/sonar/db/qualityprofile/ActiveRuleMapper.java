@@ -45,11 +45,11 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);
 
-  List<OrgActiveRuleDto> selectByRuleId(@Param("organizationUuid") String organizationUuid, @Param("ruleId") int ruleId);
+  List<OrgActiveRuleDto> selectByRuleUuid(@Param("organizationUuid") String organizationUuid, @Param("ruleUuid") String ruleUuid);
 
-  List<ActiveRuleDto> selectByRuleIdOfAllOrganizations(int ruleId);
+  List<ActiveRuleDto> selectByRuleUuidOfAllOrganizations(String ruleUuid);
 
-  List<OrgActiveRuleDto> selectByRuleIds(@Param("organizationUuid") String organizationUuid, @Param("ruleIds") List<Integer> partitionOfRuleIds);
+  List<OrgActiveRuleDto> selectByRuleUuids(@Param("organizationUuid") String organizationUuid, @Param("ruleUuids") List<String> partitionOfRuleUuids);
 
   List<OrgActiveRuleDto> selectByProfileUuid(String uuid);
 
@@ -57,8 +57,8 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByRuleProfileUuid(@Param("ruleProfileUuid") String uuid);
 
-  List<ActiveRuleDto> selectByRuleIdsAndRuleProfileUuids(
-    @Param("ruleIds") Collection<Integer> ruleIds,
+  List<ActiveRuleDto> selectByRuleUuidsAndRuleProfileUuids(
+    @Param("ruleUuids") Collection<String> ruleUuids,
     @Param("ruleProfileUuids") Collection<String> ruleProfileUuids);
 
   void insertParameter(ActiveRuleParamDto dto);

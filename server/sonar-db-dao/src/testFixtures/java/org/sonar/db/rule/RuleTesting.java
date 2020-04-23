@@ -31,6 +31,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleDto.Scope;
@@ -69,7 +70,7 @@ public class RuleTesting {
     return new RuleDefinitionDto()
       .setRepositoryKey(key.repository())
       .setRuleKey(key.rule())
-      .setId(nextInt(100_000))
+      .setUuid("rule_uuid_" + randomAlphanumeric(5))
       .setName("name_" + randomAlphanumeric(5))
       .setDescription("description_" + randomAlphanumeric(5))
       .setDescriptionFormat(Format.HTML)
@@ -93,7 +94,7 @@ public class RuleTesting {
 
   public static RuleMetadataDto newRuleMetadata() {
     return new RuleMetadataDto()
-      .setRuleId(nextInt(100_000))
+      .setRuleUuid("uuid_" + randomAlphanumeric(5))
       .setOrganizationUuid("org_" + randomAlphanumeric(5))
       .setRemediationBaseEffort(nextInt(10) + "h")
       .setRemediationGapMultiplier(nextInt(10) + "h")
@@ -113,7 +114,7 @@ public class RuleTesting {
 
   public static RuleMetadataDto newRuleMetadata(RuleDefinitionDto rule, OrganizationDto organization) {
     return newRuleMetadata()
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setOrganizationUuid(organization.getUuid());
   }
 
@@ -124,7 +125,7 @@ public class RuleTesting {
 
   public static RuleParamDto newRuleParam(RuleDefinitionDto rule) {
     return new RuleParamDto()
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setName("name_" + randomAlphabetic(5))
       .setDefaultValue("default_" + randomAlphabetic(5))
       .setDescription("description_" + randomAlphabetic(5))
@@ -136,7 +137,7 @@ public class RuleTesting {
       .setUuid(uuidFactory.create())
       .setOldRepositoryKey(randomAlphanumeric(50))
       .setOldRuleKey(randomAlphanumeric(50))
-      .setRuleId(nextInt(100_000))
+      .setRuleUuid(randomAlphanumeric(40))
       .setCreatedAt(System.currentTimeMillis());
   }
 
@@ -202,6 +203,7 @@ public class RuleTesting {
   @Deprecated
   public static RuleDto newDto(RuleKey ruleKey, @Nullable OrganizationDto organization) {
     RuleDto res = new RuleDto()
+      .setUuid("uuid_" + Uuids.createFast())
       .setRuleKey(ruleKey.rule())
       .setRepositoryKey(ruleKey.repository())
       .setName("Rule " + ruleKey.rule())
@@ -262,18 +264,18 @@ public class RuleTesting {
    */
   @Deprecated
   public static RuleDto newCustomRule(RuleDto templateRule) {
-    checkNotNull(templateRule.getId(), "The template rule need to be persisted before creating this custom rule.");
+    checkNotNull(templateRule.getUuid(), "The template rule need to be persisted before creating this custom rule.");
     return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
       .setLanguage(templateRule.getLanguage())
-      .setTemplateId(templateRule.getId())
+      .setTemplateUuid(templateRule.getUuid())
       .setType(templateRule.getType());
   }
 
   public static RuleDefinitionDto newCustomRule(RuleDefinitionDto templateRule) {
-    checkNotNull(templateRule.getId(), "The template rule need to be persisted before creating this custom rule.");
+    checkNotNull(templateRule.getUuid(), "The template rule need to be persisted before creating this custom rule.");
     return newRule(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
       .setLanguage(templateRule.getLanguage())
-      .setTemplateId(templateRule.getId())
+      .setTemplateUuid(templateRule.getUuid())
       .setType(templateRule.getType());
   }
 
@@ -333,8 +335,8 @@ public class RuleTesting {
     return rule -> rule.setIsTemplate(isTemplate);
   }
 
-  public static Consumer<RuleDefinitionDto> setTemplateId(@Nullable Integer templateId) {
-    return rule -> rule.setTemplateId(templateId);
+  public static Consumer<RuleDefinitionDto> setTemplateId(@Nullable String templateUuid) {
+    return rule -> rule.setTemplateUuid(templateUuid);
   }
 
   public static Consumer<RuleDefinitionDto> setSystemTags(String... tags) {

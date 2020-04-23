@@ -46,7 +46,7 @@ public class RuleRepositoryImpl implements RuleRepository {
   @CheckForNull
   private Map<RuleKey, Rule> rulesByKey;
   @CheckForNull
-  private Map<Integer, Rule> rulesById;
+  private Map<String, Rule> rulesByUuid;
 
   private final AdHocRuleCreator creator;
   private final DbClient dbClient;
@@ -80,7 +80,7 @@ public class RuleRepositoryImpl implements RuleRepository {
 
   private void persistAndIndex(DbSession dbSession, NewAdHocRule adHocRule) {
     Rule rule = new RuleImpl(creator.persistAndIndex(dbSession, adHocRule, analysisMetadataHolder.getOrganization().toDto()));
-    rulesById.put(rule.getId(), rule);
+    rulesByUuid.put(rule.getUuid(), rule);
     rulesByKey.put(adHocRule.getKey(), rule);
   }
 
@@ -105,19 +105,19 @@ public class RuleRepositoryImpl implements RuleRepository {
   }
 
   @Override
-  public Rule getById(int id) {
+  public Rule getByUuid(String uuid) {
     ensureInitialized();
 
-    Rule rule = rulesById.get(id);
-    checkArgument(rule != null, "Can not find rule for id %s. This rule does not exist in DB", id);
+    Rule rule = rulesByUuid.get(uuid);
+    checkArgument(rule != null, "Can not find rule for uuid %s. This rule does not exist in DB", uuid);
     return rule;
   }
 
   @Override
-  public Optional<Rule> findById(int id) {
+  public Optional<Rule> findByUuid(String uuid) {
     ensureInitialized();
 
-    return Optional.ofNullable(rulesById.get(id));
+    return Optional.ofNullable(rulesByUuid.get(uuid));
   }
 
   private static void verifyKeyArgument(RuleKey key) {
@@ -134,15 +134,15 @@ public class RuleRepositoryImpl implements RuleRepository {
 
   private void loadRulesFromDb(DbSession dbSession) {
     this.rulesByKey = new HashMap<>();
-    this.rulesById = new HashMap<>();
+    this.rulesByUuid = new HashMap<>();
     String organizationUuid = analysisMetadataHolder.getOrganization().getUuid();
-    Multimap<Integer, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleId = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
-      .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleId));
+    Multimap<String, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleUuid = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
+      .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleUuid));
     for (RuleDto ruleDto : dbClient.ruleDao().selectAll(dbSession, organizationUuid)) {
       Rule rule = new RuleImpl(ruleDto);
       rulesByKey.put(ruleDto.getKey(), rule);
-      rulesById.put(ruleDto.getId(), rule);
-      deprecatedRuleKeysByRuleId.get(ruleDto.getId()).forEach(t -> rulesByKey.put(RuleKey.of(t.getOldRepositoryKey(), t.getOldRuleKey()), rule));
+      rulesByUuid.put(ruleDto.getUuid(), rule);
+      deprecatedRuleKeysByRuleUuid.get(ruleDto.getUuid()).forEach(t -> rulesByKey.put(RuleKey.of(t.getOldRepositoryKey(), t.getOldRuleKey()), rule));
     }
   }
 
@@ -158,8 +158,8 @@ public class RuleRepositoryImpl implements RuleRepository {
     }
 
     @Override
-    public int getId() {
-      throw new UnsupportedOperationException("Rule is not persisted, can't know the id");
+    public String getUuid() {
+      throw new UnsupportedOperationException("Rule is not persisted, can't know the uuid");
     }
 
     @Override

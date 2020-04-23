@@ -118,7 +118,7 @@ public class UpdateActionTest {
       r -> r.setDescription("Old description"),
       r -> r.setSeverity(Severity.MINOR),
       r -> r.setStatus(RuleStatus.BETA),
-      r -> r.setTemplateId(templateRule.getId()),
+      r -> r.setTemplateUuid(templateRule.getUuid()),
       r -> r.setLanguage("js"),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
@@ -284,7 +284,7 @@ public class UpdateActionTest {
       r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
       r -> r.setName("Old custom"),
       r -> r.setDescription("Old description"),
-      r -> r.setTemplateId(templateRule.getId()),
+      r -> r.setTemplateUuid(templateRule.getUuid()),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
 

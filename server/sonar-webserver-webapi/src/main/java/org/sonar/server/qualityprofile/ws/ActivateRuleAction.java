@@ -115,7 +115,7 @@ public class ActivateRuleAction implements QProfileWsAction {
     RuleDefinitionDto ruleDefinition = wsSupport.getRule(dbSession, ruleKey);
     boolean reset = Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET));
     if (reset) {
-      return RuleActivation.createReset(ruleDefinition.getId());
+      return RuleActivation.createReset(ruleDefinition.getUuid());
     }
     String severity = request.param(PARAM_SEVERITY);
     Map<String, String> params = null;
@@ -123,7 +123,7 @@ public class ActivateRuleAction implements QProfileWsAction {
     if (paramsAsString != null) {
       params = KeyValueFormat.parse(paramsAsString);
     }
-    return RuleActivation.create(ruleDefinition.getId(), severity, params);
+    return RuleActivation.create(ruleDefinition.getUuid(), severity, params);
   }
 
 }

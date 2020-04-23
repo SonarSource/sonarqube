@@ -154,7 +154,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ORGA
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_OWASP_TOP_10;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RULE_ID;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RULE_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE;
@@ -233,7 +233,7 @@ public class IssueIndex {
     RESOLUTIONS(PARAM_RESOLUTIONS, FIELD_ISSUE_RESOLUTION, STICKY, Issue.RESOLUTIONS.size() + 1),
     TYPES(PARAM_TYPES, FIELD_ISSUE_TYPE, STICKY, RuleType.values().length),
     LANGUAGES(PARAM_LANGUAGES, FIELD_ISSUE_LANGUAGE, STICKY, MAX_FACET_SIZE),
-    RULES(PARAM_RULES, FIELD_ISSUE_RULE_ID, STICKY, MAX_FACET_SIZE),
+    RULES(PARAM_RULES, FIELD_ISSUE_RULE_UUID, STICKY, MAX_FACET_SIZE),
     TAGS(PARAM_TAGS, FIELD_ISSUE_TAGS, STICKY, MAX_FACET_SIZE),
     AUTHORS(DEPRECATED_PARAM_AUTHORS, FIELD_ISSUE_AUTHOR_LOGIN, STICKY, MAX_FACET_SIZE),
     AUTHOR(PARAM_AUTHOR, FIELD_ISSUE_AUTHOR_LOGIN, STICKY, MAX_FACET_SIZE),
@@ -327,7 +327,7 @@ public class IssueIndex {
     this.sorting.add(IssueQuery.SORT_BY_FILE_LINE, FIELD_ISSUE_KEY);
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_VULNERABILITY_PROBABILITY).reverse();
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_SQ_SECURITY_CATEGORY);
-    this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_RULE_ID);
+    this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_RULE_UUID);
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_PROJECT_UUID);
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_FILE_PATH);
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_LINE);
@@ -427,9 +427,9 @@ public class IssueIndex {
       FIELD_ISSUE_AUTHOR_LOGIN, AUTHOR.getFilterScope(),
       createTermsFilter(FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
     filters.addFilter(
-      FIELD_ISSUE_RULE_ID, RULES.getFilterScope(), createTermsFilter(
-        FIELD_ISSUE_RULE_ID,
-        query.rules().stream().map(IssueDoc::formatRuleId).collect(toList())));
+      FIELD_ISSUE_RULE_UUID, RULES.getFilterScope(), createTermsFilter(
+        FIELD_ISSUE_RULE_UUID,
+        query.rules().stream().map(RuleDefinitionDto::getUuid).collect(toList())));
     filters.addFilter(FIELD_ISSUE_STATUS, STATUSES.getFilterScope(), createTermsFilter(FIELD_ISSUE_STATUS, query.statuses()));
     filters.addFilter(
       FIELD_ISSUE_ORGANIZATION_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_ORGANIZATION_UUID),
@@ -655,7 +655,7 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, DIRECTORIES, query.directories().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, FILE_UUIDS, query.fileUuids().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, LANGUAGES, query.languages().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, RULES, query.rules().stream().map(RuleDefinitionDto::getId).toArray());
+    addFacetIfNeeded(options, aggregationHelper, esRequest, RULES, query.rules().stream().map(RuleDefinitionDto::getUuid).toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, AUTHORS, query.authors().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, AUTHOR, query.authors().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TAGS, query.tags().toArray());

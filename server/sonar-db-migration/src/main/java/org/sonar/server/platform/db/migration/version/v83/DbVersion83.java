@@ -221,6 +221,43 @@ import org.sonar.server.platform.db.migration.version.v83.qualitygates.DropQGate
 import org.sonar.server.platform.db.migration.version.v83.qualitygates.DropUniqueIndexOnUuidColumnOfQualityGatesTable;
 import org.sonar.server.platform.db.migration.version.v83.qualitygates.MakeQGateUuidColumnNotNullableForQGateConditions;
 import org.sonar.server.platform.db.migration.version.v83.qualitygates.PopulateQGateUuidColumnForQGateConditions;
+import org.sonar.server.platform.db.migration.version.v83.rules.AddPrimaryKeyOnUuidColumnOfRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.AddUuidAndTemplateUuidColumnsToRules;
+import org.sonar.server.platform.db.migration.version.v83.rules.DropIdColumnOfRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.DropPrimaryKeyOnIdColumnOfRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.DropTemplateIdColumnOfRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.MakeRulesUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.rules.PopulateRulesTemplateUuid;
+import org.sonar.server.platform.db.migration.version.v83.rules.PopulateRulesUuid;
+import org.sonar.server.platform.db.migration.version.v83.rules.activerules.AddIndexToActiveRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.activerules.AddRuleUuidColumnToActiveRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.activerules.DropIndexOnRuleIdColumnOfActiveRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.activerules.DropRuleIdColumnOfActiveRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.activerules.MakeActiveRulesRuleUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.rules.activerules.PopulateActiveRulesRuleUuidColumn;
+import org.sonar.server.platform.db.migration.version.v83.rules.deprecatedrulekeys.AddIndexToDeprecatedRuleKeysTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.deprecatedrulekeys.AddRuleUuidColumnToDeprecatedRuleKeysTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.deprecatedrulekeys.DropIndexOnRuleIdColumnOfDeprecatedRuleKeysTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.deprecatedrulekeys.DropRuleIdColumnOfDeprecatedRuleKeysTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.deprecatedrulekeys.MakeDeprecatedRuleKeysRuleUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.rules.deprecatedrulekeys.PopulateDeprecatedRuleKeysRuleUuidColumn;
+import org.sonar.server.platform.db.migration.version.v83.rules.issues.AddIndexToIssuesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.issues.AddRuleUuidColumnToIssuesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.issues.DropIndexOnRuleIdColumnOfIssuesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.issues.DropRuleIdColumnOfIssuesTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.issues.PopulateIssuesRuleUuidColumn;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesmetadata.AddPrimaryKeyOnUuidAndOrganizationUuidColumnOfRulesMetadataTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesmetadata.AddRuleUuidColumnToRulesMetadataTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesmetadata.DropPrimaryKeyOnIdColumnOfRulesMetadataTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesmetadata.DropRuleIdColumnOfRulesMetadataTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesmetadata.MakeRulesMetadataRuleUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesmetadata.PopulateRulesMetadataRuleUuidColumn;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesparameters.AddIndexesToRulesParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesparameters.AddRuleUuidColumnToRulesParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesparameters.DropIndexesOnRuleIdColumnOfRulesParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesparameters.DropRuleIdColumnOfRulesParametersTable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesparameters.MakeRulesParametersRuleUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.rules.rulesparameters.PopulateRulesParametersRuleUuidColumn;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.AddPrimaryKeyOnUuidColumnOfRulesParametersTable;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.AddUuidColumnToRulesParameters;
 import org.sonar.server.platform.db.migration.version.v83.rulesparameters.DropIdColumnOfRulesParametersTable;
@@ -715,6 +752,51 @@ public class DbVersion83 implements DbVersion {
       .add(3670, "Drop PK index on 'id' column of 'USERS' table", DropPrimaryKeyOnIdColumnOfUsersTable.class)
       .add(3671, "Add PK index on 'uuid' column of 'USERS' table", AddPrimaryKeyOnUuidColumnOfUsersTable.class)
       .add(3672, "Drop 'id' column of 'USERS' table", DropIdColumnOfUsersTable.class)
+
+      // Migration of RULES table
+      .add(3673, "Add 'uuid' column for 'RULES'", AddUuidAndTemplateUuidColumnsToRules.class)
+      .add(3674, "Populate 'uuid' column for 'RULES'", PopulateRulesUuid.class)
+      .add(3675, "Make 'uuid' column not nullable for 'RULES'", MakeRulesUuidColumnNotNullable.class)
+      .add(3676, "Populate 'templateUuid' column for 'RULES'", PopulateRulesTemplateUuid.class)
+      .add(3677, "Drop column 'templateId' column for 'RULES'", DropTemplateIdColumnOfRulesTable.class)
+      // Migration of RULES_METADATA FK to RULES, switch from rule_id to rule_uuid
+      .add(3678, "Add 'RULE_UUID' column for 'RULES_METADATA' table", AddRuleUuidColumnToRulesMetadataTable.class)
+      .add(3679, "Populate 'RULE_UUID' column for 'RULES_METADATA' table", PopulateRulesMetadataRuleUuidColumn.class)
+      .add(3680, "Make 'RULE_UUID' column not nullable for 'RULES_METADATA' table", MakeRulesMetadataRuleUuidColumnNotNullable.class)
+      .add(3681, "Drop primary key on 'RULE_ID' column of 'RULES_METADATA' table", DropPrimaryKeyOnIdColumnOfRulesMetadataTable.class)
+      .add(3682, "Add primary key on 'RULE_UUID' column of 'RULES_METADATA' table", AddPrimaryKeyOnUuidAndOrganizationUuidColumnOfRulesMetadataTable.class)
+      .add(3683, "Drop column 'RULE_ID' of 'RULES_METADATA' table", DropRuleIdColumnOfRulesMetadataTable.class)
+      // Migration of RULES_PARAMETERS FK to RULES, switch from rule_id to rule_uuid
+      .add(3684, "Add 'RULE_UUID' column for 'RULES_PARAMETERS' table", AddRuleUuidColumnToRulesParametersTable.class)
+      .add(3685, "Populate 'RULE_UUID' column for 'RULES_PARAMETERS' table", PopulateRulesParametersRuleUuidColumn.class)
+      .add(3686, "Make 'RULE_UUID' column not nullable for 'RULES_PARAMETERS' table", MakeRulesParametersRuleUuidColumnNotNullable.class)
+      .add(3687, "Drop indexes on 'RULE_ID' of 'RULES_PARAMETERS' table", DropIndexesOnRuleIdColumnOfRulesParametersTable.class)
+      .add(3688, "Add indexes to 'RULES_PARAMETERS' table", AddIndexesToRulesParametersTable.class)
+      .add(3689, "Drop column 'RULE_ID' of 'RULES_PARAMETERS' table", DropRuleIdColumnOfRulesParametersTable.class)
+      // Migration of ACTIVE_RULES FK to RULES, switch from rule_id to rule_uuid
+      .add(3690, "Add 'RULE_UUID' column for 'ACTIVE_RULES' table", AddRuleUuidColumnToActiveRulesTable.class)
+      .add(3691, "Populate 'RULE_UUID' column for 'ACTIVE_RULES' table", PopulateActiveRulesRuleUuidColumn.class)
+      .add(3692, "Make 'RULE_UUID' column not nullable for 'ACTIVE_RULES' table", MakeActiveRulesRuleUuidColumnNotNullable.class)
+      .add(3693, "Drop indexes on 'RULE_ID' of 'ACTIVE_RULES' table", DropIndexOnRuleIdColumnOfActiveRulesTable.class)
+      .add(3694, "Add indexes to 'ACTIVE_RULES' table", AddIndexToActiveRulesTable.class)
+      .add(3695, "Drop column 'RULE_ID' of 'ACTIVE_RULES' table", DropRuleIdColumnOfActiveRulesTable.class)
+      // Migration of DEPRECATED_RULE_KEYS FK to RULES, switch from rule_id to rule_uuid
+      .add(3696, "Add 'RULE_UUID' column for 'DEPRECATED_RULE_KEYS' table", AddRuleUuidColumnToDeprecatedRuleKeysTable.class)
+      .add(3697, "Populate 'RULE_UUID' column for 'DEPRECATED_RULE_KEYS' table", PopulateDeprecatedRuleKeysRuleUuidColumn.class)
+      .add(3698, "Make 'RULE_UUID' column not nullable for 'DEPRECATED_RULE_KEYS' table", MakeDeprecatedRuleKeysRuleUuidColumnNotNullable.class)
+      .add(3699, "Drop index on 'RULE_ID' of 'DEPRECATED_RULE_KEYS' table", DropIndexOnRuleIdColumnOfDeprecatedRuleKeysTable.class)
+      .add(3700, "Add index to 'DEPRECATED_RULE_KEYS' table", AddIndexToDeprecatedRuleKeysTable.class)
+      .add(3701, "Drop column 'RULE_ID' of 'DEPRECATED_RULE_KEYS' table", DropRuleIdColumnOfDeprecatedRuleKeysTable.class)
+      // Migration of ISSUE FK to RULES, switch from rule_id to rule_uuid
+      .add(3702, "Add 'RULE_UUID' column for 'ISSUES' table", AddRuleUuidColumnToIssuesTable.class)
+      .add(3703, "Populate 'RULE_UUID' column for 'ISSUES' table", PopulateIssuesRuleUuidColumn.class)
+      .add(3704, "Drop index on 'RULE_ID' of 'ISSUES' table", DropIndexOnRuleIdColumnOfIssuesTable.class)
+      .add(3705, "Add index to 'ISSUES' table", AddIndexToIssuesTable.class)
+      .add(3706, "Drop column 'RULE_ID' of 'ISSUES' table", DropRuleIdColumnOfIssuesTable.class)
+      // continue with RULES table cleanup
+      .add(3707, "Drop primary key on 'ID' column of 'RULES' table", DropPrimaryKeyOnIdColumnOfRulesTable.class)
+      .add(3708, "Add primary key on 'UUID' column of 'RULES' table", AddPrimaryKeyOnUuidColumnOfRulesTable.class)
+      .add(3709, "Drop column 'ID' of 'RULES' table", DropIdColumnOfRulesTable.class)
 
     ;
   }

@@ -262,7 +262,7 @@ public class IssueIndexFacetsTest {
     RuleDefinitionDto ruleDefinitionDto = newRule();
     db.rules().insert(ruleDefinitionDto);
 
-    indexIssues(newDoc("I1", file).setRuleId(ruleDefinitionDto.getId()).setLanguage("xoo"));
+    indexIssues(newDoc("I1", file).setRuleUuid(ruleDefinitionDto.getUuid()).setLanguage("xoo"));
 
     assertThatFacetHasOnly(IssueQuery.builder(), "languages", entry("xoo", 1L));
   }

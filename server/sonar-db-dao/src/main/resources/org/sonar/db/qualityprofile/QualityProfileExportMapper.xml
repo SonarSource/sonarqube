@@ -30,9 +30,9 @@
     from active_rules a
     inner join rules_profiles rp on rp.uuid = a.profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
-    inner join rules r on r.id = a.rule_id and r.status != 'REMOVED'
-    left join rules rt on rt.id = r.template_id
-    left join rules_metadata rm on rm.rule_id = r.id
+    inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
+    left join rules rt on rt.uuid = r.template_uuid
+    left join rules_metadata rm on rm.rule_uuid = r.uuid
     where oqp.uuid = #{id, jdbcType=VARCHAR}
   </select>
 

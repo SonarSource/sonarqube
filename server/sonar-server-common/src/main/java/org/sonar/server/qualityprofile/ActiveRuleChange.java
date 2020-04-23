@@ -40,7 +40,7 @@ public class ActiveRuleChange {
 
   private final Type type;
   private final ActiveRuleKey key;
-  private final int ruleId;
+  private final String ruleUuid;
   private String severity = null;
   private ActiveRuleInheritance inheritance = null;
   private final Map<String, String> parameters = new HashMap<>();
@@ -48,22 +48,22 @@ public class ActiveRuleChange {
   public ActiveRuleChange(Type type, ActiveRuleDto activeRule, RuleDefinitionDto ruleDefinition) {
     this.type = type;
     this.key = activeRule.getKey();
-    this.ruleId = ruleDefinition.getId();
+    this.ruleUuid = ruleDefinition.getUuid();
     this.activeRule = activeRule;
   }
 
   public ActiveRuleChange(Type type, ActiveRuleKey key, RuleDefinitionDto ruleDefinition) {
     this.type = type;
     this.key = key;
-    this.ruleId = ruleDefinition.getId();
+    this.ruleUuid = ruleDefinition.getUuid();
   }
 
   public ActiveRuleKey getKey() {
     return key;
   }
 
-  public int getRuleId() {
-    return ruleId;
+  public String getRuleUuid() {
+    return ruleUuid;
   }
 
   public Type getType() {
@@ -121,7 +121,7 @@ public class ActiveRuleChange {
     dto.setRulesProfileUuid(getKey().getRuleProfileUuid());
     dto.setUserUuid(userUuid);
     Map<String, String> data = new HashMap<>();
-    data.put("ruleId", String.valueOf(getRuleId()));
+    data.put("ruleUuid", getRuleUuid());
 
     parameters.entrySet().stream()
       .filter(param -> !param.getKey().isEmpty())
@@ -142,7 +142,7 @@ public class ActiveRuleChange {
     return MoreObjects.toStringHelper(this)
       .add("type", type)
       .add("key", key)
-      .add("ruleId", ruleId)
+      .add("ruleUuid", ruleUuid)
       .add("severity", severity)
       .add("inheritance", inheritance)
       .add("parameters", parameters)

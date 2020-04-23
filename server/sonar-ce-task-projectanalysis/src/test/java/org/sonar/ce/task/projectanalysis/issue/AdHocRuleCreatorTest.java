@@ -24,6 +24,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -46,7 +47,7 @@ public class AdHocRuleCreatorTest {
   public EsTester es = EsTester.create();
 
   private RuleIndexer indexer = new RuleIndexer(es.client(), db.getDbClient());
-  private AdHocRuleCreator underTest = new AdHocRuleCreator(db.getDbClient(), System2.INSTANCE, indexer);
+  private AdHocRuleCreator underTest = new AdHocRuleCreator(db.getDbClient(), System2.INSTANCE, indexer, new SequenceUuidFactory());
   private DbSession dbSession = db.getSession();
 
   @Test
@@ -59,7 +60,7 @@ public class AdHocRuleCreatorTest {
     assertThat(rule).isNotNull();
     assertThat(rule.isExternal()).isTrue();
     assertThat(rule.isAdHoc()).isTrue();
-    assertThat(rule.getId()).isGreaterThan(0);
+    assertThat(rule.getUuid()).isNotBlank();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("external_eslint", "no-cond-assign"));
     assertThat(rule.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(rule.getDescription()).isNull();
@@ -88,7 +89,7 @@ public class AdHocRuleCreatorTest {
     assertThat(rule).isNotNull();
     assertThat(rule.isExternal()).isTrue();
     assertThat(rule.isAdHoc()).isTrue();
-    assertThat(rule.getId()).isGreaterThan(0);
+    assertThat(rule.getUuid()).isNotBlank();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("external_eslint", "no-cond-assign"));
     assertThat(rule.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(rule.getDescription()).isNull();
@@ -145,7 +146,7 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated).isNotNull();
     assertThat(ruleUpdated.isExternal()).isTrue();
     assertThat(ruleUpdated.isAdHoc()).isTrue();
-    assertThat(ruleUpdated.getId()).isGreaterThan(0);
+    assertThat(ruleUpdated.getUuid()).isNotBlank();
     assertThat(ruleUpdated.getKey()).isEqualTo(RuleKey.of("external_eslint", "no-cond-assign"));
     assertThat(ruleUpdated.getName()).isEqualTo("eslint:no-cond-assign");
     assertThat(ruleUpdated.getDescription()).isNull();
@@ -155,7 +156,6 @@ public class AdHocRuleCreatorTest {
     assertThat(ruleUpdated.getMetadata().getAdHocDescription()).isEqualTo("A description updated");
     assertThat(ruleUpdated.getMetadata().getAdHocSeverity()).isEqualTo(Severity.CRITICAL);
     assertThat(ruleUpdated.getMetadata().getAdHocType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
-
     assertThat(ruleUpdated.getDefinition().getCreatedAt()).isEqualTo(creationDate);
     assertThat(ruleUpdated.getMetadata().getCreatedAt()).isEqualTo(creationDate);
     assertThat(ruleUpdated.getMetadata().getUpdatedAt()).isGreaterThan(creationDate);

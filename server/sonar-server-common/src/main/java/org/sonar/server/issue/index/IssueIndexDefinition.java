@@ -90,7 +90,7 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   public static final String FIELD_ISSUE_DIRECTORY_PATH = "dirPath";
   public static final String FIELD_ISSUE_RESOLUTION = "resolution";
-  public static final String FIELD_ISSUE_RULE_ID = "ruleId";
+  public static final String FIELD_ISSUE_RULE_UUID = "ruleUuid";
   public static final String FIELD_ISSUE_SEVERITY = "severity";
   public static final String FIELD_ISSUE_SEVERITY_VALUE = "severityValue";
   public static final String FIELD_ISSUE_STATUS = "status";
@@ -152,7 +152,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.createBooleanField(FIELD_ISSUE_IS_MAIN_BRANCH);
     mapping.keywordFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().build();
-    mapping.keywordFieldBuilder(FIELD_ISSUE_RULE_ID).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_ISSUE_RULE_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_SEVERITY).disableNorms().build();
     mapping.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
     mapping.keywordFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();

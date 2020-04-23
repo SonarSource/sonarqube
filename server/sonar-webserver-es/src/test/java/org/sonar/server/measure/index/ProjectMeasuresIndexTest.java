@@ -213,7 +213,7 @@ public class ProjectMeasuresIndexTest {
 
     SearchIdResult<String> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().setPage(2, 3));
 
-    assertThat(result.getIds()).containsExactly("P4", "P5", "P6");
+    assertThat(result.getUuids()).containsExactly("P4", "P5", "P6");
     assertThat(result.getTotal()).isEqualTo(9);
   }
 
@@ -1726,7 +1726,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   private void assertResults(ProjectMeasuresQuery query, ComponentDto... expectedProjects) {
-    List<String> result = underTest.search(query, new SearchOptions()).getIds();
+    List<String> result = underTest.search(query, new SearchOptions()).getUuids();
     assertThat(result).containsExactly(Arrays.stream(expectedProjects).map(ComponentDto::uuid).toArray(String[]::new));
   }
 

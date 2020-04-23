@@ -146,7 +146,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
     ActiveRuleDto dto = new ActiveRuleDto();
     dto.setProfileUuid(rulesProfileDto.getUuid());
-    dto.setRuleId(ruleDefinitionDto.getId());
+    dto.setRuleUuid(ruleDefinitionDto.getUuid());
     dto.setKey(ActiveRuleKey.of(rulesProfileDto, ruleDefinitionDto.getKey()));
     dto.setSeverity(firstNonNull(activeRule.getSeverity(), ruleDefinitionDto.getSeverityString()));
     dto.setUpdatedAt(now);
@@ -187,7 +187,6 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     return paramDto;
   }
 
-  @CheckForNull
   private String validateParam(RuleParamDto ruleParam, String value) {
     RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
     if (ruleParamType.multiple()) {
@@ -207,13 +206,13 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
       this.definitions = dbClient.ruleDao().selectAllDefinitions(session)
         .stream()
         .collect(Collectors.toMap(RuleDefinitionDto::getKey, Function.identity()));
-      Map<Integer, RuleKey> ruleIdsByKey = definitions.values()
+      Map<String, RuleKey> ruleUuidsByKey = definitions.values()
         .stream()
-        .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
-      this.params = new HashMap<>(ruleIdsByKey.size());
+        .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getUuid, RuleDefinitionDto::getKey));
+      this.params = new HashMap<>(ruleUuidsByKey.size());
       dbClient.ruleDao().selectRuleParamsByRuleKeys(session, definitions.keySet())
         .forEach(ruleParam -> params.compute(
-          ruleIdsByKey.get(ruleParam.getRuleId()),
+          ruleUuidsByKey.get(ruleParam.getRuleUuid()),
           (key, value) -> {
             if (value == null) {
               return ImmutableSet.of(ruleParam);

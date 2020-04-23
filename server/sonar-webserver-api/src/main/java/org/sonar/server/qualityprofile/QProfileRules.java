@@ -52,7 +52,7 @@ public interface QProfileRules {
    */
   BulkChangeResult bulkActivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, @Nullable String severity);
 
-  List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<Integer> ruleIds);
+  List<ActiveRuleChange> deactivateAndCommit(DbSession dbSession, QProfileDto profile, Collection<String> ruleUuids);
 
   BulkChangeResult bulkDeactivateAndCommit(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery);
 

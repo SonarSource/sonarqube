@@ -76,7 +76,7 @@ public class DeleteActionTest {
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
     RuleDefinitionDto customRule = dbTester.rules().insert(
-      r -> r.setTemplateId(templateRule.getId()),
+      r -> r.setTemplateUuid(templateRule.getUuid()),
       r -> r.setCreatedAt(PAST),
       r -> r.setUpdatedAt(PAST));
 
@@ -85,7 +85,7 @@ public class DeleteActionTest {
       .setParam("key", customRule.getKey().toString())
       .execute();
 
-    verify(ruleIndexer).commitAndIndex(any(), eq(customRule.getId()));
+    verify(ruleIndexer).commitAndIndex(any(), eq(customRule.getUuid()));
 
     // Verify custom rule has status REMOVED
     RuleDefinitionDto customRuleReloaded = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, customRule.getKey());

@@ -56,7 +56,7 @@ public class IssueDocTesting {
   public static IssueDoc newDoc() {
     IssueDoc doc = new IssueDoc(new HashMap<>());
     doc.setKey(Uuids.createFast());
-    doc.setRuleId(nextInt(1000));
+    doc.setRuleUuid(Uuids.createFast());
     doc.setType(RuleType.CODE_SMELL);
     doc.setAssigneeUuid("assignee_uuid_" + randomAlphabetic(26));
     doc.setAuthorLogin("author_" + randomAlphabetic(5));

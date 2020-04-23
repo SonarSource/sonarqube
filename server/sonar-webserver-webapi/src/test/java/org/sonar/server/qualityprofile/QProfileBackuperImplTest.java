@@ -44,7 +44,6 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.rule.RuleCreator;
 
@@ -148,7 +147,7 @@ public class QProfileBackuperImplTest {
       .setDescription("custom rule description")
       .setName("custom rule name")
       .setStatus(RuleStatus.READY)
-      .setTemplateId(templateRule.getId()));
+      .setTemplateUuid(templateRule.getUuid()));
     RuleParamDto param = db.rules().insertRuleParam(rule);
     QProfileDto profile = createProfile(rule.getLanguage());
     ActiveRuleDto activeRule = activate(profile, rule, param);
@@ -205,7 +204,7 @@ public class QProfileBackuperImplTest {
 
   @Test
   public void restore_resets_the_activated_rules() {
-    Integer ruleId = db.rules().insert(RuleKey.of("sonarjs", "s001")).getId();
+    String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
     OrganizationDto organization = db.organizations().insert();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>foo</name>" +
@@ -227,14 +226,13 @@ public class QProfileBackuperImplTest {
     assertThat(reset.calledActivations).hasSize(1);
     RuleActivation activation = reset.calledActivations.get(0);
     assertThat(activation.getSeverity()).isEqualTo("BLOCKER");
-    assertThat(activation.getRuleId()).isEqualTo(ruleId);
+    assertThat(activation.getRuleUuid()).isEqualTo(ruleUuid);
     assertThat(activation.getParameter("bar")).isEqualTo("baz");
   }
 
   @Test
   public void restore_custom_rule() {
-    when(ruleCreator.create(any(), anyList())).then(invocation ->
-      Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001")).getKey()));
+    when(ruleCreator.create(any(), anyList())).then(invocation -> Collections.singletonList(db.rules().insert(RuleKey.of("sonarjs", "s001")).getKey()));
 
     OrganizationDto organization = db.organizations().insert();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
@@ -266,7 +264,7 @@ public class QProfileBackuperImplTest {
 
   @Test
   public void restore_skips_rule_without_template_key_and_db_definition() {
-    Integer ruleId = db.rules().insert(RuleKey.of("sonarjs", "s001")).getId();
+    String ruleUuid = db.rules().insert(RuleKey.of("sonarjs", "s001")).getUuid();
     OrganizationDto organization = db.organizations().insert();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>foo</name>" +
@@ -292,7 +290,7 @@ public class QProfileBackuperImplTest {
 
     assertThat(reset.calledActivations).hasSize(1);
     RuleActivation activation = reset.calledActivations.get(0);
-    assertThat(activation.getRuleId()).isEqualTo(ruleId);
+    assertThat(activation.getRuleUuid()).isEqualTo(ruleUuid);
     assertThat(activation.getSeverity()).isEqualTo("BLOCKER");
     assertThat(activation.getParameter("bar")).isEqualTo("baz");
   }
@@ -305,9 +303,9 @@ public class QProfileBackuperImplTest {
     ActiveRuleDto activeRule = activate(from, rule, param);
 
     QProfileDto to = createProfile(rule.getLanguage());
-    QProfileRestoreSummary summary = underTest.copy(db.getSession(), from, to);
+    underTest.copy(db.getSession(), from, to);
 
-    assertThat(reset.calledActivations).extracting(RuleActivation::getRuleId).containsOnly(activeRule.getRuleId());
+    assertThat(reset.calledActivations).extracting(RuleActivation::getRuleUuid).containsOnly(activeRule.getRuleUuid());
     assertThat(reset.calledActivations.get(0).getParameter(param.getName())).isEqualTo("20");
     assertThat(reset.calledProfile).isEqualTo(to);
   }
@@ -360,7 +358,7 @@ public class QProfileBackuperImplTest {
 
   @Test
   public void fail_to_restore_external_rule() {
-    db.rules().insert(RuleKey.of("sonarjs", "s001"), r -> r.setIsExternal(true)).getId();
+    db.rules().insert(RuleKey.of("sonarjs", "s001"), r -> r.setIsExternal(true));
     OrganizationDto organization = db.organizations().insert();
     Reader backup = new StringReader("<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile><name>foo</name>" +
@@ -384,10 +382,6 @@ public class QProfileBackuperImplTest {
 
   private RuleDefinitionDto createRule() {
     return db.rules().insert();
-  }
-
-  private RuleMetadataDto createRuleMetadata(RuleMetadataDto metadataDto) {
-    return db.rules().insertOrUpdateMetadata(metadataDto);
   }
 
   private QProfileDto createProfile(String language) {
@@ -433,7 +427,8 @@ public class QProfileBackuperImplTest {
       throw new UnsupportedOperationException();
     }
 
-    @Override public QProfileDto createCustom(DbSession dbSession, OrganizationDto organization, QProfileName name, @Nullable String parentKey) {
+    @Override
+    public QProfileDto createCustom(DbSession dbSession, OrganizationDto organization, QProfileName name, @Nullable String parentKey) {
       throw new UnsupportedOperationException();
     }
 

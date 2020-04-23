@@ -589,7 +589,7 @@ public class SearchActionTest {
     RuleDefinitionDto templateRule = db.rules().insert(r -> r.setLanguage("java")
       .setIsTemplate(true));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java")
-      .setTemplateId(templateRule.getId()));
+      .setTemplateUuid(templateRule.getUuid()));
 
     indexRules();
 
@@ -611,7 +611,7 @@ public class SearchActionTest {
     RuleDefinitionDto templateRule = db.rules().insert(r -> r.setLanguage("java")
       .setIsTemplate(true));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java")
-      .setTemplateId(templateRule.getId()));
+      .setTemplateUuid(templateRule.getUuid()));
 
     indexRules();
 
@@ -644,7 +644,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
-    RuleActivation activation = RuleActivation.create(rule.getId(), BLOCKER, null);
+    RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     indexRules();
@@ -685,7 +685,7 @@ public class SearchActionTest {
       .setDescription("Empty Param")
       .setName("empty_var"));
 
-    RuleActivation activation = RuleActivation.create(rule.getId());
+    RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> activeRuleChanges1 = qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
     qProfileRules.activateAndCommit(db.getSession(), waterproofProfile, singleton(activation));
     assertThat(activeRuleChanges1).hasSize(1);
@@ -734,7 +734,7 @@ public class SearchActionTest {
       .setDescription("My small description")
       .setName("my_var"));
 
-    RuleActivation activation = RuleActivation.create(rule.getId());
+    RuleActivation activation = RuleActivation.create(rule.getUuid());
     List<ActiveRuleChange> activeRuleChanges = qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     // Insert directly in database a rule parameter with a null value
@@ -795,7 +795,7 @@ public class SearchActionTest {
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.DEPRECATED)
       .setType(RuleType.VULNERABILITY));
-    RuleActivation activation = RuleActivation.create(rule2.getId(), null, null);
+    RuleActivation activation = RuleActivation.create(rule2.getUuid(), null, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     // on other language, not activated => no match
@@ -929,7 +929,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
-    RuleActivation activation = RuleActivation.create(rule.getId(), BLOCKER, null);
+    RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
     userSession.logIn(db.users().insertUser()).addMembership(organization);
 
@@ -949,7 +949,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage("java"));
-    RuleActivation activation = RuleActivation.create(rule.getId(), BLOCKER, null);
+    RuleActivation activation = RuleActivation.create(rule.getUuid(), BLOCKER, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
 
     indexRules();
@@ -969,7 +969,7 @@ public class SearchActionTest {
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
     // Rule1 is activated on profile
     RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
-    RuleActivation activation = RuleActivation.create(rule1.getId(), BLOCKER, null);
+    RuleActivation activation = RuleActivation.create(rule1.getUuid(), BLOCKER, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
     // Rule2 is not activated
     RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("java"));
@@ -994,7 +994,7 @@ public class SearchActionTest {
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
     // Rule1 is activated on profile
     RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
-    RuleActivation activation = RuleActivation.create(rule1.getId(), BLOCKER, null);
+    RuleActivation activation = RuleActivation.create(rule1.getUuid(), BLOCKER, null);
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(activation));
     // Rule2 is not activated
     RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("java"));
@@ -1025,7 +1025,7 @@ public class SearchActionTest {
   @SafeVarargs
   private final RuleMetadataDto insertMetadata(OrganizationDto organization, RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
     RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(rule, organization, populaters);
-    ruleIndexer.commitAndIndex(db.getSession(), rule.getId(), organization);
+    ruleIndexer.commitAndIndex(db.getSession(), rule.getUuid(), organization);
     return metadata;
   }
 

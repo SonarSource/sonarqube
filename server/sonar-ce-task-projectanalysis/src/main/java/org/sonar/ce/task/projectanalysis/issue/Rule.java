@@ -27,8 +27,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 public interface Rule {
-
-  int getId();
+  String getUuid();
 
   RuleKey getKey();
 

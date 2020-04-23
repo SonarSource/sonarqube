@@ -31,6 +31,7 @@ import org.sonar.ce.task.projectanalysis.issue.NewAdHocRule;
 import org.sonar.ce.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDao;
@@ -60,7 +61,7 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
   public EsTester es = EsTester.create();
 
   private RuleIndexer indexer = new RuleIndexer(es.client(), dbClient);
-  private AdHocRuleCreator adHocRuleCreator = new AdHocRuleCreator(dbClient, System2.INSTANCE, indexer);
+  private AdHocRuleCreator adHocRuleCreator = new AdHocRuleCreator(dbClient, System2.INSTANCE, indexer, new SequenceUuidFactory());
 
   @Override
   protected ComputationStep step() {
@@ -77,7 +78,8 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
   public void persist_and_index_new_ad_hoc_rules() {
 
     RuleKey ruleKey = RuleKey.of("external_eslint", "no-cond-assign");
-    ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build()));
+    ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey,
+      () -> new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build()));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -94,15 +96,16 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
     assertThat(reloaded.getSeverity()).isNull();
     assertThat(reloaded.getName()).isEqualTo("eslint:no-cond-assign");
 
-    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(1l);
-    assertThat(es.getDocuments(RuleIndexDefinition.TYPE_RULE).iterator().next().getId()).isEqualTo(Integer.toString(reloaded.getId()));
+    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isEqualTo(1L);
+    assertThat(es.getDocuments(RuleIndexDefinition.TYPE_RULE).iterator().next().getId()).isEqualTo(reloaded.getUuid());
   }
 
   @Test
   public void do_not_persist_existing_external_rules() {
     RuleKey ruleKey = RuleKey.of("eslint", "no-cond-assign");
     db.rules().insert(ruleKey, r -> r.setIsExternal(true));
-    ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey, () -> new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build()));
+    ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey,
+      () -> new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build()));
 
     underTest.execute(new TestComputationStepContext());
 

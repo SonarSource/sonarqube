@@ -29,7 +29,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -54,49 +56,41 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
  * A {@link RuleFinder} implementation that retrieves all rule definitions and their parameter when instantiated, cache
  * them in memory and provide implementation of {@link RuleFinder}'s method which only read from this data in memory.
  */
-public class CachingRuleFinder implements RuleFinder {
+public class CachingRuleFinder implements ServerRuleFinder {
 
   private static final Ordering<Map.Entry<RuleDefinitionDto, Rule>> FIND_BY_QUERY_ORDER = Ordering.natural().reverse().onResultOf(entry -> entry.getKey().getUpdatedAt());
 
+  private final Map<RuleKey, RuleDefinitionDto> ruleDtosByKey;
   private final Map<RuleDefinitionDto, Rule> rulesByRuleDefinition;
-  private final Map<Integer, Rule> rulesById;
   private final Map<RuleKey, Rule> rulesByKey;
 
   public CachingRuleFinder(DbClient dbClient) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      this.rulesByRuleDefinition = buildRulesByRuleDefinitionDto(dbClient, dbSession);
-      this.rulesById = this.rulesByRuleDefinition.entrySet().stream()
-        .collect(uniqueIndex(entry -> entry.getKey().getId(), Map.Entry::getValue));
+      List<RuleDefinitionDto> dtos = dbClient.ruleDao().selectAllDefinitions(dbSession);
+      this.ruleDtosByKey = dtos.stream().collect(Collectors.toMap(RuleDefinitionDto::getKey, d -> d));
+      this.rulesByRuleDefinition = buildRulesByRuleDefinitionDto(dbClient, dbSession, dtos);
       this.rulesByKey = this.rulesByRuleDefinition.entrySet().stream()
         .collect(uniqueIndex(entry -> entry.getKey().getKey(), Map.Entry::getValue));
     }
   }
 
-  private static Map<RuleDefinitionDto, Rule> buildRulesByRuleDefinitionDto(DbClient dbClient, DbSession dbSession) {
-    List<RuleDefinitionDto> dtos = dbClient.ruleDao().selectAllDefinitions(dbSession);
+  private static Map<RuleDefinitionDto, Rule> buildRulesByRuleDefinitionDto(DbClient dbClient, DbSession dbSession, List<RuleDefinitionDto> dtos) {
     Set<RuleKey> ruleKeys = dtos.stream().map(RuleDefinitionDto::getKey).collect(toSet(dtos.size()));
-    ListMultimap<Integer, RuleParamDto> ruleParamsByRuleId = retrieveRuleParameters(dbClient, dbSession, ruleKeys);
+    ListMultimap<String, RuleParamDto> ruleParamsByRuleUuid = retrieveRuleParameters(dbClient, dbSession, ruleKeys);
     Map<RuleDefinitionDto, Rule> rulesByDefinition = new HashMap<>(dtos.size());
     for (RuleDefinitionDto definition : dtos) {
-      rulesByDefinition.put(definition, toRule(definition, ruleParamsByRuleId.get(definition.getId())));
+      rulesByDefinition.put(definition, toRule(definition, ruleParamsByRuleUuid.get(definition.getUuid())));
     }
     return ImmutableMap.copyOf(rulesByDefinition);
   }
 
-  private static ImmutableListMultimap<Integer, RuleParamDto> retrieveRuleParameters(DbClient dbClient, DbSession dbSession, Set<RuleKey> ruleKeys) {
+  private static ImmutableListMultimap<String, RuleParamDto> retrieveRuleParameters(DbClient dbClient, DbSession dbSession, Set<RuleKey> ruleKeys) {
     if (ruleKeys.isEmpty()) {
       return ImmutableListMultimap.of();
     }
     return dbClient.ruleDao().selectRuleParamsByRuleKeys(dbSession, ruleKeys)
       .stream()
-      .collect(MoreCollectors.index(RuleParamDto::getRuleId));
-  }
-
-  @Override
-  @Deprecated
-  @CheckForNull
-  public Rule findById(int ruleId) {
-    return rulesById.get(ruleId);
+      .collect(MoreCollectors.index(RuleParamDto::getRuleUuid));
   }
 
   @Override
@@ -175,8 +169,7 @@ public class CachingRuleFinder implements RuleFinder {
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
       .setStatus(ruleDefinition.getStatus().name())
       .setSystemTags(ruleDefinition.getSystemTags().toArray(new String[ruleDefinition.getSystemTags().size()]))
-      .setTags(new String[0])
-      .setId(ruleDefinition.getId());
+      .setTags(new String[0]);
     if (description != null && descriptionFormat != null) {
       if (RuleDto.Format.HTML.equals(descriptionFormat)) {
         apiRule.setDescription(description);
@@ -193,5 +186,10 @@ public class CachingRuleFinder implements RuleFinder {
     apiRule.setParams(apiParams);
 
     return apiRule;
+  }
+
+  @Override
+  public Optional<RuleDefinitionDto> findDtoByKey(RuleKey key) {
+    return Optional.ofNullable(this.ruleDtosByKey.get(key));
   }
 }

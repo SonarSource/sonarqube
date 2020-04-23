@@ -137,7 +137,7 @@ public class ChangeParentActionTest {
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent1);
-    ruleIndexer.commitAndIndex(dbSession, rule1.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -156,7 +156,7 @@ public class ChangeParentActionTest {
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().getRuleKey().rule()).isEqualTo(rule1.getRuleKey());
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).hasSize(1);
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
   }
 
   @Test
@@ -169,7 +169,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getId(), rule2.getId()));
+    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getUuid(), rule2.getUuid()));
     activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent 1
@@ -189,7 +189,7 @@ public class ChangeParentActionTest {
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().getRuleKey().rule()).isEqualTo(rule2.getRuleKey());
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).hasSize(1);
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
   }
 
   @Test
@@ -199,7 +199,7 @@ public class ChangeParentActionTest {
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
-    ruleIndexer.commitAndIndex(dbSession, rule1.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent
@@ -216,7 +216,7 @@ public class ChangeParentActionTest {
     // Check no rule enabled
     assertThat(dbClient.activeRuleDao().selectByProfile(dbSession, child)).isEmpty();
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -229,7 +229,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    ruleIndexer.commitAndIndex(dbSession, rule1.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -250,7 +250,7 @@ public class ChangeParentActionTest {
     List<OrgActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfile(dbSession, child);
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().getRuleKey().rule()).isEqualTo(rule1.getRuleKey());
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).hasSize(1);
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
 
     // 2. Set parent 2
     ws.newRequest()
@@ -278,7 +278,7 @@ public class ChangeParentActionTest {
     // 3. check no rule enabled
     List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfile(dbSession, child);
     assertThat(activeRules).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -288,7 +288,7 @@ public class ChangeParentActionTest {
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
-    ruleIndexer.commitAndIndex(dbSession, rule1.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getUuid());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -307,7 +307,7 @@ public class ChangeParentActionTest {
 
     // Check no rule enabled
     assertThat(dbClient.activeRuleDao().selectByProfile(dbSession, child)).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
   }
 
   @Test
@@ -320,7 +320,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getId(), rule2.getId()));
+    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getUuid(), rule2.getUuid()));
     activeRuleIndexer.indexOnStartup(emptySet());
     // Set parent 1
     qProfileTree.setParentAndCommit(dbSession, child, parent1);
@@ -340,7 +340,7 @@ public class ChangeParentActionTest {
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().getRuleKey().rule()).isEqualTo(rule2.getRuleKey());
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).hasSize(1);
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).hasSize(1);
   }
 
   @Test
@@ -350,7 +350,7 @@ public class ChangeParentActionTest {
       .setIsBuiltIn(true));
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getUuids()).isEmpty();
 
     TestRequest request = ws.newRequest()
       .setMethod("POST")

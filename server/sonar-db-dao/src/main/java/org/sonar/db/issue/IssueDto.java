@@ -58,7 +58,7 @@ public final class IssueDto implements Serializable {
   private String kee;
   private String componentUuid;
   private String projectUuid;
-  private Integer ruleId;
+  private String ruleUuid;
   private String severity;
   private boolean manualSeverity;
   private String message;
@@ -100,10 +100,14 @@ public final class IssueDto implements Serializable {
   // populate only when retrieving closed issue for issue tracking
   private String closedChangeData;
 
+  public IssueDto() {
+    // nothing to do
+  }
+
   /**
    * On batch side, component keys and uuid are useless
    */
-  public static IssueDto toDtoForComputationInsert(DefaultIssue issue, int ruleId, long now) {
+  public static IssueDto toDtoForComputationInsert(DefaultIssue issue, String ruleUuid, long now) {
     return new IssueDto()
       .setKee(issue.key())
       .setType(issue.type())
@@ -118,7 +122,7 @@ public final class IssueDto implements Serializable {
       .setManualSeverity(issue.manualSeverity())
       .setChecksum(issue.checksum())
       .setAssigneeUuid(issue.assignee())
-      .setRuleId(ruleId)
+      .setRuleUuid(ruleUuid)
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
       .setExternal(issue.isFromExternalRuleEngine())
       .setTags(issue.tags())
@@ -143,8 +147,8 @@ public final class IssueDto implements Serializable {
   /**
    * On server side, we need component keys and uuid
    */
-  public static IssueDto toDtoForServerInsert(DefaultIssue issue, ComponentDto component, ComponentDto project, int ruleId, long now) {
-    return toDtoForComputationInsert(issue, ruleId, now)
+  public static IssueDto toDtoForServerInsert(DefaultIssue issue, ComponentDto component, ComponentDto project, String ruleUuid, long now) {
+    return toDtoForComputationInsert(issue, ruleUuid, now)
       .setComponent(component)
       .setProject(project);
   }
@@ -213,15 +217,15 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public Integer getRuleId() {
-    return ruleId;
+  public String getRuleUuid() {
+    return ruleUuid;
   }
 
   /**
    * please use setRule(RuleDto rule)
    */
-  public IssueDto setRuleId(Integer ruleId) {
-    this.ruleId = ruleId;
+  public IssueDto setRuleUuid(String ruleUuid) {
+    this.ruleUuid = ruleUuid;
     return this;
   }
 
@@ -437,8 +441,8 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setRule(RuleDefinitionDto rule) {
-    Preconditions.checkNotNull(rule.getId(), "Rule must be persisted.");
-    this.ruleId = rule.getId();
+    Preconditions.checkNotNull(rule.getUuid(), "Rule must be persisted.");
+    this.ruleUuid = rule.getUuid();
     this.ruleKey = rule.getRuleKey();
     this.ruleRepo = rule.getRepositoryKey();
     this.language = rule.getLanguage();

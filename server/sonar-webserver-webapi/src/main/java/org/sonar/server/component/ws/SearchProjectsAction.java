@@ -278,7 +278,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .addFacets(request.getFacets())
       .setPage(request.getPage(), request.getPageSize()));
 
-    List<String> projectUuids = esResults.getIds();
+    List<String> projectUuids = esResults.getUuids();
     Ordering<ProjectDto> ordering = Ordering.explicit(projectUuids).onResultOf(ProjectDto::getUuid);
     List<ProjectDto> projects = ordering.immutableSortedCopy(dbClient.projectDao().selectByUuids(dbSession, new HashSet<>(projectUuids)));
     Map<String, SnapshotDto> analysisByProjectUuid = getSnapshots(dbSession, request, projectUuids);

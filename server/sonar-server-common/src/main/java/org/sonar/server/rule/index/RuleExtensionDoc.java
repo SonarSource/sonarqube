@@ -41,20 +41,20 @@ public class RuleExtensionDoc extends BaseDoc {
 
   @Override
   public String getId() {
-    return idOf(getRuleId(), getScope());
+    return idOf(getRuleUuid(), getScope());
   }
 
-  public int getRuleId() {
-    return Integer.valueOf(ruleIdAsString());
+  public String getRuleUuid() {
+    return ruleUuidAsString();
   }
 
-  private String ruleIdAsString() {
-    return getField(RuleIndexDefinition.FIELD_RULE_ID);
+  private String ruleUuidAsString() {
+    return getField(RuleIndexDefinition.FIELD_RULE_UUID);
   }
 
-  public RuleExtensionDoc setRuleId(int ruleId) {
-    String parent = String.valueOf(ruleId);
-    setField(RuleIndexDefinition.FIELD_RULE_ID, parent);
+  public RuleExtensionDoc setRuleUuid(String ruleUuid) {
+    String parent = ruleUuid;
+    setField(RuleIndexDefinition.FIELD_RULE_UUID, parent);
     setParent(parent);
     return this;
   }
@@ -79,20 +79,20 @@ public class RuleExtensionDoc extends BaseDoc {
 
   public static RuleExtensionDoc of(RuleForIndexingDto rule) {
     return new RuleExtensionDoc()
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setScope(RuleExtensionScope.system())
       .setTags(rule.getSystemTags());
   }
 
   public static RuleExtensionDoc of(RuleExtensionForIndexingDto rule) {
     return new RuleExtensionDoc()
-      .setRuleId(rule.getRuleId())
+      .setRuleUuid(rule.getRuleUuid())
       .setScope(RuleExtensionScope.organization(rule.getOrganizationUuid()))
       .setTags(rule.getTagsAsSet());
   }
 
-  public static String idOf(int ruleId, RuleExtensionScope scope) {
-    return ruleId + "|" + scope.getScope();
+  public static String idOf(String ruleUuid, RuleExtensionScope scope) {
+    return ruleUuid + "|" + scope.getScope();
   }
 
   @Override

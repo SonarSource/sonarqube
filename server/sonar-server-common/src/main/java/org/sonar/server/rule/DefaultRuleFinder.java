@@ -28,27 +28,29 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Optional.empty;
 
 /**
  * Will be removed in the future.
  */
-public class DefaultRuleFinder implements RuleFinder {
+public class DefaultRuleFinder implements ServerRuleFinder {
 
   private final DbClient dbClient;
   private final RuleDao ruleDao;
@@ -61,14 +63,14 @@ public class DefaultRuleFinder implements RuleFinder {
   }
 
   @Override
-  @CheckForNull
-  public org.sonar.api.rules.Rule findById(int ruleId) {
+  public Optional<RuleDefinitionDto> findDtoByKey(RuleKey key) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<RuleDto> rule = ruleDao.selectById(ruleId, defaultOrganizationProvider.get().getUuid(), dbSession);
+      Optional<RuleDefinitionDto> rule = ruleDao.selectDefinitionByKey(dbSession, key);
       if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
-        return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
+        return rule;
+      } else {
+        return empty();
       }
-      return null;
     }
   }
 
@@ -119,11 +121,11 @@ public class DefaultRuleFinder implements RuleFinder {
 
   private Collection<org.sonar.api.rules.Rule> convertToRuleApi(DbSession dbSession, List<RuleDto> ruleDtos) {
     List<org.sonar.api.rules.Rule> rules = new ArrayList<>();
-    List<RuleKey> ruleKeys = FluentIterable.from(ruleDtos).transform(RuleDtoToKey.INSTANCE).toList();
+    List<RuleKey> ruleKeys = ruleDtos.stream().map(RuleDto::getKey).collect(Collectors.toList());
     List<RuleParamDto> ruleParamDtos = ruleDao.selectRuleParamsByRuleKeys(dbSession, ruleKeys);
-    ImmutableListMultimap<Integer, RuleParamDto> ruleParamByRuleId = FluentIterable.from(ruleParamDtos).index(RuleParamDtoToRuleId.INSTANCE);
+    ImmutableListMultimap<String, RuleParamDto> ruleParamByRuleUuid = FluentIterable.from(ruleParamDtos).index(RuleParamDtoToRuleUuid.INSTANCE);
     for (RuleDto rule : ruleDtos) {
-      rules.add(toRule(rule, ruleParamByRuleId.get(rule.getId())));
+      rules.add(toRule(rule, ruleParamByRuleUuid.get(rule.getUuid())));
     }
     return rules;
   }
@@ -146,8 +148,7 @@ public class DefaultRuleFinder implements RuleFinder {
       .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
       .setStatus(rule.getStatus().name())
       .setSystemTags(rule.getSystemTags().toArray(new String[rule.getSystemTags().size()]))
-      .setTags(rule.getTags().toArray(new String[rule.getTags().size()]))
-      .setId(rule.getId());
+      .setTags(rule.getTags().toArray(new String[rule.getTags().size()]));
     if (description != null && descriptionFormat != null) {
       if (RuleDto.Format.HTML.equals(descriptionFormat)) {
         apiRule.setDescription(description);
@@ -166,21 +167,12 @@ public class DefaultRuleFinder implements RuleFinder {
     return apiRule;
   }
 
-  private enum RuleDtoToKey implements Function<RuleDto, RuleKey> {
+  private enum RuleParamDtoToRuleUuid implements Function<RuleParamDto, String> {
     INSTANCE;
 
     @Override
-    public RuleKey apply(@Nonnull RuleDto input) {
-      return input.getKey();
-    }
-  }
-
-  private enum RuleParamDtoToRuleId implements Function<RuleParamDto, Integer> {
-    INSTANCE;
-
-    @Override
-    public Integer apply(@Nonnull RuleParamDto input) {
-      return input.getRuleId();
+    public String apply(@Nonnull RuleParamDto input) {
+      return input.getRuleUuid();
     }
   }
 

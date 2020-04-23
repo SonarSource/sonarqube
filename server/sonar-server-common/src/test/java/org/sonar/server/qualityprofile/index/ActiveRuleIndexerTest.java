@@ -37,8 +37,6 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 
-import static java.lang.String.valueOf;
-import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
@@ -97,7 +95,7 @@ public class ActiveRuleIndexerTest {
   public void test_commitAndIndex() {
     ActiveRuleDto ar1 = db.qualityProfiles().activateRule(profile1, rule1);
     ActiveRuleDto ar2 = db.qualityProfiles().activateRule(profile2, rule1);
-    ActiveRuleDto ar3 = db.qualityProfiles().activateRule(profile2, rule2);
+    db.qualityProfiles().activateRule(profile2, rule2);
 
     commitAndIndex(rule1, ar1, ar2);
 
@@ -107,7 +105,7 @@ public class ActiveRuleIndexerTest {
 
   @Test
   public void commitAndIndex_empty_list() {
-    ActiveRuleDto ar = db.qualityProfiles().activateRule(profile1, rule1);
+    db.qualityProfiles().activateRule(profile1, rule1);
 
     underTest.commitAndIndex(db.getSession(), Collections.emptyList());
 
@@ -122,7 +120,7 @@ public class ActiveRuleIndexerTest {
 
     commitAndIndex(rule1, ar);
 
-    EsQueueDto expectedItem = EsQueueDto.create(TYPE_ACTIVE_RULE.format(), "ar_" + ar.getUuid(), "activeRuleId", valueOf(ar.getRuleId()));
+    EsQueueDto expectedItem = EsQueueDto.create(TYPE_ACTIVE_RULE.format(), "ar_" + ar.getUuid(), "activeRuleUuid", ar.getRuleUuid());
     assertThatEsQueueContainsExactly(expectedItem);
     es.unlockWrites(TYPE_ACTIVE_RULE);
   }
@@ -145,7 +143,7 @@ public class ActiveRuleIndexerTest {
     EsQueueDto item = EsQueueDto.create(TYPE_ACTIVE_RULE.format(), "the_id", "unsupported", "the_routing");
     db.getDbClient().esQueueDao().insert(db.getSession(), item);
 
-    underTest.index(db.getSession(), asList(item));
+    underTest.index(db.getSession(), singletonList(item));
 
     assertThatEsQueueTableIsEmpty();
     assertThat(es.countDocuments(TYPE_ACTIVE_RULE)).isEqualTo(0);
@@ -154,8 +152,8 @@ public class ActiveRuleIndexerTest {
   @Test
   public void commitDeletionOfProfiles() {
     ActiveRuleDto ar1 = db.qualityProfiles().activateRule(profile1, rule1);
-    ActiveRuleDto ar2 = db.qualityProfiles().activateRule(profile2, rule1);
-    ActiveRuleDto ar3 = db.qualityProfiles().activateRule(profile2, rule2);
+    db.qualityProfiles().activateRule(profile2, rule1);
+    db.qualityProfiles().activateRule(profile2, rule2);
     indexAll();
     db.getDbClient().qualityProfileDao().deleteRulesProfilesByUuids(db.getSession(), singletonList(profile2.getRulesProfileUuid()));
 

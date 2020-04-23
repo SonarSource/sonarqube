@@ -272,7 +272,7 @@ public class QProfileFactoryImplTest {
     db.getDbClient().qualityProfileDao().insert(dbSession, rulesProfileDto);
     ActiveRuleDto activeRuleDto = new ActiveRuleDto()
       .setProfileUuid(rulesProfileDto.getUuid())
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setSeverity(Severity.BLOCKER);
     db.getDbClient().activeRuleDao().insert(dbSession, activeRuleDto);
 

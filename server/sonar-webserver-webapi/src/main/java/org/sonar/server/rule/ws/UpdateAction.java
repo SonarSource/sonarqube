@@ -209,7 +209,7 @@ public class UpdateAction implements RulesWsAction {
   private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key, OrganizationDto organization) {
     RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
       .orElseThrow(() -> new NotFoundException(format("This rule does not exist: %s", key)));
-    RuleUpdate ruleUpdate = ofNullable(rule.getTemplateId())
+    RuleUpdate ruleUpdate = ofNullable(rule.getTemplateUuid())
       .map(x -> RuleUpdate.createForCustomRule(key))
       .orElseGet(() -> RuleUpdate.createForPluginRule(key));
     ruleUpdate.setOrganization(organization);
@@ -256,10 +256,9 @@ public class UpdateAction implements RulesWsAction {
       .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
     List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
     if (rule.getDefinition().isCustomRule()) {
-      dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession)
-        .ifPresent(templateRules::add);
+      dbClient.ruleDao().selectDefinitionByUuid(rule.getTemplateUuid(), dbSession).ifPresent(templateRules::add);
     }
-    List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
+    List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
     UpdateResponse.Builder responseBuilder = UpdateResponse.newBuilder();
     SearchAction.SearchResult searchResult = new SearchAction.SearchResult()
       .setRules(singletonList(rule))

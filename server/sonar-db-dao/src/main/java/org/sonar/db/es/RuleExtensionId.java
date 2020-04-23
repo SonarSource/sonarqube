@@ -27,28 +27,28 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 
 public class RuleExtensionId {
-  private final int ruleId;
+  private final String ruleUuid;
   private final String organizationUuid;
   private final String id;
 
   private static final Splitter ID_SPLITTER = Splitter.on(CharMatcher.anyOf("|"));
 
-  public RuleExtensionId(String organizationUuid, int ruleId) {
+  public RuleExtensionId(String organizationUuid, String ruleUuid) {
     this.organizationUuid = organizationUuid;
-    this.ruleId = ruleId;
-    this.id = format("%s|%s", ruleId, organizationUuid);
+    this.ruleUuid = ruleUuid;
+    this.id = format("%s|%s", ruleUuid, organizationUuid);
   }
 
   public RuleExtensionId(String ruleExtensionId) {
     List<String> splittedId = ID_SPLITTER.splitToList(ruleExtensionId);
     checkArgument(splittedId.size() == 2, "Incorrect Id %s", ruleExtensionId);
     this.id = ruleExtensionId;
-    this.ruleId = Integer.parseInt(splittedId.get(0));
+    this.ruleUuid = splittedId.get(0);
     this.organizationUuid = splittedId.get(1);
   }
 
-  public int getRuleId() {
-    return ruleId;
+  public String getRuleUuid() {
+    return this.ruleUuid;
   }
 
   public String getOrganizationUuid() {

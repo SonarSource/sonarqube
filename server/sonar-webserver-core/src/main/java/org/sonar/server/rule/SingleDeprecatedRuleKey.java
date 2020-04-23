@@ -36,7 +36,7 @@ class SingleDeprecatedRuleKey {
   private String newRuleKey;
   private String newRepositoryKey;
   private String uuid;
-  private Integer ruleId;
+  private String ruleUuid;
 
   /**
    * static methods {@link #from(RulesDefinition.Rule)} and {@link #from(DeprecatedRuleKeyDto)} must be used
@@ -58,7 +58,7 @@ class SingleDeprecatedRuleKey {
   public static SingleDeprecatedRuleKey from(DeprecatedRuleKeyDto rule) {
     return new SingleDeprecatedRuleKey()
       .setUuid(rule.getUuid())
-      .setRuleId(rule.getRuleId())
+      .setRuleUuid(rule.getRuleUuid())
       .setNewRepositoryKey(rule.getNewRepositoryKey())
       .setNewRuleKey(rule.getNewRuleKey())
       .setOldRepositoryKey(rule.getOldRepositoryKey())
@@ -76,7 +76,6 @@ class SingleDeprecatedRuleKey {
   public RuleKey getOldRuleKeyAsRuleKey() {
     return RuleKey.of(oldRepositoryKey, oldRuleKey);
   }
-
 
   public RuleKey getNewRuleKeyAsRuleKey() {
     return RuleKey.of(newRepositoryKey, newRuleKey);
@@ -98,8 +97,8 @@ class SingleDeprecatedRuleKey {
   }
 
   @CheckForNull
-  public Integer getRuleId() {
-    return ruleId;
+  public String getRuleUuid() {
+    return ruleUuid;
   }
 
   @Override
@@ -122,8 +121,8 @@ class SingleDeprecatedRuleKey {
     return Objects.hash(oldRuleKey, oldRepositoryKey, newRuleKey, newRepositoryKey);
   }
 
-  private SingleDeprecatedRuleKey setRuleId(Integer ruleId) {
-    this.ruleId = ruleId;
+  private SingleDeprecatedRuleKey setRuleUuid(String ruleUuid) {
+    this.ruleUuid = ruleUuid;
     return this;
   }
 

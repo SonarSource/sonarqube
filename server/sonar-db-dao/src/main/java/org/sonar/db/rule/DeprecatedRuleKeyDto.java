@@ -31,9 +31,9 @@ public class DeprecatedRuleKeyDto {
    */
   private String uuid;
   /**
-   * the id of the current rule for this deprecated key
+   * the uuid of the current rule for this deprecated key
    */
-  private Integer ruleId;
+  private String ruleUuid;
   /**
    * repository key that was deprecated
    */
@@ -56,6 +56,10 @@ public class DeprecatedRuleKeyDto {
    */
   private String newRuleKey;
 
+  public DeprecatedRuleKeyDto() {
+    // nothing to do here
+  }
+
   public String getUuid() {
     return uuid;
   }
@@ -65,12 +69,12 @@ public class DeprecatedRuleKeyDto {
     return this;
   }
 
-  public Integer getRuleId() {
-    return ruleId;
+  public String getRuleUuid() {
+    return ruleUuid;
   }
 
-  public DeprecatedRuleKeyDto setRuleId(Integer ruleId) {
-    this.ruleId = ruleId;
+  public DeprecatedRuleKeyDto setRuleUuid(String ruleUuid) {
+    this.ruleUuid = ruleUuid;
     return this;
   }
 

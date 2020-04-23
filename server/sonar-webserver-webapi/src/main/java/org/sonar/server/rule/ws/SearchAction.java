@@ -23,7 +23,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.Severity;
@@ -235,24 +235,15 @@ public class SearchAction implements RulesWsAction {
   }
 
   private SearchResult doSearch(DbSession dbSession, RuleQuery query, SearchOptions context) {
-    SearchIdResult<Integer> result = ruleIndex.search(query, context);
-    List<Integer> ruleIds = result.getIds();
-    // rule order is managed by ES
-    Map<Integer, RuleDto> rulesByRuleKey = Maps.uniqueIndex(
-      dbClient.ruleDao().selectByIds(dbSession, query.getOrganization().getUuid(), ruleIds), RuleDto::getId);
-    List<RuleDto> rules = new ArrayList<>();
-    for (Integer ruleId : ruleIds) {
-      RuleDto rule = rulesByRuleKey.get(ruleId);
-      if (rule != null) {
-        rules.add(rule);
-      }
-    }
-    List<Integer> templateRuleIds = rules.stream()
-      .map(RuleDto::getTemplateId)
+    SearchIdResult<String> result = ruleIndex.search(query, context);
+    List<RuleDto> rules = dbClient.ruleDao().selectByUuids(dbSession, query.getOrganization().getUuid(), result.getUuids());
+    List<String> ruleUuids = rules.stream().map(RuleDto::getUuid).collect(Collectors.toList());
+    List<String> templateRuleUuids = rules.stream()
+      .map(RuleDto::getTemplateUuid)
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toList());
-    List<RuleDefinitionDto> templateRules = dbClient.ruleDao().selectDefinitionByIds(dbSession, templateRuleIds);
-    List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, ruleIds);
+    List<RuleDefinitionDto> templateRules = dbClient.ruleDao().selectDefinitionByUuids(dbSession, templateRuleUuids);
+    List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, ruleUuids);
     return new SearchResult()
       .setRules(rules)
       .setRuleParameters(ruleParamDtos)
@@ -362,15 +353,15 @@ public class SearchAction implements RulesWsAction {
 
   static class SearchResult {
     private List<RuleDto> rules;
-    private final ListMultimap<Integer, RuleParamDto> ruleParamsByRuleId;
-    private final Map<Integer, RuleDefinitionDto> templateRulesByRuleId;
+    private final ListMultimap<String, RuleParamDto> ruleParamsByRuleUuid;
+    private final Map<String, RuleDefinitionDto> templateRulesByRuleUuid;
     private Long total;
     private Facets facets;
 
     public SearchResult() {
       this.rules = new ArrayList<>();
-      this.ruleParamsByRuleId = ArrayListMultimap.create();
-      this.templateRulesByRuleId = new HashMap<>();
+      this.ruleParamsByRuleUuid = ArrayListMultimap.create();
+      this.templateRulesByRuleUuid = new HashMap<>();
     }
 
     public List<RuleDto> getRules() {
@@ -382,26 +373,26 @@ public class SearchAction implements RulesWsAction {
       return this;
     }
 
-    public ListMultimap<Integer, RuleParamDto> getRuleParamsByRuleId() {
-      return ruleParamsByRuleId;
+    public ListMultimap<String, RuleParamDto> getRuleParamsByRuleUuid() {
+      return ruleParamsByRuleUuid;
     }
 
     public SearchResult setRuleParameters(List<RuleParamDto> ruleParams) {
-      ruleParamsByRuleId.clear();
+      ruleParamsByRuleUuid.clear();
       for (RuleParamDto ruleParam : ruleParams) {
-        ruleParamsByRuleId.put(ruleParam.getRuleId(), ruleParam);
+        ruleParamsByRuleUuid.put(ruleParam.getRuleUuid(), ruleParam);
       }
       return this;
     }
 
-    public Map<Integer, RuleDefinitionDto> getTemplateRulesByRuleId() {
-      return templateRulesByRuleId;
+    public Map<String, RuleDefinitionDto> getTemplateRulesByRuleUuid() {
+      return templateRulesByRuleUuid;
     }
 
     public SearchResult setTemplateRules(List<RuleDefinitionDto> templateRules) {
-      templateRulesByRuleId.clear();
+      templateRulesByRuleUuid.clear();
       for (RuleDefinitionDto templateRule : templateRules) {
-        templateRulesByRuleId.put(templateRule.getId(), templateRule);
+        templateRulesByRuleUuid.put(templateRule.getUuid(), templateRule);
       }
       return this;
     }

@@ -149,7 +149,7 @@ public class RuleIndex {
     this.system2 = system2;
   }
 
-  public SearchIdResult<Integer> search(RuleQuery query, SearchOptions options) {
+  public SearchIdResult<String> search(RuleQuery query, SearchOptions options) {
     SearchRequestBuilder esSearch = client
       .prepareSearch(TYPE_RULE);
 
@@ -171,13 +171,13 @@ public class RuleIndex {
     }
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
-    return new SearchIdResult<>(esSearch.get(), Integer::parseInt, system2.getDefaultTimeZone());
+    return new SearchIdResult<>(esSearch.get(), input -> input, system2.getDefaultTimeZone());
   }
 
   /**
-   * Return all rule ids matching the search query, without pagination nor facets
+   * Return all rule uuids matching the search query, without pagination nor facets
    */
-  public Iterator<Integer> searchAll(RuleQuery query) {
+  public Iterator<String> searchAll(RuleQuery query) {
     SearchRequestBuilder esSearch = client
       .prepareSearch(TYPE_RULE)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
@@ -193,7 +193,7 @@ public class RuleIndex {
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
     SearchResponse response = esSearch.get();
-    return scrollIds(client, response, Integer::parseInt);
+    return scrollIds(client, response, i -> i);
   }
 
   /* Build main query (search based) */

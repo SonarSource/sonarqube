@@ -67,7 +67,7 @@ public class DeactivateRuleActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ArgumentCaptor<Collection<Integer>> ruleIdsCaptor = ArgumentCaptor.forClass(Collection.class);
+  private ArgumentCaptor<Collection<String>> ruleUuidsCaptor = ArgumentCaptor.forClass(Collection.class);
   private DbClient dbClient = db.getDbClient();
   private QProfileRules qProfileRules = mock(QProfileRules.class);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
@@ -105,8 +105,8 @@ public class DeactivateRuleActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleIdsCaptor.capture());
-    assertThat(ruleIdsCaptor.getValue()).containsExactly(rule.getId());
+    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleUuidsCaptor.capture());
+    assertThat(ruleUuidsCaptor.getValue()).containsExactly(rule.getUuid());
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }
 
@@ -125,8 +125,8 @@ public class DeactivateRuleActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleIdsCaptor.capture());
-    assertThat(ruleIdsCaptor.getValue()).containsExactly(rule.getId());
+    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleUuidsCaptor.capture());
+    assertThat(ruleUuidsCaptor.getValue()).containsExactly(rule.getUuid());
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }
 

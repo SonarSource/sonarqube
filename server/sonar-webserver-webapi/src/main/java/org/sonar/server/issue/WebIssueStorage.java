@@ -23,13 +23,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
@@ -40,12 +38,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.rule.ServerRuleFinder;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
@@ -59,12 +58,12 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 public class WebIssueStorage extends IssueStorage {
 
   private final System2 system2;
-  private final RuleFinder ruleFinder;
+  private final ServerRuleFinder ruleFinder;
   private final DbClient dbClient;
   private final IssueIndexer indexer;
   private final UuidFactory uuidFactory;
 
-  public WebIssueStorage(System2 system2, DbClient dbClient, RuleFinder ruleFinder, IssueIndexer indexer, UuidFactory uuidFactory) {
+  public WebIssueStorage(System2 system2, DbClient dbClient, ServerRuleFinder ruleFinder, IssueIndexer indexer, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
@@ -123,8 +122,8 @@ public class WebIssueStorage extends IssueStorage {
   private IssueDto doInsert(DbSession session, long now, DefaultIssue issue) {
     ComponentDto component = component(session, issue);
     ComponentDto project = project(session, issue);
-    int ruleId = requireNonNull(getRuleId(issue), "Rule not found: " + issue.ruleKey());
-    IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
+    String ruleUuid = getRuleUuid(issue).orElseThrow(() -> new IllegalStateException("Rule not found: " + issue.ruleKey()));
+    IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleUuid, now);
 
     getDbClient().issueDao().insert(session, dto);
     return dto;
@@ -161,13 +160,11 @@ public class WebIssueStorage extends IssueStorage {
     IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
     getDbClient().issueDao().update(session, dto);
     // Rule id does not exist in DefaultIssue
-    Integer ruleId = getRuleId(issue);
-    return dto.setRuleId(ruleId);
+    getRuleUuid(issue).ifPresent(dto::setRuleUuid);
+    return dto;
   }
 
-  @CheckForNull
-  protected Integer getRuleId(Issue issue) {
-    Rule rule = ruleFinder.findByKey(issue.ruleKey());
-    return rule != null ? rule.getId() : null;
+  protected Optional<String> getRuleUuid(Issue issue) {
+    return ruleFinder.findDtoByKey(issue.ruleKey()).map(RuleDefinitionDto::getUuid);
   }
 }

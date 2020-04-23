@@ -6,7 +6,7 @@
   <sql id="activeRuleColumns">
     a.uuid,
     a.profile_uuid as "profileUuid",
-    a.rule_id as "ruleId",
+    a.rule_uuid as "ruleUuid",
     a.failure_level as "severity",
     a.inheritance as "inheritance",
     r.plugin_rule_key as "rulefield",
@@ -19,7 +19,7 @@
   <sql id="orgActiveRuleColumns">
     a.uuid,
     a.profile_uuid as "profileUuid",
-    a.rule_id as "ruleId",
+    a.rule_uuid as "ruleUuid",
     a.failure_level as "severity",
     a.inheritance as "inheritance",
     r.plugin_rule_key as "rulefield",
@@ -34,22 +34,22 @@
 
   <sql id="activeRuleKeyJoin">
     inner join rules_profiles rp on rp.uuid = a.profile_uuid
-    inner join rules r on r.id = a.rule_id
+    inner join rules r on r.uuid = a.rule_uuid
   </sql>
 
   <insert id="insert" parameterType="ActiveRule">
     insert into active_rules (
       uuid,
       profile_uuid,
-      rule_id,
+      rule_uuid,
       failure_level,
       inheritance,
       created_at,
       updated_at
     ) values (
       #{uuid, jdbcType=VARCHAR},
-      #{profileUuid, jdbcType=BIGINT},
-      #{ruleId, jdbcType=BIGINT},
+      #{profileUuid, jdbcType=VARCHAR},
+      #{ruleUuid, jdbcType=VARCHAR},
       #{severity, jdbcType=INTEGER},
       #{inheritance, jdbcType=VARCHAR},
       #{createdAt, jdbcType=BIGINT},
@@ -122,7 +122,7 @@
     from active_rules a
     inner join rules_profiles rp on rp.uuid = a.profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
-    inner join rules r on r.id = a.rule_id and r.status != 'REMOVED'
+    inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
     where oqp.uuid = #{id, jdbcType=VARCHAR}
   </select>
 
@@ -132,7 +132,7 @@
     from active_rules a
     inner join rules_profiles rp on rp.uuid = a.profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
-    inner join rules r on r.id = a.rule_id and r.status != 'REMOVED'
+    inner join rules r on r.uuid = a.rule_uuid and r.status != 'REMOVED'
     where
       r.rule_type in <foreach collection="types" item="type" separator="," open="(" close=")">#{type, jdbcType=INTEGER}</foreach>
       and oqp.uuid in <foreach collection="profileUuids" item="uuid" separator="," open="(" close=")">#{uuid, jdbcType=VARCHAR}</foreach>
@@ -147,48 +147,48 @@
       rp.uuid = #{ruleProfileUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByRuleIdsAndRuleProfileUuids" parameterType="map" resultType="org.sonar.db.qualityprofile.ActiveRuleDto">
+  <select id="selectByRuleUuidsAndRuleProfileUuids" parameterType="map" resultType="org.sonar.db.qualityprofile.ActiveRuleDto">
     select
     <include refid="activeRuleColumns"/>
     from active_rules a
     <include refid="activeRuleKeyJoin"/>
     where
-    r.id in <foreach collection="ruleIds" item="ruleId" separator="," open="(" close=")">#{ruleId, jdbcType=BIGINT}</foreach>
+    r.uuid in <foreach collection="ruleUuids" item="ruleUuid" separator="," open="(" close=")">#{ruleUuid, jdbcType=VARCHAR}</foreach>
     and rp.uuid in <foreach collection="ruleProfileUuids" item="ruleProfileUuid" separator="," open="(" close=")">#{ruleProfileUuid, jdbcType=VARCHAR}</foreach>
   </select>
 
-  <select id="selectByRuleId" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+  <select id="selectByRuleUuid" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
     select
     <include refid="orgActiveRuleColumns"/>
     from active_rules a
     inner join rules_profiles rp on rp.uuid = a.profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
-    inner join rules r on r.id = a.rule_id
+    inner join rules r on r.uuid = a.rule_uuid
     where
-    a.rule_id = #{ruleId, jdbcType=BIGINT}
+    a.rule_uuid = #{ruleUuid, jdbcType=VARCHAR}
     and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByRuleIdOfAllOrganizations" parameterType="Integer" resultType="ActiveRule">
+  <select id="selectByRuleUuidOfAllOrganizations" parameterType="String" resultType="ActiveRule">
     select
     <include refid="activeRuleColumns"/>
     from active_rules a
     <include refid="activeRuleKeyJoin"/>
     where
-      a.rule_id = #{ruleId, jdbcType=BIGINT}
+      r.uuid = #{ruleUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByRuleIds" parameterType="List" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+  <select id="selectByRuleUuids" parameterType="List" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
     select
     <include refid="orgActiveRuleColumns"/>
     from active_rules a
     inner join rules_profiles rp on rp.uuid = a.profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
-    inner join rules r on r.id = a.rule_id
+    inner join rules r on r.uuid = a.rule_uuid
     where
-    a.rule_id in
-    <foreach collection="ruleIds" item="ruleId" separator="," open="(" close=")">
-      #{ruleId, jdbcType=BIGINT}
+    a.rule_uuid in
+    <foreach collection="ruleUuids" item="ruleUuid" separator="," open="(" close=")">
+      #{ruleUuid, jdbcType=VARCHAR}
     </foreach>
     and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
@@ -278,7 +278,7 @@
     from active_rules ar
     inner join rules_profiles rp on rp.uuid = ar.profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
-    inner join rules r on r.id = ar.rule_id
+    inner join rules r on r.uuid = ar.rule_uuid
     <where>
       oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
       and <foreach collection="profileUuids" item="profileUuid" open="(" separator=" or " close=")">
@@ -319,13 +319,13 @@
     ar.uuid as "uuid",
     ar.failure_level as "severity",
     ar.inheritance as "inheritance",
-    r.id as "ruleId",
+    r.uuid as "ruleUuid",
     r.plugin_name as "repository",
     r.plugin_rule_key as "key",
     rp.uuid as "ruleProfileUuid"
     from active_rules ar
     inner join rules_profiles rp on rp.uuid = ar.profile_uuid
-    inner join rules r on r.id = ar.rule_id
+    inner join rules r on r.uuid = ar.rule_uuid
   </sql>
 </mapper>
 

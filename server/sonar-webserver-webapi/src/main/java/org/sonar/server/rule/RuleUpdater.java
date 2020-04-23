@@ -81,7 +81,7 @@ public class RuleUpdater {
     apply(update, rule, userSession);
     update(dbSession, rule);
     updateParameters(dbSession, organization, update, rule);
-    ruleIndexer.commitAndIndex(dbSession, rule.getId(), organization);
+    ruleIndexer.commitAndIndex(dbSession, rule.getUuid(), organization);
 
     return true;
   }
@@ -212,12 +212,12 @@ public class RuleUpdater {
   private void updateParameters(DbSession dbSession, OrganizationDto organization, RuleUpdate update, RuleDto rule) {
     if (update.isChangeParameters() && update.isCustomRule()) {
       RuleDto customRule = rule;
-      Integer templateId = customRule.getTemplateId();
-      checkNotNull(templateId, "Rule '%s' has no persisted template!", customRule);
-      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(templateId, dbSession);
+      String templateUuid = customRule.getTemplateUuid();
+      checkNotNull(templateUuid, "Rule '%s' has no persisted template!", customRule);
+      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionByUuid(templateUuid, dbSession);
       if (!templateRule.isPresent()) {
         throw new IllegalStateException(String.format("Template %s of rule %s does not exist",
-          customRule.getTemplateId(), customRule.getKey()));
+          customRule.getTemplateUuid(), customRule.getKey()));
       }
       List<String> paramKeys = newArrayList();
 
@@ -229,7 +229,7 @@ public class RuleUpdater {
   }
 
   private Multimap<ActiveRuleDto, ActiveRuleParamDto> getActiveRuleParamsByActiveRule(DbSession dbSession, OrganizationDto organization, RuleDto customRule) {
-    List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleId(dbSession, organization, customRule.getId());
+    List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleUuid(dbSession, organization, customRule.getUuid());
     Map<String, OrgActiveRuleDto> activeRuleByUuid = from(activeRuleDtos).uniqueIndex(ActiveRuleDto::getUuid);
     List<String> activeRuleUuids = Lists.transform(activeRuleDtos, ActiveRuleDto::getUuid);
     List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleUuids(dbSession, activeRuleUuids);

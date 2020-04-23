@@ -99,8 +99,8 @@ public class ActiveRuleCompleter {
       }
     } else {
       // Load details of all active rules
-      List<Integer> ruleIds = Lists.transform(rules, RuleDto::getId);
-      List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleIds(dbSession, query.getOrganization(), ruleIds);
+      List<String> ruleUuids = Lists.transform(rules, RuleDto::getUuid);
+      List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleUuids(dbSession, query.getOrganization(), ruleUuids);
       Multimap<RuleKey, OrgActiveRuleDto> activeRulesByRuleKey = activeRules.stream()
         .collect(MoreCollectors.index(OrgActiveRuleDto::getRuleKey));
       ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = loadParams(dbSession, activeRules);
@@ -141,7 +141,7 @@ public class ActiveRuleCompleter {
   }
 
   List<Rules.Active> completeShow(DbSession dbSession, OrganizationDto organization, RuleDefinitionDto rule) {
-    List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleId(dbSession, organization, rule.getId());
+    List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleUuid(dbSession, organization, rule.getUuid());
     Map<String, ActiveRuleKey> activeRuleUuidsByKey = new HashMap<>();
     for (OrgActiveRuleDto activeRuleDto : activeRules) {
       activeRuleUuidsByKey.put(activeRuleDto.getUuid(), activeRuleDto.getKey());

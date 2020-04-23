@@ -112,7 +112,7 @@ public class RuleUpdaterTest {
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
     db.rules().insert(ruleDto.getDefinition());
-    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
     RuleUpdate update = createForPluginRule(RULE_KEY);
@@ -144,7 +144,7 @@ public class RuleUpdaterTest {
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
     db.rules().insert(ruleDto.getDefinition());
-    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
@@ -171,7 +171,7 @@ public class RuleUpdaterTest {
       .setNoteData("my *note*")
       .setNoteUserUuid("me");
     db.rules().insert(ruleDto.getDefinition());
-    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
@@ -213,6 +213,7 @@ public class RuleUpdaterTest {
   @Test
   public void remove_tags() {
     RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, db.getDefaultOrganization())
+      .setUuid("57a3af91-32f8-48b0-9e11-0eac14ffa915")
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc"));
     db.rules().insert(ruleDto.getDefinition());
@@ -320,7 +321,7 @@ public class RuleUpdaterTest {
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort("1min");
     db.rules().insert(ruleDto.getDefinition());
-    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleUuid(ruleDto.getUuid()));
     dbSession.commit();
 
     RuleUpdate update = createForPluginRule(RULE_KEY)
@@ -383,8 +384,8 @@ public class RuleUpdaterTest {
     assertThat(params).extracting(RuleParamDto::getDefaultValue).containsOnly("b.*", null);
 
     // Verify in index
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New name"), new SearchOptions()).getIds()).containsOnly(customRule.getId());
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New description"), new SearchOptions()).getIds()).containsOnly(customRule.getId());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New name"), new SearchOptions()).getUuids()).containsOnly(customRule.getUuid());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New description"), new SearchOptions()).getUuids()).containsOnly(customRule.getUuid());
 
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old name"), new SearchOptions()).getTotal()).isZero();
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old description"), new SearchOptions()).getTotal()).isZero();
@@ -453,7 +454,7 @@ public class RuleUpdaterTest {
     // Activate the custom rule
     ActiveRuleDto activeRuleDto = new ActiveRuleDto()
       .setProfileUuid(profileDto.getRulesProfileUuid())
-      .setRuleId(customRule.getId())
+      .setRuleUuid(customRule.getUuid())
       .setSeverity(Severity.BLOCKER);
     db.getDbClient().activeRuleDao().insert(dbSession, activeRuleDto);
     db.getDbClient().activeRuleDao().insertParam(dbSession, activeRuleDto, new ActiveRuleParamDto()

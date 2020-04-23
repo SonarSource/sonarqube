@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.rule.RuleMapper">
 
   <sql id="selectDefinitionColumns">
-    r.id,
+    r.uuid,
     r.plugin_rule_key as "ruleKey",
     r.plugin_name as "repositoryKey",
     r.description,
@@ -17,7 +17,7 @@
     r.is_external as "isExternal",
     r.is_ad_hoc as "isAdHoc",
     r.language as "language",
-    r.template_id as "templateId",
+    r.template_uuid as "templateUuid",
     r.def_remediation_function as "defRemediationFunction",
     r.def_remediation_gap_mult as "defRemediationGapMultiplier",
     r.def_remediation_base_effort as "defRemediationBaseEffort",
@@ -57,7 +57,7 @@
 
   <sql id="outerJoinRulesMetadata">
     left outer join rules_metadata rm on
-      rm.rule_id = r.id
+      rm.rule_uuid = r.uuid
       and rm.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </sql>
 
@@ -85,45 +85,45 @@
       r.status != 'REMOVED'
   </select>
 
-  <select id="selectById" parameterType="map" resultType="Rule">
+  <select id="selectByUuid" parameterType="map" resultType="Rule">
     select
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
     <include refid="outerJoinRulesMetadata"/>
     where
-      r.id=#{id,jdbcType=INTEGER}
+      r.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectDefinitionById" parameterType="Long" resultType="org.sonar.db.rule.RuleDefinitionDto">
+  <select id="selectDefinitionByUuid" parameterType="String" resultType="org.sonar.db.rule.RuleDefinitionDto">
     select
       <include refid="selectRuleTableColumns"/>
     from
       rules r
     where
-      r.id=#{id,jdbcType=INTEGER}
+      r.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByIds" parameterType="map" resultType="Rule">
+  <select id="selectByUuids" parameterType="map" resultType="Rule">
     select
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
     <include refid="outerJoinRulesMetadata"/>
     where
-      <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
-        r.id=#{id,jdbcType=INTEGER}
+      <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
+        r.uuid=#{uuid,jdbcType=VARCHAR}
       </foreach>
   </select>
 
-  <select id="selectDefinitionByIds" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
+  <select id="selectDefinitionByUuids" parameterType="map" resultType="org.sonar.db.rule.RuleDefinitionDto">
     select
       <include refid="selectRuleTableColumns"/>
     from
       rules r
     where
-      <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
-        r.id=#{id,jdbcType=INTEGER}
+      <foreach collection="uuids" index="index" item="uuid" open="" separator=" or " close="">
+        r.uuid=#{uuid,jdbcType=VARCHAR}
       </foreach>
   </select>
 
@@ -152,7 +152,7 @@
     <include refid="sqlSelectIndexingRuleExtensions" />
     and
     <foreach collection="ruleExtensionIds" index="index" item="ruleExtId" open="" separator=" or " close="">
-      ( r.id = #{ruleExtId.ruleId, jdbcType=INTEGER} and
+      ( r.uuid = #{ruleExtId.ruleUuid, jdbcType=VARCHAR} and
       rm.organization_uuid = #{ruleExtId.organizationUuid, jdbcType=VARCHAR} )
     </foreach>
   </select>
@@ -163,13 +163,13 @@
 
   <sql id="sqlSelectIndexingRuleExtensions">
     select
-      r.id as "ruleId",
+      r.uuid as "ruleUuid",
       r.plugin_name as "pluginName",
       r.plugin_rule_key as "pluginRuleKey",
       rm.organization_uuid as "organizationUuid",
       rm.tags as "tags"
     from rules r
-    inner join rules_metadata rm on rm.rule_id = r.id
+    inner join rules_metadata rm on rm.rule_uuid = r.uuid
     where
       rm.tags is not null and
       rm.tags != ''
@@ -177,20 +177,20 @@
 
   <sql id="sqlSelectIndexingRuleExtensions" databaseId="oracle">
     select
-      r.id as "ruleId",
+      r.uuid as "ruleUuid",
       r.plugin_name as "pluginName",
       r.plugin_rule_key as "pluginRuleKey",
       rm.organization_uuid as "organizationUuid",
       rm.tags as "tags"
     from rules r
-    inner join rules_metadata rm on rm.rule_id = r.id
+    inner join rules_metadata rm on rm.rule_uuid = r.uuid
     where
       rm.tags is not null
   </sql>
 
   <select id="selectMetadataByKey" parameterType="map" resultType="org.sonar.db.rule.RuleMetadataDto">
     select
-      rm.rule_id as "ruleId",
+      rm.rule_uuid as "ruleUuid",
       rm.organization_uuid as "organizationUuid",
       rm.note_data as "noteData",
       rm.note_user_uuid as "noteUserUuid",
@@ -208,7 +208,7 @@
       rm.updated_at as "updatedAt"
     from
       rules_metadata rm
-      inner join rules r on rm.rule_id = r.id
+      inner join rules r on rm.rule_uuid = r.uuid
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
@@ -238,21 +238,23 @@
       </foreach>
   </select>
 
-  <select id="selectIndexingRulesByIds" parameterType="map" resultType="org.sonar.db.rule.RuleForIndexingDto">
+  <select id="selectIndexingRulesByUuids" parameterType="map" resultType="org.sonar.db.rule.RuleForIndexingDto">
     <include refid="sqlSelectIndexingRules"/>
     where
-      <foreach collection="ruleIds" index="index" item="ruleId" open="" separator=" or " close="">
-        r.id=#{ruleId,jdbcType=INTEGER}
+      <foreach collection="ruleUuids" index="index" item="ruleUuid" open="" separator=" or " close="">
+        r.uuid=#{ruleUuid,jdbcType=VARCHAR}
       </foreach>
+    order by r.created_at asc
   </select>
 
   <select id="scrollIndexingRules" resultType="org.sonar.db.rule.RuleForIndexingDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     <include refid="sqlSelectIndexingRules"/>
+    order by r.created_at asc
   </select>
 
   <sql id="sqlSelectIndexingRules">
     select
-      r.id as "id",
+      r.uuid as "uuid",
       r.plugin_name as "repository",
       r.plugin_rule_key as "pluginRuleKey",
       r.name as "name",
@@ -272,7 +274,7 @@
       r.created_at as "createdAt",
       r.updated_at as "updatedAt"
     from rules r
-    left outer join rules t on t.id = r.template_id
+    left outer join rules t on t.uuid = r.template_uuid
   </sql>
 
   <select id="selectByQuery" parameterType="map" resultType="Rule">
@@ -308,8 +310,9 @@
       and r.language in <foreach collection="languages" item="language" separator="," open="(" close=")">#{language, jdbcType=VARCHAR}</foreach>
   </select>
 
-  <insert id="insertDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertDefinition" parameterType="org.sonar.db.rule.RuleDefinitionDto" useGeneratedKeys="false">
     insert into rules (
+      uuid,
       plugin_key,
       plugin_rule_key,
       plugin_name,
@@ -323,7 +326,7 @@
       is_external,
       is_ad_hoc,
       language,
-      template_id,
+      template_uuid,
       def_remediation_function,
       def_remediation_gap_mult,
       def_remediation_base_effort,
@@ -336,6 +339,7 @@
       updated_at
     )
     values (
+      #{uuid,jdbcType=VARCHAR},
       #{pluginKey,jdbcType=VARCHAR},
       #{ruleKey,jdbcType=VARCHAR},
       #{repositoryKey,jdbcType=VARCHAR},
@@ -349,7 +353,7 @@
       #{isExternal,jdbcType=BOOLEAN},
       #{isAdHoc,jdbcType=BOOLEAN},
       #{language,jdbcType=VARCHAR},
-      #{templateId,jdbcType=INTEGER},
+      #{templateUuid,jdbcType=VARCHAR},
       #{defRemediationFunction,jdbcType=VARCHAR},
       #{defRemediationGapMultiplier,jdbcType=VARCHAR},
       #{defRemediationBaseEffort,jdbcType=VARCHAR},
@@ -378,7 +382,7 @@
       is_external=#{isExternal,jdbcType=BOOLEAN},
       is_ad_hoc=#{isAdHoc,jdbcType=BOOLEAN},
       language=#{language,jdbcType=VARCHAR},
-      template_id=#{templateId,jdbcType=INTEGER},
+      template_uuid=#{templateUuid,jdbcType=VARCHAR},
       def_remediation_function=#{defRemediationFunction,jdbcType=VARCHAR},
       def_remediation_gap_mult=#{defRemediationGapMultiplier,jdbcType=VARCHAR},
       def_remediation_base_effort=#{defRemediationBaseEffort,jdbcType=VARCHAR},
@@ -389,7 +393,7 @@
       rule_type=#{type,jdbcType=TINYINT},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
-      id=#{id,jdbcType=INTEGER}
+      uuid=#{uuid,jdbcType=VARCHAR}
   </update>
 
   <select id="countMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto" resultType="int">
@@ -398,13 +402,13 @@
     from
       rules_metadata rm
     where
-      rm.rule_id=#{ruleId,jdbcType=INTEGER}
+      rm.rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
       and rm.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
   <insert id="insertMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto">
     insert into rules_metadata (
-      rule_id,
+      rule_uuid,
       organization_uuid,
       note_data,
       note_user_uuid,
@@ -422,7 +426,7 @@
       updated_at
     )
     values (
-      #{ruleId,jdbcType=INTEGER},
+      #{ruleUuid,jdbcType=VARCHAR},
       #{organizationUuid,jdbcType=VARCHAR},
       #{noteData,jdbcType=CLOB},
       #{noteUserUuid,jdbcType=VARCHAR},
@@ -457,7 +461,7 @@
       ad_hoc_type=#{adHocType,jdbcType=TINYINT},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
-      rule_id=#{ruleId,jdbcType=INTEGER}
+      rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
       and organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </update>
 
@@ -470,21 +474,21 @@
 
   <sql id="paramColumns">
     p.uuid as "uuid",
-    p.rule_id as "ruleId",
+    p.rule_uuid as "ruleUuid",
     p.name as "name",
     p.param_type as "type",
     p.default_value as "defaultValue",
     p.description as "description"
   </sql>
 
-  <select id="selectParamsByRuleIds" resultType="RuleParam">
+  <select id="selectParamsByRuleUuids" resultType="RuleParam">
     select
       <include refid="paramColumns"/>
     from
       rules_parameters p
     where
-      <foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">
-        p.rule_id=#{id,jdbcType=INTEGER}
+      <foreach item="uuid" index="index" collection="ruleUuids" open="(" separator=" or " close=")">
+        p.rule_uuid=#{uuid,jdbcType=VARCHAR}
       </foreach>
   </select>
 
@@ -494,7 +498,7 @@
     from
       rules_parameters p, rules r
     where
-      p.rule_id=r.id
+      p.rule_uuid=r.uuid
       and r.plugin_name=#{repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{rule,jdbcType=VARCHAR}
   </select>
@@ -505,7 +509,7 @@
     from
       rules_parameters p
     inner join rules r on
-      r.id=p.rule_id
+      r.uuid=p.rule_uuid
     where
       <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
         (r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR} AND r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR})
@@ -522,7 +526,7 @@
   <insert id="insertParameter" parameterType="RuleParam" useGeneratedKeys="false">
     insert into rules_parameters (
       uuid,
-      rule_id,
+      rule_uuid,
       name,
       param_type,
       default_value,
@@ -530,7 +534,7 @@
     )
     values (
       #{uuid,jdbcType=VARCHAR},
-      #{ruleId,jdbcType=INTEGER},
+      #{ruleUuid,jdbcType=VARCHAR},
       #{name,jdbcType=VARCHAR},
       #{type,jdbcType=VARCHAR},
       #{defaultValue,jdbcType=VARCHAR},
@@ -550,7 +554,7 @@
   <select id="selectAllDeprecatedRuleKeys" resultType="org.sonar.db.rule.DeprecatedRuleKeyDto">
     SELECT
       drk.uuid,
-      drk.rule_id as "ruleId",
+      drk.rule_uuid as "ruleUuid",
       drk.old_repository_key as "oldRepositoryKey",
       drk.old_rule_key as "oldRuleKey",
       r.plugin_rule_key as "newRuleKey",
@@ -558,7 +562,7 @@
       drk.created_at as "createdAt"
     FROM
       deprecated_rule_keys drk
-    LEFT OUTER JOIN rules r on r.id = drk.rule_id
+    LEFT OUTER JOIN rules r on r.uuid = drk.rule_uuid
   </select>
 
   <delete id="deleteDeprecatedRuleKeys">
@@ -573,14 +577,14 @@
   <insert id="insertDeprecatedRuleKey" parameterType="org.sonar.db.rule.DeprecatedRuleKeyDto" keyColumn="uuid" useGeneratedKeys="false" keyProperty="uuid">
     INSERT INTO deprecated_rule_keys (
       uuid,
-      rule_id,
+      rule_uuid,
       old_repository_key,
       old_rule_key,
       created_at
     )
     values (
       #{uuid,jdbcType=VARCHAR},
-      #{ruleId,jdbcType=INTEGER},
+      #{ruleUuid,jdbcType=VARCHAR},
       #{oldRepositoryKey,jdbcType=VARCHAR},
       #{oldRuleKey,jdbcType=VARCHAR},
       #{createdAt,jdbcType=BIGINT}

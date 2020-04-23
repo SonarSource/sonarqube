@@ -61,14 +61,14 @@ public class ComponentIndexSearchTest {
   @Test
   public void filter_by_language() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto javaFile = db.components().insertComponent(newFileDto(project).setLanguage("java"));
+    db.components().insertComponent(newFileDto(project).setLanguage("java"));
     ComponentDto jsFile1 = db.components().insertComponent(newFileDto(project).setLanguage("js"));
     ComponentDto jsFile2 = db.components().insertComponent(newFileDto(project).setLanguage("js"));
     index(project);
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setLanguage("js").build(), new SearchOptions());
 
-    assertThat(result.getIds()).containsExactlyInAnyOrder(jsFile1.uuid(), jsFile2.uuid());
+    assertThat(result.getUuids()).containsExactlyInAnyOrder(jsFile1.uuid(), jsFile2.uuid());
   }
 
   @Test
@@ -79,19 +79,19 @@ public class ComponentIndexSearchTest {
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQuery("shiny").build(), new SearchOptions());
 
-    assertThat(result.getIds()).containsExactlyInAnyOrder(project.uuid());
+    assertThat(result.getUuids()).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test
   public void filter_by_key_with_exact_match() {
     ComponentDto ignoredProject = db.components().insertPrivateProject(p -> p.setDbKey("ignored-project"));
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("shiny-project"));
-    ComponentDto anotherIgnoreProject = db.components().insertPrivateProject(p -> p.setDbKey("another-shiny-project"));
+    db.components().insertPrivateProject(p -> p.setDbKey("another-shiny-project"));
     index(ignoredProject, project);
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQuery("shiny-project").build(), new SearchOptions());
 
-    assertThat(result.getIds()).containsExactlyInAnyOrder(project.uuid());
+    assertThat(result.getUuids()).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test
@@ -102,7 +102,7 @@ public class ComponentIndexSearchTest {
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQualifiers(singleton(Qualifiers.FILE)).build(), new SearchOptions());
 
-    assertThat(result.getIds()).containsExactlyInAnyOrder(file.uuid());
+    assertThat(result.getUuids()).containsExactlyInAnyOrder(file.uuid());
   }
 
   @Test
@@ -115,7 +115,7 @@ public class ComponentIndexSearchTest {
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setOrganization(organization.getUuid()).build(), new SearchOptions());
 
-    assertThat(result.getIds()).containsExactlyInAnyOrder(project.uuid());
+    assertThat(result.getUuids()).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test
@@ -127,7 +127,7 @@ public class ComponentIndexSearchTest {
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions());
 
-    assertThat(result.getIds()).containsExactly(project1.uuid(), project2.uuid(), project3.uuid());
+    assertThat(result.getUuids()).containsExactly(project1.uuid(), project2.uuid(), project3.uuid());
   }
 
   @Test
@@ -139,7 +139,7 @@ public class ComponentIndexSearchTest {
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions().setPage(2, 3));
 
-    assertThat(result.getIds()).containsExactlyInAnyOrder(projects.get(3).uuid(), projects.get(4).uuid(), projects.get(5).uuid());
+    assertThat(result.getUuids()).containsExactlyInAnyOrder(projects.get(3).uuid(), projects.get(4).uuid(), projects.get(5).uuid());
   }
 
   @Test
@@ -153,7 +153,7 @@ public class ComponentIndexSearchTest {
 
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().build(), new SearchOptions());
 
-    assertThat(result.getIds()).containsExactlyInAnyOrder(project1.uuid(), project2.uuid())
+    assertThat(result.getUuids()).containsExactlyInAnyOrder(project1.uuid(), project2.uuid())
       .doesNotContain(unauthorizedProject.uuid());
   }
 

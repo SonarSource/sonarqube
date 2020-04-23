@@ -96,12 +96,12 @@ public class RuleIndexer implements ResilientIndexer {
     }
   }
 
-  public void commitAndIndex(DbSession dbSession, int ruleId) {
-    commitAndIndex(dbSession, singletonList(ruleId));
+  public void commitAndIndex(DbSession dbSession, String ruleUuid) {
+    commitAndIndex(dbSession, singletonList(ruleUuid));
   }
 
-  public void commitAndIndex(DbSession dbSession, Collection<Integer> ruleIds) {
-    List<EsQueueDto> items = ruleIds.stream()
+  public void commitAndIndex(DbSession dbSession, Collection<String> ruleUuids) {
+    List<EsQueueDto> items = ruleUuids.stream()
       .map(RuleIndexer::createQueueDtoForRule)
       .collect(MoreCollectors.toArrayList());
 
@@ -113,8 +113,8 @@ public class RuleIndexer implements ResilientIndexer {
   /**
    * Commit a change on a rule and its extension on the given organization
    */
-  public void commitAndIndex(DbSession dbSession, int ruleId, OrganizationDto organization) {
-    List<EsQueueDto> items = asList(createQueueDtoForRule(ruleId), createQueueDtoForRuleExtension(ruleId, organization));
+  public void commitAndIndex(DbSession dbSession, String ruleUuid, OrganizationDto organization) {
+    List<EsQueueDto> items = asList(createQueueDtoForRule(ruleUuid), createQueueDtoForRuleExtension(ruleUuid, organization));
     dbClient.esQueueDao().insert(dbSession, items);
     dbSession.commit();
     postCommit(dbSession, items);
@@ -146,23 +146,23 @@ public class RuleIndexer implements ResilientIndexer {
     BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
 
-    Set<Integer> ruleIds = items
+    Set<String> ruleUuids = items
       .stream()
-      .map(i -> Integer.parseInt(i.getDocId()))
+      .map(EsQueueDto::getDocId)
       .collect(toHashSet(items.size()));
 
-    dbClient.ruleDao().scrollIndexingRulesByKeys(dbSession, ruleIds,
+    dbClient.ruleDao().scrollIndexingRulesByKeys(dbSession, ruleUuids,
       r -> {
         bulkIndexer.add(ruleDocOf(r).toIndexRequest());
         bulkIndexer.add(RuleExtensionDoc.of(r).toIndexRequest());
-        ruleIds.remove(r.getId());
+        ruleUuids.remove(r.getUuid());
       });
 
     // the remaining items reference rows that don't exist in db. They must
     // be deleted from index.
-    ruleIds.forEach(ruleId -> {
-      bulkIndexer.addDeletion(TYPE_RULE, ruleId.toString(), ruleId.toString());
-      bulkIndexer.addDeletion(TYPE_RULE_EXTENSION, RuleExtensionDoc.idOf(ruleId, RuleExtensionScope.system()), ruleId.toString());
+    ruleUuids.forEach(ruleUuid -> {
+      bulkIndexer.addDeletion(TYPE_RULE, ruleUuid, ruleUuid);
+      bulkIndexer.addDeletion(TYPE_RULE_EXTENSION, RuleExtensionDoc.idOf(ruleUuid, RuleExtensionScope.system()), ruleUuid);
     });
 
     return Optional.of(bulkIndexer.stop());
@@ -185,14 +185,14 @@ public class RuleIndexer implements ResilientIndexer {
       // only index requests, no deletion requests.
       // Deactivated users are not deleted but updated.
       r -> {
-        RuleExtensionId docId = new RuleExtensionId(r.getOrganizationUuid(), r.getRuleId());
+        RuleExtensionId docId = new RuleExtensionId(r.getOrganizationUuid(), r.getRuleUuid());
         docIds.remove(docId);
         bulkIndexer.add(RuleExtensionDoc.of(r).toIndexRequest());
       });
 
     // the remaining items reference rows that don't exist in db. They must
     // be deleted from index.
-    docIds.forEach(docId -> bulkIndexer.addDeletion(TYPE_RULE_EXTENSION, docId.getId(), String.valueOf(docId.getRuleId())));
+    docIds.forEach(docId -> bulkIndexer.addDeletion(TYPE_RULE_EXTENSION, docId.getId(), docId.getRuleUuid()));
 
     return Optional.of(bulkIndexer.stop());
   }
@@ -239,14 +239,14 @@ public class RuleIndexer implements ResilientIndexer {
     return new RuleExtensionId(esQueueDto.getDocId());
   }
 
-  private static EsQueueDto createQueueDtoForRule(int ruleId) {
-    String docId = String.valueOf(ruleId);
+  private static EsQueueDto createQueueDtoForRule(String ruleUuid) {
+    String docId = ruleUuid;
     return EsQueueDto.create(TYPE_RULE.format(), docId, null, docId);
   }
 
-  private static EsQueueDto createQueueDtoForRuleExtension(int ruleId, OrganizationDto organization) {
-    String docId = RuleExtensionDoc.idOf(ruleId, RuleExtensionScope.organization(organization));
-    return EsQueueDto.create(TYPE_RULE_EXTENSION.format(), docId, null, String.valueOf(ruleId));
+  private static EsQueueDto createQueueDtoForRuleExtension(String ruleUuid, OrganizationDto organization) {
+    String docId = RuleExtensionDoc.idOf(ruleUuid, RuleExtensionScope.organization(organization));
+    return EsQueueDto.create(TYPE_RULE_EXTENSION.format(), docId, null, ruleUuid);
   }
 
 }

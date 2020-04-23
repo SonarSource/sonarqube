@@ -55,6 +55,7 @@ import org.sonar.server.security.SecurityStandards.VulnerabilityProbability;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -426,7 +427,7 @@ public class IssueIndexerTest {
   }
 
   private IndexingResult indexProject(String projectUuid, ProjectIndexer.Cause cause) {
-    Collection<EsQueueDto> items = underTest.prepareForRecovery(db.getSession(), asList(projectUuid), cause);
+    Collection<EsQueueDto> items = underTest.prepareForRecovery(db.getSession(), singletonList(projectUuid), cause);
     db.commit();
     return underTest.index(db.getSession(), items);
   }

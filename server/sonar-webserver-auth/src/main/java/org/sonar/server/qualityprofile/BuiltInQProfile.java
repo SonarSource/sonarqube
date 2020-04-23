@@ -67,24 +67,24 @@ public final class BuiltInQProfile {
   }
 
   static final class ActiveRule {
-    private final int ruleId;
+    private final String ruleUuid;
     private final RuleKey ruleKey;
     private final String severity;
     private final List<OverriddenParam> params;
 
-    ActiveRule(int ruleId, BuiltInActiveRule builtIn) {
-      this(ruleId, RuleKey.of(builtIn.repoKey(), builtIn.ruleKey()), builtIn.overriddenSeverity(), builtIn.overriddenParams());
+    ActiveRule(String ruleUuid, BuiltInActiveRule builtIn) {
+      this(ruleUuid, RuleKey.of(builtIn.repoKey(), builtIn.ruleKey()), builtIn.overriddenSeverity(), builtIn.overriddenParams());
     }
 
-    ActiveRule(int ruleId, RuleKey ruleKey, @Nullable String severity, List<OverriddenParam> params) {
-      this.ruleId = ruleId;
+    ActiveRule(String ruleUuid, RuleKey ruleKey, @Nullable String severity, List<OverriddenParam> params) {
+      this.ruleUuid = ruleUuid;
       this.ruleKey = ruleKey;
       this.severity = severity;
       this.params = params;
     }
 
-    public int getRuleId() {
-      return ruleId;
+    public String getRuleUuid() {
+      return ruleUuid;
     }
 
     public RuleKey getRuleKey() {

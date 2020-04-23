@@ -173,10 +173,10 @@ public class CreateAction implements RulesWsAction {
       .orElseThrow(() -> new IllegalStateException(String.format("Cannot load rule, that has just been created '%s'", ruleKey)));
     List<RuleDefinitionDto> templateRules = new ArrayList<>();
     if (rule.isCustomRule()) {
-      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
+      Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionByUuid(rule.getTemplateUuid(), dbSession);
       templateRule.ifPresent(templateRules::add);
     }
-    List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
+    List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
     SearchAction.SearchResult searchResult = new SearchAction.SearchResult()
       .setRuleParameters(ruleParameters)
       .setTemplateRules(templateRules)

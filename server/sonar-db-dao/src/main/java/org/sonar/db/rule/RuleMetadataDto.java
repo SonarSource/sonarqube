@@ -31,7 +31,7 @@ import org.sonar.api.rules.RuleType;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class RuleMetadataDto {
-  private int ruleId;
+  private String ruleUuid;
   private String organizationUuid;
   private String noteData;
   private String noteUserUuid;
@@ -41,6 +41,10 @@ public class RuleMetadataDto {
   private String remediationGapMultiplier;
   private String remediationBaseEffort;
   private String tags;
+
+  public RuleMetadataDto() {
+    // nothing to do here
+  }
 
   /**
    * Name of on ad hoc rule.
@@ -68,12 +72,12 @@ public class RuleMetadataDto {
   private long createdAt;
   private long updatedAt;
 
-  public int getRuleId() {
-    return ruleId;
+  public String getRuleUuid() {
+    return ruleUuid;
   }
 
-  public RuleMetadataDto setRuleId(int ruleId) {
-    this.ruleId = ruleId;
+  public RuleMetadataDto setRuleUuid(String ruleUuid) {
+    this.ruleUuid = ruleUuid;
     return this;
   }
 
@@ -245,7 +249,7 @@ public class RuleMetadataDto {
   @Override
   public String toString() {
     return "RuleMetadataDto{" +
-      "ruleId=" + ruleId +
+      "ruleUuid=" + ruleUuid +
       ", organizationUuid='" + organizationUuid + '\'' +
       ", noteData='" + noteData + '\'' +
       ", noteUserUuid='" + noteUserUuid + '\'' +

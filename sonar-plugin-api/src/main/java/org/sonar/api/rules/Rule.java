@@ -66,8 +66,6 @@ public class Rule {
    */
   private static final Set<String> STATUS_LIST = unmodifiableSet(new LinkedHashSet<>(asList(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED)));
 
-  private Integer id;
-
   /**
    * The default priority given to a rule if not explicitly set
    */
@@ -111,16 +109,12 @@ public class Rule {
     this.configKey = key;
   }
 
-  public Integer getId() {
-    return id;
-  }
-
   /**
-   * @deprecated since 2.3. visibility should be decreased to protected or package
+   * @deprecated since 8.4. Use {@link #ruleKey()} instead
    */
   @Deprecated
-  public void setId(Integer id) {
-    this.id = id;
+  public Integer getId() {
+    return null;
   }
 
   public String getName() {
@@ -476,7 +470,6 @@ public class Rule {
   public String toString() {
     // Note that ReflectionToStringBuilder will not work here - see SONAR-3077
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-      .append("id", id)
       .append("name", name)
       .append("key", key)
       .append("configKey", configKey)

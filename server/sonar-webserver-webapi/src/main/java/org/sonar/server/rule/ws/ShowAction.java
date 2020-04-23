@@ -107,11 +107,11 @@ public class ShowAction implements RulesWsAction {
       RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
         .orElseThrow(() -> new NotFoundException(String.format("Rule not found: %s", key)));
 
-      List<RuleDefinitionDto> templateRules = ofNullable(rule.getTemplateId())
-        .flatMap(templateId -> dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession))
+      List<RuleDefinitionDto> templateRules = ofNullable(rule.getTemplateUuid())
+        .flatMap(templateUuid -> dbClient.ruleDao().selectDefinitionByUuid(rule.getTemplateUuid(), dbSession))
         .map(Collections::singletonList).orElseGet(Collections::emptyList);
 
-      List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
+      List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleUuids(dbSession, singletonList(rule.getUuid()));
       ShowResponse showResponse = buildResponse(dbSession, organization, request,
         new SearchAction.SearchResult()
           .setRules(singletonList(rule))

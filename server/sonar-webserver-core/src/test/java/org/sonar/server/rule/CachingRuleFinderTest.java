@@ -22,8 +22,8 @@ package org.sonar.server.rule;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -111,22 +111,6 @@ public class CachingRuleFinderTest {
     new CachingRuleFinder(dbClient);
 
     verify(ruleDao).selectRuleParamsByRuleKeys(dbSession, ImmutableSet.copyOf(ruleKeys));
-  }
-
-  @Test
-  public void findById_returns_all_loaded_rules_by_id() {
-    for (int i = 0; i < ruleDefinitions.length; i++) {
-      RuleDefinitionDto ruleDefinition = ruleDefinitions[i];
-      RuleParamDto ruleParam = ruleParams[i];
-
-      org.sonar.api.rules.Rule rule = underTest.findById(ruleDefinition.getId());
-      verifyRule(rule, ruleDefinition, ruleParam);
-    }
-  }
-
-  @Test
-  public void findById_returns_null_for_non_existing_id() {
-    assertThat(underTest.findById(new Random().nextInt())).isNull();
   }
 
   @Test
@@ -396,7 +380,7 @@ public class CachingRuleFinderTest {
     return RuleKey.of(rule.getRepositoryKey(), rule.getKey());
   }
 
-  private void verifyRule(Rule rule, RuleDefinitionDto ruleDefinition, RuleParamDto ruleParam) {
+  private void verifyRule(@Nullable Rule rule, RuleDefinitionDto ruleDefinition, RuleParamDto ruleParam) {
     assertThat(rule).isNotNull();
 
     assertThat(rule.getName()).isEqualTo(ruleDefinition.getName());
@@ -410,7 +394,6 @@ public class CachingRuleFinderTest {
     assertThat(rule.getSeverity().name()).isEqualTo(ruleDefinition.getSeverityString());
     assertThat(rule.getSystemTags()).isEqualTo(ruleDefinition.getSystemTags().toArray(new String[0]));
     assertThat(rule.getTags()).isEmpty();
-    assertThat(rule.getId()).isEqualTo(ruleDefinition.getId());
     assertThat(rule.getDescription()).isEqualTo(ruleDefinition.getDescription());
 
     assertThat(rule.getParams()).hasSize(1);

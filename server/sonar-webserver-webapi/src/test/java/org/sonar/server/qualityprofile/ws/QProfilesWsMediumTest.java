@@ -110,7 +110,7 @@ public class QProfilesWsMediumTest {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     createActiveRule(rule, profile);
-    ruleIndexer.commitAndIndex(dbSession, rule.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
 
     // 0. Assert No Active Rule for profile
@@ -209,7 +209,7 @@ public class QProfilesWsMediumTest {
   public void activate_rule() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
-    ruleIndexer.commitAndIndex(dbSession, rule.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
@@ -229,7 +229,7 @@ public class QProfilesWsMediumTest {
   public void activate_rule_diff_languages() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule("php", "toto");
-    ruleIndexer.commitAndIndex(dbSession, rule.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
@@ -251,7 +251,7 @@ public class QProfilesWsMediumTest {
   public void activate_rule_override_severity() {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
-    ruleIndexer.commitAndIndex(dbSession, rule.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
@@ -367,7 +367,7 @@ public class QProfilesWsMediumTest {
     // 2. Assert ActiveRule with BLOCKER severity
     assertThat(ruleIndex.search(
       new RuleQuery().setSeverities(ImmutableSet.of("BLOCKER")),
-      new SearchOptions()).getIds()).hasSize(2);
+      new SearchOptions()).getUuids()).hasSize(2);
 
     // 1. Activate Rule with query returning 2 hits
     wsActivateRules.newRequest().setMethod("POST")
@@ -377,7 +377,7 @@ public class QProfilesWsMediumTest {
     dbSession.commit();
 
     // 2. Assert ActiveRule with MINOR severity
-    assertThat(dbClient.activeRuleDao().selectByRuleId(dbSession, organization, rule0.getId()).get(0).getSeverityString()).isEqualTo("MINOR");
+    assertThat(dbClient.activeRuleDao().selectByRuleUuid(dbSession, organization, rule0.getUuid()).get(0).getSeverityString()).isEqualTo("MINOR");
     assertThat(ruleIndex.searchAll(new RuleQuery()
       .setQProfile(profile)
       .setKey(rule0.getKey().toString())
@@ -456,7 +456,7 @@ public class QProfilesWsMediumTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
     dbClient.ruleDao().insert(dbSession, rule);
-    ruleIndexer.commitAndIndex(dbSession, rule.getId());
+    ruleIndexer.commitAndIndex(dbSession, rule.getUuid());
     return rule;
   }
 

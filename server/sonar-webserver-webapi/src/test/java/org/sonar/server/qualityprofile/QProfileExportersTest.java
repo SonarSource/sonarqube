@@ -114,7 +114,7 @@ public class QProfileExportersTest {
     Collection<RuleActivation> activations = activationCapture.getValue();
     assertThat(activations).hasSize(1);
     RuleActivation activation = activations.iterator().next();
-    assertThat(activation.getRuleId()).isEqualTo(rule.getId());
+    assertThat(activation.getRuleUuid()).isEqualTo(rule.getUuid());
     assertThat(activation.getSeverity()).isEqualTo("CRITICAL");
   }
 

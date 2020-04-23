@@ -62,13 +62,13 @@ public class RuleDto {
     return definition.getKey();
   }
 
-  public Integer getId() {
-    return definition.getId();
+  public String getUuid() {
+    return definition.getUuid();
   }
 
-  public RuleDto setId(Integer id) {
-    definition.setId(id);
-    metadata.setRuleId(id);
+  public RuleDto setUuid(String uuid) {
+    definition.setUuid(uuid);
+    metadata.setRuleUuid(uuid);
     return this;
   }
 
@@ -257,12 +257,12 @@ public class RuleDto {
   }
 
   @CheckForNull
-  public Integer getTemplateId() {
-    return definition.getTemplateId();
+  public String getTemplateUuid() {
+    return definition.getTemplateUuid();
   }
 
-  public RuleDto setTemplateId(@Nullable Integer templateId) {
-    definition.setTemplateId(templateId);
+  public RuleDto setTemplateUuid(@Nullable String templateUuid) {
+    definition.setTemplateUuid(templateUuid);
     return this;
   }
 

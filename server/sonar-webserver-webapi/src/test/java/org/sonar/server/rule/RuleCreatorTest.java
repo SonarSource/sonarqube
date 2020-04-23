@@ -34,6 +34,8 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -71,9 +73,10 @@ public class RuleCreatorTest {
   private RuleIndex ruleIndex = new RuleIndex(es.client(), system2);
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbTester.getDbClient());
   private DbSession dbSession = dbTester.getSession();
+  private UuidFactory uuidFactory = new SequenceUuidFactory();
 
   private RuleCreator underTest = new RuleCreator(system2, new RuleIndexer(es.client(), dbTester.getDbClient()), dbTester.getDbClient(), newFullTypeValidations(),
-    TestDefaultOrganizationProvider.from(dbTester));
+    TestDefaultOrganizationProvider.from(dbTester), uuidFactory);
 
   @Test
   public void create_custom_rule() {
@@ -92,7 +95,7 @@ public class RuleCreatorTest {
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getPluginKey()).isEqualTo("sonarjava");
-    assertThat(rule.getTemplateId()).isEqualTo(templateRule.getId());
+    assertThat(rule.getTemplateUuid()).isEqualTo(templateRule.getUuid());
     assertThat(rule.getName()).isEqualTo("My custom");
     assertThat(rule.getDescription()).isEqualTo("Some description");
     assertThat(rule.getSeverityString()).isEqualTo("MAJOR");
@@ -120,7 +123,7 @@ public class RuleCreatorTest {
     // From user
     assertThat(param.getDefaultValue()).isEqualTo("a.*");
 
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(rule.getId(), templateRule.getId());
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule.getUuid(), templateRule.getUuid());
   }
 
   @Test
@@ -524,9 +527,9 @@ public class RuleCreatorTest {
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
     dbTester.rules().insert(templateRule.getDefinition());
-    dbTester.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleId(templateRule.getId()));
+    dbTester.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleUuid(templateRule.getUuid()));
     dbTester.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getDefinition().getId());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getDefinition().getUuid());
     return templateRule;
   }
 
@@ -544,7 +547,7 @@ public class RuleCreatorTest {
     dbTester.rules().insert(templateRule);
     dbTester.rules().insertRuleParam(templateRule,
       param -> param.setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getId());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getUuid());
     return templateRule;
   }
 

@@ -80,12 +80,12 @@ public class QProfileTreeImpl implements QProfileTree {
     db.qualityProfileDao().update(dbSession, profile);
 
     List<OrgActiveRuleDto> parentActiveRules = db.activeRuleDao().selectByProfile(dbSession, parent);
-    Collection<Integer> ruleIds = parentActiveRules.stream().map(ActiveRuleDto::getRuleId).collect(MoreCollectors.toArrayList());
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
+    Collection<String> ruleUuids = parentActiveRules.stream().map(ActiveRuleDto::getRuleUuid).collect(MoreCollectors.toArrayList());
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
     for (ActiveRuleDto parentActiveRule : parentActiveRules) {
       try {
-        RuleActivation activation = RuleActivation.create(parentActiveRule.getRuleId(), null, null);
+        RuleActivation activation = RuleActivation.create(parentActiveRule.getRuleUuid(), null, null);
         changes.addAll(ruleActivator.activate(dbSession, activation, context));
       } catch (BadRequestException e) {
         // for example because rule status is REMOVED
@@ -105,15 +105,15 @@ public class QProfileTreeImpl implements QProfileTree {
     db.qualityProfileDao().update(dbSession, profile);
 
     List<OrgActiveRuleDto> activeRules = db.activeRuleDao().selectByProfile(dbSession, profile);
-    Collection<Integer> ruleIds = activeRules.stream().map(ActiveRuleDto::getRuleId).collect(MoreCollectors.toArrayList());
-    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleIds);
+    Collection<String> ruleUuids = activeRules.stream().map(ActiveRuleDto::getRuleUuid).collect(MoreCollectors.toArrayList());
+    RuleActivationContext context = ruleActivator.createContextForUserProfile(dbSession, profile, ruleUuids);
 
     for (OrgActiveRuleDto activeRule : activeRules) {
       if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
-        changes.addAll(ruleActivator.deactivate(dbSession, context, activeRule.getRuleId(), true));
+        changes.addAll(ruleActivator.deactivate(dbSession, context, activeRule.getRuleUuid(), true));
 
       } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {
-        context.reset(activeRule.getRuleId());
+        context.reset(activeRule.getRuleUuid());
         activeRule.setInheritance(null);
         activeRule.setUpdatedAt(system2.now());
         db.activeRuleDao().update(dbSession, activeRule);

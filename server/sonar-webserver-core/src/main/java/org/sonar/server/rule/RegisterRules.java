@@ -142,7 +142,7 @@ public class RegisterRules implements Startable {
       persistRepositories(dbSession, ruleDefinitionContext.repositories());
       // FIXME lack of resiliency, active rules index is corrupted if rule index fails
       // to be updated. Only a single DB commit should be executed.
-      ruleIndexer.commitAndIndex(dbSession, registerRulesContext.getAllModified().map(RuleDefinitionDto::getId).collect(toSet()));
+      ruleIndexer.commitAndIndex(dbSession, registerRulesContext.getAllModified().map(RuleDefinitionDto::getUuid).collect(toSet()));
       activeRuleIndexer.commitAndIndex(dbSession, changes);
       registerRulesContext.getRenamed().forEach(e -> LOG.info("Rule {} re-keyed to {}", e.getValue(), e.getKey().getKey()));
       profiler.stopDebug();
@@ -171,14 +171,14 @@ public class RegisterRules implements Startable {
   private RegisterRulesContext createRegisterRulesContext(DbSession dbSession) {
     Map<RuleKey, RuleDefinitionDto> allRules = dbClient.ruleDao().selectAllDefinitions(dbSession).stream()
       .collect(uniqueIndex(RuleDefinitionDto::getKey));
-    Map<Integer, Set<SingleDeprecatedRuleKey>> existingDeprecatedKeysById = loadDeprecatedRuleKeys(dbSession);
+    Map<String, Set<SingleDeprecatedRuleKey>> existingDeprecatedKeysById = loadDeprecatedRuleKeys(dbSession);
     return new RegisterRulesContext(allRules, existingDeprecatedKeysById);
   }
 
-  private Map<Integer, Set<SingleDeprecatedRuleKey>> loadDeprecatedRuleKeys(DbSession dbSession) {
+  private Map<String, Set<SingleDeprecatedRuleKey>> loadDeprecatedRuleKeys(DbSession dbSession) {
     return dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
       .map(SingleDeprecatedRuleKey::from)
-      .collect(Collectors.groupingBy(SingleDeprecatedRuleKey::getRuleId, Collectors.toSet()));
+      .collect(Collectors.groupingBy(SingleDeprecatedRuleKey::getRuleUuid, Collectors.toSet()));
   }
 
   private static boolean noTemplateRuleWithOrganizationsEnabled(RegisterRulesContext registerRulesContext, boolean orgsEnabled, RulesDefinition.Rule ruleDef) {
@@ -201,7 +201,7 @@ public class RegisterRules implements Startable {
     // initial immutable data
     private final Map<RuleKey, RuleDefinitionDto> dbRules;
     private final Set<RuleDefinitionDto> known;
-    private final Map<Integer, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysById;
+    private final Map<String, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysByUuid;
     private final Map<RuleKey, RuleDefinitionDto> dbRulesByDbDeprecatedKey;
     // mutable data
     private final Set<RuleDefinitionDto> created = new HashSet<>();
@@ -210,26 +210,26 @@ public class RegisterRules implements Startable {
     private final Set<RuleDefinitionDto> unchanged = new HashSet<>();
     private final Set<RuleDefinitionDto> removed = new HashSet<>();
 
-    private RegisterRulesContext(Map<RuleKey, RuleDefinitionDto> dbRules, Map<Integer, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysById) {
+    private RegisterRulesContext(Map<RuleKey, RuleDefinitionDto> dbRules, Map<String, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysByUuid) {
       this.dbRules = ImmutableMap.copyOf(dbRules);
       this.known = ImmutableSet.copyOf(dbRules.values());
-      this.dbDeprecatedKeysById = dbDeprecatedKeysById;
-      this.dbRulesByDbDeprecatedKey = buildDbRulesByDbDeprecatedKey(dbDeprecatedKeysById, dbRules);
+      this.dbDeprecatedKeysByUuid = dbDeprecatedKeysByUuid;
+      this.dbRulesByDbDeprecatedKey = buildDbRulesByDbDeprecatedKey(dbDeprecatedKeysByUuid, dbRules);
     }
 
-    private static Map<RuleKey, RuleDefinitionDto> buildDbRulesByDbDeprecatedKey(Map<Integer, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysById,
+    private static Map<RuleKey, RuleDefinitionDto> buildDbRulesByDbDeprecatedKey(Map<String, Set<SingleDeprecatedRuleKey>> dbDeprecatedKeysByUuid,
       Map<RuleKey, RuleDefinitionDto> dbRules) {
-      Map<Integer, RuleDefinitionDto> dbRulesByRuleId = dbRules.values().stream()
-        .collect(uniqueIndex(RuleDefinitionDto::getId));
+      Map<String, RuleDefinitionDto> dbRulesByRuleUuid = dbRules.values().stream()
+        .collect(uniqueIndex(RuleDefinitionDto::getUuid));
 
       ImmutableMap.Builder<RuleKey, RuleDefinitionDto> builder = ImmutableMap.builder();
-      for (Map.Entry<Integer, Set<SingleDeprecatedRuleKey>> entry : dbDeprecatedKeysById.entrySet()) {
-        Integer ruleId = entry.getKey();
-        RuleDefinitionDto rule = dbRulesByRuleId.get(ruleId);
+      for (Map.Entry<String, Set<SingleDeprecatedRuleKey>> entry : dbDeprecatedKeysByUuid.entrySet()) {
+        String ruleUuid = entry.getKey();
+        RuleDefinitionDto rule = dbRulesByRuleUuid.get(ruleUuid);
         if (rule == null) {
-          LOG.warn("Could not retrieve rule with id %s referenced by a deprecated rule key. " +
-              "The following deprecated rule keys seem to be referencing a non-existing rule",
-            ruleId, entry.getValue());
+          LOG.warn("Could not retrieve rule with uuid %s referenced by a deprecated rule key. " +
+            "The following deprecated rule keys seem to be referencing a non-existing rule",
+            ruleUuid, entry.getValue());
         } else {
           entry.getValue().forEach(d -> builder.put(d.getOldRuleKeyAsRuleKey(), rule));
         }
@@ -255,13 +255,13 @@ public class RegisterRules implements Startable {
     }
 
     private ImmutableMap<RuleKey, SingleDeprecatedRuleKey> getDbDeprecatedKeysByOldRuleKey() {
-      return dbDeprecatedKeysById.values().stream()
+      return dbDeprecatedKeysByUuid.values().stream()
         .flatMap(Collection::stream)
         .collect(uniqueIndex(SingleDeprecatedRuleKey::getOldRuleKeyAsRuleKey));
     }
 
     private Set<SingleDeprecatedRuleKey> getDBDeprecatedKeysFor(RuleDefinitionDto rule) {
-      return dbDeprecatedKeysById.getOrDefault(rule.getId(), emptySet());
+      return dbDeprecatedKeysByUuid.getOrDefault(rule.getUuid(), emptySet());
     }
 
     private Stream<RuleDefinitionDto> getRemaining() {
@@ -392,6 +392,7 @@ public class RegisterRules implements Startable {
 
   private RuleDefinitionDto createRuleDto(RulesDefinition.Rule ruleDef, DbSession session) {
     RuleDefinitionDto ruleDto = new RuleDefinitionDto()
+      .setUuid(uuidFactory.create())
       .setRuleKey(RuleKey.of(ruleDef.repository().key(), ruleDef.key()))
       .setPluginKey(ruleDef.pluginKey())
       .setIsTemplate(ruleDef.template())
@@ -580,7 +581,7 @@ public class RegisterRules implements Startable {
       }
       // Propagate the default value to existing active rule parameters
       profiler.start();
-      for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRuleIdOfAllOrganizations(session, rule.getId())) {
+      for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRuleUuidOfAllOrganizations(session, rule.getUuid())) {
         ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
         dbClient.activeRuleDao().insertParam(session, activeRule, activeParam);
       }
@@ -624,7 +625,7 @@ public class RegisterRules implements Startable {
     deprecatedRuleKeysToBeCreated
       .forEach(r -> dbClient.ruleDao().insert(dbSession, new DeprecatedRuleKeyDto()
         .setUuid(uuidFactory.create())
-        .setRuleId(rule.getId())
+        .setRuleUuid(rule.getUuid())
         .setOldRepositoryKey(r.getOldRepositoryKey())
         .setOldRuleKey(r.getOldRuleKey())
         .setCreatedAt(system2.now())));
@@ -638,9 +639,9 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
       !dto.getSystemTags().containsAll(ruleDef.tags())) {
-      dto.setSystemTags(ruleDef.tags());
-      changed = true;
-    }
+        dto.setSystemTags(ruleDef.tags());
+        changed = true;
+      }
     return changed;
   }
 
@@ -652,9 +653,9 @@ public class RegisterRules implements Startable {
       changed = true;
     } else if (dto.getSecurityStandards().size() != ruleDef.securityStandards().size() ||
       !dto.getSecurityStandards().containsAll(ruleDef.securityStandards())) {
-      dto.setSecurityStandards(ruleDef.securityStandards());
-      changed = true;
-    }
+        dto.setSecurityStandards(ruleDef.securityStandards());
+        changed = true;
+      }
     return changed;
   }
 
@@ -671,9 +672,9 @@ public class RegisterRules implements Startable {
     });
 
     for (RuleDefinitionDto customRule : customRules) {
-      Integer templateId = customRule.getTemplateId();
-      checkNotNull(templateId, "Template id of the custom rule '%s' is null", customRule);
-      Optional<RuleDefinitionDto> template = dbClient.ruleDao().selectDefinitionById(templateId, dbSession);
+      String templateUuid = customRule.getTemplateUuid();
+      checkNotNull(templateUuid, "Template uuid of the custom rule '%s' is null", customRule);
+      Optional<RuleDefinitionDto> template = dbClient.ruleDao().selectDefinitionByUuid(templateUuid, dbSession);
       if (template.isPresent() && template.get().getStatus() != RuleStatus.REMOVED) {
         if (updateCustomRuleFromTemplateRule(customRule, template.get())) {
           recorder.updated(customRule);

@@ -157,7 +157,7 @@
       AND rp.language IN <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
       AND NOT EXISTS (
         SELECT 1 FROM active_rules ar
-        INNER JOIN rules r ON r.id = ar.rule_id AND r.status &lt;&gt; 'REMOVED'
+        INNER JOIN rules r ON r.uuid = ar.rule_uuid AND r.status &lt;&gt; 'REMOVED'
         WHERE profile_uuid = rp.uuid
       )
   </select>
@@ -181,7 +181,7 @@
     where rp.is_built_in = ${_true}
       AND EXISTS (
         SELECT 1 FROM active_rules ar
-        INNER JOIN rules r ON r.id = ar.rule_id AND r.status &lt;&gt; 'REMOVED'
+        INNER JOIN rules r ON r.uuid = ar.rule_uuid AND r.status &lt;&gt; 'REMOVED'
         WHERE profile_uuid=rp.uuid
       )
   </select>

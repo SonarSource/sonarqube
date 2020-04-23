@@ -27,7 +27,7 @@ import org.sonar.api.rules.RuleType;
 
 public class RuleForIndexingDto {
 
-  private Integer id;
+  private String uuid;
   private String repository;
   private String pluginRuleKey;
   private String name;
@@ -47,8 +47,12 @@ public class RuleForIndexingDto {
   private long createdAt;
   private long updatedAt;
 
-  public Integer getId() {
-    return id;
+  public RuleForIndexingDto() {
+    // nothing to do here
+  }
+
+  public String getUuid() {
+    return uuid;
   }
 
   public String getRepository() {
@@ -110,7 +114,7 @@ public class RuleForIndexingDto {
   public int getType() {
     return type;
   }
-  
+
   public boolean isExternal() {
     return isExternal;
   }

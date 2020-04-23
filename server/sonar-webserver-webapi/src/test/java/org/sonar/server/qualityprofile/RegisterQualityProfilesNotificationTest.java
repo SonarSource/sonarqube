@@ -143,8 +143,8 @@ public class RegisterQualityProfilesNotificationTest {
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(dbProfile.getName(), dbProfile.getLanguage()));
     assertThat(updatedProfiles.values())
-      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
-      .containsExactlyInAnyOrder(tuple(newRule.getId(), ACTIVATED));
+      .extracting(value -> value.getActiveRule().getRuleUuid(), ActiveRuleChange::getType)
+      .containsExactlyInAnyOrder(tuple(newRule.getUuid(), ACTIVATED));
   }
 
   @Test
@@ -165,8 +165,8 @@ public class RegisterQualityProfilesNotificationTest {
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(dbProfile.getName(), dbProfile.getLanguage()));
     assertThat(updatedProfiles.values())
-      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
-      .containsExactlyInAnyOrder(tuple(existingRule.getId(), DEACTIVATED));
+      .extracting(value -> value.getActiveRule().getRuleUuid(), ActiveRuleChange::getType)
+      .containsExactlyInAnyOrder(tuple(existingRule.getUuid(), DEACTIVATED));
   }
 
   @Test
@@ -197,10 +197,10 @@ public class RegisterQualityProfilesNotificationTest {
         tuple(dbProfile1.getName(), dbProfile1.getLanguage()),
         tuple(dbProfile2.getName(), dbProfile2.getLanguage()));
     assertThat(updatedProfiles.values())
-      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
+      .extracting(value -> value.getActiveRule().getRuleUuid(), ActiveRuleChange::getType)
       .containsExactlyInAnyOrder(
-        tuple(newRule1.getId(), ACTIVATED),
-        tuple(newRule2.getId(), ACTIVATED));
+        tuple(newRule1.getUuid(), ACTIVATED),
+        tuple(newRule2.getUuid(), ACTIVATED));
   }
 
   @Test
@@ -223,8 +223,8 @@ public class RegisterQualityProfilesNotificationTest {
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(builtInQProfileDto.getName(), builtInQProfileDto.getLanguage()));
     assertThat(updatedProfiles.values())
-      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
-      .containsExactlyInAnyOrder(tuple(newRule.getId(), ACTIVATED));
+      .extracting(value -> value.getActiveRule().getRuleUuid(), ActiveRuleChange::getType)
+      .containsExactlyInAnyOrder(tuple(newRule.getUuid(), ACTIVATED));
   }
 
   @Test
@@ -250,8 +250,8 @@ public class RegisterQualityProfilesNotificationTest {
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(builtInProfile.getName(), builtInProfile.getLanguage()));
     assertThat(updatedProfiles.values())
-      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
-      .containsExactlyInAnyOrder(tuple(rule.getId(), UPDATED));
+      .extracting(value -> value.getActiveRule().getRuleUuid(), ActiveRuleChange::getType)
+      .containsExactlyInAnyOrder(tuple(rule.getUuid(), UPDATED));
   }
 
   @Test
@@ -265,7 +265,7 @@ public class RegisterQualityProfilesNotificationTest {
     db.qualityProfiles().activateRule(builtInQProfileDto, rule);
     QProfileDto childQProfileDto = insertProfile(organization,
       orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
-    qProfileRules.activateAndCommit(db.getSession(), childQProfileDto, singleton(RuleActivation.create(rule.getId())));
+    qProfileRules.activateAndCommit(db.getSession(), childQProfileDto, singleton(RuleActivation.create(rule.getUuid())));
     db.commit();
 
     addPluginProfile(builtInQProfileDto);
@@ -280,8 +280,8 @@ public class RegisterQualityProfilesNotificationTest {
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(builtInQProfileDto.getName(), builtInQProfileDto.getLanguage()));
     assertThat(updatedProfiles.values())
-      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
-      .containsExactlyInAnyOrder(tuple(rule.getId(), DEACTIVATED));
+      .extracting(value -> value.getActiveRule().getRuleUuid(), ActiveRuleChange::getType)
+      .containsExactlyInAnyOrder(tuple(rule.getUuid(), DEACTIVATED));
   }
 
   @Test
@@ -321,7 +321,7 @@ public class RegisterQualityProfilesNotificationTest {
         RuleKey ruleKey = RuleKey.of(r.repoKey(), r.ruleKey());
         RuleDefinitionDto ruleDefinitionDto = dbRulesByRuleKey.get(ruleKey);
         checkState(ruleDefinitionDto != null, "Rule '%s' not found", ruleKey);
-        return new BuiltInQProfile.ActiveRule(ruleDefinitionDto.getId(), r);
+        return new BuiltInQProfile.ActiveRule(ruleDefinitionDto.getUuid(), r);
       }).toArray(BuiltInQProfile.ActiveRule[]::new);
   }
 
@@ -346,7 +346,7 @@ public class RegisterQualityProfilesNotificationTest {
     ActiveRuleDto dto = new ActiveRuleDto()
       .setProfileUuid(profile.getUuid())
       .setSeverity(severity.name())
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setCreatedAt(nextLong())
       .setUpdatedAt(nextLong());
     db.getDbClient().activeRuleDao().insert(db.getSession(), dto);

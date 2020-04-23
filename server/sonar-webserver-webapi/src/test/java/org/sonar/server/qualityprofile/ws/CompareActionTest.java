@@ -29,6 +29,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -241,6 +242,7 @@ public class CompareActionTest {
 
   private RuleDefinitionDto createRule(String lang, String id) {
     RuleDto rule = RuleDto.createFor(RuleKey.of("blah", id))
+      .setUuid(Uuids.createFast())
       .setName(StringUtils.capitalize(id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)

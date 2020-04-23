@@ -109,8 +109,8 @@ public class PersistIssuesStep implements ComputationStep {
 
     long now = system2.now();
     addedIssues.forEach(i -> {
-      int ruleId = ruleRepository.getByKey(i.ruleKey()).getId();
-      IssueDto dto = IssueDto.toDtoForComputationInsert(i, ruleId, now);
+      String ruleUuid = ruleRepository.getByKey(i.ruleKey()).getUuid();
+      IssueDto dto = IssueDto.toDtoForComputationInsert(i, ruleUuid, now);
       mapper.insert(dto);
       statistics.inserts++;
     });

@@ -61,7 +61,7 @@ import static org.sonar.db.rule.RuleTesting.newRuleMetadata;
 public class RuleDaoTest {
 
   private static final String ORGANIZATION_UUID = "org-1";
-  private static final int UNKNOWN_RULE_ID = 1_234_567_890;
+  private static final String UNKNOWN_RULE_UUID = "unknown-uuid";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -104,7 +104,7 @@ public class RuleDaoTest {
     RuleDefinitionDto ruleDefinition = db.rules().insert();
 
     RuleDto rule = underTest.selectByKey(db.getSession(), organization.getUuid(), ruleDefinition.getKey()).get();
-    verifyNoMetadata(rule.getMetadata(), ruleDefinition, organization);
+    verifyNoMetadata(rule.getMetadata(), organization);
   }
 
   @Test
@@ -134,38 +134,38 @@ public class RuleDaoTest {
   }
 
   @Test
-  public void selectById() {
+  public void selectByUuid() {
     RuleDefinitionDto ruleDefinition = db.rules().insert();
     OrganizationDto organization = db.organizations().insert();
     RuleMetadataDto metadata = newRuleMetadata(ruleDefinition, organization);
     RuleDto expected = db.rules().insertRule(ruleDefinition, metadata);
 
-    assertThat(underTest.selectById(expected.getId() + 500, organization.getUuid(), db.getSession()))
+    assertThat(underTest.selectByUuid(expected.getUuid() + 500, organization.getUuid(), db.getSession()))
       .isEmpty();
-    RuleDto rule = underTest.selectById(expected.getId(), organization.getUuid(), db.getSession()).get();
+    RuleDto rule = underTest.selectByUuid(expected.getUuid(), organization.getUuid(), db.getSession()).get();
     assertEquals(rule.getDefinition(), ruleDefinition);
     verifyMetadata(rule.getMetadata(), ruleDefinition, metadata);
   }
 
   @Test
-  public void selectById_return_rule_even_if_organization_does_not_exist() {
+  public void selectByUuid_return_rule_even_if_organization_does_not_exist() {
     RuleDefinitionDto ruleDefinition = db.rules().insert();
 
-    assertThat(underTest.selectById(ruleDefinition.getId(), "dfdfdf", db.getSession()))
+    assertThat(underTest.selectByUuid(ruleDefinition.getUuid(), "dfdfdf", db.getSession()))
       .isNotEmpty();
   }
 
   @Test
-  public void selectById_populates_organizationUuid_even_when_organization_has_no_metadata() {
+  public void selectByUuid_populates_organizationUuid_even_when_organization_has_no_metadata() {
     OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto ruleDefinition = db.rules().insert();
 
-    RuleDto rule = underTest.selectById(ruleDefinition.getId(), organization.getUuid(), db.getSession()).get();
-    verifyNoMetadata(rule.getMetadata(), ruleDefinition, organization);
+    RuleDto rule = underTest.selectByUuid(ruleDefinition.getUuid(), organization.getUuid(), db.getSession()).get();
+    verifyNoMetadata(rule.getMetadata(), organization);
   }
 
   @Test
-  public void selectById_returns_metadata_of_specified_organization() {
+  public void selectByUuid_returns_metadata_of_specified_organization() {
     RuleDefinitionDto ruleDefinition = db.rules().insert();
     OrganizationDto organization1 = db.organizations().insert();
     RuleMetadataDto expectedOrg1 = newRuleMetadata(ruleDefinition, organization1);
@@ -174,23 +174,23 @@ public class RuleDaoTest {
     RuleMetadataDto expectedOrg2 = newRuleMetadata(ruleDefinition, organization2);
     db.rules().insertRule(ruleDefinition, expectedOrg2);
 
-    RuleDto rule = underTest.selectById(ruleDefinition.getId(), organization1.getUuid(), db.getSession()).get();
+    RuleDto rule = underTest.selectByUuid(ruleDefinition.getUuid(), organization1.getUuid(), db.getSession()).get();
     verifyMetadata(rule.getMetadata(), ruleDefinition, expectedOrg1);
-    rule = underTest.selectById(ruleDefinition.getId(), organization2.getUuid(), db.getSession()).get();
+    rule = underTest.selectByUuid(ruleDefinition.getUuid(), organization2.getUuid(), db.getSession()).get();
     verifyMetadata(rule.getMetadata(), ruleDefinition, expectedOrg2);
   }
 
   @Test
-  public void selectDefinitionById() {
+  public void selectDefinitionByUuid() {
     RuleDefinitionDto rule = db.rules().insert();
 
-    assertThat(underTest.selectDefinitionById(1_234_567L, db.getSession())).isEmpty();
-    Optional<RuleDefinitionDto> ruleDtoOptional = underTest.selectDefinitionById(rule.getId(), db.getSession());
+    assertThat(underTest.selectDefinitionByUuid(UNKNOWN_RULE_UUID, db.getSession())).isEmpty();
+    Optional<RuleDefinitionDto> ruleDtoOptional = underTest.selectDefinitionByUuid(rule.getUuid(), db.getSession());
     assertThat(ruleDtoOptional).isPresent();
   }
 
   @Test
-  public void selectByIds() {
+  public void selectByUuids() {
     OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule1 = db.rules().insert();
     db.rules().insertOrUpdateMetadata(rule1, organization);
@@ -199,44 +199,43 @@ public class RuleDaoTest {
     RuleDefinitionDto removedRule = db.rules().insert(r -> r.setStatus(REMOVED));
     db.rules().insertOrUpdateMetadata(removedRule, organization);
 
-    assertThat(underTest.selectByIds(db.getSession(), organization.getUuid(), singletonList(rule1.getId()))).hasSize(1);
-    assertThat(underTest.selectByIds(db.getSession(), organization.getUuid(), asList(rule1.getId(), rule2.getId()))).hasSize(2);
-    assertThat(underTest.selectByIds(db.getSession(), organization.getUuid(), asList(rule1.getId(), rule2.getId(), UNKNOWN_RULE_ID))).hasSize(2);
-    assertThat(underTest.selectByIds(db.getSession(), organization.getUuid(), asList(rule1.getId(), rule2.getId(), removedRule.getId()))).hasSize(3);
-    assertThat(underTest.selectByIds(db.getSession(), organization.getUuid(), singletonList(UNKNOWN_RULE_ID))).isEmpty();
+    assertThat(underTest.selectByUuids(db.getSession(), organization.getUuid(), singletonList(rule1.getUuid()))).hasSize(1);
+    assertThat(underTest.selectByUuids(db.getSession(), organization.getUuid(), asList(rule1.getUuid(), rule2.getUuid()))).hasSize(2);
+    assertThat(underTest.selectByUuids(db.getSession(), organization.getUuid(), asList(rule1.getUuid(), rule2.getUuid(), UNKNOWN_RULE_UUID))).hasSize(2);
+    assertThat(underTest.selectByUuids(db.getSession(), organization.getUuid(), asList(rule1.getUuid(), rule2.getUuid(), removedRule.getUuid()))).hasSize(3);
+    assertThat(underTest.selectByUuids(db.getSession(), organization.getUuid(), singletonList(UNKNOWN_RULE_UUID))).isEmpty();
   }
 
   @Test
-  public void selectByIds_populates_organizationUuid_even_when_organization_has_no_metadata() {
+  public void selectByUuids_populates_organizationUuid_even_when_organization_has_no_metadata() {
     OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule1 = db.rules().insert();
     RuleDefinitionDto rule2 = db.rules().insert();
 
-    assertThat(underTest.selectByIds(db.getSession(), organization.getUuid(), asList(rule1.getId(), rule2.getId())))
+    assertThat(underTest.selectByUuids(db.getSession(), organization.getUuid(), asList(rule1.getUuid(), rule2.getUuid())))
       .extracting(RuleDto::getOrganizationUuid)
       .containsExactly(organization.getUuid(), organization.getUuid());
   }
 
   @Test
-  public void selectDefinitionByIds() {
+  public void selectDefinitionByUuids() {
     RuleDefinitionDto rule1 = db.rules().insert();
     RuleDefinitionDto rule2 = db.rules().insert();
 
-    assertThat(underTest.selectDefinitionByIds(db.getSession(), singletonList(rule1.getId()))).hasSize(1);
-    assertThat(underTest.selectDefinitionByIds(db.getSession(), asList(rule1.getId(), rule2.getId()))).hasSize(2);
-    assertThat(underTest.selectDefinitionByIds(db.getSession(), asList(rule1.getId(), rule2.getId(), UNKNOWN_RULE_ID))).hasSize(2);
-
-    assertThat(underTest.selectDefinitionByIds(db.getSession(), singletonList(UNKNOWN_RULE_ID))).isEmpty();
+    assertThat(underTest.selectDefinitionByUuids(db.getSession(), singletonList(rule1.getUuid()))).hasSize(1);
+    assertThat(underTest.selectDefinitionByUuids(db.getSession(), asList(rule1.getUuid(), rule2.getUuid()))).hasSize(2);
+    assertThat(underTest.selectDefinitionByUuids(db.getSession(), asList(rule1.getUuid(), rule2.getUuid(), UNKNOWN_RULE_UUID))).hasSize(2);
+    assertThat(underTest.selectDefinitionByUuids(db.getSession(), singletonList(UNKNOWN_RULE_UUID))).isEmpty();
   }
 
   @Test
   public void selectOrFailByKey() {
     OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule1 = db.rules().insert();
-    RuleDefinitionDto rule2 = db.rules().insert();
+    db.rules().insert();
 
     RuleDto rule = underTest.selectOrFailByKey(db.getSession(), organization, rule1.getKey());
-    assertThat(rule.getId()).isEqualTo(rule1.getId());
+    assertThat(rule.getUuid()).isEqualTo(rule1.getUuid());
   }
 
   @Test
@@ -275,11 +274,11 @@ public class RuleDaoTest {
     db.rules().insertOrUpdateMetadata(rule2, organization);
 
     assertThat(underTest.selectByKeys(db.getSession(), organization.getUuid(), Collections.emptyList())).isEmpty();
-    assertThat(underTest.selectByKeys(db.getSession(), organization.getUuid(), asList(RuleKey.of("NOT", "FOUND")))).isEmpty();
+    assertThat(underTest.selectByKeys(db.getSession(), organization.getUuid(), singletonList(RuleKey.of("NOT", "FOUND")))).isEmpty();
 
     List<RuleDto> rules = underTest.selectByKeys(db.getSession(), organization.getUuid(), asList(rule1.getKey(), RuleKey.of("java", "OTHER")));
     assertThat(rules).hasSize(1);
-    assertThat(rules.get(0).getId()).isEqualTo(rule1.getId());
+    assertThat(rules.get(0).getUuid()).isEqualTo(rule1.getUuid());
   }
 
   @Test
@@ -297,11 +296,11 @@ public class RuleDaoTest {
     RuleDefinitionDto rule = db.rules().insert();
 
     assertThat(underTest.selectDefinitionByKeys(db.getSession(), Collections.emptyList())).isEmpty();
-    assertThat(underTest.selectDefinitionByKeys(db.getSession(), asList(RuleKey.of("NOT", "FOUND")))).isEmpty();
+    assertThat(underTest.selectDefinitionByKeys(db.getSession(), singletonList(RuleKey.of("NOT", "FOUND")))).isEmpty();
 
     List<RuleDefinitionDto> rules = underTest.selectDefinitionByKeys(db.getSession(), asList(rule.getKey(), RuleKey.of("java", "OTHER")));
     assertThat(rules).hasSize(1);
-    assertThat(rules.get(0).getId()).isEqualTo(rule.getId());
+    assertThat(rules.get(0).getUuid()).isEqualTo(rule.getUuid());
   }
 
   @Test
@@ -312,8 +311,8 @@ public class RuleDaoTest {
     RuleDto rule3 = db.rules().insertRule(organization);
 
     assertThat(underTest.selectAll(db.getSession(), organization.getUuid()))
-      .extracting(RuleDto::getId)
-      .containsOnly(rule1.getId(), rule2.getId(), rule3.getId());
+      .extracting(RuleDto::getUuid)
+      .containsOnly(rule1.getUuid(), rule2.getUuid(), rule3.getUuid());
   }
 
   @Test
@@ -323,8 +322,8 @@ public class RuleDaoTest {
     RuleDefinitionDto rule3 = db.rules().insert();
 
     assertThat(underTest.selectAll(db.getSession(), "dfdfdf"))
-      .extracting(RuleDto::getId)
-      .containsOnly(rule1.getId(), rule2.getId(), rule3.getId());
+      .extracting(RuleDto::getUuid)
+      .containsOnly(rule1.getUuid(), rule2.getUuid(), rule3.getUuid());
   }
 
   @Test
@@ -335,8 +334,8 @@ public class RuleDaoTest {
 
     List<RuleDto> rules = underTest.selectAll(db.getSession(), organization.getUuid());
     assertThat(rules)
-      .extracting(RuleDto::getId)
-      .containsOnly(ruleDefinition1.getId(), ruleDefinition2.getId());
+      .extracting(RuleDto::getUuid)
+      .containsOnly(ruleDefinition1.getUuid(), ruleDefinition2.getUuid());
     assertThat(rules)
       .extracting(RuleDto::getOrganizationUuid)
       .containsExactly(organization.getUuid(), organization.getUuid());
@@ -356,7 +355,7 @@ public class RuleDaoTest {
   }
 
   private void assertEquals(RuleDefinitionDto actual, RuleDefinitionDto expected) {
-    assertThat(actual.getId()).isEqualTo(expected.getId());
+    assertThat(actual.getUuid()).isEqualTo(expected.getUuid());
     assertThat(actual.getRepositoryKey()).isEqualTo(expected.getRepositoryKey());
     assertThat(actual.getRuleKey()).isEqualTo(expected.getRuleKey());
     assertThat(actual.getKey()).isEqualTo(expected.getKey());
@@ -370,7 +369,7 @@ public class RuleDaoTest {
     assertThat(actual.isExternal()).isEqualTo(expected.isExternal());
     assertThat(actual.isTemplate()).isEqualTo(expected.isTemplate());
     assertThat(actual.getLanguage()).isEqualTo(expected.getLanguage());
-    assertThat(actual.getTemplateId()).isEqualTo(expected.getTemplateId());
+    assertThat(actual.getTemplateUuid()).isEqualTo(expected.getTemplateUuid());
     assertThat(actual.getDefRemediationFunction()).isEqualTo(expected.getDefRemediationFunction());
     assertThat(actual.getDefRemediationGapMultiplier()).isEqualTo(expected.getDefRemediationGapMultiplier());
     assertThat(actual.getDefRemediationBaseEffort()).isEqualTo(expected.getDefRemediationBaseEffort());
@@ -395,7 +394,7 @@ public class RuleDaoTest {
     assertThat(metadata.getAdHocType()).isEqualTo(expected.getAdHocType());
   }
 
-  private static void verifyNoMetadata(RuleMetadataDto metadata, RuleDefinitionDto ruleDefinition, OrganizationDto organization) {
+  private static void verifyNoMetadata(RuleMetadataDto metadata, OrganizationDto organization) {
     assertThat(metadata.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(metadata.getRemediationBaseEffort()).isNull();
     assertThat(metadata.getRemediationFunction()).isNull();
@@ -418,13 +417,13 @@ public class RuleDaoTest {
 
     List<RuleDefinitionDto> ruleDtos = underTest.selectAllDefinitions(db.getSession());
 
-    assertThat(ruleDtos).extracting(RuleDefinitionDto::getId).containsOnly(rule1.getId(), rule2.getId(), removedRule.getId());
+    assertThat(ruleDtos).extracting(RuleDefinitionDto::getUuid).containsOnly(rule1.getUuid(), rule2.getUuid(), removedRule.getUuid());
   }
 
   @Test
   public void selectEnabled_with_ResultHandler() {
     RuleDefinitionDto rule = db.rules().insert();
-    RuleDefinitionDto removedRule = db.rules().insert(r -> r.setStatus(REMOVED));
+    db.rules().insert(r -> r.setStatus(REMOVED));
 
     final List<RuleDefinitionDto> rules = new ArrayList<>();
     ResultHandler<RuleDefinitionDto> resultHandler = resultContext -> rules.add(resultContext.getResultObject());
@@ -432,7 +431,7 @@ public class RuleDaoTest {
 
     assertThat(rules.size()).isEqualTo(1);
     RuleDefinitionDto ruleDto = rules.get(0);
-    assertThat(ruleDto.getId()).isEqualTo(rule.getId());
+    assertThat(ruleDto.getUuid()).isEqualTo(rule.getUuid());
   }
 
   @Test
@@ -442,34 +441,34 @@ public class RuleDaoTest {
 
     RuleDefinitionDto rule1 = db.rules().insert(
       r -> r.setKey(RuleKey.of("java", "S001"))
-            .setConfigKey("S1")
-            .setType(RuleType.VULNERABILITY)
-            .setLanguage("java"));
+        .setConfigKey("S1")
+        .setType(RuleType.VULNERABILITY)
+        .setLanguage("java"));
     db.rules().insertOrUpdateMetadata(rule1, organization);
 
     RuleDefinitionDto rule2 = db.rules().insert(
       r -> r.setKey(RuleKey.of("js", "S002"))
-            .setType(RuleType.SECURITY_HOTSPOT)
-            .setLanguage("js"));
+        .setType(RuleType.SECURITY_HOTSPOT)
+        .setLanguage("js"));
     db.rules().insertOrUpdateMetadata(rule2, organization);
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
-      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
-      .containsExactly(tuple(organization.getUuid(), rule1.getId(), "java", RuleType.VULNERABILITY.getDbConstant()));
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactly(tuple(organization.getUuid(), rule1.getUuid(), "java", RuleType.VULNERABILITY.getDbConstant()));
 
     // Rule available also on organization2
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization2.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
-      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
-      .containsExactly(tuple(organization2.getUuid(), rule1.getId(), "java", RuleType.VULNERABILITY.getDbConstant()));
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactly(tuple(organization2.getUuid(), rule1.getUuid(), "java", RuleType.VULNERABILITY.getDbConstant()));
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()), singletonList("js")))
-      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
-      .containsExactly(tuple(organization.getUuid(), rule2.getId(), "js", RuleType.SECURITY_HOTSPOT.getDbConstant()));
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactly(tuple(organization.getUuid(), rule2.getUuid(), "js", RuleType.SECURITY_HOTSPOT.getDbConstant()));
 
     // Rule available also on organization2
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization2.getUuid(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()), singletonList("js")))
-      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
-      .containsExactly(tuple(organization2.getUuid(), rule2.getId(), "js", RuleType.SECURITY_HOTSPOT.getDbConstant()));
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
+      .containsExactly(tuple(organization2.getUuid(), rule2.getUuid(), "js", RuleType.SECURITY_HOTSPOT.getDbConstant()));
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.SECURITY_HOTSPOT.getDbConstant()), singletonList("java")))
       .isEmpty();
@@ -538,7 +537,7 @@ public class RuleDaoTest {
     db.rules().insertOrUpdateMetadata(rule1, organization);
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
-      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
       .isEmpty();
   }
 
@@ -555,7 +554,7 @@ public class RuleDaoTest {
     db.rules().insertOrUpdateMetadata(rule1, organization);
 
     assertThat(underTest.selectByTypeAndLanguages(db.getSession(), organization.getUuid(), singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList("java")))
-      .extracting(RuleDto::getOrganizationUuid, RuleDto::getId, RuleDto::getLanguage, RuleDto::getType)
+      .extracting(RuleDto::getOrganizationUuid, RuleDto::getUuid, RuleDto::getLanguage, RuleDto::getType)
       .isEmpty();
   }
 
@@ -579,8 +578,8 @@ public class RuleDaoTest {
   @Test
   public void select_by_query_populates_organizationUuid_even_when_organization_has_no_metadata() {
     OrganizationDto organization = db.organizations().insert();
-    RuleDefinitionDto rule1 = db.rules().insert();
-    RuleDefinitionDto rule2 = db.rules().insert();
+    db.rules().insert();
+    db.rules().insert();
 
     assertThat(underTest.selectByQuery(db.getSession(), organization.getUuid(), RuleQuery.create()))
       .extracting(RuleDto::getOrganizationUuid)
@@ -590,6 +589,7 @@ public class RuleDaoTest {
   @Test
   public void insert() {
     RuleDefinitionDto newRule = new RuleDefinitionDto()
+      .setUuid("rule-uuid")
       .setRuleKey("NewRuleKey")
       .setRepositoryKey("plugin")
       .setName("new name")
@@ -602,7 +602,7 @@ public class RuleDaoTest {
       .setIsExternal(true)
       .setIsAdHoc(true)
       .setLanguage("dart")
-      .setTemplateId(3)
+      .setTemplateUuid("uuid-3")
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setDefRemediationGapMultiplier("5d")
       .setDefRemediationBaseEffort("10h")
@@ -617,7 +617,7 @@ public class RuleDaoTest {
     db.getSession().commit();
 
     RuleDefinitionDto ruleDto = underTest.selectOrFailDefinitionByKey(db.getSession(), RuleKey.of("plugin", "NewRuleKey"));
-    assertThat(ruleDto.getId()).isNotNull();
+    assertThat(ruleDto.getUuid()).isNotNull();
     assertThat(ruleDto.getName()).isEqualTo("new name");
     assertThat(ruleDto.getDescription()).isEqualTo("new description");
     assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
@@ -630,7 +630,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.isExternal()).isTrue();
     assertThat(ruleDto.isAdHoc()).isTrue();
-    assertThat(ruleDto.getTemplateId()).isEqualTo(3);
+    assertThat(ruleDto.getTemplateUuid()).isEqualTo("uuid-3");
     assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
     assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
@@ -647,7 +647,7 @@ public class RuleDaoTest {
   public void update_RuleDefinitionDto() {
     RuleDefinitionDto rule = db.rules().insert();
     RuleDefinitionDto ruleToUpdate = new RuleDefinitionDto()
-      .setId(rule.getId())
+      .setUuid(rule.getUuid())
       .setRuleKey("NewRuleKey")
       .setRepositoryKey("plugin")
       .setName("new name")
@@ -660,7 +660,7 @@ public class RuleDaoTest {
       .setIsExternal(true)
       .setIsAdHoc(true)
       .setLanguage("dart")
-      .setTemplateId(3)
+      .setTemplateUuid("uuid-3")
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setDefRemediationGapMultiplier("5d")
       .setDefRemediationBaseEffort("10h")
@@ -687,7 +687,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.isTemplate()).isTrue();
     assertThat(ruleDto.isExternal()).isTrue();
     assertThat(ruleDto.isAdHoc()).isTrue();
-    assertThat(ruleDto.getTemplateId()).isEqualTo(3);
+    assertThat(ruleDto.getTemplateUuid()).isEqualTo("uuid-3");
     assertThat(ruleDto.getDefRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getDefRemediationGapMultiplier()).isEqualTo("5d");
     assertThat(ruleDto.getDefRemediationBaseEffort()).isEqualTo("10h");
@@ -706,7 +706,7 @@ public class RuleDaoTest {
     String organizationUuid = "org-1";
 
     RuleMetadataDto metadataToUpdate = new RuleMetadataDto()
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setOrganizationUuid(organizationUuid)
       .setNoteData("My note")
       .setNoteUserUuid("admin")
@@ -758,12 +758,12 @@ public class RuleDaoTest {
     String organizationUuid = "org-1";
     OrganizationDto organization = OrganizationTesting.newOrganizationDto().setUuid(organizationUuid);
     RuleMetadataDto metadataV1 = new RuleMetadataDto()
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setOrganizationUuid(organizationUuid)
       .setCreatedAt(3_500_000_000_000L)
       .setUpdatedAt(4_000_000_000_000L);
     RuleMetadataDto metadataV2 = new RuleMetadataDto()
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       .setOrganizationUuid(organizationUuid)
       .setNoteData("My note")
       .setNoteUserUuid("admin")
@@ -835,7 +835,7 @@ public class RuleDaoTest {
     assertThat(ruleDto.getName()).isEqualTo(ruleParam.getName());
     assertThat(ruleDto.getDescription()).isEqualTo(ruleParam.getDescription());
     assertThat(ruleDto.getType()).isEqualTo(ruleParam.getType());
-    assertThat(ruleDto.getRuleId()).isEqualTo(rule.getId());
+    assertThat(ruleDto.getRuleUuid()).isEqualTo(rule.getUuid());
   }
 
   @Test
@@ -868,7 +868,7 @@ public class RuleDaoTest {
     assertThat(ruleParamDtos).hasSize(1);
 
     RuleParamDto loaded = ruleParamDtos.get(0);
-    assertThat(loaded.getRuleId()).isEqualTo(orig.getRuleId());
+    assertThat(loaded.getRuleUuid()).isEqualTo(orig.getRuleUuid());
     assertThat(loaded.getName()).isEqualTo(orig.getName());
     assertThat(loaded.getType()).isEqualTo(orig.getType());
     assertThat(loaded.getDefaultValue()).isEqualTo(orig.getDefaultValue());
@@ -900,7 +900,7 @@ public class RuleDaoTest {
     assertThat(params).hasSize(1);
     RuleParamDto param = new RuleParamDto()
       .setUuid(ruleParam.getUuid())
-      .setRuleId(rule.getId())
+      .setRuleUuid(rule.getUuid())
       // Name will not be updated
       .setName("format")
       .setType("STRING")
@@ -943,8 +943,8 @@ public class RuleDaoTest {
     underTest.scrollIndexingRules(db.getSession(), accumulator);
 
     assertThat(accumulator.list)
-      .extracting(RuleForIndexingDto::getId, RuleForIndexingDto::getRuleKey)
-      .containsExactlyInAnyOrder(tuple(r1.getId(), r1.getKey()), tuple(r2.getId(), r2.getKey()));
+      .extracting(RuleForIndexingDto::getUuid, RuleForIndexingDto::getRuleKey)
+      .containsExactlyInAnyOrder(tuple(r1.getUuid(), r1.getKey()), tuple(r2.getUuid(), r2.getKey()));
     Iterator<RuleForIndexingDto> it = accumulator.list.iterator();
     RuleForIndexingDto firstRule = it.next();
 
@@ -975,7 +975,7 @@ public class RuleDaoTest {
   public void scrollIndexingRules_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDefinitionDto r1 = db.rules().insert();
-    RuleDefinitionDto r2 = db.rules().insert(rule -> rule.setTemplateId(r1.getId()));
+    RuleDefinitionDto r2 = db.rules().insert(rule -> rule.setTemplateUuid(r1.getUuid()));
 
     underTest.scrollIndexingRules(db.getSession(), accumulator);
 
@@ -997,24 +997,24 @@ public class RuleDaoTest {
     RuleDefinitionDto r1 = db.rules().insert();
     db.rules().insert();
 
-    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(r1.getId()), accumulator);
+    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(r1.getUuid()), accumulator);
 
     assertThat(accumulator.list)
-      .extracting(RuleForIndexingDto::getId, RuleForIndexingDto::getRuleKey)
-      .containsExactlyInAnyOrder(tuple(r1.getId(), r1.getKey()));
+      .extracting(RuleForIndexingDto::getUuid, RuleForIndexingDto::getRuleKey)
+      .containsExactlyInAnyOrder(tuple(r1.getUuid(), r1.getKey()));
   }
 
   @Test
   public void scrollIndexingRulesByKeys_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDefinitionDto r1 = db.rules().insert();
-    RuleDefinitionDto r2 = db.rules().insert(rule -> rule.setTemplateId(r1.getId()));
+    RuleDefinitionDto r2 = db.rules().insert(rule -> rule.setTemplateUuid(r1.getUuid()));
 
-    underTest.scrollIndexingRulesByKeys(db.getSession(), Arrays.asList(r1.getId(), r2.getId()), accumulator);
+    underTest.scrollIndexingRulesByKeys(db.getSession(), Arrays.asList(r1.getUuid(), r2.getUuid()), accumulator);
 
     assertThat(accumulator.list).hasSize(2);
-    RuleForIndexingDto firstRule = accumulator.list.stream().filter(t -> t.getId().equals(r1.getId())).findFirst().get();
-    RuleForIndexingDto secondRule = accumulator.list.stream().filter(t -> t.getId().equals(r2.getId())).findFirst().get();
+    RuleForIndexingDto firstRule = accumulator.list.stream().filter(t -> t.getUuid().equals(r1.getUuid())).findFirst().get();
+    RuleForIndexingDto secondRule = accumulator.list.stream().filter(t -> t.getUuid().equals(r2.getUuid())).findFirst().get();
 
     assertRuleDefinitionFieldsAreEquals(r1, firstRule);
     assertThat(firstRule.getTemplateRuleKey()).isNull();
@@ -1025,7 +1025,7 @@ public class RuleDaoTest {
   }
 
   private void assertRuleDefinitionFieldsAreEquals(RuleDefinitionDto r1, RuleForIndexingDto firstRule) {
-    assertThat(firstRule.getId()).isEqualTo(r1.getId());
+    assertThat(firstRule.getUuid()).isEqualTo(r1.getUuid());
     assertThat(firstRule.getRuleKey()).isEqualTo(r1.getKey());
     assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
     assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
@@ -1050,9 +1050,9 @@ public class RuleDaoTest {
   public void scrollIndexingRulesByKeys_scrolls_nothing_if_key_does_not_exist() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     db.rules().insert();
-    int nonExistingRuleId = 42;
+    String nonExistingRuleUuid = "non-existing-uuid";
 
-    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(nonExistingRuleId), accumulator);
+    underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(nonExistingRuleUuid), accumulator);
 
     assertThat(accumulator.list).isEmpty();
   }
@@ -1068,12 +1068,12 @@ public class RuleDaoTest {
     underTest.scrollIndexingRuleExtensions(db.getSession(), accumulator);
 
     assertThat(accumulator.list)
-      .extracting(RuleExtensionForIndexingDto::getRuleId,
+      .extracting(RuleExtensionForIndexingDto::getRuleUuid,
         RuleExtensionForIndexingDto::getRuleKey,
         RuleExtensionForIndexingDto::getOrganizationUuid, RuleExtensionForIndexingDto::getTags)
       .containsExactlyInAnyOrder(
-        tuple(r1.getId(), r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()),
-        tuple(r2.getId(), r2.getKey(), organization.getUuid(), r2Extension.getTagsAsString()));
+        tuple(r1.getUuid(), r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()),
+        tuple(r2.getUuid(), r2.getKey(), organization.getUuid(), r2Extension.getTagsAsString()));
   }
 
   @Test
@@ -1081,18 +1081,18 @@ public class RuleDaoTest {
     Accumulator<RuleExtensionForIndexingDto> accumulator = new Accumulator<>();
     RuleDefinitionDto r1 = db.rules().insert();
     RuleMetadataDto r1Extension = db.rules().insertOrUpdateMetadata(r1, organization, r -> r.setTagsField("t1,t2"));
-    RuleExtensionId r1ExtensionId = new RuleExtensionId(organization.getUuid(), r1.getId());
+    RuleExtensionId r1ExtensionId = new RuleExtensionId(organization.getUuid(), r1.getUuid());
     RuleDefinitionDto r2 = db.rules().insert();
     db.rules().insertOrUpdateMetadata(r2, organization, r -> r.setTagsField("t1,t3"));
 
     underTest.scrollIndexingRuleExtensionsByIds(db.getSession(), singletonList(r1ExtensionId), accumulator);
 
     assertThat(accumulator.list)
-      .extracting(RuleExtensionForIndexingDto::getRuleId,
+      .extracting(RuleExtensionForIndexingDto::getRuleUuid,
         RuleExtensionForIndexingDto::getRuleKey,
         RuleExtensionForIndexingDto::getOrganizationUuid, RuleExtensionForIndexingDto::getTags)
       .containsExactlyInAnyOrder(
-        tuple(r1.getId(), r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()));
+        tuple(r1.getUuid(), r1.getKey(), organization.getUuid(), r1Extension.getTagsAsString()));
   }
 
   @Test
@@ -1100,8 +1100,8 @@ public class RuleDaoTest {
     RuleDefinitionDto r1 = db.rules().insert();
     RuleDefinitionDto r2 = db.rules().insert();
 
-    db.rules().insertDeprecatedKey(r -> r.setRuleId(r1.getId()));
-    db.rules().insertDeprecatedKey(r -> r.setRuleId(r2.getId()));
+    db.rules().insertDeprecatedKey(r -> r.setRuleUuid(r1.getUuid()));
+    db.rules().insertDeprecatedKey(r -> r.setRuleUuid(r2.getUuid()));
 
     db.getSession().commit();
 
@@ -1161,7 +1161,7 @@ public class RuleDaoTest {
   @Test
   public void insertDeprecatedRuleKey() {
     RuleDefinitionDto r1 = db.rules().insert();
-    DeprecatedRuleKeyDto deprecatedRuleKeyDto = db.rules().insertDeprecatedKey(d -> d.setRuleId(r1.getId()));
+    DeprecatedRuleKeyDto deprecatedRuleKeyDto = db.rules().insertDeprecatedKey(d -> d.setRuleUuid(r1.getUuid()));
 
     db.getSession().commit();
 
@@ -1175,7 +1175,7 @@ public class RuleDaoTest {
     assertThat(deprecatedRuleKeyDto1.getNewRuleKey()).isEqualTo(r1.getRuleKey());
     assertThat(deprecatedRuleKeyDto1.getUuid()).isEqualTo(deprecatedRuleKeyDto.getUuid());
     assertThat(deprecatedRuleKeyDto1.getCreatedAt()).isEqualTo(deprecatedRuleKeyDto.getCreatedAt());
-    assertThat(deprecatedRuleKeyDto1.getRuleId()).isEqualTo(r1.getId());
+    assertThat(deprecatedRuleKeyDto1.getRuleUuid()).isEqualTo(r1.getUuid());
   }
 
   @Test

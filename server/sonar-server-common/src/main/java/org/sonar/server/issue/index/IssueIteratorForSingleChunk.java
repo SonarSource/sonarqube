@@ -67,7 +67,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
 
     // column 11
     "i.issue_update_date",
-    "r.id",
+    "r.uuid",
     "r.language",
     "c.uuid",
     "c.module_uuid_path",
@@ -84,7 +84,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
-    "inner join rules r on r.id = i.rule_id " +
+    "inner join rules r on r.uuid = i.rule_uuid " +
     "inner join components c on c.uuid = i.component_uuid ";
 
   private static final String PROJECT_FILTER = " and c.project_uuid = ? and i.project_uuid = ? ";
@@ -203,8 +203,7 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setFuncCloseDate(longToDate(getLong(rs, 9)));
       doc.setFuncCreationDate(longToDate(getLong(rs, 10)));
       doc.setFuncUpdateDate(longToDate(getLong(rs, 11)));
-      Integer ruleId = rs.getInt(12);
-      doc.setRuleId(ruleId);
+      doc.setRuleUuid(rs.getString(12));
       doc.setLanguage(rs.getString(13));
       doc.setComponentUuid(rs.getString(14));
       String moduleUuidPath = rs.getString(15);

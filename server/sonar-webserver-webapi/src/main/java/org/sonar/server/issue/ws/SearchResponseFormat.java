@@ -45,8 +45,8 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Common.User;
 import org.sonarqube.ws.Common.Comment;
+import org.sonarqube.ws.Common.User;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Actions;
 import org.sonarqube.ws.Issues.Comments;
@@ -418,11 +418,11 @@ public class SearchResponseFormat {
       return;
     }
 
-    Map<Integer, RuleKey> ruleIdsByRuleKeys = data.getRules().stream().collect(uniqueIndex(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
+    Map<String, RuleKey> ruleUuidsByRuleKeys = data.getRules().stream().collect(uniqueIndex(RuleDefinitionDto::getUuid, RuleDefinitionDto::getKey));
     Common.Facet.Builder wsFacet = wsFacets.addFacetsBuilder();
     wsFacet.setProperty(PARAM_RULES);
-    facet.forEach((ruleId, count) -> wsFacet.addValuesBuilder()
-      .setVal(ruleIdsByRuleKeys.get(Integer.parseInt(ruleId)).toString())
+    facet.forEach((ruleUuid, count) -> wsFacet.addValuesBuilder()
+      .setVal(ruleUuidsByRuleKeys.get(ruleUuid).toString())
       .setCount(count)
       .build());
     wsFacet.build();

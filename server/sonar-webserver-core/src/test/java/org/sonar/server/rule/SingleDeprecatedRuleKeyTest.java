@@ -29,7 +29,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.rule.DeprecatedRuleKeyDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
@@ -43,7 +42,7 @@ public class SingleDeprecatedRuleKeyTest {
     DeprecatedRuleKeyDto deprecatedRuleKeyDto = new DeprecatedRuleKeyDto()
       .setOldRuleKey(randomAlphanumeric(50))
       .setOldRepositoryKey(randomAlphanumeric(50))
-      .setRuleId(nextInt(1000))
+      .setRuleUuid(randomAlphanumeric(50))
       .setUuid(randomAlphanumeric(40));
 
     SingleDeprecatedRuleKey singleDeprecatedRuleKey = SingleDeprecatedRuleKey.from(deprecatedRuleKeyDto);
@@ -53,7 +52,7 @@ public class SingleDeprecatedRuleKeyTest {
     assertThat(singleDeprecatedRuleKey.getNewRepositoryKey()).isEqualTo(deprecatedRuleKeyDto.getNewRepositoryKey());
     assertThat(singleDeprecatedRuleKey.getNewRuleKey()).isEqualTo(deprecatedRuleKeyDto.getNewRuleKey());
     assertThat(singleDeprecatedRuleKey.getUuid()).isEqualTo(deprecatedRuleKeyDto.getUuid());
-    assertThat(singleDeprecatedRuleKey.getRuleId()).isEqualTo(deprecatedRuleKeyDto.getRuleId());
+    assertThat(singleDeprecatedRuleKey.getRuleUuid()).isEqualTo(deprecatedRuleKeyDto.getRuleUuid());
     assertThat(singleDeprecatedRuleKey.getOldRuleKeyAsRuleKey())
       .isEqualTo(RuleKey.of(deprecatedRuleKeyDto.getOldRepositoryKey(), deprecatedRuleKeyDto.getOldRuleKey()));
   }
@@ -64,8 +63,7 @@ public class SingleDeprecatedRuleKeyTest {
     ImmutableSet<RuleKey> deprecatedRuleKeys = ImmutableSet.of(
       RuleKey.of(randomAlphanumeric(50), randomAlphanumeric(50)),
       RuleKey.of(randomAlphanumeric(50), randomAlphanumeric(50)),
-      RuleKey.of(randomAlphanumeric(50), randomAlphanumeric(50))
-      );
+      RuleKey.of(randomAlphanumeric(50), randomAlphanumeric(50)));
 
     RulesDefinition.Repository repository = mock(RulesDefinition.Repository.class);
     when(repository.key()).thenReturn(randomAlphanumeric(50));
@@ -82,9 +80,8 @@ public class SingleDeprecatedRuleKeyTest {
         SingleDeprecatedRuleKey::getNewRepositoryKey, SingleDeprecatedRuleKey::getNewRuleKey, SingleDeprecatedRuleKey::getOldRuleKeyAsRuleKey)
       .containsExactlyInAnyOrder(
         deprecatedRuleKeys.stream().map(
-          r -> tuple(null, r.repository(), r.rule(), rule.repository().key(), rule.key(), RuleKey.of(r.repository(), r.rule()))
-        ).collect(MoreCollectors.toArrayList(deprecatedRuleKeys.size())).toArray(new Tuple[deprecatedRuleKeys.size()])
-    );
+          r -> tuple(null, r.repository(), r.rule(), rule.repository().key(), rule.key(), RuleKey.of(r.repository(), r.rule())))
+          .collect(MoreCollectors.toArrayList(deprecatedRuleKeys.size())).toArray(new Tuple[deprecatedRuleKeys.size()]));
   }
 
   @Test
@@ -93,7 +90,7 @@ public class SingleDeprecatedRuleKeyTest {
       .setOldRuleKey(randomAlphanumeric(50))
       .setOldRepositoryKey(randomAlphanumeric(50))
       .setUuid(randomAlphanumeric(40))
-      .setRuleId(1);
+      .setRuleUuid("some-uuid");
 
     DeprecatedRuleKeyDto deprecatedRuleKeyDto1WithoutUuid = new DeprecatedRuleKeyDto()
       .setOldRuleKey(deprecatedRuleKeyDto1.getOldRuleKey())

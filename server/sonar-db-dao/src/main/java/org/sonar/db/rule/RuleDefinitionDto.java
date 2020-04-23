@@ -38,7 +38,7 @@ public class RuleDefinitionDto {
 
   private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
-  private Integer id;
+  private String uuid;
   private String repositoryKey;
   private String ruleKey;
 
@@ -75,7 +75,7 @@ public class RuleDefinitionDto {
   private boolean isAdHoc;
 
   private String language;
-  private Integer templateId;
+  private String templateUuid;
   private String defRemediationFunction;
   private String defRemediationGapMultiplier;
   private String defRemediationBaseEffort;
@@ -91,6 +91,10 @@ public class RuleDefinitionDto {
 
   private long createdAt;
   private long updatedAt;
+
+  public RuleDefinitionDto() {
+    // nothing to do here
+  }
 
   public static Set<String> deserializeTagsString(@Nullable String tags) {
     return deserializeStringSet(tags);
@@ -126,12 +130,12 @@ public class RuleDefinitionDto {
     return this;
   }
 
-  public Integer getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public RuleDefinitionDto setId(Integer id) {
-    this.id = id;
+  public RuleDefinitionDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 
@@ -267,16 +271,16 @@ public class RuleDefinitionDto {
   }
 
   @CheckForNull
-  public Integer getTemplateId() {
-    return templateId;
+  public String getTemplateUuid() {
+    return templateUuid;
   }
 
   public boolean isCustomRule() {
-    return getTemplateId() != null;
+    return getTemplateUuid() != null;
   }
 
-  public RuleDefinitionDto setTemplateId(@Nullable Integer templateId) {
-    this.templateId = templateId;
+  public RuleDefinitionDto setTemplateUuid(@Nullable String templateUuid) {
+    this.templateUuid = templateUuid;
     return this;
   }
 
@@ -414,27 +418,20 @@ public class RuleDefinitionDto {
       return true;
     }
     RuleDefinitionDto other = (RuleDefinitionDto) obj;
-    return Objects.equals(id, other.id);
+    return Objects.equals(this.uuid, other.uuid);
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(id)
+      .append(this.uuid)
       .toHashCode();
-  }
-
-  public static RuleDto createFor(RuleKey key) {
-    return new RuleDto()
-      .setId(new HashCodeBuilder(17, 37).append(key.rule()).append(key.repository()).toHashCode())
-      .setRepositoryKey(key.repository())
-      .setRuleKey(key.rule());
   }
 
   @Override
   public String toString() {
     return "RuleDefinitionDto{" +
-      "id=" + id +
+      "uuid=" + uuid +
       ", repositoryKey='" + repositoryKey + '\'' +
       ", ruleKey='" + ruleKey + '\'' +
       ", description='" + description + '\'' +
@@ -445,7 +442,7 @@ public class RuleDefinitionDto {
       ", severity=" + severity +
       ", isTemplate=" + isTemplate +
       ", language='" + language + '\'' +
-      ", templateId=" + templateId +
+      ", templateUuid=" + templateUuid +
       ", defRemediationFunction='" + defRemediationFunction + '\'' +
       ", defRemediationGapMultiplier='" + defRemediationGapMultiplier + '\'' +
       ", defRemediationBaseEffort='" + defRemediationBaseEffort + '\'' +

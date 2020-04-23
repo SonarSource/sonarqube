@@ -44,7 +44,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
   public static final Index DESCRIPTOR = Index.withRelations("rules");
   public static final IndexMainType TYPE_RULE = IndexType.main(DESCRIPTOR, "rule");
-  public static final String FIELD_RULE_ID = "ruleId";
+  public static final String FIELD_RULE_UUID = "ruleUuid";
   public static final String FIELD_RULE_KEY = "key";
   public static final String FIELD_RULE_REPOSITORY = "repo";
   public static final String FIELD_RULE_RULE_KEY = "ruleKey";
@@ -81,7 +81,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
   // Active rule fields
   public static final IndexRelationType TYPE_ACTIVE_RULE = IndexType.relation(TYPE_RULE, "activeRule");
-  public static final String FIELD_ACTIVE_RULE_ID = "activeRule_id";
+  public static final String FIELD_ACTIVE_RULE_UUID = "activeRule_uuid";
   public static final String FIELD_ACTIVE_RULE_INHERITANCE = "activeRule_inheritance";
   public static final String FIELD_ACTIVE_RULE_PROFILE_UUID = "activeRule_ruleProfile";
   public static final String FIELD_ACTIVE_RULE_SEVERITY = "activeRule_severity";
@@ -121,7 +121,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     // Rule type
     TypeMapping ruleMapping = index.createTypeMapping(TYPE_RULE);
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_ID).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_UUID).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_REPOSITORY).build();
@@ -154,7 +154,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     // Active rule
     index.createTypeMapping(TYPE_ACTIVE_RULE)
-      .keywordFieldBuilder(FIELD_ACTIVE_RULE_ID).disableNorms().build()
+      .keywordFieldBuilder(FIELD_ACTIVE_RULE_UUID).disableNorms().build()
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build()
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build()
       .keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
