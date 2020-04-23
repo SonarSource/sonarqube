@@ -7,7 +7,7 @@ The only prerequisite for running SonarQube is to have Java (Oracle JRE 11 or Op
 
 ## Hardware Requirements
 1. A small-scale (individual or small team) instance of the SonarQube server requires at least 2GB of RAM to run efficiently and 1GB of free RAM for the OS. If you are installing an instance for a large teams or Enterprise, please consider the additional recommendations below.
-2. The amount of disk space you need will depend on how much code you analyze with SonarQube. As an example, [SonarCloud](https://sonarcloud.io) the public instance of SonarQube, has more than 350 million lines of code under analysis with 5 years of history. SonarCloud is currently running on clustered [Amazon EC2 m5.large](http://aws.amazon.com/ec2/instance-types/) instances with allocations of 50 Gb of drive space per node. It handles 19,000+ projects with roughly 14M open issues. SonarCloud runs on PostgreSQL 9.5 and it is using about 250Gb of disk space for the database.
+2. The amount of disk space you need will depend on how much code you analyze with SonarQube.
 3. SonarQube must be installed on hard drives that have excellent read & write performance. Most importantly, the "data" folder houses the Elasticsearch indices on which a huge amount of I/O will be done when the server is up and running. Great read & write hard drive performance will therefore have a great impact on the overall SonarQube server performance.
 4. SonarQube does not support 32-bit systems on the server side. SonarQube does, however, support 32-bit systems on the scanner side.
 
