@@ -63,7 +63,7 @@
       file_uuid = #{fileUuid,jdbcType=VARCHAR}
   </select>
 
-  <insert id="insert" parameterType="org.sonar.db.source.FileSourceDto">
+  <insert id="insert" parameterType="org.sonar.db.source.FileSourceDto" useGeneratedKeys="false">
     insert into file_sources
     (
       uuid,
