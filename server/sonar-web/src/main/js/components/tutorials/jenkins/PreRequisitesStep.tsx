@@ -21,18 +21,21 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
+import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
 
 export interface PreRequisitesStepProps {
+  onChangeSkipNextTime: (skip: boolean) => void;
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
+  skipNextTime: boolean;
 }
 
 export default function PreRequisitesStep(props: PreRequisitesStepProps) {
-  const { open } = props;
+  const { open, skipNextTime } = props;
   return (
     <Step
       finished={!open}
@@ -67,6 +70,22 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
           </p>
           <p className="big-spacer-bottom">
             {translate('onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations')}
+          </p>
+          <p className="big-spacer-bottom display-flex-center">
+            <label
+              className="cursor-pointer"
+              htmlFor="skip-prereqs"
+              onClick={() => {
+                props.onChangeSkipNextTime(!skipNextTime);
+              }}>
+              {translate('onboarding.tutorial.with.jenkins.prereqs.skip_next_time')}
+            </label>
+            <Checkbox
+              checked={skipNextTime}
+              className="little-spacer-left"
+              id="skip-prereqs"
+              onCheck={props.onChangeSkipNextTime}
+            />
           </p>
           <Button onClick={props.onDone}>
             {translate('onboarding.tutorial.with.jenkins.prereqs.done')}

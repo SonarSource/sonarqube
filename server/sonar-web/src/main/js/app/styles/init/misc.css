@@ -524,6 +524,10 @@ th.huge-spacer-right {
   text-transform: capitalize !important;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .cursor-not-allowed {
   cursor: not-allowed !important;
 }

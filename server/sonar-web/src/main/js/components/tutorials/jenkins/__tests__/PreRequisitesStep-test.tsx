@@ -31,6 +31,13 @@ it('should render correctly', () => {
 
 function shallowRender(props: Partial<PreRequisitesStepProps> = {}) {
   return shallow<PreRequisitesStepProps>(
-    <PreRequisitesStep onDone={jest.fn()} onOpen={jest.fn()} open={false} {...props} />
+    <PreRequisitesStep
+      onChangeSkipNextTime={jest.fn()}
+      onDone={jest.fn()}
+      onOpen={jest.fn()}
+      open={false}
+      skipNextTime={true}
+      {...props}
+    />
   );
 }

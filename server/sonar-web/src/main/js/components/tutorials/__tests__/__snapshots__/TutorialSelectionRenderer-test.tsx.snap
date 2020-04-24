@@ -2,7 +2,7 @@
 
 exports[`should render correctly: jenkins tutorial 1`] = `
 <Fragment>
-  <JenkinsTutorial
+  <Connect(JenkinsTutorial)
     almBinding={
       Object {
         "key": "key",

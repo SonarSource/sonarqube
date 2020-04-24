@@ -12,9 +12,11 @@ exports[`should render correctly: default 1`] = `
     </h1>
   </div>
   <PreRequisitesStep
+    onChangeSkipNextTime={[Function]}
     onDone={[Function]}
     onOpen={[Function]}
     open={true}
+    skipNextTime={false}
   />
   <MultiBranchPipelineStep
     finished={false}

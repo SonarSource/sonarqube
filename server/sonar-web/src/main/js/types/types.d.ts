@@ -218,7 +218,10 @@ declare namespace T {
     value: string;
   }
 
-  type CurrentUserSettingNames = 'notifications.optOut' | 'notifications.readDate';
+  type CurrentUserSettingNames =
+    | 'notifications.optOut'
+    | 'notifications.readDate'
+    | 'tutorials.jenkins.skipBitbucketPreReqs';
 
   export interface CustomMeasure {
     createdAt?: string;

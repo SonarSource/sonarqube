@@ -18,12 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   isBitbucketBindingDefinition,
   isProjectBitbucketBindingResponse
 } from '../../../helpers/alm-settings';
+import { getCurrentUserSetting, Store } from '../../../store/rootReducer';
+import { setCurrentUserSetting } from '../../../store/users';
 import { AlmBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
 import BitbucketWebhookStep from './BitbucketWebhookStep';
 import JenkinsfileStep from './JenkinsfileStep';
@@ -34,6 +37,8 @@ export interface JenkinsTutorialProps {
   almBinding?: AlmBindingDefinition;
   component: T.Component;
   projectBinding: ProjectAlmBindingResponse;
+  setCurrentUserSetting: (setting: T.CurrentUserSetting) => void;
+  skipPreReqs: boolean;
 }
 
 enum Steps {
@@ -43,9 +48,13 @@ enum Steps {
   Jenkinsfile = 3
 }
 
-export default function JenkinsTutorial(props: JenkinsTutorialProps) {
-  const { almBinding, component, projectBinding } = props;
-  const [step, setStep] = React.useState(Steps.PreRequisites);
+const USER_SETTING_SKIP_BITBUCKET_PREREQS = 'tutorials.jenkins.skipBitbucketPreReqs';
+
+export function JenkinsTutorial(props: JenkinsTutorialProps) {
+  const { almBinding, component, projectBinding, skipPreReqs } = props;
+  const [step, setStep] = React.useState(
+    skipPreReqs ? Steps.MultiBranchPipeline : Steps.PreRequisites
+  );
 
   // Failsafe; should never happen.
   if (!isProjectBitbucketBindingResponse(projectBinding)) {
@@ -63,7 +72,14 @@ export default function JenkinsTutorial(props: JenkinsTutorialProps) {
       <PreRequisitesStep
         onDone={() => setStep(Steps.MultiBranchPipeline)}
         onOpen={() => setStep(Steps.PreRequisites)}
+        onChangeSkipNextTime={skip => {
+          props.setCurrentUserSetting({
+            key: USER_SETTING_SKIP_BITBUCKET_PREREQS,
+            value: skip.toString()
+          });
+        }}
         open={step === Steps.PreRequisites}
+        skipNextTime={skipPreReqs}
       />
 
       <MultiBranchPipelineStep
@@ -87,3 +103,13 @@ export default function JenkinsTutorial(props: JenkinsTutorialProps) {
     </>
   );
 }
+
+const mapStateToProps = (state: Store): Pick<JenkinsTutorialProps, 'skipPreReqs'> => {
+  return {
+    skipPreReqs: getCurrentUserSetting(state, USER_SETTING_SKIP_BITBUCKET_PREREQS) === 'true'
+  };
+};
+
+const mapDispatchToProps = { setCurrentUserSetting };
+
+export default connect(mapStateToProps, mapDispatchToProps)(JenkinsTutorial);

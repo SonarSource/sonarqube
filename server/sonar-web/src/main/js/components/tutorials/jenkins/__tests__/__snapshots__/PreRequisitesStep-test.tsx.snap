@@ -61,6 +61,24 @@ exports[`should render correctly: content 1`] = `
   >
     onboarding.tutorial.with.jenkins.prereqs.following_are_recommendations
   </p>
+  <p
+    className="big-spacer-bottom display-flex-center"
+  >
+    <label
+      className="cursor-pointer"
+      htmlFor="skip-prereqs"
+      onClick={[Function]}
+    >
+      onboarding.tutorial.with.jenkins.prereqs.skip_next_time
+    </label>
+    <Checkbox
+      checked={true}
+      className="little-spacer-left"
+      id="skip-prereqs"
+      onCheck={[MockFunction]}
+      thirdState={false}
+    />
+  </p>
   <Button
     onClick={[MockFunction]}
   >

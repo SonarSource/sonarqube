@@ -27,7 +27,7 @@ import {
 import { mockComponent } from '../../../../helpers/testMocks';
 import BitbucketWebhookStep from '../BitbucketWebhookStep';
 import JenkinsfileStep from '../JenkinsfileStep';
-import JenkinsTutorial, { JenkinsTutorialProps } from '../JenkinsTutorial';
+import { JenkinsTutorial, JenkinsTutorialProps } from '../JenkinsTutorial';
 import MultiBranchPipelineStep from '../MultiBranchPipelineStep';
 import PreRequisitesStep from '../PreRequisitesStep';
 
@@ -80,11 +80,36 @@ it('should correctly navigate between steps', () => {
   expect(wrapper.find(BitbucketWebhookStep).prop('open')).toBe(true);
 });
 
+it('should correctly store the user setting', () => {
+  const setCurrentUserSetting = jest.fn();
+  const wrapper = shallowRender({ setCurrentUserSetting });
+
+  wrapper.find(PreRequisitesStep).prop('onChangeSkipNextTime')(true);
+  expect(setCurrentUserSetting).toBeCalledWith({
+    key: 'tutorials.jenkins.skipBitbucketPreReqs',
+    value: 'true'
+  });
+
+  wrapper.find(PreRequisitesStep).prop('onChangeSkipNextTime')(false);
+  expect(setCurrentUserSetting).toBeCalledWith({
+    key: 'tutorials.jenkins.skipBitbucketPreReqs',
+    value: 'false'
+  });
+});
+
+it('should correctly skip the pre-reqs step if the user requested it', () => {
+  const wrapper = shallowRender({ skipPreReqs: true });
+  expect(wrapper.find(PreRequisitesStep).prop('open')).toBe(false);
+  expect(wrapper.find(MultiBranchPipelineStep).prop('open')).toBe(true);
+});
+
 function shallowRender(props: Partial<JenkinsTutorialProps> = {}) {
   return shallow<JenkinsTutorialProps>(
     <JenkinsTutorial
       component={mockComponent()}
       projectBinding={mockProjectBitbucketBindingGet()}
+      setCurrentUserSetting={jest.fn()}
+      skipPreReqs={false}
       {...props}
     />
   );
