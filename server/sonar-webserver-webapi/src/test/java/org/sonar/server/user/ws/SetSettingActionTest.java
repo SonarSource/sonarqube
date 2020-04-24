@@ -124,6 +124,7 @@ public class SetSettingActionTest {
         tuple("value", true, 4000));
 
     assertThat(definition.param("key").possibleValues()).containsExactlyInAnyOrder(
+      "tutorials.jenkins.skipBitbucketPreReqs",
       "notifications.optOut",
       "notifications.readDate");
   }

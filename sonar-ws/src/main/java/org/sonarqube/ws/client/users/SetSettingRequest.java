@@ -49,6 +49,7 @@ public class SetSettingRequest {
    * This is a mandatory parameter.
    * Possible values:
    * <ul>
+   *   <li>"tutorials.jenkins.skipBitbucketPreReqs"</li>
    *   <li>"notifications.optOut"</li>
    *   <li>"notifications.readDate"</li>
    * </ul>
