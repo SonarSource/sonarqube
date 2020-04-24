@@ -117,7 +117,7 @@ public class ActiveRuleCompleter {
     Rules.ActiveList.Builder activeRulesListResponse = Rules.ActiveList.newBuilder();
     for (OrgActiveRuleDto activeRule : activeRules) {
       activeRulesListResponse.addActiveList(buildActiveRuleResponse(activeRule, activeRuleParamsByActiveRuleKey.get(activeRule.getKey())));
-      profileUuids.add(activeRule.getProfileUuid());
+      profileUuids.add(activeRule.getOrgProfileUuid());
     }
     activesBuilder
       .getMutableActives()
@@ -162,7 +162,7 @@ public class ActiveRuleCompleter {
 
   private static Rules.Active buildActiveRuleResponse(OrgActiveRuleDto activeRule, List<ActiveRuleParamDto> parameters) {
     Rules.Active.Builder builder = Rules.Active.newBuilder();
-    builder.setQProfile(activeRule.getProfileUuid());
+    builder.setQProfile(activeRule.getOrgProfileUuid());
     String inheritance = activeRule.getInheritance();
     builder.setInherit(inheritance != null ? inheritance : ActiveRuleInheritance.NONE.name());
     builder.setSeverity(activeRule.getSeverityString());

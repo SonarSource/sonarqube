@@ -35,14 +35,9 @@ import org.sonar.core.util.UtcDateUtils;
 public class RulesProfileDto {
 
   /**
-   * Legacy db-generated ID. Usages should be replaced by {@link #kee}.
+   * UUID
    */
-  private Integer id;
-
-  /**
-   * UUID. Can be a unique slug on legacy rows, for example "abap-sonar-way-38370".
-   */
-  private String kee;
+  private String uuid;
 
   /**
    * Name displayed to users, for example "Sonar way". Not null.
@@ -67,21 +62,12 @@ public class RulesProfileDto {
    */
   private boolean isBuiltIn;
 
-  public String getKee() {
-    return kee;
+  public String getUuid() {
+    return uuid;
   }
 
-  public RulesProfileDto setKee(String s) {
-    this.kee = s;
-    return this;
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public RulesProfileDto setId(Integer id) {
-    this.id = id;
+  public RulesProfileDto setUuid(String s) {
+    this.uuid = s;
     return this;
   }
 
@@ -128,11 +114,10 @@ public class RulesProfileDto {
 
   public static RulesProfileDto from(QProfileDto qProfileDto) {
     return new RulesProfileDto()
-      .setKee(qProfileDto.getRulesProfileUuid())
+      .setUuid(qProfileDto.getRulesProfileUuid())
       .setLanguage(qProfileDto.getLanguage())
       .setName(qProfileDto.getName())
       .setIsBuiltIn(qProfileDto.isBuiltIn())
-      .setId(qProfileDto.getId())
       .setRulesUpdatedAt(qProfileDto.getRulesUpdatedAt());
   }
 }

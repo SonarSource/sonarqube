@@ -344,7 +344,7 @@ public class RegisterQualityProfilesNotificationTest {
 
   private void activateRuleInDb(RulesProfileDto profile, RuleDefinitionDto rule, RulePriority severity) {
     ActiveRuleDto dto = new ActiveRuleDto()
-      .setProfileId(profile.getId())
+      .setProfileUuid(profile.getUuid())
       .setSeverity(severity.name())
       .setRuleId(rule.getId())
       .setCreatedAt(nextLong())

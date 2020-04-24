@@ -30,7 +30,6 @@ import org.sonar.db.organization.OrganizationDto;
  */
 public class QProfileDto {
 
-  private Integer id;
   /**
    * The organization, that this quality profile belongs to.
    * Must not be null, but can be the default organization's uuid.
@@ -71,15 +70,6 @@ public class QProfileDto {
 
   public QProfileDto setRulesProfileUuid(String s) {
     this.rulesProfileUuid = s;
-    return this;
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public QProfileDto setId(Integer id) {
-    this.id = id;
     return this;
   }
 
@@ -160,8 +150,7 @@ public class QProfileDto {
       .setKee(org.getUuid())
       .setParentKee(org.getParentUuid())
       .setOrganizationUuid(org.getOrganizationUuid())
-      .setId(rules.getId())
-      .setRulesProfileUuid(rules.getKee())
+      .setRulesProfileUuid(rules.getUuid())
       .setLanguage(rules.getLanguage())
       .setName(rules.getName())
       .setRulesUpdatedAt(rules.getRulesUpdatedAt())

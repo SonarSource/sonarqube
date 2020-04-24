@@ -170,7 +170,7 @@ public class RegisterQualityProfiles implements Startable {
           return;
         }
 
-        QProfileDto qualityProfile = dbClient.qualityProfileDao().selectByRuleProfileUuid(dbSession, qp.getOrganizationUuid(), rulesProfile.getKee());
+        QProfileDto qualityProfile = dbClient.qualityProfileDao().selectByRuleProfileUuid(dbSession, qp.getOrganizationUuid(), rulesProfile.getUuid());
         if (qualityProfile == null) {
           return;
         }

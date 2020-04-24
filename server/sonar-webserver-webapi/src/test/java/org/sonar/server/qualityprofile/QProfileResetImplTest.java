@@ -111,7 +111,7 @@ public class QProfileResetImplTest {
 
   @Test
   public void fail_when_profile_is_not_persisted() {
-    QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setLanguage(LANGUAGE);
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setRulesProfileUuid(null).setLanguage(LANGUAGE);
     RuleDefinitionDto defaultRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
     expectedException.expect(NullPointerException.class);

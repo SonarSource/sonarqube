@@ -86,7 +86,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public List<ActiveRuleDto> selectByRuleProfile(DbSession dbSession, RulesProfileDto ruleProfileDto) {
-    return mapper(dbSession).selectByRuleProfileUuid(ruleProfileDto.getKee());
+    return mapper(dbSession).selectByRuleProfileUuid(ruleProfileDto.getUuid());
   }
 
   public Collection<ActiveRuleDto> selectByRulesAndRuleProfileUuids(DbSession dbSession, Collection<Integer> ruleIds, Collection<String> ruleProfileUuids) {
@@ -98,7 +98,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public ActiveRuleDto insert(DbSession dbSession, ActiveRuleDto item) {
-    checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
+    checkArgument(item.getProfileUuid() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
     checkArgument(item.getRuleId() != null, RULE_IS_NOT_PERSISTED);
     checkArgument(item.getUuid() == null, ACTIVE_RULE_IS_ALREADY_PERSISTED);
 
@@ -108,7 +108,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public ActiveRuleDto update(DbSession dbSession, ActiveRuleDto item) {
-    checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
+    checkArgument(item.getProfileUuid() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
     checkArgument(item.getRuleId() != null, ActiveRuleDao.RULE_IS_NOT_PERSISTED);
     checkArgument(item.getUuid() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
     mapper(dbSession).update(item);

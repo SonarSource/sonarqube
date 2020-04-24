@@ -104,7 +104,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     orgUuids.forEach(orgUuid -> {
       OrgQProfileDto dto = new OrgQProfileDto()
         .setOrganizationUuid(orgUuid)
-        .setRulesProfileUuid(rulesProfileDto.getKee())
+        .setRulesProfileUuid(rulesProfileDto.getUuid())
         .setUuid(uuidFactory.create());
 
       if (builtIn.isDefault() && orgUuidsWithoutDefault.contains(orgUuid)) {
@@ -130,7 +130,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
   private RulesProfileDto insertRulesProfile(DbSession dbSession, BuiltInQProfile builtIn, Date now) {
     RulesProfileDto dto = new RulesProfileDto()
-      .setKee(uuidFactory.create())
+      .setUuid(uuidFactory.create())
       .setName(builtIn.getName())
       .setLanguage(builtIn.getLanguage())
       .setIsBuiltIn(true)
@@ -145,7 +145,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
       .orElseThrow(() -> new IllegalStateException("RuleDefinition not found for key " + ruleKey));
 
     ActiveRuleDto dto = new ActiveRuleDto();
-    dto.setProfileId(rulesProfileDto.getId());
+    dto.setProfileUuid(rulesProfileDto.getUuid());
     dto.setRuleId(ruleDefinitionDto.getId());
     dto.setKey(ActiveRuleKey.of(rulesProfileDto, ruleDefinitionDto.getKey()));
     dto.setSeverity(firstNonNull(activeRule.getSeverity(), ruleDefinitionDto.getSeverityString()));

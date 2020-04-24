@@ -452,7 +452,7 @@ public class RuleUpdaterTest {
 
     // Activate the custom rule
     ActiveRuleDto activeRuleDto = new ActiveRuleDto()
-      .setProfileId(profileDto.getId())
+      .setProfileUuid(profileDto.getRulesProfileUuid())
       .setRuleId(customRule.getId())
       .setSeverity(Severity.BLOCKER);
     db.getDbClient().activeRuleDao().insert(dbSession, activeRuleDto);

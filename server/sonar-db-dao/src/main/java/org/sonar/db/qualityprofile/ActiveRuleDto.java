@@ -37,7 +37,7 @@ public class ActiveRuleDto {
   public static final String OVERRIDES = ActiveRule.OVERRIDES;
 
   private String uuid;
-  private Integer profileId;
+  private String profileUuid;
   private Integer ruleId;
   private Integer severity;
   private String inheritance;
@@ -75,12 +75,12 @@ public class ActiveRuleDto {
     return this;
   }
 
-  public Integer getProfileId() {
-    return profileId;
+  public String getProfileUuid() {
+    return profileUuid;
   }
 
-  public ActiveRuleDto setProfileId(Integer profileId) {
-    this.profileId = profileId;
+  public ActiveRuleDto setProfileUuid(String profileUuid) {
+    this.profileUuid = profileUuid;
     return this;
   }
 
@@ -157,10 +157,10 @@ public class ActiveRuleDto {
   }
 
   public static ActiveRuleDto createFor(QProfileDto profile, RuleDefinitionDto ruleDto) {
-    requireNonNull(profile.getId(), "Profile is not persisted");
+    requireNonNull(profile.getRulesProfileUuid(), "Profile is not persisted");
     requireNonNull(ruleDto.getId(), "Rule is not persisted");
     ActiveRuleDto dto = new ActiveRuleDto();
-    dto.setProfileId(profile.getId());
+    dto.setProfileUuid(profile.getRulesProfileUuid());
     dto.setRuleId(ruleDto.getId());
     dto.setKey(ActiveRuleKey.of(profile, ruleDto.getKey()));
     return dto;

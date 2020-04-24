@@ -65,7 +65,7 @@ public class QualityProfileTesting {
    */
   public static RulesProfileDto newRuleProfileDto(Consumer<RulesProfileDto>... populators) {
     RulesProfileDto dto = new RulesProfileDto()
-      .setKee("uuid" + randomAlphabetic(10))
+      .setUuid("uuid" + randomAlphabetic(10))
       .setName("name" + randomAlphabetic(10))
       .setLanguage("lang" + randomAlphabetic(5))
       .setIsBuiltIn(false);

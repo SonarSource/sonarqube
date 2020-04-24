@@ -28,12 +28,12 @@ import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.NewBuiltInQualityProfile;
 import org.sonar.api.utils.System2;
-import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -415,7 +415,7 @@ public class BuiltInQProfileUpdateImplTest {
   private void assertThatProfileIsMarkedAsUpdated(RulesProfileDto dto) {
     RulesProfileDto reloaded = db.getDbClient().qualityProfileDao().selectBuiltInRuleProfiles(db.getSession())
       .stream()
-      .filter(p -> p.getKee().equals(dto.getKee()))
+      .filter(p -> p.getUuid().equals(dto.getUuid()))
       .findFirst()
       .get();
     assertThat(reloaded.getRulesUpdatedAt()).isNotEmpty();
@@ -424,7 +424,7 @@ public class BuiltInQProfileUpdateImplTest {
   private void assertThatProfileIsNotMarkedAsUpdated(RulesProfileDto dto) {
     RulesProfileDto reloaded = db.getDbClient().qualityProfileDao().selectBuiltInRuleProfiles(db.getSession())
       .stream()
-      .filter(p -> p.getKee().equals(dto.getKee()))
+      .filter(p -> p.getUuid().equals(dto.getUuid()))
       .findFirst()
       .get();
     assertThat(reloaded.getRulesUpdatedAt()).isNull();
@@ -438,7 +438,7 @@ public class BuiltInQProfileUpdateImplTest {
 
   private void activateRuleInDb(RulesProfileDto profile, RuleDefinitionDto rule, RulePriority severity) {
     ActiveRuleDto dto = new ActiveRuleDto()
-      .setProfileId(profile.getId())
+      .setProfileUuid(profile.getUuid())
       .setSeverity(severity.name())
       .setRuleId(rule.getId())
       .setCreatedAt(PAST)

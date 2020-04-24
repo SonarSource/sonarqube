@@ -96,7 +96,6 @@ public class QualityProfileDaoTest {
     QProfileDto reloaded = underTest.selectByUuid(dbSession, dto.getKee());
     assertThat(reloaded.getKee()).isEqualTo(dto.getKee());
     assertThat(reloaded.getRulesProfileUuid()).isEqualTo(dto.getRulesProfileUuid());
-    assertThat(reloaded.getId()).isNotNull().isNotZero();
     assertThat(reloaded.getLanguage()).isEqualTo(dto.getLanguage());
     assertThat(reloaded.getName()).isEqualTo(dto.getName());
     assertThat(reloaded.getLastUsed()).isEqualTo(dto.getLastUsed());
@@ -192,7 +191,7 @@ public class QualityProfileDaoTest {
   public void selectRuleProfile() {
     RulesProfileDto rp = insertRulesProfile();
 
-    assertThat(underTest.selectRuleProfile(dbSession, rp.getKee()).getId()).isEqualTo(rp.getId());
+    assertThat(underTest.selectRuleProfile(dbSession, rp.getUuid()).getName()).isEqualTo(rp.getName());
     assertThat(underTest.selectRuleProfile(dbSession, "missing")).isNull();
   }
 
@@ -201,11 +200,11 @@ public class QualityProfileDaoTest {
     RulesProfileDto rp1 = insertRulesProfile();
     RulesProfileDto rp2 = insertRulesProfile();
 
-    underTest.deleteRulesProfilesByUuids(dbSession, asList(rp1.getKee()));
+    underTest.deleteRulesProfilesByUuids(dbSession, asList(rp1.getUuid()));
 
-    List<Map<String, Object>> uuids = db.select(dbSession, "select kee as \"uuid\" from rules_profiles");
+    List<Map<String, Object>> uuids = db.select(dbSession, "select uuid as \"uuid\" from rules_profiles");
     assertThat(uuids).hasSize(1);
-    assertThat(uuids.get(0).get("uuid")).isEqualTo(rp2.getKee());
+    assertThat(uuids.get(0).get("uuid")).isEqualTo(rp2.getUuid());
   }
 
   @Test
@@ -230,7 +229,7 @@ public class QualityProfileDaoTest {
     RulesProfileDto dto = new RulesProfileDto()
       .setName(randomAlphanumeric(10))
       .setLanguage(randomAlphanumeric(3))
-      .setKee(Uuids.createFast())
+      .setUuid(Uuids.createFast())
       .setIsBuiltIn(false);
     db.getDbClient().qualityProfileDao().insert(dbSession, dto);
     return dto;
@@ -283,7 +282,7 @@ public class QualityProfileDaoTest {
           QProfileDto reloaded = reloadeds.get(i - 1);
           QProfileDto original = sharedData.get(i - 1);
 
-          assertThat(reloaded.getId()).isEqualTo(original.getId());
+          assertThat(reloaded.getRulesProfileUuid()).isEqualTo(original.getRulesProfileUuid());
           assertThat(reloaded.getName()).isEqualTo(original.getName());
           assertThat(reloaded.getKee()).isEqualTo(original.getKee());
           assertThat(reloaded.getOrganizationUuid()).isEqualTo(original.getOrganizationUuid());
@@ -406,7 +405,6 @@ public class QualityProfileDaoTest {
     assertThat(results).hasSize(1);
     QProfileDto result = results.get(0);
 
-    assertThat(result.getId()).isEqualTo(profile.getId());
     assertThat(result.getName()).isEqualTo(profile.getName());
     assertThat(result.getKee()).isEqualTo(profile.getKee());
     assertThat(result.getLanguage()).isEqualTo(profile.getLanguage());
@@ -879,10 +877,10 @@ public class QualityProfileDaoTest {
     OrganizationDto org2 = db.organizations().insert();
 
     RulesProfileDto ruleProfile1 = QualityProfileTesting.newRuleProfileDto();
-    OrgQProfileDto profile1InOrg1 = new OrgQProfileDto().setOrganizationUuid(org1.getUuid()).setRulesProfileUuid(ruleProfile1.getKee()).setUuid(Uuids.create());
-    OrgQProfileDto profile1InOrg2 = new OrgQProfileDto().setOrganizationUuid(org2.getUuid()).setRulesProfileUuid(ruleProfile1.getKee()).setUuid(Uuids.create());
+    OrgQProfileDto profile1InOrg1 = new OrgQProfileDto().setOrganizationUuid(org1.getUuid()).setRulesProfileUuid(ruleProfile1.getUuid()).setUuid(Uuids.create());
+    OrgQProfileDto profile1InOrg2 = new OrgQProfileDto().setOrganizationUuid(org2.getUuid()).setRulesProfileUuid(ruleProfile1.getUuid()).setUuid(Uuids.create());
     RulesProfileDto ruleProfile2 = QualityProfileTesting.newRuleProfileDto();
-    OrgQProfileDto profile2InOrg1 = new OrgQProfileDto().setOrganizationUuid(org1.getUuid()).setRulesProfileUuid(ruleProfile2.getKee()).setUuid(Uuids.create());
+    OrgQProfileDto profile2InOrg1 = new OrgQProfileDto().setOrganizationUuid(org1.getUuid()).setRulesProfileUuid(ruleProfile2.getUuid()).setUuid(Uuids.create());
     db.getDbClient().qualityProfileDao().insert(db.getSession(), ruleProfile1);
     db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1InOrg1);
     db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1InOrg2);
@@ -898,7 +896,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void selectQProfilesByRuleProfileUuid_returns_empty_list_if_rule_profile_does_not_exist() {
-    List<QProfileDto> result = db.getDbClient().qualityProfileDao().selectQProfilesByRuleProfile(db.getSession(), new RulesProfileDto().setKee("unknown"));
+    List<QProfileDto> result = db.getDbClient().qualityProfileDao().selectQProfilesByRuleProfile(db.getSession(), new RulesProfileDto().setUuid("unknown"));
 
     assertThat(result).isEmpty();
   }

@@ -50,7 +50,7 @@ public class QProfileResetImpl implements QProfileReset {
 
   @Override
   public BulkChangeResult reset(DbSession dbSession, QProfileDto profile, Collection<RuleActivation> activations) {
-    requireNonNull(profile.getId(), "Quality profile must be persisted");
+    requireNonNull(profile.getRulesProfileUuid(), "Quality profile must be persisted");
     checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s'", profile.getKee());
 
     BulkChangeResult result = new BulkChangeResult();

@@ -147,8 +147,8 @@ public class ActiveRuleDaoTest {
     List<OrgActiveRuleDto> result = underTest.selectByProfile(dbSession, profile1);
     assertThat(result)
       .hasSize(2)
-      .extracting(OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getProfileUuid, OrgActiveRuleDto::getProfileId)
-      .containsOnly(tuple(organization.getUuid(), profile1.getKee(), profile1.getId()));
+      .extracting(OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getProfileUuid)
+      .containsOnly(tuple(organization.getUuid(), profile1.getKee(), profile1.getRulesProfileUuid()));
 
     assertThat(underTest.selectByProfile(dbSession, profile2)).isEmpty();
   }
@@ -169,7 +169,7 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, activeRule1);
 
     assertThat(underTest.selectByTypeAndProfileUuids(dbSession, singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList(profile1.getKee())))
-      .extracting(OrgActiveRuleDto::getProfileUuid, OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getRuleId)
+      .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getRuleId)
       .contains(tuple(profile1.getKee(), profile1.getOrganizationUuid(), rule1.getId()));
   }
 
@@ -195,7 +195,7 @@ public class ActiveRuleDaoTest {
       underTest.selectByTypeAndProfileUuids(dbSession,
         singletonList(RuleType.VULNERABILITY.getDbConstant()),
         singletonList(profile1.getKee())))
-      .extracting(OrgActiveRuleDto::getProfileUuid, OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getRuleId)
+          .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getRuleId)
       .contains(tuple(profile1.getKee(), profile1.getOrganizationUuid(), rule1.getId()));
 
     assertThat(
@@ -215,8 +215,8 @@ public class ActiveRuleDaoTest {
     List<ActiveRuleDto> result = underTest.selectByRuleProfile(dbSession, RulesProfileDto.from(profile1));
     assertThat(result)
       .hasSize(2)
-      .extracting(ActiveRuleDto::getProfileId, ActiveRuleDto::getRuleKey, ActiveRuleDto::getSeverityString)
-      .containsOnly(tuple(profile1.getId(), rule1.getKey(), BLOCKER), tuple(profile1.getId(), rule2.getKey(), MAJOR));
+      .extracting(ActiveRuleDto::getProfileUuid, ActiveRuleDto::getRuleKey, ActiveRuleDto::getSeverityString)
+      .containsOnly(tuple(profile1.getRulesProfileUuid(), rule1.getKey(), BLOCKER), tuple(profile1.getRulesProfileUuid(), rule2.getKey(), MAJOR));
 
     assertThat(underTest.selectByProfile(dbSession, profile2)).isEmpty();
   }
@@ -271,7 +271,7 @@ public class ActiveRuleDaoTest {
     assertThat(result.getUuid()).isEqualTo(activeRule.getUuid());
     assertThat(result.getKey()).isEqualTo(ActiveRuleKey.of(profile1, rule1.getKey()));
     assertThat(result.getRuleId()).isEqualTo(rule1.getId());
-    assertThat(result.getProfileId()).isEqualTo(profile1.getId());
+    assertThat(result.getProfileUuid()).isEqualTo(profile1.getRulesProfileUuid());
     assertThat(result.getSeverityString()).isEqualTo(BLOCKER);
     assertThat(result.getInheritance()).isEqualTo(INHERITED);
     assertThat(result.getCreatedAt()).isEqualTo(1000L);
@@ -283,7 +283,7 @@ public class ActiveRuleDaoTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Quality profile is not persisted (missing id)");
 
-    underTest.insert(dbSession, createFor(profile1, rule1).setProfileId(null));
+    underTest.insert(dbSession, createFor(profile1, rule1).setProfileUuid(null));
   }
 
   @Test
@@ -325,7 +325,7 @@ public class ActiveRuleDaoTest {
     assertThat(result.getUuid()).isEqualTo(activeRule.getUuid());
     assertThat(result.getKey()).isEqualTo(ActiveRuleKey.of(profile1, rule1.getKey()));
     assertThat(result.getRuleId()).isEqualTo(rule1.getId());
-    assertThat(result.getProfileId()).isEqualTo(profile1.getId());
+    assertThat(result.getProfileUuid()).isEqualTo(profile1.getRulesProfileUuid());
     assertThat(result.getSeverityString()).isEqualTo(MAJOR);
     assertThat(result.getInheritance()).isEqualTo(OVERRIDES);
     assertThat(result.getCreatedAt()).isEqualTo(1000L);
@@ -337,7 +337,7 @@ public class ActiveRuleDaoTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Quality profile is not persisted (missing id)");
 
-    underTest.update(dbSession, createFor(profile1, rule1).setUuid("uuid").setProfileId(null));
+    underTest.update(dbSession, createFor(profile1, rule1).setUuid("uuid").setProfileUuid(null));
   }
 
   @Test

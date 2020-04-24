@@ -246,7 +246,7 @@ public class RuleActivator {
     RuleWrapper rule = context.getRule();
 
     ActiveRuleDto activeRule = new ActiveRuleDto();
-    activeRule.setProfileId(context.getRulesProfile().getId());
+    activeRule.setProfileUuid(context.getRulesProfile().getUuid());
     activeRule.setRuleId(rule.get().getId());
     activeRule.setKey(ActiveRuleKey.of(context.getRulesProfile(), rule.get().getKey()));
     String severity = change.getSeverity();
@@ -354,7 +354,7 @@ public class RuleActivator {
   }
 
   public RuleActivationContext createContextForBuiltInProfile(DbSession dbSession, RulesProfileDto builtInProfile, Collection<Integer> ruleIds) {
-    checkArgument(builtInProfile.isBuiltIn(), "Rules profile with UUID %s is not built-in", builtInProfile.getKee());
+    checkArgument(builtInProfile.isBuiltIn(), "Rules profile with UUID %s is not built-in", builtInProfile.getUuid());
 
     RuleActivationContext.Builder builder = new RuleActivationContext.Builder();
     builder.setDescendantProfilesSupplier(createDescendantProfilesSupplier(dbSession));
@@ -369,7 +369,7 @@ public class RuleActivator {
 
     // load active rules
     Collection<String> ruleProfileUuids = Stream
-      .concat(Stream.of(builtInProfile.getKee()), profiles.stream().map(QProfileDto::getRulesProfileUuid))
+      .concat(Stream.of(builtInProfile.getUuid()), profiles.stream().map(QProfileDto::getRulesProfileUuid))
       .collect(MoreCollectors.toHashSet(profiles.size() + 1));
     completeWithActiveRules(dbSession, builder, ruleIds, ruleProfileUuids);
     return builder.build();

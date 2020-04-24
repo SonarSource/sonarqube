@@ -22,7 +22,7 @@ package org.sonar.db.qualityprofile;
 public class OrgActiveRuleDto extends ActiveRuleDto {
 
   private String organizationUuid;
-  private String profileUuid;
+  private String orgProfileUuid;
 
   public String getOrganizationUuid() {
     return organizationUuid;
@@ -33,12 +33,12 @@ public class OrgActiveRuleDto extends ActiveRuleDto {
     return this;
   }
 
-  public String getProfileUuid() {
-    return profileUuid;
+  public String getOrgProfileUuid() {
+    return orgProfileUuid;
   }
 
-  public OrgActiveRuleDto setProfileUuid(String s) {
-    this.profileUuid = s;
+  public OrgActiveRuleDto setOrgProfileUuid(String s) {
+    this.orgProfileUuid = s;
     return this;
   }
 }

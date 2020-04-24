@@ -39,7 +39,6 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
@@ -107,12 +106,10 @@ public class QualityProfileDao implements Dao {
   }
 
   private void doInsert(QualityProfileMapper mapper, QProfileDto profile) {
-    checkArgument(profile.getId() == null, "Quality profile is already persisted (got id %d)", profile.getId());
     long now = system.now();
     RulesProfileDto rulesProfile = RulesProfileDto.from(profile);
     mapper.insertRuleProfile(rulesProfile, new Date(now));
     mapper.insertOrgQProfile(OrgQProfileDto.from(profile), now);
-    profile.setId(rulesProfile.getId());
   }
 
   public void update(DbSession dbSession, QProfileDto profile, QProfileDto... otherProfiles) {
@@ -264,7 +261,7 @@ public class QualityProfileDao implements Dao {
   }
 
   public List<QProfileDto> selectQProfilesByRuleProfile(DbSession dbSession, RulesProfileDto rulesProfile) {
-    return mapper(dbSession).selectQProfilesByRuleProfileUuid(rulesProfile.getKee());
+    return mapper(dbSession).selectQProfilesByRuleProfileUuid(rulesProfile.getUuid());
   }
 
   private static String sqlQueryString(@Nullable String query) {

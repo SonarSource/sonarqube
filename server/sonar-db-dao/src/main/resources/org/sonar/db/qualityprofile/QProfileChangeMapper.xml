@@ -66,8 +66,8 @@
 
   <sql id="sqlSelectByQuery">
     from qprofile_changes qpc
-    inner join rules_profiles rp on rp.kee = qpc.rules_profile_uuid
-    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on rp.uuid = qpc.rules_profile_uuid
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
     where
       oqp.uuid = #{query.profileUuid, jdbcType=VARCHAR}
       <if test="query.fromIncluded != null">

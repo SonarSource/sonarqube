@@ -45,7 +45,7 @@ public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
   }
 
   public static ActiveRuleKey of(RulesProfileDto rulesProfile, RuleKey ruleKey) {
-    return new ActiveRuleKey(rulesProfile.getKee(), ruleKey);
+    return new ActiveRuleKey(rulesProfile.getUuid(), ruleKey);
   }
 
   /**

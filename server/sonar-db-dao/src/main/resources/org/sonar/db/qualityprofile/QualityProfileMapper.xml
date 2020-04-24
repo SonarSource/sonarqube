@@ -9,8 +9,7 @@
     oqp.parent_uuid as parentKee,
     oqp.last_used as lastUsed,
     oqp.user_updated_at as userUpdatedAt,
-    rp.id as id,
-    rp.kee as rulesProfileUuid,
+    rp.uuid as rulesProfileUuid,
     rp.name as name,
     rp.language as language,
     rp.rules_updated_at as rulesUpdatedAt,
@@ -18,17 +17,16 @@
   </sql>
 
   <sql id="ruleProfileColumns">
-    rp.id as id,
-    rp.kee as kee,
+    rp.uuid as uuid,
     rp.name as name,
     rp.language as language,
     rp.rules_updated_at as rulesUpdatedAt,
     rp.is_built_in as isBuiltIn
   </sql>
 
-  <insert id="insertRuleProfile" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="dto.id">
+  <insert id="insertRuleProfile" parameterType="map" useGeneratedKeys="false">
     insert into rules_profiles (
-      kee,
+      uuid,
       name,
       language,
       created_at,
@@ -36,7 +34,7 @@
       rules_updated_at,
       is_built_in
     ) values (
-      #{dto.kee, jdbcType=VARCHAR},
+      #{dto.uuid, jdbcType=VARCHAR},
       #{dto.name, jdbcType=VARCHAR},
       #{dto.language, jdbcType=VARCHAR},
       #{now, jdbcType=TIMESTAMP},
@@ -77,7 +75,7 @@
       rules_updated_at = #{dto.rulesUpdatedAt, jdbcType=VARCHAR},
       is_built_in = #{dto.isBuiltIn, jdbcType=BOOLEAN}
     where
-      kee = #{dto.kee, jdbcType=VARCHAR}
+      uuid = #{dto.uuid, jdbcType=VARCHAR}
   </update>
 
   <update id="updateOrgQProfile" parameterType="map">
@@ -103,7 +101,7 @@
 
   <delete id="deleteRuleProfilesByUuids" parameterType="String">
     delete from rules_profiles
-    where kee in
+    where uuid in
       <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
@@ -122,14 +120,14 @@
   <select id="selectRuleProfile" resultType="org.sonar.db.qualityprofile.RulesProfileDto">
     select <include refid="ruleProfileColumns"/>
     from rules_profiles rp
-    where rp.kee = #{uuid, jdbcType=VARCHAR}
+    where rp.uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectOrderedByOrganizationUuid" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     where
       oqp.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     order by rp.name, rp.language
@@ -139,7 +137,7 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     inner join default_qprofiles dp on dp.qprofile_uuid = oqp.uuid
     where
       dp.language = #{language, jdbcType=VARCHAR}
@@ -152,7 +150,7 @@
     SELECT
     <include refid="qProfileColumns"/>
     FROM org_qprofiles oqp
-    INNER JOIN rules_profiles rp ON oqp.rules_profile_uuid = rp.kee
+    INNER JOIN rules_profiles rp ON oqp.rules_profile_uuid = rp.uuid
     INNER JOIN default_qprofiles dp ON dp.qprofile_uuid = oqp.uuid
     WHERE
       rp.is_built_in = ${_true}
@@ -160,7 +158,7 @@
       AND NOT EXISTS (
         SELECT 1 FROM active_rules ar
         INNER JOIN rules r ON r.id = ar.rule_id AND r.status &lt;&gt; 'REMOVED'
-        WHERE profile_id=rp.id
+        WHERE profile_uuid = rp.uuid
       )
   </select>
 
@@ -168,7 +166,7 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     inner join default_qprofiles dp on dp.qprofile_uuid = oqp.uuid
     where
       dp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
@@ -184,7 +182,7 @@
       AND EXISTS (
         SELECT 1 FROM active_rules ar
         INNER JOIN rules r ON r.id = ar.rule_id AND r.status &lt;&gt; 'REMOVED'
-        WHERE profile_id=rp.id
+        WHERE profile_uuid=rp.uuid
       )
   </select>
 
@@ -192,7 +190,7 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     where
       rp.name = #{name, jdbcType=VARCHAR}
       and rp.language = #{language, jdbcType=VARCHAR}
@@ -203,9 +201,9 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     where
-    rp.kee = #{ruleProfileUuid, jdbcType=VARCHAR}
+    rp.uuid = #{ruleProfileUuid, jdbcType=VARCHAR}
     and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
@@ -213,7 +211,7 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     where
       rp.name = #{name, jdbcType=VARCHAR}
       and rp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
@@ -224,7 +222,7 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     where
       oqp.uuid = #{uuid, jdbcType=VARCHAR}
   </select>
@@ -233,7 +231,7 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     where
       oqp.uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </select>
@@ -242,7 +240,7 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     where
       rp.language = #{language, jdbcType=VARCHAR}
       and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
@@ -252,7 +250,7 @@
   <select id="selectChildren" parameterType="string" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     inner join org_qprofiles parent on parent.uuid = oqp.parent_uuid
     where
       parent.uuid in <foreach collection="uuids" item="uuid" open="(" close=")" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
@@ -278,7 +276,7 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     inner join project_qprofiles pqp ON pqp.profile_key = oqp.uuid
     where
       rp.language = #{language, jdbcType=VARCHAR}
@@ -290,7 +288,7 @@
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     inner join project_qprofiles pqp ON pqp.profile_key = oqp.uuid
     where
       rp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
@@ -378,7 +376,7 @@
     select oqp.rules_profile_uuid
     from org_qprofiles oqp
     inner join organizations o on o.uuid = oqp.organization_uuid
-    inner join rules_profiles rp on rp.kee = oqp.rules_profile_uuid
+    inner join rules_profiles rp on rp.uuid = oqp.rules_profile_uuid
     where
       rp.language = #{language, jdbcType=VARCHAR}
       and rp.name = #{name, jdbcType=VARCHAR}
@@ -391,16 +389,16 @@
       name = #{newName, jdbcType=VARCHAR},
       updated_at = #{updatedAt, jdbcType=TIMESTAMP}
     where
-      kee in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
+      uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </update>
 
   <select id="selectQProfilesByRuleProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
-    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
     where
-    rp.kee= #{rulesProfileUuid, jdbcType=VARCHAR}
+    rp.uuid= #{rulesProfileUuid, jdbcType=VARCHAR}
   </select>
 </mapper>
 

@@ -166,7 +166,7 @@ class RuleActivationContext {
    * Whether the profile cursor is on the base profile or not.
    */
   boolean isCascading() {
-    return currentRulesProfile != null && !currentRulesProfile.getKee().equals(baseRulesProfile.getKee());
+    return currentRulesProfile != null && !currentRulesProfile.getUuid().equals(baseRulesProfile.getUuid());
   }
 
   /**
@@ -193,7 +193,7 @@ class RuleActivationContext {
       return;
     }
     Collection<QProfileDto> baseProfiles = profilesByUuid.values().stream()
-      .filter(p -> p.getRulesProfileUuid().equals(baseRulesProfile.getKee()))
+      .filter(p -> p.getRulesProfileUuid().equals(baseRulesProfile.getUuid()))
       .collect(toArrayList(profilesByUuid.size()));
     DescendantProfilesSupplier.Result result = descendantProfilesSupplier.get(baseProfiles, rulesById.keySet());
     register(result.getProfiles());
@@ -228,7 +228,7 @@ class RuleActivationContext {
       "%s rule %s cannot be activated on %s profile %s", currentRule.get().getLanguage(), ruleKey, ruleProfile.getLanguage(), ruleProfile.getName());
     this.currentRulesProfile = ruleProfile;
     this.currentProfiles = profilesByUuid.values().stream()
-      .filter(p -> p.getRulesProfileUuid().equals(ruleProfile.getKee()))
+      .filter(p -> p.getRulesProfileUuid().equals(ruleProfile.getUuid()))
       .collect(Collectors.toList());
     this.currentActiveRule = this.activeRulesByKey.get(ActiveRuleKey.of(ruleProfile, ruleKey));
     this.currentParentActiveRule = this.currentProfiles.stream()

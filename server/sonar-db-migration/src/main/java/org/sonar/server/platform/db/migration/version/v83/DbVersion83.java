@@ -187,6 +187,22 @@ import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.
 import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable;
 import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.MakeQualityGateConditionsUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.qualitygateconditions.PopulateQualityGateConditionsUuid;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.AddPrimaryKeyOnUuidColumnOfRulesProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.AddUuidColumnToRulesProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.DropIdColumnOfRulesProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.DropKeeColumnOfRulesProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.DropPrimaryKeyOnIdColumnOfRulesProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.DropUniqueIndexOnKeeColumnOfRulesProfilesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.MakeRulesProfilesUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.PopulateRulesProfilesUuid;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.fk.activerules.AddProfileUuidColumnToActiveRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.fk.activerules.AddUniqueIndexOnProfileUuidColumnOfActiveRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.fk.activerules.DropProfileIdColumnOfActiveRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.fk.activerules.DropUniqueIndexOnProfileIdColumnOfActiveRulesTable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.fk.activerules.MakeActiveRulesProfileUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.fk.activerules.PopulateActiveRulesProfileUuid;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.fk.orgqprofiles.PopulateOrgQProfilesRulesProfileUuid;
+import org.sonar.server.platform.db.migration.version.v83.rulesprofiles.fk.qprofilechanges.PopulateQProfileChangesRulesProfileUuid;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.AddPrimaryKeyOnUuidColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropIdColumnOfSnapshotsTable;
 import org.sonar.server.platform.db.migration.version.v83.snapshots.issues.DropPrimaryKeyOnIdColumnOfSnapshotsTable;
@@ -474,6 +490,34 @@ public class DbVersion83 implements DbVersion {
 
       .add(3573, "Drop column 'ID' of 'PERMISSION_TEMPLATES' table", DropIdColumnOfPermissionTemplatesTable.class)
       .add(3574, "Drop column 'KEE' of 'PERMISSION_TEMPLATES' table", DropKeeColumnOfPermissionTemplatesTable.class)
+
+      // Migration on RULES_PROFILES table
+      .add(3575, "Add 'uuid' column for 'RULES_PROFILES'", AddUuidColumnToRulesProfilesTable.class)
+      .add(3576, "Populate 'uuid' column for 'RULES_PROFILES'", PopulateRulesProfilesUuid.class)
+      .add(3577, "Make 'uuid' column not nullable for 'RULES_PROFILES'", MakeRulesProfilesUuidColumnNotNullable.class)
+
+      // Migration of ORG_QPROFILES FK to RULES_PROFILES
+      .add(3578, "Populate 'rules_profile_uuid' column for 'ORG_QPROFILES' table", PopulateOrgQProfilesRulesProfileUuid.class)
+
+      // Migration of QPROFILE_CHANGES FK to RULES_PROFILES
+      .add(3579, "Populate 'rules_profile_uuid' column for 'QPROFILE_CHANGES' table", PopulateQProfileChangesRulesProfileUuid.class)
+
+      // Migration of ACTIVE_RULES FK to RULES_PROFILES, switch from profile_id to profile_uuid
+      .add(3580, "Add 'profile_uuid' column for 'ACTIVE_RULES' table", AddProfileUuidColumnToActiveRulesTable.class)
+      .add(3581, "Populate 'profile_uuid' column for 'ACTIVE_RULES' table", PopulateActiveRulesProfileUuid.class)
+      .add(3582, "Make 'profile_uuid' column not nullable for 'ACTIVE_RULES' table", MakeActiveRulesProfileUuidColumnNotNullable.class)
+
+      .add(3583, "Drop unique constraint on 'profile_id', 'rule_id' columns 'ACTIVE_RULES' table", DropUniqueIndexOnProfileIdColumnOfActiveRulesTable.class)
+      .add(3584, "Add unique constraint on 'profile_uuid', 'rule_id' columns 'ACTIVE_RULES' table", AddUniqueIndexOnProfileUuidColumnOfActiveRulesTable.class)
+
+      .add(3585, "Drop column 'profile_id' of 'ACTIVE_RULES' table", DropProfileIdColumnOfActiveRulesTable.class)
+
+      .add(3586, "Drop unique constraint on 'kee' columns 'RULES_PROFILES' table", DropUniqueIndexOnKeeColumnOfRulesProfilesTable.class)
+      .add(3587, "Drop column 'kee' of 'RULES_PROFILES' table", DropKeeColumnOfRulesProfilesTable.class)
+
+      .add(3588, "Drop primary key on 'ID' column of 'RULES_PROFILES' table", DropPrimaryKeyOnIdColumnOfRulesProfilesTable.class)
+      .add(3589, "Add primary key on 'UUID' column of 'RULES_PROFILES' table", AddPrimaryKeyOnUuidColumnOfRulesProfilesTable.class)
+      .add(3590, "Drop column 'ID' of 'RULES_PROFILES' table", DropIdColumnOfRulesProfilesTable.class)
 
     ;
   }

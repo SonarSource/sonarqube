@@ -236,7 +236,7 @@ public class OrganizationUpdaterImplTest {
   private void insertRulesProfile(BuiltInQProfile builtIn) {
     RulesProfileDto dto = new RulesProfileDto()
       .setIsBuiltIn(true)
-      .setKee(RandomStringUtils.randomAlphabetic(40))
+      .setUuid(RandomStringUtils.randomAlphabetic(40))
       .setLanguage(builtIn.getLanguage())
       .setName(builtIn.getName());
     dbClient.qualityProfileDao().insert(db.getSession(), dto);

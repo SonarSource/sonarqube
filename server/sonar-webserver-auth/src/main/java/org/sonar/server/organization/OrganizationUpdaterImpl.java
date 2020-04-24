@@ -194,7 +194,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     dbClient.qualityProfileDao().selectBuiltInRuleProfiles(dbSession).forEach(rulesProfile -> {
       OrgQProfileDto dto = new OrgQProfileDto()
         .setOrganizationUuid(organization.getUuid())
-        .setRulesProfileUuid(rulesProfile.getKee())
+        .setRulesProfileUuid(rulesProfile.getUuid())
         .setUuid(uuidFactory.create());
 
       QProfileName name = new QProfileName(rulesProfile.getLanguage(), rulesProfile.getName());

@@ -150,12 +150,12 @@ public class RegisterQualityProfilesTest {
       .setIsBuiltIn(true)
       .setLanguage(FOO_LANGUAGE.getKey())
       .setOrganizationUuid(orgUuid)
-      .setRulesProfileUuid(ruleProfileWithoutRule.getKee());
+      .setRulesProfileUuid(ruleProfileWithoutRule.getUuid());
     QProfileDto qProfileWithOneRule = newQualityProfileDto()
       .setIsBuiltIn(true)
       .setLanguage(FOO_LANGUAGE.getKey())
       .setOrganizationUuid(orgUuid)
-      .setRulesProfileUuid(ruleProfileWithOneRule.getKee());
+      .setRulesProfileUuid(ruleProfileWithOneRule.getUuid());
 
     db.qualityProfiles().insert(qProfileWithoutRule, qProfileWithOneRule);
     db.qualityProfiles().setAsDefault(qProfileWithoutRule);

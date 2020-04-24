@@ -92,7 +92,6 @@ public class BuiltInQProfileInsertImplTest {
     // same row in table rules_profiles is used
     assertThat(profileOnOrg1.getKee()).isNotEqualTo(profileOnOrg2.getKee());
     assertThat(profileOnOrg1.getRulesProfileUuid()).isEqualTo(profileOnOrg2.getRulesProfileUuid());
-    assertThat(profileOnOrg1.getId()).isEqualTo(profileOnOrg2.getId());
   }
 
   @Test
@@ -177,7 +176,7 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(activeRule.getInheritance()).isNull();
     assertThat(activeRule.doesOverride()).isFalse();
     assertThat(activeRule.getRuleId()).isEqualTo(rule.getId());
-    assertThat(activeRule.getProfileId()).isEqualTo(profile.getId());
+    assertThat(activeRule.getProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
     assertThat(activeRule.getSeverityString()).isEqualTo(expectedSeverity);
     assertThat(activeRule.getCreatedAt()).isPositive();
     assertThat(activeRule.getUpdatedAt()).isPositive();
@@ -208,7 +207,7 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(profileOnOrg1.getUserUpdatedAt()).isNull();
     assertThat(profileOnOrg1.getRulesUpdatedAt()).isNotEmpty();
     assertThat(profileOnOrg1.getKee()).isNotEqualTo(profileOnOrg1.getRulesProfileUuid());
-    assertThat(profileOnOrg1.getId()).isNotNull();
+    assertThat(profileOnOrg1.getRulesProfileUuid()).isNotNull();
     return profileOnOrg1;
   }
 
