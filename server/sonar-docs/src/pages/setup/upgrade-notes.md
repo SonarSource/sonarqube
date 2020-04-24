@@ -4,13 +4,21 @@ url: /setup/upgrade-notes/
 ---
 
 ## Release 8.3 Upgrade Notes  
+**Security Hotspots in the built-in Quality Gate**   
+We've added a new condition to the built-in "Sonar way" Quality Gate to make sure all Security Hotspots on New Code are reviewed. The Quality Gate fails if the percentage of new Hotspots reviewed is less than 100%. ([MMF-1907](https://jira.sonarsource.com/browse/MMF-1907)).
+
+**Jenkins automatic branch and Pull Request detection**  
+With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/), Scanners now automatically detect branches and Pull Requests in Jenkins Multibranch Pipelines. You no longer need to pass branch and Pull Request parameters. When upgrading from Community Edition or an old commercial edition version, the branch name in your SonarQube project needs to match the branch name in your code repository to continue writing history to the branch. Because SonarQube names the Main Branch "master" by default, you may have to rename it before running analysis again. See the [Jenkins CI Integration](/analysis/jenkins/) page for more information. ([MMF-1676](https://jira.sonarsource.com/browse/MMF-1676)).
+
+**Updated .NET code coverage**  
+The code coverage for .NET projects now takes into account the branch/condition coverage in addition to the line coverage. The coverage of your projects may decrease to be closer to reality, and it can impact your Quality Gate. (See more details [here](https://community.sonarsource.com/t/c-vb-net-sonarqube-and-sonarcloud-support-branch-condition-coverage-data/22384)).
 
 **Analysis summary for GitHub Pull Requests**
 * Pull Request analysis can be shown under the Conversation tab in GitHub. You can enable or disable it at **Project Settings > General Settings > Pull Request Decoration**. 
 * If you already have Pull Request analysis under the GitHub Checks tab, you'll need to update your GitHub App to give Pull Requests read & write access. For more information see [Decorating Pull Requests](/analysis/pr-decoration/). ([MMF-1892](https://jira.sonarsource.com/browse/MMF-1892)).
 
-**Jenkins Automatic Branch and Pull Request Detection**  
-With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/), Scanners now automatically detects branches and Pull Requests in Jenkins Multibranch Pipelines. You no longer need to pass branch and Pull Request parameters. When upgrading from Community Edition or an old commercial edition version, the branch name in your SonarQube project needs to match the branch name in your code repository to continue writing history to the branch. Because SonarQube renames the Main Branch "master" by default, you may have to rename it before running analysis again. See the [Jenkins CI Integration](/analysis/jenkins/) page for more information. ([MMF-1676](https://jira.sonarsource.com/browse/MMF-1676)).
+**Applications on the Projects page**  
+[Applications](/user-guide/applications/) are now found on the Projects page. You can filter, favorite, and tag applications like you can with projects. ([MMF-1382](https://jira.sonarsource.com/browse/MMF-1382)).
 
 ## Release 8.2 Upgrade Notes  
 **Security Hotspots: dedicated space and workflow**
