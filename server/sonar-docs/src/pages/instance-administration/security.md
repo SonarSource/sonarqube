@@ -58,7 +58,7 @@ If you've deleted `admin` and subsequently locked out the other users with globa
 ```
 INSERT INTO user_roles(user_id, role, organization_uuid) 
 VALUES ((select id from users where login='mylogin'), 
-admin', 
+'admin', 
 (select uuid from organizations where kee='default-organization'));
 ```
 
