@@ -37,7 +37,7 @@ public class LiveMeasureDto {
 
   private String componentUuid;
   private String projectUuid;
-  private int metricId;
+  private String metricUuid;
   @Nullable
   private Double value;
   @Nullable
@@ -69,12 +69,12 @@ public class LiveMeasureDto {
     return this;
   }
 
-  public int getMetricId() {
-    return metricId;
+  public String getMetricUuid() {
+    return metricUuid;
   }
 
-  public LiveMeasureDto setMetricId(int i) {
-    this.metricId = i;
+  public LiveMeasureDto setMetricUuid(String uuid) {
+    this.metricUuid = uuid;
     return this;
   }
 
@@ -141,7 +141,7 @@ public class LiveMeasureDto {
     StringBuilder sb = new StringBuilder("LiveMeasureDto{");
     sb.append("componentUuid='").append(componentUuid).append('\'');
     sb.append(", projectUuid='").append(projectUuid).append('\'');
-    sb.append(", metricId=").append(metricId);
+    sb.append(", metricUuid=").append(metricUuid);
     sb.append(", value=").append(value);
     sb.append(", variation=").append(variation);
     sb.append(", textValue='").append(textValue).append('\'');

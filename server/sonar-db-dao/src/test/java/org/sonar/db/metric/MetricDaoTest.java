@@ -30,6 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
@@ -93,8 +94,8 @@ public class MetricDaoTest {
     db.getSession().commit();
 
     assertThat(underTest.selectEnabled(dbSession))
-      .extracting(MetricDto::getId)
-      .containsOnly(enabledMetrics.stream().map(MetricDto::getId).toArray(Integer[]::new));
+      .extracting(MetricDto::getUuid)
+      .containsOnly(enabledMetrics.stream().map(MetricDto::getUuid).toArray(String[]::new));
   }
 
   @Test
@@ -113,13 +114,14 @@ public class MetricDaoTest {
     db.getSession().commit();
 
     assertThat(underTest.selectEnabled(dbSession))
-      .extracting(MetricDto::getId)
-      .containsOnly(enabledMetrics.stream().map(MetricDto::getId).toArray(Integer[]::new));
+      .extracting(MetricDto::getUuid)
+      .containsOnly(enabledMetrics.stream().map(MetricDto::getUuid).toArray(String[]::new));
   }
 
   @Test
   public void insert() {
     underTest.insert(dbSession, new MetricDto()
+      .setUuid(Uuids.createFast())
       .setKey("coverage")
       .setShortName("Coverage")
       .setDescription("Coverage by unit tests")
@@ -136,7 +138,7 @@ public class MetricDaoTest {
       .setEnabled(true));
 
     MetricDto result = underTest.selectByKey(dbSession, "coverage");
-    assertThat(result.getId()).isNotNull();
+    assertThat(result.getUuid()).isNotNull();
     assertThat(result.getKey()).isEqualTo("coverage");
     assertThat(result.getShortName()).isEqualTo("Coverage");
     assertThat(result.getDescription()).isEqualTo("Coverage by unit tests");
@@ -156,6 +158,7 @@ public class MetricDaoTest {
   @Test
   public void insert_metrics() {
     underTest.insert(dbSession, new MetricDto()
+      .setUuid(Uuids.createFast())
       .setKey("coverage")
       .setShortName("Coverage")
       .setDescription("Coverage by unit tests")
@@ -171,6 +174,7 @@ public class MetricDaoTest {
       .setDeleteHistoricalData(true)
       .setEnabled(true),
       new MetricDto()
+        .setUuid(Uuids.createFast())
         .setKey("ncloc")
         .setShortName("ncloc")
         .setDescription("ncloc")
@@ -191,20 +195,20 @@ public class MetricDaoTest {
   }
 
   @Test
-  public void selectById() {
+  public void selectByUuid() {
     MetricDto metric = underTest.insert(dbSession, newMetricDto());
 
-    MetricDto result = underTest.selectById(dbSession, metric.getId());
+    MetricDto result = underTest.selectByUuid(dbSession, metric.getUuid());
 
     assertThat(result).isNotNull();
   }
 
   @Test
-  public void selectByIds() {
+  public void selectByUuids() {
     MetricDto metric1 = underTest.insert(dbSession, newMetricDto());
     MetricDto metric2 = underTest.insert(dbSession, newMetricDto());
 
-    List<MetricDto> result = underTest.selectByIds(dbSession, newHashSet(metric1.getId(), metric2.getId()));
+    List<MetricDto> result = underTest.selectByUuids(dbSession, newHashSet(metric1.getUuid(), metric2.getUuid()));
 
     assertThat(result).hasSize(2);
   }
@@ -255,13 +259,13 @@ public class MetricDaoTest {
   }
 
   @Test
-  public void disableByIds() {
+  public void disableByUuids() {
     MetricDto metric1 = underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
     MetricDto metric2 = underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
 
-    underTest.disableCustomByIds(dbSession, Arrays.asList(metric1.getId(), metric2.getId()));
+    underTest.disableCustomByUuids(dbSession, Arrays.asList(metric1.getUuid(), metric2.getUuid()));
 
-    List<MetricDto> result = underTest.selectByIds(dbSession, newHashSet(metric1.getId(), metric2.getId()));
+    List<MetricDto> result = underTest.selectByUuids(dbSession, newHashSet(metric1.getUuid(), metric2.getUuid()));
     assertThat(result).hasSize(2);
     assertThat(result).extracting("enabled").containsOnly(false);
   }

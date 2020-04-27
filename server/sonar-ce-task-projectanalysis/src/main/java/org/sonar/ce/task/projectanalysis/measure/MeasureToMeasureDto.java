@@ -39,7 +39,7 @@ public class MeasureToMeasureDto {
 
   public MeasureDto toMeasureDto(Measure measure, Metric metric, Component component) {
     MeasureDto out = new MeasureDto();
-    out.setMetricId(metric.getId());
+    out.setMetricUuid(metric.getUuid());
     out.setComponentUuid(component.getUuid());
     out.setAnalysisUuid(analysisMetadataHolder.getUuid());
     if (measure.hasVariation()) {
@@ -55,7 +55,7 @@ public class MeasureToMeasureDto {
 
   public LiveMeasureDto toLiveMeasureDto(Measure measure, Metric metric, Component component) {
     LiveMeasureDto out = new LiveMeasureDto();
-    out.setMetricId(metric.getId());
+    out.setMetricUuid(metric.getUuid());
     out.setComponentUuid(component.getUuid());
     out.setProjectUuid(treeRootHolder.getRoot().getUuid());
     if (measure.hasVariation()) {

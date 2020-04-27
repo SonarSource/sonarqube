@@ -42,9 +42,9 @@ public class DefaultMetricFinder implements MetricFinder {
   }
 
   @Override
-  public Metric findById(int id) {
+  public Metric findByUuid(String uuid) {
     try (DbSession session = dbClient.openSession(false)) {
-      MetricDto dto = dbClient.metricDao().selectById(session, id);
+      MetricDto dto = dbClient.metricDao().selectByUuid(session, uuid);
       if (dto != null && dto.isEnabled()) {
         return ToMetric.INSTANCE.apply(dto);
       }
@@ -93,7 +93,7 @@ public class DefaultMetricFinder implements MetricFinder {
     @Override
     public Metric apply(@Nonnull MetricDto dto) {
       Metric<Serializable> metric = new Metric<>();
-      metric.setId(dto.getId());
+      metric.setUuid(dto.getUuid());
       metric.setKey(dto.getKey());
       metric.setDescription(dto.getDescription());
       metric.setName(dto.getShortName());

@@ -45,13 +45,13 @@ public class MeasureTreeQuery {
   private final Strategy strategy;
 
   @CheckForNull
-  private final Collection<Integer> metricIds;
+  private final Collection<String> metricUuids;
 
   private MeasureTreeQuery(Builder builder) {
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
     this.qualifiers = builder.qualifiers == null ? null : newArrayList(builder.qualifiers);
     this.strategy = requireNonNull(builder.strategy);
-    this.metricIds = builder.metricIds;
+    this.metricUuids = builder.metricUuids;
   }
 
   @CheckForNull
@@ -77,8 +77,8 @@ public class MeasureTreeQuery {
   }
 
   @CheckForNull
-  public Collection<Integer> getMetricIds() {
-    return metricIds;
+  public Collection<String> getMetricUuids() {
+    return metricUuids;
   }
 
   public String getUuidPath(ComponentDto component) {
@@ -93,7 +93,7 @@ public class MeasureTreeQuery {
   }
 
   public boolean returnsEmpty() {
-    return (metricIds != null && metricIds.isEmpty()) || (qualifiers != null && qualifiers.isEmpty());
+    return (metricUuids != null && metricUuids.isEmpty()) || (qualifiers != null && qualifiers.isEmpty());
   }
 
   public static Builder builder() {
@@ -109,7 +109,7 @@ public class MeasureTreeQuery {
     private Strategy strategy;
 
     @CheckForNull
-    private Collection<Integer> metricIds;
+    private Collection<String> metricUuids;
 
     private Builder() {
     }
@@ -132,8 +132,8 @@ public class MeasureTreeQuery {
     /**
      * All the measures are returned if parameter is {@code null}.
      */
-    public Builder setMetricIds(@Nullable Collection<Integer> metricIds) {
-      this.metricIds = metricIds;
+    public Builder setMetricUuids(@Nullable Collection<String> metricUuids) {
+      this.metricUuids = metricUuids;
       return this;
     }
 

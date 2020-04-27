@@ -285,14 +285,14 @@ public class PurgeDaoTest {
     // deletes live measure of selected
     assertThat(db.countRowsOfTable("live_measures")).isEqualTo(4);
     List<LiveMeasureDto> liveMeasureDtos = db.getDbClient().liveMeasureDao()
-      .selectByComponentUuidsAndMetricIds(dbSession, ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), enabledFile.uuid()),
-        ImmutableSet.of(metric1.getId(), metric2.getId()));
+      .selectByComponentUuidsAndMetricUuids(dbSession, ImmutableSet.of(srcFile.uuid(), dir.uuid(), project.uuid(), enabledFile.uuid()),
+        ImmutableSet.of(metric1.getUuid(), metric2.getUuid()));
     assertThat(liveMeasureDtos)
       .extracting(LiveMeasureDto::getComponentUuid)
       .containsOnly(enabledFile.uuid(), project.uuid());
     assertThat(liveMeasureDtos)
-      .extracting(LiveMeasureDto::getMetricId)
-      .containsOnly(metric1.getId(), metric2.getId());
+      .extracting(LiveMeasureDto::getMetricUuid)
+      .containsOnly(metric1.getUuid(), metric2.getUuid());
   }
 
   @Test
@@ -1272,8 +1272,8 @@ public class PurgeDaoTest {
 
     underTest.deleteProject(dbSession, project1.uuid());
 
-    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, asList(project1.uuid(), module1.uuid()), asList(metric.getId()))).isEmpty();
-    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, asList(project2.uuid(), module2.uuid()), asList(metric.getId()))).hasSize(2);
+    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project1.uuid(), module1.uuid()), asList(metric.getUuid()))).isEmpty();
+    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, asList(project2.uuid(), module2.uuid()), asList(metric.getUuid()))).hasSize(2);
   }
 
   private void verifyNoEffect(ComponentDto firstRoot, ComponentDto... otherRoots) {
@@ -1525,7 +1525,7 @@ public class PurgeDaoTest {
   private void insertManualMeasureFor(ComponentDto... componentDtos) {
     Arrays.stream(componentDtos).forEach(componentDto -> dbClient.customMeasureDao().insert(dbSession, new CustomMeasureDto()
       .setComponentUuid(componentDto.uuid())
-      .setMetricId(new Random().nextInt())));
+      .setMetricUuid(randomAlphabetic(3))));
     dbSession.commit();
   }
 
@@ -1553,7 +1553,7 @@ public class PurgeDaoTest {
 
   private void insertMeasureFor(ComponentDto... components) {
     Arrays.stream(components).forEach(componentDto -> db.getDbClient().measureDao().insert(dbSession, new MeasureDto()
-      .setMetricId(new Random().nextInt())
+      .setMetricUuid(randomAlphabetic(3))
       .setComponentUuid(componentDto.uuid())
       .setAnalysisUuid(randomAlphabetic(3))));
     dbSession.commit();

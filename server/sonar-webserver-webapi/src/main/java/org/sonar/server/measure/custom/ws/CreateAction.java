@@ -123,7 +123,7 @@ public class CreateAction implements CustomMeasuresWsAction {
       checkState(user != null, "User with uuid '%s' does not exist", userUuid);
       CustomMeasureDto measure = new CustomMeasureDto()
         .setComponentUuid(component.uuid())
-        .setMetricId(metric.getId())
+        .setMetricUuid(metric.getUuid())
         .setDescription(description)
         .setUserUuid(user.getUuid())
         .setCreatedAt(now)
@@ -143,24 +143,24 @@ public class CreateAction implements CustomMeasuresWsAction {
   }
 
   private void checkMeasureDoesNotExistAlready(DbSession dbSession, ComponentDto component, MetricDto metric) {
-    int nbMeasuresOnSameMetricAndMeasure = dbClient.customMeasureDao().countByComponentIdAndMetricId(dbSession, component.uuid(), metric.getId());
+    int nbMeasuresOnSameMetricAndMeasure = dbClient.customMeasureDao().countByComponentIdAndMetricUuid(dbSession, component.uuid(), metric.getUuid());
     checkRequest(nbMeasuresOnSameMetricAndMeasure == 0,
       "A measure already exists for project '%s' and metric '%s'",
       component.getDbKey(), metric.getKey());
   }
 
   private MetricDto searchMetric(DbSession dbSession, Request request) {
-    Integer metricId = request.paramAsInt(PARAM_METRIC_ID);
+    String metricUuid = request.param(PARAM_METRIC_ID);
     String metricKey = request.param(PARAM_METRIC_KEY);
-    checkArgument(metricId != null ^ metricKey != null, "Either the metric id or the metric key must be provided");
+    checkArgument(metricUuid != null ^ metricKey != null, "Either the metric uuid or the metric key must be provided");
 
-    if (metricId == null) {
+    if (metricUuid == null) {
       MetricDto metric = dbClient.metricDao().selectByKey(dbSession, metricKey);
       checkArgument(metric != null, "Metric with key '%s' does not exist", metricKey);
       return metric;
     }
-    MetricDto metric = dbClient.metricDao().selectById(dbSession, metricId);
-    checkArgument(metric != null, "Metric with id '%s' does not exist", metricId);
+    MetricDto metric = dbClient.metricDao().selectByUuid(dbSession, metricUuid);
+    checkArgument(metric != null, "Metric with uuid '%s' does not exist", metricUuid);
     return metric;
   }
 }

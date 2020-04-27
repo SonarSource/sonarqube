@@ -4,12 +4,12 @@
 <mapper namespace="org.sonar.db.qualitygate.QualityGateConditionMapper">
 
   <insert id="insert" parameterType="QualityGateCondition">
-    insert into quality_gate_conditions (uuid, qgate_id, metric_id, operator, value_error, created_at, updated_at)
-    values (#{uuid}, #{qualityGateId}, #{metricId}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt})
+    insert into quality_gate_conditions (uuid, qgate_id, metric_uuid, operator, value_error, created_at, updated_at)
+    values (#{uuid}, #{qualityGateId}, #{metricUuid}, #{operator}, #{errorThreshold}, #{createdAt}, #{updatedAt})
   </insert>
 
   <sql id="conditionColumns">
-    uuid, qgate_id as qualityGateId, metric_id as metricId, operator, value_error as errorThreshold,
+    uuid, qgate_id as qualityGateId, metric_uuid as metricUuid, operator, value_error as errorThreshold,
     created_at as createdAt, updated_at as updatedAt
   </sql>
 
@@ -32,7 +32,7 @@
 
   <update id="update" parameterType="QualityGateCondition">
     update quality_gate_conditions set
-    metric_id=#{metricId},
+    metric_uuid=#{metricUuid},
     operator=#{operator},
     value_error=#{errorThreshold},
     updated_at=#{updatedAt}
@@ -41,7 +41,7 @@
 
   <delete id="deleteConditionsWithInvalidMetrics">
     delete from quality_gate_conditions
-    where not exists (select 1 from metrics m where m.enabled=${_true} and m.id = metric_id)
+    where not exists (select 1 from metrics m where m.enabled=${_true} and m.uuid = metric_uuid)
   </delete>
 
 </mapper>

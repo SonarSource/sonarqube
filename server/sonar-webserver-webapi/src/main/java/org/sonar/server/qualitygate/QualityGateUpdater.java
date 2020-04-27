@@ -59,7 +59,7 @@ public class QualityGateUpdater {
       dbClient.gateConditionDao().insert(new QualityGateConditionDto()
           .setUuid(Uuids.create())
           .setQualityGateId(destinationGate.getId())
-          .setMetricId(sourceCondition.getMetricId())
+          .setMetricUuid(sourceCondition.getMetricUuid())
           .setOperator(sourceCondition.getOperator())
           .setErrorThreshold(sourceCondition.getErrorThreshold()),
         dbSession);

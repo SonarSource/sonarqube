@@ -102,7 +102,7 @@ public class MetricsActionTest {
 
     CustomMeasureDto customMeasure = newCustomMeasureDto()
       .setComponentUuid(defaultProject.uuid())
-      .setMetricId(metric.getId());
+      .setMetricUuid(metric.getUuid());
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
 
@@ -120,7 +120,7 @@ public class MetricsActionTest {
 
     CustomMeasureDto customMeasure = newCustomMeasureDto()
       .setComponentUuid(defaultProject.uuid())
-      .setMetricId(metric.getId());
+      .setMetricUuid(metric.getUuid());
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
 

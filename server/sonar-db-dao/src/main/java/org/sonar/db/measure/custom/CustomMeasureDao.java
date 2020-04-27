@@ -49,20 +49,20 @@ public class CustomMeasureDao implements Dao {
     mapper(session).delete(uuid);
   }
 
-  public void deleteByMetricIds(DbSession session, List<Integer> metricIds) {
-    DatabaseUtils.executeLargeInputsWithoutOutput(metricIds, input -> mapper(session).deleteByMetricIds(metricIds));
+  public void deleteByMetricUuids(DbSession session, List<String> metricUuids) {
+    DatabaseUtils.executeLargeInputsWithoutOutput(metricUuids, input -> mapper(session).deleteByMetricUuids(metricUuids));
   }
 
   public Optional<CustomMeasureDto> selectByUuid(DbSession session, String uuid) {
     return ofNullable(mapper(session).selectByUuid(uuid));
   }
 
-  public List<CustomMeasureDto> selectByMetricId(DbSession session, int metricId) {
-    return mapper(session).selectByMetricId(metricId);
+  public List<CustomMeasureDto> selectByMetricUuid(DbSession session, String metricUuid) {
+    return mapper(session).selectByMetricUuid(metricUuid);
   }
 
-  public int countByComponentIdAndMetricId(DbSession session, String componentUuid, int metricId) {
-    return mapper(session).countByComponentIdAndMetricId(componentUuid, metricId);
+  public int countByComponentIdAndMetricUuid(DbSession session, String componentUuid, String metricUuid) {
+    return mapper(session).countByComponentIdAndMetricUuid(componentUuid, metricUuid);
   }
 
   public List<CustomMeasureDto> selectByComponentUuid(DbSession session, String componentUuid, int offset, int limit) {

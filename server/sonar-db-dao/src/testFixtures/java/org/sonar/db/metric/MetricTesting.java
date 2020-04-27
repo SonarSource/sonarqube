@@ -31,7 +31,7 @@ public class MetricTesting {
   public static MetricDto newMetricDto() {
     Metric.ValueType[] metricTypes = Metric.ValueType.values();
     return new MetricDto()
-      .setId(RandomUtils.nextInt())
+      .setUuid(RandomStringUtils.randomAlphanumeric(40))
       .setKey(RandomStringUtils.randomAlphanumeric(64))
       .setShortName(RandomStringUtils.randomAlphanumeric(64))
       .setValueType(metricTypes[RandomUtils.nextInt(metricTypes.length - 1)].name())

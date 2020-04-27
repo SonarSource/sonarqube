@@ -81,12 +81,12 @@ public class MeasureComputerContextImplTest {
 
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(1, CoreMetrics.NCLOC)
-    .add(new MetricImpl(2, INT_METRIC_KEY, "int metric", Metric.MetricType.INT))
-    .add(new MetricImpl(3, DOUBLE_METRIC_KEY, "double metric", Metric.MetricType.FLOAT))
-    .add(new MetricImpl(4, LONG_METRIC_KEY, "long metric", Metric.MetricType.MILLISEC))
-    .add(new MetricImpl(5, STRING_METRIC_KEY, "string metric", Metric.MetricType.STRING))
-    .add(new MetricImpl(6, BOOLEAN_METRIC_KEY, "boolean metric", Metric.MetricType.BOOL));
+    .add("1", CoreMetrics.NCLOC)
+    .add(new MetricImpl("2", INT_METRIC_KEY, "int metric", Metric.MetricType.INT))
+    .add(new MetricImpl("3", DOUBLE_METRIC_KEY, "double metric", Metric.MetricType.FLOAT))
+    .add(new MetricImpl("4", LONG_METRIC_KEY, "long metric", Metric.MetricType.MILLISEC))
+    .add(new MetricImpl("5", STRING_METRIC_KEY, "string metric", Metric.MetricType.STRING))
+    .add(new MetricImpl("6", BOOLEAN_METRIC_KEY, "boolean metric", Metric.MetricType.BOOL));
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);

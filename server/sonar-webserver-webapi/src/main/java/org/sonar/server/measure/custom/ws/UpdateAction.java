@@ -92,9 +92,9 @@ public class UpdateAction implements CustomMeasuresWsAction {
     try (DbSession dbSession = dbClient.openSession(true)) {
       CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByUuid(dbSession, uuid)
         .orElseThrow(() -> new IllegalArgumentException(format("Custom measure with id '%s' does not exist", uuid)));
-      int customMetricId = customMeasure.getMetricId();
-      MetricDto metric = dbClient.metricDao().selectById(dbSession, customMetricId);
-      checkState(metric != null, "Metric with id '%s' does not exist", customMetricId);
+      String customMetricUuid = customMeasure.getMetricUuid();
+      MetricDto metric = dbClient.metricDao().selectByUuid(dbSession, customMetricUuid);
+      checkState(metric != null, "Metric with uuid '%s' does not exist", customMetricUuid);
       ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, customMeasure.getComponentUuid());
       checkPermissions(userSession, component);
       String userUuid = requireNonNull(userSession.getUuid(), "User uuid should not be null");

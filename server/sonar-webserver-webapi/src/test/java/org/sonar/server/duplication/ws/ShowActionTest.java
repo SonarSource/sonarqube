@@ -27,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
@@ -65,6 +66,7 @@ public class ShowActionTest {
 
   @Before
   public void setUp() {
+    dataMetric.setUuid(Uuids.createFast());
     db.getDbClient().metricDao().insert(db.getSession(), dataMetric);
     db.commit();
   }

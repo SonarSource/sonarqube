@@ -30,6 +30,8 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
@@ -44,6 +46,7 @@ public class RegisterMetricsTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
+  private UuidFactory uuidFactory = new SequenceUuidFactory();
   private DbClient dbClient = dbTester.getDbClient();
 
   /**
@@ -63,7 +66,7 @@ public class RegisterMetricsTest {
       .setUserManaged(true)
       .create();
 
-    RegisterMetrics register = new RegisterMetrics(dbClient);
+    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.register(asList(m1, custom));
 
     Map<String, MetricDto> metricsByKey = selectAllMetrics();
@@ -101,7 +104,7 @@ public class RegisterMetricsTest {
       .setHidden(false)
       .setDecimalScale(1));
 
-    RegisterMetrics register = new RegisterMetrics(dbClient);
+    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     Metric m1 = new Metric.Builder("m1", "New name", Metric.ValueType.FLOAT)
       .setDescription("new description")
       .setDirection(-1)
@@ -137,7 +140,7 @@ public class RegisterMetricsTest {
     IntStream.range(0, count)
       .forEach(t -> dbTester.measures().insertMetric(m -> m.setEnabled(random.nextBoolean()).setUserManaged(false)));
 
-    RegisterMetrics register = new RegisterMetrics(dbClient);
+    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.register(Collections.emptyList());
 
     assertThat(selectAllMetrics().values().stream())
@@ -150,7 +153,7 @@ public class RegisterMetricsTest {
     MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true).setUserManaged(false));
     MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false).setUserManaged(false));
 
-    RegisterMetrics register = new RegisterMetrics(dbClient);
+    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.register(asList(builderOf(enabledMetric).create(), builderOf(disabledMetric).create()));
 
     assertThat(selectAllMetrics().values())
@@ -163,7 +166,7 @@ public class RegisterMetricsTest {
     MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true).setUserManaged(true));
     MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false).setUserManaged(true));
 
-    RegisterMetrics register = new RegisterMetrics(dbClient);
+    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.register(asList(builderOf(enabledMetric).create(), builderOf(disabledMetric).create()));
 
     assertThat(selectAllMetrics().values())
@@ -175,7 +178,7 @@ public class RegisterMetricsTest {
 
   @Test
   public void insert_core_metrics() {
-    RegisterMetrics register = new RegisterMetrics(dbClient);
+    RegisterMetrics register = new RegisterMetrics(dbClient, uuidFactory);
     register.start();
 
     assertThat(dbTester.countRowsOfTable("metrics")).isEqualTo(CoreMetrics.getMetrics().size());
@@ -186,14 +189,14 @@ public class RegisterMetricsTest {
     Metrics plugin1 = new TestMetrics(new Metric.Builder("m1", "In first plugin", Metric.ValueType.FLOAT).create());
     Metrics plugin2 = new TestMetrics(new Metric.Builder("m1", "In second plugin", Metric.ValueType.FLOAT).create());
 
-    new RegisterMetrics(dbClient, new Metrics[] {plugin1, plugin2}).start();
+    new RegisterMetrics(dbClient, uuidFactory, new Metrics[] {plugin1, plugin2}).start();
   }
 
   @Test(expected = IllegalStateException.class)
   public void fail_if_plugin_duplicates_core_metric() {
     Metrics plugin = new TestMetrics(new Metric.Builder("ncloc", "In plugin", Metric.ValueType.FLOAT).create());
 
-    new RegisterMetrics(dbClient, new Metrics[] {plugin}).start();
+    new RegisterMetrics(dbClient, uuidFactory, new Metrics[] {plugin}).start();
   }
 
   private static class TestMetrics implements Metrics {

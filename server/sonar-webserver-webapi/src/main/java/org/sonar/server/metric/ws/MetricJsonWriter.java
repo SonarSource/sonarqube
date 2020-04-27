@@ -60,7 +60,7 @@ public class MetricJsonWriter {
 
   public static void write(JsonWriter json, MetricDto metric, Set<String> fieldsToReturn) {
     json.beginObject();
-    json.prop(FIELD_ID, String.valueOf(metric.getId()));
+    json.prop(FIELD_ID, String.valueOf(metric.getUuid()));
     json.prop(FIELD_KEY, metric.getKey());
     json.prop(FIELD_TYPE, metric.getValueType());
     writeIfNeeded(json, metric.getShortName(), FIELD_NAME, fieldsToReturn);

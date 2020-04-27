@@ -257,9 +257,9 @@ public class CreateConditionActionTest {
 
   private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
-      .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
+      .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricUuid, QualityGateConditionDto::getOperator,
         QualityGateConditionDto::getErrorThreshold)
-      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, error));
+      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getUuid(), operator, error));
   }
 
   private void logInAsQualityGateAdmin(OrganizationDto organization) {

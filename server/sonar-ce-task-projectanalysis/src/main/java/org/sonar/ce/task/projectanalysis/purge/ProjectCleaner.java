@@ -20,13 +20,9 @@
 package org.sonar.ce.task.projectanalysis.purge;
 
 import java.util.Set;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.TimeUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;

@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.metric.MetricMapper">
 
   <sql id="metricColumns">
-    m.id,
+    m.uuid,
     m.name as kee,
     m.description,
     m.direction,
@@ -60,7 +60,7 @@
     select
     <include refid="metricColumns"/>
     from metrics m
-    left join manual_measures mm on mm.metric_id = m.id and mm.component_uuid=#{componentUuid}
+    left join manual_measures mm on mm.metric_uuid = m.uuid and mm.component_uuid=#{componentUuid}
     where m.enabled=${_true}
     and m.user_managed=${_true}
     and mm.uuid is null
@@ -83,13 +83,12 @@
     </where>
   </select>
 
-  <insert id="insert" parameterType="org.sonar.db.metric.MetricDto" useGeneratedKeys="true" keyColumn="id"
-          keyProperty="id">
+  <insert id="insert" parameterType="org.sonar.db.metric.MetricDto" useGeneratedKeys="false">
     INSERT INTO metrics (
-    name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, worst_value,
+    uuid, name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, worst_value,
     best_value, optimized_best_value, hidden, delete_historical_data, decimal_scale)
     VALUES (
-    #{kee, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{direction, jdbcType=INTEGER},
+    #{uuid, jdbcType=VARCHAR}, #{kee, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{direction, jdbcType=INTEGER},
     #{domain, jdbcType=VARCHAR}, #{shortName, jdbcType=VARCHAR}, #{qualitative, jdbcType=BOOLEAN},
     #{valueType, jdbcType=VARCHAR}, #{userManaged, jdbcType=BOOLEAN}, #{enabled, jdbcType=BOOLEAN},
     #{worstValue, jdbcType=DOUBLE}, #{bestValue, jdbcType=DOUBLE},
@@ -111,7 +110,7 @@
     hidden=#{hidden, jdbcType=BOOLEAN},
     qualitative=#{qualitative, jdbcType=BOOLEAN},
     decimal_scale=#{decimalScale, jdbcType=INTEGER}
-    where id=#{id}
+    where uuid=#{uuid}
   </update>
 
   <select id="selectDomains" resultType="String">
@@ -120,14 +119,14 @@
     where m.domain is not null and m.enabled=${_true}
   </select>
 
-  <update id="disableByIds">
+  <update id="disableByUuids">
     update metrics
     set enabled=${_false}
     <where>
       AND user_managed=${_true}
-      AND id in
-      <foreach item="id" collection="ids" open="(" separator="," close=")">
-        #{id}
+      AND uuid in
+      <foreach item="uuid" collection="uuids" open="(" separator="," close=")">
+        #{uuid}
       </foreach>
     </where>
   </update>
@@ -151,24 +150,24 @@
     </where>
   </select>
 
-  <select id="selectByIds" resultType="org.sonar.db.metric.MetricDto">
+  <select id="selectByUuids" resultType="org.sonar.db.metric.MetricDto">
     SELECT
     <include refid="metricColumns"/>
     FROM metrics m
     <where>
-      AND m.id in
-      <foreach item="id" collection="ids" open="(" separator="," close=")">
-        #{id}
+      AND m.uuid in
+      <foreach item="uuid" collection="uuids" open="(" separator="," close=")">
+        #{uuid}
       </foreach>
     </where>
   </select>
 
-  <select id="selectById" resultType="org.sonar.db.metric.MetricDto">
+  <select id="selectByUuid" resultType="org.sonar.db.metric.MetricDto">
     SELECT
     <include refid="metricColumns"/>
     FROM metrics m
     <where>
-      AND m.id=#{id}
+      AND m.uuid=#{uuid}
     </where>
   </select>
 

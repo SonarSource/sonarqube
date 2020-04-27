@@ -36,7 +36,7 @@ public class MeasureDto {
   private String alertText;
   private String componentUuid;
   private String analysisUuid;
-  private int metricId;
+  private String metricUuid;
 
   public String getUuid() {
     return uuid;
@@ -118,12 +118,12 @@ public class MeasureDto {
     return this;
   }
 
-  public int getMetricId() {
-    return metricId;
+  public String getMetricUuid() {
+    return metricUuid;
   }
 
-  public MeasureDto setMetricId(int metricId) {
-    this.metricId = metricId;
+  public MeasureDto setMetricUuid(String metricUuid) {
+    this.metricUuid = metricUuid;
     return this;
   }
 
@@ -147,7 +147,7 @@ public class MeasureDto {
       .add("alertText", alertText)
       .add("componentUuid", componentUuid)
       .add("analysisUuid", analysisUuid)
-      .add("metricId", metricId)
+      .add("metricUuid", metricUuid)
       .toString();
   }
 }

@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -62,7 +63,7 @@ public class CreateActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private CreateAction underTest = new CreateAction(dbClient, userSessionRule);
+  private CreateAction underTest = new CreateAction(dbClient, userSessionRule, new SequenceUuidFactory());
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
@@ -109,7 +110,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void return_metric_with_id() {
+  public void return_metric_with_uuid() {
     TestResponse result = tester.newRequest()
       .setParam(PARAM_KEY, DEFAULT_KEY)
       .setParam(PARAM_NAME, DEFAULT_NAME)
@@ -141,9 +142,9 @@ public class CreateActionTest {
       .execute();
 
     result.assertJson(getClass(), "metric.json");
-    result.getInput().matches("\"id\"\\s*:\\s*\"" + metricInDb.getId() + "\"");
+    result.getInput().matches("\"id\"\\s*:\\s*\"" + metricInDb.getUuid() + "\"");
     MetricDto metricAfterWs = dbClient.metricDao().selectByKey(dbSession, DEFAULT_KEY);
-    assertThat(metricAfterWs.getId()).isEqualTo(metricInDb.getId());
+    assertThat(metricAfterWs.getUuid()).isEqualTo(metricInDb.getUuid());
     assertThat(metricAfterWs.getDomain()).isEqualTo(DEFAULT_DOMAIN);
     assertThat(metricAfterWs.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
     assertThat(metricAfterWs.getValueType()).isEqualTo(DEFAULT_TYPE);
@@ -191,7 +192,7 @@ public class CreateActionTest {
       .setUserManaged(true)
       .setEnabled(false);
     dbClient.metricDao().insert(dbSession, metric);
-    dbClient.customMeasureDao().insert(dbSession, CustomMeasureTesting.newCustomMeasureDto().setMetricId(metric.getId()));
+    dbClient.customMeasureDao().insert(dbSession, CustomMeasureTesting.newCustomMeasureDto().setMetricUuid(metric.getUuid()));
     dbSession.commit();
 
     tester.newRequest()

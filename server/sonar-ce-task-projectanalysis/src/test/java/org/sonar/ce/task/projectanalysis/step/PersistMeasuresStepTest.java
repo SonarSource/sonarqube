@@ -82,9 +82,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     MetricDto stringMetricDto = db.measures().insertMetric(m -> m.setKey(STRING_METRIC.getKey()).setValueType(Metric.ValueType.STRING.name()));
     MetricDto intMetricDto = db.measures().insertMetric(m -> m.setKey(INT_METRIC.getKey()).setValueType(Metric.ValueType.INT.name()));
     MetricDto nhMetricDto = db.measures().insertMetric(m -> m.setKey(NON_HISTORICAL_METRIC.getKey()).setValueType(Metric.ValueType.INT.name()));
-    metricRepository.add(stringMetricDto.getId(), STRING_METRIC);
-    metricRepository.add(intMetricDto.getId(), INT_METRIC);
-    metricRepository.add(nhMetricDto.getId(), NON_HISTORICAL_METRIC);
+    metricRepository.add(stringMetricDto.getUuid(), STRING_METRIC);
+    metricRepository.add(intMetricDto.getUuid(), INT_METRIC);
+    metricRepository.add(nhMetricDto.getUuid(), NON_HISTORICAL_METRIC);
   }
 
   @Test

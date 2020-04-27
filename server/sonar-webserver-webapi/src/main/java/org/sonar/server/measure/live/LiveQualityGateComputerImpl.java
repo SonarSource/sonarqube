@@ -68,13 +68,13 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
       .orElseThrow(() -> new IllegalStateException(format("Quality Gate not found for project %s", project.getKey())))
       .getQualityGate();
     Collection<QualityGateConditionDto> conditionDtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, gateDto.getId());
-    Set<Integer> metricIds = conditionDtos.stream().map(c -> (int) c.getMetricId())
+    Set<String> metricUuids = conditionDtos.stream().map(QualityGateConditionDto::getMetricUuid)
       .collect(toHashSet(conditionDtos.size()));
-    Map<Integer, MetricDto> metricsById = dbClient.metricDao().selectByIds(dbSession, metricIds).stream()
-      .collect(uniqueIndex(MetricDto::getId));
+    Map<String, MetricDto> metricsByUuid = dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream()
+      .collect(uniqueIndex(MetricDto::getUuid));
 
     Stream<Condition> conditions = conditionDtos.stream().map(conditionDto -> {
-      String metricKey = metricsById.get((int) conditionDto.getMetricId()).getKey();
+      String metricKey = metricsByUuid.get(conditionDto.getMetricUuid()).getKey();
       Condition.Operator operator = Condition.Operator.fromDbValue(conditionDto.getOperator());
       return new Condition(metricKey, operator, conditionDto.getErrorThreshold());
     });
@@ -93,7 +93,7 @@ public class LiveQualityGateComputerImpl implements LiveQualityGateComputer {
       if (!liveMeasureDto.isPresent()) {
         return Optional.empty();
       }
-      MetricDto metric = measureMatrix.getMetric(liveMeasureDto.get().getMetricId());
+      MetricDto metric = measureMatrix.getMetricByUuid(liveMeasureDto.get().getMetricUuid());
       return Optional.of(new LiveMeasure(liveMeasureDto.get(), metric));
     };
 

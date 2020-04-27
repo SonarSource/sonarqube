@@ -175,7 +175,7 @@ public class BestValueOptimizationTest {
   }
 
   private static MetricImpl createMetric(Metric.MetricType metricType, double bestValue) {
-    return new MetricImpl(metricType.hashCode() + (int) bestValue, "key" + metricType + bestValue, "name" + metricType + bestValue, metricType, null,
+    return new MetricImpl(metricType.name() + bestValue, "key" + metricType + bestValue, "name" + metricType + bestValue, metricType, null,
       bestValue, true, false);
   }
 }

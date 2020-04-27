@@ -64,30 +64,30 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void selectByComponentUuidsAndMetricIds() {
-    LiveMeasureDto measure1 = newLiveMeasure().setMetricId(metric.getId());
-    LiveMeasureDto measure2 = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure1 = newLiveMeasure().setMetricUuid(metric.getUuid());
+    LiveMeasureDto measure2 = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure1);
     underTest.insert(db.getSession(), measure2);
 
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricIds(db.getSession(),
-      asList(measure1.getComponentUuid(), measure2.getComponentUuid()), singletonList(metric.getId()));
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(),
+      asList(measure1.getComponentUuid(), measure2.getComponentUuid()), singletonList(metric.getUuid()));
     assertThat(selected)
-      .extracting(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getProjectUuid, LiveMeasureDto::getMetricId, LiveMeasureDto::getValue, LiveMeasureDto::getDataAsString)
+      .extracting(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getProjectUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue, LiveMeasureDto::getDataAsString)
       .containsExactlyInAnyOrder(
-        tuple(measure1.getComponentUuid(), measure1.getProjectUuid(), measure1.getMetricId(), measure1.getValue(), measure1.getDataAsString()),
-        tuple(measure2.getComponentUuid(), measure2.getProjectUuid(), measure2.getMetricId(), measure2.getValue(), measure2.getDataAsString()));
+        tuple(measure1.getComponentUuid(), measure1.getProjectUuid(), measure1.getMetricUuid(), measure1.getValue(), measure1.getDataAsString()),
+        tuple(measure2.getComponentUuid(), measure2.getProjectUuid(), measure2.getMetricUuid(), measure2.getValue(), measure2.getDataAsString()));
 
-    assertThat(underTest.selectByComponentUuidsAndMetricIds(db.getSession(), emptyList(), singletonList(metric.getId()))).isEmpty();
-    assertThat(underTest.selectByComponentUuidsAndMetricIds(db.getSession(), singletonList(measure1.getComponentUuid()), emptyList())).isEmpty();
+    assertThat(underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), emptyList(), singletonList(metric.getUuid()))).isEmpty();
+    assertThat(underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList(measure1.getComponentUuid()), emptyList())).isEmpty();
   }
 
   @Test
   public void selectByComponentUuidsAndMetricIds_returns_empty_list_if_metric_does_not_match() {
-    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
-    int otherMetricId = metric.getId() + 100;
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricIds(db.getSession(), singletonList(measure.getComponentUuid()), singletonList(otherMetricId));
+    String otherMetricUuid = metric.getUuid() + "other";
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList(measure.getComponentUuid()), singletonList(otherMetricUuid));
 
     assertThat(selected).isEmpty();
   }
@@ -97,25 +97,25 @@ public class LiveMeasureDaoTest {
     LiveMeasureDto measure = newLiveMeasure();
     underTest.insert(db.getSession(), measure);
 
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricIds(db.getSession(), singletonList("_missing_"), singletonList(measure.getMetricId()));
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList("_missing_"), singletonList(measure.getMetricUuid()));
 
     assertThat(selected).isEmpty();
   }
 
   @Test
   public void selectByComponentUuidsAndMetricKeys() {
-    LiveMeasureDto measure1 = newLiveMeasure().setMetricId(metric.getId());
-    LiveMeasureDto measure2 = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure1 = newLiveMeasure().setMetricUuid(metric.getUuid());
+    LiveMeasureDto measure2 = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure1);
     underTest.insert(db.getSession(), measure2);
 
     List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), asList(measure1.getComponentUuid(), measure2.getComponentUuid()),
       singletonList(metric.getKey()));
     assertThat(selected)
-      .extracting(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getProjectUuid, LiveMeasureDto::getMetricId, LiveMeasureDto::getValue, LiveMeasureDto::getDataAsString)
+      .extracting(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getProjectUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue, LiveMeasureDto::getDataAsString)
       .containsExactlyInAnyOrder(
-        tuple(measure1.getComponentUuid(), measure1.getProjectUuid(), measure1.getMetricId(), measure1.getValue(), measure1.getDataAsString()),
-        tuple(measure2.getComponentUuid(), measure2.getProjectUuid(), measure2.getMetricId(), measure2.getValue(), measure2.getDataAsString()));
+        tuple(measure1.getComponentUuid(), measure1.getProjectUuid(), measure1.getMetricUuid(), measure1.getValue(), measure1.getDataAsString()),
+        tuple(measure2.getComponentUuid(), measure2.getProjectUuid(), measure2.getMetricUuid(), measure2.getValue(), measure2.getDataAsString()));
 
     assertThat(underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), emptyList(), singletonList(metric.getKey()))).isEmpty();
     assertThat(underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), singletonList(measure1.getComponentUuid()), emptyList())).isEmpty();
@@ -123,7 +123,7 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void selectByComponentUuidsAndMetricKeys_returns_empty_list_if_metric_does_not_match() {
-    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
     List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), singletonList(measure.getComponentUuid()), singletonList("_other_"));
@@ -133,7 +133,7 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void selectByComponentUuidsAndMetricKeys_returns_empty_list_if_component_does_not_match() {
-    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
     List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricKeys(db.getSession(), singletonList("_missing_"), singletonList(metric.getKey()));
@@ -143,7 +143,7 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void selectByComponentUuidAndMetricKey() {
-    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
     Optional<LiveMeasureDto> selected = underTest.selectMeasure(db.getSession(), measure.getComponentUuid(), metric.getKey());
@@ -154,7 +154,7 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void selectByComponentUuidAndMetricKey_return_empty_if_component_does_not_match() {
-    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
     assertThat(underTest.selectMeasure(db.getSession(), "_missing_", metric.getKey())).isEmpty();
@@ -162,7 +162,7 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void selectByComponentUuidAndMetricKey_return_empty_if_metric_does_not_match() {
-    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
     assertThat(underTest.selectMeasure(db.getSession(), measure.getComponentUuid(), "_missing_")).isEmpty();
@@ -172,8 +172,8 @@ public class LiveMeasureDaoTest {
   public void selectByComponentUuidAndMetricKeys() {
     MetricDto metric2 = db.measures().insertMetric();
 
-    LiveMeasureDto measure1 = newLiveMeasure().setMetricId(metric.getId()).setValue(1.0).setComponentUuid("uuid");
-    LiveMeasureDto measure2 = newLiveMeasure().setMetricId(metric2.getId()).setValue(2.0).setComponentUuid("uuid");
+    LiveMeasureDto measure1 = newLiveMeasure().setMetricUuid(metric.getUuid()).setValue(1.0).setComponentUuid("uuid");
+    LiveMeasureDto measure2 = newLiveMeasure().setMetricUuid(metric2.getUuid()).setValue(2.0).setComponentUuid("uuid");
 
     underTest.insert(db.getSession(), measure1);
     underTest.insert(db.getSession(), measure2);
@@ -181,13 +181,13 @@ public class LiveMeasureDaoTest {
     List<LiveMeasureDto> selected = underTest.selectByComponentUuidAndMetricKeys(db.getSession(), "uuid", asList(metric.getKey(), metric2.getKey()));
 
     assertThat(selected).hasSize(2);
-    assertThat(selected).extracting(LiveMeasureDto::getMetricId, LiveMeasureDto::getValue)
-      .containsExactlyInAnyOrder(tuple(metric.getId(), measure1.getValue()), tuple(metric2.getId(), measure2.getValue()));
+    assertThat(selected).extracting(LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue)
+      .containsExactlyInAnyOrder(tuple(metric.getUuid(), measure1.getValue()), tuple(metric2.getUuid(), measure2.getValue()));
   }
 
   @Test
   public void selectByComponentUuidAndMetricKeys_return_empty_if_component_does_not_match() {
-    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
     assertThat(underTest.selectByComponentUuidAndMetricKeys(db.getSession(), "_missing_", singletonList(metric.getKey()))).isEmpty();
@@ -195,7 +195,7 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void selectByComponentUuidAndMetricKeys_return_empty_if_no_metric_matches() {
-    LiveMeasureDto measure = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
     assertThat(underTest.selectByComponentUuidAndMetricKeys(db.getSession(), measure.getComponentUuid(), singletonList("_missing_"))).isEmpty();
@@ -204,7 +204,7 @@ public class LiveMeasureDaoTest {
   @Test
   public void selectMeasure() {
     MetricDto metric = db.measures().insertMetric();
-    LiveMeasureDto stored = newLiveMeasure().setMetricId(metric.getId());
+    LiveMeasureDto stored = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), stored);
 
     // metric exists but not component
@@ -231,14 +231,14 @@ public class LiveMeasureDaoTest {
 
     underTest.selectTreeByQuery(db.getSession(), project,
       MeasureTreeQuery.builder()
-        .setMetricIds(singleton(metric.getId()))
+        .setMetricUuids(singleton(metric.getUuid()))
         .setStrategy(MeasureTreeQuery.Strategy.LEAVES).build(),
       context -> results.add(context.getResultObject()));
 
     assertThat(results).hasSize(1);
     LiveMeasureDto result = results.get(0);
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
-    assertThat(result.getMetricId()).isEqualTo(metric.getId());
+    assertThat(result.getMetricUuid()).isEqualTo(metric.getUuid());
     assertThat(result.getValue()).isEqualTo(3.14);
   }
 
@@ -256,13 +256,13 @@ public class LiveMeasureDaoTest {
       context -> results.add(context.getResultObject()));
 
     assertThat(results).hasSize(2);
-    LiveMeasureDto result = results.stream().filter(lm -> lm.getMetricId() == metric.getId()).findFirst().get();
+    LiveMeasureDto result = results.stream().filter(lm -> lm.getMetricUuid().equals(metric.getUuid())).findFirst().get();
     assertThat(result.getComponentUuid()).isEqualTo(project.uuid());
-    assertThat(result.getMetricId()).isEqualTo(metric.getId());
+    assertThat(result.getMetricUuid()).isEqualTo(metric.getUuid());
     assertThat(result.getValue()).isEqualTo(3.14);
-    LiveMeasureDto result2 = results.stream().filter(lm -> lm.getMetricId() == metric2.getId()).findFirst().get();
+    LiveMeasureDto result2 = results.stream().filter(lm -> lm.getMetricUuid().equals(metric2.getUuid())).findFirst().get();
     assertThat(result2.getComponentUuid()).isEqualTo(project.uuid());
-    assertThat(result2.getMetricId()).isEqualTo(metric2.getId());
+    assertThat(result2.getMetricUuid()).isEqualTo(metric2.getUuid());
     assertThat(result2.getValue()).isEqualTo(4.54);
   }
 
@@ -296,9 +296,9 @@ public class LiveMeasureDaoTest {
     LiveMeasureDto result = underTest.selectMeasure(db.getSession(), file.uuid(), metric.getKey()).orElseThrow(() -> new IllegalArgumentException("Measure not found"));
 
     assertThat(result).as("Fail to map fields of %s", result.toString()).extracting(
-      LiveMeasureDto::getProjectUuid, LiveMeasureDto::getComponentUuid, LiveMeasureDto::getMetricId, LiveMeasureDto::getValue, LiveMeasureDto::getVariation,
+      LiveMeasureDto::getProjectUuid, LiveMeasureDto::getComponentUuid, LiveMeasureDto::getMetricUuid, LiveMeasureDto::getValue, LiveMeasureDto::getVariation,
       LiveMeasureDto::getDataAsString, LiveMeasureDto::getTextValue)
-      .contains(project.uuid(), file.uuid(), metric.getId(), 3.14, 0.1, "text_value", "text_value");
+      .contains(project.uuid(), file.uuid(), metric.getUuid(), 3.14, 0.1, "text_value", "text_value");
   }
 
   @Test
@@ -403,16 +403,16 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void deleteByComponentUuidExcludingMetricIds() {
-    LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricId(1);
-    LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricId(2);
-    LiveMeasureDto measure3 = newLiveMeasure().setComponentUuid("C1").setMetricId(3);
-    LiveMeasureDto measureOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricId(3);
+    LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("1");
+    LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("2");
+    LiveMeasureDto measure3 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("3");
+    LiveMeasureDto measureOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricUuid("3");
     underTest.insertOrUpdate(db.getSession(), measure1);
     underTest.insertOrUpdate(db.getSession(), measure2);
     underTest.insertOrUpdate(db.getSession(), measure3);
     underTest.insertOrUpdate(db.getSession(), measureOtherComponent);
 
-    underTest.deleteByComponentUuidExcludingMetricIds(db.getSession(), "C1", Arrays.asList(1, 2));
+    underTest.deleteByComponentUuidExcludingMetricUuids(db.getSession(), "C1", Arrays.asList("1", "2"));
 
     verifyTableSize(3);
     verifyPersisted(measure1);
@@ -422,10 +422,10 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void deleteByComponentUuid() {
-    LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricId(1);
-    LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricId(2);
-    LiveMeasureDto measure3 = newLiveMeasure().setComponentUuid("C1").setMetricId(3);
-    LiveMeasureDto measureOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricId(3);
+    LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("1");
+    LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("2");
+    LiveMeasureDto measure3 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("3");
+    LiveMeasureDto measureOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricUuid("3");
     underTest.insertOrUpdate(db.getSession(), measure1);
     underTest.insertOrUpdate(db.getSession(), measure2);
     underTest.insertOrUpdate(db.getSession(), measure3);
@@ -439,14 +439,14 @@ public class LiveMeasureDaoTest {
 
   @Test
   public void deleteByComponentUuidExcludingMetricIds_with_empty_metrics() {
-    LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricId(1);
-    LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricId(2);
-    LiveMeasureDto measureOnOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricId(2);
+    LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("1");
+    LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("2");
+    LiveMeasureDto measureOnOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricUuid("2");
     underTest.insertOrUpdate(db.getSession(), measure1);
     underTest.insertOrUpdate(db.getSession(), measure2);
     underTest.insertOrUpdate(db.getSession(), measureOnOtherComponent);
 
-    underTest.deleteByComponentUuidExcludingMetricIds(db.getSession(), "C1", Collections.emptyList());
+    underTest.deleteByComponentUuidExcludingMetricUuids(db.getSession(), "C1", Collections.emptyList());
 
     verifyTableSize(1);
     verifyPersisted(measureOnOtherComponent);
@@ -670,10 +670,10 @@ public class LiveMeasureDaoTest {
   }
 
   private void verifyPersisted(LiveMeasureDto dto) {
-    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricIds(db.getSession(), singletonList(dto.getComponentUuid()), singletonList(dto.getMetricId()));
+    List<LiveMeasureDto> selected = underTest.selectByComponentUuidsAndMetricUuids(db.getSession(), singletonList(dto.getComponentUuid()), singletonList(dto.getMetricUuid()));
     assertThat(selected).hasSize(1);
     assertThat(selected.get(0)).isEqualToComparingOnlyGivenFields(dto,
       // do not compare the field "uuid", which is used only for insert, not select
-      "componentUuid", "projectUuid", "metricId", "value", "textValue", "data", "variation");
+      "componentUuid", "projectUuid", "metricUuid", "value", "textValue", "data", "variation");
   }
 }

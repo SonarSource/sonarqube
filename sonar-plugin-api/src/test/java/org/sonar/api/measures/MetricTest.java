@@ -51,7 +51,7 @@ public class MetricTest {
     assertThat(metric.getWorstValue()).isNull();
     assertThat(metric.getDirection()).isEqualTo(Metric.DIRECTION_NONE);
     assertThat(metric.getEnabled()).isTrue();
-    assertThat(metric.getId()).isNull();
+    assertThat(metric.getUuid()).isNull();
     assertThat(metric.getUserManaged()).isFalse();
     assertThat(metric.isHidden()).isFalse();
     assertThat(metric.isOptimizedBestValue()).isFalse();

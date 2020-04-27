@@ -29,7 +29,7 @@ import static org.sonar.db.metric.MetricValidator.checkMetricName;
 
 public class MetricDto {
 
-  private Integer id;
+  private String uuid;
 
   private String kee;
 
@@ -61,12 +61,12 @@ public class MetricDto {
 
   private Integer decimalScale;
 
-  public Integer getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public MetricDto setId(Integer id) {
-    this.id = id;
+  public MetricDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

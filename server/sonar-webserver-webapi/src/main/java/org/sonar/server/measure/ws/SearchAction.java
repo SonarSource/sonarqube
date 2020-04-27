@@ -162,9 +162,9 @@ public class SearchAction implements MeasuresWsAction {
     }
 
     private List<LiveMeasureDto> searchMeasures() {
-      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession,
+      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession,
         projects.stream().map(ComponentDto::uuid).collect(MoreCollectors.toArrayList(projects.size())),
-        metrics.stream().map(MetricDto::getId).collect(MoreCollectors.toArrayList(metrics.size())));
+        metrics.stream().map(MetricDto::getUuid).collect(MoreCollectors.toArrayList(metrics.size())));
     }
 
     private SearchWsResponse buildResponse() {
@@ -177,9 +177,9 @@ public class SearchAction implements MeasuresWsAction {
     private List<Measure> buildWsMeasures() {
       Map<String, ComponentDto> componentsByUuid = projects.stream().collect(toMap(ComponentDto::uuid, Function.identity()));
       Map<String, String> componentNamesByKey = projects.stream().collect(toMap(ComponentDto::getDbKey, ComponentDto::name));
-      Map<Integer, MetricDto> metricsById = metrics.stream().collect(toMap(MetricDto::getId, identity()));
+      Map<String, MetricDto> metricsByUuid = metrics.stream().collect(toMap(MetricDto::getUuid, identity()));
 
-      Function<LiveMeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsById.get(dbMeasure.getMetricId());
+      Function<LiveMeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsByUuid.get(dbMeasure.getMetricUuid());
       Function<Measure, String> byMetricKey = Measure::getMetric;
       Function<Measure, String> byComponentName = wsMeasure -> componentNamesByKey.get(wsMeasure.getComponent());
 

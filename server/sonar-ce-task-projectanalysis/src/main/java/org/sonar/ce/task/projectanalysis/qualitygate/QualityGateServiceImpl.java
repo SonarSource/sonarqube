@@ -79,7 +79,7 @@ public class QualityGateServiceImpl implements QualityGateService {
     Collection<QualityGateConditionDto> dtos = dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId());
 
     Iterable<Condition> conditions = dtos.stream()
-      .map(input -> metricRepository.getOptionalById(input.getMetricId())
+      .map(input -> metricRepository.getOptionalByUuid(input.getMetricUuid())
         .map(metric -> new Condition(metric, input.getOperator(), input.getErrorThreshold()))
         .orElse(null))
       .filter(Objects::nonNull)

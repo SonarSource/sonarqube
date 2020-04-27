@@ -44,23 +44,23 @@ public class LiveMeasureDao implements Dao {
     this.system2 = system2;
   }
 
-  public List<LiveMeasureDto> selectByComponentUuidsAndMetricIds(DbSession dbSession, Collection<String> largeComponentUuids, Collection<Integer> metricIds) {
-    if (largeComponentUuids.isEmpty() || metricIds.isEmpty()) {
+  public List<LiveMeasureDto> selectByComponentUuidsAndMetricUuids(DbSession dbSession, Collection<String> largeComponentUuids, Collection<String> metricUuis) {
+    if (largeComponentUuids.isEmpty() || metricUuis.isEmpty()) {
       return Collections.emptyList();
     }
 
     return executeLargeInputs(
       largeComponentUuids,
-      componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricIds(componentUuids, metricIds));
+      componentUuids -> mapper(dbSession).selectByComponentUuidsAndMetricUuids(componentUuids, metricUuis));
   }
 
-  public void scrollSelectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricIds,
+  public void scrollSelectByComponentUuidAndMetricKeys(DbSession dbSession, String componentUuid, Collection<String> metricKeys,
     ResultHandler<LiveMeasureDto> handler) {
-    if (metricIds.isEmpty()) {
+    if (metricKeys.isEmpty()) {
       return;
     }
 
-    mapper(dbSession).scrollSelectByComponentUuidAndMetricKeys(componentUuid, metricIds, handler);
+    mapper(dbSession).scrollSelectByComponentUuidAndMetricKeys(componentUuid, metricKeys, handler);
   }
 
   public List<LiveMeasureDto> selectByComponentUuidsAndMetricKeys(DbSession dbSession, Collection<String> largeComponentUuids, Collection<String> metricKeys) {
@@ -134,8 +134,8 @@ public class LiveMeasureDao implements Dao {
     return mapper(dbSession).upsert(dto, system2.now());
   }
 
-  public void deleteByComponentUuidExcludingMetricIds(DbSession dbSession, String componentUuid, List<Integer> excludedMetricIds) {
-    mapper(dbSession).deleteByComponentUuidExcludingMetricIds(componentUuid, excludedMetricIds);
+  public void deleteByComponentUuidExcludingMetricUuids(DbSession dbSession, String componentUuid, List<String> excludedMetricUuids) {
+    mapper(dbSession).deleteByComponentUuidExcludingMetricUuids(componentUuid, excludedMetricUuids);
   }
 
   private static LiveMeasureMapper mapper(DbSession dbSession) {

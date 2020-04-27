@@ -5,7 +5,7 @@
 
   <sql id="measureColumns">
     pm.uuid as uuid,
-    pm.metric_id as metricId,
+    pm.metric_uuid as metricUuid,
     pm.component_uuid as componentUuid,
     pm.analysis_uuid as analysisUuid,
     pm.value as value,
@@ -19,7 +19,7 @@
   <select id="selectLastMeasure" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/>
     from project_measures pm
-    inner join metrics m on m.id = pm.metric_id
+    inner join metrics m on m.uuid = pm.metric_uuid
     inner join snapshots s on s.uuid = pm.analysis_uuid
     where
     pm.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
@@ -30,7 +30,7 @@
   <select id="selectMeasure" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/>
     from project_measures pm
-    inner join metrics m on m.id = pm.metric_id
+    inner join metrics m on m.uuid = pm.metric_uuid
     inner join snapshots s on s.uuid = pm.analysis_uuid
     where
     pm.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
@@ -41,7 +41,7 @@
   <sql id="selectByQueryCommonJoins">
     inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     <if test="query.getMetricKeys() != null">
-      inner join metrics m on m.id = pm.metric_id
+      inner join metrics m on m.uuid = pm.metric_uuid
     </if>
   </sql>
 
@@ -57,7 +57,7 @@
     <if test="query.to!=null">
       and analysis.created_at&lt;#{query.to, jdbcType=BIGINT}
     </if>
-    and pm.metric_id in <foreach item="metricId" collection="query.metricIds" open="(" separator="," close=")">#{metricId, jdbcType=VARCHAR}</foreach>
+    and pm.metric_uuid in <foreach item="metricUuid" collection="query.metricUuids" open="(" separator="," close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
     and analysis.status=#{query.status, jdbcType=VARCHAR}
   </select>
 
@@ -65,7 +65,7 @@
     insert into project_measures (
     uuid,
     value,
-    metric_id,
+    metric_uuid,
     component_uuid,
     analysis_uuid,
     text_value,
@@ -76,7 +76,7 @@
     VALUES (
     #{uuid, jdbcType=VARCHAR},
     #{value, jdbcType=DOUBLE},
-    #{metricId, jdbcType=INTEGER},
+    #{metricUuid, jdbcType=VARCHAR},
     #{componentUuid, jdbcType=VARCHAR},
     #{analysisUuid, jdbcType=VARCHAR},
     #{textValue, jdbcType=VARCHAR},

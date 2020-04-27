@@ -26,7 +26,7 @@ import static java.util.Objects.requireNonNull;
 
 public class PastMeasureDto {
 
-  private int metricId;
+  private String metricUuid;
 
   @CheckForNull
   private Double value;
@@ -45,12 +45,12 @@ public class PastMeasureDto {
     return value != null;
   }
 
-  public int getMetricId() {
-    return metricId;
+  public String getMetricUuid() {
+    return metricUuid;
   }
 
-  PastMeasureDto setMetricId(int i) {
-    this.metricId = i;
+  PastMeasureDto setMetricUuid(String i) {
+    this.metricUuid = i;
     return this;
   }
 }

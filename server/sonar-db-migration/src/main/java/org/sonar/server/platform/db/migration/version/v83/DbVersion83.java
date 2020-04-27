@@ -85,6 +85,32 @@ import org.sonar.server.platform.db.migration.version.v83.manualmeasures.DropIdC
 import org.sonar.server.platform.db.migration.version.v83.manualmeasures.DropPrimaryKeyOnIdColumnOfManualMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v83.manualmeasures.MakeManualMeasuresUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.manualmeasures.PopulateManualMeasureUuid;
+import org.sonar.server.platform.db.migration.version.v83.metrics.AddPrimaryKeyOnUuidColumnOfMetricsTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.AddUuidColumnToMetricsTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.DropIdColumnOfMetricsTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.DropPrimaryKeyOnIdColumnOfMetricsTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.MakeMetricsUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.PopulateMetricsUuid;
+import org.sonar.server.platform.db.migration.version.v83.metrics.livemeasures.AddIndexOnMetricUuidOfLiveMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.livemeasures.AddMetricUuidColumnToLiveMeasures;
+import org.sonar.server.platform.db.migration.version.v83.metrics.livemeasures.DropIndexOnMetricIdOfLiveMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.livemeasures.DropMetricIdColumnOfLiveMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.livemeasures.MakeLiveMeasuresMetricUuidNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.livemeasures.PopulateLiveMeasuresMetricUuid;
+import org.sonar.server.platform.db.migration.version.v83.metrics.manualmeasures.AddMetricUuidColumnToManualMeasures;
+import org.sonar.server.platform.db.migration.version.v83.metrics.manualmeasures.DropMetricIdColumnOfManualMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.manualmeasures.MakeManualMeasuresMetricUuidNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.manualmeasures.PopulateManualMeasuresMetricUuid;
+import org.sonar.server.platform.db.migration.version.v83.metrics.projectmeasures.AddIndexOnMetricUuidOfProjectMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.projectmeasures.AddMetricUuidColumnToProjectMeasures;
+import org.sonar.server.platform.db.migration.version.v83.metrics.projectmeasures.DropIndexOnMetricIdOfProjectMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.projectmeasures.DropMetricIdColumnOfProjectMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.projectmeasures.MakeProjectMeasuresMetricUuidNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.projectmeasures.PopulateProjectMeasuresMetricUuid;
+import org.sonar.server.platform.db.migration.version.v83.metrics.qualitygateconditions.AddMetricUuidColumnToQualityGateConditions;
+import org.sonar.server.platform.db.migration.version.v83.metrics.qualitygateconditions.DropMetricIdColumnOfQualityGateConditionsTable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.qualitygateconditions.MakeQualityGateConditionsMetricUuidNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.metrics.qualitygateconditions.PopulateQualityGateConditionsMetricUuid;
 import org.sonar.server.platform.db.migration.version.v83.notifications.AddPrimaryKeyOnUuidColumnOfNotificationTable;
 import org.sonar.server.platform.db.migration.version.v83.notifications.AddUuidAndCreatedAtColumnsToNotification;
 import org.sonar.server.platform.db.migration.version.v83.notifications.DropIdColumnOfNotificationTable;
@@ -355,6 +381,44 @@ public class DbVersion83 implements DbVersion {
       .add(3525, "Drop primary key on 'ID' column of 'RULES_PARAMETERS' table", DropPrimaryKeyOnIdColumnOfRulesParametersTable.class)
       .add(3526, "Add primary key on 'UUID' column of 'RULES_PARAMETERS' table", AddPrimaryKeyOnUuidColumnOfRulesParametersTable.class)
       .add(3527, "Drop column 'ID' of 'RULES_PARAMETERS' table", DropIdColumnOfRulesParametersTable.class)
+
+      // Migration of METRICS table
+      .add(3528, "Add 'UUID' column on 'METRICS' table", AddUuidColumnToMetricsTable.class)
+      .add(3529, "Populate 'uuid' for 'METRICS'", PopulateMetricsUuid.class)
+      .add(3530, "Make 'uuid' column not nullable for 'METRICS'", MakeMetricsUuidColumnNotNullable.class)
+
+      // Migration of FK in PROJECT_MEASURES to METRICS
+      .add(3531, "Add 'metric_uuid' column on 'PROJECT_MEASURES' table", AddMetricUuidColumnToProjectMeasures.class)
+      .add(3532, "Populate 'metric_uuid' for 'PROJECT_MEASURES'", PopulateProjectMeasuresMetricUuid.class)
+      .add(3533, "Make 'metric_uuid' column not nullable for 'PROJECT_MEASURES'", MakeProjectMeasuresMetricUuidNotNullable.class)
+      .add(3534, "Drop index on 'metric_id' and 'analysis_uuid' columns of 'PROJECT_MEASURES' table", DropIndexOnMetricIdOfProjectMeasuresTable.class)
+      .add(3535, "Add index on 'metric_uuid' and 'analysis_uuid' columns of 'PROJECT_MEASURES' table", AddIndexOnMetricUuidOfProjectMeasuresTable.class)
+
+      // Migration of FK in QUALITY_GATE_CONDITIONS to METRICS
+      .add(3536, "Add 'metric_uuid' column on 'QUALITY_GATE_CONDITIONS' table", AddMetricUuidColumnToQualityGateConditions.class)
+      .add(3537, "Populate 'metric_uuid' for 'QUALITY_GATE_CONDITIONS'", PopulateQualityGateConditionsMetricUuid.class)
+      .add(3538, "Make 'metric_uuid' column not nullable for 'QUALITY_GATE_CONDITIONS'", MakeQualityGateConditionsMetricUuidNotNullable.class)
+
+      // Migration of FK in LIVE_MEASURES to METRICS
+      .add(3539, "Add 'metric_uuid' column on 'LIVE_MEASURES' table", AddMetricUuidColumnToLiveMeasures.class)
+      .add(3540, "Populate 'metric_uuid' for 'LIVE_MEASURES'", PopulateLiveMeasuresMetricUuid.class)
+      .add(3541, "Make 'metric_uuid' column not nullable for 'LIVE_MEASURES'", MakeLiveMeasuresMetricUuidNotNullable.class)
+      .add(3542, "Drop index on 'metric_id' column of 'LIVE_MEASURES' table", DropIndexOnMetricIdOfLiveMeasuresTable.class)
+      .add(3543, "Add index on 'metric_uuid' column of 'LIVE_MEASURES' table", AddIndexOnMetricUuidOfLiveMeasuresTable.class)
+
+      // Migration of FK in MANUAL_MEASURES to METRICS
+      .add(3544, "Add 'metric_uuid' column on 'MANUAL_MEASURES' table", AddMetricUuidColumnToManualMeasures.class)
+      .add(3545, "Populate 'metric_uuid' for 'MANUAL_MEASURES'", PopulateManualMeasuresMetricUuid.class)
+      .add(3546, "Make 'metric_uuid' column not nullable for 'MANUAL_MEASURES'", MakeManualMeasuresMetricUuidNotNullable.class)
+
+      // Finish migration of METRICS
+      .add(3547, "Drop primary key on 'ID' column of 'METRICS' table", DropPrimaryKeyOnIdColumnOfMetricsTable.class)
+      .add(3548, "Add primary key on 'UUID' column of 'METRICS' table", AddPrimaryKeyOnUuidColumnOfMetricsTable.class)
+      .add(3549, "Drop column 'METRIC_ID' of 'PROJECT_MEASURES' table", DropMetricIdColumnOfProjectMeasuresTable.class)
+      .add(3550, "Drop column 'METRIC_ID' of 'QUALITY_GATE_CONDITIONS' table", DropMetricIdColumnOfQualityGateConditionsTable.class)
+      .add(3551, "Drop column 'METRIC_ID' of 'LIVE_MEASURES' table", DropMetricIdColumnOfLiveMeasuresTable.class)
+      .add(3552, "Drop column 'METRIC_ID' of 'MANUAL_MEASURES' table", DropMetricIdColumnOfManualMeasuresTable.class)
+      .add(3553, "Drop column 'ID' of 'METRICS' table", DropIdColumnOfMetricsTable.class)
 
     ;
   }

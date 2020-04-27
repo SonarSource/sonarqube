@@ -191,7 +191,7 @@
     select orgUuid, sum(sumncloc.maxncloc) as ncloc from (
     select b.project_uuid, p.organization_uuid as orgUuid, max(lm.value) as maxncloc
     from live_measures lm
-    inner join metrics m on m.id = lm.metric_id
+    inner join metrics m on m.uuid = lm.metric_uuid
     inner join components p on p.uuid = lm.component_uuid
     inner join project_branches b on b.uuid = p.uuid
     where

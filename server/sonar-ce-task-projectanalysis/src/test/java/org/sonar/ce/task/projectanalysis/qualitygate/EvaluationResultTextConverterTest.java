@@ -40,8 +40,8 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.Level.ERROR;
 
 @RunWith(DataProviderRunner.class)
 public class EvaluationResultTextConverterTest {
-  private static final Metric INT_METRIC = new MetricImpl(1, "key", "int_metric_name", Metric.MetricType.INT);
-  private static final Metric SOME_VARIATION_METRIC = new MetricImpl(2, "new_variation_of_trololo", "variation_of_trololo_name", Metric.MetricType.INT);
+  private static final Metric INT_METRIC = new MetricImpl("1", "key", "int_metric_name", Metric.MetricType.INT);
+  private static final Metric SOME_VARIATION_METRIC = new MetricImpl("2", "new_variation_of_trololo", "variation_of_trololo_name", Metric.MetricType.INT);
   private static final Condition LT_10_CONDITION = new Condition(INT_METRIC, Condition.Operator.LESS_THAN.getDbValue(), "10");
   private static final EvaluationResult OK_EVALUATION_RESULT = new EvaluationResult(Measure.Level.OK, null);
   private static final String ERROR_THRESHOLD = "error_threshold";

@@ -42,13 +42,13 @@ public class MeasureTreeQueryTest {
       .setStrategy(CHILDREN)
       .setQualifiers(asList("FIL", "DIR"))
       .setNameOrKeyQuery("teSt")
-      .setMetricIds(asList(10, 11))
+      .setMetricUuids(asList("10", "11"))
       .build();
 
     assertThat(query.getStrategy()).isEqualTo(CHILDREN);
     assertThat(query.getQualifiers()).containsOnly("FIL", "DIR");
     assertThat(query.getNameOrKeyQuery()).isEqualTo("teSt");
-    assertThat(query.getMetricIds()).containsOnly(10, 11);
+    assertThat(query.getMetricUuids()).containsOnly("10", "11");
   }
 
   @Test
@@ -60,7 +60,7 @@ public class MeasureTreeQueryTest {
     assertThat(query.getStrategy()).isEqualTo(CHILDREN);
     assertThat(query.getQualifiers()).isNull();
     assertThat(query.getNameOrKeyQuery()).isNull();
-    assertThat(query.getMetricIds()).isNull();
+    assertThat(query.getMetricUuids()).isNull();
   }
 
   @Test
@@ -88,12 +88,12 @@ public class MeasureTreeQueryTest {
   public void return_empty_when_metrics_is_empty() {
     assertThat(MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
-      .setMetricIds(Collections.emptyList())
+      .setMetricUuids(Collections.emptyList())
       .build().returnsEmpty()).isTrue();
 
     assertThat(MeasureTreeQuery.builder()
       .setStrategy(CHILDREN)
-      .setMetricIds(null)
+      .setMetricUuids(null)
       .build().returnsEmpty()).isFalse();
   }
 

@@ -216,10 +216,10 @@ public class ConditionEvaluatorTest {
   }
 
   private static MetricImpl createMetric(MetricType metricType) {
-    return new MetricImpl(1, "key", "name", metricType);
+    return new MetricImpl("1", "key", "name", metricType);
   }
 
   private static MetricImpl createNewMetric(MetricType metricType) {
-    return new MetricImpl(1, "new_key", "name", metricType);
+    return new MetricImpl("1", "new_key", "name", metricType);
   }
 }

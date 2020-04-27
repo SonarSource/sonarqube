@@ -95,7 +95,7 @@ public class QualityGateDbTester {
   public final QualityGateConditionDto addCondition(QualityGateDto qualityGate, MetricDto metric, Consumer<QualityGateConditionDto>... dtoPopulators) {
     QualityGateConditionDto condition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
       .setUuid(Uuids.createFast())
-      .setMetricId(metric.getId())
+      .setMetricUuid(metric.getUuid())
       .setOperator("GT")
       .setErrorThreshold(randomNumeric(10));
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(condition));

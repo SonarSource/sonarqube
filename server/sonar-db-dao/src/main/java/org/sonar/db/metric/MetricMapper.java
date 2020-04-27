@@ -27,9 +27,9 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface MetricMapper {
 
-  MetricDto selectById(long id);
+  MetricDto selectByUuid(String uuid);
 
-  List<MetricDto> selectByIds(@Param("ids") List<Integer> ids);
+  List<MetricDto> selectByUuids(@Param("uuids") List<String> uuids);
 
   MetricDto selectByKey(@Param("key") String key);
 
@@ -45,7 +45,7 @@ public interface MetricMapper {
 
   List<String> selectDomains();
 
-  void disableByIds(@Param("ids") List<Integer> ids);
+  void disableByUuids(@Param("uuids") List<String> uuids);
 
   int disableByKey(@Param("key") String key);
 

@@ -6,17 +6,17 @@
   <sql id="columns">
     lm.component_uuid as componentUuid,
     lm.project_uuid as projectUuid,
-    lm.metric_id as metricId,
+    lm.metric_uuid as metricUuid,
     lm.value as value,
     lm.text_value as textValue,
     lm.measure_data as data,
     lm.variation as variation
   </sql>
 
-  <select id="selectByComponentUuidsAndMetricIds" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
+  <select id="selectByComponentUuidsAndMetricUuids" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
     select <include refid="columns"/> from live_measures lm
     where
-    lm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId, jdbcType=INTEGER}</foreach>
+    lm.metric_uuid in <foreach item="metricUuid" collection="metricUuids" open="(" separator="," close=")">#{metricUuid, jdbcType=VARCHAR}</foreach>
     and lm.component_uuid in
     <foreach item="componentUuid" collection="componentUuids" open="(" separator="," close=")">
       #{componentUuid, jdbcType=VARCHAR}
@@ -25,7 +25,7 @@
 
   <select id="selectByComponentUuidsAndMetricKeys" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
     select <include refid="columns"/> from live_measures lm
-    inner join metrics m on m.id = lm.metric_id
+    inner join metrics m on m.uuid = lm.metric_uuid
     where
     m.name in <foreach item="metricKey" collection="metricKeys" open="(" separator="," close=")">#{metricKey, jdbcType=VARCHAR}</foreach>
     and lm.component_uuid in
@@ -36,7 +36,7 @@
 
     <select id="selectByComponentUuidAndMetricKeys" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
     select <include refid="columns"/> from live_measures lm
-    inner join metrics m on m.id = lm.metric_id
+    inner join metrics m on m.uuid = lm.metric_uuid
     where
     m.name in <foreach item="metricKey" collection="metricKeys" open="(" separator="," close=")">#{metricKey, jdbcType=VARCHAR}</foreach>
     and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
@@ -44,7 +44,7 @@
 
   <select id="selectByComponentUuidAndMetricKey" parameterType="map" resultType="org.sonar.db.measure.LiveMeasureDto">
     select <include refid="columns"/> from live_measures lm
-    inner join metrics m on m.id = lm.metric_id
+    inner join metrics m on m.uuid = lm.metric_uuid
     where
     m.name = #{metricKey, jdbcType=VARCHAR}
     and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
@@ -54,7 +54,7 @@
     select sum(sumncloc.maxncloc) from (
       select b.project_uuid as projectUuid, max(lm.value) as maxncloc
       from live_measures lm
-      inner join metrics m on m.id = lm.metric_id
+      inner join metrics m on m.uuid = lm.metric_uuid
       inner join components p on p.uuid = lm.component_uuid
       inner join project_branches b on b.uuid = p.uuid
       <where>
@@ -82,7 +82,7 @@
     uuid,
     component_uuid,
     project_uuid,
-    metric_id,
+    metric_uuid,
     value,
     text_value,
     variation,
@@ -93,7 +93,7 @@
     #{uuid, jdbcType=VARCHAR},
     #{dto.componentUuid, jdbcType=VARCHAR},
     #{dto.projectUuid, jdbcType=VARCHAR},
-    #{dto.metricId, jdbcType=INTEGER},
+    #{dto.metricUuid, jdbcType=VARCHAR},
     #{dto.value, jdbcType=DOUBLE},
     #{dto.textValue, jdbcType=VARCHAR},
     #{dto.variation, jdbcType=DOUBLE},
@@ -112,7 +112,7 @@
     updated_at = #{now, jdbcType=BIGINT}
     where
     component_uuid = #{dto.componentUuid, jdbcType=VARCHAR}
-    and metric_id = #{dto.metricId, jdbcType=INTEGER}
+    and metric_uuid = #{dto.metricUuid, jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteByComponent" parameterType="map">
@@ -126,7 +126,7 @@
       uuid,
       component_uuid,
       project_uuid,
-      metric_id,
+      metric_uuid,
       value,
       text_value,
       variation,
@@ -137,7 +137,7 @@
       #{dto.uuidForUpsert, jdbcType=VARCHAR},
       #{dto.componentUuid, jdbcType=VARCHAR},
       #{dto.projectUuid, jdbcType=VARCHAR},
-      #{dto.metricId, jdbcType=INTEGER},
+      #{dto.metricUuid, jdbcType=VARCHAR},
       #{dto.value, jdbcType=DOUBLE},
       #{dto.textValue, jdbcType=VARCHAR},
       #{dto.variation, jdbcType=DOUBLE},
@@ -145,7 +145,7 @@
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
-    on conflict(component_uuid, metric_id) do update set
+    on conflict(component_uuid, metric_uuid) do update set
       value = excluded.value,
       variation = excluded.variation,
       text_value = excluded.text_value,
@@ -158,23 +158,23 @@
       live_measures.measure_data is distinct from excluded.measure_data
   </update>
 
-  <delete id="deleteByComponentUuidExcludingMetricIds" parameterType="map">
-    <include refid="sql_deleteByComponentUuidExcludingMetricIds"/>
+  <delete id="deleteByComponentUuidExcludingMetricUuids" parameterType="map">
+    <include refid="sql_deleteByComponentUuidExcludingMetricUuids"/>
   </delete>
 
-  <sql id="sql_deleteByComponentUuidExcludingMetricIds">
+  <sql id="sql_deleteByComponentUuidExcludingMetricUuids">
     delete from live_measures
     where
       component_uuid = #{componentUuid, jdbcType=VARCHAR}
-      <if test="!excludedMetricIds.isEmpty()">
-      and metric_id not in <foreach collection="excludedMetricIds" item="metricId" open="(" close=")" separator=",">#{metricId,jdbcType=INTEGER}</foreach>
+      <if test="!excludedMetricUuids.isEmpty()">
+      and metric_uuid not in <foreach collection="excludedMetricUuids" item="metricUuid" open="(" close=")" separator=",">#{metricUuid,jdbcType=VARCHAR}</foreach>
       </if>
   </sql>
 
   <select id="scrollSelectByComponentUuidAndMetricKeys" resultType="org.sonar.db.measure.LiveMeasureDto" fetchSize="${_scrollFetchSize}"
             resultSetType="FORWARD_ONLY">
      select <include refid="columns"/> from live_measures lm
-     inner join metrics m on m.id = lm.metric_id
+     inner join metrics m on m.uuid = lm.metric_uuid
      where
      m.name in <foreach item="metricKey" collection="metricKeys" open="(" separator="," close=")">#{metricKey, jdbcType=VARCHAR}</foreach>
      and lm.component_uuid = #{componentUuid, jdbcType=VARCHAR}
@@ -186,9 +186,9 @@
     <!-- TODO do we really need another join on components ? Using lm.project_uuid should be enough -->
     <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsJoins"/>
     <where>
-      <if test="query.getMetricIds() != null">
-        lm.metric_id in
-        <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId,jdbcType=INTEGER}</foreach>
+      <if test="query.getMetricUuids() != null">
+        lm.metric_uuid in
+        <foreach item="metricUuid" collection="query.getMetricUuids()" open="(" separator="," close=")">#{metricUuid,jdbcType=VARCHAR}</foreach>
       </if>
       and p.enabled = ${_true}
       <if test="query.qualifiers != null">
@@ -211,9 +211,9 @@
     select <include refid="columns"/> from live_measures lm
     inner join components p on p.uuid = lm.component_uuid and lm.component_uuid = #{baseUuid, jdbcType=VARCHAR}
     <where>
-      <if test="query.getMetricIds() != null">
-        lm.metric_id in
-        <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId,jdbcType=INTEGER}</foreach>
+      <if test="query.getMetricUuids() != null">
+        lm.metric_uuid in
+        <foreach item="metricUuid" collection="query.getMetricUuids()" open="(" separator="," close=")">#{metricUuid,jdbcType=VARCHAR}</foreach>
       </if>
       and p.enabled = ${_true}
       <if test="query.qualifiers != null">

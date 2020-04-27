@@ -622,7 +622,7 @@ public class PurgeCommandsTest {
   }
 
   private int countMeasures(SnapshotDto analysis, MetricDto metric) {
-    return dbTester.countSql("select count(*) from project_measures where analysis_uuid='" + analysis.getUuid() + "' and metric_id=" + metric.getId());
+    return dbTester.countSql("select count(*) from project_measures where analysis_uuid='" + analysis.getUuid() + "' and metric_id=" + metric.getUuid());
   }
 
   private int countComponentOfRoot(ComponentDto projectOrView) {

@@ -43,8 +43,8 @@ public class MeasureMatrixTest {
   private static final OrganizationDto ORGANIZATION = newOrganizationDto();
   private static final ComponentDto PROJECT = ComponentTesting.newPublicProjectDto(ORGANIZATION);
   private static final ComponentDto FILE = ComponentTesting.newFileDto(PROJECT);
-  private static final MetricDto METRIC_1 = newMetricDto().setId(100);
-  private static final MetricDto METRIC_2 = newMetricDto().setId(200);
+  private static final MetricDto METRIC_1 = newMetricDto().setUuid("100");
+  private static final MetricDto METRIC_2 = newMetricDto().setUuid("200");
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -55,7 +55,7 @@ public class MeasureMatrixTest {
 
     MeasureMatrix underTest = new MeasureMatrix(asList(PROJECT, FILE), metrics, new ArrayList<>());
 
-    assertThat(underTest.getMetric(METRIC_2.getId())).isSameAs(METRIC_2);
+    assertThat(underTest.getMetricByUuid(METRIC_2.getUuid())).isSameAs(METRIC_2);
   }
 
   @Test
@@ -64,9 +64,9 @@ public class MeasureMatrixTest {
     MeasureMatrix underTest = new MeasureMatrix(asList(PROJECT, FILE), metrics, new ArrayList<>());
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Metric with id " + METRIC_2.getId() + " not found");
+    expectedException.expectMessage("Metric with uuid " + METRIC_2.getUuid() + " not found");
 
-    underTest.getMetric(METRIC_2.getId());
+    underTest.getMetricByUuid(METRIC_2.getUuid());
   }
 
   @Test
@@ -204,6 +204,6 @@ public class MeasureMatrixTest {
   }
 
   private LiveMeasureDto newMeasure(MetricDto metric, ComponentDto component) {
-    return new LiveMeasureDto().setMetricId(metric.getId()).setData("foo").setComponentUuid(component.uuid());
+    return new LiveMeasureDto().setMetricUuid(metric.getUuid()).setData("foo").setComponentUuid(component.uuid());
   }
 }

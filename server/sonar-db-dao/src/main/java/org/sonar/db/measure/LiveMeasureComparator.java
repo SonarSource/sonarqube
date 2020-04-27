@@ -30,6 +30,6 @@ public enum LiveMeasureComparator implements Comparator<LiveMeasureDto> {
     if (componentUuidComp != 0) {
       return componentUuidComp;
     }
-    return Integer.compare(o1.getMetricId(), o2.getMetricId());
+    return o1.getMetricUuid().compareTo(o2.getMetricUuid());
   }
 }

@@ -106,8 +106,8 @@ public class MetricDao implements Dao {
     return mapper(session).selectAvailableCustomMetricsByComponentUuid(projectUuid);
   }
 
-  public List<MetricDto> selectByIds(DbSession session, Set<Integer> idsSet) {
-    return executeLargeInputs(new ArrayList<>(idsSet), mapper(session)::selectByIds);
+  public List<MetricDto> selectByUuids(DbSession session, Set<String> uuidsSet) {
+    return executeLargeInputs(new ArrayList<>(uuidsSet), mapper(session)::selectByUuids);
   }
 
   private static class NotEmptyPredicate implements Predicate<String> {
@@ -122,8 +122,8 @@ public class MetricDao implements Dao {
     return session.getMapper(MetricMapper.class);
   }
 
-  public void disableCustomByIds(final DbSession session, List<Integer> ids) {
-    executeLargeInputsWithoutOutput(ids, input -> mapper(session).disableByIds(input));
+  public void disableCustomByUuids(final DbSession session, List<String> uuids) {
+    executeLargeInputsWithoutOutput(uuids, input -> mapper(session).disableByUuids(input));
   }
 
   /**
@@ -139,8 +139,8 @@ public class MetricDao implements Dao {
   }
 
   @CheckForNull
-  public MetricDto selectById(DbSession session, long id) {
-    return mapper(session).selectById(id);
+  public MetricDto selectByUuid(DbSession session, String uuid) {
+    return mapper(session).selectByUuid(uuid);
   }
 
 }

@@ -142,7 +142,7 @@ class PrMeasureFix {
 
       if (originalKey != null && requestedMetricKeys.contains(originalKey)) {
         MetricDto metricDto = metricByKey.get(originalKey);
-        newEntries.put(metricDto, copyMeasureToVariation(e.getValue(), metricDto.getId()));
+        newEntries.put(metricDto, copyMeasureToVariation(e.getValue(), metricDto.getUuid()));
       }
     }
 
@@ -154,12 +154,12 @@ class PrMeasureFix {
     return new ComponentTreeData.Measure(null, null, measure.getValue());
   }
 
-  private static LiveMeasureDto copyMeasureToVariation(LiveMeasureDto dto, Integer metricId) {
+  private static LiveMeasureDto copyMeasureToVariation(LiveMeasureDto dto, String metricUuid) {
     LiveMeasureDto copy = new LiveMeasureDto();
     copy.setVariation(dto.getValue());
     copy.setProjectUuid(dto.getProjectUuid());
     copy.setComponentUuid(dto.getComponentUuid());
-    copy.setMetricId(metricId);
+    copy.setMetricUuid(metricUuid);
     return copy;
   }
 }

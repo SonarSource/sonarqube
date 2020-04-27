@@ -295,7 +295,7 @@ public class ShowActionTest {
     db.commit();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Could not find metric with id %s", metric.getId()));
+    expectedException.expectMessage(format("Could not find metric with id %s", metric.getUuid()));
 
     ws.newRequest()
       .setParam("name", qualityGate.getName())

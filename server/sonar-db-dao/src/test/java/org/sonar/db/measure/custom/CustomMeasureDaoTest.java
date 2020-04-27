@@ -54,7 +54,7 @@ public class CustomMeasureDaoTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
     CustomMeasureDto measure = newCustomMeasureDto()
       .setComponentUuid(project.uuid())
-      .setMetricId(metric.getId())
+      .setMetricUuid(metric.getUuid())
       .setUserUuid(user.getUuid());
 
     underTest.insert(session, measure);
@@ -63,7 +63,7 @@ public class CustomMeasureDaoTest {
     assertThat(optionalResult).isNotEmpty();
     CustomMeasureDto result = optionalResult.get();
     assertThat(result.getUuid()).isEqualTo(measure.getUuid());
-    assertThat(result.getMetricId()).isEqualTo(metric.getId());
+    assertThat(result.getMetricUuid()).isEqualTo(metric.getUuid());
     assertThat(result.getComponentUuid()).isEqualTo(project.uuid());
     assertThat(result.getUserUuid()).isEqualTo(user.getUuid());
     assertThat(result.getDescription()).isEqualTo(measure.getDescription());
@@ -80,7 +80,7 @@ public class CustomMeasureDaoTest {
     MetricDto metric = db.measures().insertMetric(m -> m.setUserManaged(true));
     CustomMeasureDto measure = db.measures().insertCustomMeasure(user, project, metric);
 
-    underTest.deleteByMetricIds(session, singletonList(measure.getMetricId()));
+    underTest.deleteByMetricUuids(session, singletonList(measure.getMetricUuid()));
 
     assertThat(underTest.selectByUuid(session, measure.getUuid())).isEmpty();
   }
@@ -151,20 +151,20 @@ public class CustomMeasureDaoTest {
 
   @Test
   public void select_by_metric_id() {
-    underTest.insert(session, newCustomMeasureDto().setMetricId(123));
-    underTest.insert(session, newCustomMeasureDto().setMetricId(123));
+    underTest.insert(session, newCustomMeasureDto().setMetricUuid("metric"));
+    underTest.insert(session, newCustomMeasureDto().setMetricUuid("metric"));
 
-    List<CustomMeasureDto> result = underTest.selectByMetricId(session, 123);
+    List<CustomMeasureDto> result = underTest.selectByMetricUuid(session, "metric");
 
     assertThat(result).hasSize(2);
   }
 
   @Test
   public void count_by_component_uuid_and_metric_id() {
-    underTest.insert(session, newCustomMeasureDto().setMetricId(123).setComponentUuid("123"));
-    underTest.insert(session, newCustomMeasureDto().setMetricId(123).setComponentUuid("123"));
+    underTest.insert(session, newCustomMeasureDto().setMetricUuid("metric").setComponentUuid("123"));
+    underTest.insert(session, newCustomMeasureDto().setMetricUuid("metric").setComponentUuid("123"));
 
-    int count = underTest.countByComponentIdAndMetricId(session, "123", 123);
+    int count = underTest.countByComponentIdAndMetricUuid(session, "123", "metric");
 
     assertThat(count).isEqualTo(2);
   }

@@ -94,9 +94,9 @@ public class ShowAction implements QualityGatesWsAction {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QualityGateDto qualityGate = getByNameOrId(dbSession, organization, name, id);
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
-      Map<Integer, MetricDto> metricsById = getMetricsById(dbSession, conditions);
+      Map<String, MetricDto> metricsByUuid = getMetricsByUuid(dbSession, conditions);
       QualityGateDto defaultQualityGate = qualityGateFinder.getDefault(dbSession, organization);
-      writeProtobuf(buildResponse(organization, qualityGate, defaultQualityGate, conditions, metricsById), request, response);
+      writeProtobuf(buildResponse(organization, qualityGate, defaultQualityGate, conditions, metricsByUuid), request, response);
     }
   }
 
@@ -114,31 +114,31 @@ public class ShowAction implements QualityGatesWsAction {
     return dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId());
   }
 
-  private Map<Integer, MetricDto> getMetricsById(DbSession dbSession, Collection<QualityGateConditionDto> conditions) {
-    Set<Integer> metricIds = conditions.stream().map(c -> (int) c.getMetricId()).collect(toSet());
-    return dbClient.metricDao().selectByIds(dbSession, metricIds).stream()
+  private Map<String, MetricDto> getMetricsByUuid(DbSession dbSession, Collection<QualityGateConditionDto> conditions) {
+    Set<String> metricUuids = conditions.stream().map(QualityGateConditionDto::getMetricUuid).collect(toSet());
+    return dbClient.metricDao().selectByUuids(dbSession, metricUuids).stream()
       .filter(MetricDto::isEnabled)
-      .collect(uniqueIndex(MetricDto::getId));
+      .collect(uniqueIndex(MetricDto::getUuid));
   }
 
   private ShowWsResponse buildResponse(OrganizationDto organization, QualityGateDto qualityGate, QualityGateDto defaultQualityGate,
-    Collection<QualityGateConditionDto> conditions, Map<Integer, MetricDto> metricsById) {
+    Collection<QualityGateConditionDto> conditions, Map<String, MetricDto> metricsByUuid) {
     return ShowWsResponse.newBuilder()
       .setId(qualityGate.getId())
       .setName(qualityGate.getName())
       .setIsBuiltIn(qualityGate.isBuiltIn())
       .addAllConditions(conditions.stream()
-        .map(toWsCondition(metricsById))
+        .map(toWsCondition(metricsByUuid))
         .collect(toList()))
       .setActions(wsSupport.getActions(organization, qualityGate, defaultQualityGate))
       .build();
   }
 
-  private static Function<QualityGateConditionDto, ShowWsResponse.Condition> toWsCondition(Map<Integer, MetricDto> metricsById) {
+  private static Function<QualityGateConditionDto, ShowWsResponse.Condition> toWsCondition(Map<String, MetricDto> metricsByUuid) {
     return condition -> {
-      int metricId = (int) condition.getMetricId();
-      MetricDto metric = metricsById.get(metricId);
-      checkState(metric != null, "Could not find metric with id %s", metricId);
+      String metricUuid = condition.getMetricUuid();
+      MetricDto metric = metricsByUuid.get(metricUuid);
+      checkState(metric != null, "Could not find metric with id %s", metricUuid);
       ShowWsResponse.Condition.Builder builder = ShowWsResponse.Condition.newBuilder()
         .setId(condition.getUuid())
         .setMetric(metric.getKey())

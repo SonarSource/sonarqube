@@ -50,10 +50,10 @@ public class prMeasureFixTest {
   @Test
   public void should_remove_metrics_not_initially_requested() {
     Set<String> originalMetricList = new HashSet<>(Arrays.asList(NEW_BUGS_KEY, MINOR_VIOLATIONS_KEY, NEW_MINOR_VIOLATIONS_KEY));
-    MetricDto dto1 = new MetricDto().setKey(BUGS_KEY).setId(1);
-    MetricDto dto2 = new MetricDto().setKey(NEW_BUGS_KEY).setId(2);
-    MetricDto dto3 = new MetricDto().setKey(MINOR_VIOLATIONS_KEY).setId(3);
-    MetricDto dto4 = new MetricDto().setKey(NEW_MINOR_VIOLATIONS_KEY).setId(4);
+    MetricDto dto1 = new MetricDto().setKey(BUGS_KEY).setUuid("1");
+    MetricDto dto2 = new MetricDto().setKey(NEW_BUGS_KEY).setUuid("2");
+    MetricDto dto3 = new MetricDto().setKey(MINOR_VIOLATIONS_KEY).setUuid("3");
+    MetricDto dto4 = new MetricDto().setKey(NEW_MINOR_VIOLATIONS_KEY).setUuid("4");
 
     List<MetricDto> metricList = new ArrayList<>(Arrays.asList(dto1, dto2, dto3, dto4));
 
@@ -65,17 +65,17 @@ public class prMeasureFixTest {
   public void should_transform_measures() {
     Set<String> requestedKeys = new HashSet<>(Arrays.asList(NEW_BUGS_KEY, MINOR_VIOLATIONS_KEY, NEW_MINOR_VIOLATIONS_KEY));
 
-    MetricDto bugsMetric = new MetricDto().setKey(BUGS_KEY).setId(1);
-    MetricDto newBugsMetric = new MetricDto().setKey(NEW_BUGS_KEY).setId(2);
-    MetricDto violationsMetric = new MetricDto().setKey(MINOR_VIOLATIONS_KEY).setId(3);
-    MetricDto newViolationsMetric = new MetricDto().setKey(NEW_MINOR_VIOLATIONS_KEY).setId(4);
+    MetricDto bugsMetric = new MetricDto().setKey(BUGS_KEY).setUuid("1");
+    MetricDto newBugsMetric = new MetricDto().setKey(NEW_BUGS_KEY).setUuid("2");
+    MetricDto violationsMetric = new MetricDto().setKey(MINOR_VIOLATIONS_KEY).setUuid("3");
+    MetricDto newViolationsMetric = new MetricDto().setKey(NEW_MINOR_VIOLATIONS_KEY).setUuid("4");
 
     List<MetricDto> metricList = Arrays.asList(bugsMetric, newBugsMetric, violationsMetric, newViolationsMetric);
 
-    LiveMeasureDto bugs = createLiveMeasure(bugsMetric.getId(), 10.0, null);
-    LiveMeasureDto newBugs = createLiveMeasure(newBugsMetric.getId(), null, 5.0);
-    LiveMeasureDto violations = createLiveMeasure(violationsMetric.getId(), 20.0, null);
-    LiveMeasureDto newViolations = createLiveMeasure(newViolationsMetric.getId(), null, 3.0);
+    LiveMeasureDto bugs = createLiveMeasure(bugsMetric.getUuid(), 10.0, null);
+    LiveMeasureDto newBugs = createLiveMeasure(newBugsMetric.getUuid(), null, 5.0);
+    LiveMeasureDto violations = createLiveMeasure(violationsMetric.getUuid(), 20.0, null);
+    LiveMeasureDto newViolations = createLiveMeasure(newViolationsMetric.getUuid(), null, 3.0);
 
     Map<MetricDto, LiveMeasureDto> measureByMetric = new HashMap<>();
     measureByMetric.put(bugsMetric, bugs);
@@ -90,7 +90,7 @@ public class prMeasureFixTest {
         tuple(NEW_MINOR_VIOLATIONS_KEY, null, 20.0));
   }
 
-  private static LiveMeasureDto createLiveMeasure(int metricId, @Nullable Double value, @Nullable Double variation) {
-    return new LiveMeasureDto().setMetricId(metricId).setVariation(variation).setValue(value);
+  private static LiveMeasureDto createLiveMeasure(String metricUuid, @Nullable Double value, @Nullable Double variation) {
+    return new LiveMeasureDto().setMetricUuid(metricUuid).setVariation(variation).setValue(value);
   }
 }

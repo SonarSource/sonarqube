@@ -175,7 +175,7 @@ public class DeleteConditionActionTest {
   public void fail_when_condition_match_unknown_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES, organization);
-    QualityGateConditionDto condition = new QualityGateConditionDto().setUuid("uuid").setQualityGateId(123L);
+    QualityGateConditionDto condition = new QualityGateConditionDto().setUuid("uuid").setMetricUuid("metric").setQualityGateId(123L);
     db.getDbClient().gateConditionDao().insert(condition, db.getSession());
     db.commit();
 

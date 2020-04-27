@@ -28,14 +28,14 @@ import static java.util.Objects.requireNonNull;
 
 public class PastMeasureQuery {
   private final String componentUuid;
-  private final List<Integer> metricIds;
+  private final List<String> metricUuids;
   private final Long from;
   private final Long to;
   private final String status;
 
-  public PastMeasureQuery(String componentUuid, List<Integer> metricIds, @Nullable Long from, @Nullable Long to) {
+  public PastMeasureQuery(String componentUuid, List<String> metricUuids, @Nullable Long from, @Nullable Long to) {
     this.componentUuid = requireNonNull(componentUuid);
-    this.metricIds = requireNonNull(metricIds);
+    this.metricUuids = requireNonNull(metricUuids);
     this.from = from;
     this.to = to;
     this.status = SnapshotDto.STATUS_PROCESSED;
@@ -45,8 +45,8 @@ public class PastMeasureQuery {
     return componentUuid;
   }
 
-  public List<Integer> getMetricIds() {
-    return metricIds;
+  public List<String> getMetricUuids() {
+    return metricUuids;
   }
 
   @CheckForNull

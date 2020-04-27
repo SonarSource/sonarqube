@@ -39,16 +39,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureToMeasureDtoTest {
-  private static final MetricImpl SOME_METRIC = new MetricImpl(42, "metric_key", "metric_name", Metric.MetricType.STRING);
+  private static final MetricImpl SOME_METRIC = new MetricImpl("42", "metric_key", "metric_name", Metric.MetricType.STRING);
   private static final String SOME_DATA = "some_data";
   private static final String SOME_STRING = "some_string";
   private static final double SOME_VARIATIONS = 1d;
-  private static final MetricImpl SOME_BOOLEAN_METRIC = new MetricImpl(1, "1", "1", Metric.MetricType.BOOL);
-  private static final MetricImpl SOME_INT_METRIC = new MetricImpl(2, "2", "2", Metric.MetricType.INT);
-  private static final MetricImpl SOME_LONG_METRIC = new MetricImpl(3, "3", "3", Metric.MetricType.DISTRIB);
-  private static final MetricImpl SOME_DOUBLE_METRIC = new MetricImpl(4, "4", "4", Metric.MetricType.FLOAT);
-  private static final MetricImpl SOME_STRING_METRIC = new MetricImpl(5, "5", "5", Metric.MetricType.STRING);
-  private static final MetricImpl SOME_LEVEL_METRIC = new MetricImpl(6, "6", "6", Metric.MetricType.LEVEL);
+  private static final MetricImpl SOME_BOOLEAN_METRIC = new MetricImpl("1", "1", "1", Metric.MetricType.BOOL);
+  private static final MetricImpl SOME_INT_METRIC = new MetricImpl("2", "2", "2", Metric.MetricType.INT);
+  private static final MetricImpl SOME_LONG_METRIC = new MetricImpl("3", "3", "3", Metric.MetricType.DISTRIB);
+  private static final MetricImpl SOME_DOUBLE_METRIC = new MetricImpl("4", "4", "4", Metric.MetricType.FLOAT);
+  private static final MetricImpl SOME_STRING_METRIC = new MetricImpl("5", "5", "5", Metric.MetricType.STRING);
+  private static final MetricImpl SOME_LEVEL_METRIC = new MetricImpl("6", "6", "6", Metric.MetricType.LEVEL);
   private static final String ANALYSIS_UUID = "a1";
   private static final Component SOME_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid_1").build();
 

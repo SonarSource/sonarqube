@@ -153,9 +153,9 @@ public class LiveQualityGateComputerImplTest {
     MetricDto statusMetric = newMetricDto().setKey(CoreMetrics.ALERT_STATUS_KEY);
     MetricDto detailsMetric = newMetricDto().setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY);
     QualityGate gate = new QualityGate("1", "foo", Collections.emptySet());
-    LiveMeasureDto numericMeasure = new LiveMeasureDto().setMetricId(numericMetric.getId()).setValue(1.23).setVariation(4.56).setComponentUuid(project.uuid());
-    LiveMeasureDto numericNewMeasure = new LiveMeasureDto().setMetricId(numericNewMetric.getId()).setValue(7.8).setVariation(8.9).setComponentUuid(project.uuid());
-    LiveMeasureDto stringMeasure = new LiveMeasureDto().setMetricId(stringMetric.getId()).setData("bar").setComponentUuid(project.uuid());
+    LiveMeasureDto numericMeasure = new LiveMeasureDto().setMetricUuid(numericMetric.getUuid()).setValue(1.23).setVariation(4.56).setComponentUuid(project.uuid());
+    LiveMeasureDto numericNewMeasure = new LiveMeasureDto().setMetricUuid(numericNewMetric.getUuid()).setValue(7.8).setVariation(8.9).setComponentUuid(project.uuid());
+    LiveMeasureDto stringMeasure = new LiveMeasureDto().setMetricUuid(stringMetric.getUuid()).setData("bar").setComponentUuid(project.uuid());
     MeasureMatrix matrix = new MeasureMatrix(singleton(project), asList(statusMetric, detailsMetric, numericMetric, numericNewMetric, stringMetric),
       asList(numericMeasure, numericNewMeasure, stringMeasure));
 

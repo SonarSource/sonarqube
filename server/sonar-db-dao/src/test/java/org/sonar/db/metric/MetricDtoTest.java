@@ -35,7 +35,7 @@ public class MetricDtoTest {
   @Test
   public void getters_and_setters() {
     MetricDto metricDto = new MetricDto()
-      .setId(1)
+      .setUuid("1")
       .setKey("coverage")
       .setShortName("Coverage")
       .setDescription("Coverage by unit tests")
@@ -51,7 +51,7 @@ public class MetricDtoTest {
       .setDeleteHistoricalData(true)
       .setEnabled(true);
 
-    assertThat(metricDto.getId()).isEqualTo(1);
+    assertThat(metricDto.getUuid()).isEqualTo("1");
     assertThat(metricDto.getKey()).isEqualTo("coverage");
     assertThat(metricDto.getShortName()).isEqualTo("Coverage");
     assertThat(metricDto.getDescription()).isEqualTo("Coverage by unit tests");

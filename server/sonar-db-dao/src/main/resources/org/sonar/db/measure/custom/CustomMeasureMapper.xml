@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.measure.custom.CustomMeasureMapper">
   <sql id="selectColumns">
     m.uuid,
-    m.metric_id as metricId,
+    m.metric_uuid as metricUuid,
     m.component_uuid as componentUuid,
     m.value,
     m.text_value as textValue,
@@ -21,11 +21,11 @@
     where m.uuid=#{uuid}
   </select>
 
-  <select id="selectByMetricId" resultType="CustomMeasure">
+  <select id="selectByMetricUuid" resultType="CustomMeasure">
     select
     <include refid="selectColumns"/>
     from manual_measures m
-    where m.metric_id=#{metricId}
+    where m.metric_uuid=#{metricUuid}
   </select>
 
   <select id="selectByComponentUuid" resultType="CustomMeasure">
@@ -39,7 +39,7 @@
     SELECT
     <include refid="selectColumns"/>
     FROM manual_measures m
-    INNER JOIN metrics metric ON metric.id=m.metric_id AND metric.name=#{metricKey}
+    INNER JOIN metrics metric ON metric.uuid=m.metric_uuid AND metric.name=#{metricKey}
     <where>
       m.text_value=#{textValue}
     </where>
@@ -47,11 +47,11 @@
 
   <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="false">
     INSERT INTO manual_measures (
-    uuid, metric_id, component_uuid, value, text_value, user_uuid, description, created_at, updated_at
+    uuid, metric_uuid, component_uuid, value, text_value, user_uuid, description, created_at, updated_at
     )
     VALUES (
     #{uuid, jdbcType=VARCHAR},
-    #{metricId, jdbcType=INTEGER},
+    #{metricUuid, jdbcType=VARCHAR},
     #{componentUuid, jdbcType=VARCHAR},
     #{value, jdbcType=DOUBLE},
     #{textValue, jdbcType=VARCHAR},
@@ -72,11 +72,11 @@
     where uuid = #{uuid}
   </update>
 
-  <delete id="deleteByMetricIds">
+  <delete id="deleteByMetricUuids">
     delete from manual_measures
-    where metric_id in
-    <foreach collection="metricIds" item="metricId" open="(" close=")" separator=",">
-      #{metricId}
+    where metric_uuid in
+    <foreach collection="metricUuids" item="metricUuid" open="(" close=")" separator=",">
+      #{metricUuid}
     </foreach>
   </delete>
 
@@ -91,9 +91,9 @@
     where m.component_uuid=#{componentUuid}
   </select>
 
-  <select id="countByComponentIdAndMetricId" resultType="Integer">
+  <select id="countByComponentIdAndMetricUuid" resultType="Integer">
     select count(1)
     from manual_measures m
-    where m.metric_id=#{metricId} and m.component_uuid=#{componentUuid}
+    where m.metric_uuid=#{metricUuid} and m.component_uuid=#{componentUuid}
   </select>
 </mapper>

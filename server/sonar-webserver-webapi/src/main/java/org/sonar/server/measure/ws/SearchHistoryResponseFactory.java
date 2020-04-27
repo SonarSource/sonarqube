@@ -61,10 +61,10 @@ class SearchHistoryResponseFactory {
   }
 
   private UnaryOperator<SearchHistoryResponse.Builder> addMeasures() {
-    Map<Integer, MetricDto> metricsById = result.getMetrics().stream().collect(MoreCollectors.uniqueIndex(MetricDto::getId));
+    Map<String, MetricDto> metricsByUuid = result.getMetrics().stream().collect(MoreCollectors.uniqueIndex(MetricDto::getUuid));
     Map<String, SnapshotDto> analysesByUuid = result.getAnalyses().stream().collect(MoreCollectors.uniqueIndex(SnapshotDto::getUuid));
     Table<MetricDto, SnapshotDto, MeasureDto> measuresByMetricByAnalysis = HashBasedTable.create(result.getMetrics().size(), result.getAnalyses().size());
-    result.getMeasures().forEach(m -> measuresByMetricByAnalysis.put(metricsById.get(m.getMetricId()), analysesByUuid.get(m.getAnalysisUuid()), m));
+    result.getMeasures().forEach(m -> measuresByMetricByAnalysis.put(metricsByUuid.get(m.getMetricUuid()), analysesByUuid.get(m.getAnalysisUuid()), m));
 
     return response -> {
       result.getMetrics().stream()

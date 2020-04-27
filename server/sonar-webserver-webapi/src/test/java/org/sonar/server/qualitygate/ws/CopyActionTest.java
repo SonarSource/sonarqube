@@ -118,8 +118,8 @@ public class CopyActionTest {
     assertThat(actual.getUuid()).isNotEqualTo(qualityGate.getUuid());
 
     assertThat(db.getDbClient().gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
-      .extracting(c-> (int) c.getMetricId(), QualityGateConditionDto::getErrorThreshold)
-      .containsExactlyInAnyOrder(tuple(metric.getId(), condition.getErrorThreshold()));
+      .extracting(QualityGateConditionDto::getMetricUuid, QualityGateConditionDto::getErrorThreshold)
+      .containsExactlyInAnyOrder(tuple(metric.getUuid(), condition.getErrorThreshold()));
   }
 
   @Test

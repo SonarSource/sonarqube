@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.checkState;
 @Immutable
 public final class MetricImpl implements Metric {
 
-  private final int id;
+  private final String uuid;
   private final String key;
   private final String name;
   private final MetricType type;
@@ -43,14 +43,14 @@ public final class MetricImpl implements Metric {
   private final boolean bestValueOptimized;
   private boolean deleteHistoricalData;
 
-  public MetricImpl(int id, String key, String name, MetricType type) {
-    this(id, key, name, type, null, null, false, false);
+  public MetricImpl(String uuid, String key, String name, MetricType type) {
+    this(uuid, key, name, type, null, null, false, false);
   }
 
-  public MetricImpl(int id, String key, String name, MetricType type, @Nullable Integer decimalScale,
+  public MetricImpl(String uuid, String key, String name, MetricType type, @Nullable Integer decimalScale,
     @Nullable Double bestValue, boolean bestValueOptimized, boolean deleteHistoricalData) {
     checkArgument(!bestValueOptimized || bestValue != null, "A BestValue must be specified if Metric is bestValueOptimized");
-    this.id = id;
+    this.uuid = uuid;
     this.key = checkNotNull(key);
     this.name = checkNotNull(name);
     this.type = checkNotNull(type);
@@ -65,8 +65,8 @@ public final class MetricImpl implements Metric {
   }
 
   @Override
-  public int getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
   @Override
@@ -126,7 +126,7 @@ public final class MetricImpl implements Metric {
   @Override
   public String toString() {
     return toStringHelper(this)
-      .add("id", id)
+      .add("uuid", uuid)
       .add("key", key)
       .add("name", name)
       .add("type", type)

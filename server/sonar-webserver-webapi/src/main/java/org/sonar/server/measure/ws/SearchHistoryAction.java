@@ -174,7 +174,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
     Date to = parseEndingDateOrDateTime(request.getTo());
     PastMeasureQuery dbQuery = new PastMeasureQuery(
       result.getComponent().uuid(),
-      result.getMetrics().stream().map(MetricDto::getId).collect(MoreCollectors.toList()),
+      result.getMetrics().stream().map(MetricDto::getUuid).collect(MoreCollectors.toList()),
       from == null ? null : from.getTime(),
       to == null ? null : (to.getTime() + 1_000L));
     return dbClient.measureDao().selectPastMeasures(dbSession, dbQuery);

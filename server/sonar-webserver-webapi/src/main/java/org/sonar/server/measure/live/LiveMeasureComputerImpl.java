@@ -107,10 +107,10 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     Collection<String> metricKeys = getKeysOfAllInvolvedMetrics(qualityGate);
 
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
-    Map<Integer, MetricDto> metricsPerId = metrics.stream()
-      .collect(uniqueIndex(MetricDto::getId));
+    Map<String, MetricDto> metricsPerId = metrics.stream()
+      .collect(uniqueIndex(MetricDto::getUuid));
     List<String> componentUuids = components.stream().map(ComponentDto::uuid).collect(toArrayList(components.size()));
-    List<LiveMeasureDto> dbMeasures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, componentUuids, metricsPerId.keySet());
+    List<LiveMeasureDto> dbMeasures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, componentUuids, metricsPerId.keySet());
     // previous status must be load now as MeasureMatrix mutate the LiveMeasureDto which are passed to it
     Metric.Level previousStatus = loadPreviousStatus(metrics, dbMeasures);
 
@@ -171,7 +171,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
       .findAny()
       .orElseThrow(() -> new IllegalStateException(String.format("Metric with key %s is not registered", ALERT_STATUS_KEY)));
     return dbMeasures.stream()
-      .filter(m -> m.getMetricId() == alertStatusMetric.getId())
+      .filter(m -> m.getMetricUuid().equals(alertStatusMetric.getUuid()))
       .map(LiveMeasureDto::getTextValue)
       .filter(Objects::nonNull)
       .map(m -> {

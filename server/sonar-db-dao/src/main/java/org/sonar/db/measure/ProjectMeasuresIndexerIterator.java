@@ -80,7 +80,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 
   private static final String SQL_MEASURES = "SELECT m.name, pm.value, pm.variation, pm.text_value FROM live_measures pm " +
-    "INNER JOIN metrics m ON m.id = pm.metric_id " +
+    "INNER JOIN metrics m ON m.uuid = pm.metric_uuid " +
     "WHERE pm.component_uuid = ? " +
     "AND m.name IN ({metricNames}) " +
     "AND (pm.value IS NOT NULL OR pm.variation IS NOT NULL OR pm.text_value IS NOT NULL) " +

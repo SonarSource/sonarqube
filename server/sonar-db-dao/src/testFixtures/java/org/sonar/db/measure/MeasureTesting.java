@@ -35,19 +35,19 @@ public class MeasureTesting {
   }
 
   public static MeasureDto newMeasureDto(MetricDto metricDto, ComponentDto component, SnapshotDto analysis) {
-    checkNotNull(metricDto.getId());
+    checkNotNull(metricDto.getUuid());
     checkNotNull(metricDto.getKey());
     checkNotNull(component.uuid());
     checkNotNull(analysis.getUuid());
     return new MeasureDto()
-      .setMetricId(metricDto.getId())
+      .setMetricUuid(metricDto.getUuid())
       .setComponentUuid(component.uuid())
       .setAnalysisUuid(analysis.getUuid());
   }
 
   public static MeasureDto newMeasure() {
     return new MeasureDto()
-      .setMetricId(cursor++)
+      .setMetricUuid(String.valueOf(cursor++))
       .setComponentUuid(String.valueOf(cursor++))
       .setAnalysisUuid(String.valueOf(cursor++))
       .setData(String.valueOf(cursor++))
@@ -58,7 +58,7 @@ public class MeasureTesting {
 
   public static LiveMeasureDto newLiveMeasure() {
     return new LiveMeasureDto()
-      .setMetricId(cursor++)
+      .setMetricUuid(String.valueOf(cursor++))
       .setComponentUuid(String.valueOf(cursor++))
       .setProjectUuid(String.valueOf(cursor++))
       .setData(String.valueOf(cursor++))
@@ -68,7 +68,7 @@ public class MeasureTesting {
 
   public static LiveMeasureDto newLiveMeasure(ComponentDto component, MetricDto metric) {
     return new LiveMeasureDto()
-      .setMetricId(metric.getId())
+      .setMetricUuid(metric.getUuid())
       .setComponentUuid(component.uuid())
       .setProjectUuid(component.projectUuid())
       .setData(String.valueOf(cursor++))

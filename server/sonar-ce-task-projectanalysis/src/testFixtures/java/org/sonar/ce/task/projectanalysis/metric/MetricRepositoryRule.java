@@ -30,14 +30,14 @@ import static java.util.Objects.requireNonNull;
 
 public class MetricRepositoryRule extends ExternalResource implements MetricRepository {
   private final Map<String, Metric> metricsByKey = new HashMap<>();
-  private final Map<Long, Metric> metricsById = new HashMap<>();
+  private final Map<String, Metric> metricsByUuid = new HashMap<>();
 
   /**
    * Convenience method to add a {@link Metric} to the repository created from a {@link org.sonar.api.measures.Metric},
    * most of the time it will be a constant of the {@link org.sonar.api.measures.CoreMetrics} class.
    * <p>
    * For the id of the created metric, this method uses the hashCode of the metric's key. If you want to specify
-   * the id of the create {@link Metric}, use {@link #add(int, org.sonar.api.measures.Metric)}
+   * the id of the create {@link Metric}, use {@link #add(String, org.sonar.api.measures.Metric)}
    * </p>
    */
   public MetricRepositoryRule add(org.sonar.api.measures.Metric<?> coreMetric) {
@@ -50,18 +50,18 @@ public class MetricRepositoryRule extends ExternalResource implements MetricRepo
    * and with the specified id, most of the time it will be a constant of the {@link org.sonar.api.measures.CoreMetrics}
    * class.
    */
-  public MetricRepositoryRule add(int id, org.sonar.api.measures.Metric<?> coreMetric) {
-    add(from(id, coreMetric));
+  public MetricRepositoryRule add(String uuid, org.sonar.api.measures.Metric<?> coreMetric) {
+    add(from(uuid, coreMetric));
     return this;
   }
 
   private static Metric from(org.sonar.api.measures.Metric<?> coreMetric) {
-    return from(coreMetric.getKey().hashCode(), coreMetric);
+    return from(Long.toString(coreMetric.getKey().hashCode()), coreMetric);
   }
 
-  private static Metric from(int id, org.sonar.api.measures.Metric<?> coreMetric) {
+  private static Metric from(String uuid, org.sonar.api.measures.Metric<?> coreMetric) {
     return new MetricImpl(
-      id, coreMetric.getKey(), coreMetric.getName(),
+      uuid, coreMetric.getKey(), coreMetric.getName(),
       convert(coreMetric.getType()),
       coreMetric.getDecimalScale(),
       coreMetric.getBestValue(), coreMetric.isOptimizedBestValue(), coreMetric.getDeleteHistoricalData());
@@ -75,18 +75,18 @@ public class MetricRepositoryRule extends ExternalResource implements MetricRepo
     requireNonNull(metric.getKey(), "key can not be null");
 
     checkState(!metricsByKey.containsKey(metric.getKey()), format("Repository already contains a metric for key %s", metric.getKey()));
-    checkState(!metricsById.containsKey((long) metric.getId()), format("Repository already contains a metric for id %s", metric.getId()));
+    checkState(!metricsByUuid.containsKey(metric.getUuid()), format("Repository already contains a metric for id %s", metric.getUuid()));
 
     metricsByKey.put(metric.getKey(), metric);
-    metricsById.put((long) metric.getId(), metric);
+    metricsByUuid.put(metric.getUuid(), metric);
 
     return this;
   }
 
   @Override
   protected void after() {
-    this.metricsById.clear();
-    this.metricsById.clear();
+    this.metricsByUuid.clear();
+    this.metricsByUuid.clear();
   }
 
   @Override
@@ -97,15 +97,15 @@ public class MetricRepositoryRule extends ExternalResource implements MetricRepo
   }
 
   @Override
-  public Metric getById(long id) {
-    Metric res = metricsById.get(id);
-    checkState(res != null, format("No Metric can be found for id %s", id));
+  public Metric getByUuid(String uuid) {
+    Metric res = metricsByUuid.get(uuid);
+    checkState(res != null, format("No Metric can be found for uuid %s", uuid));
     return res;
   }
 
   @Override
-  public Optional<Metric> getOptionalById(long id) {
-    return Optional.of(metricsById.get(id));
+  public Optional<Metric> getOptionalByUuid(String uuid) {
+    return Optional.of(metricsByUuid.get(uuid));
   }
 
   @Override

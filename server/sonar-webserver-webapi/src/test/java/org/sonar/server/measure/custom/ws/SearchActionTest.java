@@ -87,7 +87,7 @@ public class SearchActionTest {
       "      \"value\": \"" + customMeasure1.getTextValue() + "\",\n" +
       "      \"description\": \"" + customMeasure1.getDescription() + "\",\n" +
       "      \"metric\": {\n" +
-      "        \"id\": \"" + metric1.getId() + "\",\n" +
+      "        \"id\": \"" + metric1.getUuid() + "\",\n" +
       "        \"key\": \"" + metric1.getKey() + "\",\n" +
       "        \"type\": \"" + metric1.getValueType() + "\",\n" +
       "        \"name\": \"" + metric1.getShortName() + "\",\n" +
@@ -102,7 +102,7 @@ public class SearchActionTest {
       "      \"value\": \"" + customMeasure2.getTextValue() + "\",\n" +
       "      \"description\": \"" + customMeasure2.getDescription() + "\",\n" +
       "      \"metric\": {\n" +
-      "        \"id\": \"" + metric2.getId() + "\",\n" +
+      "        \"id\": \"" + metric2.getUuid() + "\",\n" +
       "        \"key\": \"" + metric2.getKey() + "\",\n" +
       "        \"type\": \"" + metric2.getValueType() + "\",\n" +
       "        \"name\": \"" + metric2.getShortName() + "\",\n" +
@@ -117,7 +117,7 @@ public class SearchActionTest {
       "      \"value\": \"" + customMeasure3.getTextValue() + "\",\n" +
       "      \"description\": \"" + customMeasure3.getDescription() + "\",\n" +
       "      \"metric\": {\n" +
-      "        \"id\": \"" + metric3.getId() + "\",\n" +
+      "        \"id\": \"" + metric3.getUuid() + "\",\n" +
       "        \"key\": \"" + metric3.getKey() + "\",\n" +
       "        \"type\": \"" + metric3.getValueType() + "\",\n" +
       "        \"name\": \"" + metric3.getShortName() + "\",\n" +

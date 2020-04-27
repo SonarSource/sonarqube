@@ -354,7 +354,7 @@ public class ScannerMediumTester extends ExternalResource {
     }
 
     public FakeMetricsRepositoryLoader add(Metric<?> metric) {
-      metric.setId(metricId++);
+      metric.setUuid("metric" + metricId++);
       metrics.add(metric);
       metricId++;
       return this;

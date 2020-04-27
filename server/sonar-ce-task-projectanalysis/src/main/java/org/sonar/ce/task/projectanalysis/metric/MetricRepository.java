@@ -35,16 +35,16 @@ public interface MetricRepository {
   Metric getByKey(String key);
 
   /**
-   * Gets the {@link Metric} with the specific id.
+   * Gets the {@link Metric} with the specific uuid.
    *
-   * @throws IllegalStateException if no Metric with the specified id is found
+   * @throws IllegalStateException if no Metric with the specified uuid is found
    */
-  Metric getById(long id);
+  Metric getByUuid(String uuid);
 
   /**
-   * Gets the {@link Metric} with the specific id if it exists in the repository.
+   * Gets the {@link Metric} with the specific uuid if it exists in the repository.
    */
-  Optional<Metric> getOptionalById(long id);
+  Optional<Metric> getOptionalByUuid(String uuid);
 
   /**
    * Get iterable of all {@link Metric}.

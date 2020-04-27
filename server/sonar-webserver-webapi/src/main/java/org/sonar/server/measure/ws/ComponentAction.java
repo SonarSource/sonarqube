@@ -174,17 +174,17 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private List<LiveMeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, Collection<MetricDto> metrics) {
-    Set<Integer> metricIds = metrics.stream().map(MetricDto::getId).collect(Collectors.toSet());
-    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, singletonList(component.uuid()), metricIds);
+    Set<String> metricUuids = metrics.stream().map(MetricDto::getUuid).collect(Collectors.toSet());
+    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricUuids(dbSession, singletonList(component.uuid()), metricUuids);
     addBestValuesToMeasures(measures, component, metrics);
     return measures;
   }
 
   private static Map<MetricDto, LiveMeasureDto> getMeasuresByMetric(List<LiveMeasureDto> measures, Collection<MetricDto> metrics) {
-    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
+    Map<String, MetricDto> metricsByUuid = Maps.uniqueIndex(metrics, MetricDto::getUuid);
     Map<MetricDto, LiveMeasureDto> measuresByMetric = new HashMap<>();
     for (LiveMeasureDto measure : measures) {
-      MetricDto metric = metricsById.get(measure.getMetricId());
+      MetricDto metric = metricsByUuid.get(measure.getMetricUuid());
       measuresByMetric.put(metric, measure);
     }
     return measuresByMetric;
@@ -206,10 +206,10 @@ public class ComponentAction implements MeasuresWsAction {
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
       .map(MetricDtoWithBestValue::new)
       .collect(MoreCollectors.toList(metrics.size()));
-    Map<Integer, LiveMeasureDto> measuresByMetricId = Maps.uniqueIndex(measures, LiveMeasureDto::getMetricId);
+    Map<String, LiveMeasureDto> measuresByMetricUuid = Maps.uniqueIndex(measures, LiveMeasureDto::getMetricUuid);
 
     for (MetricDtoWithBestValue metricWithBestValue : metricWithBestValueList) {
-      if (measuresByMetricId.get(metricWithBestValue.getMetric().getId()) == null) {
+      if (measuresByMetricUuid.get(metricWithBestValue.getMetric().getUuid()) == null) {
         measures.add(metricWithBestValue.getBestValue());
       }
     }

@@ -148,8 +148,8 @@ public class MeasureRepositoryImplTest {
     SnapshotDto oldAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(false));
     MetricDto metric1 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
     MetricDto metric2 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
-    dbClient.measureDao().insert(dbSession, createMeasureDto(metric1.getId(), FILE_COMPONENT.getUuid(), lastAnalysis.getUuid()));
-    dbClient.measureDao().insert(dbSession, createMeasureDto(metric1.getId(), FILE_COMPONENT.getUuid(), oldAnalysis.getUuid()));
+    dbClient.measureDao().insert(dbSession, createMeasureDto(metric1.getUuid(), FILE_COMPONENT.getUuid(), lastAnalysis.getUuid()));
+    dbClient.measureDao().insert(dbSession, createMeasureDto(metric1.getUuid(), FILE_COMPONENT.getUuid(), oldAnalysis.getUuid()));
     dbSession.commit();
 
     // metric 1 is associated to snapshot with "last=true"
@@ -162,7 +162,7 @@ public class MeasureRepositoryImplTest {
   private Metric metricOf(MetricDto metricDto) {
     Metric res = mock(Metric.class);
     when(res.getKey()).thenReturn(metricDto.getKey());
-    when(res.getId()).thenReturn(metricDto.getId());
+    when(res.getUuid()).thenReturn(metricDto.getUuid());
     when(res.getType()).thenReturn(Metric.MetricType.valueOf(metricDto.getValueType()));
     return res;
   }
@@ -241,7 +241,7 @@ public class MeasureRepositoryImplTest {
   @Test
   public void add_accepts_NO_VALUE_as_measure_arg() {
     for (Metric.MetricType metricType : Metric.MetricType.values()) {
-      underTest.add(FILE_COMPONENT, new MetricImpl(1, "key" + metricType, "name" + metricType, metricType), Measure.newMeasureBuilder().createNoValue());
+      underTest.add(FILE_COMPONENT, new MetricImpl("1", "key" + metricType, "name" + metricType, metricType), Measure.newMeasureBuilder().createNoValue());
     }
   }
 
@@ -254,7 +254,7 @@ public class MeasureRepositoryImplTest {
       }
 
       try {
-        final MetricImpl metric = new MetricImpl(1, "key" + metricType, "name" + metricType, metricType);
+        final MetricImpl metric = new MetricImpl("1", "key" + metricType, "name" + metricType, metricType);
         underTest.add(FILE_COMPONENT, metric, getSomeMeasureByValueType(metricType));
         underTest.update(FILE_COMPONENT, metric, measure);
         fail("An IllegalArgumentException should have been raised");
@@ -269,7 +269,7 @@ public class MeasureRepositoryImplTest {
   @Test
   public void update_accepts_NO_VALUE_as_measure_arg() {
     for (Metric.MetricType metricType : Metric.MetricType.values()) {
-      MetricImpl metric = new MetricImpl(1, "key" + metricType, "name" + metricType, metricType);
+      MetricImpl metric = new MetricImpl("1", "key" + metricType, "name" + metricType, metricType);
       underTest.add(FILE_COMPONENT, metric, getSomeMeasureByValueType(metricType));
       underTest.update(FILE_COMPONENT, metric, Measure.newMeasureBuilder().createNoValue());
     }
@@ -405,11 +405,11 @@ public class MeasureRepositoryImplTest {
     assertThat(rawMeasures.get(METRIC_KEY_2)).extracting(Measure::getStringValue).isEqualTo("some value");
   }
 
-  private static MeasureDto createMeasureDto(int metricId, String componentUuid, String analysisUuid) {
+  private static MeasureDto createMeasureDto(String metricUuid, String componentUuid, String analysisUuid) {
     return new MeasureDto()
       .setComponentUuid(componentUuid)
       .setAnalysisUuid(analysisUuid)
       .setData(SOME_DATA)
-      .setMetricId(metricId);
+      .setMetricUuid(metricUuid);
   }
 }

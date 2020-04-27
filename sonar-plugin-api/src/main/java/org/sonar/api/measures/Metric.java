@@ -129,7 +129,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     }
   }
 
-  private Integer id;
+  private String uuid;
   private String key;
   private String description;
   private ValueType type;
@@ -239,15 +239,15 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   /**
    * For internal use only
    */
-  public Integer getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
   /**
    * For internal use only
    */
-  public Metric<G> setId(@Nullable Integer id) {
-    this.id = id;
+  public Metric<G> setUuid(@Nullable String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

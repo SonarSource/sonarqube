@@ -123,18 +123,18 @@ public class MeasureDaoTest {
     SnapshotDto project2LastAnalysis = insertAnalysis(project2.uuid(), true);
 
     // project 1
-    insertMeasure("P1_M1", lastAnalysis.getUuid(), project1.uuid(), ncloc.getId());
-    insertMeasure("P1_M2", lastAnalysis.getUuid(), project1.uuid(), coverage.getId());
-    insertMeasure("P1_M3", pastAnalysis.getUuid(), project1.uuid(), ncloc.getId());
+    insertMeasure("P1_M1", lastAnalysis.getUuid(), project1.uuid(), ncloc.getUuid());
+    insertMeasure("P1_M2", lastAnalysis.getUuid(), project1.uuid(), coverage.getUuid());
+    insertMeasure("P1_M3", pastAnalysis.getUuid(), project1.uuid(), ncloc.getUuid());
     // project 2
-    insertMeasure("P2_M1", project2LastAnalysis.getUuid(), project2.uuid(), ncloc.getId());
-    insertMeasure("P2_M2", project2LastAnalysis.getUuid(), project2.uuid(), coverage.getId());
+    insertMeasure("P2_M1", project2LastAnalysis.getUuid(), project2.uuid(), ncloc.getUuid());
+    insertMeasure("P2_M2", project2LastAnalysis.getUuid(), project2.uuid(), coverage.getUuid());
     // component C1
-    insertMeasure("M1", pastAnalysis.getUuid(), "C1", ncloc.getId());
-    insertMeasure("M2", lastAnalysis.getUuid(), "C1", ncloc.getId());
-    insertMeasure("M3", lastAnalysis.getUuid(), "C1", coverage.getId());
+    insertMeasure("M1", pastAnalysis.getUuid(), "C1", ncloc.getUuid());
+    insertMeasure("M2", lastAnalysis.getUuid(), "C1", ncloc.getUuid());
+    insertMeasure("M3", lastAnalysis.getUuid(), "C1", coverage.getUuid());
     // component C2
-    insertMeasure("M6", lastAnalysis.getUuid(), "C2", ncloc.getId());
+    insertMeasure("M6", lastAnalysis.getUuid(), "C2", ncloc.getUuid());
     db.commit();
 
     verifyNoMeasure("C1", ncloc.getKey(), "invalid_analysis");
@@ -176,14 +176,14 @@ public class MeasureDaoTest {
     db.commit();
 
     // project
-    insertMeasure("PROJECT_M1", lastAnalysis.getUuid(), project.uuid(), ncloc.getId());
-    insertMeasure("PROJECT_M2", pastAnalysis.getUuid(), project.uuid(), ncloc.getId());
-    insertMeasure("PROJECT_M3", "OLD_ANALYSIS_UUID", project.uuid(), ncloc.getId());
+    insertMeasure("PROJECT_M1", lastAnalysis.getUuid(), project.uuid(), ncloc.getUuid());
+    insertMeasure("PROJECT_M2", pastAnalysis.getUuid(), project.uuid(), ncloc.getUuid());
+    insertMeasure("PROJECT_M3", "OLD_ANALYSIS_UUID", project.uuid(), ncloc.getUuid());
     db.commit();
 
     // Measures of project for last and previous analyses
     List<MeasureDto> result = underTest.selectPastMeasures(db.getSession(),
-      new PastMeasureQuery(project.uuid(), singletonList(ncloc.getId()), previousAnalysisDate, lastAnalysisDate + 1_000L));
+      new PastMeasureQuery(project.uuid(), singletonList(ncloc.getUuid()), previousAnalysisDate, lastAnalysisDate + 1_000L));
 
     assertThat(result).hasSize(2).extracting(MeasureDto::getData).containsOnly("PROJECT_M1", "PROJECT_M2");
   }
@@ -208,11 +208,11 @@ public class MeasureDaoTest {
     assertThat(underTest.selectLastMeasure(db.getSession(), componentUuid, metricKey)).isEmpty();
   }
 
-  private void insertMeasure(String value, String analysisUuid, String componentUuid, int metricId) {
+  private void insertMeasure(String value, String analysisUuid, String componentUuid, String metricUuid) {
     MeasureDto measure = MeasureTesting.newMeasure()
       .setAnalysisUuid(analysisUuid)
       .setComponentUuid(componentUuid)
-      .setMetricId(metricId)
+      .setMetricUuid(metricUuid)
       // as ids can't be forced when inserting measures, the field "data"
       // is used to store a virtual value. It is used then in assertions.
       .setData(value);

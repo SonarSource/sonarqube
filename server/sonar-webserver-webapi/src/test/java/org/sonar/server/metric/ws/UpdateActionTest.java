@@ -47,6 +47,7 @@ import static org.sonar.server.metric.ws.UpdateAction.PARAM_TYPE;
 
 public class UpdateActionTest {
 
+  private static final String DEFAULT_UUID = "custom-metric-uuid";
   private static final String DEFAULT_KEY = "custom-metric-key";
   private static final String DEFAULT_NAME = "custom-metric-name";
   private static final String DEFAULT_DOMAIN = "custom-metric-domain";
@@ -72,10 +73,10 @@ public class UpdateActionTest {
 
   @Test
   public void update_all_fields() {
-    int id = insertMetric(newDefaultMetric());
+    String uuid = insertMetric(newDefaultMetric());
 
     tester.newRequest()
-      .setParam(PARAM_ID, String.valueOf(id))
+      .setParam(PARAM_ID, uuid)
       .setParam(PARAM_KEY, "another-key")
       .setParam(PARAM_NAME, "another-name")
       .setParam(PARAM_TYPE, ValueType.BOOL.name())
@@ -84,7 +85,7 @@ public class UpdateActionTest {
       .execute();
     dbSession.commit();
 
-    MetricDto result = dbClient.metricDao().selectById(dbSession, id);
+    MetricDto result = dbClient.metricDao().selectByUuid(dbSession, uuid);
     assertThat(result.getKey()).isEqualTo("another-key");
     assertThat(result.getShortName()).isEqualTo("another-name");
     assertThat(result.getValueType()).isEqualTo(ValueType.BOOL.name());
@@ -94,17 +95,17 @@ public class UpdateActionTest {
 
   @Test
   public void update_one_field() {
-    int id = insertMetric(newDefaultMetric());
-    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricId(id));
+    String uuid = insertMetric(newDefaultMetric());
+    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricUuid(uuid));
     dbSession.commit();
 
     tester.newRequest()
-      .setParam(PARAM_ID, String.valueOf(id))
+      .setParam(PARAM_ID, uuid)
       .setParam(PARAM_DESCRIPTION, "another-description")
       .execute();
     dbSession.commit();
 
-    MetricDto result = dbClient.metricDao().selectById(dbSession, id);
+    MetricDto result = dbClient.metricDao().selectByUuid(dbSession, uuid);
     assertThat(result.getKey()).isEqualTo(DEFAULT_KEY);
     assertThat(result.getShortName()).isEqualTo(DEFAULT_NAME);
     assertThat(result.getValueType()).isEqualTo(DEFAULT_TYPE);
@@ -114,16 +115,16 @@ public class UpdateActionTest {
 
   @Test
   public void update_return_the_full_object_with_id() {
-    int id = insertMetric(newDefaultMetric().setDescription("another-description"));
+    String uuid = insertMetric(newDefaultMetric().setDescription("another-description"));
 
     TestResponse requestResult = tester.newRequest()
-      .setParam(PARAM_ID, String.valueOf(id))
+      .setParam(PARAM_ID, uuid)
       .setParam(PARAM_DESCRIPTION, DEFAULT_DESCRIPTION)
       .execute();
     dbSession.commit();
 
     requestResult.assertJson(getClass(), "metric.json");
-    assertThat(requestResult.getInput()).matches(".*\"id\"\\s*:\\s*\"" + id + "\".*");
+    assertThat(requestResult.getInput()).matches(".*\"id\"\\s*:\\s*\"" + uuid + "\".*");
   }
 
   @Test
@@ -131,10 +132,10 @@ public class UpdateActionTest {
     expectedException.expect(ServerException.class);
     expectedException.expectMessage("The key 'metric-key' is already used by an existing metric.");
     insertMetric(newDefaultMetric().setKey("metric-key"));
-    int id = insertMetric(newDefaultMetric().setKey("another-key"));
+    String uuid = insertMetric(newDefaultMetric().setUuid("another-uuid").setKey("another-key"));
 
     tester.newRequest()
-      .setParam(PARAM_ID, String.valueOf(id))
+      .setParam(PARAM_ID, uuid)
       .setParam(PARAM_KEY, "metric-key")
       .execute();
   }
@@ -149,28 +150,28 @@ public class UpdateActionTest {
   @Test
   public void fail_when_metric_is_deactivated() {
     expectedException.expect(ServerException.class);
-    int id = insertMetric(newDefaultMetric().setEnabled(false));
+    String uuid = insertMetric(newDefaultMetric().setEnabled(false));
 
-    tester.newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
+    tester.newRequest().setParam(PARAM_ID, uuid).execute();
   }
 
   @Test
   public void fail_when_metric_is_not_custom() {
     expectedException.expect(ServerException.class);
-    int id = insertMetric(newDefaultMetric().setUserManaged(false));
+    String uuid = insertMetric(newDefaultMetric().setUserManaged(false));
 
-    tester.newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
+    tester.newRequest().setParam(PARAM_ID, uuid).execute();
   }
 
   @Test
   public void fail_when_custom_measures_and_type_changed() {
     expectedException.expect(ServerException.class);
-    int id = insertMetric(newDefaultMetric());
-    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricId(id));
+    String uuid = insertMetric(newDefaultMetric());
+    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricUuid(uuid));
     dbSession.commit();
 
     tester.newRequest()
-      .setParam(PARAM_ID, String.valueOf(id))
+      .setParam(PARAM_ID, uuid)
       .setParam(PARAM_TYPE, ValueType.BOOL.name())
       .execute();
   }
@@ -204,21 +205,22 @@ public class UpdateActionTest {
 
   @Test
   public void fail_when_metric_key_is_not_well_formatted() {
-    int id = insertMetric(newDefaultMetric());
-    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricId(id));
+    String uuid = insertMetric(newDefaultMetric());
+    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricUuid(uuid));
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Malformed metric key 'not well formatted key'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.");
 
     tester.newRequest()
-      .setParam(PARAM_ID, String.valueOf(id))
+      .setParam(PARAM_ID, uuid)
       .setParam(PARAM_KEY, "not well formatted key")
       .execute();
   }
 
   private MetricDto newDefaultMetric() {
     return new MetricDto()
+      .setUuid(DEFAULT_UUID)
       .setKey(DEFAULT_KEY)
       .setShortName(DEFAULT_NAME)
       .setValueType(DEFAULT_TYPE)
@@ -228,10 +230,10 @@ public class UpdateActionTest {
       .setEnabled(true);
   }
 
-  private int insertMetric(MetricDto metricDto) {
+  private String insertMetric(MetricDto metricDto) {
     dbClient.metricDao().insert(dbSession, metricDto);
     dbSession.commit();
-    return metricDto.getId();
+    return metricDto.getUuid();
   }
 
 }

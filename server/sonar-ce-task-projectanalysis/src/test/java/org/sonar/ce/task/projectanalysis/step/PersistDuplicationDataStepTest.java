@@ -85,7 +85,7 @@ public class PersistDuplicationDataStepTest extends BaseStepTest {
     insertComponent(FILE_1_KEY, FILE_1_UUID);
     insertComponent(FILE_2_KEY, FILE_2_UUID);
     db.commit();
-    metricRepository.add(metric.getId(), new Metric.Builder(DUPLICATIONS_DATA_KEY, DUPLICATIONS_DATA_KEY, Metric.ValueType.STRING).create());
+    metricRepository.add(metric.getUuid(), new Metric.Builder(DUPLICATIONS_DATA_KEY, DUPLICATIONS_DATA_KEY, Metric.ValueType.STRING).create());
   }
 
   @Override

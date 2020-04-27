@@ -75,7 +75,7 @@ public class UpdateAction implements MetricsWsAction {
 
     action.createParam(PARAM_ID)
       .setRequired(true)
-      .setDescription("Id of the custom metric to update")
+      .setDescription("UUID of the custom metric to update")
       .setExampleValue("42");
 
     action.createParam(PARAM_KEY)
@@ -107,11 +107,11 @@ public class UpdateAction implements MetricsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
-    int id = request.mandatoryParamAsInt(PARAM_ID);
+    String uuid = request.mandatoryParam(PARAM_ID);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       MetricDto metricTemplate = newMetricTemplate(request);
-      MetricDto metricInDb = dbClient.metricDao().selectById(dbSession, id);
+      MetricDto metricInDb = dbClient.metricDao().selectByUuid(dbSession, uuid);
       checkMetricInDbAndTemplate(dbSession, metricInDb, metricTemplate);
 
       updateMetricInDb(dbSession, metricInDb, metricTemplate);
@@ -122,7 +122,7 @@ public class UpdateAction implements MetricsWsAction {
   }
 
   private static MetricDto newMetricTemplate(Request request) {
-    int id = request.mandatoryParamAsInt(PARAM_ID);
+    String uuid = request.mandatoryParam(PARAM_ID);
     String key = request.param(PARAM_KEY);
     if (key != null) {
       MetricKeyValidator.checkMetricKeyFormat(key);
@@ -132,7 +132,7 @@ public class UpdateAction implements MetricsWsAction {
     String domain = request.param(PARAM_DOMAIN);
     String description = request.param(PARAM_DESCRIPTION);
 
-    MetricDto metricTemplate = new MetricDto().setId(id);
+    MetricDto metricTemplate = new MetricDto().setUuid(uuid);
     if (key != null) {
       metricTemplate.setKey(key);
     }
@@ -178,10 +178,10 @@ public class UpdateAction implements MetricsWsAction {
 
   private void checkMetricInDbAndTemplate(DbSession dbSession, @Nullable MetricDto metricInDb, MetricDto template) {
     checkRequest(isMetricFoundInDb(metricInDb) && !isMetricDisabled(metricInDb) && isMetricCustom(metricInDb),
-      "No active custom metric has been found for id '%d'.", template.getId());
+      "No active custom metric has been found for uuid '%s'.", template.getUuid());
     checkNoOtherMetricWithTargetKey(dbSession, metricInDb, template);
     if (haveMetricTypeChanged(metricInDb, template)) {
-      List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metricInDb.getId());
+      List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricUuid(dbSession, metricInDb.getUuid());
       checkRequest(!haveAssociatedCustomMeasures(customMeasures), "You're trying to change the type '%s' while there are associated custom measures.", metricInDb.getValueType());
     }
   }
@@ -189,13 +189,13 @@ public class UpdateAction implements MetricsWsAction {
   private void checkNoOtherMetricWithTargetKey(DbSession dbSession, MetricDto metricInDb, MetricDto template) {
     String targetKey = template.getKey();
     MetricDto metricWithTargetKey = dbClient.metricDao().selectByKey(dbSession, targetKey);
-    checkRequest(!isMetricFoundInDb(metricWithTargetKey) || metricInDb.getId().equals(metricWithTargetKey.getId()),
+    checkRequest(!isMetricFoundInDb(metricWithTargetKey) || metricInDb.getUuid().equals(metricWithTargetKey.getUuid()),
       "The key '%s' is already used by an existing metric.", targetKey);
   }
 
   private static void writeMetric(JsonWriter json, MetricDto metric) {
     json.beginObject();
-    json.prop(FIELD_ID, String.valueOf(metric.getId()));
+    json.prop(FIELD_ID, String.valueOf(metric.getUuid()));
     json.prop(FIELD_KEY, metric.getKey());
     json.prop(FIELD_TYPE, metric.getValueType());
     json.prop(FIELD_NAME, metric.getShortName());

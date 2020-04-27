@@ -62,8 +62,8 @@ public class ExecuteVisitorsStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(1, NCLOC)
-    .add(new MetricImpl(2, TEST_METRIC_KEY, "name", Metric.MetricType.INT));
+    .add("1", NCLOC)
+    .add(new MetricImpl("2", TEST_METRIC_KEY, "name", Metric.MetricType.INT));
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule

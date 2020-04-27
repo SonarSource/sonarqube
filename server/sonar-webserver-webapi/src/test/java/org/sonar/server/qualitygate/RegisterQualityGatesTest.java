@@ -215,7 +215,7 @@ public class RegisterQualityGatesTest {
     insertMetrics();
     QualityGateConditionDto conditionDto = new QualityGateConditionDto()
       .setUuid(Uuids.createFast())
-      .setMetricId(-1) // This Id does not exist
+      .setMetricUuid("unknown") // This uuid does not exist
       .setOperator(OPERATOR_GREATER_THAN)
       .setErrorThreshold("1");
     gateConditionDao.insert(conditionDto, dbSession);
@@ -254,15 +254,15 @@ public class RegisterQualityGatesTest {
     assertThat(qualityGateDto.getCreatedAt()).isNotNull();
     assertThat(qualityGateDto.isBuiltIn()).isTrue();
     assertThat(gateConditionDao.selectForQualityGate(dbSession, qualityGateDto.getId()))
-      .extracting(QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
+      .extracting(QualityGateConditionDto::getMetricUuid, QualityGateConditionDto::getOperator,
         QualityGateConditionDto::getErrorThreshold)
       .containsExactlyInAnyOrder(
-        tuple(newReliability.getId().longValue(), OPERATOR_GREATER_THAN, "1"),
-        tuple(newSecurity.getId().longValue(), OPERATOR_GREATER_THAN, "1"),
-        tuple(newMaintainability.getId().longValue(), OPERATOR_GREATER_THAN, "1"),
-        tuple(newCoverage.getId().longValue(), OPERATOR_LESS_THAN, "80"),
-        tuple(newDuplication.getId().longValue(), OPERATOR_GREATER_THAN, "3"),
-        tuple(newSecurityHotspots.getId().longValue(), OPERATOR_LESS_THAN, "100"));
+        tuple(newReliability.getUuid(), OPERATOR_GREATER_THAN, "1"),
+        tuple(newSecurity.getUuid(), OPERATOR_GREATER_THAN, "1"),
+        tuple(newMaintainability.getUuid(), OPERATOR_GREATER_THAN, "1"),
+        tuple(newCoverage.getUuid(), OPERATOR_LESS_THAN, "80"),
+        tuple(newDuplication.getUuid(), OPERATOR_GREATER_THAN, "3"),
+        tuple(newSecurityHotspots.getUuid(), OPERATOR_LESS_THAN, "100"));
   }
 
   private List<QualityGateConditionDto> createBuiltInConditions(QualityGateDto qg) {

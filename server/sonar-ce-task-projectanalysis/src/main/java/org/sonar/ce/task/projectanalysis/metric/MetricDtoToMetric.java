@@ -42,7 +42,7 @@ public enum MetricDtoToMetric implements Function<MetricDto, Metric> {
     }
 
     return new MetricImpl(
-      metricDto.getId(), metricDto.getKey(), metricDto.getShortName(), metricType,
+      metricDto.getUuid(), metricDto.getKey(), metricDto.getShortName(), metricType,
       decimalScale,
       DoubleCache.intern(metricDto.getBestValue()), metricDto.isOptimizedBestValue(),
       metricDto.isDeleteHistoricalData());

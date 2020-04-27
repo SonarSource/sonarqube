@@ -81,7 +81,7 @@ public class UpdateActionTest {
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute();
 
-    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricUuid(db.getSession(), metric.getUuid()))
       .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getUserUuid, CustomMeasureDto::getComponentUuid,
         CustomMeasureDto::getCreatedAt, CustomMeasureDto::getUpdatedAt)
       .containsExactlyInAnyOrder(
@@ -103,7 +103,7 @@ public class UpdateActionTest {
       .setParam(PARAM_VALUE, "1984")
       .execute();
 
-    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricUuid(db.getSession(), metric.getUuid()))
       .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue, CustomMeasureDto::getUserUuid, CustomMeasureDto::getComponentUuid,
         CustomMeasureDto::getCreatedAt, CustomMeasureDto::getUpdatedAt)
       .containsExactlyInAnyOrder(
@@ -131,7 +131,7 @@ public class UpdateActionTest {
       "  \"value\": \"new-text-measure-value\",\n" +
       "  \"description\": \"new-custom-measure-description\",\n" +
       "  \"metric\": {\n" +
-      "    \"id\": \"" + metric.getId() + "\",\n" +
+      "    \"id\": \"" + metric.getUuid() + "\",\n" +
       "    \"key\": \"" + metric.getKey() + "\",\n" +
       "    \"type\": \"" + metric.getValueType() + "\",\n" +
       "    \"name\": \"" + metric.getShortName() + "\",\n" +
@@ -155,7 +155,7 @@ public class UpdateActionTest {
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .execute();
 
-    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricUuid(db.getSession(), metric.getUuid()))
       .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue)
       .containsExactlyInAnyOrder(
         tuple("new-custom-measure-description", customMeasure.getTextValue(), customMeasure.getValue()));
@@ -174,7 +174,7 @@ public class UpdateActionTest {
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute();
 
-    assertThat(db.getDbClient().customMeasureDao().selectByMetricId(db.getSession(), metric.getId()))
+    assertThat(db.getDbClient().customMeasureDao().selectByMetricUuid(db.getSession(), metric.getUuid()))
       .extracting(CustomMeasureDto::getDescription, CustomMeasureDto::getTextValue, CustomMeasureDto::getValue)
       .containsExactlyInAnyOrder(
         tuple(customMeasure.getDescription(), "new-text-measure-value", customMeasure.getValue()));

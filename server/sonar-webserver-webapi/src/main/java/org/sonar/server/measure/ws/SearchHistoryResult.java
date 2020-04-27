@@ -115,13 +115,13 @@ public class SearchHistoryResult {
     requireNonNull(metrics);
     requireNonNull(analyses);
 
-    Table<Integer, String, MeasureDto> measuresByMetricIdAndAnalysisUuid = HashBasedTable.create(metrics.size(), analyses.size());
-    measures.forEach(measure -> measuresByMetricIdAndAnalysisUuid.put(measure.getMetricId(), measure.getAnalysisUuid(), measure));
+    Table<String, String, MeasureDto> measuresByMetricUuidAndAnalysisUuid = HashBasedTable.create(metrics.size(), analyses.size());
+    measures.forEach(measure -> measuresByMetricUuidAndAnalysisUuid.put(measure.getMetricUuid(), measure.getAnalysisUuid(), measure));
     List<MeasureDto> bestValues = new ArrayList<>();
     metrics.stream()
       .filter(isOptimizedForBestValue())
       .forEach(metric -> analyses.stream()
-        .filter(analysis -> !measuresByMetricIdAndAnalysisUuid.contains(metric.getId(), analysis.getUuid()))
+        .filter(analysis -> !measuresByMetricUuidAndAnalysisUuid.contains(metric.getUuid(), analysis.getUuid()))
         .map(analysis -> toBestValue(metric, analysis))
         .forEach(bestValues::add));
 
@@ -130,7 +130,7 @@ public class SearchHistoryResult {
 
   private static MeasureDto toBestValue(MetricDto metric, SnapshotDto analysis) {
     MeasureDto measure = new MeasureDto()
-      .setMetricId(metric.getId())
+      .setMetricUuid(metric.getUuid())
       .setAnalysisUuid(analysis.getUuid());
 
     if (metric.getKey().startsWith("new_")) {

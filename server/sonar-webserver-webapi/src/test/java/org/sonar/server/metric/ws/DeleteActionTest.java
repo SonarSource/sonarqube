@@ -71,7 +71,7 @@ public class DeleteActionTest {
     loggedAsSystemAdministrator();
     MetricDto metric = insertCustomMetric("custom-key");
 
-    TestResponse response = newRequest().setParam("ids", String.valueOf(metric.getId())).execute();
+    TestResponse response = newRequest().setParam("ids", String.valueOf(metric.getUuid())).execute();
 
     assertThat(db.getDbClient().metricDao().selectEnabled(db.getSession())).isEmpty();
     assertThat(response.getStatus()).isEqualTo(204);
@@ -93,8 +93,8 @@ public class DeleteActionTest {
   public void delete_associated_measures() {
     loggedAsSystemAdministrator();
     MetricDto metric = insertCustomMetric("custom-key");
-    CustomMeasureDto customMeasure = newCustomMeasureDto().setMetricId(metric.getId());
-    CustomMeasureDto undeletedCustomMeasure = newCustomMeasureDto().setMetricId(metric.getId() + 1);
+    CustomMeasureDto customMeasure = newCustomMeasureDto().setMetricUuid(metric.getUuid());
+    CustomMeasureDto undeletedCustomMeasure = newCustomMeasureDto().setMetricUuid("unknown");
     dbClient.customMeasureDao().insert(db.getSession(), customMeasure);
     dbClient.customMeasureDao().insert(db.getSession(), undeletedCustomMeasure);
     db.getSession().commit();
@@ -120,7 +120,7 @@ public class DeleteActionTest {
 
     assertThat(dbClient.gateConditionDao().selectForQualityGate(db.getSession(), qualityGate1.getId())).isEmpty();
     assertThat(dbClient.gateConditionDao().selectForQualityGate(db.getSession(), qualityGate2.getId()))
-      .extracting(QualityGateConditionDto::getMetricId).containsOnly(nonCustomMetric.getId().longValue());
+      .extracting(QualityGateConditionDto::getMetricUuid).containsOnly(nonCustomMetric.getUuid());
   }
 
   @Test

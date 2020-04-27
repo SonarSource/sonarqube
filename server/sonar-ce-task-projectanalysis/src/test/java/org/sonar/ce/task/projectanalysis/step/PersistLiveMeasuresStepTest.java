@@ -86,9 +86,9 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     MetricDto intMetricDto = db.measures().insertMetric(m -> m.setKey(INT_METRIC.getKey()).setValueType(Metric.ValueType.INT.name()));
     MetricDto bestValueMMetricDto = db.measures()
       .insertMetric(m -> m.setKey(METRIC_WITH_BEST_VALUE.getKey()).setValueType(Metric.ValueType.INT.name()).setOptimizedBestValue(true).setBestValue(0.0));
-    metricRepository.add(stringMetricDto.getId(), STRING_METRIC);
-    metricRepository.add(intMetricDto.getId(), INT_METRIC);
-    metricRepository.add(bestValueMMetricDto.getId(), METRIC_WITH_BEST_VALUE);
+    metricRepository.add(stringMetricDto.getUuid(), STRING_METRIC);
+    metricRepository.add(intMetricDto.getUuid(), INT_METRIC);
+    metricRepository.add(bestValueMMetricDto.getUuid(), METRIC_WITH_BEST_VALUE);
   }
 
   @Test
@@ -204,14 +204,14 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
     LiveMeasureDto measure = newLiveMeasure()
       .setComponentUuid(componentUuid)
       .setProjectUuid(projectUuid)
-      .setMetricId(metricRepository.getByKey(metric.getKey()).getId());
+      .setMetricUuid(metricRepository.getByKey(metric.getKey()).getUuid());
     dbClient.liveMeasureDao().insertOrUpdate(db.getSession(), measure);
     return measure;
   }
 
   private void assertThatMeasureHasValue(LiveMeasureDto template, int expectedValue) {
     Optional<LiveMeasureDto> persisted = dbClient.liveMeasureDao().selectMeasure(db.getSession(),
-      template.getComponentUuid(), metricRepository.getById(template.getMetricId()).getKey());
+      template.getComponentUuid(), metricRepository.getByUuid(template.getMetricUuid()).getKey());
     assertThat(persisted).isPresent();
     assertThat(persisted.get().getValue()).isEqualTo((double) expectedValue);
   }
@@ -225,7 +225,7 @@ public class PersistLiveMeasuresStepTest extends BaseStepTest {
 
   private void assertThatMeasureDoesNotExist(LiveMeasureDto template) {
     assertThat(dbClient.liveMeasureDao().selectMeasure(db.getSession(),
-      template.getComponentUuid(), metricRepository.getById(template.getMetricId()).getKey()))
+      template.getComponentUuid(), metricRepository.getByUuid(template.getMetricUuid()).getKey()))
       .isEmpty();
   }
 

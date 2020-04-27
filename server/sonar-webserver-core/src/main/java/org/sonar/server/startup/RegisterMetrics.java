@@ -30,6 +30,7 @@ import org.sonar.api.measures.Metrics;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
@@ -44,18 +45,20 @@ public class RegisterMetrics implements Startable {
   private static final Logger LOG = Loggers.get(RegisterMetrics.class);
 
   private final DbClient dbClient;
+  private final UuidFactory uuidFactory;
   private final Metrics[] metricsRepositories;
 
-  public RegisterMetrics(DbClient dbClient, Metrics[] metricsRepositories) {
+  public RegisterMetrics(DbClient dbClient, UuidFactory uuidFactory, Metrics[] metricsRepositories) {
     this.dbClient = dbClient;
+    this.uuidFactory = uuidFactory;
     this.metricsRepositories = metricsRepositories;
   }
 
   /**
    * Used when no plugin is defining Metrics
    */
-  public RegisterMetrics(DbClient dbClient) {
-    this(dbClient, new Metrics[] {});
+  public RegisterMetrics(DbClient dbClient, UuidFactory uuidFactory) {
+    this(dbClient, uuidFactory, new Metrics[] {});
   }
 
   @Override
@@ -93,10 +96,11 @@ public class RegisterMetrics implements Startable {
       MetricDto base = basesByKey.get(metric.getKey());
       if (base == null) {
         // new metric, never installed
+        dto.setUuid(uuidFactory.create());
         dbClient.metricDao().insert(session, dto);
       } else if (!base.isUserManaged()) {
         // existing metric, update changes. Existing custom metrics are kept without applying changes.
-        dto.setId(base.getId());
+        dto.setUuid(base.getUuid());
         dbClient.metricDao().update(session, dto);
       }
       basesByKey.remove(metric.getKey());

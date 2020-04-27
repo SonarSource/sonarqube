@@ -31,7 +31,7 @@ public enum MetricToDto implements Function<Metric, MetricDto> {
   @Nonnull
   public MetricDto apply(Metric metric) {
     MetricDto dto = new MetricDto();
-    dto.setId(metric.getId());
+    dto.setUuid(metric.getUuid());
     dto.setKey(metric.getKey());
     dto.setDescription(metric.getDescription());
     dto.setShortName(metric.getName());

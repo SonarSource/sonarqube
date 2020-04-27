@@ -44,7 +44,7 @@ public class QualityGateConditionDaoTest {
 
   @Test
   public void testInsert() {
-    QualityGateConditionDto newCondition = insertQGCondition(1L, 2L, "GT", "20");
+    QualityGateConditionDto newCondition = insertQGCondition(1L, "2", "GT", "20");
 
     assertThat(newCondition.getUuid()).isNotNull();
     QualityGateConditionDto actual = underTest.selectByUuid(newCondition.getUuid(), dbSession);
@@ -83,7 +83,7 @@ public class QualityGateConditionDaoTest {
 
   @Test
   public void testSelectByUuid() {
-    QualityGateConditionDto condition = insertQGCondition(1L, 2L, "GT", "20");
+    QualityGateConditionDto condition = insertQGCondition(1L, "2", "GT", "20");
 
     assertEquals(underTest.selectByUuid(condition.getUuid(), dbSession), condition);
     assertThat(underTest.selectByUuid("uuid1", dbSession)).isNull();
@@ -109,7 +109,7 @@ public class QualityGateConditionDaoTest {
     QualityGateConditionDto newCondition1 = new QualityGateConditionDto()
       .setUuid(condition1.getUuid())
       .setQualityGateId(condition1.getQualityGateId())
-      .setMetricId(7L)
+      .setMetricUuid("7")
       .setOperator(">")
       .setErrorThreshold("80");
     underTest.update(newCondition1, dbSession);
@@ -124,9 +124,9 @@ public class QualityGateConditionDaoTest {
   public void shouldCleanConditions() {
     MetricDto enabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(true));
     MetricDto disabledMetric = dbTester.measures().insertMetric(t -> t.setEnabled(false));
-    QualityGateConditionDto condition1 = insertQGCondition(1L, enabledMetric.getId());
-    QualityGateConditionDto condition2 = insertQGCondition(1L, disabledMetric.getId());
-    QualityGateConditionDto condition3 = insertQGCondition(1L, 299);
+    QualityGateConditionDto condition1 = insertQGCondition(1L, enabledMetric.getUuid());
+    QualityGateConditionDto condition2 = insertQGCondition(1L, disabledMetric.getUuid());
+    QualityGateConditionDto condition3 = insertQGCondition(1L, "299");
 
     underTest.deleteConditionsWithInvalidMetrics(dbTester.getSession());
     dbTester.commit();
@@ -138,18 +138,18 @@ public class QualityGateConditionDaoTest {
   }
 
   private QualityGateConditionDto insertQGCondition(long qualityGateId) {
-    return insertQGCondition(qualityGateId, new Random().nextInt(100));
+    return insertQGCondition(qualityGateId, randomAlphabetic(2));
   }
 
-  private QualityGateConditionDto insertQGCondition(long qualityGateId, int metricId) {
-    return insertQGCondition(qualityGateId, metricId, randomAlphabetic(2), randomAlphabetic(3));
+  private QualityGateConditionDto insertQGCondition(long qualityGateId, String metricUuid) {
+    return insertQGCondition(qualityGateId, metricUuid, randomAlphabetic(2), randomAlphabetic(3));
   }
 
-  private QualityGateConditionDto insertQGCondition(long qualityGateId, long metricId, String operator, String threshold) {
+  private QualityGateConditionDto insertQGCondition(long qualityGateId, String metricUuid, String operator, String threshold) {
     QualityGateConditionDto res = new QualityGateConditionDto()
       .setUuid(Uuids.create())
       .setQualityGateId(qualityGateId)
-      .setMetricId(metricId)
+      .setMetricUuid(metricUuid)
       .setOperator(operator)
       .setErrorThreshold(threshold);
     underTest.insert(res, dbTester.getSession());
@@ -159,7 +159,7 @@ public class QualityGateConditionDaoTest {
 
   private void assertEquals(QualityGateConditionDto actual, QualityGateConditionDto expected) {
     assertThat(actual.getQualityGateId()).isEqualTo(expected.getQualityGateId());
-    assertThat(actual.getMetricId()).isEqualTo(expected.getMetricId());
+    assertThat(actual.getMetricUuid()).isEqualTo(expected.getMetricUuid());
     assertThat(actual.getOperator()).isEqualTo(expected.getOperator());
     assertThat(actual.getErrorThreshold()).isEqualTo(expected.getErrorThreshold());
   }

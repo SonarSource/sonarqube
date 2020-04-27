@@ -121,10 +121,10 @@ public class ComponentViewerJsonWriter {
 
   private Map<String, LiveMeasureDto> loadMeasuresGroupedByMetricKey(ComponentDto component, DbSession dbSession) {
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, METRIC_KEYS);
-    Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
+    Map<String, MetricDto> metricsByUuid = Maps.uniqueIndex(metrics, MetricDto::getUuid);
     List<LiveMeasureDto> measures = dbClient.liveMeasureDao()
-      .selectByComponentUuidsAndMetricIds(dbSession, Collections.singletonList(component.uuid()), metricsById.keySet());
-    return Maps.uniqueIndex(measures, m -> metricsById.get(m.getMetricId()).getKey());
+      .selectByComponentUuidsAndMetricUuids(dbSession, Collections.singletonList(component.uuid()), metricsByUuid.keySet());
+    return Maps.uniqueIndex(measures, m -> metricsByUuid.get(m.getMetricUuid()).getKey());
   }
 
   @CheckForNull

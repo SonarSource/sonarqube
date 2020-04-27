@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricRepositoryImplTest {
   private static final String SOME_KEY = "some_key";
-  private static final long SOME_ID = 156;
+  private static final String SOME_UUID = "uuid";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -87,8 +87,8 @@ public class MetricRepositoryImplTest {
 
     underTest.start();
 
-    assertThat(underTest.getByKey("ncloc").getId()).isEqualTo(ncloc.getId());
-    assertThat(underTest.getByKey("coverage").getId()).isEqualTo(coverage.getId());
+    assertThat(underTest.getByKey("ncloc").getUuid()).isEqualTo(ncloc.getUuid());
+    assertThat(underTest.getByKey("coverage").getUuid()).isEqualTo(coverage.getUuid());
   }
 
   @Test
@@ -96,7 +96,7 @@ public class MetricRepositoryImplTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Metric cache has not been initialized");
 
-    underTest.getById(SOME_ID);
+    underTest.getByUuid(SOME_UUID);
   }
 
   @Test
@@ -104,9 +104,9 @@ public class MetricRepositoryImplTest {
     underTest.start();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Metric with id '%s' does not exist", SOME_ID));
+    expectedException.expectMessage(String.format("Metric with uuid '%s' does not exist", SOME_UUID));
 
-    underTest.getById(SOME_ID);
+    underTest.getByUuid(SOME_UUID);
   }
 
   @Test
@@ -116,9 +116,9 @@ public class MetricRepositoryImplTest {
     underTest.start();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Metric with id '%s' does not exist", SOME_ID));
+    expectedException.expectMessage(String.format("Metric with uuid '%s' does not exist", SOME_UUID));
 
-    underTest.getById(SOME_ID);
+    underTest.getByUuid(SOME_UUID);
   }
 
   @Test
@@ -128,8 +128,8 @@ public class MetricRepositoryImplTest {
 
     underTest.start();
 
-    assertThat(underTest.getById(ncloc.getId()).getKey()).isEqualTo("ncloc");
-    assertThat(underTest.getById(coverage.getId()).getKey()).isEqualTo("coverage");
+    assertThat(underTest.getByUuid(ncloc.getUuid()).getKey()).isEqualTo("ncloc");
+    assertThat(underTest.getByUuid(coverage.getUuid()).getKey()).isEqualTo("coverage");
   }
 
   @Test
@@ -137,14 +137,14 @@ public class MetricRepositoryImplTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Metric cache has not been initialized");
 
-    underTest.getOptionalById(SOME_ID);
+    underTest.getOptionalByUuid(SOME_UUID);
   }
 
   @Test
   public void getOptionalById_returns_empty_of_Metric_does_not_exist() {
     underTest.start();
 
-    assertThat(underTest.getOptionalById(SOME_ID)).isEmpty();
+    assertThat(underTest.getOptionalByUuid(SOME_UUID)).isEmpty();
   }
 
   @Test
@@ -153,7 +153,7 @@ public class MetricRepositoryImplTest {
 
     underTest.start();
 
-    assertThat(underTest.getOptionalById(SOME_ID)).isEmpty();
+    assertThat(underTest.getOptionalByUuid(SOME_UUID)).isEmpty();
   }
 
   @Test
@@ -163,8 +163,8 @@ public class MetricRepositoryImplTest {
 
     underTest.start();
 
-    assertThat(underTest.getOptionalById(ncloc.getId()).get().getKey()).isEqualTo("ncloc");
-    assertThat(underTest.getOptionalById(coverage.getId()).get().getKey()).isEqualTo("coverage");
+    assertThat(underTest.getOptionalByUuid(ncloc.getUuid()).get().getKey()).isEqualTo("ncloc");
+    assertThat(underTest.getOptionalByUuid(coverage.getUuid()).get().getKey()).isEqualTo("coverage");
   }
 
   @Test

@@ -37,7 +37,7 @@ public class MetricDtoWithBestValue {
 
   MetricDtoWithBestValue(MetricDto metric) {
     this.metric = metric;
-    LiveMeasureDto measure = new LiveMeasureDto().setMetricId(metric.getId());
+    LiveMeasureDto measure = new LiveMeasureDto().setMetricUuid(metric.getUuid());
     boolean isNewTypeMetric = metric.getKey().toLowerCase(Locale.ENGLISH).startsWith(LOWER_CASE_NEW_METRIC_PREFIX);
     if (isNewTypeMetric) {
       measure.setVariation(metric.getBestValue());

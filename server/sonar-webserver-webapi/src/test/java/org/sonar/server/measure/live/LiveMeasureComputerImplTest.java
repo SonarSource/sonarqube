@@ -421,7 +421,7 @@ public class LiveMeasureComputerImplTest {
     LiveMeasureDto measure = db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), component.uuid(), intMetric.getKey()).get();
     assertThat(measure.getComponentUuid()).isEqualTo(component.uuid());
     assertThat(measure.getProjectUuid()).isEqualTo(component.projectUuid());
-    assertThat(measure.getMetricId()).isEqualTo(intMetric.getId());
+    assertThat(measure.getMetricUuid()).isEqualTo(intMetric.getUuid());
     assertThat(measure.getValue()).isEqualTo(expectedValue);
     return measure;
   }
@@ -430,7 +430,7 @@ public class LiveMeasureComputerImplTest {
     LiveMeasureDto measure = db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), component.uuid(), ratingMetric.getKey()).get();
     assertThat(measure.getComponentUuid()).isEqualTo(component.uuid());
     assertThat(measure.getProjectUuid()).isEqualTo(component.projectUuid());
-    assertThat(measure.getMetricId()).isEqualTo(ratingMetric.getId());
+    assertThat(measure.getMetricUuid()).isEqualTo(ratingMetric.getUuid());
     assertThat(measure.getValue()).isEqualTo(expectedRating.getIndex());
     assertThat(measure.getDataAsString()).isEqualTo(expectedRating.name());
     return measure;
@@ -440,7 +440,7 @@ public class LiveMeasureComputerImplTest {
     LiveMeasureDto measure = db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), component.uuid(), intMetric.getKey()).get();
     assertThat(measure.getComponentUuid()).isEqualTo(component.uuid());
     assertThat(measure.getProjectUuid()).isEqualTo(component.projectUuid());
-    assertThat(measure.getMetricId()).isEqualTo(intMetric.getId());
+    assertThat(measure.getMetricUuid()).isEqualTo(intMetric.getUuid());
     assertThat(measure.getValue()).isNull();
     assertThat(measure.getVariation()).isEqualTo(expectedValue);
   }
@@ -449,7 +449,7 @@ public class LiveMeasureComputerImplTest {
     LiveMeasureDto measure = db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), component.uuid(), ratingMetric.getKey()).get();
     assertThat(measure.getComponentUuid()).isEqualTo(component.uuid());
     assertThat(measure.getProjectUuid()).isEqualTo(component.projectUuid());
-    assertThat(measure.getMetricId()).isEqualTo(ratingMetric.getId());
+    assertThat(measure.getMetricUuid()).isEqualTo(ratingMetric.getUuid());
     assertThat(measure.getVariation()).isEqualTo((double) expectedValue.getIndex());
   }
 

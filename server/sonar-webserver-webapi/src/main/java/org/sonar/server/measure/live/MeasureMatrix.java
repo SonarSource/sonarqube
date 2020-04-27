@@ -54,21 +54,21 @@ class MeasureMatrix {
   private final Table<String, String, MeasureCell> table;
 
   private final Map<String, MetricDto> metricsByKeys = new HashMap<>();
-  private final Map<Integer, MetricDto> metricsByIds = new HashMap<>();
+  private final Map<String, MetricDto> metricsByUuids = new HashMap<>();
 
   MeasureMatrix(Collection<ComponentDto> components, Collection<MetricDto> metrics, List<LiveMeasureDto> dbMeasures) {
     for (MetricDto metric : metrics) {
       this.metricsByKeys.put(metric.getKey(), metric);
-      this.metricsByIds.put(metric.getId(), metric);
+      this.metricsByUuids.put(metric.getUuid(), metric);
     }
     this.table = ArrayTable.create(Collections2.transform(components, ComponentDto::uuid), metricsByKeys.keySet());
     for (LiveMeasureDto dbMeasure : dbMeasures) {
-      table.put(dbMeasure.getComponentUuid(), metricsByIds.get(dbMeasure.getMetricId()).getKey(), new MeasureCell(dbMeasure, false));
+      table.put(dbMeasure.getComponentUuid(), metricsByUuids.get(dbMeasure.getMetricUuid()).getKey(), new MeasureCell(dbMeasure, false));
     }
   }
 
-  MetricDto getMetric(int id) {
-    return requireNonNull(metricsByIds.get(id), () -> String.format("Metric with id %d not found", id));
+  MetricDto getMetricByUuid(String uuid) {
+    return requireNonNull(metricsByUuids.get(uuid), () -> String.format("Metric with uuid %s not found", uuid));
   }
 
   private MetricDto getMetric(String key) {
@@ -158,7 +158,7 @@ class MeasureMatrix {
       LiveMeasureDto measure = new LiveMeasureDto()
         .setComponentUuid(component.uuid())
         .setProjectUuid(component.projectUuid())
-        .setMetricId(metricsByKeys.get(metricKey).getId());
+        .setMetricUuid(metricsByKeys.get(metricKey).getUuid());
       cell = new MeasureCell(measure, true);
       table.put(component.uuid(), metricKey, cell);
       changer.apply(cell.getMeasure());

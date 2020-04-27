@@ -94,7 +94,7 @@ public class QualityGateConditionsUpdater {
 
     QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
       .setUuid(Uuids.create())
-      .setMetricId(metric.getId()).setMetricKey(metric.getKey())
+      .setMetricUuid(metric.getUuid()).setMetricKey(metric.getKey())
       .setOperator(operator)
       .setErrorThreshold(errorThreshold);
     dbClient.gateConditionDao().insert(newCondition, dbSession);
@@ -107,7 +107,7 @@ public class QualityGateConditionsUpdater {
     validateCondition(metric, operator, errorThreshold);
 
     condition
-      .setMetricId(metric.getId())
+      .setMetricUuid(metric.getUuid())
       .setMetricKey(metric.getKey())
       .setOperator(operator)
       .setErrorThreshold(errorThreshold);
@@ -163,7 +163,7 @@ public class QualityGateConditionsUpdater {
       return;
     }
 
-    boolean conditionExists = conditions.stream().anyMatch(c -> c.getMetricId() == metric.getId());
+    boolean conditionExists = conditions.stream().anyMatch(c -> c.getMetricUuid().equals(metric.getUuid()));
     checkRequest(!conditionExists, format("Condition on metric '%s' already exists.", metric.getShortName()));
   }
 

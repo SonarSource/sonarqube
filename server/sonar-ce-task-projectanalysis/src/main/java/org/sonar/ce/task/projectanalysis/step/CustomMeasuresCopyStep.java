@@ -69,7 +69,7 @@ public class CustomMeasuresCopyStep implements ComputationStep {
 
   private void copy(Component component, DbSession session) {
     for (CustomMeasureDto dto : loadCustomMeasures(component, session)) {
-      Metric metric = metricRepository.getById(dto.getMetricId());
+      Metric metric = metricRepository.getByUuid(dto.getMetricUuid());
       // else metric is not found and an exception is raised
       Measure measure = dtoToMeasure(dto, metric);
       measureRepository.add(component, metric, measure);

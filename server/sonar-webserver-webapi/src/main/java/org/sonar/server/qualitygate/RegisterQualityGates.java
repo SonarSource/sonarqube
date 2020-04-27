@@ -110,12 +110,12 @@ public class RegisterQualityGates implements Startable {
   }
 
   private void updateQualityConditionsIfRequired(DbSession dbSession, QualityGateDto builtin) {
-    Map<Long, String> idToKeyMetric = dbClient.metricDao().selectAll(dbSession).stream()
-      .collect(toMap(metricDto -> metricDto.getId().longValue(), MetricDto::getKey));
+    Map<String, String> uuidToKeyMetric = dbClient.metricDao().selectAll(dbSession).stream()
+      .collect(toMap(MetricDto::getUuid, MetricDto::getKey));
 
     List<QualityGateCondition> qualityGateConditions = qualityGateConditionDao.selectForQualityGate(dbSession, builtin.getId())
       .stream()
-      .map(dto -> QualityGateCondition.from(dto, idToKeyMetric))
+      .map(dto -> QualityGateCondition.from(dto, uuidToKeyMetric))
       .collect(MoreCollectors.toList());
 
     // Find all conditions that are not present in QUALITY_GATE_CONDITIONS
@@ -158,10 +158,10 @@ public class RegisterQualityGates implements Startable {
     private String operator;
     private String errorThreshold;
 
-    public static QualityGateCondition from(QualityGateConditionDto qualityGateConditionDto, Map<Long, String> mapping) {
+    public static QualityGateCondition from(QualityGateConditionDto qualityGateConditionDto, Map<String, String> mapping) {
       return new QualityGateCondition()
         .setUuid(qualityGateConditionDto.getUuid())
-        .setMetricKey(mapping.get(qualityGateConditionDto.getMetricId()))
+        .setMetricKey(mapping.get(qualityGateConditionDto.getMetricUuid()))
         .setOperator(qualityGateConditionDto.getOperator())
         .setErrorThreshold(qualityGateConditionDto.getErrorThreshold());
     }

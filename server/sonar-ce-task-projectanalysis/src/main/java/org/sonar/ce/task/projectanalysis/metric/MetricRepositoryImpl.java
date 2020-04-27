@@ -37,7 +37,7 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
   @CheckForNull
   private Map<String, Metric> metricsByKey;
   @CheckForNull
-  private Map<Long, Metric> metricsById;
+  private Map<String, Metric> metricsByUuid;
 
   public MetricRepositoryImpl(DbClient dbClient) {
     this.dbClient = dbClient;
@@ -48,7 +48,7 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<MetricDto> metricList = dbClient.metricDao().selectEnabled(dbSession);
       this.metricsByKey = metricList.stream().map(MetricDtoToMetric.INSTANCE).collect(Collectors.toMap(Metric::getKey, x -> x));
-      this.metricsById = metricList.stream().map(MetricDtoToMetric.INSTANCE).collect(Collectors.toMap(m -> (long) m.getId(), x -> x));
+      this.metricsByUuid = metricList.stream().map(MetricDtoToMetric.INSTANCE).collect(Collectors.toMap(Metric::getUuid, x -> x));
     }
   }
 
@@ -70,16 +70,16 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
   }
 
   @Override
-  public Metric getById(long id) {
-    return getOptionalById(id)
-      .orElseThrow(() -> new IllegalStateException(String.format("Metric with id '%s' does not exist", id)));
+  public Metric getByUuid(String uuid) {
+    return getOptionalByUuid(uuid)
+      .orElseThrow(() -> new IllegalStateException(String.format("Metric with uuid '%s' does not exist", uuid)));
   }
 
   @Override
-  public Optional<Metric> getOptionalById(long id) {
+  public Optional<Metric> getOptionalByUuid(String uuid) {
     verifyMetricsInitialized();
 
-    return Optional.ofNullable(this.metricsById.get(id));
+    return Optional.ofNullable(this.metricsByUuid.get(uuid));
   }
 
   @Override

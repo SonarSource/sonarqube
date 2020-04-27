@@ -157,7 +157,7 @@ public class MapBasedRawMeasureRepositoryTest {
   @Test
   public void add_accepts_NO_VALUE_as_measure_arg() {
     for (Metric.MetricType metricType : Metric.MetricType.values()) {
-      underTest.add(FILE_COMPONENT, new MetricImpl(1, "key" + metricType, "name" + metricType, metricType), Measure.newMeasureBuilder().createNoValue());
+      underTest.add(FILE_COMPONENT, new MetricImpl("1", "key" + metricType, "name" + metricType, metricType), Measure.newMeasureBuilder().createNoValue());
     }
   }
 
@@ -170,7 +170,7 @@ public class MapBasedRawMeasureRepositoryTest {
       }
 
       try {
-        final MetricImpl metric = new MetricImpl(1, "key" + metricType, "name" + metricType, metricType);
+        final MetricImpl metric = new MetricImpl("1", "key" + metricType, "name" + metricType, metricType);
         underTest.add(FILE_COMPONENT, metric, getSomeMeasureByValueType(metricType));
         underTest.update(FILE_COMPONENT, metric, measure);
         fail("An IllegalArgumentException should have been raised");
@@ -185,7 +185,7 @@ public class MapBasedRawMeasureRepositoryTest {
   @Test
   public void update_accepts_NO_VALUE_as_measure_arg() {
     for (Metric.MetricType metricType : Metric.MetricType.values()) {
-      MetricImpl metric = new MetricImpl(1, "key" + metricType, "name" + metricType, metricType);
+      MetricImpl metric = new MetricImpl("1", "key" + metricType, "name" + metricType, metricType);
       underTest.add(FILE_COMPONENT, metric, getSomeMeasureByValueType(metricType));
       underTest.update(FILE_COMPONENT, metric, Measure.newMeasureBuilder().createNoValue());
     }

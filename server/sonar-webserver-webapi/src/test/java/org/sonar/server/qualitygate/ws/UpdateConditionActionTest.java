@@ -182,7 +182,9 @@ public class UpdateConditionActionTest {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
     MetricDto metric = insertMetric();
-    QualityGateConditionDto condition = new QualityGateConditionDto().setUuid("uuid").setQualityGateId(123L);
+    QualityGateConditionDto condition = new QualityGateConditionDto().setUuid("uuid")
+      .setMetricUuid("metric")
+      .setQualityGateId(123L);
     db.getDbClient().gateConditionDao().insert(condition, dbSession);
     db.commit();
 
@@ -288,9 +290,9 @@ public class UpdateConditionActionTest {
 
   private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, String error) {
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
-      .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
+      .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricUuid, QualityGateConditionDto::getOperator,
         QualityGateConditionDto::getErrorThreshold)
-      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, error));
+      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getUuid(), operator, error));
   }
 
   private MetricDto insertMetric() {

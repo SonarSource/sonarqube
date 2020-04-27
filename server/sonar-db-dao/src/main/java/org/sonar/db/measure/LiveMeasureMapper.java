@@ -29,9 +29,9 @@ import org.sonar.db.component.KeyType;
 
 public interface LiveMeasureMapper {
 
-  List<LiveMeasureDto> selectByComponentUuidsAndMetricIds(
+  List<LiveMeasureDto> selectByComponentUuidsAndMetricUuids(
     @Param("componentUuids") Collection<String> componentUuids,
-    @Param("metricIds") Collection<Integer> metricIds);
+    @Param("metricUuids") Collection<String> metricUuids);
 
   List<LiveMeasureDto> selectByComponentUuidsAndMetricKeys(
     @Param("componentUuids") Collection<String> componentUuids,
@@ -77,9 +77,9 @@ public interface LiveMeasureMapper {
     @Param("dto") LiveMeasureDto dto,
     @Param("now") long now);
 
-  void deleteByComponentUuidExcludingMetricIds(
+  void deleteByComponentUuidExcludingMetricUuids(
     @Param("componentUuid") String componentUuid,
-    @Param("excludedMetricIds") List<Integer> excludedMetricIds);
+    @Param("excludedMetricUuids") List<String> excludedMetricUuids);
 
   void deleteByComponent(@Param("componentUuid") String componentUuid);
 

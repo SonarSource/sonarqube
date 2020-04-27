@@ -37,7 +37,7 @@ import org.sonar.api.server.ServerSide;
 public interface MetricFinder {
 
   @CheckForNull
-  Metric findById(int id);
+  Metric findByUuid(String uuid);
 
   @CheckForNull
   Metric findByKey(String key);

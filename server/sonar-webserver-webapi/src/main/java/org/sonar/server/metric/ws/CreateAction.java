@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.custom.CustomMeasureDto;
@@ -57,10 +58,12 @@ public class CreateAction implements MetricsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final UuidFactory uuidFactory;
 
-  public CreateAction(DbClient dbClient, UserSession userSession) {
+  public CreateAction(DbClient dbClient, UserSession userSession, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
@@ -157,6 +160,7 @@ public class CreateAction implements MetricsWsAction {
 
   private MetricDto insertNewMetric(DbSession dbSession, MetricDto metricTemplate) {
     MetricDto metric = new MetricDto()
+      .setUuid(uuidFactory.create())
       .setKey(metricTemplate.getKey())
       .setShortName(metricTemplate.getShortName())
       .setValueType(metricTemplate.getValueType())
@@ -183,7 +187,7 @@ public class CreateAction implements MetricsWsAction {
     checkRequest(!isMetricEnabled(metricInDb), "An active metric already exist with key: " + metricInDb.getKey());
     checkRequest(!isMetricNonCustom(metricInDb), "An non custom metric already exist with key: %s", metricInDb.getKey());
     if (hasMetricTypeChanged(metricInDb, template)) {
-      List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metricInDb.getId());
+      List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricUuid(dbSession, metricInDb.getUuid());
       checkRequest(!hasAssociatedCustomMeasures(customMeasures), "You're trying to change the type '%s' while there are associated measures.", metricInDb.getValueType());
     }
   }
@@ -214,7 +218,7 @@ public class CreateAction implements MetricsWsAction {
 
   private static void writeMetric(JsonWriter json, MetricDto metric) {
     json.beginObject();
-    json.prop(FIELD_ID, metric.getId().toString());
+    json.prop(FIELD_ID, metric.getUuid());
     json.prop(FIELD_KEY, metric.getKey());
     json.prop(FIELD_NAME, metric.getShortName());
     json.prop(FIELD_TYPE, metric.getValueType());

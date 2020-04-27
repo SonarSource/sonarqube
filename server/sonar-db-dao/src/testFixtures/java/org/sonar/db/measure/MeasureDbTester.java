@@ -69,7 +69,7 @@ public class MeasureDbTester {
     Preconditions.checkArgument(metricDto.isUserManaged(),"Custom measure must be created from a custom metric");
     CustomMeasureDto dto = newCustomMeasureDto()
       .setComponentUuid(component.uuid())
-      .setMetricId(metricDto.getId());
+      .setMetricUuid(metricDto.getUuid());
     if (user != null) {
       dto.setUserUuid(user.getUuid());
     }

@@ -63,7 +63,7 @@ public class DefaultMetricsRepositoryLoader implements MetricsRepositoryLoader {
             .setQualitative(metric.isQualitative())
             .setUserManaged(metric.isCustom())
             .setDescription(metric.getDescription())
-            .setId(metric.getId()));
+            .setUuid(metric.getUuid()));
         }
       }
       page++;
@@ -71,7 +71,7 @@ public class DefaultMetricsRepositoryLoader implements MetricsRepositoryLoader {
   }
 
   private static class WsMetric {
-    private int id;
+    private String uuid;
     private String key;
     private String type;
     private String name;
@@ -80,8 +80,8 @@ public class DefaultMetricsRepositoryLoader implements MetricsRepositoryLoader {
     private boolean qualitative;
     private boolean custom;
 
-    public int getId() {
-      return id;
+    public String getUuid() {
+      return uuid;
     }
 
     public String getKey() {

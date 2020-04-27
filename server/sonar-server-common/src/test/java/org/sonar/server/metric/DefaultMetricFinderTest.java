@@ -66,7 +66,7 @@ public class DefaultMetricFinderTest {
     MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
     db.commit();
 
-    assertThat(underTest.findById(firstMetric.getId())).extracting(Metric::getKey).isEqualTo(firstMetric.getKey());
+    assertThat(underTest.findByUuid(firstMetric.getUuid())).extracting(Metric::getKey).isEqualTo(firstMetric.getKey());
   }
 
   @Test

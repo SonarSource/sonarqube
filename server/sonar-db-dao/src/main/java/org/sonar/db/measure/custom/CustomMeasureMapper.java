@@ -30,11 +30,11 @@ public interface CustomMeasureMapper {
 
   void delete(String uuid);
 
-  void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
+  void deleteByMetricUuids(@Param("metricUuids") List<String> metricUuids);
 
   CustomMeasureDto selectByUuid(String uuid);
 
-  List<CustomMeasureDto> selectByMetricId(int id);
+  List<CustomMeasureDto> selectByMetricUuid(String uuid);
 
   List<CustomMeasureDto> selectByComponentUuid(String s);
 
@@ -44,5 +44,5 @@ public interface CustomMeasureMapper {
 
   int countByComponentUuid(String componentUuid);
 
-  int countByComponentIdAndMetricId(@Param("componentUuid") String componentUuid, @Param("metricId") int metricId);
+  int countByComponentIdAndMetricUuid(@Param("componentUuid") String componentUuid, @Param("metricUuid") String metricUuid);
 }

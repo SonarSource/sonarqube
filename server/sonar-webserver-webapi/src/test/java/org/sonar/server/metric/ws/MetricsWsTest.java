@@ -21,6 +21,8 @@ package org.sonar.server.metric.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.server.user.UserSession;
 
@@ -31,9 +33,10 @@ public class MetricsWsTest {
 
   private DbClient dbClient = mock(DbClient.class);
   private UserSession userSession = mock(UserSession.class);
+  private UuidFactory uuidFactory = new SequenceUuidFactory();
   private MetricsWs underTest = new MetricsWs(
       new SearchAction(dbClient),
-      new CreateAction(dbClient, userSession),
+      new CreateAction(dbClient, userSession, uuidFactory),
       new UpdateAction(dbClient, userSession),
       new DeleteAction(dbClient, userSession),
       new TypesAction(),

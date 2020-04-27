@@ -41,7 +41,7 @@ public class MetricDtoToMetricTest {
       MetricDto metricDto = createMetricDto(metricType);
       Metric metric = underTest.apply(metricDto);
 
-      assertThat(metric.getId()).isEqualTo(metricDto.getId());
+      assertThat(metric.getUuid()).isEqualTo(metricDto.getUuid());
       assertThat(metric.getKey()).isEqualTo(metricDto.getKey());
       assertThat(metric.getName()).isEqualTo(metricDto.getShortName());
       assertThat(metric.getType()).isEqualTo(metricType);
@@ -59,12 +59,12 @@ public class MetricDtoToMetricTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void apply_throws_IAE_if_valueType_can_not_be_parsed() {
-    underTest.apply(new MetricDto().setId(1).setKey("key").setValueType("trololo"));
+    underTest.apply(new MetricDto().setUuid("1").setKey("key").setValueType("trololo"));
   }
 
   private static MetricDto createMetricDto(Metric.MetricType metricType) {
     return new MetricDto()
-      .setId(metricType.name().hashCode())
+      .setUuid(metricType.name())
       .setKey(metricType.name() + "_key")
       .setShortName(metricType.name() + "_name")
       .setValueType(metricType.name())

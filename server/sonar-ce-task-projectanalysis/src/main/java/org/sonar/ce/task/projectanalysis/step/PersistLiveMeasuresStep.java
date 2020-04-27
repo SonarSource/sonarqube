@@ -103,7 +103,7 @@ public class PersistLiveMeasuresStep implements ComputationStep {
 
     @Override
     public void visitAny(Component component) {
-      List<Integer> metricIds = new ArrayList<>();
+      List<String> metricUuids = new ArrayList<>();
       Map<String, Measure> measures = measureRepository.getRawMeasures(component);
       List<LiveMeasureDto> dtos = new ArrayList<>();
       for (Map.Entry<String, Measure> measuresByMetricKey : measures.entrySet()) {
@@ -120,7 +120,7 @@ public class PersistLiveMeasuresStep implements ComputationStep {
 
         LiveMeasureDto lm = measureToMeasureDto.toLiveMeasureDto(m, metric, component);
         dtos.add(lm);
-        metricIds.add(metric.getId());
+        metricUuids.add(metric.getUuid());
       }
 
       if (supportUpsert) {
@@ -130,7 +130,7 @@ public class PersistLiveMeasuresStep implements ComputationStep {
         // The measures that no longer exist on the component must be deleted, for example
         // when the coverage on a file goes to the "best value" 100%.
         // The measures on deleted components are deleted by the step PurgeDatastoresStep
-        dbClient.liveMeasureDao().deleteByComponentUuidExcludingMetricIds(dbSession, component.getUuid(), metricIds);
+        dbClient.liveMeasureDao().deleteByComponentUuidExcludingMetricUuids(dbSession, component.getUuid(), metricUuids);
       } else {
         dbClient.liveMeasureDao().deleteByComponent(dbSession, component.getUuid());
         dtos.forEach(dto -> dbClient.liveMeasureDao().insert(dbSession, dto));

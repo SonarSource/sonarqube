@@ -22,6 +22,7 @@ package org.sonar.db.measure.custom;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 
 public class CustomMeasureTesting {
   private CustomMeasureTesting() {
@@ -30,11 +31,12 @@ public class CustomMeasureTesting {
 
   public static CustomMeasureDto newCustomMeasureDto() {
     return new CustomMeasureDto()
+      .setUuid(Uuids.createFast())
       .setDescription(RandomStringUtils.randomAlphanumeric(255))
       .setTextValue(RandomStringUtils.randomAlphanumeric(255))
       .setUserUuid("userUuid" + RandomStringUtils.randomAlphanumeric(100))
       .setValue(RandomUtils.nextDouble())
-      .setMetricId(RandomUtils.nextInt())
+      .setMetricUuid(RandomStringUtils.randomAlphanumeric(40))
       .setComponentUuid(RandomStringUtils.randomAlphanumeric(50))
       .setCreatedAt(System2.INSTANCE.now())
       .setUpdatedAt(System2.INSTANCE.now());

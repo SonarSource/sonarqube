@@ -45,13 +45,13 @@ public class QualityGateServiceImplTest {
   private static final long SOME_ID = 123;
   private static final String SOME_NAME = "some name";
   private static final QualityGateDto QUALITY_GATE_DTO = new QualityGateDto().setId(SOME_ID).setName(SOME_NAME);
-  private static final long METRIC_ID_1 = 951;
-  private static final long METRIC_ID_2 = 753;
+  private static final String METRIC_UUID_1 = "uuid1";
+  private static final String METRIC_UUID_2 = "uuid2";
   private static final Metric METRIC_1 = mock(Metric.class);
   private static final Metric METRIC_2 = mock(Metric.class);
-  private static final QualityGateConditionDto CONDITION_1 = new QualityGateConditionDto().setUuid("321").setMetricId(METRIC_ID_1).setOperator("LT")
+  private static final QualityGateConditionDto CONDITION_1 = new QualityGateConditionDto().setUuid("321").setMetricUuid(METRIC_UUID_1).setOperator("LT")
     .setErrorThreshold("error_th");
-  private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setUuid("456").setMetricId(METRIC_ID_2).setOperator("GT")
+  private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setUuid("456").setMetricUuid(METRIC_UUID_2).setOperator("GT")
     .setErrorThreshold("error_th");
 
   private QualityGateDao qualityGateDao = mock(QualityGateDao.class);
@@ -92,8 +92,8 @@ public class QualityGateServiceImplTest {
     when(qualityGateDao.selectById(any(), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
     when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     // metrics are always supposed to be there
-    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.of(METRIC_1));
-    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));
+    when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.of(METRIC_1));
+    when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
 
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 
@@ -110,8 +110,8 @@ public class QualityGateServiceImplTest {
     when(qualityGateDao.selectById(any(), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
     when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     // metrics are always supposed to be there
-    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.empty());
-    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));
+    when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
+    when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
 
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 
@@ -136,8 +136,8 @@ public class QualityGateServiceImplTest {
     qGateWithOrgDto.setName(QUALITY_GATE_DTO.getName());
     when(qualityGateDao.selectByOrganizationAndUuid(any(), any(), any())).thenReturn(qGateWithOrgDto);
     when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
-    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.empty());
-    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));
+    when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
+    when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
 
     QualityGate result = underTest.findDefaultQualityGate(mock(Organization.class));
 
@@ -161,8 +161,8 @@ public class QualityGateServiceImplTest {
     qGateWithOrgDto.setName(QUALITY_GATE_DTO.getName());
     when(qualityGateDao.selectByProjectUuid(any(), any())).thenReturn(qGateWithOrgDto);
     when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
-    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.empty());
-    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));
+    when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
+    when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
 
     Optional<QualityGate> result = underTest.findQualityGate(mock(Project.class));
 
