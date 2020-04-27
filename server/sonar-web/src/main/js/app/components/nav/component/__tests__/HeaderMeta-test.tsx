@@ -30,6 +30,13 @@ it('should render correctly for a branch', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should render correctly for a main project branch', () => {
+  const wrapper = shallowRender({
+    branchLike: mockBranch({ isMain: true })
+  });
+  expect(wrapper).toMatchSnapshot();
+});
+
 it('should render correctly for a portfolio', () => {
   const wrapper = shallowRender({
     component: mockComponent({ key: 'foo', qualifier: ComponentQualifier.Portfolio })

@@ -43,6 +43,49 @@ exports[`should render correctly for a branch 1`] = `
 </Fragment>
 `;
 
+exports[`should render correctly for a main project branch 1`] = `
+<Fragment>
+  <div
+    className="display-flex-center flex-0 small"
+  >
+    <span
+      className="header-meta-warnings"
+    >
+      <ComponentNavWarnings
+        warnings={
+          Array [
+            "ERROR_1",
+            "ERROR_2",
+          ]
+        }
+      />
+    </span>
+    <span
+      className="spacer-left nowrap note"
+    >
+      <DateTimeFormatter
+        date="2017-01-02T00:00:00.000Z"
+      />
+    </span>
+    <span
+      className="spacer-left nowrap note"
+    >
+      version 0.0.1
+    </span>
+    <Connect(HomePageSelect)
+      className="spacer-left"
+      currentPage={
+        Object {
+          "branch": undefined,
+          "component": "my-project",
+          "type": "PROJECT",
+        }
+      }
+    />
+  </div>
+</Fragment>
+`;
+
 exports[`should render correctly for a portfolio 1`] = `
 <Fragment>
   <div

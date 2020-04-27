@@ -90,6 +90,8 @@ export function HeaderMeta(props: HeaderMetaProps) {
 export function getCurrentPage(component: T.Component, branchLike: BranchLike | undefined) {
   let currentPage: T.HomePage | undefined;
 
+  const branch = isBranch(branchLike) && !branchLike.isMain ? branchLike.name : undefined;
+
   switch (component.qualifier) {
     case ComponentQualifier.Portfolio:
     case ComponentQualifier.SubPortfolio:
@@ -99,7 +101,7 @@ export function getCurrentPage(component: T.Component, branchLike: BranchLike | 
       currentPage = {
         type: 'APPLICATION',
         component: component.key,
-        branch: isBranch(branchLike) ? branchLike.name : undefined
+        branch
       };
       break;
     case ComponentQualifier.Project:
@@ -107,7 +109,7 @@ export function getCurrentPage(component: T.Component, branchLike: BranchLike | 
       currentPage = {
         type: 'PROJECT',
         component: component.key,
-        branch: isBranch(branchLike) ? branchLike.name : undefined
+        branch
       };
       break;
   }
