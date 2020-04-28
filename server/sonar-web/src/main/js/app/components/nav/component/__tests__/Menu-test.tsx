@@ -25,18 +25,17 @@ import {
   mockMainBranch,
   mockPullRequest
 } from '../../../../../helpers/mocks/branch-like';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
 import { Menu } from '../Menu';
 
 const mainBranch = mockMainBranch();
 
-const baseComponent = {
-  breadcrumbs: [],
+const baseComponent = mockComponent({
+  analysisDate: '2019-12-01',
   key: 'foo',
-  name: 'foo',
-  organization: 'org',
-  qualifier: 'TRK'
-};
+  name: 'foo'
+});
 
 it('should work with extensions', () => {
   const component = {
@@ -137,12 +136,26 @@ it('should work for all qualifiers', () => {
   }
 });
 
+it('should disable links if no analysis has been done', () => {
+  expect(
+    shallowRender({
+      component: {
+        ...baseComponent,
+        analysisDate: undefined
+      }
+    })
+  ).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<Menu['props']>) {
   return shallow<Menu>(
     <Menu
       appState={{ branchesEnabled: true }}
       branchLike={mainBranch}
+      branchLikes={[mainBranch]}
       component={baseComponent}
+      isInProgress={false}
+      isPending={false}
       onToggleProjectInfo={jest.fn()}
       {...props}
     />

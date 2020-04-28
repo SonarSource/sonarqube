@@ -19,8 +19,9 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router';
+import { Link, LinkProps } from 'react-router';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import BulletListIcon from 'sonar-ui-common/components/icons/BulletListIcon';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
@@ -28,7 +29,7 @@ import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
 import { withAppState } from '../../../../components/hoc/withAppState';
 import { getBranchLikeQuery, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { isSonarCloud } from '../../../../helpers/system';
-import { BranchLike } from '../../../../types/branch-like';
+import { BranchLike, BranchParameters } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
 import './Menu.css';
 
@@ -52,66 +53,101 @@ const SETTINGS_URLS = [
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled'>;
   branchLike: BranchLike | undefined;
+  branchLikes: BranchLike[] | undefined;
   component: T.Component;
+  isInProgress?: boolean;
+  isPending?: boolean;
   onToggleProjectInfo: () => void;
 }
 
+type Query = BranchParameters & { id: string };
+
+function MenuLink({
+  hasAnalysis,
+  label,
+  ...props
+}: LinkProps & { hasAnalysis: boolean; label: React.ReactNode }) {
+  return hasAnalysis ? (
+    <Link {...props}>{label}</Link>
+  ) : (
+    <Tooltip overlay={translate('layout.must_be_configured')}>
+      <a aria-disabled="true" className="disabled-link">
+        {label}
+      </a>
+    </Tooltip>
+  );
+}
+
 export class Menu extends React.PureComponent<Props> {
-  isProject() {
+  hasAnalysis = () => {
+    const { branchLikes = [], component, isInProgress, isPending } = this.props;
+    const hasBranches = branchLikes.length > 1;
+    return hasBranches || isInProgress || isPending || component.analysisDate !== undefined;
+  };
+
+  isProject = () => {
     return this.props.component.qualifier === ComponentQualifier.Project;
-  }
+  };
 
-  isDeveloper() {
+  isDeveloper = () => {
     return this.props.component.qualifier === ComponentQualifier.Developper;
-  }
+  };
 
-  isPortfolio() {
+  isPortfolio = () => {
     const { qualifier } = this.props.component;
     return (
       qualifier === ComponentQualifier.Portfolio || qualifier === ComponentQualifier.SubPortfolio
     );
-  }
+  };
 
-  isApplication() {
+  isApplication = () => {
     return this.props.component.qualifier === ComponentQualifier.Application;
-  }
+  };
 
-  getConfiguration() {
+  getConfiguration = () => {
     return this.props.component.configuration || {};
-  }
+  };
 
-  getQuery = () => {
+  getQuery = (): Query => {
     return { id: this.props.component.key, ...getBranchLikeQuery(this.props.branchLike) };
   };
 
-  renderDashboardLink() {
-    const pathname = this.isPortfolio() ? '/portfolio' : '/dashboard';
+  renderDashboardLink = (query: Query, isPortfolio: boolean) => {
+    const pathname = isPortfolio ? '/portfolio' : '/dashboard';
     return (
       <li>
-        <Link activeClassName="active" to={{ pathname, query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname, query }}>
           {translate('overview.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderCodeLink() {
+  renderCodeLink = (
+    hasAnalysis: boolean,
+    query: Query,
+    isApplication: boolean,
+    isPortfolio: boolean
+  ) => {
     if (this.isDeveloper()) {
       return null;
     }
 
     return (
       <li>
-        <Link activeClassName="active" to={{ pathname: '/code', query: this.getQuery() }}>
-          {this.isPortfolio() || this.isApplication()
-            ? translate('view_projects.page')
-            : translate('code.page')}
-        </Link>
+        <MenuLink
+          activeClassName="active"
+          hasAnalysis={hasAnalysis}
+          label={
+            isPortfolio || isApplication ? translate('view_projects.page') : translate('code.page')
+          }
+          to={{ pathname: '/code', query }}
+        />
       </li>
     );
-  }
+  };
 
-  renderActivityLink() {
+  renderActivityLink = (hasAnalysis: boolean, query: Query) => {
     const { branchLike } = this.props;
 
     if (isPullRequest(branchLike)) {
@@ -120,54 +156,58 @@ export class Menu extends React.PureComponent<Props> {
 
     return (
       <li>
-        <Link
+        <MenuLink
           activeClassName="active"
-          to={{ pathname: '/project/activity', query: this.getQuery() }}>
-          {translate('project_activity.page')}
-        </Link>
+          hasAnalysis={hasAnalysis}
+          label={translate('project_activity.page')}
+          to={{ pathname: '/project/activity', query }}
+        />
       </li>
     );
-  }
+  };
 
-  renderIssuesLink() {
+  renderIssuesLink = (hasAnalysis: boolean, query: Query) => {
     return (
       <li>
-        <Link
+        <MenuLink
           activeClassName="active"
-          to={{ pathname: '/project/issues', query: { ...this.getQuery(), resolved: 'false' } }}>
-          {translate('issues.page')}
-        </Link>
+          hasAnalysis={hasAnalysis}
+          label={translate('issues.page')}
+          to={{ pathname: '/project/issues', query: { ...query, resolved: 'false' } }}
+        />
       </li>
     );
-  }
+  };
 
-  renderComponentMeasuresLink() {
+  renderComponentMeasuresLink = (hasAnalysis: boolean, query: Query) => {
     return (
       <li>
-        <Link
+        <MenuLink
           activeClassName="active"
-          to={{ pathname: '/component_measures', query: this.getQuery() }}>
-          {translate('layout.measures')}
-        </Link>
+          hasAnalysis={hasAnalysis}
+          label={translate('layout.measures')}
+          to={{ pathname: '/component_measures', query }}
+        />
       </li>
     );
-  }
+  };
 
-  renderSecurityHotspotsLink() {
+  renderSecurityHotspotsLink = (hasAnalysis: boolean, query: Query, isPortfolio: boolean) => {
     return (
-      !this.isPortfolio() && (
+      !isPortfolio && (
         <li>
-          <Link
+          <MenuLink
             activeClassName="active"
-            to={{ pathname: '/security_hotspots', query: this.getQuery() }}>
-            {translate('layout.security_hotspots')}
-          </Link>
+            hasAnalysis={hasAnalysis}
+            label={translate('layout.security_hotspots')}
+            to={{ pathname: '/security_hotspots', query }}
+          />
         </li>
       )
     );
-  }
+  };
 
-  renderSecurityReports() {
+  renderSecurityReports = (hasAnalysis: boolean, query: Query) => {
     const { branchLike, component } = this.props;
     const { extensions = [] } = component;
 
@@ -185,19 +225,25 @@ export class Menu extends React.PureComponent<Props> {
 
     return (
       <li>
-        <Link
+        <MenuLink
           activeClassName="active"
+          hasAnalysis={hasAnalysis}
+          label={translate('layout.security_reports')}
           to={{
             pathname: '/project/extension/securityreport/securityreport',
-            query: this.getQuery()
-          }}>
-          {translate('layout.security_reports')}
-        </Link>
+            query
+          }}
+        />
       </li>
     );
-  }
+  };
 
-  renderAdministration() {
+  renderAdministration = (
+    query: Query,
+    isProject: boolean,
+    isApplication: boolean,
+    isPortfolio: boolean
+  ) => {
     const { branchLike, component } = this.props;
 
     if (!this.getConfiguration().showSettings || isPullRequest(branchLike)) {
@@ -206,7 +252,7 @@ export class Menu extends React.PureComponent<Props> {
 
     const isSettingsActive = SETTINGS_URLS.some(url => window.location.href.indexOf(url) !== -1);
 
-    const adminLinks = this.renderAdministrationLinks();
+    const adminLinks = this.renderAdministrationLinks(query, isProject, isApplication, isPortfolio);
     if (!adminLinks.some(link => link != null)) {
       return null;
     }
@@ -232,33 +278,38 @@ export class Menu extends React.PureComponent<Props> {
         )}
       </Dropdown>
     );
-  }
+  };
 
-  renderAdministrationLinks() {
+  renderAdministrationLinks = (
+    query: Query,
+    isProject: boolean,
+    isApplication: boolean,
+    isPortfolio: boolean
+  ) => {
     return [
-      this.renderSettingsLink(),
-      this.renderBranchesLink(),
-      this.renderBaselineLink(),
-      this.renderProfilesLink(),
-      this.renderQualityGateLink(),
-      this.renderCustomMeasuresLink(),
-      this.renderLinksLink(),
-      this.renderPermissionsLink(),
-      this.renderBackgroundTasksLink(),
-      this.renderUpdateKeyLink(),
-      this.renderWebhooksLink(),
-      ...this.renderAdminExtensions(),
-      this.renderDeletionLink()
+      this.renderSettingsLink(query, isApplication, isPortfolio),
+      this.renderBranchesLink(query, isProject),
+      this.renderBaselineLink(query, isApplication, isPortfolio),
+      this.renderProfilesLink(query),
+      this.renderQualityGateLink(query),
+      this.renderCustomMeasuresLink(query),
+      this.renderLinksLink(query),
+      this.renderPermissionsLink(query),
+      this.renderBackgroundTasksLink(query),
+      this.renderUpdateKeyLink(query),
+      this.renderWebhooksLink(query, isProject),
+      ...this.renderAdminExtensions(query),
+      this.renderDeletionLink(query)
     ];
-  }
+  };
 
-  renderProjectInformationButton() {
+  renderProjectInformationButton = (isProject: boolean, isApplication: boolean) => {
     if (isPullRequest(this.props.branchLike)) {
       return null;
     }
 
     return (
-      (this.isProject() || this.isApplication()) && (
+      (isProject || isApplication) && (
         <li>
           <a
             className="menu-button"
@@ -270,32 +321,30 @@ export class Menu extends React.PureComponent<Props> {
             role="button"
             tabIndex={0}>
             <BulletListIcon className="little-spacer-right" />
-            {translate(this.isProject() ? 'project' : 'application', 'info.title')}
+            {translate(isProject ? 'project' : 'application', 'info.title')}
           </a>
         </li>
       )
     );
-  }
+  };
 
-  renderSettingsLink() {
-    if (!this.getConfiguration().showSettings || this.isApplication() || this.isPortfolio()) {
+  renderSettingsLink = (query: Query, isApplication: boolean, isPortfolio: boolean) => {
+    if (!this.getConfiguration().showSettings || isApplication || isPortfolio) {
       return null;
     }
     return (
       <li key="settings">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/settings', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/settings', query }}>
           {translate('project_settings.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderBranchesLink() {
+  renderBranchesLink = (query: Query, isProject: boolean) => {
     if (
       !this.props.appState.branchesEnabled ||
-      !this.isProject() ||
+      !isProject ||
       !this.getConfiguration().showSettings
     ) {
       return null;
@@ -303,145 +352,131 @@ export class Menu extends React.PureComponent<Props> {
 
     return (
       <li key="branches">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/branches', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/branches', query }}>
           {translate('project_branch_pull_request.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderBaselineLink() {
-    if (!this.getConfiguration().showSettings || this.isApplication() || this.isPortfolio()) {
+  renderBaselineLink = (query: Query, isApplication: boolean, isPortfolio: boolean) => {
+    if (!this.getConfiguration().showSettings || isApplication || isPortfolio) {
       return null;
     }
     return (
       <li key="baseline">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/baseline', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/baseline', query }}>
           {translate('project_baseline.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderProfilesLink() {
+  renderProfilesLink = (query: Query) => {
     if (!this.getConfiguration().showQualityProfiles) {
       return null;
     }
     return (
       <li key="profiles">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/quality_profiles', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/quality_profiles', query }}>
           {translate('project_quality_profiles.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderQualityGateLink() {
+  renderQualityGateLink = (query: Query) => {
     if (!this.getConfiguration().showQualityGates) {
       return null;
     }
     return (
       <li key="quality_gate">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/quality_gate', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/quality_gate', query }}>
           {translate('project_quality_gate.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderCustomMeasuresLink() {
+  renderCustomMeasuresLink = (query: Query) => {
     if (isSonarCloud() || !this.getConfiguration().showManualMeasures) {
       return null;
     }
     return (
       <li key="custom_measures">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/custom_measures', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/custom_measures', query }}>
           {translate('custom_measures.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderLinksLink() {
+  renderLinksLink = (query: Query) => {
     if (!this.getConfiguration().showLinks) {
       return null;
     }
     return (
       <li key="links">
-        <Link activeClassName="active" to={{ pathname: '/project/links', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/links', query }}>
           {translate('project_links.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderPermissionsLink() {
+  renderPermissionsLink = (query: Query) => {
     if (!this.getConfiguration().showPermissions) {
       return null;
     }
     return (
       <li key="permissions">
-        <Link activeClassName="active" to={{ pathname: '/project_roles', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project_roles', query }}>
           {translate('permissions.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderBackgroundTasksLink() {
+  renderBackgroundTasksLink = (query: Query) => {
     if (!this.getConfiguration().showBackgroundTasks) {
       return null;
     }
     return (
       <li key="background_tasks">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/background_tasks', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/background_tasks', query }}>
           {translate('background_tasks.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderUpdateKeyLink() {
+  renderUpdateKeyLink = (query: Query) => {
     if (!this.getConfiguration().showUpdateKey) {
       return null;
     }
     return (
       <li key="update_key">
-        <Link activeClassName="active" to={{ pathname: '/project/key', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/key', query }}>
           {translate('update_key.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderWebhooksLink() {
-    if (!this.getConfiguration().showSettings || !this.isProject()) {
+  renderWebhooksLink = (query: Query, isProject: boolean) => {
+    if (!this.getConfiguration().showSettings || !isProject) {
       return null;
     }
     return (
       <li key="webhooks">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/webhooks', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/webhooks', query }}>
           {translate('webhooks.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderDeletionLink() {
+  renderDeletionLink = (query: Query) => {
     const { qualifier } = this.props.component;
 
     if (!this.getConfiguration().showSettings) {
@@ -460,18 +495,16 @@ export class Menu extends React.PureComponent<Props> {
 
     return (
       <li key="project_delete">
-        <Link
-          activeClassName="active"
-          to={{ pathname: '/project/deletion', query: this.getQuery() }}>
+        <Link activeClassName="active" to={{ pathname: '/project/deletion', query }}>
           {translate('deletion.page')}
         </Link>
       </li>
     );
-  }
+  };
 
-  renderExtension = ({ key, name }: T.Extension, isAdmin: boolean) => {
+  renderExtension = ({ key, name }: T.Extension, isAdmin: boolean, baseQuery: Query) => {
     const pathname = isAdmin ? `/project/admin/extension/${key}` : `/project/extension/${key}`;
-    const query = { ...this.getQuery(), qualifier: this.props.component.qualifier };
+    const query = { ...baseQuery, qualifier: this.props.component.qualifier };
     return (
       <li key={key}>
         <Link activeClassName="active" to={{ pathname, query }}>
@@ -481,15 +514,15 @@ export class Menu extends React.PureComponent<Props> {
     );
   };
 
-  renderAdminExtensions() {
+  renderAdminExtensions = (query: Query) => {
     if (this.props.branchLike && !isMainBranch(this.props.branchLike)) {
       return [];
     }
     const extensions = this.getConfiguration().extensions || [];
-    return extensions.map(e => this.renderExtension(e, true));
-  }
+    return extensions.map(e => this.renderExtension(e, true, query));
+  };
 
-  renderExtensions() {
+  renderExtensions = (query: Query) => {
     const extensions = this.props.component.extensions || [];
     const withoutSecurityExtension = extensions.filter(
       extension => !extension.key.startsWith('securityreport/')
@@ -506,7 +539,7 @@ export class Menu extends React.PureComponent<Props> {
         data-test="extensions"
         overlay={
           <ul className="menu">
-            {withoutSecurityExtension.map(e => this.renderExtension(e, false))}
+            {withoutSecurityExtension.map(e => this.renderExtension(e, false, query))}
           </ul>
         }
         tagName="li">
@@ -524,24 +557,29 @@ export class Menu extends React.PureComponent<Props> {
         )}
       </Dropdown>
     );
-  }
+  };
 
   render() {
+    const isProject = this.isProject();
+    const isApplication = this.isApplication();
+    const isPortfolio = this.isPortfolio();
+    const hasAnalysis = this.hasAnalysis();
+    const query = this.getQuery();
     return (
       <div className="display-flex-center display-flex-space-between">
         <NavBarTabs>
-          {this.renderDashboardLink()}
-          {this.renderIssuesLink()}
-          {this.renderSecurityHotspotsLink()}
-          {this.renderSecurityReports()}
-          {this.renderComponentMeasuresLink()}
-          {this.renderCodeLink()}
-          {this.renderActivityLink()}
-          {this.renderExtensions()}
+          {this.renderDashboardLink(query, isPortfolio)}
+          {this.renderIssuesLink(hasAnalysis, query)}
+          {this.renderSecurityHotspotsLink(hasAnalysis, query, isPortfolio)}
+          {this.renderSecurityReports(hasAnalysis, query)}
+          {this.renderComponentMeasuresLink(hasAnalysis, query)}
+          {this.renderCodeLink(hasAnalysis, query, isApplication, isPortfolio)}
+          {this.renderActivityLink(hasAnalysis, query)}
+          {this.renderExtensions(query)}
         </NavBarTabs>
         <NavBarTabs>
-          {this.renderAdministration()}
-          {this.renderProjectInformationButton()}
+          {this.renderAdministration(query, isProject, isApplication, isPortfolio)}
+          {this.renderProjectInformationButton(isProject, isApplication)}
         </NavBarTabs>
       </div>
     );

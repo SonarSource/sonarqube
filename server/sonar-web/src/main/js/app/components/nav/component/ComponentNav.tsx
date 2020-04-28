@@ -104,7 +104,10 @@ export default function ComponentNav(props: Props) {
       </div>
       <Menu
         branchLike={currentBranchLike}
+        branchLikes={branchLikes}
         component={component}
+        isInProgress={isInProgress}
+        isPending={isPending}
         onToggleProjectInfo={() => setDisplayProjectInfo(!displayProjectInfo)}
       />
       <InfoDrawer

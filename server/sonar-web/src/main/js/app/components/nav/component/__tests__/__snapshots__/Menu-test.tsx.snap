@@ -1,5 +1,122 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should disable links if no analysis has been done 1`] = `
+<div
+  className="display-flex-center display-flex-space-between"
+>
+  <NavBarTabs>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/dashboard",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        overview.page
+      </Link>
+    </li>
+    <li>
+      <MenuLink
+        activeClassName="active"
+        hasAnalysis={false}
+        label="issues.page"
+        to={
+          Object {
+            "pathname": "/project/issues",
+            "query": Object {
+              "id": "foo",
+              "resolved": "false",
+            },
+          }
+        }
+      />
+    </li>
+    <li>
+      <MenuLink
+        activeClassName="active"
+        hasAnalysis={false}
+        label="layout.security_hotspots"
+        to={
+          Object {
+            "pathname": "/security_hotspots",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      />
+    </li>
+    <li>
+      <MenuLink
+        activeClassName="active"
+        hasAnalysis={false}
+        label="layout.measures"
+        to={
+          Object {
+            "pathname": "/component_measures",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      />
+    </li>
+    <li>
+      <MenuLink
+        activeClassName="active"
+        hasAnalysis={false}
+        label="code.page"
+        to={
+          Object {
+            "pathname": "/code",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      />
+    </li>
+    <li>
+      <MenuLink
+        activeClassName="active"
+        hasAnalysis={false}
+        label="project_activity.page"
+        to={
+          Object {
+            "pathname": "/project/activity",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      />
+    </li>
+  </NavBarTabs>
+  <NavBarTabs>
+    <li>
+      <a
+        className="menu-button"
+        onClick={[Function]}
+        role="button"
+        tabIndex={0}
+      >
+        <BulletListIcon
+          className="little-spacer-right"
+        />
+        project.info.title
+      </a>
+    </li>
+  </NavBarTabs>
+</div>
+`;
+
 exports[`should render correctly for security extensions 1`] = `
 <Dropdown
   data-test="extensions"
@@ -59,10 +176,10 @@ exports[`should work for a branch 1`] = `
       </Link>
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="issues.page"
         to={
           Object {
             "pathname": "/project/issues",
@@ -73,15 +190,13 @@ exports[`should work for a branch 1`] = `
             },
           }
         }
-      >
-        issues.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.security_hotspots"
         to={
           Object {
             "pathname": "/security_hotspots",
@@ -91,15 +206,13 @@ exports[`should work for a branch 1`] = `
             },
           }
         }
-      >
-        layout.security_hotspots
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.measures"
         to={
           Object {
             "pathname": "/component_measures",
@@ -109,15 +222,13 @@ exports[`should work for a branch 1`] = `
             },
           }
         }
-      >
-        layout.measures
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="code.page"
         to={
           Object {
             "pathname": "/code",
@@ -127,15 +238,13 @@ exports[`should work for a branch 1`] = `
             },
           }
         }
-      >
-        code.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="project_activity.page"
         to={
           Object {
             "pathname": "/project/activity",
@@ -145,9 +254,7 @@ exports[`should work for a branch 1`] = `
             },
           }
         }
-      >
-        project_activity.page
-      </Link>
+      />
     </li>
   </NavBarTabs>
   <NavBarTabs>
@@ -294,10 +401,10 @@ exports[`should work for a branch 2`] = `
       </Link>
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="issues.page"
         to={
           Object {
             "pathname": "/project/issues",
@@ -308,15 +415,13 @@ exports[`should work for a branch 2`] = `
             },
           }
         }
-      >
-        issues.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.security_hotspots"
         to={
           Object {
             "pathname": "/security_hotspots",
@@ -326,15 +431,13 @@ exports[`should work for a branch 2`] = `
             },
           }
         }
-      >
-        layout.security_hotspots
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.measures"
         to={
           Object {
             "pathname": "/component_measures",
@@ -344,15 +447,13 @@ exports[`should work for a branch 2`] = `
             },
           }
         }
-      >
-        layout.measures
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="code.page"
         to={
           Object {
             "pathname": "/code",
@@ -362,15 +463,13 @@ exports[`should work for a branch 2`] = `
             },
           }
         }
-      >
-        code.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="project_activity.page"
         to={
           Object {
             "pathname": "/project/activity",
@@ -380,9 +479,7 @@ exports[`should work for a branch 2`] = `
             },
           }
         }
-      >
-        project_activity.page
-      </Link>
+      />
     </li>
   </NavBarTabs>
   <NavBarTabs>
@@ -426,10 +523,10 @@ exports[`should work for all qualifiers 1`] = `
       </Link>
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="issues.page"
         to={
           Object {
             "pathname": "/project/issues",
@@ -439,15 +536,13 @@ exports[`should work for all qualifiers 1`] = `
             },
           }
         }
-      >
-        issues.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.security_hotspots"
         to={
           Object {
             "pathname": "/security_hotspots",
@@ -456,15 +551,13 @@ exports[`should work for all qualifiers 1`] = `
             },
           }
         }
-      >
-        layout.security_hotspots
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.measures"
         to={
           Object {
             "pathname": "/component_measures",
@@ -473,15 +566,13 @@ exports[`should work for all qualifiers 1`] = `
             },
           }
         }
-      >
-        layout.measures
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="code.page"
         to={
           Object {
             "pathname": "/code",
@@ -490,15 +581,13 @@ exports[`should work for all qualifiers 1`] = `
             },
           }
         }
-      >
-        code.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="project_activity.page"
         to={
           Object {
             "pathname": "/project/activity",
@@ -507,9 +596,7 @@ exports[`should work for all qualifiers 1`] = `
             },
           }
         }
-      >
-        project_activity.page
-      </Link>
+      />
     </li>
   </NavBarTabs>
   <NavBarTabs>
@@ -650,10 +737,10 @@ exports[`should work for all qualifiers 2`] = `
       </Link>
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="issues.page"
         to={
           Object {
             "pathname": "/project/issues",
@@ -663,15 +750,13 @@ exports[`should work for all qualifiers 2`] = `
             },
           }
         }
-      >
-        issues.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.measures"
         to={
           Object {
             "pathname": "/component_measures",
@@ -680,15 +765,13 @@ exports[`should work for all qualifiers 2`] = `
             },
           }
         }
-      >
-        layout.measures
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="view_projects.page"
         to={
           Object {
             "pathname": "/code",
@@ -697,15 +780,13 @@ exports[`should work for all qualifiers 2`] = `
             },
           }
         }
-      >
-        view_projects.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="project_activity.page"
         to={
           Object {
             "pathname": "/project/activity",
@@ -714,9 +795,7 @@ exports[`should work for all qualifiers 2`] = `
             },
           }
         }
-      >
-        project_activity.page
-      </Link>
+      />
     </li>
   </NavBarTabs>
   <NavBarTabs>
@@ -776,10 +855,10 @@ exports[`should work for all qualifiers 3`] = `
       </Link>
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="issues.page"
         to={
           Object {
             "pathname": "/project/issues",
@@ -789,15 +868,13 @@ exports[`should work for all qualifiers 3`] = `
             },
           }
         }
-      >
-        issues.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.measures"
         to={
           Object {
             "pathname": "/component_measures",
@@ -806,15 +883,13 @@ exports[`should work for all qualifiers 3`] = `
             },
           }
         }
-      >
-        layout.measures
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="view_projects.page"
         to={
           Object {
             "pathname": "/code",
@@ -823,15 +898,13 @@ exports[`should work for all qualifiers 3`] = `
             },
           }
         }
-      >
-        view_projects.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="project_activity.page"
         to={
           Object {
             "pathname": "/project/activity",
@@ -840,9 +913,7 @@ exports[`should work for all qualifiers 3`] = `
             },
           }
         }
-      >
-        project_activity.page
-      </Link>
+      />
     </li>
   </NavBarTabs>
   <NavBarTabs />
@@ -872,10 +943,10 @@ exports[`should work for all qualifiers 4`] = `
       </Link>
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="issues.page"
         to={
           Object {
             "pathname": "/project/issues",
@@ -885,15 +956,13 @@ exports[`should work for all qualifiers 4`] = `
             },
           }
         }
-      >
-        issues.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.security_hotspots"
         to={
           Object {
             "pathname": "/security_hotspots",
@@ -902,15 +971,13 @@ exports[`should work for all qualifiers 4`] = `
             },
           }
         }
-      >
-        layout.security_hotspots
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.measures"
         to={
           Object {
             "pathname": "/component_measures",
@@ -919,15 +986,13 @@ exports[`should work for all qualifiers 4`] = `
             },
           }
         }
-      >
-        layout.measures
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="view_projects.page"
         to={
           Object {
             "pathname": "/code",
@@ -936,15 +1001,13 @@ exports[`should work for all qualifiers 4`] = `
             },
           }
         }
-      >
-        view_projects.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="project_activity.page"
         to={
           Object {
             "pathname": "/project/activity",
@@ -953,9 +1016,7 @@ exports[`should work for all qualifiers 4`] = `
             },
           }
         }
-      >
-        project_activity.page
-      </Link>
+      />
     </li>
   </NavBarTabs>
   <NavBarTabs>
@@ -1029,10 +1090,10 @@ exports[`should work for pull requests 1`] = `
       </Link>
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="issues.page"
         to={
           Object {
             "pathname": "/project/issues",
@@ -1043,15 +1104,13 @@ exports[`should work for pull requests 1`] = `
             },
           }
         }
-      >
-        issues.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.security_hotspots"
         to={
           Object {
             "pathname": "/security_hotspots",
@@ -1061,15 +1120,13 @@ exports[`should work for pull requests 1`] = `
             },
           }
         }
-      >
-        layout.security_hotspots
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.measures"
         to={
           Object {
             "pathname": "/component_measures",
@@ -1079,15 +1136,13 @@ exports[`should work for pull requests 1`] = `
             },
           }
         }
-      >
-        layout.measures
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="code.page"
         to={
           Object {
             "pathname": "/code",
@@ -1097,9 +1152,7 @@ exports[`should work for pull requests 1`] = `
             },
           }
         }
-      >
-        code.page
-      </Link>
+      />
     </li>
   </NavBarTabs>
   <NavBarTabs />
@@ -1130,10 +1183,10 @@ exports[`should work for pull requests 2`] = `
       </Link>
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="issues.page"
         to={
           Object {
             "pathname": "/project/issues",
@@ -1144,15 +1197,13 @@ exports[`should work for pull requests 2`] = `
             },
           }
         }
-      >
-        issues.page
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.security_hotspots"
         to={
           Object {
             "pathname": "/security_hotspots",
@@ -1162,15 +1213,13 @@ exports[`should work for pull requests 2`] = `
             },
           }
         }
-      >
-        layout.security_hotspots
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="layout.measures"
         to={
           Object {
             "pathname": "/component_measures",
@@ -1180,15 +1229,13 @@ exports[`should work for pull requests 2`] = `
             },
           }
         }
-      >
-        layout.measures
-      </Link>
+      />
     </li>
     <li>
-      <Link
+      <MenuLink
         activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
+        hasAnalysis={true}
+        label="code.page"
         to={
           Object {
             "pathname": "/code",
@@ -1198,9 +1245,7 @@ exports[`should work for pull requests 2`] = `
             },
           }
         }
-      >
-        code.page
-      </Link>
+      />
     </li>
   </NavBarTabs>
   <NavBarTabs />

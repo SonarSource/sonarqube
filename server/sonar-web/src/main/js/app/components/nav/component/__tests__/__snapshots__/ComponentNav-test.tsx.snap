@@ -67,6 +67,7 @@ exports[`renders 1`] = `
     />
   </div>
   <Connect(withAppState(Menu))
+    branchLikes={Array []}
     component={
       Object {
         "breadcrumbs": Array [
@@ -82,6 +83,8 @@ exports[`renders 1`] = `
         "qualifier": "TRK",
       }
     }
+    isInProgress={true}
+    isPending={true}
     onToggleProjectInfo={[Function]}
   />
   <InfoDrawer
