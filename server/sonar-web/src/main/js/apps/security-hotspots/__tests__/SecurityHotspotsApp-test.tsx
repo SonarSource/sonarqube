@@ -107,6 +107,25 @@ it('should load data correctly', async () => {
   expect(wrapper.state().hotspotsReviewedMeasure).toBe('86.6');
 });
 
+it('should handle category request', async () => {
+  const hotspots = [mockRawHotspot(), mockRawHotspot({ securityCategory: 'log-injection' })];
+  (getSecurityHotspots as jest.Mock).mockResolvedValue({
+    hotspots,
+    paging: {
+      total: 1
+    }
+  });
+  (getMeasures as jest.Mock).mockResolvedValue([{ value: '86.6' }]);
+
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { category: hotspots[1].securityCategory } })
+  });
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().selectedHotspot).toBe(hotspots[1]);
+});
+
 it('should load data correctly when hotspot key list is forced', async () => {
   const hotspots = [
     mockRawHotspot({ key: 'test1' }),

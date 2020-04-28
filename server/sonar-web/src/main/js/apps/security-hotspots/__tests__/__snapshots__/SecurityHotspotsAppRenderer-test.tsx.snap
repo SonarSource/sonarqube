@@ -201,6 +201,35 @@ exports[`should render correctly with hotspots 2`] = `
 </div>
 `;
 
+exports[`should render correctly: loading 1`] = `
+<div>
+  <div
+    className="wrapper"
+    style={
+      Object {
+        "top": 0,
+      }
+    }
+  >
+    <Suggestions
+      suggestions="security_hotspots"
+    />
+    <Helmet
+      defer={true}
+      encodeSpecialCharacters={true}
+      title="hotspots.page"
+    />
+    <A11ySkipTarget
+      anchor="security_hotspots_main"
+    />
+    <DeferredSpinner
+      className="huge-spacer-left big-spacer-top"
+      timeout={100}
+    />
+  </div>
+</div>
+`;
+
 exports[`should render correctly: no hotspots 1`] = `
 <div>
   <div

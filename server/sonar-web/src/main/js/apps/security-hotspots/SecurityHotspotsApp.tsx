@@ -144,12 +144,22 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
           return;
         }
 
+        const requestedCategory = this.props.location.query.category;
+
+        let selectedHotspot;
+        if (hotspots.length > 0) {
+          const hotspotForCategory = requestedCategory
+            ? hotspots.find(h => h.securityCategory === requestedCategory)
+            : undefined;
+          selectedHotspot = hotspotForCategory ?? hotspots[0];
+        }
+
         this.setState({
           hotspots,
           hotspotsTotal: paging.total,
           loading: false,
           securityCategories: sonarsourceSecurity,
-          selectedHotspot: hotspots.length > 0 ? hotspots[0] : undefined
+          selectedHotspot
         });
       })
       .catch(this.handleCallFailure);

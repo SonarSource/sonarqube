@@ -65,7 +65,7 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
       {expanded && (
         <ul>
           {hotspots.map(h => (
-            <li key={h.key}>
+            <li data-hotspot-key={h.key} key={h.key}>
               <HotspotListItem
                 hotspot={h}
                 onClick={props.onHotspotClick}

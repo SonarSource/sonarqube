@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
 import { mockComponent } from '../../../helpers/testMocks';
@@ -27,6 +28,14 @@ import FilterBar from '../components/FilterBar';
 import SecurityHotspotsAppRenderer, {
   SecurityHotspotsAppRendererProps
 } from '../SecurityHotspotsAppRenderer';
+
+jest.mock('sonar-ui-common/helpers/scrolling', () => ({
+  scrollToElement: jest.fn()
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
@@ -42,6 +51,11 @@ it('should render correctly', () => {
       .find(ScreenPositionHelper)
       .dive()
   ).toMatchSnapshot('no hotspots');
+  expect(
+    shallowRender({ loading: true })
+      .find(ScreenPositionHelper)
+      .dive()
+  ).toMatchSnapshot('loading');
 });
 
 it('should render correctly with hotspots', () => {
@@ -68,6 +82,39 @@ it('should properly propagate the "show all" call', () => {
     .onShowAllHotspots();
 
   expect(onShowAllHotspots).toHaveBeenCalled();
+});
+
+describe('side effect', () => {
+  const fakeElement = document.createElement('span');
+  const fakeParent = document.createElement('div');
+
+  beforeEach(() => {
+    jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+    jest.spyOn(document, 'querySelector').mockImplementationOnce(() => fakeElement);
+    jest.spyOn(React, 'useRef').mockImplementationOnce(() => ({ current: fakeParent }));
+  });
+
+  it('should trigger scrolling', () => {
+    shallowRender({ selectedHotspot: mockRawHotspot() });
+
+    expect(scrollToElement).toBeCalledWith(
+      fakeElement,
+      expect.objectContaining({ parent: fakeParent })
+    );
+  });
+
+  it('should not trigger scrolling if no selected hotspot', () => {
+    shallowRender();
+    expect(scrollToElement).not.toBeCalled();
+  });
+
+  it('should not trigger scrolling if no parent', () => {
+    const mockUseRef = jest.spyOn(React, 'useRef');
+    mockUseRef.mockReset();
+    mockUseRef.mockImplementationOnce(() => ({ current: null }));
+    shallowRender({ selectedHotspot: mockRawHotspot() });
+    expect(scrollToElement).not.toBeCalled();
+  });
 });
 
 function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {

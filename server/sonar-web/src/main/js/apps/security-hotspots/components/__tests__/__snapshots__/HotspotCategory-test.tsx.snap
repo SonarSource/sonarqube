@@ -27,6 +27,7 @@ exports[`should render correctly with hotspots 1`] = `
   </a>
   <ul>
     <li
+      data-hotspot-key="h1"
       key="h1"
     >
       <HotspotListItem
@@ -52,6 +53,7 @@ exports[`should render correctly with hotspots 1`] = `
       />
     </li>
     <li
+      data-hotspot-key="h2"
       key="h2"
     >
       <HotspotListItem
@@ -135,6 +137,7 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
   </a>
   <ul>
     <li
+      data-hotspot-key="h1"
       key="h1"
     >
       <HotspotListItem
@@ -160,6 +163,7 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
       />
     </li>
     <li
+      data-hotspot-key="h2"
       key="h2"
     >
       <HotspotListItem
