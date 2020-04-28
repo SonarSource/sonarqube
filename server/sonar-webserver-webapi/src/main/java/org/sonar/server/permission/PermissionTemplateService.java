@@ -71,7 +71,7 @@ public class PermissionTemplateService {
     this.uuidFactory = uuidFactory;
   }
 
-  public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession, String organizationUuid, @Nullable Integer userId, String projectKey) {
+  public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession, String organizationUuid, @Nullable String userUuid, String projectKey) {
     if (userSession.hasPermission(SCAN, organizationUuid)) {
       return true;
     }
@@ -82,7 +82,7 @@ public class PermissionTemplateService {
       return false;
     }
 
-    List<String> potentialPermissions = dbClient.permissionTemplateDao().selectPotentialPermissionsByUserIdAndTemplateUuid(dbSession, userId, template.getUuid());
+    List<String> potentialPermissions = dbClient.permissionTemplateDao().selectPotentialPermissionsByUserUuidAndTemplateUuid(dbSession, userUuid, template.getUuid());
     return potentialPermissions.contains(SCAN.getKey());
   }
 

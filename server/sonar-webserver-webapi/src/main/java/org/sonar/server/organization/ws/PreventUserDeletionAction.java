@@ -60,8 +60,8 @@ public class PreventUserDeletionAction implements OrganizationsWsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      int userId = userSession.getUserId();
-      List<OrganizationDto> organizationsThatPreventUserDeletion = new OrganizationHelper(dbClient).selectOrganizationsWithLastAdmin(dbSession, userId);
+      String userUuid = userSession.getUuid();
+      List<OrganizationDto> organizationsThatPreventUserDeletion = new OrganizationHelper(dbClient).selectOrganizationsWithLastAdmin(dbSession, userUuid);
 
       Organizations.PreventUserDeletionWsResponse wsResponse = buildResponse(organizationsThatPreventUserDeletion);
       writeProtobuf(wsResponse, request, response);

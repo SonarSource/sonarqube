@@ -459,7 +459,7 @@ public class PermissionTemplateServiceTest {
     templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);
 
     // authenticated user
-    checkWouldUserHaveScanPermission(organization, user.getId(), true);
+    checkWouldUserHaveScanPermission(organization, user.getUuid(), true);
 
     // anonymous user
     checkWouldUserHaveScanPermission(organization, null, false);
@@ -480,8 +480,8 @@ public class PermissionTemplateServiceTest {
     checkWouldUserHaveScanPermission(dbTester.getDefaultOrganization(), null, false);
   }
 
-  private void checkWouldUserHaveScanPermission(OrganizationDto organization, @Nullable Integer userId, boolean expectedResult) {
-    assertThat(underTest.wouldUserHaveScanPermissionWithDefaultTemplate(session, organization.getUuid(), userId, "PROJECT_KEY"))
+  private void checkWouldUserHaveScanPermission(OrganizationDto organization, @Nullable String userUuid, boolean expectedResult) {
+    assertThat(underTest.wouldUserHaveScanPermissionWithDefaultTemplate(session, organization.getUuid(), userUuid, "PROJECT_KEY"))
       .isEqualTo(expectedResult);
   }
 

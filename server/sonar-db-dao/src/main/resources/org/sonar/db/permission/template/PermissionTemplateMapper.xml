@@ -316,13 +316,14 @@
     </where>
   </select>
 
-  <select id="selectPotentialPermissionsByUserIdAndTemplateUuid" parameterType="map" resultType="String">
-    <if test="userId!=null">
+  <select id="selectPotentialPermissionsByUserUuidAndTemplateUuid" parameterType="map" resultType="String">
+    <if test="userUuid!=null">
       -- from template users
       select ptu.permission_reference as permission_key
       from perm_templates_users ptu
+      inner join users u on u.id = ptu.user_id
       <where>
-        and ptu.user_id=#{userId}
+        and u.uuid=#{userUuid}
         and ptu.template_uuid=#{templateUuid}
       </where>
       UNION
@@ -331,7 +332,7 @@
       from perm_templates_groups ptg
       inner join groups_users gu on ptg.group_uuid = gu.group_uuid
       <where>
-        and gu.user_id=#{userId}
+        and gu.user_uuid=#{userUuid}
         and ptg.template_uuid=#{templateUuid}
       </where>
       UNION

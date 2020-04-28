@@ -30,7 +30,7 @@ import org.sonar.db.EmailSubscriberDto;
  */
 public interface AuthorizationMapper {
 
-  Set<String> selectOrganizationPermissions(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
+  Set<String> selectOrganizationPermissions(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 
   Set<String> selectOrganizationPermissionsOfAnonymous(@Param("organizationUuid") String organizationUuid);
 
@@ -38,25 +38,25 @@ public interface AuthorizationMapper {
     @Param("permission") String permission, @Param("excludedGroupUuid") String excludedGroupUuid);
 
   int countUsersWithGlobalPermissionExcludingUser(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission,
-    @Param("excludedUserId") int excludedUserId);
+    @Param("excludedUserUuid") String excludedUserUuid);
 
-  List<Integer> selectUserIdsWithGlobalPermission(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission);
+  List<String> selectUserUuidsWithGlobalPermission(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission);
 
   int countUsersWithGlobalPermissionExcludingGroupMember(@Param("organizationUuid") String organizationUuid,
-    @Param("permission") String permission, @Param("groupUuid") String groupUuid, @Param("userId") int userId);
+    @Param("permission") String permission, @Param("groupUuid") String groupUuid, @Param("userUuid") String userUuid);
 
   int countUsersWithGlobalPermissionExcludingUserPermission(@Param("organizationUuid") String organizationUuid,
-    @Param("permission") String permission, @Param("userId") int userId);
+    @Param("permission") String permission, @Param("userUuid") String userUuid);
 
-  Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(@Param("userId") int userId, @Param("permission") String permission);
+  Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(@Param("userUuid") String userUuid, @Param("permission") String permission);
 
-  List<Integer> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentUuid") String componentUuid, @Param("userIds") List<Integer> userIds);
+  List<String> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentUuid") String componentUuid, @Param("userUuids") List<String> userUuids);
 
-  Set<String> keepAuthorizedProjectUuidsForUser(@Param("userId") int userId, @Param("role") String role, @Param("projectUuids") Collection<String> projectUuids);
+  Set<String> keepAuthorizedProjectUuidsForUser(@Param("userUuid") String userUuid, @Param("role") String role, @Param("projectUuids") Collection<String> projectUuids);
 
   Set<String> keepAuthorizedProjectUuidsForAnonymous(@Param("role") String role, @Param("projectUuids") Collection<String> projectUuids);
 
-  Set<String> selectProjectPermissions(@Param("projectUuid") String projectUuid, @Param("userId") long userId);
+  Set<String> selectProjectPermissions(@Param("projectUuid") String projectUuid, @Param("userUuid") String userUuid);
 
   Set<String> selectProjectPermissionsOfAnonymous(@Param("projectUuid") String projectUuid);
 

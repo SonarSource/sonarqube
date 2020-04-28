@@ -101,7 +101,7 @@ public class DeactivateAction implements UsersWsAction {
       dbClient.userTokenDao().deleteByUser(dbSession, user);
       dbClient.propertiesDao().deleteByKeyAndValue(dbSession, DEFAULT_ISSUE_ASSIGNEE, user.getLogin());
       dbClient.propertiesDao().deleteByQuery(dbSession, PropertyQuery.builder().setUserId(userId).build());
-      dbClient.userGroupDao().deleteByUserId(dbSession, userId);
+      dbClient.userGroupDao().deleteByUserUuid(dbSession, user.getUuid());
       dbClient.userPermissionDao().deleteByUserId(dbSession, userId);
       dbClient.permissionTemplateDao().deleteUserPermissionsByUserId(dbSession, userId);
       dbClient.qProfileEditUsersDao().deleteByUser(dbSession, user);
@@ -139,7 +139,7 @@ public class DeactivateAction implements UsersWsAction {
   }
 
   private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
-    List<OrganizationDto> problematicOrgs = new OrganizationHelper(dbClient).selectOrganizationsWithLastAdmin(dbSession, user.getId());
+    List<OrganizationDto> problematicOrgs = new OrganizationHelper(dbClient).selectOrganizationsWithLastAdmin(dbSession, user.getUuid());
     if (problematicOrgs.isEmpty()) {
       return;
     }

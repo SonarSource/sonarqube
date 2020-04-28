@@ -473,7 +473,7 @@ public class UserUpdater {
     if (isUserAlreadyMemberOfDefaultGroup(defaultGroup, userGroups)) {
       return;
     }
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupUuid(defaultGroup.getUuid()));
+    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserUuid(userDto.getUuid()).setGroupUuid(defaultGroup.getUuid()));
   }
 
   private void setNotificationsReadDate(DbSession dbSession, UserDto user) {

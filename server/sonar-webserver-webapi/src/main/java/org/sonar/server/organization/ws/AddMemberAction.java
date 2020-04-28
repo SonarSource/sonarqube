@@ -101,7 +101,7 @@ public class AddMemberAction implements OrganizationsWsAction {
       int groups = dbClient.groupMembershipDao().countGroups(dbSession, GroupMembershipQuery.builder()
         .organizationUuid(organization.getUuid())
         .membership(IN)
-        .build(), user.getId());
+        .build(), user.getUuid());
       AddMemberWsResponse wsResponse = buildResponse(user, groups);
       writeProtobuf(wsResponse, request, response);
     }

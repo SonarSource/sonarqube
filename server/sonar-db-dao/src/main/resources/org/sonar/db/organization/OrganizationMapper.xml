@@ -148,11 +148,12 @@
     select
       <include refid="selectColumns"/>
     from organizations org
-    inner join user_roles u on
-      u.organization_uuid = org.uuid
-      and u.user_id = #{userId,jdbcType=INTEGER}
-      and u.component_uuid is null
-      and u.role = #{permission,jdbcType=VARCHAR}
+    inner join user_roles ur on
+      ur.organization_uuid = org.uuid
+    inner join users u on ur.user_id = u.id
+      and u.uuid = #{userUuid,jdbcType=VARCHAR}
+      and ur.component_uuid is null
+      and ur.role = #{permission,jdbcType=VARCHAR}
     union
     select
       <include refid="selectColumns"/>
@@ -163,7 +164,7 @@
       and g.role = #{permission,jdbcType=VARCHAR}
     inner join groups_users gu on
       gu.group_uuid = g.group_uuid
-      and gu.user_id = #{userId,jdbcType=INTEGER}
+      and gu.user_uuid= #{userUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectAllUuids" resultType="String">

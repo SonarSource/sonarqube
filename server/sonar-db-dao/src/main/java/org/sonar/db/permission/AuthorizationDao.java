@@ -44,8 +44,8 @@ public class AuthorizationDao implements Dao {
   /**
   * Loads all the permissions granted to user for the specified organization
   */
-  public Set<String> selectOrganizationPermissions(DbSession dbSession, String organizationUuid, int userId) {
-    return mapper(dbSession).selectOrganizationPermissions(organizationUuid, userId);
+  public Set<String> selectOrganizationPermissions(DbSession dbSession, String organizationUuid, String userUuid) {
+    return mapper(dbSession).selectOrganizationPermissions(organizationUuid, userUuid);
   }
 
   /**
@@ -62,8 +62,8 @@ public class AuthorizationDao implements Dao {
    *
    * <strong>This method does not support public components</strong>
    */
-  public Set<String> selectProjectPermissions(DbSession dbSession, String projectUuid, long userId) {
-    return mapper(dbSession).selectProjectPermissions(projectUuid, userId);
+  public Set<String> selectProjectPermissions(DbSession dbSession, String projectUuid, String userUuid) {
+    return mapper(dbSession).selectProjectPermissions(projectUuid, userUuid);
   }
 
   /**
@@ -91,38 +91,38 @@ public class AuthorizationDao implements Dao {
    * is deleted. The anyone virtual group is not taken into account.
    */
   public int countUsersWithGlobalPermissionExcludingUser(DbSession dbSession, String organizationUuid,
-    String permission, int excludedUserId) {
-    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUser(organizationUuid, permission, excludedUserId);
+    String permission, String excludedUserUuid) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUser(organizationUuid, permission, excludedUserUuid);
   }
 
   /**
    * The list of users who have the global permission.
    * The anyone virtual group is not taken into account.
    */
-  public List<Integer> selectUserIdsWithGlobalPermission(DbSession dbSession, String organizationUuid, String permission) {
-    return mapper(dbSession).selectUserIdsWithGlobalPermission(organizationUuid, permission);
+  public List<String> selectUserUuidsWithGlobalPermission(DbSession dbSession, String organizationUuid, String permission) {
+    return mapper(dbSession).selectUserUuidsWithGlobalPermission(organizationUuid, permission);
   }
 
   /**
    * The number of users who will still have the permission if the user {@code userId}
    * is removed from group {@code groupUuid}. The anyone virtual group is not taken into account.
-   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, int)}, user
+   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, String)}, user
    * still exists and may have the permission directly or through other groups.
    */
   public int countUsersWithGlobalPermissionExcludingGroupMember(DbSession dbSession, String organizationUuid,
-    String permission, String groupUuid, int userId) {
-    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroupMember(organizationUuid, permission, groupUuid, userId);
+    String permission, String groupUuid, String userUuid) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroupMember(organizationUuid, permission, groupUuid, userUuid);
   }
 
   /**
    * The number of users who will still have the permission if the permission {@code permission}
    * is removed from user {@code userId}. The anyone virtual group is not taken into account.
-   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, int)}, user
+   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, String)}, user
    * still exists and may have the permission through groups.
    */
   public int countUsersWithGlobalPermissionExcludingUserPermission(DbSession dbSession, String organizationUuid,
-    String permission, int userId) {
-    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUserPermission(organizationUuid, permission, userId);
+    String permission, String userUuid) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUserPermission(organizationUuid, permission, userUuid);
   }
 
   /**
@@ -132,18 +132,18 @@ public class AuthorizationDao implements Dao {
    * <br/>
    * Group membership is taken into account. Anonymous privileges are ignored.
    */
-  public Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(DbSession dbSession, int userId, String permission) {
-    return mapper(dbSession).selectOrganizationUuidsOfUserWithGlobalPermission(userId, permission);
+  public Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(DbSession dbSession, String userUuid, String permission) {
+    return mapper(dbSession).selectOrganizationUuidsOfUserWithGlobalPermission(userUuid, permission);
   }
 
-  public Set<String> keepAuthorizedProjectUuids(DbSession dbSession, Collection<String> projectUuids, @Nullable Integer userId, String permission) {
+  public Set<String> keepAuthorizedProjectUuids(DbSession dbSession, Collection<String> projectUuids, @Nullable String userUuid, String permission) {
     return executeLargeInputsIntoSet(
       projectUuids,
       partition -> {
-        if (userId == null) {
+        if (userUuid == null) {
           return mapper(dbSession).keepAuthorizedProjectUuidsForAnonymous(permission, partition);
         }
-        return mapper(dbSession).keepAuthorizedProjectUuidsForUser(userId, permission, partition);
+        return mapper(dbSession).keepAuthorizedProjectUuidsForUser(userUuid, permission, partition);
       },
       partitionSize -> partitionSize / 2);
   }
@@ -152,9 +152,9 @@ public class AuthorizationDao implements Dao {
    * Keep only authorized user that have the given permission on a given project.
    * Please Note that if the permission is 'Anyone' is NOT taking into account by this method.
    */
-  public Collection<Integer> keepAuthorizedUsersForRoleAndProject(DbSession dbSession, Collection<Integer> userIds, String role, String projectUuid) {
+  public Collection<String> keepAuthorizedUsersForRoleAndProject(DbSession dbSession, Collection<String> userUuids, String role, String projectUuid) {
     return executeLargeInputs(
-      userIds,
+      userUuids,
       partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndProject(role, projectUuid, partitionOfIds),
       partitionSize -> partitionSize / 3);
   }

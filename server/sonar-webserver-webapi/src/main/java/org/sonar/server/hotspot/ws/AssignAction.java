@@ -132,12 +132,12 @@ public class AssignAction implements HotspotsWsAction {
   private void checkAssigneeProjectPermission(DbSession dbSession, UserDto assignee, String projectUuid) {
     ComponentDto componentDto = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, projectUuid),
       "Could not find project for issue");
-    if (componentDto.isPrivate() && !hasProjectPermission(dbSession, assignee.getId(), projectUuid)) {
+    if (componentDto.isPrivate() && !hasProjectPermission(dbSession, assignee.getUuid(), projectUuid)) {
       throw new IllegalArgumentException(String.format("Provided user with login '%s' does not have access to project", assignee.getLogin()));
     }
   }
 
-  private boolean hasProjectPermission(DbSession dbSession, long userId, String projectUuid) {
-    return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userId).contains(UserRole.USER);
+  private boolean hasProjectPermission(DbSession dbSession, String userUuid, String projectUuid) {
+    return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userUuid).contains(UserRole.USER);
   }
 }

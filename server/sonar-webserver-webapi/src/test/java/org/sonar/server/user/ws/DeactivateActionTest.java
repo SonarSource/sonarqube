@@ -120,7 +120,7 @@ public class DeactivateActionTest {
 
     deactivate(user.getLogin());
 
-    assertThat(db.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbSession, user.getId())).isEmpty();
+    assertThat(db.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, user.getUuid())).isEmpty();
   }
 
   @Test

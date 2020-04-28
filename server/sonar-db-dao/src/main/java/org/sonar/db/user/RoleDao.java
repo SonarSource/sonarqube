@@ -40,11 +40,11 @@ public class RoleDao implements Dao {
    * @throws IllegalArgumentException this method does not support permissions {@link UserRole#USER user} nor
    *         {@link UserRole#CODEVIEWER codeviewer} because it does not support public root components.
    */
-  public List<String> selectComponentUuidsByPermissionAndUserId(DbSession dbSession, String permission, int userId) {
+  public List<String> selectComponentUuidsByPermissionAndUserUuid(DbSession dbSession, String permission, String userUuid) {
     checkArgument(
       !UNSUPPORTED_PROJECT_PERMISSIONS.contains(permission),
-      "Permissions %s are not supported by selectComponentUuidsByPermissionAndUserId", UNSUPPORTED_PROJECT_PERMISSIONS);
-    return mapper(dbSession).selectComponentUuidsByPermissionAndUserId(permission, userId);
+      "Permissions %s are not supported by selectComponentUuidsByPermissionAndUserUuid", UNSUPPORTED_PROJECT_PERMISSIONS);
+    return mapper(dbSession).selectComponentUuidsByPermissionAndUserUuid(permission, userUuid);
   }
 
   public void deleteGroupRolesByGroupUuid(DbSession session, String groupUuid) {

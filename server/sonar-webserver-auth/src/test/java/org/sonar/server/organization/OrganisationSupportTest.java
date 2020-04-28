@@ -98,9 +98,9 @@ public class OrganisationSupportTest {
     GroupDto membersGroup = dbTester.getDbClient().groupDao().selectByUuid(dbTester.getSession(), defaultGroupUuid.get());
     assertThat(membersGroup).isNotNull();
     assertThat(membersGroup.getName()).isEqualTo("Members");
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), user1.getId())).containsOnly(defaultGroupUuid.get());
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), user2.getId())).containsOnly(defaultGroupUuid.get());
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), userInAnotherOrganization.getId())).isEmpty();
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user1.getUuid())).containsOnly(defaultGroupUuid.get());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user2.getUuid())).containsOnly(defaultGroupUuid.get());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), userInAnotherOrganization.getUuid())).isEmpty();
   }
 
   @Test

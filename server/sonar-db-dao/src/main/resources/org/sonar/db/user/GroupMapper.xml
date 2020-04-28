@@ -58,7 +58,7 @@
     <include refid="groupColumns"/>
     from groups g
     inner join groups_users gu on gu.group_uuid = g.uuid
-    inner join users u on u.id = gu.user_id
+    inner join users u on u.uuid = gu.user_uuid
     where  u.login=#{login,jdbcType=VARCHAR}
   </select>
 

@@ -42,12 +42,12 @@ public class UserGroupDaoTest {
   public void insert() {
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup();
-    UserGroupDto userGroupDto = new UserGroupDto().setUserId(user.getId()).setGroupUuid(group.getUuid());
+    UserGroupDto userGroupDto = new UserGroupDto().setUserUuid(user.getUuid()).setGroupUuid(group.getUuid());
 
     underTest.insert(dbTester.getSession(), userGroupDto);
     dbTester.getSession().commit();
 
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), user.getId())).containsOnly(group.getUuid());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user.getUuid())).containsOnly(group.getUuid());
   }
 
   @Test
@@ -64,8 +64,8 @@ public class UserGroupDaoTest {
     underTest.deleteByGroupUuid(dbTester.getSession(), group1.getUuid());
     dbTester.getSession().commit();
 
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), user1.getId())).containsOnly(group2.getUuid());
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), user2.getId())).containsOnly(group2.getUuid());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user1.getUuid())).containsOnly(group2.getUuid());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user2.getUuid())).containsOnly(group2.getUuid());
   }
 
   @Test
@@ -79,11 +79,11 @@ public class UserGroupDaoTest {
     dbTester.users().insertMembers(group, user, anotherUser);
     dbTester.users().insertMembers(anotherGroup, user, anotherUser);
 
-    underTest.deleteByOrganizationAndUser(dbSession, organization.getUuid(), user.getId());
+    underTest.deleteByOrganizationAndUser(dbSession, organization.getUuid(), user.getUuid());
 
-    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserId(dbSession, user.getId()))
+    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, user.getUuid()))
       .containsOnly(anotherGroup.getUuid());
-    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserId(dbSession, anotherUser.getId()))
+    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, anotherUser.getUuid()))
       .containsOnly(group.getUuid(), anotherGroup.getUuid());
   }
 
@@ -98,10 +98,10 @@ public class UserGroupDaoTest {
     dbTester.users().insertMember(group2, user1);
     dbTester.users().insertMember(group2, user2);
 
-    underTest.deleteByUserId(dbTester.getSession(), user1.getId());
+    underTest.deleteByUserUuid(dbTester.getSession(), user1.getUuid());
     dbTester.getSession().commit();
 
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), user1.getId())).isEmpty();
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), user2.getId())).containsOnly(group1.getUuid(), group2.getUuid());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user1.getUuid())).isEmpty();
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user2.getUuid())).containsOnly(group1.getUuid(), group2.getUuid());
   }
 }

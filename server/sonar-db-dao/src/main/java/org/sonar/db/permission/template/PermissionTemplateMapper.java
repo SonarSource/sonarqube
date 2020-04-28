@@ -84,7 +84,7 @@ public interface PermissionTemplateMapper {
 
   void groupsCountByTemplateUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
 
-  List<String> selectPotentialPermissionsByUserIdAndTemplateUuid(@Param("userId") @Nullable Integer currentUserId, @Param("templateUuid") String templateUuid);
+  List<String> selectPotentialPermissionsByUserUuidAndTemplateUuid(@Param("userUuid") @Nullable String currentUserUuid, @Param("templateUuid") String templateUuid);
 
   int countGroupsWithPermission(@Param("templateUuid") String templateUuid, @Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid);
 

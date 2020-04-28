@@ -78,8 +78,8 @@ public class OrganizationDao implements Dao {
     return executeLargeInputs(organizationUuids, getMapper(dbSession)::selectByUuids);
   }
 
-  public List<OrganizationDto> selectByPermission(DbSession dbSession, Integer userId, String permission) {
-    return getMapper(dbSession).selectByPermission(userId, permission);
+  public List<OrganizationDto> selectByPermission(DbSession dbSession, String userUuid, String permission) {
+    return getMapper(dbSession).selectByPermission(userUuid, permission);
   }
 
   public Optional<OrganizationDto> selectByOrganizationAlmId(DbSession dbSession, ALM alm, String organizationAlmId) {

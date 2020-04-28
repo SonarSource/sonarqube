@@ -3,13 +3,14 @@
 
 <mapper namespace="org.sonar.db.user.RoleMapper">
 
-  <select id="selectComponentUuidsByPermissionAndUserId" parameterType="map" resultType="String">
+  <select id="selectComponentUuidsByPermissionAndUserUuid" parameterType="map" resultType="String">
     select
       ur.component_uuid
     from
       user_roles ur
+      inner join users u on ur.user_id = u.id
     where
-      ur.user_id = #{userId,jdbcType=INTEGER}
+      u.uuid = #{userUuid,jdbcType=VARCHAR}
       and ur.role = #{permission,jdbcType=VARCHAR}
       and ur.component_uuid is not null
     union
@@ -22,7 +23,7 @@
     where
       gr.role = #{permission,jdbcType=VARCHAR}
       and gr.component_uuid is not null
-      and gu.user_id=#{userId,jdbcType=INTEGER}
+      and gu.user_uuid=#{userUuid,jdbcType=VARCHAR}
     order by
       component_uuid
   </select>

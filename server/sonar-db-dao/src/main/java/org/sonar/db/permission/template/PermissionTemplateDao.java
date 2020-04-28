@@ -222,8 +222,8 @@ public class PermissionTemplateDao implements Dao {
     return mapper(dbSession).selectByName(organizationUuid, name.toUpperCase(Locale.ENGLISH));
   }
 
-  public List<String> selectPotentialPermissionsByUserIdAndTemplateUuid(DbSession dbSession, @Nullable Integer currentUserId, String templateUuid) {
-    return mapper(dbSession).selectPotentialPermissionsByUserIdAndTemplateUuid(currentUserId, templateUuid);
+  public List<String> selectPotentialPermissionsByUserUuidAndTemplateUuid(DbSession dbSession, @Nullable String currentUserUuid, String templateUuid) {
+    return mapper(dbSession).selectPotentialPermissionsByUserUuidAndTemplateUuid(currentUserUuid, templateUuid);
   }
 
   /**

@@ -201,7 +201,7 @@ public class UserDbTester {
   // GROUP MEMBERSHIP
 
   public UserGroupDto insertMember(GroupDto group, UserDto user) {
-    UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserId(user.getId());
+    UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
     db.getDbClient().userGroupDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
@@ -209,14 +209,14 @@ public class UserDbTester {
 
   public void insertMembers(GroupDto group, UserDto... users) {
     Arrays.stream(users).forEach(user -> {
-      UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserId(user.getId());
+      UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(user.getUuid());
       db.getDbClient().userGroupDao().insert(db.getSession(), dto);
     });
     db.commit();
   }
 
   public List<String> selectGroupUuidsOfUser(UserDto user) {
-    return db.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(db.getSession(), user.getId());
+    return db.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(db.getSession(), user.getUuid());
   }
 
   // GROUP PERMISSIONS

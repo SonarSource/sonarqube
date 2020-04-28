@@ -302,9 +302,9 @@ public class MemberUpdaterTest {
 
     underTest.removeMember(db.getSession(), organization, user);
 
-    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserId(db.getSession(), user.getId()))
+    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(db.getSession(), user.getUuid()))
       .containsOnly(anotherGroup.getUuid());
-    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserId(db.getSession(), anotherUser.getId()))
+    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(db.getSession(), anotherUser.getUuid()))
       .containsOnly(group.getUuid(), anotherGroup.getUuid());
   }
 
@@ -320,7 +320,7 @@ public class MemberUpdaterTest {
 
     underTest.removeMember(db.getSession(), organization, user);
 
-    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserId(db.getSession(), user.getId())).isEmpty();
+    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(db.getSession(), user.getUuid())).isEmpty();
   }
 
   @Test

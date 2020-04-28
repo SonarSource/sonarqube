@@ -5,15 +5,15 @@
 
   <sql id="commonClauses">
     FROM groups g
-    LEFT JOIN groups_users gu ON gu.group_uuid=g.uuid AND gu.user_id=#{userId}
+    LEFT JOIN groups_users gu ON gu.group_uuid=g.uuid AND gu.user_uuid=#{userUuid}
     <where>
       AND g.organization_uuid=#{organizationUuid}
       <choose>
         <when test="query.membership() == 'IN'">
-          AND gu.user_id IS NOT NULL
+          AND gu.user_uuid IS NOT NULL
         </when>
         <when test="query.membership() == 'OUT'">
-          AND gu.user_id IS NULL
+          AND gu.user_uuid IS NULL
         </when>
       </choose>
       <if test="query.groupSearch() != null">
@@ -23,7 +23,7 @@
   </sql>
 
   <select id="selectGroups" parameterType="map" resultType="GroupMembership">
-    SELECT g.uuid as uuid, g.name as name, g.description as description, gu.user_id as userId
+    SELECT g.uuid as uuid, g.name as name, g.description as description, gu.user_uuid as userUuid
     <include refid="commonClauses"/>
     ORDER BY g.name
   </select>
@@ -34,7 +34,7 @@
   </select>
 
   <select id="countUsersByGroup" parameterType="int" resultType="org.sonar.db.user.GroupUserCount">
-    SELECT g.name as groupName, count(gu.user_id) as userCount
+    SELECT g.name as groupName, count(gu.user_uuid) as userCount
     FROM groups g
     LEFT JOIN groups_users gu ON gu.group_uuid=g.uuid
     <where>
@@ -49,7 +49,7 @@
   <select id="selectGroupsByLogins" parameterType="string" resultType="org.sonar.db.user.LoginGroup">
     SELECT u.login as login, g.name as groupName
     FROM users u
-    LEFT JOIN groups_users gu ON gu.user_id=u.id
+    LEFT JOIN groups_users gu ON gu.user_uuid=u.uuid
     INNER JOIN groups g ON gu.group_uuid=g.uuid
     <where>
       u.login in
@@ -63,7 +63,7 @@
   <select id="selectGroupsByLoginsAndOrganization" parameterType="map" resultType="org.sonar.db.user.LoginGroup">
     SELECT u.login as login, g.name as groupName
     FROM users u
-    LEFT JOIN groups_users gu ON gu.user_id=u.id
+    LEFT JOIN groups_users gu ON gu.user_uuid=u.uuid
     INNER JOIN groups g ON gu.group_uuid=g.uuid
     <where>
       u.login in
@@ -77,7 +77,7 @@
 
   <sql id="userCommonClauses">
     FROM users u
-    LEFT JOIN groups_users gu ON gu.user_id=u.id AND gu.group_uuid=#{groupUuid}
+    LEFT JOIN groups_users gu ON gu.user_uuid=u.uuid AND gu.group_uuid=#{groupUuid}
     INNER JOIN organization_members om ON u.id=om.user_id AND om.organization_uuid=#{organizationUuid}
     <where>
       <choose>
@@ -109,9 +109,9 @@
     <include refid="userCommonClauses"/>
   </select>
 
-  <select id="selectGroupUuidsByUserId" parameterType="map" resultType="string">
+  <select id="selectGroupUuidsByUserUuid" parameterType="map" resultType="string">
     select group_uuid
     from groups_users
-    where user_id = #{userId}
+    where user_uuid = #{userUuid}
   </select>
 </mapper>

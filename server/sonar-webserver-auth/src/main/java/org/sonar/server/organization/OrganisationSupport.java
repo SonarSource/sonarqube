@@ -84,8 +84,8 @@ public class OrganisationSupport {
   }
 
   private void associateMembersOfDefaultOrganizationToGroup(DbSession dbSession, String defaultOrganizationUuid, GroupDto membersGroup) {
-    List<Integer> organizationMembers = dbClient.organizationMemberDao().selectUserIdsByOrganizationUuid(dbSession, defaultOrganizationUuid);
-    organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(membersGroup.getUuid()).setUserId(member)));
+    List<String> organizationMembers = dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, defaultOrganizationUuid);
+    organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(membersGroup.getUuid()).setUserUuid(member)));
   }
 
   private void copySonarUsersGroupPermissionsToMembersGroup(DbSession dbSession, String defaultOrganizationUuid, GroupDto sonarUsersGroup, GroupDto membersGroup) {

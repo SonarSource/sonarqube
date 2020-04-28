@@ -78,7 +78,7 @@ public class MemberUpdater {
       .setOrganizationUuid(organization.getUuid())
       .setUserId(user.getId()));
     dbClient.userGroupDao().insert(dbSession,
-      new UserGroupDto().setGroupUuid(defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()).getUuid()).setUserId(user.getId()));
+      new UserGroupDto().setGroupUuid(defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()).getUuid()).setUserUuid(user.getUuid()));
   }
 
   public void removeMember(DbSession dbSession, OrganizationDto organization, UserDto user) {
@@ -95,9 +95,9 @@ public class MemberUpdater {
       return;
     }
 
-    Set<Integer> userIdsToRemove = usersToRemove.stream().map(UserDto::getId).collect(toSet());
-    Set<Integer> adminIds = new HashSet<>(dbClient.authorizationDao().selectUserIdsWithGlobalPermission(dbSession, organization.getUuid(), ADMINISTER.getKey()));
-    checkArgument(!difference(adminIds, userIdsToRemove).isEmpty(), "The last administrator member cannot be removed");
+    Set<String> userUuidsToRemove = usersToRemove.stream().map(UserDto::getUuid).collect(toSet());
+    Set<String> adminUuids = new HashSet<>(dbClient.authorizationDao().selectUserUuidsWithGlobalPermission(dbSession, organization.getUuid(), ADMINISTER.getKey()));
+    checkArgument(!difference(adminUuids, userUuidsToRemove).isEmpty(), "The last administrator member cannot be removed");
 
     usersToRemove.forEach(u -> removeMemberInDb(dbSession, organization, u));
     userIndexer.commitAndIndex(dbSession, usersToRemove);
@@ -138,7 +138,7 @@ public class MemberUpdater {
     dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
     dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userId);
     dbClient.qProfileEditUsersDao().deleteByOrganizationAndUser(dbSession, organization, user);
-    dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
+    dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, user.getUuid());
     dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
     dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
 

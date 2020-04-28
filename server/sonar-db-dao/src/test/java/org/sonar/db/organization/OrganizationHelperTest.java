@@ -63,7 +63,7 @@ public class OrganizationHelperTest {
     GroupDto group1 = db.users().insertGroup(org1);
     db.users().insertMember(group1, user1);
 
-    assertThat(underTest.selectOrganizationsWithLastAdmin(dbSession, user1.getId())).isEmpty();
+    assertThat(underTest.selectOrganizationsWithLastAdmin(dbSession, user1.getUuid())).isEmpty();
   }
 
   @Test
@@ -78,7 +78,7 @@ public class OrganizationHelperTest {
     setAsDirectOrIndirectAdmin(user2, org1);
     setAsDirectOrIndirectAdmin(user1, org2);
 
-    assertThat(underTest.selectOrganizationsWithLastAdmin(dbSession, user1.getId()))
+    assertThat(underTest.selectOrganizationsWithLastAdmin(dbSession, user1.getUuid()))
       .extracting(OrganizationDto::getKey)
       .containsExactly(org2.getKey());
   }
@@ -104,7 +104,7 @@ public class OrganizationHelperTest {
       setAsDirectOrIndirectAdmin(user2, org2);
     }
 
-    assertThat(underTest.selectOrganizationsWithLastAdmin(dbSession, user1.getId()))
+    assertThat(underTest.selectOrganizationsWithLastAdmin(dbSession, user1.getUuid()))
       .extracting(OrganizationDto::getKey)
       .containsExactlyInAnyOrderElementsOf(expectedOrgKeys);
   }

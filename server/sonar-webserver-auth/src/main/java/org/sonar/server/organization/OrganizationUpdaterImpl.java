@@ -101,8 +101,8 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     GroupDto ownerGroup = insertOwnersGroup(dbSession, organization);
     GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
     insertDefaultTemplateOnGroups(dbSession, organization, ownerGroup, defaultGroup);
-    addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getId());
-    addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getId());
+    addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getUuid());
+    addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getUuid());
     try (DbSession batchDbSession = dbClient.openSession(true)) {
       insertQualityProfiles(dbSession, batchDbSession, organization);
       batchDbSession.commit();
@@ -238,10 +238,10 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
         .setRole(permission.getKey()));
   }
 
-  private void addCurrentUserToGroup(DbSession dbSession, GroupDto group, int createUserId) {
+  private void addCurrentUserToGroup(DbSession dbSession, GroupDto group, String createUserUuid) {
     dbClient.userGroupDao().insert(
       dbSession,
-      new UserGroupDto().setGroupUuid(group.getUuid()).setUserId(createUserId));
+      new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(createUserUuid));
   }
 
   private void insertOrganizationMember(DbSession dbSession, OrganizationDto organizationDto, int userId) {

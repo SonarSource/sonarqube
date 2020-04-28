@@ -877,15 +877,15 @@ public class OrganizationDaoTest {
     OrganizationDto organization3 = db.organizations().insert();
     db.users().insertPermissionOnUser(organization3, otherUser, PERMISSION_2);
 
-    assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_2))
+    assertThat(underTest.selectByPermission(dbSession, user.getUuid(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
       .containsOnly(organization1.getUuid(), organization2.getUuid());
 
-    assertThat(underTest.selectByPermission(dbSession, otherUser.getId(), PERMISSION_2))
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getUuid(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
       .containsOnly(organization3.getUuid());
 
-    assertThat(underTest.selectByPermission(dbSession, 1234, PERMISSION_2))
+    assertThat(underTest.selectByPermission(dbSession, "1234", PERMISSION_2))
       .isEmpty();
   }
 
@@ -906,15 +906,15 @@ public class OrganizationDaoTest {
     db.users().insertPermissionOnGroup(group2, PERMISSION_1);
     db.users().insertMember(group2, otherUser);
 
-    assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_1))
+    assertThat(underTest.selectByPermission(dbSession, user.getUuid(), PERMISSION_1))
       .extracting(OrganizationDto::getUuid)
       .containsOnly(organization1.getUuid(), organization2.getUuid());
 
-    assertThat(underTest.selectByPermission(dbSession, otherUser.getId(), PERMISSION_1))
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getUuid(), PERMISSION_1))
       .extracting(OrganizationDto::getUuid)
       .containsOnly(organization3.getUuid());
 
-    assertThat(underTest.selectByPermission(dbSession, 1234, PERMISSION_1))
+    assertThat(underTest.selectByPermission(dbSession, "1234", PERMISSION_1))
       .isEmpty();
   }
 
@@ -931,7 +931,7 @@ public class OrganizationDaoTest {
     db.users().insertMember(group2, user);
     db.users().insertPermissionOnUser(organization, user, permission);
 
-    assertThat(underTest.selectByPermission(dbSession, user.getId(), permission))
+    assertThat(underTest.selectByPermission(dbSession, user.getUuid(), permission))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(organization.getUuid());
   }
@@ -947,16 +947,16 @@ public class OrganizationDaoTest {
     db.users().insertPermissionOnUser(organization, otherUser, PERMISSION_2);
     db.users().insertPermissionOnUser(otherOrganization, otherUser, PERMISSION_1);
 
-    assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_1))
+    assertThat(underTest.selectByPermission(dbSession, user.getUuid(), PERMISSION_1))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(organization.getUuid());
-    assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_2))
+    assertThat(underTest.selectByPermission(dbSession, user.getUuid(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(otherOrganization.getUuid());
-    assertThat(underTest.selectByPermission(dbSession, otherUser.getId(), PERMISSION_1))
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getUuid(), PERMISSION_1))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(otherOrganization.getUuid());
-    assertThat(underTest.selectByPermission(dbSession, otherUser.getId(), PERMISSION_2))
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getUuid(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(organization.getUuid());
   }
@@ -980,16 +980,16 @@ public class OrganizationDaoTest {
     db.users().insertMember(group2, otherUser);
     db.users().insertMember(otherGroup1, otherUser);
 
-    assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_1))
+    assertThat(underTest.selectByPermission(dbSession, user.getUuid(), PERMISSION_1))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(organization.getUuid());
-    assertThat(underTest.selectByPermission(dbSession, user.getId(), PERMISSION_2))
+    assertThat(underTest.selectByPermission(dbSession, user.getUuid(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(otherOrganization.getUuid());
-    assertThat(underTest.selectByPermission(dbSession, otherUser.getId(), PERMISSION_1))
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getUuid(), PERMISSION_1))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(otherOrganization.getUuid());
-    assertThat(underTest.selectByPermission(dbSession, otherUser.getId(), PERMISSION_2))
+    assertThat(underTest.selectByPermission(dbSession, otherUser.getUuid(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(organization.getUuid());
   }

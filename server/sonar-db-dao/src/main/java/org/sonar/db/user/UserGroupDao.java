@@ -29,20 +29,20 @@ public class UserGroupDao implements Dao {
     return dto;
   }
 
-  public void delete(DbSession session, String groupUuid, int userId) {
-    mapper(session).delete(groupUuid, userId);
+  public void delete(DbSession session, String groupUuid, String userUuid) {
+    mapper(session).delete(groupUuid, userUuid);
   }
 
   public void deleteByGroupUuid(DbSession session, String groupUuid) {
     mapper(session).deleteByGroupUuid(groupUuid);
   }
 
-  public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, int userId) {
-    mapper(dbSession).deleteByOrganizationAndUser(organizationUuid, userId);
+  public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, String userUuid) {
+    mapper(dbSession).deleteByOrganizationAndUser(organizationUuid, userUuid);
   }
 
-  public void deleteByUserId(DbSession dbSession, int userId) {
-    mapper(dbSession).deleteByUserId(userId);
+  public void deleteByUserUuid(DbSession dbSession, String userUuid) {
+    mapper(dbSession).deleteByUserUuid(userUuid);
   }
 
   private static UserGroupMapper mapper(DbSession session) {

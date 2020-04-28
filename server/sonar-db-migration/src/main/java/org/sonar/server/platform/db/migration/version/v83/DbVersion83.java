@@ -259,6 +259,14 @@ import org.sonar.server.platform.db.migration.version.v83.userroles.DropResource
 import org.sonar.server.platform.db.migration.version.v83.userroles.MakeUserRolesUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.userroles.MigrateResourceIdToUuidInUserRoles;
 import org.sonar.server.platform.db.migration.version.v83.userroles.PopulateUserRolesUuid;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.AddIndexOnUserUuidOfGroupsUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.AddUniqueIndexOnUserUuidAndGroupIdOfGroupsUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.AddUserUuidColumnToGroupsUsers;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.DropIndexOnUserIdOfGroupsUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.DropUniqueIndexOnUserIdAndGroupIdOfGroupsUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.DropUserIdColumnOfGroupsUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.MakeGroupsUsersUserUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.PopulateGroupsUsersUserUuid;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddPrimaryKeyOnUuidColumnOfUserTokensTable;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddUuidColumnToUserTokens;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.DropIdColumnOfUserTokensTable;
@@ -580,7 +588,7 @@ public class DbVersion83 implements DbVersion {
       .add(3600, "Add 'group_uuid' column on 'GROUP_ROLES' table", AddGroupUuidColumnToGroupRoles.class)
       .add(3601, "Populate 'group_uuid' for 'GROUP_ROLES'", PopulateGroupRolesGroupUuid.class)
       .add(3602, "Drop index on 'group_id' column of 'GROUP_ROLES' table", DropIndexOnGroupIdOfGroupRolesTable.class)
-      .add(3603,"Add index on 'group_uuid' column of 'GROUP_ROLES' table", AddIndexOnGroupUuidOfGroupRolesTable.class)
+      .add(3603, "Add index on 'group_uuid' column of 'GROUP_ROLES' table", AddIndexOnGroupUuidOfGroupRolesTable.class)
 
       // Migration of FK in GROUPS_USERS to GROUPS
       .add(3604, "Add 'group_uuid' column on 'GROUPS_USERS' table", AddGroupUuidColumnToGroupsUsers.class)
@@ -627,6 +635,17 @@ public class DbVersion83 implements DbVersion {
       .add(3632, "drop unique index on 'UUID' column of 'QUALITY_GATES' table", DropUniqueIndexOnUuidColumnOfQualityGatesTable.class)
       .add(3633, "Add primary key on 'UUID' column of 'QUALITY_GATES' table", AddPrimaryKeyOnUuidColumnOfQGatesTable.class)
       .add(3634, "Drop column 'ID' of 'QUALITY_GATES' table", DropIdColumnOfQGateTable.class)
+
+      // Migration of FK in GROUPS_USERS to USERS
+      .add(3635, "Add 'user_uuid' column on 'GROUPS_USERS' table", AddUserUuidColumnToGroupsUsers.class)
+      .add(3636, "Populate 'user_uuid' for 'GROUPS_USERS'", PopulateGroupsUsersUserUuid.class)
+      .add(3637, "Make 'user_uuid' column not nullable for 'GROUPS_USERS'", MakeGroupsUsersUserUuidColumnNotNullable.class)
+      .add(3638, "Drop index on 'user_id' column of 'GROUPS_USERS' table", DropIndexOnUserIdOfGroupsUsersTable.class)
+      .add(3639, "Add index on 'user_uuid' column of 'GROUPS_USERS' table", AddIndexOnUserUuidOfGroupsUsersTable.class)
+      .add(3640, "Drop index on 'user_id', 'group_id' columns of 'GROUPS_USERS' table", DropUniqueIndexOnUserIdAndGroupIdOfGroupsUsersTable.class)
+      .add(3641, "Add unique index on 'user_uuid', 'group_id' columns of 'GROUPS_USERS' table", AddUniqueIndexOnUserUuidAndGroupIdOfGroupsUsersTable.class)
+      .add(3642, "Drop column on 'user_id' column of 'GROUPS_USERS' table", DropUserIdColumnOfGroupsUsersTable.class)
+
 
     ;
   }

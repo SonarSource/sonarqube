@@ -80,7 +80,7 @@ public class AddMemberActionTest {
 
     call(organization.getKey(), user.getLogin());
 
-    assertMember(organization.getUuid(), user.getId());
+    assertMember(organization.getUuid(), user);
   }
 
   @Test
@@ -96,12 +96,12 @@ public class AddMemberActionTest {
     call(organization.getKey(), user.getLogin());
     call(anotherOrg.getKey(), user.getLogin());
 
-    assertMember(organization.getUuid(), user.getId());
-    assertMember(anotherOrg.getUuid(), user.getId());
+    assertMember(organization.getUuid(), user);
+    assertMember(anotherOrg.getUuid(), user);
   }
 
   @Test
-  public void add_member_as_organization_admin() {
+    public void add_member_as_organization_admin() {
     OrganizationDto organization = db.organizations().insert();
     db.users().insertDefaultGroup(organization, "default");
     UserDto user = db.users().insertUser();
@@ -110,7 +110,7 @@ public class AddMemberActionTest {
 
     call(organization.getKey(), user.getLogin());
 
-    assertMember(organization.getUuid(), user.getId());
+    assertMember(organization.getUuid(), user);
   }
 
   @Test
@@ -120,11 +120,11 @@ public class AddMemberActionTest {
     UserDto user = db.users().insertUser();
     db.organizations().addMember(organization, user);
     db.users().insertMember(defaultGroup, user);
-    assertMember(organization.getUuid(), user.getId());
+    assertMember(organization.getUuid(), user);
 
     call(organization.getKey(), user.getLogin());
 
-    assertMember(organization.getUuid(), user.getId());
+    assertMember(organization.getUuid(), user);
   }
 
   @Test
@@ -266,13 +266,13 @@ public class AddMemberActionTest {
     return request.executeProtobuf(AddMemberWsResponse.class);
   }
 
-  private void assertMember(String organizationUuid, int userId) {
-    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)).isPresent();
+  private void assertMember(String organizationUuid, UserDto user) {
+    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getId())).isPresent();
     String defaultGroupUuid = dbClient.organizationDao().getDefaultGroupUuid(dbSession, organizationUuid).get();
     assertThat(db.getDbClient().groupMembershipDao().selectGroups(db.getSession(), GroupMembershipQuery.builder()
       .membership(IN)
       .organizationUuid(organizationUuid).build(),
-      userId, 0, 10))
+      user.getUuid(), 0, 10))
         .extracting(GroupMembershipDto::getUuid)
         .containsOnly(defaultGroupUuid);
   }

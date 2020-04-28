@@ -121,7 +121,7 @@ public class OrganizationDbTester {
     assertThat(db.getDbClient().groupMembershipDao().selectGroups(
       db.getSession(),
       GroupMembershipQuery.builder().membership(IN).organizationUuid(organization.getUuid()).build(),
-      user.getId(), 0, 10))
+      user.getUuid(), 0, 10))
         .extracting(GroupMembershipDto::getUuid)
         .as("User is not member of the default group of the organization")
         .containsOnly(defaultGroupUuid);
@@ -132,7 +132,7 @@ public class OrganizationDbTester {
       .isNotPresent();
     assertThat(db.getDbClient().groupMembershipDao().countGroups(db.getSession(),
       GroupMembershipQuery.builder().membership(IN).organizationUuid(organization.getUuid()).build(),
-      user.getId())).isZero();
+      user.getUuid())).isZero();
   }
 
 }

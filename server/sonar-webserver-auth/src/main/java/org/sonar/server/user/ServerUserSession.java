@@ -145,7 +145,7 @@ public class ServerUserSession extends AbstractUserSession {
     Set<String> permissionKeys;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (userDto != null && userDto.getId() != null) {
-        permissionKeys = dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organizationUuid, userDto.getId());
+        permissionKeys = dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organizationUuid, userDto.getUuid());
       } else {
         permissionKeys = dbClient.authorizationDao().selectOrganizationPermissionsOfAnonymous(dbSession, organizationUuid);
       }
@@ -204,7 +204,7 @@ public class ServerUserSession extends AbstractUserSession {
 
   private Set<String> loadDbPermissions(DbSession dbSession, String projectUuid) {
     if (userDto != null && userDto.getId() != null) {
-      return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getId());
+      return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getUuid());
     }
     return dbClient.authorizationDao().selectProjectPermissionsOfAnonymous(dbSession, projectUuid);
   }
@@ -215,7 +215,7 @@ public class ServerUserSession extends AbstractUserSession {
       Set<String> projectUuids = components.stream()
         .map(c -> defaultIfEmpty(c.getMainBranchProjectUuid(), c.projectUuid()))
         .collect(MoreCollectors.toSet(components.size()));
-      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, projectUuids, getUserId(), permission);
+      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, projectUuids, getUuid(), permission);
 
       return components.stream()
         .filter(c -> authorizedProjectUuids.contains(c.projectUuid()) || authorizedProjectUuids.contains(c.getMainBranchProjectUuid()))

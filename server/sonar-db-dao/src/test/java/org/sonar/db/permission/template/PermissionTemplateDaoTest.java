@@ -335,7 +335,7 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void selectPotentialPermissions_with_unknown_template_and_no_user() {
-    List<String> result = underTest.selectPotentialPermissionsByUserIdAndTemplateUuid(dbSession, null, "42");
+    List<String> result = underTest.selectPotentialPermissionsByUserUuidAndTemplateUuid(dbSession, null, "42");
 
     assertThat(result).isEmpty();
   }
@@ -345,7 +345,7 @@ public class PermissionTemplateDaoTest {
     UserDto user = db.users().insertUser();
     PermissionTemplateDto template = templateDb.insertTemplate();
 
-    List<String> result = underTest.selectPotentialPermissionsByUserIdAndTemplateUuid(dbSession, user.getId(), template.getUuid());
+    List<String> result = underTest.selectPotentialPermissionsByUserUuidAndTemplateUuid(dbSession, user.getUuid(), template.getUuid());
 
     assertThat(result).isEmpty();
   }
@@ -364,8 +364,8 @@ public class PermissionTemplateDaoTest {
     templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.ADMIN);
     templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);
 
-    List<String> resultWithUser = underTest.selectPotentialPermissionsByUserIdAndTemplateUuid(dbSession, user.getId(), template.getUuid());
-    List<String> resultWithoutUser = underTest.selectPotentialPermissionsByUserIdAndTemplateUuid(dbSession, null, template.getUuid());
+    List<String> resultWithUser = underTest.selectPotentialPermissionsByUserUuidAndTemplateUuid(dbSession, user.getUuid(), template.getUuid());
+    List<String> resultWithoutUser = underTest.selectPotentialPermissionsByUserUuidAndTemplateUuid(dbSession, null, template.getUuid());
 
     assertThat(resultWithUser).containsOnlyOnce(SCAN_EXECUTION, UserRole.ADMIN, UserRole.USER, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN);
     // only permission from anyone group

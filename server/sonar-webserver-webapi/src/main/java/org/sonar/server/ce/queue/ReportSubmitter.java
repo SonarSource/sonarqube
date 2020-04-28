@@ -162,9 +162,10 @@ public class ReportSubmitter {
     @Nullable String projectName) {
     userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
     Integer userId = userSession.getUserId();
+    String userUuid = userSession.getUuid();
 
     boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(
-      dbSession, organization.getUuid(), userId, componentKey.getDbKey());
+      dbSession, organization.getUuid(), userUuid, componentKey.getDbKey());
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }

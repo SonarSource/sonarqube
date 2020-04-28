@@ -33,10 +33,12 @@ import static java.util.Objects.requireNonNull;
 public class UserId {
 
   private final int id;
+  private final String uuid;
   private final String login;
 
-  public UserId(int userId, String login) {
+  public UserId(int userId, String uuid, String login) {
     this.id = userId;
+    this.uuid = uuid;
     this.login = requireNonNull(login);
   }
 
@@ -44,11 +46,15 @@ public class UserId {
     return id;
   }
 
+  public String getUuid() {
+    return uuid;
+  }
+
   public String getLogin() {
     return login;
   }
 
   public static UserId from(UserDto dto) {
-    return new UserId(dto.getId(), dto.getLogin());
+    return new UserId(dto.getId(), dto.getUuid(), dto.getLogin());
   }
 }

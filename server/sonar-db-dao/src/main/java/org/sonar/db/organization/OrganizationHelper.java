@@ -35,13 +35,13 @@ public class OrganizationHelper {
     this.dbClient = dbClient;
   }
 
-  public List<OrganizationDto> selectOrganizationsWithLastAdmin(DbSession dbSession, int userId) {
-    return dbClient.organizationDao().selectByPermission(dbSession, userId, ADMIN_PERMISSION).stream()
-      .filter(org -> isLastAdmin(dbSession, org, userId))
+  public List<OrganizationDto> selectOrganizationsWithLastAdmin(DbSession dbSession, String userUuid) {
+    return dbClient.organizationDao().selectByPermission(dbSession, userUuid, ADMIN_PERMISSION).stream()
+      .filter(org -> isLastAdmin(dbSession, org, userUuid))
       .collect(Collectors.toList());
   }
 
-  private boolean isLastAdmin(DbSession dbSession, OrganizationDto org, int userId) {
-    return dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, org.getUuid(), ADMIN_PERMISSION, userId) == 0;
+  private boolean isLastAdmin(DbSession dbSession, OrganizationDto org, String userUuid) {
+    return dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, org.getUuid(), ADMIN_PERMISSION, userUuid) == 0;
   }
 }
