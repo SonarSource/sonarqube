@@ -137,7 +137,7 @@ public class MemberUpdater {
     String userUuid = user.getUuid();
     String organizationUuid = organization.getUuid();
     dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
-    dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userId);
+    dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userUuid);
     dbClient.qProfileEditUsersDao().deleteByOrganizationAndUser(dbSession, organization, user);
     dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, user.getUuid());
     dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);

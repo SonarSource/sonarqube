@@ -93,10 +93,10 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     GroupDto group2 = db.users().insertGroup(organization);
     GroupDto group3 = db.users().insertGroup(organization);
 
-    addUserToTemplate(projectTemplate.getUuid(), user1.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getUuid(), user2.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getUuid(), user3.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getUuid(), user1.getId(), UserRole.CODEVIEWER);
+    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user2.getUuid(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user3.getUuid(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), UserRole.CODEVIEWER);
     addGroupToTemplate(projectTemplate.getUuid(), group1.getUuid(), UserRole.ADMIN);
     addPermissionTemplateWithProjectCreator(projectTemplate.getUuid(), UserRole.ADMIN);
 
@@ -124,15 +124,15 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     GroupDto group2 = db.users().insertGroup(organization);
     GroupDto group3 = db.users().insertGroup(organization);
 
-    addUserToTemplate(projectTemplate.getUuid(), user1.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getUuid(), user2.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getUuid(), user3.getId(), UserRole.ISSUE_ADMIN);
-    addUserToTemplate(projectTemplate.getUuid(), user1.getId(), UserRole.CODEVIEWER);
+    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user2.getUuid(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user3.getUuid(), UserRole.ISSUE_ADMIN);
+    addUserToTemplate(projectTemplate.getUuid(), user1.getUuid(), UserRole.CODEVIEWER);
     addGroupToTemplate(projectTemplate.getUuid(), group1.getUuid(), UserRole.ADMIN);
     addPermissionTemplateWithProjectCreator(projectTemplate.getUuid(), UserRole.ADMIN);
 
-    addUserToTemplate(portfoliosTemplate.getUuid(), user1.getId(), UserRole.USER);
-    addUserToTemplate(portfoliosTemplate.getUuid(), user2.getId(), UserRole.USER);
+    addUserToTemplate(portfoliosTemplate.getUuid(), user1.getUuid(), UserRole.USER);
+    addUserToTemplate(portfoliosTemplate.getUuid(), user2.getUuid(), UserRole.USER);
     addGroupToTemplate(portfoliosTemplate.getUuid(), group1.getUuid(), UserRole.ISSUE_ADMIN);
     addGroupToTemplate(portfoliosTemplate.getUuid(), group2.getUuid(), UserRole.ISSUE_ADMIN);
     addGroupToTemplate(portfoliosTemplate.getUuid(), group3.getUuid(), UserRole.ISSUE_ADMIN);
@@ -382,7 +382,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     db.getSession().commit();
   }
 
-  private void addUserToTemplate(String templateUuid, int userId, String permission) {
+  private void addUserToTemplate(String templateUuid, String userId, String permission) {
     dbClient.permissionTemplateDao().insertUserPermission(db.getSession(), templateUuid, userId, permission);
     db.getSession().commit();
   }

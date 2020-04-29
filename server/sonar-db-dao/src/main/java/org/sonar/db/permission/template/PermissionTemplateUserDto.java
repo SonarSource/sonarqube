@@ -24,7 +24,7 @@ import java.util.Date;
 public class PermissionTemplateUserDto {
   private String uuid;
   private String templateUuid;
-  private Integer userId;
+  private String userUuid;
   private String permission;
   private String userName;
   private String userLogin;
@@ -49,12 +49,12 @@ public class PermissionTemplateUserDto {
     return this;
   }
 
-  public Integer getUserId() {
-    return userId;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public PermissionTemplateUserDto setUserId(Integer userId) {
-    this.userId = userId;
+  public PermissionTemplateUserDto setUserUuid(String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 

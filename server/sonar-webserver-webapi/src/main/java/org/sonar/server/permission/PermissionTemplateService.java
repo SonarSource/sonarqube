@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -41,6 +43,7 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
@@ -129,11 +132,13 @@ public class PermissionTemplateService {
 
     List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid());
     String organizationUuid = template.getOrganizationUuid();
+    Map<String, Integer> userDtoMap = dbClient.userDao().selectByUuids(dbSession, usersPermissions.stream().map(PermissionTemplateUserDto::getUserUuid).collect(Collectors.toSet()))
+      .stream().collect(Collectors.toMap(UserDto::getUuid, UserDto::getId));
     usersPermissions
       .stream()
       .filter(up -> permissionValidForProject(project, up.getPermission()))
       .forEach(up -> {
-        UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), organizationUuid, up.getPermission(), up.getUserId(), project.uuid());
+        UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), organizationUuid, up.getPermission(), userDtoMap.get(up.getUserUuid()), project.uuid());
         dbClient.userPermissionDao().insert(dbSession, dto);
       });
 
@@ -155,7 +160,7 @@ public class PermissionTemplateService {
     List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateUuids(dbSession, singletonList(template.getUuid()));
     if (projectCreatorUserId != null) {
       Set<String> permissionsForCurrentUserAlreadyInDb = usersPermissions.stream()
-        .filter(userPermission -> projectCreatorUserId.equals(userPermission.getUserId()))
+        .filter(userPermission -> projectCreatorUserId.equals(userPermission.getUserUuid()))
         .map(PermissionTemplateUserDto::getPermission)
         .collect(java.util.stream.Collectors.toSet());
       characteristics.stream()

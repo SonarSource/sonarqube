@@ -275,6 +275,10 @@ import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationm
 import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.DropUserIdColumnOfOrganizationMembersTable;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.MakeOrganizationMembersUserUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.PopulateOrganizationMembersUserUuid;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplatesusers.AddUserUuidColumnToPermTemplatesUsers;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplatesusers.DropUserIdColumnOfPermTemplatesUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplatesusers.MakePermTemplatesUsersUserUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplatesusers.PopulatePermTemplatesUsersUserUuid;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddPrimaryKeyOnUuidColumnOfUserTokensTable;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddUuidColumnToUserTokens;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.DropIdColumnOfUserTokensTable;
@@ -662,6 +666,14 @@ public class DbVersion83 implements DbVersion {
       .add(3647, "Add index on 'user_uuid' column of 'ORGANIZATION_MEMBERS' table", AddIndexOnUserUuidOfOrganizationMembersTable.class)
       .add(3648, "Drop index on 'user_id', 'group_id' columns of 'ORGANIZATION_MEMBERS' table", DropPrimaryKeyOnUserIdAndOrganizationUuidOfOrganizationMembersTable.class)
       .add(3649, "Add PK on 'user_uuid', 'organization_uuid' columns of 'ORGANIZATION_MEMBERS' table", AddPrimaryKeyOnUserUuidAndOrganizationUuidColumnsOfUserRolesTable.class)
-      .add(3650, "Drop column on 'user_id' column of 'ORGANIZATION_MEMBERS' table", DropUserIdColumnOfOrganizationMembersTable.class);
+      .add(3650, "Drop column on 'user_id' column of 'ORGANIZATION_MEMBERS' table", DropUserIdColumnOfOrganizationMembersTable.class)
+
+      // Migration of FK in PERM_TEMPLATES_USERS to USERS
+      .add(3651, "Add 'user_uuid' column on 'PERM_TEMPLATES_USERS' table", AddUserUuidColumnToPermTemplatesUsers.class)
+      .add(3652, "Populate 'user_uuid' for 'PERM_TEMPLATES_USERS'", PopulatePermTemplatesUsersUserUuid.class)
+      .add(3653, "Make 'user_uuid' not-null for 'PERM_TEMPLATES_USERS'", MakePermTemplatesUsersUserUuidColumnNotNullable.class)
+      .add(3654, "Drop column on 'user_id' column of 'PERM_TEMPLATES_USERS' table", DropUserIdColumnOfPermTemplatesUsersTable.class)
+
+    ;
   }
 }

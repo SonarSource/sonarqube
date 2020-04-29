@@ -207,7 +207,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   private void addUserToTemplate(UserDto user, PermissionTemplateDto permissionTemplate, String permission) {
-    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), permissionTemplate.getUuid(), user.getId(), permission);
+    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), permissionTemplate.getUuid(), user.getUuid(), permission);
     db.commit();
   }
 

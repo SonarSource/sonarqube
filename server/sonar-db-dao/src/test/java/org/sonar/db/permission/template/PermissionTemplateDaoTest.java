@@ -209,13 +209,13 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
     UserDto user = db.users().insertUser();
 
-    underTest.insertUserPermission(dbSession, permissionTemplate.getUuid(), user.getId(), "user");
+    underTest.insertUserPermission(dbSession, permissionTemplate.getUuid(), user.getUuid(), "user");
 
     assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), permissionTemplate.getUuid()))
-      .extracting(PermissionTemplateUserDto::getTemplateUuid, PermissionTemplateUserDto::getUserId, PermissionTemplateUserDto::getPermission,
+      .extracting(PermissionTemplateUserDto::getTemplateUuid, PermissionTemplateUserDto::getUserUuid, PermissionTemplateUserDto::getPermission,
         PermissionTemplateUserDto::getCreatedAt,
         PermissionTemplateUserDto::getUpdatedAt)
-      .containsOnly(tuple(permissionTemplate.getUuid(), user.getId(), "user", NOW, NOW));
+      .containsOnly(tuple(permissionTemplate.getUuid(), user.getUuid(), "user", NOW, NOW));
   }
 
   @Test
@@ -227,11 +227,11 @@ public class PermissionTemplateDaoTest {
     templateDb.addUserToTemplate(permissionTemplate, user1, "admin");
     templateDb.addUserToTemplate(permissionTemplate, user2, "user");
 
-    underTest.deleteUserPermission(dbSession, permissionTemplate.getUuid(), user1.getId(), "user");
+    underTest.deleteUserPermission(dbSession, permissionTemplate.getUuid(), user1.getUuid(), "user");
 
     assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), permissionTemplate.getUuid()))
-      .extracting(PermissionTemplateUserDto::getUserId, PermissionTemplateUserDto::getPermission)
-      .containsOnly(tuple(user1.getId(), "admin"), tuple(user2.getId(), "user"));
+      .extracting(PermissionTemplateUserDto::getUserUuid, PermissionTemplateUserDto::getPermission)
+      .containsOnly(tuple(user1.getUuid(), "admin"), tuple(user2.getUuid(), "user"));
   }
 
   @Test
@@ -315,12 +315,12 @@ public class PermissionTemplateDaoTest {
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
 
-    templateDb.addUserToTemplate(template1.getUuid(), user1.getId(), ADMIN);
-    templateDb.addUserToTemplate(template1.getUuid(), user2.getId(), ADMIN);
-    templateDb.addUserToTemplate(template1.getUuid(), user3.getId(), ADMIN);
-    templateDb.addUserToTemplate(template1.getUuid(), user1.getId(), USER);
-    templateDb.addUserToTemplate(template2.getUuid(), user1.getId(), USER);
-    templateDb.addUserToTemplate(anotherTemplate.getUuid(), user1.getId(), ISSUE_ADMIN);
+    templateDb.addUserToTemplate(template1.getUuid(), user1.getUuid(), ADMIN);
+    templateDb.addUserToTemplate(template1.getUuid(), user2.getUuid(), ADMIN);
+    templateDb.addUserToTemplate(template1.getUuid(), user3.getUuid(), ADMIN);
+    templateDb.addUserToTemplate(template1.getUuid(), user1.getUuid(), USER);
+    templateDb.addUserToTemplate(template2.getUuid(), user1.getUuid(), USER);
+    templateDb.addUserToTemplate(anotherTemplate.getUuid(), user1.getUuid(), ISSUE_ADMIN);
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
     underTest.usersCountByTemplateUuidAndPermission(dbSession, asList(template1.getUuid(), template2.getUuid(), template3.getUuid()),
@@ -358,8 +358,8 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto template = templateDb.insertTemplate();
     templateDb.addProjectCreatorToTemplate(template.getUuid(), SCAN_EXECUTION);
     templateDb.addProjectCreatorToTemplate(template.getUuid(), UserRole.ADMIN);
-    templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.USER);
-    templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.ADMIN);
+    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER);
+    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.ADMIN);
     templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER);
     templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.ADMIN);
     templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);
@@ -438,18 +438,18 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
     PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate(anotherOrganization);
     String permission = "PERMISSION";
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getId(), permission);
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), anotherUser.getId(), permission);
-    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), permission);
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), anotherUser.getUuid(), permission);
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), permission);
 
-    underTest.deleteUserPermissionsByOrganization(dbSession, organization.getUuid(), user.getId());
+    underTest.deleteUserPermissionsByOrganization(dbSession, organization.getUuid(), user.getUuid());
 
-    assertThat(underTest.selectUserPermissionsByTemplateId(dbSession, template.getUuid())).extracting(PermissionTemplateUserDto::getUserId).containsOnly(anotherUser.getId());
-    assertThat(underTest.selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getUuid())).extracting(PermissionTemplateUserDto::getUserId).containsOnly(user.getId());
+    assertThat(underTest.selectUserPermissionsByTemplateId(dbSession, template.getUuid())).extracting(PermissionTemplateUserDto::getUserUuid).containsOnly(anotherUser.getUuid());
+    assertThat(underTest.selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getUuid())).extracting(PermissionTemplateUserDto::getUserUuid).containsOnly(user.getUuid());
   }
 
   @Test
-  public void delete_user_permissions_by_user_id() {
+  public void delete_user_permissions_by_user_uuid() {
     OrganizationDto organization = db.organizations().insert();
     OrganizationDto anotherOrganization = db.organizations().insert();
     UserDto user = db.users().insertUser();
@@ -457,16 +457,16 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
     PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate(anotherOrganization);
     String permission = "PERMISSION";
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getId(), permission);
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), anotherUser.getId(), permission);
-    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), permission);
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), anotherUser.getUuid(), permission);
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), permission);
 
-    underTest.deleteUserPermissionsByUserId(dbSession, user.getId());
+    underTest.deleteUserPermissionsByUserUuid(dbSession, user.getUuid());
     db.commit();
 
-    assertThat(db.select("select template_uuid as \"templateUuid\", user_id as \"userId\", permission_reference as \"permission\" from perm_templates_users"))
-      .extracting((row) -> row.get("templateUuid"), (row) -> row.get("userId"), (row) -> row.get("permission"))
-      .containsOnly(tuple(template.getUuid(), anotherUser.getId().longValue(), permission));
+    assertThat(db.select("select template_uuid as \"templateUuid\", user_uuid as \"userUuid\", permission_reference as \"permission\" from perm_templates_users"))
+      .extracting((row) -> row.get("templateUuid"), (row) -> row.get("userUuid"), (row) -> row.get("permission"))
+      .containsOnly(tuple(template.getUuid(), anotherUser.getUuid(), permission));
   }
 
   private PermissionTemplateDto createTemplate(OrganizationDto organization) {
@@ -476,8 +476,8 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto template = templateDb.insertTemplate(organization);
     templateDb.addProjectCreatorToTemplate(template.getUuid(), SCAN_EXECUTION);
     templateDb.addProjectCreatorToTemplate(template.getUuid(), UserRole.ADMIN);
-    templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.USER);
-    templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.ADMIN);
+    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER);
+    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.ADMIN);
     templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER);
     templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.ADMIN);
     templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);

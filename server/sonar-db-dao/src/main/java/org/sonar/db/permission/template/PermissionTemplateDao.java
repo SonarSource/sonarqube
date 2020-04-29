@@ -164,11 +164,11 @@ public class PermissionTemplateDao implements Dao {
     return permissionTemplate;
   }
 
-  public void insertUserPermission(DbSession session, String templateUuid, Integer userId, String permission) {
+  public void insertUserPermission(DbSession session, String templateUuid, String userUuid, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
       .setUuid(uuidFactory.create())
       .setTemplateUuid(templateUuid)
-      .setUserId(userId)
+      .setUserUuid(userUuid)
       .setPermission(permission)
       .setCreatedAt(now())
       .setUpdatedAt(now());
@@ -177,21 +177,21 @@ public class PermissionTemplateDao implements Dao {
     session.commit();
   }
 
-  public void deleteUserPermission(DbSession session, String templateUuid, Integer userId, String permission) {
+  public void deleteUserPermission(DbSession session, String templateUuid, String userUuid, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
       .setTemplateUuid(templateUuid)
       .setPermission(permission)
-      .setUserId(userId);
+      .setUserUuid(userUuid);
     mapper(session).deleteUserPermission(permissionTemplateUser);
     session.commit();
   }
 
-  public void deleteUserPermissionsByOrganization(DbSession dbSession, String organizationUuid, int userId) {
-    mapper(dbSession).deleteUserPermissionsByOrganization(organizationUuid, userId);
+  public void deleteUserPermissionsByOrganization(DbSession dbSession, String organizationUuid, String userUuid) {
+    mapper(dbSession).deleteUserPermissionsByOrganization(organizationUuid, userUuid);
   }
 
-  public void deleteUserPermissionsByUserId(DbSession dbSession, int userId) {
-    mapper(dbSession).deleteUserPermissionsByUserId(userId);
+  public void deleteUserPermissionsByUserUuid(DbSession dbSession, String userUuid) {
+    mapper(dbSession).deleteUserPermissionsByUserUuid(userUuid);
   }
 
   public void insertGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, String permission) {

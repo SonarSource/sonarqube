@@ -17,13 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers;
+package org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplatesusers;
 
+import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.version.v83.users.fk.util.AddUserUuidColumnToTable;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class AddUserUuidColumnToOrganizationMembers extends AddUserUuidColumnToTable {
-  public AddUserUuidColumnToOrganizationMembers(Database db) {
-    super(db, "organization_members");
+public class DropUserIdColumnOfPermTemplatesUsersTable extends DdlChange {
+  public DropUserIdColumnOfPermTemplatesUsersTable(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), "perm_templates_users", "user_id").build());
   }
 }

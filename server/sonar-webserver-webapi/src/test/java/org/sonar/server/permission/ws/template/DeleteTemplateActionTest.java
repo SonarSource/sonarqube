@@ -421,7 +421,7 @@ public class DeleteTemplateActionTest {
     PermissionTemplateDto dto = db.permissionTemplates().insertTemplate(organization);
     UserDto user = db.getDbClient().userDao().insert(db.getSession(), UserTesting.newUserDto().setActive(true));
     GroupDto group = db.getDbClient().groupDao().insert(db.getSession(), GroupTesting.newGroupDto());
-    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), dto.getUuid(), user.getId(), UserRole.ADMIN);
+    db.getDbClient().permissionTemplateDao().insertUserPermission(db.getSession(), dto.getUuid(), user.getUuid(), UserRole.ADMIN);
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), dto.getUuid(), group.getUuid(), UserRole.CODEVIEWER);
     db.commit();
     return dto;

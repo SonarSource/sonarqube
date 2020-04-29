@@ -19,31 +19,13 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
-import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.util.MakeUserUuidColumnNotNullable;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
-
-public class MakeOrganizationMembersUserUuidColumnNotNullable extends DdlChange {
+public class MakeOrganizationMembersUserUuidColumnNotNullable extends MakeUserUuidColumnNotNullable {
   private static final String TABLE_NAME = "organization_members";
-  private static final VarcharColumnDef uuidColumnDefinition = newVarcharColumnDefBuilder()
-    .setColumnName("user_uuid")
-    .setIsNullable(false)
-    .setDefaultValue(null)
-    .setLimit(VarcharColumnDef.UUID_SIZE)
-    .build();
 
   public MakeOrganizationMembersUserUuidColumnNotNullable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new AlterColumnsBuilder(getDialect(), TABLE_NAME)
-      .updateColumn(uuidColumnDefinition)
-      .build());
+    super(db, TABLE_NAME);
   }
 }

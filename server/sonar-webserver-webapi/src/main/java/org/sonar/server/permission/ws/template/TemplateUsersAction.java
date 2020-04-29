@@ -129,14 +129,14 @@ public class TemplateUsersAction implements PermissionsWsAction {
   }
 
   private Permissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
-    Multimap<Integer, String> permissionsByUserId = TreeMultimap.create();
-    permissionTemplateUsers.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
+    Multimap<String, String> permissionsByUserUuid = TreeMultimap.create();
+    permissionTemplateUsers.forEach(userPermission -> permissionsByUserUuid.put(userPermission.getUserUuid(), userPermission.getPermission()));
 
     UsersWsResponse.Builder responseBuilder = UsersWsResponse.newBuilder();
     users.forEach(user -> {
       Permissions.User.Builder userResponse = responseBuilder.addUsersBuilder()
         .setLogin(user.getLogin())
-        .addAllPermissions(permissionsByUserId.get(user.getId()));
+        .addAllPermissions(permissionsByUserUuid.get(user.getUuid()));
       ofNullable(user.getEmail()).ifPresent(userResponse::setEmail);
       ofNullable(user.getName()).ifPresent(userResponse::setName);
       ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> userResponse.setAvatar(avatarResolver.create(user)));

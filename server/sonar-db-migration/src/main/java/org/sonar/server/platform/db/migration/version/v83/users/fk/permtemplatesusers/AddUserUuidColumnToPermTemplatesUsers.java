@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers;
+package org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplatesusers;
 
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.util.AddUserUuidColumnToTable;
 
-public class AddUserUuidColumnToOrganizationMembers extends AddUserUuidColumnToTable {
-  public AddUserUuidColumnToOrganizationMembers(Database db) {
-    super(db, "organization_members");
+public class AddUserUuidColumnToPermTemplatesUsers extends AddUserUuidColumnToTable {
+
+  public AddUserUuidColumnToPermTemplatesUsers(Database db) {
+    super(db, "perm_templates_users");
   }
 }

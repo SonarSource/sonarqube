@@ -101,7 +101,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
 
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
-      dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getUuid(), user.getId(), permission);
+      dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getUuid(), user.getUuid(), permission);
       dbSession.commit();
     }
   }

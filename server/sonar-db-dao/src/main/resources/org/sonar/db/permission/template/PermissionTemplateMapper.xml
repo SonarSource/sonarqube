@@ -54,21 +54,21 @@
   <delete id="deleteUserPermission" parameterType="PermissionTemplateUser">
     DELETE FROM perm_templates_users
     WHERE template_uuid = #{templateUuid}
-    AND user_id = #{userId}
+    AND user_uuid = #{userUuid}
     AND permission_reference = #{permission}
   </delete>
 
   <delete id="deleteUserPermissionsByOrganization" parameterType="map">
     delete from perm_templates_users
     where
-    user_id = #{userId,jdbcType=INTEGER}
+    user_uuid = #{userUuid,jdbcType=VARCHAR}
     and template_uuid in (select uuid from permission_templates where organization_uuid=#{organizationUuid,jdbcType=VARCHAR})
   </delete>
 
-  <delete id="deleteUserPermissionsByUserId" parameterType="integer">
+  <delete id="deleteUserPermissionsByUserUuid" parameterType="String">
     delete from perm_templates_users
     where
-    user_id = #{userId,jdbcType=INTEGER}
+    user_uuid = #{userUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteGroupPermissionsByTemplateUuid" parameterType="String">
@@ -103,8 +103,8 @@
   </delete>
 
   <insert id="insertUserPermission" parameterType="PermissionTemplateUser">
-    INSERT INTO perm_templates_users (uuid, template_uuid, user_id, permission_reference, created_at, updated_at)
-    VALUES (#{uuid}, #{templateUuid}, #{userId}, #{permission}, #{createdAt}, #{updatedAt})
+    INSERT INTO perm_templates_users (uuid, template_uuid, user_uuid, permission_reference, created_at, updated_at)
+    VALUES (#{uuid}, #{templateUuid}, #{userUuid}, #{permission}, #{createdAt}, #{updatedAt})
   </insert>
 
   <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
@@ -140,7 +140,7 @@
 
   <sql id="userLoginsByQueryAndTemplate">
     FROM users u
-    LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id
+    LEFT JOIN perm_templates_users ptu ON ptu.user_uuid=u.uuid
       AND ptu.template_uuid=#{templateUuid}
     INNER JOIN organization_members om ON u.uuid=om.user_uuid
       AND om.organization_uuid=#{query.organizationUuid}
@@ -251,7 +251,7 @@
     ptu.uuid,
     ptu.template_uuid as templateUuid,
     ptu.permission_reference AS permission,
-    ptu.user_id AS userId,
+    ptu.user_uuid AS userUuid,
     u.name AS userName,
     u.login AS userLogin,
     ptu.created_at AS createdAt,
@@ -262,7 +262,7 @@
     SELECT
     <include refid="permissionTemplateUserColumns"/>
     FROM perm_templates_users ptu
-    INNER JOIN users u ON u.id = ptu.user_id AND u.active = ${_true}
+    INNER JOIN users u ON u.uuid = ptu.user_uuid AND u.active = ${_true}
     <where>
       AND ptu.template_uuid = #{templateUuid}
       <if test="!logins.isEmpty()">
@@ -321,9 +321,8 @@
       -- from template users
       select ptu.permission_reference as permission_key
       from perm_templates_users ptu
-      inner join users u on u.id = ptu.user_id
       <where>
-        and u.uuid=#{userUuid}
+        and ptu.user_uuid=#{userUuid}
         and ptu.template_uuid=#{templateUuid}
       </where>
       UNION
@@ -356,7 +355,7 @@
           resultType="org.sonar.db.permission.template.CountByTemplateAndPermissionDto">
     SELECT ptu.template_uuid as templateUuid, ptu.permission_reference as permission, count(u.login) as count
     FROM users u
-    INNER JOIN perm_templates_users ptu ON ptu.user_id=u.id
+    INNER JOIN perm_templates_users ptu ON ptu.user_uuid=u.uuid
     AND ptu.template_uuid in
     <foreach collection="templateUuids" open="(" close=")" item="id" separator=",">
       #{id}

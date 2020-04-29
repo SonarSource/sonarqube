@@ -454,7 +454,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto template = templateDb.insertTemplate(organization);
     dbTester.organizations().setDefaultTemplates(template, null, null);
     templateDb.addProjectCreatorToTemplate(template.getUuid(), SCAN.getKey());
-    templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.USER);
+    templateDb.addUserToTemplate(template.getUuid(), user.getUuid(), UserRole.USER);
     templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER);
     templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);
 

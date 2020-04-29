@@ -70,11 +70,11 @@ public class PermissionTemplateDbTester {
   }
 
   public void addUserToTemplate(PermissionTemplateDto permissionTemplate, UserDto user, String permission) {
-    addUserToTemplate(permissionTemplate.getUuid(), user.getId(), permission);
+    addUserToTemplate(permissionTemplate.getUuid(), user.getUuid(), permission);
   }
 
-  public void addUserToTemplate(String templateUuid, int userId, String permission) {
-    dbClient.permissionTemplateDao().insertUserPermission(dbSession, templateUuid, userId, permission);
+  public void addUserToTemplate(String templateUuid, String userUuid, String permission) {
+    dbClient.permissionTemplateDao().insertUserPermission(dbSession, templateUuid, userUuid, permission);
     db.commit();
   }
 

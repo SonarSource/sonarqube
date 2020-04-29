@@ -173,14 +173,14 @@ public class DeactivateActionTest {
     UserDto user = db.users().insertUser();
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
     PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate();
-    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getId(), USER);
-    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getId(), CODEVIEWER);
+    db.permissionTemplates().addUserToTemplate(template.getUuid(), user.getUuid(), USER);
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getUuid(), user.getUuid(), CODEVIEWER);
 
     deactivate(user.getLogin());
 
-    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid())).extracting(PermissionTemplateUserDto::getUserId)
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid())).extracting(PermissionTemplateUserDto::getUserUuid)
       .isEmpty();
-    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getUuid())).extracting(PermissionTemplateUserDto::getUserId)
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getUuid())).extracting(PermissionTemplateUserDto::getUserUuid)
       .isEmpty();
   }
 
