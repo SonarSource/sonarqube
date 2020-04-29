@@ -99,7 +99,7 @@ public class AddUserAction implements UserGroupsWsAction {
   }
 
   private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId()).isPresent(),
+    checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getUuid()).isPresent(),
       "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
   }
 }

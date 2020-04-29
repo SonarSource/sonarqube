@@ -661,7 +661,7 @@ public class ServerUserSessionTest {
     assertThat(session.hasMembership(organization)).isTrue();
 
     // membership updated but not cache
-    db.getDbClient().organizationMemberDao().delete(db.getSession(), organization.getUuid(), user.getId());
+    db.getDbClient().organizationMemberDao().delete(db.getSession(), organization.getUuid(), user.getUuid());
     db.commit();
     assertThat(session.hasMembership(organization)).isTrue();
   }

@@ -31,14 +31,14 @@ public class OrganizationQuery {
   private static final OrganizationQuery NO_FILTER = newOrganizationQueryBuilder().build();
   private final Set<String> keys;
   @Nullable
-  private final Integer userId;
+  private final String userUuid;
   private final boolean withAnalyses;
   @Nullable
   private final Long analyzedAfter;
 
   private OrganizationQuery(Builder builder) {
     this.keys = builder.keys;
-    this.userId = builder.member;
+    this.userUuid = builder.member;
     this.withAnalyses = builder.withAnalyses;
     this.analyzedAfter = builder.analyzedAfter;
   }
@@ -49,8 +49,8 @@ public class OrganizationQuery {
   }
 
   @CheckForNull
-  public Integer getMember() {
-    return userId;
+  public String getMember() {
+    return userUuid;
   }
 
   public boolean isWithAnalyses() {
@@ -73,7 +73,7 @@ public class OrganizationQuery {
   public static class Builder {
     private Set<String> keys;
     @Nullable
-    private Integer member;
+    private String member;
     private boolean withAnalyses = false;
     @Nullable
     private Long analyzedAfter;
@@ -91,8 +91,8 @@ public class OrganizationQuery {
       return this;
     }
 
-    public Builder setMember(@Nullable Integer userId) {
-      this.member = userId;
+    public Builder setMember(@Nullable String userUuid) {
+      this.member = userUuid;
       return this;
     }
 

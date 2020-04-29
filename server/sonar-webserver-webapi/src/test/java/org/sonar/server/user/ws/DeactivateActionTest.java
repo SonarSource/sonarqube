@@ -223,8 +223,8 @@ public class DeactivateActionTest {
 
     deactivate(user.getLogin());
 
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getId())).isNotPresent();
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), anotherOrganization.getUuid(), user.getId())).isNotPresent();
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getUuid())).isNotPresent();
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), anotherOrganization.getUuid(), user.getUuid())).isNotPresent();
   }
 
   @Test

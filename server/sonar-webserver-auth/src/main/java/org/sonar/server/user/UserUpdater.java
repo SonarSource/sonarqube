@@ -463,7 +463,7 @@ public class UserUpdater {
 
   private void addUserToDefaultOrganization(DbSession dbSession, UserDto userDto) {
     String defOrgUuid = defaultOrganizationProvider.get().getUuid();
-    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto().setOrganizationUuid(defOrgUuid).setUserId(userDto.getId()));
+    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto().setOrganizationUuid(defOrgUuid).setUserUuid(userDto.getUuid()));
   }
 
   private void addDefaultGroup(DbSession dbSession, UserDto userDto) {

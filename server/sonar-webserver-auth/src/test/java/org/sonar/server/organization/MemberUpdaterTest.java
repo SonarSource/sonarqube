@@ -453,7 +453,7 @@ public class MemberUpdaterTest {
     underTest.synchronizeUserOrganizationMembership(db.getSession(), user, GITHUB, ImmutableSet.of("unknown"));
 
     // User is member of no organization
-    assertThat(db.getDbClient().organizationMemberDao().selectOrganizationUuidsByUser(db.getSession(), user.getId())).isEmpty();
+    assertThat(db.getDbClient().organizationMemberDao().selectOrganizationUuidsByUser(db.getSession(), user.getUuid())).isEmpty();
   }
 
   @Test

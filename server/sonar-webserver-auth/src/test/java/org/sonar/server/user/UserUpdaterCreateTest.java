@@ -640,7 +640,7 @@ public class UserUpdaterCreateTest {
       .build(), u -> {
       });
 
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getUuid())).isPresent();
   }
 
   @Test
@@ -656,7 +656,7 @@ public class UserUpdaterCreateTest {
       .build(), u -> {
       });
 
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isNotPresent();
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getUuid())).isNotPresent();
   }
 
   private GroupDto createDefaultGroup() {

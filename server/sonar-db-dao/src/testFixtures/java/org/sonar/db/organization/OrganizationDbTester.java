@@ -102,7 +102,8 @@ public class OrganizationDbTester {
 
   public void addMember(OrganizationDto organization, UserDto... users) {
     Arrays.stream(users)
-      .forEach(u -> db.getDbClient().organizationMemberDao().insert(db.getSession(), new OrganizationMemberDto().setOrganizationUuid(organization.getUuid()).setUserId(u.getId())));
+      .forEach(
+        u -> db.getDbClient().organizationMemberDao().insert(db.getSession(), new OrganizationMemberDto().setOrganizationUuid(organization.getUuid()).setUserUuid(u.getUuid())));
     db.commit();
   }
 
@@ -116,7 +117,7 @@ public class OrganizationDbTester {
   }
 
   public void assertUserIsMemberOfOrganization(OrganizationDto organization, UserDto user) {
-    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getId())).as("User is not member of the organization").isPresent();
+    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getUuid())).as("User is not member of the organization").isPresent();
     String defaultGroupUuid = db.getDbClient().organizationDao().getDefaultGroupUuid(db.getSession(), organization.getUuid()).get();
     assertThat(db.getDbClient().groupMembershipDao().selectGroups(
       db.getSession(),
@@ -128,7 +129,7 @@ public class OrganizationDbTester {
   }
 
   public void assertUserIsNotMemberOfOrganization(OrganizationDto organization, UserDto user) {
-    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getId())).as("User is still member of the organization")
+    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getUuid())).as("User is still member of the organization")
       .isNotPresent();
     assertThat(db.getDbClient().groupMembershipDao().countGroups(db.getSession(),
       GroupMembershipQuery.builder().membership(IN).organizationUuid(organization.getUuid()).build(),

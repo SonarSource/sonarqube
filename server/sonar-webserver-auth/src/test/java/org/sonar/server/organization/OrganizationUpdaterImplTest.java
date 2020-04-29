@@ -209,7 +209,7 @@ public class OrganizationUpdaterImplTest {
 
     OrganizationDto result = underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
-    assertThat(dbClient.organizationMemberDao().select(dbSession, result.getUuid(), user.getId())).isPresent();
+    assertThat(dbClient.organizationMemberDao().select(dbSession, result.getUuid(), user.getUuid())).isPresent();
     assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(result.getUuid()).setTextQuery(user.getLogin()).build(), new SearchOptions()).getTotal()).isEqualTo(1L);
   }
 

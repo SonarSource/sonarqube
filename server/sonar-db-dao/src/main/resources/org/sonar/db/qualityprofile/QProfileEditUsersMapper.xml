@@ -57,7 +57,7 @@
   <sql id="sqlSelectByQuery">
     FROM users u
     LEFT JOIN qprofile_edit_users qeu ON qeu.user_id=u.id AND qeu.qprofile_uuid=#{query.qProfileUuid, jdbcType=VARCHAR}
-    INNER JOIN organization_members om ON u.id=om.user_id AND om.organization_uuid=#{query.organizationUuid, jdbcType=VARCHAR}
+    INNER JOIN organization_members om ON u.uuid=om.user_uuid AND om.organization_uuid=#{query.organizationUuid, jdbcType=VARCHAR}
     <where>
       <choose>
         <when test="query.getMembership() == 'IN'">

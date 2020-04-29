@@ -142,7 +142,7 @@ public class CreateActionTest {
 
     Optional<UserDto> dbUser = db.users().selectUserByLogin("john");
     assertThat(dbUser).isPresent();
-    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dbUser.get().getId())).isPresent();
+    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dbUser.get().getUuid())).isPresent();
   }
 
   @Test

@@ -238,7 +238,7 @@ public class CreateActionTest {
     executeRequest("foo", "bar");
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, "bar").get();
-    assertThat(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getId())).isPresent();
+    assertThat(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getUuid())).isPresent();
     assertThat(es.client().prepareSearch(TYPE_USER)
       .setQuery(boolQuery()
         .must(termQuery(FIELD_ORGANIZATION_UUIDS, organization.getUuid()))

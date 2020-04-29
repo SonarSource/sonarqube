@@ -78,7 +78,7 @@ public class AssignAction extends Action {
       return Collections.emptySet();
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, assignee.getId());
+      return dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, assignee.getUuid());
     }
   }
 

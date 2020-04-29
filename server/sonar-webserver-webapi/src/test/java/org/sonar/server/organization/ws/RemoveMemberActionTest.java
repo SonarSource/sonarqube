@@ -263,11 +263,11 @@ public class RemoveMemberActionTest {
   }
 
   private void assertNotAMember(String organizationUuid, UserDto user) {
-    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getId())).isNotPresent();
+    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getUuid())).isNotPresent();
   }
 
   private void assertMember(String organizationUuid, UserDto user) {
-    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getId())).isPresent();
+    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getUuid())).isPresent();
     assertThat(userIndex.search(UserQuery.builder()
       .setOrganizationUuid(organizationUuid)
       .setTextQuery(user.getLogin())

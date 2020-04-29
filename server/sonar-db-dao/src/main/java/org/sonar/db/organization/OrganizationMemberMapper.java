@@ -25,13 +25,11 @@ import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
 public interface OrganizationMemberMapper {
-  OrganizationMemberDto select(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
+  OrganizationMemberDto select(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 
-  Set<String> selectOrganizationUuidsByUser(@Param("userId") int userId);
+  Set<String> selectOrganizationUuidsByUser(@Param("userUuid") String userUuid);
 
   List<String> selectUserUuids(String organizationUuid);
-
-  List<Integer> selectUserIds(String organizationUuid);
 
   List<Map<String, String>> selectForIndexing(@Param("uuids") List<String> uuids);
 
@@ -39,10 +37,10 @@ public interface OrganizationMemberMapper {
 
   void insert(OrganizationMemberDto organizationMember);
 
-  void delete(@Param("organizationUuid") String organizationUuid, @Param("userId") Integer userId);
+  void delete(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
-  void deleteByUserId(@Param("userId") int userId);
+  void deleteByUserUuid(@Param("userUuid") String userUuid);
 
 }

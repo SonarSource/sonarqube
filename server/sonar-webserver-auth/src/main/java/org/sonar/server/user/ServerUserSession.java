@@ -259,7 +259,7 @@ public class ServerUserSession extends AbstractUserSession {
       return true;
     }
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<OrganizationMemberDto> organizationMemberDto = dbClient.organizationMemberDao().select(dbSession, organizationUuid, requireNonNull(getUserId()));
+      Optional<OrganizationMemberDto> organizationMemberDto = dbClient.organizationMemberDao().select(dbSession, organizationUuid, requireNonNull(getUuid()));
       if (organizationMemberDto.isPresent()) {
         organizationMembership.add(organizationUuid);
       }

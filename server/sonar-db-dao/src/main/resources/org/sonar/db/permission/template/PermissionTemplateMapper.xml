@@ -142,7 +142,7 @@
     FROM users u
     LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id
       AND ptu.template_uuid=#{templateUuid}
-    INNER JOIN organization_members om ON u.id=om.user_id
+    INNER JOIN organization_members om ON u.uuid=om.user_uuid
       AND om.organization_uuid=#{query.organizationUuid}
     <where>
       u.active = ${_true}

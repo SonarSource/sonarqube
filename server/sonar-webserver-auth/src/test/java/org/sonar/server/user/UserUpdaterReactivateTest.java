@@ -266,7 +266,7 @@ public class UserUpdaterReactivateTest {
     UserDto dto = underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder().setLogin(user.getLogin()).setName(user.getName()).build(), u -> {
     });
 
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getUuid())).isPresent();
   }
 
   @Test
@@ -278,7 +278,7 @@ public class UserUpdaterReactivateTest {
     UserDto dto = underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder().setLogin(user.getLogin()).setName(user.getName()).build(), u -> {
     });
 
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isNotPresent();
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getUuid())).isNotPresent();
   }
 
   @Test

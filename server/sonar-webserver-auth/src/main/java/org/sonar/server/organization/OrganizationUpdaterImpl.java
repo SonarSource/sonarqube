@@ -96,7 +96,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     QualityGateDto builtInQualityGate = dbClient.qualityGateDao().selectBuiltIn(dbSession);
     OrganizationDto organization = insertOrganization(dbSession, newOrganization, builtInQualityGate);
     beforeCommit.accept(organization);
-    insertOrganizationMember(dbSession, organization, userCreator.getId());
+    insertOrganizationMember(dbSession, organization, userCreator.getUuid());
     dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organization, builtInQualityGate);
     GroupDto ownerGroup = insertOwnersGroup(dbSession, organization);
     GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
@@ -244,9 +244,9 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       new UserGroupDto().setGroupUuid(group.getUuid()).setUserUuid(createUserUuid));
   }
 
-  private void insertOrganizationMember(DbSession dbSession, OrganizationDto organizationDto, int userId) {
+  private void insertOrganizationMember(DbSession dbSession, OrganizationDto organizationDto, String userUuid) {
     dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
       .setOrganizationUuid(organizationDto.getUuid())
-      .setUserId(userId));
+      .setUserUuid(userUuid));
   }
 }

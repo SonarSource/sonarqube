@@ -139,7 +139,7 @@ public class AssignAction implements IssuesWsAction {
       .orElseThrow(() -> new IllegalStateException(format("Unknown project %s", projectUuid)));
     OrganizationDto organizationDto = dbClient.organizationDao().selectByUuid(dbSession, project.getOrganizationUuid())
       .orElseThrow(() -> new IllegalStateException(format("Unknown organizationMember %s", project.getOrganizationUuid())));
-    checkArgument(dbClient.organizationMemberDao().select(dbSession, organizationDto.getUuid(), user.getId()).isPresent(),
+    checkArgument(dbClient.organizationMemberDao().select(dbSession, organizationDto.getUuid(), user.getUuid()).isPresent(),
       "User '%s' is not member of organization '%s'", user.getLogin(), organizationDto.getKey());
   }
 }

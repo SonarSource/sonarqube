@@ -5,7 +5,7 @@
 <mapper namespace="org.sonar.db.organization.OrganizationMemberMapper">
   <sql id="selectColumns">
     om.organization_uuid as "organizationUuid",
-    om.user_id as "userId"
+    om.user_uuid as "userUuid"
   </sql>
 
   <select id="select" resultType="OrganizationMember">
@@ -14,18 +14,11 @@
     from organization_members om
     where
     om.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    and om.user_id = #{userId, jdbcType=INTEGER}
+    and om.user_uuid = #{userUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectUserUuids" resultType="string">
-    select u.uuid
-    from organization_members om
-      inner join users u on om.user_id = u.id
-    where om.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectUserIds" resultType="Integer">
-    select om.user_id
+  <select id="selectUserUuids" resultType="String">
+    select om.user_uuid
     from organization_members om
     where om.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
@@ -33,35 +26,33 @@
   <select id="selectOrganizationUuidsByUser" resultType="String">
     select om.organization_uuid as "organizationUuid"
     from organization_members om
-    where om.user_id = #{userId, jdbcType=INTEGER}
+    where om.user_uuid = #{userUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectForIndexing" resultType="hashmap">
-    select u.uuid as "uuid", om.organization_uuid as "organizationUuid"
+    select om.user_uuid as "uuid", om.organization_uuid as "organizationUuid"
     from organization_members om
-     inner join users u on om.user_id=u.id
-    where u.uuid in
+    where om.user_uuid in
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
       #{uuid, jdbcType=VARCHAR}
     </foreach>
   </select>
 
   <select id="selectAllForIndexing" resultType="hashmap">
-    select u.uuid as "uuid", om.organization_uuid as "organizationUuid"
+    select om.user_uuid as "uuid", om.organization_uuid as "organizationUuid"
     from organization_members om
-    inner join users u on om.user_id=u.id
   </select>
 
   <insert id="insert" parameterType="OrganizationMember" useGeneratedKeys="false">
     insert into organization_members
     (
     organization_uuid,
-    user_id
+    user_uuid
     )
     values
     (
     #{organizationUuid, jdbcType=VARCHAR},
-    #{userId, jdbcType=INTEGER}
+    #{userUuid, jdbcType=VARCHAR}
     )
   </insert>
 
@@ -69,7 +60,7 @@
     delete from organization_members
     where
     organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    and user_id = #{userId, jdbcType=INTEGER}
+    and user_uuid = #{userUuid, jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteByOrganization" parameterType="map">
@@ -78,8 +69,8 @@
     organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteByUserId" parameterType="int">
-    DELETE FROM organization_members WHERE user_id=#{userId,jdbcType=BIGINT}
+  <delete id="deleteByUserUuid" parameterType="String">
+    DELETE FROM organization_members WHERE user_uuid=#{userUuid,jdbcType=VARCHAR}
   </delete>
 
 </mapper>

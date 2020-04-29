@@ -34,36 +34,32 @@ public class OrganizationMemberDao implements Dao {
     return dbSession.getMapper(OrganizationMemberMapper.class);
   }
 
-  public Optional<OrganizationMemberDto> select(DbSession dbSession, String organizationUuid, int userId) {
-    return Optional.ofNullable(mapper(dbSession).select(organizationUuid, userId));
+  public Optional<OrganizationMemberDto> select(DbSession dbSession, String organizationUuid, String userUuid) {
+    return Optional.ofNullable(mapper(dbSession).select(organizationUuid, userUuid));
   }
 
   public List<String> selectUserUuidsByOrganizationUuid(DbSession dbSession, String organizationUuid) {
     return mapper(dbSession).selectUserUuids(organizationUuid);
   }
 
-  public List<Integer> selectUserIdsByOrganizationUuid(DbSession dbSession, String organizationUuid) {
-    return mapper(dbSession).selectUserIds(organizationUuid);
-  }
-
   public void insert(DbSession dbSession, OrganizationMemberDto organizationMemberDto) {
     mapper(dbSession).insert(organizationMemberDto);
   }
 
-  public void delete(DbSession dbSession, String organizationMemberUuid, Integer userId) {
-    mapper(dbSession).delete(organizationMemberUuid, userId);
+  public void delete(DbSession dbSession, String organizationMemberUuid, String userUuid) {
+    mapper(dbSession).delete(organizationMemberUuid, userUuid);
   }
 
   public void deleteByOrganizationUuid(DbSession dbSession, String organizationMemberUuid) {
     mapper(dbSession).deleteByOrganization(organizationMemberUuid);
   }
 
-  public void deleteByUserId(DbSession dbSession, int userId) {
-    mapper(dbSession).deleteByUserId(userId);
+  public void deleteByUserUuid(DbSession dbSession, String userUuid) {
+    mapper(dbSession).deleteByUserUuid(userUuid);
   }
 
-  public Set<String> selectOrganizationUuidsByUser(DbSession dbSession, int userId) {
-    return mapper(dbSession).selectOrganizationUuidsByUser(userId);
+  public Set<String> selectOrganizationUuidsByUser(DbSession dbSession, String userUuid) {
+    return mapper(dbSession).selectOrganizationUuidsByUser(userUuid);
   }
 
   /**

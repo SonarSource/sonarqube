@@ -165,12 +165,12 @@ public class QProfileWsSupport {
   }
 
   private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    checkArgument(isMember(dbSession, organization, user.getId()),
+    checkArgument(isMember(dbSession, organization, user.getUuid()),
       "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
   }
 
-  private boolean isMember(DbSession dbSession, OrganizationDto organization, int userId) {
-    return dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), userId).isPresent();
+  private boolean isMember(DbSession dbSession, OrganizationDto organization, String userUuid) {
+    return dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), userUuid).isPresent();
   }
 
   private void checkMembershipOnPaidOrganization(OrganizationDto organization) {

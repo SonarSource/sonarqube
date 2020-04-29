@@ -101,7 +101,7 @@ public class UserIndexerTest {
     assertThat(docs)
       .extracting(UserDoc::uuid)
       .containsExactlyInAnyOrder(user.getUuid())
-    .doesNotContain(anotherUser.getUuid());
+      .doesNotContain(anotherUser.getUuid());
   }
 
   @Test
@@ -117,9 +117,14 @@ public class UserIndexerTest {
     underTest.commitAndIndex(db.getSession(), user);
 
     List<UserDoc> docs = es.getDocuments(TYPE_USER, UserDoc.class);
-    assertThat(docs)
-      .extracting(UserDoc::uuid, UserDoc::organizationUuids)
-      .containsExactlyInAnyOrder(tuple(user.getUuid(), asList(organization1.getUuid(), organization2.getUuid())));
+    assertThat(docs).hasSize(1);
+
+    UserDoc userDoc = docs.get(0);
+    assertThat(userDoc.uuid())
+      .isEqualTo(user.getUuid());
+
+    assertThat(userDoc.organizationUuids())
+      .containsExactlyInAnyOrder(organization1.getUuid(), organization2.getUuid());
   }
 
   @Test

@@ -21,7 +21,7 @@ package org.sonar.db.organization;
 
 public class OrganizationMemberDto {
   private String organizationUuid;
-  private Integer userId;
+  private String userUuid;
 
   public String getOrganizationUuid() {
     return organizationUuid;
@@ -32,12 +32,12 @@ public class OrganizationMemberDto {
     return this;
   }
 
-  public Integer getUserId() {
-    return userId;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public OrganizationMemberDto setUserId(Integer userId) {
-    this.userId = userId;
+  public OrganizationMemberDto setUserUuid(String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 }

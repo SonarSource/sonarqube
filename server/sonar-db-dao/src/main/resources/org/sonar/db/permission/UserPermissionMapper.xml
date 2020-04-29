@@ -41,7 +41,7 @@
       </otherwise>
     </choose>
     left join components p on ur.component_uuid = p.uuid
-    inner join organization_members om on u.id=om.user_id and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
+    inner join organization_members om on u.uuid=om.user_uuid and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <where>
       <include refid="sqlQueryFilters" />
     </where>
@@ -61,7 +61,7 @@
     from users u
     left join user_roles ur on ur.user_id = u.id
     left join components p on ur.component_uuid = p.uuid
-    inner join organization_members om on u.id=om.user_id and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
+    inner join organization_members om on u.uuid=om.user_uuid and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
   </sql>
 
   <sql id="sqlQueryFilters">

@@ -535,7 +535,7 @@ public class OrganizationDaoTest {
     db.organizations().addMember(organization, user);
     db.organizations().addMember(anotherOrganization, user);
 
-    List<OrganizationDto> result = underTest.selectByQuery(dbSession, newOrganizationQueryBuilder().setMember(user.getId()).build(), forPage(1).andSize(100));
+    List<OrganizationDto> result = underTest.selectByQuery(dbSession, newOrganizationQueryBuilder().setMember(user.getUuid()).build(), forPage(1).andSize(100));
 
     assertThat(result).extracting(OrganizationDto::getUuid)
       .containsExactlyInAnyOrder(organization.getUuid(), anotherOrganization.getUuid())
@@ -555,7 +555,7 @@ public class OrganizationDaoTest {
 
     List<OrganizationDto> result = underTest.selectByQuery(dbSession, newOrganizationQueryBuilder()
       .setKeys(Arrays.asList(organization.getKey(), anotherOrganization.getKey(), organizationWithoutMember.getKey()))
-      .setMember(user.getId()).build(), forPage(1).andSize(100));
+      .setMember(user.getUuid()).build(), forPage(1).andSize(100));
 
     assertThat(result).extracting(OrganizationDto::getUuid)
       .containsExactlyInAnyOrder(organization.getUuid(), anotherOrganization.getUuid())

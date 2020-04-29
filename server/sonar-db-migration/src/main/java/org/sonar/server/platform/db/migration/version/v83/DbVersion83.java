@@ -267,6 +267,14 @@ import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.D
 import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.DropUserIdColumnOfGroupsUsersTable;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.MakeGroupsUsersUserUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.PopulateGroupsUsersUserUuid;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.AddIndexOnUserUuidOfOrganizationMembersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.AddPrimaryKeyOnUserUuidAndOrganizationUuidColumnsOfUserRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.AddUserUuidColumnToOrganizationMembers;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.DropIndexOnUserIdOfOrganizationMembersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.DropPrimaryKeyOnUserIdAndOrganizationUuidOfOrganizationMembersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.DropUserIdColumnOfOrganizationMembersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.MakeOrganizationMembersUserUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.organizationmembers.PopulateOrganizationMembersUserUuid;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddPrimaryKeyOnUuidColumnOfUserTokensTable;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddUuidColumnToUserTokens;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.DropIdColumnOfUserTokensTable;
@@ -646,7 +654,14 @@ public class DbVersion83 implements DbVersion {
       .add(3641, "Add unique index on 'user_uuid', 'group_id' columns of 'GROUPS_USERS' table", AddUniqueIndexOnUserUuidAndGroupIdOfGroupsUsersTable.class)
       .add(3642, "Drop column on 'user_id' column of 'GROUPS_USERS' table", DropUserIdColumnOfGroupsUsersTable.class)
 
-
-    ;
+      // Migration of FK in ORGANIZATION_MEMBERS to USERS
+      .add(3643, "Add 'user_uuid' column on 'ORGANIZATION_MEMBERS' table", AddUserUuidColumnToOrganizationMembers.class)
+      .add(3644, "Populate 'user_uuid' for 'ORGANIZATION_MEMBERS'", PopulateOrganizationMembersUserUuid.class)
+      .add(3645, "Make 'user_uuid' not-null for 'ORGANIZATION_MEMBERS'", MakeOrganizationMembersUserUuidColumnNotNullable.class)
+      .add(3646, "Drop index on 'user_id' column of 'ORGANIZATION_MEMBERS' table", DropIndexOnUserIdOfOrganizationMembersTable.class)
+      .add(3647, "Add index on 'user_uuid' column of 'ORGANIZATION_MEMBERS' table", AddIndexOnUserUuidOfOrganizationMembersTable.class)
+      .add(3648, "Drop index on 'user_id', 'group_id' columns of 'ORGANIZATION_MEMBERS' table", DropPrimaryKeyOnUserIdAndOrganizationUuidOfOrganizationMembersTable.class)
+      .add(3649, "Add PK on 'user_uuid', 'organization_uuid' columns of 'ORGANIZATION_MEMBERS' table", AddPrimaryKeyOnUserUuidAndOrganizationUuidColumnsOfUserRolesTable.class)
+      .add(3650, "Drop column on 'user_id' column of 'ORGANIZATION_MEMBERS' table", DropUserIdColumnOfOrganizationMembersTable.class);
   }
 }

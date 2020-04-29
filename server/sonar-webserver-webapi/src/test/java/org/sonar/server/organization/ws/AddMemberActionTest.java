@@ -267,7 +267,7 @@ public class AddMemberActionTest {
   }
 
   private void assertMember(String organizationUuid, UserDto user) {
-    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getId())).isPresent();
+    assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, user.getUuid())).isPresent();
     String defaultGroupUuid = dbClient.organizationDao().getDefaultGroupUuid(dbSession, organizationUuid).get();
     assertThat(db.getDbClient().groupMembershipDao().selectGroups(db.getSession(), GroupMembershipQuery.builder()
       .membership(IN)

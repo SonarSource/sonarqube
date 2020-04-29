@@ -51,14 +51,14 @@ public class OrganizationMemberDaoTest {
 
   @Test
   public void select() {
-    underTest.insert(dbSession, create("O1", 512));
+    underTest.insert(dbSession, create("O1", "512"));
 
-    Optional<OrganizationMemberDto> result = underTest.select(dbSession, "O1", 512);
+    Optional<OrganizationMemberDto> result = underTest.select(dbSession, "O1", "512");
 
     assertThat(result).isPresent();
-    assertThat(result.get()).extracting(OrganizationMemberDto::getOrganizationUuid, OrganizationMemberDto::getUserId).containsExactly("O1", 512);
-    assertThat(underTest.select(dbSession, "O1", 256)).isNotPresent();
-    assertThat(underTest.select(dbSession, "O2", 512)).isNotPresent();
+    assertThat(result.get()).extracting(OrganizationMemberDto::getOrganizationUuid, OrganizationMemberDto::getUserUuid).containsExactly("O1", "512");
+    assertThat(underTest.select(dbSession, "O1", "256")).isNotPresent();
+    assertThat(underTest.select(dbSession, "O2", "512")).isNotPresent();
   }
 
   @Test
@@ -78,32 +78,16 @@ public class OrganizationMemberDaoTest {
   }
 
   @Test
-  public void select_user_ids() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    UserDto user = db.users().insertUser();
-    UserDto anotherUser = db.users().insertUser();
-    UserDto userInAnotherOrganization = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    db.organizations().addMember(organization, anotherUser);
-    db.organizations().addMember(anotherOrganization, userInAnotherOrganization);
-
-    List<Integer> result = underTest.selectUserIdsByOrganizationUuid(dbSession, organization.getUuid());
-
-    assertThat(result).containsOnly(user.getId(), anotherUser.getId());
-  }
-
-  @Test
-  public void select_organization_uuids_by_user_id() {
+  public void select_organization_uuids_by_user_uuid() {
     OrganizationDto organizationDto1 = db.organizations().insert();
     OrganizationDto organizationDto2 = db.organizations().insert();
     OrganizationDto organizationDto3 = db.organizations().insert();
-    underTest.insert(dbSession, create(organizationDto1.getUuid(), 512));
-    underTest.insert(dbSession, create(organizationDto2.getUuid(), 512));
+    underTest.insert(dbSession, create(organizationDto1.getUuid(), "512"));
+    underTest.insert(dbSession, create(organizationDto2.getUuid(), "512"));
 
-    assertThat(underTest.selectOrganizationUuidsByUser(dbSession, 512)).containsOnly(organizationDto1.getUuid(), organizationDto2.getUuid())
+    assertThat(underTest.selectOrganizationUuidsByUser(dbSession, "512")).containsOnly(organizationDto1.getUuid(), organizationDto2.getUuid())
       .doesNotContain(organizationDto3.getUuid());
-    assertThat(underTest.selectOrganizationUuidsByUser(dbSession, 123)).isEmpty();
+    assertThat(underTest.selectOrganizationUuidsByUser(dbSession, "123")).isEmpty();
   }
 
   @Test
@@ -140,22 +124,22 @@ public class OrganizationMemberDaoTest {
 
   @Test
   public void insert() {
-    underTest.insert(dbSession, create("O_1", 256));
+    underTest.insert(dbSession, create("O_1", "256"));
 
-    Map<String, Object> result = db.selectFirst(dbSession, "select organization_uuid as \"organizationUuid\", user_id as \"userId\" from organization_members");
+    Map<String, Object> result = db.selectFirst(dbSession, "select organization_uuid as \"organizationUuid\", user_uuid as \"userUuid\" from organization_members");
 
-    assertThat(result).containsOnly(entry("organizationUuid", "O_1"), entry("userId", 256L));
+    assertThat(result).containsOnly(entry("organizationUuid", "O_1"), entry("userUuid", "256"));
   }
 
   @Test
   public void fail_insert_if_no_organization_uuid() {
     expectedException.expect(PersistenceException.class);
 
-    underTest.insert(dbSession, create(null, 256));
+    underTest.insert(dbSession, create(null, "256"));
   }
 
   @Test
-  public void fail_insert_if_no_user_id() {
+  public void fail_insert_if_no_user_uuid() {
     expectedException.expect(PersistenceException.class);
 
     underTest.insert(dbSession, create("O_1", null));
@@ -163,42 +147,42 @@ public class OrganizationMemberDaoTest {
 
   @Test
   public void fail_if_organization_member_already_exist() {
-    underTest.insert(dbSession, create("O_1", 256));
+    underTest.insert(dbSession, create("O_1", "256"));
     expectedException.expect(PersistenceException.class);
 
-    underTest.insert(dbSession, create("O_1", 256));
+    underTest.insert(dbSession, create("O_1", "256"));
   }
 
   @Test
   public void delete_by_organization() {
-    underTest.insert(dbSession, create("O1", 512));
-    underTest.insert(dbSession, create("O1", 513));
-    underTest.insert(dbSession, create("O2", 512));
+    underTest.insert(dbSession, create("O1", "512"));
+    underTest.insert(dbSession, create("O1", "513"));
+    underTest.insert(dbSession, create("O2", "512"));
 
     underTest.deleteByOrganizationUuid(dbSession, "O1");
 
-    assertThat(underTest.select(dbSession, "O1", 512)).isNotPresent();
-    assertThat(underTest.select(dbSession, "O1", 513)).isNotPresent();
-    assertThat(underTest.select(dbSession, "O2", 512)).isPresent();
+    assertThat(underTest.select(dbSession, "O1", "512")).isNotPresent();
+    assertThat(underTest.select(dbSession, "O1", "513")).isNotPresent();
+    assertThat(underTest.select(dbSession, "O2", "512")).isPresent();
   }
 
   @Test
-  public void delete_by_user_id() {
-    underTest.insert(dbSession, create("O1", 512));
-    underTest.insert(dbSession, create("O1", 513));
-    underTest.insert(dbSession, create("O2", 512));
+  public void delete_by_user_uuid() {
+    underTest.insert(dbSession, create("O1", "512"));
+    underTest.insert(dbSession, create("O1", "513"));
+    underTest.insert(dbSession, create("O2", "512"));
 
-    underTest.deleteByUserId(dbSession, 512);
+    underTest.deleteByUserUuid(dbSession, "512");
     db.commit();
 
-    assertThat(db.select("select organization_uuid as \"organizationUuid\", user_id as \"userId\" from organization_members"))
-      .extracting((row) -> row.get("organizationUuid"), (row) -> row.get("userId"))
-      .containsOnly(tuple("O1", 513L));
+    assertThat(db.select("select organization_uuid as \"organizationUuid\", user_uuid as \"userUuid\" from organization_members"))
+      .extracting((row) -> row.get("organizationUuid"), (row) -> row.get("userUuid"))
+      .containsOnly(tuple("O1", "513"));
   }
 
-  private OrganizationMemberDto create(String organizationUuid, Integer userId) {
+  private OrganizationMemberDto create(String organizationUuid, String userUuid) {
     return new OrganizationMemberDto()
       .setOrganizationUuid(organizationUuid)
-      .setUserId(userId);
+      .setUserUuid(userUuid);
   }
 }

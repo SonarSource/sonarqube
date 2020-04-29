@@ -61,10 +61,10 @@ public class MemberUpdater {
   }
 
   public void addMembers(DbSession dbSession, OrganizationDto organization, List<UserDto> users) {
-    Set<Integer> currentMemberIds = new HashSet<>(dbClient.organizationMemberDao().selectUserIdsByOrganizationUuid(dbSession, organization.getUuid()));
+    Set<String> currentMemberUuids = new HashSet<>(dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, organization.getUuid()));
     List<UserDto> usersToAdd = users.stream()
       .filter(UserDto::isActive)
-      .filter(u -> !currentMemberIds.contains(u.getId()))
+      .filter(u -> !currentMemberUuids.contains(u.getUuid()))
       .collect(toList());
     if (usersToAdd.isEmpty()) {
       return;
@@ -76,7 +76,7 @@ public class MemberUpdater {
   private void addMemberInDb(DbSession dbSession, OrganizationDto organization, UserDto user) {
     dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto()
       .setOrganizationUuid(organization.getUuid())
-      .setUserId(user.getId()));
+      .setUserUuid(user.getUuid()));
     dbClient.userGroupDao().insert(dbSession,
       new UserGroupDto().setGroupUuid(defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()).getUuid()).setUserUuid(user.getUuid()));
   }
@@ -86,10 +86,10 @@ public class MemberUpdater {
   }
 
   public void removeMembers(DbSession dbSession, OrganizationDto organization, List<UserDto> users) {
-    Set<Integer> currentMemberIds = new HashSet<>(dbClient.organizationMemberDao().selectUserIdsByOrganizationUuid(dbSession, organization.getUuid()));
+    Set<String> currentMemberIds = new HashSet<>(dbClient.organizationMemberDao().selectUserUuidsByOrganizationUuid(dbSession, organization.getUuid()));
     List<UserDto> usersToRemove = users.stream()
       .filter(UserDto::isActive)
-      .filter(u -> currentMemberIds.contains(u.getId()))
+      .filter(u -> currentMemberIds.contains(u.getUuid()))
       .collect(toList());
     if (usersToRemove.isEmpty()) {
       return;
@@ -108,7 +108,7 @@ public class MemberUpdater {
    * Please note that no commit will not be executed.
    */
   public void synchronizeUserOrganizationMembership(DbSession dbSession, UserDto user, ALM alm, Set<String> organizationAlmIds) {
-    Set<String> userOrganizationUuids = dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, user.getId());
+    Set<String> userOrganizationUuids = dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, user.getUuid());
     Set<String> userOrganizationUuidsWithMembersSyncEnabled = dbClient.organizationAlmBindingDao().selectByOrganizationUuids(dbSession, userOrganizationUuids).stream()
       .filter(OrganizationAlmBindingDto::isMembersSyncEnable)
       .map(OrganizationAlmBindingDto::getOrganizationUuid)
@@ -134,6 +134,7 @@ public class MemberUpdater {
 
   private void removeMemberInDb(DbSession dbSession, OrganizationDto organization, UserDto user) {
     int userId = user.getId();
+    String userUuid = user.getUuid();
     String organizationUuid = organization.getUuid();
     dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
     dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userId);
@@ -142,7 +143,7 @@ public class MemberUpdater {
     dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
     dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
 
-    dbClient.organizationMemberDao().delete(dbSession, organizationUuid, userId);
+    dbClient.organizationMemberDao().delete(dbSession, organizationUuid, userUuid);
   }
 
 }

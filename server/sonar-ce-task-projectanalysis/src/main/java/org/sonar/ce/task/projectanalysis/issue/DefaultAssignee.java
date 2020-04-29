@@ -81,6 +81,6 @@ public class DefaultAssignee {
   }
 
   private boolean isUserMemberOfOrganization(DbSession dbSession, UserDto user) {
-    return dbClient.organizationMemberDao().select(dbSession, analysisMetadataHolder.getOrganization().getUuid(), user.getId()).isPresent();
+    return dbClient.organizationMemberDao().select(dbSession, analysisMetadataHolder.getOrganization().getUuid(), user.getUuid()).isPresent();
   }
 }

@@ -196,7 +196,7 @@ public class SearchResponseLoader {
       .forEach(result::addOrganization);
 
     if (userSession.isLoggedIn()) {
-      result.setUserOrganizationUuids(dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, userSession.getUserId()));
+      result.setUserOrganizationUuids(dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, userSession.getUuid()));
     }
   }
 
