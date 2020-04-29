@@ -176,6 +176,10 @@ th.hide-overflow {
   padding-top: calc(2 * var(--gridSize));
 }
 
+.big-padded-right {
+  padding-right: calc(2 * var(--gridSize));
+}
+
 .huge-padded-top {
   padding-top: 40px;
 }

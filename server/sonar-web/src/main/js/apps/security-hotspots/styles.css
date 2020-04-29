@@ -44,6 +44,7 @@
   border-right: 1px solid var(--barBorderColor);
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 #security_hotspots .main {
