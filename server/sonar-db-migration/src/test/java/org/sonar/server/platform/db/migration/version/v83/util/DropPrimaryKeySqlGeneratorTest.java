@@ -54,7 +54,7 @@ public class DropPrimaryKeySqlGeneratorTest {
     when(sqlHelper.getPostgresSqlSequence(TABLE_NAME, "id")).thenReturn(TABLE_NAME + "_id_seq");
     when(db.getDialect()).thenReturn(POSTGRESQL);
 
-    List<String> sqls = underTest.generate(TABLE_NAME, PK_COLUMN);
+    List<String> sqls = underTest.generate(TABLE_NAME, PK_COLUMN, true);
 
     assertThat(sqls).containsExactly("ALTER TABLE issues ALTER COLUMN id DROP DEFAULT",
       "DROP SEQUENCE issues_id_seq",
@@ -66,7 +66,7 @@ public class DropPrimaryKeySqlGeneratorTest {
     when(sqlHelper.getMssqlConstraint(TABLE_NAME)).thenReturn(CONSTRAINT);
     when(db.getDialect()).thenReturn(MS_SQL);
 
-    List<String> sqls = underTest.generate(TABLE_NAME, PK_COLUMN);
+    List<String> sqls = underTest.generate(TABLE_NAME, PK_COLUMN, true);
 
     assertThat(sqls).containsExactly("ALTER TABLE issues DROP CONSTRAINT pk_id");
   }
@@ -76,7 +76,7 @@ public class DropPrimaryKeySqlGeneratorTest {
     when(sqlHelper.getOracleConstraint(TABLE_NAME)).thenReturn(CONSTRAINT);
     when(db.getDialect()).thenReturn(ORACLE);
 
-    List<String> sqls = underTest.generate(TABLE_NAME, PK_COLUMN);
+    List<String> sqls = underTest.generate(TABLE_NAME, PK_COLUMN, true);
 
     assertThat(sqls).containsExactly("DROP TRIGGER issues_IDT",
       "DROP SEQUENCE issues_SEQ",
@@ -88,7 +88,7 @@ public class DropPrimaryKeySqlGeneratorTest {
     when(sqlHelper.getH2Constraint(TABLE_NAME)).thenReturn(CONSTRAINT);
     when(db.getDialect()).thenReturn(H2);
 
-    List<String> sqls = underTest.generate(TABLE_NAME, PK_COLUMN);
+    List<String> sqls = underTest.generate(TABLE_NAME, PK_COLUMN, true);
 
     assertThat(sqls).containsExactly("ALTER TABLE issues DROP CONSTRAINT pk_id",
       "ALTER TABLE issues ALTER COLUMN id INTEGER NOT NULL");

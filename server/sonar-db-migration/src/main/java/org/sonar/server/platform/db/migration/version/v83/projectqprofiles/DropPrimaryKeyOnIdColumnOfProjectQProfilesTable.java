@@ -35,7 +35,7 @@ public class DropPrimaryKeyOnIdColumnOfProjectQProfilesTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate("project_qprofiles", "id"));
+    context.execute(dropPrimaryKeySqlGenerator.generate("project_qprofiles", "id", true));
   }
 
 }

@@ -19,6 +19,9 @@
  */
 package org.sonar.server.platform.db.migration.version.v83.util;
 
+import com.google.common.collect.Lists;
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.sonar.server.platform.db.migration.def.Validations.validateTableName;
@@ -27,16 +30,17 @@ import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.PRIM
 public class AddPrimaryKeyBuilder {
 
   private final String tableName;
-  private final String primaryKey;
+  private final List<String> primaryKey;
 
-  public AddPrimaryKeyBuilder(String tableName, String column) {
+  public AddPrimaryKeyBuilder(String tableName, String column, String... moreColumns) {
     this.tableName = validateTableName(tableName);
-    this.primaryKey = column;
+    this.primaryKey = Lists.asList(column, moreColumns);
   }
 
   public String build() {
     checkState(primaryKey != null, "Primary key is missing");
-    return format("ALTER TABLE %s ADD CONSTRAINT %s%s PRIMARY KEY (%s)", tableName, PRIMARY_KEY_PREFIX, tableName, primaryKey);
+    return format("ALTER TABLE %s ADD CONSTRAINT %s%s PRIMARY KEY (%s)", tableName, PRIMARY_KEY_PREFIX, tableName,
+      String.join(",", this.primaryKey));
   }
 
 }

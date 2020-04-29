@@ -32,13 +32,14 @@ public class DropIdFromComponentsTable extends DdlChange {
 
   private final DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator;
 
-  public DropIdFromComponentsTable(Database db,  DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
+  public DropIdFromComponentsTable(Database db, DropPrimaryKeySqlGenerator dropPrimaryKeySqlGenerator) {
     super(db);
     this.dropPrimaryKeySqlGenerator = dropPrimaryKeySqlGenerator;
   }
+
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, COLUMN_NAME));
+    context.execute(dropPrimaryKeySqlGenerator.generate(TABLE_NAME, COLUMN_NAME, true));
     context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, COLUMN_NAME).build());
   }
 }
