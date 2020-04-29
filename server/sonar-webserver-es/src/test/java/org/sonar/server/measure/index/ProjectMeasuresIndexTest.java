@@ -1677,7 +1677,7 @@ public class ProjectMeasuresIndexTest {
 
   private void indexForGroup(GroupDto group, ProjectMeasuresDoc... docs) {
     es.putDocuments(TYPE_PROJECT_MEASURES, docs);
-    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addGroupId(group.getId())).collect(toList()));
+    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addGroupUuid(group.getUuid())).collect(toList()));
   }
 
   private static ProjectMeasuresDoc newDoc(ComponentDto project) {

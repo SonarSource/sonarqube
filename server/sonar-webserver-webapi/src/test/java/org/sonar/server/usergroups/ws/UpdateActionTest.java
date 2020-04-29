@@ -62,7 +62,7 @@ public class UpdateActionTest {
     loginAsAdminOnDefaultOrganization();
 
     String result = newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("name", "new-name")
       .setParam("description", "New Description")
       .execute().getInput();
@@ -83,7 +83,7 @@ public class UpdateActionTest {
     loginAsAdminOnDefaultOrganization();
 
     String result = newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("name", "new-name")
       .execute().getInput();
 
@@ -103,7 +103,7 @@ public class UpdateActionTest {
     loginAsAdminOnDefaultOrganization();
 
     String result = newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("description", "New Description")
       .execute().getInput();
 
@@ -123,7 +123,7 @@ public class UpdateActionTest {
     loginAsAdminOnDefaultOrganization();
 
     String result = newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("name", "new-name")
       .execute().getInput();
 
@@ -146,7 +146,7 @@ public class UpdateActionTest {
     expectedException.expect(ForbiddenException.class);
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("name", "some-product-bu")
       .setParam("description", "Business Unit for Some Awesome Product")
       .execute();
@@ -164,7 +164,7 @@ public class UpdateActionTest {
     expectedException.expect(ForbiddenException.class);
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("name", "some-product-bu")
       .setParam("description", "Business Unit for Some Awesome Product")
       .execute();
@@ -180,7 +180,7 @@ public class UpdateActionTest {
     expectedException.expectMessage("Group name cannot be empty");
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("name", "")
       .execute();
   }
@@ -195,7 +195,7 @@ public class UpdateActionTest {
     expectedException.expectMessage("Anyone group cannot be used");
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("name", "AnYoNe")
       .execute();
   }
@@ -213,7 +213,7 @@ public class UpdateActionTest {
     expectedException.expectMessage("Group 'new-name' already exists");
 
     newRequest()
-      .setParam("id", groupToBeRenamed.getId().toString())
+      .setParam("id", groupToBeRenamed.getUuid().toString())
       .setParam("name", newName)
       .execute();
   }
@@ -239,7 +239,7 @@ public class UpdateActionTest {
     expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("name", "new name")
       .execute();
   }
@@ -253,7 +253,7 @@ public class UpdateActionTest {
     expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid().toString())
       .setParam("description", "new description")
       .execute();
   }

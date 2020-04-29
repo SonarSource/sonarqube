@@ -172,10 +172,10 @@ public class GroupsAction implements UsersWsAction {
 
   private static Group toWsGroup(GroupMembershipDto group, GroupDto defaultGroup) {
     Group.Builder groupBuilder = Group.newBuilder()
-      .setId(group.getId())
+      .setId(group.getUuid())
       .setName(group.getName())
       .setSelected(group.getUserId() != null)
-      .setDefault(defaultGroup.getId().longValue() == group.getId());
+      .setDefault(defaultGroup.getUuid().equals(group.getUuid()));
     ofNullable(group.getDescription()).ifPresent(groupBuilder::setDescription);
     return groupBuilder.build();
   }

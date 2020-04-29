@@ -22,7 +22,7 @@ package org.sonar.db.qualityprofile;
 public class QProfileEditGroupsDto {
 
   private String uuid;
-  private int groupId;
+  private String groupUuid;
   private String qProfileUuid;
 
   public String getUuid() {
@@ -34,12 +34,12 @@ public class QProfileEditGroupsDto {
     return this;
   }
 
-  public int getGroupId() {
-    return groupId;
+  public String getGroupUuid() {
+    return groupUuid;
   }
 
-  public QProfileEditGroupsDto setGroupId(int groupId) {
-    this.groupId = groupId;
+  public QProfileEditGroupsDto setGroupUuid(String groupUuid) {
+    this.groupUuid = groupUuid;
     return this;
   }
 

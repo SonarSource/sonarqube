@@ -268,12 +268,12 @@ public class AddMemberActionTest {
 
   private void assertMember(String organizationUuid, int userId) {
     assertThat(dbClient.organizationMemberDao().select(dbSession, organizationUuid, userId)).isPresent();
-    Integer defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organizationUuid).get();
+    String defaultGroupUuid = dbClient.organizationDao().getDefaultGroupUuid(dbSession, organizationUuid).get();
     assertThat(db.getDbClient().groupMembershipDao().selectGroups(db.getSession(), GroupMembershipQuery.builder()
       .membership(IN)
       .organizationUuid(organizationUuid).build(),
       userId, 0, 10))
-        .extracting(GroupMembershipDto::getId)
-        .containsOnly(defaultGroupId.longValue());
+        .extracting(GroupMembershipDto::getUuid)
+        .containsOnly(defaultGroupUuid);
   }
 }

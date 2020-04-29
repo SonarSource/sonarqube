@@ -110,10 +110,10 @@ public class RegisterPermissionTemplates implements Startable {
 
   private void insertPermissionsForDefaultGroup(DbSession dbSession, PermissionTemplateDto template) {
     String organizationUuid = template.getOrganizationUuid();
-    Integer defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organizationUuid)
+    String defaultGroupUuid = dbClient.organizationDao().getDefaultGroupUuid(dbSession, organizationUuid)
       .orElseThrow(() -> new IllegalStateException(format("Default group for organization %s is not defined", organizationUuid)));
-    GroupDto defaultGroup = Optional.ofNullable(dbClient.groupDao().selectById(dbSession, defaultGroupId))
-      .orElseThrow(() -> new IllegalStateException(format("Default group with id %s for organization %s doesn't exist", defaultGroupId, organizationUuid)));
+    GroupDto defaultGroup = Optional.ofNullable(dbClient.groupDao().selectByUuid(dbSession, defaultGroupUuid))
+      .orElseThrow(() -> new IllegalStateException(format("Default group with id %s for organization %s doesn't exist", defaultGroupUuid, organizationUuid)));
     insertGroupPermission(dbSession, template, UserRole.USER, defaultGroup);
     insertGroupPermission(dbSession, template, UserRole.CODEVIEWER, defaultGroup);
     insertGroupPermission(dbSession, template, UserRole.ISSUE_ADMIN, defaultGroup);
@@ -121,7 +121,7 @@ public class RegisterPermissionTemplates implements Startable {
   }
 
   private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, GroupDto group) {
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getId(), permission);
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission);
   }
 
 }

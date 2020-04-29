@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.GroupIdOrAnyone;
+import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
@@ -75,7 +75,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      GroupIdOrAnyone groupId = support.findGroup(dbSession, request);
+      GroupUuidOrAnyone groupId = support.findGroup(dbSession, request);
       checkRequest(!SYSTEM_ADMIN.equals(permission) || !groupId.isAnyone(),
         format("It is not possible to add the '%s' permission to the group 'Anyone'.", permission));
 
@@ -83,14 +83,14 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       if (!groupAlreadyAdded(dbSession, template.getUuid(), permission, groupId)) {
-        dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), groupId.getId(), permission);
+        dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), groupId.getUuid(), permission);
         dbSession.commit();
       }
     }
     response.noContent();
   }
 
-  private boolean groupAlreadyAdded(DbSession dbSession, String templateUuid, String permission, GroupIdOrAnyone group) {
-    return dbClient.permissionTemplateDao().hasGroupsWithPermission(dbSession, templateUuid, permission, group.getId());
+  private boolean groupAlreadyAdded(DbSession dbSession, String templateUuid, String permission, GroupUuidOrAnyone group) {
+    return dbClient.permissionTemplateDao().hasGroupsWithPermission(dbSession, templateUuid, permission, group.getUuid());
   }
 }

@@ -58,6 +58,7 @@ public class AuthorizationDaoTest {
 
   private static final String PROJECT_UUID = "uuid";
   private static final int MISSING_ID = -1;
+  private static final String MISSING_UUID = "unkown";
   private static final String A_PERMISSION = "a-permission";
   private static final String DOES_NOT_EXIST = "does-not-exist";
 
@@ -174,19 +175,19 @@ public class AuthorizationDaoTest {
 
     // excluding group "g1" -> remain u1, u3 and u4
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
-      organization.getUuid(), "perm1", group1.getId())).isEqualTo(3);
+      organization.getUuid(), "perm1", group1.getUuid())).isEqualTo(3);
 
     // excluding group "g2" -> remain u1, u2 and u4
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
-      organization.getUuid(), "perm1", group2.getId())).isEqualTo(3);
+      organization.getUuid(), "perm1", group2.getUuid())).isEqualTo(3);
 
     // excluding group "g3" -> remain u1, u2, u3 and u4
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
-      organization.getUuid(), "perm1", group3.getId())).isEqualTo(4);
+      organization.getUuid(), "perm1", group3.getUuid())).isEqualTo(4);
 
     // nobody has the permission
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
-      organization.getUuid(), "missingPermission", group1.getId())).isEqualTo(0);
+      organization.getUuid(), "missingPermission", group1.getUuid())).isEqualTo(0);
   }
 
   @Test
@@ -224,7 +225,7 @@ public class AuthorizationDaoTest {
 
     // nobody has the permission
     assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
-      organization.getUuid(), "missingPermission", group1.getId())).isEqualTo(0);
+      organization.getUuid(), "missingPermission", 123)).isEqualTo(0);
   }
 
   @Test
@@ -726,21 +727,21 @@ public class AuthorizationDaoTest {
     db.users().insertMember(group1, u3);
 
     // excluding u2 membership --> remain u1 and u3
-    int count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, organization.getUuid(), A_PERMISSION, group1.getId(), u2.getId());
+    int count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, organization.getUuid(), A_PERMISSION, group1.getUuid(), u2.getId());
     assertThat(count).isEqualTo(2);
 
     // excluding unknown memberships
-    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, organization.getUuid(), A_PERMISSION, group1.getId(), MISSING_ID);
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, organization.getUuid(), A_PERMISSION, group1.getUuid(), MISSING_ID);
     assertThat(count).isEqualTo(3);
-    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, organization.getUuid(), A_PERMISSION, MISSING_ID, u2.getId());
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, organization.getUuid(), A_PERMISSION, MISSING_UUID, u2.getId());
     assertThat(count).isEqualTo(3);
 
     // another organization
-    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, DOES_NOT_EXIST, A_PERMISSION, group1.getId(), u2.getId());
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, DOES_NOT_EXIST, A_PERMISSION, group1.getUuid(), u2.getId());
     assertThat(count).isEqualTo(0);
 
     // another permission
-    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, organization.getUuid(), DOES_NOT_EXIST, group1.getId(), u2.getId());
+    count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, organization.getUuid(), DOES_NOT_EXIST, group1.getUuid(), u2.getId());
     assertThat(count).isEqualTo(0);
   }
 

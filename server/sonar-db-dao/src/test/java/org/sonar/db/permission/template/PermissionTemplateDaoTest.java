@@ -239,14 +239,14 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
     GroupDto group = db.users().insertGroup();
 
-    underTest.insertGroupPermission(dbSession, permissionTemplate.getUuid(), group.getId(), "user");
+    underTest.insertGroupPermission(dbSession, permissionTemplate.getUuid(), group.getUuid(), "user");
     dbSession.commit();
 
     assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateUuid(db.getSession(), permissionTemplate.getUuid()))
-      .extracting(PermissionTemplateGroupDto::getTemplateUuid, PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission,
+      .extracting(PermissionTemplateGroupDto::getTemplateUuid, PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getPermission,
         PermissionTemplateGroupDto::getCreatedAt,
         PermissionTemplateGroupDto::getUpdatedAt)
-      .containsOnly(tuple(permissionTemplate.getUuid(), group.getId(), "user", NOW, NOW));
+      .containsOnly(tuple(permissionTemplate.getUuid(), group.getUuid(), "user", NOW, NOW));
   }
 
   @Test
@@ -258,12 +258,12 @@ public class PermissionTemplateDaoTest {
     templateDb.addGroupToTemplate(permissionTemplate, group1, "admin");
     templateDb.addGroupToTemplate(permissionTemplate, group2, "user");
 
-    underTest.deleteByGroup(db.getSession(), group1.getId());
+    underTest.deleteByGroup(db.getSession(), group1.getUuid());
     db.getSession().commit();
 
     assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateUuid(db.getSession(), permissionTemplate.getUuid()))
-      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
-      .containsOnly(tuple(group2.getId(), "user"));
+      .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(group2.getUuid(), "user"));
   }
 
   @Test
@@ -274,9 +274,9 @@ public class PermissionTemplateDaoTest {
     dbSession.commit();
 
     assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateUuid(db.getSession(), permissionTemplate.getUuid()))
-      .extracting(PermissionTemplateGroupDto::getTemplateUuid, PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName,
+      .extracting(PermissionTemplateGroupDto::getTemplateUuid, PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getGroupName,
         PermissionTemplateGroupDto::getPermission)
-      .containsOnly(tuple(permissionTemplate.getUuid(), 0, "Anyone", "user"));
+      .containsOnly(tuple(permissionTemplate.getUuid(), "Anyone", "Anyone", "user"));
   }
 
   @Test
@@ -288,13 +288,13 @@ public class PermissionTemplateDaoTest {
     GroupDto group1 = db.users().insertGroup(newGroupDto());
     GroupDto group2 = db.users().insertGroup(newGroupDto());
     GroupDto group3 = db.users().insertGroup(newGroupDto());
-    templateDb.addGroupToTemplate(template1.getUuid(), group1.getId(), CODEVIEWER);
-    templateDb.addGroupToTemplate(template1.getUuid(), group2.getId(), CODEVIEWER);
-    templateDb.addGroupToTemplate(template1.getUuid(), group3.getId(), CODEVIEWER);
+    templateDb.addGroupToTemplate(template1.getUuid(), group1.getUuid(), CODEVIEWER);
+    templateDb.addGroupToTemplate(template1.getUuid(), group2.getUuid(), CODEVIEWER);
+    templateDb.addGroupToTemplate(template1.getUuid(), group3.getUuid(), CODEVIEWER);
     templateDb.addGroupToTemplate(template1.getUuid(), null, CODEVIEWER);
-    templateDb.addGroupToTemplate(template1.getUuid(), group1.getId(), ADMIN);
-    templateDb.addGroupToTemplate(template2.getUuid(), group1.getId(), ADMIN);
-    templateDb.addGroupToTemplate(template4.getUuid(), group1.getId(), ISSUE_ADMIN);
+    templateDb.addGroupToTemplate(template1.getUuid(), group1.getUuid(), ADMIN);
+    templateDb.addGroupToTemplate(template2.getUuid(), group1.getUuid(), ADMIN);
+    templateDb.addGroupToTemplate(template4.getUuid(), group1.getUuid(), ISSUE_ADMIN);
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
     underTest.groupsCountByTemplateUuidAndPermission(dbSession, asList(template1.getUuid(), template2.getUuid(), template3.getUuid()),
@@ -360,8 +360,8 @@ public class PermissionTemplateDaoTest {
     templateDb.addProjectCreatorToTemplate(template.getUuid(), UserRole.ADMIN);
     templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.USER);
     templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.ADMIN);
-    templateDb.addGroupToTemplate(template.getUuid(), group.getId(), UserRole.CODEVIEWER);
-    templateDb.addGroupToTemplate(template.getUuid(), group.getId(), UserRole.ADMIN);
+    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER);
+    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.ADMIN);
     templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);
 
     List<String> resultWithUser = underTest.selectPotentialPermissionsByUserIdAndTemplateUuid(dbSession, user.getId(), template.getUuid());
@@ -373,7 +373,7 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void selectAllGroupPermissionTemplatesByGroupId() {
+  public void selectAllGroupPermissionTemplatesByGroupUuid() {
     PermissionTemplateDto permissionTemplate = templateDb.insertTemplate(db.getDefaultOrganization());
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
@@ -381,9 +381,9 @@ public class PermissionTemplateDaoTest {
     templateDb.addGroupToTemplate(permissionTemplate, group1, "admin");
     templateDb.addGroupToTemplate(permissionTemplate, group2, "user");
 
-    assertThat(db.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(db.getSession(), group1.getId()))
-      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
-      .containsOnly(tuple(group1.getId(), "user"), tuple(group1.getId(), "admin"));
+    assertThat(db.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupUuid(db.getSession(), group1.getUuid()))
+      .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(group1.getUuid(), "user"), tuple(group1.getUuid(), "admin"));
   }
 
   @Test
@@ -478,8 +478,8 @@ public class PermissionTemplateDaoTest {
     templateDb.addProjectCreatorToTemplate(template.getUuid(), UserRole.ADMIN);
     templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.USER);
     templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.ADMIN);
-    templateDb.addGroupToTemplate(template.getUuid(), group.getId(), UserRole.CODEVIEWER);
-    templateDb.addGroupToTemplate(template.getUuid(), group.getId(), UserRole.ADMIN);
+    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER);
+    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.ADMIN);
     templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);
     return template;
   }

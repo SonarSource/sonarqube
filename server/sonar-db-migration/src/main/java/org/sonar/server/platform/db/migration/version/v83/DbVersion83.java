@@ -70,6 +70,35 @@ import org.sonar.server.platform.db.migration.version.v83.grouproles.DropResourc
 import org.sonar.server.platform.db.migration.version.v83.grouproles.MakeGroupRolesUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.grouproles.MigrateResourceIdToUuidInGroupRoles;
 import org.sonar.server.platform.db.migration.version.v83.grouproles.PopulateGroupRolesUuid;
+import org.sonar.server.platform.db.migration.version.v83.groups.AddPrimaryKeyOnUuidColumnOfGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.AddUuidColumnToGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.DropIdColumnOfGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.DropPrimaryKeyOnIdColumnOfGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.MakeGroupsUuidColumnNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.groups.PopulateGroupsUuid;
+import org.sonar.server.platform.db.migration.version.v83.groups.grouproles.AddGroupUuidColumnToGroupRoles;
+import org.sonar.server.platform.db.migration.version.v83.groups.grouproles.AddIndexOnGroupUuidOfGroupRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.grouproles.DropGroupIdColumnOfGroupRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.grouproles.DropIndexOnGroupIdOfGroupRolesTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.grouproles.PopulateGroupRolesGroupUuid;
+import org.sonar.server.platform.db.migration.version.v83.groups.groupsusers.AddGroupUuidColumnToGroupsUsers;
+import org.sonar.server.platform.db.migration.version.v83.groups.groupsusers.AddIndexOnGroupUuidOfGroupsUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.groupsusers.DropGroupIdColumnOfGroupsUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.groupsusers.DropIndexOnGroupIdOfGroupsUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.groupsusers.MakeGroupsUsersGroupUuidNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.groups.groupsusers.PopulateGroupsUsersGroupUuid;
+import org.sonar.server.platform.db.migration.version.v83.groups.organizations.AddDefaultGroupUuidColumnToOrganizations;
+import org.sonar.server.platform.db.migration.version.v83.groups.organizations.DropDefaultGroupIdColumnOfOrganizationsTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.organizations.PopulateOrganizationsDefaultGroupUuid;
+import org.sonar.server.platform.db.migration.version.v83.groups.permtemplatesgroups.AddGroupUuidColumnToPermTemplatesGroups;
+import org.sonar.server.platform.db.migration.version.v83.groups.permtemplatesgroups.DropGroupIdColumnOfPermTemplatesGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.permtemplatesgroups.PopulatePermTemplatesGroupsGroupUuid;
+import org.sonar.server.platform.db.migration.version.v83.groups.qprofileeditgroups.AddGroupUuidColumnToQProfileEditGroups;
+import org.sonar.server.platform.db.migration.version.v83.groups.qprofileeditgroups.AddIndexOnGroupUuidOfQProfileEditGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.qprofileeditgroups.DropGroupIdColumnOfQProfileEditGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.qprofileeditgroups.DropIndexOnGroupIdOfQProfileEditGroupsTable;
+import org.sonar.server.platform.db.migration.version.v83.groups.qprofileeditgroups.MakeQProfileEditGroupsGroupUuidNotNullable;
+import org.sonar.server.platform.db.migration.version.v83.groups.qprofileeditgroups.PopulateQProfileEditGroupsGroupUuid;
 import org.sonar.server.platform.db.migration.version.v83.issuechanges.AddPrimaryKeyOnUuidColumnOfIssueChangesTable;
 import org.sonar.server.platform.db.migration.version.v83.issuechanges.AddUuidColumnToIssueChangesTable;
 import org.sonar.server.platform.db.migration.version.v83.issuechanges.DropIdColumnOfIssueChangesTable;
@@ -532,6 +561,50 @@ public class DbVersion83 implements DbVersion {
       .add(3594, "Drop primary key on 'ID' column of 'PROPERTIES' table", DropPrimaryKeyOnIdColumnOfPropertiesTable.class)
       .add(3595, "Add primary key on 'UUID' column of 'PROPERTIES' table", AddPrimaryKeyOnUuidColumnOfPropertiesTable.class)
       .add(3596, "Drop column 'ID' of 'PROPERTIES' table", DropIdColumnOfPropertiesTable.class)
+
+      // Migration of GROUPS table
+      .add(3597, "Add 'UUID' column on 'GROUPS' table", AddUuidColumnToGroupsTable.class)
+      .add(3598, "Populate 'uuid' for 'GROUPS'", PopulateGroupsUuid.class)
+      .add(3599, "Make 'uuid' column not nullable for 'GROUPS'", MakeGroupsUuidColumnNotNullable.class)
+
+      // Migration of FK in GROUP_ROLES to GROUPS
+      .add(3600, "Add 'group_uuid' column on 'GROUP_ROLES' table", AddGroupUuidColumnToGroupRoles.class)
+      .add(3601, "Populate 'group_uuid' for 'GROUP_ROLES'", PopulateGroupRolesGroupUuid.class)
+      .add(3602, "Drop index on 'group_id' column of 'GROUP_ROLES' table", DropIndexOnGroupIdOfGroupRolesTable.class)
+      .add(3603,"Add index on 'group_uuid' column of 'GROUP_ROLES' table", AddIndexOnGroupUuidOfGroupRolesTable.class)
+
+      // Migration of FK in GROUPS_USERS to GROUPS
+      .add(3604, "Add 'group_uuid' column on 'GROUPS_USERS' table", AddGroupUuidColumnToGroupsUsers.class)
+      .add(3605, "Populate 'group_uuid' for 'GROUPS_USERS'", PopulateGroupsUsersGroupUuid.class)
+      .add(3606, "Make 'group_uuid' column not nullable for 'GROUPS_USERS'", MakeGroupsUsersGroupUuidNotNullable.class)
+      .add(3607, "Drop index on 'group_id' column of 'GROUPS_USERS' table", DropIndexOnGroupIdOfGroupsUsersTable.class)
+      .add(3608, "Add index on 'group_uuid' column of 'GROUPS_USERS' table", AddIndexOnGroupUuidOfGroupsUsersTable.class)
+
+      // Migration of FK in ORGANIZATIONS to GROUPS
+      .add(3609, "Add 'default_group_uuid' column on 'ORGANIZATIONS' table", AddDefaultGroupUuidColumnToOrganizations.class)
+      .add(3610, "Populate 'default_group_uuid' for 'ORGANIZATIONS'", PopulateOrganizationsDefaultGroupUuid.class)
+
+      // Migration of FK in PERM_TEMPLATES_GROUPS to GROUPS
+      .add(3611, "Add 'group_uuid' column on 'PERM_TEMPLATES_GROUPS' table", AddGroupUuidColumnToPermTemplatesGroups.class)
+      .add(3612, "Populate 'group_uuid' for 'PERM_TEMPLATES_GROUPS'", PopulatePermTemplatesGroupsGroupUuid.class)
+
+      // Migration of FK in QPROFILE_EDIT_GROUPS to GROUPS
+      .add(3613, "Add 'group_uuid' column on 'QPROFILE_EDIT_GROUPS' table", AddGroupUuidColumnToQProfileEditGroups.class)
+      .add(3614, "Populate 'group_uuid' for 'QPROFILE_EDIT_GROUPS'", PopulateQProfileEditGroupsGroupUuid.class)
+      .add(3615, "Make 'group_uuid' column not nullable for 'QPROFILE_EDIT_GROUPS'", MakeQProfileEditGroupsGroupUuidNotNullable.class)
+      .add(3616, "Drop index on 'group_id' column of 'QPROFILE_EDIT_GROUPS' table", DropIndexOnGroupIdOfQProfileEditGroupsTable.class)
+      .add(3617, "Add index on 'group_uuid' column of 'QPROFILE_EDIT_GROUPS' table", AddIndexOnGroupUuidOfQProfileEditGroupsTable.class)
+
+      // Finish migration of Groups
+      .add(3618, "Drop primary key on 'ID' column of 'GROUPS' table", DropPrimaryKeyOnIdColumnOfGroupsTable.class)
+      .add(3619, "Add primary key on 'UUID' column of 'GROUPS' table", AddPrimaryKeyOnUuidColumnOfGroupsTable.class)
+
+      .add(3620, "Drop column 'group_id' of 'GROUP_ROLES' table", DropGroupIdColumnOfGroupRolesTable.class)
+      .add(3621, "Drop column 'group_id' of 'GROUPS_USERS' table", DropGroupIdColumnOfGroupsUsersTable.class)
+      .add(3622, "Drop column 'group_id' of 'ORGANIZATIONS' table", DropDefaultGroupIdColumnOfOrganizationsTable.class)
+      .add(3623, "Drop column 'group_id' of 'PERM_TEMPLATES_GROUPS' table", DropGroupIdColumnOfPermTemplatesGroupsTable.class)
+      .add(3624, "Drop column 'group_id' of 'QPROFILE_EDIT_GROUPS' table", DropGroupIdColumnOfQProfileEditGroupsTable.class)
+      .add(3625, "Drop column 'ID' of 'GROUPS' table", DropIdColumnOfGroupsTable.class)
 
     ;
   }

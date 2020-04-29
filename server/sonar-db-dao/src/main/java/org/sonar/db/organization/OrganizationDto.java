@@ -73,7 +73,7 @@ public class OrganizationDto {
 
   private Subscription subscription;
 
-  private Integer defaultGroupId;
+  private String defaultGroupUuid;
   private String defaultQualityGateUuid;
   private long createdAt;
   private long updatedAt;
@@ -136,12 +136,12 @@ public class OrganizationDto {
   }
 
   @CheckForNull
-  public Integer getDefaultGroupId() {
-    return defaultGroupId;
+  public String getDefaultGroupUuid() {
+    return defaultGroupUuid;
   }
 
-  public OrganizationDto setDefaultGroupId(@Nullable Integer defaultGroupId) {
-    this.defaultGroupId = defaultGroupId;
+  public OrganizationDto setDefaultGroupUuid(@Nullable String defaultGroupUuid) {
+    this.defaultGroupUuid = defaultGroupUuid;
     return this;
   }
 

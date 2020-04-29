@@ -679,46 +679,46 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void getDefaultGroupId_returns_empty_when_default_group_id_is_null() {
-    insertOrganization(ORGANIZATION_DTO_1.setDefaultGroupId(null));
+  public void getDefaultGroupUuid_returns_empty_when_default_group_uuid_is_null() {
+    insertOrganization(ORGANIZATION_DTO_1.setDefaultGroupUuid(null));
 
-    assertThat(underTest.getDefaultGroupId(dbSession, ORGANIZATION_DTO_1.getUuid())).isEmpty();
+    assertThat(underTest.getDefaultGroupUuid(dbSession, ORGANIZATION_DTO_1.getUuid())).isEmpty();
   }
 
   @Test
-  public void getDefaultGroupId_returns_data_when_default_group_id_is_not_null() {
+  public void getDefaultGroupUuid_returns_data_when_default_group_uuid_is_not_null() {
     when(system2.now()).thenReturn(DATE_3);
     insertOrganization(ORGANIZATION_DTO_1);
-    underTest.setDefaultGroupId(dbSession, ORGANIZATION_DTO_1.getUuid(), GroupTesting.newGroupDto().setId(10));
+    underTest.setDefaultGroupUuid(dbSession, ORGANIZATION_DTO_1.getUuid(), GroupTesting.newGroupDto().setUuid("10"));
 
-    Optional<Integer> optional = underTest.getDefaultGroupId(dbSession, ORGANIZATION_DTO_1.getUuid());
+    Optional<String> optional = underTest.getDefaultGroupUuid(dbSession, ORGANIZATION_DTO_1.getUuid());
     assertThat(optional).isNotEmpty();
-    assertThat(optional.get()).isEqualTo(10);
+    assertThat(optional.get()).isEqualTo("10");
     verifyOrganizationUpdatedAt(ORGANIZATION_DTO_1.getUuid(), DATE_3);
   }
 
   @Test
-  public void setDefaultGroupId_throws_NPE_when_uuid_is_null() {
+  public void setDefaultGroupUuid_throws_NPE_when_uuid_is_null() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("uuid can't be null");
 
-    underTest.setDefaultGroupId(dbSession, null, GroupTesting.newGroupDto().setId(10));
+    underTest.setDefaultGroupUuid(dbSession, null, GroupTesting.newGroupDto().setUuid("10"));
   }
 
   @Test
-  public void setDefaultGroupId_throws_NPE_when_default_group_is_null() {
+  public void setDefaultGroupUuid_throws_NPE_when_default_group_is_null() {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("Default group cannot be null");
 
-    underTest.setDefaultGroupId(dbSession, "uuid", null);
+    underTest.setDefaultGroupUuid(dbSession, "uuid", null);
   }
 
   @Test
-  public void setDefaultGroupId_throws_NPE_when_default_group_id_is_null() {
+  public void setDefaultGroupUuid_throws_NPE_when_default_group_uuid_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Default group id cannot be null");
+    expectedException.expectMessage("Default group uuid cannot be null");
 
-    underTest.setDefaultGroupId(dbSession, "uuid", GroupTesting.newGroupDto().setId(null));
+    underTest.setDefaultGroupUuid(dbSession, "uuid", GroupTesting.newGroupDto().setUuid(null));
   }
 
   @Test
@@ -801,7 +801,7 @@ public class OrganizationDaoTest {
       .setName("new_name")
       .setDescription("new_desc")
       .setAvatarUrl("new_avatar")
-      .setDefaultGroupId(11)
+      .setDefaultGroupUuid("11")
       .setSubscription(PAID)
       .setUrl("new_url")
       .setCreatedAt(2_000L)

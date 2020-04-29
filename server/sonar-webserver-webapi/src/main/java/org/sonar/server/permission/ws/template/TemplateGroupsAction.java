@@ -121,18 +121,18 @@ public class TemplateGroupsAction implements PermissionsWsAction {
   }
 
   private static Permissions.WsGroupsResponse buildResponse(List<GroupDto> groups, List<PermissionTemplateGroupDto> groupPermissions, Paging paging) {
-    Multimap<Integer, String> permissionsByGroupId = TreeMultimap.create();
-    groupPermissions.forEach(groupPermission -> permissionsByGroupId.put(groupPermission.getGroupId(), groupPermission.getPermission()));
+    Multimap<String, String> permissionsByGroupUuid = TreeMultimap.create();
+    groupPermissions.forEach(groupPermission -> permissionsByGroupUuid.put(groupPermission.getGroupUuid(), groupPermission.getPermission()));
     Permissions.WsGroupsResponse.Builder response = Permissions.WsGroupsResponse.newBuilder();
 
     groups.forEach(group -> {
       Permissions.Group.Builder wsGroup = response.addGroupsBuilder()
         .setName(group.getName());
-      if (group.getId() != 0) {
-        wsGroup.setId(String.valueOf(group.getId()));
+      if (group.getUuid() != null) {
+        wsGroup.setId(String.valueOf(group.getUuid()));
       }
       ofNullable(group.getDescription()).ifPresent(wsGroup::setDescription);
-      wsGroup.addAllPermissions(permissionsByGroupId.get(group.getId()));
+      wsGroup.addAllPermissions(permissionsByGroupUuid.get(group.getUuid()));
     });
 
     response.getPagingBuilder()
@@ -146,7 +146,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getUuid());
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, template.getOrganizationUuid(), orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
-      groups.add(0, new GroupDto().setId(0).setName(DefaultGroups.ANYONE));
+      groups.add(0, new GroupDto().setUuid(DefaultGroups.ANYONE).setName(DefaultGroups.ANYONE));
     }
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }

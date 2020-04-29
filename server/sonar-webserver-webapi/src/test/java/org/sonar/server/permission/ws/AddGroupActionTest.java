@@ -105,7 +105,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
-      .setParam(PARAM_GROUP_ID, group.getId().toString())
+      .setParam(PARAM_GROUP_ID, group.getUuid().toString())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
@@ -302,7 +302,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     expectedException.expect(ForbiddenException.class);
 
     newRequest()
-      .setParam(PARAM_GROUP_ID, group.getId().toString())
+      .setParam(PARAM_GROUP_ID, group.getUuid().toString())
       .setParam(PARAM_PERMISSION, PROVISIONING)
       .execute();
   }

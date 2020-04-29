@@ -67,8 +67,8 @@ public class WebAuthorizationTypeSupport {
     // groups
     userSession.getGroups()
       .stream()
-      .map(GroupDto::getId)
-      .forEach(groupId -> filter.should(termQuery(FIELD_GROUP_IDS, groupId)));
+      .map(GroupDto::getUuid)
+      .forEach(groupUuid -> filter.should(termQuery(FIELD_GROUP_IDS, groupUuid)));
 
     return JoinQueryBuilders.hasParentQuery(
       TYPE_AUTHORIZATION,

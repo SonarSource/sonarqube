@@ -46,19 +46,19 @@ public class GroupMembershipDao implements Dao {
   }
 
   public List<UserMembershipDto> selectMembers(DbSession session, UserMembershipQuery query, int offset, int limit) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId(), "organizationUuid", query.organizationUuid());
+    Map<String, Object> params = ImmutableMap.of("query", query, "groupUuid", query.groupUuid(), "organizationUuid", query.organizationUuid());
     return mapper(session).selectMembers(params, new RowBounds(offset, limit));
   }
 
   public int countMembers(DbSession session, UserMembershipQuery query) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId(), "organizationUuid", query.organizationUuid());
+    Map<String, Object> params = ImmutableMap.of("query", query, "groupUuid", query.groupUuid(), "organizationUuid", query.organizationUuid());
     return mapper(session).countMembers(params);
   }
 
-  public Map<String, Integer> countUsersByGroups(DbSession session, Collection<Integer> groupIds) {
+  public Map<String, Integer> countUsersByGroups(DbSession session, Collection<String> groupUuids) {
     Map<String, Integer> result = new HashMap<>();
     executeLargeInputs(
-      groupIds,
+      groupUuids,
       input -> {
         List<GroupUserCount> userCounts = mapper(session).countUsersByGroup(input);
         for (GroupUserCount count : userCounts) {
@@ -70,8 +70,8 @@ public class GroupMembershipDao implements Dao {
     return result;
   }
 
-  public List<Integer> selectGroupIdsByUserId(DbSession dbSession, int userId) {
-    return mapper(dbSession).selectGroupIdsByUserId(userId);
+  public List<String> selectGroupUuidsByUserId(DbSession dbSession, int userId) {
+    return mapper(dbSession).selectGroupUuidsByUserId(userId);
   }
 
   public Multiset<String> countGroupByLoginsAndOrganization(DbSession dbSession, Collection<String> logins, String organizationUuid) {

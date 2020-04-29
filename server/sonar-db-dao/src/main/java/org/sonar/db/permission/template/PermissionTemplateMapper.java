@@ -66,7 +66,7 @@ public interface PermissionTemplateMapper {
 
   void insertGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
 
-  void deleteByGroupId(int groupId);
+  void deleteByGroupUuid(String groupUuid);
 
   PermissionTemplateDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
 
@@ -86,10 +86,10 @@ public interface PermissionTemplateMapper {
 
   List<String> selectPotentialPermissionsByUserIdAndTemplateUuid(@Param("userId") @Nullable Integer currentUserId, @Param("templateUuid") String templateUuid);
 
-  int countGroupsWithPermission(@Param("templateUuid") String templateUuid, @Param("permission") String permission, @Nullable @Param("groupId") Integer groupId);
+  int countGroupsWithPermission(@Param("templateUuid") String templateUuid, @Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid);
 
   List<String> selectTemplateUuidsByOrganization(@Param("organizationUuid") String organizationUuid);
 
-  List<PermissionTemplateGroupDto> selectAllGroupPermissionTemplatesByGroupId(@Param("groupId") Long groupId);
+  List<PermissionTemplateGroupDto> selectAllGroupPermissionTemplatesByGroupUuid(@Param("groupUuid") String groupUuid);
 
 }

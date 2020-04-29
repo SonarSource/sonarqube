@@ -59,18 +59,18 @@ public class GroupPermissionDao implements Dao {
 
   /**
    * Select global or project permission of given groups and organization. Anyone virtual group is supported
-   * through the value "zero" (0L) in {@code groupIds}.
+   * through the value "zero" (0L) in {@code groupUuids}.
    */
-  public List<GroupPermissionDto> selectByGroupIds(DbSession dbSession, String organizationUuid, List<Integer> groupIds, @Nullable String projectUuid) {
-    return executeLargeInputs(groupIds, groups -> mapper(dbSession).selectByGroupIds(organizationUuid, groups, projectUuid));
+  public List<GroupPermissionDto> selectByGroupUuids(DbSession dbSession, String organizationUuid, List<String> groupUuids, @Nullable String projectUuid) {
+    return executeLargeInputs(groupUuids, groups -> mapper(dbSession).selectByGroupUuids(organizationUuid, groups, projectUuid));
   }
 
   /**
    * Select global and project permissions of a given group (Anyone group is NOT supported)
    * Each row returns a {@link GroupPermissionDto}
    */
-  public void selectAllPermissionsByGroupId(DbSession dbSession, String organizationUuid, Integer groupId, ResultHandler resultHandler) {
-    mapper(dbSession).selectAllPermissionsByGroupId(organizationUuid, groupId, resultHandler);
+  public void selectAllPermissionsByGroupUuid(DbSession dbSession, String organizationUuid, String groupUuid, ResultHandler resultHandler) {
+    mapper(dbSession).selectAllPermissionsByGroupUuid(organizationUuid, groupUuid, resultHandler);
   }
 
   /**
@@ -92,25 +92,25 @@ public class GroupPermissionDao implements Dao {
    * Selects the global permissions granted to group. An empty list is returned if the
    * group does not exist.
    */
-  public List<String> selectGlobalPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable Integer groupId) {
-    return mapper(session).selectGlobalPermissionsOfGroup(organizationUuid, groupId);
+  public List<String> selectGlobalPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable String groupUuid) {
+    return mapper(session).selectGlobalPermissionsOfGroup(organizationUuid, groupUuid);
   }
 
   /**
    * Selects the permissions granted to group and project. An empty list is returned if the
    * group or project do not exist.
    */
-  public List<String> selectProjectPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable Integer groupId, String projectUuid) {
-    return mapper(session).selectProjectPermissionsOfGroup(organizationUuid, groupId, projectUuid);
+  public List<String> selectProjectPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable String groupUuid, String projectUuid) {
+    return mapper(session).selectProjectPermissionsOfGroup(organizationUuid, groupUuid, projectUuid);
   }
 
   /**
-   * Lists id of groups with at least one permission on the specified root component but which do not have the specified
+   * Lists uuid of groups with at least one permission on the specified root component but which do not have the specified
    * permission, <strong>excluding group "AnyOne"</strong> (which implies the returned {@code Sett} can't contain
    * {@code null}).
    */
-  public Set<Integer> selectGroupIdsWithPermissionOnProjectBut(DbSession session, String projectUuid, String permission) {
-    return mapper(session).selectGroupIdsWithPermissionOnProjectBut(projectUuid, permission);
+  public Set<String> selectGroupUuidsWithPermissionOnProjectBut(DbSession session, String projectUuid, String permission) {
+    return mapper(session).selectGroupUuidsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
   public void insert(DbSession dbSession, GroupPermissionDto dto) {
@@ -131,14 +131,14 @@ public class GroupPermissionDao implements Dao {
   }
 
   private static void ensureGroupPermissionConsistency(DbSession dbSession, GroupPermissionDto dto) {
-    if (dto.getGroupId() == null) {
+    if (dto.getGroupUuid() == null) {
       return;
     }
     GroupMapper groupMapper = dbSession.getMapper(GroupMapper.class);
     checkArgument(
-      groupMapper.countGroupByOrganizationAndId(dto.getOrganizationUuid(), dto.getGroupId()) == 1,
+      groupMapper.countGroupByOrganizationAndUuid(dto.getOrganizationUuid(), dto.getGroupUuid()) == 1,
       "Can't insert permission '%s' for group with id '%s' in organization with uuid '%s' because this group does not belong to organization with uuid '%s'",
-      dto.getRole(), dto.getGroupId(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
+      dto.getRole(), dto.getGroupUuid(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
   }
 
   /**
@@ -149,11 +149,11 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
-   * Delete all permissions of the specified group (group "AnyOne" if {@code groupId} is {@code null}) for the specified
+   * Delete all permissions of the specified group (group "AnyOne" if {@code groupUuid} is {@code null}) for the specified
    * component.
    */
-  public int deleteByRootComponentUuidAndGroupId(DbSession dbSession, String rootComponentUuid, @Nullable Integer groupId) {
-    return mapper(dbSession).deleteByRootComponentUuidAndGroupId(rootComponentUuid, groupId);
+  public int deleteByRootComponentUuidAndGroupUuid(DbSession dbSession, String rootComponentUuid, @Nullable String groupUuid) {
+    return mapper(dbSession).deleteByRootComponentUuidAndGroupUuid(rootComponentUuid, groupUuid);
   }
 
   /**
@@ -173,12 +173,12 @@ public class GroupPermissionDao implements Dao {
    * </ul>
    * @param dbSession
    * @param permission the kind of permission
-   * @param organizationUuid UUID of organization, even if parameter {@code groupId} is not null
-   * @param groupId if null, then anyone, else id of group
+   * @param organizationUuid UUID of organization, even if parameter {@code groupUuid} is not null
+   * @param groupUuid if null, then anyone, else uuid of group
    * @param rootComponentUuid if null, then global permission, otherwise the uuid of root component (project)
    */
-  public void delete(DbSession dbSession, String permission, String organizationUuid, @Nullable Integer groupId, @Nullable String rootComponentUuid) {
-    mapper(dbSession).delete(permission, organizationUuid, groupId, rootComponentUuid);
+  public void delete(DbSession dbSession, String permission, String organizationUuid, @Nullable String groupUuid, @Nullable String rootComponentUuid) {
+    mapper(dbSession).delete(permission, organizationUuid, groupUuid, rootComponentUuid);
   }
 
   public void deleteByOrganization(DbSession dbSession, String organizationUuid) {

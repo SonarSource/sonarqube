@@ -6,28 +6,28 @@
   <insert id="insert" parameterType="UserGroup" useGeneratedKeys="false">
     insert into groups_users (
     user_id,
-    group_id
+    group_uuid
     ) values (
     #{userId,jdbcType=INTEGER},
-    #{groupId,jdbcType=INTEGER}
+    #{groupUuid,jdbcType=VARCHAR}
     )
   </insert>
 
   <delete id="delete" parameterType="map">
     delete from groups_users
     where user_id = #{userId,jdbcType=INTEGER} and
-    group_id = #{groupId,jdbcType=INTEGER}
+    group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteByGroupId" parameterType="int">
+  <delete id="deleteByGroupUuid" parameterType="string">
     delete from groups_users
-    where group_id = #{groupId,jdbcType=INTEGER}
+    where group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteByOrganizationAndUser" parameterType="map">
     delete from groups_users
     where user_id = #{userId,jdbcType=INTEGER} and
-    group_id in (select id from groups where organization_uuid=#{organizationUuid,jdbcType=VARCHAR})
+    group_uuid in (select uuid from groups where organization_uuid=#{organizationUuid,jdbcType=VARCHAR})
   </delete>
 
   <delete id="deleteByUserId" parameterType="int">

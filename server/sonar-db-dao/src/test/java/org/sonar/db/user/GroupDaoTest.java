@@ -41,7 +41,7 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 public class GroupDaoTest {
 
   private static final long NOW = 1_500_000L;
-  private static final int MISSING_ID = -1;
+  private static final String MISSING_UUID = "unknown";
   private static final OrganizationDto AN_ORGANIZATION = new OrganizationDto()
     .setKey("an-org")
     .setName("An Org")
@@ -56,8 +56,9 @@ public class GroupDaoTest {
   private DbSession dbSession = db.getSession();
   private GroupDao underTest = db.getDbClient().groupDao();
 
-  // not static as group id is changed in each test
+  // not static as group uuid is changed in each test
   private final GroupDto aGroup = new GroupDto()
+    .setUuid("uuid")
     .setName("the-name")
     .setDescription("the description")
     .setOrganizationUuid(AN_ORGANIZATION.getUuid());
@@ -74,7 +75,7 @@ public class GroupDaoTest {
 
     GroupDto group = underTest.selectByName(dbSession, AN_ORGANIZATION.getUuid(), aGroup.getName()).get();
 
-    assertThat(group.getId()).isNotNull();
+    assertThat(group.getUuid()).isNotNull();
     assertThat(group.getOrganizationUuid()).isEqualTo(aGroup.getOrganizationUuid());
     assertThat(group.getName()).isEqualTo(aGroup.getName());
     assertThat(group.getDescription()).isEqualTo(aGroup.getDescription());
@@ -110,33 +111,33 @@ public class GroupDaoTest {
     GroupDto group3InOrg2 = underTest.insert(dbSession, newGroupDto().setName("group3").setOrganizationUuid("org2"));
     dbSession.commit();
 
-    assertThat(underTest.selectByNames(dbSession, "org1", asList("group1", "group2", "group3", "missingGroup"))).extracting(GroupDto::getId)
-      .containsOnly(group1InOrg1.getId(), group2InOrg1.getId());
+    assertThat(underTest.selectByNames(dbSession, "org1", asList("group1", "group2", "group3", "missingGroup"))).extracting(GroupDto::getUuid)
+      .containsOnly(group1InOrg1.getUuid(), group2InOrg1.getUuid());
 
     assertThat(underTest.selectByNames(dbSession, "org1", Collections.emptyList())).isEmpty();
     assertThat(underTest.selectByNames(dbSession, "missingOrg", asList("group1"))).isEmpty();
   }
 
   @Test
-  public void selectByIds() {
+  public void selectByUuids() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
 
-    assertThat(underTest.selectByIds(dbSession, asList(group1.getId(), group2.getId())))
-      .extracting(GroupDto::getId).containsOnly(group1.getId(), group2.getId());
+    assertThat(underTest.selectByUuids(dbSession, asList(group1.getUuid(), group2.getUuid())))
+      .extracting(GroupDto::getUuid).containsOnly(group1.getUuid(), group2.getUuid());
 
-    assertThat(underTest.selectByIds(dbSession, asList(group1.getId(), MISSING_ID)))
-      .extracting(GroupDto::getId).containsOnly(group1.getId());
+    assertThat(underTest.selectByUuids(dbSession, asList(group1.getUuid(), MISSING_UUID)))
+      .extracting(GroupDto::getUuid).containsOnly(group1.getUuid());
 
-    assertThat(underTest.selectByIds(dbSession, Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectByUuids(dbSession, Collections.emptyList())).isEmpty();
   }
 
   @Test
   public void update() {
     db.getDbClient().groupDao().insert(dbSession, aGroup);
     GroupDto dto = new GroupDto()
-      .setId(aGroup.getId())
+      .setUuid(aGroup.getUuid())
       .setName("new-name")
       .setDescription("New description")
       .setOrganizationUuid("another-org")
@@ -144,7 +145,7 @@ public class GroupDaoTest {
 
     underTest.update(dbSession, dto);
 
-    GroupDto reloaded = underTest.selectById(dbSession, aGroup.getId());
+    GroupDto reloaded = underTest.selectByUuid(dbSession, aGroup.getUuid());
 
     // verify mutable fields
     assertThat(reloaded.getName()).isEqualTo("new-name");
@@ -234,10 +235,10 @@ public class GroupDaoTest {
   }
 
   @Test
-  public void deleteById() {
+  public void deleteByUuid() {
     db.getDbClient().groupDao().insert(dbSession, aGroup);
 
-    underTest.deleteById(dbSession, aGroup.getId());
+    underTest.deleteByUuid(dbSession, aGroup.getUuid());
 
     assertThat(db.countRowsOfTable(dbSession, "groups")).isEqualTo(0);
   }

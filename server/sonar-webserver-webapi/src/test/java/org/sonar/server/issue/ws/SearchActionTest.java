@@ -1157,7 +1157,7 @@ public class SearchActionTest {
       new GroupPermissionDto()
         .setUuid(Uuids.createFast())
         .setOrganizationUuid(project.getOrganizationUuid())
-        .setGroupId(null)
+        .setGroupUuid(null)
         .setComponentUuid(project.uuid())
         .setRole(permission));
     session.commit();

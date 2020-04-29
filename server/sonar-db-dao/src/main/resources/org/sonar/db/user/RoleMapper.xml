@@ -18,7 +18,7 @@
     from
       group_roles gr
     inner join groups_users gu on
-      gr.group_id=gu.group_id
+      gr.group_uuid=gu.group_uuid
     where
       gr.role = #{permission,jdbcType=VARCHAR}
       and gr.component_uuid is not null
@@ -27,10 +27,10 @@
       component_uuid
   </select>
 
-  <delete id="deleteGroupRolesByGroupId" parameterType="int">
+  <delete id="deleteGroupRolesByGroupUuid" parameterType="String">
     delete from
       group_roles
     where
-      group_id=#{id,jdbcType=INTEGER}
+      group_uuid=#{uuid,jdbcType=VARCHAR}
   </delete>
 </mapper>

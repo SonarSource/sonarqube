@@ -26,20 +26,20 @@ import org.sonar.db.Pagination;
 
 public interface QProfileEditGroupsMapper {
 
-  List<QProfileEditGroupsDto> selectByQProfileAndGroups(@Param("qProfileUuid") String qProfileUuid, @Param("groupIds") List<Integer> groupIds);
+  List<QProfileEditGroupsDto> selectByQProfileAndGroups(@Param("qProfileUuid") String qProfileUuid, @Param("groupUuids") List<String> groupUuids);
 
   int countByQuery(@Param("query") SearchGroupsQuery query);
 
   List<GroupMembershipDto> selectByQuery(@Param("query") SearchGroupsQuery query, @Param("pagination") Pagination pagination);
 
-  List<String> selectQProfileUuidsByOrganizationAndGroups(@Param("organizationUuid") String organizationUuid, @Param("groupIds") List<Integer> groupIds);
+  List<String> selectQProfileUuidsByOrganizationAndGroups(@Param("organizationUuid") String organizationUuid, @Param("groupUuids") List<String> groupUuids);
 
   void insert(@Param("dto") QProfileEditGroupsDto dto, @Param("now") long now);
 
-  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("groupId") int groupId);
+  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("groupUuid") String groupUuid);
 
   void deleteByQProfiles(@Param("qProfileUuids") Collection<String> qProfileUuids);
 
-  void deleteByGroup(@Param("groupId") int groupId);
+  void deleteByGroup(@Param("groupUuid") String groupUuid);
 
 }

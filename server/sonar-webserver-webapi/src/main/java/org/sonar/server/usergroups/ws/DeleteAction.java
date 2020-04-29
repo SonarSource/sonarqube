@@ -73,7 +73,7 @@ public class DeleteAction implements UserGroupsWsAction {
       removeFromPermissionTemplates(dbSession, group);
       removeGroupMembers(dbSession, group);
       dbClient.qProfileEditGroupsDao().deleteByGroup(dbSession, group);
-      dbClient.groupDao().deleteById(dbSession, group.getId());
+      dbClient.groupDao().deleteByUuid(dbSession, group.getUuid());
 
       dbSession.commit();
       response.noContent();
@@ -82,20 +82,20 @@ public class DeleteAction implements UserGroupsWsAction {
 
   private void checkNotTryingToDeleteLastAdminGroup(DbSession dbSession, GroupDto group) {
     int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession,
-      group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getId());
+      group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getUuid());
 
     checkArgument(remaining > 0, "The last system admin group cannot be deleted");
   }
 
   private void removeGroupPermissions(DbSession dbSession, GroupDto groupId) {
-    dbClient.roleDao().deleteGroupRolesByGroupId(dbSession, groupId.getId());
+    dbClient.roleDao().deleteGroupRolesByGroupUuid(dbSession, groupId.getUuid());
   }
 
   private void removeFromPermissionTemplates(DbSession dbSession, GroupDto groupId) {
-    dbClient.permissionTemplateDao().deleteByGroup(dbSession, groupId.getId());
+    dbClient.permissionTemplateDao().deleteByGroup(dbSession, groupId.getUuid());
   }
 
   private void removeGroupMembers(DbSession dbSession, GroupDto groupId) {
-    dbClient.userGroupDao().deleteByGroupId(dbSession, groupId.getId());
+    dbClient.userGroupDao().deleteByGroupUuid(dbSession, groupId.getUuid());
   }
 }

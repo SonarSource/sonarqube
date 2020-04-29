@@ -70,7 +70,7 @@ public class DeleteActionTest {
     loginAsAdminOnDefaultOrganization();
 
     TestResponse response = newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(204);
@@ -84,10 +84,10 @@ public class DeleteActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .execute();
 
-    assertThat(db.users().selectGroupById(group.getId())).isNull();
+    assertThat(db.users().selectGroupByUuid(group.getUuid())).isNull();
   }
 
   @Test
@@ -101,7 +101,7 @@ public class DeleteActionTest {
       .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
 
-    assertThat(db.users().selectGroupById(group.getId())).isNull();
+    assertThat(db.users().selectGroupByUuid(group.getUuid())).isNull();
   }
 
   @Test
@@ -117,7 +117,7 @@ public class DeleteActionTest {
       .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
 
-    assertThat(db.users().selectGroupById(group.getId())).isNull();
+    assertThat(db.users().selectGroupByUuid(group.getUuid())).isNull();
   }
 
   @Test
@@ -145,7 +145,7 @@ public class DeleteActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .execute();
 
     assertThat(db.countRowsOfTable("groups_users")).isEqualTo(0);
@@ -161,7 +161,7 @@ public class DeleteActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .execute();
 
     assertThat(db.countRowsOfTable("group_roles")).isEqualTo(0);
@@ -173,13 +173,13 @@ public class DeleteActionTest {
     insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
     PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), PermissionTemplateTesting.newPermissionTemplateDto());
-    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), group.getId(), "perm");
+    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), group.getUuid(), "perm");
     db.commit();
     loginAsAdminOnDefaultOrganization();
     assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(1);
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .execute();
 
     assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
@@ -195,7 +195,7 @@ public class DeleteActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .execute();
 
     assertThat(db.countRowsOfTable("qprofile_edit_groups")).isZero();
@@ -224,7 +224,7 @@ public class DeleteActionTest {
     expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
-      .setParam("id", defaultGroup.getId().toString())
+      .setParam("id", defaultGroup.getUuid())
       .execute();
   }
 
@@ -239,7 +239,7 @@ public class DeleteActionTest {
     expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
-      .setParam("id", defaultGroup.getId().toString())
+      .setParam("id", defaultGroup.getUuid())
       .execute();
   }
 
@@ -294,7 +294,7 @@ public class DeleteActionTest {
 
   private void executeDeleteGroupRequest(GroupDto adminGroup1) {
     newRequest()
-      .setParam(PARAM_GROUP_ID, adminGroup1.getId().toString())
+      .setParam(PARAM_GROUP_ID, adminGroup1.getUuid())
       .execute();
   }
 

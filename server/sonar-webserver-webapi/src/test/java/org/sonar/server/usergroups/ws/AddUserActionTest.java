@@ -66,11 +66,11 @@ public class AddUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .setParam("login", user.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group.getId());
+    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(group.getUuid());
   }
 
   @Test
@@ -86,7 +86,7 @@ public class AddUserActionTest {
       .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group.getId());
+    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(group.getUuid());
   }
 
   @Test
@@ -104,7 +104,7 @@ public class AddUserActionTest {
       .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(group.getId());
+    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(group.getUuid());
   }
 
   @Test
@@ -119,11 +119,11 @@ public class AddUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", admins.getId().toString())
+      .setParam("id", admins.getUuid().toString())
       .setParam("login", user.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(admins.getId(), users.getId());
+    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(admins.getUuid(), users.getUuid());
   }
 
   @Test
@@ -136,12 +136,12 @@ public class AddUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", users.getId().toString())
+      .setParam("id", users.getUuid().toString())
       .setParam("login", user.getLogin())
       .execute();
 
     // do not insert duplicated row
-    assertThat(db.users().selectGroupIdsOfUser(user)).hasSize(1).containsOnly(users.getId());
+    assertThat(db.users().selectGroupUuidsOfUser(user)).hasSize(1).containsOnly(users.getUuid());
   }
 
   @Test
@@ -156,12 +156,12 @@ public class AddUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", users.getId().toString())
+      .setParam("id", users.getUuid().toString())
       .setParam("login", user2.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user1)).containsOnly(users.getId());
-    assertThat(db.users().selectGroupIdsOfUser(user2)).containsOnly(users.getId());
+    assertThat(db.users().selectGroupUuidsOfUser(user1)).containsOnly(users.getUuid());
+    assertThat(db.users().selectGroupUuidsOfUser(user2)).containsOnly(users.getUuid());
   }
 
   @Test
@@ -173,7 +173,7 @@ public class AddUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     TestResponse response = newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .setParam("login", user.getLogin())
       .execute();
 
@@ -204,7 +204,7 @@ public class AddUserActionTest {
     expectedException.expectMessage("Could not find a user with login 'my-admin'");
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .setParam("login", "my-admin")
       .execute();
   }
@@ -285,7 +285,7 @@ public class AddUserActionTest {
     expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
-      .setParam("id", Integer.toString(defaultGroup.getId()))
+      .setParam("id", defaultGroup.getUuid())
       .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
   }
@@ -310,7 +310,7 @@ public class AddUserActionTest {
 
   private void executeRequest(GroupDto groupDto, UserDto userDto) {
     newRequest()
-      .setParam("id", groupDto.getId().toString())
+      .setParam("id", groupDto.getUuid())
       .setParam("login", userDto.getLogin())
       .execute();
   }

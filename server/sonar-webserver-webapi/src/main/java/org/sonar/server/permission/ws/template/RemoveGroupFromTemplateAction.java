@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.GroupIdOrAnyone;
+import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
@@ -74,10 +74,10 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
       String permission = request.mandatoryParam(PARAM_PERMISSION);
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.fromRequest(request));
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
-      GroupIdOrAnyone groupId = wsSupport.findGroup(dbSession, request);
+      GroupUuidOrAnyone groupId = wsSupport.findGroup(dbSession, request);
       checkArgument(groupId.getOrganizationUuid().equals(template.getOrganizationUuid()), "Group and template are on different organizations");
 
-      dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getUuid(), groupId.getId(), permission);
+      dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getUuid(), groupId.getUuid(), permission);
       dbSession.commit();
     }
     response.noContent();

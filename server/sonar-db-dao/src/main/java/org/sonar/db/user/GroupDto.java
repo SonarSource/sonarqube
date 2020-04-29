@@ -25,19 +25,19 @@ import javax.annotation.Nullable;
 
 public class GroupDto {
 
-  private Integer id;
+  private String uuid;
   private String name;
   private String description;
   private String organizationUuid;
   private Date createdAt;
   private Date updatedAt;
 
-  public Integer getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
-  public GroupDto setId(Integer id) {
-    this.id = id;
+  public GroupDto setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 
@@ -90,7 +90,7 @@ public class GroupDto {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("GroupDto{");
-    sb.append("id=").append(id);
+    sb.append("id=").append(uuid);
     sb.append(", name='").append(name).append('\'');
     sb.append(", description='").append(description).append('\'');
     sb.append(", organizationUuid='").append(organizationUuid).append('\'');

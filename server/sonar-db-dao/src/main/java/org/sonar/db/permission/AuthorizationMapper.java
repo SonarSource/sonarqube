@@ -35,7 +35,7 @@ public interface AuthorizationMapper {
   Set<String> selectOrganizationPermissionsOfAnonymous(@Param("organizationUuid") String organizationUuid);
 
   int countUsersWithGlobalPermissionExcludingGroup(@Param("organizationUuid") String organizationUuid,
-    @Param("permission") String permission, @Param("excludedGroupId") int excludedGroupId);
+    @Param("permission") String permission, @Param("excludedGroupUuid") String excludedGroupUuid);
 
   int countUsersWithGlobalPermissionExcludingUser(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission,
     @Param("excludedUserId") int excludedUserId);
@@ -43,7 +43,7 @@ public interface AuthorizationMapper {
   List<Integer> selectUserIdsWithGlobalPermission(@Param("organizationUuid") String organizationUuid, @Param("permission") String permission);
 
   int countUsersWithGlobalPermissionExcludingGroupMember(@Param("organizationUuid") String organizationUuid,
-    @Param("permission") String permission, @Param("groupId") int groupId, @Param("userId") int userId);
+    @Param("permission") String permission, @Param("groupUuid") String groupUuid, @Param("userId") int userId);
 
   int countUsersWithGlobalPermissionExcludingUserPermission(@Param("organizationUuid") String organizationUuid,
     @Param("permission") String permission, @Param("userId") int userId);

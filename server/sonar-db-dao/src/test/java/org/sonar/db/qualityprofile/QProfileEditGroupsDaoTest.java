@@ -111,27 +111,27 @@ public class QProfileEditGroupsDaoTest {
       .setOrganization(organization)
       .setProfile(profile)
       .setMembership(ANY).build(), Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupId, GroupMembershipDto::isSelected)
+      .extracting(GroupMembershipDto::getGroupUuid, GroupMembershipDto::isSelected)
       .containsExactlyInAnyOrder(
-        tuple(group1.getId(), true),
-        tuple(group2.getId(), true),
-        tuple(group3.getId(), false));
+        tuple(group1.getUuid(), true),
+        tuple(group2.getUuid(), true),
+        tuple(group3.getUuid(), false));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
         .setProfile(profile)
         .setMembership(IN).build(),
       Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupId, GroupMembershipDto::isSelected)
-      .containsExactlyInAnyOrder(tuple(group1.getId(), true), tuple(group2.getId(), true));
+      .extracting(GroupMembershipDto::getGroupUuid, GroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(group1.getUuid(), true), tuple(group2.getUuid(), true));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
         .setProfile(profile)
         .setMembership(OUT).build(),
       Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupId, GroupMembershipDto::isSelected)
-      .containsExactlyInAnyOrder(tuple(group3.getId(), false));
+      .extracting(GroupMembershipDto::getGroupUuid, GroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(group3.getUuid(), false));
   }
 
   @Test
@@ -151,8 +151,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(IN)
         .setQuery("project").build(),
       Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupId)
-      .containsExactlyInAnyOrder(group1.getId());
+      .extracting(GroupMembershipDto::getGroupUuid)
+      .containsExactlyInAnyOrder(group1.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -160,8 +160,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(IN)
         .setQuery("UserS").build(),
       Pagination.all()))
-      .extracting(GroupMembershipDto::getGroupId)
-      .containsExactlyInAnyOrder(group1.getId(), group2.getId());
+      .extracting(GroupMembershipDto::getGroupUuid)
+      .containsExactlyInAnyOrder(group1.getUuid(), group2.getUuid());
   }
 
   @Test
@@ -180,8 +180,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(1).andSize(1)))
-      .extracting(GroupMembershipDto::getGroupId)
-      .containsExactly(group1.getId());
+      .extracting(GroupMembershipDto::getGroupUuid)
+      .containsExactly(group1.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -189,8 +189,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(3).andSize(1)))
-      .extracting(GroupMembershipDto::getGroupId)
-      .containsExactly(group3.getId());
+      .extracting(GroupMembershipDto::getGroupUuid)
+      .containsExactly(group3.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -198,8 +198,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(1).andSize(10)))
-      .extracting(GroupMembershipDto::getGroupId)
-      .containsExactly(group1.getId(), group2.getId(), group3.getId());
+      .extracting(GroupMembershipDto::getGroupUuid)
+      .containsExactly(group1.getUuid(), group2.getUuid(), group3.getUuid());
   }
 
   @Test
@@ -230,13 +230,13 @@ public class QProfileEditGroupsDaoTest {
   public void insert() {
     underTest.insert(db.getSession(), new QProfileEditGroupsDto()
       .setUuid("ABCD")
-      .setGroupId(100)
+      .setGroupUuid("100")
       .setQProfileUuid("QPROFILE")
     );
 
-    assertThat(db.selectFirst(db.getSession(), "select uuid as \"uuid\", group_id as \"groupId\", qprofile_uuid as \"qProfileUuid\", created_at as \"createdAt\" from qprofile_edit_groups")).contains(
+    assertThat(db.selectFirst(db.getSession(), "select uuid as \"uuid\", group_uuid as \"groupUuid\", qprofile_uuid as \"qProfileUuid\", created_at as \"createdAt\" from qprofile_edit_groups")).contains(
       entry("uuid", "ABCD"),
-      entry("groupId", 100L),
+      entry("groupUuid", "100"),
       entry("qProfileUuid", "QPROFILE"),
       entry("createdAt", NOW));
   }

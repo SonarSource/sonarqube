@@ -25,9 +25,9 @@ public interface UserGroupMapper {
 
   void insert(UserGroupDto dto);
 
-  void delete(@Param("groupId") int groupId, @Param("userId") int userId);
+  void delete(@Param("groupUuid") String groupUuid, @Param("userId") int userId);
 
-  void deleteByGroupId(@Param("groupId") int groupId);
+  void deleteByGroupUuid(@Param("groupUuid") String groupUuid);
 
   void deleteByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
 

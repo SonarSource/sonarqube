@@ -183,7 +183,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
   }
 
   private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, @Nullable GroupDto group) {
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group == null ? null : group.getId(), permission);
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group == null ? null : group.getUuid(), permission);
   }
 
   private void insertQualityProfiles(DbSession dbSession, DbSession batchDbSession, OrganizationDto organization) {
@@ -220,6 +220,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
    */
   private GroupDto insertOwnersGroup(DbSession dbSession, OrganizationDto organization) {
     GroupDto group = dbClient.groupDao().insert(dbSession, new GroupDto()
+      .setUuid(uuidFactory.create())
       .setOrganizationUuid(organization.getUuid())
       .setName(OWNERS_GROUP_NAME)
       .setDescription(OWNERS_GROUP_DESCRIPTION));
@@ -233,14 +234,14 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       new GroupPermissionDto()
         .setUuid(uuidFactory.create())
         .setOrganizationUuid(group.getOrganizationUuid())
-        .setGroupId(group.getId())
+        .setGroupUuid(group.getUuid())
         .setRole(permission.getKey()));
   }
 
   private void addCurrentUserToGroup(DbSession dbSession, GroupDto group, int createUserId) {
     dbClient.userGroupDao().insert(
       dbSession,
-      new UserGroupDto().setGroupId(group.getId()).setUserId(createUserId));
+      new UserGroupDto().setGroupUuid(group.getUuid()).setUserId(createUserId));
   }
 
   private void insertOrganizationMember(DbSession dbSession, OrganizationDto organizationDto, int userId) {

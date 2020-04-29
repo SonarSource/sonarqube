@@ -29,8 +29,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.permission.GroupId;
-import org.sonar.server.permission.GroupIdOrAnyone;
+import org.sonar.server.permission.GroupUuid;
+import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonarqube.ws.UserGroups;
 
@@ -74,21 +74,21 @@ public class GroupWsSupport {
    * @throws NotFoundException if parameters are missing/incorrect, if the requested group does not exist
    * or if the virtual group "Anyone" is requested.
    */
-  public GroupId findGroup(DbSession dbSession, Request request) {
-    return GroupId.from(findGroupDto(dbSession, request));
+  public GroupUuid findGroup(DbSession dbSession, Request request) {
+    return GroupUuid.from(findGroupDto(dbSession, request));
   }
 
   public GroupDto findGroupDto(DbSession dbSession, Request request) {
-    Integer id = request.paramAsInt(PARAM_GROUP_ID);
+    String uuid = request.param(PARAM_GROUP_ID);
     String organizationKey = request.param(PARAM_ORGANIZATION_KEY);
     String name = request.param(PARAM_GROUP_NAME);
-    return findGroupDto(dbSession, GroupWsRef.create(id, organizationKey, name));
+    return findGroupDto(dbSession, GroupWsRef.create(uuid, organizationKey, name));
   }
 
   public GroupDto findGroupDto(DbSession dbSession, GroupWsRef ref) {
-    if (ref.hasId()) {
-      GroupDto group = dbClient.groupDao().selectById(dbSession, ref.getId());
-      checkFound(group, "No group with id '%s'", ref.getId());
+    if (ref.hasUuid()) {
+      GroupDto group = dbClient.groupDao().selectByUuid(dbSession, ref.getUuid());
+      checkFound(group, "No group with id '%s'", ref.getUuid());
       return group;
     }
 
@@ -98,21 +98,21 @@ public class GroupWsSupport {
     return group.get();
   }
 
-  public GroupIdOrAnyone findGroupOrAnyone(DbSession dbSession, GroupWsRef ref) {
-    if (ref.hasId()) {
-      GroupDto group = dbClient.groupDao().selectById(dbSession, ref.getId());
-      checkFound(group, "No group with id '%s'", ref.getId());
-      return GroupIdOrAnyone.from(group);
+  public GroupUuidOrAnyone findGroupOrAnyone(DbSession dbSession, GroupWsRef ref) {
+    if (ref.hasUuid()) {
+      GroupDto group = dbClient.groupDao().selectByUuid(dbSession, ref.getUuid());
+      checkFound(group, "No group with id '%s'", ref.getUuid());
+      return GroupUuidOrAnyone.from(group);
     }
 
     OrganizationDto org = findOrganizationByKey(dbSession, ref.getOrganizationKey());
     if (ref.isAnyone()) {
-      return GroupIdOrAnyone.forAnyone(org.getUuid());
+      return GroupUuidOrAnyone.forAnyone(org.getUuid());
     }
 
     Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, org.getUuid(), ref.getName());
     checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", ref.getName(), org.getKey());
-    return GroupIdOrAnyone.from(group.get());
+    return GroupUuidOrAnyone.from(group.get());
   }
 
   /**
@@ -141,12 +141,12 @@ public class GroupWsSupport {
 
   void checkGroupIsNotDefault(DbSession dbSession, GroupDto groupDto) {
     GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, groupDto.getOrganizationUuid());
-    checkArgument(!defaultGroup.getId().equals(groupDto.getId()), "Default group '%s' cannot be used to perform this action", groupDto.getName());
+    checkArgument(!defaultGroup.getUuid().equals(groupDto.getUuid()), "Default group '%s' cannot be used to perform this action", groupDto.getName());
   }
 
   static UserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount, boolean isDefault) {
     UserGroups.Group.Builder wsGroup = UserGroups.Group.newBuilder()
-      .setId(group.getId())
+      .setUuid(group.getUuid())
       .setOrganization(organization.getKey())
       .setName(group.getName())
       .setMembersCount(membersCount)

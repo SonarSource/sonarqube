@@ -167,12 +167,12 @@ public class UserDbTester {
 
   public GroupDto insertDefaultGroup(GroupDto dto) {
     String organizationUuid = dto.getOrganizationUuid();
-    db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), organizationUuid)
-      .ifPresent(groupId -> {
+    db.getDbClient().organizationDao().getDefaultGroupUuid(db.getSession(), organizationUuid)
+      .ifPresent(groupUuid -> {
         throw new IllegalArgumentException(format("Organization '%s' has already a default group", organizationUuid));
       });
     db.getDbClient().groupDao().insert(db.getSession(), dto);
-    db.getDbClient().organizationDao().setDefaultGroupId(db.getSession(), organizationUuid, dto);
+    db.getDbClient().organizationDao().setDefaultGroupUuid(db.getSession(), organizationUuid, dto);
     db.commit();
     return dto;
   }
@@ -186,8 +186,8 @@ public class UserDbTester {
   }
 
   @CheckForNull
-  public GroupDto selectGroupById(int groupId) {
-    return db.getDbClient().groupDao().selectById(db.getSession(), groupId);
+  public GroupDto selectGroupByUuid(String groupUuid) {
+    return db.getDbClient().groupDao().selectByUuid(db.getSession(), groupUuid);
   }
 
   public Optional<GroupDto> selectGroup(OrganizationDto org, String name) {
@@ -201,7 +201,7 @@ public class UserDbTester {
   // GROUP MEMBERSHIP
 
   public UserGroupDto insertMember(GroupDto group, UserDto user) {
-    UserGroupDto dto = new UserGroupDto().setGroupId(group.getId()).setUserId(user.getId());
+    UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserId(user.getId());
     db.getDbClient().userGroupDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
@@ -209,14 +209,14 @@ public class UserDbTester {
 
   public void insertMembers(GroupDto group, UserDto... users) {
     Arrays.stream(users).forEach(user -> {
-      UserGroupDto dto = new UserGroupDto().setGroupId(group.getId()).setUserId(user.getId());
+      UserGroupDto dto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserId(user.getId());
       db.getDbClient().userGroupDao().insert(db.getSession(), dto);
     });
     db.commit();
   }
 
-  public List<Integer> selectGroupIdsOfUser(UserDto user) {
-    return db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), user.getId());
+  public List<String> selectGroupUuidsOfUser(UserDto user) {
+    return db.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(db.getSession(), user.getId());
   }
 
   // GROUP PERMISSIONS
@@ -225,7 +225,7 @@ public class UserDbTester {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setOrganizationUuid(org.getUuid())
-      .setGroupId(null)
+      .setGroupUuid(null)
       .setRole(permission);
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
     db.commit();
@@ -240,7 +240,7 @@ public class UserDbTester {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setOrganizationUuid(group.getOrganizationUuid())
-      .setGroupId(group.getId())
+      .setGroupUuid(group.getUuid())
       .setRole(permission);
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
     db.commit();
@@ -252,7 +252,7 @@ public class UserDbTester {
   }
 
   public void deletePermissionFromGroup(GroupDto group, String permission) {
-    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, group.getOrganizationUuid(), group.getId(), null);
+    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, group.getOrganizationUuid(), group.getUuid(), null);
     db.commit();
   }
 
@@ -264,7 +264,7 @@ public class UserDbTester {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setOrganizationUuid(project.getOrganizationUuid())
-      .setGroupId(null)
+      .setGroupUuid(null)
       .setRole(permission)
       .setComponentUuid(project.uuid());
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
@@ -285,7 +285,7 @@ public class UserDbTester {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setOrganizationUuid(group.getOrganizationUuid())
-      .setGroupId(group.getId())
+      .setGroupUuid(group.getUuid())
       .setRole(permission)
       .setComponentUuid(project.uuid());
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
@@ -296,10 +296,10 @@ public class UserDbTester {
   public List<String> selectGroupPermissions(GroupDto group, @Nullable ComponentDto project) {
     if (project == null) {
       return db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(),
-        group.getOrganizationUuid(), group.getId());
+        group.getOrganizationUuid(), group.getUuid());
     }
     return db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(),
-      group.getOrganizationUuid(), group.getId(), project.uuid());
+      group.getOrganizationUuid(), group.getUuid(), project.uuid());
   }
 
   public List<String> selectAnyonePermissions(OrganizationDto org, @Nullable ComponentDto project) {

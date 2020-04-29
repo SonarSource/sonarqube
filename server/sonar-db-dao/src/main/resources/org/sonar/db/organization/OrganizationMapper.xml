@@ -162,7 +162,7 @@
       and g.component_uuid is null
       and g.role = #{permission,jdbcType=VARCHAR}
     inner join groups_users gu on
-      gu.group_id = g.group_id
+      gu.group_uuid = g.group_uuid
       and gu.user_id = #{userId,jdbcType=INTEGER}
   </select>
 
@@ -170,8 +170,8 @@
     select uuid from organizations
   </select>
 
-  <select id="selectDefaultGroupIdByUuid" resultType="Integer">
-    select org.default_group_id
+  <select id="selectDefaultGroupUuidByUuid" resultType="string">
+    select org.default_group_uuid
     from organizations org
     where
     org.uuid = #{uuid, jdbcType=VARCHAR}
@@ -269,10 +269,10 @@
       uuid = #{organizationUuid, jdbcType=VARCHAR}
   </update>
 
-  <update id="updateDefaultGroupId">
+  <update id="updateDefaultGroupUuid">
     update organizations
     set
-      default_group_id = #{defaultGroupId, jdbcType=INTEGER},
+      default_group_uuid = #{defaultGroupUuid, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=BIGINT}
     where
       uuid = #{organizationUuid, jdbcType=VARCHAR}

@@ -437,7 +437,7 @@ public class PermissionTemplateServiceTest {
 
   private List<String> selectProjectPermissionsOfGroup(OrganizationDto organizationDto, @Nullable GroupDto groupDto, ComponentDto project) {
     return dbTester.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(session,
-      organizationDto.getUuid(), groupDto != null ? groupDto.getId() : null, project.uuid());
+      organizationDto.getUuid(), groupDto != null ? groupDto.getUuid() : null, project.uuid());
   }
 
   private List<String> selectProjectPermissionsOfUser(UserDto userDto, ComponentDto project) {
@@ -455,7 +455,7 @@ public class PermissionTemplateServiceTest {
     dbTester.organizations().setDefaultTemplates(template, null, null);
     templateDb.addProjectCreatorToTemplate(template.getUuid(), SCAN.getKey());
     templateDb.addUserToTemplate(template.getUuid(), user.getId(), UserRole.USER);
-    templateDb.addGroupToTemplate(template.getUuid(), group.getId(), UserRole.CODEVIEWER);
+    templateDb.addGroupToTemplate(template.getUuid(), group.getUuid(), UserRole.CODEVIEWER);
     templateDb.addGroupToTemplate(template.getUuid(), null, UserRole.ISSUE_ADMIN);
 
     // authenticated user

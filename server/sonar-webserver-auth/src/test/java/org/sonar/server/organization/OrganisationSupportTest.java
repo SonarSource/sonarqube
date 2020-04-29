@@ -61,7 +61,7 @@ public class OrganisationSupportTest {
   private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(dbTester.getDbClient());
   private RuleIndexer ruleIndexer = spy(new RuleIndexer(es.client(), dbTester.getDbClient()));
   private OrganisationSupport underTest = new OrganisationSupport(dbTester.getDbClient(), defaultOrganizationProvider, organizationFlags,
-    new DefaultGroupCreatorImpl(dbTester.getDbClient()), new DefaultGroupFinder(dbTester.getDbClient()), ruleIndexer, new SequenceUuidFactory());
+    new DefaultGroupCreatorImpl(dbTester.getDbClient(), new SequenceUuidFactory()), new DefaultGroupFinder(dbTester.getDbClient()), ruleIndexer, new SequenceUuidFactory());
 
   @Test
   public void enabling_support_saves_internal_property_and_flags_caller_as_root() {
@@ -93,14 +93,14 @@ public class OrganisationSupportTest {
 
     call(user1.getLogin());
 
-    Optional<Integer> defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid());
-    assertThat(defaultGroupId).isPresent();
-    GroupDto membersGroup = dbTester.getDbClient().groupDao().selectById(dbTester.getSession(), defaultGroupId.get());
+    Optional<String> defaultGroupUuid = dbTester.getDbClient().organizationDao().getDefaultGroupUuid(dbTester.getSession(), defaultOrganization.getUuid());
+    assertThat(defaultGroupUuid).isPresent();
+    GroupDto membersGroup = dbTester.getDbClient().groupDao().selectByUuid(dbTester.getSession(), defaultGroupUuid.get());
     assertThat(membersGroup).isNotNull();
     assertThat(membersGroup.getName()).isEqualTo("Members");
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user1.getId())).containsOnly(defaultGroupId.get());
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user2.getId())).containsOnly(defaultGroupId.get());
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), userInAnotherOrganization.getId())).isEmpty();
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), user1.getId())).containsOnly(defaultGroupUuid.get());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), user2.getId())).containsOnly(defaultGroupUuid.get());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserId(dbTester.getSession(), userInAnotherOrganization.getId())).isEmpty();
   }
 
   @Test
@@ -117,10 +117,10 @@ public class OrganisationSupportTest {
 
     call(user.getLogin());
 
-    int defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid()).get();
-    assertThat(defaultGroupId).isNotEqualTo(sonarUsersGroup.getId());
+    String defaultGroupUuid = dbTester.getDbClient().organizationDao().getDefaultGroupUuid(dbTester.getSession(), defaultOrganization.getUuid()).get();
+    assertThat(defaultGroupUuid).isNotEqualTo(sonarUsersGroup.getUuid());
     List<GroupPermissionDto> result = new ArrayList<>();
-    dbTester.getDbClient().groupPermissionDao().selectAllPermissionsByGroupId(dbTester.getSession(), defaultOrganization.getUuid(), defaultGroupId,
+    dbTester.getDbClient().groupPermissionDao().selectAllPermissionsByGroupUuid(dbTester.getSession(), defaultOrganization.getUuid(), defaultGroupUuid,
       context -> result.add((GroupPermissionDto) context.getResultObject()));
     assertThat(result).extracting(GroupPermissionDto::getComponentUuid, GroupPermissionDto::getRole).containsOnly(
       tuple(null, "user"), tuple(project.uuid(), "codeviewer"));
@@ -140,10 +140,10 @@ public class OrganisationSupportTest {
 
     call(user.getLogin());
 
-    int defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid()).get();
-    assertThat(dbTester.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(dbTester.getSession(), defaultGroupId))
-      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
-      .containsOnly(tuple(defaultGroupId, "user"), tuple(defaultGroupId, "admin"));
+    String defaultGroupUuid = dbTester.getDbClient().organizationDao().getDefaultGroupUuid(dbTester.getSession(), defaultOrganization.getUuid()).get();
+    assertThat(dbTester.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupUuid(dbTester.getSession(), defaultGroupUuid))
+      .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(defaultGroupUuid, "user"), tuple(defaultGroupUuid, "admin"));
   }
 
   @Test

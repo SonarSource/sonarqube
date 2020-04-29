@@ -85,7 +85,7 @@ public class AddUserAction implements UserGroupsWsAction {
       support.checkGroupIsNotDefault(dbSession, group);
 
       if (!isMemberOf(dbSession, user, group)) {
-        UserGroupDto membershipDto = new UserGroupDto().setGroupId(group.getId()).setUserId(user.getId());
+        UserGroupDto membershipDto = new UserGroupDto().setGroupUuid(group.getUuid()).setUserId(user.getId());
         dbClient.userGroupDao().insert(dbSession, membershipDto);
         dbSession.commit();
       }
@@ -95,7 +95,7 @@ public class AddUserAction implements UserGroupsWsAction {
   }
 
   private boolean isMemberOf(DbSession dbSession, UserDto user, GroupDto groupId) {
-    return dbClient.groupMembershipDao().selectGroupIdsByUserId(dbSession, user.getId()).contains(groupId.getId());
+    return dbClient.groupMembershipDao().selectGroupUuidsByUserId(dbSession, user.getId()).contains(groupId.getUuid());
   }
 
   private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {

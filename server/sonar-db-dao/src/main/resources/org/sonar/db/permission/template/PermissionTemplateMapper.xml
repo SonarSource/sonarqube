@@ -93,11 +93,11 @@
     AND permission_reference = #{permission}
     AND
     <choose>
-      <when test="groupId != null">
-        group_id = #{groupId}
+      <when test="groupUuid != null">
+        group_uuid = #{groupUuid}
       </when>
       <otherwise>
-        group_id IS NULL
+        group_uuid IS NULL
       </otherwise>
     </choose>
   </delete>
@@ -108,20 +108,20 @@
   </insert>
 
   <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
-    INSERT INTO perm_templates_groups (uuid, template_uuid, group_id, permission_reference, created_at, updated_at)
+    INSERT INTO perm_templates_groups (uuid, template_uuid, group_uuid, permission_reference, created_at, updated_at)
     VALUES (
     #{uuid,jdbcType=VARCHAR},
     #{templateUuid,jdbcType=VARCHAR},
-    #{groupId,jdbcType=INTEGER},
+    #{groupUuid,jdbcType=VARCHAR},
     #{permission,jdbcType=VARCHAR},
     #{createdAt,jdbcType=TIMESTAMP},
     #{updatedAt,jdbcType=TIMESTAMP}
     )
   </insert>
 
-  <delete id="deleteByGroupId" parameterType="int">
+  <delete id="deleteByGroupUuid" parameterType="string">
     delete from perm_templates_groups
-    where group_id = #{groupId,jdbcType=INTEGER}
+    where group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </delete>
 
   <select id="selectUserLoginsByQueryAndTemplate" parameterType="map" resultType="string">
@@ -159,35 +159,35 @@
   </sql>
 
   <select id="selectGroupNamesByQueryAndTemplate" parameterType="map" resultType="string">
-    select groups.name, lower(groups.name), groups.group_id
+    select groups.name, lower(groups.name), groups.group_uuid
     <include refid="groupNamesByQueryAndTemplate" />
-    group by groups.name, lower(groups.name), groups.group_id
-    order by case when (count(groups.permission) > 0) then 1 else 2 end asc, lower(groups.name), groups.name, groups.group_id
+    group by groups.name, lower(groups.name), groups.group_uuid
+    order by case when (count(groups.permission) > 0) then 1 else 2 end asc, lower(groups.name), groups.name, groups.group_uuid
   </select>
 
   <select id="countGroupNamesByQueryAndTemplate" parameterType="map" resultType="int">
     SELECT COUNT(1)
     FROM (
-      SELECT DISTINCT group_id
+      SELECT DISTINCT group_uuid
       <include refid="groupNamesByQueryAndTemplate" />) g
   </select>
 
   <sql id="groupNamesByQueryAndTemplate">
     FROM
     (SELECT
-      g.id AS group_id,
+      g.uuid AS group_uuid,
       g.name AS name,
       ptg.permission_reference AS permission,
       ptg.template_uuid AS templateUuid
     FROM groups g
     LEFT JOIN perm_templates_groups ptg ON
-      ptg.group_id=g.id
+        ptg.group_uuid=g.uuid
       AND ptg.template_uuid=#{templateUuid}
     where
       g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     UNION ALL
     SELECT
-      0 AS group_id,
+      'Anyone' AS group_uuid,
       'Anyone' AS name,
       ptg.permission_reference AS permission,
       ptg.template_uuid AS templateUuid
@@ -197,7 +197,7 @@
     <where>
       g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
       <if test="query.withAtLeastOnePermission()">
-        AND ptg.group_id IS NULL
+        AND ptg.group_uuid IS NULL
       </if>
     </where>
     ) groups
@@ -278,7 +278,7 @@
       sub.uuid,
       sub.templateUuid,
       sub.permission,
-      sub.groupId,
+      sub.groupUuid,
       sub.groupName,
       sub.createdAt,
       sub.updatedAt
@@ -287,30 +287,30 @@
         ptg.uuid,
         ptg.template_uuid as templateUuid,
         ptg.permission_reference AS permission,
-        ptg.group_id AS groupId,
+        ptg.group_uuid AS groupUuid,
         g.name AS groupName,
         ptg.created_at as createdAt,
         ptg.updated_at as updatedAt
       FROM perm_templates_groups ptg
       INNER JOIN groups g ON
-        g.id=ptg.group_id
+        g.uuid=ptg.group_uuid
       UNION ALL
         SELECT
           ptg.uuid,
           ptg.template_uuid as templateUuid,
           ptg.permission_reference AS permission,
-          0 AS groupId,
+          'Anyone' AS groupUuid,
           'Anyone' AS groupName,
           ptg.created_at as createdAt,
           ptg.updated_at as updatedAt
         FROM perm_templates_groups ptg
-        WHERE ptg.group_id IS NULL
+        WHERE ptg.group_uuid IS NULL
     ) sub
     <where>
       sub.templateUuid=#{templateUuid}
       <if test="!groups.isEmpty()">
         AND sub.groupName IN <foreach collection="groups" open="(" close=")" item="group" separator=",">
-        #{group}
+        #{group,jdbcType=VARCHAR}
         </foreach>
       </if>
     </where>
@@ -329,7 +329,7 @@
       -- from template groups except anyone group
       select ptg.permission_reference as permission_key
       from perm_templates_groups ptg
-      inner join groups_users gu on ptg.group_id = gu.group_id
+      inner join groups_users gu on ptg.group_uuid = gu.group_uuid
       <where>
         and gu.user_id=#{userId}
         and ptg.template_uuid=#{templateUuid}
@@ -348,7 +348,7 @@
     select ptg.permission_reference as permission_key
     from perm_templates_groups ptg
     where ptg.template_uuid=#{templateUuid}
-    and ptg.group_id IS NULL
+    and ptg.group_uuid IS NULL
   </select>
 
   <select id="usersCountByTemplateUuidAndPermission" parameterType="map"
@@ -372,13 +372,13 @@
     FROM
     (SELECT g.name as name, ptg.permission_reference as permission, ptg.template_uuid as templateUuid
     FROM groups g
-    INNER JOIN perm_templates_groups ptg ON ptg.group_id=g.id
+    INNER JOIN perm_templates_groups ptg ON ptg.group_uuid=g.uuid
     UNION
     -- Add Anyone group permission
     SELECT #{anyoneGroup} as name, ptg.permission_reference as permission, ptg.template_uuid as templateUuid
     FROM perm_templates_groups ptg
     <where>
-      AND ptg.group_id IS NULL
+      AND ptg.group_uuid IS NULL
     </where>
     ) groups
     <where>
@@ -396,11 +396,11 @@
     where ptg.template_uuid = #{templateUuid}
     and ptg.permission_reference = #{permission}
     and
-    <if test="groupId == null">
-      ptg.group_id is null
+    <if test="groupUuid == null">
+      ptg.group_uuid is null
     </if>
-    <if test="groupId != null">
-      ptg.group_id = #{groupId}
+    <if test="groupUuid != null">
+      ptg.group_uuid = #{groupUuid}
     </if>
   </select>
 
@@ -413,19 +413,19 @@
       organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectAllGroupPermissionTemplatesByGroupId" parameterType="Long" resultType="PermissionTemplateGroup">
+  <select id="selectAllGroupPermissionTemplatesByGroupUuid" parameterType="string" resultType="PermissionTemplateGroup">
     SELECT
       ptg.uuid,
       ptg.template_uuid as templateUuid,
       ptg.permission_reference AS permission,
-      ptg.group_id AS groupId,
+      ptg.group_uuid AS groupUuid,
       g.name AS groupName,
       ptg.created_at as createdAt,
       ptg.updated_at as updatedAt
     FROM perm_templates_groups ptg
-    INNER JOIN groups g ON g.id=ptg.group_id
+    INNER JOIN groups g ON g.uuid=ptg.group_uuid
     <where>
-      ptg.group_id=#{groupId,jdbcType=INTEGER}
+      ptg.group_uuid=#{groupUuid,jdbcType=VARCHAR}
     </where>
   </select>
 </mapper>

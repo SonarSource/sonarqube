@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission;
 
-import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,7 +27,7 @@ import org.sonar.db.user.GroupDto;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GroupIdOrAnyoneTest {
+public class GroupUuidOrAnyoneTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -38,7 +37,7 @@ public class GroupIdOrAnyoneTest {
 
     expectOrganizationUuidNPE();
 
-    GroupIdOrAnyone.from(dto);
+    GroupUuidOrAnyone.from(dto);
   }
 
   @Test
@@ -47,44 +46,44 @@ public class GroupIdOrAnyoneTest {
     GroupDto dto = new GroupDto();
     dto.setOrganizationUuid(organizationUuid);
 
-    GroupIdOrAnyone underTest = GroupIdOrAnyone.from(dto);
+    GroupUuidOrAnyone underTest = GroupUuidOrAnyone.from(dto);
 
     assertThat(underTest.getOrganizationUuid()).isEqualTo(organizationUuid);
     assertThat(underTest.isAnyone()).isTrue();
-    assertThat(underTest.getId()).isNull();
+    assertThat(underTest.getUuid()).isNull();
   }
 
   @Test
   public void for_returns_isAnyone_false_if_id_is_not_null() {
-    int id = new Random().nextInt(199);
+    String uuid = randomAlphabetic(10);
     String organizationUuid = randomAlphabetic(10);
     GroupDto dto = new GroupDto();
     dto.setOrganizationUuid(organizationUuid);
-    dto.setId(id);
+    dto.setUuid(uuid);
 
-    GroupIdOrAnyone underTest = GroupIdOrAnyone.from(dto);
+    GroupUuidOrAnyone underTest = GroupUuidOrAnyone.from(dto);
 
     assertThat(underTest.getOrganizationUuid()).isEqualTo(organizationUuid);
     assertThat(underTest.isAnyone()).isFalse();
-    assertThat(underTest.getId()).isEqualTo(id);
+    assertThat(underTest.getUuid()).isEqualTo(uuid);
   }
 
   @Test
   public void forAnyone_fails_with_NPE_if_arg_is_null() {
     expectOrganizationUuidNPE();
 
-    GroupIdOrAnyone.forAnyone(null);
+    GroupUuidOrAnyone.forAnyone(null);
   }
 
   @Test
   public void forAnyone_returns_isAnyone_true() {
     String organizationUuid = randomAlphabetic(12);
 
-    GroupIdOrAnyone underTest = GroupIdOrAnyone.forAnyone(organizationUuid);
+    GroupUuidOrAnyone underTest = GroupUuidOrAnyone.forAnyone(organizationUuid);
 
     assertThat(underTest.isAnyone()).isTrue();
     assertThat(underTest.getOrganizationUuid()).isEqualTo(organizationUuid);
-    assertThat(underTest.getId()).isNull();
+    assertThat(underTest.getUuid()).isNull();
   }
 
   private void expectOrganizationUuidNPE() {

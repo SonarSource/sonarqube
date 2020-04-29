@@ -106,7 +106,7 @@ public class NewAuthorizedIndexTest {
 
     Map<String, Object> properties = getProperties(builtIndex);
     assertThat(getFieldAsMap(properties, "auth_groupIds"))
-      .containsOnly(entry("type", "long"));
+      .contains(entry("type", "keyword"));
     assertThat(getFieldAsMap(properties, "auth_userIds"))
       .containsOnly(entry("type", "long"));
     assertThat(getFieldAsMap(properties, "auth_allowAnyone"))

@@ -47,8 +47,8 @@ public class RoleDao implements Dao {
     return mapper(dbSession).selectComponentUuidsByPermissionAndUserId(permission, userId);
   }
 
-  public void deleteGroupRolesByGroupId(DbSession session, int groupId) {
-    mapper(session).deleteGroupRolesByGroupId(groupId);
+  public void deleteGroupRolesByGroupUuid(DbSession session, String groupUuid) {
+    mapper(session).deleteGroupRolesByGroupUuid(groupUuid);
   }
 
   private static RoleMapper mapper(DbSession session) {

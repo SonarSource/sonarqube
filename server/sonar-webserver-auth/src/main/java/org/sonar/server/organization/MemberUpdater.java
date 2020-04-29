@@ -78,7 +78,7 @@ public class MemberUpdater {
       .setOrganizationUuid(organization.getUuid())
       .setUserId(user.getId()));
     dbClient.userGroupDao().insert(dbSession,
-      new UserGroupDto().setGroupId(defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()).getId()).setUserId(user.getId()));
+      new UserGroupDto().setGroupUuid(defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()).getUuid()).setUserId(user.getId()));
   }
 
   public void removeMember(DbSession dbSession, OrganizationDto organization, UserDto user) {

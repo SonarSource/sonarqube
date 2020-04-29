@@ -117,14 +117,14 @@ public class OrganizationDbTester {
 
   public void assertUserIsMemberOfOrganization(OrganizationDto organization, UserDto user) {
     assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getId())).as("User is not member of the organization").isPresent();
-    Integer defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), organization.getUuid()).get();
+    String defaultGroupUuid = db.getDbClient().organizationDao().getDefaultGroupUuid(db.getSession(), organization.getUuid()).get();
     assertThat(db.getDbClient().groupMembershipDao().selectGroups(
       db.getSession(),
       GroupMembershipQuery.builder().membership(IN).organizationUuid(organization.getUuid()).build(),
       user.getId(), 0, 10))
-        .extracting(GroupMembershipDto::getId)
+        .extracting(GroupMembershipDto::getUuid)
         .as("User is not member of the default group of the organization")
-        .containsOnly(defaultGroupId.longValue());
+        .containsOnly(defaultGroupUuid);
   }
 
   public void assertUserIsNotMemberOfOrganization(OrganizationDto organization, UserDto user) {

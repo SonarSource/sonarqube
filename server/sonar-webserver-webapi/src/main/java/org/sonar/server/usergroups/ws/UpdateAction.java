@@ -90,9 +90,9 @@ public class UpdateAction implements UserGroupsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      int groupId = request.mandatoryParamAsInt(PARAM_GROUP_ID);
-      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
-      checkFound(group, "Could not find a user group with id '%s'.", groupId);
+      String groupUuid = request.mandatoryParam(PARAM_GROUP_ID);
+      GroupDto group = dbClient.groupDao().selectByUuid(dbSession, groupUuid);
+      checkFound(group, "Could not find a user group with id '%s'.", groupUuid);
       Optional<OrganizationDto> org = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
       checkFoundWithOptional(org, "Could not find organization with id '%s'.", group.getOrganizationUuid());
       userSession.checkPermission(ADMINISTER, org.get());
@@ -124,7 +124,7 @@ public class UpdateAction implements UserGroupsWsAction {
 
   private void writeResponse(DbSession dbSession, Request request, Response response, OrganizationDto organization, GroupDto group) {
     UserMembershipQuery query = UserMembershipQuery.builder()
-      .groupId(group.getId())
+      .groupUuid(group.getUuid())
       .organizationUuid(organization.getUuid())
       .membership(UserMembershipQuery.IN)
       .build();

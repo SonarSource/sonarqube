@@ -128,18 +128,18 @@ public class GroupsAction implements PermissionsWsAction {
   }
 
   private static WsGroupsResponse buildResponse(List<GroupDto> groups, List<GroupPermissionDto> groupPermissions, Paging paging) {
-    Multimap<Integer, String> permissionsByGroupId = TreeMultimap.create();
-    groupPermissions.forEach(groupPermission -> permissionsByGroupId.put(groupPermission.getGroupId(), groupPermission.getRole()));
+    Multimap<String, String> permissionsByGroupUuid = TreeMultimap.create();
+    groupPermissions.forEach(groupPermission -> permissionsByGroupUuid.put(groupPermission.getGroupUuid(), groupPermission.getRole()));
     WsGroupsResponse.Builder response = WsGroupsResponse.newBuilder();
 
     groups.forEach(group -> {
       Group.Builder wsGroup = response.addGroupsBuilder()
         .setName(group.getName());
-      if (group.getId() != 0) {
-        wsGroup.setId(String.valueOf(group.getId()));
+      if (group.getUuid() != null) {
+        wsGroup.setId(String.valueOf(group.getUuid()));
       }
       ofNullable(group.getDescription()).ifPresent(wsGroup::setDescription);
-      wsGroup.addAllPermissions(permissionsByGroupId.get(group.getId()));
+      wsGroup.addAllPermissions(permissionsByGroupUuid.get(group.getUuid()));
     });
 
     response.getPagingBuilder()
@@ -154,7 +154,7 @@ public class GroupsAction implements PermissionsWsAction {
     List<String> orderedNames = dbClient.groupPermissionDao().selectGroupNamesByQuery(dbSession, dbQuery);
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, org.getUuid(), orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
-      groups.add(0, new GroupDto().setId(0).setName(DefaultGroups.ANYONE).setOrganizationUuid(org.getUuid()));
+      groups.add(0, new GroupDto().setUuid(DefaultGroups.ANYONE).setName(DefaultGroups.ANYONE).setOrganizationUuid(org.getUuid()));
     }
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
@@ -163,7 +163,7 @@ public class GroupsAction implements PermissionsWsAction {
     if (groups.isEmpty()) {
       return emptyList();
     }
-    List<Integer> ids = groups.stream().map(GroupDto::getId).collect(MoreCollectors.toList(groups.size()));
-    return dbClient.groupPermissionDao().selectByGroupIds(dbSession, org.getUuid(), ids, project.map(ProjectUuid::getUuid).orElse(null));
+    List<String> uuids = groups.stream().map(GroupDto::getUuid).collect(MoreCollectors.toList(groups.size()));
+    return dbClient.groupPermissionDao().selectByGroupUuids(dbSession, org.getUuid(), uuids, project.map(ProjectUuid::getUuid).orElse(null));
   }
 }

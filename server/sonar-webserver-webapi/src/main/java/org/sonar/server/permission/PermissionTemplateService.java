@@ -146,7 +146,7 @@ public class PermissionTemplateService {
         GroupPermissionDto dto = new GroupPermissionDto()
           .setUuid(uuidFactory.create())
           .setOrganizationUuid(organizationUuid)
-          .setGroupId(isAnyone(gp.getGroupName()) ? null : gp.getGroupId())
+          .setGroupUuid(isAnyone(gp.getGroupName()) ? null : gp.getGroupUuid())
           .setRole(gp.getPermission())
           .setComponentUuid(project.uuid());
         dbClient.groupPermissionDao().insert(dbSession, dto);

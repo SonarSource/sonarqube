@@ -790,7 +790,7 @@ public class UserRegistrarImplTest {
   }
 
   private void checkGroupMembership(UserDto user, GroupDto... expectedGroups) {
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(Collectors.toList()).toArray(new Integer[]{}));
+    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).collect(Collectors.toList()).toArray(new String[]{}));
   }
 
   private GroupDto insertDefaultGroup() {

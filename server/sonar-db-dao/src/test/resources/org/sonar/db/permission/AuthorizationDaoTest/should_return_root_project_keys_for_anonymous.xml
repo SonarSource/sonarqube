@@ -6,9 +6,9 @@
               role="user"
               organization_uuid="org1"/>
   <groups_users user_id="100"
-                group_id="200"/>
+                group_uuid="200"/>
   <group_roles id="1"
-               group_id="[null]"
+               group_uuid="[null]"
                resource_id="300"
                role="user"
                organization_uuid="org1"/>

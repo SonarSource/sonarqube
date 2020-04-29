@@ -26,6 +26,6 @@ public interface RoleMapper {
 
   List<String> selectComponentUuidsByPermissionAndUserId(@Param("permission") String permission, @Param("userId") int userId);
 
-  void deleteGroupRolesByGroupId(int groupId);
+  void deleteGroupRolesByGroupUuid(String groupUuid);
 
 }

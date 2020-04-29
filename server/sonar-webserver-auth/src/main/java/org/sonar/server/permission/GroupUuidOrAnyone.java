@@ -28,40 +28,40 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * Reference to a user group, as used internally by the backend. Contrary to
- * {@link GroupId}, it supports reference to virtual groups "anyone". In these
- * cases {@link #getId()} returns {@code null}
+ * {@link GroupUuid}, it supports reference to virtual groups "anyone". In these
+ * cases {@link #getUuid()} returns {@code null}
  *
- * @see GroupId
+ * @see GroupUuid
  */
 @Immutable
-public class GroupIdOrAnyone {
+public class GroupUuidOrAnyone {
 
-  private final Integer id;
+  private final String uuid;
   private final String organizationUuid;
 
-  private GroupIdOrAnyone(String organizationUuid, @Nullable Integer id) {
-    this.id = id;
+  private GroupUuidOrAnyone(String organizationUuid, @Nullable String uuid) {
+    this.uuid = uuid;
     this.organizationUuid = requireNonNull(organizationUuid, "organizationUuid can't be null");
   }
 
   public boolean isAnyone() {
-    return id == null;
+    return uuid == null;
   }
 
   @CheckForNull
-  public Integer getId() {
-    return id;
+  public String getUuid() {
+    return uuid;
   }
 
   public String getOrganizationUuid() {
     return organizationUuid;
   }
 
-  public static GroupIdOrAnyone from(GroupDto dto) {
-    return new GroupIdOrAnyone(dto.getOrganizationUuid(), dto.getId());
+  public static GroupUuidOrAnyone from(GroupDto dto) {
+    return new GroupUuidOrAnyone(dto.getOrganizationUuid(), dto.getUuid());
   }
 
-  public static GroupIdOrAnyone forAnyone(String organizationUuid) {
-    return new GroupIdOrAnyone(organizationUuid, null);
+  public static GroupUuidOrAnyone forAnyone(String organizationUuid) {
+    return new GroupUuidOrAnyone(organizationUuid, null);
   }
 }

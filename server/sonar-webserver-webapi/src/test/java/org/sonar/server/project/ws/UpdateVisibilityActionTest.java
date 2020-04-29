@@ -495,11 +495,11 @@ public class UpdateVisibilityActionTest {
       .setParam(PARAM_VISIBILITY, PRIVATE)
       .execute();
 
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId(), project.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group1.getUuid(), project.uuid()))
       .containsOnly(UserRole.USER, UserRole.CODEVIEWER, "p1", "p2");
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group2.getId(), project.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group2.getUuid(), project.uuid()))
       .containsOnly(UserRole.USER, UserRole.CODEVIEWER, "p2");
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group3.getId(), project.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group3.getUuid(), project.uuid()))
       .isEmpty();
   }
 
@@ -518,7 +518,7 @@ public class UpdateVisibilityActionTest {
       .execute();
 
     assertThat(dbClient.componentDao().selectByUuid(dbSession, portfolio.uuid()).get().isPrivate()).isTrue();
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getId(), portfolio.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getUuid(), portfolio.uuid()))
       .containsOnly(UserRole.USER, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN);
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), portfolio.uuid()))
       .containsOnly(UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN);
@@ -543,7 +543,7 @@ public class UpdateVisibilityActionTest {
       .execute();
 
     assertThat(dbClient.componentDao().selectByUuid(dbSession, portfolio.uuid()).get().isPrivate()).isFalse();
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getId(), portfolio.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getUuid(), portfolio.uuid()))
       .containsOnly(UserRole.ISSUE_ADMIN);
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), portfolio.uuid()))
       .containsOnly(UserRole.ADMIN);
@@ -564,7 +564,7 @@ public class UpdateVisibilityActionTest {
       .execute();
 
     assertThat(dbClient.componentDao().selectByUuid(dbSession, application.uuid()).get().isPrivate()).isTrue();
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getId(), application.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getUuid(), application.uuid()))
       .containsOnly(UserRole.USER, UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN);
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), application.uuid()))
       .containsOnly(UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN);
@@ -589,7 +589,7 @@ public class UpdateVisibilityActionTest {
       .execute();
 
     assertThat(dbClient.componentDao().selectByUuid(dbSession, portfolio.uuid()).get().isPrivate()).isFalse();
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getId(), portfolio.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getUuid(), portfolio.uuid()))
       .containsOnly(UserRole.ISSUE_ADMIN);
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), portfolio.uuid()))
       .containsOnly(UserRole.ADMIN);
@@ -659,7 +659,7 @@ public class UpdateVisibilityActionTest {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setOrganizationUuid(component.getOrganizationUuid())
-      .setGroupId(null)
+      .setGroupUuid(null)
       .setRole(permission)
       .setComponentUuid(component.uuid());
     dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto);
@@ -670,7 +670,7 @@ public class UpdateVisibilityActionTest {
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setOrganizationUuid(group.getOrganizationUuid())
-      .setGroupId(group.getId())
+      .setGroupUuid(group.getUuid())
       .setRole(permission)
       .setComponentUuid(component.uuid());
     dbTester.getDbClient().groupPermissionDao().insert(dbTester.getSession(), dto);
@@ -686,13 +686,13 @@ public class UpdateVisibilityActionTest {
   private void verifyHasAllPermissionsButProjectPermissionsToGroupAnyOne(ComponentDto component, UserDto user, GroupDto group) {
     assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId()))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
     assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), component.getOrganizationUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
     assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null, component.uuid()))
       .isEmpty();
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId(), component.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getUuid(), component.uuid()))
       .containsAll(permissionService.getAllProjectPermissions());
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), component.uuid()))
       .containsAll(permissionService.getAllProjectPermissions());
@@ -701,7 +701,7 @@ public class UpdateVisibilityActionTest {
   private void verifyHasAllPermissionsButProjectPermissionsUserAndBrowse(ComponentDto component, UserDto user, GroupDto group) {
     assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId()))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
     assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), component.getOrganizationUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
@@ -709,7 +709,7 @@ public class UpdateVisibilityActionTest {
       .doesNotContain(UserRole.USER)
       .doesNotContain(UserRole.CODEVIEWER)
       .containsAll(PROJECT_PERMISSIONS_BUT_USER_AND_CODEVIEWER);
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId(), component.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getUuid(), component.uuid()))
       .doesNotContain(UserRole.USER)
       .doesNotContain(UserRole.CODEVIEWER)
       .containsAll(PROJECT_PERMISSIONS_BUT_USER_AND_CODEVIEWER);
@@ -722,13 +722,13 @@ public class UpdateVisibilityActionTest {
   private void verifyStillHasAllPermissions(ComponentDto component, UserDto user, GroupDto group) {
     assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId()))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
     assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), component.getOrganizationUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
     assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null, component.uuid()))
       .containsAll(permissionService.getAllProjectPermissions());
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId(), component.uuid()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getUuid(), component.uuid()))
       .containsAll(permissionService.getAllProjectPermissions());
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), component.uuid()))
       .containsAll(permissionService.getAllProjectPermissions());

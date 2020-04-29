@@ -21,16 +21,16 @@ package org.sonar.db.qualityprofile;
 
 public class GroupMembershipDto {
 
-  private int groupId;
+  private String groupUuid;
   // Set by MyBatis
   private String uuid;
 
-  public int getGroupId() {
-    return groupId;
+  public String getGroupUuid() {
+    return groupUuid;
   }
 
-  public GroupMembershipDto setGroupId(int groupId) {
-    this.groupId = groupId;
+  public GroupMembershipDto setGroupUuid(String groupUuid) {
+    this.groupUuid = groupUuid;
     return this;
   }
 

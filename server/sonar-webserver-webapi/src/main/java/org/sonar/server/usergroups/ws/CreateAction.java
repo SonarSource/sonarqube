@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.user.UserGroupValidation;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -46,11 +47,13 @@ public class CreateAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
+  private final UuidFactory uuidFactory;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
+  public CreateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
@@ -89,6 +92,7 @@ public class CreateAction implements UserGroupsWsAction {
       OrganizationDto organization = support.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
       userSession.checkPermission(ADMINISTER, organization);
       GroupDto group = new GroupDto()
+        .setUuid(uuidFactory.create())
         .setOrganizationUuid(organization.getUuid())
         .setName(request.mandatoryParam(PARAM_GROUP_NAME))
         .setDescription(request.param(PARAM_GROUP_DESCRIPTION));

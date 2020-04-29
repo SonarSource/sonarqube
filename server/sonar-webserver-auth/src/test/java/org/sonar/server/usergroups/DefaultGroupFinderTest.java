@@ -46,7 +46,7 @@ public class DefaultGroupFinderTest {
 
     GroupDto result = underTest.findDefaultGroup(db.getSession(), organization.getUuid());
 
-    assertThat(result.getId()).isEqualTo(defaultGroup.getId());
+    assertThat(result.getUuid()).isEqualTo(defaultGroup.getUuid());
     assertThat(result.getName()).isEqualTo("default");
   }
 
@@ -65,10 +65,10 @@ public class DefaultGroupFinderTest {
   public void fail_with_NPE_when_default_group_does_not_exist() {
     OrganizationDto organization = db.organizations().insert();
     GroupDto defaultGroup = db.users().insertDefaultGroup(organization, "default");
-    db.getDbClient().groupDao().deleteById(db.getSession(), defaultGroup.getId());
+    db.getDbClient().groupDao().deleteByUuid(db.getSession(), defaultGroup.getUuid());
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage(format("Group '%s' cannot be found", defaultGroup.getId()));
+    expectedException.expectMessage(format("Group '%s' cannot be found", defaultGroup.getUuid()));
 
     underTest.findDefaultGroup(db.getSession(), organization.getUuid());
   }

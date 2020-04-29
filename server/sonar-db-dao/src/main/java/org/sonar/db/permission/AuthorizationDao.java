@@ -78,12 +78,12 @@ public class AuthorizationDao implements Dao {
   }
 
   /**
-   * The number of users who will still have the permission if the group {@code excludedGroupId}
+   * The number of users who will still have the permission if the group {@code excludedGroupUuid}
    * is deleted. The anyone virtual group is not taken into account.
    */
   public int countUsersWithGlobalPermissionExcludingGroup(DbSession dbSession, String organizationUuid,
-    String permission, int excludedGroupId) {
-    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroup(organizationUuid, permission, excludedGroupId);
+    String permission, String excludedGroupUuid) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroup(organizationUuid, permission, excludedGroupUuid);
   }
 
   /**
@@ -105,13 +105,13 @@ public class AuthorizationDao implements Dao {
 
   /**
    * The number of users who will still have the permission if the user {@code userId}
-   * is removed from group {@code groupId}. The anyone virtual group is not taken into account.
+   * is removed from group {@code groupUuid}. The anyone virtual group is not taken into account.
    * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, int)}, user
    * still exists and may have the permission directly or through other groups.
    */
   public int countUsersWithGlobalPermissionExcludingGroupMember(DbSession dbSession, String organizationUuid,
-    String permission, int groupId, int userId) {
-    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroupMember(organizationUuid, permission, groupId, userId);
+    String permission, String groupUuid, int userId) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroupMember(organizationUuid, permission, groupUuid, userId);
   }
 
   /**

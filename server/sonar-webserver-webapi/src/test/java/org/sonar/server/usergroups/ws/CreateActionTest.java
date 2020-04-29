@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -49,7 +50,7 @@ public class CreateActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private CreateAction underTest = new CreateAction(db.getDbClient(), userSession, newGroupWsSupport());
+  private CreateAction underTest = new CreateAction(db.getDbClient(), userSession, newGroupWsSupport(), new SequenceUuidFactory());
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -102,7 +103,7 @@ public class CreateActionTest {
         "}");
 
     GroupDto createdGroup = db.users().selectGroup(org, "some-product-bu").get();
-    assertThat(createdGroup.getId()).isNotNull();
+    assertThat(createdGroup.getUuid()).isNotNull();
     assertThat(createdGroup.getOrganizationUuid()).isEqualTo(org.getUuid());
   }
 

@@ -124,14 +124,14 @@ public class SearchGroupsAction implements QProfileWsAction {
       int total = dbClient.qProfileEditGroupsDao().countByQuery(dbSession, query);
       List<GroupMembershipDto> groupMemberships = dbClient.qProfileEditGroupsDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
-      Map<Integer, GroupDto> groupsById = dbClient.groupDao().selectByIds(dbSession,
-        groupMemberships.stream().map(GroupMembershipDto::getGroupId).collect(MoreCollectors.toList()))
+      Map<String, GroupDto> groupsByUuid = dbClient.groupDao().selectByUuids(dbSession,
+        groupMemberships.stream().map(GroupMembershipDto::getGroupUuid).collect(MoreCollectors.toList()))
         .stream()
-        .collect(MoreCollectors.uniqueIndex(GroupDto::getId));
+        .collect(MoreCollectors.uniqueIndex(GroupDto::getUuid));
       writeProtobuf(
         Qualityprofiles.SearchGroupsResponse.newBuilder()
           .addAllGroups(groupMemberships.stream()
-            .map(groupsMembership -> toGroup(groupsById.get(groupsMembership.getGroupId()), groupsMembership.isSelected()))
+            .map(groupsMembership -> toGroup(groupsByUuid.get(groupsMembership.getGroupUuid()), groupsMembership.isSelected()))
             .collect(toList()))
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);

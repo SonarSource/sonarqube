@@ -34,7 +34,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
@@ -760,7 +759,7 @@ public class UserDaoTest {
     GroupDto group = newGroupDto().setName(randomAlphanumeric(30));
     dbClient.groupDao().insert(session, group);
 
-    UserGroupDto dto = new UserGroupDto().setUserId(user.getId()).setGroupId(group.getId());
+    UserGroupDto dto = new UserGroupDto().setUserId(user.getId()).setGroupUuid(group.getUuid());
     dbClient.userGroupDao().insert(session, dto);
     return dto;
   }

@@ -69,11 +69,11 @@ public class RemoveUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .setParam("login", user.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
+    assertThat(db.users().selectGroupUuidsOfUser(user)).isEmpty();
   }
 
   @Test
@@ -87,11 +87,11 @@ public class RemoveUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", users.getId().toString())
+      .setParam("id", users.getUuid())
       .setParam("login", user.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
+    assertThat(db.users().selectGroupUuidsOfUser(user)).isEmpty();
   }
 
   @Test
@@ -108,7 +108,7 @@ public class RemoveUserActionTest {
       .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
+    assertThat(db.users().selectGroupUuidsOfUser(user)).isEmpty();
   }
 
   @Test
@@ -129,7 +129,7 @@ public class RemoveUserActionTest {
       .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).isEmpty();
+    assertThat(db.users().selectGroupUuidsOfUser(user)).isEmpty();
   }
 
   @Test
@@ -147,11 +147,11 @@ public class RemoveUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     newRequest()
-      .setParam("id", admins.getId().toString())
+      .setParam("id", admins.getUuid())
       .setParam("login", user.getLogin())
       .execute();
 
-    assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(users.getId());
+    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(users.getUuid());
   }
 
   @Test
@@ -165,7 +165,7 @@ public class RemoveUserActionTest {
     loginAsAdminOnDefaultOrganization();
 
     TestResponse response = newRequest()
-      .setParam("id", users.getId().toString())
+      .setParam("id", users.getUuid())
       .setParam("login", user.getLogin())
       .execute();
 
@@ -194,7 +194,7 @@ public class RemoveUserActionTest {
 
     loginAsAdminOnDefaultOrganization();
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .setParam("login", "my-admin")
       .execute();
   }
@@ -211,7 +211,7 @@ public class RemoveUserActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     newRequest()
-      .setParam("id", group.getId().toString())
+      .setParam("id", group.getUuid())
       .setParam("login", user.getLogin())
       .execute();
   }
@@ -230,7 +230,7 @@ public class RemoveUserActionTest {
     expectedException.expectMessage("The last administrator user cannot be removed");
 
     newRequest()
-      .setParam("id", adminGroup.getId().toString())
+      .setParam("id", adminGroup.getUuid())
       .setParam("login", adminUser.getLogin())
       .execute();
   }
@@ -247,7 +247,7 @@ public class RemoveUserActionTest {
     expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
 
     newRequest()
-      .setParam("id", Integer.toString(defaultGroup.getId()))
+      .setParam("id", defaultGroup.getUuid())
       .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
   }

@@ -71,7 +71,7 @@ public class RegisterPermissionTemplatesTest {
 
   @Test
   public void fail_with_ISE_if_default_template_must_be_created_and_default_group_does_not_exist() {
-    setDefaultGroupId(new GroupDto().setId(22));
+    setDefaultGroupId(new GroupDto().setUuid("22"));
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Default group with id 22 for organization " + db.getDefaultOrganization().getUuid() + " doesn't exist");
@@ -200,7 +200,7 @@ public class RegisterPermissionTemplatesTest {
   }
 
   private void setDefaultGroupId(GroupDto defaultGroup) {
-    db.getDbClient().organizationDao().setDefaultGroupId(db.getSession(), db.getDefaultOrganization().getUuid(), defaultGroup);
+    db.getDbClient().organizationDao().setDefaultGroupUuid(db.getSession(), db.getDefaultOrganization().getUuid(), defaultGroup);
     db.commit();
   }
 

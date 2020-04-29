@@ -5,7 +5,7 @@
 <mapper namespace="org.sonar.db.user.GroupMapper">
 
   <sql id="groupColumns">
-    g.id as id,
+    g.uuid as uuid,
     g.name as name,
     g.description as description,
     g.organization_uuid as organizationUuid,
@@ -20,29 +20,29 @@
     where g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and g.name = #{name,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByIds" parameterType="int" resultType="Group">
+  <select id="selectByUuids" parameterType="String" resultType="Group">
     select
     <include refid="groupColumns"/>
     from groups g
-    where g.id in
-    <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
-      #{id,jdbcType=BIGINT}
+    where g.uuid in
+    <foreach item="uuid" index="index" collection="uuids" open="(" separator="," close=")">
+      #{uuid,jdbcType=VARCHAR}
     </foreach>
   </select>
 
-  <select id="selectById" parameterType="int" resultType="Group">
+  <select id="selectByUuid" parameterType="String" resultType="Group">
     SELECT
     <include refid="groupColumns"/>
     FROM groups g
     <where>
-      g.id=#{id,jdbcType=BIGINT}
+      g.uuid=#{uuid,jdbcType=VARCHAR}
     </where>
   </select>
 
-  <delete id="deleteById" parameterType="int">
+  <delete id="deleteByUuid" parameterType="String">
     DELETE FROM groups
     <where>
-      id=#{id,jdbcType=BIGINT}
+      uuid=#{uuid,jdbcType=VARCHAR}
     </where>
   </delete>
 
@@ -57,7 +57,7 @@
     select
     <include refid="groupColumns"/>
     from groups g
-    inner join groups_users gu on gu.group_id = g.id
+    inner join groups_users gu on gu.group_uuid = g.uuid
     inner join users u on u.id = gu.user_id
     where  u.login=#{login,jdbcType=VARCHAR}
   </select>
@@ -74,14 +74,16 @@
       </foreach>
   </select>
 
-  <insert id="insert" parameterType="Group" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Group" useGeneratedKeys="false">
     insert into groups (
+    uuid,
     organization_uuid,
     name,
     description,
     created_at,
     updated_at
     ) values (
+    #{uuid,jdbcType=VARCHAR},
     #{organizationUuid,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{description,jdbcType=VARCHAR},
@@ -95,7 +97,7 @@
     name=#{name,jdbcType=VARCHAR},
     description=#{description,jdbcType=VARCHAR},
     updated_at=#{updatedAt,jdbcType=TIMESTAMP}
-    WHERE id=#{id}
+    WHERE uuid=#{uuid}
   </update>
 
   <select id="selectByQuery" parameterType="map" resultType="Group">
@@ -120,13 +122,13 @@
     </if>
   </select>
 
-  <select id="countGroupByOrganizationAndId" parameterType="map" resultType="int">
+  <select id="countGroupByOrganizationAndUuid" parameterType="map" resultType="int">
     select
       count(1)
     from groups g
     where
       g.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-      and g.id = #{groupId,jdbcType=INTEGER}
+      and g.uuid = #{groupUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByOrganizationUuid" parameterType="map" resultType="Group">

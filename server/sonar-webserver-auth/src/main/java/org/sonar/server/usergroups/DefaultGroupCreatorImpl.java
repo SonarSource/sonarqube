@@ -20,6 +20,7 @@
 package org.sonar.server.usergroups;
 
 import java.util.Optional;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
@@ -30,9 +31,11 @@ public class DefaultGroupCreatorImpl implements DefaultGroupCreator {
 
   public static final String DEFAULT_GROUP_NAME = "Members";
   private final DbClient dbClient;
+  private final UuidFactory uuidFactory;
 
-  public DefaultGroupCreatorImpl(DbClient dbClient) {
+  public DefaultGroupCreatorImpl(DbClient dbClient, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
+    this.uuidFactory = uuidFactory;
   }
 
   public GroupDto create(DbSession dbSession, String organizationUuid) {
@@ -40,11 +43,12 @@ public class DefaultGroupCreatorImpl implements DefaultGroupCreator {
     checkArgument(!existingMembersGroup.isPresent(), "The group '%s' already exist on organization '%s'", DEFAULT_GROUP_NAME, organizationUuid);
 
     GroupDto defaultGroup = new GroupDto()
+      .setUuid(uuidFactory.create())
       .setName(DEFAULT_GROUP_NAME)
       .setDescription("All members of the organization")
       .setOrganizationUuid(organizationUuid);
     dbClient.groupDao().insert(dbSession, defaultGroup);
-    dbClient.organizationDao().setDefaultGroupId(dbSession, organizationUuid, defaultGroup);
+    dbClient.organizationDao().setDefaultGroupUuid(dbSession, organizationUuid, defaultGroup);
     return defaultGroup;
   }
 

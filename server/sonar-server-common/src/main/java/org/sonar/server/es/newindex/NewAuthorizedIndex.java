@@ -39,7 +39,7 @@ public class NewAuthorizedIndex extends NewIndex<NewAuthorizedIndex> {
 
     this.mainType = IndexType.main(index, TYPE_AUTHORIZATION);
     super.createTypeMapping(mainType)
-      .createLongField(FIELD_GROUP_IDS)
+      .keywordFieldBuilder(FIELD_GROUP_IDS).build()
       .createLongField(FIELD_USER_IDS)
       .createBooleanField(FIELD_ALLOW_ANYONE);
   }

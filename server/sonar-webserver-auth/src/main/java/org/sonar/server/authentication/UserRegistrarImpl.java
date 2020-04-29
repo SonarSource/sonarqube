@@ -200,7 +200,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     groupsToAdd.stream().map(groupsByName::get).filter(Objects::nonNull).forEach(
       groupDto -> {
         LOGGER.debug("Adding group '{}' to user '{}'", groupDto.getName(), userDto.getLogin());
-        dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(groupDto.getId()).setUserId(userDto.getId()));
+        dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(groupDto.getUuid()).setUserId(userDto.getId()));
       });
   }
 
@@ -210,10 +210,10 @@ public class UserRegistrarImpl implements UserRegistrar {
       .filter(Objects::nonNull)
       // user should be member of default group only when organizations are disabled, as the IdentityProvider API doesn't handle yet
       // organizations
-      .filter(group -> !defaultGroup.isPresent() || !group.getId().equals(defaultGroup.get().getId()))
+      .filter(group -> !defaultGroup.isPresent() || !group.getUuid().equals(defaultGroup.get().getUuid()))
       .forEach(groupDto -> {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
-        dbClient.userGroupDao().delete(dbSession, groupDto.getId(), userDto.getId());
+        dbClient.userGroupDao().delete(dbSession, groupDto.getUuid(), userDto.getId());
       });
   }
 

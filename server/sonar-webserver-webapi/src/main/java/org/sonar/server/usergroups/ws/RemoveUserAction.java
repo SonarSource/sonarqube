@@ -80,7 +80,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
 
       ensureLastAdminIsNotRemoved(dbSession, group, user);
 
-      dbClient.userGroupDao().delete(dbSession, group.getId(), user.getId());
+      dbClient.userGroupDao().delete(dbSession, group.getUuid(), user.getId());
       dbSession.commit();
 
       response.noContent();
@@ -92,7 +92,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
    */
   private void ensureLastAdminIsNotRemoved(DbSession dbSession, GroupDto group, UserDto user) {
     int remainingAdmins = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroupMember(dbSession,
-      group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getId(), user.getId());
+      group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getUuid(), user.getId());
     checkRequest(remainingAdmins > 0, "The last administrator user cannot be removed");
   }
 

@@ -108,8 +108,8 @@ public class WebAuthorizationTypeSupportTest {
 
   @Test
   public void createQueryFilter_sets_filter_on_anyone_and_user_id_and_group_ids_if_user_is_logged_in_and_has_groups() {
-    GroupDto group1 = GroupTesting.newGroupDto().setId(10);
-    GroupDto group2 = GroupTesting.newGroupDto().setId(11);
+    GroupDto group1 = GroupTesting.newGroupDto().setUuid("10");
+    GroupDto group2 = GroupTesting.newGroupDto().setUuid("11");
     userSession.logIn().setUserId(1234).setGroups(group1, group2);
 
     HasParentQueryBuilder filter = (HasParentQueryBuilder) underTest.createQueryFilter();
@@ -133,12 +133,12 @@ public class WebAuthorizationTypeSupportTest {
         "              }," +
         "              {" +
         "                \"term\": {" +
-        "                  \"auth_groupIds\": {\"value\": 10}" +
+        "                  \"auth_groupIds\": {\"value\": \"10\"}" +
         "                }" +
         "              }," +
         "              {" +
         "                \"term\": {" +
-        "                  \"auth_groupIds\": {\"value\": 11}" +
+        "                  \"auth_groupIds\": {\"value\": \"11\"}" +
         "                }" +
         "              }" +
         "            ]" +

@@ -51,7 +51,7 @@ public interface OrganizationMapper {
 
   DefaultTemplates selectDefaultTemplatesByUuid(@Param("uuid") String uuid);
 
-  Integer selectDefaultGroupIdByUuid(@Param("uuid") String uuid);
+  String selectDefaultGroupUuidByUuid(@Param("uuid") String uuid);
 
   boolean selectNewProjectPrivateByUuid(@Param("uuid") String uuid);
 
@@ -67,8 +67,8 @@ public interface OrganizationMapper {
   void updateDefaultTemplates(@Param("organizationUuid") String organizationUuid,
     @Param("defaultTemplates") DefaultTemplates defaultTemplates, @Param("now") long now);
 
-  void updateDefaultGroupId(@Param("organizationUuid") String organizationUuid,
-    @Param("defaultGroupId") int defaultGroupId, @Param("now") long now);
+  void updateDefaultGroupUuid(@Param("organizationUuid") String organizationUuid,
+    @Param("defaultGroupUuid") String defaultGroupUuid, @Param("now") long now);
 
   void updateDefaultQualityGate(@Param("organizationUuid") String organizationUuid,
     @Param("defaultQualityGateUuid") String defaultQualityGateUuid, @Param("now") long now);

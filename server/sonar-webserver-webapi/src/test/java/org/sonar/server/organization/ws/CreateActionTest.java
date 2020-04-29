@@ -34,6 +34,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -109,7 +110,7 @@ public class CreateActionTest {
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private OrganizationUpdater organizationUpdater = new OrganizationUpdaterImpl(dbClient, system2, UuidFactoryFast.getInstance(), organizationValidation,
-    userIndexer, mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient), permissionService);
+    userIndexer, mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient, new SequenceUuidFactory()), permissionService);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private OrganizationAlmBinding organizationAlmBinding = mock(OrganizationAlmBinding.class);
 
@@ -159,13 +160,13 @@ public class CreateActionTest {
     assertThat(groupDtoOptional).isNotEmpty();
     GroupDto groupDto = groupDtoOptional.get();
     assertThat(groupDto.getDescription()).isEqualTo("Owners of organization");
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getUuid()))
       .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
     List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
       dbSession,
       UserMembershipQuery.builder()
         .organizationUuid(organization.getUuid())
-        .groupId(groupDto.getId())
+        .groupUuid(groupDto.getUuid())
         .membership(UserMembershipQuery.IN).build(),
       0, Integer.MAX_VALUE);
     assertThat(members)
@@ -187,12 +188,12 @@ public class CreateActionTest {
     assertThat(groupDtoOptional).isNotEmpty();
     GroupDto groupDto = groupDtoOptional.get();
     assertThat(groupDto.getDescription()).isEqualTo("All members of the organization");
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId())).isEmpty();
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getUuid())).isEmpty();
     List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
       dbSession,
       UserMembershipQuery.builder()
         .organizationUuid(organization.getUuid())
-        .groupId(groupDto.getId())
+        .groupUuid(groupDto.getUuid())
         .membership(UserMembershipQuery.IN).build(),
       0, Integer.MAX_VALUE);
     assertThat(members)
@@ -218,14 +219,14 @@ public class CreateActionTest {
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(defaultTemplate.getUuid());
     assertThat(defaultTemplates.getApplicationsUuid()).isNull();
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateUuid(dbSession, defaultTemplate.getUuid()))
-      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
-        tuple(ownersGroup.getId(), UserRole.ADMIN),
-        tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
-        tuple(defaultGroup.getId(), UserRole.USER),
-        tuple(defaultGroup.getId(), UserRole.CODEVIEWER),
-        tuple(defaultGroup.getId(), UserRole.ISSUE_ADMIN),
-        tuple(defaultGroup.getId(), UserRole.SECURITYHOTSPOT_ADMIN));
+        tuple(ownersGroup.getUuid(), UserRole.ADMIN),
+        tuple(ownersGroup.getUuid(), GlobalPermissions.SCAN_EXECUTION),
+        tuple(defaultGroup.getUuid(), UserRole.USER),
+        tuple(defaultGroup.getUuid(), UserRole.CODEVIEWER),
+        tuple(defaultGroup.getUuid(), UserRole.ISSUE_ADMIN),
+        tuple(defaultGroup.getUuid(), UserRole.SECURITYHOTSPOT_ADMIN));
   }
 
   @Test

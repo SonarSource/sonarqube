@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -38,7 +39,7 @@ public class DefaultGroupCreatorImplTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DefaultGroupCreator underTest = new DefaultGroupCreatorImpl(db.getDbClient());
+  private DefaultGroupCreator underTest = new DefaultGroupCreatorImpl(db.getDbClient(), new SequenceUuidFactory());
 
   @Test
   public void create_default_group() {
@@ -46,9 +47,9 @@ public class DefaultGroupCreatorImplTest {
 
     underTest.create(db.getSession(), organizationDto.getUuid());
 
-    Optional<Integer> defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), organizationDto.getUuid());
-    assertThat(defaultGroupId).isPresent();
-    assertThat(db.getDbClient().groupDao().selectById(db.getSession(), defaultGroupId.get()))
+    Optional<String> defaultGroupUuid = db.getDbClient().organizationDao().getDefaultGroupUuid(db.getSession(), organizationDto.getUuid());
+    assertThat(defaultGroupUuid).isPresent();
+    assertThat(db.getDbClient().groupDao().selectByUuid(db.getSession(), defaultGroupUuid.get()))
       .extracting(GroupDto::getName, GroupDto::getDescription)
       .containsOnly("Members", "All members of the organization");
   }

@@ -405,9 +405,9 @@ public class DeleteActionTest {
     sendRequest(org);
 
     verifyOrganizationDoesNotExist(org);
-    assertThat(dbClient.groupDao().selectByIds(dbSession, of(group1.getId(), otherGroup1.getId(), group2.getId(), otherGroup2.getId())))
-      .extracting(GroupDto::getId)
-      .containsOnly(otherGroup1.getId(), otherGroup2.getId());
+    assertThat(dbClient.groupDao().selectByUuids(dbSession, of(group1.getUuid(), otherGroup1.getUuid(), group2.getUuid(), otherGroup2.getUuid())))
+      .extracting(GroupDto::getUuid)
+      .containsOnly(otherGroup1.getUuid(), otherGroup2.getUuid());
     assertThat(dbClient.permissionTemplateDao().selectByUuid(dbSession, templateDto.getUuid()))
       .isNull();
     assertThat(dbClient.permissionTemplateDao().selectByUuid(dbSession, otherTemplateDto.getUuid()))

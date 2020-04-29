@@ -66,7 +66,7 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.getLogin()).isEqualTo("karadoc");
     assertThat(threadLocalUserSession.getUuid()).isEqualTo("karadoc-uuid");
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
-    assertThat(threadLocalUserSession.getGroups()).extracting(GroupDto::getId).containsOnly(group.getId());
+    assertThat(threadLocalUserSession.getGroups()).extracting(GroupDto::getUuid).containsOnly(group.getUuid());
   }
 
   @Test

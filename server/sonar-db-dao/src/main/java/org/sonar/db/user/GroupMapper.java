@@ -28,7 +28,7 @@ import org.apache.ibatis.session.RowBounds;
 public interface GroupMapper {
 
   @CheckForNull
-  GroupDto selectById(int groupId);
+  GroupDto selectByUuid(String groupUuid);
 
   List<GroupDto> selectByUserLogin(String userLogin);
 
@@ -47,9 +47,9 @@ public interface GroupMapper {
    *
    * @return 1 or 0. Either because the organization uuid is not the one of the group or because the group does not exist
    */
-  int countGroupByOrganizationAndId(@Param("organizationUuid") String organizationUuid, @Param("groupId") int groupId);
+  int countGroupByOrganizationAndUuid(@Param("organizationUuid") String organizationUuid, @Param("groupUuid") String groupUuid);
 
-  void deleteById(int groupId);
+  void deleteByUuid(String groupUuid);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
@@ -58,5 +58,5 @@ public interface GroupMapper {
 
   List<GroupDto> selectByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
 
-  List<GroupDto> selectByIds(@Param("ids") List<Integer> ids);
+  List<GroupDto> selectByUuids(@Param("uuids") List<String> uuids);
 }

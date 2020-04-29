@@ -104,7 +104,7 @@ public class OrganizationUpdaterImplTest {
   private OrganizationValidation organizationValidation = mock(OrganizationValidation.class);
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client(), system2);
-  private DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient);
+  private DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient, uuidFactory);
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
@@ -183,7 +183,7 @@ public class OrganizationUpdaterImplTest {
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     GroupDto ownersGroup = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), "Owners").get();
-    int defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organization.getUuid()).get();
+    String defaultGroupUuid = dbClient.organizationDao().getDefaultGroupUuid(dbSession, organization.getUuid()).get();
     PermissionTemplateDto defaultTemplate = dbClient.permissionTemplateDao().selectByName(dbSession, organization.getUuid(), "default template");
     assertThat(defaultTemplate.getName()).isEqualTo("Default template");
     assertThat(defaultTemplate.getDescription()).isEqualTo("Default permission template of organization " + FULL_POPULATED_NEW_ORGANIZATION.getName());
@@ -191,14 +191,14 @@ public class OrganizationUpdaterImplTest {
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(defaultTemplate.getUuid());
     assertThat(defaultTemplates.getApplicationsUuid()).isNull();
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateUuid(dbSession, defaultTemplate.getUuid()))
-      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
+      .extracting(PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
-        tuple(ownersGroup.getId(), UserRole.ADMIN),
-        tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
-        tuple(defaultGroupId, UserRole.USER),
-        tuple(defaultGroupId, UserRole.CODEVIEWER),
-        tuple(defaultGroupId, UserRole.ISSUE_ADMIN),
-        tuple(defaultGroupId, UserRole.SECURITYHOTSPOT_ADMIN));
+        tuple(ownersGroup.getUuid(), UserRole.ADMIN),
+        tuple(ownersGroup.getUuid(), GlobalPermissions.SCAN_EXECUTION),
+        tuple(defaultGroupUuid, UserRole.USER),
+        tuple(defaultGroupUuid, UserRole.CODEVIEWER),
+        tuple(defaultGroupUuid, UserRole.ISSUE_ADMIN),
+        tuple(defaultGroupUuid, UserRole.SECURITYHOTSPOT_ADMIN));
   }
 
   @Test
@@ -378,13 +378,13 @@ public class OrganizationUpdaterImplTest {
     GroupDto groupDto = groupOpt.get();
     assertThat(groupDto.getDescription()).isEqualTo("Owners of organization");
 
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId()))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getUuid()))
       .containsOnly(GlobalPermissions.ALL.toArray(new String[GlobalPermissions.ALL.size()]));
     List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
       dbSession,
       UserMembershipQuery.builder()
         .organizationUuid(organization.getUuid())
-        .groupId(groupDto.getId())
+        .groupUuid(groupDto.getUuid())
         .membership(UserMembershipQuery.IN).build(),
       0, Integer.MAX_VALUE);
     assertThat(members)
@@ -399,12 +399,12 @@ public class OrganizationUpdaterImplTest {
     GroupDto groupDto = groupOpt.get();
     assertThat(groupDto.getDescription()).isEqualTo("All members of the organization");
 
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getId())).isEmpty();
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, groupDto.getOrganizationUuid(), groupDto.getUuid())).isEmpty();
     List<UserMembershipDto> members = dbClient.groupMembershipDao().selectMembers(
       dbSession,
       UserMembershipQuery.builder()
         .organizationUuid(organization.getUuid())
-        .groupId(groupDto.getId())
+        .groupUuid(groupDto.getUuid())
         .membership(UserMembershipQuery.IN).build(),
       0, Integer.MAX_VALUE);
     assertThat(members)

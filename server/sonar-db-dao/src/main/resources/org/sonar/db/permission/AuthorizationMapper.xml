@@ -6,7 +6,7 @@
   <select id="selectOrganizationPermissions" parameterType="map" resultType="string">
     select gr.role
     from group_roles gr
-    inner join groups_users gu on gr.group_id=gu.group_id
+    inner join groups_users gu on gr.group_uuid=gu.group_uuid
     where
     gr.organization_uuid=#{organizationUuid, jdbcType=VARCHAR} and
     gr.component_uuid is null and
@@ -18,7 +18,7 @@
     from group_roles gr
     where
     gr.organization_uuid=#{organizationUuid, jdbcType=VARCHAR} and
-    gr.group_id is null and
+    gr.group_uuid is null and
     gr.component_uuid is null
 
     union
@@ -37,7 +37,7 @@
     where
     gr.organization_uuid=#{organizationUuid, jdbcType=VARCHAR} and
     gr.component_uuid is null and
-    gr.group_id is null
+    gr.group_uuid is null
   </select>
 
   <select id="countUsersWithGlobalPermissionExcludingGroup" parameterType="map" resultType="int">
@@ -45,13 +45,13 @@
     (
       select gu.user_id
       from groups_users gu
-      inner join group_roles gr on gr.group_id = gu.group_id
+      inner join group_roles gr on gr.group_uuid = gu.group_uuid
       where
       gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
       gr.role = #{permission, jdbcType=VARCHAR} and
       gr.component_uuid is null and
-      gr.group_id is not null and
-      gr.group_id != #{excludedGroupId, jdbcType=INTEGER}
+      gr.group_uuid is not null and
+      gr.group_uuid != #{excludedGroupUuid, jdbcType=VARCHAR}
 
       union
 
@@ -69,12 +69,12 @@
     (
     select gu.user_id
     from groups_users gu
-    inner join group_roles gr on gr.group_id = gu.group_id
+    inner join group_roles gr on gr.group_uuid = gu.group_uuid
     where
     gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     gr.role = #{permission, jdbcType=VARCHAR} and
     gr.component_uuid is null and
-    gr.group_id is not null and
+    gr.group_uuid is not null and
     gu.user_id != #{excludedUserId, jdbcType=INTEGER}
 
     union
@@ -92,12 +92,12 @@
   <select id="selectUserIdsWithGlobalPermission" parameterType="map" resultType="int">
     select gu.user_id
     from groups_users gu
-    inner join group_roles gr on gr.group_id = gu.group_id
+    inner join group_roles gr on gr.group_uuid = gu.group_uuid
     where
     gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     gr.role = #{permission, jdbcType=VARCHAR} and
     gr.component_uuid is null and
-    gr.group_id is not null
+    gr.group_uuid is not null
 
     union
 
@@ -114,13 +114,13 @@
     (
     select gu.user_id
     from groups_users gu
-    inner join group_roles gr on gr.group_id = gu.group_id
+    inner join group_roles gr on gr.group_uuid = gu.group_uuid
     where
     gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     gr.role = #{permission, jdbcType=VARCHAR} and
     gr.component_uuid is null and
-    gr.group_id is not null and
-    (gu.group_id != #{groupId, jdbcType=INTEGER} or gu.user_id != #{userId, jdbcType=INTEGER})
+    gr.group_uuid is not null and
+    (gu.group_uuid != #{groupUuid, jdbcType=VARCHAR} or gu.user_id != #{userId, jdbcType=INTEGER})
 
     union
 
@@ -138,12 +138,12 @@
     (
     select gu.user_id
     from groups_users gu
-    inner join group_roles gr on gr.group_id = gu.group_id
+    inner join group_roles gr on gr.group_uuid = gu.group_uuid
     where
     gr.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     gr.role = #{permission, jdbcType=VARCHAR} and
     gr.component_uuid is null and
-    gr.group_id is not null
+    gr.group_uuid is not null
 
     union
 
@@ -160,11 +160,11 @@
   <select id="selectOrganizationUuidsOfUserWithGlobalPermission" parameterType="map" resultType="String">
     select gr.organization_uuid
     from group_roles gr
-    inner join groups_users gu on gr.group_id = gu.group_id
+    inner join groups_users gu on gr.group_uuid = gu.group_uuid
     where
     gr.role = #{permission, jdbcType=VARCHAR} and
     gr.component_uuid is null and
-    gr.group_id is not null and
+    gr.group_uuid is not null and
     gu.user_id = #{userId, jdbcType=INTEGER}
 
     union
@@ -185,7 +185,7 @@
     where
       gr.role=#{role, jdbcType=VARCHAR}
       and (
-        gr.group_id is null
+        gr.group_uuid is null
         or exists (
           select
             1
@@ -193,7 +193,7 @@
             groups_users gu
           where
             gu.user_id = #{userId, jdbcType=INTEGER}
-            and gr.group_id = gu.group_id
+            and gr.group_uuid = gu.group_uuid
         )
       )
       and <foreach collection="projectUuids" open="(" close=")" item="element" index="index" separator=" or ">
@@ -240,7 +240,7 @@
       group_roles gr
     where
       gr.role=#{role, jdbcType=VARCHAR}
-      and gr.group_id is null
+      and gr.group_uuid is null
       and <foreach collection="projectUuids" open="(" close=")" item="element" index="index" separator=" or ">
             gr.component_uuid=#{element, jdbcType=VARCHAR}
           </foreach>
@@ -256,7 +256,7 @@
     from
       groups_users gu
     inner join group_roles gr on
-      gr.group_id=gu.group_id
+      gr.group_uuid=gu.group_uuid
     where
       gr.component_uuid=#{componentUuid, jdbcType=VARCHAR}
       and gr.role=#{role, jdbcType=VARCHAR}
@@ -315,7 +315,7 @@
 
     select gr.role
     from group_roles gr
-    inner join groups_users gu on gr.group_id = gu.group_id
+    inner join groups_users gu on gr.group_uuid = gu.group_uuid
     inner join components p on p.uuid = gr.component_uuid
     where
       p.uuid = #{projectUuid, jdbcType=VARCHAR} and
@@ -341,7 +341,7 @@
     where
       p.uuid = #{projectUuid, jdbcType=VARCHAR}
       and p.organization_uuid = gr.organization_uuid
-      and gr.group_id is null
+      and gr.group_uuid is null
   </sql>
 
   <select id="selectEmailSubscribersWithGlobalPermission" parameterType="map" resultType="org.sonar.db.EmailSubscriberDto">
@@ -368,7 +368,7 @@
     inner join groups_users gu on
       u.id=gu.user_id
     inner join group_roles gr on
-      gr.group_id = gu.group_id
+      gr.group_uuid = gu.group_uuid
       and gr.role = #{permission, jdbcType=VARCHAR}
       and gr.component_uuid is null
     where
@@ -394,7 +394,7 @@
           select 1
           from components p
           inner join group_roles gr on gr.component_uuid = p.uuid and gr.organization_uuid = p.organization_uuid
-          inner join groups_users gu on gu.group_id = gr.group_id
+          inner join groups_users gu on gu.group_uuid = gr.group_uuid
           where
             p.kee  =  #{projectKey, jdbcType=VARCHAR}
             and gu.user_id = u.id

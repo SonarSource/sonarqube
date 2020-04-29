@@ -35,9 +35,9 @@ public class DefaultGroupFinder {
   }
 
   public GroupDto findDefaultGroup(DbSession dbSession, String organizationUuid) {
-    int defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organizationUuid)
+    String defaultGroupUuid = dbClient.organizationDao().getDefaultGroupUuid(dbSession, organizationUuid)
       .orElseThrow(() -> new IllegalStateException(format("Default group cannot be found on organization '%s'", organizationUuid)));
-    return requireNonNull(dbClient.groupDao().selectById(dbSession, defaultGroupId), format("Group '%s' cannot be found", defaultGroupId));
+    return requireNonNull(dbClient.groupDao().selectByUuid(dbSession, defaultGroupUuid), format("Group '%s' cannot be found", defaultGroupUuid));
   }
 
 }

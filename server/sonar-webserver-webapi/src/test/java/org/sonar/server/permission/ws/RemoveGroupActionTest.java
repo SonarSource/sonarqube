@@ -96,7 +96,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
-      .setParam(PARAM_GROUP_ID, aGroup.getId().toString())
+      .setParam(PARAM_GROUP_ID, aGroup.getUuid().toString())
       .setParam(PARAM_PERMISSION, PROVISION_PROJECTS.getKey())
       .execute();
 
@@ -476,7 +476,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setOrganizationUuid(project.getOrganizationUuid())
-      .setGroupId(null)
+      .setGroupUuid(null)
       .setRole(perm)
       .setComponentUuid(project.uuid());
     db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);

@@ -59,16 +59,16 @@ public class GroupDao implements Dao {
   }
 
   @CheckForNull
-  public GroupDto selectById(DbSession dbSession, int groupId) {
-    return mapper(dbSession).selectById(groupId);
+  public GroupDto selectByUuid(DbSession dbSession, String groupUuid) {
+    return mapper(dbSession).selectByUuid(groupUuid);
   }
 
-  public List<GroupDto> selectByIds(DbSession dbSession, List<Integer> ids) {
-    return executeLargeInputs(ids, mapper(dbSession)::selectByIds);
+  public List<GroupDto> selectByUuids(DbSession dbSession, List<String> uuids) {
+    return executeLargeInputs(uuids, mapper(dbSession)::selectByUuids);
   }
 
-  public void deleteById(DbSession dbSession, int groupId) {
-    mapper(dbSession).deleteById(groupId);
+  public void deleteByUuid(DbSession dbSession, String groupUuid) {
+    mapper(dbSession).deleteByUuid(groupUuid);
   }
 
   public void deleteByOrganization(DbSession dbSession, String organizationUuid) {

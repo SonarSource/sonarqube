@@ -42,7 +42,7 @@ public class UserMembershipQuery {
   public static final String OUT = "OUT";
   public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
 
-  private final int groupId;
+  private final String groupUuid;
   private final String organizationUuid;
   private final String membership;
 
@@ -59,7 +59,7 @@ public class UserMembershipQuery {
   private final int pageIndex;
 
   private UserMembershipQuery(Builder builder) {
-    this.groupId = builder.groupId;
+    this.groupUuid = builder.groupUuid;
     this.organizationUuid = builder.organizationUuid;
     this.membership = builder.membership;
     this.memberSearch = builder.memberSearch;
@@ -69,8 +69,8 @@ public class UserMembershipQuery {
     this.pageIndex = builder.pageIndex;
   }
 
-  public int groupId() {
-    return groupId;
+  public String groupUuid() {
+    return groupUuid;
   }
 
   public String organizationUuid() {
@@ -103,7 +103,7 @@ public class UserMembershipQuery {
   }
 
   public static class Builder {
-    private Integer groupId;
+    private String groupUuid;
     private String organizationUuid;
     private String membership;
     private String memberSearch;
@@ -114,8 +114,8 @@ public class UserMembershipQuery {
     private Builder() {
     }
 
-    public Builder groupId(Integer groupId) {
-      this.groupId = groupId;
+    public Builder groupUuid(String groupUuid) {
+      this.groupUuid = groupUuid;
       return this;
     }
 
@@ -160,7 +160,7 @@ public class UserMembershipQuery {
     }
 
     public UserMembershipQuery build() {
-      requireNonNull(groupId, "Group ID cant be null.");
+      requireNonNull(groupUuid, "Group ID cant be null.");
       requireNonNull(organizationUuid, "Organization UUID cannot be null");
       initMembership();
       initPageIndex();

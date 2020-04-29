@@ -47,7 +47,7 @@ public class QProfileEditGroupsDao implements Dao {
   }
 
   public boolean exists(DbSession dbSession, QProfileDto profile, Collection<GroupDto> groups) {
-    return !executeLargeInputs(groups.stream().map(GroupDto::getId).collect(toList()), partition -> mapper(dbSession).selectByQProfileAndGroups(profile.getKee(), partition))
+    return !executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(toList()), partition -> mapper(dbSession).selectByQProfileAndGroups(profile.getKee(), partition))
       .isEmpty();
   }
 
@@ -60,7 +60,7 @@ public class QProfileEditGroupsDao implements Dao {
   }
 
   public List<String> selectQProfileUuidsByOrganizationAndGroups(DbSession dbSession, OrganizationDto organization, Collection<GroupDto> groups) {
-    return DatabaseUtils.executeLargeInputs(groups.stream().map(GroupDto::getId).collect(toList()),
+    return DatabaseUtils.executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(toList()),
       g -> mapper(dbSession).selectQProfileUuidsByOrganizationAndGroups(organization.getUuid(), g));
   }
 
@@ -69,7 +69,7 @@ public class QProfileEditGroupsDao implements Dao {
   }
 
   public void deleteByQProfileAndGroup(DbSession dbSession, QProfileDto profile, GroupDto group) {
-    mapper(dbSession).delete(profile.getKee(), group.getId());
+    mapper(dbSession).delete(profile.getKee(), group.getUuid());
   }
 
   public void deleteByQProfiles(DbSession dbSession, List<QProfileDto> qProfiles) {
@@ -77,7 +77,7 @@ public class QProfileEditGroupsDao implements Dao {
   }
 
   public void deleteByGroup(DbSession dbSession, GroupDto group) {
-    mapper(dbSession).deleteByGroup(group.getId());
+    mapper(dbSession).deleteByGroup(group.getUuid());
   }
 
   private static QProfileEditGroupsMapper mapper(DbSession dbSession) {

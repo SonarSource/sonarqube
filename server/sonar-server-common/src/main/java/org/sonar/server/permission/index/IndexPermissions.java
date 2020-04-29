@@ -26,7 +26,7 @@ public final class IndexPermissions {
   private final String projectUuid;
   private final String qualifier;
   private final List<Integer> userIds = new ArrayList<>();
-  private final List<Integer> groupIds = new ArrayList<>();
+  private final List<String> groupUuids = new ArrayList<>();
   private boolean allowAnyone = false;
 
   public IndexPermissions(String projectUuid, String qualifier) {
@@ -51,13 +51,13 @@ public final class IndexPermissions {
     return this;
   }
 
-  public IndexPermissions addGroupId(int id) {
-    groupIds.add(id);
+  public IndexPermissions addGroupUuid(String uuid) {
+    groupUuids.add(uuid);
     return this;
   }
 
-  public List<Integer> getGroupIds() {
-    return groupIds;
+  public List<String> getGroupUuids() {
+    return groupUuids;
   }
 
   public IndexPermissions allowAnyone() {

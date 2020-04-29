@@ -1,7 +1,7 @@
 <dataset>
 
   <group_roles id="1"
-               group_id="[null]"
+               group_uuid="[null]"
                resource_id="399"
                role="user"
                organization_uuid="org1"/>

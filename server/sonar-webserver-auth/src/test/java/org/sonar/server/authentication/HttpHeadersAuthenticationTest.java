@@ -431,9 +431,9 @@ public class HttpHeadersAuthenticationTest {
   private void verityUserGroups(String login, GroupDto... expectedGroups) {
     UserDto userDto = db.users().selectUserByLogin(login).get();
     if (expectedGroups.length == 0) {
-      assertThat(db.users().selectGroupIdsOfUser(userDto)).isEmpty();
+      assertThat(db.users().selectGroupUuidsOfUser(userDto)).isEmpty();
     } else {
-      assertThat(db.users().selectGroupIdsOfUser(userDto)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(MoreCollectors.toList()).toArray(new Integer[] {}));
+      assertThat(db.users().selectGroupUuidsOfUser(userDto)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).collect(MoreCollectors.toList()).toArray(new String[] {}));
     }
   }
 

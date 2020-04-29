@@ -5,7 +5,7 @@
 
   <sql id="sqlColumns">
     qeg.uuid as "uuid",
-    qeg.group_id as "groupId",
+    qeg.group_uuid as "groupUuid",
     qeg.qprofile_uuid as "qProfileUuid"
   </sql>
 
@@ -14,19 +14,19 @@
     <include refid="sqlColumns"/>
     from qprofile_edit_groups qeg
     where
-    <foreach collection="groupIds" open="(" close=")" item="groupId" separator=" or ">
-      qeg.group_id = #{groupId, jdbcType=INTEGER}
+    <foreach collection="groupUuids" open="(" close=")" item="groupUuid" separator=" or ">
+      qeg.group_uuid = #{groupUuid, jdbcType=VARCHAR}
     </foreach>
     and qeg.qprofile_uuid = #{qProfileUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="countByQuery" resultType="int">
-    select count(g.id)
+    select count(g.uuid)
     <include refid="sqlSelectByQuery" />
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.GroupMembershipDto">
-    SELECT g.id as groupId, g.name as name, qeg.uuid as uuid
+    SELECT g.uuid as groupUuid, g.name as name, qeg.uuid as uuid
     <include refid="sqlSelectByQuery"/>
     ORDER BY g.name ASC
     LIMIT #{pagination.pageSize,jdbcType=INTEGER}
@@ -36,7 +36,7 @@
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.GroupMembershipDto" databaseId="mssql">
     select * from (
     select row_number() over(order by g.name asc) as number,
-      g.id as groupId, g.name as name, qeg.uuid as uuid
+      g.uuid as groupUuid, g.name as name, qeg.uuid as uuid
       <include refid="sqlSelectByQuery" />
     ) as query
     where
@@ -47,7 +47,7 @@
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.GroupMembershipDto" databaseId="oracle">
     select * from (
       select rownum as rn, t.* from (
-        select g.id as groupId, g.name as name, qeg.uuid as uuid
+        select g.uuid as groupUuid, g.name as name, qeg.uuid as uuid
         <include refid="sqlSelectByQuery"/>
         order by g.name ASC
       ) t
@@ -58,7 +58,7 @@
 
   <sql id="sqlSelectByQuery">
     FROM groups g
-    LEFT JOIN qprofile_edit_groups qeg ON qeg.group_id=g.id AND qeg.qprofile_uuid=#{query.qProfileUuid, jdbcType=VARCHAR}
+    LEFT JOIN qprofile_edit_groups qeg ON qeg.group_uuid=g.uuid AND qeg.qprofile_uuid=#{query.qProfileUuid, jdbcType=VARCHAR}
     <where>
       AND g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
       <choose>
@@ -80,19 +80,19 @@
     from qprofile_edit_groups qeg
     inner join org_qprofiles oq on qeg.qprofile_uuid=oq.uuid and oq.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
     <where>
-      qeg.group_id in <foreach collection="groupIds" open="(" close=")" item="groupId" separator=",">#{groupId, jdbcType=INTEGER}</foreach>
+      qeg.group_uuid in <foreach collection="groupUuids" open="(" close=")" item="groupUuid" separator=",">#{groupUuid, jdbcType=VARCHAR}</foreach>
     </where>
   </select>
 
   <insert id="insert" useGeneratedKeys="false" parameterType="map">
     insert into qprofile_edit_groups(
     uuid,
-    group_id,
+    group_uuid,
     qprofile_uuid,
     created_at
     ) values (
     #{dto.uuid, jdbcType=VARCHAR},
-    #{dto.groupId, jdbcType=INTEGER},
+    #{dto.groupUuid, jdbcType=VARCHAR},
     #{dto.qProfileUuid, jdbcType=VARCHAR},
     #{now, jdbcType=BIGINT}
     )
@@ -101,7 +101,7 @@
   <delete id="delete" parameterType="map">
     delete from qprofile_edit_groups
     where qprofile_uuid = #{qProfileUuid, jdbcType=VARCHAR}
-    and group_id = #{groupId, jdbcType=INTEGER}
+    and group_uuid = #{groupUuid, jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteByQProfiles" parameterType="map">
@@ -111,7 +111,7 @@
 
   <delete id="deleteByGroup" parameterType="map">
     delete from qprofile_edit_groups
-    where group_id = #{groupId, jdbcType=INTEGER}
+    where group_uuid = #{groupUuid, jdbcType=VARCHAR}
   </delete>
 
 </mapper>

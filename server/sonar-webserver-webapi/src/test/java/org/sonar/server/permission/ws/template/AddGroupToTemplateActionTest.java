@@ -99,7 +99,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
     newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .setParam(PARAM_PERMISSION, CODEVIEWER)
-      .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
+      .setParam(PARAM_GROUP_ID, String.valueOf(group.getUuid()))
       .execute();
 
     assertThat(getGroupNamesInTemplateAndPermission(template, CODEVIEWER)).containsExactly(group.getName());

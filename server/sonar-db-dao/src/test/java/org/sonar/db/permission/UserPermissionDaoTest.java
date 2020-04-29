@@ -496,7 +496,7 @@ public class UserPermissionDaoTest {
   }
 
   @Test
-  public void selectGroupIdsWithPermissionOnProjectBut_returns_empty_if_project_does_not_exist() {
+  public void selectGroupUuidsWithPermissionOnProjectBut_returns_empty_if_project_does_not_exist() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = randomPublicOrPrivateProject(organization);
     UserDto user = insertUser(organization);
@@ -507,7 +507,7 @@ public class UserPermissionDaoTest {
   }
 
   @Test
-  public void selectGroupIdsWithPermissionOnProjectBut_returns_only_users_of_projects_which_do_not_have_permission() {
+  public void selectGroupUuidsWithPermissionOnProjectBut_returns_only_users_of_projects_which_do_not_have_permission() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = randomPublicOrPrivateProject(organization);
     UserDto user1 = insertUser(organization);
@@ -524,7 +524,7 @@ public class UserPermissionDaoTest {
   }
 
   @Test
-  public void selectGroupIdsWithPermissionOnProjectBut_does_not_return_groups_which_have_no_permission_at_all_on_specified_project() {
+  public void selectGroupUuidsWithPermissionOnProjectBut_does_not_return_groups_which_have_no_permission_at_all_on_specified_project() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = randomPublicOrPrivateProject(organization);
     UserDto user1 = insertUser(organization);

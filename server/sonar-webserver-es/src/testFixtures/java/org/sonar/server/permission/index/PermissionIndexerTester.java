@@ -50,7 +50,7 @@ public class PermissionIndexerTester {
 
   public PermissionIndexerTester allowOnlyGroup(ComponentDto project, GroupDto group) {
     IndexPermissions dto = new IndexPermissions(project.uuid(), project.qualifier())
-      .addGroupId(group.getId());
+      .addGroupUuid(group.getUuid());
     return allow(dto);
   }
 

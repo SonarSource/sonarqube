@@ -111,8 +111,8 @@ public class SearchAction implements UserGroupsWsAction {
       int limit = dbClient.groupDao().countByQuery(dbSession, organization.getUuid(), query);
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(limit);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, organization.getUuid(), query, options.getOffset(), pageSize);
-      List<Integer> groupIds = groups.stream().map(GroupDto::getId).collect(MoreCollectors.toList(groups.size()));
-      Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupIds);
+      List<String> groupUuids = groups.stream().map(GroupDto::getUuid).collect(MoreCollectors.toList(groups.size()));
+      Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupUuids);
       writeProtobuf(buildResponse(groups, userCountByGroup, fields, paging, defaultGroup), request, response);
     }
   }
@@ -131,7 +131,7 @@ public class SearchAction implements UserGroupsWsAction {
   private static SearchWsResponse buildResponse(List<GroupDto> groups, Map<String, Integer> userCountByGroup, Set<String> fields, Paging paging, GroupDto defaultGroup) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     groups.forEach(group -> responseBuilder
-      .addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), fields, defaultGroup.getId().equals(group.getId()))));
+      .addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), fields, defaultGroup.getUuid().equals(group.getUuid()))));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())
@@ -142,7 +142,7 @@ public class SearchAction implements UserGroupsWsAction {
 
   private static Group toWsGroup(GroupDto group, Integer memberCount, Set<String> fields, boolean isDefault) {
     Group.Builder groupBuilder = Group.newBuilder()
-      .setId(group.getId())
+      .setUuid(group.getUuid())
       .setDefault(isDefault);
     if (fields.contains(FIELD_NAME)) {
       groupBuilder.setName(group.getName());

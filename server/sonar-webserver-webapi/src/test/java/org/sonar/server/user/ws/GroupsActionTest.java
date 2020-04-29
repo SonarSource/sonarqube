@@ -89,8 +89,8 @@ public class GroupsActionTest {
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
       .containsOnly(
-        tuple(usersGroup.getId().longValue(), usersGroup.getName(), usersGroup.getDescription(), true),
-        tuple(adminGroup.getId().longValue(), adminGroup.getName(), adminGroup.getDescription(), false));
+        tuple(usersGroup.getUuid(), usersGroup.getName(), usersGroup.getDescription(), true),
+        tuple(adminGroup.getUuid(), adminGroup.getName(), adminGroup.getDescription(), false));
   }
 
   @Test
@@ -104,7 +104,7 @@ public class GroupsActionTest {
 
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
-      .containsOnly(tuple(usersGroup.getId().longValue(), usersGroup.getName(), usersGroup.getDescription(), true));
+      .containsOnly(tuple(usersGroup.getUuid(), usersGroup.getName(), usersGroup.getDescription(), true));
   }
 
   @Test
@@ -118,7 +118,7 @@ public class GroupsActionTest {
 
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
-      .containsOnly(tuple(usersGroup.getId().longValue(), usersGroup.getName(), usersGroup.getDescription(), true));
+      .containsOnly(tuple(usersGroup.getUuid(), usersGroup.getName(), usersGroup.getDescription(), true));
   }
 
   @Test
@@ -132,7 +132,7 @@ public class GroupsActionTest {
 
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected)
-      .containsOnly(tuple(adminGroup.getId().longValue(), adminGroup.getName(), adminGroup.getDescription(), false));
+      .containsOnly(tuple(adminGroup.getUuid(), adminGroup.getName(), adminGroup.getDescription(), false));
   }
 
   @Test
@@ -191,8 +191,8 @@ public class GroupsActionTest {
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDefault)
       .containsOnly(
-        tuple(usersGroup.getId().longValue(), usersGroup.getName(), true),
-        tuple(adminGroup.getId().longValue(), adminGroup.getName(), false));
+        tuple(usersGroup.getUuid(), usersGroup.getName(), true),
+        tuple(adminGroup.getUuid(), adminGroup.getName(), false));
   }
 
   @Test
@@ -213,7 +213,7 @@ public class GroupsActionTest {
     assertThat(response.getGroupsList())
       .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected,
         GroupsWsResponse.Group::getDefault)
-      .containsOnly(tuple(group.getId().longValue(), group.getName(), group.getDescription(), true, true));
+      .containsOnly(tuple(group.getUuid(), group.getName(), group.getDescription(), true, true));
   }
 
   @Test

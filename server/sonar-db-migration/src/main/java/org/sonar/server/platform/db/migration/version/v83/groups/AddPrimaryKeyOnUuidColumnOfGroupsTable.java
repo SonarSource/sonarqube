@@ -17,39 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
+package org.sonar.server.platform.db.migration.version.v83.groups;
 
-import javax.annotation.concurrent.Immutable;
-import org.sonar.db.user.GroupDto;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.util.AddPrimaryKeyBuilder;
 
-import static java.util.Objects.requireNonNull;
+public class AddPrimaryKeyOnUuidColumnOfGroupsTable extends DdlChange {
 
-/**
- * Reference to a user group, as used internally by the backend. It does
- * not support reference to virtual groups "anyone".
- *
- * @see GroupIdOrAnyone
- */
-@Immutable
-public class GroupId {
-
-  private final int id;
-  private final String organizationUuid;
-
-  private GroupId(String organizationUuid, int id) {
-    this.id = id;
-    this.organizationUuid = requireNonNull(organizationUuid);
+  public AddPrimaryKeyOnUuidColumnOfGroupsTable(Database db) {
+    super(db);
   }
 
-  public int getId() {
-    return id;
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddPrimaryKeyBuilder("groups", "uuid").build());
   }
 
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public static GroupId from(GroupDto dto) {
-    return new GroupId(dto.getOrganizationUuid(), dto.getId());
-  }
 }

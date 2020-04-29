@@ -29,7 +29,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.permission.GroupIdOrAnyone;
+import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.ProjectUuid;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.template.WsTemplateRef;
@@ -78,11 +78,11 @@ public class PermissionWsSupport {
     return componentFinder.getRootComponentByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key());
   }
 
-  public GroupIdOrAnyone findGroup(DbSession dbSession, Request request) {
-    Integer groupId = request.paramAsInt(PARAM_GROUP_ID);
+  public GroupUuidOrAnyone findGroup(DbSession dbSession, Request request) {
+    String groupUuid = request.param(PARAM_GROUP_ID);
     String orgKey = request.param(PARAM_ORGANIZATION);
     String groupName = request.param(PARAM_GROUP_NAME);
-    GroupWsRef groupRef = GroupWsRef.create(groupId, orgKey, groupName);
+    GroupWsRef groupRef = GroupWsRef.create(groupUuid, orgKey, groupName);
     return groupWsSupport.findGroupOrAnyone(dbSession, groupRef);
   }
 

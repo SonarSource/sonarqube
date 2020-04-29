@@ -71,7 +71,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
     group = db.users().insertGroup(db.getDefaultOrganization(), "group-name");
     template = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
-    addGroupToTemplate(template, group.getId(), PERMISSION);
+    addGroupToTemplate(template, group.getUuid(), PERMISSION);
   }
 
   @Test
@@ -97,7 +97,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
     newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .setParam(PARAM_PERMISSION, PERMISSION)
-      .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
+      .setParam(PARAM_GROUP_ID, String.valueOf(group.getUuid()))
       .execute();
 
     assertThat(getGroupNamesInTemplateAndPermission(template, PERMISSION)).isEmpty();
@@ -196,8 +196,8 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
     request.execute();
   }
 
-  private void addGroupToTemplate(PermissionTemplateDto template, @Nullable Integer groupId, String permission) {
-    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), groupId, permission);
+  private void addGroupToTemplate(PermissionTemplateDto template, @Nullable String groupUuid, String permission) {
+    db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), groupUuid, permission);
     db.commit();
   }
 

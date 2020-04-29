@@ -85,28 +85,28 @@ public class OrganisationSupport {
 
   private void associateMembersOfDefaultOrganizationToGroup(DbSession dbSession, String defaultOrganizationUuid, GroupDto membersGroup) {
     List<Integer> organizationMembers = dbClient.organizationMemberDao().selectUserIdsByOrganizationUuid(dbSession, defaultOrganizationUuid);
-    organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(membersGroup.getId()).setUserId(member)));
+    organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(membersGroup.getUuid()).setUserId(member)));
   }
 
   private void copySonarUsersGroupPermissionsToMembersGroup(DbSession dbSession, String defaultOrganizationUuid, GroupDto sonarUsersGroup, GroupDto membersGroup) {
-    dbClient.groupPermissionDao().selectAllPermissionsByGroupId(dbSession, defaultOrganizationUuid, sonarUsersGroup.getId(),
+    dbClient.groupPermissionDao().selectAllPermissionsByGroupUuid(dbSession, defaultOrganizationUuid, sonarUsersGroup.getUuid(),
       context -> {
         GroupPermissionDto groupPermissionDto = (GroupPermissionDto) context.getResultObject();
         dbClient.groupPermissionDao().insert(dbSession,
           new GroupPermissionDto()
             .setUuid(uuidFactory.create())
             .setOrganizationUuid(defaultOrganizationUuid)
-            .setGroupId(membersGroup.getId())
+            .setGroupUuid(membersGroup.getUuid())
             .setRole(groupPermissionDto.getRole())
             .setComponentUuid(groupPermissionDto.getComponentUuid()));
       });
   }
 
   private void copySonarUsersGroupPermissionTemplatesToMembersGroup(DbSession dbSession, GroupDto sonarUsersGroup, GroupDto membersGroup) {
-    List<PermissionTemplateGroupDto> sonarUsersPermissionTemplates = dbClient.permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(dbSession,
-      sonarUsersGroup.getId());
+    List<PermissionTemplateGroupDto> sonarUsersPermissionTemplates = dbClient.permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupUuid(dbSession,
+      sonarUsersGroup.getUuid());
     sonarUsersPermissionTemplates.forEach(permissionTemplateGroup -> dbClient.permissionTemplateDao().insertGroupPermission(dbSession,
-      permissionTemplateGroup.getTemplateUuid(), membersGroup.getId(), permissionTemplateGroup.getPermission()));
+      permissionTemplateGroup.getTemplateUuid(), membersGroup.getUuid(), permissionTemplateGroup.getPermission()));
   }
 
   private List<Integer> disableTemplateRulesAndCustomRules(DbSession dbSession) {

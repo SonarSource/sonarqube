@@ -22,7 +22,7 @@ package org.sonar.db.user;
 public class UserGroupDto {
 
   private int userId;
-  private int groupId;
+  private String groupUuid;
 
   public int getUserId() {
     return userId;
@@ -33,12 +33,12 @@ public class UserGroupDto {
     return this;
   }
 
-  public int getGroupId() {
-    return groupId;
+  public String getGroupUuid() {
+    return groupUuid;
   }
 
-  public UserGroupDto setGroupId(int groupId) {
-    this.groupId = groupId;
+  public UserGroupDto setGroupUuid(String groupUuid) {
+    this.groupUuid = groupUuid;
     return this;
   }
 }

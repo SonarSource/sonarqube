@@ -108,7 +108,7 @@ public class AddGroupAction implements QProfileWsAction {
     dbClient.qProfileEditGroupsDao().insert(dbSession,
       new QProfileEditGroupsDto()
         .setUuid(uuidFactory.create())
-        .setGroupId(group.getId())
+        .setGroupUuid(group.getUuid())
         .setQProfileUuid(profile.getKee()));
     dbSession.commit();
   }

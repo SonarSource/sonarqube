@@ -17,7 +17,7 @@
       FROM
         groups g
       INNER JOIN group_roles group_role ON
-        group_role.group_id=g.id
+        group_role.group_uuid=g.uuid
       UNION
       -- Add Anyone group permission
       SELECT
@@ -27,7 +27,7 @@
       FROM
         group_roles group_role
       where
-        group_role.group_id IS NULL
+        group_role.group_uuid IS NULL
     ) groups
     where
       groups.componentUuid in
@@ -40,24 +40,24 @@
   </select>
 
   <select id="selectGroupNamesByQuery" parameterType="map" resultType="string">
-    select sub.name, lower(sub.name), sub.groupId
+    select sub.name, lower(sub.name), sub.groupUuid
     <include refid="groupsByQuery" />
-    group by sub.name, lower(sub.name), sub.groupId
-    order by case when (count(sub.permission) > 0) then 1 else 2 end asc, lower(sub.name), sub.name, sub.groupId
+    group by sub.name, lower(sub.name), sub.groupUuid
+    order by case when (count(sub.permission) > 0) then 1 else 2 end asc, lower(sub.name), sub.name, sub.groupUuid
   </select>
 
   <select id="countGroupsByQuery" parameterType="map" resultType="int">
     select count(1)
     from (
-      select distinct sub.groupId
+      select distinct sub.groupUuid
       <include refid="groupsByQuery" />) g
   </select>
 
   <sql id="groupsByQuery">
     from (
-      select g.id as groupId, g.name as name, gr.role as permission, gr.component_uuid as componentUuid, gr.uuid as uuid
+      select g.uuid as groupUuid, g.name as name, gr.role as permission, gr.component_uuid as componentUuid, gr.uuid as uuid
       from groups g
-      left join group_roles gr on g.id = gr.group_id
+      left join group_roles gr on g.uuid = gr.group_uuid
       <if test="query.componentUuid == null">
         and gr.component_uuid is null
       </if>
@@ -69,7 +69,7 @@
 
     union all
 
-    select 0 as groupId, 'Anyone' as name, gr.role as permission, gr.component_uuid as componentUuid, gr.uuid as uuid
+    select 'Anyone' as groupUuid, 'Anyone' as name, gr.role as permission, gr.component_uuid as componentUuid, gr.uuid as uuid
     from group_roles gr
     <where>
       <if test="query.componentUuid == null">
@@ -80,7 +80,7 @@
       </if>
       <if test="query.withAtLeastOnePermission()">
         and gr.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR} and
-        gr.group_id is null
+        gr.group_uuid is null
       </if>
     </where>
 
@@ -106,28 +106,28 @@
     </where>
   </sql>
 
-  <select id="selectByGroupIds" parameterType="map" resultType="GroupPermission">
-    select sub.groupId as groupId, sub.componentUuid as componentUuid, sub.permission as role, sub.organizationUuid as organizationUuid
+  <select id="selectByGroupUuids" parameterType="map" resultType="GroupPermission">
+    select sub.groupUuid as groupUuid, sub.componentUuid as componentUuid, sub.permission as role, sub.organizationUuid as organizationUuid
     from
       (
-      select gr.group_id as groupId, gr.component_uuid as componentUuid, gr.role as permission, g.name as name, gr.organization_uuid as organizationUuid
+      select gr.group_uuid as groupUuid, gr.component_uuid as componentUuid, gr.role as permission, g.name as name, gr.organization_uuid as organizationUuid
       from group_roles gr
-      inner join groups g ON g.id = gr.group_id
+      inner join groups g ON g.uuid = gr.group_uuid
       where gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
-      gr.group_id is not null
+      gr.group_uuid is not null
 
       union all
 
-      select 0 as groupId, gr.component_uuid as componentUuid, gr.role as permission, 'Anyone' as name, gr.organization_uuid as organizationUuid
+      select 'Anyone' as groupUuid, gr.component_uuid as componentUuid, gr.role as permission, 'Anyone' as name, gr.organization_uuid as organizationUuid
       from group_roles gr
       where
-      gr.group_id is null and
+      gr.group_uuid is null and
       gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
       ) sub
     where
-      sub.groupId in
-      <foreach collection="groupIds" open="(" close=")" item="groupId" separator=",">
-        #{groupId,jdbcType=INTEGER}
+      sub.groupUuid in
+      <foreach collection="groupUuids" open="(" close=")" item="groupUuid" separator=",">
+        #{groupUuid,jdbcType=VARCHAR}
       </foreach>
       <if test="projectUuid != null">
         and sub.componentUuid=#{projectUuid,jdbcType=VARCHAR}
@@ -144,11 +144,11 @@
     gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     gr.component_uuid is null and
     <choose>
-      <when test="groupId != null">
-        gr.group_id = #{groupId,jdbcType=INTEGER}
+      <when test="groupUuid != null">
+        gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
       </when>
       <otherwise>
-        gr.group_id is null
+        gr.group_uuid is null
       </otherwise>
     </choose>
   </select>
@@ -160,30 +160,30 @@
     gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     gr.component_uuid = #{projectUuid,jdbcType=VARCHAR} and
     <choose>
-      <when test="groupId != null">
-        gr.group_id = #{groupId,jdbcType=INTEGER}
+      <when test="groupUuid != null">
+        gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
       </when>
       <otherwise>
-        gr.group_id is null
+        gr.group_uuid is null
       </otherwise>
     </choose>
   </select>
 
-  <select id="selectAllPermissionsByGroupId" parameterType="map" resultType="GroupPermission">
-    select gr.group_id as groupId, gr.component_uuid as componentUuid, gr.role as role, gr.organization_uuid as organizationUuid
+  <select id="selectAllPermissionsByGroupUuid" parameterType="map" resultType="GroupPermission">
+    select gr.group_uuid as groupUuid, gr.component_uuid as componentUuid, gr.role as role, gr.organization_uuid as organizationUuid
     from group_roles gr
     where gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-    and gr.group_id = #{groupId,jdbcType=INTEGER}
+    and gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectGroupIdsWithPermissionOnProjectBut" resultType="Integer">
+  <select id="selectGroupUuidsWithPermissionOnProjectBut" resultType="string">
     select
-      distinct gr1.group_id
+      distinct gr1.group_uuid
     from
       group_roles gr1
     where
       gr1.component_uuid = #{projectUuid,jdbcType=VARCHAR}
-      and gr1.group_id is not null
+      and gr1.group_uuid is not null
       and not exists (
         select
           1
@@ -191,7 +191,7 @@
           group_roles gr2
         where
           gr2.component_uuid = gr1.component_uuid
-          and gr2.group_id = gr1.group_id
+          and gr2.group_uuid = gr1.group_uuid
           and gr2.role = #{role,jdbcType=VARCHAR}
       )
   </select>
@@ -200,13 +200,13 @@
     insert into group_roles (
     uuid,
     organization_uuid,
-    group_id,
+    group_uuid,
     component_uuid,
     role
     ) values (
     #{uuid,jdbcType=VARCHAR},
     #{organizationUuid,jdbcType=VARCHAR},
-    #{groupId,jdbcType=INTEGER},
+    #{groupUuid,jdbcType=VARCHAR},
     #{componentUuid,jdbcType=BIGINT},
     #{role,jdbcType=VARCHAR}
     )
@@ -217,17 +217,17 @@
     where component_uuid=#{rootComponentUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteByRootComponentUuidAndGroupId">
+  <delete id="deleteByRootComponentUuidAndGroupUuid">
     delete from
       group_roles
     where
       component_uuid=#{rootComponentUuid,jdbcType=VARCHAR}
       <choose>
-        <when test="groupId != null">
-          and group_id = #{groupId,jdbcType=INTEGER}
+        <when test="groupUuid != null">
+          and group_uuid = #{groupUuid,jdbcType=VARCHAR}
         </when>
         <otherwise>
-          and group_id is null
+          and group_uuid is null
         </otherwise>
       </choose>
   </delete>
@@ -255,11 +255,11 @@
     </choose>
     and
     <choose>
-      <when test="groupId != null">
-        group_id=#{groupId,jdbcType=INTEGER}
+      <when test="groupUuid != null">
+        group_uuid=#{groupUuid,jdbcType=VARCHAR}
       </when>
       <otherwise>
-        group_id is null
+        group_uuid is null
       </otherwise>
     </choose>
   </delete>
