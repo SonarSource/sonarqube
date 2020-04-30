@@ -46,14 +46,14 @@ export function createQualityGate(data: {
 }
 
 export function deleteQualityGate(data: {
-  id: number;
+  id: string;
   organization?: string;
 }): Promise<void | Response> {
   return post('/api/qualitygates/destroy', data).catch(throwGlobalError);
 }
 
 export function renameQualityGate(data: {
-  id: number;
+  id: string;
   name: string;
   organization?: string;
 }): Promise<void | Response> {
@@ -61,7 +61,7 @@ export function renameQualityGate(data: {
 }
 
 export function copyQualityGate(data: {
-  id: number;
+  id: string;
   name: string;
   organization?: string;
 }): Promise<T.QualityGate> {
@@ -69,7 +69,7 @@ export function copyQualityGate(data: {
 }
 
 export function setQualityGateAsDefault(data: {
-  id: number;
+  id: string;
   organization?: string;
 }): Promise<void | Response> {
   return post('/api/qualitygates/set_as_default', data).catch(throwGlobalError);
@@ -77,7 +77,7 @@ export function setQualityGateAsDefault(data: {
 
 export function createCondition(
   data: {
-    gateId: number;
+    gateId: string;
     organization?: string;
   } & T.Omit<T.Condition, 'id'>
 ): Promise<T.Condition> {
@@ -109,7 +109,7 @@ export function getGateForProject(data: {
 }
 
 export function searchProjects(data: {
-  gateId: number;
+  gateId: string;
   organization?: string;
   page?: number;
   pageSize?: number;
@@ -123,7 +123,7 @@ export function searchProjects(data: {
 }
 
 export function associateGateWithProject(data: {
-  gateId: number;
+  gateId: string;
   organization?: string;
   projectKey: string;
 }): Promise<void | Response> {
@@ -131,7 +131,7 @@ export function associateGateWithProject(data: {
 }
 
 export function dissociateGateWithProject(data: {
-  gateId: number;
+  gateId: string;
   organization?: string;
   projectKey: string;
 }): Promise<void | Response> {

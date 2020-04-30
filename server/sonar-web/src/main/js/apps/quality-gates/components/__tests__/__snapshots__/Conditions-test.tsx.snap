@@ -78,7 +78,7 @@ exports[`should render correctly 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }
@@ -107,7 +107,7 @@ exports[`should render correctly 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }
@@ -220,7 +220,7 @@ exports[`should render correctly with an updated condition 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }
@@ -249,7 +249,7 @@ exports[`should render correctly with an updated condition 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }
@@ -339,7 +339,7 @@ exports[`should render correctly with new code conditions 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }
@@ -368,7 +368,7 @@ exports[`should render correctly with new code conditions 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }
@@ -440,7 +440,7 @@ exports[`should render correctly with new code conditions 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }
@@ -469,7 +469,7 @@ exports[`should render correctly with new code conditions 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }
@@ -578,7 +578,7 @@ exports[`should render the add conditions button and modal 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }
@@ -607,7 +607,7 @@ exports[`should render the add conditions button and modal 1`] = `
           onSaveCondition={[MockFunction]}
           qualityGate={
             Object {
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }

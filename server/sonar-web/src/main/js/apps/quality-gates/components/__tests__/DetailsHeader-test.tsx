@@ -54,11 +54,11 @@ it('should allow the QG to be set as the default', async () => {
   const refreshItem = jest.fn();
   const refreshList = jest.fn();
 
-  const qualityGate = mockQualityGate({ id: 1, actions: { setAsDefault: true } });
+  const qualityGate = mockQualityGate({ id: 'one', actions: { setAsDefault: true } });
   const wrapper = shallowRender({ onSetDefault, qualityGate, refreshItem, refreshList });
 
   click(wrapper.find('Button#quality-gate-toggle-default'));
-  expect(setQualityGateAsDefault).toBeCalledWith({ id: 1 });
+  expect(setQualityGateAsDefault).toBeCalledWith({ id: 'one' });
   expect(onSetDefault).toBeCalled();
   await waitAndUpdate(wrapper);
   expect(refreshItem).toBeCalled();

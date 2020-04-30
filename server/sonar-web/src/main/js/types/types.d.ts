@@ -654,7 +654,7 @@ declare namespace T {
       setAsDefault?: boolean;
     };
     conditions?: Condition[];
-    id: number;
+    id: string;
     isBuiltIn?: boolean;
     isDefault?: boolean;
     name: string;

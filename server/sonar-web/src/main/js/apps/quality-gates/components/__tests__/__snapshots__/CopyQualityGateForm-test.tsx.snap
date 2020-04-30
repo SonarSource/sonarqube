@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
   onCopy={[MockFunction]}
   qualityGate={
     Object {
-      "id": 1,
+      "id": "1",
       "name": "qualitygate",
     }
   }

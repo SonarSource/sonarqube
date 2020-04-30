@@ -47,7 +47,7 @@ exports[`should render correctly: admin actions 1`] = `
                 "rename": true,
                 "setAsDefault": true,
               },
-              "id": 1,
+              "id": "1",
               "name": "qualitygate",
             }
           }

@@ -91,7 +91,7 @@ export default class App extends React.PureComponent<Props> {
     );
   }
 
-  handleChangeGate = (oldId?: number, newId?: number) => {
+  handleChangeGate = (oldId?: string, newId?: string) => {
     const { allGates } = this.state;
     if ((!oldId && !newId) || !allGates) {
       return Promise.resolve();

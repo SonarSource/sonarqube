@@ -24,7 +24,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 interface Props {
   allGates: T.QualityGate[];
   gate?: T.QualityGate;
-  onChange: (oldGate?: number, newGate?: number) => Promise<void>;
+  onChange: (oldGate?: string, newGate?: string) => Promise<void>;
 }
 
 interface State {
@@ -60,14 +60,12 @@ export default class Form extends React.PureComponent<Props, State> {
 
     const isSet = gate == null && option.value != null;
     const isUnset = gate != null && option.value == null;
-    const isChanged = gate != null && gate.id !== Number(option.value);
+    const isChanged = gate != null && gate.id !== option.value;
     const hasChanged = isSet || isUnset || isChanged;
 
     if (hasChanged) {
       this.setState({ loading: true });
-      this.props
-        .onChange(gate && gate.id, Number(option.value))
-        .then(this.stopLoading, this.stopLoading);
+      this.props.onChange(gate && gate.id, option.value).then(this.stopLoading, this.stopLoading);
     }
   };
 

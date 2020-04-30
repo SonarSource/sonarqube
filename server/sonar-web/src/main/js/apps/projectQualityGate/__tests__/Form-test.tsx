@@ -22,25 +22,25 @@ import * as React from 'react';
 import Form from '../Form';
 
 it('renders', () => {
-  const foo = randomGate(1);
-  const allGates = [foo, randomGate(2)];
+  const foo = randomGate('1');
+  const allGates = [foo, randomGate('2')];
   expect(shallow(<Form allGates={allGates} gate={foo} onChange={jest.fn()} />)).toMatchSnapshot();
 });
 
 it('changes quality gate', () => {
-  const allGates = [randomGate(1), randomGate(2)];
+  const allGates = [randomGate('1'), randomGate('2')];
   const onChange = jest.fn(() => Promise.resolve());
   const wrapper = shallow(<Form allGates={allGates} onChange={onChange} />);
 
-  wrapper.find('Select').prop<Function>('onChange')({ value: 2 });
-  expect(onChange).lastCalledWith(undefined, 2);
+  wrapper.find('Select').prop<Function>('onChange')({ value: '2' });
+  expect(onChange).lastCalledWith(undefined, '2');
 
-  wrapper.setProps({ gate: randomGate(1) });
-  wrapper.find('Select').prop<Function>('onChange')({ value: 2 });
-  expect(onChange).lastCalledWith(1, 2);
+  wrapper.setProps({ gate: randomGate('1') });
+  wrapper.find('Select').prop<Function>('onChange')({ value: '2' });
+  expect(onChange).lastCalledWith('1', '2');
 });
 
-function randomGate(id: number) {
+function randomGate(id: string) {
   return {
     id,
     name: `name-${id}`

@@ -194,7 +194,7 @@ exports[`should render the update modal correctly 1`] = `
     onClose={[Function]}
     qualityGate={
       Object {
-        "id": 1,
+        "id": "1",
         "name": "qualitygate",
       }
     }

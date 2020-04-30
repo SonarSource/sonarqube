@@ -12,7 +12,7 @@ exports[`should render correctly: is default 1`] = `
     onSaveCondition={[MockFunction]}
     qualityGate={
       Object {
-        "id": 1,
+        "id": "1",
         "name": "qualitygate",
       }
     }
@@ -49,7 +49,7 @@ exports[`should render correctly: is not default 1`] = `
     onSaveCondition={[MockFunction]}
     qualityGate={
       Object {
-        "id": 1,
+        "id": "1",
         "name": "qualitygate",
       }
     }
@@ -73,7 +73,7 @@ exports[`should render correctly: is not default 1`] = `
       key="1"
       qualityGate={
         Object {
-          "id": 1,
+          "id": "1",
           "name": "qualitygate",
         }
       }
