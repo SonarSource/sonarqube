@@ -25,12 +25,12 @@ public class PropertyQuery {
 
   private final String key;
   private final String componentUuid;
-  private final Integer userId;
+  private final String userUuid;
 
   private PropertyQuery(Builder builder) {
     this.key = builder.key;
     this.componentUuid = builder.componentUuid;
-    this.userId = builder.userId;
+    this.userUuid = builder.userUuid;
   }
 
   public String key() {
@@ -41,8 +41,8 @@ public class PropertyQuery {
     return componentUuid;
   }
 
-  public Integer userId() {
-    return userId;
+  public String userUuid() {
+    return userUuid;
   }
 
   public static Builder builder() {
@@ -52,7 +52,7 @@ public class PropertyQuery {
   public static class Builder {
     private String key;
     private String componentUuid;
-    private Integer userId;
+    private String userUuid;
 
     public Builder setKey(String key) {
       this.key = key;
@@ -64,8 +64,8 @@ public class PropertyQuery {
       return this;
     }
 
-    public Builder setUserId(Integer userId) {
-      this.userId = userId;
+    public Builder setUserUuid(String userUuid) {
+      this.userUuid = userUuid;
       return this;
     }
 

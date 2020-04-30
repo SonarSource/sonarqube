@@ -89,7 +89,7 @@ public class AddActionTest {
 
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
   }
 
   @Test
@@ -100,7 +100,7 @@ public class AddActionTest {
 
     call(NOTIF_NEW_QUALITY_GATE_STATUS, twitterChannel.getKey(), null, null);
 
-    db.notifications().assertExists(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, userSession.getUserId(), null);
+    db.notifications().assertExists(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, userSession.getUuid(), null);
   }
 
   @Test
@@ -114,7 +114,7 @@ public class AddActionTest {
 
     call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
   }
 
   @Test
@@ -128,7 +128,7 @@ public class AddActionTest {
 
     call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
   }
 
   @Test
@@ -143,8 +143,8 @@ public class AddActionTest {
 
     call(NOTIF_MY_NEW_ISSUES, null, null, null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
   }
 
   @Test
@@ -159,8 +159,8 @@ public class AddActionTest {
     userSession.addProjectPermission(USER, project);
     call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
   }
 
   @Test
@@ -175,8 +175,8 @@ public class AddActionTest {
 
     call(NOTIF_MY_NEW_ISSUES, null, project.getDbKey(), null);
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), project);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUuid(), null);
   }
 
   @Test
@@ -198,7 +198,7 @@ public class AddActionTest {
 
     call(NOTIF_MY_NEW_ISSUES, null, null, user.getLogin());
 
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null);
   }
 
   @Test

@@ -83,11 +83,11 @@ public class PropertiesDaoTest {
     UserDto user1 = db.users().insertUser(u -> u.setLogin("user1"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("user2"));
     UserDto user3 = db.users().insertUser(u -> u.setLogin("user3"));
-    insertProperty("notification.NewViolations.Email", "true", project1.uuid(), user2.getId());
-    insertProperty("notification.NewViolations.Twitter", "true", null, user3.getId());
-    insertProperty("notification.NewViolations.Twitter", "true", project2.uuid(), user1.getId());
-    insertProperty("notification.NewViolations.Twitter", "true", project1.uuid(), user2.getId());
-    insertProperty("notification.NewViolations.Twitter", "true", project2.uuid(), user3.getId());
+    insertProperty("notification.NewViolations.Email", "true", project1.uuid(), user2.getUuid());
+    insertProperty("notification.NewViolations.Twitter", "true", null, user3.getUuid());
+    insertProperty("notification.NewViolations.Twitter", "true", project2.uuid(), user1.getUuid());
+    insertProperty("notification.NewViolations.Twitter", "true", project1.uuid(), user2.getUuid());
+    insertProperty("notification.NewViolations.Twitter", "true", project2.uuid(), user3.getUuid());
     db.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
     db.users().insertProjectPermissionOnUser(user3, UserRole.USER, project2);
     db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project2);
@@ -119,19 +119,19 @@ public class PropertiesDaoTest {
 
   @Test
   public void hasNotificationSubscribers() {
-    int userId1 = db.users().insertUser(u -> u.setLogin("user1")).getId();
-    int userId2 = db.users().insertUser(u -> u.setLogin("user2")).getId();
+    String userUuid1 = db.users().insertUser(u -> u.setLogin("user1")).getUuid();
+    String userUuid2 = db.users().insertUser(u -> u.setLogin("user2")).getUuid();
     String projectUuid = randomAlphabetic(8);
     db.components().insertPrivateProject(db.getDefaultOrganization(), projectUuid);
 
     // global subscription
-    insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null, userId2);
+    insertProperty("notification.DispatcherWithGlobalSubscribers.Email", "true", null, userUuid2);
     // project subscription
-    insertProperty("notification.DispatcherWithProjectSubscribers.Email", "true", projectUuid, userId1);
-    insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", "uuid56", userId1);
-    insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", projectUuid, userId1);
+    insertProperty("notification.DispatcherWithProjectSubscribers.Email", "true", projectUuid, userUuid1);
+    insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", "uuid56", userUuid1);
+    insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", projectUuid, userUuid1);
     // global subscription
-    insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", null, userId2);
+    insertProperty("notification.DispatcherWithGlobalAndProjectSubscribers.Email", "true", null, userUuid2);
 
     // Nobody is subscribed
     assertThat(underTest.hasProjectNotificationSubscribersForDispatchers(projectUuid, singletonList("NotSexyDispatcher")))
@@ -181,24 +181,24 @@ public class PropertiesDaoTest {
 
   @Test
   public void findEmailRecipientsForNotification_finds_only_globally_subscribed_users_if_projectKey_is_null() {
-    int userId1 = db.users().insertUser(withEmail("user1")).getId();
-    int userId2 = db.users().insertUser(withEmail("user2")).getId();
-    int userId3 = db.users().insertUser(withEmail("user3")).getId();
-    int userId4 = db.users().insertUser(withEmail("user4")).getId();
+    String userUuid1 = db.users().insertUser(withEmail("user1")).getUuid();
+    String userUuid2 = db.users().insertUser(withEmail("user2")).getUuid();
+    String userUuid3 = db.users().insertUser(withEmail("user3")).getUuid();
+    String userUuid4 = db.users().insertUser(withEmail("user4")).getUuid();
     String projectUuid = insertPrivateProject("PROJECT_A").uuid();
     String dispatcherKey = randomAlphabetic(5);
     String otherDispatcherKey = randomAlphabetic(6);
     String channelKey = randomAlphabetic(7);
     String otherChannelKey = randomAlphabetic(8);
     // user1 subscribed only globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid1);
     // user2 subscribed on project and globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId2);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid2);
     // user3 subscribed on project only
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId3);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid3);
     // user4 did not subscribe
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectUuid, userId4);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectUuid, userUuid4);
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null))
       .containsOnly(EmailSubscriberDto.create("user1", true, emailOf("user1")), EmailSubscriberDto.create("user2", true, emailOf("user2")));
@@ -213,24 +213,24 @@ public class PropertiesDaoTest {
 
   @Test
   public void findEmailRecipientsForNotification_with_logins_finds_only_globally_subscribed_specified_users_if_projectKey_is_null() {
-    int userId1 = db.users().insertUser(withEmail("user1")).getId();
-    int userId2 = db.users().insertUser(withEmail("user2")).getId();
-    int userId3 = db.users().insertUser(withEmail("user3")).getId();
-    int userId4 = db.users().insertUser(withEmail("user4")).getId();
+    String userUuid1 = db.users().insertUser(withEmail("user1")).getUuid();
+    String userUuid2 = db.users().insertUser(withEmail("user2")).getUuid();
+    String userUuid3 = db.users().insertUser(withEmail("user3")).getUuid();
+    String userUuid4 = db.users().insertUser(withEmail("user4")).getUuid();
     String projectUuid = insertPrivateProject("PROJECT_A").uuid();
     String dispatcherKey = randomAlphabetic(5);
     String otherDispatcherKey = randomAlphabetic(6);
     String channelKey = randomAlphabetic(7);
     String otherChannelKey = randomAlphabetic(8);
     // user1 subscribed only globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid1);
     // user2 subscribed on project and globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId2);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid2);
     // user3 subscribed on project only
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId3);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid3);
     // user4 did not subscribe
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectUuid, userId4);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectUuid, userUuid4);
     Set<String> allLogins = of("user1", "user2", "user3", "user4");
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, null, allLogins))
@@ -254,10 +254,10 @@ public class PropertiesDaoTest {
 
   @Test
   public void findEmailRecipientsForNotification_finds_global_and_project_subscribed_users_when_projectKey_is_non_null() {
-    int userId1 = db.users().insertUser(withEmail("user1")).getId();
-    int userId2 = db.users().insertUser(withEmail("user2")).getId();
-    int userId3 = db.users().insertUser(withEmail("user3")).getId();
-    int userId4 = db.users().insertUser(withEmail("user4")).getId();
+    String userUuid1 = db.users().insertUser(withEmail("user1")).getUuid();
+    String userUuid2 = db.users().insertUser(withEmail("user2")).getUuid();
+    String userUuid3 = db.users().insertUser(withEmail("user3")).getUuid();
+    String userUuid4 = db.users().insertUser(withEmail("user4")).getUuid();
     String projectKey = randomAlphabetic(3);
     String otherProjectKey = randomAlphabetic(4);
     String projectUuid = insertPrivateProject(projectKey).uuid();
@@ -266,14 +266,14 @@ public class PropertiesDaoTest {
     String channelKey = randomAlphabetic(7);
     String otherChannelKey = randomAlphabetic(8);
     // user1 subscribed only globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid1);
     // user2 subscribed on project and globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId2);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid2);
     // user3 subscribed on project only
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId3);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid3);
     // user4 did not subscribe
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectUuid, userId4);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectUuid, userUuid4);
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey))
       .containsOnly(
@@ -293,10 +293,10 @@ public class PropertiesDaoTest {
 
   @Test
   public void findEmailRecipientsForNotification_with_logins_finds_global_and_project_subscribed_specified_users_when_projectKey_is_non_null() {
-    int userId1 = db.users().insertUser(withEmail("user1")).getId();
-    int userId2 = db.users().insertUser(withEmail("user2")).getId();
-    int userId3 = db.users().insertUser(withEmail("user3")).getId();
-    int userId4 = db.users().insertUser(withEmail("user4")).getId();
+    String userUuid1 = db.users().insertUser(withEmail("user1")).getUuid();
+    String userUuid2 = db.users().insertUser(withEmail("user2")).getUuid();
+    String userUuid3 = db.users().insertUser(withEmail("user3")).getUuid();
+    String userUuid4 = db.users().insertUser(withEmail("user4")).getUuid();
     String projectKey = randomAlphabetic(3);
     String otherProjectKey = randomAlphabetic(4);
     String projectUuid = insertPrivateProject(projectKey).uuid();
@@ -305,14 +305,14 @@ public class PropertiesDaoTest {
     String channelKey = randomAlphabetic(7);
     String otherChannelKey = randomAlphabetic(8);
     // user1 subscribed only globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid1);
     // user2 subscribed on project and globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId2);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid2);
     // user3 subscribed on project only
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId3);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid3);
     // user4 did not subscribe
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectUuid, userId4);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "false", projectUuid, userUuid4);
     Set<String> allLogins = of("user1", "user2", "user3", "user4");
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, allLogins))
@@ -343,22 +343,22 @@ public class PropertiesDaoTest {
 
   @Test
   public void findEmailRecipientsForNotification_ignores_subscribed_users_without_email() {
-    int userId1 = db.users().insertUser(withEmail("user1")).getId();
-    int userId2 = db.users().insertUser(noEmail("user2")).getId();
-    int userId3 = db.users().insertUser(withEmail("user3")).getId();
-    int userId4 = db.users().insertUser(noEmail("user4")).getId();
+    String userUuid1 = db.users().insertUser(withEmail("user1")).getUuid();
+    String userUuid2 = db.users().insertUser(noEmail("user2")).getUuid();
+    String userUuid3 = db.users().insertUser(withEmail("user3")).getUuid();
+    String userUuid4 = db.users().insertUser(noEmail("user4")).getUuid();
     String projectKey = randomAlphabetic(3);
     String projectUuid = insertPrivateProject(projectKey).uuid();
     String dispatcherKey = randomAlphabetic(4);
     String channelKey = randomAlphabetic(5);
     // user1 and user2 subscribed on project and globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId1);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId1);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId2);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid2);
     // user3 and user4 subscribed only globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId3);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId4);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid3);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid4);
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey))
       .containsOnly(
@@ -372,23 +372,23 @@ public class PropertiesDaoTest {
 
   @Test
   public void findEmailRecipientsForNotification_with_logins_ignores_subscribed_users_without_email() {
-    int userId1 = db.users().insertUser(withEmail("user1")).getId();
-    int userId2 = db.users().insertUser(noEmail("user2")).getId();
-    int userId3 = db.users().insertUser(withEmail("user3")).getId();
-    int userId4 = db.users().insertUser(noEmail("user4")).getId();
+    String userUuid1 = db.users().insertUser(withEmail("user1")).getUuid();
+    String userUuid2 = db.users().insertUser(noEmail("user2")).getUuid();
+    String userUuid3 = db.users().insertUser(withEmail("user3")).getUuid();
+    String userUuid4 = db.users().insertUser(noEmail("user4")).getUuid();
     Set<String> allLogins = of("user1", "user2", "user3");
     String projectKey = randomAlphabetic(3);
     String projectUuid = insertPrivateProject(projectKey).uuid();
     String dispatcherKey = randomAlphabetic(4);
     String channelKey = randomAlphabetic(5);
     // user1 and user2 subscribed on project and globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId1);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId1);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId2);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userId2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid1);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid2);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", projectUuid, userUuid2);
     // user3 and user4 subscribed only globally
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId3);
-    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userId4);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid3);
+    insertProperty(propertyKeyOf(dispatcherKey, channelKey), "true", null, userUuid4);
 
     assertThat(underTest.findEmailSubscribersForNotification(db.getSession(), dispatcherKey, channelKey, projectKey, allLogins))
       .containsOnly(
@@ -411,11 +411,11 @@ public class PropertiesDaoTest {
       .isEqualTo(2);
 
     assertThat(findByKey(properties, "global.one"))
-      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getValue)
+      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
       .containsExactly("global.one", null, null, "one");
 
     assertThat(findByKey(properties, "global.two"))
-      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getValue)
+      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
       .containsExactly("global.two", null, null, "two");
   }
 
@@ -429,7 +429,7 @@ public class PropertiesDaoTest {
       .hasSize(1);
 
     assertThat(dtos.iterator().next())
-      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getValue)
+      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
       .containsExactly("global.one", null, null, expected);
   }
 
@@ -441,10 +441,10 @@ public class PropertiesDaoTest {
     // project
     insertProperty("project.one", "one", "uuid10", null);
     // user
-    insertProperty("user.one", "one", null, 100);
+    insertProperty("user.one", "one", null, "100");
 
     assertThat(underTest.selectGlobalProperty("global.one"))
-      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getValue)
+      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
       .containsExactly(null, null, "one");
 
     assertThat(underTest.selectGlobalProperty("project.one")).isNull();
@@ -458,7 +458,7 @@ public class PropertiesDaoTest {
     insertProperty("global.one", dbValue, null, null);
 
     assertThat(underTest.selectGlobalProperty("global.one"))
-      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getValue)
+      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
       .containsExactly(null, null, expected);
   }
 
@@ -517,7 +517,7 @@ public class PropertiesDaoTest {
     PropertyDto property = underTest.selectProjectProperty("uuid10", "project.one");
 
     assertThat(property)
-      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getValue)
+      .extracting(PropertyDto::getKey, PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getValue)
       .containsExactly("project.one", "uuid10", null, "one");
   }
 
@@ -531,17 +531,17 @@ public class PropertiesDaoTest {
     // commons
     insertProperty("commonslang.one", "one", "uuid11", null);
     // user
-    insertProperty("user.one", "one", null, 100);
-    insertProperty("user.two", "two", "uuid10", 100);
+    insertProperty("user.one", "one", null, "100");
+    insertProperty("user.two", "two", "uuid10", "100");
     // other
     insertProperty("other.one", "one", "uuid12", null);
 
     List<PropertyDto> results = underTest.selectByQuery(PropertyQuery.builder().setKey("user.two").setComponentUuid("uuid10")
-      .setUserId(100).build(), db.getSession());
+      .setUserUuid("100").build(), db.getSession());
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getValue()).isEqualTo("two");
 
-    results = underTest.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserId(100).build(), db.getSession());
+    results = underTest.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserUuid("100").build(), db.getSession());
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getValue()).isEqualTo("one");
   }
@@ -549,13 +549,13 @@ public class PropertiesDaoTest {
   @Test
   public void select_global_properties_by_keys() {
     insertPrivateProject("A");
-    int userId = db.users().insertUser(u -> u.setLogin("B")).getId();
+    String userUuid = db.users().insertUser(u -> u.setLogin("B")).getUuid();
 
     String key = "key";
     String anotherKey = "anotherKey";
     insertProperty(key, "value", null, null);
     insertProperty(key, "value", "uuid10", null);
-    insertProperty(key, "value", null, userId);
+    insertProperty(key, "value", null, userUuid);
     insertProperty(anotherKey, "value", null, null);
 
     insertProperty("key1", "value", null, null);
@@ -657,7 +657,7 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void selectByKeyAndUserIdAndComponentQualifier() {
+  public void selectByKeyAndUserUuidAndComponentQualifier() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
     ComponentDto project1 = db.components().insertPrivateProject();
@@ -671,11 +671,11 @@ public class PropertiesDaoTest {
       newPropertyDto("key", "5", project1, user2),
       newGlobalPropertyDto("key", "global"));
 
-    assertThat(underTest.selectByKeyAndUserIdAndComponentQualifier(db.getSession(), "key", user1.getId(), "TRK"))
+    assertThat(underTest.selectByKeyAndUserUuidAndComponentQualifier(db.getSession(), "key", user1.getUuid(), "TRK"))
       .extracting(PropertyDto::getValue).containsExactlyInAnyOrder("1", "2");
-    assertThat(underTest.selectByKeyAndUserIdAndComponentQualifier(db.getSession(), "key", user1.getId(), "FIL"))
+    assertThat(underTest.selectByKeyAndUserUuidAndComponentQualifier(db.getSession(), "key", user1.getUuid(), "FIL"))
       .extracting(PropertyDto::getValue).containsExactlyInAnyOrder("3");
-    assertThat(underTest.selectByKeyAndUserIdAndComponentQualifier(db.getSession(), "key", user2.getId(), "FIL")).isEmpty();
+    assertThat(underTest.selectByKeyAndUserUuidAndComponentQualifier(db.getSession(), "key", user2.getUuid(), "FIL")).isEmpty();
   }
 
   @Test
@@ -688,27 +688,27 @@ public class PropertiesDaoTest {
 
     assertThatPropertiesRow("global.null")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .isEmpty()
       .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRow("global.empty")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .isEmpty()
       .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRow("global.text")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("some text")
       .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRow("global.4000")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue(VALUE_SIZE_4000)
       .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRow("global.clob")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasClobValue(VALUE_SIZE_4001)
       .hasCreatedAt(INITIAL_DATE + 6);
   }
@@ -724,63 +724,63 @@ public class PropertiesDaoTest {
 
     assertThatPropertiesRow("component.null")
       .hasComponentUuid(componentUuid)
-      .hasNoUserId()
+      .hasNoUserUuid()
       .isEmpty()
       .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRow("component.empty")
       .hasComponentUuid(componentUuid)
-      .hasNoUserId()
+      .hasNoUserUuid()
       .isEmpty()
       .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRow("component.text")
       .hasComponentUuid(componentUuid)
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("some text")
       .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRow("component.4000")
       .hasComponentUuid(componentUuid)
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue(VALUE_SIZE_4000)
       .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRow("component.clob")
       .hasComponentUuid(componentUuid)
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasClobValue(VALUE_SIZE_4001)
       .hasCreatedAt(INITIAL_DATE + 6);
   }
 
   @Test
   public void saveProperty_inserts_user_properties_when_they_do_not_exist_in_db() {
-    int userId = 100;
-    underTest.saveProperty(new PropertyDto().setKey("user.null").setUserId(userId).setValue(null));
-    underTest.saveProperty(new PropertyDto().setKey("user.empty").setUserId(userId).setValue(""));
-    underTest.saveProperty(new PropertyDto().setKey("user.text").setUserId(userId).setValue("some text"));
-    underTest.saveProperty(new PropertyDto().setKey("user.4000").setUserId(userId).setValue(VALUE_SIZE_4000));
-    underTest.saveProperty(new PropertyDto().setKey("user.clob").setUserId(userId).setValue(VALUE_SIZE_4001));
+    String userUuid = "uuid-100";
+    underTest.saveProperty(new PropertyDto().setKey("user.null").setUserUuid(userUuid).setValue(null));
+    underTest.saveProperty(new PropertyDto().setKey("user.empty").setUserUuid(userUuid).setValue(""));
+    underTest.saveProperty(new PropertyDto().setKey("user.text").setUserUuid(userUuid).setValue("some text"));
+    underTest.saveProperty(new PropertyDto().setKey("user.4000").setUserUuid(userUuid).setValue(VALUE_SIZE_4000));
+    underTest.saveProperty(new PropertyDto().setKey("user.clob").setUserUuid(userUuid).setValue(VALUE_SIZE_4001));
 
     assertThatPropertiesRow("user.null")
       .hasNoComponentUuid()
-      .hasUserId(userId)
+      .hasUserUuid(userUuid)
       .isEmpty()
       .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRow("user.empty")
       .hasNoComponentUuid()
-      .hasUserId(userId)
+      .hasUserUuid(userUuid)
       .isEmpty()
       .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRow("user.text")
       .hasNoComponentUuid()
-      .hasUserId(userId)
+      .hasUserUuid(userUuid)
       .hasTextValue("some text")
       .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRow("user.4000")
       .hasNoComponentUuid()
-      .hasUserId(userId)
+      .hasUserUuid(userUuid)
       .hasTextValue(VALUE_SIZE_4000)
       .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRow("user.clob")
       .hasNoComponentUuid()
-      .hasUserId(userId)
+      .hasUserUuid(userUuid)
       .hasClobValue(VALUE_SIZE_4001)
       .hasCreatedAt(INITIAL_DATE + 6);
   }
@@ -797,7 +797,7 @@ public class PropertiesDaoTest {
 
     PropertiesRowAssert propertiesRowAssert = assertThatPropertiesRow("global")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasCreatedAt(INITIAL_DATE + 3);
     if (newValue == null || newValue.isEmpty()) {
       propertiesRowAssert.isEmpty();
@@ -820,7 +820,7 @@ public class PropertiesDaoTest {
       .doesNotExist();
     PropertiesRowAssert propertiesRowAssert = assertThatPropertiesRow("global")
       .hasComponentUuid(componentUuid)
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasCreatedAt(INITIAL_DATE + 3);
     if (newValue == null || newValue.isEmpty()) {
       propertiesRowAssert.isEmpty();
@@ -834,17 +834,17 @@ public class PropertiesDaoTest {
   @Test
   @UseDataProvider("valueUpdatesDataProvider")
   public void saveProperty_deletes_then_inserts_user_properties_when_they_exist_in_db(@Nullable String oldValue, @Nullable String newValue) {
-    int userId = 90;
-    String uuid = insertProperty("global", oldValue, null, userId);
+    String userUuid = "uuid-90";
+    String uuid = insertProperty("global", oldValue, null, userUuid);
 
-    underTest.saveProperty(new PropertyDto().setKey("global").setUserId(userId).setValue(newValue));
+    underTest.saveProperty(new PropertyDto().setKey("global").setUserUuid(userUuid).setValue(newValue));
 
     assertThatPropertiesRowByUuid(uuid)
       .doesNotExist();
 
     PropertiesRowAssert propertiesRowAssert = assertThatPropertiesRow("global")
       .hasNoComponentUuid()
-      .hasUserId(userId)
+      .hasUserUuid(userUuid)
       .hasCreatedAt(INITIAL_DATE + 3);
     if (newValue == null || newValue.isEmpty()) {
       propertiesRowAssert.isEmpty();
@@ -898,8 +898,8 @@ public class PropertiesDaoTest {
     String uuid2 = insertProperty("global.two", "two", null, null);
     String uuid3 = insertProperty("struts.one", "one", "project1", null);
     String uuid4 = insertProperty("commonslang.one", "one", "project2", null);
-    String uuid5 = insertProperty("user.one", "one", null, 100);
-    String uuid6 = insertProperty("user.two", "two", null, 100);
+    String uuid5 = insertProperty("user.one", "one", null, "100");
+    String uuid6 = insertProperty("user.two", "two", null, "100");
     String uuid7 = insertProperty("other.one", "one", "project3", null);
 
     underTest.deleteProjectProperty("struts.one", "project1");
@@ -907,34 +907,34 @@ public class PropertiesDaoTest {
     assertThatPropertiesRowByUuid(uuid1)
       .hasKey("global.one")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("one");
     assertThatPropertiesRowByUuid(uuid2)
       .hasKey("global.two")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("two");
     assertThatPropertiesRowByUuid(uuid3)
       .doesNotExist();
     assertThatPropertiesRowByUuid(uuid4)
       .hasKey("commonslang.one")
       .hasComponentUuid("project2")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("one");
     assertThatPropertiesRowByUuid(uuid5)
       .hasKey("user.one")
       .hasNoComponentUuid()
-      .hasUserId(100)
+      .hasUserUuid("100")
       .hasTextValue("one");
     assertThatPropertiesRowByUuid(uuid6)
       .hasKey("user.two")
       .hasNoComponentUuid()
-      .hasUserId(100)
+      .hasUserUuid("100")
       .hasTextValue("two");
     assertThatPropertiesRowByUuid(uuid7)
       .hasKey("other.one")
       .hasComponentUuid("project3")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("one");
   }
 
@@ -958,22 +958,22 @@ public class PropertiesDaoTest {
     assertThatPropertiesRowByUuid(uuid3)
       .hasKey("sonar.profile.java")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("Sonar Way");
     assertThatPropertiesRowByUuid(uuid4)
       .hasKey("sonar.profile.js")
       .hasComponentUuid("uuid1")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("Sonar Way");
     assertThatPropertiesRowByUuid(uuid5)
       .hasKey("sonar.profile.js")
       .hasComponentUuid("uuid2")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("Sonar Way");
     assertThatPropertiesRowByUuid(uuid6)
       .hasKey("sonar.profile.js")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("Sonar Way");
   }
 
@@ -985,13 +985,13 @@ public class PropertiesDaoTest {
     // project - do not delete this project property that has the same key
     String uuid3 = insertProperty("to_be_deleted", "new_project", "to_be_deleted", null);
     // user
-    String uuid4 = insertProperty("user.key", "new_user", null, 100);
+    String uuid4 = insertProperty("user.key", "new_user", null, "100");
 
     underTest.deleteGlobalProperty("to_be_deleted");
 
     assertThatPropertiesRowByUuid(uuid1)
       .hasKey("global.key")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasNoComponentUuid()
       .hasTextValue("new_global");
     assertThatPropertiesRowByUuid(uuid2)
@@ -1001,12 +1001,12 @@ public class PropertiesDaoTest {
     assertThatPropertiesRowByUuid(uuid3)
       .hasKey("to_be_deleted")
       .hasComponentUuid("to_be_deleted")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("new_project");
     assertThatPropertiesRowByUuid(uuid4)
       .hasKey("user.key")
       .hasNoComponentUuid()
-      .hasUserId(100)
+      .hasUserUuid("100")
       .hasTextValue("new_user");
   }
 
@@ -1018,19 +1018,19 @@ public class PropertiesDaoTest {
     ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
     UserDto user = db.users().insertUser();
     UserDto anotherUser = db.users().insertUser();
-    insertProperty("KEY_11", "VALUE", project.uuid(), user.getId());
-    insertProperty("KEY_12", "VALUE", project.uuid(), user.getId());
-    insertProperty("KEY_11", "VALUE", project.uuid(), anotherUser.getId());
-    insertProperty("KEY_11", "VALUE", anotherProject.uuid(), user.getId());
+    insertProperty("KEY_11", "VALUE", project.uuid(), user.getUuid());
+    insertProperty("KEY_12", "VALUE", project.uuid(), user.getUuid());
+    insertProperty("KEY_11", "VALUE", project.uuid(), anotherUser.getUuid());
+    insertProperty("KEY_11", "VALUE", anotherProject.uuid(), user.getUuid());
 
-    underTest.deleteByOrganizationAndUser(session, organization.getUuid(), user.getId());
+    underTest.deleteByOrganizationAndUser(session, organization.getUuid(), user.getUuid());
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.uuid()).build(), session))
       .hasSize(1)
-      .extracting(PropertyDto::getUserId).containsOnly(anotherUser.getId());
+      .extracting(PropertyDto::getUserUuid).containsOnly(anotherUser.getUuid());
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(anotherProject.uuid()).build(), session))
-      .extracting(PropertyDto::getUserId)
-      .hasSize(1).containsOnly(user.getId());
+      .extracting(PropertyDto::getUserUuid)
+      .hasSize(1).containsOnly(user.getUuid());
   }
 
   @Test
@@ -1062,19 +1062,19 @@ public class PropertiesDaoTest {
     ComponentDto anotherProject = db.components().insertPrivateProject();
     insertProperty("KEY", "VALUE", null, null);
     insertProperty("KEY", "VALUE", project.uuid(), null);
-    insertProperty("KEY", "VALUE", null, 100);
-    insertProperty("KEY", "VALUE", project.uuid(), 100);
+    insertProperty("KEY", "VALUE", null, "100");
+    insertProperty("KEY", "VALUE", project.uuid(), "100");
     insertProperty("KEY", "VALUE", anotherProject.uuid(), null);
     // Should not be removed
     insertProperty("KEY", "ANOTHER_VALUE", null, null);
-    insertProperty("ANOTHER_KEY", "VALUE", project.uuid(), 100);
+    insertProperty("ANOTHER_KEY", "VALUE", project.uuid(), "100");
 
     underTest.deleteByKeyAndValue(session, "KEY", "VALUE");
     db.commit();
 
-    assertThat(db.select("select prop_key as \"key\", text_value as \"value\", component_uuid as \"projectUuid\", user_id as \"userId\" from properties"))
-      .extracting((row) -> row.get("key"), (row) -> row.get("value"), (row) -> row.get("projectUuid"), (row) -> row.get("userId"))
-      .containsOnly(tuple("KEY", "ANOTHER_VALUE", null, null), tuple("ANOTHER_KEY", "VALUE", project.uuid(), 100L));
+    assertThat(db.select("select prop_key as \"key\", text_value as \"value\", component_uuid as \"projectUuid\", user_uuid as \"userUuid\" from properties"))
+      .extracting((row) -> row.get("key"), (row) -> row.get("value"), (row) -> row.get("projectUuid"), (row) -> row.get("userUuid"))
+      .containsOnly(tuple("KEY", "ANOTHER_VALUE", null, null), tuple("ANOTHER_KEY", "VALUE", project.uuid(), "100"));
   }
 
   @Test
@@ -1088,27 +1088,27 @@ public class PropertiesDaoTest {
 
     assertThatPropertiesRow("null_value_property")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .isEmpty()
       .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRow("empty_value_property")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .isEmpty()
       .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRow("text_value_property")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("dfdsfsd")
       .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRow("4000_char_value_property")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue(VALUE_SIZE_4000)
       .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRow("clob_value_property")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasClobValue(VALUE_SIZE_4001)
       .hasCreatedAt(INITIAL_DATE + 6);
   }
@@ -1124,7 +1124,7 @@ public class PropertiesDaoTest {
 
     assertThatPropertiesRow("to_be_updated")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("new value")
       .hasCreatedAt(INITIAL_DATE + 3);
   }
@@ -1145,45 +1145,45 @@ public class PropertiesDaoTest {
     String uuid2 = insertProperty("old_name", "doc1", null, null);
     String uuid3 = insertProperty("old_name", "doc2", "15", null);
     String uuid4 = insertProperty("old_name", "doc3", "16", null);
-    String uuid5 = insertProperty("old_name", "doc4", null, 100);
-    String uuid6 = insertProperty("old_name", "doc5", null, 101);
+    String uuid5 = insertProperty("old_name", "doc4", null, "100");
+    String uuid6 = insertProperty("old_name", "doc5", null, "101");
 
     underTest.renamePropertyKey("old_name", "new_name");
 
     assertThatPropertiesRowByUuid(uuid1)
       .hasKey("foo")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasNoComponentUuid()
       .hasTextValue("bar")
       .hasCreatedAt(INITIAL_DATE + 2);
     assertThatPropertiesRowByUuid(uuid2)
       .hasKey("new_name")
       .hasNoComponentUuid()
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("doc1")
       .hasCreatedAt(INITIAL_DATE + 3);
     assertThatPropertiesRowByUuid(uuid3)
       .hasKey("new_name")
       .hasComponentUuid("15")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("doc2")
       .hasCreatedAt(INITIAL_DATE + 4);
     assertThatPropertiesRowByUuid(uuid4)
       .hasKey("new_name")
       .hasComponentUuid("16")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasTextValue("doc3")
       .hasCreatedAt(INITIAL_DATE + 5);
     assertThatPropertiesRowByUuid(uuid5)
       .hasKey("new_name")
       .hasNoComponentUuid()
-      .hasUserId(100)
+      .hasUserUuid("100")
       .hasTextValue("doc4")
       .hasCreatedAt(INITIAL_DATE + 6);
     assertThatPropertiesRowByUuid(uuid6)
       .hasKey("new_name")
       .hasNoComponentUuid()
-      .hasUserId(101)
+      .hasUserUuid("101")
       .hasTextValue("doc5")
       .hasCreatedAt(INITIAL_DATE + 7);
   }
@@ -1199,7 +1199,7 @@ public class PropertiesDaoTest {
 
     assertThatPropertiesRowByUuid(uuid)
       .hasKey("foo")
-      .hasNoUserId()
+      .hasNoUserUuid()
       .hasNoComponentUuid()
       .hasTextValue("bar")
       .hasCreatedAt(INITIAL_DATE + 2);
@@ -1233,16 +1233,16 @@ public class PropertiesDaoTest {
     session.commit();
   }
 
-  private String insertProperty(String key, @Nullable String value, @Nullable String componentUuid, @Nullable Integer userId) {
+  private String insertProperty(String key, @Nullable String value, @Nullable String componentUuid, @Nullable String userUuid) {
     PropertyDto dto = new PropertyDto().setKey(key)
       .setComponentUuid(componentUuid)
-      .setUserId(userId)
+      .setUserUuid(userUuid)
       .setValue(value);
     db.properties().insertProperty(dto);
 
     return (String) db.selectFirst(session, "select uuid as \"uuid\" from properties" +
       " where prop_key='" + key + "'" +
-      " and user_id" + (userId == null ? " is null" : "='" + userId + "'") +
+      " and user_uuid" + (userUuid == null ? " is null" : "='" + userUuid + "'") +
       " and component_uuid" + (componentUuid == null ? " is null" : "='" + componentUuid + "'")).get("uuid");
   }
 
@@ -1266,8 +1266,8 @@ public class PropertiesDaoTest {
     return String.format("notification.%s.%s", dispatcherKey, channelKey);
   }
 
-  private PropertiesRowAssert assertThatPropertiesRow(String key, @Nullable Integer userId, @Nullable String componentUuid) {
-    return new PropertiesRowAssert(db, key, userId, componentUuid);
+  private PropertiesRowAssert assertThatPropertiesRow(String key, @Nullable String userUuid, @Nullable String componentUuid) {
+    return new PropertiesRowAssert(db, key, userUuid, componentUuid);
   }
 
   private PropertiesRowAssert assertThatPropertiesRow(String key) {

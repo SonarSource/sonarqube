@@ -33,7 +33,7 @@ public class PropertyDto {
   private String key;
   private String value;
   private String componentUuid;
-  private Integer userId;
+  private String userUuid;
 
   String getUuid() {
     return uuid;
@@ -74,12 +74,12 @@ public class PropertyDto {
   }
 
   @CheckForNull
-  public Integer getUserId() {
-    return userId;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public PropertyDto setUserId(@Nullable Integer userId) {
-    this.userId = userId;
+  public PropertyDto setUserUuid(@Nullable String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 
@@ -93,14 +93,14 @@ public class PropertyDto {
     }
     PropertyDto other = (PropertyDto) obj;
     return Objects.equals(this.key, other.key)
-      && Objects.equals(this.userId, other.userId)
+      && Objects.equals(this.userUuid, other.userUuid)
       && Objects.equals(this.componentUuid, other.componentUuid)
       && Objects.equals(this.value, other.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.key, this.value, this.componentUuid, this.userId);
+    return Objects.hash(this.key, this.value, this.componentUuid, this.userUuid);
   }
 
   @Override
@@ -109,7 +109,7 @@ public class PropertyDto {
       .addValue(this.key)
       .addValue(this.value)
       .addValue(this.componentUuid)
-      .addValue(this.userId)
+      .addValue(this.userUuid)
       .toString();
   }
 }

@@ -139,8 +139,8 @@ public class MemberUpdater {
     dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
     dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userUuid);
     dbClient.qProfileEditUsersDao().deleteByOrganizationAndUser(dbSession, organization, user);
-    dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, user.getUuid());
-    dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
+    dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userUuid);
+    dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userUuid);
     dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
 
     dbClient.organizationMemberDao().delete(dbSession, organizationUuid, userUuid);

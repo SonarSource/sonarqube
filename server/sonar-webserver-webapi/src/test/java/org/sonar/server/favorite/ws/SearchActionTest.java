@@ -21,6 +21,7 @@ package org.sonar.server.favorite.ws;
 
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,6 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.tester.UserSessionRule;
@@ -52,11 +54,11 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 
 public class SearchActionTest {
-  private static final int USER_ID = 123;
+  private String userUuid;
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setUserId(USER_ID);
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
@@ -64,6 +66,13 @@ public class SearchActionTest {
   private FavoriteFinder favoriteFinder = new FavoriteFinder(dbClient, userSession);
 
   private WsActionTester ws = new WsActionTester(new SearchAction(favoriteFinder, dbClient, userSession));
+
+  @Before
+  public void before() {
+    UserDto userDto = db.users().insertUser();
+    userSession.logIn(userDto);
+    userUuid = userDto.getUuid();
+  }
 
   @Test
   public void return_favorites() {
@@ -98,7 +107,7 @@ public class SearchActionTest {
     OrganizationDto organizationDto = db.organizations().insert();
     addComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("K1"));
     ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
-    db.favorites().add(unauthorizedProject, USER_ID);
+    db.favorites().add(unauthorizedProject, userUuid);
 
     SearchResponse result = call();
 
@@ -111,7 +120,7 @@ public class SearchActionTest {
     IntStream.rangeClosed(1, 9)
       .forEach(i -> addComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("K" + i).setName("N" + i)));
     ComponentDto unauthorizedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
-    db.favorites().add(unauthorizedProject, USER_ID);
+    db.favorites().add(unauthorizedProject, userUuid);
 
     SearchResponse result = call(2, 3);
 
@@ -128,7 +137,7 @@ public class SearchActionTest {
     addComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("K1"));
     ComponentDto otherUserFavorite = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("K42");
     db.components().insertComponent(otherUserFavorite);
-    db.favorites().add(otherUserFavorite, 42);
+    db.favorites().add(otherUserFavorite, "42");
     db.commit();
 
     SearchResponse result = call();
@@ -181,7 +190,7 @@ public class SearchActionTest {
 
   private void addComponent(ComponentDto component) {
     db.components().insertComponent(component);
-    db.favorites().add(component, USER_ID);
+    db.favorites().add(component, userUuid);
     db.commit();
     userSession.addProjectPermission(UserRole.USER, component);
   }

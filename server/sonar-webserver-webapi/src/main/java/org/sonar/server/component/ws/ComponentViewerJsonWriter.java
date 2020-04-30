@@ -100,7 +100,7 @@ public class ComponentViewerJsonWriter {
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
         .setKey("favourite")
         .setComponentUuid(component.uuid())
-        .setUserId(userSession.getUserId())
+      .setUserUuid(userSession.getUuid())
         .build(),
       session);
     boolean isFavourite = propertyDtos.size() == 1;

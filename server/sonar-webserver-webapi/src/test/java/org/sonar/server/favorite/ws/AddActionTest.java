@@ -78,14 +78,14 @@ public class AddActionTest {
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
     List<PropertyDto> favorites = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .setKey("favourite")
       .build(), dbSession);
     assertThat(favorites).hasSize(1);
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
-      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getKey)
-      .containsOnly(project.uuid(), user.getId(), "favourite");
+      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getKey)
+      .containsOnly(project.uuid(), user.getUuid(), "favourite");
   }
 
   @Test
@@ -98,14 +98,14 @@ public class AddActionTest {
     call(file.getKey());
 
     List<PropertyDto> favorites = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .setKey("favourite")
       .build(), dbSession);
     assertThat(favorites).hasSize(1);
     PropertyDto favorite = favorites.get(0);
     assertThat(favorite)
-      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserId, PropertyDto::getKey)
-      .containsOnly(file.uuid(), user.getId(), "favourite");
+      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getKey)
+      .containsOnly(file.uuid(), user.getUuid(), "favourite");
   }
 
   @Test

@@ -101,7 +101,7 @@ public class DeactivateAction implements UsersWsAction {
       String userUuid = user.getUuid();
       dbClient.userTokenDao().deleteByUser(dbSession, user);
       dbClient.propertiesDao().deleteByKeyAndValue(dbSession, DEFAULT_ISSUE_ASSIGNEE, user.getLogin());
-      dbClient.propertiesDao().deleteByQuery(dbSession, PropertyQuery.builder().setUserId(userId).build());
+      dbClient.propertiesDao().deleteByQuery(dbSession, PropertyQuery.builder().setUserUuid(userUuid).build());
       dbClient.userGroupDao().deleteByUserUuid(dbSession, userUuid);
       dbClient.userPermissionDao().deleteByUserId(dbSession, userId);
       dbClient.permissionTemplateDao().deleteUserPermissionsByUserUuid(dbSession, userUuid);

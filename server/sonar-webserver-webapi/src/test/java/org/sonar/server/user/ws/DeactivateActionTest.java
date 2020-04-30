@@ -147,8 +147,8 @@ public class DeactivateActionTest {
 
     deactivate(user.getLogin());
 
-    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).build(), dbSession)).isEmpty();
-    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).setComponentUuid(project.uuid()).build(), dbSession)).isEmpty();
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(), dbSession)).isEmpty();
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).setComponentUuid(project.uuid()).build(), dbSession)).isEmpty();
   }
 
   @Test

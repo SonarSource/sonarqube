@@ -279,6 +279,9 @@ import org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplates
 import org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplatesusers.DropUserIdColumnOfPermTemplatesUsersTable;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplatesusers.MakePermTemplatesUsersUserUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.permtemplatesusers.PopulatePermTemplatesUsersUserUuid;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.properties.AddUserUuidColumnToPropertiesUsers;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.properties.DropUserIdColumnOfPropertiesTable;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.properties.PopulatePropertiesUserUuid;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddPrimaryKeyOnUuidColumnOfUserTokensTable;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.AddUuidColumnToUserTokens;
 import org.sonar.server.platform.db.migration.version.v83.usertokens.DropIdColumnOfUserTokensTable;
@@ -673,6 +676,11 @@ public class DbVersion83 implements DbVersion {
       .add(3652, "Populate 'user_uuid' for 'PERM_TEMPLATES_USERS'", PopulatePermTemplatesUsersUserUuid.class)
       .add(3653, "Make 'user_uuid' not-null for 'PERM_TEMPLATES_USERS'", MakePermTemplatesUsersUserUuidColumnNotNullable.class)
       .add(3654, "Drop column on 'user_id' column of 'PERM_TEMPLATES_USERS' table", DropUserIdColumnOfPermTemplatesUsersTable.class)
+
+      // Migration of FK in PROPERTIES to USERS
+      .add(3616, "Add 'user_uuid' column on 'PROPERTIES' table", AddUserUuidColumnToPropertiesUsers.class)
+      .add(3617, "Populate 'user_uuid' for 'PROPERTIES'", PopulatePropertiesUserUuid.class)
+      .add(3618, "Drop column on 'user_id' column of 'PROPERTIES' table", DropUserIdColumnOfPropertiesTable.class)
 
     ;
   }

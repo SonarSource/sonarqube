@@ -54,43 +54,43 @@ public class PropertyTesting {
 
   public static PropertyDto newUserPropertyDto(String key, String value, UserDto user) {
     checkNotNull(user.getId());
-    return newPropertyDto(key, value, null, user.getId());
+    return newPropertyDto(key, value, null, user.getUuid());
   }
 
   public static PropertyDto newUserPropertyDto(UserDto user) {
     checkNotNull(user.getId());
-    return newPropertyDto(null, user.getId());
+    return newPropertyDto(null, user.getUuid());
   }
 
   public static PropertyDto newPropertyDto(String key, String value, ComponentDto component, UserDto user) {
     checkNotNull(component.uuid());
     checkNotNull(user.getId());
-    return newPropertyDto(key, value, component.uuid(), user.getId());
+    return newPropertyDto(key, value, component.uuid(), user.getUuid());
   }
 
   public static PropertyDto newPropertyDto(ComponentDto component, UserDto user) {
     checkNotNull(component.uuid());
     checkNotNull(user.getId());
-    return newPropertyDto(component.uuid(), user.getId());
+    return newPropertyDto(component.uuid(), user.getUuid());
   }
 
-  private static PropertyDto newPropertyDto(@Nullable String componentUuid, @Nullable Integer userId) {
+  private static PropertyDto newPropertyDto(@Nullable String componentUuid, @Nullable String userUuid) {
     String key = String.valueOf(cursor);
     cursor++;
     String value = String.valueOf(cursor);
     cursor++;
-    return newPropertyDto(key, value, componentUuid, userId);
+    return newPropertyDto(key, value, componentUuid, userUuid);
   }
 
-  private static PropertyDto newPropertyDto(String key, String value, @Nullable String componentUuid, @Nullable Integer userId) {
+  private static PropertyDto newPropertyDto(String key, String value, @Nullable String componentUuid, @Nullable String userUuid) {
     PropertyDto propertyDto = new PropertyDto()
       .setKey(key)
       .setValue(value);
     if (componentUuid != null) {
       propertyDto.setComponentUuid(componentUuid);
     }
-    if (userId != null) {
-      propertyDto.setUserId(userId);
+    if (userUuid != null) {
+      propertyDto.setUserUuid(userUuid);
     }
     return propertyDto;
   }

@@ -9,7 +9,7 @@
       ${_true} as "global"
     FROM
       users u
-    INNER JOIN properties p ON p.user_id = u.id
+    INNER JOIN properties p ON p.user_uuid = u.uuid
     WHERE
       p.prop_key = #{notifKey,jdbcType=VARCHAR}
       AND p.text_value = 'true'
@@ -24,7 +24,7 @@
       FROM
         users u
       INNER JOIN components c on c.kee = #{projectKey,jdbcType=VARCHAR}
-      INNER JOIN properties p ON p.user_id = u.id
+      INNER JOIN properties p ON p.user_uuid = u.uuid
       WHERE
         p.prop_key = #{notifKey,jdbcType=VARCHAR}
         AND p.text_value = 'true'
@@ -40,7 +40,7 @@
     FROM
       users u
     INNER JOIN properties p ON
-      p.user_id = u.id
+      p.user_uuid = u.uuid
       and p.prop_key = #{notifKey,jdbcType=VARCHAR}
       and p.text_value = 'true'
       and p.component_uuid IS NULL
@@ -62,7 +62,7 @@
       INNER JOIN components c on
         c.kee = #{projectKey,jdbcType=VARCHAR}
       INNER JOIN properties p ON
-        p.user_id = u.id
+        p.user_uuid = u.uuid
         and p.prop_key = #{notifKey,jdbcType=VARCHAR}
         and p.text_value = 'true'
         and p.component_uuid = c.uuid
@@ -81,7 +81,7 @@
     p.text_value as textValue,
     p.clob_value as clobValue,
     p.component_uuid as componentUuid,
-    p.user_id as userId
+    p.user_uuid as userUuid
   </sql>
 
   <select id="selectGlobalProperties" resultType="ScrapProperty">
@@ -91,7 +91,7 @@
       properties p
     where
       p.component_uuid is null
-      and p.user_id is null
+      and p.user_uuid is null
   </select>
 
   <select id="selectProjectProperties" parameterType="String" resultType="ScrapProperty">
@@ -102,7 +102,7 @@
       components r
     where
       p.component_uuid=r.uuid
-      and p.user_id is null
+      and p.user_uuid is null
       and r.kee=#{resourceKey,jdbcType=VARCHAR}
   </select>
 
@@ -119,11 +119,11 @@
       <if test="componentUuid != null">
         and p.component_uuid=#{componentUuid}
       </if>
-      <if test="userId == null">
-        and p.user_id is null
+      <if test="userUuid == null">
+        and p.user_uuid is null
       </if>
-      <if test="userId != null">
-        and p.user_id=#{userId,jdbcType=INTEGER}
+      <if test="userUuid != null">
+        and p.user_uuid=#{userUuid,jdbcType=VARCHAR}
       </if>
   </select>
 
@@ -138,7 +138,7 @@
           #{key}
         </foreach>
       and p.component_uuid is null
-      and p.user_id is null
+      and p.user_uuid is null
     order by p.created_at
   </select>
 
@@ -156,7 +156,7 @@
         <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
           #{componentUuid}
         </foreach>
-      and p.user_id is null
+      and p.user_uuid is null
   </select>
 
   <select id="selectByComponentUuids" parameterType="map" resultType="ScrapProperty">
@@ -169,10 +169,10 @@
       <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
         #{componentUuid}
       </foreach>
-      and p.user_id is null
+      and p.user_uuid is null
   </select>
 
-  <select id="selectByKeyAndUserIdAndComponentQualifier" parameterType="map" resultType="ScrapProperty">
+  <select id="selectByKeyAndUserUuidAndComponentQualifier" parameterType="map" resultType="ScrapProperty">
     select
     <include refid="columnsToScrapPropertyDto"/>
     from
@@ -180,7 +180,7 @@
       inner join components prj on prj.uuid=p.component_uuid and prj.qualifier = #{qualifier, jdbcType=VARCHAR}
     where
       p.prop_key = #{key, jdbcType=VARCHAR}
-      and p.user_id = #{userId, jdbcType=INTEGER}
+      and p.user_uuid = #{userUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="ScrapProperty">
@@ -195,8 +195,8 @@
       <if test="query.componentUuid() != null">
         and p.component_uuid=#{query.componentUuid,jdbcType=BIGINT}
       </if>
-      <if test="query.userId() != null">
-        and p.user_id=#{query.userId,jdbcType=INTEGER}
+      <if test="query.userUuid() != null">
+        and p.user_uuid=#{query.userUuid,jdbcType=VARCHAR}
       </if>
     </where>
   </select>
@@ -206,7 +206,7 @@
     from properties py
       inner join components ps on py.component_uuid = ps.uuid
     where
-    py.user_id=#{userId,jdbcType=INTEGER}
+    py.user_uuid=#{userUuid,jdbcType=VARCHAR}
     and ps.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
@@ -239,7 +239,7 @@
       uuid,
       prop_key,
       component_uuid,
-      user_id,
+      user_uuid,
       is_empty,
       created_at
     )
@@ -247,7 +247,7 @@
       #{uuid},
       #{key},
       #{componentUuid},
-      #{userId,jdbcType=INTEGER},
+      #{userUuid,jdbcType=VARCHAR},
       ${_true},
       #{now}
     )
@@ -259,7 +259,7 @@
       uuid,
       prop_key,
       component_uuid,
-      user_id,
+      user_uuid,
       is_empty,
       text_value,
       created_at
@@ -268,7 +268,7 @@
       #{uuid},
       #{key},
       #{componentUuid},
-      #{userId,jdbcType=INTEGER},
+      #{userUuid,jdbcType=VARCHAR},
       ${_false},
       #{value},
       #{now}
@@ -281,7 +281,7 @@
       uuid,
       prop_key,
       component_uuid,
-      user_id,
+      user_uuid,
       is_empty,
       clob_value,
       created_at
@@ -290,7 +290,7 @@
       #{uuid},
       #{key},
       #{componentUuid},
-      #{userId,jdbcType=INTEGER},
+      #{userUuid,jdbcType=VARCHAR},
       ${_false},
       #{value},
       #{now}
@@ -302,21 +302,21 @@
     where
       prop_key=#{key}
     <choose>
-      <when test="componentUuid != null &amp;&amp; userId != null">
+      <when test="componentUuid != null &amp;&amp; userUuid != null">
         and component_uuid=#{componentUuid}
-        and user_id=#{userId,jdbcType=INTEGER}
+        and user_uuid=#{userUuid,jdbcType=VARCHAR}
       </when>
       <when test="componentUuid != null">
         and component_uuid=#{componentUuid}
-        and user_id is null
+        and user_uuid is null
       </when>
-      <when test="userId != null">
+      <when test="userUuid != null">
         and component_uuid is null
-        and user_id=#{userId,jdbcType=INTEGER}
+        and user_uuid=#{userUuid,jdbcType=VARCHAR}
       </when>
       <otherwise>
         and component_uuid is null
-        and user_id is null
+        and user_uuid is null
       </otherwise>
     </choose>
   </delete>
@@ -326,7 +326,7 @@
     where
       prop_key=#{key}
       and component_uuid=#{componentUuid}
-      and user_id is null
+      and user_uuid is null
   </delete>
 
   <delete id="deleteProjectProperties" parameterType="map">
@@ -335,7 +335,7 @@
       prop_key=#{key}
       and text_value = #{value}
       and component_uuid is not null
-      and user_id is null
+      and user_uuid is null
   </delete>
 
   <delete id="deleteGlobalProperty" parameterType="string">
@@ -343,14 +343,14 @@
     where
       prop_key=#{key}
       and component_uuid is null
-      and user_id is null
+      and user_uuid is null
   </delete>
 
   <delete id="deleteGlobalProperties">
     delete from properties
     where
       component_uuid is null
-      and user_id is null
+      and user_uuid is null
   </delete>
 
   <delete id="deleteByQuery">
@@ -362,8 +362,8 @@
       <if test="query.componentUuid() != null">
         and component_uuid=#{query.componentUuid,jdbcType=BIGINT}
       </if>
-      <if test="query.userId() != null">
-        and user_id=#{query.userId,jdbcType=INTEGER}
+      <if test="query.userUuid() != null">
+        and user_uuid=#{query.userUuid,jdbcType=VARCHAR}
       </if>
     </where>
   </delete>

@@ -365,13 +365,13 @@ public class SetActionTest {
 
   @Test
   public void user_setting_is_not_updated() {
-    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my user value").setUserId(42));
+    propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my user value").setUserUuid("42"));
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
 
     callForGlobalSetting("my.key", "my new global value");
 
     assertGlobalSetting("my.key", "my new global value");
-    assertUserSetting("my.key", "my user value", 42);
+    assertUserSetting("my.key", "my user value", "42");
   }
 
   @Test
@@ -966,12 +966,12 @@ public class SetActionTest {
       .containsExactly(key, value, null);
   }
 
-  private void assertUserSetting(String key, String value, int userId) {
-    List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey(key).setUserId(userId).build(), dbSession);
+  private void assertUserSetting(String key, String value, String userUuid) {
+    List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey(key).setUserUuid(userUuid).build(), dbSession);
 
     assertThat(result).hasSize(1)
-      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getUserId)
-      .containsExactly(tuple(key, value, userId));
+      .extracting(PropertyDto::getKey, PropertyDto::getValue, PropertyDto::getUserUuid)
+      .containsExactly(tuple(key, value, userUuid));
   }
 
   private void assertComponentSetting(String key, String value, String componentUuid) {

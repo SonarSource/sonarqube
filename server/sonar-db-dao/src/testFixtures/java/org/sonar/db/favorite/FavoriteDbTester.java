@@ -38,19 +38,19 @@ public class FavoriteDbTester {
     this.dbSession = db.getSession();
   }
 
-  public void add(ComponentDto componentDto, int userId) {
+  public void add(ComponentDto componentDto, String userUuid) {
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(PROP_FAVORITE_KEY)
-      .setUserId(userId)
+      .setUserUuid(userUuid)
       .setComponentUuid(componentDto.uuid()));
     dbSession.commit();
   }
 
-  public boolean hasFavorite(ComponentDto componentDto, int userId) {
+  public boolean hasFavorite(ComponentDto componentDto, String userUuid) {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(PROP_FAVORITE_KEY)
       .setComponentUuid(componentDto.uuid())
-      .setUserId(userId)
+      .setUserUuid(userUuid)
       .build(), dbSession);
 
     return !result.isEmpty();

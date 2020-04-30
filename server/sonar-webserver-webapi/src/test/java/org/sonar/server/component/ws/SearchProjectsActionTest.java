@@ -1406,7 +1406,7 @@ public class SearchProjectsActionTest {
   }
 
   private void addFavourite(ComponentDto project) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setComponentUuid(project.uuid()).setUserId(userSession.getUserId()));
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setComponentUuid(project.uuid()).setUserUuid(userSession.getUuid()));
     dbSession.commit();
   }
 

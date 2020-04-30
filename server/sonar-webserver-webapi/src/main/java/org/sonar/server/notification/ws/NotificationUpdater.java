@@ -53,7 +53,7 @@ public class NotificationUpdater {
       PropertyQuery.builder()
         .setKey(key)
         .setComponentUuid(projectUuid)
-        .setUserId(user.getId())
+        .setUserUuid(user.getUuid())
         .build(),
       dbSession).stream()
       .filter(notificationScope(project))
@@ -63,7 +63,7 @@ public class NotificationUpdater {
 
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(key)
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .setValue(PROP_NOTIFICATION_VALUE)
       .setComponentUuid(projectUuid));
   }
@@ -79,7 +79,7 @@ public class NotificationUpdater {
       PropertyQuery.builder()
         .setKey(key)
         .setComponentUuid(projectUuid)
-        .setUserId(user.getId())
+        .setUserUuid(user.getUuid())
         .build(),
       dbSession).stream()
       .filter(notificationScope(project))
@@ -88,7 +88,7 @@ public class NotificationUpdater {
 
     dbClient.propertiesDao().delete(dbSession, new PropertyDto()
       .setKey(key)
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .setValue(PROP_NOTIFICATION_VALUE)
       .setComponentUuid(projectUuid));
   }

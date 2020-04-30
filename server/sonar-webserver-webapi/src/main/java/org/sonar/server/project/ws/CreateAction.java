@@ -118,7 +118,7 @@ public class CreateAction implements ProjectsWsAction {
         .setPrivate(changeToPrivate)
         .setQualifier(PROJECT)
         .build(),
-        userSession.isLoggedIn() ? userSession.getUserId() : null);
+        userSession.isLoggedIn() ? userSession.getUuid() : null);
       return toCreateResponse(componentDto);
     }
   }

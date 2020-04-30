@@ -218,7 +218,7 @@ public class CreateActionTest {
       .executeProtobuf(CreateWsResponse.class);
 
     ComponentDto project = db.getDbClient().componentDao().selectByKey(db.getSession(), DEFAULT_PROJECT_KEY).get();
-    assertThat(db.favorites().hasFavorite(project, user.getId())).isTrue();
+    assertThat(db.favorites().hasFavorite(project, user.getUuid())).isTrue();
   }
 
   @Test
@@ -226,7 +226,7 @@ public class CreateActionTest {
     OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
     userSession.logIn(user).addPermission(PROVISION_PROJECTS, organization);
 
     ws.newRequest()

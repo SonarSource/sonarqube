@@ -495,7 +495,7 @@ public class ResetActionTest {
   private void assertUserPropertyExists(String key, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(key)
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .build(),
       dbSession)).isNotEmpty();
   }

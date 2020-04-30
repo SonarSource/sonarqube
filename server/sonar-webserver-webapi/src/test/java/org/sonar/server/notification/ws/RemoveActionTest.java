@@ -92,7 +92,7 @@ public class RemoveActionTest {
 
     call(request);
 
-    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), null);
+    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null);
   }
 
   @Test
@@ -105,7 +105,7 @@ public class RemoveActionTest {
 
     call(request.setType(NOTIF_NEW_QUALITY_GATE_STATUS).setChannel(twitterChannel.getKey()));
 
-    db.notifications().assertDoesNotExist(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, user.getId(), null);
+    db.notifications().assertDoesNotExist(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, user.getUuid(), null);
   }
 
   @Test
@@ -120,7 +120,7 @@ public class RemoveActionTest {
 
     call(request.setProject(project.getDbKey()));
 
-    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), project);
+    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), project);
   }
 
   @Test
@@ -175,13 +175,13 @@ public class RemoveActionTest {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
-    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null);
     userSession.logIn().setSystemAdministrator();
     dbSession.commit();
 
     call(request.setLogin(user.getLogin()));
 
-    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), null);
+    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null);
   }
 
   @Test

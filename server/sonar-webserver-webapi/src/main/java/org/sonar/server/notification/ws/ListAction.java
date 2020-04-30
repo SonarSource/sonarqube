@@ -121,7 +121,7 @@ public class ListAction implements NotificationsWsAction {
 
   private UnaryOperator<ListResponse.Builder> addNotifications(DbSession dbSession, UserDto user) {
     return response -> {
-      List<PropertyDto> properties = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).build(), dbSession);
+      List<PropertyDto> properties = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserUuid(user.getUuid()).build(), dbSession);
       Map<String, ComponentDto> componentsByUuid = searchProjects(dbSession, properties);
       Map<String, OrganizationDto> organizationsByUuid = getOrganizations(dbSession, componentsByUuid.values());
 

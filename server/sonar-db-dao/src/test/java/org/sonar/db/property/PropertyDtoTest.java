@@ -49,7 +49,8 @@ public class PropertyDtoTest {
 
   @Test
   public void testToString() {
-    assertThat(new PropertyDto().setKey("foo:bar").setValue("value").setComponentUuid("uuid123").setUserId(456).toString()).isEqualTo("PropertyDto{foo:bar, value, uuid123, 456}");
+    assertThat(new PropertyDto().setKey("foo:bar").setValue("value").setComponentUuid("uuid123").setUserUuid("456").toString())
+      .isEqualTo("PropertyDto{foo:bar, value, uuid123, 456}");
   }
 
   @Test

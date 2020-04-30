@@ -54,7 +54,7 @@ public class FavoriteFinder {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PropertyQuery dbQuery = PropertyQuery.builder()
         .setKey(PROP_FAVORITE_KEY)
-        .setUserId(userSession.getUserId())
+        .setUserUuid(userSession.getUuid())
         .build();
       Set<String> componentUuids = dbClient.propertiesDao().selectByQuery(dbQuery, dbSession).stream().map(PropertyDto::getComponentUuid).collect(Collectors.toSet());
 

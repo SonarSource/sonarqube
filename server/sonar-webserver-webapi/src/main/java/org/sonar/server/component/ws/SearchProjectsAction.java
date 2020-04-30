@@ -331,7 +331,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     List<PropertyDto> props = dbClient.propertiesDao().selectByQuery(
       PropertyQuery.builder()
-        .setUserId(userSession.getUserId())
+        .setUserUuid(userSession.getUuid())
         .setKey("favourite")
         .build(),
       dbSession);

@@ -75,7 +75,7 @@ public class RemoveAction implements FavoritesWsAction {
         ComponentDto component = componentFinder.getByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT));
         userSession
           .checkLoggedIn();
-        favoriteUpdater.remove(dbSession, component, userSession.isLoggedIn() ? userSession.getUserId() : null);
+        favoriteUpdater.remove(dbSession, component, userSession.isLoggedIn() ? userSession.getUuid() : null);
         dbSession.commit();
       }
     };

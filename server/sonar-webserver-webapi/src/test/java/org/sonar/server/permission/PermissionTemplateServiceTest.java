@@ -89,7 +89,7 @@ public class PermissionTemplateServiceTest {
     dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
-    underTest.applyDefault(session, privateProject, creator.getId());
+    underTest.applyDefault(session, privateProject, creator.getUuid());
 
     assertThat(selectProjectPermissionsOfGroup(organization, null, privateProject)).isEmpty();
   }
@@ -268,7 +268,7 @@ public class PermissionTemplateServiceTest {
     dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
-    underTest.applyDefault(session, publicProject, user.getId());
+    underTest.applyDefault(session, publicProject, user.getUuid());
 
     assertThat(selectProjectPermissionsOfUser(user, publicProject))
       .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, SCAN.getKey());
@@ -285,7 +285,7 @@ public class PermissionTemplateServiceTest {
     dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null, null);
 
-    underTest.applyDefault(session, privateProject, user.getId());
+    underTest.applyDefault(session, privateProject, user.getUuid());
 
     assertThat(selectProjectPermissionsOfUser(user, privateProject))
       .containsOnly("p1", UserRole.CODEVIEWER, UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.SECURITYHOTSPOT_ADMIN, SCAN.getKey());

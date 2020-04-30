@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.ibatis.annotations.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.UuidFactory;
@@ -114,7 +113,7 @@ public class PropertiesDao implements Dao {
   private static PreparedStatement createStatement(String projectUuid, Collection<String> dispatcherKeys, Connection connection) throws SQLException {
     String sql = "SELECT count(1) FROM properties pp " +
       "left outer join components pj on pp.component_uuid = pj.uuid " +
-      "where pp.user_id is not null and (pp.component_uuid is null or pj.uuid=?) " +
+      "where pp.user_uuid is not null and (pp.component_uuid is null or pj.uuid=?) " +
       "and (" + repeat("pp.prop_key like ?", " or ", dispatcherKeys.size()) + ")";
     PreparedStatement res = connection.prepareStatement(sql);
     res.setString(1, projectUuid);
@@ -191,8 +190,8 @@ public class PropertiesDao implements Dao {
     return getMapper(session).selectByKeyAndMatchingValue(key, value);
   }
 
-  public List<PropertyDto> selectByKeyAndUserIdAndComponentQualifier(DbSession session, String key, int userId, String qualifier) {
-    return getMapper(session).selectByKeyAndUserIdAndComponentQualifier(key, userId, qualifier);
+  public List<PropertyDto> selectByKeyAndUserUuidAndComponentQualifier(DbSession session, String key, String userUuid, String qualifier) {
+    return getMapper(session).selectByKeyAndUserUuidAndComponentQualifier(key, userUuid, qualifier);
   }
 
   /**
@@ -204,22 +203,22 @@ public class PropertiesDao implements Dao {
    * @throws IllegalArgumentException if {@link PropertyDto#getKey()} is {@code null} or empty
    */
   public void saveProperty(DbSession session, PropertyDto property) {
-    save(getMapper(session), property.getKey(), property.getUserId(), property.getComponentUuid(), property.getValue());
+    save(getMapper(session), property.getKey(), property.getUserUuid(), property.getComponentUuid(), property.getValue());
   }
 
   private void save(PropertiesMapper mapper, String key,
-                    @Nullable Integer userId, @Nullable String componentUuid, @Nullable String value) {
+                    @Nullable String userUuid, @Nullable String componentUuid, @Nullable String value) {
     checkKey(key);
 
     long now = system2.now();
-    mapper.delete(key, userId, componentUuid);
+    mapper.delete(key, userUuid, componentUuid);
     String uuid = uuidFactory.create();
     if (isEmpty(value)) {
-      mapper.insertAsEmpty(uuid, key, userId, componentUuid, now);
+      mapper.insertAsEmpty(uuid, key, userUuid, componentUuid, now);
     } else if (mustBeStoredInClob(value)) {
-      mapper.insertAsClob(uuid, key, userId, componentUuid, value, now);
+      mapper.insertAsClob(uuid, key, userUuid, componentUuid, value, now);
     } else {
-      mapper.insertAsText(uuid, key, userId, componentUuid, value, now);
+      mapper.insertAsText(uuid, key, userUuid, componentUuid, value, now);
     }
   }
 
@@ -254,7 +253,7 @@ public class PropertiesDao implements Dao {
   }
 
   public int delete(DbSession dbSession, PropertyDto dto) {
-    return getMapper(dbSession).delete(dto.getKey(), dto.getUserId(), dto.getComponentUuid());
+    return getMapper(dbSession).delete(dto.getKey(), dto.getUserUuid(), dto.getComponentUuid());
   }
 
   public void deleteProjectProperty(String key, String projectUuid) {
@@ -290,8 +289,8 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, int userId) {
-    List<String> uuids = getMapper(dbSession).selectUuidsByOrganizationAndUser(organizationUuid, userId);
+  public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, String userUuid) {
+    List<String> uuids = getMapper(dbSession).selectUuidsByOrganizationAndUser(organizationUuid, userUuid);
     executeLargeInputsWithoutOutput(uuids, subList -> getMapper(dbSession).deleteByUuids(subList));
   }
 

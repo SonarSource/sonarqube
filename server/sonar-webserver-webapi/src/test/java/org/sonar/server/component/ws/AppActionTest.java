@@ -224,7 +224,7 @@ public class AppActionTest {
   public void component_is_favorite() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn("john").addProjectPermission(USER, project);
-    db.favorites().add(project, userSession.getUserId());
+    db.favorites().add(project, userSession.getUuid());
 
     String result = ws.newRequest()
       .setParam("component", project.getKey())

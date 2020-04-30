@@ -187,7 +187,7 @@ public class ReportSubmitterTest {
     underTest.submit(organization.getKey(), PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
 
     ComponentDto createdProject = db.getDbClient().componentDao().selectByKey(db.getSession(), PROJECT_KEY).get();
-    assertThat(db.favorites().hasFavorite(createdProject, user.getId())).isTrue();
+    assertThat(db.favorites().hasFavorite(createdProject, user.getUuid())).isTrue();
   }
 
   @Test
@@ -209,7 +209,7 @@ public class ReportSubmitterTest {
   @Test
   public void do_no_add_favorite_when_already_100_favorite_projects_and_no_project_creator_permission_on_permission_template() {
     UserDto user = db.users().insertUser();
-    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
     OrganizationDto organization = db.organizations().insert();
     userSession
       .logIn(user)

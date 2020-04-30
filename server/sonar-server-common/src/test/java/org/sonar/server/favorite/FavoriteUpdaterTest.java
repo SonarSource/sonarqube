@@ -50,7 +50,7 @@ public class FavoriteUpdaterTest {
     UserDto user = db.users().insertUser();
     assertNoFavorite(project, user);
 
-    underTest.add(dbSession, project, user.getId(), true);
+    underTest.add(dbSession, project, user.getUuid(), true);
 
     assertFavorite(project, user);
   }
@@ -69,70 +69,70 @@ public class FavoriteUpdaterTest {
   @Test
   public void do_not_add_favorite_when_already_100_favorite_projects() {
     UserDto user = db.users().insertUser();
-    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .build(), dbSession)).hasSize(100);
     ComponentDto project = db.components().insertPrivateProject();
 
-    underTest.add(dbSession, project, user.getId(), false);
+    underTest.add(dbSession, project, user.getUuid(), false);
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .build(), dbSession)).hasSize(100);
   }
 
   @Test
   public void do_not_add_favorite_when_already_100_favorite_portfolios() {
     UserDto user = db.users().insertUser();
-    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .build(), dbSession)).hasSize(100);
     ComponentDto project = db.components().insertPrivateProject();
 
-    underTest.add(dbSession, project, user.getId(), false);
+    underTest.add(dbSession, project, user.getUuid(), false);
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .build(), dbSession)).hasSize(100);
   }
 
   @Test
   public void fail_when_more_than_100_projects_favorites() {
     UserDto user = db.users().insertUser();
-    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getId()));
+    IntStream.rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
     ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("You cannot have more than 100 favorites on components with qualifier 'TRK'");
 
-    underTest.add(dbSession, project, user.getId(), true);
+    underTest.add(dbSession, project, user.getUuid(), true);
   }
 
   @Test
   public void fail_when_adding_existing_favorite() {
     ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
-    underTest.add(dbSession, project, user.getId(), true);
+    underTest.add(dbSession, project, user.getUuid(), true);
     assertFavorite(project, user);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(String.format("Component '%s' is already a favorite", project.getKey()));
 
-    underTest.add(dbSession, project, user.getId(), true);
+    underTest.add(dbSession, project, user.getUuid(), true);
   }
 
   private void assertFavorite(ComponentDto project, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .setComponentUuid(project.uuid())
       .build(), dbSession)).hasSize(1);
   }
 
   private void assertNoFavorite(ComponentDto project, UserDto user) {
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .setComponentUuid(project.uuid())
       .build(), dbSession)).isEmpty();
   }

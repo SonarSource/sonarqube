@@ -20,6 +20,7 @@
 package org.sonar.server.favorite.ws;
 
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -49,7 +51,7 @@ import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT
 public class RemoveActionTest {
   private static final String PROJECT_KEY = "project-key";
   private static final String PROJECT_UUID = "project-uuid";
-  private static final int USER_ID = 123;
+  private UserDto user;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -63,18 +65,23 @@ public class RemoveActionTest {
   private FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient);
   private WsActionTester ws = new WsActionTester(new RemoveAction(userSession, dbClient, favoriteUpdater, TestComponentFinder.from(db)));
 
+  @Before
+  public void before() {
+    user = db.users().insertUser();
+  }
+
   @Test
   public void remove_a_favorite_project() {
     ComponentDto project = insertProjectAndPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    db.favorites().add(project, USER_ID);
-    db.favorites().add(file, USER_ID);
+    db.favorites().add(project, user.getUuid());
+    db.favorites().add(file, user.getUuid());
 
     TestResponse result = call(PROJECT_KEY);
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
-    assertThat(db.favorites().hasFavorite(project, USER_ID)).isFalse();
-    assertThat(db.favorites().hasFavorite(file, USER_ID)).isTrue();
+    assertThat(db.favorites().hasFavorite(project, user.getUuid())).isFalse();
+    assertThat(db.favorites().hasFavorite(file, user.getUuid())).isTrue();
   }
 
   @Test
@@ -132,7 +139,7 @@ public class RemoveActionTest {
   }
 
   private ComponentDto insertProjectAndPermissions() {
-    userSession.logIn().setUserId(USER_ID);
+    userSession.logIn(user);
 
     return insertProject();
   }

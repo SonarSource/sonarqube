@@ -243,7 +243,7 @@ public class ComponentAction implements NavigationWsAction {
 
   private boolean isFavourite(DbSession session, ComponentDto component) {
     PropertyQuery propertyQuery = PropertyQuery.builder()
-      .setUserId(userSession.getUserId())
+      .setUserUuid(userSession.getUuid())
       .setKey("favourite")
       .setComponentUuid(component.uuid())
       .build();

@@ -337,17 +337,18 @@ public class MemberUpdaterTest {
     OrganizationDto anotherOrganization = db.organizations().insert();
     ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
     UserDto anotherUser = db.users().insertUser();
-    insertProperty("KEY_11", "VALUE", project.uuid(), user.getId());
-    insertProperty("KEY_12", "VALUE", project.uuid(), user.getId());
-    insertProperty("KEY_11", "VALUE", project.uuid(), anotherUser.getId());
-    insertProperty("KEY_11", "VALUE", anotherProject.uuid(), user.getId());
+    insertProperty("KEY_11", "VALUE", project.uuid(), user.getUuid());
+    insertProperty("KEY_12", "VALUE", project.uuid(), user.getUuid());
+    insertProperty("KEY_11", "VALUE", project.uuid(), anotherUser.getUuid());
+    insertProperty("KEY_11", "VALUE", anotherProject.uuid(), user.getUuid());
 
     underTest.removeMember(db.getSession(), organization, user);
 
     assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(project.uuid()).build(), db.getSession()))
-      .hasSize(1).extracting(PropertyDto::getUserId).containsOnly(anotherUser.getId());
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(anotherProject.uuid()).build(), db.getSession())).extracting(PropertyDto::getUserId)
-      .hasSize(1).containsOnly(user.getId());
+      .hasSize(1).extracting(PropertyDto::getUserUuid).containsOnly(anotherUser.getUuid());
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setComponentUuid(anotherProject.uuid()).build(), db.getSession()))
+      .extracting(PropertyDto::getUserUuid)
+      .hasSize(1).containsOnly(user.getUuid());
   }
 
   @Test
@@ -506,10 +507,10 @@ public class MemberUpdaterTest {
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(db.getSession(), user.getId(), project.uuid())).containsOnly(permissions);
   }
 
-  private void insertProperty(String key, @Nullable String value, @Nullable String componentUuid, @Nullable Integer userId) {
+  private void insertProperty(String key, @Nullable String value, @Nullable String componentUuid, @Nullable String userUuid) {
     PropertyDto dto = new PropertyDto().setKey(key)
       .setComponentUuid(componentUuid)
-      .setUserId(userId)
+      .setUserUuid(userUuid)
       .setValue(value);
     db.properties().insertProperty(dto);
   }
