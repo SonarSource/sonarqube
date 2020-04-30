@@ -117,7 +117,7 @@ public class QualityProfileDbTester {
     checkArgument(!profile.isBuiltIn(), "Built-In profile cannot be used");
     dbClient.qProfileEditUsersDao().insert(dbSession, new QProfileEditUsersDto()
       .setUuid(Uuids.createFast())
-      .setUserId(user.getId())
+      .setUserUuid(user.getUuid())
       .setQProfileUuid(profile.getKee())
     );
     dbSession.commit();

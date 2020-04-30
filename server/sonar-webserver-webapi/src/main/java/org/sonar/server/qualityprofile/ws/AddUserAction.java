@@ -108,7 +108,7 @@ public class AddUserAction implements QProfileWsAction {
     dbClient.qProfileEditUsersDao().insert(dbSession,
       new QProfileEditUsersDto()
         .setUuid(uuidFactory.create())
-        .setUserId(user.getId())
+        .setUserUuid(user.getUuid())
         .setQProfileUuid(profile.getKee()));
     dbSession.commit();
   }

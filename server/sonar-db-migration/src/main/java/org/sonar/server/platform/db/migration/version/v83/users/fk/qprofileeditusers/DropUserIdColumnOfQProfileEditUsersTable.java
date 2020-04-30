@@ -17,39 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.qualityprofile;
+package org.sonar.server.platform.db.migration.version.v83.users.fk.qprofileeditusers;
 
-public class QProfileEditUsersDto {
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-  private String uuid;
-  private String userUuid;
-  private String qProfileUuid;
-
-  public String getUuid() {
-    return uuid;
+public class DropUserIdColumnOfQProfileEditUsersTable extends DdlChange {
+  public DropUserIdColumnOfQProfileEditUsersTable(Database db) {
+    super(db);
   }
 
-  public QProfileEditUsersDto setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), "qprofile_edit_users", "user_id").build());
   }
-
-  public String getUserUuid() {
-    return userUuid;
-  }
-
-  public QProfileEditUsersDto setUserUuid(String userUuid) {
-    this.userUuid = userUuid;
-    return this;
-  }
-
-  public String getQProfileUuid() {
-    return qProfileUuid;
-  }
-
-  public QProfileEditUsersDto setQProfileUuid(String qProfileUuid) {
-    this.qProfileUuid = qProfileUuid;
-    return this;
-  }
-
 }

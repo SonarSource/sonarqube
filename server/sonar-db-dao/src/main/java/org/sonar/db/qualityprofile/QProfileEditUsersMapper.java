@@ -26,21 +26,21 @@ import org.sonar.db.Pagination;
 
 public interface QProfileEditUsersMapper {
 
-  QProfileEditUsersDto selectByQProfileAndUser(@Param("qProfileUuid") String qProfileUuid, @Param("userId") int userId);
+  QProfileEditUsersDto selectByQProfileAndUser(@Param("qProfileUuid") String qProfileUuid, @Param("userUuid") String userUuid);
 
   int countByQuery(@Param("query") SearchUsersQuery query);
 
   List<UserMembershipDto> selectByQuery(@Param("query") SearchUsersQuery query, @Param("pagination") Pagination pagination);
 
-  List<String> selectQProfileUuidsByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
+  List<String> selectQProfileUuidsByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 
   void insert(@Param("dto") QProfileEditUsersDto dto, @Param("now") long now);
 
-  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("userId") int userId);
+  void delete(@Param("qProfileUuid") String qProfileUuid, @Param("userUuid") String userUuid);
 
   void deleteByQProfiles(@Param("qProfileUuids") Collection<String> qProfileUuids);
 
-  void deleteByUser(@Param("userId") int userId);
+  void deleteByUser(@Param("userUuid") String userUuid);
 
-  void deleteByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
+  void deleteByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 }

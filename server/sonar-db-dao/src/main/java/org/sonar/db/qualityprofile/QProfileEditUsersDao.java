@@ -39,7 +39,7 @@ public class QProfileEditUsersDao implements Dao {
   }
 
   public boolean exists(DbSession dbSession, QProfileDto profile, UserDto user) {
-    return mapper(dbSession).selectByQProfileAndUser(profile.getKee(), user.getId()) != null;
+    return mapper(dbSession).selectByQProfileAndUser(profile.getKee(), user.getUuid()) != null;
   }
 
   public int countByQuery(DbSession dbSession, SearchUsersQuery query) {
@@ -51,7 +51,7 @@ public class QProfileEditUsersDao implements Dao {
   }
 
   public List<String> selectQProfileUuidsByOrganizationAndUser(DbSession dbSession, OrganizationDto organization, UserDto userDto) {
-    return mapper(dbSession).selectQProfileUuidsByOrganizationAndUser(organization.getUuid(), userDto.getId());
+    return mapper(dbSession).selectQProfileUuidsByOrganizationAndUser(organization.getUuid(), userDto.getUuid());
   }
 
   public void insert(DbSession dbSession, QProfileEditUsersDto dto) {
@@ -59,7 +59,7 @@ public class QProfileEditUsersDao implements Dao {
   }
 
   public void deleteByQProfileAndUser(DbSession dbSession, QProfileDto profile, UserDto user) {
-    mapper(dbSession).delete(profile.getKee(), user.getId());
+    mapper(dbSession).delete(profile.getKee(), user.getUuid());
   }
 
   public void deleteByQProfiles(DbSession dbSession, List<QProfileDto> qProfiles) {
@@ -67,11 +67,11 @@ public class QProfileEditUsersDao implements Dao {
   }
 
   public void deleteByUser(DbSession dbSession, UserDto user) {
-    mapper(dbSession).deleteByUser(user.getId());
+    mapper(dbSession).deleteByUser(user.getUuid());
   }
 
   public void deleteByOrganizationAndUser(DbSession dbSession, OrganizationDto organization, UserDto user) {
-    mapper(dbSession).deleteByOrganizationAndUser(organization.getUuid(), user.getId());
+    mapper(dbSession).deleteByOrganizationAndUser(organization.getUuid(), user.getUuid());
   }
 
   private static QProfileEditUsersMapper mapper(DbSession dbSession) {

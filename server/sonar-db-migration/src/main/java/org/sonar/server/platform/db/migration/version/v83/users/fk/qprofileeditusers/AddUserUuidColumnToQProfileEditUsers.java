@@ -17,39 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.qualityprofile;
+package org.sonar.server.platform.db.migration.version.v83.users.fk.qprofileeditusers;
 
-public class QProfileEditUsersDto {
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.version.v83.users.fk.util.AddUserUuidColumnToTable;
 
-  private String uuid;
-  private String userUuid;
-  private String qProfileUuid;
+public class AddUserUuidColumnToQProfileEditUsers extends AddUserUuidColumnToTable {
 
-  public String getUuid() {
-    return uuid;
+  public AddUserUuidColumnToQProfileEditUsers(Database db) {
+    super(db, "qprofile_edit_users");
   }
-
-  public QProfileEditUsersDto setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
-  }
-
-  public String getUserUuid() {
-    return userUuid;
-  }
-
-  public QProfileEditUsersDto setUserUuid(String userUuid) {
-    this.userUuid = userUuid;
-    return this;
-  }
-
-  public String getQProfileUuid() {
-    return qProfileUuid;
-  }
-
-  public QProfileEditUsersDto setQProfileUuid(String qProfileUuid) {
-    this.qProfileUuid = qProfileUuid;
-    return this;
-  }
-
 }
