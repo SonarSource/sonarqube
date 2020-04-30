@@ -37,9 +37,10 @@ message SecurityStandardCategoryStatistics {
   optional int64 vulnerabilityRating = 3;
   optional int64 toReviewSecurityHotspots = 5;
   optional int64 reviewedSecurityHotspots = 6;
-  repeated CweStatistics distribution = 7;
-  optional int64 activeRules = 8;
-  optional int64 totalRules = 9;
+  optional int64 securityReviewRating = 7;
+  repeated CweStatistics distribution = 8;
+  optional int64 activeRules = 9;
+  optional int64 totalRules = 10;
 }
 
 message CweStatistics {
@@ -48,8 +49,9 @@ message CweStatistics {
   optional int64 vulnerabilityRating = 3;
   optional int64 toReviewSecurityHotspots = 5;
   optional int64 reviewedSecurityHotspots = 6;
-  optional int64 activeRules = 7;
-  optional int64 totalRules = 8;
+  optional int64 securityReviewRating = 7;
+  optional int64 activeRules = 8;
+  optional int64 totalRules = 9;
 }
 
 

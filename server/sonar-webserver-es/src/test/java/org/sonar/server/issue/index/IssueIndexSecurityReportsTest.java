@@ -176,18 +176,18 @@ public class IssueIndexSecurityReportsTest {
 
     assertThat(cweByOwasp.get("a1")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
       SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-      SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
-        tuple("123", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L),
-        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L),
-        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L));
+        tuple("123", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 5));
     assertThat(cweByOwasp.get("a3")).extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
       SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-      SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+      SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
-        tuple("123", 2L /* openvul1, openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L),
-        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L/* toReviewHotspot */, 0L),
-        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L));
+        tuple("123", 2L /* openvul1, openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("456", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 0L, 0L, 1),
+        tuple("unknown", 0L, OptionalInt.empty(), 1L /* openhotspot1 */, 0L, 5));
   }
 
   private List<SecurityStandardCategoryStatistics> indexIssuesAndAssertOwaspReport(boolean includeCwe) {
@@ -210,18 +210,18 @@ public class IssueIndexSecurityReportsTest {
     assertThat(owaspTop10Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
-        tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L),
-        tuple("a2", 0L, OptionalInt.empty(), 0L, 0L),
-        tuple("a3", 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */, 1L /* reviewedHotspot */),
-        tuple("a4", 0L, OptionalInt.empty(), 0L, 0L),
-        tuple("a5", 0L, OptionalInt.empty(), 0L, 0L),
-        tuple("a6", 1L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 1L /* toreviewhotspot2 */, 0L),
-        tuple("a7", 0L, OptionalInt.empty(), 0L, 0L),
-        tuple("a8", 0L, OptionalInt.empty(), 0L, 1L /* reviewedHotspot */),
-        tuple("a9", 0L, OptionalInt.empty(), 0L, 0L),
-        tuple("a10", 0L, OptionalInt.empty(), 0L, 0L));
+        tuple("a1", 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
+        tuple("a2", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a3", 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */, 1L /* reviewedHotspot */, 4),
+        tuple("a4", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a5", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a6", 1L /* openvul2 */, OptionalInt.of(2) /* MINOR = B */, 1L /* toreviewhotspot2 */, 0L, 5),
+        tuple("a7", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a8", 0L, OptionalInt.empty(), 0L, 1L /* reviewedHotspot */, 1),
+        tuple("a9", 0L, OptionalInt.empty(), 0L, 0L, 1),
+        tuple("a10", 0L, OptionalInt.empty(), 0L, 0L, 1));
     return owaspTop10Report;
   }
 
@@ -251,12 +251,12 @@ public class IssueIndexSecurityReportsTest {
     assertThat(sansTop25Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
-        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L),
+        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
         tuple(SANS_TOP_25_RISKY_RESOURCE, 2L /* openvul1,openvul2 */, OptionalInt.of(3)/* MAJOR = C */, 2L/* toreviewhotspot1,toreviewhotspot2 */,
-          1L /* reviewedHotspot */),
-        tuple(SANS_TOP_25_POROUS_DEFENSES, 1L /* openvul2 */, OptionalInt.of(2)/* MINOR = B */, 1L/* openhotspot2 */, 0L));
+          1L /* reviewedHotspot */, 4),
+        tuple(SANS_TOP_25_POROUS_DEFENSES, 1L /* openvul2 */, OptionalInt.of(2)/* MINOR = B */, 1L/* openhotspot2 */, 0L, 5));
 
     assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
   }
@@ -292,11 +292,11 @@ public class IssueIndexSecurityReportsTest {
     assertThat(sansTop25Report)
       .extracting(SecurityStandardCategoryStatistics::getCategory, SecurityStandardCategoryStatistics::getVulnerabilities,
         SecurityStandardCategoryStatistics::getVulnerabiliyRating, SecurityStandardCategoryStatistics::getToReviewSecurityHotspots,
-        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots)
+        SecurityStandardCategoryStatistics::getReviewedSecurityHotspots, SecurityStandardCategoryStatistics::getSecurityReviewRating)
       .containsExactlyInAnyOrder(
-        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L),
-        tuple(SANS_TOP_25_RISKY_RESOURCE, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L/* toreviewhotspot1 */, 0L),
-        tuple(SANS_TOP_25_POROUS_DEFENSES, 0L, OptionalInt.empty(), 0L, 0L));
+        tuple(SANS_TOP_25_INSECURE_INTERACTION, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L /* toreviewhotspot1 */, 0L, 5),
+        tuple(SANS_TOP_25_RISKY_RESOURCE, 1L /* openvul1 */, OptionalInt.of(3)/* MAJOR = C */, 1L/* toreviewhotspot1 */, 0L, 5),
+        tuple(SANS_TOP_25_POROUS_DEFENSES, 0L, OptionalInt.empty(), 0L, 0L, 1));
 
     assertThat(sansTop25Report).allMatch(category -> category.getChildren().isEmpty());
   }

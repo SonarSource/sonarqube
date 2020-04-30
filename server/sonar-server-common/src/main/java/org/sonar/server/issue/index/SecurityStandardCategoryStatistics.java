@@ -30,17 +30,19 @@ public class SecurityStandardCategoryStatistics {
   private final OptionalInt vulnerabiliyRating;
   private final long toReviewSecurityHotspots;
   private final long reviewedSecurityHotspots;
+  private final Integer securityReviewRating;
   private final List<SecurityStandardCategoryStatistics> children;
   private long activeRules;
   private long totalRules;
 
   public SecurityStandardCategoryStatistics(String category, long vulnerabilities, OptionalInt vulnerabiliyRating, long toReviewSecurityHotspots,
-    long reviewedSecurityHotspots, @Nullable List<SecurityStandardCategoryStatistics> children) {
+    long reviewedSecurityHotspots, Integer securityReviewRating, @Nullable List<SecurityStandardCategoryStatistics> children) {
     this.category = category;
     this.vulnerabilities = vulnerabilities;
     this.vulnerabiliyRating = vulnerabiliyRating;
     this.toReviewSecurityHotspots = toReviewSecurityHotspots;
     this.reviewedSecurityHotspots = reviewedSecurityHotspots;
+    this.securityReviewRating = securityReviewRating;
     this.children = children;
   }
 
@@ -63,6 +65,8 @@ public class SecurityStandardCategoryStatistics {
   public long getReviewedSecurityHotspots() {
     return reviewedSecurityHotspots;
   }
+
+  public Integer getSecurityReviewRating() { return securityReviewRating; }
 
   public List<SecurityStandardCategoryStatistics> getChildren() {
     return children;

@@ -86,6 +86,7 @@ import org.sonar.server.es.searchrequest.TopAggregationDefinition;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.SimpleFieldFilterScope;
 import org.sonar.server.es.searchrequest.TopAggregationHelper;
 import org.sonar.server.issue.index.IssueQuery.PeriodStart;
+import org.sonar.server.measure.Rating;
 import org.sonar.server.permission.index.AuthorizationDoc;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.security.SecurityStandards;
@@ -163,6 +164,8 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
+import static org.sonar.server.security.SecurityReviewRating.computePercent;
+import static org.sonar.server.security.SecurityReviewRating.computeRating;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
@@ -1024,8 +1027,11 @@ public class IssueIndex {
     long reviewedSecurityHotspots = ((InternalValueCount) ((InternalFilter) categoryBucket.getAggregations().get(AGG_REVIEWED_SECURITY_HOTSPOTS)).getAggregations().get(AGG_COUNT))
       .getValue();
 
+    Optional<Double> percent = computePercent(toReviewSecurityHotspots, reviewedSecurityHotspots);
+    Integer securityReviewRating = computeRating(percent.orElse(null)).getIndex();
+
     return new SecurityStandardCategoryStatistics(categoryName, vulnerabilities, severityRating, toReviewSecurityHotspots,
-      reviewedSecurityHotspots, children);
+      reviewedSecurityHotspots, securityReviewRating, children);
   }
 
   private static AggregationBuilder newSecurityReportSubAggregations(AggregationBuilder categoriesAggs, boolean includeCwe, Optional<Set<String>> cwesInCategory) {
