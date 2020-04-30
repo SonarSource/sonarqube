@@ -23,7 +23,13 @@ import BranchIcon from 'sonar-ui-common/components/icons/BranchIcon';
 import PullRequestIcon from 'sonar-ui-common/components/icons/PullRequestIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import Organization from '../../../components/shared/Organization';
-import { getBranchUrl, getProjectUrl, getPullRequestUrl } from '../../../helpers/urls';
+import {
+  getBranchUrl,
+  getPortfolioUrl,
+  getProjectUrl,
+  getPullRequestUrl
+} from '../../../helpers/urls';
+import { ComponentQualifier } from '../../../types/component';
 import TaskType from './TaskType';
 
 interface Props {
@@ -79,7 +85,9 @@ export default function TaskComponent({ task }: Props) {
 }
 
 function getTaskComponentUrl(componentKey: string, task: T.Task) {
-  if (task.branch) {
+  if (task.componentQualifier === ComponentQualifier.Portfolio) {
+    return getPortfolioUrl(componentKey);
+  } else if (task.branch) {
     return getBranchUrl(componentKey, task.branch);
   } else if (task.pullRequest) {
     return getPullRequestUrl(componentKey, task.pullRequest);

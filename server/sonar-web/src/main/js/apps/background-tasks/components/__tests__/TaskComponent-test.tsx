@@ -19,27 +19,31 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier } from '../../../../types/component';
 import TaskComponent from '../TaskComponent';
 
-const TASK = {
-  componentKey: 'foo',
-  componentName: 'foo',
-  componentQualifier: 'TRK',
-  id: 'bar',
-  organization: 'org',
-  status: 'PENDING',
-  submittedAt: '2017-01-01',
-  submitterLogin: 'yoda',
-  type: 'REPORT'
-};
-
 it('renders correctly', () => {
-  expect(shallow(<TaskComponent task={TASK} />)).toMatchSnapshot();
-  expect(shallow(<TaskComponent task={{ ...TASK, componentKey: undefined }} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ componentKey: undefined })).toMatchSnapshot('undefined key');
+  expect(shallowRender({ componentQualifier: ComponentQualifier.Portfolio })).toMatchSnapshot(
+    'portfolio'
+  );
+  expect(shallowRender({ branch: 'feature' })).toMatchSnapshot('branch');
+  expect(shallowRender({ branch: 'branch-6.7' })).toMatchSnapshot('branch');
+  expect(shallowRender({ pullRequest: 'pr-89' })).toMatchSnapshot('pull request');
 });
 
-it('renders correctly for branches and pullrequest', () => {
-  expect(shallow(<TaskComponent task={{ ...TASK, branch: 'feature' }} />)).toMatchSnapshot();
-  expect(shallow(<TaskComponent task={{ ...TASK, branch: 'branch-6.7' }} />)).toMatchSnapshot();
-  expect(shallow(<TaskComponent task={{ ...TASK, pullRequest: 'pr-89' }} />)).toMatchSnapshot();
-});
+function shallowRender(taskOverrides: Partial<T.Task> = {}) {
+  const TASK = {
+    componentKey: 'foo',
+    componentName: 'foo',
+    componentQualifier: 'TRK',
+    id: 'bar',
+    organization: 'org',
+    status: 'PENDING',
+    submittedAt: '2017-01-01',
+    submitterLogin: 'yoda',
+    type: 'REPORT'
+  };
+  return shallow(<TaskComponent task={{ ...TASK, ...taskOverrides }} />);
+}

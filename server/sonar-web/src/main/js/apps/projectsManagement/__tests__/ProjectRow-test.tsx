@@ -19,20 +19,24 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier, Visibility } from '../../../types/component';
 import ProjectRow from '../ProjectRow';
 
 const project = {
   key: 'project',
   name: 'Project',
-  qualifier: 'TRK',
-  visibility: 'private'
+  qualifier: ComponentQualifier.Project,
+  visibility: Visibility.Private
 };
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
   expect(
     shallowRender({ project: { ...project, lastAnalysisDate: '2017-04-08T00:00:00.000Z' } })
-  ).toMatchSnapshot();
+  ).toMatchSnapshot('with lastAnalysisDate');
+  expect(
+    shallowRender({ project: { ...project, qualifier: ComponentQualifier.Portfolio } })
+  ).toMatchSnapshot('portfolio');
 });
 
 it('checks project', () => {

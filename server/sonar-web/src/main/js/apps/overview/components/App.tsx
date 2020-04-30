@@ -39,17 +39,6 @@ interface Props {
 }
 
 export class App extends React.PureComponent<Props> {
-  componentDidMount() {
-    const { component } = this.props;
-
-    if (this.isPortfolio()) {
-      this.props.router.replace({
-        pathname: '/portfolio',
-        query: { id: component.key }
-      });
-    }
-  }
-
   isPortfolio = () => {
     return ([ComponentQualifier.Portfolio, ComponentQualifier.SubPortfolio] as string[]).includes(
       this.props.component.qualifier
@@ -63,28 +52,24 @@ export class App extends React.PureComponent<Props> {
       return null;
     }
 
-    return (
+    return isPullRequest(branchLike) ? (
       <>
-        {isPullRequest(branchLike) ? (
-          <>
-            <Suggestions suggestions="pull_requests" />
-            <PullRequestOverview branchLike={branchLike} component={component} />
-          </>
-        ) : (
-          <>
-            <Suggestions suggestions="overview" />
+        <Suggestions suggestions="pull_requests" />
+        <PullRequestOverview branchLike={branchLike} component={component} />
+      </>
+    ) : (
+      <>
+        <Suggestions suggestions="overview" />
 
-            {!component.analysisDate ? (
-              <EmptyOverview
-                branchLike={branchLike}
-                branchLikes={branchLikes}
-                component={component}
-                hasAnalyses={this.props.isPending || this.props.isInProgress}
-              />
-            ) : (
-              <BranchOverview branchLike={branchLike} component={component} />
-            )}
-          </>
+        {!component.analysisDate ? (
+          <EmptyOverview
+            branchLike={branchLike}
+            branchLikes={branchLikes}
+            component={component}
+            hasAnalyses={this.props.isPending || this.props.isInProgress}
+          />
+        ) : (
+          <BranchOverview branchLike={branchLike} component={component} />
         )}
       </>
     );

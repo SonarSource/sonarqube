@@ -25,6 +25,8 @@ import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import DateTooltipFormatter from 'sonar-ui-common/components/intl/DateTooltipFormatter';
 import { Project } from '../../api/components';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
+import { getPortfolioUrl, getProjectUrl } from '../../helpers/urls';
+import { ComponentQualifier } from '../../types/component';
 import './ProjectRow.css';
 import ProjectRowActions from './ProjectRowActions';
 
@@ -41,6 +43,12 @@ export default class ProjectRow extends React.PureComponent<Props> {
     this.props.onProjectCheck(this.props.project, checked);
   };
 
+  getComponentUrl(project: Project) {
+    return project.qualifier === ComponentQualifier.Portfolio
+      ? getPortfolioUrl(project.key)
+      : getProjectUrl(project.key);
+  }
+
   render() {
     const { organization, project, selected } = this.props;
 
@@ -51,10 +59,8 @@ export default class ProjectRow extends React.PureComponent<Props> {
         </td>
 
         <td className="nowrap hide-overflow project-row-text-cell">
-          <Link
-            className="link-with-icon"
-            to={{ pathname: '/dashboard', query: { id: project.key } }}>
-            <QualifierIcon qualifier={project.qualifier} />
+          <Link className="link-with-icon" to={this.getComponentUrl(project)}>
+            <QualifierIcon className="little-spacer-right" qualifier={project.qualifier} />
 
             <Tooltip overlay={project.name} placement="left">
               <span>{project.name}</span>

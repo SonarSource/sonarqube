@@ -34,20 +34,7 @@ exports[`renders correctly 1`] = `
 </td>
 `;
 
-exports[`renders correctly 2`] = `
-<td>
-  <span
-    className="note"
-  >
-    bar
-  </span>
-  <TaskType
-    type="REPORT"
-  />
-</td>
-`;
-
-exports[`renders correctly for branches and pullrequest 1`] = `
+exports[`renders correctly: branch 1`] = `
 <td>
   <BranchIcon
     className="little-spacer-right"
@@ -93,7 +80,7 @@ exports[`renders correctly for branches and pullrequest 1`] = `
 </td>
 `;
 
-exports[`renders correctly for branches and pullrequest 2`] = `
+exports[`renders correctly: branch 2`] = `
 <td>
   <BranchIcon
     className="little-spacer-right"
@@ -139,7 +126,40 @@ exports[`renders correctly for branches and pullrequest 2`] = `
 </td>
 `;
 
-exports[`renders correctly for branches and pullrequest 3`] = `
+exports[`renders correctly: portfolio 1`] = `
+<td>
+  <span
+    className="little-spacer-right"
+  >
+    <QualifierIcon
+      qualifier="VW"
+    />
+  </span>
+  <Connect(Organization)
+    organizationKey="org"
+  />
+  <Link
+    className="spacer-right"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/portfolio",
+        "query": Object {
+          "id": "foo",
+        },
+      }
+    }
+  >
+    foo
+  </Link>
+  <TaskType
+    type="REPORT"
+  />
+</td>
+`;
+
+exports[`renders correctly: pull request 1`] = `
 <td>
   <PullRequestIcon
     className="little-spacer-right"
@@ -178,6 +198,19 @@ exports[`renders correctly for branches and pullrequest 3`] = `
       pr-89
     </span>
   </Link>
+  <TaskType
+    type="REPORT"
+  />
+</td>
+`;
+
+exports[`renders correctly: undefined key 1`] = `
+<td>
+  <span
+    className="note"
+  >
+    bar
+  </span>
   <TaskType
     type="REPORT"
   />
