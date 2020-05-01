@@ -29,8 +29,9 @@ import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
 import { withAppState } from '../../../../components/hoc/withAppState';
 import { getBranchLikeQuery, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
 import { isSonarCloud } from '../../../../helpers/system';
+import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
 import { BranchLike, BranchParameters } from '../../../../types/branch-like';
-import { ComponentQualifier } from '../../../../types/component';
+import { ComponentQualifier, isPortfolioLike } from '../../../../types/component';
 import './Menu.css';
 
 const SETTINGS_URLS = [
@@ -95,9 +96,7 @@ export class Menu extends React.PureComponent<Props> {
 
   isPortfolio = () => {
     const { qualifier } = this.props.component;
-    return (
-      qualifier === ComponentQualifier.Portfolio || qualifier === ComponentQualifier.SubPortfolio
-    );
+    return isPortfolioLike(qualifier);
   };
 
   isApplication = () => {
@@ -112,11 +111,12 @@ export class Menu extends React.PureComponent<Props> {
     return { id: this.props.component.key, ...getBranchLikeQuery(this.props.branchLike) };
   };
 
-  renderDashboardLink = (query: Query, isPortfolio: boolean) => {
-    const pathname = isPortfolio ? '/portfolio' : '/dashboard';
+  renderDashboardLink = ({ id, ...branchLike }: Query, isPortfolio: boolean) => {
     return (
       <li>
-        <Link activeClassName="active" to={{ pathname, query }}>
+        <Link
+          activeClassName="active"
+          to={isPortfolio ? getPortfolioUrl(id) : getProjectQueryUrl(id, branchLike)}>
           {translate('overview.page')}
         </Link>
       </li>

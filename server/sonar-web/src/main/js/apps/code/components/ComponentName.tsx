@@ -24,6 +24,7 @@ import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { colors } from '../../../app/theme';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 
 export function getTooltip(component: T.ComponentMeasure) {
@@ -82,11 +83,9 @@ export default function ComponentName({
   let inner = null;
 
   if (component.refKey && component.qualifier !== 'SVW') {
-    const branch = rootComponent.qualifier === 'APP' ? { branch: component.branch } : {};
+    const branch = rootComponent.qualifier === 'APP' ? component.branch : undefined;
     inner = (
-      <Link
-        className="link-with-icon"
-        to={{ pathname: '/dashboard', query: { id: component.refKey, ...branch } }}>
+      <Link className="link-with-icon" to={getProjectUrl(component.refKey, branch)}>
         <QualifierIcon qualifier={component.qualifier} /> <span>{name}</span>
       </Link>
     );

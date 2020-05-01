@@ -23,7 +23,7 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import ClockIcon from 'sonar-ui-common/components/icons/ClockIcon';
 import FavoriteIcon from 'sonar-ui-common/components/icons/FavoriteIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
+import { getCodeUrl, getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentResult } from './utils';
 
 interface Props {
@@ -114,7 +114,7 @@ export default class SearchResult extends React.PureComponent<Props, State> {
     const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
     const to = isFile
       ? getCodeUrl(component.project!, undefined, component.key)
-      : getProjectUrl(component.key);
+      : getComponentOverviewUrl(component.key, component.qualifier);
 
     return (
       <li

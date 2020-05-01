@@ -187,6 +187,7 @@ foo"
       Object {
         "pathname": "/dashboard",
         "query": Object {
+          "branch": undefined,
           "id": "src/main/ts/app",
         },
       }

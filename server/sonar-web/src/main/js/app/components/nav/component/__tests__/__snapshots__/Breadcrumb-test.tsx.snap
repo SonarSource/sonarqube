@@ -19,9 +19,8 @@ exports[`should render correctly 1`] = `
       title="parent-portfolio"
       to={
         Object {
-          "pathname": "/dashboard",
+          "pathname": "/portfolio",
           "query": Object {
-            "branch": undefined,
             "id": "parent-portfolio",
           },
         }

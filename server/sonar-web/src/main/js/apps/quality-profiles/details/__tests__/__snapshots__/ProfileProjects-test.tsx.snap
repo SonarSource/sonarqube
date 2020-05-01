@@ -69,6 +69,7 @@ exports[`should render correctly 2`] = `
             Object {
               "pathname": "/dashboard",
               "query": Object {
+                "branch": undefined,
                 "id": "org.sonarsource.xml:xml",
               },
             }

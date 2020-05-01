@@ -25,7 +25,8 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { colors } from '../../../app/theme';
 import Measure from '../../../components/measure/Measure';
-import { getProjectUrl } from '../../../helpers/urls';
+import { getComponentOverviewUrl } from '../../../helpers/urls';
+import { ComponentQualifier } from '../../../types/component';
 import { SubComponent } from '../types';
 
 interface Props {
@@ -79,11 +80,14 @@ export default function WorstProjects({ component, subComponents, total }: Props
               <td>
                 <Link
                   className="link-with-icon"
-                  to={getProjectUrl(component.refKey || component.key)}>
+                  to={getComponentOverviewUrl(
+                    component.refKey || component.key,
+                    component.qualifier
+                  )}>
                   <QualifierIcon qualifier={component.qualifier} /> {component.name}
                 </Link>
               </td>
-              {component.qualifier === 'TRK'
+              {component.qualifier === ComponentQualifier.Project
                 ? renderCell(component.measures, 'alert_status', 'LEVEL')
                 : renderCell(component.measures, 'releasability_rating', 'RATING')}
               {renderCell(component.measures, 'reliability_rating', 'RATING')}

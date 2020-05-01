@@ -22,7 +22,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { isMainBranch } from '../../../../helpers/branch-like';
-import { getProjectUrl } from '../../../../helpers/urls';
+import { getComponentOverviewUrl } from '../../../../helpers/urls';
 import { BranchLike } from '../../../../types/branch-like';
 
 interface Props {
@@ -53,7 +53,7 @@ export function Breadcrumb(props: Props) {
               <Link
                 className="link-no-underline text-ellipsis"
                 title={breadcrumbElement.name}
-                to={getProjectUrl(breadcrumbElement.key)}>
+                to={getComponentOverviewUrl(breadcrumbElement.key, breadcrumbElement.qualifier)}>
                 {breadcrumbElement.name}
               </Link>
             ) : (

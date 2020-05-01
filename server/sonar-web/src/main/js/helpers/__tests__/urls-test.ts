@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { ComponentQualifier } from '../../types/component';
 import {
   getComponentDrilldownUrl,
   getComponentIssuesUrl,
+  getComponentOverviewUrl,
   getComponentSecurityHotspotsUrl,
   getQualityGatesUrl,
   getQualityGateUrl
@@ -63,6 +65,33 @@ describe('getComponentSecurityHotspotsUrl', () => {
     ).toEqual({
       pathname: '/security_hotspots',
       query: { id: SIMPLE_COMPONENT_KEY, sinceLeakPeriod: 'true' }
+    });
+  });
+});
+
+describe('getComponentOverviewUrl', () => {
+  it('should return a portfolio url for a portfolio', () => {
+    expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.Portfolio)).toEqual({
+      pathname: '/portfolio',
+      query: { id: SIMPLE_COMPONENT_KEY }
+    });
+  });
+  it('should return a portfolio url for a subportfolio', () => {
+    expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.SubPortfolio)).toEqual({
+      pathname: '/portfolio',
+      query: { id: SIMPLE_COMPONENT_KEY }
+    });
+  });
+  it('should return a dashboard url for a project', () => {
+    expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.Project)).toEqual({
+      pathname: '/dashboard',
+      query: { id: SIMPLE_COMPONENT_KEY }
+    });
+  });
+  it('should return a dashboard url for an app', () => {
+    expect(getComponentOverviewUrl(SIMPLE_COMPONENT_KEY, ComponentQualifier.Application)).toEqual({
+      pathname: '/dashboard',
+      query: { id: SIMPLE_COMPONENT_KEY }
     });
   });
 });

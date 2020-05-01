@@ -32,13 +32,14 @@ import {
   isMainBranch,
   isPullRequest
 } from '../../helpers/branch-like';
-import { isSonarCloud } from '../../helpers/system';
+import { getPortfolioUrl } from '../../helpers/urls';
 import {
   fetchOrganization,
   registerBranchStatus,
   requireAuthorization
 } from '../../store/rootActions';
 import { BranchLike } from '../../types/branch-like';
+import { isPortfolioLike } from '../../types/component';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
 import ComponentNav from './nav/component/ComponentNav';
@@ -46,7 +47,7 @@ import ComponentNav from './nav/component/ComponentNav';
 interface Props {
   children: React.ReactElement;
   fetchOrganization: (organization: string) => void;
-  location: Pick<Location, 'query'>;
+  location: Pick<Location, 'query' | 'pathname'>;
   registerBranchStatus: (branchLike: BranchLike, component: string, status: T.Status) => void;
   requireAuthorization: (router: Pick<Router, 'replace'>) => void;
   router: Pick<Router, 'replace'>;
@@ -116,9 +117,18 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       .then(([nav, { component }]) => {
         const componentWithQualifier = this.addQualifier({ ...nav, ...component });
 
-        if (isSonarCloud()) {
-          this.props.fetchOrganization(componentWithQualifier.organization);
+        /*
+         * There used to be a redirect from /dashboard to /portfolio which caused issues.
+         * Links should be fixed to not rely on this redirect, but:
+         * This is a fail-safe in case there are still some faulty links remaining.
+         */
+        if (
+          this.props.location.pathname.match('dashboard') &&
+          isPortfolioLike(componentWithQualifier.qualifier)
+        ) {
+          this.props.router.replace(getPortfolioUrl(component.key));
         }
+
         return componentWithQualifier;
       }, onError)
       .then(this.fetchBranches)

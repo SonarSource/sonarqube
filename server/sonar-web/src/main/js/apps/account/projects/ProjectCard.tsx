@@ -27,6 +27,7 @@ import Level from 'sonar-ui-common/components/ui/Level';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import MetaLink from '../../../app/components/nav/component/projectInformation/meta/MetaLink';
 import { orderLinks } from '../../../helpers/projectLinks';
+import { getProjectUrl } from '../../../helpers/urls';
 
 interface Props {
   project: T.MyProject;
@@ -82,7 +83,7 @@ export default function ProjectCard({ project }: Props) {
       </aside>
 
       <h3 className="account-project-name">
-        <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
+        <Link to={getProjectUrl(project.key)}>{project.name}</Link>
       </h3>
 
       {orderedLinks.length > 0 && (

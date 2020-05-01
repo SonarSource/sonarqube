@@ -24,7 +24,6 @@ exports[`renders 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "project",
           },
         }
@@ -217,7 +216,6 @@ exports[`renders: with lastAnalysisDate 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
-            "branch": undefined,
             "id": "project",
           },
         }

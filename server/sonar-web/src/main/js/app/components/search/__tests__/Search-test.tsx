@@ -20,6 +20,8 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
 import { elementKeydown } from 'sonar-ui-common/helpers/testUtils';
+import { mockRouter } from '../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../types/component';
 import { Search } from '../Search';
 
 it('selects results', () => {
@@ -29,7 +31,7 @@ it('selects results', () => {
     open: true,
     results: {
       TRK: [component('foo'), component('bar')],
-      BRC: [component('qwe', 'BRC')]
+      BRC: [component('qwe', ComponentQualifier.SubProject)]
     },
     selected: 'foo'
   });
@@ -44,17 +46,50 @@ it('selects results', () => {
   prev(form, 'foo');
 });
 
-it('opens selected on enter', () => {
-  const form = shallowRender();
+it('opens selected project on enter', () => {
+  const router = mockRouter();
+  const form = shallowRender({ router });
+  const selectedKey = 'project';
   form.setState({
     open: true,
-    results: { TRK: [component('foo')] },
-    selected: 'foo'
+    results: { [ComponentQualifier.Project]: [component(selectedKey)] },
+    selected: selectedKey
   });
-  const openSelected = jest.fn();
-  (form.instance() as Search).openSelected = openSelected;
+
   elementKeydown(form.find('SearchBox'), 13);
-  expect(openSelected).toBeCalled();
+  expect(router.push).toBeCalledWith({ pathname: '/dashboard', query: { id: selectedKey } });
+});
+
+it('opens selected portfolio on enter', () => {
+  const router = mockRouter();
+  const form = shallowRender({ router });
+  const selectedKey = 'portfolio';
+  form.setState({
+    open: true,
+    results: {
+      [ComponentQualifier.Portfolio]: [component(selectedKey, ComponentQualifier.Portfolio)]
+    },
+    selected: selectedKey
+  });
+
+  elementKeydown(form.find('SearchBox'), 13);
+  expect(router.push).toBeCalledWith({ pathname: '/portfolio', query: { id: selectedKey } });
+});
+
+it('opens selected subportfolio on enter', () => {
+  const router = mockRouter();
+  const form = shallowRender({ router });
+  const selectedKey = 'sbprtfl';
+  form.setState({
+    open: true,
+    results: {
+      [ComponentQualifier.SubPortfolio]: [component(selectedKey, ComponentQualifier.SubPortfolio)]
+    },
+    selected: selectedKey
+  });
+
+  elementKeydown(form.find('SearchBox'), 13);
+  expect(router.push).toBeCalledWith({ pathname: '/portfolio', query: { id: selectedKey } });
 });
 
 it('shows warning about short input', () => {
@@ -76,7 +111,7 @@ function shallowRender(props: Partial<Search['props']> = {}) {
   );
 }
 
-function component(key: string, qualifier = 'TRK') {
+function component(key: string, qualifier = ComponentQualifier.Project) {
   return { key, name: key, qualifier };
 }
 

@@ -24,6 +24,7 @@ import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getProfileProjects } from '../../../api/quality-profiles';
+import { getProjectUrl } from '../../../helpers/urls';
 import { Profile } from '../types';
 import ChangeProjectsForm from './ChangeProjectsForm';
 
@@ -141,9 +142,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
         <ul>
           {projects.map(project => (
             <li className="spacer-top js-profile-project" data-key={project.key} key={project.key}>
-              <Link
-                className="link-with-icon"
-                to={{ pathname: '/dashboard', query: { id: project.key } }}>
+              <Link className="link-with-icon" to={getProjectUrl(project.key)}>
                 <QualifierIcon qualifier="TRK" /> <span>{project.name}</span>
               </Link>
             </li>

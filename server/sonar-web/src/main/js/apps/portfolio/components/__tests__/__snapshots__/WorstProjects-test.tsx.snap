@@ -56,9 +56,8 @@ exports[`renders 1`] = `
             style={Object {}}
             to={
               Object {
-                "pathname": "/dashboard",
+                "pathname": "/portfolio",
                 "query": Object {
-                  "branch": undefined,
                   "id": "foo",
                 },
               }
@@ -155,7 +154,6 @@ exports[`renders 1`] = `
               Object {
                 "pathname": "/dashboard",
                 "query": Object {
-                  "branch": undefined,
                   "id": "barbar",
                 },
               }
@@ -252,7 +250,6 @@ exports[`renders 1`] = `
               Object {
                 "pathname": "/dashboard",
                 "query": Object {
-                  "branch": undefined,
                   "id": "bazbaz",
                 },
               }

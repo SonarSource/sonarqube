@@ -31,7 +31,8 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getSuggestions } from '../../../api/components';
-import { getCodeUrl, getProjectUrl } from '../../../helpers/urls';
+import { getCodeUrl, getComponentOverviewUrl } from '../../../helpers/urls';
+import { ComponentQualifier } from '../../../types/component';
 import RecentHistory from '../RecentHistory';
 import './Search.css';
 import { ComponentResult, More, Results, sortQualifiers } from './utils';
@@ -275,20 +276,30 @@ export class Search extends React.PureComponent<Props, State> {
   };
 
   openSelected = () => {
-    const { selected } = this.state;
+    const { results, selected } = this.state;
 
-    if (selected) {
-      if (selected.startsWith('qualifier###')) {
-        this.searchMore(selected.substr(12));
+    if (!selected) {
+      return;
+    }
+
+    if (selected.startsWith('qualifier###')) {
+      this.searchMore(selected.substr(12));
+    } else {
+      const file = this.findFile(selected);
+      if (file) {
+        this.props.router.push(getCodeUrl(file.project!, undefined, file.key));
       } else {
-        const file = this.findFile(selected);
-        if (file) {
-          this.props.router.push(getCodeUrl(file.project!, undefined, file.key));
-        } else {
-          this.props.router.push(getProjectUrl(selected));
+        let qualifier = ComponentQualifier.Project;
+
+        if ((results[ComponentQualifier.Portfolio] ?? []).find(r => r.key === selected)) {
+          qualifier = ComponentQualifier.Portfolio;
+        } else if ((results[ComponentQualifier.SubPortfolio] ?? []).find(r => r.key === selected)) {
+          qualifier = ComponentQualifier.SubPortfolio;
         }
-        this.closeSearch();
+
+        this.props.router.push(getComponentOverviewUrl(selected, qualifier));
       }
+      this.closeSearch();
     }
   };
 
