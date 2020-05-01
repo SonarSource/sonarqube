@@ -145,7 +145,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
     PUBLIC_PERMISSIONS.forEach(permission -> {
       dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
-        .forEach(groupId -> insertProjectPermissionOnGroup(dbSession, component, permission, groupId));
+        .forEach(group -> insertProjectPermissionOnGroup(dbSession, component, permission, group));
       dbClient.userPermissionDao().selectUserIdsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
         .forEach(userId -> insertProjectPermissionOnUser(dbSession, component, permission, userId));
     });

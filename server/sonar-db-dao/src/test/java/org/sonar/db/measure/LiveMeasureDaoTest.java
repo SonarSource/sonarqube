@@ -63,7 +63,7 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
-  public void selectByComponentUuidsAndMetricIds() {
+  public void selectByComponentUuidsAndMetricUuids() {
     LiveMeasureDto measure1 = newLiveMeasure().setMetricUuid(metric.getUuid());
     LiveMeasureDto measure2 = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure1);
@@ -82,7 +82,7 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
-  public void selectByComponentUuidsAndMetricIds_returns_empty_list_if_metric_does_not_match() {
+  public void selectByComponentUuidsAndMetricUuids_returns_empty_list_if_metric_does_not_match() {
     LiveMeasureDto measure = newLiveMeasure().setMetricUuid(metric.getUuid());
     underTest.insert(db.getSession(), measure);
 
@@ -93,7 +93,7 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
-  public void selectByComponentUuidsAndMetricIds_returns_empty_list_if_component_does_not_match() {
+  public void selectByComponentUuidsAndMetricUuids_returns_empty_list_if_component_does_not_match() {
     LiveMeasureDto measure = newLiveMeasure();
     underTest.insert(db.getSession(), measure);
 
@@ -402,7 +402,7 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
-  public void deleteByComponentUuidExcludingMetricIds() {
+  public void deleteByComponentUuidExcludingMetricUuids() {
     LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("1");
     LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("2");
     LiveMeasureDto measure3 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("3");
@@ -438,7 +438,7 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
-  public void deleteByComponentUuidExcludingMetricIds_with_empty_metrics() {
+  public void deleteByComponentUuidExcludingMetricUuids_with_empty_metrics() {
     LiveMeasureDto measure1 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("1");
     LiveMeasureDto measure2 = newLiveMeasure().setComponentUuid("C1").setMetricUuid("2");
     LiveMeasureDto measureOnOtherComponent = newLiveMeasure().setComponentUuid("C2").setMetricUuid("2");

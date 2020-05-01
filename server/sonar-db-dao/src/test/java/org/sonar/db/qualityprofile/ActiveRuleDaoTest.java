@@ -583,7 +583,7 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
-  public void deleteParamsByActiveRuleIds() {
+  public void deleteParamsByActiveRuleUuids() {
     ActiveRuleDto ar1 = underTest.insert(dbSession, newRow(profile1, rule1));
     ActiveRuleParamDto param = ActiveRuleParamDto.createFor(rule1Param1).setValue("foo");
     underTest.insertParam(dbSession, ar1, param);

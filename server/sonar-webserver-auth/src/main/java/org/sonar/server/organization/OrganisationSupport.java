@@ -76,10 +76,10 @@ public class OrganisationSupport {
   }
 
   private void createDefaultMembersGroup(DbSession dbSession, String defaultOrganizationUuid) {
-    GroupDto sonarUsersGroupId = defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationUuid);
+    GroupDto sonarUsersGroup = defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationUuid);
     GroupDto members = defaultGroupCreator.create(dbSession, defaultOrganizationUuid);
-    copySonarUsersGroupPermissionsToMembersGroup(dbSession, defaultOrganizationUuid, sonarUsersGroupId, members);
-    copySonarUsersGroupPermissionTemplatesToMembersGroup(dbSession, sonarUsersGroupId, members);
+    copySonarUsersGroupPermissionsToMembersGroup(dbSession, defaultOrganizationUuid, sonarUsersGroup, members);
+    copySonarUsersGroupPermissionTemplatesToMembersGroup(dbSession, sonarUsersGroup, members);
     associateMembersOfDefaultOrganizationToGroup(dbSession, defaultOrganizationUuid, members);
   }
 

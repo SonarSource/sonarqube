@@ -94,8 +94,8 @@ public class AddUserAction implements UserGroupsWsAction {
     }
   }
 
-  private boolean isMemberOf(DbSession dbSession, UserDto user, GroupDto groupId) {
-    return dbClient.groupMembershipDao().selectGroupUuidsByUserId(dbSession, user.getId()).contains(groupId.getUuid());
+  private boolean isMemberOf(DbSession dbSession, UserDto user, GroupDto group) {
+    return dbClient.groupMembershipDao().selectGroupUuidsByUserId(dbSession, user.getId()).contains(group.getUuid());
   }
 
   private void checkMembership(DbSession dbSession, OrganizationDto organization, UserDto user) {

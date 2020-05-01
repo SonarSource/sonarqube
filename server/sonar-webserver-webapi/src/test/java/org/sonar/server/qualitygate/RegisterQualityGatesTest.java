@@ -211,7 +211,7 @@ public class RegisterQualityGatesTest {
   }
 
   @Test
-  public void builtin_quality_gate_with_incorrect_metricId_should_not_throw_an_exception() {
+  public void builtin_quality_gate_with_incorrect_metricuuid_should_not_throw_an_exception() {
     insertMetrics();
     QualityGateConditionDto conditionDto = new QualityGateConditionDto()
       .setUuid(Uuids.createFast())

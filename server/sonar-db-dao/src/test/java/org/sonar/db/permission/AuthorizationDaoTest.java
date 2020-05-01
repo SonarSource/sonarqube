@@ -58,7 +58,7 @@ public class AuthorizationDaoTest {
 
   private static final String PROJECT_UUID = "uuid";
   private static final int MISSING_ID = -1;
-  private static final String MISSING_UUID = "unkown";
+  private static final String MISSING_UUID = "unknown";
   private static final String A_PERMISSION = "a-permission";
   private static final String DOES_NOT_EXIST = "does-not-exist";
 

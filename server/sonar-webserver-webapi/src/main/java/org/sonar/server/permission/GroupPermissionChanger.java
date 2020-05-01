@@ -79,7 +79,7 @@ public class GroupPermissionChanger {
   private static boolean isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(GroupPermissionChange change, ProjectUuid project) {
     return project.isPrivate()
       && change.getOperation() == REMOVE
-      && change.getGroupIdOrAnyone().isAnyone();
+      && change.getGroupUuidOrAnyone().isAnyone();
   }
 
   private static void ensureConsistencyWithVisibility(GroupPermissionChange change) {
@@ -96,7 +96,7 @@ public class GroupPermissionChanger {
   private static boolean isAttemptToAddPermissionToAnyoneOnPrivateComponent(GroupPermissionChange change, ProjectUuid project) {
     return project.isPrivate()
       && change.getOperation() == ADD
-      && change.getGroupIdOrAnyone().isAnyone();
+      && change.getGroupUuidOrAnyone().isAnyone();
   }
 
   private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, ProjectUuid project) {
@@ -110,12 +110,12 @@ public class GroupPermissionChanger {
       return false;
     }
 
-    validateNotAnyoneAndAdminPermission(change.getPermission(), change.getGroupIdOrAnyone());
+    validateNotAnyoneAndAdminPermission(change.getPermission(), change.getGroupUuidOrAnyone());
     GroupPermissionDto addedDto = new GroupPermissionDto()
       .setUuid(uuidFactory.create())
       .setRole(change.getPermission())
       .setOrganizationUuid(change.getOrganizationUuid())
-      .setGroupUuid(change.getGroupIdOrAnyone().getUuid())
+      .setGroupUuid(change.getGroupUuidOrAnyone().getUuid())
       .setComponentUuid(change.getProjectUuid());
     dbClient.groupPermissionDao().insert(dbSession, addedDto);
     return true;
@@ -134,7 +134,7 @@ public class GroupPermissionChanger {
     dbClient.groupPermissionDao().delete(dbSession,
       change.getPermission(),
       change.getOrganizationUuid(),
-      change.getGroupIdOrAnyone().getUuid(),
+      change.getGroupUuidOrAnyone().getUuid(),
       change.getProjectUuid());
     return true;
   }
@@ -144,21 +144,21 @@ public class GroupPermissionChanger {
     if (projectUuid != null) {
       return dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession,
         change.getOrganizationUuid(),
-        change.getGroupIdOrAnyone().getUuid(),
+        change.getGroupUuidOrAnyone().getUuid(),
         projectUuid);
     }
     return dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession,
       change.getOrganizationUuid(),
-      change.getGroupIdOrAnyone().getUuid());
+      change.getGroupUuidOrAnyone().getUuid());
   }
 
   private void checkIfRemainingGlobalAdministrators(DbSession dbSession, GroupPermissionChange change) {
     if (SYSTEM_ADMIN.equals(change.getPermission()) &&
-      !change.getGroupIdOrAnyone().isAnyone() &&
+      !change.getGroupUuidOrAnyone().isAnyone() &&
       change.getProjectUuid() == null) {
       // removing global admin permission from group
       int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession,
-        change.getOrganizationUuid(), SYSTEM_ADMIN, change.getGroupIdOrAnyone().getUuid());
+        change.getOrganizationUuid(), SYSTEM_ADMIN, change.getGroupUuidOrAnyone().getUuid());
       checkRequest(remaining > 0, "Last group with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN);
     }
   }

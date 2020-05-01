@@ -89,7 +89,7 @@ public class CreateAction implements CustomMeasuresWsAction {
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_METRIC_ID)
-      .setDescription("Metric id")
+      .setDescription("Metric uuid")
       .setExampleValue("16");
 
     action.createParam(PARAM_METRIC_KEY)

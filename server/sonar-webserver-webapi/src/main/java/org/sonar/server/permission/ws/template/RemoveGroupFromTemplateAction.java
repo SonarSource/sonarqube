@@ -74,10 +74,10 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
       String permission = request.mandatoryParam(PARAM_PERMISSION);
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.fromRequest(request));
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
-      GroupUuidOrAnyone groupId = wsSupport.findGroup(dbSession, request);
-      checkArgument(groupId.getOrganizationUuid().equals(template.getOrganizationUuid()), "Group and template are on different organizations");
+      GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
+      checkArgument(group.getOrganizationUuid().equals(template.getOrganizationUuid()), "Group and template are on different organizations");
 
-      dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getUuid(), groupId.getUuid(), permission);
+      dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission);
       dbSession.commit();
     }
     response.noContent();

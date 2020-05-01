@@ -87,15 +87,15 @@ public class DeleteAction implements UserGroupsWsAction {
     checkArgument(remaining > 0, "The last system admin group cannot be deleted");
   }
 
-  private void removeGroupPermissions(DbSession dbSession, GroupDto groupId) {
-    dbClient.roleDao().deleteGroupRolesByGroupUuid(dbSession, groupId.getUuid());
+  private void removeGroupPermissions(DbSession dbSession, GroupDto group) {
+    dbClient.roleDao().deleteGroupRolesByGroupUuid(dbSession, group.getUuid());
   }
 
-  private void removeFromPermissionTemplates(DbSession dbSession, GroupDto groupId) {
-    dbClient.permissionTemplateDao().deleteByGroup(dbSession, groupId.getUuid());
+  private void removeFromPermissionTemplates(DbSession dbSession, GroupDto group) {
+    dbClient.permissionTemplateDao().deleteByGroup(dbSession, group.getUuid());
   }
 
-  private void removeGroupMembers(DbSession dbSession, GroupDto groupId) {
-    dbClient.userGroupDao().deleteByGroupUuid(dbSession, groupId.getUuid());
+  private void removeGroupMembers(DbSession dbSession, GroupDto group) {
+    dbClient.userGroupDao().deleteByGroupUuid(dbSession, group.getUuid());
   }
 }
