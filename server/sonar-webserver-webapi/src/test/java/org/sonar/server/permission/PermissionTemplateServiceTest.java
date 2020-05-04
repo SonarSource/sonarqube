@@ -442,7 +442,7 @@ public class PermissionTemplateServiceTest {
 
   private List<String> selectProjectPermissionsOfUser(UserDto userDto, ComponentDto project) {
     return dbTester.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(session,
-      userDto.getId(), project.uuid());
+      userDto.getUuid(), project.uuid());
   }
 
   @Test

@@ -5,7 +5,7 @@
 
   <select id="selectUserPermissionsByQueryAndUserIds" parameterType="map" resultType="org.sonar.db.permission.UserPermissionDto">
     select
-      u.id as userId,
+      u.uuid as userUuid,
       ur.organization_uuid as organizationUuid,
       ur.component_uuid as componentUuid,
       ur.role as permission
@@ -31,7 +31,7 @@
     select
     u.id, lower(u.name)
     from users u
-    left join user_roles ur on ur.user_id = u.id and ur.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
+    left join user_roles ur on ur.user_uuid = u.uuid and ur.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <choose>
       <when test="query.componentUuid == null">
         and ur.component_uuid is null
@@ -59,7 +59,7 @@
 
   <sql id="sqlQueryJoins">
     from users u
-    left join user_roles ur on ur.user_id = u.id
+    left join user_roles ur on ur.user_uuid = u.uuid
     left join components p on ur.component_uuid = p.uuid
     inner join organization_members om on u.uuid=om.user_uuid and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
   </sql>
@@ -93,7 +93,7 @@
     from user_roles ur
     where
     ur.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
-    ur.user_id = #{userId,jdbcType=INTEGER} and
+    ur.user_uuid = #{userUuid,jdbcType=VARCHAR} and
     ur.component_uuid is null
   </select>
 
@@ -101,23 +101,23 @@
     select ur.role
     from user_roles ur
     where
-    ur.user_id = #{userId,jdbcType=INTEGER} and
+    ur.user_uuid = #{userUuid,jdbcType=VARCHAR} and
     ur.component_uuid = #{projectUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="countUsersByProjectPermission" resultType="org.sonar.db.permission.CountPerProjectPermission">
     select ur.component_uuid as componentUuid, ur.role as permission, count(u.login) as count
     from users u
-    inner join user_roles ur on ur.user_id = u.id
+    inner join user_roles ur on ur.user_uuid = u.uuid
     inner join components p on p.uuid = ur.component_uuid
     where u.active = ${_true}
     and p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" separator=",">#{projectUuid}</foreach>
     group by ur.component_uuid, ur.role
   </select>
 
-  <select id="selectUserIdsWithPermissionOnProjectBut" resultType="Integer">
+  <select id="selectUserUuidsWithPermissionOnProjectBut" resultType="String">
     select
-      distinct ur1.user_id
+      distinct ur1.user_uuid
     from
       user_roles ur1
     where
@@ -130,7 +130,7 @@
           user_roles ur2
         where
           ur2.component_uuid = ur1.component_uuid
-          and ur2.user_id = ur1.user_id
+          and ur2.user_uuid = ur1.user_uuid
           and role = #{permission,jdbcType=VARCHAR}
       )
   </select>
@@ -139,13 +139,13 @@
     insert into user_roles (
     uuid,
     organization_uuid,
-    user_id,
+    user_uuid,
     component_uuid,
     role
     ) values (
     #{uuid,jdbcType=VARCHAR},
     #{organizationUuid,jdbcType=VARCHAR},
-    #{userId,jdbcType=INTEGER},
+    #{userUuid,jdbcType=VARCHAR},
     #{componentUuid,jdbcType=VARCHAR},
     #{permission,jdbcType=VARCHAR}
     )
@@ -155,7 +155,7 @@
     delete from user_roles
     where
     role = #{permission,jdbcType=VARCHAR} and
-    user_id = #{userId,jdbcType=INTEGER} and
+    user_uuid = #{userUuid,jdbcType=VARCHAR} and
     organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     component_uuid is null
   </delete>
@@ -164,7 +164,7 @@
     delete from user_roles
     where
     role = #{permission,jdbcType=VARCHAR} and
-    user_id = #{userId,jdbcType=INTEGER} and
+    user_uuid = #{userUuid,jdbcType=VARCHAR} and
     component_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
@@ -194,10 +194,10 @@
       user_roles
     where
       organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
-      user_id = #{userId,jdbcType=INTEGER}
+      user_uuid = #{userUuid,jdbcType=VARCHAR}
   </delete>
 
-  <delete id="deleteByUserId" parameterType="int">
-    DELETE FROM user_roles WHERE user_id=#{userId,jdbcType=INTEGER}
+  <delete id="deleteByUserUuid" parameterType="String">
+    DELETE FROM user_roles WHERE user_uuid=#{userUuid,jdbcType=VARCHAR}
   </delete>
 </mapper>

@@ -26,18 +26,18 @@ public class UserPermissionDto {
   private String uuid;
   private String organizationUuid;
   private String permission;
-  private int userId;
+  private String userUuid;
   private String componentUuid;
 
   public UserPermissionDto() {
     // used by MyBatis
   }
 
-  public UserPermissionDto(String uuid, String organizationUuid, String permission, int userId, @Nullable String componentUuid) {
+  public UserPermissionDto(String uuid, String organizationUuid, String permission, String userUuid, @Nullable String componentUuid) {
     this.uuid = uuid;
     this.organizationUuid = organizationUuid;
     this.permission = permission;
-    this.userId = userId;
+    this.userUuid = userUuid;
     this.componentUuid = componentUuid;
   }
 
@@ -49,8 +49,8 @@ public class UserPermissionDto {
     return permission;
   }
 
-  public int getUserId() {
-    return userId;
+  public String getUserUuid() {
+    return userUuid;
   }
 
   public String getOrganizationUuid() {
@@ -69,7 +69,7 @@ public class UserPermissionDto {
   public String toString() {
     StringBuilder sb = new StringBuilder("UserPermissionDto{");
     sb.append("permission='").append(permission).append('\'');
-    sb.append(", userId=").append(userId);
+    sb.append(", userUuid=").append(userUuid);
     sb.append(", organizationUuid=").append(organizationUuid);
     sb.append(", componentUuid=").append(componentUuid);
     sb.append('}');

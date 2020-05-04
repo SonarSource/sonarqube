@@ -326,7 +326,7 @@ public class UserDbTester {
    */
   @Deprecated
   public UserPermissionDto insertPermissionOnUser(OrganizationDto org, UserDto user, String permission) {
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), org.getUuid(), permission, user.getId(), null);
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), org.getUuid(), permission, user.getUuid(), null);
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
@@ -340,12 +340,12 @@ public class UserDbTester {
   }
 
   public void deletePermissionFromUser(OrganizationDto org, UserDto user, OrganizationPermission permission) {
-    db.getDbClient().userPermissionDao().deleteGlobalPermission(db.getSession(), user.getId(), permission.getKey(), org.getUuid());
+    db.getDbClient().userPermissionDao().deleteGlobalPermission(db.getSession(), user.getUuid(), permission.getKey(), org.getUuid());
     db.commit();
   }
 
   public void deletePermissionFromUser(ComponentDto project, UserDto user, String permission) {
-    db.getDbClient().userPermissionDao().deleteProjectPermission(db.getSession(), user.getId(), permission, project.uuid());
+    db.getDbClient().userPermissionDao().deleteProjectPermission(db.getSession(), user.getUuid(), permission, project.uuid());
     db.commit();
   }
 
@@ -356,7 +356,7 @@ public class UserDbTester {
     checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
       "%s can't be granted on a public project", permission);
     checkArgument(project.getMainBranchProjectUuid() == null, "Permissions can't be granted on branches");
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), project.getOrganizationUuid(), permission, user.getId(), project.uuid());
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), project.getOrganizationUuid(), permission, user.getUuid(), project.uuid());
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
@@ -364,11 +364,11 @@ public class UserDbTester {
 
   public List<OrganizationPermission> selectPermissionsOfUser(UserDto user, OrganizationDto organization) {
     return toListOfOrganizationPermissions(db.getDbClient().userPermissionDao()
-      .selectGlobalPermissionsOfUser(db.getSession(), user.getId(), organization.getUuid()));
+      .selectGlobalPermissionsOfUser(db.getSession(), user.getUuid(), organization.getUuid()));
   }
 
   public List<String> selectProjectPermissionsOfUser(UserDto user, ComponentDto project) {
-    return db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(db.getSession(), user.getId(), project.uuid());
+    return db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(db.getSession(), user.getUuid(), project.uuid());
   }
 
   private static List<OrganizationPermission> toListOfOrganizationPermissions(List<String> keys) {

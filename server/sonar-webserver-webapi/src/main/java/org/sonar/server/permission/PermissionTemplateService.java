@@ -132,8 +132,8 @@ public class PermissionTemplateService {
 
     List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid());
     String organizationUuid = template.getOrganizationUuid();
-    Map<String, Integer> userDtoMap = dbClient.userDao().selectByUuids(dbSession, usersPermissions.stream().map(PermissionTemplateUserDto::getUserUuid).collect(Collectors.toSet()))
-      .stream().collect(Collectors.toMap(UserDto::getUuid, UserDto::getId));
+    Map<String, String> userDtoMap = dbClient.userDao().selectByUuids(dbSession, usersPermissions.stream().map(PermissionTemplateUserDto::getUserUuid).collect(Collectors.toSet()))
+      .stream().collect(Collectors.toMap(UserDto::getUuid, UserDto::getUuid));
     usersPermissions
       .stream()
       .filter(up -> permissionValidForProject(project, up.getPermission()))
@@ -170,7 +170,7 @@ public class PermissionTemplateService {
         .filter(up -> permissionValidForProject(project, up.getPermission()))
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
-          UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), organizationUuid, c.getPermission(), userDto.getId(), project.uuid());
+          UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), organizationUuid, c.getPermission(), userDto.getUuid(), project.uuid());
           dbClient.userPermissionDao().insert(dbSession, dto);
         });
     }

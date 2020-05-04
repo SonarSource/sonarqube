@@ -25,10 +25,9 @@
 
     select ur.role
     from user_roles ur
-    inner join users u on ur.user_id=u.id
     where
     ur.organization_uuid=#{organizationUuid, jdbcType=VARCHAR} and
-    u.uuid=#{userUuid, jdbcType=VARCHAR}
+    ur.user_uuid=#{userUuid, jdbcType=VARCHAR}
     and ur.component_uuid is null
   </select>
 
@@ -56,9 +55,8 @@
 
       union
 
-      select u.uuid
+      select ur.user_uuid
       from user_roles ur
-      inner join users u on ur.user_id = u.id
       where
       ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
       ur.component_uuid is null and
@@ -81,14 +79,13 @@
 
     union
 
-    select u.uuid
+    select ur.user_uuid
     from user_roles ur
-    inner join users u on ur.user_id = u.id
     where
     ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     ur.component_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR} and
-    u.uuid != #{excludedUserUuid, jdbcType=VARCHAR}
+    ur.user_uuid != #{excludedUserUuid, jdbcType=VARCHAR}
     ) remaining
   </select>
 
@@ -104,9 +101,8 @@
 
     union
 
-    select u.uuid
+    select ur.user_uuid
     from user_roles ur
-    inner join users u on ur.user_id = u.id
     where
     ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     ur.component_uuid is null and
@@ -128,9 +124,8 @@
 
     union
 
-    select u.uuid
+    select ur.user_uuid
     from user_roles ur
-    inner join users u on ur.user_id = u.id
     where
     ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     ur.component_uuid is null and
@@ -152,14 +147,13 @@
 
     union
 
-    select u.uuid
+    select ur.user_uuid
     from user_roles ur
-    inner join users u on ur.user_id=u.id
     where
     ur.organization_uuid = #{organizationUuid, jdbcType=VARCHAR} and
     ur.component_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR} and
-    u.uuid != #{userUuid, jdbcType=VARCHAR}
+    ur.user_uuid != #{userUuid, jdbcType=VARCHAR}
     ) remaining
   </select>
 
@@ -177,11 +171,10 @@
 
     select ur.organization_uuid
     from user_roles ur
-    inner join users u on ur.user_id=u.id
     where
     ur.component_uuid is null and
     ur.role = #{permission, jdbcType=VARCHAR} and
-    u.uuid = #{userUuid, jdbcType=VARCHAR}
+    ur.user_uuid = #{userUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="keepAuthorizedProjectUuidsForUser" parameterType="map" resultType="String">
@@ -213,12 +206,11 @@
       p.uuid
     from
       user_roles ur
-    inner join users u on ur.user_id=u.id
     inner join components p on
       p.uuid = ur.component_uuid
     where
       ur.role=#{role, jdbcType=VARCHAR}
-      and u.uuid=#{userUuid, jdbcType=INTEGER}
+      and ur.user_uuid=#{userUuid, jdbcType=INTEGER}
       and <foreach collection="projectUuids" open="(" close=")" item="element" index="index" separator=" or ">
         p.uuid=#{element, jdbcType=VARCHAR}
       </foreach>
@@ -276,14 +268,13 @@
     union
 
     select
-      u.uuid
+      ur.user_uuid
     from
       user_roles ur
-      inner join users u on ur.user_id=u.id
     where
       ur.component_uuid=#{componentUuid, jdbcType=VARCHAR}
       and ur.role=#{role, jdbcType=VARCHAR}
-      and u.uuid IN
+      and ur.user_uuid IN
         <foreach collection="userUuids" open="(" close=")" item="uuid" separator=",">
           #{uuid, jdbcType=VARCHAR}
         </foreach>
@@ -315,11 +306,10 @@
     select ur.role
     from user_roles ur
     inner join components p on p.uuid = ur.component_uuid
-    inner join users u on ur.user_id=u.id
     where
       p.uuid = #{projectUuid, jdbcType=VARCHAR} and
       p.organization_uuid = ur.organization_uuid and
-      u.uuid = #{userUuid, jdbcType=VARCHAR}
+      ur.user_uuid = #{userUuid, jdbcType=VARCHAR}
 
     union
 
@@ -362,7 +352,7 @@
     from
       users u
     inner join user_roles ur on
-      ur.user_id = u.id
+      ur.user_uuid = u.uuid
       and ur.role=#{permission, jdbcType=VARCHAR}
       and ur.component_uuid is null
     where
@@ -399,7 +389,7 @@
           where
             p.kee =  #{projectKey, jdbcType=VARCHAR}
             and ur.role = #{permission, jdbcType=VARCHAR}
-            and ur.user_id = u.id
+            and ur.user_uuid = u.uuid
         ) or exists (
           select 1
           from components p

@@ -53,16 +53,14 @@ public class WebAuthorizationTypeSupport {
       return QueryBuilders.matchAllQuery();
     }
 
-    Integer userId = userSession.getUserId();
     BoolQueryBuilder filter = boolQuery();
 
     // anyone
     filter.should(QueryBuilders.termQuery(FIELD_ALLOW_ANYONE, true));
 
     // users
-    Optional.ofNullable(userId)
-      .map(Integer::longValue)
-      .ifPresent(id -> filter.should(termQuery(FIELD_USER_IDS, id)));
+    Optional.ofNullable(userSession.getUuid())
+      .ifPresent(uuid -> filter.should(termQuery(FIELD_USER_IDS, uuid)));
 
     // groups
     userSession.getGroups()

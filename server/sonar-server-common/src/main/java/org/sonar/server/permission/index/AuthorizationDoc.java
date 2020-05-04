@@ -43,7 +43,7 @@ public class AuthorizationDoc extends BaseDoc {
     if (dto.isAllowAnyone()) {
       return res.setAllowAnyone();
     }
-    return res.setRestricted(dto.getGroupUuids(), dto.getUserIds());
+    return res.setRestricted(dto.getGroupUuids(), dto.getUserUuids());
   }
 
   @Override
@@ -73,10 +73,10 @@ public class AuthorizationDoc extends BaseDoc {
     return this;
   }
 
-  private AuthorizationDoc setRestricted(List<String> groupUuids, List<Integer> userIds) {
+  private AuthorizationDoc setRestricted(List<String> groupUuids, List<String> userUuids) {
     setField(FIELD_ALLOW_ANYONE, false);
     setField(FIELD_GROUP_IDS, groupUuids);
-    setField(FIELD_USER_IDS, userIds);
+    setField(FIELD_USER_IDS, userUuids);
     return this;
   }
 }

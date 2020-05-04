@@ -163,8 +163,8 @@ public class DeactivateActionTest {
 
     deactivate(user.getLogin());
 
-    assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), db.getDefaultOrganization().getUuid())).isEmpty();
-    assertThat(db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), project.uuid())).isEmpty();
+    assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getUuid(), db.getDefaultOrganization().getUuid())).isEmpty();
+    assertThat(db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getUuid(), project.uuid())).isEmpty();
   }
 
   @Test

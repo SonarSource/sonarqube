@@ -379,7 +379,7 @@ public class PermissionIndexerTest {
   }
 
   private UserSessionRule logIn(UserDto u) {
-    userSession.logIn(u.getLogin()).setUserId(u.getId());
+    userSession.logIn(u);
     return userSession;
   }
 

@@ -498,13 +498,13 @@ public class MemberUpdaterTest {
   }
 
   private void assertOrgPermissionsOfUser(UserDto user, OrganizationDto organization, OrganizationPermission... permissions) {
-    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(db.getSession(), user.getId(), organization.getUuid()).stream()
+    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(db.getSession(), user.getUuid(), organization.getUuid()).stream()
       .map(OrganizationPermission::fromKey))
         .containsOnly(permissions);
   }
 
   private void assertProjectPermissionsOfUser(UserDto user, ComponentDto project, String... permissions) {
-    assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(db.getSession(), user.getId(), project.uuid())).containsOnly(permissions);
+    assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(db.getSession(), user.getUuid(), project.uuid())).containsOnly(permissions);
   }
 
   private void insertProperty(String key, @Nullable String value, @Nullable String componentUuid, @Nullable String userUuid) {

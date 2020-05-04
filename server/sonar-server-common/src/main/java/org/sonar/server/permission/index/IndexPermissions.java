@@ -25,7 +25,7 @@ import java.util.List;
 public final class IndexPermissions {
   private final String projectUuid;
   private final String qualifier;
-  private final List<Integer> userIds = new ArrayList<>();
+  private final List<String> userUuids = new ArrayList<>();
   private final List<String> groupUuids = new ArrayList<>();
   private boolean allowAnyone = false;
 
@@ -42,12 +42,12 @@ public final class IndexPermissions {
     return qualifier;
   }
 
-  public List<Integer> getUserIds() {
-    return userIds;
+  public List<String> getUserUuids() {
+    return userUuids;
   }
 
-  public IndexPermissions addUserId(int l) {
-    userIds.add(l);
+  public IndexPermissions addUserUuid(String l) {
+    userUuids.add(l);
     return this;
   }
 

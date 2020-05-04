@@ -50,27 +50,27 @@ public interface UserPermissionMapper {
   /**
    * select id of users with at least one permission on the specified project but which do not have the specified permission.
    */
-  Set<Integer> selectUserIdsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
+  Set<String> selectUserUuidsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
 
   void insert(UserPermissionDto dto);
 
-  void deleteGlobalPermission(@Param("userId") int userId, @Param("permission") String permission,
+  void deleteGlobalPermission(@Param("userUuid") String userUuid, @Param("permission") String permission,
     @Param("organizationUuid") String organizationUuid);
 
-  void deleteProjectPermission(@Param("userId") int userId, @Param("permission") String permission,
+  void deleteProjectPermission(@Param("userUuid") String userUuid, @Param("permission") String permission,
     @Param("projectUuid") String projectUuid);
 
   void deleteProjectPermissions(@Param("projectUuid") String projectUuid);
 
   int deleteProjectPermissionOfAnyUser(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
 
-  List<String> selectGlobalPermissionsOfUser(@Param("userId") int userId, @Param("organizationUuid") String organizationUuid);
+  List<String> selectGlobalPermissionsOfUser(@Param("userUuid") String userUuid, @Param("organizationUuid") String organizationUuid);
 
-  List<String> selectProjectPermissionsOfUser(@Param("userId") int userId, @Param("projectUuid") String projectUuid);
+  List<String> selectProjectPermissionsOfUser(@Param("userUuid") String userUuid, @Param("projectUuid") String projectUuid);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
-  void deleteOrganizationMemberPermissions(@Param("organizationUuid") String organizationUuid, @Param("userId") int login);
+  void deleteOrganizationMemberPermissions(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 
-  void deleteByUserId(@Param("userId") int userId);
+  void deleteByUserUuid(@Param("userUuid") String userUuid);
 }

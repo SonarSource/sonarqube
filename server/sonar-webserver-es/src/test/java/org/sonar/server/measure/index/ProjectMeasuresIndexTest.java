@@ -1672,7 +1672,7 @@ public class ProjectMeasuresIndexTest {
 
   private void indexForUser(UserDto user, ProjectMeasuresDoc... docs) {
     es.putDocuments(TYPE_PROJECT_MEASURES, docs);
-    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addUserId(user.getId())).collect(toList()));
+    authorizationIndexer.allow(stream(docs).map(doc -> new IndexPermissions(doc.getId(), PROJECT).addUserUuid(user.getUuid())).collect(toList()));
   }
 
   private void indexForGroup(GroupDto group, ProjectMeasuresDoc... docs) {

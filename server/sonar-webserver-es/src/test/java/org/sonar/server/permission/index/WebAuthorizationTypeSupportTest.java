@@ -26,6 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTesting;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,100 +56,102 @@ public class WebAuthorizationTypeSupportTest {
     HasParentQueryBuilder filter = (HasParentQueryBuilder) underTest.createQueryFilter();
 
     assertJson(filter.toString()).isSimilarTo("{" +
-        "  \"has_parent\" : {" +
-        "    \"query\" : {" +
-        "      \"bool\" : {" +
-        "        \"filter\" : [{" +
-        "          \"bool\" : {" +
-        "            \"should\" : [{" +
-        "              \"term\" : {" +
-        "                \"auth_allowAnyone\" : {\"value\": true}" +
-        "              }" +
-        "            }]" +
-        "          }" +
-        "        }]" +
-        "      }" +
-        "    }," +
-        "    \"parent_type\" : \"auth\"" +
-        "  }" +
-        "}");
+      "  \"has_parent\" : {" +
+      "    \"query\" : {" +
+      "      \"bool\" : {" +
+      "        \"filter\" : [{" +
+      "          \"bool\" : {" +
+      "            \"should\" : [{" +
+      "              \"term\" : {" +
+      "                \"auth_allowAnyone\" : {\"value\": true}" +
+      "              }" +
+      "            }]" +
+      "          }" +
+      "        }]" +
+      "      }" +
+      "    }," +
+      "    \"parent_type\" : \"auth\"" +
+      "  }" +
+      "}");
   }
 
   @Test
   public void createQueryFilter_sets_filter_on_anyone_and_user_id_if_user_is_logged_in_but_has_no_groups() {
-    userSession.logIn().setUserId(1234);
+    UserDto userDto = UserTesting.newUserDto();
+    userSession.logIn(userDto);
 
     HasParentQueryBuilder filter = (HasParentQueryBuilder) underTest.createQueryFilter();
 
     assertJson(filter.toString()).isSimilarTo("{" +
-        "  \"has_parent\": {" +
-        "    \"query\": {" +
-        "      \"bool\": {" +
-        "        \"filter\": [{" +
-        "          \"bool\": {" +
-        "            \"should\": [" +
-        "              {" +
-        "                \"term\": {" +
-        "                  \"auth_allowAnyone\": {\"value\": true}" +
-        "                }" +
-        "              }," +
-        "              {" +
-        "                \"term\": {" +
-        "                  \"auth_userIds\": {\"value\": 1234}" +
-        "                }" +
-        "              }" +
-        "            ]" +
-        "          }" +
-        "        }]" +
-        "      }" +
-        "    }," +
-        "    \"parent_type\": \"auth\"" +
-        "  }" +
-        "}");
+      "  \"has_parent\": {" +
+      "    \"query\": {" +
+      "      \"bool\": {" +
+      "        \"filter\": [{" +
+      "          \"bool\": {" +
+      "            \"should\": [" +
+      "              {" +
+      "                \"term\": {" +
+      "                  \"auth_allowAnyone\": {\"value\": true}" +
+      "                }" +
+      "              }," +
+      "              {" +
+      "                \"term\": {" +
+      "                  \"auth_userIds\": {\"value\": \"" + userDto.getUuid() + "\"}" +
+      "                }" +
+      "              }" +
+      "            ]" +
+      "          }" +
+      "        }]" +
+      "      }" +
+      "    }," +
+      "    \"parent_type\": \"auth\"" +
+      "  }" +
+      "}");
   }
 
   @Test
   public void createQueryFilter_sets_filter_on_anyone_and_user_id_and_group_ids_if_user_is_logged_in_and_has_groups() {
     GroupDto group1 = GroupTesting.newGroupDto().setUuid("10");
     GroupDto group2 = GroupTesting.newGroupDto().setUuid("11");
-    userSession.logIn().setUserId(1234).setGroups(group1, group2);
+    UserDto userDto = UserTesting.newUserDto();
+    userSession.logIn(userDto).setGroups(group1, group2);
 
     HasParentQueryBuilder filter = (HasParentQueryBuilder) underTest.createQueryFilter();
 
     assertJson(filter.toString()).isSimilarTo("{" +
-        "  \"has_parent\": {" +
-        "    \"query\": {" +
-        "      \"bool\": {" +
-        "        \"filter\": [{" +
-        "          \"bool\": {" +
-        "            \"should\": [" +
-        "              {" +
-        "                \"term\": {" +
-        "                  \"auth_allowAnyone\": {\"value\": true}" +
-        "                }" +
-        "              }," +
-        "              {" +
-        "                \"term\": {" +
-        "                  \"auth_userIds\": {\"value\": 1234}" +
-        "                }" +
-        "              }," +
-        "              {" +
-        "                \"term\": {" +
-        "                  \"auth_groupIds\": {\"value\": \"10\"}" +
-        "                }" +
-        "              }," +
-        "              {" +
-        "                \"term\": {" +
-        "                  \"auth_groupIds\": {\"value\": \"11\"}" +
-        "                }" +
-        "              }" +
-        "            ]" +
-        "          }" +
-        "        }]" +
-        "      }" +
-        "    }," +
-        "    \"parent_type\": \"auth\"" +
-        "  }" +
-        "}");
+      "  \"has_parent\": {" +
+      "    \"query\": {" +
+      "      \"bool\": {" +
+      "        \"filter\": [{" +
+      "          \"bool\": {" +
+      "            \"should\": [" +
+      "              {" +
+      "                \"term\": {" +
+      "                  \"auth_allowAnyone\": {\"value\": true}" +
+      "                }" +
+      "              }," +
+      "              {" +
+      "                \"term\": {" +
+      "                  \"auth_userIds\": {\"value\": \"" + userDto.getUuid() + "\"}" +
+      "                }" +
+      "              }," +
+      "              {" +
+      "                \"term\": {" +
+      "                  \"auth_groupIds\": {\"value\": \"10\"}" +
+      "                }" +
+      "              }," +
+      "              {" +
+      "                \"term\": {" +
+      "                  \"auth_groupIds\": {\"value\": \"11\"}" +
+      "                }" +
+      "              }" +
+      "            ]" +
+      "          }" +
+      "        }]" +
+      "      }" +
+      "    }," +
+      "    \"parent_type\": \"auth\"" +
+      "  }" +
+      "}");
   }
 }

@@ -146,13 +146,13 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     PUBLIC_PERMISSIONS.forEach(permission -> {
       dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
         .forEach(group -> insertProjectPermissionOnGroup(dbSession, component, permission, group));
-      dbClient.userPermissionDao().selectUserIdsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
-        .forEach(userId -> insertProjectPermissionOnUser(dbSession, component, permission, userId));
+      dbClient.userPermissionDao().selectUserUuidsWithPermissionOnProjectBut(dbSession, component.uuid(), permission)
+        .forEach(userUuid -> insertProjectPermissionOnUser(dbSession, component, permission, userUuid));
     });
   }
 
-  private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, Integer userId) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), component.getOrganizationUuid(), permission, userId, component.uuid()));
+  private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, String userUuid) {
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), component.getOrganizationUuid(), permission, userUuid, component.uuid()));
   }
 
   private void insertProjectPermissionOnGroup(DbSession dbSession, ComponentDto component, String permission, String groupUuid) {

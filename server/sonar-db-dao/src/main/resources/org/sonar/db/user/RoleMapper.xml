@@ -8,9 +8,8 @@
       ur.component_uuid
     from
       user_roles ur
-      inner join users u on ur.user_id = u.id
     where
-      u.uuid = #{userUuid,jdbcType=VARCHAR}
+      ur.user_uuid = #{userUuid,jdbcType=VARCHAR}
       and ur.role = #{permission,jdbcType=VARCHAR}
       and ur.component_uuid is not null
     union

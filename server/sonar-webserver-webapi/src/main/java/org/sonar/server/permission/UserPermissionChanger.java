@@ -93,7 +93,8 @@ public class UserPermissionChanger {
     if (loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
       return false;
     }
-    UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getOrganizationUuid(), change.getPermission(), change.getUserId().getId(), change.getProjectUuid());
+    UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getOrganizationUuid(), change.getPermission(), change.getUserId().getUuid(),
+      change.getProjectUuid());
     dbClient.userPermissionDao().insert(dbSession, dto);
     return true;
   }
@@ -105,9 +106,9 @@ public class UserPermissionChanger {
     checkOtherAdminsExist(dbSession, change);
     String projectUuid = change.getProjectUuid();
     if (projectUuid != null) {
-      dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getId(), change.getPermission(), projectUuid);
+      dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getUuid(), change.getPermission(), projectUuid);
     } else {
-      dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getId(), change.getPermission(), change.getOrganizationUuid());
+      dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getUuid(), change.getPermission(), change.getOrganizationUuid());
     }
     return true;
   }
@@ -115,10 +116,10 @@ public class UserPermissionChanger {
   private List<String> loadExistingPermissions(DbSession dbSession, UserPermissionChange change) {
     String projectUuid = change.getProjectUuid();
     if (projectUuid != null) {
-      return dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, change.getUserId().getId(), projectUuid);
+      return dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, change.getUserId().getUuid(), projectUuid);
     }
     return dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession,
-      change.getUserId().getId(),
+      change.getUserId().getUuid(),
       change.getOrganizationUuid());
   }
 

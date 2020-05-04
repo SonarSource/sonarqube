@@ -58,7 +58,6 @@ public class UserPermissionDao implements Dao {
     return paginate(mapper(dbSession).selectUserIdsByQueryAndScope(query), query);
   }
 
-
   private static List<Integer> paginate(List<Integer> results, PermissionQuery query) {
     return results
       .stream()
@@ -86,8 +85,8 @@ public class UserPermissionDao implements Dao {
    *
    * @return the global permissions. An empty list is returned if user or organization do not exist.
    */
-  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, int userId, String organizationUuid) {
-    return mapper(dbSession).selectGlobalPermissionsOfUser(userId, organizationUuid);
+  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, String userUuid, String organizationUuid) {
+    return mapper(dbSession).selectGlobalPermissionsOfUser(userUuid, organizationUuid);
   }
 
   /**
@@ -95,12 +94,12 @@ public class UserPermissionDao implements Dao {
    *
    * @return the project permissions. An empty list is returned if project or user do not exist.
    */
-  public List<String> selectProjectPermissionsOfUser(DbSession dbSession, int userId, String projectUuid) {
-    return mapper(dbSession).selectProjectPermissionsOfUser(userId, projectUuid);
+  public List<String> selectProjectPermissionsOfUser(DbSession dbSession, String userUuid, String projectUuid) {
+    return mapper(dbSession).selectProjectPermissionsOfUser(userUuid, projectUuid);
   }
 
-  public Set<Integer> selectUserIdsWithPermissionOnProjectBut(DbSession session, String projectUuid, String permission) {
-    return mapper(session).selectUserIdsWithPermissionOnProjectBut(projectUuid, permission);
+  public Set<String> selectUserUuidsWithPermissionOnProjectBut(DbSession session, String projectUuid, String permission) {
+    return mapper(session).selectUserUuidsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
   public void insert(DbSession dbSession, UserPermissionDto dto) {
@@ -122,15 +121,15 @@ public class UserPermissionDao implements Dao {
   /**
    * Removes a single global permission from user
    */
-  public void deleteGlobalPermission(DbSession dbSession, int userId, String permission, String organizationUuid) {
-    mapper(dbSession).deleteGlobalPermission(userId, permission, organizationUuid);
+  public void deleteGlobalPermission(DbSession dbSession, String userUuid, String permission, String organizationUuid) {
+    mapper(dbSession).deleteGlobalPermission(userUuid, permission, organizationUuid);
   }
 
   /**
    * Removes a single project permission from user
    */
-  public void deleteProjectPermission(DbSession dbSession, int userId, String permission, String projectUuid) {
-    mapper(dbSession).deleteProjectPermission(userId, permission, projectUuid);
+  public void deleteProjectPermission(DbSession dbSession, String userUuid, String permission, String projectUuid) {
+    mapper(dbSession).deleteProjectPermission(userUuid, permission, projectUuid);
   }
 
   /**
@@ -151,12 +150,12 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).deleteByOrganization(organizationUuid);
   }
 
-  public void deleteOrganizationMemberPermissions(DbSession dbSession, String organizationUuid, int userId) {
-    mapper(dbSession).deleteOrganizationMemberPermissions(organizationUuid, userId);
+  public void deleteOrganizationMemberPermissions(DbSession dbSession, String organizationUuid, String userUuid) {
+    mapper(dbSession).deleteOrganizationMemberPermissions(organizationUuid, userUuid);
   }
 
-  public void deleteByUserId(DbSession dbSession, int userId) {
-    mapper(dbSession).deleteByUserId(userId);
+  public void deleteByUserUuid(DbSession dbSession, String userUuid) {
+    mapper(dbSession).deleteByUserUuid(userUuid);
   }
 
   private static UserPermissionMapper mapper(DbSession dbSession) {

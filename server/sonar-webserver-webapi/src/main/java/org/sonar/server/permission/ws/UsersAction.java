@@ -145,14 +145,14 @@ public class UsersAction implements PermissionsWsAction {
   }
 
   private UsersWsResponse buildResponse(List<UserDto> users, List<UserPermissionDto> userPermissions, Paging paging) {
-    Multimap<Integer, String> permissionsByUserId = TreeMultimap.create();
-    userPermissions.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
+    Multimap<String, String> permissionsByUserUuid = TreeMultimap.create();
+    userPermissions.forEach(userPermission -> permissionsByUserUuid.put(userPermission.getUserUuid(), userPermission.getPermission()));
 
     UsersWsResponse.Builder response = UsersWsResponse.newBuilder();
     users.forEach(user -> {
       Permissions.User.Builder userResponse = response.addUsersBuilder()
         .setLogin(user.getLogin())
-        .addAllPermissions(permissionsByUserId.get(user.getId()));
+        .addAllPermissions(permissionsByUserUuid.get(user.getUuid()));
       ofNullable(user.getEmail()).ifPresent(userResponse::setEmail);
       ofNullable(emptyToNull(user.getEmail())).ifPresent(u -> userResponse.setAvatar(avatarResolver.create(user)));
       ofNullable(user.getName()).ifPresent(userResponse::setName);

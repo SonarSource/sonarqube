@@ -22,21 +22,18 @@ package org.sonar.server.es.newindex;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
 public class NewAuthorizedIndexTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private String someIndexName = randomAlphabetic(10).toLowerCase(Locale.ENGLISH);
   private Index someIndex = Index.withRelations(someIndexName);
@@ -47,10 +44,9 @@ public class NewAuthorizedIndexTest {
   public void constructor_fails_with_IAE_if_index_does_not_support_relations() {
     Index simpleIndex = Index.simple(someIndexName);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index must accept relations");
-
-    new NewAuthorizedIndex(simpleIndex, defaultSettingsConfiguration);
+    assertThatThrownBy(() -> new NewAuthorizedIndex(simpleIndex, defaultSettingsConfiguration))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Index must accept relations");
   }
 
   @Test
@@ -64,10 +60,9 @@ public class NewAuthorizedIndexTest {
   public void build_fails_if_no_relation_mapping_has_been_created() {
     NewAuthorizedIndex underTest = new NewAuthorizedIndex(someIndex, defaultSettingsConfiguration);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("At least one relation mapping must be defined");
-
-    underTest.build();
+    assertThatThrownBy(() -> underTest.build())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("At least one relation mapping must be defined");
   }
 
   @Test
@@ -108,7 +103,7 @@ public class NewAuthorizedIndexTest {
     assertThat(getFieldAsMap(properties, "auth_groupIds"))
       .contains(entry("type", "keyword"));
     assertThat(getFieldAsMap(properties, "auth_userIds"))
-      .containsOnly(entry("type", "long"));
+      .contains(entry("type", "keyword"));
     assertThat(getFieldAsMap(properties, "auth_allowAnyone"))
       .containsOnly(entry("type", "boolean"));
   }

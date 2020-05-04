@@ -150,8 +150,7 @@
     from organizations org
     inner join user_roles ur on
       ur.organization_uuid = org.uuid
-    inner join users u on ur.user_id = u.id
-      and u.uuid = #{userUuid,jdbcType=VARCHAR}
+      and ur.user_uuid = #{userUuid,jdbcType=VARCHAR}
       and ur.component_uuid is null
       and ur.role = #{permission,jdbcType=VARCHAR}
     union
