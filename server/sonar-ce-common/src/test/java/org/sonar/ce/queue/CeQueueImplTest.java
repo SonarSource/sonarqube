@@ -32,6 +32,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeTaskSubmit.Component;
 import org.sonar.ce.task.CeTask;
+import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.UuidFactoryImpl;
@@ -71,7 +72,7 @@ public class CeQueueImplTest {
 
   private DbSession session = db.getSession();
 
-  private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
+  private UuidFactory uuidFactory = new SequenceUuidFactory();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private CeQueue underTest = new CeQueueImpl(system2, db.getDbClient(), uuidFactory, defaultOrganizationProvider);
@@ -407,20 +408,20 @@ public class CeQueueImplTest {
   @Test
   public void cancelAll_pendings_but_not_in_progress() {
     CeTask inProgressTask = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
-    CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(13)));
-    CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(14)));
+    CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
+    CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
 
     db.getDbClient().ceQueueDao().peek(session, WORKER_UUID);
 
     int canceledCount = underTest.cancelAll();
     assertThat(canceledCount).isEqualTo(2);
 
-    Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask1.getUuid());
-    assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask2.getUuid());
-    assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), inProgressTask.getUuid());
-    assertThat(history.isPresent()).isFalse();
+    Optional<CeActivityDto> ceActivityInProgress = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask1.getUuid());
+    assertThat(ceActivityInProgress.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    Optional<CeActivityDto> ceActivityPending1 = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask2.getUuid());
+    assertThat(ceActivityPending1.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    Optional<CeActivityDto> ceActivityPending2 = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), inProgressTask.getUuid());
+    assertThat(ceActivityPending2.isPresent()).isFalse();
   }
 
   @Test
