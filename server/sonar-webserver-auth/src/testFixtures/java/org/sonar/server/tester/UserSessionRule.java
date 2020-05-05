@@ -208,11 +208,6 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSessionRule setUserId(@Nullable Integer userId) {
-    ensureMockUserSession().setUserId(userId);
-    return this;
-  }
-
   /**
    * Groups that user is member of. User must be logged in. An exception
    * is thrown if session is anonymous.
@@ -246,7 +241,8 @@ public class UserSessionRule implements TestRule, UserSession {
     return currentUserSession.hasComponentPermission(permission, component);
   }
 
-  @Override public boolean hasProjectPermission(String permission, ProjectDto project) {
+  @Override
+  public boolean hasProjectPermission(String permission, ProjectDto project) {
     return currentUserSession.hasProjectPermission(permission, project);
   }
 
@@ -260,7 +256,8 @@ public class UserSessionRule implements TestRule, UserSession {
     return currentUserSession.keepAuthorizedComponents(permission, components);
   }
 
-  @Override public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+  @Override
+  public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
     return currentUserSession.keepAuthorizedProjects(permission, projects);
   }
 
@@ -280,12 +277,6 @@ public class UserSessionRule implements TestRule, UserSession {
   @CheckForNull
   public String getName() {
     return currentUserSession.getName();
-  }
-
-  @Override
-  @CheckForNull
-  public Integer getUserId() {
-    return currentUserSession.getUserId();
   }
 
   @Override
@@ -352,7 +343,8 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  @Override public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
+  @Override
+  public UserSession checkProjectPermission(String projectPermission, ProjectDto project) {
     currentUserSession.checkProjectPermission(projectPermission, project);
     return this;
   }

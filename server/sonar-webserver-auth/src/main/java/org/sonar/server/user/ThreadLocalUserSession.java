@@ -76,12 +76,6 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
-  @CheckForNull
-  public Integer getUserId() {
-    return get().getUserId();
-  }
-
-  @Override
   public Collection<GroupDto> getGroups() {
     return get().getGroups();
   }
@@ -162,7 +156,8 @@ public class ThreadLocalUserSession implements UserSession {
     return get().hasComponentPermission(permission, component);
   }
 
-  @Override public boolean hasProjectPermission(String permission, ProjectDto project) {
+  @Override
+  public boolean hasProjectPermission(String permission, ProjectDto project) {
     return get().hasProjectPermission(permission, project);
   }
 
@@ -187,7 +182,8 @@ public class ThreadLocalUserSession implements UserSession {
     return get().keepAuthorizedComponents(permission, components);
   }
 
-  @Override public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
+  @Override
+  public List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects) {
     return get().keepAuthorizedProjects(permission, projects);
   }
 

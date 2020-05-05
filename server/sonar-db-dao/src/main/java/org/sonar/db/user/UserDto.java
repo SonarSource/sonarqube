@@ -35,7 +35,6 @@ public class UserDto {
 
   /** Technical unique identifier, can't be null */
   private String uuid;
-  private Integer id;
   private String login;
   private String name;
   private String email;
@@ -72,15 +71,6 @@ public class UserDto {
 
   UserDto setUuid(String uuid) {
     this.uuid = uuid;
-    return this;
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public UserDto setId(Integer id) {
-    this.id = id;
     return this;
   }
 

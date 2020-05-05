@@ -322,15 +322,15 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     assertThat(selectProjectPermissionGroups(project, UserRole.USER)).isEmpty();
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
     assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).isEmpty();
-    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getId());
+    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getUuid());
   }
 
   private void assertTemplate1AppliedToPrivateProject(ComponentDto project) {
     assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).containsExactly(group1.getName());
     assertThat(selectProjectPermissionGroups(project, UserRole.USER)).containsExactly(group2.getName());
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
-    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getId());
-    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getId());
+    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).containsExactly(user1.getUuid());
+    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getUuid());
   }
 
   private void assertNoPermissionOnProject(ComponentDto project) {
@@ -359,8 +359,8 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     return db.getDbClient().groupPermissionDao().selectGroupNamesByQuery(db.getSession(), query);
   }
 
-  private List<Integer> selectProjectPermissionUsers(ComponentDto project, String permission) {
+  private List<String> selectProjectPermissionUsers(ComponentDto project, String permission) {
     PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project.getOrganizationUuid()).setPermission(permission).setComponent(project).build();
-    return db.getDbClient().userPermissionDao().selectUserIdsByQuery(db.getSession(), query);
+    return db.getDbClient().userPermissionDao().selectUserUuidsByQuery(db.getSession(), query);
   }
 }

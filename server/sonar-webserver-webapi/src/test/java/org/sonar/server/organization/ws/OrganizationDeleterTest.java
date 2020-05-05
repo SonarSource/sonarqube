@@ -140,7 +140,7 @@ public class OrganizationDeleterTest {
 
     underTest.delete(dbSession, organization);
 
-    UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, user.getId());
+    UserDto userReloaded = dbClient.userDao().selectByUuid(dbSession, user.getUuid());
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
   }
@@ -155,7 +155,7 @@ public class OrganizationDeleterTest {
 
     underTest.delete(dbSession, organization);
 
-    UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, user.getId());
+    UserDto userReloaded = dbClient.userDao().selectByUuid(dbSession, user.getUuid());
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
     verify(projectLifeCycleListeners).onProjectsDeleted(ImmutableSet.of(Project.from(project)));

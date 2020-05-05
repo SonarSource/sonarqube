@@ -17,38 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
+package org.sonar.server.platform.db.migration.version.v83.users;
 
-import javax.annotation.concurrent.Immutable;
-import org.sonar.db.user.UserDto;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v83.util.AddPrimaryKeyBuilder;
 
-import static java.util.Objects.requireNonNull;
+public class AddPrimaryKeyOnUuidColumnOfUsersTable extends DdlChange {
 
-/**
- * Reference a user by his technical (db) id or functional login.
- * This is temporary class as long as services and DAOs do not
- * use only technical id.
- */
-@Immutable
-public class UserId {
-
-  private final String uuid;
-  private final String login;
-
-  public UserId(String uuid, String login) {
-    this.uuid = uuid;
-    this.login = requireNonNull(login);
+  public AddPrimaryKeyOnUuidColumnOfUsersTable(Database db) {
+    super(db);
   }
 
-  public String getUuid() {
-    return uuid;
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddPrimaryKeyBuilder("users", "uuid").build());
   }
 
-  public String getLogin() {
-    return login;
-  }
-
-  public static UserId from(UserDto dto) {
-    return new UserId(dto.getUuid(), dto.getLogin());
-  }
 }

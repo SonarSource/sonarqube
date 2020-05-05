@@ -129,12 +129,12 @@ public class SearchUsersAction implements QProfileWsAction {
       int total = dbClient.qProfileEditUsersDao().countByQuery(dbSession, query);
       List<UserMembershipDto> usersMembership = dbClient.qProfileEditUsersDao().selectByQuery(dbSession, query,
         forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
-      Map<Integer, UserDto> usersById = dbClient.userDao().selectByIds(dbSession, usersMembership.stream().map(UserMembershipDto::getUserId).collect(toList()))
-        .stream().collect(uniqueIndex(UserDto::getId));
+      Map<String, UserDto> usersById = dbClient.userDao().selectByUuids(dbSession, usersMembership.stream().map(UserMembershipDto::getUserUuid).collect(toList()))
+        .stream().collect(uniqueIndex(UserDto::getUuid));
       writeProtobuf(
         SearchUsersResponse.newBuilder()
           .addAllUsers(usersMembership.stream()
-            .map(userMembershipDto -> toUser(usersById.get(userMembershipDto.getUserId()), userMembershipDto.isSelected()))
+            .map(userMembershipDto -> toUser(usersById.get(userMembershipDto.getUserUuid()), userMembershipDto.isSelected()))
             .collect(toList()))
           .setPaging(buildPaging(wsRequest, total)).build(),
         request, response);

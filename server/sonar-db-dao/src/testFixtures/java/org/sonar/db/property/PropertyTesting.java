@@ -53,24 +53,24 @@ public class PropertyTesting {
   }
 
   public static PropertyDto newUserPropertyDto(String key, String value, UserDto user) {
-    checkNotNull(user.getId());
+    checkNotNull(user.getUuid());
     return newPropertyDto(key, value, null, user.getUuid());
   }
 
   public static PropertyDto newUserPropertyDto(UserDto user) {
-    checkNotNull(user.getId());
+    checkNotNull(user.getUuid());
     return newPropertyDto(null, user.getUuid());
   }
 
   public static PropertyDto newPropertyDto(String key, String value, ComponentDto component, UserDto user) {
     checkNotNull(component.uuid());
-    checkNotNull(user.getId());
+    checkNotNull(user.getUuid());
     return newPropertyDto(key, value, component.uuid(), user.getUuid());
   }
 
   public static PropertyDto newPropertyDto(ComponentDto component, UserDto user) {
     checkNotNull(component.uuid());
-    checkNotNull(user.getId());
+    checkNotNull(user.getUuid());
     return newPropertyDto(component.uuid(), user.getUuid());
   }
 

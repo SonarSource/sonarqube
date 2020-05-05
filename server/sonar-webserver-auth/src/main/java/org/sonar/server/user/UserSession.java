@@ -58,13 +58,6 @@ public interface UserSession {
   String getName();
 
   /**
-   * Database ID of the authenticated user. Returns {@code null}
-   * if {@link #isLoggedIn()} is {@code false}.
-   */
-  @CheckForNull
-  Integer getUserId();
-
-  /**
    * The groups that the logged-in user is member of. An empty
    * collection is returned if {@link #isLoggedIn()} is {@code false}.
    */

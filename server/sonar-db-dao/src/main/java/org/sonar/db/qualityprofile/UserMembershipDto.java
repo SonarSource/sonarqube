@@ -21,16 +21,16 @@ package org.sonar.db.qualityprofile;
 
 public class UserMembershipDto {
 
-  private int userId;
+  private String userUuid;
   // Set by MyBatis
   private String uuid;
 
-  public int getUserId() {
-    return userId;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public UserMembershipDto setUserId(int userId) {
-    this.userId = userId;
+  public UserMembershipDto setUserUuid(String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 

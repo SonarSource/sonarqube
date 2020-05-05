@@ -89,7 +89,7 @@ public class PermissionWsSupport {
   public UserId findUser(DbSession dbSession, String login) {
     UserDto dto = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
     checkFound(dto, "User with login '%s' is not found'", login);
-    return new UserId(dto.getId(), dto.getUuid(), dto.getLogin());
+    return new UserId(dto.getUuid(), dto.getLogin());
   }
 
   public PermissionTemplateDto findTemplate(DbSession dbSession, WsTemplateRef ref) {

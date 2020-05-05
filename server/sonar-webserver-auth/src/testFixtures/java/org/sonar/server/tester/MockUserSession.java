@@ -37,7 +37,6 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
   private final String login;
   private String uuid;
   private boolean root = false;
-  private Integer userId;
   private String name;
   private List<GroupDto> groups = new ArrayList<>();
   private UserSession.IdentityProvider identityProvider;
@@ -48,7 +47,6 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     checkArgument(!login.isEmpty());
     this.login = login;
     setUuid(login + "uuid");
-    setUserId(login.hashCode());
     setName(login + " name");
     setInternalIdentity();
   }
@@ -58,7 +56,6 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
     checkArgument(!userDto.getLogin().isEmpty());
     this.login = userDto.getLogin();
     setUuid(userDto.getUuid());
-    setUserId(userDto.getId());
     setName(userDto.getName());
     AbstractUserSession.Identity identity = AbstractUserSession.computeIdentity(userDto);
     this.identityProvider = identity.getIdentityProvider();
@@ -101,16 +98,6 @@ public class MockUserSession extends AbstractMockUserSession<MockUserSession> {
 
   public MockUserSession setName(String s) {
     this.name = requireNonNull(s);
-    return this;
-  }
-
-  @Override
-  public Integer getUserId() {
-    return this.userId;
-  }
-
-  public MockUserSession setUserId(int userId) {
-    this.userId = userId;
     return this;
   }
 

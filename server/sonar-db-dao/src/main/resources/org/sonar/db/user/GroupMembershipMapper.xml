@@ -99,13 +99,13 @@
   </sql>
 
   <select id="selectMembers" parameterType="map" resultType="org.sonar.db.user.UserMembershipDto">
-    SELECT u.id as id, u.login as login, u.name as name, gu.group_uuid as groupUuid
+    SELECT u.uuid as uuid, u.login as login, u.name as name, gu.group_uuid as groupUuid
     <include refid="userCommonClauses"/>
     ORDER BY u.name ASC
   </select>
 
   <select id="countMembers" parameterType="map" resultType="int">
-    SELECT COUNT(u.id)
+    SELECT COUNT(u.uuid)
     <include refid="userCommonClauses"/>
   </select>
 

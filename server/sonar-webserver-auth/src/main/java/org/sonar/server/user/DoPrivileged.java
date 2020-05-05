@@ -83,11 +83,6 @@ public final class DoPrivileged {
       }
 
       @Override
-      public Integer getUserId() {
-        return null;
-      }
-
-      @Override
       public Collection<GroupDto> getGroups() {
         return Collections.emptyList();
       }

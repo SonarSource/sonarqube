@@ -259,6 +259,10 @@ import org.sonar.server.platform.db.migration.version.v83.userroles.DropResource
 import org.sonar.server.platform.db.migration.version.v83.userroles.MakeUserRolesUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v83.userroles.MigrateResourceIdToUuidInUserRoles;
 import org.sonar.server.platform.db.migration.version.v83.userroles.PopulateUserRolesUuid;
+import org.sonar.server.platform.db.migration.version.v83.users.AddPrimaryKeyOnUuidColumnOfUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.DropIdColumnOfUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.DropPrimaryKeyOnIdColumnOfUsersTable;
+import org.sonar.server.platform.db.migration.version.v83.users.DropUniqueIndexOnUuidColumnOfUsersTable;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.AddIndexOnUserUuidOfGroupsUsersTable;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.AddUniqueIndexOnUserUuidAndGroupIdOfGroupsUsersTable;
 import org.sonar.server.platform.db.migration.version.v83.users.fk.groupsusers.AddUserUuidColumnToGroupsUsers;
@@ -706,6 +710,11 @@ public class DbVersion83 implements DbVersion {
       .add(3666, "Drop unique index on 'user_id' column of 'USER_ROLES' table", DropIndexOnUserIdOfUserRolesTable.class)
       .add(3667, "Add unique index on 'user_uuid' columns of 'USER_ROLES' table", AddIndexOnUserUuidOfUserRolesTable.class)
       .add(3668, "Drop column on 'user_id' column of 'USER_ROLES' table", DropUserIdColumnOfUserRolesTable.class)
+
+      .add(3669, "Drop unique index on 'user_id' column of 'USERS' table", DropUniqueIndexOnUuidColumnOfUsersTable.class)
+      .add(3670, "Drop PK index on 'id' column of 'USERS' table", DropPrimaryKeyOnIdColumnOfUsersTable.class)
+      .add(3671, "Add PK index on 'uuid' column of 'USERS' table", AddPrimaryKeyOnUuidColumnOfUsersTable.class)
+      .add(3672, "Drop 'id' column of 'USERS' table", DropIdColumnOfUsersTable.class)
 
     ;
   }

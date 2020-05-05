@@ -40,25 +40,25 @@ public class UserPermissionDao implements Dao {
    * No sort is done.
    *
    * @param query non-null query including optional filters.
-   * @param userIds Filter on user ids, including disabled users. Must not be empty and maximum size is {@link DatabaseUtils#PARTITION_SIZE_FOR_ORACLE}.
+   * @param userUuids Filter on user ids, including disabled users. Must not be empty and maximum size is {@link DatabaseUtils#PARTITION_SIZE_FOR_ORACLE}.
    */
-  public List<UserPermissionDto> selectUserPermissionsByQuery(DbSession dbSession, PermissionQuery query, Collection<Integer> userIds) {
-    if (userIds.isEmpty()) {
+  public List<UserPermissionDto> selectUserPermissionsByQuery(DbSession dbSession, PermissionQuery query, Collection<String> userUuids) {
+    if (userUuids.isEmpty()) {
       return emptyList();
     }
-    checkArgument(userIds.size() <= DatabaseUtils.PARTITION_SIZE_FOR_ORACLE, "Maximum 1'000 users are accepted");
-    return mapper(dbSession).selectUserPermissionsByQueryAndUserIds(query, userIds);
+    checkArgument(userUuids.size() <= DatabaseUtils.PARTITION_SIZE_FOR_ORACLE, "Maximum 1'000 users are accepted");
+    return mapper(dbSession).selectUserPermissionsByQueryAndUserUuids(query, userUuids);
   }
 
-  public List<Integer> selectUserIdsByQuery(DbSession dbSession, PermissionQuery query) {
-    return paginate(mapper(dbSession).selectUserIdsByQuery(query), query);
+  public List<String> selectUserUuidsByQuery(DbSession dbSession, PermissionQuery query) {
+    return paginate(mapper(dbSession).selectUserUuidsByQuery(query), query);
   }
 
-  public List<Integer> selectUserIdsByQueryAndScope(DbSession dbSession, PermissionQuery query) {
-    return paginate(mapper(dbSession).selectUserIdsByQueryAndScope(query), query);
+  public List<String> selectUserUuidsByQueryAndScope(DbSession dbSession, PermissionQuery query) {
+    return paginate(mapper(dbSession).selectUserUuidsByQueryAndScope(query), query);
   }
 
-  private static List<Integer> paginate(List<Integer> results, PermissionQuery query) {
+  private static List<String> paginate(List<String> results, PermissionQuery query) {
     return results
       .stream()
       // Pagination is done in Java because it's too complex to use SQL pagination in Oracle and MsSQL with the distinct

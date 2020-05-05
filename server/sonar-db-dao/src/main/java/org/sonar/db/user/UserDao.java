@@ -54,23 +54,8 @@ public class UserDao implements Dao {
   }
 
   @CheckForNull
-  public UserDto selectUserById(DbSession session, int userId) {
-    return mapper(session).selectUser(userId);
-  }
-
-  @CheckForNull
   public UserDto selectByUuid(DbSession session, String uuid) {
     return mapper(session).selectByUuid(uuid);
-  }
-
-  /**
-   * Select users by ids, including disabled users. An empty list is returned
-   * if list of ids is empty, without any db round trips.
-   *
-   * Used by the Governance plugin
-   */
-  public List<UserDto> selectByIds(DbSession session, Collection<Integer> ids) {
-    return executeLargeInputs(ids, mapper(session)::selectByIds);
   }
 
   @CheckForNull

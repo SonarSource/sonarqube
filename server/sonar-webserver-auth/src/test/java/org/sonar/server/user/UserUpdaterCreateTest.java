@@ -101,7 +101,7 @@ public class UserUpdaterCreateTest {
       .build(), u -> {
       });
 
-    assertThat(dto.getId()).isNotNull();
+    assertThat(dto.getUuid()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("user");
     assertThat(dto.getName()).isEqualTo("User");
     assertThat(dto.getEmail()).isEqualTo("user@mail.com");
@@ -116,7 +116,7 @@ public class UserUpdaterCreateTest {
       .isPositive()
       .isEqualTo(dto.getUpdatedAt());
 
-    assertThat(dbClient.userDao().selectByLogin(session, "user").getId()).isEqualTo(dto.getId());
+    assertThat(dbClient.userDao().selectByLogin(session, "user").getUuid()).isEqualTo(dto.getUuid());
     List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.TYPE_USER);
     assertThat(indexUsers).hasSize(1);
     assertThat(indexUsers.get(0).getSourceAsMap())
@@ -137,7 +137,7 @@ public class UserUpdaterCreateTest {
       });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "us");
-    assertThat(dto.getId()).isNotNull();
+    assertThat(dto.getUuid()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("us");
     assertThat(dto.getName()).isEqualTo("User");
     assertThat(dto.getEmail()).isNull();

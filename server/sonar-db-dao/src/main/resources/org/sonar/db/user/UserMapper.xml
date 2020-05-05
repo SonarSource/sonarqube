@@ -4,7 +4,6 @@
 <mapper namespace="org.sonar.db.user.UserMapper">
 
     <sql id="userColumns">
-        u.id as id,
         u.uuid as uuid,
         u.login as login,
         u.name as name,
@@ -51,13 +50,6 @@
         OR u.scm_accounts like #{likeScmAccount, jdbcType=VARCHAR}
     </select>
 
-    <select id="selectUser" parameterType="int" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
-        WHERE u.id=#{id, jdbcType=INTEGER}
-    </select>
-
     <select id="selectUserByLogin" parameterType="string" resultType="User">
         SELECT
         <include refid="userColumns"/>
@@ -89,16 +81,6 @@
         select
         <include refid="userColumns"/>
         from users u
-    </select>
-
-    <select id="selectByIds" parameterType="string" resultType="User">
-        SELECT
-        <include refid="userColumns"/>
-        FROM users u
-        WHERE u.id in
-        <foreach collection="ids" open="(" close=")" item="id" separator=",">
-            #{id, jdbcType=INTEGER}
-        </foreach>
     </select>
 
     <select id="selectUsers" parameterType="map" resultType="User">
@@ -217,7 +199,7 @@
         and active = ${_true}
     </update>
 
-    <insert id="insert" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="user.id">
+    <insert id="insert" parameterType="map" useGeneratedKeys="false">
         insert into users (
         uuid,
         login,

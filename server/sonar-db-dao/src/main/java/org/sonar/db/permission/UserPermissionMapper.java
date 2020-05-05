@@ -26,17 +26,17 @@ import org.apache.ibatis.annotations.Param;
 
 public interface UserPermissionMapper {
 
-  List<UserPermissionDto> selectUserPermissionsByQueryAndUserIds(@Param("query") PermissionQuery query, @Param("userIds") Collection<Integer> userIds);
+  List<UserPermissionDto> selectUserPermissionsByQueryAndUserUuids(@Param("query") PermissionQuery query, @Param("userUuids") Collection<String> userUuids);
 
-  List<Integer> selectUserIdsByQuery(@Param("query") PermissionQuery query);
+  List<String> selectUserUuidsByQuery(@Param("query") PermissionQuery query);
 
   /**
    * Fetch user ids based on permission query and only in a specific scope (global permissions only, organization permissions only or project permissions only)
    */
-  List<Integer> selectUserIdsByQueryAndScope(@Param("query") PermissionQuery query);
+  List<String> selectUserUuidsByQueryAndScope(@Param("query") PermissionQuery query);
 
   /**
-   * Count the number of distinct users returned by {@link #selectUserIdsByQuery(PermissionQuery)}
+   * Count the number of distinct users returned by {@link #selectUserUuidsByQuery(PermissionQuery)}
    * {@link PermissionQuery#getPageOffset()} and {@link PermissionQuery#getPageSize()} are ignored.
    */
   int countUsersByQuery(@Param("query") PermissionQuery query);

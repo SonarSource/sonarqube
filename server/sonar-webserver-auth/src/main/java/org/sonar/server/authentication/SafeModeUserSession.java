@@ -70,12 +70,6 @@ public class SafeModeUserSession extends AbstractUserSession {
     return null;
   }
 
-  @CheckForNull
-  @Override
-  public Integer getUserId() {
-    return null;
-  }
-
   @Override
   public Collection<GroupDto> getGroups() {
     return Collections.emptyList();

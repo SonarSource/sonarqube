@@ -117,27 +117,27 @@ public class QProfileEditUsersDaoTest {
       .setOrganization(organization)
       .setProfile(profile)
       .setMembership(ANY).build(), Pagination.all()))
-        .extracting(UserMembershipDto::getUserId, UserMembershipDto::isSelected)
+        .extracting(UserMembershipDto::getUserUuid, UserMembershipDto::isSelected)
         .containsExactlyInAnyOrder(
-          tuple(user1.getId(), true),
-          tuple(user2.getId(), true),
-          tuple(user3.getId(), false));
+          tuple(user1.getUuid(), true),
+          tuple(user2.getUuid(), true),
+          tuple(user3.getUuid(), false));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
       .setOrganization(organization)
       .setProfile(profile)
       .setMembership(IN).build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserId, UserMembershipDto::isSelected)
-        .containsExactlyInAnyOrder(tuple(user1.getId(), true), tuple(user2.getId(), true));
+        .extracting(UserMembershipDto::getUserUuid, UserMembershipDto::isSelected)
+        .containsExactlyInAnyOrder(tuple(user1.getUuid(), true), tuple(user2.getUuid(), true));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
       .setOrganization(organization)
       .setProfile(profile)
       .setMembership(OUT).build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserId, UserMembershipDto::isSelected)
-        .containsExactlyInAnyOrder(tuple(user3.getId(), false));
+        .extracting(UserMembershipDto::getUserUuid, UserMembershipDto::isSelected)
+        .containsExactlyInAnyOrder(tuple(user3.getUuid(), false));
   }
 
   @Test
@@ -160,8 +160,8 @@ public class QProfileEditUsersDaoTest {
       .setMembership(IN)
       .setQuery("user2").build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserId)
-        .containsExactlyInAnyOrder(user2.getId());
+        .extracting(UserMembershipDto::getUserUuid)
+        .containsExactlyInAnyOrder(user2.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
       .setOrganization(organization)
@@ -169,8 +169,8 @@ public class QProfileEditUsersDaoTest {
       .setMembership(IN)
       .setQuery("joh").build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserId)
-        .containsExactlyInAnyOrder(user1.getId(), user2.getId());
+        .extracting(UserMembershipDto::getUserUuid)
+        .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
       .setOrganization(organization)
@@ -178,8 +178,8 @@ public class QProfileEditUsersDaoTest {
       .setMembership(IN)
       .setQuery("Doe").build(),
       Pagination.all()))
-        .extracting(UserMembershipDto::getUserId)
-        .containsExactlyInAnyOrder(user1.getId(), user3.getId());
+        .extracting(UserMembershipDto::getUserUuid)
+        .containsExactlyInAnyOrder(user1.getUuid(), user3.getUuid());
   }
 
   @Test
@@ -201,8 +201,8 @@ public class QProfileEditUsersDaoTest {
       .setMembership(ANY)
       .build(),
       Pagination.forPage(1).andSize(1)))
-        .extracting(UserMembershipDto::getUserId)
-        .containsExactly(user1.getId());
+        .extracting(UserMembershipDto::getUserUuid)
+        .containsExactly(user1.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
       .setOrganization(organization)
@@ -210,8 +210,8 @@ public class QProfileEditUsersDaoTest {
       .setMembership(ANY)
       .build(),
       Pagination.forPage(3).andSize(1)))
-        .extracting(UserMembershipDto::getUserId)
-        .containsExactly(user3.getId());
+        .extracting(UserMembershipDto::getUserUuid)
+        .containsExactly(user3.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
       .setOrganization(organization)
@@ -219,8 +219,8 @@ public class QProfileEditUsersDaoTest {
       .setMembership(ANY)
       .build(),
       Pagination.forPage(1).andSize(10)))
-        .extracting(UserMembershipDto::getUserId)
-        .containsExactly(user1.getId(), user2.getId(), user3.getId());
+        .extracting(UserMembershipDto::getUserUuid)
+        .containsExactly(user1.getUuid(), user2.getUuid(), user3.getUuid());
   }
 
   @Test

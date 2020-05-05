@@ -151,7 +151,7 @@ public class OrganizationDaoTest {
   }
 
   @Test
-  public void description_url_avatarUrl_and_userId_are_optional() {
+  public void description_url_avatarUrl_and_userUuid_are_optional() {
     when(system2.now()).thenReturn(SOME_DATE);
     insertOrganization(copyOf(ORGANIZATION_DTO_1).setDescription(null).setUrl(null).setAvatarUrl(null));
 
@@ -162,7 +162,7 @@ public class OrganizationDaoTest {
     assertThat(row.get("description")).isNull();
     assertThat(row.get("url")).isNull();
     assertThat(row.get("avatarUrl")).isNull();
-    assertThat(row.get("userId")).isNull();
+    assertThat(row.get("userUuid")).isNull();
     assertThat(row.get("createdAt")).isEqualTo(SOME_DATE);
     assertThat(row.get("updatedAt")).isEqualTo(SOME_DATE);
     assertThat(row.get("defaultTemplate")).isNull();

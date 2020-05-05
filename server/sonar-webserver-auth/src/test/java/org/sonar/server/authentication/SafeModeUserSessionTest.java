@@ -36,7 +36,6 @@ public class SafeModeUserSessionTest {
     assertThat(underTest.getUuid()).isNull();
     assertThat(underTest.isLoggedIn()).isFalse();
     assertThat(underTest.getName()).isNull();
-    assertThat(underTest.getUserId()).isNull();
     assertThat(underTest.getGroups()).isEmpty();
   }
 

@@ -78,11 +78,6 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
-    public Integer getUserId() {
-      return user != null ? user.getId() : null;
-    }
-
-    @Override
     public Collection<GroupDto> getGroups() {
       throw notImplemented();
     }

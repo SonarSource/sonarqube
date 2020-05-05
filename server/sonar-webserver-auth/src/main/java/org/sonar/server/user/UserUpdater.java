@@ -391,7 +391,7 @@ public class UserUpdater {
         List<UserDto> matchingUsers = dbClient.userDao().selectByScmAccountOrLoginOrEmail(dbSession, scmAccount);
         List<String> matchingUsersWithoutExistingUser = newArrayList();
         for (UserDto matchingUser : matchingUsers) {
-          if (existingUser != null && matchingUser.getId().equals(existingUser.getId())) {
+          if (existingUser != null && matchingUser.getUuid().equals(existingUser.getUuid())) {
             continue;
           }
           matchingUsersWithoutExistingUser.add(getNameOrLogin(matchingUser) + " (" + matchingUser.getLogin() + ")");

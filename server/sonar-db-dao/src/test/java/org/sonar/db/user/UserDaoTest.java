@@ -70,17 +70,6 @@ public class UserDaoTest {
   }
 
   @Test
-  public void selectUsersIds() {
-    UserDto user1 = db.users().insertUser(user -> user.setLogin("user1"));
-    UserDto user2 = db.users().insertUser(user -> user.setLogin("user2"));
-    UserDto user3 = db.users().insertUser(user -> user.setLogin("inactive_user").setActive(false));
-
-    assertThat(underTest.selectByIds(session, asList(user1.getId(), user2.getId(), user3.getId(), 1_000))).extracting("login")
-      .containsExactlyInAnyOrder("user1", "user2", "inactive_user");
-    assertThat(underTest.selectByIds(session, emptyList())).isEmpty();
-  }
-
-  @Test
   public void selectUserByLogin_ignore_inactive() {
     db.users().insertUser(user -> user.setLogin("user1"));
     db.users().insertUser(user -> user.setLogin("user2"));
@@ -323,7 +312,6 @@ public class UserDaoTest {
     long date = DateUtils.parseDate("2014-06-20").getTime();
 
     UserDto userDto = new UserDto()
-      .setId(1)
       .setLogin("john")
       .setName("John")
       .setEmail("jo@hn.com")
@@ -346,7 +334,7 @@ public class UserDaoTest {
 
     UserDto user = underTest.selectActiveUserByLogin(session, "john");
     assertThat(user).isNotNull();
-    assertThat(user.getId()).isNotNull();
+    assertThat(user.getUuid()).isNotNull();
     assertThat(user.getLogin()).isEqualTo("john");
     assertThat(user.getName()).isEqualTo("John");
     assertThat(user.getEmail()).isEqualTo("jo@hn.com");
@@ -407,7 +395,7 @@ public class UserDaoTest {
 
     UserDto reloaded = underTest.selectByUuid(db.getSession(), user.getUuid());
     assertThat(reloaded).isNotNull();
-    assertThat(reloaded.getId()).isEqualTo(user.getId());
+    assertThat(reloaded.getUuid()).isEqualTo(user.getUuid());
     assertThat(reloaded.getLogin()).isEqualTo("johnDoo");
     assertThat(reloaded.getName()).isEqualTo("John Doo");
     assertThat(reloaded.getEmail()).isEqualTo("jodoo@hn.com");
@@ -437,7 +425,7 @@ public class UserDaoTest {
 
     underTest.deactivateUser(session, user);
 
-    UserDto userReloaded = underTest.selectUserById(session, user.getId());
+    UserDto userReloaded = underTest.selectByUuid(session, user.getUuid());
     assertThat(userReloaded.isActive()).isFalse();
     assertThat(userReloaded.getName()).isEqualTo(user.getName());
     assertThat(userReloaded.getLogin()).isEqualTo(user.getLogin());
@@ -453,7 +441,7 @@ public class UserDaoTest {
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
     assertThat(userReloaded.getLastConnectionDate()).isNull();
-    assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
+    assertThat(underTest.selectByUuid(session, otherUser.getUuid())).isNotNull();
   }
 
   @Test
@@ -469,12 +457,12 @@ public class UserDaoTest {
 
     underTest.cleanHomepage(session, new OrganizationDto().setUuid("dummy-organization-UUID"));
 
-    UserDto userWithAHomepageReloaded = underTest.selectUserById(session, userUnderTest.getId());
+    UserDto userWithAHomepageReloaded = underTest.selectByUuid(session, userUnderTest.getUuid());
     assertThat(userWithAHomepageReloaded.getUpdatedAt()).isEqualTo(NOW);
     assertThat(userWithAHomepageReloaded.getHomepageType()).isNull();
     assertThat(userWithAHomepageReloaded.getHomepageParameter()).isNull();
 
-    UserDto untouchedUserReloaded = underTest.selectUserById(session, untouchedUser.getId());
+    UserDto untouchedUserReloaded = underTest.selectByUuid(session, untouchedUser.getUuid());
     assertThat(untouchedUserReloaded.getUpdatedAt()).isEqualTo(untouchedUser.getUpdatedAt());
     assertThat(untouchedUserReloaded.getHomepageType()).isEqualTo(untouchedUser.getHomepageType());
     assertThat(untouchedUserReloaded.getHomepageParameter()).isEqualTo(untouchedUser.getHomepageParameter());
@@ -493,12 +481,12 @@ public class UserDaoTest {
 
     underTest.cleanHomepage(session, new ProjectDto().setUuid("dummy-project-UUID"));
 
-    UserDto userWithAHomepageReloaded = underTest.selectUserById(session, userUnderTest.getId());
+    UserDto userWithAHomepageReloaded = underTest.selectByUuid(session, userUnderTest.getUuid());
     assertThat(userWithAHomepageReloaded.getUpdatedAt()).isEqualTo(NOW);
     assertThat(userWithAHomepageReloaded.getHomepageType()).isNull();
     assertThat(userWithAHomepageReloaded.getHomepageParameter()).isNull();
 
-    UserDto untouchedUserReloaded = underTest.selectUserById(session, untouchedUser.getId());
+    UserDto untouchedUserReloaded = underTest.selectByUuid(session, untouchedUser.getUuid());
     assertThat(untouchedUserReloaded.getUpdatedAt()).isEqualTo(untouchedUser.getUpdatedAt());
     assertThat(untouchedUserReloaded.getHomepageType()).isEqualTo(untouchedUser.getHomepageType());
     assertThat(untouchedUserReloaded.getHomepageParameter()).isEqualTo(untouchedUser.getHomepageParameter());
@@ -513,7 +501,7 @@ public class UserDaoTest {
 
     underTest.cleanHomepage(session, user);
 
-    UserDto reloaded = underTest.selectUserById(session, user.getId());
+    UserDto reloaded = underTest.selectByUuid(session, user.getUuid());
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
     assertThat(reloaded.getHomepageType()).isNull();
     assertThat(reloaded.getHomepageParameter()).isNull();
@@ -541,7 +529,7 @@ public class UserDaoTest {
     underTest.setRoot(session, user2.getLogin(), true);
 
     UserDto dto = underTest.selectByLogin(session, user1.getLogin());
-    assertThat(dto.getId()).isEqualTo(user1.getId());
+    assertThat(dto.getUuid()).isEqualTo(user1.getUuid());
     assertThat(dto.getLogin()).isEqualTo("marius");
     assertThat(dto.getName()).isEqualTo("Marius");
     assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");

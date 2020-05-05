@@ -122,7 +122,7 @@ public class DeleteActionTest {
       .setParam(PARAM_PROJECT, project.getDbKey())
       .execute();
 
-    UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, insert.getId());
+    UserDto userReloaded = dbClient.userDao().selectByUuid(dbSession, insert.getUuid());
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
   }

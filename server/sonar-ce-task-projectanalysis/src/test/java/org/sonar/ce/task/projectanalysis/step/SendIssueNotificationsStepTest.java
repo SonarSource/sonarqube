@@ -466,9 +466,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     assertThat(assigneeCacheCaptor.getAllValues())
       .filteredOn(t -> t != cache)
       .isEmpty();
-    Tuple[] expected = stream(users).map(user -> tuple(user.getUuid(), user.getUuid(), user.getId(), user.getLogin())).toArray(Tuple[]::new);
+    Tuple[] expected = stream(users).map(user -> tuple(user.getUuid(), user.getUuid(), user.getUuid(), user.getLogin())).toArray(Tuple[]::new);
     assertThat(cache.entrySet())
-      .extracting(Map.Entry::getKey, t -> t.getValue().getUuid(), t -> t.getValue().getId(), t -> t.getValue().getLogin())
+      .extracting(Map.Entry::getKey, t -> t.getValue().getUuid(), t -> t.getValue().getUuid(), t -> t.getValue().getLogin())
       .containsOnly(expected);
   }
 

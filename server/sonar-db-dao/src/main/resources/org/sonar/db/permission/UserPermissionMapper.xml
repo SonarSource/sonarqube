@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.db.permission.UserPermissionMapper">
 
-  <select id="selectUserPermissionsByQueryAndUserIds" parameterType="map" resultType="org.sonar.db.permission.UserPermissionDto">
+  <select id="selectUserPermissionsByQueryAndUserUuids" parameterType="map" resultType="org.sonar.db.permission.UserPermissionDto">
     select
       u.uuid as userUuid,
       ur.organization_uuid as organizationUuid,
@@ -11,25 +11,25 @@
       ur.role as permission
     <include refid="sqlQueryJoins" />
     <where>
-      u.id in <foreach collection="userIds" open="(" close=")" item="userId" separator=",">#{userId,jdbcType=INTEGER}</foreach>
+      u.uuid in <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">#{userUuid,jdbcType=VARCHAR}</foreach>
       <include refid="sqlQueryFilters" />
     </where>
   </select>
 
-  <select id="selectUserIdsByQuery" parameterType="map" resultType="int">
+  <select id="selectUserUuidsByQuery" parameterType="map" resultType="String">
     select
-      u.id, lower(u.name)
+      u.uuid, lower(u.name)
     <include refid="sqlQueryJoins" />
     <where>
       <include refid="sqlQueryFilters" />
     </where>
-    group by u.id, lower(u.name)
+    group by u.uuid, lower(u.name)
     order by case when (count(ur.role) > 0) then 1 else 2 end asc, lower(u.name) asc
   </select>
 
-  <select id="selectUserIdsByQueryAndScope" parameterType="map" resultType="int">
+  <select id="selectUserUuidsByQueryAndScope" parameterType="map" resultType="String">
     select
-    u.id, lower(u.name)
+    u.uuid, lower(u.name)
     from users u
     left join user_roles ur on ur.user_uuid = u.uuid and ur.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     <choose>
@@ -45,12 +45,12 @@
     <where>
       <include refid="sqlQueryFilters" />
     </where>
-    group by u.id, lower(u.name)
+    group by u.uuid, lower(u.name)
     order by case when (count(distinct ur.role) > 0) then 1 else 2 end asc, lower(u.name) asc
   </select>
 
   <select id="countUsersByQuery" parameterType="map" resultType="int">
-    select count(distinct(u.id))
+    select count(distinct(u.uuid))
     <include refid="sqlQueryJoins" />
     <where>
       <include refid="sqlQueryFilters" />

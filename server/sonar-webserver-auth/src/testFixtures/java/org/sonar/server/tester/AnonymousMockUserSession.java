@@ -51,11 +51,6 @@ public class AnonymousMockUserSession extends AbstractMockUserSession<AnonymousM
   }
 
   @Override
-  public Integer getUserId() {
-    return null;
-  }
-
-  @Override
   public boolean isLoggedIn() {
     return false;
   }

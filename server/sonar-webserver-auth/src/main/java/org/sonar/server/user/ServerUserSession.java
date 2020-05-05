@@ -102,12 +102,6 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  @CheckForNull
-  public Integer getUserId() {
-    return userDto == null ? null : userDto.getId();
-  }
-
-  @Override
   public Collection<GroupDto> getGroups() {
     return groups.get();
   }
@@ -144,7 +138,7 @@ public class ServerUserSession extends AbstractUserSession {
   private Set<OrganizationPermission> loadOrganizationPermissions(String organizationUuid) {
     Set<String> permissionKeys;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (userDto != null && userDto.getId() != null) {
+      if (userDto != null && userDto.getUuid() != null) {
         permissionKeys = dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organizationUuid, userDto.getUuid());
       } else {
         permissionKeys = dbClient.authorizationDao().selectOrganizationPermissionsOfAnonymous(dbSession, organizationUuid);
@@ -203,7 +197,7 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   private Set<String> loadDbPermissions(DbSession dbSession, String projectUuid) {
-    if (userDto != null && userDto.getId() != null) {
+    if (userDto != null && userDto.getUuid() != null) {
       return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getUuid());
     }
     return dbClient.authorizationDao().selectProjectPermissionsOfAnonymous(dbSession, projectUuid);

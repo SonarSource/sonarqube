@@ -56,13 +56,11 @@ public class ThreadLocalUserSessionTest {
     GroupDto group = GroupTesting.newGroupDto();
     MockUserSession expected = new MockUserSession("karadoc")
       .setUuid("karadoc-uuid")
-      .setUserId(123)
       .setGroups(group);
     threadLocalUserSession.set(expected);
 
     UserSession session = threadLocalUserSession.get();
     assertThat(session).isSameAs(expected);
-    assertThat(threadLocalUserSession.getUserId()).isEqualTo(123);
     assertThat(threadLocalUserSession.getLogin()).isEqualTo("karadoc");
     assertThat(threadLocalUserSession.getUuid()).isEqualTo("karadoc-uuid");
     assertThat(threadLocalUserSession.isLoggedIn()).isTrue();
@@ -77,7 +75,6 @@ public class ThreadLocalUserSessionTest {
     UserSession session = threadLocalUserSession.get();
     assertThat(session).isSameAs(expected);
     assertThat(threadLocalUserSession.getLogin()).isNull();
-    assertThat(threadLocalUserSession.getUserId()).isNull();
     assertThat(threadLocalUserSession.isLoggedIn()).isFalse();
     assertThat(threadLocalUserSession.getGroups()).isEmpty();
   }
