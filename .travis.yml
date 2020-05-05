@@ -3,7 +3,7 @@ sudo: required
 install: true
 jdk: openjdk11
 script: ./travis.sh
-dist: trusty
+dist: bionic
 
 branches:
   except:
