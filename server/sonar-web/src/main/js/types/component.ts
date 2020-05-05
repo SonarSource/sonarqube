@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 export enum ComponentQualifier {
   Application = 'APP',
   Directory = 'DIR',
@@ -27,6 +28,15 @@ export enum ComponentQualifier {
   SubPortfolio = 'SVW',
   SubProject = 'BRC',
   TestFile = 'UTS'
+}
+
+export function isPortfolioLike(componentQualifier?: string | ComponentQualifier) {
+  return (
+    !!componentQualifier &&
+    [ComponentQualifier.Portfolio.toString(), ComponentQualifier.SubPortfolio.toString()].includes(
+      componentQualifier
+    )
+  );
 }
 
 export enum Visibility {

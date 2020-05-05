@@ -26,8 +26,8 @@ import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
 import { STATUSES } from '../../../apps/background-tasks/constants';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
-import { isSonarCloud } from '../../../helpers/system';
 import { mockComponent, mockLocation, mockRouter } from '../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../types/component';
 import { ComponentContainer } from '../ComponentContainer';
 
 jest.mock('../../../api/branches', () => {
@@ -61,10 +61,6 @@ jest.mock('../../../api/nav', () => ({
     breadcrumbs: [{ key: 'portfolioKey', name: 'portfolio', qualifier: 'VW' }],
     key: 'portfolioKey'
   })
-}));
-
-jest.mock('../../../helpers/system', () => ({
-  isSonarCloud: jest.fn().mockReturnValue(false)
 }));
 
 // mock this, because some of its children are using redux store
@@ -121,18 +117,6 @@ it('updates branches on change', async () => {
   expect(getPullRequests).toBeCalledWith('projectKey');
   await waitAndUpdate(wrapper);
   expect(registerBranchStatus).toBeCalledTimes(2);
-});
-
-it('loads organization', async () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(true);
-  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
-    component: { organization: 'org' }
-  });
-
-  const fetchOrganization = jest.fn();
-  shallowRender({ fetchOrganization });
-  await new Promise(setImmediate);
-  expect(fetchOrganization).toBeCalledWith('org');
 });
 
 it('fetches status', async () => {
@@ -196,18 +180,34 @@ it('reload component after task progress finished', async () => {
 });
 
 it('should show component not found if it does not exist', async () => {
-  (getComponentNavigation as jest.Mock).mockRejectedValue({ status: 404 });
+  (getComponentNavigation as jest.Mock).mockRejectedValueOnce({ status: 404 });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should redirect if the user has no access', async () => {
-  (getComponentNavigation as jest.Mock).mockRejectedValue({ status: 403 });
+  (getComponentNavigation as jest.Mock).mockRejectedValueOnce({ status: 403 });
   const requireAuthorization = jest.fn();
   const wrapper = shallowRender({ requireAuthorization });
   await waitAndUpdate(wrapper);
   expect(requireAuthorization).toBeCalled();
+});
+
+it('should redirect if the component is a portfolio', async () => {
+  const componentKey = 'comp-key';
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+    component: { key: componentKey, breadcrumbs: [{ qualifier: ComponentQualifier.Portfolio }] }
+  });
+
+  const replace = jest.fn();
+
+  const wrapper = shallowRender({
+    location: mockLocation({ pathname: '/dashboard' }),
+    router: mockRouter({ replace })
+  });
+  await waitAndUpdate(wrapper);
+  expect(replace).toBeCalledWith({ pathname: '/portfolio', query: { id: componentKey } });
 });
 
 function shallowRender(props: Partial<ComponentContainer['props']> = {}) {
