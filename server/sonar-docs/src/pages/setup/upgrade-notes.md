@@ -20,6 +20,8 @@ The code coverage for .NET projects now takes into account the branch/condition 
 **Applications on the Projects page**  
 [Applications](/user-guide/applications/) are now found on the Projects page. You can filter, favorite, and tag applications like you can with projects. ([MMF-1382](https://jira.sonarsource.com/browse/MMF-1382)).
 
+[Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15640)
+
 ## Release 8.2 Upgrade Notes  
 **Security Hotspots: dedicated space and workflow**
 * The Security Hotspots have a brand new space where developers can perform security reviews. The review process has been simplified. It's no longer necessary to transform a Security Hotspot into a Manual Vulnerability and back. A developer can now simply mark a Security Hotspot as Safe, Fixed, or leave it as-is if more time is needed. ([MMF-1868](https://jira.sonarsource.com/browse/MMF-1868)).
