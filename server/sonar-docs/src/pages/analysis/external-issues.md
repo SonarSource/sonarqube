@@ -36,6 +36,7 @@ Kotlin|`sonar.kotlin.detekt.reportPaths`|Comma-delimited list of paths to [Detek
 Python|`sonar.python.pylint.reportPath`|Path to a [Pylint](http://www.pylint.org/) report. Wildcards are supported|
 Python|![](/images/cross.svg) **Deprecated** `sonar.python.pylint_config` `sonar.python.pylint`|By default SonarPython will execute the pylint command for you if you haven't specified the path to a PyLint report. Use `sonar.python.pylint` to use a pylint executable in a non-default location. The property **must** be set on windows (even for the default location), using either escaped backslashes, or single forward slashes (e.g. `C:\\Python26\\Scripts\\pylint.bat`, `C:/Python26/Scripts/pylint.bat`). Use `sonar.python.pylint_config` to specify the relative or absolute path to a non-default pylint configuration file.
 Python|`sonar.python.bandit.reportPaths`|Comma-delimited list of paths to [Bandit](https://github.com/PyCQA/bandit/blob/master/README.rst) reports
+Python|`sonar.python.flake8.reportPaths`|Comma-delimited list of paths to [Flake8](https://flake8.pycqa.org/en/latest/) reports
 Ruby|`sonar.ruby.rubocop.reportPaths`|Comma-delimited list of paths to [Rubocop](https://github.com/rubocop-hq/rubocop) reports
 Scala|`sonar.scala.scalastyle.reportPaths`|Comma-delimited list of paths to [Scalastyle](http://www.scalastyle.org/) reports
 Scala|`sonar.scala.scapegoat.reportPaths`|Comma-delimited list of paths to [Scapegoat](https://github.com/sksamuel/scapegoat) reports in the **Scalastyle format**
