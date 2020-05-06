@@ -5223,14 +5223,7 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-github-slugger@^1.0.0:
-  version "1.2.1"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/github-slugger/-/github-slugger-1.2.1.tgz#47e904e70bf2dccd0014748142d31126cfd49508"
-  integrity sha1-R+kE5wvy3M0AFHSBQtMRJs/UlQg=
-  dependencies:
-    emoji-regex ">=6.0.0 <=6.1.1"
-
-github-slugger@^1.2.1:
+github-slugger@^1.1.1, github-slugger@^1.2.1:
   version "1.3.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/github-slugger/-/github-slugger-1.3.0.tgz#9bd0a95c5efdfc46005e82a906ef8e2a059124c9"
   integrity sha1-m9CpXF79/EYAXoKpBu+OKgWRJMk=
@@ -5519,6 +5512,16 @@ hast-util-from-parse5@^5.0.0:
     web-namespaces "^1.1.2"
     xtend "^4.0.1"
 
+hast-util-has-property@^1.0.0:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/hast-util-has-property/-/hast-util-has-property-1.0.4.tgz#9f137565fad6082524b382c1e7d7d33ca5059f36"
+  integrity sha512-ghHup2voGfgFoHMGnaLHOjbYFACKrRh9KFttdCzMCbFoBMJXiNi2+XTrPP8+q6cDJM/RSqlCfVWrjp1H201rZg==
+
+hast-util-is-element@^1.0.0:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/hast-util-is-element/-/hast-util-is-element-1.0.4.tgz#059090a05cc02e275df1ad02caf8cb422fcd2e02"
+  integrity sha512-NFR6ljJRvDcyPP5SbV7MyPBgF47X3BsskLnmw1U34yL+X6YC0MoBx9EyMg8Jtx4FzGH95jw8+c1VPLHaRA0wDQ==
+
 hast-util-parse-selector@^2.0.0:
   version "2.2.4"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/hast-util-parse-selector/-/hast-util-parse-selector-2.2.4.tgz#60c99d0b519e12ab4ed32e58f150ec3f61ed1974"
@@ -5555,6 +5558,11 @@ hast-util-to-parse5@^5.0.0:
     web-namespaces "^1.0.0"
     xtend "^4.0.0"
     zwitch "^1.0.0"
+
+hast-util-to-string@^1.0.0:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/hast-util-to-string/-/hast-util-to-string-1.0.3.tgz#897d4bbd0dc7a9b0765a943a82fa38136277de1f"
+  integrity sha512-3lDgDE5OdpTfP3aFeKRWEwdIZ4vprztvp+AoD+RhF7uGOBs1yBDWZFadxnjcUV4KCoI3vB9A7gdFO98hEXA90w==
 
 hastscript@^5.0.0:
   version "5.1.2"
@@ -7478,11 +7486,6 @@ mdast-util-to-hast@^8.0.0:
     unist-util-generated "^1.0.0"
     unist-util-position "^3.0.0"
     unist-util-visit "^2.0.0"
-
-mdast-util-to-string@^1.0.0:
-  version "1.0.6"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/mdast-util-to-string/-/mdast-util-to-string-1.0.6.tgz#7d85421021343b33de1552fc71cb8e5b4ae7536d"
-  integrity sha1-fYVCECE0OzPeFVL8ccuOW0rnU20=
 
 mdast-util-to-string@^1.0.5:
   version "1.1.0"
@@ -9778,6 +9781,17 @@ rehype-react@5.0.0:
     "@mapbox/hast-util-table-cell-style" "^0.1.3"
     hast-to-hyperscript "^8.0.0"
 
+rehype-slug@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/rehype-slug/-/rehype-slug-3.0.0.tgz#8416257df9665981894a1f0cd42b13c407bbcc8e"
+  integrity sha512-zFnj5BCEJXV6+URwaz8yW+9BdjDwO5iVzlQui3+7cCJ9MXlIEL0IY8VefcT/03Gw+2Hutdrx+zXnS7bnOrepZg==
+  dependencies:
+    github-slugger "^1.1.1"
+    hast-util-has-property "^1.0.0"
+    hast-util-is-element "^1.0.0"
+    hast-util-to-string "^1.0.0"
+    unist-util-visit "^2.0.0"
+
 relateurl@0.2.x:
   version "0.2.7"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/relateurl/-/relateurl-0.2.7.tgz#54dbf377e51440aca90a4cd274600d3ff2d888a9"
@@ -9827,15 +9841,6 @@ remark-rehype@6.0.0:
   integrity sha1-3NNA6+5BJwmoGxWmn0rkdKOKpyo=
   dependencies:
     mdast-util-to-hast "^8.0.0"
-
-remark-slug@5.1.2:
-  version "5.1.2"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/remark-slug/-/remark-slug-5.1.2.tgz#715ecdef8df1226786204b1887d31ab16aa24609"
-  integrity sha1-cV7N743xImeGIEsYh9MasWqiRgk=
-  dependencies:
-    github-slugger "^1.0.0"
-    mdast-util-to-string "^1.0.0"
-    unist-util-visit "^1.0.0"
 
 remark-stringify@^7.0.0:
   version "7.0.4"

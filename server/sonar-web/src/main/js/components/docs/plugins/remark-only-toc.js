@@ -18,15 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import util from 'mdast-util-toc';
-import slug from 'remark-slug';
-
 /**
  * This is a simplified version of the remark-toc plugin: https://github.com/remarkjs/remark-toc
  * It *only* renders the TOC, and leaves all the rest out.
  */
 export default function onlyToc() {
-  this.use(slug);
-
   return transformer;
 
   function transformer(node) {

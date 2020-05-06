@@ -21,10 +21,10 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import rehypeRaw from 'rehype-raw';
 import rehypeReact from 'rehype-react';
+import rehypeSlug from 'rehype-slug';
 import remark from 'remark';
 import remarkCustomBlocks from 'remark-custom-blocks';
 import remarkRehype from 'remark-rehype';
-import slug from 'remark-slug';
 import MetaData from 'sonar-ui-common/components/ui/update-center/MetaData';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import DocCollapsibleBlock from './DocCollapsibleBlock';
@@ -73,6 +73,7 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
       collapse: { classes: 'collapse' }
     })
       .use(remarkRehype, { allowDangerousHTML: true })
+      .use(rehypeSlug)
       .use(rehypeRaw)
       .use(rehypeReact, {
         createElement: React.createElement,
@@ -88,8 +89,7 @@ export default class DocMarkdownBlock extends React.PureComponent<Props> {
             <MetaData updateCenterKey={updatecenterkey} />
           )
         }
-      })
-      .use(slug);
+      });
 
     return (
       <div

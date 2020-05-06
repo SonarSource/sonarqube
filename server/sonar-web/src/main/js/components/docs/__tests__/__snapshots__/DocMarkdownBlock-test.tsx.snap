@@ -12,6 +12,7 @@ exports[`should render a sticky TOC if available 1`] = `
         key="h-1"
       >
         <h2
+          id="lorem-ipsum"
           key="h-2"
         >
           Lorem ipsum
@@ -26,6 +27,7 @@ exports[`should render a sticky TOC if available 1`] = `
         
 
         <h2
+          id="sit-amet"
           key="h-4"
         >
           Sit amet
@@ -33,6 +35,7 @@ exports[`should render a sticky TOC if available 1`] = `
         
 
         <h3
+          id="maecenas-diam"
           key="h-5"
         >
           Maecenas diam
@@ -47,6 +50,7 @@ exports[`should render a sticky TOC if available 1`] = `
         
 
         <h3
+          id="integer"
           key="h-7"
         >
           Integer
@@ -61,6 +65,7 @@ exports[`should render a sticky TOC if available 1`] = `
         
 
         <h2
+          id="nam-blandit"
           key="h-9"
         >
           Nam blandit

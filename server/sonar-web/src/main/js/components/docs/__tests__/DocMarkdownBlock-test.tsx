@@ -47,7 +47,7 @@ jest.mock('remark', () => ({ default: jest.requireActual('remark') }));
 jest.mock('remark-rehype', () => ({ default: jest.requireActual('remark-rehype') }));
 jest.mock('rehype-raw', () => ({ default: jest.requireActual('rehype-raw') }));
 jest.mock('rehype-react', () => ({ default: jest.requireActual('rehype-react') }));
-jest.mock('remark-slug', () => ({ default: jest.requireActual('remark-slug') }));
+jest.mock('rehype-slug', () => ({ default: jest.requireActual('rehype-slug') }));
 
 jest.mock('../../../helpers/system', () => ({
   getInstance: jest.fn(),
