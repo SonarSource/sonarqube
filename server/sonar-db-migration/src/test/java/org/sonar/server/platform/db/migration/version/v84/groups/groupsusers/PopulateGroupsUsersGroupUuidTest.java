@@ -59,6 +59,26 @@ public class PopulateGroupsUsersGroupUuidTest {
   }
 
   @Test
+  public void delete_orphan_rows() throws SQLException {
+    insertGroup(1L);
+    insertGroup(2L);
+    insertGroup(3L);
+
+    insertGroupsUser(4L, 1L);
+    insertGroupsUser(5L, 2L);
+    insertGroupsUser(6L, 10L);
+    insertGroupsUser(7L, null);
+
+    underTest.execute();
+
+    assertThatTableContains(
+      tuple(1L, "uuid1"),
+      tuple(2L, "uuid2"),
+      tuple(null, null)
+    );
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     insertGroup(1L);
     insertGroup(2L);

@@ -63,6 +63,34 @@ public class PopulatePermTplCharacteristicsTemplateUuidColumnTest {
   }
 
   @Test
+  public void delete_orphan_rows() throws SQLException {
+    long permissionTemplateId_1 = 1L;
+    String permissionTemplateUuid_1 = "uuid-1";
+    insertPermissionTemplate(permissionTemplateId_1, permissionTemplateUuid_1);
+
+    long permissionTemplateId_2 = 2L;
+    String permissionTemplateUuid_2 = "uuid-2";
+    insertPermissionTemplate(permissionTemplateId_2, permissionTemplateUuid_2);
+
+    long permissionTemplateId_3 = 3L;
+    String permissionTemplateUuid_3 = "uuid-3";
+    insertPermissionTemplate(permissionTemplateId_3, permissionTemplateUuid_3);
+
+    insertPermTplCharacteristics("4", permissionTemplateId_1);
+    insertPermTplCharacteristics("5", permissionTemplateId_2);
+    insertPermTplCharacteristics("6", 10L);
+
+    assertThat(db.countRowsOfTable("perm_tpl_characteristics")).isEqualTo(3);
+
+    underTest.execute();
+
+    assertThatPermTplCharacteristicsTemplateUuidIsEqualTo("4", permissionTemplateUuid_1);
+    assertThatPermTplCharacteristicsTemplateUuidIsEqualTo("5", permissionTemplateUuid_2);
+    assertThat(db.countRowsOfTable("perm_tpl_characteristics")).isEqualTo(2);
+
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     long permissionTemplateId_1 = 1L;
     String permissionTemplateUuid_1 = "uuid-1";

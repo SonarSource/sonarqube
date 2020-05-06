@@ -32,9 +32,6 @@ public class PopulateQualityGateConditionsMetricUuid extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-    // delete quality gate conditions without a metric
-    context.prepareUpsert("delete from quality_gate_conditions where metric_id is null").execute();
-
     MassUpdate massUpdate = context.prepareMassUpdate();
 
     massUpdate.select("select qgc.uuid, m.uuid " +
@@ -46,6 +43,16 @@ public class PopulateQualityGateConditionsMetricUuid extends DataChange {
     massUpdate.execute((row, update) -> {
       update.setString(1, row.getString(2));
       update.setString(2, row.getString(1));
+      return true;
+    });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select uuid from quality_gate_conditions where metric_uuid is null");
+    massUpdate.update("delete from quality_gate_conditions where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
       return true;
     });
   }

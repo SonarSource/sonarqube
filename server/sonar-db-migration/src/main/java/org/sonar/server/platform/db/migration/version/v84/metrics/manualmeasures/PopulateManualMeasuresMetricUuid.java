@@ -45,5 +45,15 @@ public class PopulateManualMeasuresMetricUuid extends DataChange {
       update.setString(2, row.getString(1));
       return true;
     });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select uuid from manual_measures where metric_uuid is null");
+    massUpdate.update("delete from manual_measures where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      return true;
+    });
   }
 }

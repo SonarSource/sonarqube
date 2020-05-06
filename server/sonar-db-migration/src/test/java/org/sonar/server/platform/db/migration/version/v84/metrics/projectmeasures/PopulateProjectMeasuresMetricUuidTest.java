@@ -57,6 +57,24 @@ public class PopulateProjectMeasuresMetricUuidTest {
   }
 
   @Test
+  public void delete_orphan_entries() throws SQLException {
+    insertMetric(1L);
+    insertMetric(2L);
+    insertMetric(3L);
+
+    insertProjectMeasure(4L, 10L);
+    insertProjectMeasure(5L, 2L);
+    insertProjectMeasure(6L, 3L);
+
+    underTest.execute();
+
+    assertThatTableContains(
+      tuple("uuid5", 2L, "uuid2"),
+      tuple("uuid6", 3L, "uuid3")
+    );
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     insertMetric(1L);
     insertMetric(2L);

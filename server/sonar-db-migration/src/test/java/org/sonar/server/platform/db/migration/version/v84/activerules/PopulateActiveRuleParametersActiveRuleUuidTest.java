@@ -57,6 +57,24 @@ public class PopulateActiveRuleParametersActiveRuleUuidTest {
   }
 
   @Test
+  public void delete_orphan_rows() throws SQLException {
+    insertActiveRule(1L);
+    insertActiveRule(2L);
+    insertActiveRule(3L);
+
+    insertActiveRuleParameter(4L, 10L);
+    insertActiveRuleParameter(5L, 2L);
+    insertActiveRuleParameter(6L, 3L);
+
+    underTest.execute();
+
+    assertThatTableContains(
+      tuple("uuid5", 2L, "uuid2", "value5"),
+      tuple("uuid6", 3L, "uuid3", "value6")
+    );
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     insertActiveRule(1L);
     insertActiveRule(2L);

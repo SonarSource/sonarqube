@@ -33,7 +33,6 @@ public class PopulateProjectMeasuresMetricUuid extends DataChange {
   @Override
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-
     massUpdate.select("select pm.uuid, m.uuid " +
       "from project_measures pm " +
       "join metrics m on pm.metric_id = m.id");
@@ -43,6 +42,16 @@ public class PopulateProjectMeasuresMetricUuid extends DataChange {
     massUpdate.execute((row, update) -> {
       update.setString(1, row.getString(2));
       update.setString(2, row.getString(1));
+      return true;
+    });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select uuid from project_measures where metric_uuid is null");
+    massUpdate.update("delete from project_measures where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
       return true;
     });
   }

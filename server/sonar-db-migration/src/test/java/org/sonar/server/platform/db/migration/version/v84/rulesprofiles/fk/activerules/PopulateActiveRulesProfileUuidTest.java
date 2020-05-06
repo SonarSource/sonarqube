@@ -60,6 +60,33 @@ public class PopulateActiveRulesProfileUuidTest {
   }
 
   @Test
+  public void delete_orphan_rows() throws SQLException {
+    long ruleProfileId_1 = 1L;
+    String ruleProfileUuid_1 = "uuid-1";
+    insertRuleProfile(ruleProfileId_1, ruleProfileUuid_1);
+
+    long ruleProfileId_2 = 2L;
+    String ruleProfileUuid_2 = "uuid-2";
+    insertRuleProfile(ruleProfileId_2, ruleProfileUuid_2);
+
+    long ruleProfileId_3 = 3L;
+    String ruleProfileUuid_3 = "uuid-3";
+    insertRuleProfile(ruleProfileId_3, ruleProfileUuid_3);
+
+    insertActiveRule("4", ruleProfileId_1);
+    insertActiveRule("5", ruleProfileId_2);
+    insertActiveRule("6", 10L);
+
+    assertThat(db.countRowsOfTable("active_rules")).isEqualTo(3);
+
+    underTest.execute();
+
+    assertThatActiveRulesProfileUuidIsEqualTo("4", ruleProfileUuid_1);
+    assertThatActiveRulesProfileUuidIsEqualTo("5", ruleProfileUuid_2);
+    assertThat(db.countRowsOfTable("active_rules")).isEqualTo(2);
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     long ruleProfileId_1 = 1L;
     String ruleProfileUuid_1 = "uuid-1";

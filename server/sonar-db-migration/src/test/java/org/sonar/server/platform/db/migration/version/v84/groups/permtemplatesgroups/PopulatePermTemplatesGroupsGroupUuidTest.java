@@ -59,6 +59,26 @@ public class PopulatePermTemplatesGroupsGroupUuidTest {
   }
 
   @Test
+  public void delete_orphan_rows() throws SQLException {
+    insertGroup(1L);
+    insertGroup(2L);
+    insertGroup(3L);
+
+    insertPermTemplatesGroup(4L, 1L);
+    insertPermTemplatesGroup(5L, 2L);
+    insertPermTemplatesGroup(6L, 10L);
+    insertPermTemplatesGroup(7L, null);
+
+    underTest.execute();
+
+    assertThatTableContains(
+      tuple("uuid4", 1L, "uuid1"),
+      tuple("uuid5", 2L, "uuid2"),
+      tuple("uuid7", null, null)
+    );
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     insertGroup(1L);
     insertGroup(2L);

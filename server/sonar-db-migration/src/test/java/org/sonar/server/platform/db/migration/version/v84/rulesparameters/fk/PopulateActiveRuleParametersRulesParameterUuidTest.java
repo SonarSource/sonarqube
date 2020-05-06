@@ -66,6 +66,21 @@ public class PopulateActiveRuleParametersRulesParameterUuidTest {
   }
 
   @Test
+  public void delete_orphan_rows() throws SQLException {
+    String ruleParamUuid1 = uuidFactory.create();
+    long ruleParamId1 = 1L;
+    insertRuleParameter(ruleParamId1, ruleParamUuid1, 101L);
+    String activeRuleParameter11 = insertActiveRuleParameter(101L, ruleParamId1);
+    String activeRuleParameter12 = insertActiveRuleParameter(101L, ruleParamId1);
+    String activeRuleParameter13 = insertActiveRuleParameter(101L, 2L);
+
+    underTest.execute();
+
+    assertRulesParameterUuidsAreNotNull();
+    assertThatRulesParametersUuidAreSet(ruleParamUuid1, activeRuleParameter11, activeRuleParameter12);
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     String ruleParamUuid1 = uuidFactory.create();
     long ruleParamId1 = 1L;

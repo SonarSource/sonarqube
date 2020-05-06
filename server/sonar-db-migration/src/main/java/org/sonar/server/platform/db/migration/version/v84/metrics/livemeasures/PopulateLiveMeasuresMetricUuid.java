@@ -32,7 +32,7 @@ public class PopulateLiveMeasuresMetricUuid extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-    MassUpdate massUpdate = context.prepareMassUpdate();
+    MassUpdate  massUpdate = context.prepareMassUpdate();
 
     massUpdate.select("select lm.uuid, m.uuid " +
       "from live_measures lm " +
@@ -43,6 +43,16 @@ public class PopulateLiveMeasuresMetricUuid extends DataChange {
     massUpdate.execute((row, update) -> {
       update.setString(1, row.getString(2));
       update.setString(2, row.getString(1));
+      return true;
+    });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select uuid from live_measures where metric_uuid is null");
+    massUpdate.update("delete from live_measures where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
       return true;
     });
   }

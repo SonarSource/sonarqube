@@ -34,6 +34,22 @@ public class PopulateGroupsUsersGroupUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
+    massUpdate.select("select gu.user_id, gu.group_id " +
+      "from groups_users gu " +
+      "left outer join groups g on gu.group_id = g.id " +
+      "where g.id is null and gu.group_id is not null");
+
+    massUpdate.update("delete from groups_users where user_id = ? and group_id = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      update.setLong(2, row.getLong(2));
+
+      return true;
+    });
+
+    massUpdate = context.prepareMassUpdate();
+
     massUpdate.select("select gu.user_id, gu.group_id, g.uuid " +
       "from groups_users gu " +
       "join groups g on gu.group_id = g.id");

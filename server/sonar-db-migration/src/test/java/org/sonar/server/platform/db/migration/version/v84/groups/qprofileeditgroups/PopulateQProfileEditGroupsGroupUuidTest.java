@@ -59,6 +59,24 @@ public class PopulateQProfileEditGroupsGroupUuidTest {
   }
 
   @Test
+  public void delete_orphan_rows() throws SQLException {
+    insertGroup(1L);
+    insertGroup(2L);
+    insertGroup(3L);
+
+    insertQProfileEditGroup(4L, 1L);
+    insertQProfileEditGroup(5L, 2L);
+    insertQProfileEditGroup(6L, 10L);
+
+    underTest.execute();
+
+    assertThatTableContains(
+      tuple("uuid4", 1L, "uuid1"),
+      tuple("uuid5", 2L, "uuid2")
+    );
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     insertGroup(1L);
     insertGroup(2L);

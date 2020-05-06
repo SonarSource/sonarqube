@@ -34,6 +34,20 @@ public class PopulatePermTemplatesGroupsGroupUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
+    massUpdate.select("select ptg.uuid " +
+      "from perm_templates_groups ptg " +
+      "left outer join groups g on ptg.group_id = g.id " +
+      "where g.id is null and ptg.group_id is not null");
+
+    massUpdate.update("delete from perm_templates_groups where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      return true;
+    });
+
+    massUpdate = context.prepareMassUpdate();
+
     massUpdate.select("select ptg.uuid, g.uuid " +
       "from perm_templates_groups ptg " +
       "join groups g on ptg.group_id = g.id");

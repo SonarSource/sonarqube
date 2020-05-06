@@ -63,7 +63,7 @@ public class PopulatePermTemplatesGroupsTemplateUuidColumnTest {
   }
 
   @Test
-  public void migration_is_reentrant() throws SQLException {
+  public void delete_orphan_rows() throws SQLException {
     long permissionTemplateId_1 = 1L;
     String permissionTemplateUuid_1 = "uuid-1";
     insertPermissionTemplate(permissionTemplateId_1, permissionTemplateUuid_1);
@@ -81,12 +81,34 @@ public class PopulatePermTemplatesGroupsTemplateUuidColumnTest {
     insertPermissionTemplateGroup("6", permissionTemplateId_3);
 
     underTest.execute();
-    // re-entrant
-    underTest.execute();
 
     assertThatPermissionTemplateGroupTemplateUuidIsEqualTo("4", permissionTemplateUuid_1);
     assertThatPermissionTemplateGroupTemplateUuidIsEqualTo("5", permissionTemplateUuid_2);
     assertThatPermissionTemplateGroupTemplateUuidIsEqualTo("6", permissionTemplateUuid_3);
+  }
+
+  @Test
+  public void migration_is_reentrant() throws SQLException {
+    long permissionTemplateId_1 = 1L;
+    String permissionTemplateUuid_1 = "uuid-1";
+    insertPermissionTemplate(permissionTemplateId_1, permissionTemplateUuid_1);
+
+    long permissionTemplateId_2 = 2L;
+    String permissionTemplateUuid_2 = "uuid-2";
+    insertPermissionTemplate(permissionTemplateId_2, permissionTemplateUuid_2);
+
+    long permissionTemplateId_3 = 3L;
+    String permissionTemplateUuid_3 = "uuid-3";
+    insertPermissionTemplate(permissionTemplateId_3, permissionTemplateUuid_3);
+
+    insertPermissionTemplateGroup("4", permissionTemplateId_1);
+    insertPermissionTemplateGroup("5", permissionTemplateId_2);
+    insertPermissionTemplateGroup("6", 10L);
+    assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(3);
+
+    underTest.execute();
+
+    assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(2);
   }
 
   private void assertThatPermissionTemplateGroupTemplateUuidIsEqualTo(String permissionTemplateGroupUuid, String expectedUuid) {

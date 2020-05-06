@@ -77,6 +77,26 @@ public class PopulateQualityGateConditionsMetricUuidTest {
   }
 
   @Test
+  public void delete_rows_with_orphan_ids() throws SQLException {
+    insertMetric(1L);
+    insertMetric(2L);
+    insertMetric(3L);
+
+    insertQualityGateConditions(4L, 10L);
+    insertQualityGateConditions(5L, 2L);
+    insertQualityGateConditions(6L, 3L);
+
+    underTest.execute();
+    // re-entrant
+    underTest.execute();
+
+    assertThatTableContains(
+      tuple("uuid5", 2L, "uuid2"),
+      tuple("uuid6", 3L, "uuid3")
+    );
+  }
+
+  @Test
   public void migration_is_reentrant() throws SQLException {
     insertMetric(1L);
     insertMetric(2L);

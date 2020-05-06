@@ -34,6 +34,20 @@ public class PopulateOrganizationsDefaultGroupUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
+    massUpdate.select("select o.uuid " +
+      "from organizations o " +
+      "left outer join groups g on o.default_group_id = g.id " +
+      "where g.id is null and o.default_group_id is not null");
+
+    massUpdate.update("delete from organizations where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      return true;
+    });
+
+    massUpdate = context.prepareMassUpdate();
+
     massUpdate.select("select o.uuid, g.uuid " +
       "from organizations o " +
       "join groups g on o.default_group_id = g.id");

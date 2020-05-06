@@ -35,7 +35,19 @@ public class PopulateGroupRolesGroupUuid extends DataChange {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
     massUpdate.select("select gr.uuid, g.uuid " +
-      "from group_roles gr " +
+      "from group_roles gr left outer join groups g on gr.group_id = g.id " +
+      "where g.id is null and gr.group_id is not null");
+
+    massUpdate.update("delete from group_roles where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      return true;
+    });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select gr.uuid, g.uuid from group_roles gr " +
       "join groups g on gr.group_id = g.id");
 
     massUpdate.update("update group_roles set group_uuid = ? where uuid = ?");

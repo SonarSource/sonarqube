@@ -34,8 +34,7 @@ public class PopulateActiveRuleParametersActiveRuleUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select arp.uuid, ar.uuid " +
-      "from active_rule_parameters arp " +
+    massUpdate.select("select arp.uuid, ar.uuid from active_rule_parameters arp " +
       "join active_rules ar on arp.active_rule_id = ar.id");
 
     massUpdate.update("update active_rule_parameters set active_rule_uuid = ? where uuid = ?");
@@ -43,6 +42,16 @@ public class PopulateActiveRuleParametersActiveRuleUuid extends DataChange {
     massUpdate.execute((row, update) -> {
       update.setString(1, row.getString(2));
       update.setString(2, row.getString(1));
+      return true;
+    });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select uuid from active_rule_parameters where active_rule_uuid is null");
+    massUpdate.update("delete from active_rule_parameters where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
       return true;
     });
   }
