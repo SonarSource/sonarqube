@@ -3,10 +3,16 @@ title: Upgrade the Server
 url: /setup/upgrading/
 ---
 
-Upgrading across multiple, non-LTS versions is handled automatically. However, if you have an LTS version in your migration path, you must first migrate to this LTS and then migrate to your target version.
+Upgrading across multiple non-LTS versions is handled automatically. However, if there's an LTS version in your migration path, you must first migrate to this LTS and then to your target version.
 
-Example 1 : 6.1 -> 8.1, migration path is 6.1 -> 6.7.7 LTS -> 7.9.x LTS -> 8.1
-Example 2 : 7.2 -> 7.9, migration path is 7.2 -> 7.9.x LTS (where x is the latest patch available for 7.9 - you don't need to install all the intermediate patches, just take the latest)
+[[info]]
+|If you're migrating from an earlier patch version of an LTS, you can upgrade directly to the next LTS as shown in Example 3 below. You don't need to install any intermediate patch versions.
+
+**Migration Path Examples**:
+
+**Example 1** – From 6.1 -> 8.1, the migration path is 6.1 -> the latest 6.7 LTS patch -> the latest 7.9 LTS patch -> 8.1  
+**Example 2** – From 7.2 -> 7.9 LTS, the migration path is 7.2 -> the latest 7.9 LTS patch.  
+**Example 3** – From 6.7.1 LTS -> 7.9 LTS, the migration path is 6.7.1 -> the latest 7.9 LTS patch.
 
 ## Upgrade Guide
 
