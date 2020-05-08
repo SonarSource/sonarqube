@@ -24,8 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
-import org.sonar.server.platform.db.migration.version.v83.util.SqlHelper;
+import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
+import org.sonar.server.platform.db.migration.version.v84.util.SqlHelper;
 
 import static java.sql.Types.INTEGER;
 import static org.sonar.server.platform.db.migration.version.v83.DropIdFromComponentsTable.COLUMN_NAME;

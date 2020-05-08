@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
-import org.sonar.server.platform.db.migration.version.v83.util.DropPrimaryKeySqlGenerator;
+import org.sonar.server.platform.db.migration.version.v84.util.DropPrimaryKeySqlGenerator;
 
 public class DropIdFromComponentsTable extends DdlChange {
 

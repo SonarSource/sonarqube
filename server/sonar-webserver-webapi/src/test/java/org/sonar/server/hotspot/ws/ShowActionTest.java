@@ -397,7 +397,7 @@ public class ShowActionTest {
     String resultingDescription = "!" + parsedDescription + "!";
 
     RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT,
-      r -> r.setTemplateId(123)
+      r -> r.setTemplateUuid("123")
         .setDescription(description)
         .setDescriptionFormat(MARKDOWN)
     );
@@ -420,7 +420,7 @@ public class ShowActionTest {
     userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
 
-    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT, r -> r.setTemplateId(123).setDescription(null));
+    RuleDefinitionDto rule = newRule(SECURITY_HOTSPOT, r -> r.setTemplateUuid("123").setDescription(null));
 
     IssueDto hotspot = dbTester.issues().insertHotspot(rule, project, file);
     mockChangelogAndCommentsFormattingContext();

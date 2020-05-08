@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v83;
 
 import org.junit.Test;
 import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.server.platform.db.migration.version.v84.DbVersion84;
 
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
