@@ -68,6 +68,12 @@ public class QualityGatesWsSupport {
       "No quality gate has been found for id %s in organization %s", qualityGateUuid, organization.getName());
   }
 
+  public QGateWithOrgDto getByOrganizationAndName(DbSession dbSession, OrganizationDto organization, String qualityGateName) {
+    return checkFound(
+      dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organization, qualityGateName),
+      "No quality gate has been found for name %s in organization %s", qualityGateName, organization.getName());
+  }
+
   QualityGateConditionDto getCondition(DbSession dbSession, String uuid) {
     return checkFound(dbClient.gateConditionDao().selectByUuid(uuid, dbSession), "No quality gate condition with uuid '%s'", uuid);
   }

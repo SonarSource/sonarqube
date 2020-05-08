@@ -30,8 +30,11 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -56,12 +59,23 @@ public class SelectAction implements QualityGatesWsAction {
       .setPost(true)
       .setSince("4.3")
       .setHandler(this)
-      .setChangelog(new Change("8.3", "The parameter 'projectId' was removed"));
+      .setChangelog(
+        new Change("8.3", "The parameter 'projectId' was removed"),
+        new Change("8.4", "Parameter 'gateName' added"),
+        new Change("8.4", "Parameter 'gateId' is deprecated. Use 'gateName' instead."));
 
     action.createParam(PARAM_GATE_ID)
-      .setDescription("Quality gate id")
-      .setRequired(true)
+      .setDescription("Quality gate ID. This parameter is deprecated. Use 'gateName' instead.")
+      .setRequired(false)
+      .setDeprecatedSince("8.4")
       .setExampleValue("1");
+
+    action.createParam(PARAM_GATE_NAME)
+      .setRequired(false)
+      .setDescription("Name of the quality gate")
+      .setMaximumLength(NAME_MAXIMUM_LENGTH)
+      .setSince("8.4")
+      .setExampleValue("SonarSource way");
 
     action.createParam(PARAM_PROJECT_KEY)
       .setRequired(true)
@@ -74,12 +88,21 @@ public class SelectAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String gateUuid = request.mandatoryParam(PARAM_GATE_ID);
+    String gateUuid = request.param(PARAM_GATE_ID);
+    String gateName = request.param(PARAM_GATE_NAME);
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
+
+    checkArgument(gateName != null ^ gateUuid != null, "Either 'gateId' or 'gateName' must be provided, and not both");
+
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
+      QGateWithOrgDto qualityGate;
+      if (gateUuid != null) {
+        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
+      } else {
+        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, gateName);
+      }
       ProjectDto project = wsSupport.getProject(dbSession, organization, projectKey);
       wsSupport.checkCanAdminProject(organization, project);
 

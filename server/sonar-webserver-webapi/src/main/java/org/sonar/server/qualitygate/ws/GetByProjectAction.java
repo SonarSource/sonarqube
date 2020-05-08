@@ -77,7 +77,8 @@ public class GetByProjectAction implements QualityGatesWsAction {
       .setChangelog(
         new Change("6.6", "The parameter 'projectId' has been removed"),
         new Change("6.6", "The parameter 'projectKey' has been renamed to 'project'"),
-        new Change("6.6", "This webservice is now part of the public API"));
+        new Change("6.6", "This webservice is now part of the public API"),
+        new Change("8.4", "Field 'id' in the response is deprecated."));
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")

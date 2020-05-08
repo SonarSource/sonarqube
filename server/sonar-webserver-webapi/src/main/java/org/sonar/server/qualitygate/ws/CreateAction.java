@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -59,6 +60,8 @@ public class CreateAction implements QualityGatesWsAction {
       .setDescription("Create a Quality Gate.<br>" +
         "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
+      .setChangelog(
+        new Change("8.4", "Field 'id' in the response is deprecated."))
       .setResponseExample(getClass().getResource("create-example.json"))
       .setHandler(this);
 

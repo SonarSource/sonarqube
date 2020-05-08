@@ -400,7 +400,8 @@ public class SearchActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("gateId", true),
+        tuple("gateId", false),
+        tuple("gateName", false),
         tuple("query", false),
         tuple("organization", false),
         tuple("selected", false),

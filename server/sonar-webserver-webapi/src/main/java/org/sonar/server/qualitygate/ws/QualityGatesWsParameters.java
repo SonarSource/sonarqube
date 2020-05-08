@@ -39,12 +39,15 @@ public class QualityGatesWsParameters {
   public static final String PARAM_PAGE_SIZE = "pageSize";
   public static final String PARAM_PAGE = "page";
   public static final String PARAM_QUERY = "query";
+  public static final String PARAM_CURRENT_NAME = "currentName";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_ERROR = "error";
   public static final String PARAM_OPERATOR = "op";
   public static final String PARAM_METRIC = "metric";
   public static final String PARAM_GATE_ID = "gateId";
+  public static final String PARAM_GATE_NAME = "gateName";
   public static final String PARAM_ID = "id";
+  public static final String PARAM_SOURCE_NAME = "sourceName";
 
   private QualityGatesWsParameters() {
     // prevent instantiation

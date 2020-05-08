@@ -61,11 +61,12 @@ public class RenameActionTest {
     WebService.Action action = ws.getDef();
     assertThat(action.key()).isEqualTo("rename");
     assertThat(action.since()).isEqualTo("4.3");
-    assertThat(action.changelog()).isEmpty();
+    assertThat(action.changelog()).isNotEmpty();
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("id", true),
+        tuple("id", false),
+        tuple("currentName", false),
         tuple("name", true),
         tuple("organization", false));
   }

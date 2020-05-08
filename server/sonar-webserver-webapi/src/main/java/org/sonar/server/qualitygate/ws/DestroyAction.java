@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,6 +31,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 
 public class DestroyAction implements QualityGatesWsAction {
 
@@ -47,25 +49,48 @@ public class DestroyAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("destroy")
       .setDescription("Delete a Quality Gate.<br>" +
-        "Requires the 'Administer Quality Gates' permission.")
+        "Either 'id' or 'name' must be specified. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setPost(true)
+      .setChangelog(
+        new Change("8.4", "Parameter 'name' added"),
+        new Change("8.4", "Parameter 'id' is deprecated. Use 'name' instead."))
       .setHandler(this);
 
     action.createParam(QualityGatesWsParameters.PARAM_ID)
-      .setDescription("ID of the quality gate to delete")
-      .setRequired(true)
+      .setDescription("ID of the quality gate to delete. This parameter is deprecated. Use 'name' instead.")
+      .setRequired(false)
+      .setDeprecatedSince("8.4")
       .setExampleValue("1");
+
+    action.createParam(QualityGatesWsParameters.PARAM_NAME)
+      .setDescription("Name of the quality gate to delete")
+      .setRequired(false)
+      .setMaximumLength(NAME_MAXIMUM_LENGTH)
+      .setSince("8.4")
+      .setExampleValue("SonarSource Way");
 
     wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    String qualityGateUuid = request.mandatoryParam(QualityGatesWsParameters.PARAM_ID);
+    String uuid = request.param(QualityGatesWsParameters.PARAM_ID);
+    String name = request.param(QualityGatesWsParameters.PARAM_NAME);
+
+    checkArgument(name != null ^ uuid != null, "One of 'id' or 'name' must be provided, and not both");
+
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, qualityGateUuid);
+
+      QGateWithOrgDto qualityGate;
+
+      if (uuid != null) {
+        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
+      } else {
+        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, name);
+      }
+
       QualityGateDto defaultQualityGate = finder.getDefault(dbSession, organization);
       checkArgument(!defaultQualityGate.getUuid().equals(qualityGate.getUuid()), "The default quality gate cannot be removed");
       wsSupport.checkCanEdit(qualityGate);

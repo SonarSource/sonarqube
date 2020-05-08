@@ -31,10 +31,12 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_CREATE_CONDITION;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -56,20 +58,29 @@ public class CreateConditionAction implements QualityGatesWsAction {
     WebService.NewAction createCondition = controller.createAction(ACTION_CREATE_CONDITION)
       .setPost(true)
       .setDescription("Add a new condition to a quality gate.<br>" +
-        "Requires the 'Administer Quality Gates' permission.")
+        "Either 'gateId' or 'gateName' must be provided. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setResponseExample(getClass().getResource("create-condition-example.json"))
       .setChangelog(
         new Change("7.6", "Removed optional 'warning' and 'period' parameters"),
         new Change("7.6", "Made 'error' parameter mandatory"),
-        new Change("7.6", "Reduced the possible values of 'op' parameter to LT and GT"))
+        new Change("7.6", "Reduced the possible values of 'op' parameter to LT and GT"),
+        new Change("8.4", "Parameter 'gateName' added"),
+        new Change("8.4", "Parameter 'gateId' is deprecated. Use 'gateName' instead."))
       .setHandler(this);
 
     createCondition
       .createParam(PARAM_GATE_ID)
-      .setRequired(true)
-      .setDescription("ID of the quality gate")
+      .setDeprecatedSince("8.4")
+      .setRequired(false)
+      .setDescription("ID of the quality gate. This parameter is deprecated. Use 'gateName' instead.")
       .setExampleValue("1");
+
+    createCondition
+      .createParam(PARAM_GATE_NAME)
+      .setRequired(false)
+      .setDescription("Name of the quality gate")
+      .setExampleValue("SonarSource way");
 
     addConditionParams(createCondition);
     wsSupport.createOrganizationParam(createCondition);
@@ -77,14 +88,21 @@ public class CreateConditionAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String gateUuid = request.mandatoryParam(PARAM_GATE_ID);
+    String gateUuid = request.param(PARAM_GATE_ID);
+    String gateName = request.param(PARAM_GATE_NAME);
     String metric = request.mandatoryParam(PARAM_METRIC);
     String operator = request.mandatoryParam(PARAM_OPERATOR);
     String error = request.mandatoryParam(PARAM_ERROR);
+    checkArgument(gateName != null ^ gateUuid != null, "One of 'gateId' or 'gateName' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
+      QGateWithOrgDto qualityGate;
+      if (gateUuid != null) {
+        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, gateUuid);
+      } else {
+        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, gateName);
+      }
       wsSupport.checkCanEdit(qualityGate);
       QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, error);
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()

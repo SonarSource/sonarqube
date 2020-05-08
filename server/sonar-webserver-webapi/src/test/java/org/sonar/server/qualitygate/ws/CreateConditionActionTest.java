@@ -240,7 +240,8 @@ public class CreateConditionActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("gateId", true),
+        tuple("gateId", false),
+        tuple("gateName", false),
         tuple("metric", true),
         tuple("error", true),
         tuple("op", false),

@@ -70,7 +70,8 @@ public class ShowAction implements QualityGatesWsAction {
       .setChangelog(
         new Change("7.6", "'period' and 'warning' fields of conditions are removed from the response"),
         new Change("7.0", "'isBuiltIn' field is added to the response"),
-        new Change("7.0", "'actions' field is added in the response"))
+        new Change("7.0", "'actions' field is added in the response"),
+        new Change("8.4", "Field 'id' in the response is deprecated."))
       .setHandler(this);
 
     action.createParam(PARAM_ID)

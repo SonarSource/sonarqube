@@ -90,7 +90,8 @@ public class CopyActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("id", true),
+        tuple("id", false),
+        tuple("sourceName", false),
         tuple("organization", false),
         tuple("name", true));
   }
@@ -232,7 +233,7 @@ public class CopyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'id' parameter is missing");
+    expectedException.expectMessage("Either 'id' or 'sourceName' must be provided, and not both");
 
     ws.newRequest()
       .setParam(PARAM_NAME, "new-name")

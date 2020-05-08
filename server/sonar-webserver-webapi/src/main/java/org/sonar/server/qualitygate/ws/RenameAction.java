@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,6 +32,7 @@ import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_CURRENT_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -50,39 +52,60 @@ public class RenameAction implements QualityGatesWsAction {
     WebService.NewAction action = controller.createAction("rename")
       .setPost(true)
       .setDescription("Rename a Quality Gate.<br>" +
-        "Requires the 'Administer Quality Gates' permission.")
+        "Either 'id' or 'currentName' must be specified. Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
+      .setChangelog(
+        new Change("8.4", "Parameter 'currentName' added"),
+        new Change("8.4", "Parameter 'id' is deprecated. Use 'currentName' instead."))
       .setHandler(this);
 
     action.createParam(PARAM_ID)
-      .setRequired(true)
-      .setDescription("ID of the quality gate to rename")
+      .setRequired(false)
+      .setDeprecatedSince("8.4")
+      .setDescription("ID of the quality gate to rename. This parameter is deprecated. Use 'currentName' instead.")
       .setExampleValue("1");
+
+    action.createParam(PARAM_CURRENT_NAME)
+      .setRequired(false)
+      .setMaximumLength(NAME_MAXIMUM_LENGTH)
+      .setSince("8.4")
+      .setDescription("Current name of the quality gate")
+      .setExampleValue("My Quality Gate");
 
     action.createParam(PARAM_NAME)
       .setRequired(true)
       .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setDescription("New name of the quality gate")
-      .setExampleValue("My Quality Gate");
+      .setExampleValue("My New Quality Gate");
 
     wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    String uuid = request.mandatoryParam(PARAM_ID);
+    String uuid = request.param(PARAM_ID);
+    String currentName = request.param(PARAM_CURRENT_NAME);
+
+    checkArgument(uuid != null ^ currentName != null, "One of 'id' or 'currentName' must be provided, and not both");
+
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      QualityGateDto qualityGate = rename(dbSession, organization, uuid, request.mandatoryParam(PARAM_NAME));
+
+      QGateWithOrgDto qualityGate;
+      if (uuid != null) {
+        qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
+      } else {
+        qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, currentName);
+      }
+      QualityGateDto renamedQualityGate = rename(dbSession, organization, qualityGate, request.mandatoryParam(PARAM_NAME));
       writeProtobuf(QualityGate.newBuilder()
-        .setId(qualityGate.getUuid())
-        .setName(qualityGate.getName())
+        .setId(renamedQualityGate.getUuid())
+        .setName(renamedQualityGate.getName())
         .build(), request, response);
     }
   }
 
-  private QualityGateDto rename(DbSession dbSession, OrganizationDto organization, String uuid, String name) {
-    QGateWithOrgDto qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);
+  private QualityGateDto rename(DbSession dbSession, OrganizationDto organization, QGateWithOrgDto qualityGate, String name) {
     wsSupport.checkCanEdit(qualityGate);
     checkNotAlreadyExists(dbSession, organization, qualityGate, name);
     qualityGate.setName(name);

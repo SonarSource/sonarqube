@@ -164,7 +164,7 @@ public class DestroyActionTest {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
 
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
       .setParam(PARAM_ID, EMPTY)
@@ -225,7 +225,8 @@ public class DestroyActionTest {
     assertThat(action.params())
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
-        tuple("id", true),
+        tuple("id", false),
+        tuple("name", false),
         tuple("organization", false));
   }
 

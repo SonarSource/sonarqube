@@ -60,7 +60,8 @@ public class ListAction implements QualityGatesWsAction {
         new Change("7.0", "'isDefault' field is added on quality gate"),
         new Change("7.0", "'default' field on root level is deprecated"),
         new Change("7.0", "'isBuiltIn' field is added in the response"),
-        new Change("7.0", "'actions' fields are added in the response"))
+        new Change("7.0", "'actions' fields are added in the response"),
+        new Change("8.4", "Field 'id' in the response is deprecated."))
       .setHandler(this);
     wsSupport.createOrganizationParam(action);
   }
