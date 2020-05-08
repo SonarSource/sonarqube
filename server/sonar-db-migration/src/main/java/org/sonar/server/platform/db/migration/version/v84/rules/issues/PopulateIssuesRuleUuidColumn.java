@@ -34,15 +34,15 @@ public class PopulateIssuesRuleUuidColumn extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select iss.rule_id, ru.uuid " +
+    massUpdate.select("select iss.kee, ru.uuid " +
       "from issues iss " +
       "join rules ru on iss.rule_id = ru.id " +
       "where iss.rule_uuid is null");
-    massUpdate.update("update issues set rule_uuid = ? where rule_id = ?");
+    massUpdate.update("update issues set rule_uuid = ? where kee = ?");
 
     massUpdate.execute((row, update) -> {
       update.setString(1, row.getString(2));
-      update.setLong(2, row.getLong(1));
+      update.setString(2, row.getString(1));
       return true;
     });
   }
