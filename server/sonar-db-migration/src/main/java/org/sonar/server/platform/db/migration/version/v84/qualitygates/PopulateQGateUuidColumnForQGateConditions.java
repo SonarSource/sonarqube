@@ -34,7 +34,7 @@ public class PopulateQGateUuidColumnForQGateConditions extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select uuid, id from quality_gates order by id asc");
+    massUpdate.select("select uuid, id from quality_gates");
     massUpdate.update("update quality_gate_conditions set qgate_uuid = ? where qgate_id = ? and qgate_uuid is null");
 
     massUpdate.execute((row, update) -> {

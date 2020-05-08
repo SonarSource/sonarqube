@@ -38,7 +38,7 @@ public class PopulateActiveRulesUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from active_rules where uuid is null order by id asc");
+    massUpdate.select("select id from active_rules where uuid is null");
     massUpdate.update("update active_rules set uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {

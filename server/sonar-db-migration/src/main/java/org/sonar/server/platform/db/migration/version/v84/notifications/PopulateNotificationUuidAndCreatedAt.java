@@ -42,7 +42,7 @@ public class PopulateNotificationUuidAndCreatedAt extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from notifications where uuid is null order by id asc");
+    massUpdate.select("select id from notifications where uuid is null");
     massUpdate.update("update notifications set uuid = ?, created_at = ? where id = ?");
 
     // now - 7 days, to have previous notification in the past

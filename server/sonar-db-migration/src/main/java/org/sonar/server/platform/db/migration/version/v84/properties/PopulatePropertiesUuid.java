@@ -38,7 +38,7 @@ public class PopulatePropertiesUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from properties where uuid is null order by id asc");
+    massUpdate.select("select id from properties where uuid is null");
     massUpdate.update("update properties set uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {

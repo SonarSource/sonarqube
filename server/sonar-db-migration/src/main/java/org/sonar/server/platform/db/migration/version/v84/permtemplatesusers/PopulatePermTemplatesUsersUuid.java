@@ -38,7 +38,7 @@ public class PopulatePermTemplatesUsersUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from perm_templates_users where uuid is null order by id asc");
+    massUpdate.select("select id from perm_templates_users where uuid is null");
     massUpdate.update("update perm_templates_users set uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {

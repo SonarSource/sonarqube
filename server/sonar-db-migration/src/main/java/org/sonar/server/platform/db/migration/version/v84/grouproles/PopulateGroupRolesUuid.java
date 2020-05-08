@@ -38,7 +38,7 @@ public class PopulateGroupRolesUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from group_roles where uuid is null order by id asc");
+    massUpdate.select("select id from group_roles where uuid is null");
     massUpdate.update("update group_roles set uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {

@@ -38,7 +38,7 @@ public class PopulateIssueChangesUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from issue_changes where uuid is null order by id asc");
+    massUpdate.select("select id from issue_changes where uuid is null");
     massUpdate.update("update issue_changes set uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {

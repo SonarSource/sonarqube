@@ -38,7 +38,7 @@ public class PopulateFileSourcesUuid extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select id from file_sources where uuid is null order by id asc");
+    massUpdate.select("select id from file_sources where uuid is null");
     massUpdate.update("update file_sources set uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {
