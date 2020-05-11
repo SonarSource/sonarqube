@@ -1,92 +1,47 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render 1`] = `
-<Fragment>
-  <form
-    onSubmit={[Function]}
-  >
-    <input
-      className="input-super-large"
-      id="update-key-new-key"
-      onChange={[Function]}
-      placeholder="update_key.new_key"
-      required={true}
-      type="text"
-      value="foo"
-    />
-    <div
-      className="spacer-top"
-    >
-      <SubmitButton
-        disabled={true}
-        id="update-key-submit"
+exports[`should render: default 1`] = `
+<ConfirmButton
+  confirmButtonText="update_verb"
+  modalBody={
+    <React.Fragment>
+      update_key.are_you_sure_to_change_key.MyProject
+      <div
+        className="spacer-top"
       >
-        update_verb
-      </SubmitButton>
-      <Button
-        className="spacer-left"
-        disabled={true}
-        id="update-key-reset"
-        onClick={[Function]}
-        type="reset"
+        update_key.old_key
+        : 
+        <strong>
+          my-project
+        </strong>
+      </div>
+      <div
+        className="spacer-top"
       >
-        reset_verb
-      </Button>
-    </div>
-  </form>
-</Fragment>
+        update_key.new_key
+        : 
+        <strong />
+      </div>
+    </React.Fragment>
+  }
+  modalHeader="update_key.page"
+  onConfirm={[MockFunction]}
+>
+  <Component />
+</ConfirmButton>
 `;
 
-exports[`should render 2`] = `
+exports[`should render: form 1`] = `
 <Fragment>
   <form
     onSubmit={[Function]}
   >
-    <input
-      className="input-super-large"
-      id="update-key-new-key"
-      onChange={[Function]}
+    <ProjectKeyInput
+      label="update_key.new_key"
+      onProjectKeyChange={[Function]}
       placeholder="update_key.new_key"
-      required={true}
-      type="text"
-      value="bar"
-    />
-    <div
-      className="spacer-top"
-    >
-      <SubmitButton
-        disabled={false}
-        id="update-key-submit"
-      >
-        update_verb
-      </SubmitButton>
-      <Button
-        className="spacer-left"
-        disabled={false}
-        id="update-key-reset"
-        onClick={[Function]}
-        type="reset"
-      >
-        reset_verb
-      </Button>
-    </div>
-  </form>
-</Fragment>
-`;
-
-exports[`should render 3`] = `
-<Fragment>
-  <form
-    onSubmit={[Function]}
-  >
-    <input
-      className="input-super-large"
-      id="update-key-new-key"
-      onChange={[Function]}
-      placeholder="update_key.new_key"
-      required={true}
-      type="text"
-      value="foo"
+      projectKey="my-project"
+      touched={false}
     />
     <div
       className="spacer-top"

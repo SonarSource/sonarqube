@@ -21,84 +21,79 @@ import * as React from 'react';
 import { Button, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import ProjectKeyInput from '../../components/common/ProjectKeyInput';
+import { validateProjectKey } from '../../helpers/projects';
+import { ProjectKeyValidationResult } from '../../types/component';
 
-interface Props {
+export interface UpdateFormProps {
   component: Pick<T.Component, 'key' | 'name'>;
   onKeyChange: (newKey: string) => Promise<void>;
 }
 
-interface State {
-  newKey?: string;
-}
+export default function UpdateForm(props: UpdateFormProps) {
+  const { component } = props;
+  const [newKey, setNewKey] = React.useState<string | undefined>(undefined);
+  const value = newKey !== undefined ? newKey : component.key;
+  const hasChanged = value !== component.key;
 
-export default class UpdateForm extends React.PureComponent<Props, State> {
-  state: State = {};
+  const validationResult = validateProjectKey(value);
+  const error =
+    validationResult === ProjectKeyValidationResult.Valid
+      ? undefined
+      : translate('onboarding.create_project.project_key.error', validationResult);
 
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newKey = event.currentTarget.value;
-    this.setState({ newKey });
-  };
+  return (
+    <ConfirmButton
+      confirmButtonText={translate('update_verb')}
+      confirmData={newKey}
+      modalBody={
+        <>
+          {translateWithParameters('update_key.are_you_sure_to_change_key', component.name)}
+          <div className="spacer-top">
+            {translate('update_key.old_key')}
+            {': '}
+            <strong>{component.key}</strong>
+          </div>
+          <div className="spacer-top">
+            {translate('update_key.new_key')}
+            {': '}
+            <strong>{newKey}</strong>
+          </div>
+        </>
+      }
+      modalHeader={translate('update_key.page')}
+      onConfirm={props.onKeyChange}>
+      {({ onFormSubmit }) => (
+        <form onSubmit={onFormSubmit}>
+          <ProjectKeyInput
+            error={error}
+            label={translate('update_key.new_key')}
+            onProjectKeyChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setNewKey(e.currentTarget.value);
+            }}
+            touched={hasChanged}
+            placeholder={translate('update_key.new_key')}
+            projectKey={value}
+          />
 
-  handleReset = () => {
-    this.setState({ newKey: undefined });
-  };
+          <div className="spacer-top">
+            <SubmitButton disabled={!hasChanged || error !== undefined} id="update-key-submit">
+              {translate('update_verb')}
+            </SubmitButton>
 
-  render() {
-    const { component } = this.props;
-    const { newKey } = this.state;
-    const value = newKey != null ? newKey : component.key;
-    const hasChanged = value !== component.key;
-
-    return (
-      <ConfirmButton
-        confirmButtonText={translate('update_verb')}
-        confirmData={newKey}
-        modalBody={
-          <>
-            {translateWithParameters('update_key.are_you_sure_to_change_key', component.name)}
-            <div className="spacer-top">
-              {translate('update_key.old_key')}
-              {': '}
-              <strong>{component.key}</strong>
-            </div>
-            <div className="spacer-top">
-              {translate('update_key.new_key')}
-              {': '}
-              <strong>{newKey}</strong>
-            </div>
-          </>
-        }
-        modalHeader={translate('update_key.page')}
-        onConfirm={this.props.onKeyChange}>
-        {({ onFormSubmit }) => (
-          <form onSubmit={onFormSubmit}>
-            <input
-              className="input-super-large"
-              id="update-key-new-key"
-              onChange={this.handleChange}
-              placeholder={translate('update_key.new_key')}
-              required={true}
-              type="text"
-              value={value}
-            />
-
-            <div className="spacer-top">
-              <SubmitButton disabled={!hasChanged} id="update-key-submit">
-                {translate('update_verb')}
-              </SubmitButton>
-
-              <Button
-                className="spacer-left"
-                disabled={!hasChanged}
-                id="update-key-reset"
-                onClick={this.handleReset}
-                type="reset">
-                {translate('reset_verb')}
-              </Button>
-            </div>
-          </form>
-        )}
-      </ConfirmButton>
-    );
-  }
+            <Button
+              className="spacer-left"
+              disabled={!hasChanged}
+              id="update-key-reset"
+              onClick={() => {
+                setNewKey(undefined);
+              }}
+              type="reset">
+              {translate('reset_verb')}
+            </Button>
+          </div>
+        </form>
+      )}
+    </ConfirmButton>
+  );
 }

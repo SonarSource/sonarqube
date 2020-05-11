@@ -19,23 +19,77 @@
  */
 import { shallow, ShallowWrapper } from 'enzyme';
 import * as React from 'react';
-import { change, click } from 'sonar-ui-common/helpers/testUtils';
-import UpdateForm from '../UpdateForm';
+import { Button, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
+import { click } from 'sonar-ui-common/helpers/testUtils';
+import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
+import { mockComponent, mockEvent } from '../../../helpers/testMocks';
+import UpdateForm, { UpdateFormProps } from '../UpdateForm';
 
 it('should render', () => {
-  const wrapper = shallow(
-    <UpdateForm component={{ key: 'foo', name: 'Foo' }} onKeyChange={jest.fn()} />
-  );
-  expect(getInner(wrapper)).toMatchSnapshot();
-
-  change(getInner(wrapper).find('input'), 'bar');
-  expect(getInner(wrapper)).toMatchSnapshot();
-
-  click(getInner(wrapper).find('Button'));
-  expect(getInner(wrapper)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(getForm(shallowRender())).toMatchSnapshot('form');
 });
 
-function getInner(wrapper: ShallowWrapper) {
-  // TODO find a better way to do this
+it('should correctly update the form', () => {
+  const component = mockComponent();
+  const wrapper = shallowRender({ component });
+  expectButtonDisabled(wrapper, Button).toBe(true);
+  expectButtonDisabled(wrapper, SubmitButton).toBe(true);
+
+  // Changing the key should unlock the form.
+  changeInput(wrapper, 'bar');
+  expectProjectKeyInputValue(wrapper).toBe('bar');
+  expectButtonDisabled(wrapper, Button).toBe(false);
+  expectButtonDisabled(wrapper, SubmitButton).toBe(false);
+
+  // Changing it back again should lock the form.
+  changeInput(wrapper, component.key);
+  expectProjectKeyInputValue(wrapper).toBe(component.key);
+  expectButtonDisabled(wrapper, Button).toBe(true);
+  expectButtonDisabled(wrapper, SubmitButton).toBe(true);
+});
+
+it('should correctly reset the form', () => {
+  const component = mockComponent();
+  const wrapper = shallowRender({ component });
+  changeInput(wrapper, 'bar');
+  click(getForm(wrapper).find(Button));
+  expectProjectKeyInputValue(wrapper).toBe(component.key);
+});
+
+function getForm(wrapper: ShallowWrapper) {
+  // We're wrapper by a <ConfirmButton>. Dive twice to get the actual form.
   return wrapper.dive().dive();
+}
+
+function expectButtonDisabled(
+  wrapper: ShallowWrapper,
+  button: React.ComponentType<{ disabled?: boolean }>
+) {
+  return expect(
+    getForm(wrapper)
+      .find(button)
+      .props().disabled
+  );
+}
+
+function expectProjectKeyInputValue(wrapper: ShallowWrapper) {
+  return expect(
+    getForm(wrapper)
+      .find(ProjectKeyInput)
+      .props().projectKey
+  );
+}
+
+function changeInput(wrapper: ShallowWrapper, value: string) {
+  getForm(wrapper)
+    .find(ProjectKeyInput)
+    .props()
+    .onProjectKeyChange(mockEvent({ currentTarget: { value } }));
+}
+
+function shallowRender(props: Partial<UpdateFormProps> = {}) {
+  return shallow<UpdateFormProps>(
+    <UpdateForm component={mockComponent()} onKeyChange={jest.fn()} {...props} />
+  );
 }
