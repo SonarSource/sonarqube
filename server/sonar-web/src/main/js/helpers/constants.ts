@@ -53,3 +53,5 @@ export const RATING_COLORS = [
   colors.orange,
   colors.red
 ];
+
+export const PROJECT_KEY_MAX_LEN = 400;

@@ -15,27 +15,14 @@ exports[`should render correctly 1`] = `
         className="manual-project-create"
         onSubmit={[Function]}
       >
-        <ValidationInput
-          className="form-field"
-          description="onboarding.create_project.project_key.description"
+        <ProjectKeyInput
           help="onboarding.create_project.project_key.help"
-          id="project-key"
-          isInvalid={false}
-          isValid={false}
           label="onboarding.create_project.project_key"
-          required={true}
-        >
-          <input
-            autoFocus={true}
-            className="input-super-large"
-            id="project-key"
-            maxLength={400}
-            minLength={1}
-            onChange={[Function]}
-            type="text"
-            value=""
-          />
-        </ValidationInput>
+          onProjectKeyChange={[Function]}
+          projectKey=""
+          touched={false}
+          validating={false}
+        />
         <ValidationInput
           className="form-field"
           description="onboarding.create_project.display_name.description"

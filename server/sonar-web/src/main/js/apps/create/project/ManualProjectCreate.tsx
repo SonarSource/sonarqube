@@ -25,6 +25,10 @@ import ValidationInput from 'sonar-ui-common/components/controls/ValidationInput
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createProject, doesComponentExists } from '../../../api/components';
+import ProjectKeyInput from '../../../components/common/ProjectKeyInput';
+import { validateProjectKey } from '../../../helpers/projects';
+import { ProjectKeyValidationResult } from '../../../types/component';
+import { PROJECT_NAME_MAX_LEN } from './constants';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
 
@@ -153,15 +157,19 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
   };
 
   validateKey = (projectKey: string) => {
-    return projectKey.length > 400 || !/^[\w-.:]*[a-zA-Z]+[\w-.:]*$/.test(projectKey)
-      ? translate('onboarding.create_project.project_key.error')
-      : undefined;
+    const result = validateProjectKey(projectKey);
+    return result === ProjectKeyValidationResult.Valid
+      ? undefined
+      : translate('onboarding.create_project.project_key.error', result);
   };
 
   validateName = (projectName: string) => {
-    return projectName.length === 0 || projectName.length > 255
-      ? translate('onboarding.create_project.display_name.error')
-      : undefined;
+    if (projectName.length === 0) {
+      return translate('onboarding.create_project.display_name.error.empty');
+    } else if (projectName.length > PROJECT_NAME_MAX_LEN) {
+      return translate('onboarding.create_project.display_name.error.too_long');
+    }
+    return undefined;
   };
 
   render() {
@@ -175,8 +183,6 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       validating
     } = this.state;
     const { branchesEnabled } = this.props;
-    const projectKeyIsInvalid = touched && projectKeyError !== undefined;
-    const projectKeyIsValid = touched && !validating && projectKeyError === undefined;
     const projectNameIsInvalid = touched && projectNameError !== undefined;
     const projectNameIsValid = touched && projectNameError === undefined;
 
@@ -190,30 +196,15 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
         <div className="create-project-manual">
           <div className="flex-1 huge-spacer-right">
             <form className="manual-project-create" onSubmit={this.handleFormSubmit}>
-              <ValidationInput
-                className="form-field"
-                description={translate('onboarding.create_project.project_key.description')}
+              <ProjectKeyInput
                 error={projectKeyError}
                 help={translate('onboarding.create_project.project_key.help')}
-                id="project-key"
-                isInvalid={projectKeyIsInvalid}
-                isValid={projectKeyIsValid}
                 label={translate('onboarding.create_project.project_key')}
-                required={true}>
-                <input
-                  autoFocus={true}
-                  className={classNames('input-super-large', {
-                    'is-invalid': projectKeyIsInvalid,
-                    'is-valid': projectKeyIsValid
-                  })}
-                  id="project-key"
-                  maxLength={400}
-                  minLength={1}
-                  onChange={this.handleProjectKeyChange}
-                  type="text"
-                  value={projectKey}
-                />
-              </ValidationInput>
+                onProjectKeyChange={this.handleProjectKeyChange}
+                projectKey={projectKey}
+                touched={touched}
+                validating={validating}
+              />
 
               <ValidationInput
                 className="form-field"
@@ -231,7 +222,7 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
                     'is-valid': projectNameIsValid
                   })}
                   id="project-name"
-                  maxLength={255}
+                  maxLength={PROJECT_NAME_MAX_LEN}
                   minLength={1}
                   onChange={this.handleProjectNameChange}
                   type="text"
