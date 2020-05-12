@@ -19,12 +19,9 @@
  */
 package org.sonar.application;
 
-import org.sonar.api.SonarEdition;
-import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.CommandFactoryImpl;
-import org.sonar.application.command.JavaVersion;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.AppSettingsLoader;
 import org.sonar.application.config.AppSettingsLoaderImpl;
@@ -32,19 +29,14 @@ import org.sonar.core.extension.ServiceLoaderWrapper;
 import org.sonar.process.System2;
 import org.sonar.process.SystemExit;
 
-import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.application.config.SonarQubeVersionHelper.getSonarqubeVersion;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NAME;
 
 public class App {
 
   private final SystemExit systemExit = new SystemExit();
-  private final JavaVersion javaVersion;
   private StopRequestWatcher stopRequestWatcher = null;
   private StopRequestWatcher hardStopRequestWatcher = null;
-  public App(JavaVersion javaVersion) {
-    this.javaVersion = javaVersion;
-  }
 
   public void start(String[] cliArguments) {
     AppSettingsLoader settingsLoader = new AppSettingsLoaderImpl(System2.INSTANCE, cliArguments, new ServiceLoaderWrapper());
@@ -53,14 +45,13 @@ public class App {
     AppLogging logging = new AppLogging(settings);
     logging.configure();
     AppFileSystem fileSystem = new AppFileSystem(settings);
-    checkJavaVersion();
 
     try (AppState appState = new AppStateFactory(settings).create()) {
       appState.registerSonarQubeVersion(getSonarqubeVersion());
       appState.registerClusterName(settings.getProps().nonNullValue(CLUSTER_NAME.getKey()));
       AppReloader appReloader = new AppReloaderImpl(settingsLoader, fileSystem, appState, logging);
       fileSystem.reset();
-      CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps(), fileSystem.getTempDir(), System2.INSTANCE, JavaVersion.INSTANCE);
+      CommandFactory commandFactory = new CommandFactoryImpl(settings.getProps(), fileSystem.getTempDir(), System2.INSTANCE);
 
       try (ProcessLauncher processLauncher = new ProcessLauncherImpl(fileSystem.getTempDir())) {
         Scheduler scheduler = new SchedulerImpl(settings, appReloader, commandFactory, processLauncher, appState);
@@ -86,15 +77,8 @@ public class App {
     systemExit.exit(0);
   }
 
-  private void checkJavaVersion() {
-    if (MetadataLoader.loadEdition(org.sonar.api.utils.System2.INSTANCE) == SonarEdition.SONARCLOUD) {
-      return;
-    }
-    checkState(javaVersion.isAtLeastJava11(), "SonarQube requires Java 11 to run");
-  }
-
   public static void main(String[] args) throws Exception {
-    new App(JavaVersion.INSTANCE).start(args);
+    new App().start(args);
   }
 
   private class ShutdownHook extends Thread {

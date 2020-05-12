@@ -4,6 +4,8 @@ sonarqube {
   }
 }
 
+configureCompileJavaToVersion 8
+
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {

@@ -5,6 +5,8 @@ sonarqube {
   }
 }
 
+configureCompileJavaToVersion 8
+
 configurations {
   testCompile.extendsFrom(compileOnly)
 }

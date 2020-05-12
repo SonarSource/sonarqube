@@ -176,7 +176,7 @@ public class EmailNotificationChannel extends NotificationChannel {
     }
 
     return (int) deliveries.stream()
-      .filter(t -> !t.getRecipientEmail().trim().isEmpty())
+      .filter(t -> !t.getRecipientEmail().isBlank())
       .map(t -> {
         EmailMessage emailMessage = format(t.getNotification());
         if (emailMessage != null) {

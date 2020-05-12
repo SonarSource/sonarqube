@@ -2,6 +2,8 @@ configurations {
   testCompile.extendsFrom(compileOnly)
 }
 
+configureCompileJavaToVersion 8
+
 dependencies {
   compile 'com.google.guava:guava'
   compile 'commons-io:commons-io'

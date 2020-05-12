@@ -66,7 +66,7 @@ public class ProjectInfo implements Startable {
 
   private Date loadAnalysisDate() {
     Optional<String> value = settings.get(CoreProperties.PROJECT_DATE_PROPERTY);
-    if (!value.isPresent()) {
+    if (value.isEmpty()) {
       return Date.from(clock.instant());
     }
     try {

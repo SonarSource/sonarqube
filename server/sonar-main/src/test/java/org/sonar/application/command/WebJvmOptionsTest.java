@@ -27,15 +27,12 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class WebJvmOptionsTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private File tmpDir;
-  private JavaVersion javaVersion = mock(JavaVersion.class);
   private WebJvmOptions underTest;
 
   @Before
@@ -44,17 +41,8 @@ public class WebJvmOptionsTest {
   }
 
   @Test
-  public void constructor_sets_mandatory_JVM_options_before_java11() {
-    when(javaVersion.isAtLeastJava11()).thenReturn(false);
-    underTest = new WebJvmOptions(tmpDir, javaVersion);
-    assertThat(underTest.getAll()).containsExactly(
-      "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(), "-XX:-OmitStackTraceInFastThrow");
-  }
-
-  @Test
-  public void constructor_sets_mandatory_JVM_options_for_java11() {
-    when(javaVersion.isAtLeastJava11()).thenReturn(true);
-    underTest = new WebJvmOptions(tmpDir, javaVersion);
+  public void constructor_sets_mandatory_JVM_options() {
+    underTest = new WebJvmOptions(tmpDir);
 
     assertThat(underTest.getAll()).containsExactly(
       "-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Djava.io.tmpdir=" + tmpDir.getAbsolutePath(), "-XX:-OmitStackTraceInFastThrow",

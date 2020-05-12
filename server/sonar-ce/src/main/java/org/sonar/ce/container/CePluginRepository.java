@@ -19,12 +19,12 @@
  */
 package org.sonar.ce.container;
 
-import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
@@ -100,7 +100,7 @@ public class CePluginRepository implements PluginRepository, Startable {
   @Override
   public Collection<PluginInfo> getPluginInfos() {
     checkState(started.get(), NOT_STARTED_YET);
-    return ImmutableList.copyOf(pluginInfosByKeys.values());
+    return Set.copyOf(pluginInfosByKeys.values());
   }
 
   @Override

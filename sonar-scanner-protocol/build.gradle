@@ -5,6 +5,8 @@ sonarqube {
   }
 }
 
+configureCompileJavaToVersion 8
+
 dependencies {
   // please keep the list ordered
   compile 'com.google.code.gson:gson'

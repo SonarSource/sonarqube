@@ -225,7 +225,7 @@ public class RegisterRules implements Startable {
         .filter(Objects::nonNull)
         .findFirst();
       // may occur in case of plugin downgrade
-      if (!res.isPresent()) {
+      if (res.isEmpty()) {
         return Optional.ofNullable(dbRulesByDbDeprecatedKey.get(ruleKey));
       }
       return res;

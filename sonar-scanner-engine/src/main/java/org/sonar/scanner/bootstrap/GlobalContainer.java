@@ -31,7 +31,6 @@ import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
-import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
@@ -83,23 +82,10 @@ public class GlobalContainer extends ComponentContainer {
     addBootstrapComponents();
   }
 
-  private static void checkJavaVersion(AnalysisWarnings analysisWarnings) {
-    try {
-      String.class.getMethod("isBlank");
-    } catch (NoSuchMethodException e) {
-      LOG.warn("SonarScanner will require Java 11 to run, starting in SonarQube 9.x");
-      analysisWarnings.addUnique("SonarScanner will require Java 11 to run, starting in SonarQube 9.x. Please upgrade the version of Java that executes the scanner and " + 
-          "refer to <a href=\"/documentation/analysis/analysis-with-java-11/\" target=\"_blank\">the documentation</a> if needed.");
-    }
-  }
-
   private void addBootstrapComponents() {
     Version apiVersion = MetadataLoader.loadVersion(System2.INSTANCE);
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
     DefaultAnalysisWarnings analysisWarnings = new DefaultAnalysisWarnings(System2.INSTANCE);
-    if (edition != SonarEdition.SONARCLOUD) {
-      checkJavaVersion(analysisWarnings);
-    }
     LOG.debug("{} {}", edition.getLabel(), apiVersion);
     add(
       // plugins
