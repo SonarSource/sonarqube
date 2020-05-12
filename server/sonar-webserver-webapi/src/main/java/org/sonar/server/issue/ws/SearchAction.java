@@ -297,7 +297,7 @@ public class SearchAction implements IssuesWsAction {
         "If this parameter is set, createdSince must not be set")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
     action.createParam(PARAM_CREATED_BEFORE)
-      .setDescription("To retrieve issues created before the given date (inclusive). <br>" +
+      .setDescription("To retrieve issues created before the given date (exclusive). <br>" +
         "Either a date (server timezone) or datetime can be provided.")
       .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
     action.createParam(PARAM_CREATED_IN_LAST)
