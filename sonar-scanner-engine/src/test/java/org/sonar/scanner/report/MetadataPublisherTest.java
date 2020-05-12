@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
@@ -49,6 +50,7 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.repository.ForkDateSupplier;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.rule.QualityProfiles;
 import org.sonar.scanner.scan.ScanProperties;
@@ -78,6 +80,7 @@ public class MetadataPublisherTest {
   private ProjectInfo projectInfo = mock(ProjectInfo.class);
   private CpdSettings cpdSettings = mock(CpdSettings.class);
   private InputModuleHierarchy inputModuleHierarchy;
+  private ForkDateSupplier forkDateSupplier = mock(ForkDateSupplier.class);
   private ScannerPluginRepository pluginRepository = mock(ScannerPluginRepository.class);
   private BranchConfiguration branches;
   private ScmConfiguration scmConfiguration;
@@ -115,12 +118,13 @@ public class MetadataPublisherTest {
     scmConfiguration = mock(ScmConfiguration.class);
     when(scmConfiguration.provider()).thenReturn(scmProvider);
     underTest = new MetadataPublisher(projectInfo, inputModuleHierarchy, properties, qProfiles, cpdSettings,
-      pluginRepository, branches, scmRevision, scmConfiguration);
+      pluginRepository, branches, scmRevision, forkDateSupplier, scmConfiguration);
   }
 
   @Test
   public void write_metadata() throws Exception {
     Date date = new Date();
+    when(forkDateSupplier.get()).thenReturn(Instant.ofEpochMilli(123456789L));
     when(qProfiles.findAll()).thenReturn(Collections.singletonList(new QProfile("q1", "Q1", "java", date)));
     when(pluginRepository.getPluginsByKey()).thenReturn(ImmutableMap.of(
       "java", new ScannerPlugin("java", 12345L, null),
@@ -132,6 +136,7 @@ public class MetadataPublisherTest {
 
     ScannerReportReader reader = new ScannerReportReader(outputDir);
     ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getForkDate()).isEqualTo(123456789L);
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("root");
     assertThat(metadata.getModulesProjectRelativePathByKeyMap()).containsOnly(entry("module", "modulePath"), entry("root", ""));

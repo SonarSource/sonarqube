@@ -33,14 +33,13 @@ import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 @Immutable
 public class Period {
   private final String mode;
-  @CheckForNull
   private final String modeParameter;
-  private final long snapshotDate;
+  private final Long date;
 
-  public Period(String mode, @Nullable String modeParameter, long snapshotDate) {
+  public Period(String mode, @Nullable String modeParameter, @Nullable Long date) {
     this.mode = requireNonNull(mode);
     this.modeParameter = modeParameter;
-    this.snapshotDate = snapshotDate;
+    this.date = date;
   }
 
   public String getMode() {
@@ -52,8 +51,9 @@ public class Period {
     return modeParameter;
   }
 
-  public long getSnapshotDate() {
-    return snapshotDate;
+  @CheckForNull
+  public Long getDate() {
+    return date;
   }
 
   @Override
@@ -65,18 +65,19 @@ public class Period {
       return false;
     }
     Period period = (Period) o;
-    return snapshotDate == period.snapshotDate
-      && mode.equals(period.mode)
-      && Objects.equals(modeParameter, period.modeParameter);
+    return Objects.equals(date, period.date) && Objects.equals(mode, period.mode) && Objects.equals(modeParameter, period.modeParameter);
   }
 
   public boolean isOnPeriod(Date date) {
-    return date.getTime() > truncateToSeconds(snapshotDate);
+    if (this.date == null) {
+      return false;
+    }
+    return date.getTime() > truncateToSeconds(this.date);
   }
 
   @Override
   public int hashCode() {
-    return hash(mode, modeParameter, snapshotDate);
+    return hash(mode, modeParameter, date);
   }
 
   @Override
@@ -84,7 +85,7 @@ public class Period {
     return toStringHelper(this)
       .add("mode", mode)
       .add("modeParameter", modeParameter)
-      .add("snapshotDate", snapshotDate)
+      .add("date", date)
       .toString();
   }
 }

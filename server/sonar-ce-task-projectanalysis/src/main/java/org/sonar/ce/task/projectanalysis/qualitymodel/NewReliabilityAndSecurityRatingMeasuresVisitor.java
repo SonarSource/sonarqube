@@ -104,7 +104,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
   }
 
   private void computeAndSaveMeasures(Component component, Path<Counter> path) {
-    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
+    if (!periodHolder.hasPeriodDate() && !analysisMetadataHolder.isPullRequest()) {
       return;
     }
     initRatingsToA(path);

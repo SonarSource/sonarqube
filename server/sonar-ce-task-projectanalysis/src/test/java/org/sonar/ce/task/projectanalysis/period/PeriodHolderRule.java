@@ -57,6 +57,11 @@ public class PeriodHolderRule implements TestRule, PeriodHolder {
   }
 
   @Override
+  public boolean hasPeriodDate() {
+    return delegate.hasPeriodDate();
+  }
+
+  @Override
   public Period getPeriod() {
     return delegate.getPeriod();
   }

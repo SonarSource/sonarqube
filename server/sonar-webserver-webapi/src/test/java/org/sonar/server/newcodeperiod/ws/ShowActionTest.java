@@ -38,7 +38,6 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.NewCodePeriods;
@@ -88,31 +87,21 @@ public class ShowActionTest {
   }
 
   @Test
-  public void throw_NFE_if_project_not_found() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project 'unknown' not found");
-
-    ws.newRequest()
-      .setParam("project", "unknown")
-      .execute();
-  }
-
-  @Test
-  public void throw_NFE_if_branch_not_found() {
+  public void throw_FE_if_no_project_permission() {
     ComponentDto project = componentDb.insertPublicProject();
-    logInAsProjectAdministrator(project);
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Branch 'unknown' in project '" + project.getKey() + "' not found");
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
 
     ws.newRequest()
       .setParam("project", project.getKey())
-      .setParam("branch", "unknown")
       .execute();
   }
 
   @Test
-  public void throw_FE_if_no_project_permission() {
+  public void throw_FE_if_project_issue_admin() {
     ComponentDto project = componentDb.insertPublicProject();
+    logInAsProjectIssueAdmin(project);
+
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
@@ -217,6 +206,32 @@ public class ShowActionTest {
     assertResponse(response, project.getKey(), "branch", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "3", true);
   }
 
+  @Test
+  public void show_inherited_if_project_not_found() {
+    tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.NUMBER_OF_DAYS).setValue("3"));
+
+    ShowWSResponse response = ws.newRequest()
+      .setParam("project", "unknown")
+      .executeProtobuf(ShowWSResponse.class);
+
+    assertResponse(response, "", "", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "3", true);
+  }
+
+  @Test
+  public void show_inherited_if_branch_not_found() {
+    ComponentDto project = componentDb.insertPublicProject();
+    logInAsProjectScan(project);
+
+    tester.insert(project.projectUuid(), NewCodePeriodType.NUMBER_OF_DAYS, "3");
+
+    ShowWSResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "unknown")
+      .executeProtobuf(ShowWSResponse.class);
+
+    assertResponse(response, project.getKey(), "", NewCodePeriods.NewCodePeriodType.NUMBER_OF_DAYS, "3", true);
+  }
+
   private void assertResponse(ShowWSResponse response, String projectKey, String branchKey, NewCodePeriods.NewCodePeriodType type, String value, boolean inherited) {
     assertThat(response.getBranchKey()).isEqualTo(branchKey);
     assertThat(response.getProjectKey()).isEqualTo(projectKey);
@@ -227,6 +242,14 @@ public class ShowActionTest {
 
   private void logInAsProjectAdministrator(ComponentDto project) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+  }
+
+  private void logInAsProjectScan(ComponentDto project) {
+    userSession.logIn().addProjectPermission(UserRole.SCAN, project);
+  }
+
+  private void logInAsProjectIssueAdmin(ComponentDto project) {
+    userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project);
   }
 
 }

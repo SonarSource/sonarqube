@@ -35,6 +35,14 @@ public interface PeriodHolder {
    */
   boolean hasPeriod();
 
+
+  /**
+   * Finds out whether the holder contains a Period with a date
+   *
+   * @throws IllegalStateException if the periods haven't been initialized
+   */
+  boolean hasPeriodDate();
+
   /**
    * Retrieve the period from the Holder.
    *

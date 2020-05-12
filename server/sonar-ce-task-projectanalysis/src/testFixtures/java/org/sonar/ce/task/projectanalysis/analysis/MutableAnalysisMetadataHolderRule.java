@@ -77,9 +77,19 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
     return this;
   }
 
+  @Override public MutableAnalysisMetadataHolder setForkDate(@Nullable Long date) {
+    return delegate.setForkDate(date);
+  }
+
   @Override
   public long getAnalysisDate() {
     return delegate.getAnalysisDate();
+  }
+
+  @CheckForNull
+  @Override
+  public Long getForkDate() {
+    return delegate.getForkDate();
   }
 
   @Override
@@ -180,8 +190,6 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   public Map<String, ScannerPlugin> getScannerPluginsByKey() {
     return delegate.getScannerPluginsByKey();
   }
-
-
 
   @Override
   public MutableAnalysisMetadataHolder setScmRevision(String scmRevisionId) {

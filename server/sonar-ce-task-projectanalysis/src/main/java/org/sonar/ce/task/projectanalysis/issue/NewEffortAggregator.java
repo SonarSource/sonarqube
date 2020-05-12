@@ -84,7 +84,7 @@ public class NewEffortAggregator extends IssueVisitor {
     if (issue.resolution() == null && issue.effortInMinutes() != null) {
       if (analysisMetadataHolder.isPullRequest()) {
         counter.add(issue, null);
-      } else if (periodHolder.hasPeriod()) {
+      } else if (periodHolder.hasPeriodDate()) {
         counter.add(issue, periodHolder.getPeriod());
       }
     }
@@ -92,7 +92,7 @@ public class NewEffortAggregator extends IssueVisitor {
 
   @Override
   public void afterComponent(Component component) {
-    if (periodHolder.hasPeriod() || analysisMetadataHolder.isPullRequest()) {
+    if (periodHolder.hasPeriodDate() || analysisMetadataHolder.isPullRequest()) {
       computeMeasure(component, newMaintainabilityEffortMetric, counter.maintainabilitySum);
       computeMeasure(component, newReliabilityEffortMetric, counter.reliabilitySum);
       computeMeasure(component, newSecurityEffortMetric, counter.securitySum);

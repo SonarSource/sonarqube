@@ -126,7 +126,7 @@ public class SetActionTest {
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Invalid type 'SPECIFIC_ANALYSIS'. Projects can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS]");
+    expectedException.expectMessage("Invalid type 'SPECIFIC_ANALYSIS'. Projects can only be set with types: [PREVIOUS_VERSION, NUMBER_OF_DAYS, REFERENCE_BRANCH]");
 
     ws.newRequest()
       .setParam("project", project.getKey())
@@ -322,7 +322,8 @@ public class SetActionTest {
     return new Object[][]{
       {NewCodePeriodType.NUMBER_OF_DAYS, "5"},
       {NewCodePeriodType.SPECIFIC_ANALYSIS, "analysis-uuid"},
-      {NewCodePeriodType.PREVIOUS_VERSION, null}
+      {NewCodePeriodType.PREVIOUS_VERSION, null},
+      {NewCodePeriodType.REFERENCE_BRANCH, "master"}
     };
   }
 

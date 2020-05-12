@@ -38,6 +38,8 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.NewCodePeriods;
 
 import static java.lang.String.format;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.NewCodePeriods.ShowWSResponse;
 
@@ -60,11 +62,12 @@ public class ShowAction implements NewCodePeriodsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("show")
-      .setDescription("Shows a setting for the New Code Period.<br>" +
-        "Requires one of the following permissions: " +
+      .setDescription("Shows a setting for the New Code Period.<br> "
+        + "If the component requested doesn't exist or if no new code period is set for it, a value is inherited from the project or from the global setting." +
+        "Requires one of the following permissions if a component is specified: " +
         "<ul>" +
-        "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified component</li>" +
+        "<li>'Execute analysis' rights on the specified component</li>" +
         "</ul>")
       .setSince("8.0")
       .setResponseExample(getClass().getResource("show-example.json"))
@@ -88,16 +91,25 @@ public class ShowAction implements NewCodePeriodsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = null;
       BranchDto branch = null;
+      boolean inherited = false;
 
       if (projectKey != null) {
-        project = getProject(dbSession, projectKey);
-        userSession.checkProjectPermission(UserRole.ADMIN, project);
-        if (branchKey != null) {
-          branch = getBranch(dbSession, project, branchKey);
+        try {
+          project = getProject(dbSession, projectKey);
+          checkPermission(project);
+          if (branchKey != null) {
+            try {
+              branch = getBranch(dbSession, project, branchKey);
+            } catch (NotFoundException e) {
+              inherited = true;
+            }
+          }
+        } catch (NotFoundException e) {
+          inherited = true;
         }
       }
 
-      ShowWSResponse.Builder builder = get(dbSession, project, branch, false);
+      ShowWSResponse.Builder builder = get(dbSession, project, branch, inherited);
 
       if (project != null) {
         builder.setProjectKey(project.getKey());
@@ -107,6 +119,15 @@ public class ShowAction implements NewCodePeriodsWsAction {
       }
       writeProtobuf(builder.build(), request, response);
     }
+  }
+
+  private void checkPermission(ProjectDto project) {
+    if (userSession.hasProjectPermission(UserRole.SCAN, project) ||
+      userSession.hasProjectPermission(UserRole.ADMIN, project) ||
+      userSession.hasPermission(SCAN, project.getOrganizationUuid())) {
+      return;
+    }
+    throw insufficientPrivilegesException();
   }
 
   private ShowWSResponse.Builder get(DbSession dbSession, @Nullable ProjectDto project, @Nullable BranchDto branch, boolean inherited) {
@@ -151,6 +172,8 @@ public class ShowAction implements NewCodePeriodsWsAction {
         return NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION;
       case SPECIFIC_ANALYSIS:
         return NewCodePeriods.NewCodePeriodType.SPECIFIC_ANALYSIS;
+      case REFERENCE_BRANCH:
+        return NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH;
       default:
         throw new IllegalStateException("Unexpected type: " + type);
     }

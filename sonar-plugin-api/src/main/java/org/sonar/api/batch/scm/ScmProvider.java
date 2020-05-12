@@ -21,6 +21,7 @@ package org.sonar.api.batch.scm;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -78,6 +79,17 @@ public abstract class ScmProvider {
    */
   @CheckForNull
   public Map<Path, Set<Integer>> branchChangedLines(String targetBranchName, Path rootBaseDir, Set<Path> files) {
+    return null;
+  }
+
+  /**
+   * Find the date of the merge base between the current branch and the given reference branch.
+   *
+   * @return null if the SCM provider was not able to compute the date
+   * @since 8.4
+   */
+  @CheckForNull
+  public Instant forkDate(String referenceBranchName, Path rootBaseDir) {
     return null;
   }
 

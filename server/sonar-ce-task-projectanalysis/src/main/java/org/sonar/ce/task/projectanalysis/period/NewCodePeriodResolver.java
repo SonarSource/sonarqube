@@ -25,11 +25,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
@@ -50,29 +52,42 @@ public class NewCodePeriodResolver {
   private static final Logger LOG = Loggers.get(NewCodePeriodResolver.class);
 
   private final DbClient dbClient;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public NewCodePeriodResolver(DbClient dbClient) {
+  public NewCodePeriodResolver(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
-  public Period resolve(DbSession dbSession, String branchUuid, NewCodePeriodDto newCodePeriodDto, long referenceDate, String projectVersion) {
-    return toPeriod(newCodePeriodDto.getType(), newCodePeriodDto.getValue(), dbSession, projectVersion, branchUuid, referenceDate);
+  @CheckForNull
+  public Period resolve(DbSession dbSession, String branchUuid, NewCodePeriodDto newCodePeriodDto, String projectVersion) {
+    return toPeriod(newCodePeriodDto.getType(), newCodePeriodDto.getValue(), dbSession, projectVersion, branchUuid);
   }
 
-  private Period toPeriod(NewCodePeriodType type, @Nullable String value, DbSession dbSession, String projectVersion, String rootUuid, long referenceDate) {
+  @CheckForNull
+  private Period toPeriod(NewCodePeriodType type, @Nullable String value, DbSession dbSession, String projectVersion, String rootUuid) {
     switch (type) {
       case NUMBER_OF_DAYS:
         checkNotNullValue(value, type);
         Integer days = NewCodePeriodParser.parseDays(value);
-        return resolveByDays(dbSession, rootUuid, days, value, referenceDate);
+        return resolveByDays(dbSession, rootUuid, days, value, analysisMetadataHolder.getAnalysisDate());
       case PREVIOUS_VERSION:
         return resolveByPreviousVersion(dbSession, rootUuid, projectVersion);
       case SPECIFIC_ANALYSIS:
         checkNotNullValue(value, type);
         return resolveBySpecificAnalysis(dbSession, rootUuid, value);
+      case REFERENCE_BRANCH:
+        checkNotNullValue(value, type);
+        return resolveByReferenceBranch(value);
       default:
         throw new IllegalStateException("Unexpected type: " + type);
     }
+  }
+
+  private Period resolveByReferenceBranch(String value) {
+    Long forkDate = analysisMetadataHolder.getForkDate();
+    // forkDate can be null if the scanner failed to find it
+    return newPeriod(NewCodePeriodType.REFERENCE_BRANCH, value, forkDate);
   }
 
   private Period resolveBySpecificAnalysis(DbSession dbSession, String rootUuid, String value) {
@@ -135,7 +150,7 @@ public class NewCodePeriodResolver {
     return period.get();
   }
 
-  private static Period newPeriod(NewCodePeriodType type, @Nullable String value, long date) {
+  private static Period newPeriod(NewCodePeriodType type, @Nullable String value, @Nullable Long date) {
     return new Period(type.name(), value, date);
   }
 

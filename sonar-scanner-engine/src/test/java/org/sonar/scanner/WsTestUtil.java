@@ -92,5 +92,10 @@ public class WsTestUtil {
       }
       return StringUtils.equals(item.getPath(), path);
     }
+
+    @Override
+    public String toString() {
+      return "Request with path: " + path;
+    }
   }
 }

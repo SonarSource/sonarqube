@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,8 +30,11 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
 public class BatchTest {
+  private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+
   @Test
   public void testBuilder() {
+    System.out.println(FORMATTER.format(LocalDate.parse("2019-05-02").atStartOfDay(ZoneId.systemDefault())));
     Batch batch = newBatch();
     assertNotNull(batch);
 

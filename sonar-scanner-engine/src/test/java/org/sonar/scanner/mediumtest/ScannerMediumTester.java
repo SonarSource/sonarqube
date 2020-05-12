@@ -60,6 +60,7 @@ import org.sonar.scanner.report.CeTaskReportDataHolder;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.MetricsRepository;
 import org.sonar.scanner.repository.MetricsRepositoryLoader;
+import org.sonar.scanner.repository.NewCodePeriodLoader;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.ProjectRepositoriesLoader;
 import org.sonar.scanner.repository.QualityProfileLoader;
@@ -74,6 +75,7 @@ import org.sonar.scanner.scan.branch.BranchConfigurationLoader;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.scanner.scan.branch.ProjectBranches;
 import org.sonar.scanner.scan.branch.ProjectPullRequests;
+import org.sonarqube.ws.NewCodePeriods;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
@@ -91,6 +93,7 @@ public class ScannerMediumTester extends ExternalResource {
   private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
   private final FakeGlobalSettingsLoader globalSettingsLoader = new FakeGlobalSettingsLoader();
   private final FakeProjectSettingsLoader projectSettingsLoader = new FakeProjectSettingsLoader();
+  private final FakeNewCodePeriodLoader newCodePeriodLoader = new FakeNewCodePeriodLoader();
   private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
   private final FakeQualityProfileLoader qualityProfiles = new FakeQualityProfileLoader();
   private final FakeActiveRulesLoader activeRules = new FakeActiveRulesLoader();
@@ -226,6 +229,11 @@ public class ScannerMediumTester extends ExternalResource {
     return this;
   }
 
+  public ScannerMediumTester setNewCodePeriod(NewCodePeriods.NewCodePeriodType type, String value) {
+    newCodePeriodLoader.set(NewCodePeriods.ShowWSResponse.newBuilder().setType(type).setValue(value).build());
+    return this;
+  }
+
   @Override
   protected void before() {
     try {
@@ -294,6 +302,7 @@ public class ScannerMediumTester extends ExternalResource {
           tester.activeRules,
           tester.globalSettingsLoader,
           tester.projectSettingsLoader,
+          tester.newCodePeriodLoader,
           tester.sonarRuntime,
           tester.reportMetadataHolder,
           result)
@@ -508,6 +517,19 @@ public class ScannerMediumTester extends ExternalResource {
     @Override
     public Map<String, String> loadGlobalSettings() {
       return Collections.unmodifiableMap(globalSettings);
+    }
+  }
+
+  private static class FakeNewCodePeriodLoader implements NewCodePeriodLoader {
+    private NewCodePeriods.ShowWSResponse response;
+
+    @Override
+    public NewCodePeriods.ShowWSResponse load(String projectKey, String branchName) {
+      return response;
+    }
+
+    public void set(NewCodePeriods.ShowWSResponse response) {
+      this.response = response;
     }
   }
 

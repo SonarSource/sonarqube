@@ -39,29 +39,18 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
 
   private final InitializedProperty<Boolean> organizationsEnabled = new InitializedProperty<>();
-
   private final InitializedProperty<Organization> organization = new InitializedProperty<>();
-
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
-
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
-
+  private final InitializedProperty<Long> forkDate = new InitializedProperty<>();
   private final InitializedProperty<Analysis> baseAnalysis = new InitializedProperty<>();
-
   private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
-
   private final InitializedProperty<Branch> branch = new InitializedProperty<>();
-
   private final InitializedProperty<String> pullRequestId = new InitializedProperty<>();
-
   private final InitializedProperty<Project> project = new InitializedProperty<>();
-
   private final InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
-
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
-
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
-
   private final InitializedProperty<String> scmRevision = new InitializedProperty<>();
 
   @Override
@@ -121,10 +110,21 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
     return this;
   }
 
+  @Override public MutableAnalysisMetadataHolder setForkDate(@Nullable Long date) {
+    forkDate.setProperty(date);
+    return this;
+  }
+
   @Override
   public long getAnalysisDate() {
     checkState(analysisDate.isInitialized(), "Analysis date has not been set");
     return this.analysisDate.getProperty();
+  }
+
+  @CheckForNull
+  @Override
+  public Long getForkDate() {
+    return forkDate.getProperty();
   }
 
   @Override

@@ -21,6 +21,7 @@ package org.sonar.scanner.report;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -38,6 +39,7 @@ import org.sonar.scanner.fs.InputModuleHierarchy;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.repository.ForkDateSupplier;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.rule.QualityProfiles;
 import org.sonar.scanner.scan.ScanProperties;
@@ -57,13 +59,13 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final ScannerPluginRepository pluginRepository;
   private final BranchConfiguration branchConfiguration;
   private final ScmRevision scmRevision;
-
+  private final ForkDateSupplier forkDateSupplier;
   @Nullable
   private final ScmConfiguration scmConfiguration;
 
   public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
     QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
-    ScmRevision scmRevision, @Nullable ScmConfiguration scmConfiguration) {
+    ScmRevision scmRevision, ForkDateSupplier forkDateSupplier, @Nullable ScmConfiguration scmConfiguration) {
     this.projectInfo = projectInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.properties = properties;
@@ -72,12 +74,13 @@ public class MetadataPublisher implements ReportPublisherStep {
     this.pluginRepository = pluginRepository;
     this.branchConfiguration = branchConfiguration;
     this.scmRevision = scmRevision;
+    this.forkDateSupplier = forkDateSupplier;
     this.scmConfiguration = scmConfiguration;
   }
 
-  public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties,
-    QualityProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration, ScmRevision scmRevision) {
-    this(projectInfo, moduleHierarchy, properties, qProfiles, cpdSettings, pluginRepository, branchConfiguration, scmRevision, null);
+  public MetadataPublisher(ProjectInfo projectInfo, InputModuleHierarchy moduleHierarchy, ScanProperties properties, QualityProfiles qProfiles,
+    CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration, ScmRevision scmRevision, ForkDateSupplier forkDateSupplier) {
+    this(projectInfo, moduleHierarchy, properties, qProfiles, cpdSettings, pluginRepository, branchConfiguration, scmRevision, forkDateSupplier, null);
   }
 
   @Override
@@ -99,6 +102,7 @@ public class MetadataPublisher implements ReportPublisherStep {
     }
 
     addScmInformation(builder);
+    addForkPoint(builder);
 
     for (QProfile qp : qProfiles.findAll()) {
       builder.putQprofilesPerLanguage(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()
@@ -116,6 +120,13 @@ public class MetadataPublisher implements ReportPublisherStep {
     addModulesRelativePaths(builder);
 
     writer.writeMetadata(builder.build());
+  }
+
+  private void addForkPoint(ScannerReport.Metadata.Builder builder) {
+    Instant date = forkDateSupplier.get();
+    if (date != null) {
+      builder.setForkDate(date.toEpochMilli());
+    }
   }
 
   private void addModulesRelativePaths(ScannerReport.Metadata.Builder builder) {

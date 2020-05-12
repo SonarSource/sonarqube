@@ -157,6 +157,8 @@ public class ListAction implements NewCodePeriodsWsAction {
         return NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION;
       case SPECIFIC_ANALYSIS:
         return NewCodePeriods.NewCodePeriodType.SPECIFIC_ANALYSIS;
+      case REFERENCE_BRANCH:
+        return NewCodePeriods.NewCodePeriodType.REFERENCE_BRANCH;
       default:
         throw new IllegalStateException("Unexpected type: " + type);
     }

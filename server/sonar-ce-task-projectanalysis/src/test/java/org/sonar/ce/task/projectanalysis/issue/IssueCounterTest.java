@@ -285,15 +285,15 @@ public class IssueCounterTest {
 
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getDate() - 1000000L).setType(RuleType.CODE_SMELL));
     // created during the first analysis starting the period -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER, period.getDate()).setType(RuleType.BUG));
     // created after -> 4 new issues but 1 is closed
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.CODE_SMELL));
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.BUG));
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L).setType(RuleType.BUG));
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate() + 100000L));
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate() + 100000L).setResolution(RESOLUTION_WONT_FIX).setStatus(STATUS_CLOSED));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getDate() + 100000L).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, CRITICAL, period.getDate() + 100000L).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getDate() + 200000L).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate() + 100000L));
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate() + 100000L).setResolution(RESOLUTION_WONT_FIX).setStatus(STATUS_CLOSED));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
@@ -368,15 +368,15 @@ public class IssueCounterTest {
 
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate() - 1000000L));
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate() - 1000000L));
     // created during the first analysis starting the period -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate()));
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate()));
 
     // created after, but closed
-    underTest.onIssue(FILE1, createSecurityHotspot(period.getSnapshotDate() + 100000L).setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
+    underTest.onIssue(FILE1, createSecurityHotspot(period.getDate() + 100000L).setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_WONT_FIX));
 
     for (String severity : Arrays.asList(CRITICAL, BLOCKER, MAJOR)) {
-      DefaultIssue issue = createSecurityHotspot(period.getSnapshotDate() + 100000L);
+      DefaultIssue issue = createSecurityHotspot(period.getDate() + 100000L);
       issue.setSeverity(severity);
       underTest.onIssue(FILE1, issue);
     }

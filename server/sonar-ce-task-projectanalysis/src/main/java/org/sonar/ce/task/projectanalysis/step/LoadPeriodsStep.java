@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
+import org.sonar.db.newcodeperiod.NewCodePeriodType;
 
 /**
  * Populates the {@link PeriodHolder}
@@ -53,7 +54,7 @@ public class LoadPeriodsStep implements ComputationStep {
   private final NewCodePeriodResolver resolver;
 
   public LoadPeriodsStep(AnalysisMetadataHolder analysisMetadataHolder, NewCodePeriodDao newCodePeriodDao, TreeRootHolder treeRootHolder,
-                         PeriodHolderImpl periodsHolder, DbClient dbClient, NewCodePeriodResolver resolver) {
+    PeriodHolderImpl periodsHolder, DbClient dbClient, NewCodePeriodResolver resolver) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.newCodePeriodDao = newCodePeriodDao;
     this.treeRootHolder = treeRootHolder;
@@ -69,7 +70,7 @@ public class LoadPeriodsStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
-    if (analysisMetadataHolder.isFirstAnalysis() || !analysisMetadataHolder.isBranch()) {
+    if (!analysisMetadataHolder.isBranch()) {
       periodsHolder.setPeriod(null);
       return;
     }
@@ -85,9 +86,14 @@ public class LoadPeriodsStep implements ComputationStep {
         () -> getGlobalSetting(dbSession)
       ));
 
-      long analysisDate = analysisMetadataHolder.getAnalysisDate();
-      Period period = dto.map(d -> resolver.resolve(dbSession, branchUuid, d, analysisDate, projectVersion))
-        .orElseGet(() -> resolver.resolve(dbSession, branchUuid, NewCodePeriodDto.defaultInstance(), analysisDate, projectVersion));
+      NewCodePeriodDto newCodePeriod = dto.orElse(NewCodePeriodDto.defaultInstance());
+
+      if (analysisMetadataHolder.isFirstAnalysis() && newCodePeriod.getType() != NewCodePeriodType.REFERENCE_BRANCH) {
+        periodsHolder.setPeriod(null);
+        return;
+      }
+
+      Period period = resolver.resolve(dbSession, branchUuid, newCodePeriod, projectVersion);
       periodsHolder.setPeriod(period);
     }
   }

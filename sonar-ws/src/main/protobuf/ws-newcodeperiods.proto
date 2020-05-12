@@ -44,4 +44,5 @@ enum NewCodePeriodType {
     PREVIOUS_VERSION = 1;
     NUMBER_OF_DAYS = 2;
     SPECIFIC_ANALYSIS = 3;
+    REFERENCE_BRANCH = 4;
 }

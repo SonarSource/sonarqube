@@ -87,7 +87,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   private PeriodHolderImpl periodsHolder = new PeriodHolderImpl();
   private System2 system2Mock = mock(System2.class);
   private NewCodePeriodDao dao = new NewCodePeriodDao(system2Mock, new SequenceUuidFactory());
-  private NewCodePeriodResolver newCodePeriodResolver = new NewCodePeriodResolver(dbTester.getDbClient());
+  private NewCodePeriodResolver newCodePeriodResolver = new NewCodePeriodResolver(dbTester.getDbClient(), analysisMetadataHolder);
   private ZonedDateTime analysisDate = ZonedDateTime.of(2019, 3, 20, 5, 30, 40, 0, ZoneId.systemDefault());
 
   private LoadPeriodsStep underTest = new LoadPeriodsStep(analysisMetadataHolder, dao, treeRootHolder, periodsHolder, dbTester.getDbClient(), newCodePeriodResolver);
@@ -112,20 +112,23 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   @Test
   public void no_period_on_first_analysis() {
+    setupRoot(project);
+
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
     underTest.execute(new TestComputationStepContext());
 
     verify(analysisMetadataHolder).isFirstAnalysis();
+    verify(analysisMetadataHolder).isBranch();
+    verify(analysisMetadataHolder).getProject();
     assertThat(periodsHolder.hasPeriod()).isFalse();
     verifyNoMoreInteractions(analysisMetadataHolder);
   }
 
   @Test
-  public void no_period_if_not_LLB() {
+  public void no_period_date_if_not_branch() {
     when(analysisMetadataHolder.isBranch()).thenReturn(false);
     underTest.execute(new TestComputationStepContext());
 
-    verify(analysisMetadataHolder).isFirstAnalysis();
     verify(analysisMetadataHolder).isBranch();
     assertThat(periodsHolder.hasPeriod()).isFalse();
     verifyNoMoreInteractions(analysisMetadataHolder);
@@ -168,6 +171,30 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     setBranchPeriod(project.uuid(), branch.uuid(), NewCodePeriodType.NUMBER_OF_DAYS, "10");
 
     testNumberOfDays(branch);
+  }
+
+  @Test
+  public void load_reference_branch() {
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    setupRoot(branch);
+
+    setProjectPeriod(project.uuid(), NewCodePeriodType.REFERENCE_BRANCH, "master");
+    when(analysisMetadataHolder.getForkDate()).thenReturn(123456789L);
+
+    underTest.execute(new TestComputationStepContext());
+    assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, "master", 123456789L);
+  }
+
+  @Test
+  public void load_reference_branch_without_fork_date_in_report() {
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    setupRoot(branch);
+
+    setProjectPeriod(project.uuid(), NewCodePeriodType.REFERENCE_BRANCH, "master");
+    when(analysisMetadataHolder.getForkDate()).thenReturn(null);
+
+    underTest.execute(new TestComputationStepContext());
+    assertPeriod(NewCodePeriodType.REFERENCE_BRANCH, "master", null);
   }
 
   private void testNumberOfDays(ComponentDto projectOrBranch) {
@@ -455,12 +482,12 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     dbTester.newCodePeriods().insert(type, value);
   }
 
-  private void assertPeriod(NewCodePeriodType type, @Nullable String value, long snapshotDate) {
+  private void assertPeriod(NewCodePeriodType type, @Nullable String value, @Nullable Long date) {
     Period period = periodsHolder.getPeriod();
     assertThat(period).isNotNull();
     assertThat(period.getMode()).isEqualTo(type.name());
     assertThat(period.getModeParameter()).isEqualTo(value);
-    assertThat(period.getSnapshotDate()).isEqualTo(snapshotDate);
+    assertThat(period.getDate()).isEqualTo(date);
   }
 
   private void verifyDebugLogs(String log, String... otherLogs) {

@@ -67,7 +67,7 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
   @Override
   public void visitProject(Component project, Path<SecurityReviewCounter> path) {
     computeMeasure(project, path);
-    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
+    if (!periodHolder.hasPeriodDate() && !analysisMetadataHolder.isPullRequest()) {
       return;
     }
     // The following measures are only computed on projects level as they are required to compute the others measures on applications
@@ -86,7 +86,7 @@ public class NewSecurityReviewMeasuresVisitor extends PathAwareVisitorAdapter<Se
   }
 
   private void computeMeasure(Component component, Path<SecurityReviewCounter> path) {
-    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
+    if (!periodHolder.hasPeriodDate() && !analysisMetadataHolder.isPullRequest()) {
       return;
     }
     componentIssuesRepository.getIssues(component)

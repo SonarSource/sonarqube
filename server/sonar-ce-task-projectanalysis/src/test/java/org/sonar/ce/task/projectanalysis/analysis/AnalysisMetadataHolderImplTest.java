@@ -139,6 +139,33 @@ public class AnalysisMetadataHolderImplTest {
   }
 
   @Test
+  public void getForkDate_returns_date_with_same_time_as_the_one_set_with_setForkDate() {
+
+    underTest.setForkDate(SOME_DATE);
+
+    assertThat(underTest.getForkDate()).isEqualTo(SOME_DATE);
+  }
+
+  @Test
+  public void getForkDate_throws_ISE_when_holder_is_not_initialized() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fork date has not been set");
+
+    new AnalysisMetadataHolderImpl(editionProvider).getForkDate();
+  }
+
+  @Test
+  public void setForkDate_throws_ISE_when_called_twice() {
+    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
+    underTest.setForkDate(SOME_DATE);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fork date has already been set");
+
+    underTest.setForkDate(SOME_DATE);
+  }
+
+  @Test
   public void hasAnalysisDateBeenSet_returns_false_when_holder_is_not_initialized() {
     assertThat(new AnalysisMetadataHolderImpl(editionProvider).hasAnalysisDateBeenSet()).isFalse();
   }

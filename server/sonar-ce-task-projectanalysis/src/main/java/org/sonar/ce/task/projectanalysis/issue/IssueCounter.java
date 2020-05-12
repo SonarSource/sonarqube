@@ -150,7 +150,7 @@ public class IssueCounter extends IssueVisitor {
     currentCounters.add(issue);
     if (analysisMetadataHolder.isPullRequest()) {
       currentCounters.addOnPeriod(issue);
-    } else if (periodHolder.hasPeriod()) {
+    } else if (periodHolder.hasPeriodDate()) {
       Period period = periodHolder.getPeriod();
       if (period.isOnPeriod(issue.creationDate())){
         currentCounters.addOnPeriod(issue);
@@ -196,7 +196,7 @@ public class IssueCounter extends IssueVisitor {
   }
 
   private void addNewMeasures(Component component) {
-    if (!periodHolder.hasPeriod() && !analysisMetadataHolder.isPullRequest()) {
+    if (!periodHolder.hasPeriodDate() && !analysisMetadataHolder.isPullRequest()) {
       return;
     }
     double unresolvedVariations = currentCounters.counterForPeriod().unresolved;

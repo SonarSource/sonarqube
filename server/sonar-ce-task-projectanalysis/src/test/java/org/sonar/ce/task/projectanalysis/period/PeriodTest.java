@@ -40,13 +40,13 @@ public class PeriodTest {
 
     assertThat(period.getMode()).isEqualTo(NewCodePeriodType.PREVIOUS_VERSION.name());
     assertThat(period.getModeParameter()).isEqualTo(SOME_MODE_PARAM);
-    assertThat(period.getSnapshotDate()).isEqualTo(SOME_SNAPSHOT_DATE);
+    assertThat(period.getDate()).isEqualTo(SOME_SNAPSHOT_DATE);
   }
 
   @Test
   public void verify_to_string() {
     assertThat(new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), "2.3", 1420034400000L).toString())
-      .isEqualTo("Period{mode=PREVIOUS_VERSION, modeParameter=2.3, snapshotDate=1420034400000}");
+      .isEqualTo("Period{mode=PREVIOUS_VERSION, modeParameter=2.3, date=1420034400000}");
   }
 
   @Test

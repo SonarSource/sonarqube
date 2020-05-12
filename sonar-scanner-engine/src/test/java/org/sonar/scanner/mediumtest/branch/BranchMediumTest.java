@@ -40,6 +40,7 @@ import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.scan.branch.BranchType;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
+import org.sonarqube.ws.NewCodePeriods;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -74,6 +75,7 @@ public class BranchMediumTest {
       .readMetadata(Files.newInputStream(filepath), StandardCharsets.UTF_8, FILE_PATH)
       .hash();
     tester.addFileData(FILE_PATH, new FileData(md5sum, "1.1"));
+    tester.setNewCodePeriod(NewCodePeriods.NewCodePeriodType.PREVIOUS_VERSION, "");
   }
 
   @Test

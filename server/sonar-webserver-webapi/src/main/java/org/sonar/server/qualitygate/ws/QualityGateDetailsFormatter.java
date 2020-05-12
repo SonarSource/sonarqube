@@ -49,8 +49,7 @@ public class QualityGateDetailsFormatter {
       return newResponseWithoutQualityGateDetails();
     }
 
-    JsonParser parser = new JsonParser();
-    JsonObject json = parser.parse(optionalMeasureData.get()).getAsJsonObject();
+    JsonObject json = JsonParser.parseString(optionalMeasureData.get()).getAsJsonObject();
 
     ProjectStatusResponse.Status qualityGateStatus = measureLevelToQualityGateStatus(json.get("level").getAsString());
     projectStatusBuilder.setStatus(qualityGateStatus);
@@ -80,8 +79,8 @@ public class QualityGateDetailsFormatter {
     periodBuilder.clear();
 
     SnapshotDto snapshot = this.optionalSnapshot.get();
-    String periodMode = snapshot.getPeriodMode();
-    if (isNullOrEmpty(periodMode)) {
+
+    if (isNullOrEmpty(snapshot.getPeriodMode())) {
       return;
     }
     periodBuilder.setIndex(1);

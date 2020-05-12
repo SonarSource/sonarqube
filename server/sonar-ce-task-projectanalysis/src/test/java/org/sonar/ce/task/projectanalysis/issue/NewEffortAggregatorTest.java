@@ -55,9 +55,9 @@ public class NewEffortAggregatorTest {
 
   private static final Period PERIOD = new Period(NewCodePeriodType.PREVIOUS_VERSION.name(), null, 1_500_000_000L);
   private static final long[] OLD_ISSUES_DATES = new long[]{
-    PERIOD.getSnapshotDate(),
-    PERIOD.getSnapshotDate() - 1,
-    PERIOD.getSnapshotDate() - 1_200_000L,
+    PERIOD.getDate(),
+    PERIOD.getDate() - 1,
+    PERIOD.getDate() - 1_200_000L,
   };
 
   private static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid("FILE").build();
@@ -296,7 +296,7 @@ public class NewEffortAggregatorTest {
     return newCodeSmellIssueWithoutEffort()
       .setEffort(Duration.create(effort))
       .setType(RuleType.CODE_SMELL)
-      .setCreationDate(new Date(PERIOD.getSnapshotDate() + 10_000L));
+      .setCreationDate(new Date(PERIOD.getDate() + 10_000L));
   }
 
   private DefaultIssue oldCodeSmellIssue(long effort) {
@@ -310,7 +310,7 @@ public class NewEffortAggregatorTest {
     return newCodeSmellIssueWithoutEffort()
       .setEffort(Duration.create(effort))
       .setType(RuleType.BUG)
-      .setCreationDate(new Date(PERIOD.getSnapshotDate() + 10_000L));
+      .setCreationDate(new Date(PERIOD.getDate() + 10_000L));
   }
 
   private DefaultIssue oldBugIssue(long effort) {
@@ -324,7 +324,7 @@ public class NewEffortAggregatorTest {
     return newCodeSmellIssueWithoutEffort()
       .setEffort(Duration.create(effort))
       .setType(RuleType.VULNERABILITY)
-      .setCreationDate(new Date(PERIOD.getSnapshotDate() + 10_000L));
+      .setCreationDate(new Date(PERIOD.getDate() + 10_000L));
   }
 
   private DefaultIssue oldVulnerabilityIssue(long effort) {
@@ -337,7 +337,7 @@ public class NewEffortAggregatorTest {
   private static DefaultIssue newCodeSmellIssueWithoutEffort() {
     return new DefaultIssue()
       .setType(CODE_SMELL)
-      .setCreationDate(new Date(PERIOD.getSnapshotDate() + 10_000L));
+      .setCreationDate(new Date(PERIOD.getDate() + 10_000L));
   }
 
   private static DefaultIssue newBugIssueWithoutEffort() {

@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.scan.branch;
 
-import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import org.picocontainer.annotations.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
@@ -40,7 +40,7 @@ public class ProjectBranchesProvider extends ProviderAdapter {
     }
 
     if (loader == null) {
-      this.branches = new ProjectBranches(ImmutableList.of());
+      this.branches = new ProjectBranches(Collections.emptyList());
       return this.branches;
     }
 

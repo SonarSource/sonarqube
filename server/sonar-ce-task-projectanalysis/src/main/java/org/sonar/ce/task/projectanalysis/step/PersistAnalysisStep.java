@@ -97,7 +97,7 @@ public class PersistAnalysisStep implements ComputationStep {
       Period period = periodHolder.getPeriod();
       snapshotDto.setPeriodMode(period.getMode());
       snapshotDto.setPeriodParam(period.getModeParameter());
-      snapshotDto.setPeriodDate(period.getSnapshotDate());
+      snapshotDto.setPeriodDate(period.getDate());
     }
 
     private SnapshotDto createAnalysis(String snapshotUuid, Component component) {

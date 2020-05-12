@@ -64,9 +64,17 @@ public class PeriodHolderImplTest {
   }
 
   @Test
+  public void hasPeriodDate_returns_false_if_date_is_null() {
+    underTest.setPeriod(createPeriodWithoutDate());
+    assertThat(underTest.hasPeriod()).isTrue();
+    assertThat(underTest.hasPeriodDate()).isFalse();
+  }
+
+  @Test
   public void hasPeriod_returns_true_only_if_period_exists_in_holder() {
     underTest.setPeriod(createPeriod());
     assertThat(underTest.hasPeriod()).isTrue();
+    assertThat(underTest.hasPeriodDate()).isTrue();
   }
 
   @Test
@@ -79,5 +87,9 @@ public class PeriodHolderImplTest {
 
   private static Period createPeriod() {
     return new Period(1 + "mode", null, 1000L);
+  }
+
+  private static Period createPeriodWithoutDate() {
+    return new Period(1 + "mode", null, null);
   }
 }

@@ -32,15 +32,11 @@ class SnapshotDtoToWsPeriod {
   }
 
   static Optional<Measures.Period> snapshotToWsPeriods(@Nullable SnapshotDto snapshot) {
-    if (snapshot == null) {
+    if (snapshot == null || snapshot.getPeriodMode() == null) {
       return Optional.empty();
     }
 
-    if (snapshot.getPeriodDate() != null) {
-      return Optional.of(snapshotDtoToWsPeriod(snapshot));
-    }
-
-    return Optional.empty();
+    return Optional.of(snapshotDtoToWsPeriod(snapshot));
   }
 
   private static Measures.Period snapshotDtoToWsPeriod(SnapshotDto snapshot) {

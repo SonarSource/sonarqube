@@ -47,6 +47,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.NUMBER_OF_DAYS;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.PREVIOUS_VERSION;
+import static org.sonar.db.newcodeperiod.NewCodePeriodType.REFERENCE_BRANCH;
 import static org.sonar.db.newcodeperiod.NewCodePeriodType.SPECIFIC_ANALYSIS;
 
 public class SetAction implements NewCodePeriodsWsAction {
@@ -60,8 +61,8 @@ public class SetAction implements NewCodePeriodsWsAction {
   private static final String END_ITEM_LIST = "</li>";
 
   private static final Set<NewCodePeriodType> OVERALL_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
-  private static final Set<NewCodePeriodType> PROJECT_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS);
-  private static final Set<NewCodePeriodType> BRANCH_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS, SPECIFIC_ANALYSIS);
+  private static final Set<NewCodePeriodType> PROJECT_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS, REFERENCE_BRANCH);
+  private static final Set<NewCodePeriodType> BRANCH_TYPES = EnumSet.of(PREVIOUS_VERSION, NUMBER_OF_DAYS, SPECIFIC_ANALYSIS, REFERENCE_BRANCH);
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -105,7 +106,8 @@ public class SetAction implements NewCodePeriodsWsAction {
         BEGIN_LIST +
         BEGIN_ITEM_LIST + SPECIFIC_ANALYSIS.name() + " - can be set at branch level only" + END_ITEM_LIST +
         BEGIN_ITEM_LIST + PREVIOUS_VERSION.name() + " - can be set at any level (global, project, branch)" + END_ITEM_LIST +
-        BEGIN_ITEM_LIST + NUMBER_OF_DAYS.name() + " - can be set  can be set at any level (global, project, branch)" + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + NUMBER_OF_DAYS.name() + " - can be set at any level (global, project, branch)" + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + REFERENCE_BRANCH.name() + " - can only be set for projects and branches" + END_ITEM_LIST +
         END_LIST
       );
     action.createParam(PARAM_VALUE)
@@ -115,6 +117,7 @@ public class SetAction implements NewCodePeriodsWsAction {
         BEGIN_ITEM_LIST + "the uuid of an analysis, when type is " + SPECIFIC_ANALYSIS.name() + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "no value, when type is " + PREVIOUS_VERSION.name() + END_ITEM_LIST +
         BEGIN_ITEM_LIST + "a number, when type is " + NUMBER_OF_DAYS.name() + END_ITEM_LIST +
+        BEGIN_ITEM_LIST + "a string, when type is " + REFERENCE_BRANCH.name() + END_ITEM_LIST +
         END_LIST
       );
   }
@@ -181,6 +184,10 @@ public class SetAction implements NewCodePeriodsWsAction {
         requireBranch(type, branch);
         SnapshotDto analysis = getAnalysis(dbSession, value, project, branch);
         dto.setValue(analysis.getUuid());
+        break;
+      case REFERENCE_BRANCH:
+        requireValue(type, value);
+        dto.setValue(value);
         break;
       default:
         throw new IllegalStateException("Unexpected type: " + type);
