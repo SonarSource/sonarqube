@@ -5,7 +5,7 @@ url: /analysis/languages/apex/
 
 <!-- sonarqube -->
 
-_Apex analysis is available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://redirect.sonarsource.com/editions/editions.html)._
+_Apex analysis is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 
 <!-- /sonarqube -->
 

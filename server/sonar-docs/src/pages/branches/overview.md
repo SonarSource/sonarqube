@@ -3,7 +3,7 @@ title: Branch Analysis
 url: /branches/overview/
 ---
 
-_Branch analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
+_Branch analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
 ## Overview
 

@@ -3,7 +3,7 @@ title: Overview
 url: /analysis/pull-request/
 ---
 
-_Pull Request analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
+_Pull Request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
 You can see your Pull Requests in SonarQube from the Branches and Pull Requests dropdown menu of your project.
 

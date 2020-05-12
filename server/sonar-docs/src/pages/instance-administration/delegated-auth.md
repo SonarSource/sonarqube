@@ -34,7 +34,7 @@ All the parameters required to activate and configure this feature are available
 Using Http header authentication is an easy way integrate your SonarQube deployment with an in-house SSO implementation.
 
 ## GitHub Authentication
-You can delegate authentication to GitHub Enterprise and GitHub.com using a dedicated GitHub OAuth application. Alternately, if you're using the pull request decoration provided as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/) you can harness the [GitHub application needed for PR decoration](/analysis/pr-decoration/) to also provide authentication.
+You can delegate authentication to GitHub Enterprise and GitHub.com using a dedicated GitHub OAuth application. Alternately, if you're using the pull request decoration provided starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can harness the [GitHub application needed for PR decoration](/analysis/pr-decoration/) to also provide authentication.
 
 ### Dedicated GitHub OAuth application
 1. You'll need to first create a GitHub OAuth application. Click [here](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) for general instructions:

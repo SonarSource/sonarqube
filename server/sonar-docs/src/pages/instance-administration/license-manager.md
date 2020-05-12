@@ -4,7 +4,7 @@ url: /instance-administration/license-manager/
 ---
 
 ## License Manager
-_With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/), you can access the License Manager at **Administration > Configuration> License Manager**._
+_Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can access the License Manager at **Administration > Configuration> License Manager**._
 
 You can use the License Manager to retrieve your server ID (required for obtaining a License Key) and configure your SonarSource-provided License key.
 

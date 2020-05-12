@@ -3,11 +3,7 @@ title: ABAP
 url: /analysis/languages/abap/
 ---
 
-<!-- sonarqube -->
-
-_ABAP is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://redirect.sonarsource.com/editions/editions.html)._
-
-<!-- /sonarqube -->
+_ABAP is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
 <!-- static -->
 <!-- update_center:abap -->

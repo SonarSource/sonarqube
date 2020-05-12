@@ -3,7 +3,7 @@ title: Jenkins
 url: /analysis/jenkins/
 ---
 
-_Pull Request analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)._
+_Pull Request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
 SonarScanners running in Jenkins can automatically detect branches and Merge or Pull Requests in certain jobs. You don't need to explicitly pass the branch or Pull Request details.
 
@@ -66,7 +66,7 @@ With Community Edition, you can only analyze a single branch. For more informati
 
 ## Configuring Multibranch Pipeline jobs 
  
-With [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/), you can analyze multiple branches and Pull Requests. The automatic configuration of branches and Pull Requests relies on environment variables available in Multibranch Pipeline jobs. These are set based on information exported by Jenkins plugins. 
+Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can analyze multiple branches and Pull Requests. The automatic configuration of branches and Pull Requests relies on environment variables available in Multibranch Pipeline jobs. These are set based on information exported by Jenkins plugins. 
 
 For configuration examples, see the [SonarScanner for Jenkins](/analysis/scan/sonarscanner-for-jenkins/) documentation.
 

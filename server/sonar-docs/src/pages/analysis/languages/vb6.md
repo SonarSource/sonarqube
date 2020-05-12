@@ -3,11 +3,7 @@ title: VB6
 url: /analysis/languages/vb6/
 ---
 
-<!-- sonarqube -->
-
-_VB6 analysis is available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://redirect.sonarsource.com/editions/editions.html)._
-
-<!-- /sonarqube -->
+_VB6 analysis is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 
 <!-- static -->
 <!-- update_center:vb -->

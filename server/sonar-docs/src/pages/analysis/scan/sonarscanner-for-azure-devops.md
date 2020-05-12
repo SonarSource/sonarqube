@@ -149,7 +149,7 @@ When creating a build definition you can filter the list of available tasks by t
 
 ## Branch and Pull Request analysis
 
-_Branch and Pull Request analysis are available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/)_
+_Branch and Pull Request analysis are available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
 ### Branches
 When a build is run on a branch of your project, the extension automatically configures the analysis to be pushed to the relevant project branch in {instance}. The same build definition can apply to all your branches, whatever type of Git repository you are analyzing,

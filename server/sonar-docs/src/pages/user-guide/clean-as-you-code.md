@@ -11,7 +11,7 @@ Clean as You Code is an approach to Code Quality that eliminates a lot of the ch
 
 With Clean as You Code, your focus is always on New Code (code that has been added or changed in your New Code Period) and making sure the code you write today is clean and safe. 
 
-The New Code Period can be set at different levels (global, project, and with [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://www.sonarsource.com/plans-and-pricing/) at the branch level). Depending on the level at which your New Code Period is set, you can change the starting point of your New Code Period to fit your situation.
+The New Code Period can be set at different levels (global, project, and starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)  at the branch level). Depending on the level at which your New Code Period is set, you can change the starting point of your New Code Period to fit your situation.
 
 For more information on the New Code Period and setting it, check out [Setting Your New Code Period](/project-administration/new-code-period/).
 

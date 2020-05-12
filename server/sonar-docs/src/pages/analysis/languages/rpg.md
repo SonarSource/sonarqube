@@ -3,7 +3,7 @@ title: RPG
 url: /analysis/languages/rpg/
 ---
 
-_RPG is available as part of [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://redirect.sonarsource.com/editions/editions.html)._
+_RPG is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 
 <!-- static -->
 <!-- update_center:rpg -->

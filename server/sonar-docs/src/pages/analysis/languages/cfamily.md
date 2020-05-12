@@ -3,9 +3,7 @@ title: C/C++/Objective-C
 url: /analysis/languages/cfamily/
 ---
 
-<!-- sonarqube -->
-_C/C++/Objective-C analysis is available as part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and [above](https://redirect.sonarsource.com/editions/editions.html)._
-<!-- /sonarqube -->
+_C/C++/Objective-C analysis is available starting with [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
 <!-- static -->
 <!-- update_center:cpp -->

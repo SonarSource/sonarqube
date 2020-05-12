@@ -3,11 +3,7 @@ title: COBOL
 url: /analysis/languages/cobol/
 ---
 
-<!-- sonarqube -->
-
-_Cobol analysis is available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://redirect.sonarsource.com/editions/editions.html)._
-
-<!-- /sonarqube -->
+_Cobol analysis is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 
 <!-- static -->
 <!-- update_center:cobol -->
