@@ -23,7 +23,8 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import ClockIcon from 'sonar-ui-common/components/icons/ClockIcon';
 import FavoriteIcon from 'sonar-ui-common/components/icons/FavoriteIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import { getCodeUrl, getComponentOverviewUrl } from '../../../helpers/urls';
+import { ComponentQualifier } from '../../../../js/types/component';
+import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentResult } from './utils';
 
 interface Props {
@@ -82,23 +83,11 @@ export default class SearchResult extends React.PureComponent<Props, State> {
     this.props.onSelect(this.props.component.key);
   };
 
-  renderOrganization = (component: ComponentResult) => {
-    if (!this.props.appState.organizationsEnabled) {
-      return null;
-    }
-
-    if (!['VW', 'SVW', 'APP', 'TRK'].includes(component.qualifier) || !component.organization) {
-      return null;
-    }
-
-    const organization = this.props.organizations[component.organization];
-    return organization ? (
-      <div className="navbar-search-item-right text-muted-2">{organization.name}</div>
-    ) : null;
-  };
-
   renderProject = (component: ComponentResult) => {
-    if (!['BRC', 'FIL', 'UTS'].includes(component.qualifier) || component.project == null) {
+    if (
+      ComponentQualifier.SubProject !== (component.qualifier as ComponentQualifier) ||
+      component.project == null
+    ) {
       return null;
     }
 
@@ -111,10 +100,7 @@ export default class SearchResult extends React.PureComponent<Props, State> {
   render() {
     const { component } = this.props;
 
-    const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
-    const to = isFile
-      ? getCodeUrl(component.project!, undefined, component.key)
-      : getComponentOverviewUrl(component.key, component.qualifier);
+    const to = getComponentOverviewUrl(component.key, component.qualifier);
 
     return (
       <li
@@ -144,7 +130,6 @@ export default class SearchResult extends React.PureComponent<Props, State> {
                 <span className="navbar-search-item-match">{component.name}</span>
               )}
 
-              {this.renderOrganization(component)}
               {this.renderProject(component)}
             </span>
           </Link>

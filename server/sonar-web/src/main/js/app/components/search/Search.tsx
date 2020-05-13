@@ -31,7 +31,7 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getSuggestions } from '../../../api/components';
-import { getCodeUrl, getComponentOverviewUrl } from '../../../helpers/urls';
+import { getComponentOverviewUrl } from '../../../helpers/urls';
 import { ComponentQualifier } from '../../../types/component';
 import RecentHistory from '../RecentHistory';
 import './Search.css';
@@ -163,23 +163,6 @@ export class Search extends React.PureComponent<Props, State> {
       return next;
     }, []);
 
-  findFile = (key: string) => {
-    const findInResults = (results: ComponentResult[] | undefined) =>
-      results && results.find(r => r.key === key);
-
-    const file = findInResults(this.state.results['FIL']);
-    if (file) {
-      return file;
-    }
-
-    const test = findInResults(this.state.results['UTS']);
-    if (test) {
-      return test;
-    }
-
-    return undefined;
-  };
-
   stopLoading = () => {
     if (this.mounted) {
       this.setState({ loading: false });
@@ -285,20 +268,16 @@ export class Search extends React.PureComponent<Props, State> {
     if (selected.startsWith('qualifier###')) {
       this.searchMore(selected.substr(12));
     } else {
-      const file = this.findFile(selected);
-      if (file) {
-        this.props.router.push(getCodeUrl(file.project!, undefined, file.key));
-      } else {
-        let qualifier = ComponentQualifier.Project;
+      let qualifier = ComponentQualifier.Project;
 
-        if ((results[ComponentQualifier.Portfolio] ?? []).find(r => r.key === selected)) {
-          qualifier = ComponentQualifier.Portfolio;
-        } else if ((results[ComponentQualifier.SubPortfolio] ?? []).find(r => r.key === selected)) {
-          qualifier = ComponentQualifier.SubPortfolio;
-        }
-
-        this.props.router.push(getComponentOverviewUrl(selected, qualifier));
+      if ((results[ComponentQualifier.Portfolio] ?? []).find(r => r.key === selected)) {
+        qualifier = ComponentQualifier.Portfolio;
+      } else if ((results[ComponentQualifier.SubPortfolio] ?? []).find(r => r.key === selected)) {
+        qualifier = ComponentQualifier.SubPortfolio;
       }
+
+      this.props.router.push(getComponentOverviewUrl(selected, qualifier));
+
       this.closeSearch();
     }
   };

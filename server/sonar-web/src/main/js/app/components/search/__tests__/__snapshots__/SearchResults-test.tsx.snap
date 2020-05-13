@@ -57,6 +57,21 @@ exports[`renders different components and dividers between them 1`] = `
 >
   <li
     className="menu-header"
+    key="header-FIL"
+  >
+    qualifiers.FIL
+  </li>
+  <span
+    key="zux"
+  >
+    zux
+  </span>
+  <li
+    className="divider"
+    key="divider-TRK"
+  />
+  <li
+    className="menu-header"
     key="header-TRK"
   >
     qualifiers.TRK
@@ -90,21 +105,6 @@ exports[`renders different components and dividers between them 1`] = `
     key="qux"
   >
     qux
-  </span>
-  <li
-    className="divider"
-    key="divider-FIL"
-  />
-  <li
-    className="menu-header"
-    key="header-FIL"
-  >
-    qualifiers.FIL
-  </li>
-  <span
-    key="zux"
-  >
-    zux
   </span>
 </ul>
 `;

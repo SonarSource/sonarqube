@@ -78,20 +78,6 @@ it('renders projects', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('renders organizations', () => {
-  const component = {
-    isRecentlyBrowsed: true,
-    key: 'foo',
-    name: 'foo',
-    qualifier: 'TRK',
-    organization: 'bar'
-  };
-  const wrapper = shallowRender({ appState: { organizationsEnabled: true }, component });
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setProps({ appState: { organizationsEnabled: false } });
-  expect(wrapper).toMatchSnapshot();
-});
-
 it('shows tooltip after delay', () => {
   const wrapper = shallowRender();
   expect(wrapper.find('Tooltip').prop('visible')).toBe(false);

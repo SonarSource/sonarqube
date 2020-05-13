@@ -18,11 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { sortBy } from 'lodash';
+import { ComponentQualifier } from '../../../../js/types/component';
 
-const ORDER = ['DEV', 'VW', 'SVW', 'APP', 'TRK', 'BRC', 'FIL', 'UTS'];
+const ORDER = [
+  ComponentQualifier.Developper,
+  ComponentQualifier.Portfolio,
+  ComponentQualifier.SubPortfolio,
+  ComponentQualifier.Application,
+  ComponentQualifier.Project,
+  ComponentQualifier.SubProject
+];
 
 export function sortQualifiers(qualifiers: string[]) {
-  return sortBy(qualifiers, qualifier => ORDER.indexOf(qualifier));
+  return sortBy(qualifiers, qualifier => ORDER.indexOf(qualifier as ComponentQualifier));
 }
 
 export interface ComponentResult {
