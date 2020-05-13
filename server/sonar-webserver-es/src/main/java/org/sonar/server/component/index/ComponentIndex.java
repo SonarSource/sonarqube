@@ -57,7 +57,6 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
-import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_LANGUAGE;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_QUALIFIER;
@@ -99,7 +98,6 @@ public class ComponentIndex {
       esQuery.must(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, ComponentTextSearchFeatureRepertoire.values()));
     });
     setEmptiable(query.getQualifiers(), q -> esQuery.must(termsQuery(FIELD_QUALIFIER, q)));
-    setNullable(query.getLanguage(), l -> esQuery.must(termQuery(FIELD_LANGUAGE, l)));
     setNullable(query.getOrganizationUuid(), o -> esQuery.must(termQuery(FIELD_ORGANIZATION_UUID, o)));
     requestBuilder.setQuery(esQuery);
     requestBuilder.addSort(SORTABLE_ANALYZER.subField(FIELD_NAME), SortOrder.ASC);

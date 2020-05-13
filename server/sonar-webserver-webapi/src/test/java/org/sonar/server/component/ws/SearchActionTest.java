@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -59,8 +58,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.resources.Qualifiers.DIRECTORY;
 import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.MODULE;
@@ -74,7 +71,6 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
@@ -91,7 +87,6 @@ public class SearchActionTest {
   private I18nRule i18n = new I18nRule();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private ResourceTypesRule resourceTypes = new ResourceTypesRule();
-  private Languages languages = mock(Languages.class);
   private ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
   private ComponentIndex index = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
@@ -103,8 +98,7 @@ public class SearchActionTest {
   @Before
   public void setUp() {
     resourceTypes.setAllQualifiers(PROJECT, MODULE, DIRECTORY, FILE);
-    when(languages.all()).thenReturn(javaLanguage());
-    ws = new WsActionTester(new SearchAction(index, db.getDbClient(), resourceTypes, i18n, languages, defaultOrganizationProvider));
+    ws = new WsActionTester(new SearchAction(index, db.getDbClient(), resourceTypes, i18n, defaultOrganizationProvider));
 
     user = db.users().insertUser("john");
     userSession.logIn(user);
@@ -120,12 +114,13 @@ public class SearchActionTest {
     assertThat(action.changelog())
       .extracting(Change::getVersion, Change::getDescription)
       .containsExactlyInAnyOrder(
+        tuple("8.4", "Param 'language' has been removed"),
         tuple("8.4", "The use of 'DIR','FIL','UTS' as values for parameter 'qualifiers' is no longer supported"),
         tuple("8.0", "Field 'id' from response has been removed"),
         tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"));
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
-    assertThat(action.params()).hasSize(6);
+    assertThat(action.params()).hasSize(5);
 
     WebService.Param pageSize = action.param("ps");
     assertThat(pageSize.isRequired()).isFalse();
@@ -180,18 +175,6 @@ public class SearchActionTest {
     SearchWsResponse response = call(new SearchRequest().setOrganization(organizationDto.getKey()).setPage(2).setPageSize(3).setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsExactly("project-key-4", "project-key-5", "project-key-6");
-  }
-
-  @Test
-  public void search_with_language() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    insertProjectsAuthorizedForUser(
-      ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("java-project").setLanguage("java"),
-      ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("cpp-project").setLanguage("cpp"));
-
-    SearchWsResponse response = call(new SearchRequest().setOrganization(organizationDto.getKey()).setLanguage("java").setQualifiers(singletonList(PROJECT)));
-
-    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("java-project");
   }
 
   @Test
@@ -287,7 +270,6 @@ public class SearchActionTest {
   private SearchWsResponse call(SearchRequest wsRequest) {
     TestRequest request = ws.newRequest();
     ofNullable(wsRequest.getOrganization()).ifPresent(p3 -> request.setParam(PARAM_ORGANIZATION, p3));
-    ofNullable(wsRequest.getLanguage()).ifPresent(p2 -> request.setParam(PARAM_LANGUAGE, p2));
     ofNullable(wsRequest.getQualifiers()).ifPresent(p1 -> request.setParam(PARAM_QUALIFIERS, Joiner.on(",").join(p1)));
     ofNullable(wsRequest.getQuery()).ifPresent(p -> request.setParam(TEXT_QUERY, p));
     ofNullable(wsRequest.getPage()).ifPresent(page -> request.setParam(PAGE, String.valueOf(page)));

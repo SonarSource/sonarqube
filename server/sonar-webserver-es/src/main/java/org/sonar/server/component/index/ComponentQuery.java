@@ -30,13 +30,11 @@ public class ComponentQuery {
   private final String organizationUuid;
   private final String query;
   private final Collection<String> qualifiers;
-  private final String language;
 
   private ComponentQuery(Builder builder) {
     this.organizationUuid = builder.organizationUuid;
     this.query = builder.query;
     this.qualifiers = builder.qualifiers;
-    this.language = builder.language;
   }
 
   @CheckForNull
@@ -53,11 +51,6 @@ public class ComponentQuery {
     return qualifiers;
   }
 
-  @CheckForNull
-  public String getLanguage() {
-    return language;
-  }
-
   public static Builder builder() {
     return new Builder();
   }
@@ -66,7 +59,6 @@ public class ComponentQuery {
     private String organizationUuid;
     private String query;
     private Collection<String> qualifiers = emptySet();
-    private String language;
 
     private Builder() {
       // enforce static factory method
@@ -84,11 +76,6 @@ public class ComponentQuery {
 
     public Builder setQualifiers(Collection<String> qualifiers) {
       this.qualifiers = unmodifiableCollection(qualifiers);
-      return this;
-    }
-
-    public Builder setLanguage(@Nullable String language) {
-      this.language = language;
       return this;
     }
 

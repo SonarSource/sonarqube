@@ -33,7 +33,6 @@ public class ComponentsWsParameters {
   // parameters
   public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_QUALIFIERS = "qualifiers";
-  public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_STRATEGY = "strategy";
   public static final String PARAM_FILTER = "filter";
   public static final String PARAM_COMPONENT = "component";

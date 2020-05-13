@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -42,7 +41,6 @@ import org.sonar.server.tester.UserSessionRule;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class ComponentIndexSearchTest {
   @Rule
@@ -58,20 +56,6 @@ public class ComponentIndexSearchTest {
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
 
   private ComponentIndex underTest = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(userSession), System2.INSTANCE);
-
-  @Test
-  @Ignore
-  public void filter_by_language() {
-    ComponentDto project = db.components().insertPrivateProject();
-    db.components().insertComponent(newFileDto(project).setLanguage("java"));
-    ComponentDto jsFile1 = db.components().insertComponent(newFileDto(project).setLanguage("js"));
-    ComponentDto jsFile2 = db.components().insertComponent(newFileDto(project).setLanguage("js"));
-    index(project);
-
-    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setLanguage("js").build(), new SearchOptions());
-
-    assertThat(result.getUuids()).containsExactlyInAnyOrder(jsFile1.uuid(), jsFile2.uuid());
-  }
 
   @Test
   public void filter_by_name() {

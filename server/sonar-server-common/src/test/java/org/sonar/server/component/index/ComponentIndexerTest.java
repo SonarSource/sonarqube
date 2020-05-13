@@ -84,7 +84,7 @@ public class ComponentIndexerTest {
   @Test
   public void map_fields() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization, p -> p.setLanguage("java"));
+    ComponentDto project = db.components().insertPrivateProject(organization);
 
     underTest.indexOnStartup(emptySet());
 
@@ -94,7 +94,6 @@ public class ComponentIndexerTest {
     assertThat(doc.getKey()).isEqualTo(project.getDbKey());
     assertThat(doc.getProjectUuid()).isEqualTo(project.projectUuid());
     assertThat(doc.getName()).isEqualTo(project.name());
-    assertThat(doc.getLanguage()).isEqualTo(project.language());
     assertThat(doc.getOrganization()).isEqualTo(project.getOrganizationUuid());
   }
 

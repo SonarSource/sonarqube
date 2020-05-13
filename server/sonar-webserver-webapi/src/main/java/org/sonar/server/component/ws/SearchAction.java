@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
@@ -54,13 +53,10 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
-import static org.sonar.server.language.LanguageParamUtils.getExampleValue;
-import static org.sonar.server.language.LanguageParamUtils.getOrderedLanguageKeys;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
@@ -69,16 +65,14 @@ public class SearchAction implements ComponentsWsAction {
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
   private final I18n i18n;
-  private final Languages languages;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n, Languages languages,
+  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n,
     DefaultOrganizationProvider defaultOrganizationProvider) {
     this.componentIndex = componentIndex;
     this.dbClient = dbClient;
     this.resourceTypes = resourceTypes;
     this.i18n = i18n;
-    this.languages = languages;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
@@ -89,10 +83,10 @@ public class SearchAction implements ComponentsWsAction {
       .setDescription("Search for components")
       .addPagingParams(100, MAX_LIMIT)
       .setChangelog(
+        new Change("8.4", "Param 'language' has been removed"),
         new Change("8.4", String.format("The use of 'DIR','FIL','UTS' as values for parameter '%s' is no longer supported", PARAM_QUALIFIERS)),
         new Change("8.0", "Field 'id' from response has been removed"),
-        new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS))
-      )
+        new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)))
       .setResponseExample(getClass().getResource("search-components-example.json"))
       .setHandler(this);
 
@@ -111,11 +105,6 @@ public class SearchAction implements ComponentsWsAction {
       .setExampleValue("my-org")
       .setSince("6.3");
 
-    action
-      .createParam(PARAM_LANGUAGE)
-      .setDescription("Language key. If provided, only components for the given language are returned.")
-      .setExampleValue(getExampleValue(languages))
-      .setPossibleValues(getOrderedLanguageKeys(languages));
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes))
       .setRequired(true);
   }
@@ -130,7 +119,6 @@ public class SearchAction implements ComponentsWsAction {
     return new SearchRequest()
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
-      .setLanguage(request.param(PARAM_LANGUAGE))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
@@ -174,7 +162,6 @@ public class SearchAction implements ComponentsWsAction {
     return ComponentQuery.builder()
       .setQuery(request.getQuery())
       .setOrganization(organization.getUuid())
-      .setLanguage(request.getLanguage())
       .setQualifiers(request.getQualifiers())
       .build();
   }
@@ -264,16 +251,6 @@ public class SearchAction implements ComponentsWsAction {
 
     public SearchRequest setQuery(@Nullable String query) {
       this.query = query;
-      return this;
-    }
-
-    @CheckForNull
-    public String getLanguage() {
-      return language;
-    }
-
-    public SearchRequest setLanguage(@Nullable String language) {
-      this.language = language;
       return this;
     }
   }
