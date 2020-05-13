@@ -69,6 +69,7 @@ import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -120,6 +121,7 @@ public class SuggestionsActionTest {
       PARAM_QUERY,
       PARAM_RECENTLY_BROWSED);
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("8.4", "The use of 'DIR', 'FIL','UTS' as values for parameter 'more' is no longer supported"),
       tuple("7.6", "The use of 'BRC' as value for parameter 'more' is deprecated"));
 
     WebService.Param recentlyBrowsed = action.param(PARAM_RECENTLY_BROWSED);
@@ -346,13 +348,13 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .extracting(Category::getQ, Category::getItemsCount)
-      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("APP", 0), tuple("SVW", 0), tuple("TRK", 1), tuple("FIL", 0), tuple("UTS", 0))
-      .doesNotContain(tuple("BRC", 0));
+      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("APP", 0), tuple("SVW", 0), tuple("TRK", 1))
+      .doesNotContain(tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
   }
 
   @Test
   public void suggestions_should_filter_allowed_qualifiers() {
-    resourceTypes.setAllQualifiers(PROJECT, MODULE, FILE);
+    resourceTypes.setAllQualifiers(PROJECT, MODULE, FILE, UNIT_TEST_FILE);
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     componentIndexer.indexOnAnalysis(project.projectUuid());
     userSessionRule.addProjectPermission(USER, project);
@@ -364,7 +366,7 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .extracting(Category::getQ)
-      .containsExactlyInAnyOrder(PROJECT, FILE).doesNotContain(MODULE);
+      .containsExactlyInAnyOrder(PROJECT).doesNotContain(MODULE, FILE, UNIT_TEST_FILE);
   }
 
   @Test
@@ -577,7 +579,7 @@ public class SuggestionsActionTest {
 
     assertThat(response.getResultsList())
       .extracting(Category::getQ, Category::getItemsCount)
-      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("APP", 0), tuple("TRK", 1), tuple("FIL", 0), tuple("UTS", 0));
+      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("APP", 0), tuple("TRK", 1));
   }
 
   @Test
@@ -590,7 +592,7 @@ public class SuggestionsActionTest {
     ComponentDto project = db.components().insertPrivateProject(organization, p -> p.setName(query));
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setName(query));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(module).setName(query));
-    ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(module).setName(query).setQualifier(Qualifiers.UNIT_TEST_FILE));
+    ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(module).setName(query).setQualifier(UNIT_TEST_FILE));
     componentIndexer.indexOnStartup(null);
     authorizationIndexerTester.allowOnlyAnyone(project);
     authorizationIndexerTester.allowOnlyAnyone(view);
@@ -607,9 +609,7 @@ public class SuggestionsActionTest {
         tuple(SuggestionCategory.APP.getName(), false),
         tuple(SuggestionCategory.VIEW.getName(), false),
         tuple(SuggestionCategory.SUBVIEW.getName(), false),
-        tuple(SuggestionCategory.PROJECT.getName(), false),
-        tuple(SuggestionCategory.FILE.getName(), true),
-        tuple(SuggestionCategory.UNIT_TEST_FILE.getName(), true));
+        tuple(SuggestionCategory.PROJECT.getName(), false));
   }
 
   @Test

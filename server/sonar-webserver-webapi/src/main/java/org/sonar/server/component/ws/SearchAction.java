@@ -89,8 +89,10 @@ public class SearchAction implements ComponentsWsAction {
       .setDescription("Search for components")
       .addPagingParams(100, MAX_LIMIT)
       .setChangelog(
-        new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)),
-        new Change("8.0", "Field 'id' from response has been removed"))
+        new Change("8.4", String.format("The use of 'DIR','FIL','UTS' as values for parameter '%s' is no longer supported", PARAM_QUALIFIERS)),
+        new Change("8.0", "Field 'id' from response has been removed"),
+        new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS))
+      )
       .setResponseExample(getClass().getResource("search-components-example.json"))
       .setHandler(this);
 

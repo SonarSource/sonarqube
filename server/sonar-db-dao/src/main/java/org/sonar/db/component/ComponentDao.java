@@ -295,9 +295,9 @@ public class ComponentDao implements Dao {
   /**
    * Selects all components that are relevant for indexing. The result is not returned (since it is usually too big), but handed over to the <code>handler</code>
    *
-   * @param session     the database session
+   * @param session the database session
    * @param projectUuid the project uuid, which is selected with all of its children
-   * @param handler     the action to be applied to every result
+   * @param handler the action to be applied to every result
    */
   public void scrollForIndexing(DbSession session, @Nullable String projectUuid, ResultHandler<ComponentDto> handler) {
     mapper(session).scrollForIndexing(projectUuid, handler);

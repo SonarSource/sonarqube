@@ -40,12 +40,11 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
-import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_DELETION;
+import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 
 public class ComponentIndexerTest {
 
@@ -112,11 +111,10 @@ public class ComponentIndexerTest {
   @Test
   public void indexOnAnalysis_indexes_project() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     underTest.indexOnAnalysis(project.uuid());
 
-    assertThatIndexContainsOnly(project, file);
+    assertThatIndexContainsOnly(project);
   }
 
   @Test
@@ -125,9 +123,8 @@ public class ComponentIndexerTest {
     underTest.indexOnAnalysis(project.uuid());
     assertThatIndexContainsOnly(project);
 
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
     underTest.indexOnAnalysis(project.uuid());
-    assertThatIndexContainsOnly(project, file);
+    assertThatIndexContainsOnly(project);
   }
 
   @Test
@@ -177,54 +174,31 @@ public class ComponentIndexerTest {
   @Test
   public void update_index_on_project_creation() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     IndexingResult result = indexProject(project, PROJECT_CREATION);
 
-    assertThatIndexContainsOnly(project, file);
-    // two requests (one per component)
-    assertThat(result.getTotal()).isEqualTo(2L);
-    assertThat(result.getSuccess()).isEqualTo(2L);
-  }
-
-  @Test
-  public void do_not_delete_orphans_when_updating_project() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-
-    indexProject(project, PROJECT_CREATION);
-    assertThatIndexContainsOnly(project, file);
-
-    db.getDbClient().componentDao().delete(db.getSession(), file.uuid());
-
-    IndexingResult result = indexProject(project, ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
-    assertThatIndexContainsOnly(project, file);
-    // single request for project, no request for file
-    assertThat(result.getTotal()).isEqualTo(1);
-    assertThat(result.getSuccess()).isEqualTo(1);
+    assertThatIndexContainsOnly(project);
+    assertThat(result.getTotal()).isEqualTo(1L);
+    assertThat(result.getSuccess()).isEqualTo(1L);
   }
 
   @Test
   public void delete_some_components() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file1 = db.components().insertComponent(newFileDto(project));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     indexProject(project, PROJECT_CREATION);
 
-    underTest.delete(project.uuid(), singletonList(file1.uuid()));
+    underTest.delete(project.uuid(), emptySet());
 
-    assertThatIndexContainsOnly(project, file2);
+    assertThatIndexContainsOnly(project);
   }
 
   @Test
   public void delete_project() {
     ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
     indexProject(project, PROJECT_CREATION);
-    assertThatIndexHasSize(2);
+    assertThatIndexHasSize(1);
 
     db.getDbClient().componentDao().delete(db.getSession(), project.uuid());
-    db.getDbClient().componentDao().delete(db.getSession(), file.uuid());
     indexProject(project, PROJECT_DELETION);
 
     assertThatIndexHasSize(0);
@@ -232,26 +206,25 @@ public class ComponentIndexerTest {
 
   @Test
   public void errors_during_indexing_are_recovered() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    ComponentDto project1 = db.components().insertPrivateProject();
     es.lockWrites(TYPE_COMPONENT);
 
-    IndexingResult result = indexProject(project, PROJECT_CREATION);
-    assertThat(result.getTotal()).isEqualTo(2L);
-    assertThat(result.getFailures()).isEqualTo(2L);
+    IndexingResult result = indexProject(project1, PROJECT_CREATION);
+    assertThat(result.getTotal()).isEqualTo(1L);
+    assertThat(result.getFailures()).isEqualTo(1L);
 
     // index is still read-only, fail to recover
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(2L);
-    assertThat(result.getFailures()).isEqualTo(2L);
+    assertThat(result.getTotal()).isEqualTo(1L);
+    assertThat(result.getFailures()).isEqualTo(1L);
     assertThat(es.countDocuments(TYPE_COMPONENT)).isEqualTo(0);
 
     es.unlockWrites(TYPE_COMPONENT);
 
     result = recover();
-    assertThat(result.getTotal()).isEqualTo(2L);
+    assertThat(result.getTotal()).isEqualTo(1L);
     assertThat(result.getFailures()).isEqualTo(0L);
-    assertThatIndexContainsOnly(project, file);
+    assertThatIndexContainsOnly(project1);
   }
 
   private IndexingResult indexProject(ComponentDto project, ProjectIndexer.Cause cause) {

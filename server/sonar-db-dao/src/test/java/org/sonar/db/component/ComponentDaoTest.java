@@ -41,7 +41,6 @@ import javax.annotation.Nullable;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.resources.Qualifiers;
@@ -63,6 +62,7 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.APP;
@@ -91,9 +91,6 @@ public class ComponentDaoTest {
   private static final String FILE_3_UUID = "file-3-uuid";
   private static final String A_VIEW_UUID = "view-uuid";
   private static final ComponentQuery ALL_PROJECTS_COMPONENT_QUERY = ComponentQuery.builder().setQualifiers("TRK").build();
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   private System2 system2 = new AlwaysIncreasingSystem2(1000L);
 
@@ -181,9 +178,8 @@ public class ComponentDaoTest {
   public void selectOrFailByUuid_fails_when_component_not_found() {
     db.components().insertPublicProject();
 
-    expectedException.expect(RowNotFoundException.class);
-
-    underTest.selectOrFailByUuid(dbSession, "unknown");
+    assertThatThrownBy(() -> underTest.selectOrFailByUuid(dbSession, "unknown"))
+      .isInstanceOf(RowNotFoundException.class);
   }
 
   @Test
@@ -251,9 +247,8 @@ public class ComponentDaoTest {
   public void selectOrFailByKey_fails_when_component_not_found() {
     db.components().insertPrivateProject();
 
-    expectedException.expect(RowNotFoundException.class);
-
-    underTest.selectOrFailByKey(dbSession, "unknown");
+    assertThatThrownBy(() -> underTest.selectOrFailByKey(dbSession, "unknown"))
+      .isInstanceOf(RowNotFoundException.class);
   }
 
   @Test
@@ -391,10 +386,9 @@ public class ComponentDaoTest {
 
   @Test
   public void fail_with_IAE_select_component_keys_by_qualifiers_on_empty_qualifier() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Qualifiers cannot be empty");
-
-    underTest.selectComponentsByQualifiers(dbSession, Collections.emptySet());
+    assertThatThrownBy(() -> underTest.selectComponentsByQualifiers(dbSession, Collections.emptySet()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Qualifiers cannot be empty");
   }
 
   @Test
@@ -1166,10 +1160,9 @@ public class ComponentDaoTest {
 
   @Test
   public void countByQuery_with_organization_throws_NPE_of_organizationUuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("organizationUuid can't be null");
-
-    underTest.countByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY);
+    assertThatThrownBy(() -> underTest.countByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("organizationUuid can't be null");
   }
 
   @Test
@@ -1193,10 +1186,9 @@ public class ComponentDaoTest {
   }
 
   private void assertThatCountByQueryThrowsIAE(ComponentQuery.Builder query, String expectedMessage) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(expectedMessage);
-
-    underTest.countByQuery(dbSession, query.build());
+    assertThatThrownBy(() -> underTest.countByQuery(dbSession, query.build()))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(expectedMessage);
   }
 
   @Test
@@ -1223,16 +1215,24 @@ public class ComponentDaoTest {
   public void selectForIndexing_all() {
     assertSelectForIndexing(null)
       .doesNotContain("DIS7")
-      .doesNotContain("COPY8")
-      .containsExactlyInAnyOrder("U1", "U2", "U3", "U4", "U5", "U6", "VW1");
+      .doesNotContain("COPY8") // copied projects
+      .doesNotContain("U2", "U6")// modules
+      .doesNotContain("U3")// dir
+      .doesNotContain("U4")// file
+      .containsExactlyInAnyOrder("U1", "U5", "VW1");
   }
 
   @Test
   public void selectForIndexing_project() {
     assertSelectForIndexing("U1")
       .doesNotContain("DIS7")
-      .doesNotContain("COPY8")
-      .containsExactlyInAnyOrder("U1", "U2", "U3", "U4");
+      .doesNotContain("COPY8") // copied projects
+      .doesNotContain("U6") // other projects
+      .doesNotContain("VW1") // view
+      .doesNotContain("U2", "U6")// modules
+      .doesNotContain("U3")// dir
+      .doesNotContain("U4")// file
+      .containsExactlyInAnyOrder("U1");
   }
 
   private ListAssert<String> assertSelectForIndexing(@Nullable String projectUuid) {
@@ -1253,7 +1253,8 @@ public class ComponentDaoTest {
     ComponentDto moduleOnProject2 = db.components().insertComponent(newModuleDto("U6", project2));
 
     List<ComponentDto> components = new ArrayList<>();
-    underTest.scrollForIndexing(dbSession, projectUuid, context -> components.add(context.getResultObject()));
+    underTest.scrollForIndexing(dbSession, projectUuid,
+      context -> components.add(context.getResultObject()));
     return (ListAssert<String>) assertThat(components).extracting(ComponentDto::uuid);
   }
 
@@ -1361,10 +1362,9 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_with_organization_throws_NPE_of_organizationUuid_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("organizationUuid can't be null");
-
-    underTest.selectByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY, 1, 1);
+    assertThatThrownBy(() -> underTest.selectByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY, 1, 1))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("organizationUuid can't be null");
   }
 
   @Test
@@ -1388,10 +1388,9 @@ public class ComponentDaoTest {
   }
 
   private void assertThatSelectByQueryThrowsIAE(ComponentQuery.Builder query, String expectedMessage) {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(expectedMessage);
-
-    underTest.selectByQuery(dbSession, query.build(), 0, Integer.MAX_VALUE);
+    assertThatThrownBy(() -> underTest.selectByQuery(dbSession, query.build(), 0, Integer.MAX_VALUE))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(expectedMessage);
   }
 
   @Test

@@ -120,8 +120,9 @@ public class SearchActionTest {
     assertThat(action.changelog())
       .extracting(Change::getVersion, Change::getDescription)
       .containsExactlyInAnyOrder(
-      tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"),
-      tuple("8.0", "Field 'id' from response has been removed"));
+        tuple("8.4", "The use of 'DIR','FIL','UTS' as values for parameter 'qualifiers' is no longer supported"),
+        tuple("8.0", "Field 'id' from response has been removed"),
+        tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"));
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
     assertThat(action.params()).hasSize(6);
@@ -155,7 +156,7 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_for_files() {
+  public void returns_empty_result_when_search_for_files() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     ComponentDto file1 = newFileDto(project).setDbKey("file1");
     ComponentDto file2 = newFileDto(project).setDbKey("file2");
@@ -164,7 +165,7 @@ public class SearchActionTest {
 
     SearchWsResponse response = call(new SearchRequest().setQuery(file1.getDbKey()).setQualifiers(singletonList(FILE)));
 
-    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(file1.getDbKey());
+    assertThat(response.getComponentsList()).isEmpty();
   }
 
   @Test
@@ -194,40 +195,35 @@ public class SearchActionTest {
   }
 
   @Test
-  public void return_only_components_from_projects_on_which_user_has_browse_permission() {
+  public void return_only_projects_on_which_user_has_browse_permission() {
     ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto file1 = newFileDto(project1).setDbKey("file1");
-    ComponentDto file2 = newFileDto(project1).setDbKey("file2");
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto file3 = newFileDto(project2).setDbKey("file3");
-    db.components().insertComponents(project1, file1, file2, project2, file3);
+    ComponentDto portfolio = ComponentTesting.newView(db.getDefaultOrganization());
+
+    db.components().insertComponents(project1, project2, portfolio);
     setBrowsePermissionOnUserAndIndex(project1);
 
-    SearchWsResponse response = call(new SearchRequest().setQualifiers(singletonList(FILE)));
+    SearchWsResponse response = call(new SearchRequest().setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey)
-      .containsExactlyInAnyOrder(file1.getDbKey(), file2.getDbKey());
-    assertThat(response.getPaging().getTotal()).isEqualTo(2);
+      .containsExactlyInAnyOrder(project1.getDbKey());
+    assertThat(response.getPaging().getTotal()).isEqualTo(1);
   }
 
   @Test
   public void return_project_key() {
     ComponentDto project = ComponentTesting.newPublicProjectDto(db.getDefaultOrganization());
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    ComponentDto file1 = newFileDto(module).setDbKey("file1");
-    ComponentDto file2 = newFileDto(module).setDbKey("file2");
-    ComponentDto file3 = newFileDto(project).setDbKey("file3");
-    db.components().insertComponents(project, module, file1, file2, file3);
+    ComponentDto dir1 = newDirectory(module, "dir1").setDbKey("dir1");
+    ComponentDto dir2 = newDirectory(module, "dir2").setDbKey("dir2");
+    ComponentDto dir3 = newDirectory(project, "dir3").setDbKey("dir3");
+    db.components().insertComponents(project, module, dir1, dir2, dir3);
     setBrowsePermissionOnUserAndIndex(project);
 
-    SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
+    SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, MODULE, DIRECTORY)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getProject)
-      .containsOnly(tuple(project.getDbKey(), project.getDbKey()),
-        tuple(module.getDbKey(), project.getDbKey()),
-        tuple(file1.getDbKey(), project.getDbKey()),
-        tuple(file2.getDbKey(), project.getDbKey()),
-        tuple(file3.getDbKey(), project.getDbKey()));
+      .containsOnly(tuple(project.getDbKey(), project.getDbKey()));
   }
 
   @Test
@@ -265,14 +261,14 @@ public class SearchActionTest {
     ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid").setName("Project Name").setDbKey("project-key");
     ComponentDto module = newModuleDto("module-uuid", project).setName("Module Name").setDbKey("module-key");
     ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setDbKey("directory-key").setName("Directory Name");
-    db.components().insertComponents(project, module, directory,
-      newFileDto(module, directory, "file-uuid").setDbKey("file-key").setLanguage("java").setName("File Name"));
+    ComponentDto view = newView(organizationDto);
+    db.components().insertComponents(project, module, directory, view);
     setBrowsePermissionOnUserAndIndex(project);
 
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
-      .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(PROJECT, DIRECTORY, FILE))
+      .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(PROJECT, DIRECTORY))
       .execute().getInput();
     assertJson(response).isSimilarTo(ws.getDef().responseExampleAsString());
   }
