@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
@@ -76,6 +77,10 @@ public class TransitionActionTest {
   @Test
   public void execute() {
     loginAndAddProjectPermission("john", ISSUE_ADMIN);
+    if (issue.type() == RuleType.SECURITY_HOTSPOT) {
+      // this transition is not done for hotspots
+      issue.setType(RuleType.CODE_SMELL);
+    }
     issue.setStatus(Issue.STATUS_RESOLVED);
     issue.setResolution(Issue.RESOLUTION_FIXED);
 
