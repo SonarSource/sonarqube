@@ -50,7 +50,7 @@ public class RemoveAction implements FavoritesWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("remove")
-      .setDescription("Remove a component (project, directory, file etc.) as favorite for the authenticated user.<br>" +
+      .setDescription("Remove a component (project, portfolio, application etc.) as favorite for the authenticated user.<br>" +
         "Requires authentication.")
       .setSince("6.3")
       .setChangelog(new Change("7.6", String.format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
@@ -73,8 +73,7 @@ public class RemoveAction implements FavoritesWsAction {
     return request -> {
       try (DbSession dbSession = dbClient.openSession(false)) {
         ComponentDto component = componentFinder.getByKey(dbSession, request.mandatoryParam(PARAM_COMPONENT));
-        userSession
-          .checkLoggedIn();
+        userSession.checkLoggedIn();
         favoriteUpdater.remove(dbSession, component, userSession.isLoggedIn() ? userSession.getUuid() : null);
         dbSession.commit();
       }

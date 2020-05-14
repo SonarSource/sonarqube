@@ -780,6 +780,8 @@ public class DbVersion84 implements DbVersion {
       .add(3710, "Add primary key on 'UUID' column of 'RULES' table", AddPrimaryKeyOnUuidColumnOfRulesTable.class)
       .add(3711, "Drop column 'ID' of 'RULES' table", DropIdColumnOfRulesTable.class)
 
+      .add(3800, "Remove favourites for components with qualifiers 'DIR', 'FIL', 'UTS'", RemoveFilesFavouritesFromProperties.class);
+
     ;
   }
 }

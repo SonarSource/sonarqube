@@ -48,6 +48,7 @@ import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -86,26 +87,6 @@ public class AddActionTest {
     assertThat(favorite)
       .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getKey)
       .containsOnly(project.uuid(), user.getUuid(), "favourite");
-  }
-
-  @Test
-  public void add_a_file() {
-    ComponentDto project = db.components().insertPrivateProject();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addProjectPermission(USER, project);
-
-    call(file.getKey());
-
-    List<PropertyDto> favorites = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setUserUuid(user.getUuid())
-      .setKey("favourite")
-      .build(), dbSession);
-    assertThat(favorites).hasSize(1);
-    PropertyDto favorite = favorites.get(0);
-    assertThat(favorite)
-      .extracting(PropertyDto::getComponentUuid, PropertyDto::getUserUuid, PropertyDto::getKey)
-      .containsOnly(file.uuid(), user.getUuid(), "favourite");
   }
 
   @Test
@@ -158,9 +139,35 @@ public class AddActionTest {
     userSession.logIn(user).addProjectPermission(USER, project);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Only components with qualifiers TRK, VW, SVW, APP, FIL, UTS are supported");
+    expectedException.expectMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
 
     call(directory.getKey());
+  }
+
+  @Test
+  public void fail_on_file() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(USER, project);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
+
+    call(file.getKey());
+  }
+
+  @Test
+  public void fail_on_unit_test_file() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto unitTestFile = db.components().insertComponent(newFileDto(project).setQualifier(UNIT_TEST_FILE));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addProjectPermission(USER, project);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Only components with qualifiers TRK, VW, SVW, APP are supported");
+
+    call(unitTestFile.getKey());
   }
 
   @Test

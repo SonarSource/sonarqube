@@ -38,17 +38,15 @@ import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
 import static org.sonar.api.resources.Qualifiers.APP;
-import static org.sonar.api.resources.Qualifiers.FILE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
-import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.favorite.ws.FavoritesWsParameters.PARAM_COMPONENT;
 
 public class AddAction implements FavoritesWsAction {
 
-  private static final List<String> SUPPORTED_QUALIFIERS = asList(PROJECT, VIEW, SUBVIEW, APP, FILE, UNIT_TEST_FILE);
+  private static final List<String> SUPPORTED_QUALIFIERS = asList(PROJECT, VIEW, SUBVIEW, APP);
   private static final String SUPPORTED_QUALIFIERS_AS_STRING = join(", ", SUPPORTED_QUALIFIERS);
 
   private final UserSession userSession;
@@ -71,6 +69,7 @@ public class AddAction implements FavoritesWsAction {
         "Requires authentication and the following permission: 'Browse' on the project of the specified component.")
       .setSince("6.3")
       .setChangelog(
+        new Change("8.4", "It's no longer possible to set a file as favorite"),
         new Change("7.7", "It's no longer possible to have more than 100 favorites by qualifier"),
         new Change("7.7", "It's no longer possible to set a directory as favorite"),
         new Change("7.6", format("The use of module keys in parameter '%s' is deprecated", PARAM_COMPONENT)))
