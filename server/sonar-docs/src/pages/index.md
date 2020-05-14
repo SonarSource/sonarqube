@@ -3,9 +3,12 @@ title: Documentation
 url: /
 ---
 
+<!-- static -->
+
 [[info]]
 | **Welcome to the new SonarQube documentation**  
-| If you're already running a SonarQube instance, this documentation is also available within SonarQube itself (from v7.4). Just look under the "?" in the top menu to be sure you're always looking at the right documentation for _your_ version!
+| If you're already running a SonarQube instance, this documentation is also available within SonarQube itself. Just look under the "?" in the top menu to be sure you're always looking at the right documentation for _your_ version!
+<!-- /static -->
 
 [SonarQube](http://www.sonarqube.org/)® is an automatic code review tool to detect bugs, vulnerabilities, and code smells in your code. It can integrate with your existing workflow to enable continuous code inspection across your project branches and pull requests.
 
