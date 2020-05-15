@@ -4,9 +4,7 @@ module.exports = {
   coverageReporters: ['lcovonly', 'text'],
   globals: {
     'ts-jest': {
-      diagnostics: {
-        ignoreCodes: [151001]
-      }
+      diagnostics: false
     }
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],

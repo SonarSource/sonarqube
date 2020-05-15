@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import ThemeContext from 'sonar-ui-common/components/theme';
 import SonarUiCommonInitializer, { DEFAULT_LOCALE } from 'sonar-ui-common/helpers/init';
+import * as theme from '../../src/main/js/app/theme';
 
 const content = document.createElement('div');
 content.id = 'content';
@@ -29,3 +31,8 @@ const baseUrl = '';
 SonarUiCommonInitializer.setLocale(DEFAULT_LOCALE)
   .setMessages({})
   .setUrlContext(baseUrl);
+
+// Hack : override the default value of the context used for theme by emotion
+// This allows tests to get the theme value without specifiying a theme provider
+ThemeContext['_currentValue'] = theme;
+ThemeContext['_currentValue2'] = theme;
