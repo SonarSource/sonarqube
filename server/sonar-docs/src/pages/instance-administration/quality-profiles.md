@@ -5,7 +5,7 @@ url: /instance-administration/quality-profiles/
 
 ## Overview
 
-**Quality Profiles** are a core component of {instance}, since they are where you define sets of [**Rules**](/user-guide/rules/) that when violated should raise issues on your codebase (example: Methods should not have a Cognitive Complexity higher than 15). Quality Profiles are defined for individual languages.
+**Quality Profiles** are a core component of SonarQube, since they are where you define sets of [**Rules**](/user-guide/rules/) that when violated should raise issues on your codebase (example: Methods should not have a Cognitive Complexity higher than 15). Quality Profiles are defined for individual languages.
 
 To manage Quality Profiles, browse to the the [**Quality Profiles**](/#sonarqube#/profiles) page where you'll find Quality Profiles grouped by language.
 
@@ -44,7 +44,7 @@ Additionally, users with Quality Profile administration privileges are notified 
 
 ### Copy a profile from one SonarQube instance to another?
 
-Use the **Back up** feature on the source instance to export the profile to an XML file. Use the **Restore Profile** feature on the target instance to import the file. Note that some [limitations](https://jira.sonarsource.com/browse/SONAR-5366) on this feature exist.
+Use the **Back up** feature on the source instance to export the profile to an XML file. Use the **Restore Profile** feature on the target instance to import the file.
 
 ### Apply a core set of rules plus additional rules to a project?
 
