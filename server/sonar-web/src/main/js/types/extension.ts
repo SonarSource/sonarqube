@@ -17,24 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import * as theme from '../../../app/theme';
-import { getCurrentL10nBundle } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 
-interface Props {
-  defaultQualifier?: string;
-  onClose: () => void;
-  onCreate: (portfolio: { key: string; qualifier: string }) => void;
+import { InjectedIntl } from 'react-intl';
+import { Store as ReduxStore } from 'redux';
+import { Theme } from 'sonar-ui-common/components/theme';
+import { Location, Router } from '../components/hoc/withRouter';
+import { Store } from '../store/rootReducer';
+import { L10nBundle } from './l10n';
+
+export interface ExtensionStartMethod {
+  (params: ExtensionStartMethodParameter | string): ExtensionStartMethodReturnType;
 }
 
-export default class CreateFormShim extends React.Component<Props> {
-  render() {
-    const { createFormBuilder } = (window as any).SonarGovernance;
-    return createFormBuilder(this.props, {
-      theme,
-      baseUrl: getBaseUrl(),
-      l10nBundle: getCurrentL10nBundle()
-    });
-  }
+export interface ExtensionStartMethodParameter {
+  store: ReduxStore<Store, any>;
+  el: HTMLElement | undefined | null;
+  currentUser: T.CurrentUser;
+  intl: InjectedIntl;
+  location: Location;
+  router: Router;
+  theme: Theme;
+  baseUrl: string;
+  l10nBundle: L10nBundle;
 }
+
+export type ExtensionStartMethodReturnType = React.ReactNode | Function | void | undefined | null;

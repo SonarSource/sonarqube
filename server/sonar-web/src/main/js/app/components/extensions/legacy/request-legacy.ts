@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { isNil, omitBy } from 'lodash';
 import { stringify } from 'querystring';
-import { omitBy, isNil } from 'lodash';
 import { getCookie } from 'sonar-ui-common/helpers/cookies';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/system';
 
 /*
   WARNING /!\ WARNING
@@ -118,7 +119,7 @@ class Request {
 
   submit(): Promise<Response> {
     const { url, options } = this.getSubmitData({ ...getCSRFToken() });
-    return window.fetch(((window as any).baseUrl as string) + url, options);
+    return window.fetch(getBaseUrl() + url, options);
   }
 
   setMethod(method: string): Request {

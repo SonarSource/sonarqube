@@ -19,6 +19,7 @@
  */
 import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { getBaseUrl } from '../helpers/system';
 
 export interface ReportStatus {
   canDownload?: boolean;
@@ -35,11 +36,9 @@ export function getReportStatus(component: string): Promise<ReportStatus> {
 }
 
 export function getReportUrl(component: string): string {
-  return (
-    (window as any).baseUrl +
-    '/api/governance_reports/download?componentKey=' +
-    encodeURIComponent(component)
-  );
+  return `${getBaseUrl()}/api/governance_reports/download?componentKey=${encodeURIComponent(
+    component
+  )}`;
 }
 
 export function subscribe(component: string): Promise<void | Response> {

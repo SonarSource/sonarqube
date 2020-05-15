@@ -17,21 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DEFAULT_LANGUAGE, installGlobal, requestMessages } from 'sonar-ui-common/helpers/l10n';
+
+import SonarUiCommonInitializer from 'sonar-ui-common/helpers/init';
 import { parseJSON, request } from 'sonar-ui-common/helpers/request';
 import { installExtensionsHandler, installWebAnalyticsHandler } from '../helpers/extensionsHandler';
-import { getSystemStatus } from '../helpers/system';
+import { loadL10nBundle } from '../helpers/l10n';
+import { getBaseUrl, getSystemStatus } from '../helpers/system';
 import './styles/sonar.css';
 
-installGlobal();
+SonarUiCommonInitializer.setUrlContext(getBaseUrl());
+
 installWebAnalyticsHandler();
 
 if (isMainApp()) {
   installExtensionsHandler();
 
-  Promise.all([loadMessages(), loadUser(), loadAppState(), loadApp()]).then(
-    ([lang, user, appState, startReactApp]) => {
-      startReactApp(lang, user, appState);
+  Promise.all([loadL10nBundle(), loadUser(), loadAppState(), loadApp()]).then(
+    ([l10nBundle, user, appState, startReactApp]) => {
+      startReactApp(l10nBundle.locale, user, appState);
     },
     error => {
       if (isResponse(error) && error.status === 401) {
@@ -50,39 +53,14 @@ if (isMainApp()) {
       .catch(() => resolve(undefined))
   );
 
-  Promise.all([loadMessages(), appStatePromise, loadApp()]).then(
-    ([lang, appState, startReactApp]) => {
-      startReactApp(lang, undefined, appState);
+  Promise.all([loadL10nBundle(), appStatePromise, loadApp()]).then(
+    ([l10nBundle, appState, startReactApp]) => {
+      startReactApp(l10nBundle.locale, undefined, appState);
     },
     error => {
       logError(error);
     }
   );
-}
-
-function loadMessages() {
-  return requestMessages().then(setLanguage, setLanguage);
-}
-
-function loadLocaleData(langToLoad: string) {
-  return Promise.all([import('react-intl/locale-data/' + langToLoad), import('react-intl')]).then(
-    ([intlBundle, intl]) => {
-      intl.addLocaleData(intlBundle.default);
-    }
-  );
-}
-
-function setLanguage(lang: string) {
-  const langToLoad = lang || DEFAULT_LANGUAGE;
-  // No need to load english (default) bundle, it's coming with react-intl
-  if (langToLoad !== DEFAULT_LANGUAGE) {
-    return loadLocaleData(langToLoad).then(
-      () => langToLoad,
-      () => DEFAULT_LANGUAGE
-    );
-  } else {
-    return DEFAULT_LANGUAGE;
-  }
 }
 
 function loadUser() {
@@ -136,8 +114,4 @@ function isMainApp() {
     !pathname.startsWith(`${getBaseUrl()}/setup`) &&
     !pathname.startsWith(`${getBaseUrl()}/markdown/help`)
   );
-}
-
-function getBaseUrl(): string {
-  return (window as any).baseUrl;
 }

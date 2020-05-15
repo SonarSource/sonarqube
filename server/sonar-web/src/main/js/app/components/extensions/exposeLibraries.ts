@@ -66,6 +66,7 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
 import Level from 'sonar-ui-common/components/ui/Level';
 import Rating from 'sonar-ui-common/components/ui/Rating';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import NotFound from '../../../app/components/NotFound';
 import Favorite from '../../../components/controls/Favorite';
@@ -175,6 +176,9 @@ const exposeLibraries = () => {
     Tooltip,
     VulnerabilityIcon
   };
+
+  global.t = translate;
+  global.tp = translateWithParameters;
 };
 
 export default exposeLibraries;

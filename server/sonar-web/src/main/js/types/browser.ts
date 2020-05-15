@@ -17,24 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import * as theme from '../../../app/theme';
-import { getCurrentL10nBundle } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 
-interface Props {
-  defaultQualifier?: string;
-  onClose: () => void;
-  onCreate: (portfolio: { key: string; qualifier: string }) => void;
-}
+import { ExtensionStartMethod } from './extension';
+import { InstanceType } from './system';
 
-export default class CreateFormShim extends React.Component<Props> {
-  render() {
-    const { createFormBuilder } = (window as any).SonarGovernance;
-    return createFormBuilder(this.props, {
-      theme,
-      baseUrl: getBaseUrl(),
-      l10nBundle: getCurrentL10nBundle()
-    });
-  }
+export interface EnhancedWindow extends Window {
+  baseUrl: string;
+  serverStatus: T.SysStatus;
+  instance: InstanceType;
+  official: boolean;
+
+  registerExtension: (key: string, start: ExtensionStartMethod) => void;
+  setWebAnalyticsPageChangeHandler: (pageHandler: (pathname: string) => void) => void;
 }

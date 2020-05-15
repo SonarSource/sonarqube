@@ -30,3 +30,8 @@ export interface SystemUpgrade extends SystemUpgradeDownloadUrls {
   releaseDate?: string;
   version: string;
 }
+
+export enum InstanceType {
+  SonarQube = 'SonarQube',
+  SonarCloud = 'SonarCloud'
+}

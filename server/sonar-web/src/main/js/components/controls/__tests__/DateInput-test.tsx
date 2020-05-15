@@ -27,14 +27,6 @@ import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import DateInput from '../DateInput';
 
-jest.mock('sonar-ui-common/components/lazyLoad', () => ({
-  lazyLoad: () => {
-    return function DayPicker() {
-      return null;
-    };
-  }
-}));
-
 beforeAll(() => {
   Date.prototype.getFullYear = jest.fn().mockReturnValue(2018); // eslint-disable-line no-extend-native
 });

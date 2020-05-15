@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getQualityProfileExporterUrl } from '../../../api/quality-profiles';
+import { getBaseUrl } from '../../../helpers/system';
 import { Exporter, Profile } from '../types';
 
 interface Props {
@@ -31,7 +32,7 @@ interface Props {
 export default class ProfileExporters extends React.PureComponent<Props> {
   getExportUrl(exporter: Exporter) {
     const { profile } = this.props;
-    return `${(window as any).baseUrl}${getQualityProfileExporterUrl(exporter, profile)}`;
+    return `${getBaseUrl()}${getQualityProfileExporterUrl(exporter, profile)}`;
   }
 
   render() {

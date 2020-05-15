@@ -17,24 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import * as theme from '../../../app/theme';
-import { getCurrentL10nBundle } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 
-interface Props {
-  defaultQualifier?: string;
-  onClose: () => void;
-  onCreate: (portfolio: { key: string; qualifier: string }) => void;
-}
+import SonarUiCommonInitializer, { DEFAULT_LOCALE } from 'sonar-ui-common/helpers/init';
 
-export default class CreateFormShim extends React.Component<Props> {
-  render() {
-    const { createFormBuilder } = (window as any).SonarGovernance;
-    return createFormBuilder(this.props, {
-      theme,
-      baseUrl: getBaseUrl(),
-      l10nBundle: getCurrentL10nBundle()
-    });
-  }
-}
+const content = document.createElement('div');
+content.id = 'content';
+document.documentElement.appendChild(content);
+
+const baseUrl = '';
+(window as any).baseUrl = baseUrl;
+SonarUiCommonInitializer.setLocale(DEFAULT_LOCALE)
+  .setMessages({})
+  .setUrlContext(baseUrl);

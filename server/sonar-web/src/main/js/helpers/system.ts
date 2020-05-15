@@ -17,14 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function getSystemStatus(): T.SysStatus {
-  return (window as any).serverStatus;
+
+import { InstanceType } from '../types/system';
+import { getEnhancedWindow } from './browser';
+
+export function getBaseUrl() {
+  return getEnhancedWindow().baseUrl;
 }
 
-export function getInstance(): 'SonarQube' | 'SonarCloud' {
-  return (window as any).instance;
+export function getSystemStatus() {
+  return getEnhancedWindow().serverStatus;
+}
+
+export function getInstance() {
+  return getEnhancedWindow().instance;
+}
+
+export function isOfficial() {
+  return getEnhancedWindow().official;
 }
 
 export function isSonarCloud() {
-  return getInstance() === 'SonarCloud';
+  return getInstance() === InstanceType.SonarCloud;
 }

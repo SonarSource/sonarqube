@@ -24,8 +24,11 @@ import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Location, Router, withRouter } from '../../../components/hoc/withRouter';
 import { getExtensionStart } from '../../../helpers/extensions';
+import { getCurrentL10nBundle } from '../../../helpers/l10n';
+import { getBaseUrl } from '../../../helpers/system';
 import { addGlobalErrorMessage } from '../../../store/globalMessages';
 import { getCurrentUser, Store } from '../../../store/rootReducer';
+import { ExtensionStartMethod } from '../../../types/extension';
 import * as theme from '../../theme';
 import getStore from '../../utils/getStore';
 
@@ -64,7 +67,7 @@ export class Extension extends React.PureComponent<Props, State> {
     this.stopExtension();
   }
 
-  handleStart = (start: Function) => {
+  handleStart = (start: ExtensionStartMethod) => {
     const store = getStore();
     const result = start({
       store,
@@ -74,13 +77,17 @@ export class Extension extends React.PureComponent<Props, State> {
       location: this.props.location,
       router: this.props.router,
       theme,
+      baseUrl: getBaseUrl(),
+      l10nBundle: getCurrentL10nBundle(),
       ...this.props.options
     });
 
-    if (React.isValidElement(result)) {
-      this.setState({ extensionElement: result });
-    } else {
-      this.stop = result;
+    if (result) {
+      if (React.isValidElement(result)) {
+        this.setState({ extensionElement: result });
+      } else if (typeof result === 'function') {
+        this.stop = result;
+      }
     }
   };
 

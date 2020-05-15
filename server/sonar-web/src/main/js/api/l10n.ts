@@ -17,24 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import * as theme from '../../../app/theme';
-import { getCurrentL10nBundle } from '../../../helpers/l10n';
-import { getBaseUrl } from '../../../helpers/system';
 
-interface Props {
-  defaultQualifier?: string;
-  onClose: () => void;
-  onCreate: (portfolio: { key: string; qualifier: string }) => void;
-}
+import { getJSON } from 'sonar-ui-common/helpers/request';
+import { L10nBundleRequestParams, L10nBundleRequestResponse } from '../types/l10n';
 
-export default class CreateFormShim extends React.Component<Props> {
-  render() {
-    const { createFormBuilder } = (window as any).SonarGovernance;
-    return createFormBuilder(this.props, {
-      theme,
-      baseUrl: getBaseUrl(),
-      l10nBundle: getCurrentL10nBundle()
-    });
-  }
+// eslint-disable-next-line import/prefer-default-export
+export function fetchL10nBundle(
+  params: L10nBundleRequestParams
+): Promise<L10nBundleRequestResponse> {
+  return getJSON('/api/l10n/index', params);
 }

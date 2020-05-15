@@ -25,6 +25,7 @@ import ActionsDropdown, {
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getQualityProfileBackupUrl, setDefaultProfile } from '../../../api/quality-profiles';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { getBaseUrl } from '../../../helpers/system';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Profile } from '../types';
 import { getProfileComparePath, getProfilePath, getProfilesPath } from '../utils';
@@ -137,7 +138,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
     const { profile } = this.props;
     const { actions = {} } = profile;
 
-    const backupUrl = `${(window as any).baseUrl}${getQualityProfileBackupUrl(profile)}`;
+    const backupUrl = `${getBaseUrl()}${getQualityProfileBackupUrl(profile)}`;
 
     const activateMoreUrl = getRulesUrl(
       {
