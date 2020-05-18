@@ -114,7 +114,7 @@ public class Rule {
    */
   @Deprecated
   public Integer getId() {
-    return null;
+    throw new UnsupportedOperationException("This method is no longer supported");
   }
 
   public String getName() {
