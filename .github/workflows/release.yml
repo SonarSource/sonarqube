@@ -18,6 +18,8 @@ jobs:
       - name: Run release action
         id: run_release
         uses: SonarSource/gh-action_LT_release@master
+        with:
+          distribute: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_ORG_TOKEN }}
       - name: Log outputs
@@ -25,6 +27,7 @@ jobs:
         run: |
           echo "${{ steps.run_release.outputs.releasability }}"
           echo "${{ steps.run_release.outputs.release }}"
+          echo "${{ steps.run_release.outputs.distribute_release }}"
       - name: Notify success on Slack
         uses: Ilshidur/action-slack@2.0.0
         env:
