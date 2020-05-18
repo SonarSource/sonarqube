@@ -35,4 +35,5 @@
   font-weight: 600;
   color: var(--baseFontColor);
   padding-left: var(--gridSize);
+  font-style: normal;
 }
