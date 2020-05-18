@@ -21,7 +21,9 @@
   padding: calc(4 * var(--gridSize));
 }
 
-.project-baseline-selector > .branch-baseline-setting-modal {
+.project-baseline-setting {
+  display: flex;
+  flex-direction: column;
   max-height: 60vh;
   padding-top: 2px;
 }
@@ -35,6 +37,7 @@
 }
 
 .branch-baseline-setting-modal {
+  min-height: 450px;
   display: flex;
   flex-direction: column;
 }
@@ -123,6 +126,10 @@
   letter-spacing: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.branch-setting-warning {
+  background-color: var(--alertBackgroundWarning) !important;
 }
 
 .project-activity-event-icon.VERSION {

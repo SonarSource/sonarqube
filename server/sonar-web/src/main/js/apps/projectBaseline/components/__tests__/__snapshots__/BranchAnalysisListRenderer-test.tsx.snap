@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: Analyses 1`] = `
 <Fragment>
   <div
     className="spacer-bottom"
@@ -10,7 +10,7 @@ exports[`should render correctly 1`] = `
       autoBlur={true}
       className="input-medium spacer-left"
       clearable={false}
-      onChange={[Function]}
+      onChange={[MockFunction]}
       options={
         Array [
           Object {
@@ -24,7 +24,7 @@ exports[`should render correctly 1`] = `
         ]
       }
       searchable={false}
-      value={0}
+      value={30}
     />
   </div>
   <div
@@ -32,7 +32,7 @@ exports[`should render correctly 1`] = `
   >
     <div
       className="bordered branch-analysis-list"
-      onScroll={[Function]}
+      onScroll={[MockFunction]}
     >
       <ul>
         <li
@@ -43,14 +43,14 @@ exports[`should render correctly 1`] = `
           >
             <li
               className="branch-analysis-day"
-              data-day="2017-03-02"
-              key="1488322800000"
+              data-day="ISO.1488412800000"
+              key="1488412800000"
             >
               <div
                 className="branch-analysis-date"
               >
                 <DateFormatter
-                  date={1488322800000}
+                  date={1488412800000}
                   long={true}
                 />
               </div>
@@ -59,7 +59,7 @@ exports[`should render correctly 1`] = `
               >
                 <li
                   className="branch-analysis"
-                  data-date="2017-03-02"
+                  data-date={1488450961000}
                   key="4"
                   onClick={[Function]}
                 >
@@ -67,7 +67,7 @@ exports[`should render correctly 1`] = `
                     className="branch-analysis-time spacer-right"
                   >
                     <TimeFormatter
-                      date="2017-03-02"
+                      date={2017-03-02T10:36:01.000Z}
                       long={false}
                     >
                       <Component />
@@ -85,7 +85,7 @@ exports[`should render correctly 1`] = `
                 </li>
                 <li
                   className="branch-analysis"
-                  data-date="2017-03-02"
+                  data-date={1488447361000}
                   key="3"
                   onClick={[Function]}
                 >
@@ -93,7 +93,7 @@ exports[`should render correctly 1`] = `
                     className="branch-analysis-time spacer-right"
                   >
                     <TimeFormatter
-                      date="2017-03-02"
+                      date={2017-03-02T09:36:01.000Z}
                       long={false}
                     >
                       <Component />
@@ -165,14 +165,14 @@ exports[`should render correctly 1`] = `
           >
             <li
               className="branch-analysis-day"
-              data-day="2017-03-02"
-              key="1488322800000"
+              data-day="ISO.1488412800000"
+              key="1488412800000"
             >
               <div
                 className="branch-analysis-date"
               >
                 <DateFormatter
-                  date={1488322800000}
+                  date={1488412800000}
                   long={true}
                 />
               </div>
@@ -180,8 +180,8 @@ exports[`should render correctly 1`] = `
                 className="branch-analysis-analyses-list"
               >
                 <li
-                  className="branch-analysis"
-                  data-date="2017-03-02"
+                  className="branch-analysis selected"
+                  data-date={1488443761000}
                   key="2"
                   onClick={[Function]}
                 >
@@ -189,7 +189,7 @@ exports[`should render correctly 1`] = `
                     className="branch-analysis-time spacer-right"
                   >
                     <TimeFormatter
-                      date="2017-03-02"
+                      date={2017-03-02T08:36:01.000Z}
                       long={false}
                     >
                       <Component />
@@ -236,15 +236,33 @@ exports[`should render correctly 1`] = `
                     className="analysis-selection-button"
                   >
                     <Radio
-                      checked={false}
+                      checked={true}
                       onCheck={[Function]}
                       value=""
                     />
                   </div>
                 </li>
+              </ul>
+            </li>
+            <li
+              className="branch-analysis-day"
+              data-day="ISO.1488326400000"
+              key="1488326400000"
+            >
+              <div
+                className="branch-analysis-date"
+              >
+                <DateFormatter
+                  date={1488326400000}
+                  long={true}
+                />
+              </div>
+              <ul
+                className="branch-analysis-analyses-list"
+              >
                 <li
                   className="branch-analysis"
-                  data-date="2017-03-02"
+                  data-date={1488357421000}
                   key="1"
                   onClick={[Function]}
                 >
@@ -252,7 +270,7 @@ exports[`should render correctly 1`] = `
                     className="branch-analysis-time spacer-right"
                   >
                     <TimeFormatter
-                      date="2017-03-02"
+                      date={2017-03-01T08:37:01.000Z}
                       long={false}
                     >
                       <Component />
@@ -273,6 +291,94 @@ exports[`should render correctly 1`] = `
           </ul>
         </li>
       </ul>
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: empty 1`] = `
+<Fragment>
+  <div
+    className="spacer-bottom"
+  >
+    baseline.analysis_from
+    <Select
+      autoBlur={true}
+      className="input-medium spacer-left"
+      clearable={false}
+      onChange={[MockFunction]}
+      options={
+        Array [
+          Object {
+            "label": "baseline.branch_analyses.ranges.30days",
+            "value": 30,
+          },
+          Object {
+            "label": "baseline.branch_analyses.ranges.allTime",
+            "value": 0,
+          },
+        ]
+      }
+      searchable={false}
+      value={30}
+    />
+  </div>
+  <div
+    className="branch-analysis-list-wrapper"
+  >
+    <div
+      className="bordered branch-analysis-list"
+      onScroll={[MockFunction]}
+    >
+      <div
+        className="big-spacer-top big-spacer-bottom strong"
+      >
+        baseline.no_analyses
+      </div>
+    </div>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<Fragment>
+  <div
+    className="spacer-bottom"
+  >
+    baseline.analysis_from
+    <Select
+      autoBlur={true}
+      className="input-medium spacer-left"
+      clearable={false}
+      onChange={[MockFunction]}
+      options={
+        Array [
+          Object {
+            "label": "baseline.branch_analyses.ranges.30days",
+            "value": 30,
+          },
+          Object {
+            "label": "baseline.branch_analyses.ranges.allTime",
+            "value": 0,
+          },
+        ]
+      }
+      searchable={false}
+      value={30}
+    />
+  </div>
+  <div
+    className="branch-analysis-list-wrapper"
+  >
+    <div
+      className="bordered branch-analysis-list"
+      onScroll={[MockFunction]}
+    >
+      <DeferredSpinner
+        className="big-spacer-top"
+        timeout={100}
+      />
+      <ul />
     </div>
   </div>
 </Fragment>

@@ -76,7 +76,8 @@ it('should render correctly', async () => {
 
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+  expect(getProjectActivity).toBeCalled();
+  expect(wrapper.state().analyses).toHaveLength(4);
 });
 
 it('should reload analyses after range change', () => {
@@ -109,6 +110,22 @@ it('should handle scroll', () => {
   expect(wrapper.state('scroll')).toBe(12);
 });
 
+describe('shouldStick', () => {
+  const wrapper = shallowRender();
+
+  wrapper.instance().badges['10.5'] = mockBadge('43');
+  wrapper.instance().badges['12.2'] = mockBadge('85');
+
+  it('should handle no badge', () => {
+    expect(wrapper.instance().shouldStick('unknown version')).toBe(false);
+  });
+  it('should return the correct result', () => {
+    wrapper.setState({ scroll: 36 }); // => 46 with STICKY_BADGE_SCROLL_OFFSET = 10
+    expect(wrapper.instance().shouldStick('10.5')).toBe(true);
+    expect(wrapper.instance().shouldStick('12.2')).toBe(false);
+  });
+});
+
 function shallowRender(props: Partial<BranchAnalysisList['props']> = {}) {
   return shallow<BranchAnalysisList>(
     <BranchAnalysisList
@@ -119,4 +136,12 @@ function shallowRender(props: Partial<BranchAnalysisList['props']> = {}) {
       {...props}
     />
   );
+}
+
+function mockBadge(offsetTop: string) {
+  const element = document.createElement('div');
+
+  element.setAttribute('originOffsetTop', offsetTop);
+
+  return element;
 }

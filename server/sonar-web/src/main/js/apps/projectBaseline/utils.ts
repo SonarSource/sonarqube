@@ -26,15 +26,19 @@ export function validateDays(days: string) {
 export function getSettingValue({
   analysis,
   days,
+  referenceBranch,
   type
 }: {
   analysis?: string;
   days?: string;
+  referenceBranch?: string;
   type?: T.NewCodePeriodSettingType;
 }) {
   switch (type) {
     case 'NUMBER_OF_DAYS':
       return days;
+    case 'REFERENCE_BRANCH':
+      return referenceBranch;
     case 'SPECIFIC_ANALYSIS':
       return analysis;
     default:
@@ -47,16 +51,18 @@ export function validateSetting(state: {
   currentSetting?: T.NewCodePeriodSettingType;
   currentSettingValue?: string;
   days: string;
-  selected?: T.NewCodePeriodSettingType;
   overrideGeneralSetting?: boolean;
+  referenceBranch?: string;
+  selected?: T.NewCodePeriodSettingType;
 }) {
   const {
     analysis = '',
     currentSetting,
     currentSettingValue,
     days,
-    selected,
-    overrideGeneralSetting
+    overrideGeneralSetting,
+    referenceBranch = '',
+    selected
   } = state;
 
   let isChanged;
@@ -67,14 +73,16 @@ export function validateSetting(state: {
       overrideGeneralSetting === false ||
       selected !== currentSetting ||
       (selected === 'NUMBER_OF_DAYS' && days !== currentSettingValue) ||
-      (selected === 'SPECIFIC_ANALYSIS' && analysis !== currentSettingValue);
+      (selected === 'SPECIFIC_ANALYSIS' && analysis !== currentSettingValue) ||
+      (selected === 'REFERENCE_BRANCH' && referenceBranch !== currentSettingValue);
   }
 
   const isValid =
     overrideGeneralSetting === false ||
     selected === 'PREVIOUS_VERSION' ||
     (selected === 'SPECIFIC_ANALYSIS' && analysis.length > 0) ||
-    (selected === 'NUMBER_OF_DAYS' && validateDays(days));
+    (selected === 'NUMBER_OF_DAYS' && validateDays(days)) ||
+    (selected === 'REFERENCE_BRANCH' && referenceBranch.length > 0);
 
   return { isChanged, isValid };
 }

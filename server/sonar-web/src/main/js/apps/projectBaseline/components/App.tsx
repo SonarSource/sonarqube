@@ -20,16 +20,16 @@
 import * as classNames from 'classnames';
 import { debounce } from 'lodash';
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
 import AlertSuccessIcon from 'sonar-ui-common/components/icons/AlertSuccessIcon';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getNewCodePeriod, resetNewCodePeriod, setNewCodePeriod } from '../../../api/newCodePeriod';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import { BranchLike } from '../../../types/branch-like';
+import { isBranch, sortBranches } from '../../../helpers/branch-like';
+import { Branch, BranchLike } from '../../../types/branch-like';
 import '../styles.css';
 import { getSettingValue } from '../utils';
+import AppHeader from './AppHeader';
 import BranchList from './BranchList';
 import ProjectBaselineSelector from './ProjectBaselineSelector';
 
@@ -42,16 +42,20 @@ interface Props {
 
 interface State {
   analysis?: string;
+  branchList: Branch[];
   currentSetting?: T.NewCodePeriodSettingType;
   currentSettingValue?: string;
   days: string;
   generalSetting?: T.NewCodePeriod;
   loading: boolean;
   overrideGeneralSetting?: boolean;
+  referenceBranch?: string;
   saving: boolean;
   selected?: T.NewCodePeriodSettingType;
   success?: boolean;
 }
+
+const DEFAULT_NUMBER_OF_DAYS = '30';
 
 const DEFAULT_GENERAL_SETTING: { type: T.NewCodePeriodSettingType } = {
   type: 'PREVIOUS_VERSION'
@@ -60,7 +64,8 @@ const DEFAULT_GENERAL_SETTING: { type: T.NewCodePeriodSettingType } = {
 export default class App extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = {
-    days: '30',
+    branchList: [],
+    days: DEFAULT_NUMBER_OF_DAYS,
     loading: true,
     saving: false
   };
@@ -71,6 +76,13 @@ export default class App extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchLeakPeriodSetting();
+    this.sortAndFilterBranches(this.props.branchLikes);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.branchLikes !== this.props.branchLikes) {
+      this.sortAndFilterBranches(this.props.branchLikes);
+    }
   }
 
   componentWillUnmount() {
@@ -83,9 +95,10 @@ export default class App extends React.PureComponent<Props, State> {
     generalSetting: T.NewCodePeriod;
   }) {
     const { currentSetting, currentSettingValue, generalSetting } = params;
+    const { referenceBranch } = this.state;
 
     const defaultDays =
-      (!currentSetting && generalSetting.type === 'NUMBER_OF_DAYS' && generalSetting.value) || '30';
+      (generalSetting.type === 'NUMBER_OF_DAYS' && generalSetting.value) || DEFAULT_NUMBER_OF_DAYS;
 
     return {
       loading: false,
@@ -95,8 +108,15 @@ export default class App extends React.PureComponent<Props, State> {
       selected: currentSetting || generalSetting.type,
       overrideGeneralSetting: Boolean(currentSetting),
       days: (currentSetting === 'NUMBER_OF_DAYS' && currentSettingValue) || defaultDays,
-      analysis: (currentSetting === 'SPECIFIC_ANALYSIS' && currentSettingValue) || ''
+      analysis: (currentSetting === 'SPECIFIC_ANALYSIS' && currentSettingValue) || '',
+      referenceBranch:
+        (currentSetting === 'REFERENCE_BRANCH' && currentSettingValue) || referenceBranch
     };
+  }
+
+  sortAndFilterBranches(branchLikes: BranchLike[] = []) {
+    const branchList = sortBranches(branchLikes.filter(isBranch));
+    this.setState({ branchList, referenceBranch: branchList[0].name });
   }
 
   fetchLeakPeriodSetting() {
@@ -118,7 +138,11 @@ export default class App extends React.PureComponent<Props, State> {
           const currentSetting = setting.inherited ? undefined : setting.type || 'PREVIOUS_VERSION';
 
           this.setState(
-            this.getUpdatedState({ generalSetting, currentSetting, currentSettingValue })
+            this.getUpdatedState({
+              generalSetting,
+              currentSetting,
+              currentSettingValue
+            })
           );
         }
       },
@@ -150,6 +174,10 @@ export default class App extends React.PureComponent<Props, State> {
 
   handleSelectDays = (days: string) => this.setState({ days });
 
+  handleSelectReferenceBranch = (referenceBranch: string) => {
+    this.setState({ referenceBranch });
+  };
+
   handleCancel = () =>
     this.setState(
       ({ generalSetting = DEFAULT_GENERAL_SETTING, currentSetting, currentSettingValue }) =>
@@ -165,14 +193,14 @@ export default class App extends React.PureComponent<Props, State> {
     e.preventDefault();
 
     const { component } = this.props;
-    const { analysis, days, selected: type, overrideGeneralSetting } = this.state;
+    const { analysis, days, selected: type, referenceBranch, overrideGeneralSetting } = this.state;
 
     if (!overrideGeneralSetting) {
       this.resetSetting();
       return;
     }
 
-    const value = getSettingValue({ type, analysis, days });
+    const value = getSettingValue({ type, analysis, days, referenceBranch });
 
     if (type) {
       this.setState({ saving: true });
@@ -197,51 +225,18 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  renderHeader() {
-    return (
-      <header className="page-header">
-        <h1 className="page-title">{translate('project_baseline.page')}</h1>
-        <p className="page-description">
-          <FormattedMessage
-            defaultMessage={translate('project_baseline.page.description')}
-            id="project_baseline.page.description"
-            values={{
-              link: (
-                <Link to="/documentation/project-administration/new-code-period/">
-                  {translate('project_baseline.page.description.link')}
-                </Link>
-              )
-            }}
-          />
-          <br />
-          {this.props.canAdmin && (
-            <FormattedMessage
-              defaultMessage={translate('project_baseline.page.description2')}
-              id="project_baseline.page.description2"
-              values={{
-                link: (
-                  <Link to="/admin/settings?category=new_code_period">
-                    {translate('project_baseline.page.description2.link')}
-                  </Link>
-                )
-              }}
-            />
-          )}
-        </p>
-      </header>
-    );
-  }
-
   render() {
-    const { branchLikes, branchesEnabled, component } = this.props;
+    const { branchesEnabled, canAdmin, component } = this.props;
     const {
       analysis,
+      branchList,
       currentSetting,
       days,
       generalSetting,
       loading,
       currentSettingValue,
       overrideGeneralSetting,
+      referenceBranch,
       saving,
       selected,
       success
@@ -251,7 +246,7 @@ export default class App extends React.PureComponent<Props, State> {
       <>
         <Suggestions suggestions="project_baseline" />
         <div className="page page-limited">
-          {this.renderHeader()}
+          <AppHeader canAdmin={!!canAdmin} />
           {loading ? (
             <DeferredSpinner />
           ) : (
@@ -261,6 +256,7 @@ export default class App extends React.PureComponent<Props, State> {
               {generalSetting && overrideGeneralSetting !== undefined && (
                 <ProjectBaselineSelector
                   analysis={analysis}
+                  branchList={branchList}
                   branchesEnabled={branchesEnabled}
                   component={component.key}
                   currentSetting={currentSetting}
@@ -270,10 +266,12 @@ export default class App extends React.PureComponent<Props, State> {
                   onCancel={this.handleCancel}
                   onSelectAnalysis={this.handleSelectAnalysis}
                   onSelectDays={this.handleSelectDays}
+                  onSelectReferenceBranch={this.handleSelectReferenceBranch}
                   onSelectSetting={this.handleSelectSetting}
                   onSubmit={this.handleSubmit}
                   onToggleSpecificSetting={this.handleToggleSpecificSetting}
                   overrideGeneralSetting={overrideGeneralSetting}
+                  referenceBranch={referenceBranch}
                   saving={saving}
                   selected={selected}
                 />
@@ -290,7 +288,7 @@ export default class App extends React.PureComponent<Props, State> {
                   <hr />
                   <h2>{translate('project_baseline.configure_branches')}</h2>
                   <BranchList
-                    branchLikes={branchLikes}
+                    branchList={branchList}
                     component={component}
                     inheritedSetting={
                       currentSetting

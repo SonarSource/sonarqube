@@ -25,6 +25,7 @@ import {
   resetNewCodePeriod,
   setNewCodePeriod
 } from '../../../../api/newCodePeriod';
+import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent, mockEvent } from '../../../../helpers/testMocks';
 import App from '../App';
 
@@ -36,6 +37,16 @@ jest.mock('../../../../api/newCodePeriod', () => ({
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot();
+});
+
+it('should initialize correctly', async () => {
+  const wrapper = shallowRender({
+    branchLikes: [mockBranch(), mockPullRequest(), mockMainBranch()]
+  });
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().branchList).toHaveLength(2);
+  expect(wrapper.state().referenceBranch).toBe('master');
 });
 
 it('should not display reset button if project setting is not set', () => {
@@ -89,7 +100,7 @@ it('should handle errors gracefully', async () => {
 function shallowRender(props: Partial<App['props']> = {}) {
   return shallow<App>(
     <App
-      branchLikes={[]}
+      branchLikes={[mockMainBranch()]}
       branchesEnabled={true}
       canAdmin={true}
       component={mockComponent()}

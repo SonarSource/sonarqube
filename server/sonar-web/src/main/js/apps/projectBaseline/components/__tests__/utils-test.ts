@@ -20,22 +20,26 @@
 import { getSettingValue, validateSetting } from '../../utils';
 
 describe('getSettingValue', () => {
+  const state = {
+    analysis: 'analysis',
+    days: '35',
+    referenceBranch: 'branch-4.2'
+  };
+
   it('should work for Days', () => {
-    expect(getSettingValue({ analysis: 'analysis', days: '35', type: 'NUMBER_OF_DAYS' })).toBe(
-      '35'
-    );
+    expect(getSettingValue({ ...state, type: 'NUMBER_OF_DAYS' })).toBe(state.days);
   });
 
   it('should work for Analysis', () => {
-    expect(getSettingValue({ analysis: 'analysis1', days: '35', type: 'SPECIFIC_ANALYSIS' })).toBe(
-      'analysis1'
-    );
+    expect(getSettingValue({ ...state, type: 'SPECIFIC_ANALYSIS' })).toBe(state.analysis);
   });
 
   it('should work for Previous version', () => {
-    expect(
-      getSettingValue({ analysis: 'analysis1', days: '35', type: 'PREVIOUS_VERSION' })
-    ).toBeUndefined();
+    expect(getSettingValue({ ...state, type: 'PREVIOUS_VERSION' })).toBeUndefined();
+  });
+
+  it('should work for Reference branch', () => {
+    expect(getSettingValue({ ...state, type: 'REFERENCE_BRANCH' })).toBe(state.referenceBranch);
   });
 });
 
@@ -90,6 +94,24 @@ describe('validateSettings', () => {
         selected: 'SPECIFIC_ANALYSIS'
       })
     ).toEqual({ isChanged: true, isValid: true });
+    expect(
+      validateSetting({
+        currentSetting: 'REFERENCE_BRANCH',
+        currentSettingValue: 'master',
+        days: '',
+        referenceBranch: 'master',
+        selected: 'REFERENCE_BRANCH'
+      })
+    ).toEqual({ isChanged: false, isValid: true });
+    expect(
+      validateSetting({
+        currentSetting: 'REFERENCE_BRANCH',
+        currentSettingValue: 'master',
+        days: '',
+        referenceBranch: '',
+        selected: 'REFERENCE_BRANCH'
+      })
+    ).toEqual({ isChanged: true, isValid: false });
   });
 
   it('should validate at project level', () => {

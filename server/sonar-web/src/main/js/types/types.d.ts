@@ -503,7 +503,8 @@ declare namespace T {
   export type NewCodePeriodSettingType =
     | 'PREVIOUS_VERSION'
     | 'NUMBER_OF_DAYS'
-    | 'SPECIFIC_ANALYSIS';
+    | 'SPECIFIC_ANALYSIS'
+    | 'REFERENCE_BRANCH';
 
   export interface Notification {
     channel: string;

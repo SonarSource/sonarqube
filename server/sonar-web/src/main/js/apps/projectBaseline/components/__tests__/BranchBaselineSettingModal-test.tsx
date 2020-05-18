@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockEvent, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { setNewCodePeriod } from '../../../../api/newCodePeriod';
-import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import BranchBaselineSettingModal from '../BranchBaselineSettingModal';
 
 jest.mock('../../../../api/newCodePeriod', () => ({
@@ -29,7 +29,10 @@ jest.mock('../../../../api/newCodePeriod', () => ({
 }));
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('only one branch');
+  expect(
+    shallowRender({ branchList: [mockMainBranch(), mockBranch()], branch: mockMainBranch() })
+  ).toMatchSnapshot('multiple branches');
 });
 
 it('should display the branch analysis list when necessary', () => {
@@ -92,6 +95,7 @@ function shallowRender(props: Partial<BranchBaselineSettingModal['props']> = {})
   return shallow<BranchBaselineSettingModal>(
     <BranchBaselineSettingModal
       branch={mockMainBranch()}
+      branchList={[mockMainBranch()]}
       component="compKey"
       onClose={jest.fn()}
       {...props}

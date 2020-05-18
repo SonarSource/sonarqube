@@ -17,22 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as classNames from 'classnames';
 import { subDays } from 'date-fns';
 import { throttle } from 'lodash';
 import * as React from 'react';
-import Radio from 'sonar-ui-common/components/controls/Radio';
-import Select from 'sonar-ui-common/components/controls/Select';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
-import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
-import TimeFormatter from 'sonar-ui-common/components/intl/TimeFormatter';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { parseDate, toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { getProjectActivity } from '../../../api/projectActivity';
-import Events from '../../projectActivity/components/Events';
-import { getAnalysesByVersionByDay } from '../../projectActivity/utils';
+import BranchAnalysisListRenderer from './BranchAnalysisListRenderer';
 
 interface Props {
   analysis: string;
@@ -48,10 +39,12 @@ interface State {
   scroll: number;
 }
 
+const STICKY_BADGE_SCROLL_OFFSET = 10;
+
 export default class BranchAnalysisList extends React.PureComponent<Props, State> {
   mounted = false;
   badges: T.Dict<HTMLDivElement> = {};
-  rootNodeRef: React.RefObject<HTMLDivElement>;
+  scrollableNode?: HTMLDivElement;
   state: State = {
     analyses: [],
     loading: true,
@@ -61,7 +54,6 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
 
   constructor(props: Props) {
     super(props);
-    this.rootNodeRef = React.createRef<HTMLDivElement>();
     this.updateScroll = throttle(this.updateScroll, 20);
   }
 
@@ -76,8 +68,8 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
 
   scrollToSelected() {
     const selectedNode = document.querySelector('.branch-analysis.selected');
-    if (this.rootNodeRef.current && selectedNode) {
-      scrollToElement(selectedNode, { parent: this.rootNodeRef.current, bottomOffset: 40 });
+    if (this.scrollableNode && selectedNode) {
+      scrollToElement(selectedNode, { parent: this.scrollableNode, bottomOffset: 40 });
     }
   }
 
@@ -133,145 +125,35 @@ export default class BranchAnalysisList extends React.PureComponent<Props, State
 
   shouldStick = (version: string) => {
     const badge = this.badges[version];
-    return badge && Number(badge.getAttribute('originOffsetTop')) < this.state.scroll + 10;
+    return (
+      !!badge &&
+      Number(badge.getAttribute('originOffsetTop')) < this.state.scroll + STICKY_BADGE_SCROLL_OFFSET
+    );
   };
-
-  getRangeOptions() {
-    return [
-      {
-        label: translate('baseline.branch_analyses.ranges.30days'),
-        value: 30
-      },
-      {
-        label: translate('baseline.branch_analyses.ranges.allTime'),
-        value: 0
-      }
-    ];
-  }
 
   handleRangeChange = ({ value }: { value: number }) => {
     this.setState({ range: value }, () => this.fetchAnalyses());
   };
 
   render() {
+    const { analysis, onSelectAnalysis } = this.props;
     const { analyses, loading, range } = this.state;
 
-    const byVersionByDay = getAnalysesByVersionByDay(analyses, {
-      category: ''
-    });
-
-    const hasFilteredData =
-      byVersionByDay.length > 1 ||
-      (byVersionByDay.length === 1 && Object.keys(byVersionByDay[0].byDay).length > 0);
-
     return (
-      <>
-        <div className="spacer-bottom">
-          {translate('baseline.analysis_from')}
-          <Select
-            autoBlur={true}
-            className="input-medium spacer-left"
-            clearable={false}
-            onChange={this.handleRangeChange}
-            options={this.getRangeOptions()}
-            searchable={false}
-            value={range}
-          />
-        </div>
-        <div className="branch-analysis-list-wrapper">
-          <div
-            className="bordered branch-analysis-list"
-            onScroll={this.handleScroll}
-            ref={this.rootNodeRef}>
-            {loading && <DeferredSpinner className="big-spacer-top" />}
-
-            {!loading && !hasFilteredData ? (
-              <div className="big-spacer-top big-spacer-bottom strong">
-                {translate('baseline.no_analyses')}
-              </div>
-            ) : (
-              <ul>
-                {byVersionByDay.map((version, idx) => {
-                  const days = Object.keys(version.byDay);
-                  if (days.length <= 0) {
-                    return null;
-                  }
-                  return (
-                    <li key={version.key || 'noversion'}>
-                      {version.version && (
-                        <div
-                          className={classNames('branch-analysis-version-badge', {
-                            first: idx === 0,
-                            sticky: this.shouldStick(version.version)
-                          })}
-                          ref={this.registerBadgeNode(version.version)}>
-                          <Tooltip
-                            mouseEnterDelay={0.5}
-                            overlay={`${translate('version')} ${version.version}`}>
-                            <span className="badge">{version.version}</span>
-                          </Tooltip>
-                        </div>
-                      )}
-                      <ul className="branch-analysis-days-list">
-                        {days.map(day => (
-                          <li
-                            className="branch-analysis-day"
-                            data-day={toShortNotSoISOString(Number(day))}
-                            key={day}>
-                            <div className="branch-analysis-date">
-                              <DateFormatter date={Number(day)} long={true} />
-                            </div>
-                            <ul className="branch-analysis-analyses-list">
-                              {version.byDay[day] != null &&
-                                version.byDay[day].map(analysis => (
-                                  <li
-                                    className={classNames('branch-analysis', {
-                                      selected: analysis.key === this.props.analysis
-                                    })}
-                                    data-date={parseDate(analysis.date).valueOf()}
-                                    key={analysis.key}
-                                    onClick={() => this.props.onSelectAnalysis(analysis)}>
-                                    <div className="branch-analysis-time spacer-right">
-                                      <TimeFormatter date={parseDate(analysis.date)} long={false}>
-                                        {formattedTime => (
-                                          <time
-                                            className="text-middle"
-                                            dateTime={parseDate(analysis.date).toISOString()}>
-                                            {formattedTime}
-                                          </time>
-                                        )}
-                                      </TimeFormatter>
-                                    </div>
-
-                                    {analysis.events.length > 0 && (
-                                      <Events
-                                        analysisKey={analysis.key}
-                                        events={analysis.events}
-                                        isFirst={analyses[0].key === analysis.key}
-                                      />
-                                    )}
-
-                                    <div className="analysis-selection-button">
-                                      <Radio
-                                        checked={analysis.key === this.props.analysis}
-                                        onCheck={() => {}}
-                                        value=""
-                                      />
-                                    </div>
-                                  </li>
-                                ))}
-                            </ul>
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-        </div>
-      </>
+      <BranchAnalysisListRenderer
+        analyses={analyses}
+        handleRangeChange={this.handleRangeChange}
+        handleScroll={this.handleScroll}
+        loading={loading}
+        onSelectAnalysis={onSelectAnalysis}
+        range={range}
+        registerBadgeNode={this.registerBadgeNode}
+        registerScrollableNode={el => {
+          this.scrollableNode = el;
+        }}
+        selectedAnalysisKey={analysis}
+        shouldStick={this.shouldStick}
+      />
     );
   }
 }

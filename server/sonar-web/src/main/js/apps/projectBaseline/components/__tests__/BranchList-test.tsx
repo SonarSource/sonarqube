@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../../api/newCodePeriod';
-import { mockBranch, mockMainBranch, mockPullRequest } from '../../../../helpers/mocks/branch-like';
+import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/testMocks';
 import BranchBaselineSettingModal from '../BranchBaselineSettingModal';
 import BranchList from '../BranchList';
@@ -31,24 +31,19 @@ jest.mock('../../../../api/newCodePeriod', () => ({
   resetNewCodePeriod: jest.fn().mockResolvedValue(null)
 }));
 
+const newCodePeriods = [
+  {
+    projectKey: '',
+    branchKey: 'master',
+    type: 'NUMBER_OF_DAYS',
+    value: '27'
+  }
+];
+
 it('should render correctly', async () => {
-  (listBranchesNewCodePeriod as jest.Mock).mockResolvedValueOnce({
-    newCodePeriods: [
-      {
-        projectKey: '',
-        branchKey: 'master',
-        type: 'NUMBER_OF_DAYS',
-        value: '27'
-      }
-    ]
-  });
+  (listBranchesNewCodePeriod as jest.Mock).mockResolvedValueOnce({ newCodePeriods });
   const wrapper = shallowRender({
-    branchLikes: [
-      mockMainBranch(),
-      mockBranch(),
-      mockBranch({ name: 'branch-7.0' }),
-      mockPullRequest()
-    ]
+    branchList: [mockMainBranch(), mockBranch(), mockBranch({ name: 'branch-7.0' })]
   });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().branches).toHaveLength(3);
@@ -68,7 +63,7 @@ it('should handle reset', () => {
 });
 
 it('should toggle popup', async () => {
-  const wrapper = shallowRender({ branchLikes: [mockMainBranch(), mockBranch()] });
+  const wrapper = shallowRender({ branchList: [mockMainBranch(), mockBranch()] });
 
   wrapper.setState({ editedBranch: mockMainBranch() });
 
@@ -93,35 +88,10 @@ it('should toggle popup', async () => {
   });
 });
 
-it('should render the right setting label', () => {
-  const wrapper = shallowRender();
-
-  expect(
-    wrapper.instance().renderNewCodePeriodSetting({ type: 'NUMBER_OF_DAYS', value: '21' })
-  ).toBe('baseline.number_days: 21');
-  expect(wrapper.instance().renderNewCodePeriodSetting({ type: 'PREVIOUS_VERSION' })).toBe(
-    'baseline.previous_version'
-  );
-  expect(
-    wrapper.instance().renderNewCodePeriodSetting({
-      type: 'SPECIFIC_ANALYSIS',
-      value: 'A85835',
-      effectiveValue: '2018-12-02T13:01:12'
-    })
-  ).toMatchInlineSnapshot(`
-    <React.Fragment>
-      baseline.specific_analysis: 
-      <DateTimeFormatter
-        date="2018-12-02T13:01:12"
-      />
-    </React.Fragment>
-  `);
-});
-
 function shallowRender(props: Partial<BranchList['props']> = {}) {
   return shallow<BranchList>(
     <BranchList
-      branchLikes={[]}
+      branchList={[]}
       component={mockComponent()}
       inheritedSetting={{ type: 'PREVIOUS_VERSION' }}
       {...props}

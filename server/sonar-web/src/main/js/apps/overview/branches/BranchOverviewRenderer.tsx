@@ -70,41 +70,39 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
         {projectIsEmpty ? (
           <NoCodeWarning branchLike={branchLike} component={component} measures={measures} />
         ) : (
-          <>
-            <div className="display-flex-row">
-              <div className="width-25 big-spacer-right">
-                <QualityGatePanel
+          <div className="display-flex-row">
+            <div className="width-25 big-spacer-right">
+              <QualityGatePanel
+                component={component}
+                loading={loadingStatus}
+                qgStatuses={qgStatuses}
+              />
+            </div>
+
+            <div className="flex-1">
+              <div className="display-flex-column">
+                <MeasuresPanel
+                  branchLike={branchLike}
                   component={component}
+                  leakPeriod={leakPeriod}
                   loading={loadingStatus}
-                  qgStatuses={qgStatuses}
+                  measures={measures}
+                />
+
+                <ActivityPanel
+                  analyses={analyses}
+                  branchLike={branchLike}
+                  component={component}
+                  graph={graph}
+                  leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
+                  loading={loadingHistory}
+                  measuresHistory={measuresHistory}
+                  metrics={metrics}
+                  onGraphChange={onGraphChange}
                 />
               </div>
-
-              <div className="flex-1">
-                <div className="display-flex-column">
-                  <MeasuresPanel
-                    branchLike={branchLike}
-                    component={component}
-                    leakPeriod={leakPeriod}
-                    loading={loadingStatus}
-                    measures={measures}
-                  />
-
-                  <ActivityPanel
-                    analyses={analyses}
-                    branchLike={branchLike}
-                    component={component}
-                    graph={graph}
-                    leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}
-                    loading={loadingHistory}
-                    measuresHistory={measuresHistory}
-                    metrics={metrics}
-                    onGraphChange={onGraphChange}
-                  />
-                </div>
-              </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

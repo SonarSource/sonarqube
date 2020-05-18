@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: multiple branches 1`] = `
 <Modal
   contentLabel="baseline.new_code_period_for_branch_x.master"
   onRequestClose={[Function]}
@@ -39,6 +39,108 @@ exports[`should render correctly 1`] = `
         <BaselineSettingAnalysis
           onSelect={[Function]}
           selected={false}
+        />
+        <BaselineSettingReferenceBranch
+          branchList={
+            Array [
+              Object {
+                "disabled": true,
+                "isMain": true,
+                "value": "master",
+              },
+              Object {
+                "disabled": false,
+                "isMain": false,
+                "value": "branch-6.7",
+              },
+            ]
+          }
+          onChangeReferenceBranch={[Function]}
+          onSelect={[Function]}
+          referenceBranch="branch-6.7"
+          selected={false}
+          settingLevel="branch"
+        />
+      </div>
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <DeferredSpinner
+        className="spacer-right"
+        loading={false}
+        timeout={100}
+      />
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <ResetButtonLink
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </footer>
+  </form>
+</Modal>
+`;
+
+exports[`should render correctly: only one branch 1`] = `
+<Modal
+  contentLabel="baseline.new_code_period_for_branch_x.master"
+  onRequestClose={[Function]}
+  size="large"
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      baseline.new_code_period_for_branch_x.master
+    </h2>
+  </header>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-body modal-container branch-baseline-setting-modal"
+    >
+      <div
+        className="display-flex-row huge-spacer-bottom"
+        role="radiogroup"
+      >
+        <BaselineSettingPreviousVersion
+          isDefault={false}
+          onSelect={[Function]}
+          selected={false}
+        />
+        <BaselineSettingDays
+          days="30"
+          isChanged={false}
+          isValid={false}
+          onChangeDays={[Function]}
+          onSelect={[Function]}
+          selected={false}
+        />
+        <BaselineSettingAnalysis
+          onSelect={[Function]}
+          selected={false}
+        />
+        <BaselineSettingReferenceBranch
+          branchList={
+            Array [
+              Object {
+                "disabled": true,
+                "isMain": true,
+                "value": "master",
+              },
+            ]
+          }
+          onChangeReferenceBranch={[Function]}
+          onSelect={[Function]}
+          referenceBranch=""
+          selected={false}
+          settingLevel="branch"
         />
       </div>
     </div>

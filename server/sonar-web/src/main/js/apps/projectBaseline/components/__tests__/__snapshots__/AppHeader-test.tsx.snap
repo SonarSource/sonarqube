@@ -1,0 +1,80 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: can admin 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    project_baseline.page
+  </h1>
+  <p
+    className="page-description"
+  >
+    <FormattedMessage
+      defaultMessage="project_baseline.page.description"
+      id="project_baseline.page.description"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/project-administration/new-code-period/"
+          >
+            project_baseline.page.description.link
+          </Link>,
+        }
+      }
+    />
+    <br />
+    <FormattedMessage
+      defaultMessage="project_baseline.page.description2"
+      id="project_baseline.page.description2"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/admin/settings?category=new_code_period"
+          >
+            project_baseline.page.description2.link
+          </Link>,
+        }
+      }
+    />
+  </p>
+</header>
+`;
+
+exports[`should render correctly: cannot admin 1`] = `
+<header
+  className="page-header"
+>
+  <h1
+    className="page-title"
+  >
+    project_baseline.page
+  </h1>
+  <p
+    className="page-description"
+  >
+    <FormattedMessage
+      defaultMessage="project_baseline.page.description"
+      id="project_baseline.page.description"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            to="/documentation/project-administration/new-code-period/"
+          >
+            project_baseline.page.description.link
+          </Link>,
+        }
+      }
+    />
+    <br />
+  </p>
+</header>
+`;

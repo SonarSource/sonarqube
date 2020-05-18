@@ -18,20 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ActionsDropdown, {
-  ActionsDropdownItem
-} from 'sonar-ui-common/components/controls/ActionsDropdown';
-import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { listBranchesNewCodePeriod, resetNewCodePeriod } from '../../../api/newCodePeriod';
-import BranchLikeIcon from '../../../components/icons/BranchLikeIcon';
 import { isBranch, sortBranches } from '../../../helpers/branch-like';
-import { BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
+import { Branch, BranchLike, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import BranchBaselineSettingModal from './BranchBaselineSettingModal';
+import BranchListRow from './BranchListRow';
 
 interface Props {
-  branchLikes: BranchLike[];
+  branchList: Branch[];
   component: T.Component;
   inheritedSetting: T.NewCodePeriod;
 }
@@ -66,15 +62,13 @@ export default class BranchList extends React.PureComponent<Props, State> {
     const project = this.props.component.key;
     this.setState({ loading: true });
 
-    const sortedBranches = this.sortAndFilterBranches(this.props.branchLikes);
-
     listBranchesNewCodePeriod({ project }).then(
       branchSettings => {
         const newCodePeriods = branchSettings.newCodePeriods
           ? branchSettings.newCodePeriods.filter(ncp => !ncp.inherited)
           : [];
 
-        const branchesWithBaseline = sortedBranches.map(b => {
+        const branchesWithBaseline = this.props.branchList.map(b => {
           const newCodePeriod = newCodePeriods.find(ncp => ncp.branchKey === b.name);
           if (!newCodePeriod) {
             return b;
@@ -119,38 +113,17 @@ export default class BranchList extends React.PureComponent<Props, State> {
     }
   };
 
-  resetToDefault(branch: string) {
+  resetToDefault = (branch: string) => {
     return resetNewCodePeriod({
       project: this.props.component.key,
       branch
     }).then(() => {
       this.setState({ branches: this.updateBranchNewCodePeriod(branch, undefined) });
     });
-  }
-
-  renderNewCodePeriodSetting(newCodePeriod: T.NewCodePeriod) {
-    switch (newCodePeriod.type) {
-      case 'SPECIFIC_ANALYSIS':
-        return (
-          <>
-            {`${translate('baseline.specific_analysis')}: `}
-            {newCodePeriod.effectiveValue ? (
-              <DateTimeFormatter date={newCodePeriod.effectiveValue} />
-            ) : (
-              '?'
-            )}
-          </>
-        );
-      case 'NUMBER_OF_DAYS':
-        return `${translate('baseline.number_days')}: ${newCodePeriod.value}`;
-      case 'PREVIOUS_VERSION':
-        return translate('baseline.previous_version');
-      default:
-        return newCodePeriod.type;
-    }
-  }
+  };
 
   render() {
+    const { branchList, inheritedSetting } = this.props;
     const { branches, editedBranch, loading } = this.state;
 
     if (branches.length < 1) {
@@ -175,38 +148,21 @@ export default class BranchList extends React.PureComponent<Props, State> {
           </thead>
           <tbody>
             {branches.map(branch => (
-              <tr key={branch.name}>
-                <td className="nowrap">
-                  <BranchLikeIcon branchLike={branch} className="little-spacer-right" />
-                  {branch.name}
-                  {branch.isMain && (
-                    <div className="badge spacer-left">{translate('branches.main_branch')}</div>
-                  )}
-                </td>
-                <td className="huge-spacer-right nowrap">
-                  {branch.newCodePeriod
-                    ? this.renderNewCodePeriodSetting(branch.newCodePeriod)
-                    : translate('branch_list.default_setting')}
-                </td>
-                <td className="text-right">
-                  <ActionsDropdown>
-                    <ActionsDropdownItem onClick={() => this.openEditModal(branch)}>
-                      {translate('edit')}
-                    </ActionsDropdownItem>
-                    {branch.newCodePeriod && (
-                      <ActionsDropdownItem onClick={() => this.resetToDefault(branch.name)}>
-                        {translate('reset_to_default')}
-                      </ActionsDropdownItem>
-                    )}
-                  </ActionsDropdown>
-                </td>
-              </tr>
+              <BranchListRow
+                branch={branch}
+                existingBranches={branchList.map(b => b.name)}
+                inheritedSetting={inheritedSetting}
+                key={branch.name}
+                onOpenEditModal={this.openEditModal}
+                onResetToDefault={this.resetToDefault}
+              />
             ))}
           </tbody>
         </table>
         {editedBranch && (
           <BranchBaselineSettingModal
             branch={editedBranch}
+            branchList={branchList}
             component={this.props.component.key}
             onClose={this.closeEditModal}
           />

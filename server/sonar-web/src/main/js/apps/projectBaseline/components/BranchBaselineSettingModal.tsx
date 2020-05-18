@@ -24,15 +24,17 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { toNotSoISOString } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { setNewCodePeriod } from '../../../api/newCodePeriod';
-import { BranchWithNewCodePeriod } from '../../../types/branch-like';
+import { Branch, BranchWithNewCodePeriod } from '../../../types/branch-like';
 import { getSettingValue, validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingDays from './BaselineSettingDays';
 import BaselineSettingPreviousVersion from './BaselineSettingPreviousVersion';
+import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
 import BranchAnalysisList from './BranchAnalysisList';
 
 interface Props {
   branch: BranchWithNewCodePeriod;
+  branchList: Branch[];
   component: string;
   onClose: (branch?: string, newSetting?: T.NewCodePeriod) => void;
 }
@@ -41,6 +43,7 @@ interface State {
   analysis: string;
   analysisDate?: Date;
   days: string;
+  referenceBranch: string;
   saving: boolean;
   selected?: T.NewCodePeriodSettingType;
 }
@@ -51,9 +54,13 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
   constructor(props: Props) {
     super(props);
 
+    const otherBranches = props.branchList.filter(b => b.name !== props.branch.name);
+    const defaultBranch = otherBranches.length > 0 ? otherBranches[0].name : '';
+
     this.state = {
       analysis: this.getValueFromProps('SPECIFIC_ANALYSIS') || '',
       days: this.getValueFromProps('NUMBER_OF_DAYS') || '30',
+      referenceBranch: this.getValueFromProps('REFERENCE_BRANCH') || defaultBranch,
       saving: false,
       selected: this.props.branch.newCodePeriod && this.props.branch.newCodePeriod.type
     };
@@ -73,13 +80,19 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
       : null;
   }
 
+  branchToOption = (b: Branch) => ({
+    value: b.name,
+    isMain: b.isMain,
+    disabled: b.name === this.props.branch.name // cannot itself be used as a reference branch
+  });
+
   handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const { branch, component } = this.props;
-    const { analysis, analysisDate, days, selected: type } = this.state;
+    const { analysis, analysisDate, days, referenceBranch, selected: type } = this.state;
 
-    const value = getSettingValue({ type, analysis, days });
+    const value = getSettingValue({ type, analysis, days, referenceBranch });
 
     if (type) {
       this.setState({ saving: true });
@@ -115,11 +128,13 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
 
   handleSelectDays = (days: string) => this.setState({ days });
 
+  handleSelectReferenceBranch = (referenceBranch: string) => this.setState({ referenceBranch });
+
   handleSelectSetting = (selected: T.NewCodePeriodSettingType) => this.setState({ selected });
 
   render() {
-    const { branch } = this.props;
-    const { analysis, days, saving, selected } = this.state;
+    const { branch, branchList } = this.props;
+    const { analysis, days, referenceBranch, saving, selected } = this.state;
 
     const header = translateWithParameters('baseline.new_code_period_for_branch_x', branch.name);
 
@@ -131,6 +146,7 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
       currentSetting,
       currentSettingValue,
       days,
+      referenceBranch,
       selected
     });
 
@@ -158,6 +174,14 @@ export default class BranchBaselineSettingModal extends React.PureComponent<Prop
               <BaselineSettingAnalysis
                 onSelect={this.handleSelectSetting}
                 selected={selected === 'SPECIFIC_ANALYSIS'}
+              />
+              <BaselineSettingReferenceBranch
+                branchList={branchList.map(this.branchToOption)}
+                onChangeReferenceBranch={this.handleSelectReferenceBranch}
+                onSelect={this.handleSelectSetting}
+                referenceBranch={referenceBranch}
+                selected={selected === 'REFERENCE_BRANCH'}
+                settingLevel="branch"
               />
             </div>
             {selected === 'SPECIFIC_ANALYSIS' && (

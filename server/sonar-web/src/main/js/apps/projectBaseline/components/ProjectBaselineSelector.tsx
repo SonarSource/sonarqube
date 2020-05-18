@@ -21,16 +21,20 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import Radio from 'sonar-ui-common/components/controls/Radio';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { Branch } from '../../../types/branch-like';
 import { validateSetting } from '../utils';
 import BaselineSettingAnalysis from './BaselineSettingAnalysis';
 import BaselineSettingDays from './BaselineSettingDays';
 import BaselineSettingPreviousVersion from './BaselineSettingPreviousVersion';
+import BaselineSettingReferenceBranch from './BaselineSettingReferenceBranch';
 import BranchAnalysisList from './BranchAnalysisList';
 
 export interface ProjectBaselineSelectorProps {
   analysis?: string;
+  branchList: Branch[];
   branchesEnabled?: boolean;
   component: string;
   currentSetting?: T.NewCodePeriodSettingType;
@@ -40,9 +44,11 @@ export interface ProjectBaselineSelectorProps {
   onCancel: () => void;
   onSelectAnalysis: (analysis: T.ParsedAnalysis) => void;
   onSelectDays: (value: string) => void;
+  onSelectReferenceBranch: (value: string) => void;
   onSelectSetting: (value?: T.NewCodePeriodSettingType) => void;
   onSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => void;
   onToggleSpecificSetting: (selection: boolean) => void;
+  referenceBranch?: string;
   saving: boolean;
   selected?: T.NewCodePeriodSettingType;
   overrideGeneralSetting: boolean;
@@ -69,18 +75,24 @@ function renderGeneralSetting(generalSetting: T.NewCodePeriod) {
   );
 }
 
+function branchToOption(b: Branch) {
+  return { value: b.name, isMain: b.isMain };
+}
+
 export default function ProjectBaselineSelector(props: ProjectBaselineSelectorProps) {
   const {
     analysis,
+    branchList,
     branchesEnabled,
     component,
     currentSetting,
     currentSettingValue,
     days,
     generalSetting,
+    overrideGeneralSetting,
+    referenceBranch,
     saving,
-    selected,
-    overrideGeneralSetting
+    selected
   } = props;
 
   const { isChanged, isValid } = validateSetting({
@@ -88,8 +100,9 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
     currentSetting,
     currentSettingValue,
     days,
-    selected,
-    overrideGeneralSetting
+    overrideGeneralSetting,
+    referenceBranch,
+    selected
   });
 
   return (
@@ -113,7 +126,7 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
         </Radio>
       </div>
 
-      <div className="big-spacer-left big-spacer-right branch-baseline-setting-modal">
+      <div className="big-spacer-left big-spacer-right project-baseline-setting">
         <div className="display-flex-row big-spacer-bottom" role="radiogroup">
           <BaselineSettingPreviousVersion
             disabled={!overrideGeneralSetting}
@@ -129,7 +142,17 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
             onSelect={props.onSelectSetting}
             selected={overrideGeneralSetting && selected === 'NUMBER_OF_DAYS'}
           />
-          {!branchesEnabled && (
+          {branchesEnabled ? (
+            <BaselineSettingReferenceBranch
+              branchList={branchList.map(branchToOption)}
+              disabled={!overrideGeneralSetting}
+              onChangeReferenceBranch={props.onSelectReferenceBranch}
+              onSelect={props.onSelectSetting}
+              referenceBranch={referenceBranch || ''}
+              selected={overrideGeneralSetting && selected === 'REFERENCE_BRANCH'}
+              settingLevel="project"
+            />
+          ) : (
             <BaselineSettingAnalysis
               disabled={!overrideGeneralSetting}
               onSelect={props.onSelectSetting}
@@ -147,7 +170,9 @@ export default function ProjectBaselineSelector(props: ProjectBaselineSelectorPr
         )}
       </div>
       <div className={classNames('big-spacer-top', { invisible: !isChanged })}>
-        <p className="spacer-bottom">{translate('baseline.next_analysis_notice')}</p>
+        <Alert variant="info" className="spacer-bottom">
+          {translate('baseline.next_analysis_notice')}
+        </Alert>
         <DeferredSpinner className="spacer-right" loading={saving} />
         <SubmitButton disabled={saving || !isValid || !isChanged}>{translate('save')}</SubmitButton>
         <ResetButtonLink className="spacer-left" onClick={props.onCancel}>
