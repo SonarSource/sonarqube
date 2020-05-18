@@ -29,14 +29,6 @@ it('should render correctly', () => {
   expect(shallowRender({ displayProjectName: false })).toMatchSnapshot('no project name');
 });
 
-it('should allow to mark as favorite', () => {
-  expect(
-    shallowRender({ sourceViewerFile: mockSourceViewerFile({ canMarkAsFavorite: true }) })
-      .find('Favorite')
-      .exists()
-  ).toBe(true);
-});
-
 it('should render correctly for subproject', () => {
   expect(
     shallowRender({

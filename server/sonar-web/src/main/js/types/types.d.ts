@@ -800,7 +800,6 @@ declare namespace T {
   export type SourceLineCoverageStatus = 'uncovered' | 'partially-covered' | 'covered';
 
   export interface SourceViewerFile {
-    canMarkAsFavorite?: boolean;
     fav?: boolean;
     key: string;
     leakPeriodDate?: string;

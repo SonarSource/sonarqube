@@ -28,11 +28,10 @@ import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
 import { getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
-import { getBranchLikeQuery, isMainBranch } from '../../helpers/branch-like';
+import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { getBranchLikeUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
-import Favorite from '../controls/Favorite';
 import './SourceViewerHeaderSlim.css';
 
 export interface Props {
@@ -56,14 +55,14 @@ export default function SourceViewerHeaderSlim(props: Props) {
     sourceViewerFile
   } = props;
   const {
-    key,
     measures,
     path,
     project,
     projectName,
     q,
     subProject,
-    subProjectName
+    subProjectName,
+    uuid
   } = sourceViewerFile;
 
   const projectNameLabel = (
@@ -104,17 +103,6 @@ export default function SourceViewerHeaderSlim(props: Props) {
         <div className="spacer-right">
           <ClipboardIconButton className="button-link link-no-underline" copyValue={path} />
         </div>
-
-        {sourceViewerFile.canMarkAsFavorite && (!branchLike || isMainBranch(branchLike)) && (
-          <div className="nudged-up">
-            <Favorite
-              className="component-name-favorite"
-              component={key}
-              favorite={sourceViewerFile.fav || false}
-              qualifier={sourceViewerFile.q}
-            />
-          </div>
-        )}
       </div>
 
       {measures.issues !== undefined && (
@@ -125,7 +113,7 @@ export default function SourceViewerHeaderSlim(props: Props) {
           <Link
             to={getComponentIssuesUrl(project, {
               ...getBranchLikeQuery(branchLike),
-              fileUuids: sourceViewerFile.uuid,
+              fileUuids: uuid,
               resolved: 'false'
             })}>
             {translate('source_viewer.view_all_issues')}

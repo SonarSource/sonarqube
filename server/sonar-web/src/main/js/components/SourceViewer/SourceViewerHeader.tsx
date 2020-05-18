@@ -31,10 +31,10 @@ import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path';
 import { omitNil } from 'sonar-ui-common/helpers/request';
 import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
-import { getBranchLikeQuery, isMainBranch } from '../../helpers/branch-like';
+import { getBranchLikeQuery } from '../../helpers/branch-like';
 import { getBranchLikeUrl, getCodeUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
-import Favorite from '../controls/Favorite';
+import { ComponentQualifier } from '../../types/component';
 import { WorkspaceContextShape } from '../workspace/context';
 import MeasuresOverlay from './components/MeasuresOverlay';
 
@@ -124,7 +124,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
       subProject,
       subProjectName
     } = this.props.sourceViewerFile;
-    const unitTestsOrLines = q === 'UTS' ? 'tests' : 'lines';
+    const unitTestsOrLines = q === ComponentQualifier.TestFile ? 'tests' : 'lines';
     const workspace = false;
     const rawSourcesLink =
       getBaseUrl() +
@@ -156,15 +156,6 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               <span className="nudged-up spacer-left">
                 <ClipboardIconButton className="button-link link-no-underline" copyValue={path} />
               </span>
-              {this.props.sourceViewerFile.canMarkAsFavorite &&
-                (!this.props.branchLike || isMainBranch(this.props.branchLike)) && (
-                  <Favorite
-                    className="component-name-favorite spacer-left"
-                    component={key}
-                    favorite={this.props.sourceViewerFile.fav || false}
-                    qualifier={this.props.sourceViewerFile.q}
-                  />
-                )}
             </div>
           </div>
         </div>
