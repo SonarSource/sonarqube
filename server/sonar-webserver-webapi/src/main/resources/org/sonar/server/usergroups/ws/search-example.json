@@ -6,14 +6,14 @@
   },
   "groups": [
     {
-      "id": 3,
+      "id": "AU-Tpxb--iU5OvuD2FLy",
       "name": "users",
       "description": "Users",
       "membersCount": 17,
       "default": true
     },
     {
-      "id": 4,
+      "id": "AU-Tpxb--iU5OvuD2FLz",
       "name": "administrators",
       "description": "Administrators",
       "membersCount": 2,

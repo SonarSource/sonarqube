@@ -36,6 +36,7 @@ import org.sonarqube.ws.UserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
@@ -162,9 +163,9 @@ public class GroupWsSupport {
 
   private static void defineGroupIdWsParameter(WebService.NewAction action) {
     action.createParam(PARAM_GROUP_ID)
-      .setDeprecatedSince("8.3")
-      .setDescription("Group id")
-      .setExampleValue("42");
+      .setDescription("Group id, use 'name' instead")
+      .setDeprecatedSince("8.4")
+      .setExampleValue(UUID_EXAMPLE_01);
   }
 
   private static void defineGroupNameWsParameter(WebService.NewAction action) {

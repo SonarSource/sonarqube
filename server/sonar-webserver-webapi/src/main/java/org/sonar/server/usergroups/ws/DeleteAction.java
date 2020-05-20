@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -56,7 +57,9 @@ public class DeleteAction implements UserGroupsWsAction {
         PARAM_GROUP_ID, PARAM_GROUP_NAME))
       .setHandler(this)
       .setSince("5.2")
-      .setPost(true);
+      .setPost(true)
+      .setChangelog(
+        new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
 
     defineGroupWsParameters(action);
   }

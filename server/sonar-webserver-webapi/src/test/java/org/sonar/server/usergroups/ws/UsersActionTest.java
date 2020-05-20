@@ -22,6 +22,8 @@ package org.sonar.server.usergroups.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
@@ -38,6 +40,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
@@ -54,6 +57,17 @@ public class UsersActionTest {
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private WsActionTester ws = new WsActionTester(
     new UsersAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()))));
+
+  @Test
+  public void verify_definition() {
+    Action wsDef = ws.getDef();
+
+    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.since()).isEqualTo("5.2");
+    assertThat(wsDef.isPost()).isEqualTo(false);
+    assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
+  }
 
   @Test
   public void fail_if_unknown_group_uuid() {

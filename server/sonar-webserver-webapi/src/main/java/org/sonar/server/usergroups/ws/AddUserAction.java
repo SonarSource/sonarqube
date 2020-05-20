@@ -64,7 +64,8 @@ public class AddUserAction implements UserGroupsWsAction {
       .setHandler(this)
       .setPost(true)
       .setSince("5.2")
-      .setChangelog(new Change("6.4", "It's no longer possible to add a user to the default group"));
+      .setChangelog(
+        new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
 
     defineGroupWsParameters(action);
     defineLoginWsParameter(action);

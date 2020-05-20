@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -64,7 +65,9 @@ public class CreateAction implements UserGroupsWsAction {
       .setHandler(this)
       .setPost(true)
       .setResponseExample(getClass().getResource("create-example.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(
+        new Change("8.4", "Field 'id' format in the response changes from integer to string."));
 
     action.createParam(PARAM_ORGANIZATION_KEY)
       .setDescription("Key of organization. If unset then default organization is used.")

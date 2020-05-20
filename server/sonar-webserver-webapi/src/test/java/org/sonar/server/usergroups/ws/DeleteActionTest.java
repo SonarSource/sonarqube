@@ -23,6 +23,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -43,6 +45,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_ID;
@@ -61,6 +64,17 @@ public class DeleteActionTest {
   private ComponentDbTester componentTester = new ComponentDbTester(db);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, newGroupWsSupport()));
+
+  @Test
+  public void verify_definition() {
+    Action wsDef = ws.getDef();
+
+    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.since()).isEqualTo("5.2");
+    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
+  }
 
   @Test
   public void response_has_no_content() {

@@ -20,6 +20,7 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -65,7 +66,9 @@ public class UsersAction implements UserGroupsWsAction {
       .setResponseExample(getClass().getResource("users-example.json"))
       .addSelectionModeParam()
       .addSearchQuery("freddy", "names", "logins")
-      .addPagingParams(25);
+      .addPagingParams(25)
+      .setChangelog(
+        new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
 
     defineGroupWsParameters(action);
   }

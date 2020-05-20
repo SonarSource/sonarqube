@@ -36,6 +36,7 @@ import org.sonarqube.ws.UserGroups;
 
 import static java.lang.String.format;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
@@ -67,11 +68,13 @@ public class UpdateAction implements UserGroupsWsAction {
       .setPost(true)
       .setResponseExample(getClass().getResource("update.example.json"))
       .setSince("5.2")
-      .setChangelog(new Change("6.4", "The default group is no longer editable"));
+      .setChangelog(
+        new Change("8.4", "Parameter 'id' format changes from integer to string"),
+        new Change("6.4", "The default group is no longer editable"));
 
     action.createParam(PARAM_GROUP_ID)
       .setDescription("Identifier of the group.")
-      .setExampleValue("42")
+      .setExampleValue(UUID_EXAMPLE_01)
       .setRequired(true);
 
     action.createParam(PARAM_GROUP_NAME)
