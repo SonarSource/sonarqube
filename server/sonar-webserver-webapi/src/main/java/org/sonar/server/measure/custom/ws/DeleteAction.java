@@ -19,10 +19,12 @@
  */
 package org.sonar.server.measure.custom.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -51,11 +53,13 @@ public class DeleteAction implements CustomMeasuresWsAction {
       .setHandler(this)
       .setSince("5.2")
       .setDeprecatedSince("7.4")
-      .setDescription("Delete a custom measure.<br /> Requires 'Administer System' permission or 'Administer' permission on the project.");
+      .setDescription("Delete a custom measure.<br /> Requires 'Administer System' permission or 'Administer' permission on the project.")
+      .setChangelog(
+        new Change("8.4", "Param 'id' data type changes from integer to string."));
 
     action.createParam(PARAM_ID)
-      .setDescription("d")
-      .setExampleValue("AU-TpxcA-iU5OvuD2FL3")
+      .setDescription("id")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01)
       .setRequired(true);
   }
 

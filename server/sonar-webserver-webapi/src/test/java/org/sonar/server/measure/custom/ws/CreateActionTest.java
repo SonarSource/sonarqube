@@ -23,6 +23,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -68,6 +70,18 @@ public class CreateActionTest {
   private WsActionTester ws = new WsActionTester(
     new CreateAction(db.getDbClient(), userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
       new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), TestComponentFinder.from(db)));
+
+  @Test
+  public void verify_definition() {
+    Action wsDef = ws.getDef();
+
+    assertThat(wsDef.deprecatedSince()).isEqualTo("7.4");
+    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.since()).isEqualTo("5.2");
+    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("8.4", "Param 'metricId' data type changes from integer to string."));
+  }
 
   @Test
   public void create_boolean_custom_measure_in_db() {

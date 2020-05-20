@@ -22,8 +22,10 @@ package org.sonar.server.measure.custom.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService.Action;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
@@ -65,6 +67,18 @@ public class UpdateActionTest {
 
   private WsActionTester ws = new WsActionTester(new UpdateAction(db.getDbClient(), userSession, system, new CustomMeasureValidator(newFullTypeValidations()),
     new CustomMeasureJsonWriter(new UserJsonWriter(userSession))));
+
+  @Test
+  public void verify_definition() {
+    Action wsDef = ws.getDef();
+
+    assertThat(wsDef.deprecatedSince()).isEqualTo("7.4");
+    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.since()).isEqualTo("5.2");
+    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("8.4", "Param 'id' data type changes from integer to string."));
+  }
 
   @Test
   public void update_text_value_and_description_in_db() {

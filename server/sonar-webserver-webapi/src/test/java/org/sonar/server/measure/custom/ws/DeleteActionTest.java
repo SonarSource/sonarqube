@@ -22,6 +22,8 @@ package org.sonar.server.measure.custom.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -36,6 +38,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.measure.custom.ws.DeleteAction.PARAM_ID;
 
@@ -51,7 +54,19 @@ public class DeleteActionTest {
   private DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private DeleteAction underTest = new DeleteAction(dbClient, userSession);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private WsActionTester ws = new WsActionTester(underTest);
+
+  @Test
+  public void verify_definition() {
+    Action wsDef = ws.getDef();
+
+    assertThat(wsDef.deprecatedSince()).isEqualTo("7.4");
+    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.since()).isEqualTo("5.2");
+    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("8.4", "Param 'id' data type changes from integer to string."));
+  }
 
   @Test
   public void project_administrator_can_delete_custom_measures() {
@@ -59,7 +74,7 @@ public class DeleteActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     String id = insertCustomMeasure(project);
 
-    tester.newRequest().setParam(PARAM_ID, valueOf(id)).execute();
+    ws.newRequest().setParam(PARAM_ID, valueOf(id)).execute();
 
     assertThat(dbClient.customMeasureDao().selectByUuid(dbSession, id)).isEmpty();
   }
@@ -69,7 +84,7 @@ public class DeleteActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Custom measure with id '42' does not exist");
 
-    tester.newRequest().setParam(PARAM_ID, "42").execute();
+    ws.newRequest().setParam(PARAM_ID, "42").execute();
   }
 
   @Test
@@ -79,7 +94,7 @@ public class DeleteActionTest {
     userSession.logIn().setNonSystemAdministrator();
 
     expectedException.expect(ForbiddenException.class);
-    tester.newRequest().setParam(PARAM_ID, valueOf(uuid)).execute();
+    ws.newRequest().setParam(PARAM_ID, valueOf(uuid)).execute();
   }
 
   @Test
@@ -89,7 +104,7 @@ public class DeleteActionTest {
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
-    tester.newRequest().setParam(PARAM_ID, valueOf(uuid)).execute();
+    ws.newRequest().setParam(PARAM_ID, valueOf(uuid)).execute();
   }
 
   private String insertCustomMeasure(ComponentDto component) {

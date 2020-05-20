@@ -20,11 +20,13 @@
 package org.sonar.server.measure.custom.ws;
 
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -67,12 +69,14 @@ public class UpdateAction implements CustomMeasuresWsAction {
         "Requires 'Administer System' permission or 'Administer' permission on the project.")
       .setHandler(this)
       .setSince("5.2")
-      .setDeprecatedSince("7.4");
+      .setDeprecatedSince("7.4")
+      .setChangelog(
+        new Change("8.4", "Param 'id' data type changes from integer to string."));
 
     action.createParam(PARAM_ID)
       .setRequired(true)
       .setDescription("id")
-      .setExampleValue("AU-TpxcA-iU5OvuD2FL3");
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action.createParam(PARAM_VALUE)
       .setExampleValue("true")

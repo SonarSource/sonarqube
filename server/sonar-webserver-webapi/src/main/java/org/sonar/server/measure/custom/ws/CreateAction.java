@@ -20,6 +20,7 @@
 package org.sonar.server.measure.custom.ws;
 
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -37,11 +38,12 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class CreateAction implements CustomMeasuresWsAction {
   public static final String ACTION = "create";
@@ -78,7 +80,9 @@ public class CreateAction implements CustomMeasuresWsAction {
       .setSince("5.2")
       .setDeprecatedSince("7.4")
       .setPost(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(
+        new Change("8.4", "Param 'metricId' data type changes from integer to string."));
 
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project id")
@@ -90,7 +94,7 @@ public class CreateAction implements CustomMeasuresWsAction {
 
     action.createParam(PARAM_METRIC_ID)
       .setDescription("Metric uuid")
-      .setExampleValue("16");
+      .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_METRIC_KEY)
       .setDescription("Metric key")
