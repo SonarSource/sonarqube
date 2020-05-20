@@ -21,6 +21,7 @@ package org.sonar.server.metric.ws;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,6 +31,10 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.join;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
 
 public class DeleteAction implements MetricsWsAction {
   private static final String PARAM_IDS = "ids";
@@ -52,11 +57,13 @@ public class DeleteAction implements MetricsWsAction {
       .setHandler(this)
       .setSince("5.2")
       .setDeprecatedSince("7.7")
-      .setPost(true);
+      .setPost(true)
+      .setChangelog(
+        new Change("8.4", "Parameter 'ids' format changes from integer to string."));
 
     action.createParam(PARAM_IDS)
       .setDescription("Metrics uuids to delete.")
-      .setExampleValue("5, 23, 42");
+      .setExampleValue(join(", ", UUID_EXAMPLE_01, UUID_EXAMPLE_02, UUID_EXAMPLE_03));
 
     action.createParam(PARAM_KEYS)
       .setDescription("Metrics keys to delete")

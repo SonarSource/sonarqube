@@ -22,10 +22,12 @@ package org.sonar.server.metric.ws;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.custom.CustomMeasureDto;
@@ -71,12 +73,14 @@ public class UpdateAction implements MetricsWsAction {
         "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setDeprecatedSince("7.7")
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(
+        new Change("8.4", "Parameter 'id' format changes from integer to string."));
 
     action.createParam(PARAM_ID)
       .setRequired(true)
       .setDescription("UUID of the custom metric to update")
-      .setExampleValue("42");
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action.createParam(PARAM_KEY)
       .setDescription("Key")

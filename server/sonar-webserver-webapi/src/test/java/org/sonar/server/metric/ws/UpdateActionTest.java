@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -37,6 +39,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_DESCRIPTION;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_DOMAIN;
@@ -64,7 +67,7 @@ public class UpdateActionTest {
   private DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private UpdateAction underTest = new UpdateAction(dbClient, userSessionRule);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
@@ -72,10 +75,23 @@ public class UpdateActionTest {
   }
 
   @Test
+  public void verify_definition() {
+    Action wsDef = ws.getDef();
+
+    assertThat(wsDef.deprecatedSince()).isEqualTo("7.7");
+    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.since()).isEqualTo("5.2");
+    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription)
+      .containsExactly(
+        tuple("8.4", "Parameter 'id' format changes from integer to string."));
+  }
+
+  @Test
   public void update_all_fields() {
     String uuid = insertMetric(newDefaultMetric());
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam(PARAM_ID, uuid)
       .setParam(PARAM_KEY, "another-key")
       .setParam(PARAM_NAME, "another-name")
@@ -99,7 +115,7 @@ public class UpdateActionTest {
     dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricUuid(uuid));
     dbSession.commit();
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam(PARAM_ID, uuid)
       .setParam(PARAM_DESCRIPTION, "another-description")
       .execute();
@@ -117,7 +133,7 @@ public class UpdateActionTest {
   public void update_return_the_full_object_with_id() {
     String uuid = insertMetric(newDefaultMetric().setDescription("another-description"));
 
-    TestResponse requestResult = tester.newRequest()
+    TestResponse requestResult = ws.newRequest()
       .setParam(PARAM_ID, uuid)
       .setParam(PARAM_DESCRIPTION, DEFAULT_DESCRIPTION)
       .execute();
@@ -134,7 +150,7 @@ public class UpdateActionTest {
     insertMetric(newDefaultMetric().setKey("metric-key"));
     String uuid = insertMetric(newDefaultMetric().setUuid("another-uuid").setKey("another-key"));
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam(PARAM_ID, uuid)
       .setParam(PARAM_KEY, "metric-key")
       .execute();
@@ -144,7 +160,7 @@ public class UpdateActionTest {
   public void fail_when_metric_not_in_db() {
     expectedException.expect(ServerException.class);
 
-    tester.newRequest().setParam(PARAM_ID, "42").execute();
+    ws.newRequest().setParam(PARAM_ID, "42").execute();
   }
 
   @Test
@@ -152,7 +168,7 @@ public class UpdateActionTest {
     expectedException.expect(ServerException.class);
     String uuid = insertMetric(newDefaultMetric().setEnabled(false));
 
-    tester.newRequest().setParam(PARAM_ID, uuid).execute();
+    ws.newRequest().setParam(PARAM_ID, uuid).execute();
   }
 
   @Test
@@ -160,7 +176,7 @@ public class UpdateActionTest {
     expectedException.expect(ServerException.class);
     String uuid = insertMetric(newDefaultMetric().setUserManaged(false));
 
-    tester.newRequest().setParam(PARAM_ID, uuid).execute();
+    ws.newRequest().setParam(PARAM_ID, uuid).execute();
   }
 
   @Test
@@ -170,7 +186,7 @@ public class UpdateActionTest {
     dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricUuid(uuid));
     dbSession.commit();
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam(PARAM_ID, uuid)
       .setParam(PARAM_TYPE, ValueType.BOOL.name())
       .execute();
@@ -180,7 +196,7 @@ public class UpdateActionTest {
   public void fail_when_no_id() {
     expectedException.expect(IllegalArgumentException.class);
 
-    tester.newRequest().execute();
+    ws.newRequest().execute();
   }
 
   @Test
@@ -190,7 +206,7 @@ public class UpdateActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    tester.newRequest().execute();
+    ws.newRequest().execute();
   }
 
   @Test
@@ -200,7 +216,7 @@ public class UpdateActionTest {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
-    tester.newRequest().execute();
+    ws.newRequest().execute();
   }
 
   @Test
@@ -212,7 +228,7 @@ public class UpdateActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Malformed metric key 'not well formatted key'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.");
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam(PARAM_ID, uuid)
       .setParam(PARAM_KEY, "not well formatted key")
       .execute();

@@ -22,6 +22,8 @@ package org.sonar.server.metric.ws;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -32,6 +34,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.metric.ws.SearchAction.PARAM_IS_CUSTOM;
 
@@ -43,13 +46,27 @@ public class SearchActionTest {
   private DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private SearchAction underTest = new SearchAction(dbClient);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private WsActionTester ws = new WsActionTester(underTest);
+
+  @Test
+  public void verify_definition() {
+    Action wsDef = ws.getDef();
+
+    assertThat(wsDef.deprecatedSince()).isNull();
+    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.since()).isEqualTo("5.2");
+    assertThat(wsDef.isPost()).isEqualTo(false);
+    assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription)
+      .containsExactlyInAnyOrder(
+        tuple("8.4", "Field 'id' in the response is deprecated"),
+        tuple("7.7", "Field 'custom' in the response is deprecated"));
+  }
 
   @Test
   public void search_metrics_in_database() {
     insertNewCustomMetric("1", "2", "3");
 
-    TestResponse result = tester.newRequest().execute();
+    TestResponse result = ws.newRequest().execute();
 
     result.assertJson(getClass(), "search_metrics.json");
   }
@@ -58,9 +75,9 @@ public class SearchActionTest {
   public void search_metrics_ordered_by_name_case_insensitive() {
     insertNewCustomMetric("3", "1", "2");
 
-    String firstResult = tester.newRequest().setParam(Param.PAGE, "1").setParam(Param.PAGE_SIZE, "1").execute().getInput();
-    String secondResult = tester.newRequest().setParam(Param.PAGE, "2").setParam(Param.PAGE_SIZE, "1").execute().getInput();
-    String thirdResult = tester.newRequest().setParam(Param.PAGE, "3").setParam(Param.PAGE_SIZE, "1").execute().getInput();
+    String firstResult = ws.newRequest().setParam(Param.PAGE, "1").setParam(Param.PAGE_SIZE, "1").execute().getInput();
+    String secondResult = ws.newRequest().setParam(Param.PAGE, "2").setParam(Param.PAGE_SIZE, "1").execute().getInput();
+    String thirdResult = ws.newRequest().setParam(Param.PAGE, "3").setParam(Param.PAGE_SIZE, "1").execute().getInput();
 
     assertThat(firstResult).contains("custom-key-1").doesNotContain("custom-key-2").doesNotContain("custom-key-3");
     assertThat(secondResult).contains("custom-key-2").doesNotContain("custom-key-1").doesNotContain("custom-key-3");
@@ -71,7 +88,7 @@ public class SearchActionTest {
   public void search_metrics_with_pagination() {
     insertNewCustomMetric("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
 
-    TestResponse result = tester.newRequest()
+    TestResponse result = ws.newRequest()
       .setParam(Param.PAGE, "3")
       .setParam(Param.PAGE_SIZE, "4")
       .execute();
@@ -84,7 +101,7 @@ public class SearchActionTest {
     insertNewCustomMetric("1", "2");
     insertNewNonCustomMetric("3");
 
-    String result = tester.newRequest()
+    String result = ws.newRequest()
       .setParam(PARAM_IS_CUSTOM, "true").execute().getInput();
 
     assertThat(result).contains("custom-key-1", "custom-key-2")
@@ -96,7 +113,7 @@ public class SearchActionTest {
     insertNewCustomMetric("1", "2");
     insertNewNonCustomMetric("3");
 
-    String result = tester.newRequest()
+    String result = ws.newRequest()
       .setParam(PARAM_IS_CUSTOM, "false").execute().getInput();
 
     assertThat(result).doesNotContain("custom-key-1")
@@ -108,7 +125,7 @@ public class SearchActionTest {
   public void list_metric_with_chosen_fields() {
     insertNewCustomMetric("1");
 
-    String result = tester.newRequest().setParam(Param.FIELDS, "name").execute().getInput();
+    String result = ws.newRequest().setParam(Param.FIELDS, "name").execute().getInput();
 
     assertThat(result).contains("id", "key", "name", "type")
       .doesNotContain("domain")

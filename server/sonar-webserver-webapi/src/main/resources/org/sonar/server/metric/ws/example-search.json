@@ -1,7 +1,7 @@
 {
   "metrics": [
     {
-      "id": "23",
+      "id": "AU-Tpxb--iU5OvuD2FLy",
       "key": "team_size",
       "name": "Team size",
       "description": "Number of people in the team",
@@ -13,7 +13,7 @@
       "custom": true
     },
     {
-      "id": "2",
+      "id": "AU-TpxcB-iU5OvuD2FL7",
       "key": "uncovered_lines",
       "name": "Uncovered lines",
       "description": "Uncovered lines",

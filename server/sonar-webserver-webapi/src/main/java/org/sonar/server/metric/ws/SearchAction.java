@@ -62,9 +62,9 @@ public class SearchAction implements MetricsWsAction {
       .setDescription("Search for metrics")
       .setResponseExample(getClass().getResource("example-search.json"))
       .addPagingParams(100, MAX_LIMIT)
-
-      .setChangelog(new Change("7.7", "The response field 'custom' is deprecated"))
-      .setChangelog(new Change("8.3", "The response field 'id' is deprecated"))
+      .setChangelog(
+        new Change("8.4", "Field 'id' in the response is deprecated"),
+        new Change("7.7", "Field 'custom' in the response is deprecated"))
       .setHandler(this);
 
     action.createFieldsParam(MetricJsonWriter.OPTIONAL_FIELDS)
