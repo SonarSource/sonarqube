@@ -55,10 +55,10 @@ Number of lines involved in duplications.
 ---
 ## Issues
 **New issues** (`new_violations`)  
-Number of issues raised for the first time in the New Code period.
+Number of issues raised for the first time on New Code.
 
 **New xxx issues** (`new_xxx_violations`)  
-Number of issues of the specified severity raised for the first time in the New Code period, where xxx is one of: `blocker`, `critical`, `major`, `minor`, `info`.
+Number of issues of the specified severity raised for the first time on New Code, where xxx is one of: `blocker`, `critical`, `major`, `minor`, `info`.
 
 **Issues** (`violations`)  
 Total count of issues in all states.
@@ -84,7 +84,7 @@ Total count of issues in the Reopened state
 Total count of Code Smell issues.
 
 **New Code Smells** (`new_code_smells`)  
-Total count of Code Smell issues raised for the first time in the New Code period.
+Total count of Code Smell issues raised for the first time on New Code.
 
 **Maintainability Rating** (`sqale_rating`)  
 (Formerly the SQALE rating.)
@@ -104,7 +104,7 @@ The Maintainability Rating scale can be alternately stated by saying that if the
 Effort to fix all Code Smells. The measure is stored in minutes in the database. An 8-hour day is assumed when values are shown in days.
 
 **Technical Debt on New Code** (`new_technical_debt`)  
-Effort to fix all Code Smells raised for the first time in the New Code period.
+Effort to fix all Code Smells raised for the first time on New Code.
 
 **Technical Debt Ratio** (`sqale_debt_ratio`)  
 Ratio between the cost to develop the software and the cost to fix it. The Technical Debt Ratio formula is:  
@@ -114,7 +114,7 @@ Which can be restated as:
 The value of the cost to develop a line of code is 0.06 days.
 
 **Technical Debt Ratio on New Code** (`new_sqale_debt_ratio`)  
-Ratio between the cost to develop the code changed in the New Code period and the cost of the issues linked to it.
+Ratio between the cost to develop the code changed on New Code and the cost of the issues linked to it.
 
 ---
 ## Quality Gates
@@ -144,7 +144,7 @@ E = at least 1 Blocker Bug
 Effort to fix all bug issues. The measure is stored in minutes in the DB. An 8-hour day is assumed when values are shown in days.
 
 **Reliability remediation effort on new code** (`new_reliability_remediation_effort`)  
-Same as _Reliability remediation effort_ but on the code changed in the New Code period.
+Same as _Reliability remediation effort_ but on the code changed on New Code.
 
 ---
 ## Security
@@ -165,13 +165,13 @@ E = at least 1 Blocker Vulnerability
 Effort to fix all vulnerability issues. The measure is stored in minutes in the DB. An 8-hour day is assumed when values are shown in days.
 
 **Security remediation effort on new code** (`new_security_remediation_effort`)  
-Same as _Security remediation effort_ but on the code changed in the New Code period.
+Same as _Security remediation effort_ but on the code changed on New Code.
 
 **Security Hotspots** (`security_hotspots`)
 Number of Security Hotspots
 
 **Security Hotspots on new code** (`new_security_hotspots`)
-Number of new Security Hotspots in the New Code Period.
+Number of new Security Hotspots on New Code.
 
 **Security Review Rating** (`security_review_rating`)
 
@@ -185,7 +185,7 @@ E = < 30%
 
 **Security Review Rating on new code** (`new_security_review_rating`)
 
-Security Review Rating for the New Code Period.
+Security Review Rating for New Code.
 
 **Security Hotspots Reviewed** (`security_hotspots_reviewed`)
 
@@ -196,7 +196,7 @@ Ratio Formula:
 
 **New Security Hotspots Reviewed**
 
-Percentage of Reviewed Security Hotspots (Fixed or Safe) for the New Code Period.
+Percentage of Reviewed Security Hotspots (Fixed or Safe) on New Code.
 
 ---
 ## Size

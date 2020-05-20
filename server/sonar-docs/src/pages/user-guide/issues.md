@@ -87,7 +87,7 @@ Once an issue has been determied to be "new", as described above, the next quest
 * When the analyzer has just been upgraded (because rule implementations could be smarter now)
 * When the rule is external
 
-As a consequence, it is possible that backdating will keep newly raised issues out of the New Code Period.
+As a consequence, it is possible that backdating will keep newly raised issues out of New Code.
 
 
 ## Automatic Issue Assignment

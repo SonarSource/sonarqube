@@ -7,7 +7,7 @@ url: /user-guide/project-page/
 The Project Hompepage is the entry point of any project showing:
 * the releasability status of the project
 * the current state of its quality
-* the quality of what has been produced since the beginning of its [New Code Period](/user-guide/clean-as-you-code/).
+* the quality of what has been produced since the start of the [New Code](/user-guide/clean-as-you-code/).
  
 
 The Project Page answers two questions:
@@ -21,7 +21,7 @@ Since the [Quality Gate](/user-guide/quality-gates/) is your most powerful tool 
 If not, details and drill-downs are immediately available to quickly identify what went wrong, with a section for each error condition showing what the current project value is and what it should be. As usual, you'll be able to click through on current values to get to drilldowns.
 
 ## What should I fix first?
-Because the best way to improve a project's quality is to catch and fix new problems before they become entrenched, the first view of a project is centered around the New Code Period, which is highlighted in yellow on the right of the project homepage. The project space page shows a high-level summary of critical metrics, both current values and their New Code Period values.
+Because the best way to improve a project's quality is to catch and fix new problems before they become entrenched, the first view of a project is centered around New Code, which is highlighted in yellow on the right of the project homepage. The project space page shows a high-level summary of critical metrics, both current values and their New Code values.
 
 Just below the Quality Gate information, you have the numbers of old and new Issues in the Reliability and Security domains and then the Maintainability domain. Clicking on any figure on the page will take you to a detailed view, either in the Measures Page or the Issues Page.
 
@@ -37,7 +37,7 @@ The project-level **Measures** menu item takes you to a dedicated sub-space wher
 
 ### How can I see all the issues in a project?
 The project-level **Issues** menu item takes you to a project-specific Issues page, where you can perform all the same actions you can at the higher level.
-On this page, you can easily narrow the list to the New Issues introduced during the New Code Period, by selecting `New Code` in **Creation Date** facet.
+On this page, you can easily narrow the list to the New Issues as set by your New Code definition, by selecting `New Code` in **Creation Date** facet.
 
 ### How can I see the project structure and code?
 The project-level **Code** menu item takes you to an outline of your project structure. Drill down to see files in a directory, and choose a file to see its code.

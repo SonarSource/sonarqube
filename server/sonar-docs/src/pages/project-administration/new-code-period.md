@@ -1,36 +1,41 @@
 ---
-title: Setting Your New Code Period
+title: Defining New Code
 url: /project-administration/new-code-period/
 ---
-By focusing on code that's been added or changed in your New Code Period, you can set consistent quality requirements and expectations on all new code. With this focus, your new code will be issue-free and you'll clean up the code you encounter along the way. For more information on the New Code Period, see the [Clean as You Code](/user-guide/clean-as-you-code/) page.
 
-You can set a New Code Period at the global, project, or branch level.
+Defining what is considered New Code is an important part of SonarQube's Clean as You Code approach to code quality and safety. By focusing on code that's been added or changed since your New Code definition, you can set consistent quality requirements and expectations. Your New Code will be issue free and you'll clean up the code you encounter along the way. For more information on New Code and why it's important, check out [Clean as You Code](/user-guide/clean-as-you-code/).
 
-## Setting a global New Code Period
-Your global New Code Period will be the default for your projects. You can set the global New Code Period at [**Administration > Configuration > General Settings > New Code Period**](/#sonarqube-admin#/admin/settings?category=new_code_period/).  
+## Setting your New Code definition
 
-You can set the global New Code Period to the following:
+You can define New Code at the global, project, or branch level.
 
-* **Previous Version** – The New Code Period defaults to **Previous version** which shows any changes made in your project's current version. This works well for projects with regular versions or releases.
-* **Number of days** – You can specify a number of days for a floating New Code Period. For example, setting **Number of Days** to 30 creates a floating New Code Period beginning 30 days from the current date.
+- **Global level**  
+   You can set a global New Code definition at [**Administration > Configuration > General Settings > New Code**](/#sonarqube-admin#/admin/settings?category=new_code_period/). What you define as New Code at the global level will be the default for your projects.
 
-## Setting a project-level New Code Period
-You can override the global New Code Period by setting a project-level New Code Period from the project page at **Project Settings > New Code Period**. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), this will be the default New Code Period for all of the project's branches.
+- **Project level**  
+   You can set a New Code definition for your project at **Project Settings > New Code**. What you define as New Code at the project level will be the default for the project's branches if you're using an edition that supports multiple branches (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)).
 
-You can set a project's New Code Period to the following:
+- **Branch level**  
+   You can define New Code for each branch from the **Actions** column of the branches table on the project's **New Code** settings page if you're using an edition that supports multiple branches (starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)).
 
-* **Previous Version** – Set the New Code Period to show any changes made in your project's current version. This works well for projects with regular versions or releases.
-* **Number of days** – Specify a number of days for a floating New Code Period. For example, setting **Number of Days** to 30 creates a floating New Code Period beginning 30 days from the current date.
-* **Specific analysis** – Choose a previous analysis as your New Code Period. The New Code Period will show any changes made since that analysis. 
+## New Code definitions
 
-   **Note:** For Community Edition, you can set the New Code Period to a specific past analysis at the project-level because Community Edition doesn't support multiple branches. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can set the New Code Period to a specific analysis at the branch level. Each branch can be set to one of the branch's specific past analyses. See the following section for information on setting a branch-level New Code Period. 
+You can define New Code as changes from a previous version, a specific analysis, a reference branch, or within a specific period (number of days):
 
-### Setting a branch-level New Code Period
-_Branch analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._  
-For projects with multiple branches, you can set a New Code Period for each branch from the **Actions** column of the branches table on the project's **New Code Period** settings page.
+- **Previous Version** – Define New Code as any changes made in your project's current version. This works well for projects with regular versions or releases.
 
-You can set a branch's New Code Period to the following:
+   Available at the global, project, and branch level.
 
-* **Previous Version** – Set the New Code Period to show any changes made in your branch's current version. This works well for branches with regular versions.
-* **Number of days** – Specify a number of days for a floating New Code Period. For example, setting **Number of Days** to 30 creates a floating New Code Period beginning 30 days from the current date.
-* **Specific analysis** – Choose a specific past analysis of the branch as the New Code Period. The New Code Period will show any changes made since that analysis.
+- **Specific analysis** – Choose a previous analysis as your New Code definition. Any changes made since that analysis are considered New Code.
+
+   Available at the branch level starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and the project level for community edition.
+
+[[info]]
+| For Community Edition, past analysis is available at the project-level because Community Edition doesn't support multiple branches. Starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can do this at the branch level, and each branch can be set to one of the branch's specific past analyses.
+
+- **Reference Branch** – Choose a specific branch to define your New Code. Any changes made from your reference branch are considered New Code.
+
+   Available at the project and branch level.
+
+- **Number of days** – Specify a number of days for a floating New Code period. For example, setting **Number of Days** to 30 creates a floating New Code period beginning 30 days from the current date.
+  Available at the global, project, and branch level.

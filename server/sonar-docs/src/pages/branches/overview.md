@@ -17,9 +17,9 @@ This is the default branch and typically corresponds to what's being developed f
 
 Branch settings and quality profiles are the same as those set for the master branch, and by design, it's not possible to configure other values. The New Code Period is the only exception to this as it can be set on a branch-by-branch basis. 
 
-### New Code Period
+### New Code
 
-You can set a New Code Period for each branch. This is especially helpful if you are likely to develop and release multiple versions from the branch. See the [New Code Period](/project-administration/new-code-period/) documentation for more information on setting a New Code Period.
+You can set a New Code definition for each branch. This is especially helpful if you are likely to develop and release multiple versions from the branch. See the [Defining New Code](/project-administration/new-code-period/) documentation for more information.
 
 ### Quality Gate
 
