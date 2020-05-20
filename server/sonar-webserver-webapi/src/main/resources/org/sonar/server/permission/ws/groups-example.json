@@ -10,13 +10,13 @@
       "permissions": []
     },
     {
-      "id": "1",
+      "id": "AU-Tpxb--iU5OvuD2FLy",
       "name": "sonar-administrators",
       "description": "System administrators",
       "permissions": []
     },
     {
-      "id": "2",
+      "id": "AU-Tpxb--iU5OvuD2FLz",
       "name": "sonar-users",
       "description": "Any new users created will automatically join this group",
       "permissions": []

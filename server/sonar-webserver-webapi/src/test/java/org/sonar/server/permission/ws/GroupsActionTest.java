@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
@@ -38,6 +40,7 @@ import org.sonar.server.permission.PermissionServiceImpl;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -84,6 +87,18 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   }
 
   @Test
+  public void verify_definition() {
+    Action wsDef = wsTester.getDef();
+
+    assertThat(wsDef.isInternal()).isEqualTo(true);
+    assertThat(wsDef.since()).isEqualTo("5.2");
+    assertThat(wsDef.isPost()).isEqualTo(false);
+    assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
+      tuple("7.4", "The response list is returning all groups even those without permissions, the groups with permission are at the top of the list."));
+  }
+
+  @Test
   public void search_for_groups_with_one_permission() {
     loginAsAdmin(db.getDefaultOrganization());
 
@@ -91,35 +106,35 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
       .setParam(PARAM_PERMISSION, SCAN.getKey())
       .execute()
       .getInput();
-      assertJson(json).isSimilarTo("{\n" +
-        "  \"paging\": {\n" +
-        "    \"pageIndex\": 1,\n" +
-        "    \"pageSize\": 20,\n" +
-        "    \"total\": 3\n" +
-        "  },\n" +
-        "  \"groups\": [\n" +
-        "    {\n" +
-        "      \"name\": \"Anyone\",\n" +
-        "      \"permissions\": [\n" +
-        "        \"scan\"\n" +
-        "      ]\n" +
-        "    },\n" +
-        "    {\n" +
-        "      \"name\": \"group-1-name\",\n" +
-        "      \"description\": \"" + group1.getDescription() + "\",\n" +
-        "      \"permissions\": [\n" +
-        "        \"scan\"\n" +
-        "      ]\n" +
-        "    },\n" +
-        "    {\n" +
-        "      \"name\": \"group-2-name\",\n" +
-        "      \"description\": \"" + group2.getDescription() + "\",\n" +
-        "      \"permissions\": [\n" +
-        "        \"scan\"\n" +
-        "      ]\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}\n");
+    assertJson(json).isSimilarTo("{\n" +
+      "  \"paging\": {\n" +
+      "    \"pageIndex\": 1,\n" +
+      "    \"pageSize\": 20,\n" +
+      "    \"total\": 3\n" +
+      "  },\n" +
+      "  \"groups\": [\n" +
+      "    {\n" +
+      "      \"name\": \"Anyone\",\n" +
+      "      \"permissions\": [\n" +
+      "        \"scan\"\n" +
+      "      ]\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"name\": \"group-1-name\",\n" +
+      "      \"description\": \"" + group1.getDescription() + "\",\n" +
+      "      \"permissions\": [\n" +
+      "        \"scan\"\n" +
+      "      ]\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"name\": \"group-2-name\",\n" +
+      "      \"description\": \"" + group2.getDescription() + "\",\n" +
+      "      \"permissions\": [\n" +
+      "        \"scan\"\n" +
+      "      ]\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}\n");
   }
 
   @Test

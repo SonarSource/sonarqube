@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -63,6 +64,8 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
       .setDescription("Add a group to a permission template.<br /> " +
         "The group id or group name must be provided. <br />" +
         "Requires the following permission: 'Administer System'.")
+      .setChangelog(
+        new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
 
     createTemplateParameters(action);

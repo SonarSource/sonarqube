@@ -22,6 +22,8 @@ package org.sonar.server.permission.ws;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -38,6 +40,7 @@ import org.sonar.server.permission.PermissionServiceImpl;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
@@ -69,6 +72,17 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Override
   protected AddGroupAction buildWsAction() {
     return new AddGroupAction(db.getDbClient(), userSession, newPermissionUpdater(), newPermissionWsSupport(), wsParameters, permissionService);
+  }
+
+  @Test
+  public void verify_definition() {
+    Action wsDef = wsTester.getDef();
+
+    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.since()).isEqualTo("5.2");
+    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }
 
   @Test

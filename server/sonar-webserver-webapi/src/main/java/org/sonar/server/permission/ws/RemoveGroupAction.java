@@ -20,13 +20,14 @@
 package org.sonar.server.permission.ws;
 
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.GroupPermissionChange;
+import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -75,6 +76,8 @@ public class RemoveGroupAction implements PermissionsWsAction {
         "</ul>")
       .setSince("5.2")
       .setPost(true)
+      .setChangelog(
+        new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
 
     wsParameters.createPermissionParameter(action);

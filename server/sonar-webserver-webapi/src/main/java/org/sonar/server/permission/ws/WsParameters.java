@@ -22,9 +22,9 @@ package org.sonar.server.permission.ws;
 import com.google.common.base.Joiner;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.util.Uuids;
 import org.sonar.server.permission.PermissionService;
 
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
@@ -49,16 +49,16 @@ public class WsParameters {
     this.permissionService = permissionService;
     String allProjectsPermissionsOnOneLine = Joiner.on(", ").join(permissionService.getAllProjectPermissions());
     permissionParamDescription = String.format("Permission" +
-        "<ul>" +
-        "<li>Possible values for global permissions: %s</li>" +
-        "<li>Possible values for project permissions %s</li>" +
-        "</ul>",
+      "<ul>" +
+      "<li>Possible values for global permissions: %s</li>" +
+      "<li>Possible values for project permissions %s</li>" +
+      "</ul>",
       GlobalPermissions.ALL_ON_ONE_LINE,
       allProjectsPermissionsOnOneLine);
     projectPermissionParamDescription = String.format("Permission" +
-        "<ul>" +
-        "<li>Possible values for project permissions %s</li>" +
-        "</ul>",
+      "<ul>" +
+      "<li>Possible values for project permissions %s</li>" +
+      "</ul>",
       allProjectsPermissionsOnOneLine);
   }
 
@@ -94,8 +94,9 @@ public class WsParameters {
 
   public static void createGroupIdParameter(WebService.NewAction action) {
     action.createParam(PARAM_GROUP_ID)
-      .setDescription("Group id")
-      .setExampleValue("42");
+      .setDescription("Group id, use 'name' param instead")
+      .setDeprecatedSince("8.4")
+      .setExampleValue(UUID_EXAMPLE_01);
   }
 
   public static void createProjectParameters(WebService.NewAction action) {
@@ -121,7 +122,7 @@ public class WsParameters {
   public static void createTemplateParameters(WebService.NewAction action) {
     action.createParam(PARAM_TEMPLATE_ID)
       .setDescription("Template id")
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+      .setExampleValue(UUID_EXAMPLE_01);
     createOrganizationParameter(action);
     action.createParam(PARAM_TEMPLATE_NAME)
       .setDescription("Template name")

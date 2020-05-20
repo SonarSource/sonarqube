@@ -84,6 +84,7 @@ public class GroupsAction implements PermissionsWsAction {
         "</ul>")
       .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
       .setChangelog(
+        new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
         new Change("7.4", "The response list is returning all groups even those without permissions, the groups with permission are at the top of the list."))
       .setResponseExample(Resources.getResource(getClass(), "groups-example.json"))
       .setHandler(this);
