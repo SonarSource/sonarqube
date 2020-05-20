@@ -2,6 +2,11 @@
 title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
+## Release 8.4 Upgrade Notes  
+**Changes in web services and plugin APIs**  
+The format of several IDs exposed in web services changed and their use is deprecated. See [SONAR-13248](https://jira.sonarsource.com/browse/SONAR-13248), [SONAR-13249](https://jira.sonarsource.com/browse/SONAR-13249), and [SONAR-13300](https://jira.sonarsource.com/browse/SONAR-13300).
+
+A related change is introduced in a plugin API method. See [SONAR-13420](https://jira.sonarsource.com/browse/SONAR-13420).
 
 ## Release 8.3 Upgrade Notes  
 **Security Hotspots in the built-in Quality Gate**   
