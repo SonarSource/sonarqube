@@ -61,7 +61,7 @@ public class CreateAction implements QualityGatesWsAction {
         "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setChangelog(
-        new Change("8.4", "Field 'id' in the response is deprecated."))
+        new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."))
       .setResponseExample(getClass().getResource("create-example.json"))
       .setHandler(this);
 

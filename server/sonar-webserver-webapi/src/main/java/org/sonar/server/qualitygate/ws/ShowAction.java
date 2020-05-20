@@ -41,12 +41,13 @@ import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.ofNullable;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
+import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ShowAction implements QualityGatesWsAction {
@@ -68,15 +69,16 @@ public class ShowAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
       .setChangelog(
+        new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."),
+        new Change("8.4", "Field 'id' in the response is deprecated."),
         new Change("7.6", "'period' and 'warning' fields of conditions are removed from the response"),
         new Change("7.0", "'isBuiltIn' field is added to the response"),
-        new Change("7.0", "'actions' field is added in the response"),
-        new Change("8.4", "Field 'id' in the response is deprecated."))
+        new Change("7.0", "'actions' field is added in the response"))
       .setHandler(this);
 
     action.createParam(PARAM_ID)
       .setDescription("ID of the quality gate. Either id or name must be set")
-      .setExampleValue("1");
+      .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_NAME)
       .setDescription("Name of the quality gate. Either id or name must be set")

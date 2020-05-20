@@ -31,6 +31,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_CURRENT_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
@@ -56,14 +57,14 @@ public class RenameAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setChangelog(
         new Change("8.4", "Parameter 'currentName' added"),
-        new Change("8.4", "Parameter 'id' is deprecated. Use 'currentName' instead."))
+        new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'currentName' instead."))
       .setHandler(this);
 
     action.createParam(PARAM_ID)
       .setRequired(false)
       .setDeprecatedSince("8.4")
       .setDescription("ID of the quality gate to rename. This parameter is deprecated. Use 'currentName' instead.")
-      .setExampleValue("1");
+      .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_CURRENT_NAME)
       .setRequired(false)

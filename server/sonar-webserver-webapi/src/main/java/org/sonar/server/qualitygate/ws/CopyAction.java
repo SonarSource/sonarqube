@@ -31,6 +31,7 @@ import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
@@ -61,8 +62,8 @@ public class CopyAction implements QualityGatesWsAction {
         "Either 'sourceName' or 'id' must be provided. Requires the 'Administer Quality Gates' permission.")
       .setPost(true)
       .setChangelog(
-        new Change("8.4", "Parameter 'sourceName' added"),
-        new Change("8.4", "Parameter 'id' is deprecated. Use 'sourceName' instead."))
+        new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'sourceName' instead."),
+        new Change("8.4", "Parameter 'sourceName' added"))
       .setSince("4.3")
       .setHandler(this);
 
@@ -70,7 +71,7 @@ public class CopyAction implements QualityGatesWsAction {
       .setDescription("The ID of the source quality gate. This parameter is deprecated. Use 'sourceName' instead.")
       .setRequired(false)
       .setDeprecatedSince("8.4")
-      .setExampleValue("1");
+      .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_SOURCE_NAME)
       .setDescription("The name of the quality gate to copy")

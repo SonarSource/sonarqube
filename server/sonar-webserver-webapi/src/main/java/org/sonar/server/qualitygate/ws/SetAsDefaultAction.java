@@ -30,6 +30,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
@@ -55,7 +56,7 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setChangelog(
         new Change("8.4", "Parameter 'name' added"),
-        new Change("8.4", "Parameter 'id' is deprecated. Use 'name' instead."))
+        new Change("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."))
       .setPost(true)
       .setHandler(this);
 
@@ -63,7 +64,7 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
       .setDescription("ID of the quality gate to set as default. This parameter is deprecated. Use 'name' instead.")
       .setDeprecatedSince("8.4")
       .setRequired(false)
-      .setExampleValue("1");
+      .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_NAME)
       .setDescription("Name of the quality gate to set as default")

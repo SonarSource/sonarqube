@@ -1,7 +1,7 @@
 {
   "qualitygates": [
     {
-      "id": 8,
+      "id": "AU-Tpxb--iU5OvuD2FLy",
       "name": "Sonar way",
       "isDefault": true,
       "isBuiltIn": true,
@@ -15,7 +15,7 @@
       }
     },
     {
-      "id": 9,
+      "id": "AU-Tpxb--iU5OvuD2FLz",
       "name": "Sonar way - Without Coverage",
       "isDefault": false,
       "isBuiltIn": false,

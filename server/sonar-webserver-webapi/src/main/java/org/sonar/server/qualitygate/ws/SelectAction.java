@@ -31,6 +31,7 @@ import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
@@ -60,15 +61,15 @@ public class SelectAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setHandler(this)
       .setChangelog(
-        new Change("8.3", "The parameter 'projectId' was removed"),
         new Change("8.4", "Parameter 'gateName' added"),
-        new Change("8.4", "Parameter 'gateId' is deprecated. Use 'gateName' instead."));
+        new Change("8.4", "Parameter 'gateId' is deprecated. Format changes from integer to string. Use 'gateName' instead."),
+        new Change("8.3", "The parameter 'projectId' was removed"));
 
     action.createParam(PARAM_GATE_ID)
       .setDescription("Quality gate ID. This parameter is deprecated. Use 'gateName' instead.")
       .setRequired(false)
       .setDeprecatedSince("8.4")
-      .setExampleValue("1");
+      .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_GATE_NAME)
       .setRequired(false)
@@ -93,7 +94,6 @@ public class SelectAction implements QualityGatesWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
 
     checkArgument(gateName != null ^ gateUuid != null, "Either 'gateId' or 'gateName' must be provided, and not both");
-
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);

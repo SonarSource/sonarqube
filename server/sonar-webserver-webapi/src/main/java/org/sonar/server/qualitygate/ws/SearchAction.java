@@ -42,6 +42,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.ANY;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
@@ -71,18 +72,18 @@ public class SearchAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "search-example.json"))
       .setChangelog(
+        new Change("8.4", "Parameter 'gateName' added"),
+        new Change("8.4", "Parameter 'gateId' is deprecated. Format changes from integer to string. Use 'gateName' instead."),
         new Change("7.9", "New field 'paging' in response"),
         new Change("7.9", "New field 'key' returning the project key in 'results' response"),
-        new Change("7.9", "Field 'more' is deprecated in the response"),
-        new Change("8.4", "Parameter 'gateName' added"),
-        new Change("8.4", "Parameter 'gateId' is deprecated. Use 'gateName' instead."))
+        new Change("7.9", "Field 'more' is deprecated in the response"))
       .setHandler(this);
 
     action.createParam(PARAM_GATE_ID)
       .setDescription("Quality Gate ID. This parameter is deprecated. Use 'gateName' instead.")
       .setRequired(false)
       .setDeprecatedSince("8.4")
-      .setExampleValue("1");
+      .setExampleValue(UUID_EXAMPLE_01);
 
     action.createParam(PARAM_GATE_NAME)
       .setDescription("Quality Gate name")
