@@ -424,6 +424,23 @@ The rules are:
 
 ## API Changes
 
+### Release 8.4
+![](/images/exclamation.svg) Deprecated
+* `org.sonar.api.rules.Rule#getId()` is deprecated and will always throw UnsupportedOperationException.
+
+### Release 8.3
+![](/images/exclamation.svg) Deprecated
+* `org.sonar.api.utils.text.JsonWriter`
+
+### Release 8.2
+No changes
+
+### Release 8.1
+No changes
+
+### Release 8.0
+No changes
+ 
 ### Release 7.9
 No changes
 
