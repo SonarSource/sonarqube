@@ -3,16 +3,31 @@ title: Upgrade the Server
 url: /setup/upgrading/
 ---
 
-Upgrading across multiple non-LTS versions is handled automatically. However, if there's an LTS version in your migration path, you must first migrate to this LTS and then to your target version.
+## SonarQube Version Number Format
+Before upgrading, it helps to understand how SonarQube version numbers work. Version numbers have up to three digits with each digit representing part of the release cycle:
+
+![SonarQube version number format](/images/version.png)
+
+**Major version number**  
+The major version number represents a series of releases with high-level objectives for the release cycle. It's incremented with the release following an LTS version (for example, the release following 7.9 LTS was 8.0).
+
+**Minor version number**  
+The minor version number corresponds to incremental functional changes within a major release cycle. At the time of an LTS release, the release cycle is closed and the minor version number is frozen.
+
+**Patch release number**  
+Only on LTS versions, the patch release number represents patches to an LTS that fixed blocker or critical problems. The patch release number isn't considered in your upgrade migration path, and your migration path is the same no matter which patch number you are on.
+
+## Migration Path
+Upgrading across multiple non-LTS versions is handled automatically. However, if there's one or multiple LTS versions in your migration path, you must first migrate to each intermediate LTS and then to your target version, as shown in **Example 3** below.
 
 [[info]]
-|If you're migrating from an earlier patch version of an LTS, you can upgrade directly to the next LTS as shown in Example 3 below. You don't need to install any intermediate patch versions.
+|If you're migrating from an earlier patch version of an LTS, you can upgrade directly to the next LTS. You don't need to install any intermediate patch versions.
 
 **Migration Path Examples**:
 
-**Example 1** – From 6.1 -> 8.1, the migration path is 6.1 -> the latest 6.7 LTS patch -> the latest 7.9 LTS patch -> 8.1  
-**Example 2** – From 7.2 -> 7.9 LTS, the migration path is 7.2 -> the latest 7.9 LTS patch.  
-**Example 3** – From 6.7.1 LTS -> 7.9 LTS, the migration path is 6.7.1 -> the latest 7.9 LTS patch.
+**Example 1** – From 6.1 > 8.1, the migration path is 6.1 > the latest 6.7 LTS patch > the latest 7.9 LTS patch > 8.1  
+**Example 2** – From 7.2 > 7.9 LTS, the migration path is 7.2 > the latest 7.9 LTS patch.  
+**Example 3** – From 5.6.3 LTS > 7.9 LTS, the migration path is 5.6.3 LTS > 6.7.7 LTS > the latest 7.9 LTS patch.
 
 ## Upgrade Guide
 
