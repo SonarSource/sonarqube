@@ -19,6 +19,7 @@ exports[`should render correctly 1`] = `
     count={0}
     loadMore={[MockFunction]}
     loading={false}
+    total={0}
   />
 </div>
 `;
@@ -41,6 +42,7 @@ exports[`should render correctly 2`] = `
   <ListFooter
     count={0}
     loading={true}
+    total={0}
   />
 </div>
 `;
@@ -64,6 +66,7 @@ exports[`should render correctly when the list of hotspot is static 1`] = `
     count={0}
     loadMore={[MockFunction]}
     loading={false}
+    total={0}
   />
 </div>
 `;
@@ -331,6 +334,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
     count={5}
     loadMore={[MockFunction]}
     loading={false}
+    total={5}
   />
 </div>
 `;
@@ -345,7 +349,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
     <SecurityHotspotIcon
       className="spacer-right"
     />
-    hotspots.list_title.TO_REVIEW.5
+    hotspots.list_title.TO_REVIEW.7
   </h1>
   <ul
     className="big-spacer-bottom"

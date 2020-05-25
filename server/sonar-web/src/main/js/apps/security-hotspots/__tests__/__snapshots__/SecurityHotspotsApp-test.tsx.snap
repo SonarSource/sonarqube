@@ -41,6 +41,7 @@ exports[`should render correctly 1`] = `
     }
   }
   hotspots={Array []}
+  hotspotsTotal={0}
   isStaticListOfHotspots={false}
   loading={true}
   loadingMeasure={true}

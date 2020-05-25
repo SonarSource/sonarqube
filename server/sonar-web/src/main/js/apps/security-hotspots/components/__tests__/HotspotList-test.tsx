@@ -53,7 +53,9 @@ const hotspots = [
 ];
 
 it('should render correctly with hotspots', () => {
-  expect(shallowRender({ hotspots })).toMatchSnapshot('no pagination');
+  expect(shallowRender({ hotspots, hotspotsTotal: hotspots.length })).toMatchSnapshot(
+    'no pagination'
+  );
   expect(shallowRender({ hotspots, hotspotsTotal: 7 })).toMatchSnapshot('pagination');
 });
 
@@ -81,6 +83,7 @@ function shallowRender(props: Partial<HotspotList['props']> = {}) {
   return shallow<HotspotList>(
     <HotspotList
       hotspots={[]}
+      hotspotsTotal={0}
       isStaticListOfHotspots={false}
       loadingMore={false}
       onHotspotClick={jest.fn()}

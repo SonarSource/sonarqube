@@ -40,7 +40,7 @@ export interface SecurityHotspotsAppRendererProps {
   filters: HotspotFilters;
   hotspots: RawHotspot[];
   hotspotsReviewedMeasure?: string;
-  hotspotsTotal?: number;
+  hotspotsTotal: number;
   isStaticListOfHotspots: boolean;
   loading: boolean;
   loadingMeasure: boolean;

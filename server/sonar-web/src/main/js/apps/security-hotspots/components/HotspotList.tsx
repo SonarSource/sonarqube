@@ -30,7 +30,7 @@ import './HotspotList.css';
 
 interface Props {
   hotspots: RawHotspot[];
-  hotspotsTotal?: number;
+  hotspotsTotal: number;
   isStaticListOfHotspots: boolean;
   loadingMore: boolean;
   onHotspotClick: (hotspot: RawHotspot) => void;
@@ -112,7 +112,7 @@ export default class HotspotList extends React.Component<Props, State> {
           <SecurityHotspotIcon className="spacer-right" />
           {translateWithParameters(
             isStaticListOfHotspots ? 'hotspots.list_title' : `hotspots.list_title.${statusFilter}`,
-            hotspots.length
+            hotspotsTotal
           )}
         </h1>
         <ul className="big-spacer-bottom">

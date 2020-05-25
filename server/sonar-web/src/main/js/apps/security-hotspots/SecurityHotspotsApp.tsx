@@ -55,7 +55,7 @@ interface State {
   hotspots: RawHotspot[];
   hotspotsPageIndex: number;
   hotspotsReviewedMeasure?: string;
-  hotspotsTotal?: number;
+  hotspotsTotal: number;
   loading: boolean;
   loadingMeasure: boolean;
   loadingMore: boolean;
@@ -76,6 +76,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
       loadingMeasure: false,
       loadingMore: false,
       hotspots: [],
+      hotspotsTotal: 0,
       hotspotsPageIndex: 1,
       securityCategories: {},
       selectedHotspot: undefined,

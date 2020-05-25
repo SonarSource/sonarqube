@@ -127,6 +127,7 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
         status: HotspotStatusFilter.TO_REVIEW
       }}
       hotspots={[]}
+      hotspotsTotal={0}
       isStaticListOfHotspots={true}
       loading={false}
       loadingMeasure={false}
