@@ -113,6 +113,7 @@ public abstract class ScmProvider {
    * for example the SHA1 of the current HEAD in a Git branch.
    * @since 7.0
    */
+  @CheckForNull
   public String revisionId(Path path) {
     throw new UnsupportedOperationException(formatUnsupportedMessage("Getting revision id"));
   }
