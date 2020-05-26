@@ -77,11 +77,15 @@ Click your scanner below to see the example configuration:
 | ```
 | image:
 |   name: sonarsource/sonar-scanner-cli:latest
-|   entrypoint: [""]
 | variables:
 |   SONAR_TOKEN: "your-sonarqube-token"
 |   SONAR_HOST_URL: "http://your-sonarqube-instance.org"
-|   GIT_DEPTH: 0
+|   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Defines the location of the analysis task cache
+|   GIT_DEPTH: 0 # Tells git to fetch all the branches of the project, required by the analysis task
+| cache:
+|   key: ${CI_JOB_NAME}
+|   paths:
+|     - .sonar/cache
 | sonarqube-check:
 |   stage: test
 |   script:
@@ -90,7 +94,7 @@ Click your scanner below to see the example configuration:
 |   only:
 |     - merge_requests
 |     - master
-| ```  
+| ```
 |
 | **Note:** A project key has to be provided through `sonar-project.properties` or through the command line parameter. For more information, see the [SonarScanner](/analysis/scan/sonarscanner/) documentation.
 

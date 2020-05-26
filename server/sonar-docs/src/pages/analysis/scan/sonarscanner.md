@@ -10,30 +10,9 @@ url: /analysis/scan/sonarscanner/
 
 The SonarScanner is the scanner to use when there is no specific scanner for your build system.
 
-## Installation
-* Expand the downloaded file into the directory of your choice. We'll refer to it as `$install_directory` in the next steps.
-* Update the global settings to point to your SonarQube server by editing `$install_directory/conf/sonar-scanner.properties`:
-```
-#----- Default SonarQube server
-#sonar.host.url=http://localhost:9000
-```
-* Add the `$install_directory/bin` directory to your path.
-* Verify your installation by opening a new shell and executing the command `sonar-scanner -h` (`sonar-scanner.bat -h` on Windows). You should get output like this:
+## Configuring your project
+Create a configuration file in your project's root directory called `sonar-project.properties`
 
-   ```
-   usage: sonar-scanner [options]
-  
-   Options:
-     -D,--define <arg>     Define property
-     -h,--help             Display help information
-     -v,--version          Display version information
-     -X,--debug            Produce execution debug output
-   ```
-
-If you need more debug information you can add one of the following to your command line: `-X`, `--verbose`, or `-Dsonar.verbose=true`.
-
-## Use
-Create a configuration file in the root directory of the project: `sonar-project.properties`
 ```
 # must be unique in a given SonarQube instance
 sonar.projectKey=my:project
@@ -51,12 +30,46 @@ sonar.projectKey=my:project
 # Encoding of the source code. Default is default system encoding
 #sonar.sourceEncoding=UTF-8
 ```
-Run the following command from the project base directory to launch the analysis:  
+
+## Running SonarScanner from the zip file
+To run SonarScanner from the zip file, follow these steps:
+
+1. Expand the downloaded file into the directory of your choice. We'll refer to it as `$install_directory` in the next steps.
+1. Update the global settings to point to your SonarQube server by editing `$install_directory/conf/sonar-scanner.properties`:
+```
+#----- Default SonarQube server
+#sonar.host.url=http://localhost:9000
+```
+1. Add the `$install_directory/bin` directory to your path.
+1. Verify your installation by opening a new shell and executing the command `sonar-scanner -h` (`sonar-scanner.bat -h` on Windows). You should get output like this:
+
+   ```
+   usage: sonar-scanner [options]
+  
+   Options:
+     -D,--define <arg>     Define property
+     -h,--help             Display help information
+     -v,--version          Display version information
+     -X,--debug            Produce execution debug output
+   ```
+If you need more debug information, you can add one of the following to your command line: `-X`, `--verbose`, or `-Dsonar.verbose=true`.
+
+1. Run the following command from the project base directory to launch the analysis:  
 `sonar-scanner`
 
-## Sample Projects
-To help you get started, simple project samples are available for most languages on github. They can be [browsed](https://github.com/SonarSource/sonar-scanning-examples) or [downloaded](https://github.com/SonarSource/sonar-scanning-examples/archive/master.zip). You'll find them filed under sonarqube-scanner/src.
+## Running SonarScanner from the Docker image
+To scan using the SonarScanner Docker image, use the following command:
 
+```
+docker run \
+    --rm \
+    -e SONAR_HOST_URL="http://${SONARQUBE_URL}" \
+    -v "${YOUR_REPO}:/usr/src" \
+    sonarsource/sonar-scanner-cli
+```
+
+## Sample Projects
+To help you get started, simple project samples are available for most languages on GitHub. They can be [browsed](https://github.com/SonarSource/sonar-scanning-examples) or [downloaded](https://github.com/SonarSource/sonar-scanning-examples/archive/master.zip). You'll find them filed under sonarqube-scanner/src.
 
 ## Alternatives to sonar-project.properties
 If a sonar-project.properties file cannot be created in the root directory of the project, there are several alternatives:
@@ -81,11 +94,80 @@ sonar.sources=src
 sonar.cobol.copy.directories=/copy
 ```
 
-More parameters can be configured, see [Analysis Parameters](/analysis/analysis-parameters/) for details.
+[[info]]
+| You can configure more parameters. See [Analysis Parameters](/analysis/analysis-parameters/) for details.
+
+## Advanced Docker Configuration
+
+The following sections offer advanced configuration options when running the SonarScanner with Docker. Click the headings to expand the instructions.
+
+[[collapse]]
+| ## Running as a non-root user
+| You can run the Docker image as a non-root user using the `--user` option. For example, to run as the current user:
+| ```
+| docker run \
+|     --rm \
+|     --user="$(id -u):$(id -g)" \
+|     -e SONAR_HOST_URL="http://${SONARQUBE_URL}"  \
+|     -v "${YOUR_REPO}:/usr/src" \
+|     sonarsource/sonar-scanner-cli
+| ```
+| [[warning]]
+| |When running the container as a non-root user you have to make sure the user has read and write access to the directories you are mounting (like your source code or scanner cache directory), otherwise you may encounter permission related problems.  
+
+[[collapse]]
+| ## Caching scanner files
+| To prevent SonarScanner from re-downloading language analyzers each time you run a scan, you can mount a directory where the scanner stores the downloads so that the downloads are reused between scanner runs. On some CI systems, you also need to add this directory to your CI cache configuration. 
+|
+| The following command will store and use cache between runs:
+|
+| ```
+| docker run \
+|     --rm \
+|     -v ${YOUR_CACHE_DIR}:/opt/sonar-scanner/.sonar/cache \
+|     -v ${YOUR_REPO}:/usr/src \
+|     -e SONAR_HOST_URL="http://${SONARQUBE_URL}" \
+|     sonarsource/sonar-scanner-cli
+| ```
+|
+| You can also change the location of where the scanner puts the downloads with the `SONAR_USER_HOME` environment variable.
+
+[[collapse]]
+| ## Using self-signed certificates
+| If you need to configure a self-signed certificate for the scanner to communicate with your SonarQube instance, we recommend using the OpenJDK provided with the `sonarsource/sonar-scanner-cli` image. To do this, follow these steps: 
+|
+| 1. Extract the `cacerts` file from OpenJDK from the `sonarsource/sonar-scanner-cli` image:
+|
+| ```
+| docker pull sonarsource/sonar-scanner-cli
+| docker run \
+|     --rm \
+|     --entrypoint cat sonarsource/sonar-scanner-cli /opt/java/openjdk/lib/security/cacerts > cacerts
+| ```
+|
+| 2. Add your certificate to the exported `cacerts` file. Assuming your certificate file is named `mycert.cer` and it's in your current local directory:
+|
+| ```
+| docker run \
+|     --rm \
+|     -v `pwd`:/tmp/certs \
+|     sonarsource/sonar-scanner-cli \
+|     bash -c 'cd /tmp/certs && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias mycert -file mycert.cer'
+| ```
+|
+| 3. Mount the `cacerts` file that you've prepared in your target container:
+| 
+| ```
+| docker run \
+|     --rm \
+|     -e SONAR_HOST_URL="http://${SONARQUBE_URL}" \
+|     -v `pwd`/cacerts:/opt/java/openjdk/lib/security/cacerts \
+|     sonarsource/sonar-scanner-cli
+| ```
 
 ## Troubleshooting
 **Java heap space error or java.lang.OutOfMemoryError**  
-Increase the memory via the `SONAR_SCANNER_OPTS` environment variable:
+Increase the memory via the `SONAR_SCANNER_OPTS` environment variable when running the scanner from a zip file:
 ```
 export SONAR_SCANNER_OPTS="-Xmx512m"
 ```
@@ -98,5 +180,5 @@ set SONAR_SCANNER_OPTS=-Xmx512m
 Upgrade the version of Java being used for analysis or use one of the native package (that embed its own Java runtime).
 
 **Property missing: `sonar.cs.analyzer.projectOutPaths'. No protobuf files will be loaded for this project.**  
-Scanner CLI is not able to analyze .NET projects. Please, use Scanner for MSBuild. If you are running Scanner for MSBuild, ensure that you are not hitting a known limitation.
+Scanner CLI is not able to analyze .NET projects. Please, use the Scanner for MSBuild. If you are running Scanner for MSBuild, ensure that you are not hitting a known limitation.
 
