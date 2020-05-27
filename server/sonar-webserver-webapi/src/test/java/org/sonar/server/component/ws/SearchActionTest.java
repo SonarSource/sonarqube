@@ -58,15 +58,14 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.DIRECTORY;
 import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -97,7 +96,7 @@ public class SearchActionTest {
 
   @Before
   public void setUp() {
-    resourceTypes.setAllQualifiers(PROJECT, MODULE, DIRECTORY, FILE);
+    resourceTypes.setAllQualifiers(APP, PROJECT, DIRECTORY, FILE);
     ws = new WsActionTester(new SearchAction(index, db.getDbClient(), resourceTypes, i18n, defaultOrganizationProvider));
 
     user = db.users().insertUser("john");
@@ -151,19 +150,6 @@ public class SearchActionTest {
   }
 
   @Test
-  public void returns_empty_result_when_search_for_files() {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    ComponentDto file1 = newFileDto(project).setDbKey("file1");
-    ComponentDto file2 = newFileDto(project).setDbKey("file2");
-    db.components().insertComponents(project, file1, file2);
-    setBrowsePermissionOnUserAndIndex(project);
-
-    SearchWsResponse response = call(new SearchRequest().setQuery(file1.getDbKey()).setQualifiers(singletonList(FILE)));
-
-    assertThat(response.getComponentsList()).isEmpty();
-  }
-
-  @Test
   public void search_with_pagination() {
     OrganizationDto organizationDto = db.organizations().insert();
     List<ComponentDto> componentDtoList = new ArrayList<>();
@@ -203,7 +189,7 @@ public class SearchActionTest {
     db.components().insertComponents(project, module, dir1, dir2, dir3);
     setBrowsePermissionOnUserAndIndex(project);
 
-    SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, MODULE, DIRECTORY)));
+    SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, APP)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getProject)
       .containsOnly(tuple(project.getDbKey(), project.getDbKey()));
@@ -215,7 +201,7 @@ public class SearchActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     setBrowsePermissionOnUserAndIndex(project, branch);
 
-    SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
+    SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey)
       .containsOnly(project.getDbKey());
@@ -224,7 +210,7 @@ public class SearchActionTest {
   @Test
   public void fail_if_unknown_qualifier_provided() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter 'qualifiers' (Unknown-Qualifier) must be one of: [BRC, DIR, FIL, TRK]");
+    expectedException.expectMessage("Value of parameter 'qualifiers' (Unknown-Qualifier) must be one of: [APP, TRK]");
 
     call(new SearchRequest().setQualifiers(singletonList("Unknown-Qualifier")));
   }
@@ -251,7 +237,7 @@ public class SearchActionTest {
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
-      .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(PROJECT, DIRECTORY))
+      .setParam(PARAM_QUALIFIERS, PROJECT)
       .execute().getInput();
     assertJson(response).isSimilarTo(ws.getDef().responseExampleAsString());
   }

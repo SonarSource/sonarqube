@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +52,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.SUBVIEW;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
@@ -61,6 +66,9 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORG
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchAction implements ComponentsWsAction {
+  private static final ImmutableSet<String> VALID_QUALIFIERS = ImmutableSet.<String>builder()
+    .add(APP, PROJECT, VIEW, SUBVIEW)
+    .build();
   private final ComponentIndex componentIndex;
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
@@ -105,7 +113,7 @@ public class SearchAction implements ComponentsWsAction {
       .setExampleValue("my-org")
       .setSince("6.3");
 
-    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes))
+    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes), VALID_QUALIFIERS)
       .setRequired(true);
   }
 

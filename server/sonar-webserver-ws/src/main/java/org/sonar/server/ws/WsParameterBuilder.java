@@ -58,10 +58,17 @@ public class WsParameterBuilder {
   }
 
   public static WebService.NewParam createQualifiersParameter(WebService.NewAction action, QualifierParameterContext context) {
+    return createQualifiersParameter(action, context, getAllQualifiers(context.getResourceTypes()));
+  }
+
+  public static WebService.NewParam createQualifiersParameter(WebService.NewAction action, QualifierParameterContext context, Set<String> availableQualifiers) {
+    Set<String> filteredQualifiers = getAllQualifiers(context.getResourceTypes()).stream().filter(availableQualifiers::contains)
+      .collect(Collectors.toSet());
     return action.createParam(PARAM_QUALIFIERS)
       .setDescription(
-        "Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. Possible values are:" + buildAllQualifiersDescription(context))
-      .setPossibleValues(getAllQualifiers(context.getResourceTypes()));
+        "Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. Possible values are:"
+          + buildQualifiersDescription(context, filteredQualifiers))
+      .setPossibleValues(filteredQualifiers);
   }
 
   private static Set<String> getRootQualifiers(ResourceTypes resourceTypes) {
@@ -88,10 +95,6 @@ public class WsParameterBuilder {
 
   private static String buildRootQualifiersDescription(QualifierParameterContext context) {
     return buildQualifiersDescription(context, getRootQualifiers(context.getResourceTypes()));
-  }
-
-  private static String buildAllQualifiersDescription(QualifierParameterContext context) {
-    return buildQualifiersDescription(context, getAllQualifiers(context.getResourceTypes()));
   }
 
   private static String buildQualifiersDescription(QualifierParameterContext context, Set<String> qualifiers) {
