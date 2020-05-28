@@ -26,6 +26,7 @@ import ActivityLink from '../../../components/common/ActivityLink';
 import MeasuresLink from '../../../components/common/MeasuresLink';
 import Measure from '../../../components/measure/Measure';
 import { getComponentDrilldownUrl } from '../../../helpers/urls';
+import { GraphType } from '../../../types/project-activity';
 import { METRICS_PER_TYPE } from '../utils';
 import Effort from './Effort';
 import MainRating from './MainRating';
@@ -116,7 +117,11 @@ export default function MetricBox({ component, measures, metricKey }: MetricBoxP
           <MeasuresLink component={component} metric={keys.measuresMetric} />
         </div>
         <div>
-          <ActivityLink component={component} metric={keys.activity || keys.rating} />
+          <ActivityLink
+            component={component}
+            metric={keys.activity || keys.rating}
+            graph={GraphType.custom}
+          />
         </div>
       </div>
     </div>

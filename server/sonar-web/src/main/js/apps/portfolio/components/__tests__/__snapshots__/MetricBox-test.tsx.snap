@@ -50,7 +50,8 @@ exports[`should render correctly 1`] = `
     <div>
       <ActivityLink
         component="foo"
-        metric="reliability_rating"
+        graph="custom"
+        metric="reliability_rating,bugs"
       />
     </div>
   </div>
@@ -130,6 +131,7 @@ exports[`should render correctly for releasability 1`] = `
     <div>
       <ActivityLink
         component="foo"
+        graph="custom"
         metric="releasability_rating"
       />
     </div>
@@ -210,6 +212,7 @@ exports[`should render correctly for releasability 2`] = `
     <div>
       <ActivityLink
         component="foo"
+        graph="custom"
         metric="releasability_rating"
       />
     </div>
@@ -254,6 +257,7 @@ exports[`should render correctly when no effort 1`] = `
     <div>
       <ActivityLink
         component="foo"
+        graph="custom"
         metric="releasability_rating"
       />
     </div>

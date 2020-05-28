@@ -66,7 +66,8 @@ export const METRICS_PER_TYPE: T.Dict<MetricKeys> = {
     label: 'metric_domain.Reliability',
     rating: 'reliability_rating',
     effort: 'reliability_rating_effort',
-    last_change: 'last_change_on_reliability_rating'
+    last_change: 'last_change_on_reliability_rating',
+    activity: 'reliability_rating,bugs'
   },
   vulnerabilities: {
     measuresMetric: 'Security',
@@ -81,14 +82,16 @@ export const METRICS_PER_TYPE: T.Dict<MetricKeys> = {
     label: 'portfolio.metric_domain.security_hotspots',
     rating: 'security_review_rating',
     effort: 'security_review_rating_effort',
-    last_change: 'last_change_on_security_review_rating'
+    last_change: 'last_change_on_security_review_rating',
+    activity: 'security_review_rating,security_hotspots'
   },
   maintainability: {
     measuresMetric: 'Maintainability',
     label: 'metric_domain.Maintainability',
     rating: 'sqale_rating',
     effort: 'maintainability_rating_effort',
-    last_change: 'last_change_on_maintainability_rating'
+    last_change: 'last_change_on_maintainability_rating',
+    activity: 'sqale_rating,code_smells'
   }
 };
 
