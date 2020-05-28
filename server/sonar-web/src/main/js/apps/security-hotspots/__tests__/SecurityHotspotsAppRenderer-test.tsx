@@ -33,6 +33,8 @@ jest.mock('sonar-ui-common/helpers/scrolling', () => ({
   scrollToElement: jest.fn()
 }));
 
+jest.mock('../../../components/common/ScreenPositionHelper');
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -43,28 +45,13 @@ it('should render correctly', () => {
     shallowRender({
       filters: { assignedToMe: true, sinceLeakPeriod: false, status: HotspotStatusFilter.TO_REVIEW }
     })
-      .find(ScreenPositionHelper)
-      .dive()
   ).toMatchSnapshot('no hotspots with filters');
-  expect(
-    shallowRender()
-      .find(ScreenPositionHelper)
-      .dive()
-  ).toMatchSnapshot('no hotspots');
-  expect(
-    shallowRender({ loading: true })
-      .find(ScreenPositionHelper)
-      .dive()
-  ).toMatchSnapshot('loading');
+  expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
 });
 
 it('should render correctly with hotspots', () => {
   const hotspots = [mockRawHotspot({ key: 'h1' }), mockRawHotspot({ key: 'h2' })];
-  expect(
-    shallowRender({ hotspots, hotspotsTotal: 2 })
-      .find(ScreenPositionHelper)
-      .dive()
-  ).toMatchSnapshot();
+  expect(shallowRender({ hotspots, hotspotsTotal: 2 })).toMatchSnapshot();
   expect(
     shallowRender({ hotspots, hotspotsTotal: 3, selectedHotspot: mockRawHotspot({ key: 'h2' }) })
       .find(ScreenPositionHelper)

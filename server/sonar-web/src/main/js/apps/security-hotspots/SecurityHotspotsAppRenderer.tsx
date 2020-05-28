@@ -83,6 +83,10 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
 
   return (
     <div id="security_hotspots">
+      <Suggestions suggestions="security_hotspots" />
+      <Helmet title={translate('hotspots.page')} />
+      <A11ySkipTarget anchor="security_hotspots_main" />
+
       <FilterBar
         component={component}
         filters={filters}
@@ -93,29 +97,25 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
         onChangeFilters={props.onChangeFilters}
         onShowAllHotspots={props.onShowAllHotspots}
       />
-      <ScreenPositionHelper>
-        {({ top }) => (
-          <div className="wrapper" style={{ top }}>
-            <Suggestions suggestions="security_hotspots" />
-            <Helmet title={translate('hotspots.page')} />
 
-            <A11ySkipTarget anchor="security_hotspots_main" />
+      {loading && <DeferredSpinner className="huge-spacer-left big-spacer-top" />}
 
-            {loading && <DeferredSpinner className="huge-spacer-left big-spacer-top" />}
-
-            {!loading &&
-              (hotspots.length === 0 || !selectedHotspot ? (
-                <EmptyHotspotsPage
-                  filtered={
-                    filters.assignedToMe ||
-                    (isBranch(branchLike) && filters.sinceLeakPeriod) ||
-                    filters.status !== HotspotStatusFilter.TO_REVIEW
-                  }
-                  isStaticListOfHotspots={isStaticListOfHotspots}
-                />
-              ) : (
-                <div className="layout-page">
-                  <div className="sidebar" ref={scrollableRef}>
+      {!loading &&
+        (hotspots.length === 0 || !selectedHotspot ? (
+          <EmptyHotspotsPage
+            filtered={
+              filters.assignedToMe ||
+              (isBranch(branchLike) && filters.sinceLeakPeriod) ||
+              filters.status !== HotspotStatusFilter.TO_REVIEW
+            }
+            isStaticListOfHotspots={isStaticListOfHotspots}
+          />
+        ) : (
+          <div className="layout-page">
+            <ScreenPositionHelper className="layout-page-side-outer">
+              {({ top }) => (
+                <div className="layout-page-side" ref={scrollableRef} style={{ top }}>
+                  <div className="layout-page-side-inner">
                     <HotspotList
                       hotspots={hotspots}
                       hotspotsTotal={hotspotsTotal}
@@ -128,20 +128,21 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
                       statusFilter={filters.status}
                     />
                   </div>
-                  <div className="main">
-                    <HotspotViewer
-                      branchLike={branchLike}
-                      component={component}
-                      hotspotKey={selectedHotspot.key}
-                      onUpdateHotspot={props.onUpdateHotspot}
-                      securityCategories={securityCategories}
-                    />
-                  </div>
                 </div>
-              ))}
+              )}
+            </ScreenPositionHelper>
+
+            <div className="layout-page-main">
+              <HotspotViewer
+                branchLike={branchLike}
+                component={component}
+                hotspotKey={selectedHotspot.key}
+                onUpdateHotspot={props.onUpdateHotspot}
+                securityCategories={securityCategories}
+              />
+            </div>
           </div>
-        )}
-      </ScreenPositionHelper>
+        ))}
     </div>
   );
 }

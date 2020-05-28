@@ -35,11 +35,6 @@ exports[`should render correctly 1`] = `
   onCloseComment={[Function]}
   onOpenComment={[Function]}
   onUpdateHotspot={[Function]}
-  parentScrollRef={
-    Object {
-      "current": null,
-    }
-  }
   securityCategories={
     Object {
       "cat1": Object {
@@ -90,11 +85,6 @@ exports[`should render correctly 2`] = `
   onCloseComment={[Function]}
   onOpenComment={[Function]}
   onUpdateHotspot={[Function]}
-  parentScrollRef={
-    Object {
-      "current": null,
-    }
-  }
   securityCategories={
     Object {
       "cat1": Object {

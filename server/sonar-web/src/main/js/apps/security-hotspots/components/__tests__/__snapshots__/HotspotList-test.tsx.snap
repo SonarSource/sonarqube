@@ -2,7 +2,7 @@
 
 exports[`should render correctly 1`] = `
 <div
-  className="huge-spacer-bottom big-padded-right hotspot-list"
+  className="huge-spacer-bottom"
 >
   <h1
     className="hotspot-list-header bordered-bottom"
@@ -26,7 +26,7 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly 2`] = `
 <div
-  className="huge-spacer-bottom big-padded-right hotspot-list"
+  className="huge-spacer-bottom"
 >
   <h1
     className="hotspot-list-header bordered-bottom"
@@ -49,7 +49,7 @@ exports[`should render correctly 2`] = `
 
 exports[`should render correctly when the list of hotspot is static 1`] = `
 <div
-  className="huge-spacer-bottom big-padded-right hotspot-list"
+  className="huge-spacer-bottom"
 >
   <h1
     className="hotspot-list-header bordered-bottom"
@@ -73,7 +73,7 @@ exports[`should render correctly when the list of hotspot is static 1`] = `
 
 exports[`should render correctly with hotspots: no pagination 1`] = `
 <div
-  className="huge-spacer-bottom big-padded-right hotspot-list"
+  className="huge-spacer-bottom"
 >
   <h1
     className="hotspot-list-header bordered-bottom"
@@ -341,7 +341,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
 
 exports[`should render correctly with hotspots: pagination 1`] = `
 <div
-  className="huge-spacer-bottom big-padded-right hotspot-list"
+  className="huge-spacer-bottom"
 >
   <h1
     className="hotspot-list-header bordered-bottom"

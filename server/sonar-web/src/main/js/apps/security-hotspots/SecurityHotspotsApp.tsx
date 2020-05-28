@@ -20,7 +20,7 @@
 import { Location } from 'history';
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
-import { addNoFooterPageClass, removeNoFooterPageClass } from 'sonar-ui-common/helpers/pages';
+import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
 import { getMeasures } from '../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../api/security-hotspots';
 import { withCurrentUser } from '../../components/hoc/withCurrentUser';
@@ -89,7 +89,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    addNoFooterPageClass();
+    addSideBarClass();
     this.fetchInitialData();
   }
 
@@ -114,7 +114,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    removeNoFooterPageClass();
+    removeSideBarClass();
     this.mounted = false;
   }
 

@@ -39,6 +39,10 @@ th.hide-overflow {
   visibility: hidden !important;
 }
 
+.invisible {
+  visibility: hidden;
+}
+
 .note {
   color: var(--secondFontColor);
   font-size: var(--smallFontSize);

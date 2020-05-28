@@ -59,7 +59,6 @@ function shallowRender(props?: Partial<HotspotViewerRendererProps>) {
       onCloseComment={jest.fn()}
       onOpenComment={jest.fn()}
       onUpdateHotspot={jest.fn()}
-      parentScrollRef={React.createRef()}
       securityCategories={{ 'sql-injection': { title: 'SQL injection' } }}
       {...props}
     />

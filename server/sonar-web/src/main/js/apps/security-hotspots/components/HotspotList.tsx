@@ -107,7 +107,7 @@ export default class HotspotList extends React.Component<Props, State> {
     const { expandedCategories, groupedHotspots } = this.state;
 
     return (
-      <div className="huge-spacer-bottom big-padded-right hotspot-list">
+      <div className="huge-spacer-bottom">
         <h1 className="hotspot-list-header bordered-bottom">
           <SecurityHotspotIcon className="spacer-right" />
           {translateWithParameters(

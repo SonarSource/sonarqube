@@ -76,80 +76,90 @@ export function FilterBar(props: FilterBarProps) {
   const isProject = component.qualifier === ComponentQualifier.Project;
 
   return (
-    <div className="filter-bar display-flex-center">
-      {isStaticListOfHotspots ? (
-        <a id="show_all_hotspot" onClick={() => props.onShowAllHotspots()} role="link" tabIndex={0}>
-          {translate('hotspot.filters.show_all')}
-        </a>
-      ) : (
-        <div className="display-flex-space-between width-100">
-          <div className="display-flex-center">
-            <h3 className="huge-spacer-right">{translate('hotspot.filters.title')}</h3>
+    <div className="filter-bar-outer">
+      <div className="filter-bar">
+        <div className="filter-bar-inner display-flex-center">
+          {isStaticListOfHotspots ? (
+            <a
+              id="show_all_hotspot"
+              onClick={() => props.onShowAllHotspots()}
+              role="link"
+              tabIndex={0}>
+              {translate('hotspot.filters.show_all')}
+            </a>
+          ) : (
+            <div className="display-flex-space-between width-100">
+              <div className="display-flex-center">
+                <h3 className="huge-spacer-right">{translate('hotspot.filters.title')}</h3>
 
-            {isLoggedIn(currentUser) && (
-              <RadioToggle
-                className="huge-spacer-right"
-                name="assignee-filter"
-                onCheck={(value: AssigneeFilterOption) =>
-                  props.onChangeFilters({ assignedToMe: value === AssigneeFilterOption.ME })
-                }
-                options={assigneeFilterOptions}
-                value={filters.assignedToMe ? AssigneeFilterOption.ME : AssigneeFilterOption.ALL}
-              />
-            )}
+                {isLoggedIn(currentUser) && (
+                  <RadioToggle
+                    className="huge-spacer-right"
+                    name="assignee-filter"
+                    onCheck={(value: AssigneeFilterOption) =>
+                      props.onChangeFilters({ assignedToMe: value === AssigneeFilterOption.ME })
+                    }
+                    options={assigneeFilterOptions}
+                    value={
+                      filters.assignedToMe ? AssigneeFilterOption.ME : AssigneeFilterOption.ALL
+                    }
+                  />
+                )}
 
-            <span className="spacer-right">{translate('status')}</span>
-            <Select
-              className="input-medium big-spacer-right"
-              clearable={false}
-              onChange={(option: { value: HotspotStatusFilter }) =>
-                props.onChangeFilters({ status: option.value })
-              }
-              options={statusOptions}
-              searchable={false}
-              value={filters.status}
-            />
-
-            {onBranch && (
-              <Select
-                className="input-medium big-spacer-right"
-                clearable={false}
-                onChange={(option: { value: boolean }) =>
-                  props.onChangeFilters({ sinceLeakPeriod: option.value })
-                }
-                options={periodOptions}
-                searchable={false}
-                value={filters.sinceLeakPeriod}
-              />
-            )}
-          </div>
-
-          {isProject && (
-            <div className="display-flex-center">
-              <span className="little-spacer-right">
-                {translate('metric.security_hotspots_reviewed.name')}
-              </span>
-              <HelpTooltip
-                className="big-spacer-right"
-                overlay={translate('hotspots.reviewed.tooltip')}
-              />
-              <DeferredSpinner loading={loadingMeasure}>
-                {hotspotsReviewedMeasure && <CoverageRating value={hotspotsReviewedMeasure} />}
-                <Measure
-                  className="spacer-left huge"
-                  metricKey={
-                    onBranch && !filters.sinceLeakPeriod
-                      ? 'security_hotspots_reviewed'
-                      : 'new_security_hotspots_reviewed'
+                <span className="spacer-right">{translate('status')}</span>
+                <Select
+                  className="input-medium big-spacer-right"
+                  clearable={false}
+                  onChange={(option: { value: HotspotStatusFilter }) =>
+                    props.onChangeFilters({ status: option.value })
                   }
-                  metricType="PERCENT"
-                  value={hotspotsReviewedMeasure}
+                  options={statusOptions}
+                  searchable={false}
+                  value={filters.status}
                 />
-              </DeferredSpinner>
+
+                {onBranch && (
+                  <Select
+                    className="input-medium big-spacer-right"
+                    clearable={false}
+                    onChange={(option: { value: boolean }) =>
+                      props.onChangeFilters({ sinceLeakPeriod: option.value })
+                    }
+                    options={periodOptions}
+                    searchable={false}
+                    value={filters.sinceLeakPeriod}
+                  />
+                )}
+              </div>
+
+              {isProject && (
+                <div className="display-flex-center">
+                  <span className="little-spacer-right">
+                    {translate('metric.security_hotspots_reviewed.name')}
+                  </span>
+                  <HelpTooltip
+                    className="big-spacer-right"
+                    overlay={translate('hotspots.reviewed.tooltip')}
+                  />
+                  <DeferredSpinner loading={loadingMeasure}>
+                    {hotspotsReviewedMeasure && <CoverageRating value={hotspotsReviewedMeasure} />}
+                    <Measure
+                      className="spacer-left huge"
+                      metricKey={
+                        onBranch && !filters.sinceLeakPeriod
+                          ? 'security_hotspots_reviewed'
+                          : 'new_security_hotspots_reviewed'
+                      }
+                      metricType="PERCENT"
+                      value={hotspotsReviewedMeasure}
+                    />
+                  </DeferredSpinner>
+                </div>
+              )}
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

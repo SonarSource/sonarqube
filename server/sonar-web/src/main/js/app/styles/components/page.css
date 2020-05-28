@@ -161,10 +161,6 @@
   max-width: 980px;
 }
 
-.no-footer-page #footer {
-  display: none;
-}
-
 .page-footer-menu-item {
   display: inline-block;
 }

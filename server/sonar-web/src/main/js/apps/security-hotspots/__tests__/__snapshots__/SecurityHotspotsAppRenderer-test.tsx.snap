@@ -4,6 +4,17 @@ exports[`should render correctly 1`] = `
 <div
   id="security_hotspots"
 >
+  <Suggestions
+    suggestions="security_hotspots"
+  />
+  <Helmet
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="hotspots.page"
+  />
+  <A11ySkipTarget
+    anchor="security_hotspots_main"
+  />
   <Connect(withCurrentUser(FilterBar))
     component={
       Object {
@@ -41,249 +52,262 @@ exports[`should render correctly 1`] = `
     onChangeFilters={[MockFunction]}
     onShowAllHotspots={[MockFunction]}
   />
-  <ScreenPositionHelper>
-    <Component />
-  </ScreenPositionHelper>
+  <EmptyHotspotsPage
+    filtered={false}
+    isStaticListOfHotspots={true}
+  />
 </div>
 `;
 
 exports[`should render correctly with hotspots 1`] = `
-<div>
-  <div
-    className="wrapper"
-    style={
+<div
+  id="security_hotspots"
+>
+  <Suggestions
+    suggestions="security_hotspots"
+  />
+  <Helmet
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="hotspots.page"
+  />
+  <A11ySkipTarget
+    anchor="security_hotspots_main"
+  />
+  <Connect(withCurrentUser(FilterBar))
+    component={
       Object {
-        "top": 0,
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
       }
     }
-  >
-    <Suggestions
-      suggestions="security_hotspots"
-    />
-    <Helmet
-      defer={true}
-      encodeSpecialCharacters={true}
-      title="hotspots.page"
-    />
-    <A11ySkipTarget
-      anchor="security_hotspots_main"
-    />
-    <EmptyHotspotsPage
-      filtered={false}
-      isStaticListOfHotspots={true}
-    />
-  </div>
+    filters={
+      Object {
+        "assignedToMe": false,
+        "sinceLeakPeriod": false,
+        "status": "TO_REVIEW",
+      }
+    }
+    isStaticListOfHotspots={true}
+    loadingMeasure={false}
+    onBranch={false}
+    onChangeFilters={[MockFunction]}
+    onShowAllHotspots={[MockFunction]}
+  />
+  <EmptyHotspotsPage
+    filtered={false}
+    isStaticListOfHotspots={true}
+  />
 </div>
 `;
 
 exports[`should render correctly with hotspots 2`] = `
-<div>
-  <div
-    className="wrapper"
-    style={
-      Object {
-        "top": 0,
-      }
+<div
+  className="layout-page-side"
+  style={
+    Object {
+      "top": 0,
     }
+  }
+>
+  <div
+    className="layout-page-side-inner"
   >
-    <Suggestions
-      suggestions="security_hotspots"
+    <HotspotList
+      hotspots={
+        Array [
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h1",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": undefined,
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "TO_REVIEW",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          },
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h2",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": undefined,
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "TO_REVIEW",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          },
+        ]
+      }
+      hotspotsTotal={3}
+      isStaticListOfHotspots={true}
+      loadingMore={false}
+      onHotspotClick={[MockFunction]}
+      onLoadMore={[MockFunction]}
+      securityCategories={Object {}}
+      selectedHotspot={
+        Object {
+          "author": "Developer 1",
+          "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+          "creationDate": "2013-05-13T17:55:39+0200",
+          "key": "h2",
+          "line": 81,
+          "message": "'3' is a magic number.",
+          "project": "com.github.kevinsawicki:http-request",
+          "resolution": undefined,
+          "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+          "securityCategory": "command-injection",
+          "status": "TO_REVIEW",
+          "updateDate": "2013-05-13T17:55:39+0200",
+          "vulnerabilityProbability": "HIGH",
+        }
+      }
+      statusFilter="TO_REVIEW"
     />
-    <Helmet
-      defer={true}
-      encodeSpecialCharacters={true}
-      title="hotspots.page"
-    />
-    <A11ySkipTarget
-      anchor="security_hotspots_main"
-    />
-    <div
-      className="layout-page"
-    >
-      <div
-        className="sidebar"
-      >
-        <HotspotList
-          hotspots={
-            Array [
-              Object {
-                "author": "Developer 1",
-                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                "creationDate": "2013-05-13T17:55:39+0200",
-                "key": "h1",
-                "line": 81,
-                "message": "'3' is a magic number.",
-                "project": "com.github.kevinsawicki:http-request",
-                "resolution": undefined,
-                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                "securityCategory": "command-injection",
-                "status": "TO_REVIEW",
-                "updateDate": "2013-05-13T17:55:39+0200",
-                "vulnerabilityProbability": "HIGH",
-              },
-              Object {
-                "author": "Developer 1",
-                "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-                "creationDate": "2013-05-13T17:55:39+0200",
-                "key": "h2",
-                "line": 81,
-                "message": "'3' is a magic number.",
-                "project": "com.github.kevinsawicki:http-request",
-                "resolution": undefined,
-                "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-                "securityCategory": "command-injection",
-                "status": "TO_REVIEW",
-                "updateDate": "2013-05-13T17:55:39+0200",
-                "vulnerabilityProbability": "HIGH",
-              },
-            ]
-          }
-          hotspotsTotal={3}
-          isStaticListOfHotspots={true}
-          loadingMore={false}
-          onHotspotClick={[MockFunction]}
-          onLoadMore={[MockFunction]}
-          securityCategories={Object {}}
-          selectedHotspot={
-            Object {
-              "author": "Developer 1",
-              "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-              "creationDate": "2013-05-13T17:55:39+0200",
-              "key": "h2",
-              "line": 81,
-              "message": "'3' is a magic number.",
-              "project": "com.github.kevinsawicki:http-request",
-              "resolution": undefined,
-              "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
-              "securityCategory": "command-injection",
-              "status": "TO_REVIEW",
-              "updateDate": "2013-05-13T17:55:39+0200",
-              "vulnerabilityProbability": "HIGH",
-            }
-          }
-          statusFilter="TO_REVIEW"
-        />
-      </div>
-      <div
-        className="main"
-      >
-        <HotspotViewer
-          component={
-            Object {
-              "breadcrumbs": Array [],
-              "key": "my-project",
-              "name": "MyProject",
-              "organization": "foo",
-              "qualifier": "TRK",
-              "qualityGate": Object {
-                "isDefault": true,
-                "key": "30",
-                "name": "Sonar way",
-              },
-              "qualityProfiles": Array [
-                Object {
-                  "deleted": false,
-                  "key": "my-qp",
-                  "language": "ts",
-                  "name": "Sonar way",
-                },
-              ],
-              "tags": Array [],
-            }
-          }
-          hotspotKey="h2"
-          onUpdateHotspot={[MockFunction]}
-          securityCategories={Object {}}
-        />
-      </div>
-    </div>
   </div>
 </div>
 `;
 
 exports[`should render correctly: loading 1`] = `
-<div>
-  <div
-    className="wrapper"
-    style={
+<div
+  id="security_hotspots"
+>
+  <Suggestions
+    suggestions="security_hotspots"
+  />
+  <Helmet
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="hotspots.page"
+  />
+  <A11ySkipTarget
+    anchor="security_hotspots_main"
+  />
+  <Connect(withCurrentUser(FilterBar))
+    component={
       Object {
-        "top": 0,
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
       }
     }
-  >
-    <Suggestions
-      suggestions="security_hotspots"
-    />
-    <Helmet
-      defer={true}
-      encodeSpecialCharacters={true}
-      title="hotspots.page"
-    />
-    <A11ySkipTarget
-      anchor="security_hotspots_main"
-    />
-    <DeferredSpinner
-      className="huge-spacer-left big-spacer-top"
-      timeout={100}
-    />
-  </div>
-</div>
-`;
-
-exports[`should render correctly: no hotspots 1`] = `
-<div>
-  <div
-    className="wrapper"
-    style={
+    filters={
       Object {
-        "top": 0,
+        "assignedToMe": false,
+        "sinceLeakPeriod": false,
+        "status": "TO_REVIEW",
       }
     }
-  >
-    <Suggestions
-      suggestions="security_hotspots"
-    />
-    <Helmet
-      defer={true}
-      encodeSpecialCharacters={true}
-      title="hotspots.page"
-    />
-    <A11ySkipTarget
-      anchor="security_hotspots_main"
-    />
-    <EmptyHotspotsPage
-      filtered={false}
-      isStaticListOfHotspots={true}
-    />
-  </div>
+    isStaticListOfHotspots={true}
+    loadingMeasure={false}
+    onBranch={false}
+    onChangeFilters={[MockFunction]}
+    onShowAllHotspots={[MockFunction]}
+  />
+  <DeferredSpinner
+    className="huge-spacer-left big-spacer-top"
+    timeout={100}
+  />
 </div>
 `;
 
 exports[`should render correctly: no hotspots with filters 1`] = `
-<div>
-  <div
-    className="wrapper"
-    style={
+<div
+  id="security_hotspots"
+>
+  <Suggestions
+    suggestions="security_hotspots"
+  />
+  <Helmet
+    defer={true}
+    encodeSpecialCharacters={true}
+    title="hotspots.page"
+  />
+  <A11ySkipTarget
+    anchor="security_hotspots_main"
+  />
+  <Connect(withCurrentUser(FilterBar))
+    component={
       Object {
-        "top": 0,
+        "breadcrumbs": Array [],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
       }
     }
-  >
-    <Suggestions
-      suggestions="security_hotspots"
-    />
-    <Helmet
-      defer={true}
-      encodeSpecialCharacters={true}
-      title="hotspots.page"
-    />
-    <A11ySkipTarget
-      anchor="security_hotspots_main"
-    />
-    <EmptyHotspotsPage
-      filtered={true}
-      isStaticListOfHotspots={true}
-    />
-  </div>
+    filters={
+      Object {
+        "assignedToMe": true,
+        "sinceLeakPeriod": false,
+        "status": "TO_REVIEW",
+      }
+    }
+    isStaticListOfHotspots={true}
+    loadingMeasure={false}
+    onBranch={false}
+    onChangeFilters={[MockFunction]}
+    onShowAllHotspots={[MockFunction]}
+  />
+  <EmptyHotspotsPage
+    filtered={true}
+    isStaticListOfHotspots={true}
+  />
 </div>
 `;

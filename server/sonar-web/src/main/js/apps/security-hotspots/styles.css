@@ -17,49 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#security_hotspots .wrapper {
-  position: fixed;
-  /* top is defined programatically */
-  bottom: 0;
-  width: 100%;
-}
-
-#security_hotspots .layout-page {
-  margin: 0 auto;
-  min-width: var(--minPageWidth);
-  max-width: 1280px;
-  height: 100%;
+#security_hotspots .filter-bar-outer {
+  height: 62px;
 }
 
 #security_hotspots .filter-bar {
+  position: fixed;
+  background-color: var(--barBackgroundColor);
+  z-index: var(--pageSideZIndex);
+  left: 0;
+  right: 0;
+}
+
+#security_hotspots .filter-bar-inner {
   max-width: 1280px;
-  box-sizing: border-box;
   margin: 0 auto;
   padding: calc(2 * var(--gridSize)) var(--gridSize);
+  box-sizing: border-box;
   border-bottom: 1px solid var(--barBorderColor);
 }
 
-#security_hotspots .sidebar {
-  flex: 0 0 300px;
-  border-right: 1px solid var(--barBorderColor);
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+#security_hotspots .layout-page-side,
+#security_hotspots .layout-page-side-outer {
+  width: calc(50vw - 330px);
 }
 
-#security_hotspots .main {
-  flex: 1 1 auto;
-  background-color: white;
-  /* Force flex to take parent width. */
-  overflow-x: auto;
+#security_hotspots .layout-page-side-inner {
+  margin-left: calc(50vw - 645px);
 }
 
-#security_hotspots .main .hotspot-content {
-  overflow-y: auto;
-  height: 100%;
+#security_hotspots .layout-page-main {
+  padding: 0;
+}
+
+@media (max-width: 1320px) {
+  #security_hotspots .layout-page-side-outer,
+  #security_hotspots .layout-page-side {
+    width: 316px;
+  }
+
+  #security_hotspots .layout-page-side-inner {
+    margin-left: 0;
+  }
+}
+
+#security_hotspots .hotspot-content {
+  max-width: 962px; /* 1280px - 300px - 18px */
+  background: white;
   box-sizing: border-box;
 }
 
-.invisible {
-  visibility: hidden;
+#security_hotspots .invisible {
+  height: 0;
+  overflow: hidden;
 }

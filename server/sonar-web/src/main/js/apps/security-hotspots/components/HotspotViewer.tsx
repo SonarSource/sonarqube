@@ -43,12 +43,10 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
   mounted = false;
   state: State;
   commentTextRef: React.RefObject<HTMLTextAreaElement>;
-  parentScrollRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: Props) {
     super(props);
     this.commentTextRef = React.createRef<HTMLTextAreaElement>();
-    this.parentScrollRef = React.createRef<HTMLDivElement>();
     this.state = { loading: false, commentVisible: false };
   }
 
@@ -96,9 +94,8 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
       // Edge case when the comment is already open and unfocus.
       this.commentTextRef.current.focus({ preventScroll: true });
     }
-    if (this.commentTextRef.current && this.parentScrollRef.current) {
+    if (this.commentTextRef.current) {
       scrollToElement(this.commentTextRef.current, {
-        parent: this.parentScrollRef.current,
         bottomOffset: 100
       });
     }
@@ -123,7 +120,6 @@ export default class HotspotViewer extends React.PureComponent<Props, State> {
         onCloseComment={this.handleCloseComment}
         onOpenComment={this.handleOpenComment}
         onUpdateHotspot={this.handleHotspotUpdate}
-        parentScrollRef={this.parentScrollRef}
         securityCategories={securityCategories}
       />
     );

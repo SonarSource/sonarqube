@@ -49,7 +49,6 @@ export interface HotspotViewerRendererProps {
   onOpenComment: () => void;
   onCloseComment: () => void;
   onUpdateHotspot: () => Promise<void>;
-  parentScrollRef: React.RefObject<HTMLDivElement>;
   securityCategories: T.StandardSecurityCategories;
 }
 
@@ -62,8 +61,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
     loading,
     securityCategories,
     commentTextRef,
-    commentVisible,
-    parentScrollRef
+    commentVisible
   } = props;
 
   const permalink = getPathUrlAsString(
@@ -77,7 +75,7 @@ export function HotspotViewerRenderer(props: HotspotViewerRendererProps) {
   return (
     <DeferredSpinner loading={loading}>
       {hotspot && (
-        <div className="big-padded hotspot-content" ref={parentScrollRef}>
+        <div className="big-padded hotspot-content">
           <div className="huge-spacer-bottom display-flex-space-between">
             <strong className="big big-spacer-right">{hotspot.message}</strong>
             <div className="display-flex-row flex-0">

@@ -64,8 +64,6 @@ it('should open comment form when scroll to comment', () => {
   const mockTextRef = ({ current: { focus: jest.fn() } } as any) as React.RefObject<
     HTMLTextAreaElement
   >;
-  const mockParentRef = ({ current: {} } as any) as React.RefObject<HTMLDivElement>;
-  wrapper.instance().parentScrollRef = mockParentRef;
   wrapper.instance().commentTextRef = mockTextRef;
 
   wrapper.find(HotspotViewerRenderer).simulate('openComment');
