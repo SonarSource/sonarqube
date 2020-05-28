@@ -93,8 +93,8 @@ exports[`should render correctly: loading bbs instances 1`] = `
       </div>
     </button>
     <button
-      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs"
-      disabled={false}
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs disabled"
+      disabled={true}
       onClick={[Function]}
       type="button"
     >
@@ -156,7 +156,7 @@ exports[`should render correctly: no bbs instances 1`] = `
       </div>
     </button>
     <button
-      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs"
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs disabled"
       disabled={true}
       onClick={[Function]}
       type="button"
@@ -227,7 +227,7 @@ exports[`should render correctly: too many bbs instances 1`] = `
       </div>
     </button>
     <button
-      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs"
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs disabled"
       disabled={true}
       onClick={[Function]}
       type="button"

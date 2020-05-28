@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as classNames from 'classnames';
 import * as React from 'react';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
@@ -31,6 +32,7 @@ export interface CreateProjectModeSelectionProps {
 
 export default function CreateProjectModeSelection(props: CreateProjectModeSelectionProps) {
   const { bbsBindingCount, loadingBindings } = props;
+  const bbsBindingDisabled = bbsBindingCount !== 1 || loadingBindings;
 
   return (
     <>
@@ -57,8 +59,11 @@ export default function CreateProjectModeSelection(props: CreateProjectModeSelec
         </button>
 
         <button
-          className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs"
-          disabled={bbsBindingCount !== 1}
+          className={classNames(
+            'button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs',
+            { disabled: bbsBindingDisabled }
+          )}
+          disabled={bbsBindingDisabled}
           onClick={() => props.onSelectMode(CreateProjectModes.BitbucketServer)}
           type="button">
           <img
@@ -78,7 +83,7 @@ export default function CreateProjectModeSelection(props: CreateProjectModeSelec
             </span>
           )}
 
-          {!loadingBindings && bbsBindingCount !== 1 && (
+          {!loadingBindings && bbsBindingDisabled && (
             <div className="text-muted small spacer-top" style={{ lineHeight: 1.5 }}>
               {translate('onboarding.create_project.bbs_not_configured')}
               <HelpTooltip
