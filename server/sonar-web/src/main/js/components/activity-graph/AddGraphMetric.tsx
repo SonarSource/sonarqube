@@ -126,6 +126,8 @@ export default class AddGraphMetric extends React.PureComponent<Props, State> {
     return (
       <Dropdown
         className="display-inline-block"
+        closeOnClick={false}
+        closeOnClickOutside={true}
         overlay={
           <AddGraphMetricPopup
             elements={filteredMetrics}
