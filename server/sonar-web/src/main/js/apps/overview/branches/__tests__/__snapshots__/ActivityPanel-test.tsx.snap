@@ -38,45 +38,7 @@ exports[`should render correctly 1`] = `
             updateGraph={[MockFunction]}
           />
           <GraphsHistory
-            analyses={
-              Array [
-                Object {
-                  "date": 2017-03-01T08:36:01.000Z,
-                  "events": Array [
-                    Object {
-                      "category": "QUALITY_GATE",
-                      "description": "Lorem ipsum dolor sit amet",
-                      "key": "E11",
-                      "name": "Lorem ipsum",
-                      "qualityGate": Object {
-                        "failing": Array [
-                          Object {
-                            "branch": "master",
-                            "key": "foo",
-                            "name": "Foo",
-                          },
-                          Object {
-                            "branch": "feature/bar",
-                            "key": "bar",
-                            "name": "Bar",
-                          },
-                        ],
-                        "status": "ERROR",
-                        "stillFailing": true,
-                      },
-                    },
-                  ],
-                  "key": "foo",
-                  "projectVersion": "1.0",
-                },
-                Object {
-                  "date": 2017-03-01T08:36:01.000Z,
-                  "events": Array [],
-                  "key": "foo",
-                  "projectVersion": "1.0",
-                },
-              ]
-            }
+            analyses={Array []}
             graph="issues"
             graphs={
               Array [

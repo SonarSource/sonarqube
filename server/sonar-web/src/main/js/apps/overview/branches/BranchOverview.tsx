@@ -25,7 +25,7 @@ import { getApplicationDetails, getApplicationLeak } from '../../../api/applicat
 import { getMeasuresWithPeriodAndMetrics } from '../../../api/measures';
 import { getProjectActivity } from '../../../api/projectActivity';
 import { getApplicationQualityGate, getQualityGateProjectStatus } from '../../../api/quality-gates';
-import { getTimeMachineData } from '../../../api/time-machine';
+import { getAllTimeMachineData } from '../../../api/time-machine';
 import {
   getActivityGraph,
   getHistoryMetrics,
@@ -298,7 +298,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     const graphMetrics = getHistoryMetrics(graph, []);
     const metrics = uniq([...HISTORY_METRICS_LIST, ...graphMetrics]);
 
-    return getTimeMachineData({
+    return getAllTimeMachineData({
       ...getBranchLikeQuery(branchLike),
       from: FROM_DATE,
       component: component.key,

@@ -29,7 +29,7 @@ import {
   getApplicationQualityGate,
   getQualityGateProjectStatus
 } from '../../../../api/quality-gates';
-import { getTimeMachineData } from '../../../../api/time-machine';
+import { getAllTimeMachineData } from '../../../../api/time-machine';
 import { getActivityGraph, saveActivityGraph } from '../../../../components/activity-graph/utils';
 import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/testMocks';
@@ -126,7 +126,7 @@ jest.mock('../../../../api/quality-gates', () => {
 jest.mock('../../../../api/time-machine', () => {
   const { MetricKey } = require.requireActual('../../../../types/metrics');
   return {
-    getTimeMachineData: jest.fn().mockResolvedValue({
+    getAllTimeMachineData: jest.fn().mockResolvedValue({
       measures: [
         { metric: MetricKey.bugs, history: [{ date: '2019-01-05', value: '2.0' }] },
         { metric: MetricKey.vulnerabilities, history: [{ date: '2019-01-05', value: '0' }] },
@@ -333,7 +333,7 @@ it("should correctly load a component's history", async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(getProjectActivity).toBeCalled();
-  expect(getTimeMachineData).toBeCalled();
+  expect(getAllTimeMachineData).toBeCalled();
 
   const { measuresHistory } = wrapper.state();
   expect(measuresHistory).toHaveLength(6);

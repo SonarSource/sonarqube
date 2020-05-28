@@ -69,7 +69,6 @@ export function ActivityPanel(props: ActivityPanelProps) {
     getDisplayedHistoryMetrics(graph, [])
   );
   const graphs = splitSeriesInGraphs(series, MAX_GRAPH_NB, MAX_SERIES_PER_GRAPH);
-  const parsedAnalyses = analyses.map(a => ({ ...a, date: parseDate(a.date) }));
   let shownLeakPeriodDate;
   if (leakPeriodDate !== undefined) {
     const startDate = measuresHistory.reduce((oldest: Date, { history }) => {
@@ -96,7 +95,7 @@ export function ActivityPanel(props: ActivityPanelProps) {
             <div aria-hidden={true} className="overview-panel-padded display-flex-column flex-1">
               <GraphsHeader graph={graph} metrics={metrics} updateGraph={props.onGraphChange} />
               <GraphsHistory
-                analyses={parsedAnalyses}
+                analyses={[]}
                 graph={graph}
                 graphs={graphs}
                 leakPeriodDate={shownLeakPeriodDate}
