@@ -36,6 +36,13 @@ exports[`application overview should fetch correctly other branch 1`] = `
       },
     ]
   }
+  appLeak={
+    Object {
+      "date": "2017-01-05",
+      "project": "foo",
+      "projectName": "Foo",
+    }
+  }
   branchLike={
     Object {
       "analysisDate": "2018-01-01",
@@ -90,13 +97,6 @@ exports[`application overview should fetch correctly other branch 1`] = `
     }
   }
   graph="coverage"
-  leakPeriod={
-    Object {
-      "date": "2017-01-05",
-      "project": "foo",
-      "projectName": "Foo",
-    }
-  }
   loadingHistory={false}
   loadingStatus={false}
   measures={
@@ -990,6 +990,13 @@ exports[`application overview should render correctly 1`] = `
       },
     ]
   }
+  appLeak={
+    Object {
+      "date": "2017-01-05",
+      "project": "foo",
+      "projectName": "Foo",
+    }
+  }
   branchLike={
     Object {
       "analysisDate": "2018-01-01",
@@ -1044,13 +1051,6 @@ exports[`application overview should render correctly 1`] = `
     }
   }
   graph="coverage"
-  leakPeriod={
-    Object {
-      "date": "2017-01-05",
-      "project": "foo",
-      "projectName": "Foo",
-    }
-  }
   loadingHistory={false}
   loadingStatus={false}
   measures={

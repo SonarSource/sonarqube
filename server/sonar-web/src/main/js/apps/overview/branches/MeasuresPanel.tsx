@@ -18,34 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
-import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { rawSizes } from '../../../app/theme';
 import { findMeasure } from '../../../helpers/measures';
 import { ApplicationPeriod } from '../../../types/application';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
-import IssueLabel from '../components/IssueLabel';
-import IssueRating from '../components/IssueRating';
 import MeasurementLabel from '../components/MeasurementLabel';
 import { IssueType, MeasurementType } from '../utils';
-import DebtValue from './DebtValue';
 import { DrilldownMeasureValue } from './DrilldownMeasureValue';
 import { LeakPeriodInfo } from './LeakPeriodInfo';
-import SecurityHotspotsReviewed from './SecurityHotspotsReviewed';
+import MeasuresPanelIssueMeasureRow from './MeasuresPanelIssueMeasureRow';
+import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
 
 export interface MeasuresPanelProps {
+  appLeak?: ApplicationPeriod;
   branchLike?: BranchLike;
   component: T.Component;
-  leakPeriod?: T.Period | ApplicationPeriod;
   loading?: boolean;
   measures?: T.MeasureEnhanced[];
+  period?: T.Period;
 }
 
 export enum MeasuresPanelTabs {
@@ -54,10 +50,11 @@ export enum MeasuresPanelTabs {
 }
 
 export function MeasuresPanel(props: MeasuresPanelProps) {
-  const { branchLike, component, loading, leakPeriod, measures = [] } = props;
+  const { appLeak, branchLike, component, loading, measures = [], period } = props;
 
   const hasDiffMeasures = measures.some(m => isDiffMetric(m.metric.key));
   const isApp = component.qualifier === ComponentQualifier.Application;
+  const leakPeriod = isApp ? appLeak : period;
 
   const [tab, selectTab] = React.useState(MeasuresPanelTabs.New);
 
@@ -109,34 +106,11 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
 
           <div className="overview-panel-content flex-1 bordered">
             {!hasDiffMeasures && isNewCodeTab ? (
-              <div
-                className="display-flex-center display-flex-justify-center"
-                style={{ height: 500 }}>
-                <img
-                  alt="" /* Make screen readers ignore this image; it's purely eye candy. */
-                  className="spacer-right"
-                  height={52}
-                  src={`${getBaseUrl()}/images/source-code.svg`}
-                />
-                <div className="big-spacer-left text-muted" style={{ maxWidth: 500 }}>
-                  <p className="spacer-bottom big-spacer-top big">
-                    {translate('overview.measures.empty_explanation')}
-                  </p>
-                  <p>
-                    <FormattedMessage
-                      defaultMessage={translate('overview.measures.empty_link')}
-                      id="overview.measures.empty_link"
-                      values={{
-                        learn_more_link: (
-                          <Link to="/documentation/user-guide/clean-as-you-code/">
-                            {translate('learn_more')}
-                          </Link>
-                        )
-                      }}
-                    />
-                  </p>
-                </div>
-              </div>
+              <MeasuresPanelNoNewCode
+                branchLike={branchLike}
+                component={component}
+                period={period}
+              />
             ) : (
               <>
                 {[
@@ -145,68 +119,14 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
                   IssueType.SecurityHotspot,
                   IssueType.CodeSmell
                 ].map((type: IssueType) => (
-                  <div
-                    className="display-flex-row overview-measures-row"
-                    data-test={`overview__measures-${type.toString().toLowerCase()}`}
-                    key={type}>
-                    {type === IssueType.CodeSmell ? (
-                      <>
-                        <div className="overview-panel-big-padded flex-1 small display-flex-center big-spacer-left">
-                          <DebtValue
-                            branchLike={branchLike}
-                            component={component}
-                            measures={measures}
-                            useDiffMetric={isNewCodeTab}
-                          />
-                        </div>
-                        <div className="flex-1 small display-flex-center">
-                          <IssueLabel
-                            branchLike={branchLike}
-                            component={component}
-                            measures={measures}
-                            type={type}
-                            useDiffMetric={isNewCodeTab}
-                          />
-                        </div>
-                      </>
-                    ) : (
-                      <div className="overview-panel-big-padded flex-1 small display-flex-center big-spacer-left">
-                        <IssueLabel
-                          branchLike={branchLike}
-                          component={component}
-                          docTooltip={
-                            type === IssueType.SecurityHotspot
-                              ? import(
-                                  /* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md'
-                                )
-                              : undefined
-                          }
-                          measures={measures}
-                          type={type}
-                          useDiffMetric={isNewCodeTab}
-                        />
-                      </div>
-                    )}
-                    {type === IssueType.SecurityHotspot && (
-                      <div className="flex-1 small display-flex-center">
-                        <SecurityHotspotsReviewed
-                          measures={measures}
-                          useDiffMetric={isNewCodeTab}
-                        />
-                      </div>
-                    )}
-                    {(!isApp || tab === MeasuresPanelTabs.Overall) && (
-                      <div className="overview-panel-big-padded overview-measures-aside display-flex-center">
-                        <IssueRating
-                          branchLike={branchLike}
-                          component={component}
-                          measures={measures}
-                          type={type}
-                          useDiffMetric={isNewCodeTab}
-                        />
-                      </div>
-                    )}
-                  </div>
+                  <MeasuresPanelIssueMeasureRow
+                    branchLike={branchLike}
+                    component={component}
+                    isNewCodeTab={isNewCodeTab}
+                    key={type}
+                    measures={measures}
+                    type={type}
+                  />
                 ))}
 
                 <div className="display-flex-row overview-measures-row">

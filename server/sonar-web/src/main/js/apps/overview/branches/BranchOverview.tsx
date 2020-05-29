@@ -403,8 +403,6 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       qgStatuses
     } = this.state;
 
-    const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
-
     const projectIsEmpty =
       loadingStatus === false &&
       (measures === undefined ||
@@ -415,16 +413,17 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
     return (
       <BranchOverviewRenderer
         analyses={analyses}
+        appLeak={appLeak}
         branchLike={branchLike}
         component={component}
         graph={graph}
-        leakPeriod={leakPeriod}
         loadingHistory={loadingHistory}
         loadingStatus={loadingStatus}
         measures={measures}
         measuresHistory={measuresHistory}
         metrics={metrics}
         onGraphChange={this.handleGraphChange}
+        period={period}
         projectIsEmpty={projectIsEmpty}
         qgStatuses={qgStatuses}
       />

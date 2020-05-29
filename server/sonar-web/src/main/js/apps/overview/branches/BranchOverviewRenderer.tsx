@@ -22,6 +22,7 @@ import { parseDate } from 'sonar-ui-common/helpers/dates';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { ApplicationPeriod } from '../../../types/application';
 import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import ActivityPanel from './ActivityPanel';
@@ -31,16 +32,17 @@ import QualityGatePanel from './QualityGatePanel';
 
 export interface BranchOverviewRendererProps {
   analyses?: T.Analysis[];
+  appLeak?: ApplicationPeriod;
   branchLike?: BranchLike;
   component: T.Component;
   graph?: GraphType;
-  leakPeriod?: T.Period | ApplicationPeriod;
   loadingHistory?: boolean;
   loadingStatus?: boolean;
   measures?: T.MeasureEnhanced[];
   measuresHistory?: MeasureHistory[];
   metrics?: T.Metric[];
   onGraphChange: (graph: GraphType) => void;
+  period?: T.Period;
   projectIsEmpty?: boolean;
   qgStatuses?: QualityGateStatus[];
 }
@@ -48,19 +50,22 @@ export interface BranchOverviewRendererProps {
 export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
   const {
     analyses,
+    appLeak,
     branchLike,
     component,
     graph,
-    leakPeriod,
     loadingHistory,
     loadingStatus,
     measures,
     measuresHistory = [],
     metrics = [],
     onGraphChange,
+    period,
     projectIsEmpty,
     qgStatuses
   } = props;
+
+  const leakPeriod = component.qualifier === ComponentQualifier.Application ? appLeak : period;
 
   return (
     <div className="page page-limited">
@@ -82,11 +87,12 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
             <div className="flex-1">
               <div className="display-flex-column">
                 <MeasuresPanel
+                  appLeak={appLeak}
                   branchLike={branchLike}
                   component={component}
-                  leakPeriod={leakPeriod}
                   loading={loadingStatus}
                   measures={measures}
+                  period={period}
                 />
 
                 <ActivityPanel

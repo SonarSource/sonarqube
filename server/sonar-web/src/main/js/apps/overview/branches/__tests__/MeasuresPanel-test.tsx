@@ -20,8 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import BoxedTabs from 'sonar-ui-common/components/controls/BoxedTabs';
-import { mockMainBranch } from '../../../../helpers/mocks/branch-like';
-import { mockComponent, mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { mockBranch, mockMainBranch } from '../../../../helpers/mocks/branch-like';
+import {
+  mockComponent,
+  mockMeasureEnhanced,
+  mockMetric,
+  mockPeriod
+} from '../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../types/component';
 import { MetricKey } from '../../../../types/metrics';
 import { MeasuresPanel, MeasuresPanelProps, MeasuresPanelTabs } from '../MeasuresPanel';
@@ -53,6 +58,22 @@ it('should render correctly if there is no new code measures', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should render correctly if branch is misconfigured', () => {
+  const wrapper = shallowRender({
+    branchLike: mockBranch({ name: 'own-reference' }),
+    measures: [
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.coverage }) }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.bugs }) })
+    ],
+    period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'own-reference' })
+  });
+  wrapper.find(BoxedTabs).prop<Function>('onSelect')(MeasuresPanelTabs.New);
+  expect(wrapper).toMatchSnapshot('hide settings');
+
+  wrapper.setProps({ component: mockComponent({ configuration: { showSettings: true } }) });
+  expect(wrapper).toMatchSnapshot('show settings');
+});
+
 it('should render correctly if there is no coverage', () => {
   expect(
     shallowRender({
@@ -69,7 +90,7 @@ it('should render correctly if the data is still loading', () => {
 });
 
 function shallowRender(props: Partial<MeasuresPanelProps> = {}) {
-  return shallow(
+  return shallow<MeasuresPanelProps>(
     <MeasuresPanel
       branchLike={mockMainBranch()}
       component={mockComponent()}

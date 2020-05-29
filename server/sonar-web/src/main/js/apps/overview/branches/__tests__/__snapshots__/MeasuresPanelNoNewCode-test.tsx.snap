@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render "bad code setting" explanation: no link 1`] = `
+<div
+  className="display-flex-center display-flex-justify-center"
+  style={
+    Object {
+      "height": 500,
+    }
+  }
+>
+  <img
+    alt=""
+    className="spacer-right"
+    height={52}
+    src="/images/source-code.svg"
+  />
+  <div
+    className="big-spacer-left text-muted"
+    style={
+      Object {
+        "maxWidth": 500,
+      }
+    }
+  >
+    <p
+      className="spacer-bottom big-spacer-top big"
+    >
+      overview.measures.bad_setting.explanation
+    </p>
+  </div>
+</div>
+`;
+
+exports[`should render "bad code setting" explanation: with link 1`] = `
+<div
+  className="display-flex-center display-flex-justify-center"
+  style={
+    Object {
+      "height": 500,
+    }
+  }
+>
+  <img
+    alt=""
+    className="spacer-right"
+    height={52}
+    src="/images/source-code.svg"
+  />
+  <div
+    className="big-spacer-left text-muted"
+    style={
+      Object {
+        "maxWidth": 500,
+      }
+    }
+  >
+    <p
+      className="spacer-bottom big-spacer-top big"
+    >
+      overview.measures.bad_setting.explanation
+    </p>
+    <p>
+      <FormattedMessage
+        defaultMessage="overview.measures.bad_setting.link"
+        id="overview.measures.bad_setting.link"
+        values={
+          Object {
+            "setting_link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/baseline",
+                  "query": Object {
+                    "id": "my-project",
+                  },
+                }
+              }
+            >
+              settings.new_code_period.category
+            </Link>,
+          }
+        }
+      />
+    </p>
+  </div>
+</div>
+`;
