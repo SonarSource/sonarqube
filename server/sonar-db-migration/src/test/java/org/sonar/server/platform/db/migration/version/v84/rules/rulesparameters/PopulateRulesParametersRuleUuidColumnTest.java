@@ -61,6 +61,22 @@ public class PopulateRulesParametersRuleUuidColumnTest {
         tuple("uuid-rp-3", 2L, "uuid-rule-2"));
   }
 
+  @Test
+  public void remove_orphans() throws SQLException {
+    insertRulesParametersEntry("uuid-rp-4", 666L);
+
+    underTest.execute();
+
+    assertThat(db.countSql("select count(*) from rules_parameters"))
+      .isEqualTo(3);
+    assertThat(db.select("select uuid, rule_id, rule_uuid from rules_parameters"))
+      .extracting(m -> m.get("UUID"), m -> m.get("RULE_ID"), m -> m.get("RULE_UUID"))
+      .containsExactlyInAnyOrder(
+        tuple("uuid-rp-1", 1L, "uuid-rule-1"),
+        tuple("uuid-rp-2", 1L, "uuid-rule-1"),
+        tuple("uuid-rp-3", 2L, "uuid-rule-2"));
+  }
+
   private void insertRule(long id, String uuid) {
     db.executeInsert("rules",
       "id", id,

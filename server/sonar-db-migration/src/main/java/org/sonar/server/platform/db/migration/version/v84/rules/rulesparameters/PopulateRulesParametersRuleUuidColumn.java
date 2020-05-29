@@ -32,6 +32,11 @@ public class PopulateRulesParametersRuleUuidColumn extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
+    populateUuids(context);
+    removeOrphans(context);
+  }
+
+  private void populateUuids(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
     massUpdate.select("select rp.rule_id, ru.uuid " +
@@ -43,6 +48,18 @@ public class PopulateRulesParametersRuleUuidColumn extends DataChange {
     massUpdate.execute((row, update) -> {
       update.setString(1, row.getString(2));
       update.setLong(2, row.getLong(1));
+      return true;
+    });
+  }
+
+  private void removeOrphans(DataChange.Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select uuid from rules_parameters where rule_uuid is null");
+    massUpdate.update("delete from rules_parameters where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
       return true;
     });
   }
