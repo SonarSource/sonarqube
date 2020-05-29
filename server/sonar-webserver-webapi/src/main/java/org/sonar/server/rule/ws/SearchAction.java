@@ -143,7 +143,7 @@ public class SearchAction implements RulesWsAction {
       .setExampleValue(format("%s,%s", POSSIBLE_FACETS[0], POSSIBLE_FACETS[1]));
 
     WebService.NewParam paramFields = action.createParam(FIELDS)
-      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default, except actives." +
+      .setDescription("Comma-separated list of additional fields to be returned in the response. All the fields are returned by default, except actives." +
         "Since 5.5, following fields have been deprecated :" +
         "<ul>" +
         "<li>\"defaultDebtRemFn\" becomes \"defaultRemFn\"</li>" +
