@@ -31,13 +31,14 @@ export interface AlmBindingDefinitionsTableProps {
     key: string;
     additionalColumns: Array<string>;
   }>;
+  loading: boolean;
   onCreate: () => void;
   onDelete: (definitionKey: string) => void;
   onEdit: (definitionKey: string) => void;
 }
 
 export default function AlmBindingDefinitionsTable(props: AlmBindingDefinitionsTableProps) {
-  const { additionalColumnsHeaders, additionalTableInfo, alm, definitions } = props;
+  const { additionalColumnsHeaders, additionalTableInfo, alm, definitions, loading } = props;
 
   return (
     <>
@@ -45,7 +46,7 @@ export default function AlmBindingDefinitionsTable(props: AlmBindingDefinitionsT
         <h2 className="settings-sub-category-name">
           {translate('settings.almintegration.table.title')}
         </h2>
-        <Button data-test="settings__alm-create" onClick={props.onCreate}>
+        <Button data-test="settings__alm-create" disabled={loading} onClick={props.onCreate}>
           {translate('settings.almintegration.table.create')}
         </Button>
       </div>
@@ -86,12 +87,12 @@ export default function AlmBindingDefinitionsTable(props: AlmBindingDefinitionsT
                   </td>
                 ))}
                 <td className="text-center" data-test="settings__alm-table-row-edit">
-                  <ButtonIcon onClick={() => props.onEdit(key)}>
+                  <ButtonIcon disabled={loading} onClick={() => props.onEdit(key)}>
                     <EditIcon />
                   </ButtonIcon>
                 </td>
                 <td className="text-center" data-test="settings__alm-table-row-delete">
-                  <DeleteButton onClick={() => props.onDelete(key)} />
+                  <DeleteButton disabled={loading} onClick={() => props.onDelete(key)} />
                 </td>
               </tr>
             ))

@@ -32,7 +32,8 @@ function shallowRender(props: Partial<GitlabTabProps> = {}) {
     <GitlabTab
       branchesEnabled={true}
       definitions={[mockGitlabBindingDefinition()]}
-      loading={false}
+      loadingAlmDefinitions={false}
+      loadingProjectCount={false}
       multipleAlmEnabled={true}
       onDelete={jest.fn()}
       onUpdateDefinitions={jest.fn()}

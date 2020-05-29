@@ -24,7 +24,9 @@ import AlmIntegrationRenderer, { AlmIntegrationRendererProps } from '../AlmInteg
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
+  expect(shallowRender({ loadingAlmDefinitions: true, loadingProjectCount: true })).toMatchSnapshot(
+    'loading'
+  );
   expect(shallowRender({ definitionKeyForDeletion: 'keyToDelete' })).toMatchSnapshot(
     'delete modal'
   );
@@ -39,7 +41,8 @@ function shallowRender(props: Partial<AlmIntegrationRendererProps> = {}) {
       branchesEnabled={true}
       currentAlm={AlmKeys.GitHub}
       definitions={{ azure: [], bitbucket: [], github: [], gitlab: [] }}
-      loading={false}
+      loadingAlmDefinitions={false}
+      loadingProjectCount={false}
       multipleAlmEnabled={false}
       onCancel={jest.fn()}
       onConfirmDelete={jest.fn()}

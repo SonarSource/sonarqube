@@ -34,7 +34,8 @@ export interface AlmIntegrationRendererProps {
   currentAlm: AlmKeys;
   definitionKeyForDeletion?: string;
   definitions: AlmSettingsBindingDefinitions;
-  loading: boolean;
+  loadingAlmDefinitions: boolean;
+  loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onCancel: () => void;
   onConfirmDelete: (definitionKey: string) => void;
@@ -111,7 +112,8 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
     definitionKeyForDeletion,
     definitions,
     currentAlm,
-    loading,
+    loadingAlmDefinitions,
+    loadingProjectCount,
     branchesEnabled,
     multipleAlmEnabled,
     projectCount
@@ -135,7 +137,8 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
       {currentAlm === AlmKeys.Azure && (
         <AzureTab
           definitions={definitions.azure}
-          loading={loading}
+          loadingAlmDefinitions={loadingAlmDefinitions}
+          loadingProjectCount={loadingProjectCount}
           multipleAlmEnabled={multipleAlmEnabled}
           onDelete={props.onDelete}
           onUpdateDefinitions={props.onUpdateDefinitions}
@@ -144,7 +147,8 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
       {currentAlm === AlmKeys.Bitbucket && (
         <BitbucketTab
           definitions={definitions.bitbucket}
-          loading={loading}
+          loadingAlmDefinitions={loadingAlmDefinitions}
+          loadingProjectCount={loadingProjectCount}
           multipleAlmEnabled={multipleAlmEnabled}
           onDelete={props.onDelete}
           onUpdateDefinitions={props.onUpdateDefinitions}
@@ -155,7 +159,8 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
           branchesEnabled={branchesEnabled}
           component={component}
           definitions={definitions.github}
-          loading={loading}
+          loadingAlmDefinitions={loadingAlmDefinitions}
+          loadingProjectCount={loadingProjectCount}
           multipleAlmEnabled={multipleAlmEnabled}
           onDelete={props.onDelete}
           onUpdateDefinitions={props.onUpdateDefinitions}
@@ -165,7 +170,8 @@ export default function AlmIntegrationRenderer(props: AlmIntegrationRendererProp
         <GitlabTab
           branchesEnabled={branchesEnabled}
           definitions={definitions.gitlab}
-          loading={loading}
+          loadingAlmDefinitions={loadingAlmDefinitions}
+          loadingProjectCount={loadingProjectCount}
           multipleAlmEnabled={multipleAlmEnabled}
           onDelete={props.onDelete}
           onUpdateDefinitions={props.onUpdateDefinitions}

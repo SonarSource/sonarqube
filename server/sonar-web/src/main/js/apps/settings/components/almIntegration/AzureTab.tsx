@@ -26,14 +26,15 @@ import AzureForm from './AzureForm';
 
 export interface AzureTabProps {
   definitions: AzureBindingDefinition[];
-  loading: boolean;
+  loadingAlmDefinitions: boolean;
+  loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
 export default function AzureTab(props: AzureTabProps) {
-  const { multipleAlmEnabled, definitions, loading } = props;
+  const { multipleAlmEnabled, definitions, loadingAlmDefinitions, loadingProjectCount } = props;
 
   return (
     <div className="bordered">
@@ -51,7 +52,8 @@ export default function AzureTab(props: AzureTabProps) {
           }
         ]}
         form={childProps => <AzureForm {...childProps} />}
-        loading={loading}
+        loadingAlmDefinitions={loadingAlmDefinitions}
+        loadingProjectCount={loadingProjectCount}
         multipleAlmEnabled={multipleAlmEnabled}
         onDelete={props.onDelete}
         onUpdateDefinitions={props.onUpdateDefinitions}

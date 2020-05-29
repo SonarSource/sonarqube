@@ -30,14 +30,22 @@ export interface GithubTabProps {
   branchesEnabled: boolean;
   component?: T.Component;
   definitions: GithubBindingDefinition[];
-  loading: boolean;
+  loadingAlmDefinitions: boolean;
+  loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
 export default function GithubTab(props: GithubTabProps) {
-  const { branchesEnabled, component, multipleAlmEnabled, definitions, loading } = props;
+  const {
+    branchesEnabled,
+    component,
+    multipleAlmEnabled,
+    definitions,
+    loadingAlmDefinitions,
+    loadingProjectCount
+  } = props;
 
   return (
     <div className="bordered">
@@ -62,7 +70,8 @@ export default function GithubTab(props: GithubTabProps) {
               }
             ]}
             form={childProps => <GithubForm {...childProps} />}
-            loading={loading}
+            loadingAlmDefinitions={loadingAlmDefinitions}
+            loadingProjectCount={loadingProjectCount}
             multipleAlmEnabled={multipleAlmEnabled}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}

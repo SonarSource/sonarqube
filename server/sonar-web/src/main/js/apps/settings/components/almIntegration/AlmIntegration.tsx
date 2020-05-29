@@ -36,7 +36,8 @@ interface State {
   currentAlm: AlmKeys;
   definitionKeyForDeletion?: string;
   definitions: AlmSettingsBindingDefinitions;
-  loading: boolean;
+  loadingAlmDefinitions: boolean;
+  loadingProjectCount: boolean;
   projectCount?: number;
 }
 
@@ -50,7 +51,8 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
       [AlmKeys.GitHub]: [],
       [AlmKeys.GitLab]: []
     },
-    loading: true
+    loadingAlmDefinitions: true,
+    loadingProjectCount: false
   };
 
   componentDidMount() {
@@ -81,19 +83,19 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
       return Promise.resolve();
     }
 
-    this.setState({ loading: true });
+    this.setState({ loadingAlmDefinitions: true });
     return getAlmDefinitions()
       .then(definitions => {
         if (this.mounted) {
           this.setState({
             definitions,
-            loading: false
+            loadingAlmDefinitions: false
           });
         }
       })
       .catch(() => {
         if (this.mounted) {
-          this.setState({ loading: false });
+          this.setState({ loadingAlmDefinitions: false });
         }
       });
   };
@@ -107,20 +109,20 @@ export class AlmIntegration extends React.PureComponent<Props, State> {
   };
 
   handleDelete = (definitionKey: string) => {
-    this.setState({ loading: true });
+    this.setState({ loadingProjectCount: true });
     return countBindedProjects(definitionKey)
       .then(projectCount => {
         if (this.mounted) {
           this.setState({
             definitionKeyForDeletion: definitionKey,
-            loading: false,
+            loadingProjectCount: false,
             projectCount
           });
         }
       })
       .catch(() => {
         if (this.mounted) {
-          this.setState({ loading: false });
+          this.setState({ loadingProjectCount: false });
         }
       });
   };

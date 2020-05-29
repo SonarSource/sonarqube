@@ -32,14 +32,15 @@ import BitbucketForm from './BitbucketForm';
 
 export interface BitbucketTabProps {
   definitions: BitbucketBindingDefinition[];
-  loading: boolean;
+  loadingAlmDefinitions: boolean;
+  loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
 export default function BitbucketTab(props: BitbucketTabProps) {
-  const { multipleAlmEnabled, definitions, loading } = props;
+  const { multipleAlmEnabled, definitions, loadingAlmDefinitions, loadingProjectCount } = props;
 
   return (
     <div className="bordered">
@@ -103,7 +104,8 @@ export default function BitbucketTab(props: BitbucketTabProps) {
             </p>
           </>
         }
-        loading={loading}
+        loadingAlmDefinitions={loadingAlmDefinitions}
+        loadingProjectCount={loadingProjectCount}
         multipleAlmEnabled={multipleAlmEnabled}
         onDelete={props.onDelete}
         onUpdateDefinitions={props.onUpdateDefinitions}

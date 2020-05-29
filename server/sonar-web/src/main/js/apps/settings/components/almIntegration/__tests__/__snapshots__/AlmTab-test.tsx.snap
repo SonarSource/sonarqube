@@ -20,13 +20,15 @@ exports[`should render correctly 1`] = `
     ]
   }
   form={[MockFunction]}
-  loading={false}
+  loadingAlmDefinitions={false}
+  loadingProjectCount={false}
   multipleAlmEnabled={true}
   onCancel={[Function]}
   onCreate={[Function]}
   onDelete={[MockFunction]}
   onEdit={[Function]}
   onSubmit={[Function]}
+  submitting={false}
   success={false}
 />
 `;

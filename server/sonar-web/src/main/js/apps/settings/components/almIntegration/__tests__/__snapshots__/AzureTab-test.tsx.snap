@@ -32,7 +32,8 @@ exports[`should render correctly 1`] = `
       ]
     }
     form={[Function]}
-    loading={false}
+    loadingAlmDefinitions={false}
+    loadingProjectCount={false}
     multipleAlmEnabled={true}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}

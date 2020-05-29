@@ -42,7 +42,8 @@ export interface AlmTabRendererProps<B> {
   features?: AlmIntegrationFeatureBoxProps[];
   form: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
   help?: React.ReactNode;
-  loading: boolean;
+  loadingAlmDefinitions: boolean;
+  loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onCancel: () => void;
   onCreate: () => void;
@@ -50,6 +51,7 @@ export interface AlmTabRendererProps<B> {
   onEdit: (definitionKey: string) => void;
   onSubmit: (config: B, originalKey: string) => void;
   optionalFields?: Array<keyof B>;
+  submitting: boolean;
   success: boolean;
 }
 
@@ -66,9 +68,11 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
     editedDefinition,
     features = [],
     form,
-    loading,
+    loadingAlmDefinitions,
+    loadingProjectCount,
     multipleAlmEnabled,
     optionalFields,
+    submitting,
     success,
     help = (
       <FormattedMessage
@@ -108,12 +112,13 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
   return (
     <div className="big-padded">
       {multipleAlmEnabled ? (
-        <DeferredSpinner loading={loading}>
+        <DeferredSpinner loading={loadingAlmDefinitions}>
           <AlmBindingDefinitionsTable
             additionalColumnsHeaders={additionalColumnsHeaders}
             additionalTableInfo={additionalTableInfo}
             alm={alm}
             definitions={mappedDefinitions}
+            loading={loadingProjectCount}
             onCreate={props.onCreate}
             onDelete={props.onDelete}
             onEdit={props.onEdit}
@@ -136,7 +141,7 @@ export default function AlmTabRenderer<B extends AlmBindingDefinition>(
           bindingDefinition={definition || defaultBinding}
           help={help}
           hideKeyField={true}
-          loading={loading}
+          loading={loadingAlmDefinitions || loadingProjectCount || submitting}
           onCancel={props.onCancel}
           onDelete={definition ? props.onDelete : undefined}
           onEdit={showEdit ? props.onEdit : undefined}

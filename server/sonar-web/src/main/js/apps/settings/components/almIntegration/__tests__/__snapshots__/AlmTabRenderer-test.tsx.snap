@@ -27,6 +27,7 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
           },
         ]
       }
+      loading={false}
       onCreate={[MockFunction]}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -95,6 +96,7 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
           },
         ]
       }
+      loading={false}
       onCreate={[MockFunction]}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -103,7 +105,7 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
 </div>
 `;
 
-exports[`should render correctly for multi-ALM binding: loading 1`] = `
+exports[`should render correctly for multi-ALM binding: loading ALM definitions 1`] = `
 <div
   className="big-padded"
 >
@@ -130,6 +132,79 @@ exports[`should render correctly for multi-ALM binding: loading 1`] = `
           },
         ]
       }
+      loading={false}
+      onCreate={[MockFunction]}
+      onDelete={[MockFunction]}
+      onEdit={[MockFunction]}
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly for multi-ALM binding: loading project count 1`] = `
+<div
+  className="big-padded"
+>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <AlmBindingDefinitionsTable
+      additionalColumnsHeaders={
+        Array [
+          "url",
+          "app_id",
+        ]
+      }
+      alm="github"
+      definitions={
+        Array [
+          Object {
+            "additionalColumns": Array [
+              "http://github.enterprise.com",
+              "123456",
+            ],
+            "key": "key",
+          },
+        ]
+      }
+      loading={true}
+      onCreate={[MockFunction]}
+      onDelete={[MockFunction]}
+      onEdit={[MockFunction]}
+    />
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly for multi-ALM binding: submitting 1`] = `
+<div
+  className="big-padded"
+>
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <AlmBindingDefinitionsTable
+      additionalColumnsHeaders={
+        Array [
+          "url",
+          "app_id",
+        ]
+      }
+      alm="github"
+      definitions={
+        Array [
+          Object {
+            "additionalColumns": Array [
+              "http://github.enterprise.com",
+              "123456",
+            ],
+            "key": "key",
+          },
+        ]
+      }
+      loading={false}
       onCreate={[MockFunction]}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -165,6 +240,7 @@ exports[`should render correctly for multi-ALM binding: with features 1`] = `
           },
         ]
       }
+      loading={false}
       onCreate={[MockFunction]}
       onDelete={[MockFunction]}
       onEdit={[MockFunction]}
@@ -275,7 +351,7 @@ exports[`should render correctly for single-ALM binding 2`] = `
       />
     }
     hideKeyField={true}
-    loading={false}
+    loading={true}
     onCancel={[MockFunction]}
     onDelete={[MockFunction]}
     onEdit={[MockFunction]}
@@ -320,7 +396,7 @@ exports[`should render correctly for single-ALM binding 3`] = `
       />
     }
     hideKeyField={true}
-    loading={false}
+    loading={true}
     onCancel={[MockFunction]}
     onDelete={[MockFunction]}
     onEdit={[MockFunction]}

@@ -34,7 +34,8 @@ interface Props<B> {
   features?: AlmIntegrationFeatureBoxProps[];
   form: (props: AlmBindingDefinitionFormChildrenProps<B>) => React.ReactNode;
   help?: React.ReactNode;
-  loading: boolean;
+  loadingAlmDefinitions: boolean;
+  loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
@@ -112,7 +113,8 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
       features,
       form,
       help,
-      loading,
+      loadingAlmDefinitions,
+      loadingProjectCount,
       multipleAlmEnabled,
       optionalFields
     } = this.props;
@@ -130,7 +132,8 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
         features={features}
         form={form}
         help={help}
-        loading={loading || submitting}
+        loadingAlmDefinitions={loadingAlmDefinitions}
+        loadingProjectCount={loadingProjectCount}
         multipleAlmEnabled={multipleAlmEnabled}
         onCancel={this.handleCancel}
         onCreate={this.handleCreate}
@@ -138,6 +141,7 @@ export default class AlmTab<B extends AlmBindingDefinition> extends React.PureCo
         onEdit={this.handleEdit}
         onSubmit={this.handleSubmit}
         optionalFields={optionalFields}
+        submitting={submitting}
         success={success}
       />
     );

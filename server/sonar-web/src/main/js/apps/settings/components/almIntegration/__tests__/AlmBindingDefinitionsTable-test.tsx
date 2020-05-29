@@ -36,6 +36,7 @@ it('should render correctly', () => {
       ]
     })
   ).toMatchSnapshot('additional columns');
+  expect(shallowRender()).toMatchSnapshot('loading');
   expect(shallowRender({ alm: AlmKeys.GitLab })).toMatchSnapshot('title adjusts for GitLab');
 });
 
@@ -69,6 +70,7 @@ function shallowRender(props: Partial<AlmBindingDefinitionsTableProps> = {}) {
       additionalColumnsHeaders={[]}
       alm={AlmKeys.Azure}
       definitions={[]}
+      loading={false}
       onCreate={jest.fn()}
       onDelete={jest.fn()}
       onEdit={jest.fn()}

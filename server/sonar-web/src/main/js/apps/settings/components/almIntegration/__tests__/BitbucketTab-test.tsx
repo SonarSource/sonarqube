@@ -30,7 +30,8 @@ function shallowRender(props: Partial<BitbucketTabProps> = {}) {
   return shallow(
     <BitbucketTab
       definitions={[mockBitbucketBindingDefinition()]}
-      loading={false}
+      loadingAlmDefinitions={false}
+      loadingProjectCount={false}
       multipleAlmEnabled={true}
       onDelete={jest.fn()}
       onUpdateDefinitions={jest.fn()}

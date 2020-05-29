@@ -85,7 +85,7 @@ it('should fetch settings', async () => {
     .then(() => {
       expect(getAlmDefinitions).toBeCalled();
       expect(wrapper.state().definitions).toEqual({ github: [] });
-      expect(wrapper.state().loading).toBe(false);
+      expect(wrapper.state().loadingAlmDefinitions).toBe(false);
     });
 });
 

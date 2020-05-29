@@ -30,14 +30,22 @@ export interface GitlabTabProps {
   branchesEnabled: boolean;
   component?: T.Component;
   definitions: GitlabBindingDefinition[];
-  loading: boolean;
+  loadingAlmDefinitions: boolean;
+  loadingProjectCount: boolean;
   multipleAlmEnabled: boolean;
   onDelete: (definitionKey: string) => void;
   onUpdateDefinitions: () => void;
 }
 
 export default function GitlabTab(props: GitlabTabProps) {
-  const { branchesEnabled, component, multipleAlmEnabled, definitions, loading } = props;
+  const {
+    branchesEnabled,
+    component,
+    multipleAlmEnabled,
+    definitions,
+    loadingAlmDefinitions,
+    loadingProjectCount
+  } = props;
 
   return (
     <div className="bordered">
@@ -61,7 +69,8 @@ export default function GitlabTab(props: GitlabTabProps) {
               }
             ]}
             form={childProps => <GitlabForm {...childProps} />}
-            loading={loading}
+            loadingAlmDefinitions={loadingAlmDefinitions}
+            loadingProjectCount={loadingProjectCount}
             multipleAlmEnabled={multipleAlmEnabled}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}

@@ -12,7 +12,8 @@ exports[`should render correctly 1`] = `
       "gitlab": Array [],
     }
   }
-  loading={true}
+  loadingAlmDefinitions={true}
+  loadingProjectCount={false}
   multipleAlmEnabled={false}
   onCancel={[Function]}
   onConfirmDelete={[Function]}

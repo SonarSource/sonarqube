@@ -30,7 +30,8 @@ function shallowRender(props: Partial<AzureTabProps> = {}) {
   return shallow(
     <AzureTab
       definitions={[mockAzureBindingDefinition()]}
-      loading={false}
+      loadingAlmDefinitions={false}
+      loadingProjectCount={false}
       multipleAlmEnabled={true}
       onDelete={jest.fn()}
       onUpdateDefinitions={jest.fn()}

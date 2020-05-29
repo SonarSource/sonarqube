@@ -24,7 +24,9 @@ import { AlmKeys, GithubBindingDefinition } from '../../../../../types/alm-setti
 import AlmTabRenderer, { AlmTabRendererProps } from '../AlmTabRenderer';
 
 it('should render correctly for multi-ALM binding', () => {
-  expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
+  expect(shallowRender({ loadingAlmDefinitions: true })).toMatchSnapshot('loading ALM definitions');
+  expect(shallowRender({ loadingProjectCount: true })).toMatchSnapshot('loading project count');
+  expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
   expect(shallowRender()).toMatchSnapshot('loaded');
   expect(shallowRender({ editedDefinition: mockGithubBindingDefinition() })).toMatchSnapshot(
     'editing a definition'
@@ -48,7 +50,9 @@ it('should render correctly for multi-ALM binding', () => {
 });
 
 it('should render correctly for single-ALM binding', () => {
-  expect(shallowRender({ loading: true, multipleAlmEnabled: false })).toMatchSnapshot();
+  expect(
+    shallowRender({ loadingAlmDefinitions: true, multipleAlmEnabled: false })
+  ).toMatchSnapshot();
   expect(shallowRender({ multipleAlmEnabled: false })).toMatchSnapshot();
   expect(
     shallowRender({ definitions: [mockGithubBindingDefinition()], multipleAlmEnabled: false })
@@ -64,13 +68,15 @@ function shallowRender(props: Partial<AlmTabRendererProps<GithubBindingDefinitio
       defaultBinding={mockGithubBindingDefinition()}
       definitions={[mockGithubBindingDefinition()]}
       form={jest.fn()}
-      loading={false}
+      loadingAlmDefinitions={false}
+      loadingProjectCount={false}
       multipleAlmEnabled={true}
       onCancel={jest.fn()}
       onCreate={jest.fn()}
       onDelete={jest.fn()}
       onEdit={jest.fn()}
       onSubmit={jest.fn()}
+      submitting={true}
       success={false}
       {...props}
     />
