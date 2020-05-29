@@ -59,7 +59,7 @@ mvn sonar:sonar
 
 To specify the version of sonar-maven-plugin instead of using the latest:
 ```
-mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.6.0.1398:sonar
+mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar
 ```
 
 To get coverage information, you'll need to generate the coverage report before the analysis. 
@@ -92,7 +92,7 @@ It is recommended to lock down versions of Maven plugins:
       <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
-        <version>3.6.0.1398</version>
+        <version>3.7.0.1746</version>
       </plugin>
     </plugins>
   </pluginManagement>
