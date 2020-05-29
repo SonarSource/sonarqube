@@ -90,6 +90,8 @@ public class BranchDto {
 
   private boolean excludeFromPurge;
 
+  private boolean needIssueSync = false;
+
   public String getUuid() {
     return uuid;
   }
@@ -200,6 +202,14 @@ public class BranchDto {
     }
   }
 
+  public boolean isNeedIssueSync() {
+    return needIssueSync;
+  }
+
+  public void setNeedIssueSync(boolean needIssueSync) {
+    this.needIssueSync = needIssueSync;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -213,12 +223,13 @@ public class BranchDto {
       Objects.equals(projectUuid, branchDto.projectUuid) &&
       Objects.equals(kee, branchDto.kee) &&
       branchType == branchDto.branchType &&
-      Objects.equals(mergeBranchUuid, branchDto.mergeBranchUuid);
+      Objects.equals(mergeBranchUuid, branchDto.mergeBranchUuid) &&
+      needIssueSync == branchDto.needIssueSync;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, projectUuid, kee, branchType, mergeBranchUuid);
+    return Objects.hash(uuid, projectUuid, kee, branchType, mergeBranchUuid, needIssueSync);
   }
 
   @Override
@@ -231,6 +242,7 @@ public class BranchDto {
       ", branchType=" + branchType +
       ", mergeBranchUuid='" + mergeBranchUuid + '\'' +
       ", excludeFromPurge=" + excludeFromPurge +
+      ", needIssueSync=" + needIssueSync +
       '}';
   }
 }

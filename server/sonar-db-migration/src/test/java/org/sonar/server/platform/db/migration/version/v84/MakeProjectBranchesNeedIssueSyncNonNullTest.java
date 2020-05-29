@@ -17,26 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v84;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static java.sql.Types.BOOLEAN;
 
-public class DbVersion83Test {
+public class MakeProjectBranchesNeedIssueSyncNonNullTest {
 
-  private DbVersion underTest = new DbVersion83();
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeProjectBranchesNeedIssueSyncNonNullTest.class, "schema.sql");
 
-  @Test
-  public void migrationNumber_starts_at_3300() {
-    verifyMinimumMigrationNumber(underTest, 3300);
-  }
+  private MigrationStep underTest = new MakeProjectBranchesNeedIssueSyncNonNull(db.database());
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationNotEmpty(underTest);
-  }
+  public void uuid_column_is_not_null() throws SQLException {
+    underTest.execute();
 
+    db.assertColumnDefinition("project_branches", "need_issue_sync", BOOLEAN, null, false);
+  }
 }

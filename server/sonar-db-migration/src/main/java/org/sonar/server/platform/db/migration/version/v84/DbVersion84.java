@@ -776,6 +776,10 @@ public class DbVersion84 implements DbVersion {
       .add(3800, "Remove favourites for components with qualifiers 'DIR', 'FIL', 'UTS'", RemoveFilesFavouritesFromProperties.class)
       .add(3801, "Create 'SESSION_TOKENS' table", CreateSessionTokensTable.class)
       .add(3802, "Create 'SAML_MESSAGE_IDS' table", CreateSamlMessageIdsTable.class)
+
+      .add(3803, "Add 'need_issue_sync' column to 'project_branches' table", AddProjectBranchesNeedIssueSync.class)
+      .add(3804, "Populate 'need_issue_sync' of 'project_branches'", PopulateProjectBranchesNeedIssueSync.class)
+      .add(3805, "Make 'need_issue_sync' of 'project_branches' not null", MakeProjectBranchesNeedIssueSyncNonNull.class)
     ;
   }
 }

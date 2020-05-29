@@ -17,26 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v83;
+package org.sonar.server.platform.db.migration.version.v84;
 
-import org.junit.Test;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion83Test {
-
-  private DbVersion underTest = new DbVersion83();
-
-  @Test
-  public void migrationNumber_starts_at_3300() {
-    verifyMinimumMigrationNumber(underTest, 3300);
+public class AddProjectBranchesNeedIssueSync extends DdlChange {
+  public AddProjectBranchesNeedIssueSync(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationNotEmpty(underTest);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "project_branches")
+      .addColumn(BooleanColumnDef.newBooleanColumnDefBuilder()
+        .setColumnName("need_issue_sync")
+        .setIsNullable(true)
+        .setDefaultValue(null)
+        .build())
+      .build());
   }
-
 }
