@@ -248,6 +248,9 @@ public class SearchProjectsActionTest {
       c -> c.setDbKey(KEY_PROJECT_EXAMPLE_001).setName("My Project 1"),
       p -> p.setTagsString("finance, java"),
       new Measure(coverage, c -> c.setValue(80d)));
+
+    db.components().insertProjectBranch(db.components().getProjectDto(project1), branchDto -> branchDto.setNeedIssueSync(true));
+
     ComponentDto project2 = insertProject(organization1Dto,
       c -> c.setDbKey(KEY_PROJECT_EXAMPLE_002).setName("My Project 2"),
       new Measure(coverage, c -> c.setValue(90d)));

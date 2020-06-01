@@ -22,6 +22,7 @@ package org.sonar.db.component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
@@ -48,7 +49,10 @@ public interface BranchMapper {
 
   List<BranchDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
+  List<String> selectProjectUuidsWithIssuesNeedSync(@Param("projectUuids") Collection<String> uuids);
+
   long countNonMainBranches();
 
   long countByTypeAndCreationDate(@Param("branchType") String branchType, @Param("sinceDate") long sinceDate);
+
 }

@@ -118,6 +118,7 @@ message Component {
   optional string branch = 18;
   optional string version = 19;
   optional string pullRequest = 20;
+  optional bool needIssueSync = 21;
 
   message Tags {
     repeated string tags = 1;

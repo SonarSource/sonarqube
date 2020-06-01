@@ -25,7 +25,8 @@
         "finance",
         "java"
       ],
-      "visibility": "public"
+      "visibility": "public",
+      "needIssueSync": true
     },
     {
       "organization": "my-org-key-1",
@@ -34,7 +35,8 @@
       "qualifier": "TRK",
       "isFavorite": false,
       "tags": [],
-      "visibility": "public"
+      "visibility": "public",
+      "needIssueSync": false
     },
     {
       "organization": "my-org-key-2",
@@ -47,7 +49,8 @@
         "offshore",
         "java"
       ],
-      "visibility": "public"
+      "visibility": "public",
+      "needIssueSync": false
     }
   ],
   "facets": [

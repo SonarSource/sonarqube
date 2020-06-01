@@ -107,10 +107,21 @@
   </select>
 
   <select id="selectByUuid" resultType="org.sonar.db.component.BranchDto">
-    select <include refid="columns" />
+    select
+    <include refid="columns"/>
     from project_branches pb
     where
     pb.uuid = #{uuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectProjectUuidsWithIssuesNeedSync" resultType="String">
+    select distinct pb.project_uuid
+    from project_branches pb
+    where pb.need_issue_sync = true
+    and pb.project_uuid in
+    <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">
+      #{uuid,jdbcType=VARCHAR}
+    </foreach>
   </select>
 
   <select id="countNonMainBranches" resultType="long">

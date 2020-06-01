@@ -19,13 +19,13 @@
  */
 package org.sonar.db.component;
 
+import com.google.common.collect.Sets;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -506,6 +506,26 @@ public class BranchDaoTest {
   }
 
   @Test
+  public void selectProjectUuidsWithIssuesNeedSync() {
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject();
+    ComponentDto project4 = db.components().insertPrivateProject();
+    ProjectDto project1Dto = db.components().getProjectDto(project1);
+    ProjectDto project2Dto = db.components().getProjectDto(project2);
+    ProjectDto project3Dto = db.components().getProjectDto(project3);
+    ProjectDto project4Dto = db.components().getProjectDto(project4);
+
+    BranchDto branch1 = db.components().insertProjectBranch(project1Dto, branchDto -> branchDto.setNeedIssueSync(true));
+    BranchDto branch2 = db.components().insertProjectBranch(project1Dto, branchDto -> branchDto.setNeedIssueSync(false));
+    BranchDto branch3 = db.components().insertProjectBranch(project2Dto);
+
+    assertThat(underTest.selectProjectUuidsWithIssuesNeedSync(db.getSession(),
+      Sets.newHashSet(project1Dto.getUuid(), project2Dto.getUuid(), project3Dto.getUuid(), project4Dto.getUuid())))
+        .containsOnly(project1.uuid());
+  }
+
+  @Test
   public void existsNonMainBranch() {
     assertThat(underTest.hasNonMainBranches(dbSession)).isFalse();
     ComponentDto project = db.components().insertPrivateProject();
@@ -532,9 +552,5 @@ public class BranchDaoTest {
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, 0L)).isEqualTo(1);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW)).isEqualTo(1);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW + 100)).isEqualTo(0);
-  }
-
-  private static String emptyToNull(@Nullable String newValue) {
-    return newValue == null || newValue.isEmpty() ? null : newValue;
   }
 }

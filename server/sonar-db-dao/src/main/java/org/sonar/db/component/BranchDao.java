@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -108,6 +109,14 @@ public class BranchDao implements Dao {
 
   public Optional<BranchDto> selectByUuid(DbSession session, String uuid) {
     return Optional.ofNullable(mapper(session).selectByUuid(uuid));
+  }
+
+  public List<String> selectProjectUuidsWithIssuesNeedSync(DbSession session, Collection<String> uuids) {
+    if (uuids.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return executeLargeInputs(uuids, mapper(session)::selectProjectUuidsWithIssuesNeedSync);
   }
 
   public boolean hasNonMainBranches(DbSession dbSession) {
