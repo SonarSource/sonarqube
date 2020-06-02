@@ -50,6 +50,7 @@ import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -220,6 +221,7 @@ public class GlobalActionTest {
       "}");
   }
 
+
   @Test
   public void organization_support() {
     init();
@@ -250,6 +252,16 @@ public class GlobalActionTest {
     when(multipleAlmFeatureProvider.enabled()).thenReturn(false);
     assertJson(call()).isSimilarTo("{\"multipleAlmEnabled\":false}");
 
+  }
+
+  @Test
+  public void return_need_issue_sync() {
+    init();
+    when(dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(any(), eq(true))).thenReturn(true);
+    assertJson(call()).isSimilarTo("{\"needIssueSync\": true}");
+
+    when(dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(any(), eq(true))).thenReturn(false);
+    assertJson(call()).isSimilarTo("{\"needIssueSync\": false}");
   }
 
   @Test
