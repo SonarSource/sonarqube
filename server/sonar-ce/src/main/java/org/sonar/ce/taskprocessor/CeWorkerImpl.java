@@ -61,17 +61,21 @@ public class CeWorkerImpl implements CeWorker {
   private final CeWorkerController ceWorkerController;
   private final List<ExecutionListener> listeners;
   private final AtomicReference<RunningState> runningState = new AtomicReference<>();
+  private boolean indexationTaskLookupEnabled;
+  private boolean excludeIndexationJob;
 
   public CeWorkerImpl(int ordinal, String uuid,
-                      InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
-                      CeWorkerController ceWorkerController,
-                      ExecutionListener... listeners) {
+    InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
+    CeWorkerController ceWorkerController,
+    ExecutionListener... listeners) {
     this.ordinal = checkOrdinal(ordinal);
     this.uuid = uuid;
     this.queue = queue;
     this.taskProcessorRepository = taskProcessorRepository;
     this.ceWorkerController = ceWorkerController;
     this.listeners = Arrays.asList(listeners);
+    indexationTaskLookupEnabled = true;
+    excludeIndexationJob = false;
   }
 
   private static int checkOrdinal(int ordinal) {
@@ -119,7 +123,7 @@ public class CeWorkerImpl implements CeWorker {
       localRunningState = new RunningState(currentThread);
       if (!runningState.compareAndSet(null, localRunningState)) {
         LOG.warn("Worker {} (UUID=%s) starts executing with new Thread {} while running state isn't null. " +
-            "Forcefully updating Workers's running state to new Thread.",
+          "Forcefully updating Workers's running state to new Thread.",
           getOrdinal(), getUUID(), currentThread);
         runningState.set(localRunningState);
       }
@@ -138,7 +142,7 @@ public class CeWorkerImpl implements CeWorker {
       localRunningState.runningThread.setName(oldName);
       if (!runningState.compareAndSet(localRunningState, null)) {
         LOG.warn("Worker {} (UUID=%s) ending execution in Thread {} while running state has already changed." +
-            " Keeping this new state.",
+          " Keeping this new state.",
           getOrdinal(), getUUID(), localRunningState.runningThread);
       }
     }
@@ -154,7 +158,7 @@ public class CeWorkerImpl implements CeWorker {
     }
 
     try (CeWorkerController.ProcessingRecorderHook processing = ceWorkerController.registerProcessingFor(this);
-         ExecuteTask executeTask = new ExecuteTask(localRunningState, ceTask.get())) {
+      ExecuteTask executeTask = new ExecuteTask(localRunningState, ceTask.get())) {
       executeTask.run();
     } catch (Exception e) {
       LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);
@@ -164,9 +168,31 @@ public class CeWorkerImpl implements CeWorker {
 
   private Optional<CeTask> tryAndFindTaskToExecute() {
     try {
-      return queue.peek(uuid);
+      if (indexationTaskLookupEnabled) {
+        return tryAndFindTaskToExecuteIncludingIndexation();
+      } else {
+        return queue.peek(uuid, true);
+      }
     } catch (Exception e) {
       LOG.error("Failed to pop the queue of analysis reports", e);
+    }
+    return Optional.empty();
+  }
+
+  private Optional<CeTask> tryAndFindTaskToExecuteIncludingIndexation() {
+    excludeIndexationJob = !excludeIndexationJob;
+    Optional<CeTask> peek = queue.peek(uuid, excludeIndexationJob);
+    if (peek.isPresent()) {
+      return peek;
+    }
+    if (excludeIndexationJob) {
+      peek = queue.peek(uuid, false);
+      if (peek.isPresent()) {
+        return peek;
+      }
+      // do not lookup for indexation tasks anymore
+      indexationTaskLookupEnabled = false;
+      LOG.info(String.format("worker %s found no pending task (including indexation task). Disabling indexation task lookup for this worker until next SonarQube restart.", uuid));
     }
     return Optional.empty();
   }
@@ -237,7 +263,7 @@ public class CeWorkerImpl implements CeWorker {
     }
 
     private void finalizeTask(CeTask task, Profiler ceProfiler, CeActivityDto.Status status,
-                              @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
+      @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
       try {
         queue.remove(task, status, taskResult, error);
       } catch (Exception e) {

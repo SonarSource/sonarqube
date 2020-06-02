@@ -32,6 +32,7 @@ dependencies {
   compile 'org.picocontainer:picocontainer'
 
   compile project(':sonar-core')
+  compile project(':server:sonar-ce-common')
   compile project(':server:sonar-ce-task')
   compile project(':server:sonar-db-migration')
   compile project(':server:sonar-process')

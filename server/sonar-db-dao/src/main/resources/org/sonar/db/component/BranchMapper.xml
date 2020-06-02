@@ -71,7 +71,7 @@
   </update>
 
   <select id="selectByKey" resultType="org.sonar.db.component.BranchDto">
-    select <include refid="columns" />
+    select <include refid="columns"/>
     from project_branches pb
     where
       pb.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
@@ -81,7 +81,7 @@
 
   <select id="selectByBranchKeys" resultType="org.sonar.db.component.BranchDto">
     select
-    <include refid="columns" />
+    <include refid="columns"/>
     from project_branches pb
     where
     <foreach collection="branchKeyByProjectUuid" index="key" item="value" open="" separator=" or " close="">
@@ -90,14 +90,14 @@
   </select>
 
   <select id="selectByProjectUuid" parameterType="string" resultType="org.sonar.db.component.BranchDto">
-    select <include refid="columns" />
+    select <include refid="columns"/>
     from project_branches pb
     where
     pb.project_uuid = #{projectUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByUuids" resultType="org.sonar.db.component.BranchDto">
-    select <include refid="columns" />
+    select <include refid="columns"/>
     from project_branches pb
     where
     pb.uuid in
@@ -117,7 +117,7 @@
   <select id="selectProjectUuidsWithIssuesNeedSync" resultType="String">
     select distinct pb.project_uuid
     from project_branches pb
-    where pb.need_issue_sync = true
+    where pb.need_issue_sync = ${_true}
     and pb.project_uuid in
     <foreach collection="projectUuids" open="(" close=")" item="uuid" separator=",">
       #{uuid,jdbcType=VARCHAR}
@@ -163,5 +163,29 @@
     count(pb.uuid)
     from project_branches pb
   </select>
+
+  <select id="selectBranchNeedingIssueSync" resultType="org.sonar.db.component.BranchDto">
+    select
+    <include refid="columns"/>
+    from project_branches pb
+    where need_issue_sync = ${_true}
+    order by pb.updated_at, uuid
+  </select>
+
+  <update id="updateAllNeedIssueSync">
+    update project_branches
+    set
+      need_issue_sync = ${_true},
+      updated_at = #{now, jdbcType=BIGINT}
+  </update>
+
+  <update id="updateNeedIssueSync">
+    update project_branches
+    set
+      need_issue_sync = #{needIssueSync, jdbcType=BOOLEAN},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
 
 </mapper>

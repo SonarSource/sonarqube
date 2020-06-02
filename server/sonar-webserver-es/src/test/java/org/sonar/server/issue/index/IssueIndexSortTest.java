@@ -66,7 +66,7 @@ public class IssueIndexSortTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
 
   private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));

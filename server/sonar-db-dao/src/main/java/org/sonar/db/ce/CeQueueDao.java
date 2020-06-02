@@ -166,8 +166,8 @@ public class CeQueueDao implements Dao {
     return builder.build();
   }
 
-  public Optional<CeQueueDto> peek(DbSession session, String workerUuid) {
-    List<String> eligibles = mapper(session).selectEligibleForPeek(ONE_RESULT_PAGINATION);
+  public Optional<CeQueueDto> peek(DbSession session, String workerUuid, boolean excludeIndexationJob) {
+    List<String> eligibles = mapper(session).selectEligibleForPeek(ONE_RESULT_PAGINATION, excludeIndexationJob);
     if (eligibles.isEmpty()) {
       return Optional.empty();
     }

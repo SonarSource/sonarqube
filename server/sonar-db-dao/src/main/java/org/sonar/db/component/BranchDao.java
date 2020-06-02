@@ -142,4 +142,17 @@ public class BranchDao implements Dao {
   private static BranchMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(BranchMapper.class);
   }
+
+  public List<BranchDto> selectBranchNeedingIssueSync(DbSession dbSession) {
+    return mapper(dbSession).selectBranchNeedingIssueSync();
+  }
+
+  public long updateAllNeedIssueSync(DbSession dbSession) {
+    return mapper(dbSession).updateAllNeedIssueSync(system2.now());
+  }
+
+  public long updateNeedIssueSync(DbSession dbSession, String branchUuid, boolean needIssueSync) {
+    long now = system2.now();
+    return mapper(dbSession).updateNeedIssueSync(branchUuid, needIssueSync, now);
+  }
 }

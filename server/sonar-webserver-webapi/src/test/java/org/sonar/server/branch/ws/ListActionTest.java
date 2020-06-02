@@ -20,7 +20,6 @@
 package org.sonar.server.branch.ws;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -74,7 +73,7 @@ public class ListActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(es, issueIndexer);
 
   private MetricDto qualityGateStatus;
@@ -112,7 +111,7 @@ public class ListActionTest {
     RuleDefinitionDto rule = db.rules().insert();
     db.issues().insert(rule, branch, branch, i -> i.setType(BUG).setResolution(null));
 
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
 
     userSession.logIn().addProjectPermission(USER, project);
 
@@ -140,7 +139,7 @@ public class ListActionTest {
 
     RuleDefinitionDto rule = db.rules().insert();
     db.issues().insert(rule, branch, branch, i -> i.setType(BUG).setResolution(null));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
 
     userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
 
@@ -228,7 +227,7 @@ public class ListActionTest {
     db.getDbClient().snapshotDao().insert(db.getSession(),
       newAnalysis(branch2).setCreatedAt(lastAnalysisBranch));
     db.commit();
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexerTester.allowOnlyAnyone(project);
 
     ListWsResponse response = ws.newRequest()
@@ -241,6 +240,10 @@ public class ListActionTest {
       .containsExactlyInAnyOrder(
         tuple(BranchType.BRANCH, false, null),
         tuple(BranchType.BRANCH, true, lastAnalysisBranch));
+  }
+
+  private void indexIssues() {
+    issueIndexer.indexAllIssues();
   }
 
   @Test

@@ -64,11 +64,36 @@ public class IndexerStartupTask {
     Set<IndexType> uninitializedTypes = getUninitializedTypes(indexer);
     if (!uninitializedTypes.isEmpty()) {
       Profiler profiler = Profiler.create(LOG);
-      profiler.startInfo(getLogMessage(uninitializedTypes, "..."));
-      indexer.indexOnStartup(uninitializedTypes);
-      uninitializedTypes.forEach(this::setInitialized);
-      profiler.stopInfo(getLogMessage(uninitializedTypes, "done"));
+      StartupIndexer.Type type = indexer.getType();
+      switch (type) {
+        case SYNCHRONOUS:
+          synchronousIndexing(indexer, uninitializedTypes, profiler);
+          break;
+        case ASYNCHRONOUS:
+          asynchronousIndexing(indexer, uninitializedTypes, profiler);
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported StartupIndexer type:" + type);
+      }
     }
+  }
+
+  private void synchronousIndexing(StartupIndexer indexer, Set<IndexType> uninitializedTypes, Profiler profiler) {
+    String logMessage = getSynchronousIndexingLogMessage(uninitializedTypes);
+
+    profiler.startInfo(logMessage + "...");
+    indexer.indexOnStartup(uninitializedTypes);
+    uninitializedTypes.forEach(this::setInitialized);
+    profiler.stopInfo(logMessage + " done");
+  }
+
+  private void asynchronousIndexing(StartupIndexer indexer, Set<IndexType> uninitializedTypes, Profiler profiler) {
+    String logMessage = getAsynchronousIndexingLogMessage(uninitializedTypes);
+
+    profiler.startInfo(logMessage + "...");
+    indexer.triggerAsyncIndexOnStartup(uninitializedTypes);
+    uninitializedTypes.forEach(this::setInitialized);
+    profiler.stopInfo(logMessage + " done");
   }
 
   private Set<IndexType> getUninitializedTypes(StartupIndexer indexer) {
@@ -87,9 +112,15 @@ public class IndexerStartupTask {
     ClusterHealthAction.INSTANCE.newRequestBuilder(nativeClient).setIndices(index).setWaitForYellowStatus().get(TimeValue.timeValueMinutes(10));
   }
 
-  private String getLogMessage(Set<IndexType> emptyTypes, String suffix) {
+  private static String getSynchronousIndexingLogMessage(Set<IndexType> emptyTypes) {
     String s = emptyTypes.size() == 1 ? "" : "s";
     String typeList = emptyTypes.stream().map(Object::toString).collect(Collectors.joining(","));
-    return String.format("Indexing of type%s %s %s", s, typeList, suffix);
+    return String.format("Indexing of type%s %s", s, typeList);
+  }
+
+  private static String getAsynchronousIndexingLogMessage(Set<IndexType> emptyTypes) {
+    String s = emptyTypes.size() == 1 ? "" : "s";
+    String typeList = emptyTypes.stream().map(Object::toString).collect(Collectors.joining(","));
+    return String.format("Trigger asynchronous indexing of type%s %s", s, typeList);
   }
 }

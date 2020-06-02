@@ -206,8 +206,9 @@ public class BranchDto {
     return needIssueSync;
   }
 
-  public void setNeedIssueSync(boolean needIssueSync) {
+  public BranchDto setNeedIssueSync(boolean needIssueSync) {
     this.needIssueSync = needIssueSync;
+    return this;
   }
 
   @Override

@@ -128,7 +128,7 @@ public class SearchActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession session = db.getSession();
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession);
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
@@ -1149,7 +1149,7 @@ public class SearchActionTest {
   }
 
   private void indexIssues() {
-    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
+    issueIndexer.indexAllIssues();
   }
 
   private void grantPermissionToAnyone(ComponentDto project, String permission) {

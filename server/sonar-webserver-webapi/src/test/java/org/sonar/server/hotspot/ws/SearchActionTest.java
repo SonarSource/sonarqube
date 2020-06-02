@@ -109,7 +109,7 @@ public class SearchActionTest {
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
 
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
   private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
@@ -1520,7 +1520,7 @@ public class SearchActionTest {
   }
 
   private void indexIssues() {
-    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
+    issueIndexer.indexAllIssues();
   }
 
   private void indexViews() {

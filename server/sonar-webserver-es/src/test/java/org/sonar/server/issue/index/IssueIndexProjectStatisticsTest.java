@@ -57,7 +57,7 @@ public class IssueIndexProjectStatisticsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), null, new IssueIteratorFactory(null));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), null, new IssueIteratorFactory(null), null);
   private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
 
   private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new WebAuthorizationTypeSupport(userSessionRule));

@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -604,5 +605,51 @@ public class BranchDaoTest {
     db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
 
     assertThat(underTest.countAll(dbSession)).isEqualTo(8);
+  }
+
+  @Test
+  public void selectBranchNeedingIssueSync(){
+    ComponentDto project = db.components().insertPrivateProject();
+    String uuid = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+
+    assertThat(underTest.selectBranchNeedingIssueSync(dbSession))
+      .extracting(BranchDto::getUuid)
+      .containsExactly(uuid);
+  }
+
+  @Test
+  public void updateAllNeedIssueSync(){
+    ComponentDto project = db.components().insertPrivateProject();
+    String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
+    String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false)).uuid();
+
+    underTest.updateAllNeedIssueSync(dbSession);
+
+    Optional<BranchDto> project1 = underTest.selectByUuid(dbSession, uuid1);
+    assertThat(project1).isPresent();
+    assertThat(project1.get().isNeedIssueSync()).isTrue();
+
+    Optional<BranchDto> project2 = underTest.selectByUuid(dbSession, uuid2);
+    assertThat(project2).isPresent();
+    assertThat(project2.get().isNeedIssueSync()).isTrue();
+  }
+
+  @Test
+  public void updateNeedIssueSync(){
+    ComponentDto project = db.components().insertPrivateProject();
+    String uuid1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false)).uuid();
+    String uuid2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true)).uuid();
+
+    underTest.updateNeedIssueSync(dbSession, uuid1, true);
+    underTest.updateNeedIssueSync(dbSession, uuid2, false);
+
+    Optional<BranchDto> project1 = underTest.selectByUuid(dbSession, uuid1);
+    assertThat(project1).isPresent();
+    assertThat(project1.get().isNeedIssueSync()).isTrue();
+
+    Optional<BranchDto> project2 = underTest.selectByUuid(dbSession, uuid2);
+    assertThat(project2).isPresent();
+    assertThat(project2.get().isNeedIssueSync()).isFalse();
   }
 }

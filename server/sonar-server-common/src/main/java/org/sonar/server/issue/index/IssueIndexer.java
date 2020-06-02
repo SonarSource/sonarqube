@@ -73,11 +73,13 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   private final EsClient esClient;
   private final DbClient dbClient;
   private final IssueIteratorFactory issueIteratorFactory;
+  private final AsyncIssueIndexing asyncIssueIndexing;
 
-  public IssueIndexer(EsClient esClient, DbClient dbClient, IssueIteratorFactory issueIteratorFactory) {
+  public IssueIndexer(EsClient esClient, DbClient dbClient, IssueIteratorFactory issueIteratorFactory, AsyncIssueIndexing asyncIssueIndexing) {
     this.esClient = esClient;
     this.dbClient = dbClient;
     this.issueIteratorFactory = issueIteratorFactory;
+    this.asyncIssueIndexing = asyncIssueIndexing;
   }
 
   @Override
@@ -91,7 +93,17 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
   }
 
   @Override
-  public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+  public Type getType() {
+    return Type.ASYNCHRONOUS;
+  }
+
+  @Override
+  public void triggerAsyncIndexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+    asyncIssueIndexing.triggerOnIndexCreation();
+  }
+
+  @VisibleForTesting
+  public void indexAllIssues() {
     try (IssueIterator issues = issueIteratorFactory.createForAll()) {
       doIndex(issues, Size.LARGE, IndexingListener.FAIL_ON_ERROR);
     }

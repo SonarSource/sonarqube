@@ -86,7 +86,7 @@ public class IssueUpdaterTest {
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private ArgumentCaptor<IssuesChangesNotification> notificationArgumentCaptor = ArgumentCaptor.forClass(IssuesChangesNotification.class);
 
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private IssueUpdater underTest = new IssueUpdater(dbClient,

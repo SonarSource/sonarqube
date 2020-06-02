@@ -139,7 +139,7 @@
     </where>
   </sql>
 
-  <select id="selectEligibleForPeek" resultType="String">
+  <select id="selectEligibleForPeek" parameterType="map" resultType="String">
     select cq.uuid
     <include refid="sqlSelectEligibleForPeek"/>
     <include refid="orderBySelectEligibleForPeek"/>
@@ -182,6 +182,9 @@
     where
       cq.status='PENDING'
       and cq.started_at is null
+      <if test="excludeIndexationJob">
+        and cq.task_type &lt;&gt; 'ISSUE_SYNC'
+      </if>
       and not exists (
         select
           1

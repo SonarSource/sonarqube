@@ -87,7 +87,7 @@ public class SearchActionFacetsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private StartupIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), es.client(), issueIndexer);
   private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.systemUTC(), userSession);
   private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, db.getDbClient(), new TransitionService(userSession, null));
@@ -595,7 +595,7 @@ public class SearchActionFacetsTest {
   }
 
   private void indexIssues() {
-    issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
+    issueIndexer.indexAllIssues();
   }
 
 }

@@ -17,34 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+@ParametersAreNonnullByDefault
+package org.sonar.server.issue.index;
 
-import java.util.Set;
-
-/**
- * This kind of indexers get initialized during web server startup.
- */
-public interface StartupIndexer {
-  enum Type {
-    SYNCHRONOUS, ASYNCHRONOUS
-  }
-
-  default Type getType() {
-    return Type.SYNCHRONOUS;
-  }
-
-  default void triggerAsyncIndexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-    throw new IllegalStateException("ASYNCHRONE StartupIndexer must implement initAsyncIndexOnStartup");
-  }
-
-  /**
-   * This reindexing method will only be called on startup, and only,
-   * if there is at least one uninitialized type.
-   */
-  default void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-    throw new IllegalStateException("SYNCHRONE StartupIndexer must implement indexOnStartup");
-  }
-
-  Set<IndexType> getIndexTypes();
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -53,6 +53,7 @@ import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.cleaning.NoopCeCleaningSchedulerImpl;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
+import org.sonar.ce.issue.index.NoAsyncIssueIndexing;
 import org.sonar.ce.logging.CeProcessLogging;
 import org.sonar.ce.monitoring.CEQueueStatusImpl;
 import org.sonar.ce.monitoring.DistributedCEQueueStatusImpl;
@@ -64,6 +65,7 @@ import org.sonar.ce.task.projectanalysis.ProjectAnalysisTaskModule;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
+import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.core.component.DefaultResourceTypes;
@@ -402,6 +404,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       // issues
       IssueStorage.class,
+      NoAsyncIssueIndexing.class,
       IssueIndexer.class,
       IssueIteratorFactory.class,
       IssueFieldsSetter.class, // used in Web Services and CE's DebtCalculator
@@ -439,6 +442,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       CeHttpModule.class,
       CeTaskCommonsModule.class,
       ProjectAnalysisTaskModule.class,
+      IssueSyncTaskModule.class,
       CeTaskProcessorModule.class,
       OfficialDistribution.class,
 

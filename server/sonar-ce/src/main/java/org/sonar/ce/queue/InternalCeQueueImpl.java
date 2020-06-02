@@ -73,7 +73,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   }
 
   @Override
-  public Optional<CeTask> peek(String workerUuid) {
+  public Optional<CeTask> peek(String workerUuid, boolean excludeIndexationJob) {
     requireNonNull(workerUuid, "workerUuid can't be null");
 
     if (computeEngineStatus.getStatus() != ComputeEngineStatus.Status.STARTED || getWorkersPauseStatus() != WorkersPauseStatus.RESUMED) {
@@ -86,20 +86,20 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         dbSession.commit();
         LOG.debug("{} in progress tasks reset for worker uuid {}", i, workerUuid);
       }
-      Optional<CeQueueDto> opt = ceQueueDao.peek(dbSession, workerUuid);
-      if (opt.isPresent()) {
-        CeQueueDto taskDto = opt.get();
-        Map<String, ComponentDto> componentsByUuid = loadComponentDtos(dbSession, taskDto);
-        Map<String, String> characteristics = dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbSession, singletonList(taskDto.getUuid())).stream()
-          .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
-
-        CeTask task = convertToTask(dbSession, taskDto, characteristics,
-          ofNullable(taskDto.getComponentUuid()).map(componentsByUuid::get).orElse(null),
-          ofNullable(taskDto.getMainComponentUuid()).map(componentsByUuid::get).orElse(null));
-        queueStatus.addInProgress();
-        return Optional.of(task);
+      Optional<CeQueueDto> opt = ceQueueDao.peek(dbSession, workerUuid, excludeIndexationJob);
+      if (!opt.isPresent()) {
+        return Optional.empty();
       }
-      return Optional.empty();
+      CeQueueDto taskDto = opt.get();
+      Map<String, ComponentDto> componentsByUuid = loadComponentDtos(dbSession, taskDto);
+      Map<String, String> characteristics = dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbSession, singletonList(taskDto.getUuid())).stream()
+        .collect(uniqueIndex(CeTaskCharacteristicDto::getKey, CeTaskCharacteristicDto::getValue));
+
+      CeTask task = convertToTask(dbSession, taskDto, characteristics,
+        ofNullable(taskDto.getComponentUuid()).map(componentsByUuid::get).orElse(null),
+        ofNullable(taskDto.getMainComponentUuid()).map(componentsByUuid::get).orElse(null));
+      queueStatus.addInProgress();
+      return Optional.of(task);
     }
   }
 

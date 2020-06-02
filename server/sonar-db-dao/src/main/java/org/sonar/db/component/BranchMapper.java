@@ -60,4 +60,10 @@ public interface BranchMapper {
 
   int countAll();
 
+  List<BranchDto> selectBranchNeedingIssueSync();
+
+  long updateAllNeedIssueSync(@Param("now") long now);
+
+  long updateNeedIssueSync(@Param("uuid") String uuid, @Param("needIssueSync")boolean needIssueSync,@Param("now") long now);
+
 }

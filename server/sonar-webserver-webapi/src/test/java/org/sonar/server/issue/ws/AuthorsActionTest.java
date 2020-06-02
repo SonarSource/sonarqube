@@ -70,7 +70,7 @@ public class AuthorsActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
   private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
@@ -88,7 +88,7 @@ public class AuthorsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
     AuthorsResponse result = ws.newRequest().executeProtobuf(AuthorsResponse.class);
@@ -105,7 +105,7 @@ public class AuthorsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
     AuthorsResponse result = ws.newRequest()
@@ -129,7 +129,7 @@ public class AuthorsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     userSession.logIn().addMembership(organization1);
 
     assertThat(ws.newRequest()
@@ -159,7 +159,7 @@ public class AuthorsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     userSession.logIn().addMembership(organization);
 
     assertThat(ws.newRequest()
@@ -191,7 +191,7 @@ public class AuthorsActionTest {
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
 
@@ -211,7 +211,7 @@ public class AuthorsActionTest {
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(defaultOrganization);
 
@@ -232,7 +232,7 @@ public class AuthorsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
     AuthorsResponse result = ws.newRequest().executeProtobuf(AuthorsResponse.class);
@@ -253,7 +253,7 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(han));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
     AuthorsResponse result = ws.newRequest()
@@ -274,7 +274,7 @@ public class AuthorsActionTest {
     UserDto user = db.users().insertUser();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     userSession.logIn(user).addMembership(db.getDefaultOrganization());
 
     // User has no permission on project
@@ -292,12 +292,16 @@ public class AuthorsActionTest {
     permissionIndexer.allowOnlyAnyone(project);
     db.issues().insertHotspot(project, project, issue -> issue
       .setAuthorLogin(luke));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
     AuthorsResponse result = ws.newRequest().executeProtobuf(AuthorsResponse.class);
 
     assertThat(result.getAuthorsList()).isEmpty();
+  }
+
+  private void indexIssues() {
+    issueIndexer.indexAllIssues();
   }
 
   @Test
@@ -391,7 +395,7 @@ public class AuthorsActionTest {
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("luke.skywalker"));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("leia.organa"));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     userSession.logIn().addMembership(db.getDefaultOrganization());
 
     String result = ws.newRequest().execute().getInput();

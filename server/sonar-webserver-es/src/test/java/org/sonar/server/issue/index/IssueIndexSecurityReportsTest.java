@@ -71,7 +71,7 @@ public class IssueIndexSecurityReportsTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
 

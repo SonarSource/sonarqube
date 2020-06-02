@@ -22,6 +22,7 @@ package org.sonar.db.ce;
 public final class CeTaskTypes {
   
   public static final String REPORT = "REPORT";
+  public static final String BRANCH_ISSUE_SYNC = "ISSUE_SYNC";
 
   private CeTaskTypes() {
     // only statics

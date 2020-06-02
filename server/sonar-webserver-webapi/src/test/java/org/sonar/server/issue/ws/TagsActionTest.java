@@ -69,7 +69,7 @@ public class TagsActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
   private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
@@ -82,7 +82,7 @@ public class TagsActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project);
 
     TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
@@ -98,7 +98,7 @@ public class TagsActionTest {
     Consumer<IssueDto> setTags = issue -> issue.setTags(asList("tag1", "tag2"));
     db.issues().insertIssue(issueRule, project, project, setTags);
     db.issues().insertHotspot(hotspotRule, project, project, setTags);
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project);
     TestRequest testRequest = ws.newRequest();
 
@@ -111,7 +111,7 @@ public class TagsActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag12", "tag4", "tag5")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project);
 
     assertThat(tagListOf(ws.newRequest().setParam("q", "ag1"))).containsExactly("tag1", "tag12");
@@ -124,7 +124,7 @@ public class TagsActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(asList("tag1", "tag12", "tag4", "tag5")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project);
     TestRequest testRequest = ws.newRequest();
 
@@ -147,7 +147,7 @@ public class TagsActionTest {
     OrganizationDto organization2 = db.organizations().insert();
     ComponentDto project2 = db.components().insertPrivateProject(organization2);
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
     assertThat(tagListOf(ws.newRequest().setParam("organization", organization1.getKey()))).containsExactly("tag1", "tag2");
@@ -167,7 +167,7 @@ public class TagsActionTest {
     ComponentDto project2 = db.components().insertPrivateProject(organization2);
     db.issues().insertIssue(issueRule, project2, project2, issue -> issue.setTags(singletonList("tag5")));
     db.issues().insertHotspot(hotspotRule, project2, project2, issue -> issue.setTags(singletonList("tag6")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
     assertThat(tagListOf(ws.newRequest().setParam("organization", organization1.getKey()))).containsExactly("tag1", "tag2");
@@ -181,7 +181,7 @@ public class TagsActionTest {
     ComponentDto project2 = db.components().insertPrivateProject(organization);
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(singletonList("tag1")));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag2")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
     assertThat(tagListOf(ws.newRequest()
@@ -200,7 +200,7 @@ public class TagsActionTest {
     db.issues().insertIssue(issueRule, project1, project1, issue -> issue.setTags(singletonList("tag2")));
     db.issues().insertHotspot(hotspotRule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
     db.issues().insertIssue(issueRule, project2, project2, issue -> issue.setTags(singletonList("tag4")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
     assertThat(tagListOf(ws.newRequest()
@@ -217,7 +217,7 @@ public class TagsActionTest {
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
 
@@ -235,7 +235,7 @@ public class TagsActionTest {
     RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
     db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(singletonList("cwe")));
     db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(singletonList("foo")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
 
@@ -251,7 +251,7 @@ public class TagsActionTest {
     permissionIndexer.allowOnlyAnyone(project);
     RuleDefinitionDto rule = db.rules().insertIssueRule();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
 
@@ -269,7 +269,7 @@ public class TagsActionTest {
     RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule();
     db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(singletonList("cwe")));
     db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(singletonList("foo")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     viewIndexer.indexOnStartup(emptySet());
     userSession.logIn().addMembership(organization);
 
@@ -282,7 +282,7 @@ public class TagsActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project);
 
     TagsResponse result = ws.newRequest()
@@ -299,7 +299,7 @@ public class TagsActionTest {
     ComponentDto project2 = db.components().insertPrivateProject();
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setTags(asList("tag1", "tag2")));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(asList("tag3", "tag4", "tag5")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     // Project 2 is not visible to current user
     permissionIndexer.allowOnlyAnyone(project1);
 
@@ -319,7 +319,7 @@ public class TagsActionTest {
     OrganizationDto organization2 = db.organizations().insert();
     ComponentDto project2 = db.components().insertPrivateProject(organization2);
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setTags(singletonList("tag3")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project1, project2);
 
     TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
@@ -339,7 +339,7 @@ public class TagsActionTest {
     OrganizationDto organization = db.organizations().insert();
     OrganizationDto otherOrganization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(otherOrganization);
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project, project);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -351,12 +351,16 @@ public class TagsActionTest {
       .execute();
   }
 
+  private void indexIssues() {
+    issueIndexer.indexAllIssues();
+  }
+
   @Test
   public void fail_when_project_parameter_does_not_match_a_project() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project, project);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -374,7 +378,7 @@ public class TagsActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(asList("convention", "security")));
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
-    issueIndexer.indexOnStartup(emptySet());
+    indexIssues();
     permissionIndexer.allowOnlyAnyone(project);
 
     String result = ws.newRequest().execute().getInput();

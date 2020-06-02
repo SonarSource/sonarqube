@@ -84,7 +84,7 @@ public class IssueIndexTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private PermissionIndexerTester authorizationIndexer = new PermissionIndexerTester(es, issueIndexer);
 

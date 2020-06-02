@@ -36,7 +36,7 @@ public interface CeQueueMapper {
 
   int countByQuery(@Param("query") CeTaskQuery query);
 
-  List<String> selectEligibleForPeek(@Param("pagination") Pagination pagination);
+  List<String> selectEligibleForPeek(@Param("pagination") Pagination pagination, @Param("excludeIndexationJob") boolean excludeIndexationJob);
 
   @CheckForNull
   CeQueueDto selectByUuid(@Param("uuid") String uuid);

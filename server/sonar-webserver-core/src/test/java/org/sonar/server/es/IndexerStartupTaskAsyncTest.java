@@ -23,21 +23,23 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexImpl;
 import org.sonar.server.es.newindex.FakeIndexDefinition;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.es.newindex.FakeIndexDefinition.TYPE_FAKE;
 
-public class IndexerStartupTaskTest {
+public class IndexerStartupTaskAsyncTest {
 
   @Rule
   public EsTester es = EsTester.createCustom(new FakeIndexDefinition());
@@ -49,18 +51,17 @@ public class IndexerStartupTaskTest {
 
   @Before
   public void setUp() {
-    when(indexer.getType()).thenReturn(StartupIndexer.Type.SYNCHRONOUS);
+    when(indexer.getType()).thenReturn(StartupIndexer.Type.ASYNCHRONOUS);
     doReturn(ImmutableSet.of(TYPE_FAKE)).when(indexer).getIndexTypes();
   }
 
   @Test
-  public void index_if_not_initialized() {
+  public void test(){
     doReturn(false).when(metadataIndex).getInitialized(TYPE_FAKE);
 
     underTest.execute();
 
-    verify(indexer).getIndexTypes();
-    verify(indexer).indexOnStartup(Mockito.eq(ImmutableSet.of(TYPE_FAKE)));
+    verify(indexer, times(1)).triggerAsyncIndexOnStartup(anySet());
   }
 
   @Test
