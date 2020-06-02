@@ -135,8 +135,19 @@
     select count(pb.uuid)
     from project_branches pb
     where
-      pb.branch_type = #{branchType, jdbcType=VARCHAR}
-      and pb.created_at &gt;= #{sinceDate, jdbcType=BIGINT}
+    pb.branch_type = #{branchType, jdbcType=VARCHAR}
+    and pb.created_at &gt;= #{sinceDate, jdbcType=BIGINT}
+  </select>
+
+  <select id="hasAnyBranchWhereNeedIssueSync" parameterType="map" resultType="short">
+    select
+    case when exists
+    (
+    select pb.uuid from project_branches pb where need_issue_sync = #{needIssueSync, jdbcType=BOOLEAN}
+    )
+    then 1
+    else 0
+    end
   </select>
 
 </mapper>

@@ -539,6 +539,22 @@ public class BranchDaoTest {
   }
 
   @Test
+  public void hasAnyBranchWhereNeedIssueSync() {
+    assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, true)).isFalse();
+    assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, false)).isFalse();
+
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setNeedIssueSync(false));
+
+    assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, true)).isFalse();
+    assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, false)).isTrue();
+
+    project = db.components().insertPrivateProject();
+    branch = db.components().insertProjectBranch(project, b -> b.setNeedIssueSync(true));
+    assertThat(underTest.hasAnyBranchWhereNeedIssueSync(dbSession, true)).isTrue();
+  }
+
+  @Test
   public void countByTypeAndCreationDate() {
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.BRANCH, 0L)).isEqualTo(0);
 

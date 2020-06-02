@@ -55,4 +55,5 @@ public interface BranchMapper {
 
   long countByTypeAndCreationDate(@Param("branchType") String branchType, @Param("sinceDate") long sinceDate);
 
+  short hasAnyBranchWhereNeedIssueSync(@Param("needIssueSync") boolean needIssueSync);
 }

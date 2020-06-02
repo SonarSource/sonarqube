@@ -119,6 +119,10 @@ public class BranchDao implements Dao {
     return executeLargeInputs(uuids, mapper(session)::selectProjectUuidsWithIssuesNeedSync);
   }
 
+  public boolean hasAnyBranchWhereNeedIssueSync(DbSession session, boolean needIssueSync) {
+    return mapper(session).hasAnyBranchWhereNeedIssueSync(needIssueSync) > 0;
+  }
+
   public boolean hasNonMainBranches(DbSession dbSession) {
     return mapper(dbSession).countNonMainBranches() > 0L;
   }
