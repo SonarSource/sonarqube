@@ -19,6 +19,7 @@
  */
 import { getJSON, post, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { IndexationStatus } from '../types/indexation';
 
 export function getAnalysisStatus(data: {
   component: string;
@@ -82,4 +83,8 @@ export function getWorkers(): Promise<{ canSetWorkerCount: boolean; value: numbe
 
 export function setWorkerCount(count: number): Promise<void | Response> {
   return post('/api/ce/set_worker_count', { count }).catch(throwGlobalError);
+}
+
+export function getIndexationStatus(): Promise<IndexationStatus> {
+  return getJSON('/api/ce/indexation_status').catch(throwGlobalError);
 }

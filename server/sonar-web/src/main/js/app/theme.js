@@ -193,6 +193,8 @@ module.exports = {
     pageMainZIndex: '50',
     pageSideZIndex: '51',
 
+    globalBannerZIndex: '60',
+
     tooltipZIndex: '8000',
 
     dropdownMenuZIndex: '7500',

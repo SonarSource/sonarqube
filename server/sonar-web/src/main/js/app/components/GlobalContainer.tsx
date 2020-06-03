@@ -24,6 +24,8 @@ import A11ySkipLinks from './a11y/A11ySkipLinks';
 import SuggestionsProvider from './embed-docs-modal/SuggestionsProvider';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
+import IndexationContextProvider from './indexation/IndexationContextProvider';
+import IndexationNotification from './indexation/IndexationNotification';
 import GlobalNav from './nav/global/GlobalNav';
 import StartupModal from './StartupModal';
 
@@ -46,9 +48,12 @@ export default function GlobalContainer(props: Props) {
             <div className="page-wrapper" id="container">
               <div className="page-container">
                 <Workspace>
-                  <GlobalNav location={props.location} />
-                  <GlobalMessagesContainer />
-                  {props.children}
+                  <IndexationContextProvider>
+                    <GlobalNav location={props.location} />
+                    <GlobalMessagesContainer />
+                    <IndexationNotification />
+                    {props.children}
+                  </IndexationContextProvider>
                 </Workspace>
               </div>
             </div>

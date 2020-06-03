@@ -16,21 +16,24 @@ exports[`should render correctly 1`] = `
             className="page-container"
           >
             <Workspace>
-              <Connect(GlobalNav)
-                location={
-                  Object {
-                    "action": "PUSH",
-                    "hash": "",
-                    "key": "key",
-                    "pathname": "/path",
-                    "query": Object {},
-                    "search": "",
-                    "state": Object {},
+              <Connect(withAppState(IndexationContextProvider))>
+                <Connect(GlobalNav)
+                  location={
+                    Object {
+                      "action": "PUSH",
+                      "hash": "",
+                      "key": "key",
+                      "pathname": "/path",
+                      "query": Object {},
+                      "search": "",
+                      "state": Object {},
+                    }
                   }
-                }
-              />
-              <Connect(GlobalMessages) />
-              <ChildComponent />
+                />
+                <Connect(GlobalMessages) />
+                <withIndexationContext(IndexationNotification) />
+                <ChildComponent />
+              </Connect(withAppState(IndexationContextProvider))>
             </Workspace>
           </div>
         </div>

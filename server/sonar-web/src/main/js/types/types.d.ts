@@ -100,6 +100,7 @@ declare namespace T {
     edition: 'community' | 'developer' | 'enterprise' | 'datacenter' | undefined;
     globalPages?: Extension[];
     multipleAlmEnabled?: boolean;
+    needIssueSync?: boolean;
     organizationsEnabled?: boolean;
     productionDatabase: boolean;
     qualifiers: string[];

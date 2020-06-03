@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: completed 1`] = `
+<div
+  className="indexation-notification-wrapper"
+>
+  <Alert
+    className="indexation-notification-banner"
+    display="banner"
+    variant="success"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span>
+        indexation.completed
+      </span>
+      <ButtonLink
+        className="spacer-left"
+        onClick={[MockFunction]}
+      >
+        <strong>
+          dismiss
+        </strong>
+      </ButtonLink>
+    </div>
+  </Alert>
+</div>
+`;
+
+exports[`should render correctly: in-progress 1`] = `
+<div
+  className="indexation-notification-wrapper"
+>
+  <Alert
+    className="indexation-notification-banner"
+    display="banner"
+    variant="warning"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span>
+        indexation.in_progress
+      </span>
+      <i
+        className="spinner spacer-left"
+      />
+      <span
+        className="spacer-left"
+      >
+        indexation.in_progress.details.25
+      </span>
+    </div>
+  </Alert>
+</div>
+`;
