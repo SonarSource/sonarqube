@@ -22,8 +22,7 @@ package org.sonar.db.alm.setting;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -38,20 +37,18 @@ public class AlmSettingDaoTest {
 
   private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  private System2 system2 = mock(System2.class);
+  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
   public DbTester db = DbTester.create(system2);
 
   private DbSession dbSession = db.getSession();
   private UuidFactory uuidFactory = mock(UuidFactory.class);
+
   private AlmSettingDao underTest = new AlmSettingDao(system2, uuidFactory);
 
   @Test
   public void selectByUuid() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
 
     AlmSettingDto almSettingDto = newGithubAlmSettingDto();
     underTest.insert(dbSession, almSettingDto);
@@ -70,7 +67,6 @@ public class AlmSettingDaoTest {
   @Test
   public void selectByKey() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
 
     AlmSettingDto almSettingDto = AlmSettingsTesting.newGithubAlmSettingDto();
     underTest.insert(dbSession, almSettingDto);
@@ -89,7 +85,6 @@ public class AlmSettingDaoTest {
   @Test
   public void selectByAlm() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
     AlmSettingDto gitHubAlmSetting1 = db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto gitHubAlmSetting2 = db.almSettings().insertGitHubAlmSetting();
     AlmSettingDto azureAlmSetting2 = db.almSettings().insertAzureAlmSetting();
@@ -104,7 +99,6 @@ public class AlmSettingDaoTest {
   @Test
   public void selectAll() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
     underTest.insert(dbSession, newGithubAlmSettingDto());
     when(uuidFactory.create()).thenReturn(A_UUID + "bis");
     underTest.insert(dbSession, newGithubAlmSettingDto());
@@ -117,7 +111,6 @@ public class AlmSettingDaoTest {
   @Test
   public void update() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
     AlmSettingDto almSettingDto = newGithubAlmSettingDto();
     underTest.insert(dbSession, almSettingDto);
 
@@ -127,7 +120,7 @@ public class AlmSettingDaoTest {
     almSettingDto.setPersonalAccessToken("updated pat");
     almSettingDto.setKey("updated key");
 
-    when(system2.now()).thenReturn(NOW + 1);
+    system2.setNow(NOW + 1);
     underTest.update(dbSession, almSettingDto);
 
     AlmSettingDto result = underTest.selectByUuid(dbSession, A_UUID).get();
@@ -143,7 +136,6 @@ public class AlmSettingDaoTest {
   @Test
   public void delete() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
     AlmSettingDto almSettingDto = newGithubAlmSettingDto();
     underTest.insert(dbSession, almSettingDto);
 

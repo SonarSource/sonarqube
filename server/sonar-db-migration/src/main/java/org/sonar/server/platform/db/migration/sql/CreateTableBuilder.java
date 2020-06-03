@@ -21,8 +21,6 @@ package org.sonar.server.platform.db.migration.sql;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,8 +30,6 @@ import java.util.Locale;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -66,12 +62,6 @@ public class CreateTableBuilder {
   public CreateTableBuilder(Dialect dialect, String tableName) {
     this.dialect = requireNonNull(dialect, "dialect can't be null");
     this.tableName = validateTableName(tableName);
-  }
-
-  public boolean tableExists(Database database) throws SQLException {
-    try (Connection connection = database.getDataSource().getConnection()) {
-      return DatabaseUtils.tableExists(tableName, connection);
-    }
   }
 
   public List<String> build() {

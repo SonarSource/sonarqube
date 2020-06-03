@@ -19,10 +19,8 @@
  */
 package org.sonar.server.platform.db.migration.version.v82;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
@@ -90,9 +88,6 @@ public class CreateProjectsTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (tableExists()) {
-      return;
-    }
     context.execute(new CreateTableBuilder(getDialect(), TABLE_NAME)
       .withPkConstraintName("pk_new_projects")
       .addPkColumn(UUID_COLUMN)
@@ -119,11 +114,5 @@ public class CreateProjectsTable extends DdlChange {
       .setName("idx_qualifier")
       .addColumn(QUALIFIER_COLUMN)
       .build());
-  }
-
-  private boolean tableExists() throws SQLException {
-    try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.tableExists(TABLE_NAME, connection);
-    }
   }
 }

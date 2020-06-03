@@ -30,9 +30,9 @@ public interface AlmPatMapper {
   @CheckForNull
   AlmPatDto selectByUserAndAlmSetting(@Param("userUuid") String userUuid, @Param("almSettingUuid") String almSettingUuid);
 
-  void insert(@Param("dto") AlmPatDto almPatDto, @Param("uuid") String uuid, @Param("now") long now);
+  void insert(@Param("dto") AlmPatDto almPatDto);
 
-  void update(@Param("dto") AlmPatDto almPatDto, @Param("now") long now);
+  void update(@Param("dto") AlmPatDto almPatDto);
 
   void deleteByUuid(@Param("uuid") String uuid);
 

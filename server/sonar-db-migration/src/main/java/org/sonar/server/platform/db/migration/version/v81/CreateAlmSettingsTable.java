@@ -19,10 +19,8 @@
  */
 package org.sonar.server.platform.db.migration.version.v81;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.sql.CreateTableBuilder;
@@ -48,9 +46,6 @@ public class CreateAlmSettingsTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (tableExists()) {
-      return;
-    }
     context.execute(new CreateTableBuilder(getDialect(), TABLE_NAME)
       .addPkColumn(newVarcharColumnDefBuilder()
         .setColumnName("uuid")
@@ -99,11 +94,5 @@ public class CreateAlmSettingsTable extends DdlChange {
       .setName("uniq_alm_settings")
       .setUnique(true)
       .build());
-  }
-
-  private boolean tableExists() throws SQLException {
-    try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.tableExists(TABLE_NAME, connection);
-    }
   }
 }

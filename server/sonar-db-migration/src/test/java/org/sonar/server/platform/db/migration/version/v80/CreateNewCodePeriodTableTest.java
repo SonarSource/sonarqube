@@ -54,9 +54,6 @@ public class CreateNewCodePeriodTableTest {
     dbTester.assertColumnDefinition(TABLE_NAME, "value", VARCHAR, 40, true);
     dbTester.assertColumnDefinition(TABLE_NAME, "updated_at", BIGINT, 20, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, 20, false);
-
-    //script should not fail if executed twice
-    underTest.execute();
   }
 
 }

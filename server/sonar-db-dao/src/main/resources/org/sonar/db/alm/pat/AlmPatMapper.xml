@@ -41,12 +41,12 @@
       updated_at
     )
     VALUES (
-      #{uuid, jdbcType=VARCHAR},
+      #{dto.uuid, jdbcType=VARCHAR},
       #{dto.personalAccessToken, jdbcType=VARCHAR},
       #{dto.userUuid, jdbcType=VARCHAR},
       #{dto.almSettingUuid, jdbcType=VARCHAR},
-      #{now, jdbcType=BIGINT},
-      #{now, jdbcType=BIGINT}
+      #{dto.createdAt, jdbcType=BIGINT},
+      #{dto.updatedAt, jdbcType=BIGINT}
     )
   </insert>
 
@@ -54,7 +54,7 @@
     UPDATE alm_pats
     <set>
       pat = #{dto.personalAccessToken, jdbcType=VARCHAR},
-      updated_at = #{now, jdbcType=BIGINT}
+      updated_at = #{dto.updatedAt, jdbcType=BIGINT}
     </set>
     <where>
       uuid = #{dto.uuid, jdbcType=VARCHAR}

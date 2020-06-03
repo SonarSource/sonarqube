@@ -48,8 +48,5 @@ public class CreateProjectQualityGatesTableTest {
 
     dbTester.assertColumnDefinition(TABLE_NAME, "project_uuid", VARCHAR, 40, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "quality_gate_uuid", VARCHAR, 40, false);
-
-    //script should not fail if executed twice
-    underTest.execute();
   }
 }

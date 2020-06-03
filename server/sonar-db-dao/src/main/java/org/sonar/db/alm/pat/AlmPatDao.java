@@ -52,16 +52,16 @@ public class AlmPatDao implements Dao {
   public void insert(DbSession dbSession, AlmPatDto almPatDto) {
     String uuid = uuidFactory.create();
     long now = system2.now();
-    getMapper(dbSession).insert(almPatDto, uuid, now);
     almPatDto.setUuid(uuid);
     almPatDto.setCreatedAt(now);
     almPatDto.setUpdatedAt(now);
+    getMapper(dbSession).insert(almPatDto);
   }
 
   public void update(DbSession dbSession, AlmPatDto almPatDto) {
     long now = system2.now();
-    getMapper(dbSession).update(almPatDto, now);
     almPatDto.setUpdatedAt(now);
+    getMapper(dbSession).update(almPatDto);
   }
 
   public void delete(DbSession dbSession, AlmPatDto almPatDto) {
@@ -75,7 +75,5 @@ public class AlmPatDao implements Dao {
   public void deleteByAlmSetting(DbSession dbSession, AlmSettingDto almSetting) {
     getMapper(dbSession).deleteByAlmSetting(almSetting.getUuid());
   }
-
-
 
 }

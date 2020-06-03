@@ -23,8 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -43,9 +42,7 @@ public class ProjectAlmSettingDaoTest {
   private static final long A_DATE_LATER = 1_700_000_000_000L;
 
   private static final String A_UUID = "SOME_UUID";
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  private System2 system2 = mock(System2.class);
+  private TestSystem2 system2 = new TestSystem2().setNow(A_DATE);
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -56,7 +53,6 @@ public class ProjectAlmSettingDaoTest {
   @Test
   public void select_by_project() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto githubAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectDto anotherProject = db.components().insertPrivateProjectDto();
@@ -78,7 +74,6 @@ public class ProjectAlmSettingDaoTest {
   @Test
   public void select_by_alm_setting_and_slugs() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto almSettingsDto = db.almSettings().insertBitbucketAlmSetting();
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto bitbucketProjectAlmSettingDto = newBitbucketProjectAlmSettingDto(almSettingsDto, project);
@@ -99,7 +94,6 @@ public class ProjectAlmSettingDaoTest {
   @Test
   public void select_with_no_slugs_return_empty() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto almSettingsDto = db.almSettings().insertBitbucketAlmSetting();
 
     assertThat(underTest.selectByAlmSettingAndSlugs(dbSession, almSettingsDto, new HashSet<>())).isEmpty();
@@ -108,13 +102,12 @@ public class ProjectAlmSettingDaoTest {
   @Test
   public void update_existing_binding() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     ProjectDto project = db.components().insertPrivateProjectDto();
     ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
     AlmSettingDto anotherGithubAlmSetting = db.almSettings().insertGitHubAlmSetting();
 
-    when(system2.now()).thenReturn(A_DATE_LATER);
+    system2.setNow(A_DATE_LATER);
     ProjectAlmSettingDto newProjectAlmSettingDto = newGithubProjectAlmSettingDto(anotherGithubAlmSetting, project)
       .setSummaryCommentEnabled(false);
     underTest.insertOrUpdate(dbSession, newProjectAlmSettingDto);
@@ -132,7 +125,6 @@ public class ProjectAlmSettingDaoTest {
   @Test
   public void deleteByProject() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     ProjectDto project = db.components().insertPrivateProjectDto();
     db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project);
@@ -148,7 +140,6 @@ public class ProjectAlmSettingDaoTest {
   @Test
   public void deleteByAlmSetting() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(A_DATE);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
     ProjectDto project1 = db.components().insertPrivateProjectDto();
     ProjectDto project2 = db.components().insertPrivateProjectDto();

@@ -35,9 +35,9 @@ public interface AlmSettingMapper {
 
   List<AlmSettingDto> selectAll();
 
-  void insert(@Param("dto") AlmSettingDto almSettingDto, @Param("uuid") String uuid, @Param("now") long now);
+  void insert(@Param("dto") AlmSettingDto almSettingDto);
 
-  void update(@Param("dto") AlmSettingDto almSettingDto, @Param("now") long now);
+  void update(@Param("dto") AlmSettingDto almSettingDto);
 
   void deleteByKey(@Param("key") String key);
 }

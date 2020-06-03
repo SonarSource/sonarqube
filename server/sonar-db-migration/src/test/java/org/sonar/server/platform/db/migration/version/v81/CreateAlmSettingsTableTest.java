@@ -57,9 +57,6 @@ public class CreateAlmSettingsTableTest {
     dbTester.assertColumnDefinition(TABLE_NAME, "pat", VARCHAR, 2000, true);
     dbTester.assertColumnDefinition(TABLE_NAME, "updated_at", BIGINT, 20, false);
     dbTester.assertColumnDefinition(TABLE_NAME, "created_at", BIGINT, 20, false);
-
-    // script should not fail if executed twice
-    underTest.execute();
   }
 
 }

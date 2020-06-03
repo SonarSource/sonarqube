@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
 public class RenameProjectsTableToComponentsTest {
-  private static final String TABLE_NAME = "projects";
+  private static final String OLD_TABLE_NAME = "projects";
   private static final String NEW_TABLE_NAME = "components";
 
   @Rule
@@ -35,27 +35,24 @@ public class RenameProjectsTableToComponentsTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private CreateProjectsTable underTest = new CreateProjectsTable(dbTester.database());
+  private RenameProjectsTableToComponents underTest = new RenameProjectsTableToComponents(dbTester.database());
 
   @Test
   public void table_has_been_renamed() throws SQLException {
-
     underTest.execute();
 
-    dbTester.assertTableExists(TABLE_NAME);
-    dbTester.assertPrimaryKey(TABLE_NAME, "pk_projects", "id");
+    dbTester.assertTableDoesNotExist(OLD_TABLE_NAME);
 
-    dbTester.assertIndex(TABLE_NAME, "PROJECTS_ORGANIZATION", "organization_uuid");
-    dbTester.assertUniqueIndex(TABLE_NAME, "PROJECTS_KEE", "kee");
-    dbTester.assertIndex(TABLE_NAME, "PROJECTS_ROOT_UUID", "root_uuid");
-    dbTester.assertUniqueIndex(TABLE_NAME, "PROJECTS_UUID", "uuid");
-    dbTester.assertIndex(TABLE_NAME, "PROJECTS_PROJECT_UUID", "project_uuid");
-    dbTester.assertIndex(TABLE_NAME, "PROJECTS_MODULE_UUID", "module_uuid");
-    dbTester.assertIndex(TABLE_NAME, "PROJECTS_QUALIFIER", "qualifier");
+    dbTester.assertTableExists(NEW_TABLE_NAME);
+    dbTester.assertPrimaryKey(NEW_TABLE_NAME, "pk_projects", "id");
 
-    underTest.execute();
-
-    dbTester.assertTableExists(TABLE_NAME);
+    dbTester.assertIndex(NEW_TABLE_NAME, "PROJECTS_ORGANIZATION", "organization_uuid");
+    dbTester.assertUniqueIndex(NEW_TABLE_NAME, "PROJECTS_KEE", "kee");
+    dbTester.assertIndex(NEW_TABLE_NAME, "PROJECTS_ROOT_UUID", "root_uuid");
+    dbTester.assertUniqueIndex(NEW_TABLE_NAME, "PROJECTS_UUID", "uuid");
+    dbTester.assertIndex(NEW_TABLE_NAME, "PROJECTS_PROJECT_UUID", "project_uuid");
+    dbTester.assertIndex(NEW_TABLE_NAME, "PROJECTS_MODULE_UUID", "module_uuid");
+    dbTester.assertIndex(NEW_TABLE_NAME, "PROJECTS_QUALIFIER", "qualifier");
   }
 
 }

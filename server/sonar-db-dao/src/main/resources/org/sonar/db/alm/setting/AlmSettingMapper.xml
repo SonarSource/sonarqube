@@ -59,15 +59,15 @@
       updated_at
     )
     VALUES (
-      #{uuid, jdbcType=VARCHAR},
+      #{dto.uuid, jdbcType=VARCHAR},
       #{dto.key, jdbcType=VARCHAR},
       #{dto.rawAlm, jdbcType=VARCHAR},
       #{dto.url, jdbcType=VARCHAR},
       #{dto.appId, jdbcType=VARCHAR},
       #{dto.privateKey, jdbcType=VARCHAR},
       #{dto.personalAccessToken, jdbcType=VARCHAR},
-      #{now, jdbcType=BIGINT},
-      #{now, jdbcType=BIGINT}
+      #{dto.createdAt, jdbcType=BIGINT},
+      #{dto.updatedAt, jdbcType=BIGINT}
     )
   </insert>
 
@@ -79,7 +79,7 @@
       app_id = #{dto.appId, jdbcType=VARCHAR},
       private_key = #{dto.privateKey, jdbcType=VARCHAR},
       pat = #{dto.personalAccessToken, jdbcType=VARCHAR},
-      updated_at = #{now, jdbcType=BIGINT}
+      updated_at = #{dto.updatedAt, jdbcType=BIGINT}
     </set>
     <where>
       uuid = #{dto.uuid, jdbcType=VARCHAR}

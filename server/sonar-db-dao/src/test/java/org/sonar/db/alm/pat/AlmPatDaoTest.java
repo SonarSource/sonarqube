@@ -21,8 +21,7 @@ package org.sonar.db.alm.pat;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
+import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,25 +36,23 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 
-public class ALMPatDaoTest {
+public class AlmPatDaoTest {
 
   private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  private System2 system2 = mock(System2.class);
+  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
   @Rule
   public DbTester db = DbTester.create(system2);
 
   private DbSession dbSession = db.getSession();
   private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private AlmPatDao underTest = new AlmPatDao(system2, uuidFactory);
   private AlmSettingDao almSettingDao = new AlmSettingDao(system2, uuidFactory);
+
+  private AlmPatDao underTest = new AlmPatDao(system2, uuidFactory);
 
   @Test
   public void selectByUuid() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
 
     AlmPatDto almPatDto = newAlmPatDto();
     underTest.insert(dbSession, almPatDto);
@@ -74,7 +71,6 @@ public class ALMPatDaoTest {
   @Test
   public void selectByAlmSetting() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
 
     AlmSettingDto almSetting = newGithubAlmSettingDto();
     almSettingDao.insert(dbSession, almSetting);
@@ -98,14 +94,13 @@ public class ALMPatDaoTest {
   @Test
   public void update() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
     AlmPatDto almPatDto = newAlmPatDto();
     underTest.insert(dbSession, almPatDto);
 
     String updated_pat = "updated pat";
     almPatDto.setPersonalAccessToken(updated_pat);
 
-    when(system2.now()).thenReturn(NOW + 1);
+    system2.setNow(NOW + 1);
     underTest.update(dbSession, almPatDto);
 
     AlmPatDto result = underTest.selectByUuid(dbSession, A_UUID).get();
@@ -116,13 +111,11 @@ public class ALMPatDaoTest {
       .containsExactly(A_UUID, updated_pat, almPatDto.getUserUuid(),
         almPatDto.getAlmSettingUuid(),
         NOW, NOW + 1);
-
   }
 
   @Test
   public void delete() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
     AlmPatDto almPat = newAlmPatDto();
     underTest.insert(dbSession, almPat);
 
@@ -134,7 +127,6 @@ public class ALMPatDaoTest {
   @Test
   public void deleteByUser() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
     UserDto userDto = db.users().insertUser();
     AlmPatDto almPat = newAlmPatDto();
     almPat.setUserUuid(userDto.getUuid());
@@ -148,7 +140,6 @@ public class ALMPatDaoTest {
   @Test
   public void deleteByAlmSetting() {
     when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(NOW);
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
     AlmPatDto almPat = newAlmPatDto();
     almPat.setAlmSettingUuid(almSettingDto.getUuid());

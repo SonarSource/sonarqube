@@ -43,10 +43,10 @@ public class AlmSettingDao implements Dao {
   public void insert(DbSession dbSession, AlmSettingDto almSettingDto) {
     String uuid = uuidFactory.create();
     long now = system2.now();
-    getMapper(dbSession).insert(almSettingDto, uuid, now);
     almSettingDto.setUuid(uuid);
     almSettingDto.setCreatedAt(now);
     almSettingDto.setUpdatedAt(now);
+    getMapper(dbSession).insert(almSettingDto);
   }
 
   public Optional<AlmSettingDto> selectByUuid(DbSession dbSession, String uuid) {
@@ -61,18 +61,17 @@ public class AlmSettingDao implements Dao {
     return getMapper(dbSession).selectByAlm(alm.getId());
   }
 
-
   public List<AlmSettingDto> selectAll(DbSession dbSession) {
     return getMapper(dbSession).selectAll();
   }
 
-  public void delete(DbSession dbSession, AlmSettingDto almSettingDto){
+  public void delete(DbSession dbSession, AlmSettingDto almSettingDto) {
     getMapper(dbSession).deleteByKey(almSettingDto.getKey());
   }
 
   public void update(DbSession dbSession, AlmSettingDto almSettingDto) {
     long now = system2.now();
-    getMapper(dbSession).update(almSettingDto, now);
     almSettingDto.setUpdatedAt(now);
+    getMapper(dbSession).update(almSettingDto);
   }
 }

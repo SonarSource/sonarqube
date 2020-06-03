@@ -19,10 +19,8 @@
  */
 package org.sonar.server.platform.db.migration.version.v80;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.SupportsBlueGreen;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
@@ -54,9 +52,6 @@ public class CreateProjectQualityGatesTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (tableExists()) {
-      return;
-    }
     context.execute(new CreateTableBuilder(getDialect(), TABLE_NAME)
       .addPkColumn(PROJECT_UUID_COLUMN)
       .addColumn(QUALITY_GATE_UUID_COLUMN)
@@ -69,11 +64,5 @@ public class CreateProjectQualityGatesTable extends DdlChange {
       .addColumn(PROJECT_UUID_COLUMN)
       .addColumn(QUALITY_GATE_UUID_COLUMN)
       .build());
-  }
-
-  private boolean tableExists() throws SQLException {
-    try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.tableExists(TABLE_NAME, connection);
-    }
   }
 }

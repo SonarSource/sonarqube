@@ -19,10 +19,8 @@
  */
 package org.sonar.server.platform.db.migration.version.v80;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
@@ -32,7 +30,6 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.newBigIntegerColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
-
 
 public class CreateNewCodePeriodTable extends DdlChange {
 
@@ -84,16 +81,12 @@ public class CreateNewCodePeriodTable extends DdlChange {
     .setIsNullable(false)
     .build();
 
-
   public CreateNewCodePeriodTable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (tableExists()) {
-      return;
-    }
     context.execute(new CreateTableBuilder(getDialect(), TABLE_NAME)
       .addPkColumn(UUID_COLUMN)
       .addColumn(PROJECT_UUID_COLUMN)
@@ -113,9 +106,4 @@ public class CreateNewCodePeriodTable extends DdlChange {
       .build());
   }
 
-  private boolean tableExists() throws SQLException {
-    try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.tableExists(TABLE_NAME, connection);
-    }
-  }
 }
