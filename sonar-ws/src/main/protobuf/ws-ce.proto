@@ -52,6 +52,12 @@ message ActivityStatusWsResponse {
   optional int64 pendingTime = 4;
 }
 
+// GET api/ce/indexation_status
+message IndexationStatusWsResponse {
+  optional bool isCompleted = 1;
+  optional int32 percentCompleted = 2;
+}
+
 // GET api/ce/analysis_status
 message AnalysisStatusWsResponse {
   optional Component component = 1;

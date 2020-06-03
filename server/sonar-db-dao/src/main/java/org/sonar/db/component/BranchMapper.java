@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
@@ -56,4 +55,9 @@ public interface BranchMapper {
   long countByTypeAndCreationDate(@Param("branchType") String branchType, @Param("sinceDate") long sinceDate);
 
   short hasAnyBranchWhereNeedIssueSync(@Param("needIssueSync") boolean needIssueSync);
+
+  int countByNeedIssueSync(@Param("needIssueSync") boolean needIssueSync);
+
+  int countAll();
+
 }

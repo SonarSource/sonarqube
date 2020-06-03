@@ -39,6 +39,7 @@ public class CeWsModule extends Module {
       ComponentAction.class,
       InfoAction.class,
       IsQueueEmptyWs.class,
+      IndexationStatusAction.class,
       PauseAction.class,
       ResumeAction.class,
       SubmitAction.class,

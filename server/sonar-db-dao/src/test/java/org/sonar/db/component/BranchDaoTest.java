@@ -569,4 +569,40 @@ public class BranchDaoTest {
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW)).isEqualTo(1);
     assertThat(underTest.countByTypeAndCreationDate(dbSession, BranchType.PULL_REQUEST, NOW + 100)).isEqualTo(0);
   }
+
+  @Test
+  public void countByNeedIssueSync() {
+    assertThat(underTest.countByNeedIssueSync(dbSession, true)).isZero();
+    assertThat(underTest.countByNeedIssueSync(dbSession, false)).isZero();
+
+    //master branch with flag set to false
+    ComponentDto project = db.components().insertPrivateProject();
+    //branches & PRs
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
+
+    assertThat(underTest.countByNeedIssueSync(dbSession, true)).isEqualTo(4);
+    assertThat(underTest.countByNeedIssueSync(dbSession, false)).isEqualTo(4);
+  }
+
+  @Test
+  public void countAll() {
+    assertThat(underTest.countAll(dbSession)).isZero();
+
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
+
+    assertThat(underTest.countAll(dbSession)).isEqualTo(8);
+  }
 }
