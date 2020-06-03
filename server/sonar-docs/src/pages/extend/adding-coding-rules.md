@@ -370,9 +370,9 @@ Rule descriptions should contain the following sections in the listed order:
    * Those questions should help the developer to decide whether or not a missing protection has to be implemented based on the context of the application.
 For example, if the highlighted missing protection (such as secure cookie flag) helps protect a bit against MITM attacks, list all mandatory protections that, at the contrary, greatly lower this risk (such as encryption). At the end of the review, the developer should be sure that in its context the implementation of this protection improves the overall application's security.  
    * The hotspot-review should be done by developers by themselves without external help:
-      * It is not recommended to drive the review with **data sensitivity** (eg: "*if this data/feature/component is sensitive you are at risk*") because this concept is too generic and the use of the application (with ou without sensitive data) may vary over time and cannot be controlled by developers.
+      * It is not recommended to drive the review with **data sensitivity** (eg: "*if this data/feature/component is sensitive there is risk*") because this concept is too generic and the use of the application (with ou without sensitive data) may vary over time and cannot be controlled by developers.
       * It is not recommended to highlight a widely-used technology (weak in some contexts) when its replacement can only be done with such significant changes (eg: a new authentication system or a different database engine) that it would block developers who may not be responsible for the architecture of the application.
-   * This section ends with "You are at risk if you answered yes to any of those questions.".
+   * This section ends with "There is a risk if you answered yes to any of those questions.".
 * **Recommended Secure Coding Practices** - describing all the ways to mitigate the risk.
    * This part can be easily translated by a developer into examples of implementation/source code, if the recommendations are too abstract the developer will not be able to imagine the fix and decide whether to implement it.
 * The following parts are mandatory in RSPEC language-specification:
