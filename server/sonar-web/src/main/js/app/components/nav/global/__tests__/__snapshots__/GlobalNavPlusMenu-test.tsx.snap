@@ -1,0 +1,224 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: all 1`] = `
+<ul
+  className="menu"
+>
+  <li
+    className="menu-header"
+  >
+    <strong>
+      my_account.add_project
+    </strong>
+  </li>
+  <li
+    key="bitbucket"
+  >
+    <Link
+      className="display-flex-center"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/create",
+          "query": Object {
+            "mode": "bitbucket",
+          },
+        }
+      }
+    >
+      <img
+        alt="bitbucket"
+        className="spacer-right"
+        src="/images/alm/bitbucket.svg"
+        width={16}
+      />
+      my_account.add_project.bitbucket
+    </Link>
+  </li>
+  <li
+    key="manual"
+  >
+    <Link
+      className="display-flex-center"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/create",
+          "query": Object {
+            "mode": "manual",
+          },
+        }
+      }
+    >
+      <ChevronsIcon
+        className="spacer-right"
+      />
+      my_account.add_project.manual
+    </Link>
+  </li>
+  <li
+    className="divider"
+  />
+  <li>
+    <ButtonLink
+      className="display-flex-justify-start padded-left"
+      onClick={[Function]}
+    >
+      <QualifierIcon
+        className="spacer-right"
+        qualifier="VW"
+      />
+      my_account.create_new.VW
+    </ButtonLink>
+  </li>
+  <li>
+    <ButtonLink
+      className="display-flex-justify-start padded-left"
+      onClick={[Function]}
+    >
+      <QualifierIcon
+        className="spacer-right"
+        qualifier="APP"
+      />
+      my_account.create_new.APP
+    </ButtonLink>
+  </li>
+</ul>
+`;
+
+exports[`should render correctly: app only 1`] = `
+<ul
+  className="menu"
+>
+  <li>
+    <ButtonLink
+      className="display-flex-justify-start padded-left"
+      onClick={[Function]}
+    >
+      <QualifierIcon
+        className="spacer-right"
+        qualifier="APP"
+      />
+      my_account.create_new.APP
+    </ButtonLink>
+  </li>
+</ul>
+`;
+
+exports[`should render correctly: imports 1`] = `
+<ul
+  className="menu"
+>
+  <li
+    className="menu-header"
+  >
+    <strong>
+      my_account.add_project
+    </strong>
+  </li>
+  <li
+    key="bitbucket"
+  >
+    <Link
+      className="display-flex-center"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/create",
+          "query": Object {
+            "mode": "bitbucket",
+          },
+        }
+      }
+    >
+      <img
+        alt="bitbucket"
+        className="spacer-right"
+        src="/images/alm/bitbucket.svg"
+        width={16}
+      />
+      my_account.add_project.bitbucket
+    </Link>
+  </li>
+  <li
+    key="manual"
+  >
+    <Link
+      className="display-flex-center"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/create",
+          "query": Object {
+            "mode": "manual",
+          },
+        }
+      }
+    >
+      <ChevronsIcon
+        className="spacer-right"
+      />
+      my_account.add_project.manual
+    </Link>
+  </li>
+</ul>
+`;
+
+exports[`should render correctly: portfolio only 1`] = `
+<ul
+  className="menu"
+>
+  <li>
+    <ButtonLink
+      className="display-flex-justify-start padded-left"
+      onClick={[Function]}
+    >
+      <QualifierIcon
+        className="spacer-right"
+        qualifier="VW"
+      />
+      my_account.create_new.VW
+    </ButtonLink>
+  </li>
+</ul>
+`;
+
+exports[`should render correctly: project only 1`] = `
+<ul
+  className="menu"
+>
+  <li
+    className="menu-header"
+  >
+    <strong>
+      my_account.add_project
+    </strong>
+  </li>
+  <li
+    key="manual"
+  >
+    <Link
+      className="display-flex-center"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/projects/create",
+          "query": Object {
+            "mode": "manual",
+          },
+        }
+      }
+    >
+      <ChevronsIcon
+        className="spacer-right"
+      />
+      my_account.add_project.manual
+    </Link>
+  </li>
+</ul>
+`;

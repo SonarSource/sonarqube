@@ -1,112 +1,57 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`render 1`] = `
-<Dropdown
-  overlay={
-    <ul
-      className="menu"
-    >
-      <li>
-        <a
-          className="js-new-project"
-          href="#"
-          onClick={[Function]}
-        >
-          my_account.create_new.TRK
-        </a>
-      </li>
-    </ul>
-  }
-  tagName="li"
->
-  <a
-    className="navbar-icon navbar-plus"
-    href="#"
-    title="my_account.create_new_project_portfolio_or_application"
+exports[`should render correctly: full rights and alms 1`] = `
+<Fragment>
+  <Dropdown
+    onOpen={[Function]}
+    overlay={
+      <GlobalNavPlusMenu
+        canCreateApplication={true}
+        canCreatePortfolio={true}
+        canCreateProject={true}
+        compatibleAlms={
+          Array [
+            "bitbucket",
+          ]
+        }
+        onComponentCreationClick={[Function]}
+      />
+    }
+    tagName="li"
   >
-    <PlusIcon />
-  </a>
-</Dropdown>
-`;
-
-exports[`should display create application 1`] = `
-<a
-  className="js-new-portfolio"
-  href="#"
-  onClick={[Function]}
->
-  my_account.create_new.APP
-</a>
-`;
-
-exports[`should display create new organization on SonarCloud only 1`] = `
-<ul
-  className="menu"
->
-  <li>
     <a
-      className="js-new-project"
+      className="navbar-icon navbar-plus"
       href="#"
-      onClick={[Function]}
+      title="my_account.create_new_project_portfolio_or_application"
     >
-      provisioning.analyze_new_project
+      <PlusIcon />
     </a>
-  </li>
-  <li>
-    <Link
-      className="js-new-organization"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to="/create-organization"
-    >
-      my_account.create_new_organization
-    </Link>
-  </li>
-</ul>
+  </Dropdown>
+</Fragment>
 `;
 
-exports[`should display create portfolio 1`] = `
-<a
-  className="js-new-portfolio"
-  href="#"
-  onClick={[Function]}
->
-  my_account.create_new.VW
-</a>
-`;
-
-exports[`should display create portfolio and application 1`] = `
-<a
-  className="js-new-portfolio"
-  href="#"
-  onClick={[Function]}
->
-  my_account.create_new_portfolio_application
-</a>
-`;
-
-exports[`should display new organization and new project on SonarCloud 1`] = `
-<ul
-  className="menu"
->
-  <li>
+exports[`should render correctly: no governance 1`] = `
+<Fragment>
+  <Dropdown
+    onOpen={[Function]}
+    overlay={
+      <GlobalNavPlusMenu
+        canCreateApplication={false}
+        canCreatePortfolio={false}
+        canCreateProject={true}
+        compatibleAlms={Array []}
+        onComponentCreationClick={[Function]}
+      />
+    }
+    tagName="li"
+  >
     <a
-      className="js-new-project"
+      className="navbar-icon navbar-plus"
       href="#"
-      onClick={[Function]}
+      title="my_account.create_new_project_portfolio_or_application"
     >
-      provisioning.analyze_new_project
+      <PlusIcon />
     </a>
-  </li>
-  <li>
-    <Link
-      className="js-new-organization"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to="/create-organization"
-    >
-      my_account.create_new_organization
-    </Link>
-  </li>
-</ul>
+  </Dropdown>
+</Fragment>
 `;

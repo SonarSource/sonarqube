@@ -17,88 +17,105 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow, ShallowWrapper } from 'enzyme';
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
-import { isSonarCloud } from '../../../../../helpers/system';
-import { mockRouter } from '../../../../../helpers/testMocks';
+import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { getAlmSettings } from '../../../../../api/alm-settings';
+import { getComponentNavigation } from '../../../../../api/nav';
+import CreateFormShim from '../../../../../apps/portfolio/components/CreateFormShim';
+import { mockLoggedInUser, mockRouter } from '../../../../../helpers/testMocks';
+import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../../helpers/urls';
+import { AlmKeys } from '../../../../../types/alm-settings';
+import { ComponentQualifier } from '../../../../../types/component';
 import { GlobalNavPlus } from '../GlobalNavPlus';
 
-jest.mock('../../../../../helpers/system', () => ({
-  isSonarCloud: jest.fn()
+const PROJECT_CREATION_RIGHT = 'provisioning';
+const APP_CREATION_RIGHT = 'applicationcreator';
+const PORTFOLIO_CREATION_RIGHT = 'portfoliocreator';
+
+jest.mock('../../../../../api/alm-settings', () => ({
+  getAlmSettings: jest.fn().mockResolvedValue([])
 }));
 
-beforeEach(() => {
-  (isSonarCloud as jest.Mock).mockReturnValue(false);
+jest.mock('../../../../../api/nav', () => ({
+  getComponentNavigation: jest.fn().mockResolvedValue({})
+}));
+
+jest.mock('../../../../../helpers/urls', () => ({
+  getPortfolioUrl: jest.fn(),
+  getPortfolioAdminUrl: jest.fn()
+}));
+
+it('should render correctly', () => {
+  expect(shallowRender().type()).toBeNull();
+  expect(
+    shallowRender([APP_CREATION_RIGHT, PORTFOLIO_CREATION_RIGHT, PROJECT_CREATION_RIGHT])
+  ).toMatchSnapshot('no governance');
+
+  const wrapper = shallowRender(
+    [APP_CREATION_RIGHT, PORTFOLIO_CREATION_RIGHT, PROJECT_CREATION_RIGHT],
+    true
+  );
+  wrapper.setState({ boundAlms: ['bitbucket'] });
+  expect(wrapper).toMatchSnapshot('full rights and alms');
 });
 
-it('render', () => {
-  const wrapper = getWrapper();
-  expect(wrapper.find('Dropdown')).toMatchSnapshot();
+it('should load correctly', async () => {
+  (getAlmSettings as jest.Mock).mockResolvedValueOnce([
+    { alm: AlmKeys.Azure, key: 'A1' },
+    { alm: AlmKeys.Bitbucket, key: 'B1' },
+    { alm: AlmKeys.GitHub, key: 'GH1' }
+  ]);
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(getAlmSettings).toBeCalled();
+  expect(wrapper.state().boundAlms).toEqual([AlmKeys.Bitbucket, AlmKeys.GitHub]);
 });
 
-it('opens onboarding', () => {
-  const push = jest.fn();
-  const wrapper = getOverlayWrapper(getWrapper({ router: mockRouter({ push }) }));
-  click(wrapper.find('.js-new-project'));
-  expect(push).toBeCalled();
+it('should display component creation form', () => {
+  const wrapper = shallowRender([PORTFOLIO_CREATION_RIGHT], true);
+
+  wrapper.instance().handleComponentCreationClick(ComponentQualifier.Portfolio);
+  wrapper.setState({ governanceReady: true });
+
+  expect(wrapper.find(CreateFormShim).exists()).toBe(true);
 });
 
-it('should display create new project link when user has permission only', () => {
-  expect(getWrapper({}, []).find('Dropdown').length).toEqual(0);
+describe('handleComponentCreate', () => {
+  (getComponentNavigation as jest.Mock)
+    .mockResolvedValueOnce({
+      configuration: { extensions: [{ key: 'governance/console', name: 'governance' }] }
+    })
+    .mockResolvedValueOnce({});
+
+  const portfolio = { key: 'portfolio', qualifier: ComponentQualifier.Portfolio };
+
+  const wrapper = shallowRender([], true);
+
+  it('should redirect to admin', async () => {
+    wrapper.instance().handleComponentCreate(portfolio);
+    await waitAndUpdate(wrapper);
+    expect(getPortfolioAdminUrl).toBeCalledWith(portfolio.key, portfolio.qualifier);
+    expect(wrapper.state().creatingComponent).toBeUndefined();
+  });
+
+  it('should redirect to dashboard', async () => {
+    wrapper.instance().handleComponentCreate(portfolio);
+    await waitAndUpdate(wrapper);
+
+    expect(getPortfolioUrl).toBeCalledWith(portfolio.key);
+  });
 });
 
-it('should display create new organization on SonarCloud only', () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(true);
-  expect(getOverlayWrapper(getWrapper())).toMatchSnapshot();
-});
-
-it('should display new organization and new project on SonarCloud', () => {
-  (isSonarCloud as jest.Mock).mockReturnValue(true);
-  expect(getOverlayWrapper(getWrapper({}, []))).toMatchSnapshot();
-});
-
-it('should display create portfolio and application', () => {
-  checkOpenCreatePortfolio(['applicationcreator', 'portfoliocreator'], undefined);
-});
-
-it('should display create portfolio', () => {
-  checkOpenCreatePortfolio(['portfoliocreator'], 'VW');
-});
-
-it('should display create application', () => {
-  checkOpenCreatePortfolio(['applicationcreator'], 'APP');
-});
-
-function getWrapper(props = {}, globalPermissions?: string[]) {
-  return shallow(
-    // @ts-ignore avoid passing everything from WithRouterProps
+function shallowRender(permissions: string[] = [], enableGovernance = false) {
+  return shallow<GlobalNavPlus>(
     <GlobalNavPlus
-      appState={{ qualifiers: [] }}
-      currentUser={
-        {
-          isLoggedIn: true,
-          permissions: { global: globalPermissions || ['provisioning'] }
-        } as T.LoggedInUser
-      }
+      appState={{ qualifiers: enableGovernance ? [ComponentQualifier.Portfolio] : [] }}
+      currentUser={mockLoggedInUser({ permissions: { global: permissions } })}
       router={mockRouter()}
-      {...props}
     />
   );
-}
-
-function getOverlayWrapper(wrapper: ShallowWrapper) {
-  return shallow(wrapper.find('Dropdown').prop('overlay'));
-}
-
-function checkOpenCreatePortfolio(permissions: string[], defaultQualifier?: string) {
-  const wrapper = getWrapper({ appState: { qualifiers: ['VW'] } }, permissions);
-  wrapper.setState({ governanceReady: true });
-  const overlayWrapper = getOverlayWrapper(wrapper);
-  expect(overlayWrapper.find('.js-new-portfolio')).toMatchSnapshot();
-
-  click(overlayWrapper.find('.js-new-portfolio'));
-  wrapper.update();
-  expect(wrapper.find('CreateFormShim').exists()).toBe(true);
-  expect(wrapper.find('CreateFormShim').prop('defaultQualifier')).toBe(defaultQualifier);
 }

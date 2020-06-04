@@ -18,33 +18,46 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link, withRouter, WithRouterProps } from 'react-router';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import PlusIcon from 'sonar-ui-common/components/icons/PlusIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { getAlmSettings } from '../../../../api/alm-settings';
 import { getComponentNavigation } from '../../../../api/nav';
 import CreateFormShim from '../../../../apps/portfolio/components/CreateFormShim';
+import { Router, withRouter } from '../../../../components/hoc/withRouter';
 import { getExtensionStart } from '../../../../helpers/extensions';
-import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
 import { hasGlobalPermission } from '../../../../helpers/users';
+import { AlmKeys } from '../../../../types/alm-settings';
+import { ComponentQualifier } from '../../../../types/component';
+import GlobalNavPlusMenu from './GlobalNavPlusMenu';
 
 interface Props {
   appState: Pick<T.AppState, 'qualifiers'>;
   currentUser: T.LoggedInUser;
+  router: Router;
 }
 
 interface State {
-  createPortfolio: boolean;
+  boundAlms: Array<string>;
+  creatingComponent?: ComponentQualifier;
   governanceReady: boolean;
 }
 
-export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, State> {
+/*
+ * ALMs for which the import feature has been implemented
+ */
+const IMPORT_COMPATIBLE_ALMS = [AlmKeys.Bitbucket, AlmKeys.GitHub];
+
+export class GlobalNavPlus extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { createPortfolio: false, governanceReady: false };
+  state: State = { boundAlms: [], governanceReady: false };
 
   componentDidMount() {
     this.mounted = true;
+
+    this.fetchAlmBindings();
+
     if (this.props.appState.qualifiers.includes('VW')) {
       getExtensionStart('governance/console').then(
         () => {
@@ -61,26 +74,31 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
     this.mounted = false;
   }
 
-  handleNewProjectClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.router.push('/projects/create');
+  closeComponentCreationForm = () => {
+    this.setState({ creatingComponent: undefined });
   };
 
-  openCreatePortfolioForm = () => {
-    this.setState({ createPortfolio: true });
+  fetchAlmBindings = async () => {
+    const almSettings = await getAlmSettings();
+
+    // Import is only available if exactly one binding is configured
+    const boundAlms = IMPORT_COMPATIBLE_ALMS.filter(key => {
+      const count = almSettings.filter(s => s.alm === key).length;
+      return count === 1;
+    });
+
+    if (this.mounted) {
+      this.setState({
+        boundAlms
+      });
+    }
   };
 
-  closeCreatePortfolioForm = () => {
-    this.setState({ createPortfolio: false });
+  handleComponentCreationClick = (qualifier: ComponentQualifier) => {
+    this.setState({ creatingComponent: qualifier });
   };
 
-  handleNewPortfolioClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.openCreatePortfolioForm();
-  };
-
-  handleCreatePortfolio = ({ key, qualifier }: { key: string; qualifier: string }) => {
+  handleComponentCreate = ({ key, qualifier }: { key: string; qualifier: ComponentQualifier }) => {
     return getComponentNavigation({ component: key }).then(data => {
       if (
         data.configuration &&
@@ -93,104 +111,50 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
       } else {
         this.props.router.push(getPortfolioUrl(key));
       }
-      this.closeCreatePortfolioForm();
+      this.closeComponentCreationForm();
     });
   };
 
-  renderCreateProject(canCreateProject: boolean) {
-    if (!canCreateProject) {
-      return null;
-    }
-    return (
-      <li>
-        <a className="js-new-project" href="#" onClick={this.handleNewProjectClick}>
-          {isSonarCloud()
-            ? translate('provisioning.analyze_new_project')
-            : translate('my_account.create_new.TRK')}
-        </a>
-      </li>
-    );
-  }
-
-  renderCreateOrganization(canCreateOrg: boolean) {
-    if (!canCreateOrg) {
-      return null;
-    }
-
-    return (
-      <li>
-        <Link className="js-new-organization" to="/create-organization">
-          {translate('my_account.create_new_organization')}
-        </Link>
-      </li>
-    );
-  }
-
-  renderCreatePortfolio(showGovernanceEntry: boolean, defaultQualifier?: string) {
-    const governanceInstalled = this.props.appState.qualifiers.includes('VW');
-    if (!governanceInstalled || !showGovernanceEntry) {
-      return null;
-    }
-
-    return (
-      <li>
-        <a className="js-new-portfolio" href="#" onClick={this.handleNewPortfolioClick}>
-          {defaultQualifier
-            ? translate('my_account.create_new', defaultQualifier)
-            : translate('my_account.create_new_portfolio_application')}
-        </a>
-      </li>
-    );
-  }
-
   render() {
-    const { currentUser } = this.props;
-    const canCreateApplication = hasGlobalPermission(currentUser, 'applicationcreator');
-    const canCreateOrg = isSonarCloud();
-    const canCreatePortfolio = hasGlobalPermission(currentUser, 'portfoliocreator');
-    const canCreateProject = isSonarCloud() || hasGlobalPermission(currentUser, 'provisioning');
+    const { appState, currentUser } = this.props;
+    const { boundAlms, governanceReady, creatingComponent } = this.state;
+    const governanceInstalled = appState.qualifiers.includes(ComponentQualifier.Portfolio);
+    const canCreateApplication =
+      governanceInstalled && hasGlobalPermission(currentUser, 'applicationcreator');
+    const canCreatePortfolio =
+      governanceInstalled && hasGlobalPermission(currentUser, 'portfoliocreator');
+    const canCreateProject = hasGlobalPermission(currentUser, 'provisioning');
 
-    if (!canCreateProject && !canCreateApplication && !canCreatePortfolio && !canCreateOrg) {
+    if (!canCreateProject && !canCreateApplication && !canCreatePortfolio) {
       return null;
-    }
-
-    let defaultQualifier: string | undefined;
-    if (!canCreateApplication) {
-      defaultQualifier = 'VW';
-    } else if (!canCreatePortfolio) {
-      defaultQualifier = 'APP';
     }
 
     return (
       <>
         <Dropdown
+          onOpen={canCreateProject ? this.fetchAlmBindings : undefined}
           overlay={
-            <ul className="menu">
-              {this.renderCreateProject(canCreateProject)}
-              {this.renderCreateOrganization(canCreateOrg)}
-              {this.renderCreatePortfolio(
-                canCreateApplication || canCreatePortfolio,
-                defaultQualifier
-              )}
-            </ul>
+            <GlobalNavPlusMenu
+              canCreateApplication={canCreateApplication}
+              canCreatePortfolio={canCreatePortfolio}
+              canCreateProject={canCreateProject}
+              compatibleAlms={boundAlms}
+              onComponentCreationClick={this.handleComponentCreationClick}
+            />
           }
           tagName="li">
           <a
             className="navbar-icon navbar-plus"
             href="#"
-            title={
-              isSonarCloud()
-                ? translate('my_account.create_new_project_or_organization')
-                : translate('my_account.create_new_project_portfolio_or_application')
-            }>
+            title={translate('my_account.create_new_project_portfolio_or_application')}>
             <PlusIcon />
           </a>
         </Dropdown>
-        {this.state.governanceReady && this.state.createPortfolio && (
+        {governanceReady && creatingComponent && (
           <CreateFormShim
-            defaultQualifier={defaultQualifier}
-            onClose={this.closeCreatePortfolioForm}
-            onCreate={this.handleCreatePortfolio}
+            defaultQualifier={creatingComponent}
+            onClose={this.closeComponentCreationForm}
+            onCreate={this.handleComponentCreate}
           />
         )}
       </>
@@ -198,4 +162,4 @@ export class GlobalNavPlus extends React.PureComponent<Props & WithRouterProps, 
   }
 }
 
-export default withRouter<Props>(GlobalNavPlus);
+export default withRouter(GlobalNavPlus);

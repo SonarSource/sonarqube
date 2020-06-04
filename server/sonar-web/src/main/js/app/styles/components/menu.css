@@ -37,6 +37,7 @@
 
 .menu-item,
 .menu > li > a,
+.menu > li > button,
 .menu > li > span {
   display: block;
   padding: 4px 16px;
@@ -52,6 +53,12 @@
   color: var(--baseFontColor);
   border-bottom: none;
   transition: none;
+}
+
+.menu > li > button {
+  color: var(--baseFontColor);
+  text-align: left;
+  width: 100%;
 }
 
 .menu > li > a.rich-item {
@@ -82,7 +89,9 @@
 }
 
 .menu > li > a:hover,
-.menu > li > a:focus {
+.menu > li > a:focus,
+.menu > li > button:hover,
+.menu > li > button:focus {
   text-decoration: none;
   color: var(--baseFontColor);
   background-color: var(--barBackgroundColor);

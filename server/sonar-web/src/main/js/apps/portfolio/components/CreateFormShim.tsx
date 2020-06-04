@@ -21,11 +21,12 @@ import * as React from 'react';
 import * as theme from '../../../app/theme';
 import { getCurrentL10nBundle } from '../../../helpers/l10n';
 import { getBaseUrl } from '../../../helpers/system';
+import { ComponentQualifier } from '../../../types/component';
 
 interface Props {
   defaultQualifier?: string;
   onClose: () => void;
-  onCreate: (portfolio: { key: string; qualifier: string }) => void;
+  onCreate: (portfolio: { key: string; qualifier: ComponentQualifier }) => void;
 }
 
 export default class CreateFormShim extends React.Component<Props> {

@@ -68,7 +68,7 @@ exports[`should render correctly: no projects 1`] = `
             Object {
               "pathname": "/projects/create",
               "query": Object {
-                "mode": "bbs",
+                "mode": "bitbucket",
                 "resetPat": 1,
               },
             }

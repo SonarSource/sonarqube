@@ -395,6 +395,11 @@ th.huge-spacer-right {
   align-items: center;
 }
 
+.display-flex-justify-start {
+  display: flex !important;
+  justify-content: flex-start !important;
+}
+
 .display-flex-justify-center {
   display: flex !important;
   justify-content: center;

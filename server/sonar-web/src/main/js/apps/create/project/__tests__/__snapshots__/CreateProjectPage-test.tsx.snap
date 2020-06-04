@@ -81,7 +81,7 @@ exports[`should render correctly if the BBS method is selected 1`] = `
           "key": "key",
           "pathname": "/path",
           "query": Object {
-            "mode": "bbs",
+            "mode": "bitbucket",
           },
           "search": "",
           "state": Object {},

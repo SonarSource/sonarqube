@@ -19,5 +19,5 @@
  */
 export enum CreateProjectModes {
   Manual = 'manual',
-  BitbucketServer = 'bbs'
+  BitbucketServer = 'bitbucket'
 }
