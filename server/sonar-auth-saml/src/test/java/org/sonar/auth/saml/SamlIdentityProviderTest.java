@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
@@ -46,15 +47,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SamlIdentityProviderTest {
+  private static final String SQ_CALLBACK_URL = "http://localhost:9000/oauth2/callback/saml";
 
   @Rule
   public DbTester db = DbTester.create();
 
-  private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
+  private final MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
+  private final SamlIdentityProvider underTest = new SamlIdentityProvider(new SamlSettings(settings.asConfig()), new SamlMessageIdChecker(db.getDbClient()));
+  private HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpServletRequest request = mock(HttpServletRequest.class);
 
-  private SamlMessageIdChecker samlMessageIdChecker = mock(SamlMessageIdChecker.class);
-
-  private SamlIdentityProvider underTest = new SamlIdentityProvider(new SamlSettings(settings.asConfig()), new SamlMessageIdChecker(db.getDbClient()));
+  @Before
+  public void setup() {
+    this.request = mock(HttpServletRequest.class);
+    this.response = mock(HttpServletResponse.class);
+    when(this.request.getRequestURL()).thenReturn(new StringBuffer(SQ_CALLBACK_URL));
+  }
 
   @Test
   public void check_fields() {
@@ -109,7 +117,36 @@ public class SamlIdentityProviderTest {
   @Test
   public void callback() {
     setSettings(true);
-    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_full_response.txt");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response.txt", SQ_CALLBACK_URL);
+
+    underTest.callback(callbackContext);
+
+    assertThat(callbackContext.redirectedToRequestedPage.get()).isTrue();
+    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe");
+    assertThat(callbackContext.verifyState.get()).isTrue();
+  }
+
+  @Test
+  public void failed_callback_when_behind_a_reverse_proxy_without_needed_header() {
+    setSettings(true);
+    // simulate reverse proxy stripping SSL and not adding X-Forwarded-Proto header
+    when(this.request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/oauth2/callback/saml"));
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response_with_reverse_proxy.txt",
+      "https://localhost/oauth2/callback/saml");
+
+    assertThatThrownBy(() -> underTest.callback(callbackContext))
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessageContaining("The response was received at http://localhost/oauth2/callback/saml instead of https://localhost/oauth2/callback/saml");
+  }
+
+  @Test
+  public void successful_callback_when_behind_a_reverse_proxy_with_needed_header() {
+    setSettings(true);
+    // simulate reverse proxy stripping SSL and adding X-Forwarded-Proto header
+    when(this.request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/oauth2/callback/saml"));
+    when(this.request.getHeader("X-Forwarded-Proto")).thenReturn("https");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response_with_reverse_proxy.txt",
+      "https://localhost/oauth2/callback/saml");
 
     underTest.callback(callbackContext);
 
@@ -121,7 +158,7 @@ public class SamlIdentityProviderTest {
   @Test
   public void callback_on_full_response() {
     setSettings(true);
-    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_full_response.txt");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response.txt", SQ_CALLBACK_URL);
 
     underTest.callback(callbackContext);
 
@@ -134,7 +171,7 @@ public class SamlIdentityProviderTest {
   @Test
   public void callback_on_minimal_response() {
     setSettings(true);
-    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_minimal_response.txt");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_minimal_response.txt", SQ_CALLBACK_URL);
 
     underTest.callback(callbackContext);
 
@@ -148,7 +185,7 @@ public class SamlIdentityProviderTest {
   public void callback_does_not_sync_group_when_group_setting_is_not_set() {
     setSettings(true);
     settings.setProperty("sonar.auth.saml.group.name", (String) null);
-    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_full_response.txt");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response.txt", SQ_CALLBACK_URL);
 
     underTest.callback(callbackContext);
 
@@ -159,7 +196,7 @@ public class SamlIdentityProviderTest {
   @Test
   public void fail_to_callback_when_login_is_missing() {
     setSettings(true);
-    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_response_without_login.txt");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_response_without_login.txt", SQ_CALLBACK_URL);
 
     assertThatThrownBy(() -> underTest.callback(callbackContext))
       .isInstanceOf(NullPointerException.class)
@@ -170,7 +207,7 @@ public class SamlIdentityProviderTest {
   @Test
   public void fail_to_callback_when_name_is_missing() {
     setSettings(true);
-    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_response_without_name.txt");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_response_without_name.txt", SQ_CALLBACK_URL);
 
     assertThatThrownBy(() -> underTest.callback(callbackContext))
       .isInstanceOf(NullPointerException.class)
@@ -181,7 +218,7 @@ public class SamlIdentityProviderTest {
   public void fail_to_callback_when_certificate_is_invalid() {
     setSettings(true);
     settings.setProperty("sonar.auth.saml.certificate.secured", "invalid");
-    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_full_response.txt");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response.txt", SQ_CALLBACK_URL);
 
     assertThatThrownBy(() -> underTest.callback(callbackContext))
       .isInstanceOf(IllegalStateException.class)
@@ -216,7 +253,7 @@ public class SamlIdentityProviderTest {
       "A1bKpOFhRBzcxaZ6B2hB4SqjTBzS9zdmJyyFs/WNJxHri3aorcdqG9oUakjJJqqX\n" +
       "E13skIMV2g==\n" +
       "-----END CERTIFICATE-----\n");
-    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_full_response.txt");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response.txt", SQ_CALLBACK_URL);
 
     assertThatThrownBy(() -> underTest.callback(callbackContext))
       .isInstanceOf(UnauthorizedException.class)
@@ -226,7 +263,7 @@ public class SamlIdentityProviderTest {
   @Test
   public void fail_callback_when_message_was_already_sent() {
     setSettings(true);
-    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_minimal_response.txt");
+    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_minimal_response.txt", SQ_CALLBACK_URL);
 
     underTest.callback(callbackContext);
 
@@ -241,7 +278,7 @@ public class SamlIdentityProviderTest {
       settings.setProperty("sonar.auth.saml.providerId", "http://localhost:8080/auth/realms/sonarqube");
       settings.setProperty("sonar.auth.saml.loginUrl", "http://localhost:8080/auth/realms/sonarqube/protocol/saml");
       settings.setProperty("sonar.auth.saml.certificate.secured",
-        "MIICoTCCAYkCBgFksusMzTANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAlzb25hcnF1YmUwHhcNMTgwNzE5MTQyMDA2WhcNMjgwNzE5MTQyMTQ2WjAUMRIwEAYDVQQDDAlzb25hcnF1YmUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDEOth5gxpTs1f3bFGUD8hO97eMIsDZvvE3PZeKoeTRG7mOLu6rfLXphG3fE3E6/xqUhPP5p9hJl9DwgaMewhdZhfHqtOw6/SPMCQNFVNw9FQ7lprWKg8cZygYLDxhObEvCWPek8KcMb/vlKD8c8ha374O9qET51CVogDM5ropp02q0ELxoUKXqphKH4+sGXRVnDHaEsFHxse1HnciZT5mF1G45vxDItdAnWKkXYKVHC+Et52tCieqM0ygpQF1lWVJFXVOqsi03YkMu7IkWvSSfAw+uEcfmquT7FbxJ2n5gp94odAkQB0HK3fABrHr+G+n2QvWG6WwQPJTL0Ov0w+tNAgMBAAEwDQYJKoZIhvcNAQELBQADggEBACQfOrJF98nunKz6CN+YZXXMYhzQiqTD0MlzCg+Rdhir+WC/ru3Kz8omv52W/sXEMNQbEZBksVLl8W/1xeBS41Sf1nfutU560v/j3/OmOcnCw4qebqFH7nB8RL8vA4rGx430W/PeeUMikY1mSjlwhnJGiICQ3Y8I2qM6QWEr/Df2/gFCW2YnHbnS6Q/OwRQi+UFIzKklSQQa0gAnqfM4oSKU2OMhzScinWg1buMYfJSXgd4qIhPvRsZpqBsdt/OSrU2D5Y2YfSu8oIcxBRgJoERH5BV9GdOID4fS+TYw0M0QO/ORetNw1mA/8Npsy8okF8Cn7fDgbnWC8uz+/xDc14I=");
+        "MIICoTCCAYkCBgFyheyiszANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDDAlzb25hcnF1YmUwHhcNMjAwNjA1MTkxNzU3WhcNMzAwNjA1MTkxOTM3WjAUMRIwEAYDVQQDDAlzb25hcnF1YmUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCBwKX8xUyrQ44KPRSvGITkYWFLMV8SKCkmB/AYwdVFFMSCMBDa6d5q3YXXkH2NMRTMDvmI+bO6FWQQlZec47ZKKJispS4jX+mf2MumvRehv/Ijk+iJsVoq0Aqk4E9hOnMaMzlqVUmzLTMYfndQd0kt0NkOVdk8IOZTFiQKYPYeAbfZV35WwE6NvhDoQkQ+r2gBvkAmsEVvff/3+aqavY3+N02Tm7cL/lXNeBr8tSj00Fze82XEHN12e6lkHE+u34hYu3xWdT1JpTGAMkLryz1woo3FYT9z8Mmxn9rbn0fihJj22X7BFOrTRXli9mgLoXazSYvoQijHi2aPHOc6RxE3AgMBAAEwDQYJKoZIhvcNAQELBQADggEBABSMICm+2mgeUwGAarHlBxy2TtMMUUwV1c4yXC3qc4Cjzq9FrIPxVg37eHMF0B6wcWpsX+xMT9QKLBkuZfSAsJRiAv4OJgJbt5L3wGa5JcHotJ9IhQNAL9knC7VmK8oP84YZY11XFRAyXnwv9jUk2VBMzMRylqvRDPGbsc6J/KpAQ2IBMKbErsK47YWKtj/5sWN6pU9HcDMgrDP3uh7SGhU3O78XN7ms6v5YliPHGFSyysz9fSyCF+Bt0lIPR+suuIZHZ9WKijxEBNXPTiNVeVCICOigSZAdhxe+gF7b4+Z6Uq4jGIVqmYy+OuvPGnCxim7Gek3oYVT2U7Qb3gtUtY0=");
       settings.setProperty("sonar.auth.saml.user.login", "login");
       settings.setProperty("sonar.auth.saml.user.name", "name");
       settings.setProperty("sonar.auth.saml.user.email", "email");
@@ -253,8 +290,7 @@ public class SamlIdentityProviderTest {
   }
 
   private static class DumbInitContext implements OAuth2IdentityProvider.InitContext {
-
-    private HttpServletResponse response = mock(HttpServletResponse.class);
+    private final HttpServletResponse response = mock(HttpServletResponse.class);
     private final AtomicBoolean generateCsrfState = new AtomicBoolean(false);
 
     @Override
@@ -269,7 +305,7 @@ public class SamlIdentityProviderTest {
 
     @Override
     public String getCallbackUrl() {
-      return "http://localhost/oauth/callback/saml";
+      return SQ_CALLBACK_URL;
     }
 
     @Override
@@ -284,17 +320,18 @@ public class SamlIdentityProviderTest {
   }
 
   private static class DumbCallbackContext implements OAuth2IdentityProvider.CallbackContext {
-
-    private HttpServletResponse response = mock(HttpServletResponse.class);
-    private HttpServletRequest request = mock(HttpServletRequest.class);
-
+    private final HttpServletResponse response;
+    private final HttpServletRequest request;
+    private final String expectedCallbackUrl;
     private final AtomicBoolean redirectedToRequestedPage = new AtomicBoolean(false);
     private final AtomicBoolean verifyState = new AtomicBoolean(false);
 
     private UserIdentity userIdentity = null;
 
-    public DumbCallbackContext(String encodedResponseFile) {
-      when(getRequest().getRequestURL()).thenReturn(new StringBuffer("http://localhost/oauth/callback/saml"));
+    public DumbCallbackContext(HttpServletRequest request, HttpServletResponse response, String encodedResponseFile, String expectedCallbackUrl) {
+      this.request = request;
+      this.response = response;
+      this.expectedCallbackUrl = expectedCallbackUrl;
       Map<String, String[]> parameterMap = new HashMap<>();
       parameterMap.put("SAMLResponse", new String[] {loadResponse(encodedResponseFile)});
       when(getRequest().getParameterMap()).thenReturn(parameterMap);
@@ -331,17 +368,17 @@ public class SamlIdentityProviderTest {
 
     @Override
     public String getCallbackUrl() {
-      return "http://localhost/oauth/callback/saml";
+      return this.expectedCallbackUrl;
     }
 
     @Override
     public HttpServletRequest getRequest() {
-      return request;
+      return this.request;
     }
 
     @Override
     public HttpServletResponse getResponse() {
-      return response;
+      return this.response;
     }
   }
 }

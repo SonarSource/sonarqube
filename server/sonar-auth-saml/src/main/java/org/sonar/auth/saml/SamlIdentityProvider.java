@@ -30,9 +30,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.Display;
@@ -48,6 +50,7 @@ import static java.util.Objects.requireNonNull;
 @ServerSide
 public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
+  private static final Pattern HTTPS_PATTERN = Pattern.compile("https?://");
   private static final String KEY = "saml";
 
   private static final Logger LOGGER = Loggers.get(SamlIdentityProvider.class);
@@ -103,7 +106,16 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
   @Override
   public void callback(CallbackContext context) {
-    Auth auth = newAuth(initSettings(null), context.getRequest(), context.getResponse());
+    //
+    // Workaround for onelogin/java-saml validation not taking into account running a reverse proxy configuration. This change
+    // makes the validation take into account 'X-Forwarded-Proto' and 'Host' headers set by the reverse proxy
+    // More details here:
+    // - https://github.com/onelogin/java-saml/issues/198
+    // - https://github.com/onelogin/java-saml/issues/95
+    //
+    HttpServletRequest processedRequest = useProxyHeadersInRequest(context.getRequest());
+
+    Auth auth = newAuth(initSettings(null), processedRequest, context.getResponse());
     processResponse(auth);
     context.verifyCsrfState(STATE_REQUEST_PARAMETER);
 
@@ -174,9 +186,7 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
   private Saml2Settings initSettings(@Nullable String callbackUrl) {
     Map<String, Object> samlData = new HashMap<>();
-    // TODO strict mode is unfortunately not compatible with HTTPS configuration on reverse proxy =>
-    // https://jira.sonarsource.com/browse/SQAUTHSAML-8
-    samlData.put("onelogin.saml2.strict", false);
+    samlData.put("onelogin.saml2.strict", true);
 
     samlData.put("onelogin.saml2.idp.entityid", samlSettings.getProviderId());
     samlData.put("onelogin.saml2.idp.single_sign_on_service.url", samlSettings.getLoginUrl());
@@ -189,5 +199,25 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
     return builder
       .fromValues(samlData)
       .build();
+  }
+
+  private static HttpServletRequest useProxyHeadersInRequest(HttpServletRequest request) {
+    String forwardedScheme = request.getHeader("X-Forwarded-Proto");
+    if (forwardedScheme != null) {
+      request = new HttpServletRequestWrapper(request) {
+        @Override
+        public String getScheme() {
+          return forwardedScheme;
+        }
+
+        @Override
+        public StringBuffer getRequestURL() {
+          StringBuffer originalURL = ((HttpServletRequest) getRequest()).getRequestURL();
+          return new StringBuffer(HTTPS_PATTERN.matcher(originalURL.toString()).replaceFirst(forwardedScheme + "://"));
+        }
+      };
+    }
+
+    return request;
   }
 }
