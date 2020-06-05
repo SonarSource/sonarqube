@@ -195,29 +195,19 @@ public class IssueQueryFactory {
     Boolean onComponentOnly = request.getOnComponentOnly();
     Collection<String> components = request.getComponents();
     Collection<String> componentUuids = request.getComponentUuids();
-    Collection<String> componentKeys = request.getComponentKeys();
-    Collection<String> componentRootUuids = request.getComponentRootUuids();
-    Collection<String> componentRoots = request.getComponentRoots();
     String branch = request.getBranch();
     String pullRequest = request.getPullRequest();
 
     boolean effectiveOnComponentOnly = false;
 
-    checkArgument(atMostOneNonNullElement(components, componentUuids, componentKeys, componentRootUuids, componentRoots),
+    checkArgument(atMostOneNonNullElement(components, componentUuids),
       "At most one of the following parameters can be provided: %s and %s", PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS);
 
-    if (componentRootUuids != null) {
-      allComponents.addAll(getComponentsFromUuids(session, componentRootUuids));
-    } else if (componentRoots != null) {
-      allComponents.addAll(getComponentsFromKeys(session, componentRoots, branch, pullRequest));
-    } else if (components != null) {
+    if (components != null) {
       allComponents.addAll(getComponentsFromKeys(session, components, branch, pullRequest));
-      effectiveOnComponentOnly = true;
+      effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
     } else if (componentUuids != null) {
       allComponents.addAll(getComponentsFromUuids(session, componentUuids));
-      effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
-    } else if (componentKeys != null) {
-      allComponents.addAll(getComponentsFromKeys(session, componentKeys, branch, pullRequest));
       effectiveOnComponentOnly = BooleanUtils.isTrue(onComponentOnly);
     }
 
@@ -238,7 +228,7 @@ public class IssueQueryFactory {
       return;
     }
 
-    List<String> projectKeys = request.getProjectKeys();
+    List<String> projectKeys = request.getProjects();
     if (projectKeys != null) {
       List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, request.getBranch(), request.getPullRequest());
       builder.projectUuids(projects.stream().map(IssueQueryFactory::toProjectUuid).collect(toList()));
@@ -293,7 +283,7 @@ public class IssueQueryFactory {
   }
 
   private void addProjectUuidsForApplication(IssueQuery.Builder builder, DbSession session, SearchRequest request) {
-    List<String> projectKeys = request.getProjectKeys();
+    List<String> projectKeys = request.getProjects();
     if (projectKeys != null) {
       // On application, branch should only be applied on the application, not on projects
       List<ComponentDto> projects = getComponentsFromKeys(session, projectKeys, null, null);

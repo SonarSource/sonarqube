@@ -20,11 +20,10 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.Sets;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsIndexSyncInProgressException;
 
 public class IssueIndexSyncProgressChecker {
@@ -52,8 +51,14 @@ public class IssueIndexSyncProgressChecker {
   /**
    * Checks if project issue index sync is in progress, if it is, method throws exception org.sonar.server.es.EsIndexSyncInProgressException
    */
-  public void checkIfProjectIssueSyncInProgress(DbSession dbSession, ProjectDto projectDto) throws EsIndexSyncInProgressException {
-    if (doProjectNeedIssueSync(dbSession, projectDto.getUuid())) {
+  public void checkIfProjectIssueSyncInProgress(DbSession dbSession, String projectUuid) throws EsIndexSyncInProgressException {
+    if (doProjectNeedIssueSync(dbSession, projectUuid)) {
+      throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType());
+    }
+  }
+
+  public void checkIfAnyProjectIssueSyncInProgress(DbSession dbSession, Collection<String> projectUuids) throws EsIndexSyncInProgressException {
+    if (!findProjectUuidsWithIssuesSyncNeed(dbSession, projectUuids).isEmpty()) {
       throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType());
     }
   }
@@ -66,7 +71,7 @@ public class IssueIndexSyncProgressChecker {
     return !findProjectUuidsWithIssuesSyncNeed(dbSession, Sets.newHashSet(projectUuid)).isEmpty();
   }
 
-  public List<String> findProjectUuidsWithIssuesSyncNeed(DbSession dbSession, Set<String> projectUuids) {
+  public List<String> findProjectUuidsWithIssuesSyncNeed(DbSession dbSession, Collection<String> projectUuids) {
     return dbClient.branchDao().selectProjectUuidsWithIssuesNeedSync(dbSession, projectUuids);
   }
 }

@@ -45,6 +45,7 @@ public class IssuesWsParameters {
   public static final String PARAM_ASSIGNEE = "assignee";
   public static final String PARAM_TRANSITION = "transition";
   public static final String PARAM_SEVERITY = "severity";
+  public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_COMPONENT_UUID = "componentUuid";
   public static final String PARAM_TYPE = "type";
   public static final String PARAM_ISSUES = "issues";
@@ -56,7 +57,6 @@ public class IssuesWsParameters {
   public static final String PARAM_COMPONENT_UUIDS = "componentUuids";
   public static final String PARAM_MODULE_UUIDS = "moduleUuids";
   public static final String PARAM_PROJECTS = "projects";
-  public static final String PARAM_PROJECT_KEYS = "projectKeys";
   public static final String PARAM_DIRECTORIES = "directories";
   public static final String PARAM_FILE_UUIDS = "fileUuids";
   public static final String PARAM_ON_COMPONENT_ONLY = "onComponentOnly";

@@ -33,9 +33,6 @@ public class SearchRequest {
   private Boolean assigned;
   private List<String> assigneesUuid;
   private List<String> authors;
-  private List<String> componentKeys;
-  private List<String> componentRootUuids;
-  private List<String> componentRoots;
   private List<String> componentUuids;
   private List<String> components;
   private String createdAfter;
@@ -55,7 +52,6 @@ public class SearchRequest {
   private String organization;
   private int page;
   private int pageSize;
-  private List<String> projectKeys;
   private List<String> projects;
   private List<String> resolutions;
   private Boolean resolved;
@@ -128,16 +124,6 @@ public class SearchRequest {
 
   public SearchRequest setAuthors(@Nullable List<String> authors) {
     this.authors = authors;
-    return this;
-  }
-
-  @CheckForNull
-  public List<String> getComponentKeys() {
-    return componentKeys;
-  }
-
-  public SearchRequest setComponentKeys(@Nullable List<String> componentKeys) {
-    this.componentKeys = componentKeys;
     return this;
   }
 
@@ -300,16 +286,6 @@ public class SearchRequest {
   }
 
   @CheckForNull
-  public List<String> getProjectKeys() {
-    return projectKeys;
-  }
-
-  public SearchRequest setProjectKeys(@Nullable List<String> projectKeys) {
-    this.projectKeys = projectKeys;
-    return this;
-  }
-
-  @CheckForNull
   public List<String> getResolutions() {
     return resolutions;
   }
@@ -436,26 +412,6 @@ public class SearchRequest {
 
   public SearchRequest setSonarsourceSecurity(@Nullable List<String> sonarsourceSecurity) {
     this.sonarsourceSecurity = sonarsourceSecurity;
-    return this;
-  }
-
-  @CheckForNull
-  public List<String> getComponentRootUuids() {
-    return componentRootUuids;
-  }
-
-  public SearchRequest setComponentRootUuids(@Nullable List<String> componentRootUuids) {
-    this.componentRootUuids = componentRootUuids;
-    return this;
-  }
-
-  @CheckForNull
-  public List<String> getComponentRoots() {
-    return componentRoots;
-  }
-
-  public SearchRequest setComponentRoots(@Nullable List<String> componentRoots) {
-    this.componentRoots = componentRoots;
     return this;
   }
 

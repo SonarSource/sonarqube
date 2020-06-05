@@ -75,12 +75,10 @@ import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
 
@@ -168,12 +166,12 @@ public class SearchActionComponentsTest {
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, module1.getKey())
       .executeProtobuf(SearchWsResponse.class).getIssuesList()).extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issue1.getKey());
+        .containsExactlyInAnyOrder(issue1.getKey());
 
     assertThat(ws.newRequest()
       .setParam(PARAM_MODULE_UUIDS, module1.uuid())
       .executeProtobuf(SearchWsResponse.class).getIssuesList()).extracting(Issue::getKey)
-      .containsExactlyInAnyOrder(issue1.getKey());
+        .containsExactlyInAnyOrder(issue1.getKey());
   }
 
   @Test
@@ -216,7 +214,7 @@ public class SearchActionComponentsTest {
     indexIssues();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_UUIDS, project.uuid())
+      .setParam(PARAM_COMPONENT_KEYS, project.getDbKey())
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "search_since_leak_period.json");
@@ -239,7 +237,7 @@ public class SearchActionComponentsTest {
     indexIssues();
 
     ws.newRequest()
-      .setParam(PARAM_COMPONENT_UUIDS, project.uuid())
+      .setParam(PARAM_COMPONENT_KEYS, project.getDbKey())
       .setParam(PARAM_FILE_UUIDS, file.uuid())
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
       .execute()
@@ -262,16 +260,6 @@ public class SearchActionComponentsTest {
 
     ws.newRequest()
       .setParam(PARAM_FILE_UUIDS, "unknown")
-      .execute()
-      .assertJson(this.getClass(), "no_issue.json");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_UUIDS, file.uuid())
-      .execute()
-      .assertJson(this.getClass(), "search_by_file_uuid.json");
-
-    ws.newRequest()
-      .setParam(PARAM_COMPONENT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
@@ -484,11 +472,11 @@ public class SearchActionComponentsTest {
       .setParam(PARAM_COMPONENT_KEYS, applicationBranch1.getKey())
       .setParam(PARAM_BRANCH, applicationBranch1.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getProject, Issue::getBranch, Issue::hasBranch)
-      .containsExactlyInAnyOrder(
-        tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
-        tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
-        tuple(issueOnProject2.getKey(), project2.getKey(), project2.getKey(), "", false));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getProject, Issue::getBranch, Issue::hasBranch)
+        .containsExactlyInAnyOrder(
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch(), true),
+          tuple(issueOnProject2.getKey(), project2.getKey(), project2.getKey(), "", false));
 
     // Issues on project1Branch1
     assertThat(ws.newRequest()
@@ -496,10 +484,10 @@ public class SearchActionComponentsTest {
       .setParam(PARAM_PROJECTS, project1.getKey())
       .setParam(PARAM_BRANCH, applicationBranch1.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-      .containsExactlyInAnyOrder(
-        tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch()),
-        tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getBranch()));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+        .containsExactlyInAnyOrder(
+          tuple(issueOnProject1Branch1.getKey(), project1Branch1.getKey(), project1Branch1.getBranch()),
+          tuple(issueOnFileOnProject1Branch1.getKey(), fileOnProject1Branch1.getKey(), project1Branch1.getBranch()));
   }
 
   @Test
@@ -581,7 +569,7 @@ public class SearchActionComponentsTest {
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
-      .setParam(PARAM_PROJECT_KEYS, project1.getDbKey())
+      .setParam(PARAM_PROJECTS, project1.getDbKey())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getIssuesList()).extracting(Issue::getKey)
@@ -612,7 +600,7 @@ public class SearchActionComponentsTest {
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, application.getDbKey())
-      .setParam(PARAM_PROJECT_KEYS, project1.getDbKey())
+      .setParam(PARAM_PROJECTS, project1.getDbKey())
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
       .executeProtobuf(SearchWsResponse.class);
 
@@ -670,24 +658,24 @@ public class SearchActionComponentsTest {
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
       .setParam(PARAM_BRANCH, branch.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-      .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
 
     // On project key + branch
     assertThat(ws.newRequest()
-      .setParam(PARAM_PROJECT_KEYS, project.getKey())
+      .setParam(PARAM_PROJECTS, project.getKey())
       .setParam(PARAM_BRANCH, branch.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-      .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
 
     // On file key + branch
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, branchFile.getKey())
       .setParam(PARAM_BRANCH, branch.getBranch())
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
-      .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
-      .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
+        .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
+        .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
   }
 
   @Test

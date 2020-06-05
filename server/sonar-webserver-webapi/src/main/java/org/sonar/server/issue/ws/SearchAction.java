@@ -101,7 +101,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_BEFORE;
@@ -116,7 +115,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONEN
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLVED;
@@ -167,8 +165,8 @@ public class SearchAction implements IssuesWsAction {
   private final System2 system2;
   private final DbClient dbClient;
 
-  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory, SearchResponseLoader searchResponseLoader,
-    SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient) {
+  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
+    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
@@ -183,13 +181,10 @@ public class SearchAction implements IssuesWsAction {
     WebService.NewAction action = controller
       .createAction(ACTION_SEARCH)
       .setHandler(this)
-      .setDescription(
-        "Search for issues.<br>" +
-          "At most one of the following parameters can be provided at the same time: %s and %s.<br>" +
-          "Requires the 'Browse' permission on the specified project(s).",
-        PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS)
+      .setDescription("Search for issues.<br>Requires the 'Browse' permission on the specified project(s).")
       .setSince("3.6")
       .setChangelog(
+        new Change("8.4", "parameters 'componentUuids', 'projectKeys' has been dropped."),
         new Change("8.2", "'REVIEWED', 'TO_REVIEW' status param values are no longer supported"),
         new Change("8.2", "Security hotspots are no longer returned as type 'SECURITY_HOTSPOT' is not supported anymore, use dedicated api/hotspots"),
         new Change("8.2", "response field 'fromHotspot' has been deprecated and is no more populated"),
@@ -324,18 +319,10 @@ public class SearchAction implements IssuesWsAction {
         "A component can be a portfolio, project, module, directory or file.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
-    action.createParam(PARAM_COMPONENT_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of components their sub-components (comma-separated list of component IDs). " +
-        INTERNAL_PARAMETER_DISCLAIMER +
-        "A component can be a project, module, directory or file.")
-      .setDeprecatedSince("6.5")
-      .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
-
     action.createParam(PARAM_PROJECTS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "If this parameter is set, projectUuids must not be set.")
-      .setDeprecatedKey(PARAM_PROJECT_KEYS, "6.5")
       .setInternal(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
@@ -448,7 +435,6 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
     addMandatoryValuesToFacet(facets, PARAM_MODULE_UUIDS, query.moduleUuids());
     addMandatoryValuesToFacet(facets, PARAM_FILE_UUIDS, query.fileUuids());
-    addMandatoryValuesToFacet(facets, PARAM_COMPONENT_UUIDS, request.getComponentUuids());
 
     List<String> assignees = Lists.newArrayList("");
     List<String> assigneesFromRequest = request.getAssigneeUuids();
@@ -499,7 +485,6 @@ public class SearchAction implements IssuesWsAction {
     collector.addProjectUuids(facets.getBucketKeys(FACET_PROJECTS));
     collector.addComponentUuids(facets.getBucketKeys(PARAM_MODULE_UUIDS));
     collector.addComponentUuids(facets.getBucketKeys(PARAM_FILE_UUIDS));
-    collector.addComponentUuids(facets.getBucketKeys(PARAM_COMPONENT_UUIDS));
     collector.addRuleIds(facets.getBucketKeys(PARAM_RULES));
     collector.addUserUuids(facets.getBucketKeys(PARAM_ASSIGNEES));
   }
@@ -507,7 +492,6 @@ public class SearchAction implements IssuesWsAction {
   private static void collectRequestParams(SearchResponseLoader.Collector collector, SearchRequest request) {
     collector.addComponentUuids(request.getFileUuids());
     collector.addComponentUuids(request.getModuleUuids());
-    collector.addComponentUuids(request.getComponentRootUuids());
     collector.addUserUuids(request.getAssigneeUuids());
   }
 
@@ -518,8 +502,7 @@ public class SearchAction implements IssuesWsAction {
       .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))
       .setAssigneesUuid(getLogins(dbSession, request.paramAsStrings(PARAM_ASSIGNEES)))
       .setAuthors(request.hasParam(PARAM_AUTHOR) ? request.multiParam(PARAM_AUTHOR) : request.paramAsStrings(DEPRECATED_PARAM_AUTHORS))
-      .setComponentKeys(request.paramAsStrings(PARAM_COMPONENT_KEYS))
-      .setComponentUuids(request.paramAsStrings(PARAM_COMPONENT_UUIDS))
+      .setComponents(request.paramAsStrings(PARAM_COMPONENT_KEYS))
       .setCreatedAfter(request.param(PARAM_CREATED_AFTER))
       .setCreatedAt(request.param(PARAM_CREATED_AT))
       .setCreatedBefore(request.param(PARAM_CREATED_BEFORE))
@@ -537,7 +520,6 @@ public class SearchAction implements IssuesWsAction {
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .setProjectKeys(request.paramAsStrings(PARAM_PROJECTS))
       .setProjects(request.paramAsStrings(PARAM_PROJECTS))
       .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
       .setResolved(request.paramAsBoolean(PARAM_RESOLVED))
