@@ -13,7 +13,7 @@ The SonarScanner for Gradle provides an easy way to start SonarQube analysis of 
 The ability to execute the SonarQube analysis via a regular Gradle task makes it available anywhere Gradle is available (developer build, CI server, etc.), without the need to manually download, setup, and maintain a SonarQube Runner installation. The Gradle build already has much of the information needed for SonarQube to successfully analyze a project. By preconfiguring the analysis based on that information, the need for manual configuration is reduced significantly. 
 
 ## Prerequisites
-* Gradle versions 2.14+
+* Gradle versions 3+
 * At least the minimal version of Java supported by your SonarQube server is in use 
 
 Bytecode created by javac compilation is required for Java analysis, including Android projects.
@@ -30,12 +30,14 @@ systemProp.sonar.login=<token>
 ```
 
 ## Analyzing
-First, activate the scanner in your build. For Gradle 2.1+, in `build.gradle`:
+First, include the scanner in your build in `build.gradle`:
+
 ```
 plugins {
-  id "org.sonarqube" version "2.7"
+  id "org.sonarqube" version "3.0"
 }
 ```
+
 More details on https://plugins.gradle.org/plugin/org.sonarqube
 
 Assuming a local SonarQube server with out-of-the-box settings is up and running, no further configuration is required.
@@ -88,14 +90,16 @@ project(":project2") {
 ```
 
 ## Task dependencies
-All tasks that produce output that should be included in the SonarQube analysis need to be executed before the `sonarqube` task runs. Typically, these are compile tasks, test tasks, and code coverage tasks. To meet these needs, the plugins adds a task dependency from `sonarqube` on `test` if the Java plugin is applied. Further task dependencies can be added as needed. For example:
+All tasks that produce output that should be included in the SonarQube analysis need to be executed before the `sonarqube` task runs. Typically, these are compile tasks, test tasks, and code coverage tasks. 
+
+Starting with v3.0 of the SonarScanner for Gradle, task dependencies are no longer added automatically. Instead, the SonarScanner plugin enforces the correct order of tasks with `mustRunAfter`. You need to be either manually run the tasks that produce output before `sonarqube`, or you can add a dependency to the build script: 
+
 ```
 // build.gradle
 project.tasks["sonarqube"].dependsOn "anotherTask"
 ```
 
 ## Sample project
-
 A simple working example is available at this URL so you can check everything is correctly configured in your env:  
 https://github.com/SonarSource/sonar-scanning-examples/tree/master/sonarqube-scanner-gradle
 
