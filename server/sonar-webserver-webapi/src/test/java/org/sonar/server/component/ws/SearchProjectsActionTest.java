@@ -54,6 +54,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ws.SearchProjectsAction.RequestBuilder;
 import org.sonar.server.component.ws.SearchProjectsAction.SearchProjectsRequest;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -171,7 +172,8 @@ public class SearchProjectsActionTest {
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
   private ProjectsInWarning projectsInWarning = new ProjectsInWarning();
 
-  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, projectsInWarning, editionProviderMock));
+  private WsActionTester ws = new WsActionTester(new SearchProjectsAction(dbClient, index, userSession, projectsInWarning, editionProviderMock,
+    new IssueIndexSyncProgressChecker(db.getDbClient())));
 
   private RequestBuilder request = SearchProjectsRequest.builder();
 

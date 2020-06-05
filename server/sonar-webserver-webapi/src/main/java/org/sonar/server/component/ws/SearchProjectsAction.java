@@ -63,6 +63,7 @@ import org.sonar.server.component.ws.SearchProjectsAction.SearchResults.SearchRe
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
@@ -119,14 +120,18 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private final UserSession userSession;
   private final ProjectsInWarning projectsInWarning;
   private final PlatformEditionProvider editionProvider;
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
 
-  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession, ProjectsInWarning projectsInWarning,
-    PlatformEditionProvider editionProvider) {
+  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession,
+      ProjectsInWarning projectsInWarning,
+      PlatformEditionProvider editionProvider,
+      IssueIndexSyncProgressChecker issueIndexSyncProgressChecker) {
     this.dbClient = dbClient;
     this.index = index;
     this.userSession = userSession;
     this.projectsInWarning = projectsInWarning;
     this.editionProvider = editionProvider;
+    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
   }
 
   @Override
@@ -300,7 +305,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private List<String> getProjectUuidsWithBranchesNeedIssueSync(DbSession dbSession, Set<String> projectUuids) {
-    return dbClient.branchDao().selectProjectUuidsWithIssuesNeedSync(dbSession, projectUuids);
+    return issueIndexSyncProgressChecker.findProjectUuidsWithIssuesSyncNeed(dbSession, projectUuids);
   }
 
   private Set<String> getQualifiersBasedOnEdition(ProjectMeasuresQuery query) {

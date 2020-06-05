@@ -29,6 +29,7 @@ import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.platform.DockerSupportImpl;
 import org.sonar.server.util.GlobalLockManagerImpl;
 import org.sonar.server.util.Paths2Impl;
@@ -132,6 +133,7 @@ public class PlatformLevel1 extends PlatformLevel {
 
       // issues
       IssueIndex.class,
+      IssueIndexSyncProgressChecker.class,
 
       GlobalLockManagerImpl.class,
 

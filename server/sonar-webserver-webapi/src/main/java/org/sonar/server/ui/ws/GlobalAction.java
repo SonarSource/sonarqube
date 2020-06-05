@@ -40,6 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.dialect.H2;
 import org.sonar.server.almsettings.MultipleAlmFeatureProvider;
 import org.sonar.server.branch.BranchFeatureProxy;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.platform.WebServer;
@@ -83,11 +84,12 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final PlatformEditionProvider editionProvider;
   private final MultipleAlmFeatureProvider multipleAlmFeatureProvider;
   private final WebAnalyticsLoader webAnalyticsLoader;
+  private final IssueIndexSyncProgressChecker issueIndexSyncChecker;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
     WebServer webServer, DbClient dbClient, OrganizationFlags organizationFlags,
     DefaultOrganizationProvider defaultOrganizationProvider, BranchFeatureProxy branchFeature, UserSession userSession, PlatformEditionProvider editionProvider,
-    MultipleAlmFeatureProvider multipleAlmFeatureProvider, WebAnalyticsLoader webAnalyticsLoader) {
+    MultipleAlmFeatureProvider multipleAlmFeatureProvider, WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.resourceTypes = resourceTypes;
@@ -102,6 +104,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.multipleAlmFeatureProvider = multipleAlmFeatureProvider;
     this.webAnalyticsLoader = webAnalyticsLoader;
     this.systemSettingValuesByKey = new HashMap<>();
+    this.issueIndexSyncChecker = issueIndexSyncChecker;
   }
 
   @Override
@@ -213,7 +216,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
 
   private void writeNeedIssueSync(JsonWriter json) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      json.prop("needIssueSync", dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true));
+      json.prop("needIssueSync", issueIndexSyncChecker.isIssueSyncInProgress(dbSession));
     }
   }
 

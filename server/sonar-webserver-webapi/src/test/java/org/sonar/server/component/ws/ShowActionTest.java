@@ -31,12 +31,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -68,7 +68,8 @@ public class ShowActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), TestComponentFinder.from(db)));
+  private WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), TestComponentFinder.from(db),
+    new IssueIndexSyncProgressChecker(db.getDbClient())));
 
   @Test
   public void verify_definition() {
@@ -340,12 +341,12 @@ public class ShowActionTest {
     userSession.addProjectPermission(UserRole.USER, project1, project2, project3);
     userSession.registerComponents(portfolio1, portfolio2, subview, project1, project2, project3);
 
-    //for portfolios, sub-views need issue sync flag is set to true if any project need sync
+    // for portfolios, sub-views need issue sync flag is set to true if any project need sync
     assertNeedIssueSyncEqual(null, null, portfolio1, true);
     assertNeedIssueSyncEqual(null, null, subview, true);
     assertNeedIssueSyncEqual(null, null, portfolio2, true);
 
-    //if branch need sync it is propagated to other components
+    // if branch need sync it is propagated to other components
     assertNeedIssueSyncEqual(null, null, project1, true);
     assertNeedIssueSyncEqual(branch1.getPullRequest(), null, branch1, true);
     assertNeedIssueSyncEqual(branch1.getPullRequest(), null, module, true);
@@ -356,7 +357,7 @@ public class ShowActionTest {
     assertNeedIssueSyncEqual(null, branch2.getBranch(), branch2, true);
     assertNeedIssueSyncEqual(null, branch3.getBranch(), branch3, true);
 
-    //if all branches are synced, need issue sync on project is is set to false
+    // if all branches are synced, need issue sync on project is is set to false
     assertNeedIssueSyncEqual(null, null, project3, false);
     assertNeedIssueSyncEqual(branch4.getPullRequest(), null, branch4, false);
     assertNeedIssueSyncEqual(branch4.getPullRequest(), null, moduleOfBranch4, false);

@@ -24,16 +24,19 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
+import org.sonar.server.issue.index.IssueSyncProgress;
 import org.sonarqube.ws.Ce.IndexationStatusWsResponse;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class IndexationStatusAction implements CeWsAction {
-  private static final int PERCENT_100 = 100;
+  private final IssueIndexSyncProgressChecker issueIndexSyncChecker;
   private final DbClient dbClient;
 
-  public IndexationStatusAction(DbClient dbClient) {
+  public IndexationStatusAction(DbClient dbClient, IssueIndexSyncProgressChecker issueIndexSyncChecker) {
     this.dbClient = dbClient;
+    this.issueIndexSyncChecker = issueIndexSyncChecker;
   }
 
   @Override
@@ -53,19 +56,15 @@ public class IndexationStatusAction implements CeWsAction {
   }
 
   private IndexationStatusWsResponse doHandle() {
+    IssueSyncProgress issueSyncProgress;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      int branchesToProcess = dbClient.branchDao().countByNeedIssueSync(dbSession, false);
-      int total = dbClient.branchDao().countAll(dbSession);
-
-      int percentCompleted = PERCENT_100;
-      if (total != 0) {
-        percentCompleted = (int) Math.floor(PERCENT_100 * (double) branchesToProcess / total);
-      }
-      return IndexationStatusWsResponse.newBuilder()
-        .setIsCompleted(percentCompleted == PERCENT_100)
-        .setPercentCompleted(percentCompleted)
-        .build();
+      issueSyncProgress = issueIndexSyncChecker.getIssueSyncProgress(dbSession);
     }
+
+    return IndexationStatusWsResponse.newBuilder()
+      .setIsCompleted(issueSyncProgress.isCompleted())
+      .setPercentCompleted(issueSyncProgress.toPercentCompleted())
+      .build();
   }
 
 }

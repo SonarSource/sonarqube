@@ -19,22 +19,23 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.project.ProjectDto;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
+import org.sonar.server.issue.index.IssueSyncProgress;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Ce.IndexationStatusWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class IndexationStatusActionTest {
@@ -42,10 +43,12 @@ public class IndexationStatusActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  public IssueIndexSyncProgressChecker issueIndexSyncProgressCheckerMock = mock(IssueIndexSyncProgressChecker.class);
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private WsActionTester ws = new WsActionTester(new IndexationStatusAction(db.getDbClient()));
+  private WsActionTester ws = new WsActionTester(new IndexationStatusAction(db.getDbClient(), issueIndexSyncProgressCheckerMock));
 
   @Test
   public void definition() {
@@ -58,73 +61,26 @@ public class IndexationStatusActionTest {
 
   @Test
   public void verify_example_of_response() {
-    insertProjectWithBranches(false, 0);
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(0, 0));
     ws.newRequest().execute().assertJson(ws.getDef().responseExampleAsString());
   }
 
   @Test
   public void return_100_if_there_is_no_tasks_left() {
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(10, 10));
     IndexationStatusWsResponse response = ws.newRequest()
       .executeProtobuf(IndexationStatusWsResponse.class);
     assertThat(response.getPercentCompleted()).isEqualTo(100);
     assertThat(response.getIsCompleted()).isTrue();
-  }
-
-  @Test
-  public void return_100_if_all_branches_have_need_issue_sync_set_FALSE() {
-    IntStream.range(0, 13).forEach(value -> insertProjectWithBranches(false, 2));
-    IntStream.range(0, 14).forEach(value -> insertProjectWithBranches(false, 4));
-    IntStream.range(0, 4).forEach(value -> insertProjectWithBranches(false, 10));
-
-    IndexationStatusWsResponse response = ws.newRequest()
-      .executeProtobuf(IndexationStatusWsResponse.class);
-    assertThat(response.getPercentCompleted()).isEqualTo(100);
-    assertThat(response.getIsCompleted()).isTrue();
-  }
-
-  @Test
-  @UseDataProvider("various_task_numbers")
-  public void return_correct_percent_value_for_branches_to_sync(int toSync, int synced, int expectedPercent, boolean isCompleted) {
-    IntStream.range(0, toSync).forEach(value -> insertProjectWithBranches(true, 0));
-    IntStream.range(0, synced).forEach(value -> insertProjectWithBranches(false, 0));
-
-    IndexationStatusWsResponse response = ws.newRequest()
-      .executeProtobuf(IndexationStatusWsResponse.class);
-    assertThat(response.getPercentCompleted()).isEqualTo(expectedPercent);
-    assertThat(response.getIsCompleted()).isEqualTo(isCompleted);
-  }
-
-  @DataProvider
-  public static Object[][] various_task_numbers() {
-    return new Object[][] {
-      // toSync, synced, expected result, expectedCompleted
-      {0, 0, 100, true},
-      {0, 9, 100, true},
-      {10, 0, 0, false},
-      {99, 1, 1, false},
-      {2, 1, 33, false},
-      {6, 4, 40, false},
-      {7, 7, 50, false},
-      {1, 2, 66, false},
-      {4, 10, 71, false},
-      {1, 99, 99, false},
-    };
   }
 
   @Test
   public void return_0_if_all_branches_have_need_issue_sync_set_TRUE() {
-    IntStream.range(0, 13).forEach(value -> insertProjectWithBranches(true, value));
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(0, 10));
 
     IndexationStatusWsResponse response = ws.newRequest()
       .executeProtobuf(IndexationStatusWsResponse.class);
     assertThat(response.getPercentCompleted()).isZero();
     assertThat(response.getIsCompleted()).isFalse();
-  }
-
-  private void insertProjectWithBranches(boolean needIssueSync, int numberOfBranches) {
-    ProjectDto projectDto = db.components()
-      .insertPrivateProjectDto(db.getDefaultOrganization(), branchDto -> branchDto.setNeedIssueSync(needIssueSync));
-    IntStream.range(0, numberOfBranches).forEach(
-      i -> db.components().insertProjectBranch(projectDto, branchDto -> branchDto.setNeedIssueSync(needIssueSync)));
   }
 }

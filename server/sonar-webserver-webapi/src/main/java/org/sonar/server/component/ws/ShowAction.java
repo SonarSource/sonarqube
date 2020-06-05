@@ -20,7 +20,6 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +38,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.ShowWsResponse;
@@ -61,11 +61,14 @@ public class ShowAction implements ComponentsWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
 
-  public ShowAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder) {
+  public ShowAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder,
+    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
+    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
   }
 
   @Override
@@ -164,10 +167,10 @@ public class ShowAction implements ComponentsWsAction {
 
   private boolean needIssueSync(DbSession dbSession, ComponentDto component, @Nullable ProjectDto projectDto) {
     if (projectDto == null || VIEW_OR_SUBVIEW_QUALIFIERS.contains(component.qualifier())) {
-      return dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
+      return issueIndexSyncProgressChecker.isIssueSyncInProgress(dbSession);
     }
 
-    return !dbClient.branchDao().selectProjectUuidsWithIssuesNeedSync(dbSession, Sets.newHashSet(projectDto.getUuid())).isEmpty();
+    return issueIndexSyncProgressChecker.doProjectNeedIssueSync(dbSession, projectDto.getUuid());
   }
 
   private static Request toShowWsRequest(org.sonar.api.server.ws.Request request) {
