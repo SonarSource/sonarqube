@@ -1,305 +1,63 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders correctly 1`] = `
-<CodeSnippet
-  snippet="foo
-bar"
+exports[`renders correctly: array snippet 1`] = `
+<div
+  className="code-snippet spacer-top spacer-bottom display-flex-row"
 >
-  <div
-    className="code-snippet"
+  <pre
+    className="flex-1"
   >
-    <pre>
-      foo
-bar
-    </pre>
-    <ClipboardButton
-      copyValue="foo
-bar"
-    >
-      <ClipboardBase>
-        <Tooltip
-          overlay="copied_action"
-          visible={false}
-        >
-          <TooltipInner
-            mouseEnterDelay={0.1}
-            overlay="copied_action"
-            visible={false}
-          >
-            <Button
-              className="no-select"
-              data-clipboard-text="foo
-bar"
-              innerRef={[Function]}
-              onMouseEnter={[Function]}
-              onMouseLeave={[Function]}
-            >
-              <button
-                className="button no-select"
-                data-clipboard-text="foo
-bar"
-                onClick={[Function]}
-                onMouseEnter={[Function]}
-                onMouseLeave={[Function]}
-                type="button"
-              >
-                <CopyIcon
-                  className="little-spacer-right"
-                >
-                  <Icon
-                    className="little-spacer-right"
-                  >
-                    <svg
-                      className="little-spacer-right"
-                      height={16}
-                      style={
-                        Object {
-                          "clipRule": "evenodd",
-                          "fillRule": "evenodd",
-                          "strokeLinejoin": "round",
-                          "strokeMiterlimit": 1.41421,
-                        }
-                      }
-                      version="1.1"
-                      viewBox="0 0 16 16"
-                      width={16}
-                      xmlSpace="preserve"
-                      xmlnsXlink="http://www.w3.org/1999/xlink"
-                    >
-                      <g
-                        fill="currentColor"
-                        fillRule="nonzero"
-                      >
-                        <path
-                          d="M2.931 15.005V3H2v13h9v-.995z"
-                        />
-                        <path
-                          d="M10 4.015h3V14H4V1h6v3.015zM9 8V6H8v2H6v1h2v2h1V9h2V8H9z"
-                        />
-                        <path
-                          d="M11 1v2h2a2.151 2.151 0 0 0-2-2z"
-                        />
-                      </g>
-                    </svg>
-                  </Icon>
-                </CopyIcon>
-                copy
-              </button>
-            </Button>
-          </TooltipInner>
-        </Tooltip>
-      </ClipboardBase>
-    </ClipboardButton>
-  </div>
-</CodeSnippet>
-`;
-
-exports[`renders correctly 2`] = `
-<CodeSnippet
-  noCopy={true}
-  snippet="foo
-bar"
->
-  <div
-    className="code-snippet"
-  >
-    <pre>
-      foo
-bar
-    </pre>
-  </div>
-</CodeSnippet>
-`;
-
-exports[`renders correctly with array snippet 1`] = `
-<CodeSnippet
-  snippet={
-    Array [
-      "foo",
-      "bar",
-    ]
-  }
->
-  <div
-    className="code-snippet"
-  >
-    <pre>
-      foo \\
+    foo \\
   bar
-    </pre>
-    <ClipboardButton
-      copyValue="foo \\\\
+  </pre>
+  <ClipboardButton
+    copyValue="foo \\\\
   bar"
-    >
-      <ClipboardBase>
-        <Tooltip
-          overlay="copied_action"
-          visible={false}
-        >
-          <TooltipInner
-            mouseEnterDelay={0.1}
-            overlay="copied_action"
-            visible={false}
-          >
-            <Button
-              className="no-select"
-              data-clipboard-text="foo \\\\
-  bar"
-              innerRef={[Function]}
-              onMouseEnter={[Function]}
-              onMouseLeave={[Function]}
-            >
-              <button
-                className="button no-select"
-                data-clipboard-text="foo \\\\
-  bar"
-                onClick={[Function]}
-                onMouseEnter={[Function]}
-                onMouseLeave={[Function]}
-                type="button"
-              >
-                <CopyIcon
-                  className="little-spacer-right"
-                >
-                  <Icon
-                    className="little-spacer-right"
-                  >
-                    <svg
-                      className="little-spacer-right"
-                      height={16}
-                      style={
-                        Object {
-                          "clipRule": "evenodd",
-                          "fillRule": "evenodd",
-                          "strokeLinejoin": "round",
-                          "strokeMiterlimit": 1.41421,
-                        }
-                      }
-                      version="1.1"
-                      viewBox="0 0 16 16"
-                      width={16}
-                      xmlSpace="preserve"
-                      xmlnsXlink="http://www.w3.org/1999/xlink"
-                    >
-                      <g
-                        fill="currentColor"
-                        fillRule="nonzero"
-                      >
-                        <path
-                          d="M2.931 15.005V3H2v13h9v-.995z"
-                        />
-                        <path
-                          d="M10 4.015h3V14H4V1h6v3.015zM9 8V6H8v2H6v1h2v2h1V9h2V8H9z"
-                        />
-                        <path
-                          d="M11 1v2h2a2.151 2.151 0 0 0-2-2z"
-                        />
-                      </g>
-                    </svg>
-                  </Icon>
-                </CopyIcon>
-                copy
-              </button>
-            </Button>
-          </TooltipInner>
-        </Tooltip>
-      </ClipboardBase>
-    </ClipboardButton>
-  </div>
-</CodeSnippet>
+  />
+</div>
 `;
 
-exports[`renders correctly with array snippet 2`] = `
-<CodeSnippet
-  isOneLine={true}
-  snippet={
-    Array [
-      "foo",
-      "bar",
-    ]
-  }
+exports[`renders correctly: default 1`] = `
+<div
+  className="code-snippet spacer-top spacer-bottom display-flex-row"
 >
-  <div
-    className="code-snippet code-snippet-oneline"
+  <pre
+    className="flex-1"
   >
-    <pre>
-      foo bar
-    </pre>
-    <ClipboardButton
-      copyValue="foo bar"
-    >
-      <ClipboardBase>
-        <Tooltip
-          overlay="copied_action"
-          visible={false}
-        >
-          <TooltipInner
-            mouseEnterDelay={0.1}
-            overlay="copied_action"
-            visible={false}
-          >
-            <Button
-              className="no-select"
-              data-clipboard-text="foo bar"
-              innerRef={[Function]}
-              onMouseEnter={[Function]}
-              onMouseLeave={[Function]}
-            >
-              <button
-                className="button no-select"
-                data-clipboard-text="foo bar"
-                onClick={[Function]}
-                onMouseEnter={[Function]}
-                onMouseLeave={[Function]}
-                type="button"
-              >
-                <CopyIcon
-                  className="little-spacer-right"
-                >
-                  <Icon
-                    className="little-spacer-right"
-                  >
-                    <svg
-                      className="little-spacer-right"
-                      height={16}
-                      style={
-                        Object {
-                          "clipRule": "evenodd",
-                          "fillRule": "evenodd",
-                          "strokeLinejoin": "round",
-                          "strokeMiterlimit": 1.41421,
-                        }
-                      }
-                      version="1.1"
-                      viewBox="0 0 16 16"
-                      width={16}
-                      xmlSpace="preserve"
-                      xmlnsXlink="http://www.w3.org/1999/xlink"
-                    >
-                      <g
-                        fill="currentColor"
-                        fillRule="nonzero"
-                      >
-                        <path
-                          d="M2.931 15.005V3H2v13h9v-.995z"
-                        />
-                        <path
-                          d="M10 4.015h3V14H4V1h6v3.015zM9 8V6H8v2H6v1h2v2h1V9h2V8H9z"
-                        />
-                        <path
-                          d="M11 1v2h2a2.151 2.151 0 0 0-2-2z"
-                        />
-                      </g>
-                    </svg>
-                  </Icon>
-                </CopyIcon>
-                copy
-              </button>
-            </Button>
-          </TooltipInner>
-        </Tooltip>
-      </ClipboardBase>
-    </ClipboardButton>
-  </div>
-</CodeSnippet>
+    foo
+bar
+  </pre>
+  <ClipboardButton
+    copyValue="foo
+bar"
+  />
+</div>
+`;
+
+exports[`renders correctly: no copy 1`] = `
+<div
+  className="code-snippet spacer-top spacer-bottom display-flex-row"
+>
+  <pre
+    className="flex-1"
+  >
+    foo
+bar
+  </pre>
+</div>
+`;
+
+exports[`renders correctly: single line with array snippet 1`] = `
+<div
+  className="code-snippet spacer-top spacer-bottom display-flex-row code-snippet-oneline"
+>
+  <pre
+    className="flex-1"
+  >
+    foo bar
+  </pre>
+  <ClipboardButton
+    copyValue="foo bar"
+  />
+</div>
 `;

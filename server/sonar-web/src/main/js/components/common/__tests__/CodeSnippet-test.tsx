@@ -17,16 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import CodeSnippet from '../CodeSnippet';
+import CodeSnippet, { CodeSnippetProps } from '../CodeSnippet';
+
+beforeEach(jest.clearAllMocks);
 
 it('renders correctly', () => {
-  expect(mount(<CodeSnippet snippet={'foo\nbar'} />)).toMatchSnapshot();
-  expect(mount(<CodeSnippet noCopy={true} snippet={'foo\nbar'} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ noCopy: true })).toMatchSnapshot('no copy');
+  expect(shallowRender({ snippet: ['foo', 'bar'] })).toMatchSnapshot('array snippet');
+  expect(shallowRender({ isOneLine: true, snippet: ['foo', 'bar'] })).toMatchSnapshot(
+    'single line with array snippet'
+  );
 });
 
-it('renders correctly with array snippet', () => {
-  expect(mount(<CodeSnippet snippet={['foo', 'bar']} />)).toMatchSnapshot();
-  expect(mount(<CodeSnippet isOneLine={true} snippet={['foo', 'bar']} />)).toMatchSnapshot();
-});
+function shallowRender(props: Partial<CodeSnippetProps> = {}) {
+  return shallow<CodeSnippetProps>(<CodeSnippet snippet={'foo\nbar'} {...props} />);
+}

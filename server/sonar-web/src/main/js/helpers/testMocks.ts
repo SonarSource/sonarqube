@@ -816,3 +816,14 @@ export function mockIdentityProvider(
     ...overrides
   };
 }
+
+export function mockRef(
+  overrides: Partial<React.RefObject<Partial<HTMLElement>>> = {}
+): React.RefObject<HTMLElement> {
+  return {
+    current: {
+      getBoundingClientRect: jest.fn(),
+      ...overrides.current
+    }
+  } as React.RefObject<HTMLElement>;
+}

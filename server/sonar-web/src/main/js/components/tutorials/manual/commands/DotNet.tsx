@@ -56,7 +56,7 @@ export default function DotNet(props: Props) {
         {transformedMessage => <p className="spacer-bottom markdown">{transformedMessage}</p>}
       </InstanceMessage>
       <CodeSnippet isOneLine={true} snippet={command1} />
-      <CodeSnippet isOneLine={false} snippet={command2} />
+      <CodeSnippet isOneLine={true} snippet={command2} />
       <CodeSnippet isOneLine={props.small} snippet={command3} />
       <p className="big-spacer-top markdown">
         <FormattedMessage

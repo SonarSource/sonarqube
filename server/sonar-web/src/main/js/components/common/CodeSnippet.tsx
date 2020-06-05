@@ -20,41 +20,34 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { ClipboardButton } from 'sonar-ui-common/components/controls/clipboard';
+import { isDefined } from 'sonar-ui-common/helpers/types';
 import './CodeSnippet.css';
 
-interface Props {
-  className?: string;
+export interface CodeSnippetProps {
   isOneLine?: boolean;
   noCopy?: boolean;
-  render?: () => JSX.Element;
   snippet: string | (string | undefined)[];
-  wrap?: boolean;
 }
 
-// keep this "useless" concatentation for the readability reason
-// eslint-disable-next-line no-useless-concat
-const s = ' \\' + '\n  ';
+export default function CodeSnippet(props: CodeSnippetProps) {
+  const { isOneLine, noCopy, snippet } = props;
+  const snippetRef = React.useRef<HTMLPreElement>(null);
 
-export default function CodeSnippet({
-  className,
-  isOneLine,
-  noCopy,
-  render,
-  snippet,
-  wrap
-}: Props) {
-  const snippetArray = Array.isArray(snippet)
-    ? snippet.filter(line => line !== undefined)
-    : [snippet];
-  const finalSnippet = isOneLine ? snippetArray.join(' ') : snippetArray.join(s);
+  let finalSnippet: string;
+  if (Array.isArray(snippet)) {
+    finalSnippet = snippet.filter(line => isDefined(line)).join(isOneLine ? ' ' : ' \\\n  ');
+  } else {
+    finalSnippet = snippet;
+  }
+
   return (
     <div
-      className={classNames(
-        'code-snippet',
-        { 'code-snippet-oneline': isOneLine, 'code-snippet-wrap': wrap },
-        className
-      )}>
-      <pre>{render ? render() : finalSnippet}</pre>
+      className={classNames('code-snippet spacer-top spacer-bottom display-flex-row', {
+        'code-snippet-oneline': isOneLine
+      })}>
+      <pre className="flex-1" ref={snippetRef}>
+        {finalSnippet}
+      </pre>
       {!noCopy && <ClipboardButton copyValue={finalSnippet} />}
     </div>
   );

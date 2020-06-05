@@ -18,64 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 .code-snippet {
-  position: relative;
-  margin: var(--gridSize) 0;
-  background: var(--gray40);
-  color: var(--snippetFontColor);
+  background: var(--barBorderColor);
   border-radius: 3px;
 }
 
 .code-snippet pre {
-  padding: calc(2 * var(--gridSize));
-  overflow: auto;
+  padding: var(--gridSize) calc(2 * var(--gridSize));
+  border-right: 1px solid var(--transparentGray);
+  overflow-y: hidden;
+  overflow-x: auto;
 }
 
 .code-snippet > button {
-  position: absolute;
-  top: calc(2 * var(--gridSize));
-  right: calc(2 * var(--gridSize));
-  line-height: 18px;
-  border: 1px solid #fff;
-  color: #fff;
-  font-size: 11px;
-  font-weight: normal;
-  user-select: none;
-  background: var(--gray40);
+  height: 36px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: var(--gridSize);
 }
 
 .code-snippet > button:hover,
 .code-snippet > button:focus,
 .code-snippet > button:active {
-  background-color: #fff;
-  color: var(--gray40);
-}
-
-.code-snippet-oneline pre {
-  padding-bottom: 40px;
+  background-color: var(--transparentGray);
+  color: var(--darkBlue);
 }
 
 .code-snippet-oneline > button {
-  top: auto;
-  bottom: 16px;
-}
-
-.code-snippet-wrap pre {
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-.code-snippet .highlight {
-  font-weight: bold;
-  color: var(--alertBorderError);
-}
-
-.code-snippet .button-icon {
-  color: #fff !important;
-}
-
-.code-snippet .button-icon:hover svg,
-.code-snippet .button-icon:focus svg,
-.code-snippet .button-icon:active svg {
-  background-color: #fff;
-  color: var(--gray40);
+  height: auto;
 }

@@ -28,7 +28,7 @@ exports[`DotNet renders correctly 2`] = `
     }
   />
   <CodeSnippet
-    isOneLine={false}
+    isOneLine={true}
     snippet="MsBuild.exe /t:Rebuild"
   />
   <CodeSnippet
