@@ -256,6 +256,37 @@ exports[`should work for a branch 1`] = `
         }
       />
     </li>
+    <Dropdown
+      data-test="extensions"
+      overlay={
+        <ul
+          className="menu"
+        >
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/extension/component-foo",
+                  "query": Object {
+                    "branch": "release",
+                    "id": "foo",
+                    "qualifier": "TRK",
+                  },
+                }
+              }
+            >
+              ComponentFoo
+            </Link>
+          </li>
+        </ul>
+      }
+      tagName="li"
+    >
+      <Component />
+    </Dropdown>
   </NavBarTabs>
   <NavBarTabs>
     <Dropdown
@@ -481,6 +512,37 @@ exports[`should work for a branch 2`] = `
         }
       />
     </li>
+    <Dropdown
+      data-test="extensions"
+      overlay={
+        <ul
+          className="menu"
+        >
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/extension/component-foo",
+                  "query": Object {
+                    "branch": "release",
+                    "id": "foo",
+                    "qualifier": "TRK",
+                  },
+                }
+              }
+            >
+              ComponentFoo
+            </Link>
+          </li>
+        </ul>
+      }
+      tagName="li"
+    >
+      <Component />
+    </Dropdown>
   </NavBarTabs>
   <NavBarTabs>
     <li>
@@ -1154,6 +1216,37 @@ exports[`should work for pull requests 1`] = `
         }
       />
     </li>
+    <Dropdown
+      data-test="extensions"
+      overlay={
+        <ul
+          className="menu"
+        >
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/extension/component-foo",
+                  "query": Object {
+                    "id": "foo",
+                    "pullRequest": "1001",
+                    "qualifier": "TRK",
+                  },
+                }
+              }
+            >
+              ComponentFoo
+            </Link>
+          </li>
+        </ul>
+      }
+      tagName="li"
+    >
+      <Component />
+    </Dropdown>
   </NavBarTabs>
   <NavBarTabs />
 </div>
@@ -1247,6 +1340,37 @@ exports[`should work for pull requests 2`] = `
         }
       />
     </li>
+    <Dropdown
+      data-test="extensions"
+      overlay={
+        <ul
+          className="menu"
+        >
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/project/extension/component-foo",
+                  "query": Object {
+                    "id": "foo",
+                    "pullRequest": "1001",
+                    "qualifier": "TRK",
+                  },
+                }
+              }
+            >
+              ComponentFoo
+            </Link>
+          </li>
+        </ul>
+      }
+      tagName="li"
+    >
+      <Component />
+    </Dropdown>
   </NavBarTabs>
   <NavBarTabs />
 </div>

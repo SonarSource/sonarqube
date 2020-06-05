@@ -27,7 +27,7 @@ import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
 import { withAppState } from '../../../../components/hoc/withAppState';
-import { getBranchLikeQuery, isMainBranch, isPullRequest } from '../../../../helpers/branch-like';
+import { getBranchLikeQuery, isPullRequest } from '../../../../helpers/branch-like';
 import { isSonarCloud } from '../../../../helpers/system';
 import { getPortfolioUrl, getProjectQueryUrl } from '../../../../helpers/urls';
 import { BranchLike, BranchParameters } from '../../../../types/branch-like';
@@ -515,9 +515,6 @@ export class Menu extends React.PureComponent<Props> {
   };
 
   renderAdminExtensions = (query: Query) => {
-    if (this.props.branchLike && !isMainBranch(this.props.branchLike)) {
-      return [];
-    }
     const extensions = this.getConfiguration().extensions || [];
     return extensions.map(e => this.renderExtension(e, true, query));
   };
@@ -527,10 +524,8 @@ export class Menu extends React.PureComponent<Props> {
     const withoutSecurityExtension = extensions.filter(
       extension => !extension.key.startsWith('securityreport/')
     );
-    if (
-      withoutSecurityExtension.length === 0 ||
-      (this.props.branchLike && !isMainBranch(this.props.branchLike))
-    ) {
+
+    if (withoutSecurityExtension.length === 0) {
       return null;
     }
 
