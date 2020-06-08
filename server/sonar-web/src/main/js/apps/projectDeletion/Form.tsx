@@ -24,6 +24,7 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 import { deletePortfolio, deleteProject } from '../../api/components';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { Router, withRouter } from '../../components/hoc/withRouter';
+import { ComponentQualifier, isPortfolioLike } from '../../types/component';
 
 interface Props {
   component: Pick<T.Component, 'key' | 'name' | 'qualifier'>;
@@ -31,17 +32,18 @@ interface Props {
 }
 
 export class Form extends React.PureComponent<Props> {
-  handleDelete = () => {
+  handleDelete = async () => {
     const { component } = this.props;
-    const isProject = component.qualifier === 'TRK';
-    const deleteMethod = isProject ? deleteProject : deletePortfolio;
-    const redirectTo = isProject ? '/' : '/portfolios';
-    return deleteMethod(component.key).then(() => {
-      addGlobalSuccessMessage(
-        translateWithParameters('project_deletion.resource_deleted', component.name)
-      );
-      this.props.router.replace(redirectTo);
-    });
+    const deleteMethod =
+      component.qualifier === ComponentQualifier.Project ? deleteProject : deletePortfolio;
+    const redirectTo = isPortfolioLike(component.qualifier) ? '/portfolios' : '/';
+
+    await deleteMethod(component.key);
+
+    addGlobalSuccessMessage(
+      translateWithParameters('project_deletion.resource_deleted', component.name)
+    );
+    this.props.router.replace(redirectTo);
   };
 
   render() {
