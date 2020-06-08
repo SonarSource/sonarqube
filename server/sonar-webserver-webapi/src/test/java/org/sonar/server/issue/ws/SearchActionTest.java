@@ -67,6 +67,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TextRangeResponseFormatter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.index.IssueQuery;
@@ -136,8 +137,9 @@ public class SearchActionTest {
   private Languages languages = new Languages();
   private UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
   private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
+  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = new IssueIndexSyncProgressChecker(dbClient);
   private WsActionTester ws = new WsActionTester(
-    new SearchAction(userSession, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient));
+    new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader, searchResponseFormat, System2.INSTANCE, dbClient));
   private StartupIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
 
   @Before

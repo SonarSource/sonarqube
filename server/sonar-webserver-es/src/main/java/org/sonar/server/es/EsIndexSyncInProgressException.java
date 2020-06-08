@@ -20,13 +20,14 @@
 package org.sonar.server.es;
 
 import org.sonar.server.es.IndexType.IndexMainType;
+import org.sonar.server.exceptions.ServerException;
 
-public class EsIndexSyncInProgressException extends RuntimeException {
+public class EsIndexSyncInProgressException extends ServerException {
 
-  private IndexMainType indexType;
+  private final IndexMainType indexType;
 
-  public EsIndexSyncInProgressException(IndexMainType indexType) {
-    super(String.format("Synchronization of %s index is in progress", indexType.toString()));
+  public EsIndexSyncInProgressException(IndexMainType indexType, String message) {
+    super(503, message);
     this.indexType = indexType;
   }
 

@@ -21,10 +21,10 @@ package org.sonar.db.component;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -154,5 +154,19 @@ public class BranchDao implements Dao {
   public long updateNeedIssueSync(DbSession dbSession, String branchUuid, boolean needIssueSync) {
     long now = system2.now();
     return mapper(dbSession).updateNeedIssueSync(branchUuid, needIssueSync, now);
+  }
+
+  public boolean doAnyOfComponentsNeedIssueSync(DbSession session, List<String> components, @Nullable String branch,
+      @Nullable String pullRequest) {
+    if (!components.isEmpty()) {
+      List<Boolean> result = new LinkedList<>();
+      return executeLargeInputs(components, input -> {
+        boolean groupNeedIssueSync = mapper(session).doAnyOfComponentsNeedIssueSync(components, branch, pullRequest) > 0;
+        result.add(groupNeedIssueSync);
+        return result;
+      }).stream()
+        .anyMatch(b -> b);
+    }
+    return false;
   }
 }

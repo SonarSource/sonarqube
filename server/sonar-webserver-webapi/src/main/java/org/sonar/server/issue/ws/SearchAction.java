@@ -49,6 +49,7 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
 import org.sonar.server.security.SecurityStandards.SQCategory;
@@ -160,16 +161,18 @@ public class SearchAction implements IssuesWsAction {
   private final UserSession userSession;
   private final IssueIndex issueIndex;
   private final IssueQueryFactory issueQueryFactory;
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
   private final SearchResponseLoader searchResponseLoader;
   private final SearchResponseFormat searchResponseFormat;
   private final System2 system2;
   private final DbClient dbClient;
 
-  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
+  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory, IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
     SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2, DbClient dbClient) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
+    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.searchResponseLoader = searchResponseLoader;
     this.searchResponseFormat = searchResponseFormat;
     this.system2 = system2;
@@ -181,7 +184,8 @@ public class SearchAction implements IssuesWsAction {
     WebService.NewAction action = controller
       .createAction(ACTION_SEARCH)
       .setHandler(this)
-      .setDescription("Search for issues.<br>Requires the 'Browse' permission on the specified project(s).")
+      .setDescription("Search for issues.<br>Requires the 'Browse' permission on the specified project(s)."
+          + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
         new Change("8.4", "parameters 'componentUuids', 'projectKeys' has been dropped."),
@@ -369,6 +373,7 @@ public class SearchAction implements IssuesWsAction {
   public final void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       SearchRequest searchRequest = toSearchWsRequest(dbSession, request);
+      checkIfNeedIssueSync(dbSession, searchRequest);
       SearchWsResponse searchWsResponse = doHandle(searchRequest);
       writeProtobuf(searchWsResponse, request, response);
     }
@@ -534,6 +539,18 @@ public class SearchAction implements IssuesWsAction {
       .setSansTop25(request.paramAsStrings(PARAM_SANS_TOP_25))
       .setCwe(request.paramAsStrings(PARAM_CWE))
       .setSonarsourceSecurity(request.paramAsStrings(PARAM_SONARSOURCE_SECURITY));
+  }
+
+  private void checkIfNeedIssueSync(DbSession dbSession, SearchRequest searchRequest) {
+    List<String> components = searchRequest.getComponents();
+    if (components != null && !components.isEmpty()) {
+      String branch = searchRequest.getBranch();
+      String pullRequest = searchRequest.getPullRequest();
+      issueIndexSyncProgressChecker.checkIfAnyComponentsIssueSyncInProgress(dbSession, components, branch, pullRequest);
+    } else {
+      // component keys not provided - asking for global
+      issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(dbSession);
+    }
   }
 
   private static List<String> allRuleTypesExceptHotspotsIfEmpty(@Nullable List<String> types) {

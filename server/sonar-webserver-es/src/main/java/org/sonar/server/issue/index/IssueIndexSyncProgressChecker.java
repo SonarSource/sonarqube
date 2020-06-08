@@ -22,6 +22,7 @@ package org.sonar.server.issue.index;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.EsIndexSyncInProgressException;
@@ -39,31 +40,26 @@ public class IssueIndexSyncProgressChecker {
     return new IssueSyncProgress(completed, total);
   }
 
+  public void checkIfAnyComponentsIssueSyncInProgress(DbSession dbSession, List<String> componentKeys, @Nullable String branch,
+    @Nullable String pullRequest) {
+    boolean needIssueSync = dbClient.branchDao().doAnyOfComponentsNeedIssueSync(dbSession, componentKeys, branch, pullRequest);
+    if (needIssueSync) {
+      throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType(),
+          "Results are temporarily unavailable. Indexing of issues is in progress.");
+    }
+  }
+
   /**
    * Checks if issue index sync is in progress, if it is, method throws exception org.sonar.server.es.EsIndexSyncInProgressException
    */
-  public void checkIfIssueSyncInProgress(DbSession dbSession) throws EsIndexSyncInProgressException {
+  public void checkIfIssueSyncInProgress(DbSession dbSession) {
     if (isIssueSyncInProgress(dbSession)) {
-      throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType());
+      throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType(),
+          "Results are temporarily unavailable. Indexing of issues is in progress.");
     }
   }
 
-  /**
-   * Checks if project issue index sync is in progress, if it is, method throws exception org.sonar.server.es.EsIndexSyncInProgressException
-   */
-  public void checkIfProjectIssueSyncInProgress(DbSession dbSession, String projectUuid) throws EsIndexSyncInProgressException {
-    if (doProjectNeedIssueSync(dbSession, projectUuid)) {
-      throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType());
-    }
-  }
-
-  public void checkIfAnyProjectIssueSyncInProgress(DbSession dbSession, Collection<String> projectUuids) throws EsIndexSyncInProgressException {
-    if (!findProjectUuidsWithIssuesSyncNeed(dbSession, projectUuids).isEmpty()) {
-      throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType());
-    }
-  }
-
-  public boolean isIssueSyncInProgress(DbSession dbSession) throws EsIndexSyncInProgressException {
+  public boolean isIssueSyncInProgress(DbSession dbSession) {
     return dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
   }
 
