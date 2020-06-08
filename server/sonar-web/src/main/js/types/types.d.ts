@@ -126,6 +126,7 @@ declare namespace T {
     isFavorite?: boolean;
     leakPeriodDate?: string;
     name: string;
+    needIssueSync?: boolean;
     path?: string;
     refKey?: string;
     qualityProfiles?: ComponentQualityProfile[];

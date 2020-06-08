@@ -65,8 +65,10 @@ import systemRoutes from '../../apps/system/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import webhooksRoutes from '../../apps/webhooks/routes';
+import withIndexationGuard from '../../components/hoc/withIndexationGuard';
 import App from '../components/App';
 import GlobalContainer from '../components/GlobalContainer';
+import { PageContext } from '../components/indexation/PageUnavailableDueToIndexation';
 import MigrationContainer from '../components/MigrationContainer';
 import * as theme from '../theme';
 import getStore from './getStore';
@@ -300,7 +302,10 @@ export default function startReactApp(
                         import('../components/extensions/GlobalPageExtension')
                       )}
                     />
-                    <Route path="issues" component={Issues} />
+                    <Route
+                      path="issues"
+                      component={withIndexationGuard(Issues, PageContext.Issues)}
+                    />
                     <RouteWithChildRoutes path="organizations" childRoutes={organizationsRoutes} />
                     <RouteWithChildRoutes path="projects" childRoutes={projectsRoutes} />
                     <RouteWithChildRoutes path="quality_gates" childRoutes={qualityGatesRoutes} />

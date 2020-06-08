@@ -42,6 +42,7 @@ import { BranchLike } from '../../types/branch-like';
 import { isPortfolioLike } from '../../types/component';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
+import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
 import ComponentNav from './nav/component/ComponentNav';
 
 interface Props {
@@ -320,6 +321,10 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
 
     if (!loading && !component) {
       return <ComponentContainerNotFound />;
+    }
+
+    if (component?.needIssueSync) {
+      return <PageUnavailableDueToIndexation component={component} />;
     }
 
     const { branchLike, branchLikes, currentTask, isPending, tasksInProgress } = this.state;

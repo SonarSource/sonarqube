@@ -29,6 +29,7 @@ import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mo
 import { mockComponent, mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../types/component';
 import { ComponentContainer } from '../ComponentContainer';
+import PageUnavailableDueToIndexation from '../indexation/PageUnavailableDueToIndexation';
 
 jest.mock('../../../api/branches', () => {
   const { mockMainBranch, mockPullRequest } = require.requireActual(
@@ -208,6 +209,18 @@ it('should redirect if the component is a portfolio', async () => {
   });
   await waitAndUpdate(wrapper);
   expect(replace).toBeCalledWith({ pathname: '/portfolio', query: { id: componentKey } });
+});
+
+it('should display display the unavailable page if the component needs issue sync', async () => {
+  (getComponentData as jest.Mock).mockResolvedValueOnce({
+    component: { key: 'test', qualifier: ComponentQualifier.Project, needIssueSync: true }
+  });
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.find(PageUnavailableDueToIndexation).exists()).toBe(true);
 });
 
 function shallowRender(props: Partial<ComponentContainer['props']> = {}) {

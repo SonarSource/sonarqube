@@ -17,13 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import * as React from 'react';
-import withIndexationGuard from '../../../components/hoc/withIndexationGuard';
-import { PageContext } from '../indexation/PageUnavailableDueToIndexation';
-import GlobalPageExtension from './GlobalPageExtension';
+import { IndexationContext } from '../../app/components/indexation/IndexationContext';
+import PageUnavailableDueToIndexation, {
+  PageContext
+} from '../../app/components/indexation/PageUnavailableDueToIndexation';
 
-export function PortfoliosPage() {
-  return <GlobalPageExtension params={{ pluginKey: 'governance', extensionKey: 'portfolios' }} />;
+export default function withIndexationGuard<P>(
+  WrappedComponent: React.ComponentType<P>,
+  pageContext: PageContext
+) {
+  return class WithIndexationGuard extends React.PureComponent<P> {
+    render() {
+      return (
+        <IndexationContext.Consumer>
+          {context =>
+            context?.status.isCompleted ? (
+              <WrappedComponent {...this.props} />
+            ) : (
+              <PageUnavailableDueToIndexation pageContext={pageContext} />
+            )
+          }
+        </IndexationContext.Consumer>
+      );
+    }
+  };
 }
-
-export default withIndexationGuard(PortfoliosPage, PageContext.Portfolios);
