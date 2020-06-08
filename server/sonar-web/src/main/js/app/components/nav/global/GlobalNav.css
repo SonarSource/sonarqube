@@ -60,6 +60,8 @@
 
 .navbar-plus {
   margin-right: calc(-1 * var(--gridSize));
+  position: relative;
+  z-index: var(--aboveNormalZIndex);
 }
 
 .global-navbar-menu {
