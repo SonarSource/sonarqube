@@ -247,7 +247,7 @@ export class App extends React.PureComponent<Props, State> {
   fetchInitialData = () => {
     this.setState({ loading: true });
     const organization = this.props.organization && this.props.organization.key;
-    Promise.all([getRulesApp({ organization }), this.fetchQualityProfiles()]).then(
+    Promise.all([getRulesApp(organization), this.fetchQualityProfiles()]).then(
       ([{ canWrite, repositories }, { profiles }]) => {
         this.setState({
           canWrite,

@@ -74,3 +74,31 @@ exports[`should render correctly: with engine info 1`] = `
   </Tooltip>
 </div>
 `;
+
+exports[`should render correctly: with engine name 1`] = `
+<div
+  className="issue-message"
+>
+  <span
+    className="spacer-right"
+  >
+    Reduce the number of conditional operators (4) used in the expression
+  </span>
+  <ButtonLink
+    aria-label="issue.why_this_issue.long"
+    className="issue-see-rule spacer-right"
+    onClick={[Function]}
+  >
+    issue.why_this_issue
+  </ButtonLink>
+  <Tooltip
+    overlay="issue.from_external_rule_engine.JS"
+  >
+    <div
+      className="badge spacer-right text-top"
+    >
+      JS
+    </div>
+  </Tooltip>
+</div>
+`;

@@ -25,6 +25,7 @@ import { WorkspaceContextShape } from '../../workspace/context';
 
 export interface IssueMessageProps {
   engine?: string;
+  engineName?: string;
   manualVulnerability: boolean;
   message: string;
   onOpenRule: WorkspaceContextShape['openRule'];
@@ -33,7 +34,8 @@ export interface IssueMessageProps {
 }
 
 export default function IssueMessage(props: IssueMessageProps) {
-  const { engine, manualVulnerability, message, organization, ruleKey } = props;
+  const { engine, engineName, manualVulnerability, message, organization, ruleKey } = props;
+  const ruleEngine = engineName ? engineName : engine;
 
   return (
     <div className="issue-message">
@@ -45,9 +47,9 @@ export default function IssueMessage(props: IssueMessageProps) {
         {translate('issue.why_this_issue')}
       </ButtonLink>
 
-      {engine && (
-        <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', engine)}>
-          <div className="badge spacer-right text-top">{engine}</div>
+      {ruleEngine && (
+        <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
+          <div className="badge spacer-right text-top">{ruleEngine}</div>
         </Tooltip>
       )}
       {manualVulnerability && (

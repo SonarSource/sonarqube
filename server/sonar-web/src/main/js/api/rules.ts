@@ -25,10 +25,8 @@ export interface GetRulesAppResponse {
   repositories: { key: string; language: string; name: string }[];
 }
 
-export function getRulesApp(data: {
-  organization: string | undefined;
-}): Promise<GetRulesAppResponse> {
-  return getJSON('/api/rules/app', data).catch(throwGlobalError);
+export function getRulesApp(organization?: string): Promise<GetRulesAppResponse> {
+  return getJSON('/api/rules/app', { organization }).catch(throwGlobalError);
 }
 
 export interface SearchRulesResponse {

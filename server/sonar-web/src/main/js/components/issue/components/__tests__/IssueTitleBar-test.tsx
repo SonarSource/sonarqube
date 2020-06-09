@@ -21,58 +21,36 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockIssue } from '../../../../helpers/testMocks';
-import IssueTitleBar from '../IssueTitleBar';
+import { WorkspaceContext } from '../../../workspace/context';
+import IssueTitleBar, { IssueTitleBarProps } from '../IssueTitleBar';
 
-const issue: T.Issue = mockIssue();
-const issueWithLocations: T.Issue = mockIssue(true);
-
-it('should render the titlebar correctly', () => {
-  const branch = mockBranch({ name: 'feature-1.0' });
-  const element = shallow(
-    <IssueTitleBar branchLike={branch} issue={issue} togglePopup={jest.fn()} />
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ onFilter: jest.fn() })).toMatchSnapshot('with filter');
+  expect(shallowRender({ displayLocationsCount: true, issue: mockIssue(true) })).toMatchSnapshot(
+    'with multi locations'
   );
-  expect(element).toMatchSnapshot();
+  expect(
+    shallowRender({
+      branchLike: mockBranch(),
+      displayLocationsCount: true,
+      displayLocationsLink: true,
+      issue: mockIssue(true)
+    })
+  ).toMatchSnapshot('with multi locations and link');
+  expect(
+    shallowRender()
+      .find(WorkspaceContext.Consumer)
+      .dive()
+  ).toMatchSnapshot('issue message');
 });
 
-it('should render the titlebar with the filter', () => {
-  const element = shallow(
-    <IssueTitleBar issue={issue} onFilter={jest.fn()} togglePopup={jest.fn()} />
-  );
-  expect(element).toMatchSnapshot();
-});
-
-it('should count all code locations', () => {
-  const element = shallow(
+function shallowRender(props: Partial<IssueTitleBarProps> = {}) {
+  return shallow<IssueTitleBarProps>(
     <IssueTitleBar
-      displayLocationsCount={true}
-      issue={issueWithLocations}
+      issue={mockIssue(false, { externalRuleEngine: 'foo' })}
       togglePopup={jest.fn()}
+      {...props}
     />
   );
-  expect(element.find('LocationIndex')).toMatchSnapshot();
-
-  const elementWithLink = shallow(
-    <IssueTitleBar
-      displayLocationsCount={true}
-      displayLocationsLink={true}
-      issue={issueWithLocations}
-      togglePopup={jest.fn()}
-    />
-  );
-  expect(elementWithLink.find('LocationIndex')).toMatchSnapshot();
-});
-
-it('should have a correct permalink for security hotspots', () => {
-  const wrapper = shallow(
-    <IssueTitleBar issue={{ ...issue, type: 'SECURITY_HOTSPOT' }} togglePopup={jest.fn()} />
-  );
-  expect(wrapper.find('.js-issue-permalink').prop('to')).toEqual({
-    pathname: '/project/issues',
-    query: {
-      id: 'myproject',
-      issues: 'AVsae-CQS-9G3txfbFN2',
-      open: 'AVsae-CQS-9G3txfbFN2',
-      types: 'SECURITY_HOTSPOT'
-    }
-  });
-});
+}

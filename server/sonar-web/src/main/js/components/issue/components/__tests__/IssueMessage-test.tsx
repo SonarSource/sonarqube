@@ -27,6 +27,7 @@ import IssueMessage, { IssueMessageProps } from '../IssueMessage';
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
   expect(shallowRender({ engine: 'js' })).toMatchSnapshot('with engine info');
+  expect(shallowRender({ engineName: 'JS' })).toMatchSnapshot('with engine name');
   expect(shallowRender({ manualVulnerability: true })).toMatchSnapshot('is manual vulnerability');
 });
 

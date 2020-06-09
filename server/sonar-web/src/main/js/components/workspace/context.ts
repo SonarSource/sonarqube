@@ -35,11 +35,13 @@ export interface RuleDescriptor {
 }
 
 export interface WorkspaceContextShape {
+  externalRulesRepoNames: T.Dict<string>;
   openComponent: (component: ComponentDescriptor) => void;
   openRule: (rule: RuleDescriptor) => void;
 }
 
 export const WorkspaceContext = createContext<WorkspaceContextShape>({
+  externalRulesRepoNames: {},
   openComponent: () => {},
   openRule: () => {}
 });

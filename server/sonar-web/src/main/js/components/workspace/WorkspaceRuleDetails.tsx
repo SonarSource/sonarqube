@@ -64,7 +64,7 @@ export class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
   fetchRuleDetails = () => {
     this.setState({ loading: true });
     Promise.all([
-      getRulesApp({ organization: this.props.organizationKey }),
+      getRulesApp(this.props.organizationKey),
       getRuleDetails({ key: this.props.ruleKey, organization: this.props.organizationKey })
     ]).then(
       ([{ repositories }, { rule }]) => {

@@ -32,7 +32,7 @@ import IssueChangelog from './IssueChangelog';
 import IssueMessage from './IssueMessage';
 import SimilarIssuesFilter from './SimilarIssuesFilter';
 
-interface Props {
+export interface IssueTitleBarProps {
   branchLike?: BranchLike;
   currentPopup?: string;
   displayLocationsCount?: boolean;
@@ -42,7 +42,7 @@ interface Props {
   togglePopup: (popup: string, show?: boolean) => void;
 }
 
-export default function IssueTitleBar(props: Props) {
+export default function IssueTitleBar(props: IssueTitleBarProps) {
   const { issue } = props;
   const hasSimilarIssuesFilter = props.onFilter != null;
 
@@ -72,9 +72,14 @@ export default function IssueTitleBar(props: Props) {
   return (
     <div className="issue-row">
       <WorkspaceContext.Consumer>
-        {({ openRule }) => (
+        {({ externalRulesRepoNames, openRule }) => (
           <IssueMessage
             engine={issue.externalRuleEngine}
+            engineName={
+              issue.externalRuleEngine &&
+              externalRulesRepoNames &&
+              externalRulesRepoNames[issue.externalRuleEngine]
+            }
             manualVulnerability={issue.fromHotspot && issue.type === 'VULNERABILITY'}
             message={issue.message}
             onOpenRule={openRule}

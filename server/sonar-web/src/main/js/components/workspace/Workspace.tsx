@@ -21,6 +21,7 @@ import { omit, uniqBy } from 'lodash';
 import * as React from 'react';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { get, save } from 'sonar-ui-common/helpers/storage';
+import { getRulesApp } from '../../api/rules';
 import { ComponentDescriptor, RuleDescriptor, WorkspaceContext } from './context';
 import './styles.css';
 import WorkspacePortal from './WorkspacePortal';
@@ -38,28 +39,39 @@ const WorkspaceComponentViewer = lazyLoadComponent(
 
 interface State {
   components: ComponentDescriptor[];
+  externalRulesRepoNames: T.Dict<string>;
   height: number;
   maximized?: boolean;
   open: { component?: string; rule?: string };
   rules: RuleDescriptor[];
 }
 
-const MIN_HEIGHT = 0.05;
-const MAX_HEIGHT = 0.85;
-const INITIAL_HEIGHT = 300;
+export const MIN_HEIGHT = 0.05;
+export const MAX_HEIGHT = 0.85;
+export const INITIAL_HEIGHT = 300;
 
-const TYPE_KEY = '__type__';
+export const TYPE_KEY = '__type__';
+export enum WorkspaceTypes {
+  Rule = 'rule',
+  Component = 'component'
+}
 
 export default class Workspace extends React.PureComponent<{}, State> {
   mounted = false;
 
   constructor(props: {}) {
     super(props);
-    this.state = { height: INITIAL_HEIGHT, open: {}, ...this.loadWorkspace() };
+    this.state = {
+      externalRulesRepoNames: {},
+      height: INITIAL_HEIGHT,
+      open: {},
+      ...this.loadWorkspace()
+    };
   }
 
   componentDidMount() {
     this.mounted = true;
+    this.fetchRuleNames();
   }
 
   componentDidUpdate(_: {}, prevState: State) {
@@ -72,50 +84,66 @@ export default class Workspace extends React.PureComponent<{}, State> {
     this.mounted = false;
   }
 
+  fetchRuleNames = async () => {
+    const { repositories } = await getRulesApp();
+    const externalRulesRepoNames: T.Dict<string> = {};
+    repositories
+      .filter(({ key }) => key.startsWith('external_'))
+      .forEach(({ key, name }) => {
+        externalRulesRepoNames[key.replace('external_', '')] = name;
+      });
+    this.setState({ externalRulesRepoNames });
+  };
+
   loadWorkspace = () => {
     try {
       const data: any[] = JSON.parse(get(WORKSPACE) || '');
-      const components: ComponentDescriptor[] = data.filter(x => x[TYPE_KEY] === 'component');
-      const rules: RuleDescriptor[] = data.filter(x => x[TYPE_KEY] === 'rule');
+      const components: ComponentDescriptor[] = data.filter(
+        x => x[TYPE_KEY] === WorkspaceTypes.Component
+      );
+      const rules: RuleDescriptor[] = data.filter(x => x[TYPE_KEY] === WorkspaceTypes.Rule);
       return { components, rules };
     } catch {
-      // fail silently
+      // Fail silently.
       return { components: [], rules: [] };
     }
   };
 
   saveWorkspace = () => {
     const data = [
-      // do not save line number, next time the file is open, it should be open on the first line
-      ...this.state.components.map(x => omit({ ...x, [TYPE_KEY]: 'component' }, 'line')),
-      ...this.state.rules.map(x => ({ ...x, [TYPE_KEY]: 'rule' }))
+      // Do not save line number, next time the file is open, it should be open
+      // on the first line.
+      ...this.state.components.map(x =>
+        omit({ ...x, [TYPE_KEY]: WorkspaceTypes.Component }, 'line')
+      ),
+      ...this.state.rules.map(x => ({ ...x, [TYPE_KEY]: WorkspaceTypes.Rule }))
     ];
     save(WORKSPACE, JSON.stringify(data));
   };
 
-  openComponent = (component: ComponentDescriptor) => {
+  handleOpenComponent = (component: ComponentDescriptor) => {
     this.setState((state: State) => ({
-      components: uniqBy([...state.components, component], component => component.key),
+      components: uniqBy([...state.components, component], c => c.key),
       open: { component: component.key }
     }));
   };
 
-  reopenComponent = (componentKey: string) => {
+  handleComponentReopen = (componentKey: string) => {
     this.setState({ open: { component: componentKey } });
   };
 
-  openRule = (rule: RuleDescriptor) => {
+  handleOpenRule = (rule: RuleDescriptor) => {
     this.setState((state: State) => ({
       open: { rule: rule.key },
-      rules: uniqBy([...state.rules, rule], rule => rule.key)
+      rules: uniqBy([...state.rules, rule], r => r.key)
     }));
   };
 
-  reopenRule = (ruleKey: string) => {
+  handleRuleReopen = (ruleKey: string) => {
     this.setState({ open: { rule: ruleKey } });
   };
 
-  closeComponent = (componentKey: string) => {
+  handleComponentClose = (componentKey: string) => {
     this.setState((state: State) => ({
       components: state.components.filter(x => x.key !== componentKey),
       open: {
@@ -125,7 +153,7 @@ export default class Workspace extends React.PureComponent<{}, State> {
     }));
   };
 
-  closeRule = (ruleKey: string) => {
+  handleRuleClose = (ruleKey: string) => {
     this.setState((state: State) => ({
       rules: state.rules.filter(x => x.key !== ruleKey),
       open: {
@@ -155,19 +183,19 @@ export default class Workspace extends React.PureComponent<{}, State> {
     }
   };
 
-  collapse = () => {
+  handleCollapse = () => {
     this.setState({ open: {} });
   };
 
-  maximize = () => {
+  handleMaximize = () => {
     this.setState({ maximized: true });
   };
 
-  minimize = () => {
+  handleMinimize = () => {
     this.setState({ maximized: false });
   };
 
-  resize = (deltaY: number) => {
+  handleResize = (deltaY: number) => {
     const minHeight = window.innerHeight * MIN_HEIGHT;
     const maxHeight = window.innerHeight * MAX_HEIGHT;
     this.setState((state: State) => ({
@@ -176,52 +204,56 @@ export default class Workspace extends React.PureComponent<{}, State> {
   };
 
   render() {
-    const { components, open, rules } = this.state;
+    const { components, externalRulesRepoNames, height, maximized, open, rules } = this.state;
 
     const openComponent = open.component && components.find(x => x.key === open.component);
     const openRule = open.rule && rules.find(x => x.key === open.rule);
 
-    const height = this.state.maximized ? window.innerHeight * MAX_HEIGHT : this.state.height;
+    const actualHeight = maximized ? window.innerHeight * MAX_HEIGHT : height;
 
     return (
       <WorkspaceContext.Provider
-        value={{ openComponent: this.openComponent, openRule: this.openRule }}>
+        value={{
+          externalRulesRepoNames,
+          openComponent: this.handleOpenComponent,
+          openRule: this.handleOpenRule
+        }}>
         {this.props.children}
         <WorkspacePortal>
           {(components.length > 0 || rules.length > 0) && (
             <WorkspaceNav
               components={components}
-              onComponentClose={this.closeComponent}
-              onComponentOpen={this.reopenComponent}
-              onRuleClose={this.closeRule}
-              onRuleOpen={this.reopenRule}
-              open={this.state.open}
+              onComponentClose={this.handleComponentClose}
+              onComponentOpen={this.handleComponentReopen}
+              onRuleClose={this.handleRuleClose}
+              onRuleOpen={this.handleRuleReopen}
+              open={open}
               rules={rules}
             />
           )}
           {openComponent && (
             <WorkspaceComponentViewer
               component={openComponent}
-              height={height}
-              maximized={this.state.maximized}
-              onClose={this.closeComponent}
-              onCollapse={this.collapse}
+              height={actualHeight}
+              maximized={maximized}
+              onClose={this.handleComponentClose}
+              onCollapse={this.handleCollapse}
               onLoad={this.handleComponentLoad}
-              onMaximize={this.maximize}
-              onMinimize={this.minimize}
-              onResize={this.resize}
+              onMaximize={this.handleMaximize}
+              onMinimize={this.handleMinimize}
+              onResize={this.handleResize}
             />
           )}
           {openRule && (
             <WorkspaceRuleViewer
-              height={height}
-              maximized={this.state.maximized}
-              onClose={this.closeRule}
-              onCollapse={this.collapse}
+              height={actualHeight}
+              maximized={maximized}
+              onClose={this.handleRuleClose}
+              onCollapse={this.handleCollapse}
               onLoad={this.handleRuleLoad}
-              onMaximize={this.maximize}
-              onMinimize={this.minimize}
-              onResize={this.resize}
+              onMaximize={this.handleMaximize}
+              onMinimize={this.handleMinimize}
+              onResize={this.handleResize}
               rule={openRule}
             />
           )}
