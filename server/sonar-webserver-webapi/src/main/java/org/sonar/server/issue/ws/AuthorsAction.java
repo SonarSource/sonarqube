@@ -40,6 +40,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
@@ -62,14 +63,18 @@ public class AuthorsAction implements IssuesWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final IssueIndex issueIndex;
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
   private final ComponentFinder componentFinder;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public AuthorsAction(UserSession userSession, DbClient dbClient, IssueIndex issueIndex, ComponentFinder componentFinder,
+  public AuthorsAction(UserSession userSession, DbClient dbClient, IssueIndex issueIndex,
+    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
+    ComponentFinder componentFinder,
     DefaultOrganizationProvider defaultOrganizationProvider) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
+    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.componentFinder = componentFinder;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
@@ -79,7 +84,8 @@ public class AuthorsAction implements IssuesWsAction {
     NewAction action = controller.createAction("authors")
       .setSince("5.1")
       .setDescription("Search SCM accounts which match a given query.<br/>" +
-        "Requires authentication.")
+        "Requires authentication."
+          + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setResponseExample(Resources.getResource(this.getClass(), "authors-example.json"))
       .setChangelog(new Change("7.4", "The maximum size of 'ps' is set to 100"))
       .setHandler(this);
@@ -107,10 +113,21 @@ public class AuthorsAction implements IssuesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = getOrganization(dbSession, request.param(PARAM_ORGANIZATION));
       userSession.checkMembership(organization);
+
+      checkIfComponentNeedIssueSync(dbSession, request.param(PARAM_PROJECT));
+
       Optional<ComponentDto> project = getProject(dbSession, organization, request.param(PARAM_PROJECT));
       List<String> authors = getAuthors(organization, project, request);
       AuthorsResponse wsResponse = AuthorsResponse.newBuilder().addAllAuthors(authors).build();
       writeProtobuf(wsResponse, request, response);
+    }
+  }
+
+  private void checkIfComponentNeedIssueSync(DbSession dbSession, @Nullable String projectKey) {
+    if (projectKey != null) {
+      issueIndexSyncProgressChecker.checkIfComponentNeedIssueSync(dbSession, projectKey);
+    } else {
+      issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(dbSession);
     }
   }
 
