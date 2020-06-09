@@ -37,6 +37,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonarqube.ws.Issues;
 
@@ -58,11 +59,15 @@ public class TagsAction implements IssuesWsAction {
   private static final String PARAM_PROJECT = "project";
 
   private final IssueIndex issueIndex;
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
 
-  public TagsAction(IssueIndex issueIndex, DbClient dbClient, ComponentFinder componentFinder) {
+  public TagsAction(IssueIndex issueIndex,
+    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker, DbClient dbClient,
+    ComponentFinder componentFinder) {
     this.issueIndex = issueIndex;
+    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
   }
@@ -93,8 +98,11 @@ public class TagsAction implements IssuesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<OrganizationDto> organization = getOrganization(dbSession, request.param(PARAM_ORGANIZATION));
-      Optional<ComponentDto> project = getProject(dbSession, organization, request.param(PARAM_PROJECT));
+      String projectKey = request.param(PARAM_PROJECT);
+      String organizatioKey = request.param(PARAM_ORGANIZATION);
+      checkIfAnyComponentsNeedIssueSync(dbSession, projectKey);
+      Optional<OrganizationDto> organization = getOrganization(dbSession, organizatioKey);
+      Optional<ComponentDto> project = getProject(dbSession, organization, projectKey);
       List<String> tags = searchTags(organization, project, request);
       Issues.TagsResponse.Builder tagsResponseBuilder = Issues.TagsResponse.newBuilder();
       tags.forEach(tagsResponseBuilder::addTags);
@@ -115,6 +123,14 @@ public class TagsAction implements IssuesWsAction {
     checkArgument(project.scope().equals(Scopes.PROJECT), "Component '%s' must be a project", projectKey);
     organization.ifPresent(o -> checkArgument(project.getOrganizationUuid().equals(o.getUuid()), "Project '%s' is not part of the organization '%s'", projectKey, o.getKey()));
     return Optional.of(project);
+  }
+
+  private void checkIfAnyComponentsNeedIssueSync(DbSession session, @Nullable String projectKey) {
+    if (projectKey != null) {
+      issueIndexSyncProgressChecker.checkIfComponentNeedIssueSync(session, projectKey);
+    } else {
+      issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(session);
+    }
   }
 
   private List<String> searchTags(Optional<OrganizationDto> organization, Optional<ComponentDto> project, Request request) {

@@ -186,7 +186,7 @@ public class SearchAction implements HotspotsWsAction {
     if (projectKey.isPresent()) {
       String branch = wsRequest.getBranch().orElse(null);
       String pullRequest = wsRequest.getPullRequest().orElse(null);
-      issueIndexSyncProgressChecker.checkIfAnyComponentsIssueSyncInProgress(dbSession, singletonList(projectKey.get()), branch, pullRequest);
+      issueIndexSyncProgressChecker.checkIfAnyComponentsNeedIssueSync(dbSession, singletonList(projectKey.get()), branch, pullRequest);
     } else {
       // component keys not provided - asking for global
       issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(dbSession);

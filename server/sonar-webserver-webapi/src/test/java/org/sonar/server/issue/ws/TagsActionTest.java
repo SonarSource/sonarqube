@@ -36,6 +36,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -52,6 +53,10 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -69,12 +74,13 @@ public class TagsActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new WebAuthorizationTypeSupport(userSession));
+  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()), null);
   private ViewIndexer viewIndexer = new ViewIndexer(db.getDbClient(), es.client());
   private PermissionIndexerTester permissionIndexer = new PermissionIndexerTester(es, issueIndexer);
   private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
 
-  private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, db.getDbClient(), new ComponentFinder(db.getDbClient(), resourceTypes)));
+  private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, issueIndexSyncProgressChecker, db.getDbClient(), new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Test
   public void search_tags() {
@@ -88,6 +94,7 @@ public class TagsActionTest {
     TagsResponse result = ws.newRequest().executeProtobuf(TagsResponse.class);
 
     assertThat(result.getTagsList()).containsExactly("tag1", "tag2", "tag3", "tag4", "tag5");
+    verify(issueIndexSyncProgressChecker).checkIfIssueSyncInProgress(any());
   }
 
   @Test
@@ -187,6 +194,7 @@ public class TagsActionTest {
     assertThat(tagListOf(ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey()))).containsExactly("tag1");
+    verify(issueIndexSyncProgressChecker).checkIfComponentNeedIssueSync(any(), eq(project1.getKey()));
   }
 
   @Test

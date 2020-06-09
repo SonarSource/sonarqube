@@ -121,7 +121,7 @@ public class IssueIndexSyncProgressCheckerTest {
     ProjectDto projectDto2 = insertProjectWithBranches(true, 0);
     DbSession session = db.getSession();
     List<String> projectKeys = Arrays.asList(projectDto1.getKey(), projectDto2.getKey());
-    assertThatThrownBy(() -> underTest.checkIfAnyComponentsIssueSyncInProgress(session, projectKeys, null, null))
+    assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session, projectKeys, null, null))
       .isInstanceOf(EsIndexSyncInProgressException.class)
       .hasFieldOrPropertyWithValue("httpCode", 503)
       .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
@@ -129,10 +129,10 @@ public class IssueIndexSyncProgressCheckerTest {
 
   @Test
   public void checkIfAnyComponentsIssueSyncInProgress_does_not_throw_exception_if_all_components_have_need_issue_sync_FALSE() {
-    underTest.checkIfAnyComponentsIssueSyncInProgress(db.getSession(), Collections.emptyList(), null, null);
+    underTest.checkIfAnyComponentsNeedIssueSync(db.getSession(), Collections.emptyList(), null, null);
     ProjectDto projectDto1 = insertProjectWithBranches(false, 0);
     ProjectDto projectDto2 = insertProjectWithBranches(false, 0);
-    underTest.checkIfAnyComponentsIssueSyncInProgress(db.getSession(), Arrays.asList(projectDto1.getKey(), projectDto2.getKey()), null, null);
+    underTest.checkIfAnyComponentsNeedIssueSync(db.getSession(), Arrays.asList(projectDto1.getKey(), projectDto2.getKey()), null, null);
   }
 
   @Test
@@ -142,7 +142,7 @@ public class IssueIndexSyncProgressCheckerTest {
 
     DbSession session = db.getSession();
     List<String> projectKeys = Arrays.asList(projectDto1.getKey(), projectDto2.getKey());
-    assertThatThrownBy(() -> underTest.checkIfAnyComponentsIssueSyncInProgress(session, projectKeys, null, null))
+    assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session, projectKeys, null, null))
       .isInstanceOf(EsIndexSyncInProgressException.class)
       .hasFieldOrPropertyWithValue("httpCode", 503)
       .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
@@ -156,11 +156,11 @@ public class IssueIndexSyncProgressCheckerTest {
     DbSession session = db.getSession();
     List<String> projectKey1 = singletonList(projectDto2.getKey());
     // do nothing when need issue sync false
-    underTest.checkIfAnyComponentsIssueSyncInProgress(session, projectKey1, null, null);
+    underTest.checkIfAnyComponentsNeedIssueSync(session, projectKey1, null, null);
 
     List<String> projectKey2 = singletonList(projectDto1.getKey());
     // throws if flag set to TRUE
-    assertThatThrownBy(() -> underTest.checkIfAnyComponentsIssueSyncInProgress(session,
+    assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session,
         projectKey2, null, null))
         .isInstanceOf(EsIndexSyncInProgressException.class)
         .hasFieldOrPropertyWithValue("httpCode", 503)

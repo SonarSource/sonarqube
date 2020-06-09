@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.Sets;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
@@ -40,13 +41,17 @@ public class IssueIndexSyncProgressChecker {
     return new IssueSyncProgress(completed, total);
   }
 
-  public void checkIfAnyComponentsIssueSyncInProgress(DbSession dbSession, List<String> componentKeys, @Nullable String branch,
+  public void checkIfAnyComponentsNeedIssueSync(DbSession dbSession, List<String> componentKeys, @Nullable String branch,
     @Nullable String pullRequest) {
     boolean needIssueSync = dbClient.branchDao().doAnyOfComponentsNeedIssueSync(dbSession, componentKeys, branch, pullRequest);
     if (needIssueSync) {
       throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType(),
           "Results are temporarily unavailable. Indexing of issues is in progress.");
     }
+  }
+
+  public void checkIfComponentNeedIssueSync(DbSession dbSession, String componentKey) {
+    checkIfAnyComponentsNeedIssueSync(dbSession, Collections.singletonList(componentKey), null, null);
   }
 
   /**

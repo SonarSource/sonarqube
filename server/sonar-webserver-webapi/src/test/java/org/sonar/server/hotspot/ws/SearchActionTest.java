@@ -671,9 +671,9 @@ public class SearchActionTest {
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Arrays.stream(hotspotPR).map(IssueDto::getKey).toArray(String[]::new));
 
-    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsIssueSyncInProgress(any(), argThat(arg -> arg.contains(project.getKey())), isNull(), isNull());
-    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsIssueSyncInProgress(any(), argThat(arg -> arg.contains(project.getKey())), eq(branch.getBranch()), isNull());
-    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsIssueSyncInProgress(any(), argThat(arg -> arg.contains(project.getKey())), isNull(), eq(branch.getPullRequest()));
+    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsNeedIssueSync(any(), argThat(arg -> arg.contains(project.getKey())), isNull(), isNull());
+    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsNeedIssueSync(any(), argThat(arg -> arg.contains(project.getKey())), eq(branch.getBranch()), isNull());
+    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsNeedIssueSync(any(), argThat(arg -> arg.contains(project.getKey())), isNull(), eq(branch.getPullRequest()));
   }
 
   @Test
