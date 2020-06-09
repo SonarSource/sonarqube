@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -108,6 +109,10 @@ public class ListActionTest {
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("project");
     assertThat(definition.since()).isEqualTo("7.1");
+
+    assertThat(definition.changelog())
+      .extracting(Change::getVersion, Change::getDescription)
+      .contains(tuple("8.4", "Response fields: 'bugs', 'vulnerabilities', 'codeSmells' are deprecated."));
   }
 
   @Test

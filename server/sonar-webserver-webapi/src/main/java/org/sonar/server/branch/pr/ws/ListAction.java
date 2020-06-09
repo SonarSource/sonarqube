@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -84,8 +85,9 @@ public class ListAction implements PullRequestWsAction {
         "<li>'Execute Analysis' rights on the specified project</li>" +
         "</ul>")
       .setResponseExample(getClass().getResource("list-example.json"))
-      .setHandler(this);
-
+      .setHandler(this)
+      .setChangelog(
+        new Change("8.4", "Response fields: 'bugs', 'vulnerabilities', 'codeSmells' are deprecated."));
     addProjectParam(action);
   }
 
