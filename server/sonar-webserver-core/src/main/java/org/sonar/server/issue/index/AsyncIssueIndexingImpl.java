@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
@@ -28,6 +29,8 @@ import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.BranchDto;
 
 import static java.util.Collections.emptyMap;
@@ -51,10 +54,10 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
 
+      // remove already existing indexation task, if any
+      removeExistingIndexationTasks(dbSession);
+
       dbClient.branchDao().updateAllNeedIssueSync(dbSession);
-
-      // TODO check the queue for any BRANCH_ISSUE_SYNC existing task pending
-
       List<BranchDto> branchInNeedOfIssueSync = dbClient.branchDao().selectBranchNeedingIssueSync(dbSession);
 
       if (branchInNeedOfIssueSync.isEmpty()) {
@@ -73,6 +76,26 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
       dbSession.commit();
 
     }
+  }
+
+  private void removeExistingIndexationTasks(DbSession dbSession) {
+    List<String> uuids = dbClient.ceQueueDao().selectAllInAscOrder(dbSession).stream()
+      .filter(p -> p.getTaskType().equals(BRANCH_ISSUE_SYNC))
+      .map(CeQueueDto::getUuid)
+      .collect(Collectors.toList());
+    LOG.info(String.format("%s pending indexation task found to be deleted...", uuids.size()));
+    for (String uuid : uuids) {
+      dbClient.ceQueueDao().deleteByUuid(dbSession, uuid);
+    }
+    dbSession.commit();
+
+    Set<String> ceUuids = dbClient.ceActivityDao().selectByTaskType(dbSession, BRANCH_ISSUE_SYNC).stream()
+      .map(CeActivityDto::getUuid)
+      .collect(Collectors.toSet());
+    LOG.info(String.format("%s completed indexation task found to be deleted...", uuids.size()));
+    dbClient.ceActivityDao().deleteByUuids(dbSession, ceUuids);
+    dbSession.commit();
+    LOG.info("Indexation task deletion complete.");
   }
 
   private CeTaskSubmit buildTaskSubmit(BranchDto branch) {

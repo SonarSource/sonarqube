@@ -46,4 +46,8 @@ public interface CeActivityMapper {
 
   @CheckForNull
   CeActivityDto selectLastByComponentUuidAndTaskType(@Param("componentUuid") String componentUuid, @Param("taskType") String taskType);
+
+  short hasAnyFailedIssueSyncTask();
+
+  List<CeActivityDto> selectByTaskType(@Param("taskType") String taskType);
 }

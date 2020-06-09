@@ -742,6 +742,62 @@ public class CeActivityDaoTest {
     assertThat(result).isEmpty();
   }
 
+  @Test
+  public void selectByTaskType() {
+    insert("TASK_1", CeTaskTypes.REPORT, MAINCOMPONENT_1, SUCCESS);
+    insert("TASK_2", CeTaskTypes.BRANCH_ISSUE_SYNC, MAINCOMPONENT_1, SUCCESS);
+    db.commit();
+
+    assertThat(underTest.selectByTaskType(db.getSession(), CeTaskTypes.REPORT))
+      .extracting("uuid")
+      .containsExactly("TASK_1");
+    assertThat(underTest.selectByTaskType(db.getSession(), CeTaskTypes.BRANCH_ISSUE_SYNC))
+      .extracting("uuid")
+      .containsExactly("TASK_2");
+
+    assertThat(underTest.selectByTaskType(db.getSession(), "unknown-type")).isEmpty();
+  }
+
+  @Test
+  public void hasAnyFailedIssueSyncTask() {
+    assertThat(underTest.hasAnyFailedIssueSyncTask(db.getSession())).isFalse();
+
+    insert("TASK_1", REPORT, MAINCOMPONENT_1, SUCCESS);
+    insert("TASK_2", REPORT, MAINCOMPONENT_1, FAILED);
+
+    ProjectDto projectDto1 = db.components()
+        .insertPrivateProjectDto(db.getDefaultOrganization(), branchDto -> branchDto.setNeedIssueSync(false));
+    insert("TASK_3", CeTaskTypes.BRANCH_ISSUE_SYNC, projectDto1.getUuid(), projectDto1.getUuid(), SUCCESS);
+
+    ProjectDto projectDto2 = db.components()
+        .insertPrivateProjectDto(db.getDefaultOrganization(), branchDto -> branchDto.setNeedIssueSync(false));
+    insert("TASK_4", CeTaskTypes.BRANCH_ISSUE_SYNC, projectDto2.getUuid(), projectDto2.getUuid(), SUCCESS);
+
+    assertThat(underTest.hasAnyFailedIssueSyncTask(db.getSession())).isFalse();
+
+    ProjectDto projectDto3 = db.components().insertPrivateProjectDto(db.getDefaultOrganization(), branchDto -> branchDto.setNeedIssueSync(false));
+    insert("TASK_5", CeTaskTypes.BRANCH_ISSUE_SYNC, projectDto3.getUuid(), projectDto3.getUuid(), SUCCESS);
+
+    BranchDto projectBranch = db.components()
+        .insertProjectBranch(projectDto3, branchDto -> branchDto.setNeedIssueSync(true));
+
+    insert("TASK_6", CeTaskTypes.BRANCH_ISSUE_SYNC, projectBranch.getUuid(), projectDto3.getUuid(), FAILED);
+
+    //failed task and project branch still exists and need sync
+    assertThat(underTest.hasAnyFailedIssueSyncTask(db.getSession())).isTrue();
+
+    //assume branch has been re-analysed
+    db.getDbClient().branchDao().updateNeedIssueSync(db.getSession(), projectBranch.getUuid(), false);
+
+    assertThat(underTest.hasAnyFailedIssueSyncTask(db.getSession())).isFalse();
+
+    //assume branch has been deleted
+    db.getDbClient().purgeDao().deleteBranch(db.getSession(), projectBranch.getUuid());
+
+    //associated branch does not exist, so there is no failures - either it has been deleted or purged or reanalysed
+    assertThat(underTest.hasAnyFailedIssueSyncTask(db.getSession())).isFalse();
+  }
+
   private CeActivityDto insert(String uuid, String type, @Nullable String mainComponentUuid, CeActivityDto.Status status) {
     return insert(uuid, type, mainComponentUuid, mainComponentUuid, status);
   }

@@ -32,6 +32,9 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeActivityDto.Status;
+import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.BranchDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +43,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
+import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.BranchType.BRANCH;
 
 public class AsyncIssueIndexingImplTest {
@@ -87,6 +92,42 @@ public class AsyncIssueIndexingImplTest {
     underTest.triggerOnIndexCreation();
 
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("No branch found in need of issue sync");
+  }
+
+  @Test
+  public void remove_existing_indexation_task() {
+    CeQueueDto reportTask = new CeQueueDto();
+    reportTask.setUuid("uuid_1");
+    reportTask.setTaskType(REPORT);
+    dbClient.ceQueueDao().insert(dbTester.getSession(), reportTask);
+
+    CeActivityDto reportActivity = new CeActivityDto(reportTask);
+    reportActivity.setStatus(Status.SUCCESS);
+    dbClient.ceActivityDao().insert(dbTester.getSession(), reportActivity);
+    CeQueueDto task = new CeQueueDto();
+    task.setUuid("uuid_2");
+    task.setTaskType(BRANCH_ISSUE_SYNC);
+    dbClient.ceQueueDao().insert(dbTester.getSession(), task);
+
+    CeActivityDto activityDto = new CeActivityDto(task);
+    activityDto.setStatus(Status.SUCCESS);
+    dbClient.ceActivityDao().insert(dbTester.getSession(), activityDto);
+
+    dbTester.commit();
+
+    underTest.triggerOnIndexCreation();
+
+    assertThat(dbClient.ceQueueDao().selectAllInAscOrder(dbTester.getSession())).extracting("uuid")
+      .containsExactly(reportTask.getUuid());
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), BRANCH_ISSUE_SYNC)).isEmpty();
+
+    assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains(
+        "1 pending indexation task found to be deleted...",
+        "1 completed indexation task found to be deleted...",
+        "Indexation task deletion complete.");
   }
 
 }

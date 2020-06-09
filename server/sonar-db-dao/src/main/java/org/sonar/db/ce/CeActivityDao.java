@@ -61,6 +61,10 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).selectOlderThan(beforeDate);
   }
 
+  public List<CeActivityDto> selectByTaskType(DbSession dbSession, String taskType) {
+    return mapper(dbSession).selectByTaskType(taskType);
+  }
+
   public void deleteByUuids(DbSession dbSession, Set<String> uuids) {
     executeLargeUpdates(uuids, mapper(dbSession)::deleteByUuids);
   }

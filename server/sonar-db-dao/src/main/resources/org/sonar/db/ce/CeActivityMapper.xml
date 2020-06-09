@@ -19,7 +19,7 @@
     (select count(1) from ce_task_message ctm where ctm.task_uuid = ca.uuid) as warningCount
   </sql>
 
-  <sql id="columns">
+  <sql id="ceActivityColumns">
     ca.uuid,
     ca.task_type as taskType,
     ca.component_uuid as componentUuid,
@@ -39,7 +39,11 @@
     ca.main_is_last_key as mainIsLastKey,
     ca.execution_time_ms as executionTimeMs,
     ca.error_message as errorMessage,
-    ca.error_type as errorType,
+    ca.error_type as errorType
+  </sql>
+
+  <sql id="columns">
+    <include refid="ceActivityColumns"/>,
     <include refid="hasScannerContextColumn"/>
   </sql>
 
@@ -242,6 +246,14 @@
       ca.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and ca.task_type = #{taskType,jdbcType=VARCHAR}
       and ca.is_last = ${_true}
+  </select>
+
+  <select id="selectByTaskType" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
+    select
+    <include refid="ceActivityColumns"/>
+    from ce_activity ca
+    where
+    ca.task_type = #{taskType,jdbcType=VARCHAR}
   </select>
 
 </mapper>
