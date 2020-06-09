@@ -57,6 +57,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -79,6 +80,12 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.STATUSES;
@@ -113,8 +120,9 @@ public class SearchActionTest {
   private ViewIndexer viewIndexer = new ViewIndexer(dbClient, es.client());
   private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, es.client(), issueIndexer);
   private HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(defaultOrganizationProvider);
-
-  private SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex, responseFormatter, system2);
+  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private SearchAction underTest = new SearchAction(dbClient, userSessionRule, issueIndex,
+    issueIndexSyncProgressChecker, responseFormatter, system2);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -662,6 +670,10 @@ public class SearchActionTest {
     assertThat(responsePR.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Arrays.stream(hotspotPR).map(IssueDto::getKey).toArray(String[]::new));
+
+    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsIssueSyncInProgress(any(), argThat(arg -> arg.contains(project.getKey())), isNull(), isNull());
+    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsIssueSyncInProgress(any(), argThat(arg -> arg.contains(project.getKey())), eq(branch.getBranch()), isNull());
+    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsIssueSyncInProgress(any(), argThat(arg -> arg.contains(project.getKey())), isNull(), eq(branch.getPullRequest()));
   }
 
   @Test
@@ -725,8 +737,8 @@ public class SearchActionTest {
       .setParam("hotspots", IntStream.range(2, 10).mapToObj(String::valueOf).collect(joining(",")))
       .setParam("onlyMine", "true")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Parameter 'onlyMine' can be used with parameter 'projectKey' only");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Parameter 'onlyMine' can be used with parameter 'projectKey' only");
   }
 
   @Test
@@ -739,8 +751,8 @@ public class SearchActionTest {
       .setParam("projectKey", project.getKey())
       .setParam("onlyMine", "true")
       .execute())
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Parameter 'onlyMine' requires user to be logged in");
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("Parameter 'onlyMine' requires user to be logged in");
   }
 
   @Test
@@ -1270,6 +1282,7 @@ public class SearchActionTest {
     SearchWsResponse response = newRequest(IntStream.range(0, 1 + RANDOM.nextInt(30)).mapToObj(i -> "key_" + i).collect(toList()))
       .executeProtobuf(SearchWsResponse.class);
 
+    verify(issueIndexSyncProgressChecker).checkIfIssueSyncInProgress(any());
     assertThat(response.getHotspotsList()).isEmpty();
   }
 
@@ -1341,7 +1354,7 @@ public class SearchActionTest {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam("sinceLeakPeriod", "true"))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList())
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Stream.concat(
@@ -1378,7 +1391,7 @@ public class SearchActionTest {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam("sinceLeakPeriod", "true"))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList()).isEmpty();
   }
 
@@ -1410,7 +1423,7 @@ public class SearchActionTest {
 
     SearchWsResponse responseOnLeak = newRequest(project,
       t -> t.setParam("sinceLeakPeriod", "true").setParam("pullRequest", "pr"))
-      .executeProtobuf(SearchWsResponse.class);
+        .executeProtobuf(SearchWsResponse.class);
     assertThat(responseOnLeak.getHotspotsList()).hasSize(3);
   }
 

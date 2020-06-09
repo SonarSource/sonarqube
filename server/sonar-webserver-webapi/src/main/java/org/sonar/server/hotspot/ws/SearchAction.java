@@ -56,6 +56,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.security.SecurityStandards;
 import org.sonar.server.user.UserSession;
@@ -102,13 +103,17 @@ public class SearchAction implements HotspotsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final IssueIndex issueIndex;
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
   private final HotspotWsResponseFormatter responseFormatter;
   private System2 system2;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex, HotspotWsResponseFormatter responseFormatter, System2 system2) {
+  public SearchAction(DbClient dbClient, UserSession userSession, IssueIndex issueIndex,
+    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
+    HotspotWsResponseFormatter responseFormatter, System2 system2) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueIndex = issueIndex;
+    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.responseFormatter = responseFormatter;
     this.system2 = system2;
   }
@@ -118,7 +123,8 @@ public class SearchAction implements HotspotsWsAction {
     WebService.NewAction action = controller
       .createAction("search")
       .setHandler(this)
-      .setDescription("Search for Security Hotpots.")
+      .setDescription("Search for Security Hotpots."
+          + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("8.1")
       .setInternal(true);
 
@@ -166,12 +172,24 @@ public class SearchAction implements HotspotsWsAction {
     WsRequest wsRequest = toWsRequest(request);
     validateParameters(wsRequest);
     try (DbSession dbSession = dbClient.openSession(false)) {
+      checkIfNeedIssueSync(dbSession, wsRequest);
       Optional<ComponentDto> project = getAndValidateProjectOrApplication(dbSession, wsRequest);
-
       SearchResponseData searchResponseData = searchHotspots(wsRequest, dbSession, project, wsRequest.getHotspotKeys());
       loadComponents(dbSession, searchResponseData);
       loadRules(dbSession, searchResponseData);
       writeProtobuf(formatResponse(searchResponseData), request, response);
+    }
+  }
+
+  private void checkIfNeedIssueSync(DbSession dbSession, WsRequest wsRequest) {
+    Optional<String> projectKey = wsRequest.getProjectKey();
+    if (projectKey.isPresent()) {
+      String branch = wsRequest.getBranch().orElse(null);
+      String pullRequest = wsRequest.getPullRequest().orElse(null);
+      issueIndexSyncProgressChecker.checkIfAnyComponentsIssueSyncInProgress(dbSession, singletonList(projectKey.get()), branch, pullRequest);
+    } else {
+      // component keys not provided - asking for global
+      issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(dbSession);
     }
   }
 
