@@ -55,7 +55,11 @@ public class IssueIndexSyncProgressChecker {
   }
 
   public void checkIfComponentNeedIssueSync(DbSession dbSession, String componentKey) {
-    checkIfAnyComponentsNeedIssueSync(dbSession, Collections.singletonList(componentKey), null, null);
+    checkIfComponentNeedIssueSync(dbSession, componentKey, null);
+  }
+
+  public void checkIfComponentNeedIssueSync(DbSession dbSession, String componentKey, @Nullable String branchKey) {
+    checkIfAnyComponentsNeedIssueSync(dbSession, Collections.singletonList(componentKey), branchKey, null);
   }
 
   /**
