@@ -21,13 +21,18 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.issue.SearchRequest;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
 
@@ -44,11 +49,17 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFT
 public class ComponentTagsAction implements IssuesWsAction {
 
   private final IssueIndex issueIndex;
+  private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
   private final IssueQueryFactory queryService;
+  private final DbClient dbClient;
 
-  public ComponentTagsAction(IssueIndex issueIndex, IssueQueryFactory queryService) {
+  public ComponentTagsAction(IssueIndex issueIndex,
+    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker,
+    IssueQueryFactory queryService, DbClient dbClient) {
     this.issueIndex = issueIndex;
+    this.issueIndexSyncProgressChecker = issueIndexSyncProgressChecker;
     this.queryService = queryService;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -57,7 +68,8 @@ public class ComponentTagsAction implements IssuesWsAction {
       .setHandler(this)
       .setSince("5.1")
       .setInternal(true)
-      .setDescription("List tags for the issues under a given component (including issues on the descendants of the component)")
+      .setDescription("List tags for the issues under a given component (including issues on the descendants of the component)"
+          + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setResponseExample(Resources.getResource(getClass(), "component-tags-example.json"));
 
     action.createParam(PARAM_COMPONENT_UUID)
@@ -78,8 +90,11 @@ public class ComponentTagsAction implements IssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    String componentUuid = request.mandatoryParam(PARAM_COMPONENT_UUID);
+    checkIfAnyComponentsNeedIssueSync(componentUuid);
+
     SearchRequest searchRequest = new SearchRequest()
-      .setComponentUuids(singletonList(request.mandatoryParam(PARAM_COMPONENT_UUID)))
+      .setComponentUuids(singletonList(componentUuid))
       .setTypes(ISSUE_TYPE_NAMES)
       .setResolved(false)
       .setCreatedAfter(request.param(PARAM_CREATED_AFTER));
@@ -95,6 +110,17 @@ public class ComponentTagsAction implements IssuesWsAction {
           .endObject();
       }
       json.endArray().endObject();
+    }
+  }
+
+  private void checkIfAnyComponentsNeedIssueSync(String componentUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+      if (componentDto.isPresent()) {
+        issueIndexSyncProgressChecker.checkIfComponentNeedIssueSync(dbSession, componentDto.get().getKey());
+      } else {
+        issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(dbSession);
+      }
     }
   }
 

@@ -22,25 +22,35 @@ package org.sonar.server.issue.ws;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.db.DbClient;
+import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.server.issue.SearchRequest;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
-import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.server.issue.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentTagsActionTest {
@@ -51,8 +61,24 @@ public class ComponentTagsActionTest {
 
   private IssueIndex service = mock(IssueIndex.class);
   private IssueQueryFactory issueQueryFactory = mock(IssueQueryFactory.class, Mockito.RETURNS_DEEP_STUBS);
-  private ComponentTagsAction underTest = new ComponentTagsAction(service, issueQueryFactory);
+  private IssueIndexSyncProgressChecker issueIndexSyncProgressChecker = mock(IssueIndexSyncProgressChecker.class);
+  private DbClient dbClient = mock(DbClient.class);
+  private ComponentDao componentDao = mock(ComponentDao.class);
+  private ComponentTagsAction underTest = new ComponentTagsAction(service, issueIndexSyncProgressChecker,
+    issueQueryFactory, dbClient);
   private WsActionTester tester = new WsActionTester(underTest);
+
+  @Before
+  public void before() {
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(componentDao.selectByUuid(any(), any())).thenAnswer((Answer<Optional<ComponentDto>>) invocation -> {
+      Object[] args = invocation.getArguments();
+      return Optional.of(ComponentTesting.newPrivateProjectDto(newOrganizationDto(), (String) args[1]));
+    });
+
+    when(componentDao.selectByUuid(any(), eq("not-exists")))
+      .thenAnswer((Answer<Optional<ComponentDto>>) invocation -> Optional.empty());
+  }
 
   @Test
   public void should_define() {
@@ -82,9 +108,10 @@ public class ComponentTagsActionTest {
   @Test
   public void should_return_empty_list() {
     TestResponse response = tester.newRequest()
-      .setParam("componentUuid", "polop")
+      .setParam("componentUuid", "not-exists")
       .execute();
     assertJson(response.getInput()).isSimilarTo("{\"tags\":[]}");
+    verify(issueIndexSyncProgressChecker).checkIfIssueSyncInProgress(any());
   }
 
   @Test
@@ -110,6 +137,7 @@ public class ComponentTagsActionTest {
     assertThat(captor.getValue().getComponentUuids()).containsOnly("polop");
     assertThat(captor.getValue().getResolved()).isFalse();
     assertThat(captor.getValue().getCreatedAfter()).isNull();
+    verify(issueIndexSyncProgressChecker).checkIfComponentNeedIssueSync(any(), eq("KEY_polop"));
   }
 
   @Test
@@ -137,5 +165,6 @@ public class ComponentTagsActionTest {
     assertThat(captor.getValue().getComponentUuids()).containsOnly(componentUuid);
     assertThat(captor.getValue().getResolved()).isFalse();
     assertThat(captor.getValue().getCreatedAfter()).isEqualTo(createdAfter);
+    verify(issueIndexSyncProgressChecker).checkIfComponentNeedIssueSync(any(), eq("KEY_polop"));
   }
 }
