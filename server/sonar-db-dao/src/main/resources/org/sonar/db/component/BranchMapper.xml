@@ -169,7 +169,7 @@
     <include refid="columns"/>
     from project_branches pb
     where need_issue_sync = ${_true}
-    order by pb.updated_at, uuid
+    order by pb.updated_at desc, uuid
   </select>
 
   <update id="updateAllNeedIssueSync">

@@ -19,8 +19,12 @@
  */
 package org.sonar.server.issue.index;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
@@ -32,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.SnapshotDto;
 
 import static java.util.Collections.emptyMap;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
@@ -68,14 +73,47 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
       String branchListForDisplay = branchInNeedOfIssueSync.stream().map(BranchDto::toString).collect(Collectors.joining(", "));
       LOG.info("{} branch found in need of issue sync : {}", branchInNeedOfIssueSync.size(), branchListForDisplay);
 
-      List<CeTaskSubmit> tasks = branchInNeedOfIssueSync.stream()
-        .map(this::buildTaskSubmit)
-        .collect(Collectors.toList());
+      List<String> projectUuids = new ArrayList<>(branchInNeedOfIssueSync.stream().map(BranchDto::getProjectUuid).collect(Collectors.toSet()));
+      LOG.info("{} projects found in need of issue sync.", projectUuids.size());
+
+      sortProjectUuids(dbSession, projectUuids);
+
+      Map<String, List<BranchDto>> branchesByProject = branchInNeedOfIssueSync.stream()
+        .collect(Collectors.groupingBy(BranchDto::getProjectUuid));
+
+      List<CeTaskSubmit> tasks = new ArrayList<>();
+      for (String projectUuid : projectUuids) {
+        List<BranchDto> branches = branchesByProject.get(projectUuid);
+        for (BranchDto branch : branches) {
+          tasks.add(buildTaskSubmit(branch));
+        }
+      }
+
       ceQueue.massSubmit(tasks);
-
       dbSession.commit();
-
     }
+  }
+
+  private void sortProjectUuids(DbSession dbSession, List<String> projectUuids) {
+    Map<String, SnapshotDto> snapshotByProjectUuid = dbClient.snapshotDao()
+      .selectLastAnalysesByRootComponentUuids(dbSession, projectUuids).stream()
+      .collect(Collectors.toMap(SnapshotDto::getComponentUuid, Function.identity()));
+
+    projectUuids.sort(compareBySnapshot(snapshotByProjectUuid));
+  }
+
+  private static Comparator<String> compareBySnapshot(Map<String, SnapshotDto> snapshotByProjectUuid) {
+    return (uuid1, uuid2) -> {
+      SnapshotDto snapshot1 = snapshotByProjectUuid.get(uuid1);
+      SnapshotDto snapshot2 = snapshotByProjectUuid.get(uuid2);
+      if (snapshot1 == null) {
+        return 1;
+      }
+      if (snapshot2 == null) {
+        return -1;
+      }
+      return snapshot2.getCreatedAt().compareTo(snapshot1.getCreatedAt());
+    };
   }
 
   private void removeExistingIndexationTasks(DbSession dbSession) {

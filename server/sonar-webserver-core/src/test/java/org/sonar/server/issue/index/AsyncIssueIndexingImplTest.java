@@ -19,10 +19,13 @@
  */
 package org.sonar.server.issue.index;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -36,6 +39,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityDto.Status;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.SnapshotDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -46,6 +50,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 
 public class AsyncIssueIndexingImplTest {
 
@@ -128,6 +133,57 @@ public class AsyncIssueIndexingImplTest {
         "1 pending indexation task found to be deleted...",
         "1 completed indexation task found to be deleted...",
         "Indexation task deletion complete.");
+  }
+
+  @Test
+  public void order_by_last_analysis_date() {
+    BranchDto dto = new BranchDto()
+      .setBranchType(BRANCH)
+      .setKey("branch_1")
+      .setUuid("branch_uuid1")
+      .setProjectUuid("project_uuid1");
+    dbClient.branchDao().insert(dbTester.getSession(), dto);
+    dbTester.commit();
+    insertSnapshot("analysis_1", "project_uuid1", 1);
+
+    BranchDto dto2 = new BranchDto()
+      .setBranchType(BRANCH)
+      .setKey("branch_2")
+      .setUuid("branch_uuid2")
+      .setProjectUuid("project_uuid2");
+    dbClient.branchDao().insert(dbTester.getSession(), dto2);
+    dbTester.commit();
+    insertSnapshot("analysis_2", "project_uuid2", 2);
+
+    underTest.triggerOnIndexCreation();
+
+    verify(ceQueue, times(2)).prepareSubmit();
+
+    ArgumentCaptor<Collection<CeTaskSubmit>> captor = ArgumentCaptor.forClass(Collection.class);
+
+    verify(ceQueue, times(1)).massSubmit(captor.capture());
+    List<Collection<CeTaskSubmit>> captures = captor.getAllValues();
+    assertThat(captures).hasSize(1);
+    Collection<CeTaskSubmit> tasks = captures.get(0);
+    assertThat(tasks).hasSize(2);
+    assertThat(tasks)
+      .extracting(p -> p.getComponent().get().getUuid())
+      .containsExactly("branch_uuid2", "branch_uuid1");
+
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("2 projects found in need of issue sync.");
+  }
+
+  private SnapshotDto insertSnapshot(String analysisUuid, String projectUuid, long createdAt) {
+    SnapshotDto snapshot = new SnapshotDto()
+      .setUuid(analysisUuid)
+      .setComponentUuid(projectUuid)
+      .setStatus(STATUS_PROCESSED)
+      .setCreatedAt(createdAt)
+      .setLast(true);
+    dbTester.getDbClient().snapshotDao().insert(dbTester.getSession(), snapshot);
+    dbTester.commit();
+    return snapshot;
   }
 
 }
