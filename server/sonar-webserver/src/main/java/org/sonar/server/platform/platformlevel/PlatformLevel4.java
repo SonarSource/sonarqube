@@ -33,6 +33,7 @@ import org.sonar.auth.gitlab.GitLabModule;
 import org.sonar.auth.ldap.LdapModule;
 import org.sonar.auth.saml.SamlModule;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
+import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionsInstaller;
@@ -505,6 +506,7 @@ public class PlatformLevel4 extends PlatformLevel {
       CeModule.class,
       CeWsModule.class,
       ReportTaskProcessor.class,
+      IssueSyncTaskProcessor.class,
 
       // SonarSource editions
       PlatformEditionProvider.class,
