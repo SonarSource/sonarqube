@@ -82,6 +82,7 @@ import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
+import org.sonar.db.user.SessionTokensDao;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserPropertiesDao;
@@ -162,6 +163,7 @@ public class DbClient {
   private final OrganizationAlmBindingDao organizationAlmBindingDao;
   private final NewCodePeriodDao newCodePeriodDao;
   private final ProjectDao projectDao;
+  private final SessionTokensDao sessionTokensDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -239,6 +241,7 @@ public class DbClient {
     internalComponentPropertiesDao = getDao(map, InternalComponentPropertiesDao.class);
     newCodePeriodDao = getDao(map, NewCodePeriodDao.class);
     projectDao = getDao(map, ProjectDao.class);
+    sessionTokensDao = getDao(map, SessionTokensDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -525,6 +528,10 @@ public class DbClient {
 
   public NewCodePeriodDao newCodePeriodDao() {
     return newCodePeriodDao;
+  }
+
+  public SessionTokensDao sessionTokensDao() {
+    return sessionTokensDao;
   }
 
 }

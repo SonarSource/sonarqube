@@ -112,6 +112,7 @@ public final class SqTables {
     "rules_profiles",
     "rule_repositories",
     "schema_migrations",
+    "session_tokens",
     "snapshots",
     "users",
     "user_properties",

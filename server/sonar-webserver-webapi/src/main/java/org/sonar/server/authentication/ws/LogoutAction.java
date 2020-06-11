@@ -87,7 +87,7 @@ public class LogoutAction extends ServletFilter implements AuthenticationWsActio
   private void generateAuthenticationEvent(HttpServletRequest request, HttpServletResponse response) {
     try {
       Optional<JwtHttpHandler.Token> token = jwtHttpHandler.getToken(request, response);
-      String userLogin = token.isPresent() ? token.get().getUserDto().getLogin() : null;
+      String userLogin = token.map(value -> value.getUserDto().getLogin()).orElse(null);
       authenticationEvent.logoutSuccess(request, userLogin);
     } catch (AuthenticationException e) {
       authenticationEvent.logoutFailure(request, e.getMessage());

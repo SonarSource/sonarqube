@@ -47,7 +47,6 @@ public class DbVersion83 implements DbVersion {
       .add(3309, "Migrate 'resource_id' to 'component_uuid' in 'user_roles'", MigrateResourceIdToUuidInUserRoles.class)
       .add(3310, "Remove column 'resource_id' in 'user_roles'", DropResourceIdFromUserRolesTable.class)
       .add(3311, "Remove column 'id' in 'components'", DropIdFromComponentsTable.class)
-
     ;
   }
 }

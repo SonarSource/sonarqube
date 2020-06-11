@@ -43,6 +43,13 @@ public class VarcharColumnDef extends AbstractColumnDef {
   public static final int UUID_VARCHAR_SIZE = 50;
   public static final int UUID_SIZE = 40;
 
+  /**
+   * UUID length of the USERS table is not using the standard UUID length.
+   * The reason of this is because when the UUID column was introduced in the USERS table, existing rows were fed with the login, which has a length of 255.
+   * @see <a https://jira.sonarsource.com/browse/SONAR-10597>SONAR-10597</a>
+   */
+  public static final int USER_UUID_SIZE = 255;
+
   private final int columnSize;
   private final boolean ignoreOracleUnit;
 

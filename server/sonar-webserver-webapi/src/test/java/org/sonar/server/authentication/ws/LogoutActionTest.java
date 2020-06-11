@@ -40,7 +40,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source.sso;
@@ -91,34 +91,34 @@ public class LogoutActionTest {
 
     underTest.doFilter(request, response, chain);
 
-    verifyZeroInteractions(jwtHttpHandler, chain);
+    verifyNoInteractions(jwtHttpHandler, chain);
     verify(response).setStatus(400);
   }
 
   @Test
-  public void logout_logged_user() throws Exception {
+  public void logout_logged_user() {
     setUser(USER);
 
     executeRequest();
 
     verify(jwtHttpHandler).removeToken(request, response);
-    verifyZeroInteractions(chain);
+    verifyNoInteractions(chain);
     verify(authenticationEvent).logoutSuccess(request, "john");
   }
 
   @Test
-  public void logout_unlogged_user() throws Exception {
+  public void logout_unlogged_user() {
     setNoUser();
 
     executeRequest();
 
     verify(jwtHttpHandler).removeToken(request, response);
-    verifyZeroInteractions(chain);
+    verifyNoInteractions(chain);
     verify(authenticationEvent).logoutSuccess(request, null);
   }
 
   @Test
-  public void generate_auth_event_on_failure() throws Exception {
+  public void generate_auth_event_on_failure() {
     setUser(USER);
     AuthenticationException exception = AuthenticationException.newBuilder().setMessage("error!").setSource(sso()).build();
     doThrow(exception).when(jwtHttpHandler).getToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
@@ -127,7 +127,7 @@ public class LogoutActionTest {
 
     verify(authenticationEvent).logoutFailure(request, "error!");
     verify(jwtHttpHandler).removeToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
-    verifyZeroInteractions(chain);
+    verifyNoInteractions(chain);
   }
 
   private void executeRequest() {

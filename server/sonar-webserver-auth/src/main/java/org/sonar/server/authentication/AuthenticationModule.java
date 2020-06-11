@@ -21,30 +21,34 @@ package org.sonar.server.authentication;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.authentication.event.AuthenticationEventImpl;
+import org.sonar.server.authentication.purge.SessionTokensCleaner;
+import org.sonar.server.authentication.purge.SessionTokensCleanerExecutorServiceImpl;
 
 public class AuthenticationModule extends Module {
   @Override
   protected void configureModule() {
     add(
       AuthenticationEventImpl.class,
-      InitFilter.class,
-      OAuth2CallbackFilter.class,
-      IdentityProviderRepository.class,
       BaseContextFactory.class,
-      OAuth2ContextFactory.class,
-      UserRegistrarImpl.class,
-      OAuthCsrfVerifier.class,
-      UserSessionInitializer.class,
-      JwtSerializer.class,
-      JwtHttpHandler.class,
-      JwtCsrfVerifier.class,
-      OAuth2AuthenticationParametersImpl.class,
-      CredentialsAuthentication.class,
-      CredentialsLocalAuthentication.class,
-      CredentialsExternalAuthentication.class,
       BasicAuthentication.class,
+      CredentialsAuthentication.class,
+      CredentialsExternalAuthentication.class,
+      CredentialsLocalAuthentication.class,
       HttpHeadersAuthentication.class,
+      IdentityProviderRepository.class,
+      InitFilter.class,
+      JwtCsrfVerifier.class,
+      JwtHttpHandler.class,
+      JwtSerializer.class,
+      OAuth2AuthenticationParametersImpl.class,
+      OAuth2CallbackFilter.class,
+      OAuth2ContextFactory.class,
+      OAuthCsrfVerifier.class,
       RequestAuthenticatorImpl.class,
-      UserLastConnectionDatesUpdaterImpl.class);
+      SessionTokensCleaner.class,
+      SessionTokensCleanerExecutorServiceImpl.class,
+      UserLastConnectionDatesUpdaterImpl.class,
+      UserRegistrarImpl.class,
+      UserSessionInitializer.class);
   }
 }

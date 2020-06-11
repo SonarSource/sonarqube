@@ -108,17 +108,12 @@ public class DeactivateAction implements UsersWsAction {
       dbClient.organizationMemberDao().deleteByUserUuid(dbSession, userUuid);
       dbClient.userPropertiesDao().deleteByUser(dbSession, user);
       dbClient.almPatDao().deleteByUser(dbSession, user);
-      deactivateUser(dbSession, user);
+      dbClient.sessionTokensDao().deleteByUser(dbSession, user);
+      dbClient.userDao().deactivateUser(dbSession, user);
       userIndexer.commitAndIndex(dbSession, user);
-
-      LOGGER.debug("Deactivate user: {}; by admin: {}", login, userSession.isSystemAdministrator());
     }
 
     writeResponse(response, login);
-  }
-
-  private void deactivateUser(DbSession dbSession, UserDto user) {
-    dbClient.userDao().deactivateUser(dbSession, user);
   }
 
   private void writeResponse(Response response, String login) {

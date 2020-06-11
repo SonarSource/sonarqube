@@ -140,6 +140,7 @@ import org.sonar.db.user.GroupMapper;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipMapper;
 import org.sonar.db.user.RoleMapper;
+import org.sonar.db.user.SessionTokenMapper;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.db.user.UserGroupMapper;
@@ -286,6 +287,7 @@ public class MyBatis implements Startable {
       RuleMapper.class,
       RuleRepositoryMapper.class,
       SchemaMigrationMapper.class,
+      SessionTokenMapper.class,
       SnapshotMapper.class,
       UserGroupMapper.class,
       UserMapper.class,

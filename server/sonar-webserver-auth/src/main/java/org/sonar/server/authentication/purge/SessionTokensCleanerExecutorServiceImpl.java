@@ -17,21 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.authentication;
+package org.sonar.server.authentication.purge;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static java.lang.Thread.MIN_PRIORITY;
 
-public class AuthenticationModuleTest {
+public class SessionTokensCleanerExecutorServiceImpl
+  extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
+  implements SessionTokensCleanerExecutorService {
 
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new AuthenticationModule().configure(container);
-    assertThat(container.size()).isGreaterThan(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
+  public SessionTokensCleanerExecutorServiceImpl() {
+    super(
+      Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread thread = Executors.defaultThreadFactory().newThread(r);
+        thread.setName("SessionTokensCleaner-%d");
+        thread.setPriority(MIN_PRIORITY);
+        thread.setDaemon(false);
+        return thread;
+      }));
   }
-
 }

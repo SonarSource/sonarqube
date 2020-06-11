@@ -41,6 +41,7 @@ import org.sonar.db.permission.UserPermissionDto;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public class UserDbTester {
@@ -378,11 +379,26 @@ public class UserDbTester {
       .collect(MoreCollectors.toList());
   }
 
+  // USER TOKEN
+
   @SafeVarargs
   public final UserTokenDto insertToken(UserDto user, Consumer<UserTokenDto>... populators) {
     UserTokenDto dto = UserTokenTesting.newUserToken().setUserUuid(user.getUuid());
     stream(populators).forEach(p -> p.accept(dto));
     db.getDbClient().userTokenDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
+  // SESSION TOKENS
+
+  @SafeVarargs
+  public final SessionTokenDto insertSessionToken(UserDto user, Consumer<SessionTokenDto>... populators) {
+    SessionTokenDto dto = new SessionTokenDto()
+      .setUserUuid(user.getUuid())
+      .setExpirationDate(nextLong());
+    stream(populators).forEach(p -> p.accept(dto));
+    db.getDbClient().sessionTokensDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
   }

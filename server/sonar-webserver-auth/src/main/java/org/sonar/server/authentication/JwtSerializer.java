@@ -25,7 +25,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.security.SignatureException;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
@@ -38,7 +38,6 @@ import org.sonar.api.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 
@@ -57,14 +56,12 @@ public class JwtSerializer implements Startable {
 
   private final Configuration config;
   private final System2 system2;
-  private final UuidFactory uuidFactory;
 
   private SecretKey secretKey;
 
-  public JwtSerializer(Configuration config, System2 system2, UuidFactory uuidFactory) {
+  public JwtSerializer(Configuration config, System2 system2) {
     this.config = config;
     this.system2 = system2;
-    this.uuidFactory = uuidFactory;
   }
 
   @VisibleForTesting
@@ -75,22 +72,19 @@ public class JwtSerializer implements Startable {
   @Override
   public void start() {
     Optional<String> encodedKey = config.get(AUTH_JWT_SECRET.getKey());
-    if (encodedKey.isPresent()) {
-      this.secretKey = decodeSecretKeyProperty(encodedKey.get());
-    } else {
-      this.secretKey = generateSecretKey();
-    }
+    this.secretKey = encodedKey
+      .map(JwtSerializer::decodeSecretKeyProperty)
+      .orElseGet(JwtSerializer::generateSecretKey);
   }
 
   String encode(JwtSession jwtSession) {
     checkIsStarted();
-    long now = system2.now();
     JwtBuilder jwtBuilder = Jwts.builder()
-      .setId(uuidFactory.create())
+      .setId(jwtSession.getSessionTokenUuid())
       .setSubject(jwtSession.getUserLogin())
-      .setIssuedAt(new Date(now))
-      .setExpiration(new Date(now + jwtSession.getExpirationTimeInSeconds() * 1000))
-      .signWith(SIGNATURE_ALGORITHM, secretKey);
+      .setIssuedAt(new Date(system2.now()))
+      .setExpiration(new Date(jwtSession.getExpirationTime()))
+      .signWith(secretKey, SIGNATURE_ALGORITHM);
     for (Map.Entry<String, Object> entry : jwtSession.getProperties().entrySet()) {
       jwtBuilder.claim(entry.getKey(), entry.getValue());
     }
@@ -101,9 +95,10 @@ public class JwtSerializer implements Startable {
     checkIsStarted();
     Claims claims = null;
     try {
-      claims = Jwts.parser()
+      claims = (Claims) Jwts.parserBuilder()
         .setSigningKey(secretKey)
-        .parseClaimsJws(token)
+        .build()
+        .parse(token)
         .getBody();
       requireNonNull(claims.getId(), "Token id hasn't been found");
       requireNonNull(claims.getSubject(), "Token subject hasn't been found");
@@ -121,15 +116,14 @@ public class JwtSerializer implements Startable {
     }
   }
 
-  String refresh(Claims token, int expirationTimeInSeconds) {
+  String refresh(Claims token, long expirationTime) {
     checkIsStarted();
-    long now = system2.now();
     JwtBuilder jwtBuilder = Jwts.builder();
     for (Map.Entry<String, Object> entry : token.entrySet()) {
       jwtBuilder.claim(entry.getKey(), entry.getValue());
     }
-    jwtBuilder.setExpiration(new Date(now + expirationTimeInSeconds * 1_000L))
-      .signWith(SIGNATURE_ALGORITHM, secretKey);
+    jwtBuilder.setExpiration(new Date(expirationTime))
+      .signWith(secretKey, SIGNATURE_ALGORITHM);
     return jwtBuilder.compact();
   }
 
@@ -155,16 +149,18 @@ public class JwtSerializer implements Startable {
   static class JwtSession {
 
     private final String userLogin;
-    private final long expirationTimeInSeconds;
+    private final String sessionTokenUuid;
+    private final long expirationTime;
     private final Map<String, Object> properties;
 
-    JwtSession(String userLogin, long expirationTimeInSeconds) {
-      this(userLogin, expirationTimeInSeconds, Collections.emptyMap());
+    JwtSession(String userLogin, String sessionTokenUuid, long expirationTime) {
+      this(userLogin, sessionTokenUuid, expirationTime, Collections.emptyMap());
     }
 
-    JwtSession(String userLogin, long expirationTimeInSeconds, Map<String, Object> properties) {
+    JwtSession(String userLogin, String sessionTokenUuid, long expirationTime, Map<String, Object> properties) {
       this.userLogin = requireNonNull(userLogin, "User login cannot be null");
-      this.expirationTimeInSeconds = expirationTimeInSeconds;
+      this.sessionTokenUuid = requireNonNull(sessionTokenUuid, "Session token UUID cannot be null");
+      this.expirationTime = expirationTime;
       this.properties = properties;
     }
 
@@ -172,8 +168,12 @@ public class JwtSerializer implements Startable {
       return userLogin;
     }
 
-    long getExpirationTimeInSeconds() {
-      return expirationTimeInSeconds;
+    String getSessionTokenUuid() {
+      return sessionTokenUuid;
+    }
+
+    long getExpirationTime() {
+      return expirationTime;
     }
 
     Map<String, Object> getProperties() {

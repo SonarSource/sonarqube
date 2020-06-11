@@ -38,6 +38,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -257,6 +258,22 @@ public class DeactivateActionTest {
 
     assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(dbSession, user.getUuid(), almSettingDto)).isEmpty();
     assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(dbSession, anotherUser.getUuid(), almSettingDto)).isNotNull();
+  }
+
+  @Test
+  public void deactivate_user_deletes_his_session_tokens() {
+    logInAsSystemAdministrator();
+    UserDto user = db.users().insertUser();
+    SessionTokenDto sessionToken1 = db.users().insertSessionToken(user);
+    SessionTokenDto sessionToken2 =db.users().insertSessionToken(user);
+    UserDto anotherUser = db.users().insertUser();
+    SessionTokenDto sessionToken3 =db.users().insertSessionToken(anotherUser);
+
+    deactivate(user.getLogin());
+
+    assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken1.getUuid())).isNotPresent();
+    assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken2.getUuid())).isNotPresent();
+    assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken3.getUuid())).isPresent();
   }
 
   @Test
