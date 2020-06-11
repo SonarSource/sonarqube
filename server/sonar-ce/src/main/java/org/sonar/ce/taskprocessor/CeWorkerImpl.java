@@ -171,7 +171,7 @@ public class CeWorkerImpl implements CeWorker {
       if (indexationTaskLookupEnabled) {
         return tryAndFindTaskToExecuteIncludingIndexation();
       } else {
-        return queue.peek(uuid, true);
+        return queue.peek(uuid, true, false);
       }
     } catch (Exception e) {
       LOG.error("Failed to pop the queue of analysis reports", e);
@@ -181,12 +181,12 @@ public class CeWorkerImpl implements CeWorker {
 
   private Optional<CeTask> tryAndFindTaskToExecuteIncludingIndexation() {
     excludeIndexationJob = !excludeIndexationJob;
-    Optional<CeTask> peek = queue.peek(uuid, excludeIndexationJob);
+    Optional<CeTask> peek = queue.peek(uuid, excludeIndexationJob, true);
     if (peek.isPresent()) {
       return peek;
     }
     if (excludeIndexationJob) {
-      peek = queue.peek(uuid, false);
+      peek = queue.peek(uuid, false, true);
       if (peek.isPresent()) {
         return peek;
       }

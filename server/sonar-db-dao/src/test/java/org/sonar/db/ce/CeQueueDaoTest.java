@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -38,8 +39,8 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -392,11 +393,11 @@ public class CeQueueDaoTest {
 
   @Test
   public void peek_none_if_no_pendings() {
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false).isPresent()).isFalse();
 
     // not pending, but in progress
     makeInProgress(WORKER_UUID_1, 2_232_222L, insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1));
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false).isPresent()).isFalse();
   }
 
   @Test
@@ -409,7 +410,7 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, PENDING, TASK_UUID_2, PENDING);
 
     // peek first one
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false);
+    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, false);
     assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
@@ -417,7 +418,7 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, PENDING);
 
     // peek second one
-    peek = underTest.peek(db.getSession(), WORKER_UUID_2, false);
+    peek = underTest.peek(db.getSession(), WORKER_UUID_2, false, false);
     assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_2);
     assertThat(peek.get().getStatus()).isEqualTo(IN_PROGRESS);
@@ -425,7 +426,7 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, IN_PROGRESS);
 
     // no more pendings
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false).isPresent()).isFalse();
   }
 
   @Test
@@ -435,7 +436,7 @@ public class CeQueueDaoTest {
     system2.setNow(INIT_TIME + 3_000_000);
     insertPending(TASK_UUID_2, MAIN_COMPONENT_UUID_1);
 
-    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false);
+    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, false);
     assertThat(peek).isPresent();
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
     assertThat(peek.get().getMainComponentUuid()).isEqualTo(MAIN_COMPONENT_UUID_1);
@@ -443,12 +444,12 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, PENDING);
 
     // do not peek second task as long as the first one is in progress
-    peek = underTest.peek(db.getSession(), WORKER_UUID_1, false);
+    peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, false);
     assertThat(peek.isPresent()).isFalse();
 
     // first one is finished
     underTest.deleteByUuid(db.getSession(), TASK_UUID_1);
-    peek = underTest.peek(db.getSession(), WORKER_UUID_2, false);
+    peek = underTest.peek(db.getSession(), WORKER_UUID_2, false, false);
     assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_2);
     assertThat(peek.get().getWorkerUuid()).isEqualTo(WORKER_UUID_2);
   }
@@ -630,6 +631,60 @@ public class CeQueueDaoTest {
     assertThat(underTest.selectInProgressStartedBefore(db.getSession(), 3_000L)).extracting(CeQueueDto::getUuid).containsExactlyInAnyOrder(TASK_UUID_2, TASK_UUID_3);
   }
 
+  @Test
+  public void exclude_portfolios_computation_when_indexing_issues() {
+    insertBranch(MAIN_COMPONENT_UUID_1);
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setMainComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setStatus(PENDING)
+      .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
+      .setCreatedAt(100_000L));
+
+    String view_uuid = "view_uuid";
+    insertView(view_uuid);
+    insertPending(newCeQueueDto(TASK_UUID_2)
+      .setComponentUuid(view_uuid)
+      .setMainComponentUuid(view_uuid)
+      .setStatus(PENDING)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+
+    Optional<CeQueueDto> peek = underTest.peek(db.getSession(), WORKER_UUID_1, false, true);
+    assertThat(peek).isPresent();
+    assertThat(peek.get().getUuid()).isEqualTo(TASK_UUID_1);
+
+    Optional<CeQueueDto> peek2 = underTest.peek(db.getSession(), WORKER_UUID_1, false, false);
+    assertThat(peek2).isPresent();
+    assertThat(peek2.get().getUuid()).isEqualTo(TASK_UUID_2);
+  }
+
+  private void insertView(String view_uuid) {
+    ComponentDto view = new ComponentDto();
+    view.setQualifier("VW");
+    view.setUuid(view_uuid);
+    view.setOrganizationUuid("org_uuid");
+    view.setPrivate(false);
+    view.setRootUuid(view_uuid);
+    view.setUuidPath("uuid_path");
+    view.setProjectUuid(view_uuid);
+    db.components().insertViewAndSnapshot(view);
+    db.commit();
+  }
+
+  private void insertBranch(String uuid) {
+    ComponentDto branch = new ComponentDto();
+    branch.setQualifier("TRK");
+    branch.setUuid(uuid);
+    branch.setOrganizationUuid("org_uuid");
+    branch.setPrivate(false);
+    branch.setRootUuid(uuid);
+    branch.setUuidPath("uuid_path");
+    branch.setProjectUuid(uuid);
+    db.components().insertComponent(branch);
+    db.commit();
+  }
+
   private void insertPending(CeQueueDto dto) {
     underTest.insert(db.getSession(), dto);
     db.commit();
@@ -675,7 +730,7 @@ public class CeQueueDaoTest {
   }
 
   private static Iterable<Map<String, Object>> upperizeKeys(List<Map<String, Object>> select) {
-    return from(select).transform(new Function<Map<String, Object>, Map<String, Object>>() {
+    return select.stream().map(new Function<Map<String, Object>, Map<String, Object>>() {
       @Nullable
       @Override
       public Map<String, Object> apply(Map<String, Object> input) {
@@ -685,7 +740,7 @@ public class CeQueueDaoTest {
         }
         return res;
       }
-    });
+    }).collect(Collectors.toList());
   }
 
   private void verifyCeQueueStatuses(String taskUuid1, CeQueueDto.Status taskStatus1, String taskUuid2, CeQueueDto.Status taskStatus2) {

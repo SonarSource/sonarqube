@@ -396,7 +396,7 @@ public class CeQueueImplTest {
   @Test
   public void fail_to_cancel_if_in_progress() {
     submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(11)));
-    CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, false).get();
+    CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, false, false).get();
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(startsWith("Task is in progress and can't be canceled"));
@@ -410,7 +410,7 @@ public class CeQueueImplTest {
     CeTask pendingTask1 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
     CeTask pendingTask2 = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
 
-    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, false);
+    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, false, false);
 
     int canceledCount = underTest.cancelAll();
     assertThat(canceledCount).isEqualTo(2);
@@ -437,7 +437,7 @@ public class CeQueueImplTest {
   @Test
   public void pauseWorkers_marks_workers_as_pausing_if_some_tasks_in_progress() {
     submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
-    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, false);
+    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, false, false);
     // task is in-progress
 
     assertThat(underTest.getWorkersPauseStatus()).isEqualTo(CeQueue.WorkersPauseStatus.RESUMED);
@@ -458,7 +458,7 @@ public class CeQueueImplTest {
   @Test
   public void resumeWorkers_resumes_pausing_workers() {
     submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
-    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, false);
+    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, false, false);
     // task is in-progress
 
     underTest.pauseWorkers();
@@ -480,7 +480,7 @@ public class CeQueueImplTest {
   @Test
   public void fail_in_progress_task() {
     CeTask task = submit(CeTaskTypes.REPORT, newComponent(randomAlphabetic(12)));
-    CeQueueDto queueDto = db.getDbClient().ceQueueDao().peek(db.getSession(), WORKER_UUID, false).get();
+    CeQueueDto queueDto = db.getDbClient().ceQueueDao().peek(db.getSession(), WORKER_UUID, false, false).get();
 
     underTest.fail(db.getSession(), queueDto, "TIMEOUT", "Failed on timeout");
 

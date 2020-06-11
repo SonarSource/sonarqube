@@ -179,6 +179,9 @@
   <sql id="sqlSelectEligibleForPeek">
     from
       ce_queue cq
+    <if test="excludeViewRefresh">
+        inner join components c on c.uuid = cq.main_component_uuid and c.qualifier &lt;&gt; 'VW'
+    </if>
     where
       cq.status='PENDING'
       and cq.started_at is null
@@ -198,8 +201,8 @@
 
   <sql id="orderBySelectEligibleForPeek">
     order by
-      created_at asc,
-      uuid asc
+      cq.created_at asc,
+      cq.uuid asc
   </sql>
 
   <select id="selectPending" resultType="org.sonar.db.ce.CeQueueDto">

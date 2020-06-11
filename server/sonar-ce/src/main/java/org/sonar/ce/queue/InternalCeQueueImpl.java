@@ -73,7 +73,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   }
 
   @Override
-  public Optional<CeTask> peek(String workerUuid, boolean excludeIndexationJob) {
+  public Optional<CeTask> peek(String workerUuid, boolean excludeIndexationJob, boolean excludeViewRefresh) {
     requireNonNull(workerUuid, "workerUuid can't be null");
 
     if (computeEngineStatus.getStatus() != ComputeEngineStatus.Status.STARTED || getWorkersPauseStatus() != WorkersPauseStatus.RESUMED) {
@@ -86,7 +86,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         dbSession.commit();
         LOG.debug("{} in progress tasks reset for worker uuid {}", i, workerUuid);
       }
-      Optional<CeQueueDto> opt = ceQueueDao.peek(dbSession, workerUuid, excludeIndexationJob);
+      Optional<CeQueueDto> opt = ceQueueDao.peek(dbSession, workerUuid, excludeIndexationJob, excludeViewRefresh);
       if (!opt.isPresent()) {
         return Optional.empty();
       }
