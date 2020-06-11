@@ -17,30 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v84.metrics;
+package org.sonar.server.platform.db.migration.version.v84.issuechanges;
 
 import java.sql.SQLException;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.step.MassUpdate;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class PopulateMetricsUuid extends DataChange {
-  public PopulateMetricsUuid(Database db) {
-    super(db);
-  }
+public class RenameIssueChangesCopyToIssueChangesTest {
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(RenameIssueChangesCopyToIssueChangesTest.class, "schema.sql");
 
-  @Override
-  protected void execute(Context context) throws SQLException {
-    MassUpdate massUpdate = context.prepareMassUpdate();
+  private MigrationStep underTest = new RenameIssueChangesCopyToIssueChanges(db.database());
 
-    massUpdate.select("select id from metrics where uuid is null");
-    massUpdate.update("update metrics set uuid = ? where id = ?");
+  @Test
+  public void execute() throws SQLException {
+    db.assertTableExists("issue_changes_copy");
+    db.assertTableDoesNotExist("issue_changes");
 
-    massUpdate.execute((row, update) -> {
-      long id = row.getLong(1);
-      update.setString(1, Long.toString(id));
-      update.setLong(2, id);
-      return true;
-    });
+    underTest.execute();
+    db.assertTableExists("issue_changes");
   }
 }

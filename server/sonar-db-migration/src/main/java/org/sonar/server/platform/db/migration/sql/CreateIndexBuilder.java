@@ -21,7 +21,6 @@ package org.sonar.server.platform.db.migration.sql;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -32,7 +31,7 @@ import static org.sonar.server.platform.db.migration.def.Validations.validateTab
 
 public class CreateIndexBuilder {
 
-  private final List<ColumnDef> columns = new ArrayList<>();
+  private final List<String> columns = new ArrayList<>();
   private String tableName;
   private String indexName;
   private boolean unique = false;
@@ -65,10 +64,19 @@ public class CreateIndexBuilder {
   /**
    * Add a column to the scope of index. Order of calls to this
    * method is important and is kept as-is when creating the index.
-   * The attributes used from {@link ColumnDef} are the name, the type
-   * and the length (in case of VARCHAR). Other attributes are ignored.
+   * The attribute used from {@link ColumnDef} is the name.
+   * Other attributes are ignored.
    */
   public CreateIndexBuilder addColumn(ColumnDef column) {
+    columns.add(requireNonNull(column, "Column cannot be null").getName());
+    return this;
+  }
+
+  /**
+   * Add a column to the scope of index. Order of calls to this
+   * method is important and is kept as-is when creating the index.
+   */
+  public CreateIndexBuilder addColumn(String column) {
     columns.add(requireNonNull(column, "Column cannot be null"));
     return this;
   }
@@ -90,7 +98,7 @@ public class CreateIndexBuilder {
     sql.append(" ON ");
     sql.append(tableName);
     sql.append(" (");
-    sql.append(columns.stream().map(ColumnDef::getName).collect(Collectors.joining(", ")));
+    sql.append(String.join(", ", columns));
     sql.append(")");
     return sql.toString();
   }

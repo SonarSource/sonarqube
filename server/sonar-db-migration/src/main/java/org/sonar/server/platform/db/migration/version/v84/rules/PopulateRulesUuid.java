@@ -20,18 +20,13 @@
 package org.sonar.server.platform.db.migration.version.v84.rules;
 
 import java.sql.SQLException;
-import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
 public class PopulateRulesUuid extends DataChange {
-
-  private final UuidFactory uuidFactory;
-
-  public PopulateRulesUuid(Database db, UuidFactory uuidFactory) {
+  public PopulateRulesUuid(Database db) {
     super(db);
-    this.uuidFactory = uuidFactory;
   }
 
   @Override
@@ -42,8 +37,9 @@ public class PopulateRulesUuid extends DataChange {
     massUpdate.update("update rules set uuid = ? where id = ?");
 
     massUpdate.execute((row, update) -> {
-      update.setString(1, uuidFactory.create());
-      update.setLong(2, row.getLong(1));
+      long id = row.getLong(1);
+      update.setString(1, Long.toString(id));
+      update.setLong(2, id);
       return true;
     });
   }

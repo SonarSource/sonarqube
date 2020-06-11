@@ -25,6 +25,7 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 import org.sonar.server.platform.db.migration.version.v84.util.AddPrimaryKeyBuilder;
 
 public class AddPrimaryKeyOnKeeColumnOfIssuesTable extends DdlChange {
+  private static final String TABLE_NAME = "issues";
 
   public AddPrimaryKeyOnKeeColumnOfIssuesTable(Database db) {
     super(db);
@@ -32,7 +33,7 @@ public class AddPrimaryKeyOnKeeColumnOfIssuesTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AddPrimaryKeyBuilder("issues", "kee").build());
+    context.execute(new AddPrimaryKeyBuilder(TABLE_NAME, "kee").build());
   }
 
 }

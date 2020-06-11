@@ -17,30 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v84.metrics;
+package org.sonar.server.platform.db.migration.version.v84.rules.issues;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.step.MassUpdate;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class PopulateMetricsUuid extends DataChange {
-  public PopulateMetricsUuid(Database db) {
+public class DropIssuesTable extends DdlChange {
+  public DropIssuesTable(Database db) {
     super(db);
   }
 
-  @Override
-  protected void execute(Context context) throws SQLException {
-    MassUpdate massUpdate = context.prepareMassUpdate();
-
-    massUpdate.select("select id from metrics where uuid is null");
-    massUpdate.update("update metrics set uuid = ? where id = ?");
-
-    massUpdate.execute((row, update) -> {
-      long id = row.getLong(1);
-      update.setString(1, Long.toString(id));
-      update.setLong(2, id);
-      return true;
-    });
+  @Override public void execute(Context context) throws SQLException {
+    context.execute(new DropTableBuilder(getDialect(), "issues").build());
   }
 }

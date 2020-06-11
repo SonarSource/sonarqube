@@ -134,7 +134,7 @@ public class CreateIndexBuilderTest {
     new CreateIndexBuilder()
       .setTable("issues")
       .setName("issues_key")
-      .addColumn(null)
+      .addColumn((String) null)
       .build();
   }
 

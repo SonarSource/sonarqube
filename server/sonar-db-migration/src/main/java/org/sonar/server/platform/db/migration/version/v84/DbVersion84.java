@@ -96,15 +96,13 @@ import org.sonar.server.platform.db.migration.version.v84.groups.qprofileeditgro
 import org.sonar.server.platform.db.migration.version.v84.groups.qprofileeditgroups.DropIndexOnGroupIdOfQProfileEditGroupsTable;
 import org.sonar.server.platform.db.migration.version.v84.groups.qprofileeditgroups.MakeQProfileEditGroupsGroupUuidNotNullable;
 import org.sonar.server.platform.db.migration.version.v84.groups.qprofileeditgroups.PopulateQProfileEditGroupsGroupUuid;
+import org.sonar.server.platform.db.migration.version.v84.issuechanges.AddIndexOnIssueKeyOfIssueChangesTable;
+import org.sonar.server.platform.db.migration.version.v84.issuechanges.AddIndexOnKeeOfIssueChangesTable;
 import org.sonar.server.platform.db.migration.version.v84.issuechanges.AddPrimaryKeyOnUuidColumnOfIssueChangesTable;
-import org.sonar.server.platform.db.migration.version.v84.issuechanges.AddUuidColumnToIssueChangesTable;
-import org.sonar.server.platform.db.migration.version.v84.issuechanges.DropIdColumnOfIssueChangesTable;
-import org.sonar.server.platform.db.migration.version.v84.issuechanges.DropPrimaryKeyOnIdColumnOfIssueChangesTable;
-import org.sonar.server.platform.db.migration.version.v84.issuechanges.MakeIssueChangesUuidColumnNotNullable;
-import org.sonar.server.platform.db.migration.version.v84.issuechanges.PopulateIssueChangesUuid;
+import org.sonar.server.platform.db.migration.version.v84.issuechanges.CopyIssueChangesTable;
+import org.sonar.server.platform.db.migration.version.v84.issuechanges.DropIssueChangesTable;
+import org.sonar.server.platform.db.migration.version.v84.issuechanges.RenameIssueChangesCopyToIssueChanges;
 import org.sonar.server.platform.db.migration.version.v84.issues.AddPrimaryKeyOnKeeColumnOfIssuesTable;
-import org.sonar.server.platform.db.migration.version.v84.issues.DropIdColumnOfIssuesTable;
-import org.sonar.server.platform.db.migration.version.v84.issues.DropPrimaryKeyOnIdColumnOfIssuesTable;
 import org.sonar.server.platform.db.migration.version.v84.manualmeasures.AddPrimaryKeyOnUuidColumnOfManualMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v84.manualmeasures.AddUuidColumnToManualMeasures;
 import org.sonar.server.platform.db.migration.version.v84.manualmeasures.DropIdColumnOfManualMeasuresTable;
@@ -118,11 +116,11 @@ import org.sonar.server.platform.db.migration.version.v84.metrics.DropPrimaryKey
 import org.sonar.server.platform.db.migration.version.v84.metrics.MakeMetricsUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v84.metrics.PopulateMetricsUuid;
 import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.AddIndexOnMetricUuidOfLiveMeasuresTable;
-import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.AddMetricUuidColumnToLiveMeasures;
-import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.DropIndexOnMetricIdOfLiveMeasuresTable;
-import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.DropMetricIdColumnOfLiveMeasuresTable;
-import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.MakeLiveMeasuresMetricUuidNotNullable;
-import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.PopulateLiveMeasuresMetricUuid;
+import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.AddIndexOnProjectUuidOfLiveMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.AddPKeyOnUuidOfLiveMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.CopyLiveMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.DropLiveMeasuresTable;
+import org.sonar.server.platform.db.migration.version.v84.metrics.livemeasures.RenameLiveMeasuresCopyToLiveMeasures;
 import org.sonar.server.platform.db.migration.version.v84.metrics.manualmeasures.AddMetricUuidColumnToManualMeasures;
 import org.sonar.server.platform.db.migration.version.v84.metrics.manualmeasures.DropMetricIdColumnOfManualMeasuresTable;
 import org.sonar.server.platform.db.migration.version.v84.metrics.manualmeasures.MakeManualMeasuresMetricUuidNotNullable;
@@ -237,11 +235,10 @@ import org.sonar.server.platform.db.migration.version.v84.rules.deprecatedruleke
 import org.sonar.server.platform.db.migration.version.v84.rules.deprecatedrulekeys.DropRuleIdColumnOfDeprecatedRuleKeysTable;
 import org.sonar.server.platform.db.migration.version.v84.rules.deprecatedrulekeys.MakeDeprecatedRuleKeysRuleUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v84.rules.deprecatedrulekeys.PopulateDeprecatedRuleKeysRuleUuidColumn;
-import org.sonar.server.platform.db.migration.version.v84.rules.issues.AddIndexToIssuesTable;
-import org.sonar.server.platform.db.migration.version.v84.rules.issues.AddRuleUuidColumnToIssuesTable;
-import org.sonar.server.platform.db.migration.version.v84.rules.issues.DropIndexOnRuleIdColumnOfIssuesTable;
-import org.sonar.server.platform.db.migration.version.v84.rules.issues.DropRuleIdColumnOfIssuesTable;
-import org.sonar.server.platform.db.migration.version.v84.rules.issues.PopulateIssuesRuleUuidColumn;
+import org.sonar.server.platform.db.migration.version.v84.rules.issues.AddIndexesToIssuesTable;
+import org.sonar.server.platform.db.migration.version.v84.rules.issues.CopyIssuesTable;
+import org.sonar.server.platform.db.migration.version.v84.rules.issues.DropIssuesTable;
+import org.sonar.server.platform.db.migration.version.v84.rules.issues.RenameIssuesCopyToIssues;
 import org.sonar.server.platform.db.migration.version.v84.rules.rulesmetadata.AddPrimaryKeyOnUuidAndOrganizationUuidColumnOfRulesMetadataTable;
 import org.sonar.server.platform.db.migration.version.v84.rules.rulesmetadata.AddRuleUuidColumnToRulesMetadataTable;
 import org.sonar.server.platform.db.migration.version.v84.rules.rulesmetadata.DropPrimaryKeyOnIdColumnOfRulesMetadataTable;
@@ -351,197 +348,193 @@ public class DbVersion84 implements DbVersion {
       .add(3407, "Add primary key on 'UUID' column of 'NOTIFICATIONS' table", AddPrimaryKeyOnUuidColumnOfNotificationTable.class)
       .add(3408, "Drop column 'ID' of 'NOTIFICATIONS' table", DropIdColumnOfNotificationTable.class)
 
-      // Migration on ISSUES table
-      .add(3409, "Drop primary key on 'ID' column of 'ISSUES' table", DropPrimaryKeyOnIdColumnOfIssuesTable.class)
-      .add(3410, "Add primary key on 'KEE' column of 'ISSUES' table", AddPrimaryKeyOnKeeColumnOfIssuesTable.class)
-      .add(3411, "Drop column 'ID' of 'ISSUES' table", DropIdColumnOfIssuesTable.class)
-
       // Migration on SNAPSHOTS table
-      .add(3412, "Drop primary key on 'ID' column of 'SNAPSHOTS' table", DropPrimaryKeyOnIdColumnOfSnapshotsTable.class)
-      .add(3413, "Add primary key on 'UUID' column of 'SNAPSHOTS' table", AddPrimaryKeyOnUuidColumnOfSnapshotsTable.class)
-      .add(3414, "Drop column 'ID' of 'SNAPSHOTS' table", DropIdColumnOfSnapshotsTable.class)
+      .add(3409, "Drop primary key on 'ID' column of 'SNAPSHOTS' table", DropPrimaryKeyOnIdColumnOfSnapshotsTable.class)
+      .add(3410, "Add primary key on 'UUID' column of 'SNAPSHOTS' table", AddPrimaryKeyOnUuidColumnOfSnapshotsTable.class)
+      .add(3411, "Drop column 'ID' of 'SNAPSHOTS' table", DropIdColumnOfSnapshotsTable.class)
 
       // Migration on CE_QUEUE table
-      .add(3415, "Drop unique index on 'uuid' column of 'CE_QUEUE' table", DropUniqueIndexOnUuidColumnOfCeQueueTable.class)
-      .add(3416, "Drop primary key on 'ID' column of 'CE_QUEUE' table", DropPrimaryKeyOnIdColumnOfCeQueueTable.class)
-      .add(3417, "Add primary key on 'UUID' column of 'CE_QUEUE' table", AddPrimaryKeyOnUuidColumnOfCeQueueTable.class)
-      .add(3418, "Drop column 'ID' of 'CE_QUEUE' table", DropIdColumnOfCeQueueTable.class)
+      .add(3412, "Drop unique index on 'uuid' column of 'CE_QUEUE' table", DropUniqueIndexOnUuidColumnOfCeQueueTable.class)
+      .add(3413, "Drop primary key on 'ID' column of 'CE_QUEUE' table", DropPrimaryKeyOnIdColumnOfCeQueueTable.class)
+      .add(3414, "Add primary key on 'UUID' column of 'CE_QUEUE' table", AddPrimaryKeyOnUuidColumnOfCeQueueTable.class)
+      .add(3415, "Drop column 'ID' of 'CE_QUEUE' table", DropIdColumnOfCeQueueTable.class)
 
       // Migration on CE_ACTIVITY table
-      .add(3419, "Drop primary key on 'ID' column of 'CE_ACTIVITY' table", DropPrimaryKeyOnIdColumnOfCeActivityTable.class)
-      .add(3420, "Add primary key on 'UUID' column of 'CE_ACTIVITY' table", AddPrimaryKeyOnUuidColumnOfCeActivityTable.class)
-      .add(3421, "Drop column 'ID' of 'CE_ACTIVITY' table", DropIdColumnOfCeActivityTable.class)
+      .add(3416, "Drop primary key on 'ID' column of 'CE_ACTIVITY' table", DropPrimaryKeyOnIdColumnOfCeActivityTable.class)
+      .add(3417, "Add primary key on 'UUID' column of 'CE_ACTIVITY' table", AddPrimaryKeyOnUuidColumnOfCeActivityTable.class)
+      .add(3418, "Drop column 'ID' of 'CE_ACTIVITY' table", DropIdColumnOfCeActivityTable.class)
 
       // Migration of DUPLICATIONS_INDEX table
-      .add(3422, "Add 'uuid' columns for DUPLICATIONS_INDEX", AddUuidToDuplicationsIndexTable.class)
-      .add(3423, "Populate 'uuid' columns for DUPLICATIONS_INDEX", PopulateDuplicationsIndexUuid.class)
-      .add(3424, "Make 'uuid' column not nullable for DUPLICATIONS_INDEX", MakeDuplicationsIndexUuidColumnNotNullable.class)
-      .add(3425, "Drop primary key on 'ID' column of 'DUPLICATIONS_INDEX' table", DropPrimaryKeyOnIdColumnOfDuplicationsIndexTable.class)
-      .add(3426, "Add primary key on 'UUID' column of 'DUPLICATIONS_INDEX' table", AddPrimaryKeyOnUuidColumnOfDuplicationsIndexTable.class)
-      .add(3427, "Drop column 'ID' of 'DUPLICATIONS_INDEX' table", DropIdColumnOfDuplicationsIndexTable.class)
+      .add(3419, "Add 'uuid' columns for DUPLICATIONS_INDEX", AddUuidToDuplicationsIndexTable.class)
+      .add(3420, "Populate 'uuid' columns for DUPLICATIONS_INDEX", PopulateDuplicationsIndexUuid.class)
+      .add(3421, "Make 'uuid' column not nullable for DUPLICATIONS_INDEX", MakeDuplicationsIndexUuidColumnNotNullable.class)
+      .add(3422, "Drop primary key on 'ID' column of 'DUPLICATIONS_INDEX' table", DropPrimaryKeyOnIdColumnOfDuplicationsIndexTable.class)
+      .add(3423, "Add primary key on 'UUID' column of 'DUPLICATIONS_INDEX' table", AddPrimaryKeyOnUuidColumnOfDuplicationsIndexTable.class)
+      .add(3424, "Drop column 'ID' of 'DUPLICATIONS_INDEX' table", DropIdColumnOfDuplicationsIndexTable.class)
 
       // Migration of ACTIVE_RULE_PARAMS table
-      .add(3428, "Add 'uuid' column for 'ACTIVE_RULE_PARAMS' table", AddUuidColumnToActiveRuleParametersTable.class)
-      .add(3429, "Populate 'uuid' column for 'ACTIVE_RULE_PARAMS' table", PopulateActiveRuleParametersUuid.class)
-      .add(3430, "Make 'uuid' column not nullable for 'ACTIVE_RULE_PARAMS' table", MakeActiveRuleParametersUuidColumnNotNullable.class)
-      .add(3431, "Drop primary key on 'ID' column of 'ACTIVE_RULE_PARAMS' table", DropPrimaryKeyOnIdColumnOfActiveRuleParametersTable.class)
-      .add(3432, "Add primary key on 'UUID' column of 'ACTIVE_RULE_PARAMS' table", AddPrimaryKeyOnUuidColumnOfActiveRuleParametersTable.class)
-      .add(3433, "Drop column 'ID' of 'ACTIVE_RULE_PARAMS' table", DropIdColumnOfActiveRuleParametersTable.class)
+      .add(3425, "Add 'uuid' column for 'ACTIVE_RULE_PARAMS' table", AddUuidColumnToActiveRuleParametersTable.class)
+      .add(3426, "Populate 'uuid' column for 'ACTIVE_RULE_PARAMS' table", PopulateActiveRuleParametersUuid.class)
+      .add(3427, "Make 'uuid' column not nullable for 'ACTIVE_RULE_PARAMS' table", MakeActiveRuleParametersUuidColumnNotNullable.class)
+      .add(3428, "Drop primary key on 'ID' column of 'ACTIVE_RULE_PARAMS' table", DropPrimaryKeyOnIdColumnOfActiveRuleParametersTable.class)
+      .add(3429, "Add primary key on 'UUID' column of 'ACTIVE_RULE_PARAMS' table", AddPrimaryKeyOnUuidColumnOfActiveRuleParametersTable.class)
+      .add(3430, "Drop column 'ID' of 'ACTIVE_RULE_PARAMS' table", DropIdColumnOfActiveRuleParametersTable.class)
 
       // Migration on PROJECT_MEASURES table
-      .add(3434, "Add 'uuid' columns for 'PROJECT_MEASURES'", AddUuidColumnToProjectMeasures.class)
-      .add(3435, "Add tech index on 'group_uuid' column of 'PROJECT_MEASURES' table", AddTechIndexOnUuidOfProjectMeasuresTable.class)
-      .add(3436, "Populate 'uuid' column for 'PROJECT_MEASURES'", PopulateProjectMeasureUuid.class)
-      .add(3437, "Drop tech index on 'group_id' column of 'PROJECT_MEASURES' table", DropTechIndexOnUuidOfProjectMeasuresTable.class)
-      .add(3438, "Make 'uuid' column not nullable for 'PROJECT_MEASURES'", MakeProjectMeasuresUuidColumnNotNullable.class)
-      .add(3439, "Drop primary key on 'ID' column of 'PROJECT_MEASURES' table", DropPrimaryKeyOnIdColumnOfProjectMeasuresTable.class)
-      .add(3440, "Add primary key on 'UUID' column of 'PROJECT_MEASURES' table", AddPrimaryKeyOnUuidColumnOfProjectMeasuresTable.class)
-      .add(3441, "Drop column 'ID' of 'PROJECT_MEASURES' table", DropIdColumnOfProjectMeasuresTable.class)
+      .add(3431, "Add 'uuid' columns for 'PROJECT_MEASURES'", AddUuidColumnToProjectMeasures.class)
+      .add(3432, "Add tech index on 'group_uuid' column of 'PROJECT_MEASURES' table", AddTechIndexOnUuidOfProjectMeasuresTable.class)
+      .add(3433, "Populate 'uuid' column for 'PROJECT_MEASURES'", PopulateProjectMeasureUuid.class)
+      .add(3434, "Drop tech index on 'group_id' column of 'PROJECT_MEASURES' table", DropTechIndexOnUuidOfProjectMeasuresTable.class)
+      .add(3435, "Make 'uuid' column not nullable for 'PROJECT_MEASURES'", MakeProjectMeasuresUuidColumnNotNullable.class)
+      .add(3436, "Drop primary key on 'ID' column of 'PROJECT_MEASURES' table", DropPrimaryKeyOnIdColumnOfProjectMeasuresTable.class)
+      .add(3437, "Add primary key on 'UUID' column of 'PROJECT_MEASURES' table", AddPrimaryKeyOnUuidColumnOfProjectMeasuresTable.class)
+      .add(3438, "Drop column 'ID' of 'PROJECT_MEASURES' table", DropIdColumnOfProjectMeasuresTable.class)
 
       // Migration of USER_TOKENS table
-      .add(3442, "Add 'UUID' column on 'USER_TOKENS' table", AddUuidColumnToUserTokens.class)
-      .add(3443, "Populate 'uuid' for 'USER_TOKENS'", PopulateUserTokensUuid.class)
-      .add(3444, "Make 'uuid' column not nullable for user_tokens", MakeUserTokensUuidNotNullable.class)
-      .add(3445, "Drop primary key on 'ID' column of 'USER_TOKENS' table", DropPrimaryKeyOnIdColumnOfUserTokensTable.class)
-      .add(3446, "Add primary key on 'UUID' column of 'USER_TOKENS' table", AddPrimaryKeyOnUuidColumnOfUserTokensTable.class)
-      .add(3447, "Drop column 'ID' of 'USER_TOKENS' table", DropIdColumnOfUserTokensTable.class)
+      .add(3439, "Add 'UUID' column on 'USER_TOKENS' table", AddUuidColumnToUserTokens.class)
+      .add(3440, "Populate 'uuid' for 'USER_TOKENS'", PopulateUserTokensUuid.class)
+      .add(3441, "Make 'uuid' column not nullable for user_tokens", MakeUserTokensUuidNotNullable.class)
+      .add(3442, "Drop primary key on 'ID' column of 'USER_TOKENS' table", DropPrimaryKeyOnIdColumnOfUserTokensTable.class)
+      .add(3443, "Add primary key on 'UUID' column of 'USER_TOKENS' table", AddPrimaryKeyOnUuidColumnOfUserTokensTable.class)
+      .add(3444, "Drop column 'ID' of 'USER_TOKENS' table", DropIdColumnOfUserTokensTable.class)
 
       // Migration on PROJECT_QPROFILES table
-      .add(3448, "Add 'uuid' column for 'PROJECT_QPROFILES'", AddUuidColumnToProjectQProfilesTable.class)
-      .add(3449, "Populate 'uuid' column for 'PROJECT_QPROFILES'", PopulateProjectQProfilesUuid.class)
-      .add(3450, "Make 'uuid' column not nullable for 'PROJECT_QPROFILES'", MakeProjectQProfilesUuidColumnNotNullable.class)
-      .add(3451, "Drop primary key on 'ID' column of 'PROJECT_QPROFILES' table", DropPrimaryKeyOnIdColumnOfProjectQProfilesTable.class)
-      .add(3452, "Add primary key on 'UUID' column of 'PROJECT_QPROFILES' table", AddPrimaryKeyOnUuidColumnOfProjectQProfilesTable.class)
-      .add(3453, "Drop column 'ID' of 'PROJECT_QPROFILES' table", DropIdColumnOfProjectQProfilesTable.class)
+      .add(3445, "Add 'uuid' column for 'PROJECT_QPROFILES'", AddUuidColumnToProjectQProfilesTable.class)
+      .add(3446, "Populate 'uuid' column for 'PROJECT_QPROFILES'", PopulateProjectQProfilesUuid.class)
+      .add(3447, "Make 'uuid' column not nullable for 'PROJECT_QPROFILES'", MakeProjectQProfilesUuidColumnNotNullable.class)
+      .add(3448, "Drop primary key on 'ID' column of 'PROJECT_QPROFILES' table", DropPrimaryKeyOnIdColumnOfProjectQProfilesTable.class)
+      .add(3449, "Add primary key on 'UUID' column of 'PROJECT_QPROFILES' table", AddPrimaryKeyOnUuidColumnOfProjectQProfilesTable.class)
+      .add(3450, "Drop column 'ID' of 'PROJECT_QPROFILES' table", DropIdColumnOfProjectQProfilesTable.class)
 
       // Migration of MANUAL_MEASURES table
-      .add(3454, "Add 'uuid' column for 'MANUAL_MEASURES'", AddUuidColumnToManualMeasures.class)
-      .add(3455, "Populate 'uuid' column for 'MANUAL_MEASURES'", PopulateManualMeasureUuid.class)
-      .add(3456, "Make 'uuid' column not nullable for 'MANUAL_MEASURES'", MakeManualMeasuresUuidColumnNotNullable.class)
-      .add(3457, "Drop primary key on 'ID' column of 'MANUAL_MEASURES' table", DropPrimaryKeyOnIdColumnOfManualMeasuresTable.class)
-      .add(3458, "Add primary key on 'UUID' column of 'MANUAL_MEASURES' table", AddPrimaryKeyOnUuidColumnOfManualMeasuresTable.class)
-      .add(3459, "Drop column 'ID' of 'MANUAL_MEASURES' table", DropIdColumnOfManualMeasuresTable.class)
+      .add(3451, "Add 'uuid' column for 'MANUAL_MEASURES'", AddUuidColumnToManualMeasures.class)
+      .add(3452, "Populate 'uuid' column for 'MANUAL_MEASURES'", PopulateManualMeasureUuid.class)
+      .add(3453, "Make 'uuid' column not nullable for 'MANUAL_MEASURES'", MakeManualMeasuresUuidColumnNotNullable.class)
+      .add(3454, "Drop primary key on 'ID' column of 'MANUAL_MEASURES' table", DropPrimaryKeyOnIdColumnOfManualMeasuresTable.class)
+      .add(3455, "Add primary key on 'UUID' column of 'MANUAL_MEASURES' table", AddPrimaryKeyOnUuidColumnOfManualMeasuresTable.class)
+      .add(3456, "Drop column 'ID' of 'MANUAL_MEASURES' table", DropIdColumnOfManualMeasuresTable.class)
 
       // Migration of GROUP_ROLES table
-      .add(3460, "Add 'UUID' column on 'GROUP_ROLES' table", AddUuidColumnToGroupRolesTable.class)
-      .add(3461, "Populate 'uuid' for 'GROUP_ROLES'", PopulateGroupRolesUuid.class)
-      .add(3462, "Make 'uuid' column not nullable for 'GROUP_ROLES'", MakeGroupRolesUuidColumnNotNullable.class)
-      .add(3463, "Drop primary key on 'ID' column of 'GROUP_ROLES' table", DropPrimaryKeyOnIdColumnOfGroupRolesTable.class)
-      .add(3464, "Add primary key on 'UUID' column of 'GROUP_ROLES' table", AddPrimaryKeyOnUuidColumnOfGroupRolesTable.class)
-      .add(3465, "Drop column 'ID' of 'GROUP_ROLES' table", DropIdColumnOfGroupRolesTable.class)
+      .add(3457, "Add 'UUID' column on 'GROUP_ROLES' table", AddUuidColumnToGroupRolesTable.class)
+      .add(3458, "Populate 'uuid' for 'GROUP_ROLES'", PopulateGroupRolesUuid.class)
+      .add(3459, "Make 'uuid' column not nullable for 'GROUP_ROLES'", MakeGroupRolesUuidColumnNotNullable.class)
+      .add(3460, "Drop primary key on 'ID' column of 'GROUP_ROLES' table", DropPrimaryKeyOnIdColumnOfGroupRolesTable.class)
+      .add(3461, "Add primary key on 'UUID' column of 'GROUP_ROLES' table", AddPrimaryKeyOnUuidColumnOfGroupRolesTable.class)
+      .add(3462, "Drop column 'ID' of 'GROUP_ROLES' table", DropIdColumnOfGroupRolesTable.class)
 
       // Migration of USER_ROLES table
-      .add(3466, "Add 'UUID' column on 'USER_ROLES' table", AddUuidColumnToUserRolesTable.class)
-      .add(3467, "Populate 'uuid' for 'USER_ROLES'", PopulateUserRolesUuid.class)
-      .add(3468, "Make 'uuid' column not nullable for 'USER_ROLES'", MakeUserRolesUuidColumnNotNullable.class)
-      .add(3469, "Drop primary key on 'ID' column of 'USER_ROLES' table", DropPrimaryKeyOnIdColumnOfUserRolesTable.class)
-      .add(3470, "Add primary key on 'UUID' column of 'USER_ROLES' table", AddPrimaryKeyOnUuidColumnOfUserRolesTable.class)
-      .add(3471, "Drop column 'ID' of 'USER_ROLES' table", DropIdColumnOfUserRolesTable.class)
+      .add(3463, "Add 'UUID' column on 'USER_ROLES' table", AddUuidColumnToUserRolesTable.class)
+      .add(3464, "Populate 'uuid' for 'USER_ROLES'", PopulateUserRolesUuid.class)
+      .add(3465, "Make 'uuid' column not nullable for 'USER_ROLES'", MakeUserRolesUuidColumnNotNullable.class)
+      .add(3466, "Drop primary key on 'ID' column of 'USER_ROLES' table", DropPrimaryKeyOnIdColumnOfUserRolesTable.class)
+      .add(3468, "Add primary key on 'UUID' column of 'USER_ROLES' table", AddPrimaryKeyOnUuidColumnOfUserRolesTable.class)
+      .add(3469, "Drop column 'ID' of 'USER_ROLES' table", DropIdColumnOfUserRolesTable.class)
 
       // Migration of FILE_SOURCES table
-      .add(3472, "Add 'UUID' column on 'FILE_SOURCES' table", AddUuidColumnToFileSourcesTable.class)
-      .add(3473, "Populate 'uuid' for 'FILE_SOURCES'", PopulateFileSourcesUuid.class)
-      .add(3474, "Make 'uuid' column not nullable for 'FILE_SOURCES'", MakeFileSourcesUuidColumnNotNullable.class)
-      .add(3475, "Drop primary key on 'ID' column of 'FILE_SOURCES' table", DropPrimaryKeyOnIdColumnOfFileSourcesTable.class)
-      .add(3476, "Add primary key on 'UUID' column of 'FILE_SOURCES' table", AddPrimaryKeyOnUuidColumnOfFileSourcesTable.class)
-      .add(3477, "Drop column 'ID' of 'FILE_SOURCES' table", DropIdColumnOfFileSourcesTable.class)
+      .add(3470, "Add 'UUID' column on 'FILE_SOURCES' table", AddUuidColumnToFileSourcesTable.class)
+      .add(3471, "Populate 'uuid' for 'FILE_SOURCES'", PopulateFileSourcesUuid.class)
+      .add(3472, "Make 'uuid' column not nullable for 'FILE_SOURCES'", MakeFileSourcesUuidColumnNotNullable.class)
+      .add(3473, "Drop primary key on 'ID' column of 'FILE_SOURCES' table", DropPrimaryKeyOnIdColumnOfFileSourcesTable.class)
+      .add(3474, "Add primary key on 'UUID' column of 'FILE_SOURCES' table", AddPrimaryKeyOnUuidColumnOfFileSourcesTable.class)
+      .add(3475, "Drop column 'ID' of 'FILE_SOURCES' table", DropIdColumnOfFileSourcesTable.class)
 
       // Migration of ISSUE_CHANGES table
-      .add(3478, "Add 'UUID' column on 'ISSUE_CHANGES' table", AddUuidColumnToIssueChangesTable.class)
-      .add(3479, "Populate 'uuid' for 'ISSUE_CHANGES'", PopulateIssueChangesUuid.class)
-      .add(3480, "Make 'uuid' column not nullable for 'ISSUE_CHANGES'", MakeIssueChangesUuidColumnNotNullable.class)
-      .add(3481, "Drop primary key on 'ID' column of 'ISSUE_CHANGES' table", DropPrimaryKeyOnIdColumnOfIssueChangesTable.class)
-      .add(3482, "Add primary key on 'UUID' column of 'ISSUE_CHANGES' table", AddPrimaryKeyOnUuidColumnOfIssueChangesTable.class)
-      .add(3483, "Drop column 'ID' of 'ISSUE_CHANGES' table", DropIdColumnOfIssueChangesTable.class)
+      .add(3476, "Copy 'ISSUE_CHANGES' table to 'ISSUE_CHANGES_COPY'", CopyIssueChangesTable.class)
+      .add(3477, "Drop 'ISSUE_CHANGES' table", DropIssueChangesTable.class)
+      .add(3478, "Rename table 'ISSUE_CHANGES_COPY' to 'ISSUE_CHANGES'", RenameIssueChangesCopyToIssueChanges.class)
+      .add(3479, "Add index on 'ISSUE_KEY' of 'ISSUE_CHANGES' table", AddIndexOnIssueKeyOfIssueChangesTable.class)
+      .add(3480, "Add index on 'KEE' of 'ISSUE_CHANGES' table", AddIndexOnKeeOfIssueChangesTable.class)
+      .add(3481, "Add primary key on 'UUID' column of 'ISSUE_CHANGES' table", AddPrimaryKeyOnUuidColumnOfIssueChangesTable.class)
 
       // Migration of QUALITY_GATE_CONDITIONS table
-      .add(3484, "Add 'UUID' column on 'QUALITY_GATE_CONDITIONS' table", AddUuidColumnToQualityGateConditionsTable.class)
-      .add(3485, "Populate 'uuid' for 'QUALITY_GATE_CONDITIONS'", PopulateQualityGateConditionsUuid.class)
-      .add(3486, "Make 'uuid' column not nullable for 'QUALITY_GATE_CONDITIONS'", MakeQualityGateConditionsUuidColumnNotNullable.class)
-      .add(3487, "Drop primary key on 'ID' column of 'QUALITY_GATE_CONDITIONS' table", DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable.class)
-      .add(3488, "Add primary key on 'UUID' column of 'QUALITY_GATE_CONDITIONS' table", AddPrimaryKeyOnUuidColumnOfQualityGateConditionsTable.class)
-      .add(3489, "Drop column 'ID' of 'QUALITY_GATE_CONDITIONS' table", DropIdColumnOfQualityGateConditionsTable.class)
+      .add(3483, "Add 'UUID' column on 'QUALITY_GATE_CONDITIONS' table", AddUuidColumnToQualityGateConditionsTable.class)
+      .add(3484, "Populate 'uuid' for 'QUALITY_GATE_CONDITIONS'", PopulateQualityGateConditionsUuid.class)
+      .add(3485, "Make 'uuid' column not nullable for 'QUALITY_GATE_CONDITIONS'", MakeQualityGateConditionsUuidColumnNotNullable.class)
+      .add(3486, "Drop primary key on 'ID' column of 'QUALITY_GATE_CONDITIONS' table", DropPrimaryKeyOnIdColumnOfQualityGateConditionsTable.class)
+      .add(3487, "Add primary key on 'UUID' column of 'QUALITY_GATE_CONDITIONS' table", AddPrimaryKeyOnUuidColumnOfQualityGateConditionsTable.class)
+      .add(3488, "Drop column 'ID' of 'QUALITY_GATE_CONDITIONS' table", DropIdColumnOfQualityGateConditionsTable.class)
 
       // Migration of PERM_TEMPLATES_GROUPS table
-      .add(3490, "Add 'UUID' column on 'PERM_TEMPLATES_GROUPS' table", AddUuidColumnToPermTemplatesGroupsTable.class)
-      .add(3491, "Populate 'uuid' for 'PERM_TEMPLATES_GROUPS'", PopulatePermTemplatesGroupsUuid.class)
-      .add(3492, "Make 'uuid' column not nullable for 'PERM_TEMPLATES_GROUPS'", MakePermTemplatesGroupsUuidColumnNotNullable.class)
-      .add(3493, "Drop primary key on 'ID' column of 'PERM_TEMPLATES_GROUPS' table", DropPrimaryKeyOnIdColumnOfPermTemplatesGroupsTable.class)
-      .add(3494, "Add primary key on 'UUID' column of 'PERM_TEMPLATES_GROUPS' table", AddPrimaryKeyOnUuidColumnOfPermTemplatesGroupsTable.class)
-      .add(3495, "Drop column 'ID' of 'PERM_TEMPLATES_GROUPS' table", DropIdColumnOfPermTemplatesGroupsTable.class)
+      .add(3489, "Add 'UUID' column on 'PERM_TEMPLATES_GROUPS' table", AddUuidColumnToPermTemplatesGroupsTable.class)
+      .add(3490, "Populate 'uuid' for 'PERM_TEMPLATES_GROUPS'", PopulatePermTemplatesGroupsUuid.class)
+      .add(3491, "Make 'uuid' column not nullable for 'PERM_TEMPLATES_GROUPS'", MakePermTemplatesGroupsUuidColumnNotNullable.class)
+      .add(3492, "Drop primary key on 'ID' column of 'PERM_TEMPLATES_GROUPS' table", DropPrimaryKeyOnIdColumnOfPermTemplatesGroupsTable.class)
+      .add(3493, "Add primary key on 'UUID' column of 'PERM_TEMPLATES_GROUPS' table", AddPrimaryKeyOnUuidColumnOfPermTemplatesGroupsTable.class)
+      .add(3494, "Drop column 'ID' of 'PERM_TEMPLATES_GROUPS' table", DropIdColumnOfPermTemplatesGroupsTable.class)
 
       // Migration of PERM_TPL_CHARACTERISTICS table
-      .add(3496, "Add 'UUID' column on 'PERM_TPL_CHARACTERISTICS' table", AddUuidColumnToPermTplCharacteristicsTable.class)
-      .add(3497, "Populate 'uuid' for 'PERM_TPL_CHARACTERISTICS'", PopulatePermTplCharacteristicsUuid.class)
-      .add(3498, "Make 'uuid' column not nullable for 'PERM_TPL_CHARACTERISTICS'", MakePermTplCharacteristicsUuidColumnNotNullable.class)
-      .add(3499, "Drop primary key on 'ID' column of 'PERM_TPL_CHARACTERISTICS' table", DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable.class)
-      .add(3500, "Add primary key on 'UUID' column of 'PERM_TPL_CHARACTERISTICS' table", AddPrimaryKeyOnUuidColumnOfPermTplCharacteristicsTable.class)
-      .add(3501, "Drop column 'ID' of 'PERM_TPL_CHARACTERISTICS' table", DropIdColumnOfPermTplCharacteristicsTable.class)
+      .add(3495, "Add 'UUID' column on 'PERM_TPL_CHARACTERISTICS' table", AddUuidColumnToPermTplCharacteristicsTable.class)
+      .add(3496, "Populate 'uuid' for 'PERM_TPL_CHARACTERISTICS'", PopulatePermTplCharacteristicsUuid.class)
+      .add(3497, "Make 'uuid' column not nullable for 'PERM_TPL_CHARACTERISTICS'", MakePermTplCharacteristicsUuidColumnNotNullable.class)
+      .add(3498, "Drop primary key on 'ID' column of 'PERM_TPL_CHARACTERISTICS' table", DropPrimaryKeyOnIdColumnOfPermTplCharacteristicsTable.class)
+      .add(3499, "Add primary key on 'UUID' column of 'PERM_TPL_CHARACTERISTICS' table", AddPrimaryKeyOnUuidColumnOfPermTplCharacteristicsTable.class)
+      .add(3500, "Drop column 'ID' of 'PERM_TPL_CHARACTERISTICS' table", DropIdColumnOfPermTplCharacteristicsTable.class)
 
       // Migration of PERM_TEMPLATES_USERS table
-      .add(3502, "Add 'UUID' column on 'PERM_TEMPLATES_USERS' table", AddUuidColumnToPermTemplatesUsersTable.class)
-      .add(3503, "Populate 'uuid' for 'PERM_TEMPLATES_USERS'", PopulatePermTemplatesUsersUuid.class)
-      .add(3504, "Make 'uuid' column not nullable for 'PERM_TEMPLATES_USERS'", MakePermTemplatesUsersUuidColumnNotNullable.class)
-      .add(3505, "Drop primary key on 'ID' column of 'PERM_TEMPLATES_USERS' table", DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable.class)
-      .add(3506, "Add primary key on 'UUID' column of 'PERM_TEMPLATES_USERS' table", AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable.class)
-      .add(3507, "Drop column 'ID' of 'PERM_TEMPLATES_USERS' table", DropIdColumnOfPermTemplatesUsersTable.class)
+      .add(3501, "Add 'UUID' column on 'PERM_TEMPLATES_USERS' table", AddUuidColumnToPermTemplatesUsersTable.class)
+      .add(3502, "Populate 'uuid' for 'PERM_TEMPLATES_USERS'", PopulatePermTemplatesUsersUuid.class)
+      .add(3503, "Make 'uuid' column not nullable for 'PERM_TEMPLATES_USERS'", MakePermTemplatesUsersUuidColumnNotNullable.class)
+      .add(3504, "Drop primary key on 'ID' column of 'PERM_TEMPLATES_USERS' table", DropPrimaryKeyOnIdColumnOfPermTemplatesUsersTable.class)
+      .add(3505, "Add primary key on 'UUID' column of 'PERM_TEMPLATES_USERS' table", AddPrimaryKeyOnUuidColumnOfPermTemplatesUsersTable.class)
+      .add(3506, "Drop column 'ID' of 'PERM_TEMPLATES_USERS' table", DropIdColumnOfPermTemplatesUsersTable.class)
 
       // Migration of ACTIVE_RULES table
-      .add(3508, "Add 'UUID' column on 'ACTIVE_RULES' table", AddUuidColumnToActiveRulesTable.class)
-      .add(3509, "Populate 'uuid' for 'ACTIVE_RULES'", PopulateActiveRulesUuid.class)
-      .add(3510, "Make 'uuid' column not nullable for 'ACTIVE_RULES'", MakeActiveRulesUuidColumnNotNullable.class)
+      .add(3507, "Add 'UUID' column on 'ACTIVE_RULES' table", AddUuidColumnToActiveRulesTable.class)
+      .add(3508, "Populate 'uuid' for 'ACTIVE_RULES'", PopulateActiveRulesUuid.class)
+      .add(3509, "Make 'uuid' column not nullable for 'ACTIVE_RULES'", MakeActiveRulesUuidColumnNotNullable.class)
 
       // Migration of FK in ACTIVE_RULE_PARAMETERS to ACTIVE_RULES
-      .add(3511, "Add 'active_rule_uuid' column on 'ACTIVE_RULE_PARAMETERS' table", AddActiveRuleUuidColumnToActiveRuleParameters.class)
-      .add(3512, "Populate 'active_rule_uuid' for 'ACTIVE_RULE_PARAMETERS'", PopulateActiveRuleParametersActiveRuleUuid.class)
-      .add(3513, "Make 'active_rule_uuid' column not nullable for 'ACTIVE_RULE_PARAMETERS'", MakeActiveRuleParametersActiveRuleUuidNotNullable.class)
-      .add(3514, "Drop index on 'active_rule_id' column of 'ACTIVE_RULE_PARAMETERS' table", DropIndexOnActiveRuleIdOfActiveRuleParametersTable.class)
-      .add(3515, "Add index on 'active_rule_uuid' column of 'ACTIVE_RULE_PARAMETERS' table", AddIndexOnActiveRuleUuidOfActiveRuleParametersTable.class)
+      .add(3510, "Add 'active_rule_uuid' column on 'ACTIVE_RULE_PARAMETERS' table", AddActiveRuleUuidColumnToActiveRuleParameters.class)
+      .add(3511, "Populate 'active_rule_uuid' for 'ACTIVE_RULE_PARAMETERS'", PopulateActiveRuleParametersActiveRuleUuid.class)
+      .add(3512, "Make 'active_rule_uuid' column not nullable for 'ACTIVE_RULE_PARAMETERS'", MakeActiveRuleParametersActiveRuleUuidNotNullable.class)
+      .add(3513, "Drop index on 'active_rule_id' column of 'ACTIVE_RULE_PARAMETERS' table", DropIndexOnActiveRuleIdOfActiveRuleParametersTable.class)
+      .add(3514, "Add index on 'active_rule_uuid' column of 'ACTIVE_RULE_PARAMETERS' table", AddIndexOnActiveRuleUuidOfActiveRuleParametersTable.class)
 
       // Finish migration of ACTIVE_RULES
-      .add(3516, "Drop primary key on 'ID' column of 'ACTIVE_RULES' table", DropPrimaryKeyOnIdColumnOfActiveRulesTable.class)
-      .add(3517, "Add primary key on 'UUID' column of 'ACTIVE_RULES' table", AddPrimaryKeyOnUuidColumnOfActiveRulesTable.class)
-      .add(3518, "Drop column 'ID' of 'ACTIVE_RULES' table", DropIdColumnOfActiveRulesTable.class)
-      .add(3519, "Drop column 'active_rule_id' of 'ACTIVE_RULE_PARAMETERS' table", DropActiveRuleIdColumnOfActiveRuleParametersTable.class)
+      .add(3515, "Drop primary key on 'ID' column of 'ACTIVE_RULES' table", DropPrimaryKeyOnIdColumnOfActiveRulesTable.class)
+      .add(3516, "Add primary key on 'UUID' column of 'ACTIVE_RULES' table", AddPrimaryKeyOnUuidColumnOfActiveRulesTable.class)
+      .add(3517, "Drop column 'ID' of 'ACTIVE_RULES' table", DropIdColumnOfActiveRulesTable.class)
+      .add(3518, "Drop column 'active_rule_id' of 'ACTIVE_RULE_PARAMETERS' table", DropActiveRuleIdColumnOfActiveRuleParametersTable.class)
 
       // Migration on RULES_PARAMETERS table - populate uuid column
-      .add(3520, "Add 'uuid' column for 'RULES_PARAMETERS'", AddUuidColumnToRulesParameters.class)
-      .add(3521, "Populate 'uuid' column for 'RULES_PARAMETERS'", PopulateRulesParametersUuid.class)
-      .add(3522, "Make 'uuid' column not nullable for 'RULES_PARAMETERS'", MakeRulesParametersUuidColumnNotNullable.class)
+      .add(3519, "Add 'uuid' column for 'RULES_PARAMETERS'", AddUuidColumnToRulesParameters.class)
+      .add(3520, "Populate 'uuid' column for 'RULES_PARAMETERS'", PopulateRulesParametersUuid.class)
+      .add(3521, "Make 'uuid' column not nullable for 'RULES_PARAMETERS'", MakeRulesParametersUuidColumnNotNullable.class)
 
       // Migration of ACTIVE_RULE_PARAMS FK to RULES_PARAMETERS, switch from ruleParamId to ruleParamUuid
-      .add(3523, "Add 'rules_parameter_uuid' column for 'ACTIVE_RULE_PARAMS' table", AddRulesParameterUuidColumnToActiveRuleParameters.class)
-      .add(3524, "Populate 'rules_parameter_uuid' column for 'ACTIVE_RULE_PARAMS' table", PopulateActiveRuleParametersRulesParameterUuid.class)
-      .add(3525, "Make 'rules_parameter_uuid' column not nullable for 'ACTIVE_RULE_PARAMS' table", MakeActiveRuleParametersRulesParameterUuidColumnNotNullable.class)
-      .add(3526, "Drop column 'rules_parameter_id' of 'ACTIVE_RULE_PARAMS' table", DropRulesParameterIdColumnOfActiveRuleParametersTable.class)
+      .add(3522, "Add 'rules_parameter_uuid' column for 'ACTIVE_RULE_PARAMS' table", AddRulesParameterUuidColumnToActiveRuleParameters.class)
+      .add(3523, "Populate 'rules_parameter_uuid' column for 'ACTIVE_RULE_PARAMS' table", PopulateActiveRuleParametersRulesParameterUuid.class)
+      .add(3524, "Make 'rules_parameter_uuid' column not nullable for 'ACTIVE_RULE_PARAMS' table", MakeActiveRuleParametersRulesParameterUuidColumnNotNullable.class)
+      .add(3525, "Drop column 'rules_parameter_id' of 'ACTIVE_RULE_PARAMS' table", DropRulesParameterIdColumnOfActiveRuleParametersTable.class)
 
       // Migration on RULES_PARAMETERS table change PK
-      .add(3527, "Drop primary key on 'ID' column of 'RULES_PARAMETERS' table", DropPrimaryKeyOnIdColumnOfRulesParametersTable.class)
-      .add(3528, "Add primary key on 'UUID' column of 'RULES_PARAMETERS' table", AddPrimaryKeyOnUuidColumnOfRulesParametersTable.class)
-      .add(3529, "Drop column 'ID' of 'RULES_PARAMETERS' table", DropIdColumnOfRulesParametersTable.class)
+      .add(3526, "Drop primary key on 'ID' column of 'RULES_PARAMETERS' table", DropPrimaryKeyOnIdColumnOfRulesParametersTable.class)
+      .add(3527, "Add primary key on 'UUID' column of 'RULES_PARAMETERS' table", AddPrimaryKeyOnUuidColumnOfRulesParametersTable.class)
+      .add(3528, "Drop column 'ID' of 'RULES_PARAMETERS' table", DropIdColumnOfRulesParametersTable.class)
 
       // Migration of METRICS table
-      .add(3530, "Add 'UUID' column on 'METRICS' table", AddUuidColumnToMetricsTable.class)
-      .add(3531, "Populate 'uuid' for 'METRICS'", PopulateMetricsUuid.class)
-      .add(3532, "Make 'uuid' column not nullable for 'METRICS'", MakeMetricsUuidColumnNotNullable.class)
+      .add(3529, "Add 'UUID' column on 'METRICS' table", AddUuidColumnToMetricsTable.class)
+      .add(3530, "Populate 'uuid' for 'METRICS'", PopulateMetricsUuid.class)
+      .add(3531, "Make 'uuid' column not nullable for 'METRICS'", MakeMetricsUuidColumnNotNullable.class)
 
       // Migration of FK in PROJECT_MEASURES to METRICS
-      .add(3533, "Add 'metric_uuid' column on 'PROJECT_MEASURES' table", AddMetricUuidColumnToProjectMeasures.class)
-      .add(3534, "Populate 'metric_uuid' for 'PROJECT_MEASURES'", PopulateProjectMeasuresMetricUuid.class)
-      .add(3535, "Make 'metric_uuid' column not nullable for 'PROJECT_MEASURES'", MakeProjectMeasuresMetricUuidNotNullable.class)
-      .add(3536, "Drop index on 'metric_id' and 'analysis_uuid' columns of 'PROJECT_MEASURES' table", DropIndexOnMetricIdOfProjectMeasuresTable.class)
-      .add(3537, "Add index on 'metric_uuid' and 'analysis_uuid' columns of 'PROJECT_MEASURES' table", AddIndexOnMetricUuidOfProjectMeasuresTable.class)
+      .add(3532, "Add 'metric_uuid' column on 'PROJECT_MEASURES' table", AddMetricUuidColumnToProjectMeasures.class)
+      .add(3533, "Populate 'metric_uuid' for 'PROJECT_MEASURES'", PopulateProjectMeasuresMetricUuid.class)
+      .add(3534, "Make 'metric_uuid' column not nullable for 'PROJECT_MEASURES'", MakeProjectMeasuresMetricUuidNotNullable.class)
+      .add(3535, "Drop index on 'metric_id' and 'analysis_uuid' columns of 'PROJECT_MEASURES' table", DropIndexOnMetricIdOfProjectMeasuresTable.class)
+      .add(3536, "Add index on 'metric_uuid' and 'analysis_uuid' columns of 'PROJECT_MEASURES' table", AddIndexOnMetricUuidOfProjectMeasuresTable.class)
 
       // Migration of FK in QUALITY_GATE_CONDITIONS to METRICS
-      .add(3538, "Add 'metric_uuid' column on 'QUALITY_GATE_CONDITIONS' table", AddMetricUuidColumnToQualityGateConditions.class)
-      .add(3539, "Populate 'metric_uuid' for 'QUALITY_GATE_CONDITIONS'", PopulateQualityGateConditionsMetricUuid.class)
-      .add(3540, "Make 'metric_uuid' column not nullable for 'QUALITY_GATE_CONDITIONS'", MakeQualityGateConditionsMetricUuidNotNullable.class)
+      .add(3537, "Add 'metric_uuid' column on 'QUALITY_GATE_CONDITIONS' table", AddMetricUuidColumnToQualityGateConditions.class)
+      .add(3538, "Populate 'metric_uuid' for 'QUALITY_GATE_CONDITIONS'", PopulateQualityGateConditionsMetricUuid.class)
+      .add(3539, "Make 'metric_uuid' column not nullable for 'QUALITY_GATE_CONDITIONS'", MakeQualityGateConditionsMetricUuidNotNullable.class)
 
       // Migration of FK in LIVE_MEASURES to METRICS
-      .add(3541, "Add 'metric_uuid' column on 'LIVE_MEASURES' table", AddMetricUuidColumnToLiveMeasures.class)
-      .add(3542, "Populate 'metric_uuid' for 'LIVE_MEASURES'", PopulateLiveMeasuresMetricUuid.class)
-      .add(3543, "Make 'metric_uuid' column not nullable for 'LIVE_MEASURES'", MakeLiveMeasuresMetricUuidNotNullable.class)
-      .add(3544, "Drop index on 'metric_id' column of 'LIVE_MEASURES' table", DropIndexOnMetricIdOfLiveMeasuresTable.class)
+      .add(3540, "Copy 'LIVE_MEASURES' table to 'LIVE_MEASURES_COPY'", CopyLiveMeasuresTable.class)
+      .add(3541, "Drop 'LIVE_MEASURES' table", DropLiveMeasuresTable.class)
+      .add(3542, "Rename table 'LIVE_MEASURES_COPY' to 'LIVE_MEASURES'", RenameLiveMeasuresCopyToLiveMeasures.class)
+      .add(3543, "Add primary key on 'uuid' column of 'LIVE_MEASURES' table", AddPKeyOnUuidOfLiveMeasuresTable.class)
+      .add(3544, "Add index on 'project_uuid' column of 'LIVE_MEASURES' table", AddIndexOnProjectUuidOfLiveMeasuresTable.class)
       .add(3545, "Add index on 'metric_uuid' column of 'LIVE_MEASURES' table", AddIndexOnMetricUuidOfLiveMeasuresTable.class)
 
       // Migration of FK in MANUAL_MEASURES to METRICS
@@ -554,7 +547,6 @@ public class DbVersion84 implements DbVersion {
       .add(3550, "Add primary key on 'UUID' column of 'METRICS' table", AddPrimaryKeyOnUuidColumnOfMetricsTable.class)
       .add(3551, "Drop column 'METRIC_ID' of 'PROJECT_MEASURES' table", DropMetricIdColumnOfProjectMeasuresTable.class)
       .add(3552, "Drop column 'METRIC_ID' of 'QUALITY_GATE_CONDITIONS' table", DropMetricIdColumnOfQualityGateConditionsTable.class)
-      .add(3553, "Drop column 'METRIC_ID' of 'LIVE_MEASURES' table", DropMetricIdColumnOfLiveMeasuresTable.class)
       .add(3554, "Drop column 'METRIC_ID' of 'MANUAL_MEASURES' table", DropMetricIdColumnOfManualMeasuresTable.class)
       .add(3555, "Drop column 'ID' of 'METRICS' table", DropIdColumnOfMetricsTable.class)
 
@@ -770,11 +762,12 @@ public class DbVersion84 implements DbVersion {
       .add(3702, "Add index to 'DEPRECATED_RULE_KEYS' table", AddIndexToDeprecatedRuleKeysTable.class)
       .add(3703, "Drop column 'RULE_ID' of 'DEPRECATED_RULE_KEYS' table", DropRuleIdColumnOfDeprecatedRuleKeysTable.class)
       // Migration of ISSUE FK to RULES, switch from rule_id to rule_uuid
-      .add(3704, "Add 'RULE_UUID' column for 'ISSUES' table", AddRuleUuidColumnToIssuesTable.class)
-      .add(3705, "Add index to 'ISSUES' table", AddIndexToIssuesTable.class)
-      .add(3706, "Populate 'RULE_UUID' column for 'ISSUES' table", PopulateIssuesRuleUuidColumn.class)
-      .add(3707, "Drop index on 'RULE_ID' of 'ISSUES' table", DropIndexOnRuleIdColumnOfIssuesTable.class)
-      .add(3708, "Drop column 'RULE_ID' of 'ISSUES' table", DropRuleIdColumnOfIssuesTable.class)
+      .add(3704, "Copy 'ISSUES' table to 'ISSUES_COPY", CopyIssuesTable.class)
+      .add(3705, "Drop 'ISSUES' table", DropIssuesTable.class)
+      .add(3706, "Rename 'ISSUES_COPY' table to 'ISSUES'", RenameIssuesCopyToIssues.class)
+      .add(3707, "Add indexes to 'ISSUES' table", AddIndexesToIssuesTable.class)
+      .add(3708, "Add primary key on 'KEE' column of 'ISSUES' table", AddPrimaryKeyOnKeeColumnOfIssuesTable.class)
+
       // continue with RULES table cleanup
       .add(3709, "Drop primary key on 'ID' column of 'RULES' table", DropPrimaryKeyOnIdColumnOfRulesTable.class)
       .add(3710, "Add primary key on 'UUID' column of 'RULES' table", AddPrimaryKeyOnUuidColumnOfRulesTable.class)
