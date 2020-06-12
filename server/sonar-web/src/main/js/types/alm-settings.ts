@@ -39,6 +39,8 @@ export interface BitbucketBindingDefinition extends AlmBindingDefinition {
 
 export interface GithubBindingDefinition extends AlmBindingDefinition {
   appId: string;
+  clientId: string;
+  clientSecret: string;
   privateKey: string;
   url: string;
 }

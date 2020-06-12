@@ -74,6 +74,22 @@ export default function GithubForm(props: GithubFormProps) {
         value={formData.appId}
       />
       <AlmBindingDefinitionFormField
+        id="client_id"
+        maxLength={80}
+        onFieldChange={onFieldChange}
+        propKey="clientId"
+        readOnly={readOnly}
+        value={formData.clientId}
+      />
+      <AlmBindingDefinitionFormField
+        id="client_secret"
+        maxLength={80}
+        onFieldChange={onFieldChange}
+        propKey="clientSecret"
+        readOnly={readOnly}
+        value={formData.clientSecret}
+      />
+      <AlmBindingDefinitionFormField
         id="private_key"
         isTextArea={true}
         onFieldChange={onFieldChange}

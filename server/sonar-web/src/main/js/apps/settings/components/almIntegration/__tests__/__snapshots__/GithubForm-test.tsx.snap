@@ -41,6 +41,20 @@ exports[`should render correctly 1`] = `
     value=""
   />
   <AlmBindingDefinitionFormField
+    id="client_id"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="clientId"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
+    id="client_secret"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="clientSecret"
+    value=""
+  />
+  <AlmBindingDefinitionFormField
     id="private_key"
     isTextArea={true}
     onFieldChange={[MockFunction]}
@@ -89,6 +103,20 @@ exports[`should render correctly 2`] = `
     onFieldChange={[MockFunction]}
     propKey="appId"
     value="123456"
+  />
+  <AlmBindingDefinitionFormField
+    id="client_id"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="clientId"
+    value="client1"
+  />
+  <AlmBindingDefinitionFormField
+    id="client_secret"
+    maxLength={80}
+    onFieldChange={[MockFunction]}
+    propKey="clientSecret"
+    value="**clientsecret**"
   />
   <AlmBindingDefinitionFormField
     id="private_key"

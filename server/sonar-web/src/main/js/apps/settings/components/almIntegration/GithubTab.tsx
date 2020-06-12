@@ -18,7 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { FormattedMessage } from 'react-intl';
+import WarningIcon from 'sonar-ui-common/components/icons/WarningIcon';
+import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { createGithubConfiguration, updateGithubConfiguration } from '../../../../api/alm-settings';
 import { AlmKeys, GithubBindingDefinition } from '../../../../types/alm-settings';
 import { ALM_INTEGRATION } from '../AdditionalCategoryKeys';
@@ -57,9 +60,31 @@ export default function GithubTab(props: GithubTabProps) {
               translate('settings.almintegration.table.column.app_id')
             ]}
             additionalColumnsKeys={['url', 'appId']}
+            additionalTableInfo={
+              <Alert className="big-spacer-bottom width-50" variant="info">
+                <FormattedMessage
+                  defaultMessage={translate(
+                    'settings.almintegration.feature.alm_repo_import.disabled_if_multiple_github_instances'
+                  )}
+                  id="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_github_instances"
+                  values={{
+                    feature: (
+                      <em>{translate('settings.almintegration.feature.alm_repo_import.title')}</em>
+                    )
+                  }}
+                />
+              </Alert>
+            }
             alm={AlmKeys.GitHub}
             createConfiguration={createGithubConfiguration}
-            defaultBinding={{ key: '', appId: '', url: '', privateKey: '' }}
+            defaultBinding={{
+              key: '',
+              appId: '',
+              clientId: '',
+              clientSecret: '',
+              url: '',
+              privateKey: ''
+            }}
             definitions={definitions}
             features={[
               {
@@ -67,6 +92,37 @@ export default function GithubTab(props: GithubTabProps) {
                 active: definitions.length > 0,
                 description: translate('settings.almintegration.feature.pr_decoration.description'),
                 inactiveReason: translate('settings.almintegration.feature.need_at_least_1_binding')
+              },
+              {
+                name: translate('settings.almintegration.feature.alm_repo_import.title'),
+                active:
+                  definitions.length === 1 &&
+                  !!definitions[0].clientId &&
+                  !!definitions[0].clientSecret,
+                description: translate(
+                  'settings.almintegration.feature.alm_repo_import.description'
+                ),
+                inactiveReason:
+                  definitions.length === 1 ? (
+                    <>
+                      <WarningIcon className="little-spacer-right" />
+                      <FormattedMessage
+                        id="settings.almintegration.feature.alm_repo_import.github.requires_fields"
+                        defaultMessage={translate(
+                          'settings.almintegration.feature.alm_repo_import.github.requires_fields'
+                        )}
+                        values={{
+                          clientId: <strong>clientId</strong>,
+                          clientSecret: <strong>clientSecret</strong>
+                        }}
+                      />
+                    </>
+                  ) : (
+                    translateWithParameters(
+                      'settings.almintegration.feature.alm_repo_import.github.too_many_instances_x',
+                      definitions.length
+                    )
+                  )
               }
             ]}
             form={childProps => <GithubForm {...childProps} />}

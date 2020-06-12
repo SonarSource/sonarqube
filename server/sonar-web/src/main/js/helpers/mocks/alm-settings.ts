@@ -66,6 +66,8 @@ export function mockGithubBindingDefinition(
     key: 'key',
     url: 'http://github.enterprise.com',
     appId: '123456',
+    clientId: 'client1',
+    clientSecret: '**clientsecret**',
     privateKey: 'asdf1234',
     ...overrides
   };

@@ -47,12 +47,16 @@ it('should handle field changes', () => {
     key: 'github - example',
     url: 'http://github.com',
     appId: '34812568251',
+    clientId: 'cid',
+    clientSecret: 'csecret',
     privateKey: 'gs7df9g7d9fsg7x9df7g9xdg'
   };
 
   wrapper.instance().handleFieldChange('key', formData.key);
   wrapper.instance().handleFieldChange('url', formData.url);
   wrapper.instance().handleFieldChange('appId', formData.appId);
+  wrapper.instance().handleFieldChange('clientId', formData.clientId);
+  wrapper.instance().handleFieldChange('clientSecret', formData.clientSecret);
   wrapper.instance().handleFieldChange('privateKey', formData.privateKey);
   expect(wrapper.state().formData).toEqual(formData);
 });
@@ -61,12 +65,21 @@ it('should handle form submit', async () => {
   const onSubmit = jest.fn();
   const wrapper = shallowRender({
     onSubmit,
-    bindingDefinition: { key: 'originalKey', appId: '', privateKey: '', url: '' }
+    bindingDefinition: {
+      key: 'originalKey',
+      appId: '',
+      clientId: '',
+      clientSecret: '',
+      privateKey: '',
+      url: ''
+    }
   });
   const formData = {
     key: 'github instance',
     url: 'http://github.enterprise.com',
     appId: '34812568251',
+    clientId: 'client1234',
+    clientSecret: 'secret',
     privateKey: 'gs7df9g7d9fsg7x9df7g9xdg'
   };
   wrapper.setState({ formData });
@@ -81,6 +94,8 @@ it('should handle cancelling', () => {
   const onCancel = jest.fn();
   const bindingDefinition = {
     appId: 'foo',
+    clientId: 'cid',
+    clientSecret: 'cs',
     key: 'bar',
     privateKey: 'baz',
     url: 'http://github.enterprise.com'
@@ -130,7 +145,14 @@ function shallowRender(
 ) {
   return shallow<AlmBindingDefinitionForm<GithubBindingDefinition>>(
     <AlmBindingDefinitionForm
-      bindingDefinition={{ appId: '', key: '', privateKey: '', url: '' }}
+      bindingDefinition={{
+        appId: '',
+        clientId: '',
+        clientSecret: '',
+        key: '',
+        privateKey: '',
+        url: ''
+      }}
       onCancel={jest.fn()}
       onSubmit={jest.fn()}
       {...props}>

@@ -36,6 +36,8 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
       bindingDefinition={
         Object {
           "appId": "123456",
+          "clientId": "client1",
+          "clientSecret": "**clientsecret**",
           "key": "key",
           "privateKey": "asdf1234",
           "url": "http://github.enterprise.com",
@@ -282,6 +284,8 @@ exports[`should render correctly for single-ALM binding 1`] = `
     bindingDefinition={
       Object {
         "appId": "123456",
+        "clientId": "client1",
+        "clientSecret": "**clientsecret**",
         "key": "key",
         "privateKey": "asdf1234",
         "url": "http://github.enterprise.com",
@@ -327,6 +331,8 @@ exports[`should render correctly for single-ALM binding 2`] = `
     bindingDefinition={
       Object {
         "appId": "123456",
+        "clientId": "client1",
+        "clientSecret": "**clientsecret**",
         "key": "key",
         "privateKey": "asdf1234",
         "url": "http://github.enterprise.com",
@@ -372,6 +378,8 @@ exports[`should render correctly for single-ALM binding 3`] = `
     bindingDefinition={
       Object {
         "appId": "123456",
+        "clientId": "client1",
+        "clientSecret": "**clientsecret**",
         "key": "key",
         "privateKey": "asdf1234",
         "url": "http://github.enterprise.com",

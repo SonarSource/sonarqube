@@ -17,11 +17,31 @@ exports[`should render correctly: with branch support 1`] = `
         "appId",
       ]
     }
+    additionalTableInfo={
+      <Alert
+        className="big-spacer-bottom width-50"
+        variant="info"
+      >
+        <FormattedMessage
+          defaultMessage="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_github_instances"
+          id="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_github_instances"
+          values={
+            Object {
+              "feature": <em>
+                settings.almintegration.feature.alm_repo_import.title
+              </em>,
+            }
+          }
+        />
+      </Alert>
+    }
     alm="github"
     createConfiguration={[Function]}
     defaultBinding={
       Object {
         "appId": "",
+        "clientId": "",
+        "clientSecret": "",
         "key": "",
         "privateKey": "",
         "url": "",
@@ -31,6 +51,8 @@ exports[`should render correctly: with branch support 1`] = `
       Array [
         Object {
           "appId": "123456",
+          "clientId": "client1",
+          "clientSecret": "**clientsecret**",
           "key": "key",
           "privateKey": "asdf1234",
           "url": "http://github.enterprise.com",
@@ -44,6 +66,30 @@ exports[`should render correctly: with branch support 1`] = `
           "description": "settings.almintegration.feature.pr_decoration.description",
           "inactiveReason": "settings.almintegration.feature.need_at_least_1_binding",
           "name": "settings.almintegration.feature.pr_decoration.title",
+        },
+        Object {
+          "active": true,
+          "description": "settings.almintegration.feature.alm_repo_import.description",
+          "inactiveReason": <React.Fragment>
+            <WarningIcon
+              className="little-spacer-right"
+            />
+            <FormattedMessage
+              defaultMessage="settings.almintegration.feature.alm_repo_import.github.requires_fields"
+              id="settings.almintegration.feature.alm_repo_import.github.requires_fields"
+              values={
+                Object {
+                  "clientId": <strong>
+                    clientId
+                  </strong>,
+                  "clientSecret": <strong>
+                    clientSecret
+                  </strong>,
+                }
+              }
+            />
+          </React.Fragment>,
+          "name": "settings.almintegration.feature.alm_repo_import.title",
         },
       ]
     }
