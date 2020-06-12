@@ -57,7 +57,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COM
 
 public class ShowAction implements ComponentsWsAction {
   private static final Set<String> PROJECT_OR_APP_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
-  private static final Set<String> VIEW_OR_SUBVIEW_QUALIFIERS = ImmutableSet.of(Qualifiers.VIEW, Qualifiers.SUBVIEW);
+  private static final Set<String> APP_VIEW_OR_SUBVIEW_QUALIFIERS = ImmutableSet.of(Qualifiers.APP, Qualifiers.VIEW, Qualifiers.SUBVIEW);
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -166,10 +166,9 @@ public class ShowAction implements ComponentsWsAction {
   }
 
   private boolean needIssueSync(DbSession dbSession, ComponentDto component, @Nullable ProjectDto projectDto) {
-    if (projectDto == null || VIEW_OR_SUBVIEW_QUALIFIERS.contains(component.qualifier())) {
+    if (projectDto == null || APP_VIEW_OR_SUBVIEW_QUALIFIERS.contains(component.qualifier())) {
       return issueIndexSyncProgressChecker.isIssueSyncInProgress(dbSession);
     }
-
     return issueIndexSyncProgressChecker.doProjectNeedIssueSync(dbSession, projectDto.getUuid());
   }
 

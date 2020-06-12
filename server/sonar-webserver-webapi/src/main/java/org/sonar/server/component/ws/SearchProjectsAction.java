@@ -123,9 +123,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
   private final IssueIndexSyncProgressChecker issueIndexSyncProgressChecker;
 
   public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession,
-      ProjectsInWarning projectsInWarning,
-      PlatformEditionProvider editionProvider,
-      IssueIndexSyncProgressChecker issueIndexSyncProgressChecker) {
+    ProjectsInWarning projectsInWarning,
+    PlatformEditionProvider editionProvider,
+    IssueIndexSyncProgressChecker issueIndexSyncProgressChecker) {
     this.dbClient = dbClient;
     this.index = index;
     this.userSession = userSession;
@@ -256,12 +256,14 @@ public class SearchProjectsAction implements ComponentsWsAction {
     Map<String, OrganizationDto> organizationsByUuid = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
       .stream()
       .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
-    return buildResponse(request, searchResults, organizationsByUuid);
+    boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
+    return buildResponse(request, searchResults, organizationsByUuid, needIssueSync);
   }
 
   private SearchProjectsWsResponse handleForOrganization(DbSession dbSession, SearchProjectsRequest request, OrganizationDto organization) {
     SearchResults searchResults = searchData(dbSession, request, organization);
-    return buildResponse(request, searchResults, ImmutableMap.of(organization.getUuid(), organization));
+    boolean needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
+    return buildResponse(request, searchResults, ImmutableMap.of(organization.getUuid(), organization), needIssueSync);
   }
 
   private SearchResults searchData(DbSession dbSession, SearchProjectsRequest request, @Nullable OrganizationDto organization) {
@@ -411,8 +413,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
     return request.build();
   }
 
-  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid) {
-    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults, userSession.isLoggedIn());
+  private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid,
+    boolean needIssueSync) {
+    Function<ProjectDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults, userSession.isLoggedIn(), needIssueSync);
 
     Map<String, OrganizationDto> organizationsByUuidForAdditionalInfo = new HashMap<>();
     if (request.additionalFields.contains(ORGANIZATIONS)) {
@@ -527,8 +530,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
     private final boolean isUserLoggedIn;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
     private final Map<String, Long> applicationsLeakPeriod;
+    private final boolean needIssueSync;
 
-    private DbToWsComponent(SearchProjectsRequest request, Map<String, OrganizationDto> organizationsByUuid, SearchResults searchResults, boolean isUserLoggedIn) {
+    private DbToWsComponent(SearchProjectsRequest request, Map<String, OrganizationDto> organizationsByUuid, SearchResults searchResults, boolean isUserLoggedIn,
+      boolean needIssueSync) {
       this.request = request;
       this.analysisByProjectUuid = searchResults.analysisByProjectUuid;
       this.applicationsLeakPeriod = searchResults.applicationsLeakPeriods;
@@ -537,6 +542,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       this.favoriteProjectUuids = searchResults.favoriteProjectUuids;
       this.projectsWithIssuesInSync = searchResults.projectsWithIssuesInSync;
       this.isUserLoggedIn = isUserLoggedIn;
+      this.needIssueSync = needIssueSync;
     }
 
     @Override
@@ -571,8 +577,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
         wsComponent.setIsFavorite(favoriteProjectUuids.contains(dbProject.getUuid()));
       }
 
-      wsComponent.setNeedIssueSync(projectsWithIssuesInSync.contains(dbProject.getUuid()));
-
+      if (Qualifiers.APP.equals(dbProject.getQualifier())) {
+        wsComponent.setNeedIssueSync(needIssueSync);
+      } else {
+        wsComponent.setNeedIssueSync(projectsWithIssuesInSync.contains(dbProject.getUuid()));
+      }
       return wsComponent.build();
     }
   }
