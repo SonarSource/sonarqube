@@ -47,3 +47,8 @@ message BBSProject {
   optional string key = 1;
   optional string name = 2;
 }
+
+// WS api/alm_integrations/get_github_client_id
+message GithubClientIdWsResponse {
+  optional string clientId = 1;
+}

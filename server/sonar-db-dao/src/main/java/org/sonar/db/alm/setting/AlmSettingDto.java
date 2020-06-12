@@ -69,6 +69,19 @@ public class AlmSettingDto {
    */
   private String personalAccessToken;
 
+  /**
+   * Application client Id of the GitHub instance. Max size is 40.
+   * This column will only be fed when alm is GitHub.
+   * It will be null when the ALM is Azure DevOps or Bitbucket.
+   */
+  private String clientId;
+  /**
+   * Application client secret of the GitHub instance. Max size is 80.
+   * This column will only be fed when alm is GitHub.
+   * It will be null when the ALM is Azure DevOps or Bitbucket.
+   */
+  private String clientSecret;
+
   private long updatedAt;
   private long createdAt;
 
@@ -144,6 +157,26 @@ public class AlmSettingDto {
 
   public AlmSettingDto setPersonalAccessToken(@Nullable String personalAccessToken) {
     this.personalAccessToken = personalAccessToken;
+    return this;
+  }
+
+  @CheckForNull
+  public String getClientId() {
+    return clientId;
+  }
+
+  public AlmSettingDto setClientId(@Nullable String clientId) {
+    this.clientId = clientId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getClientSecret() {
+    return clientSecret;
+  }
+
+  public AlmSettingDto setClientSecret(@Nullable String clientSecret) {
+    this.clientSecret = clientSecret;
     return this;
   }
 

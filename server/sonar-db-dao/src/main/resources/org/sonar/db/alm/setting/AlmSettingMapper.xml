@@ -11,6 +11,8 @@
     a.app_id as "appId",
     a.private_key as "privateKey",
     a.pat as "personalAccessToken",
+    a.client_id as "clientId",
+    a.client_secret as "clientSecret",
     a.created_at as "createdAt",
     a.updated_at as "updatedAt"
   </sql>
@@ -55,6 +57,8 @@
       app_id,
       private_key,
       pat,
+      client_id,
+      client_secret,
       created_at,
       updated_at
     )
@@ -66,6 +70,8 @@
       #{dto.appId, jdbcType=VARCHAR},
       #{dto.privateKey, jdbcType=VARCHAR},
       #{dto.personalAccessToken, jdbcType=VARCHAR},
+      #{dto.clientId, jdbcType=VARCHAR},
+      #{dto.clientSecret, jdbcType=VARCHAR},
       #{dto.createdAt, jdbcType=BIGINT},
       #{dto.updatedAt, jdbcType=BIGINT}
     )
@@ -79,6 +85,8 @@
       app_id = #{dto.appId, jdbcType=VARCHAR},
       private_key = #{dto.privateKey, jdbcType=VARCHAR},
       pat = #{dto.personalAccessToken, jdbcType=VARCHAR},
+      client_id = #{dto.clientId, jdbcType=VARCHAR},
+      client_secret = #{dto.clientSecret, jdbcType=VARCHAR},
       updated_at = #{dto.updatedAt, jdbcType=BIGINT}
     </set>
     <where>

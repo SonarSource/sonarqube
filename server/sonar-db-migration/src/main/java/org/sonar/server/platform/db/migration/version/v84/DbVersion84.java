@@ -39,6 +39,7 @@ import org.sonar.server.platform.db.migration.version.v84.activerules.MakeActive
 import org.sonar.server.platform.db.migration.version.v84.activerules.MakeActiveRulesUuidColumnNotNullable;
 import org.sonar.server.platform.db.migration.version.v84.activerules.PopulateActiveRuleParametersActiveRuleUuid;
 import org.sonar.server.platform.db.migration.version.v84.activerules.PopulateActiveRulesUuid;
+import org.sonar.server.platform.db.migration.version.v84.alm.AddClientIdAndClientSecretColumns;
 import org.sonar.server.platform.db.migration.version.v84.ceactivity.AddPrimaryKeyOnUuidColumnOfCeActivityTable;
 import org.sonar.server.platform.db.migration.version.v84.ceactivity.DropIdColumnOfCeActivityTable;
 import org.sonar.server.platform.db.migration.version.v84.ceactivity.DropPrimaryKeyOnIdColumnOfCeActivityTable;
@@ -781,7 +782,10 @@ public class DbVersion84 implements DbVersion {
       .add(3804, "Populate 'need_issue_sync' of 'project_branches'", PopulateProjectBranchesNeedIssueSync.class)
       .add(3805, "Make 'need_issue_sync' of 'project_branches' not null", MakeProjectBranchesNeedIssueSyncNonNull.class)
 
-      .add(3806, "Drop local webhooks", DropLocalWebhooks.class)
+      .add(3806, "Drop local webhooks", DropLocalWebhooks.class)  
+
+      // Migration of ALM_SETTINGS table
+      .add(3807, "Add columns 'CLIENT_ID' and 'CLIENT_SECRET' to 'ALM_SETTINGS' table", AddClientIdAndClientSecretColumns.class)
     ;
   }
 }
