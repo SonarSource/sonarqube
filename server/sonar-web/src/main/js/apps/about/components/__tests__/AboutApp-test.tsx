@@ -25,6 +25,7 @@ import { searchProjects } from '../../../../api/components';
 import { getFacet } from '../../../../api/issues';
 import { mockAppState, mockCurrentUser, mockLocation } from '../../../../helpers/testMocks';
 import { AboutApp } from '../AboutApp';
+import EntryIssueTypes from '../EntryIssueTypes';
 
 jest.mock('sonar-ui-common/helpers/pages', () => ({
   addWhitePageClass: jest.fn(),
@@ -72,6 +73,16 @@ it('should load issues, projects, and custom text upon shallowing', () => {
   expect(fetchAboutPageSettings).toBeCalled();
   expect(searchProjects).toBeCalled();
   expect(getFacet).toBeCalled();
+});
+
+it('should not display issues if the WS return an http error', async () => {
+  (getFacet as jest.Mock).mockRejectedValueOnce(undefined);
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.find(EntryIssueTypes).exists()).toBe(false);
 });
 
 function shallowRender(props: Partial<AboutApp['props']> = {}) {

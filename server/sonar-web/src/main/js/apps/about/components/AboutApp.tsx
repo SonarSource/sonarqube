@@ -92,11 +92,15 @@ export class AboutApp extends React.PureComponent<Props, State> {
   }
 
   loadData() {
-    Promise.all([this.loadProjects(), this.loadIssues(), this.loadCustomText()]).then(
+    Promise.all([
+      this.loadProjects(),
+      this.loadIssues().catch(() => undefined),
+      this.loadCustomText()
+    ]).then(
       responses => {
         if (this.mounted) {
-          const [projectsCount, issues] = responses;
-          const issueTypes = keyBy(issues.facet, 'val');
+          const [projectsCount = 0, issues] = responses;
+          const issueTypes = issues && keyBy(issues.facet, 'val');
           this.setState({ projectsCount, issueTypes, loading: false });
         }
       },
@@ -141,12 +145,14 @@ export class AboutApp extends React.PureComponent<Props, State> {
 
             <div className="about-page-instance">
               <AboutProjects count={projectsCount} loading={loading} />
-              <EntryIssueTypes
-                bugs={bugs}
-                codeSmells={codeSmells}
-                loading={loading}
-                vulnerabilities={vulnerabilities}
-              />
+              {issueTypes && (
+                <EntryIssueTypes
+                  bugs={bugs}
+                  codeSmells={codeSmells}
+                  loading={loading}
+                  vulnerabilities={vulnerabilities}
+                />
+              )}
             </div>
           </div>
 
