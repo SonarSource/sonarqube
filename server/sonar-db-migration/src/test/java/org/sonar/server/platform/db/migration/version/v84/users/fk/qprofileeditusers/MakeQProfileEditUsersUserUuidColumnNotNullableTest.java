@@ -26,7 +26,6 @@ import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 import static java.sql.Types.VARCHAR;
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 
 public class MakeQProfileEditUsersUserUuidColumnNotNullableTest {
   @Rule
@@ -38,6 +37,6 @@ public class MakeQProfileEditUsersUserUuidColumnNotNullableTest {
   public void uuid_column_is_not_null() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDefinition("qprofile_edit_users", "user_uuid", VARCHAR, UUID_SIZE, false);
+    db.assertColumnDefinition("qprofile_edit_users", "user_uuid", VARCHAR, 255, false);
   }
 }

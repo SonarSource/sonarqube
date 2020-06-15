@@ -25,6 +25,7 @@ import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class MakeGroupsUsersUserUuidColumnNotNullable extends DdlChange {
@@ -34,7 +35,7 @@ public class MakeGroupsUsersUserUuidColumnNotNullable extends DdlChange {
     .setColumnName("user_uuid")
     .setIsNullable(false)
     .setDefaultValue(null)
-    .setLimit(VarcharColumnDef.UUID_SIZE)
+    .setLimit(USER_UUID_SIZE)
     .build();
 
   public MakeGroupsUsersUserUuidColumnNotNullable(Database db) {

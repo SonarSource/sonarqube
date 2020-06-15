@@ -26,7 +26,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.USER_UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AddIndexOnUserUuidOfGroupsUsersTable extends DdlChange {
@@ -46,7 +46,7 @@ public class AddIndexOnUserUuidOfGroupsUsersTable extends DdlChange {
         .setName(INDEX_NAME)
         .addColumn(newVarcharColumnDefBuilder()
           .setColumnName("user_uuid")
-          .setLimit(UUID_SIZE)
+          .setLimit(USER_UUID_SIZE)
           .build())
         .build());
     }

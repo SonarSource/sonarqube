@@ -48,7 +48,7 @@ public class AddUserUuidColumnToUserRolesTest {
   public void add_uuid_column() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDefinition("user_roles", "user_uuid", Types.VARCHAR, 40, true);
+    db.assertColumnDefinition("user_roles", "user_uuid", Types.VARCHAR, 255, true);
 
     assertThat(db.countSql("select count(*) from user_roles"))
       .isEqualTo(3);

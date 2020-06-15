@@ -48,7 +48,7 @@ public class AddUserUuidColumnToGroupsUsersTest {
   public void add_uuid_column() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDefinition("groups_users", "user_uuid", Types.VARCHAR, 40, true);
+    db.assertColumnDefinition("groups_users", "user_uuid", Types.VARCHAR, 255, true);
 
     assertThat(db.countSql("select count(*) from groups_users"))
       .isEqualTo(3);

@@ -34,7 +34,7 @@ public class AddUserUuidColumnToTable extends DdlChange {
     .setColumnName("user_uuid")
     .setIsNullable(true)
     .setDefaultValue(null)
-    .setLimit(VarcharColumnDef.UUID_SIZE)
+    .setLimit(VarcharColumnDef.USER_UUID_SIZE)
     .build();
 
   public AddUserUuidColumnToTable(Database db, String tableName) {

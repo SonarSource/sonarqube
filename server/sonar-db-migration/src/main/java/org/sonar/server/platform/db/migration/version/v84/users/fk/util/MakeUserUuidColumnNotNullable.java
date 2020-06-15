@@ -34,7 +34,7 @@ public class MakeUserUuidColumnNotNullable extends DdlChange {
     .setColumnName("user_uuid")
     .setIsNullable(false)
     .setDefaultValue(null)
-    .setLimit(VarcharColumnDef.UUID_SIZE)
+    .setLimit(VarcharColumnDef.USER_UUID_SIZE)
     .build();
 
   public MakeUserUuidColumnNotNullable(Database db, String tableName) {

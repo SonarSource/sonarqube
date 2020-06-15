@@ -48,7 +48,7 @@ public class AddUserUuidColumnToQProfileEditUsersTest {
   public void add_uuid_column() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDefinition("qprofile_edit_users", "user_uuid", Types.VARCHAR, 40, true);
+    db.assertColumnDefinition("qprofile_edit_users", "user_uuid", Types.VARCHAR, 255, true);
 
     assertThat(db.countSql("select count(*) from qprofile_edit_users"))
       .isEqualTo(3);

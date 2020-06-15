@@ -48,7 +48,7 @@ public class AddUserUuidColumnToPermTemplatesUsersTest {
   public void add_uuid_column() throws SQLException {
     underTest.execute();
 
-    db.assertColumnDefinition("perm_templates_users", "user_uuid", Types.VARCHAR, 40, true);
+    db.assertColumnDefinition("perm_templates_users", "user_uuid", Types.VARCHAR, 255, true);
 
     assertThat(db.countSql("select count(*) from perm_templates_users"))
       .isEqualTo(3);
