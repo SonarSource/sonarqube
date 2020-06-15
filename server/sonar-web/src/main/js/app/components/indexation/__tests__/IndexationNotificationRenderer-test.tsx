@@ -29,6 +29,7 @@ import IndexationNotificationRenderer, {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('in-progress');
+  expect(shallowRender({ displayBackgroundTaskLink: true })).toMatchSnapshot('in-progress-admin');
   expect(shallowRender({ progression: IndexationProgression.Completed })).toMatchSnapshot(
     'completed'
   );

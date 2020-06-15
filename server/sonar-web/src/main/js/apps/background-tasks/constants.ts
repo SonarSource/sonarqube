@@ -29,6 +29,11 @@ export const STATUSES = {
   CANCELED: 'CANCELED'
 };
 
+export enum BackgroundTaskTypes {
+  Report = 'REPORT',
+  IssueSync = 'ISSUE_SYNC'
+}
+
 export const ALL_TYPES = 'ALL_TYPES';
 
 export const CURRENTS = {

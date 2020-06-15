@@ -19,19 +19,23 @@
  */
 
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { BackgroundTaskTypes } from '../../../apps/background-tasks/constants';
 import { IndexationProgression } from './IndexationNotification';
 
 export interface IndexationNotificationRendererProps {
   progression: IndexationProgression;
   percentCompleted: number;
   onDismissCompletedNotification: VoidFunction;
+  displayBackgroundTaskLink?: boolean;
 }
 
 export default function IndexationNotificationRenderer(props: IndexationNotificationRendererProps) {
-  const { progression, percentCompleted } = props;
+  const { progression, percentCompleted, displayBackgroundTaskLink } = props;
 
   const inProgress = progression === IndexationProgression.InProgress;
 
@@ -49,6 +53,25 @@ export default function IndexationNotificationRenderer(props: IndexationNotifica
               <span className="spacer-left">
                 {translateWithParameters('indexation.in_progress.details', percentCompleted)}
               </span>
+              {displayBackgroundTaskLink && (
+                <span className="spacer-left">
+                  <FormattedMessage
+                    id="indexation.in_progress.admin_details"
+                    defaultMessage={translate('indexation.in_progress.admin_details')}
+                    values={{
+                      link: (
+                        <Link
+                          to={{
+                            pathname: '/admin/background_tasks',
+                            query: { taskType: BackgroundTaskTypes.IssueSync }
+                          }}>
+                          {translate('background_tasks.page')}
+                        </Link>
+                      )
+                    }}
+                  />
+                </span>
+              )}
             </>
           ) : (
             <>

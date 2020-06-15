@@ -31,7 +31,7 @@ exports[`should render correctly 1`] = `
                   }
                 />
                 <Connect(GlobalMessages) />
-                <withIndexationContext(IndexationNotification) />
+                <Connect(withCurrentUser(withIndexationContext(IndexationNotification))) />
                 <ChildComponent />
               </Connect(withAppState(IndexationContextProvider))>
             </Workspace>

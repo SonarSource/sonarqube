@@ -20,6 +20,7 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { IndexationNotification, IndexationProgression } from '../IndexationNotification';
 import IndexationNotificationHelper from '../IndexationNotificationHelper';
 import IndexationNotificationRenderer from '../IndexationNotificationRenderer';
@@ -82,6 +83,10 @@ it('should hide the success banner on dismiss action', () => {
 
 function shallowRender(props?: Partial<IndexationNotification['props']>) {
   return shallow<IndexationNotification>(
-    <IndexationNotification indexationContext={{ status: { isCompleted: false } }} {...props} />
+    <IndexationNotification
+      currentUser={mockCurrentUser()}
+      indexationContext={{ status: { isCompleted: false } }}
+      {...props}
+    />
   );
 }

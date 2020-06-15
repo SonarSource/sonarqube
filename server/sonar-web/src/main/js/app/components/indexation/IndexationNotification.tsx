@@ -19,12 +19,18 @@
  */
 
 import * as React from 'react';
+import { withCurrentUser } from '../../../components/hoc/withCurrentUser';
 import withIndexationContext, {
   WithIndexationContextProps
 } from '../../../components/hoc/withIndexationContext';
+import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
 import './IndexationNotification.css';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 import IndexationNotificationRenderer from './IndexationNotificationRenderer';
+
+interface Props extends WithIndexationContextProps {
+  currentUser: T.CurrentUser;
+}
 
 interface State {
   progression?: IndexationProgression;
@@ -35,10 +41,17 @@ export enum IndexationProgression {
   Completed
 }
 
-export class IndexationNotification extends React.PureComponent<WithIndexationContextProps, State> {
-  state: State = {
-    progression: undefined
-  };
+export class IndexationNotification extends React.PureComponent<Props, State> {
+  state: State;
+  isSystemAdmin = false;
+
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { progression: undefined };
+    this.isSystemAdmin =
+      isLoggedIn(this.props.currentUser) && hasGlobalPermission(this.props.currentUser, 'admin');
+  }
 
   componentDidMount() {
     this.refreshNotification();
@@ -79,9 +92,10 @@ export class IndexationNotification extends React.PureComponent<WithIndexationCo
         progression={progression}
         percentCompleted={percentCompleted ?? 0}
         onDismissCompletedNotification={this.handleDismissCompletedNotification}
+        displayBackgroundTaskLink={this.isSystemAdmin}
       />
     );
   }
 }
 
-export default withIndexationContext(IndexationNotification);
+export default withCurrentUser(withIndexationContext(IndexationNotification));
