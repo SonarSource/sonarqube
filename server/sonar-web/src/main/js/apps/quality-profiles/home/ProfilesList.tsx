@@ -102,7 +102,12 @@ export default class ProfilesList extends React.PureComponent<Props> {
 
     const profilesToShow = language ? pick(profilesIndex, language) : profilesIndex;
 
-    const languagesToShow = sortBy(Object.keys(profilesToShow));
+    let languagesToShow: string[];
+    if (language) {
+      languagesToShow = languages.find(({ key }) => key === language) ? [language] : [];
+    } else {
+      languagesToShow = sortBy(languages, ({ name }) => name).map(({ key }) => key);
+    }
 
     return (
       <div>
