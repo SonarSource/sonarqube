@@ -67,3 +67,17 @@
   border-style: solid;
   border-radius: calc(1.5 * var(--gridSize));
 }
+
+.activity-graph-new-code-legend {
+  margin-right: 10px; /* padding of activity graph */
+}
+
+.activity-graph-new-code-legend::after {
+  content: '';
+  display: inline-block;
+  margin-left: calc(var(--gridSize) / 2);
+  width: var(--gridSize);
+  height: var(--gridSize);
+  background-color: var(--leakPrimaryColor);
+  border: 2px solid var(--leakSecondaryColor);
+}

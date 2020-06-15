@@ -20,29 +20,39 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
-import GraphsLegendCustom from '../GraphsLegendCustom';
+import GraphsLegendCustom, { GraphsLegendCustomProps } from '../GraphsLegendCustom';
 
-const SERIES = [
-  {
-    name: 'bugs',
-    translatedName: 'Bugs',
-    data: [{ x: parseDate('2017-05-16T13:50:02+0200'), y: 1 }],
-    type: 'INT'
-  },
-  {
-    name: 'my_metric',
-    translatedName: 'My Metric',
-    data: [{ x: parseDate('2017-05-16T13:50:02+0200'), y: 1 }],
-    type: 'INT'
-  },
-  {
-    name: 'foo',
-    translatedName: 'Foo',
-    data: [],
-    type: 'INT'
-  }
-];
-
-it('should render correctly the list of series', () => {
-  expect(shallow(<GraphsLegendCustom removeMetric={() => {}} series={SERIES} />)).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ showLeakLegend: true })).toMatchSnapshot('with leak legend');
 });
+
+function shallowRender(props: Partial<GraphsLegendCustomProps> = {}) {
+  return shallow<GraphsLegendCustomProps>(
+    <GraphsLegendCustom
+      removeMetric={jest.fn()}
+      series={[
+        {
+          name: 'bugs',
+          translatedName: 'Bugs',
+          data: [{ x: parseDate('2017-05-16T13:50:02+0200'), y: 1 }],
+          type: 'INT'
+        },
+        {
+          name: 'my_metric',
+          translatedName: 'My Metric',
+          data: [{ x: parseDate('2017-05-16T13:50:02+0200'), y: 1 }],
+          type: 'INT'
+        },
+        {
+          name: 'foo',
+          translatedName: 'Foo',
+          data: [],
+          type: 'INT'
+        }
+      ]}
+      showLeakLegend={false}
+      {...props}
+    />
+  );
+}

@@ -17,24 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import GraphsLegendStatic, { GraphsLegendStaticProps } from '../GraphsLegendStatic';
+import GraphsLegendNewCode from '../GraphsLegendNewCode';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ showLeakLegend: true })).toMatchSnapshot('with leak legend');
 });
 
-function shallowRender(props: Partial<GraphsLegendStaticProps> = {}) {
-  return shallow<GraphsLegendStaticProps>(
-    <GraphsLegendStatic
-      series={[
-        { name: 'bugs', translatedName: 'Bugs' },
-        { name: 'code_smells', translatedName: 'Code Smells' }
-      ]}
-      showLeakLegend={false}
-      {...props}
-    />
-  );
+function shallowRender() {
+  return shallow(<GraphsLegendNewCode />);
 }

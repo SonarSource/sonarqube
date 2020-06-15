@@ -272,6 +272,20 @@
   margin-top: -30px;
 }
 
+.overview-panel .activity-graph-new-code-legend {
+  position: relative;
+  z-index: var(--aboveNormalZIndex);
+  width: 12px;
+  overflow: hidden;
+  margin-top: 1px;
+  margin-left: calc(2 * var(--gridSize));
+  text-indent: -9999px;
+}
+
+.overview-panel .activity-graph-new-code-legend::after {
+  margin: 0;
+}
+
 .overview-analysis {
   color: var(--secondFontColor);
 }

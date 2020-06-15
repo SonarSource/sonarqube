@@ -22,42 +22,49 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Serie } from '../../types/project-activity';
 import GraphsLegendItem from './GraphsLegendItem';
+import GraphsLegendNewCode from './GraphsLegendNewCode';
 import { hasDataValues } from './utils';
 
-interface Props {
+export interface GraphsLegendCustomProps {
   removeMetric: (metric: string) => void;
   series: Serie[];
+  showLeakLegend: boolean;
 }
 
-export default function GraphsLegendCustom({ removeMetric, series }: Props) {
+export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
+  const { series, showLeakLegend } = props;
   return (
-    <div className="activity-graph-legends">
-      {series.map((serie, idx) => {
-        const hasData = hasDataValues(serie);
-        const legendItem = (
-          <GraphsLegendItem
-            index={idx}
-            metric={serie.name}
-            name={serie.translatedName}
-            removeMetric={removeMetric}
-            showWarning={!hasData}
-          />
-        );
-        if (!hasData) {
-          return (
-            <Tooltip
-              key={serie.name}
-              overlay={translate('project_activity.graphs.custom.metric_no_history')}>
-              <span className="spacer-left spacer-right">{legendItem}</span>
-            </Tooltip>
+    <div className="activity-graph-legends display-flex-center">
+      <div className="flex-1">
+        {series.map((serie, idx) => {
+          const hasData = hasDataValues(serie);
+          const legendItem = (
+            <GraphsLegendItem
+              index={idx}
+              metric={serie.name}
+              name={serie.translatedName}
+              removeMetric={props.removeMetric}
+              showWarning={!hasData}
+            />
           );
-        }
-        return (
-          <span className="spacer-left spacer-right" key={serie.name}>
-            {legendItem}
-          </span>
-        );
-      })}
+          if (!hasData) {
+            return (
+              <Tooltip
+                key={serie.name}
+                overlay={translate('project_activity.graphs.custom.metric_no_history')}>
+                <span className="spacer-left spacer-right">{legendItem}</span>
+              </Tooltip>
+            );
+          }
+          return (
+            <span className="spacer-left spacer-right" key={serie.name}>
+              {legendItem}
+            </span>
+          );
+        })}
+      </div>
+
+      {showLeakLegend && <GraphsLegendNewCode />}
     </div>
   );
 }

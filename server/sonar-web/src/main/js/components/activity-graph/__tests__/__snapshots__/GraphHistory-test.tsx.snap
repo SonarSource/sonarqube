@@ -28,6 +28,7 @@ exports[`should correctly render a graph 1`] = `
         },
       ]
     }
+    showLeakLegend={true}
   />
   <div
     className="flex-1"

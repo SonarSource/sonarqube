@@ -17,24 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
-import GraphsLegendStatic, { GraphsLegendStaticProps } from '../GraphsLegendStatic';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ showLeakLegend: true })).toMatchSnapshot('with leak legend');
-});
-
-function shallowRender(props: Partial<GraphsLegendStaticProps> = {}) {
-  return shallow<GraphsLegendStaticProps>(
-    <GraphsLegendStatic
-      series={[
-        { name: 'bugs', translatedName: 'Bugs' },
-        { name: 'code_smells', translatedName: 'Code Smells' }
-      ]}
-      showLeakLegend={false}
-      {...props}
-    />
+export default function GraphsLegendNewCode() {
+  return (
+    <Tooltip overlay={translate('project_activity.graphs.new_code_long')}>
+      <span
+        aria-label={translate('project_activity.graphs.new_code_long')}
+        className="activity-graph-new-code-legend display-flex-center pull-right note">
+        {translate('project_activity.graphs.new_code')}
+      </span>
+    </Tooltip>
   );
 }
