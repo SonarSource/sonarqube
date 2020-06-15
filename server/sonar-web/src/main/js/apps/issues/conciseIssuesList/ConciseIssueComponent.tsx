@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { collapsePath } from 'sonar-ui-common/helpers/path';
 
 interface Props {
   path: string;
 }
 
-export default function ConciseIssueComponent(props: Props) {
+export default function ConciseIssueComponent({ path }: Props) {
   return (
-    <div className="concise-issue-component note text-ellipsis">{collapsePath(props.path, 20)}</div>
+    <div className="concise-issue-component text-ellipsis note" title={path}>
+      {path}
+    </div>
   );
 }

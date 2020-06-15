@@ -54,6 +54,7 @@
   margin-bottom: calc(var(--gridSize) / 2);
   padding-left: var(--gridSize);
   padding-right: var(--gridSize);
+  direction: rtl;
 }
 
 .concise-issue-box {

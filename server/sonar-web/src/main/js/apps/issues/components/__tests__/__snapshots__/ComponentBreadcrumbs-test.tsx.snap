@@ -16,7 +16,11 @@ exports[`renders 1`] = `
       className="slash-separator"
     />
   </span>
-  comp-name
+  <span
+    title="comp-name"
+  >
+    comp-name
+  </span>
 </div>
 `;
 
@@ -44,6 +48,10 @@ exports[`renders with sub-project 1`] = `
       className="slash-separator"
     />
   </span>
-  comp-name
+  <span
+    title="comp-name"
+  >
+    comp-name
+  </span>
 </div>
 `;

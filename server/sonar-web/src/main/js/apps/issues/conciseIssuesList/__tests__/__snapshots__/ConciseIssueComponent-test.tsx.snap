@@ -2,8 +2,9 @@
 
 exports[`should render 1`] = `
 <div
-  className="concise-issue-component note text-ellipsis"
+  className="concise-issue-component text-ellipsis note"
+  title="src/app/folder/sub-folder/long-folder/name/app.js"
 >
-  src/.../long-folder/name/app.js
+  src/app/folder/sub-folder/long-folder/name/app.js
 </div>
 `;

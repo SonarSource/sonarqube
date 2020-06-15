@@ -75,7 +75,7 @@ export default function ComponentBreadcrumbs({
         </span>
       )}
 
-      {collapsePath(componentName || '')}
+      <span title={componentName}>{collapsePath(componentName || '')}</span>
     </div>
   );
 }
