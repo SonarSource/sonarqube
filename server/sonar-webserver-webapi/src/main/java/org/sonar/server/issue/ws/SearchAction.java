@@ -544,9 +544,7 @@ public class SearchAction implements IssuesWsAction {
   private void checkIfNeedIssueSync(DbSession dbSession, SearchRequest searchRequest) {
     List<String> components = searchRequest.getComponents();
     if (components != null && !components.isEmpty()) {
-      String branch = searchRequest.getBranch();
-      String pullRequest = searchRequest.getPullRequest();
-      issueIndexSyncProgressChecker.checkIfAnyComponentsNeedIssueSync(dbSession, components, branch, pullRequest);
+      issueIndexSyncProgressChecker.checkIfAnyComponentsNeedIssueSync(dbSession, components);
     } else {
       // component keys not provided - asking for global
       issueIndexSyncProgressChecker.checkIfIssueSyncInProgress(dbSession);

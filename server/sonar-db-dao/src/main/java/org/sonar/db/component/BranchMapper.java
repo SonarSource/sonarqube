@@ -66,7 +66,6 @@ public interface BranchMapper {
 
   long updateNeedIssueSync(@Param("uuid") String uuid, @Param("needIssueSync")boolean needIssueSync,@Param("now") long now);
 
-  short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components, @Nullable @Param("branch") String branch,
-      @Nullable @Param("pullRequest") String pullRequest);
+  short doAnyOfComponentsNeedIssueSync(@Param("componentKeys") List<String> components);
 
 }

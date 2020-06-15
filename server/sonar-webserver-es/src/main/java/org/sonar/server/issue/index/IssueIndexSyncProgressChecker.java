@@ -23,7 +23,6 @@ import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.EsIndexSyncInProgressException;
@@ -41,25 +40,16 @@ public class IssueIndexSyncProgressChecker {
     return new IssueSyncProgress(completed, total);
   }
 
-  public void checkIfAnyComponentsNeedIssueSync(DbSession dbSession, List<String> componentKeys, @Nullable String branch,
-    @Nullable String pullRequest) {
-    boolean needIssueSync = dbClient.branchDao().doAnyOfComponentsNeedIssueSync(dbSession, componentKeys, branch, pullRequest);
+  public void checkIfAnyComponentsNeedIssueSync(DbSession dbSession, List<String> componentKeys) {
+    boolean needIssueSync = dbClient.branchDao().doAnyOfComponentsNeedIssueSync(dbSession, componentKeys);
     if (needIssueSync) {
       throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType(),
           "Results are temporarily unavailable. Indexing of issues is in progress.");
     }
   }
 
-  public void checkIfAnyComponentsNeedIssueSync(DbSession dbSession, List<String> componentKeys) {
-    checkIfAnyComponentsNeedIssueSync(dbSession, componentKeys, null, null);
-  }
-
   public void checkIfComponentNeedIssueSync(DbSession dbSession, String componentKey) {
-    checkIfComponentNeedIssueSync(dbSession, componentKey, null);
-  }
-
-  public void checkIfComponentNeedIssueSync(DbSession dbSession, String componentKey, @Nullable String branchKey) {
-    checkIfAnyComponentsNeedIssueSync(dbSession, Collections.singletonList(componentKey), branchKey, null);
+    checkIfAnyComponentsNeedIssueSync(dbSession, Collections.singletonList(componentKey));
   }
 
   /**

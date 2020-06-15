@@ -85,6 +85,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
@@ -671,9 +672,7 @@ public class SearchActionTest {
       .extracting(SearchWsResponse.Hotspot::getKey)
       .containsExactlyInAnyOrder(Arrays.stream(hotspotPR).map(IssueDto::getKey).toArray(String[]::new));
 
-    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsNeedIssueSync(any(), argThat(arg -> arg.contains(project.getKey())), isNull(), isNull());
-    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsNeedIssueSync(any(), argThat(arg -> arg.contains(project.getKey())), eq(branch.getBranch()), isNull());
-    verify(issueIndexSyncProgressChecker).checkIfAnyComponentsNeedIssueSync(any(), argThat(arg -> arg.contains(project.getKey())), isNull(), eq(branch.getPullRequest()));
+    verify(issueIndexSyncProgressChecker, times(3)).checkIfComponentNeedIssueSync(any(), eq(project.getDbKey()));
   }
 
   @Test

@@ -658,10 +658,11 @@ public class BranchDaoTest {
 
   @Test
   public void doAnyOfComponentsNeedIssueSync() {
-    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, emptyList(), null, null)).isFalse();
+    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, emptyList())).isFalse();
 
-    ComponentDto project = db.components().insertPrivateProject();
-    ProjectDto projectDto = db.components().getProjectDto(project);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ProjectDto projectDto = db.components().getProjectDto(project1);
     db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
     BranchDto projectBranch1 = db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
     BranchDto projectBranch2 = db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
@@ -670,13 +671,8 @@ public class BranchDaoTest {
     BranchDto pullRequest2 = db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
     db.components().insertProjectBranch(projectDto, b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
 
-    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, singletonList(project.getKey()), null, null)).isTrue();
-
-    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, singletonList(project.getKey()), projectBranch1.getKey(), null)).isTrue();
-    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, singletonList(project.getKey()), projectBranch2.getKey(), null)).isFalse();
-
-    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, singletonList(project.getKey()), null, pullRequest1.getKey())).isTrue();
-    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, singletonList(project.getKey()), null, pullRequest2.getKey())).isFalse();
+    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, singletonList(project1.getKey()))).isTrue();
+    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, singletonList(project2.getKey()))).isFalse();
   }
 
   @Test
@@ -685,7 +681,7 @@ public class BranchDaoTest {
       .map(ComponentDto::getDbKey)
       .collect(Collectors.toList());
 
-    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys, null, null)).isFalse();
+    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isFalse();
 
     ComponentDto project = db.components().insertPrivateProject();
     ProjectDto projectDto = db.components().getProjectDto(project);
@@ -693,6 +689,6 @@ public class BranchDaoTest {
 
     componentKeys.add(project.getDbKey());
 
-    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys, null, null)).isTrue();
+    assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, componentKeys)).isTrue();
   }
 }

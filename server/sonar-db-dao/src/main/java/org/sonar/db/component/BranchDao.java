@@ -156,12 +156,11 @@ public class BranchDao implements Dao {
     return mapper(dbSession).updateNeedIssueSync(branchUuid, needIssueSync, now);
   }
 
-  public boolean doAnyOfComponentsNeedIssueSync(DbSession session, List<String> components, @Nullable String branch,
-      @Nullable String pullRequest) {
+  public boolean doAnyOfComponentsNeedIssueSync(DbSession session, List<String> components) {
     if (!components.isEmpty()) {
       List<Boolean> result = new LinkedList<>();
       return executeLargeInputs(components, input -> {
-        boolean groupNeedIssueSync = mapper(session).doAnyOfComponentsNeedIssueSync(components, branch, pullRequest) > 0;
+        boolean groupNeedIssueSync = mapper(session).doAnyOfComponentsNeedIssueSync(components) > 0;
         result.add(groupNeedIssueSync);
         return result;
       }).stream()

@@ -199,12 +199,6 @@
       #{componentKey,jdbcType=VARCHAR}
     </foreach>
     and pb.need_issue_sync = ${_true}
-    <if test="branch != null">
-      and pb.kee = #{branch,jdbcType=VARCHAR}
-    </if>
-    <if test="pullRequest != null">
-      and pb.kee = #{pullRequest,jdbcType=VARCHAR}
-    </if>
     )
     then 1
     else 0
