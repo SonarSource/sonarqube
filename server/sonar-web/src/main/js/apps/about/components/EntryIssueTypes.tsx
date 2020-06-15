@@ -21,17 +21,15 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
 import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
-import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
 import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import { getIssuesUrl } from '../../../helpers/urls';
 
-interface Props {
+export interface EntryIssueTypesProps {
   bugs?: number;
   codeSmells?: number;
   loading: boolean;
-  securityHotspots?: number;
   vulnerabilities?: number;
 }
 
@@ -39,9 +37,8 @@ export default function EntryIssueTypes({
   bugs,
   codeSmells,
   loading,
-  securityHotspots,
   vulnerabilities
-}: Props) {
+}: EntryIssueTypesProps) {
   return (
     <div className="about-page-projects">
       {loading ? (
@@ -96,25 +93,6 @@ export default function EntryIssueTypes({
                   <CodeSmellIcon />
                 </span>
                 {translate('issue.type.CODE_SMELL.plural')}
-              </td>
-            </tr>
-            <tr>
-              <td className="about-page-issue-type-number">
-                <Link
-                  className="about-page-issue-type-link"
-                  to={getIssuesUrl({
-                    resolved: 'false',
-                    types: 'SECURITY_HOTSPOT',
-                    s: 'CREATION_DATE'
-                  })}>
-                  {formatMeasure(securityHotspots, 'SHORT_INT')}
-                </Link>
-              </td>
-              <td>
-                <span className="little-spacer-right">
-                  <SecurityHotspotIcon />
-                </span>
-                {translate('issue.type.SECURITY_HOTSPOT.plural')}
               </td>
             </tr>
           </tbody>

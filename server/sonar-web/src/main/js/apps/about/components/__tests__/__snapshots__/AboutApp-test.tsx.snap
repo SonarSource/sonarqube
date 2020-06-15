@@ -60,7 +60,6 @@ exports[`should render correctly 1`] = `
           bugs={10}
           codeSmells={5}
           loading={false}
-          securityHotspots={5}
           vulnerabilities={0}
         />
       </div>
