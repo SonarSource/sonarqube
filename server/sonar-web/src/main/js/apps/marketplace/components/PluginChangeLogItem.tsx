@@ -21,7 +21,7 @@ import * as React from 'react';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Release, Update } from '../../../api/plugins';
+import { Release, Update } from '../../../types/plugins';
 
 interface Props {
   release: Release;

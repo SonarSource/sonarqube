@@ -19,10 +19,10 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { PluginAvailable, PluginInstalled } from '../../../../api/plugins';
+import { AvailablePlugin, InstalledPlugin } from '../../../../types/plugins';
 import PluginActions from '../PluginActions';
 
-const installedPlugin: PluginInstalled = {
+const installedPlugin: InstalledPlugin = {
   key: 'foo',
   name: 'Foo',
   filename: 'foo.zip',
@@ -35,7 +35,7 @@ const installedPlugin: PluginInstalled = {
   version: '7.7'
 };
 
-const availablePlugin: PluginAvailable = {
+const availablePlugin: AvailablePlugin = {
   key: 'foo',
   name: 'Foo',
   release: { version: '7.7', date: 'date' },

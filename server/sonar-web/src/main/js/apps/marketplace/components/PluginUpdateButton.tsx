@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { Update } from '../../../api/plugins';
+import { Update } from '../../../types/plugins';
 
 interface Props {
   disabled: boolean;

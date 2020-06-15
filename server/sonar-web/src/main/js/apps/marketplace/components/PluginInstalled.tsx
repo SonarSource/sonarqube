@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { PluginInstalled as IPluginInstalled } from '../../../api/plugins';
+import { InstalledPlugin } from '../../../types/plugins';
 import PluginDescription from './PluginDescription';
 import PluginLicense from './PluginLicense';
 import PluginOrganization from './PluginOrganization';
@@ -28,7 +28,7 @@ import PluginUpdates from './PluginUpdates';
 import PluginUrls from './PluginUrls';
 
 interface Props {
-  plugin: IPluginInstalled;
+  plugin: InstalledPlugin;
   readOnly: boolean;
   refreshPending: () => void;
   status?: string;

@@ -22,13 +22,14 @@ import { FormattedMessage } from 'react-intl';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { cancelPendingPlugins, PluginPendingResult } from '../../../../api/plugins';
+import { cancelPendingPlugins } from '../../../../api/plugins';
 import InstanceMessage from '../../../../components/common/InstanceMessage';
 import RestartButton from '../../../../components/common/RestartButton';
+import { PendingPluginResult } from '../../../../types/plugins';
 
 interface Props {
   fetchSystemStatus: () => void;
-  pending: PluginPendingResult;
+  pending: PendingPluginResult;
   refreshPending: () => void;
   systemStatus: T.SysStatus;
 }

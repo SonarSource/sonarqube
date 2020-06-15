@@ -19,7 +19,7 @@
  */
 import { memoize } from 'lodash';
 import { cleanQuery, parseAsString, serializeString } from 'sonar-ui-common/helpers/query';
-import { Plugin, PluginAvailable, PluginInstalled, PluginPending } from '../../api/plugins';
+import { Plugin } from '../../types/plugins';
 
 export interface Query {
   filter: string;
@@ -41,18 +41,6 @@ export function filterPlugins(plugins: Plugin[], search?: string): Plugin[] {
         (plugin.category || '').toLowerCase().includes(s))
     );
   });
-}
-
-export function isPluginAvailable(plugin: Plugin): plugin is PluginAvailable {
-  return (plugin as any).release !== undefined;
-}
-
-export function isPluginInstalled(plugin: Plugin): plugin is PluginInstalled {
-  return isPluginPending(plugin) && (plugin as any).updatedAt !== undefined;
-}
-
-export function isPluginPending(plugin: Plugin): plugin is PluginPending {
-  return (plugin as any).version !== undefined;
 }
 
 export const DEFAULT_FILTER = 'all';

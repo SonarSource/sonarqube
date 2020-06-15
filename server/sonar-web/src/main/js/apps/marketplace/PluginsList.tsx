@@ -18,17 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Plugin, PluginPending } from '../../api/plugins';
+import {
+  InstalledPlugin,
+  isAvailablePlugin,
+  isInstalledPlugin,
+  PendingPlugin,
+  Plugin
+} from '../../types/plugins';
 import PluginAvailable from './components/PluginAvailable';
 import PluginInstalled from './components/PluginInstalled';
-import { isPluginAvailable, isPluginInstalled } from './utils';
 
 interface Props {
   plugins: Plugin[];
   pending: {
-    installing: PluginPending[];
-    updating: PluginPending[];
-    removing: PluginPending[];
+    installing: PendingPlugin[];
+    updating: PendingPlugin[];
+    removing: PendingPlugin[];
   };
   readOnly: boolean;
   refreshPending: () => void;
@@ -49,9 +54,9 @@ export default class PluginsList extends React.PureComponent<Props> {
     return undefined;
   };
 
-  renderPlugin = (plugin: Plugin) => {
+  renderPlugin = (plugin: Plugin, installedPlugins: InstalledPlugin[]) => {
     const status = this.getPluginStatus(plugin);
-    if (isPluginInstalled(plugin)) {
+    if (isInstalledPlugin(plugin)) {
       return (
         <PluginInstalled
           plugin={plugin}
@@ -61,9 +66,10 @@ export default class PluginsList extends React.PureComponent<Props> {
         />
       );
     }
-    if (isPluginAvailable(plugin)) {
+    if (isAvailablePlugin(plugin)) {
       return (
         <PluginAvailable
+          installedPlugins={installedPlugins}
           plugin={plugin}
           readOnly={this.props.readOnly}
           refreshPending={this.props.refreshPending}
@@ -75,13 +81,14 @@ export default class PluginsList extends React.PureComponent<Props> {
   };
 
   render() {
+    const installedPlugins = this.props.plugins.filter(isInstalledPlugin);
     return (
       <div className="boxed-group boxed-group-inner" id="marketplace-plugins">
         <ul>
           {this.props.plugins.map(plugin => (
             <li className="panel panel-vertical" key={plugin.key}>
               <table className="marketplace-plugin-table">
-                <tbody>{this.renderPlugin(plugin)}</tbody>
+                <tbody>{this.renderPlugin(plugin, installedPlugins)}</tbody>
               </table>
             </li>
           ))}

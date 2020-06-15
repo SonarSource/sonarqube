@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { PluginPendingResult } from '../../api/plugins';
+import { PendingPluginResult } from '../../types/plugins';
 
 export interface AdminContextInterface {
   fetchSystemStatus: () => void;
   fetchPendingPlugins: () => void;
-  pendingPlugins: PluginPendingResult;
+  pendingPlugins: PendingPluginResult;
   systemStatus: T.SysStatus;
 }
 

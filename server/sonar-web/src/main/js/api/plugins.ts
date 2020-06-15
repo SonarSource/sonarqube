@@ -21,68 +21,16 @@ import { findLastIndex } from 'lodash';
 import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import { isDefined } from 'sonar-ui-common/helpers/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
-
-export interface Plugin {
-  key: string;
-  name: string;
-  category?: string;
-  description?: string;
-  editionBundled?: boolean;
-  license?: string;
-  organizationName?: string;
-  homepageUrl?: string;
-  organizationUrl?: string;
-  issueTrackerUrl?: string;
-  termsAndConditionsUrl?: string;
-}
-
-export interface Release {
-  version: string;
-  date: string;
-  description?: string;
-  changeLogUrl?: string;
-}
-
-export interface Update {
-  status: string;
-  release?: Release;
-  requires: Plugin[];
-  previousUpdates?: Update[];
-}
-
-export interface PluginPendingResult {
-  installing: PluginPending[];
-  updating: PluginPending[];
-  removing: PluginPending[];
-}
-
-export interface PluginAvailable extends Plugin {
-  release: Release;
-  update: Update;
-}
-
-export interface PluginPending extends Plugin {
-  version: string;
-  implementationBuild: string;
-}
-
-export interface PluginInstalled extends PluginPending {
-  documentationPath?: string;
-  filename: string;
-  hash: string;
-  sonarLintSupported: boolean;
-  updatedAt: number;
-  updates?: Update[];
-}
+import { AvailablePlugin, InstalledPlugin, PendingPluginResult, Update } from '../types/plugins';
 
 export function getAvailablePlugins(): Promise<{
-  plugins: PluginAvailable[];
+  plugins: AvailablePlugin[];
   updateCenterRefresh: string;
 }> {
   return getJSON('/api/plugins/available').catch(throwGlobalError);
 }
 
-export function getPendingPlugins(): Promise<PluginPendingResult> {
+export function getPendingPlugins(): Promise<PendingPluginResult> {
   return getJSON('/api/plugins/pending').catch(throwGlobalError);
 }
 
@@ -108,22 +56,22 @@ function addChangelog(update: Update, updates?: Update[]) {
   return { ...update, previousUpdates };
 }
 
-export function getInstalledPlugins(): Promise<PluginInstalled[]> {
+export function getInstalledPlugins(): Promise<InstalledPlugin[]> {
   return getJSON('/api/plugins/installed', { f: 'category' }).then(
     ({ plugins }) => plugins,
     throwGlobalError
   );
 }
 
-export function getInstalledPluginsWithUpdates(): Promise<PluginInstalled[]> {
+export function getInstalledPluginsWithUpdates(): Promise<InstalledPlugin[]> {
   return Promise.all([
     getJSON('/api/plugins/installed', { f: 'category' }),
     getJSON('/api/plugins/updates')
   ])
     .then(([installed, updates]) =>
-      installed.plugins.map((plugin: PluginInstalled) => {
-        const updatePlugin: PluginInstalled = updates.plugins.find(
-          (p: PluginInstalled) => p.key === plugin.key
+      installed.plugins.map((plugin: InstalledPlugin) => {
+        const updatePlugin: InstalledPlugin = updates.plugins.find(
+          (p: InstalledPlugin) => p.key === plugin.key
         );
         if (updatePlugin) {
           return {
@@ -140,14 +88,14 @@ export function getInstalledPluginsWithUpdates(): Promise<PluginInstalled[]> {
     .catch(throwGlobalError);
 }
 
-export function getPluginUpdates(): Promise<PluginInstalled[]> {
+export function getPluginUpdates(): Promise<InstalledPlugin[]> {
   return Promise.all([getJSON('/api/plugins/updates'), getJSON('/api/plugins/installed')])
     .then(([updates, installed]) =>
-      updates.plugins.map((updatePlugin: PluginInstalled) => {
+      updates.plugins.map((updatePlugin: InstalledPlugin) => {
         const updates = getLastUpdates(updatePlugin.updates).map(update =>
           addChangelog(update, updatePlugin.updates)
         );
-        const plugin = installed.plugins.find((p: PluginInstalled) => p.key === updatePlugin.key);
+        const plugin = installed.plugins.find((p: InstalledPlugin) => p.key === updatePlugin.key);
         if (plugin) {
           return {
             ...plugin,

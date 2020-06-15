@@ -22,11 +22,12 @@ import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getSettingsNavigation } from '../../api/nav';
-import { getPendingPlugins, PluginPendingResult } from '../../api/plugins';
+import { getPendingPlugins } from '../../api/plugins';
 import { getSystemStatus, waitSystemUPStatus } from '../../api/system';
 import handleRequiredAuthorization from '../../app/utils/handleRequiredAuthorization';
 import { setAdminPages } from '../../store/appState';
 import { getAppState, Store } from '../../store/rootReducer';
+import { PendingPluginResult } from '../../types/plugins';
 import AdminContext, { defaultPendingPlugins, defaultSystemStatus } from './AdminContext';
 import SettingsNav from './nav/settings/SettingsNav';
 
@@ -37,7 +38,7 @@ interface Props {
 }
 
 interface State {
-  pendingPlugins: PluginPendingResult;
+  pendingPlugins: PendingPluginResult;
   systemStatus: T.SysStatus;
 }
 

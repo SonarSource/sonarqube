@@ -26,7 +26,7 @@ import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
 import NavBarTabs from 'sonar-ui-common/components/ui/NavBarTabs';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { PluginPendingResult } from '../../../../api/plugins';
+import { PendingPluginResult } from '../../../../types/plugins';
 import { rawSizes } from '../../../theme';
 import PendingPluginsActionNotif from './PendingPluginsActionNotif';
 import SystemRestartNotif from './SystemRestartNotif';
@@ -37,7 +37,7 @@ interface Props {
   fetchSystemStatus: () => void;
   location: {};
   organizationsEnabled?: boolean;
-  pendingPlugins: PluginPendingResult;
+  pendingPlugins: PendingPluginResult;
   systemStatus: T.SysStatus;
 }
 

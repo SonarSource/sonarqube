@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Plugin } from '../../../api/plugins';
+import { Plugin } from '../../../types/plugins';
 
 interface Props {
   plugin: Plugin;

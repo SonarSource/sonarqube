@@ -22,8 +22,8 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { installPlugin, Plugin, uninstallPlugin, updatePlugin } from '../../../api/plugins';
-import { isPluginAvailable, isPluginInstalled } from '../utils';
+import { installPlugin, uninstallPlugin, updatePlugin } from '../../../api/plugins';
+import { isAvailablePlugin, isInstalledPlugin, Plugin } from '../../../types/plugins';
 import PluginUpdateButton from './PluginUpdateButton';
 
 interface Props {
@@ -75,7 +75,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
 
     return (
       <div className="js-actions">
-        {isPluginAvailable(plugin) && (
+        {isAvailablePlugin(plugin) && (
           <div>
             <p className="little-spacer-bottom">
               {translate('marketplace.available_under_commercial_license')}
@@ -85,13 +85,13 @@ export default class PluginActions extends React.PureComponent<Props, State> {
             </a>
           </div>
         )}
-        {isPluginInstalled(plugin) && (
+        {isInstalledPlugin(plugin) && (
           <p>
             <CheckIcon className="little-spacer-right" />
             {translate('marketplace.installed')}
           </p>
         )}
-        {isPluginInstalled(plugin) && plugin.updates && plugin.updates.length > 0 && (
+        {isInstalledPlugin(plugin) && plugin.updates && plugin.updates.length > 0 && (
           <div className="spacer-top">
             {plugin.updates.map((update, idx) => (
               <PluginUpdateButton
@@ -117,7 +117,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
     const { loading } = this.state;
     return (
       <div className="js-actions">
-        {isPluginAvailable(plugin) && plugin.termsAndConditionsUrl && (
+        {isAvailablePlugin(plugin) && plugin.termsAndConditionsUrl && (
           <p className="little-spacer-bottom">
             <Checkbox
               checked={this.state.acceptTerms}
@@ -138,7 +138,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
           </p>
         )}
         {loading && <i className="spinner spacer-right little-spacer-top little-spacer-bottom" />}
-        {isPluginInstalled(plugin) && (
+        {isInstalledPlugin(plugin) && (
           <div className="display-inlin-block">
             {plugin.updates &&
               plugin.updates.map((update, idx) => (
@@ -157,7 +157,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
             </Button>
           </div>
         )}
-        {isPluginAvailable(plugin) && (
+        {isAvailablePlugin(plugin) && (
           <Button
             className="js-install"
             disabled={loading || (plugin.termsAndConditionsUrl != null && !this.state.acceptTerms)}

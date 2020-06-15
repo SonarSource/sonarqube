@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { PluginAvailable as IPluginAvailable } from '../../../api/plugins';
+import { AvailablePlugin, InstalledPlugin } from '../../../types/plugins';
 import PluginChangeLogButton from './PluginChangeLogButton';
 import PluginDescription from './PluginDescription';
 import PluginLicense from './PluginLicense';
@@ -27,14 +27,17 @@ import PluginOrganization from './PluginOrganization';
 import PluginStatus from './PluginStatus';
 import PluginUrls from './PluginUrls';
 
-interface Props {
-  plugin: IPluginAvailable;
+export interface PluginAvailableProps {
+  installedPlugins: InstalledPlugin[];
+  plugin: AvailablePlugin;
   readOnly: boolean;
   refreshPending: () => void;
   status?: string;
 }
 
-export default function PluginAvailable({ plugin, readOnly, refreshPending, status }: Props) {
+export default function PluginAvailable(props: PluginAvailableProps) {
+  const { installedPlugins, plugin, readOnly, status } = props;
+  const installedPluginKeys = installedPlugins.map(({ key }) => key);
   return (
     <tr>
       <PluginDescription plugin={plugin} />
@@ -52,7 +55,10 @@ export default function PluginAvailable({ plugin, readOnly, refreshPending, stat
                   <strong>
                     {translateWithParameters(
                       'marketplace.installing_this_plugin_will_also_install_x',
-                      plugin.update.requires.map(requiredPlugin => requiredPlugin.name).join(', ')
+                      plugin.update.requires
+                        .filter(({ key }) => !installedPluginKeys.includes(key))
+                        .map(requiredPlugin => requiredPlugin.name)
+                        .join(', ')
                     )}
                   </strong>
                 </p>
@@ -71,7 +77,7 @@ export default function PluginAvailable({ plugin, readOnly, refreshPending, stat
       </td>
 
       {!readOnly && (
-        <PluginStatus plugin={plugin} refreshPending={refreshPending} status={status} />
+        <PluginStatus plugin={plugin} refreshPending={props.refreshPending} status={status} />
       )}
     </tr>
   );

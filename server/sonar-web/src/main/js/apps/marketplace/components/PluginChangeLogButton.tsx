@@ -21,7 +21,7 @@ import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import EllipsisIcon from 'sonar-ui-common/components/icons/EllipsisIcon';
-import { Release, Update } from '../../../api/plugins';
+import { Release, Update } from '../../../types/plugins';
 import PluginChangeLog from './PluginChangeLog';
 
 interface Props {

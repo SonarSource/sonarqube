@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { Plugin } from '../../../api/plugins';
+import { Plugin } from '../../../types/plugins';
 
 export interface PluginOrganizationProps {
   plugin: Plugin;

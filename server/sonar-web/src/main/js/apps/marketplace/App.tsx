@@ -25,13 +25,12 @@ import {
   getAvailablePlugins,
   getInstalledPlugins,
   getInstalledPluginsWithUpdates,
-  getPluginUpdates,
-  Plugin,
-  PluginPendingResult
+  getPluginUpdates
 } from '../../api/plugins';
 import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { EditionKey } from '../../types/editions';
+import { PendingPluginResult, Plugin } from '../../types/plugins';
 import EditionBoxes from './EditionBoxes';
 import Footer from './Footer';
 import Header from './Header';
@@ -43,7 +42,7 @@ import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 interface Props {
   currentEdition?: EditionKey;
   fetchPendingPlugins: () => void;
-  pendingPlugins: PluginPendingResult;
+  pendingPlugins: PendingPluginResult;
   location: Location;
   router: Pick<Router, 'push'>;
   standaloneMode?: boolean;
