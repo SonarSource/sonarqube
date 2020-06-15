@@ -19,7 +19,9 @@
  */
 package org.sonarqube.ws.client.almsettings;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Generated;
+import javax.annotation.Nullable;
 
 /**
  * This is a POST request.
@@ -33,6 +35,8 @@ public class CreateGithubRequest {
   private String key;
   private String privateKey;
   private String url;
+  private String clientId;
+  private String clientSecret;
 
   /**
    * This is a mandatory parameter.
@@ -80,5 +84,25 @@ public class CreateGithubRequest {
 
   public String getUrl() {
     return url;
+  }
+
+  public CreateGithubRequest setClientId(@Nullable String clientId) {
+    this.clientId = clientId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getClientId() {
+    return clientId;
+  }
+
+  public CreateGithubRequest setClientSecret(@Nullable String clientSecret) {
+    this.clientSecret = clientSecret;
+    return this;
+  }
+
+  @CheckForNull
+  public String getClientSecret() {
+    return clientSecret;
   }
 }

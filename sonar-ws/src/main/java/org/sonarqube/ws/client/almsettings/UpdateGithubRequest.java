@@ -19,7 +19,9 @@
  */
 package org.sonarqube.ws.client.almsettings;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Generated;
+import javax.annotation.Nullable;
 
 /**
  * This is a POST request.
@@ -34,6 +36,8 @@ public class UpdateGithubRequest {
   private String newKey;
   private String privateKey;
   private String url;
+  private String clientId;
+  private String clientSecret;
 
   public String getAppId() {
     return appId;
@@ -92,5 +96,25 @@ public class UpdateGithubRequest {
   public UpdateGithubRequest setUrl(String url) {
     this.url = url;
     return this;
+  }
+
+  public UpdateGithubRequest setClientId(@Nullable String clientId) {
+    this.clientId = clientId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getClientId() {
+    return clientId;
+  }
+
+  public UpdateGithubRequest setClientSecret(@Nullable String clientSecret) {
+    this.clientSecret = clientSecret;
+    return this;
+  }
+
+  @CheckForNull
+  public String getClientSecret() {
+    return clientSecret;
   }
 }

@@ -37,6 +37,8 @@ message AlmSettingGithub {
   optional string url = 2;
   optional string appId = 3;
   optional string privateKey = 4;
+  optional string clientId = 5;
+  optional string clientSecret = 6;
 }
 
 message AlmSettingAzure {

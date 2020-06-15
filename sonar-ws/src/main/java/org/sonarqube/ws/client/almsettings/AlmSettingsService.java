@@ -106,6 +106,8 @@ public class AlmSettingsService extends BaseService {
         .setParam("key", request.getKey())
         .setParam("privateKey", request.getPrivateKey())
         .setParam("url", request.getUrl())
+        .setParam("clientId", request.getClientId())
+        .setParam("clientSecret", request.getClientSecret())
         .setMediaType(MediaTypes.JSON)).content();
   }
 
@@ -289,6 +291,8 @@ public class AlmSettingsService extends BaseService {
         .setParam("newKey", request.getNewKey())
         .setParam("privateKey", request.getPrivateKey())
         .setParam("url", request.getUrl())
+        .setParam("clientId", request.getClientId())
+        .setParam("clientSecret", request.getClientSecret())
         .setMediaType(MediaTypes.JSON)).content();
   }
 }
