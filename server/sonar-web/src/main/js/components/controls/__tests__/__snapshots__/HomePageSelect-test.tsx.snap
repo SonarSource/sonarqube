@@ -1,11 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render checked 1`] = `
+exports[`should render correctly: checked 1`] = `
 <Tooltip
   overlay="homepage.current"
 >
-  <span
+  <ButtonLink
     aria-label="homepage.current"
+    className="link-no-underline set-homepage-link"
+    onClick={[Function]}
+  >
+    <HomeIcon
+      filled={true}
+    />
+  </ButtonLink>
+</Tooltip>
+`;
+
+exports[`should render correctly: checked, and on default 1`] = `
+<Tooltip
+  overlay="homepage.current.is_default"
+>
+  <span
+    aria-label="homepage.current.is_default"
     className="display-inline-block"
   >
     <HomeIcon
@@ -15,7 +31,7 @@ exports[`should render checked 1`] = `
 </Tooltip>
 `;
 
-exports[`should render unchecked 1`] = `
+exports[`should render correctly: unchecked 1`] = `
 <Tooltip
   overlay="homepage.check"
 >

@@ -19,53 +19,49 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
-import { setHomePage } from '../../../api/users';
-import rootReducer, { getCurrentUser, Store } from '../../../store/rootReducer';
-import configureStore from '../../../store/utils/configureStore';
-import HomePageSelect from '../HomePageSelect';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { click, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
+import { mockCurrentUser, mockLoggedInUser } from '../../../helpers/testMocks';
+import { DEFAULT_HOMEPAGE, HomePageSelect } from '../HomePageSelect';
 
-jest.mock('../../../api/users', () => ({
-  setHomePage: jest.fn(() => Promise.resolve())
-}));
-
-const homepage: T.HomePage = { type: 'PROJECTS' };
-
-it('should render unchecked', () => {
-  const store = configureStore(rootReducer, {
-    users: { currentUser: { isLoggedIn: true } }
-  } as Store);
-  expect(getWrapper(homepage, store)).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('unchecked');
+  expect(
+    shallowRender({ currentUser: mockLoggedInUser({ homepage: { type: 'MY_PROJECTS' } }) })
+  ).toMatchSnapshot('checked');
+  expect(
+    shallowRender({
+      currentUser: mockLoggedInUser({ homepage: DEFAULT_HOMEPAGE }),
+      currentPage: DEFAULT_HOMEPAGE
+    })
+  ).toMatchSnapshot('checked, and on default');
+  expect(shallowRender({ currentUser: mockCurrentUser() }).type()).toBeNull();
 });
 
-it('should render checked', () => {
-  const store = configureStore(rootReducer, {
-    users: { currentUser: { isLoggedIn: true, homepage } as T.CurrentUser }
-  } as Store);
-  expect(getWrapper(homepage, store)).toMatchSnapshot();
+it('should correctly call webservices', async () => {
+  const setHomePage = jest.fn();
+  const currentPage: T.HomePage = { type: 'MY_ISSUES' };
+  const wrapper = shallowRender({ setHomePage, currentPage });
+
+  // Set homepage.
+  click(wrapper.find(ButtonLink));
+  await waitAndUpdate(wrapper);
+  expect(setHomePage).toHaveBeenLastCalledWith(currentPage);
+
+  // Reset.
+  wrapper.setProps({ currentUser: mockLoggedInUser({ homepage: currentPage }) });
+  click(wrapper.find(ButtonLink));
+  await waitAndUpdate(wrapper);
+  expect(setHomePage).toHaveBeenLastCalledWith(DEFAULT_HOMEPAGE);
 });
 
-it('should set new home page', async () => {
-  const store = configureStore(rootReducer, {
-    users: { currentUser: { isLoggedIn: true } }
-  } as Store);
-  const wrapper = getWrapper(homepage, store);
-  click(wrapper.find('ButtonLink'));
-  await new Promise(setImmediate);
-  const currentUser = getCurrentUser(store.getState() as Store) as T.LoggedInUser;
-  expect(currentUser.homepage).toEqual(homepage);
-  expect(setHomePage).toBeCalledWith(homepage);
-});
-
-it('should not render for anonymous', () => {
-  const store = configureStore(rootReducer, {
-    users: { currentUser: { isLoggedIn: false } }
-  } as Store);
-  expect(getWrapper(homepage, store).type()).toBeNull();
-});
-
-function getWrapper(currentPage: T.HomePage, store: any) {
-  return shallow(<HomePageSelect currentPage={currentPage} />, {
-    context: { store }
-  }).dive();
+function shallowRender(props: Partial<HomePageSelect['props']> = {}) {
+  return shallow<HomePageSelect>(
+    <HomePageSelect
+      currentPage={{ type: 'MY_PROJECTS' }}
+      currentUser={mockLoggedInUser()}
+      setHomePage={jest.fn()}
+      {...props}
+    />
+  );
 }

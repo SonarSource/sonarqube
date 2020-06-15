@@ -41,9 +41,15 @@ interface Props extends StateProps, DispatchProps {
   currentPage: T.HomePage;
 }
 
-class HomePageSelect extends React.PureComponent<Props> {
+export const DEFAULT_HOMEPAGE: T.HomePage = { type: 'PROJECTS' };
+
+export class HomePageSelect extends React.PureComponent<Props> {
   handleClick = () => {
     this.props.setHomePage(this.props.currentPage);
+  };
+
+  handleReset = () => {
+    this.props.setHomePage(DEFAULT_HOMEPAGE);
   };
 
   render() {
@@ -54,23 +60,26 @@ class HomePageSelect extends React.PureComponent<Props> {
     }
 
     const { homepage } = currentUser;
-    const checked = homepage !== undefined && isSameHomePage(homepage, currentPage);
-    const tooltip = checked ? translate('homepage.current') : translate('homepage.check');
+    const isChecked = homepage !== undefined && isSameHomePage(homepage, currentPage);
+    const isDefault = isChecked && isSameHomePage(currentPage, DEFAULT_HOMEPAGE);
+    const tooltip = isChecked
+      ? translate(isDefault ? 'homepage.current.is_default' : 'homepage.current')
+      : translate('homepage.check');
 
     return (
       <Tooltip overlay={tooltip}>
-        {checked ? (
+        {isDefault ? (
           <span
             aria-label={tooltip}
             className={classNames('display-inline-block', this.props.className)}>
-            <HomeIcon filled={checked} />
+            <HomeIcon filled={isChecked} />
           </span>
         ) : (
           <ButtonLink
             aria-label={tooltip}
             className={classNames('link-no-underline', 'set-homepage-link', this.props.className)}
-            onClick={this.handleClick}>
-            <HomeIcon filled={checked} />
+            onClick={isChecked ? this.handleReset : this.handleClick}>
+            <HomeIcon filled={isChecked} />
           </ButtonLink>
         )}
       </Tooltip>
