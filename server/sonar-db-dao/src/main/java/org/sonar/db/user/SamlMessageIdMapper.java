@@ -17,26 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.authentication.purge;
+package org.sonar.db.user;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import org.sonar.server.util.AbstractStoppableScheduledExecutorServiceImpl;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
-import static java.lang.Thread.MIN_PRIORITY;
+public interface SamlMessageIdMapper {
 
-public class SessionTokensCleanerExecutorServiceImpl
-  extends AbstractStoppableScheduledExecutorServiceImpl<ScheduledExecutorService>
-  implements SessionTokensCleanerExecutorService {
+  @CheckForNull
+  SamlMessageIdDto selectByMessageId(String messageId);
 
-  public SessionTokensCleanerExecutorServiceImpl() {
-    super(
-      Executors.newSingleThreadScheduledExecutor(r -> {
-        Thread thread = Executors.defaultThreadFactory().newThread(r);
-        thread.setName("SessionTokensCleaner-%d");
-        thread.setPriority(MIN_PRIORITY);
-        thread.setDaemon(false);
-        return thread;
-      }));
-  }
+  void insert(@Param("dto") SamlMessageIdDto dto);
+
+  int deleteExpired(@Param("now") long now);
+
 }

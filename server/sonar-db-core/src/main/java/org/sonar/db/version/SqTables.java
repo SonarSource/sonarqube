@@ -106,6 +106,7 @@ public final class SqTables {
     "qprofile_edit_users",
     "quality_gates",
     "quality_gate_conditions",
+    "saml_message_ids",
     "rules",
     "rules_metadata",
     "rules_parameters",

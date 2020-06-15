@@ -782,6 +782,7 @@ public class DbVersion84 implements DbVersion {
 
       .add(3800, "Remove favourites for components with qualifiers 'DIR', 'FIL', 'UTS'", RemoveFilesFavouritesFromProperties.class)
       .add(3801, "Create 'SESSION_TOKENS' table", CreateSessionTokensTable.class)
+      .add(3802, "Create 'SAML_MESSAGE_IDS' table", CreateSamlMessageIdsTable.class)
     ;
   }
 }

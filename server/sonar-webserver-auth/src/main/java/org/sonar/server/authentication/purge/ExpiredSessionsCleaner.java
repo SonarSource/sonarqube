@@ -22,48 +22,56 @@ package org.sonar.server.authentication.purge;
 
 import java.util.concurrent.TimeUnit;
 import org.sonar.api.Startable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.util.GlobalLockManager;
 
-public class SessionTokensCleaner implements Startable {
+public class ExpiredSessionsCleaner implements Startable {
 
-  private static final Logger LOG = Loggers.get(SessionTokensCleaner.class);
+  private static final Logger LOG = Loggers.get(ExpiredSessionsCleaner.class);
 
-  private static final String PURGE_DELAY_CONFIGURATION = "sonar.authentication.session.tokens.purge.delay";
-  private static final long DEFAULT_PURGE_DELAY_IN_SECONDS = 24 * 60 * 60L;
+  private static final long PERIOD_IN_SECONDS = 24 * 60 * 60L;
   private static final String LOCK_NAME = "SessionCleaner";
 
-  private final SessionTokensCleanerExecutorService executorService;
+  private final ExpiredSessionsCleanerExecutorService executorService;
   private final DbClient dbClient;
-  private final Configuration configuration;
   private final GlobalLockManager lockManager;
 
-  public SessionTokensCleaner(SessionTokensCleanerExecutorService executorService, DbClient dbClient, Configuration configuration, GlobalLockManager lockManager) {
+  public ExpiredSessionsCleaner(ExpiredSessionsCleanerExecutorService executorService, DbClient dbClient, GlobalLockManager lockManager) {
     this.executorService = executorService;
     this.dbClient = dbClient;
-    this.configuration = configuration;
     this.lockManager = lockManager;
   }
 
   @Override
   public void start() {
-    this.executorService.scheduleAtFixedRate(this::executePurge, 0, configuration.getLong(PURGE_DELAY_CONFIGURATION).orElse(DEFAULT_PURGE_DELAY_IN_SECONDS), TimeUnit.SECONDS);
+    this.executorService.scheduleAtFixedRate(this::executePurge, 0, PERIOD_IN_SECONDS, TimeUnit.SECONDS);
   }
 
   private void executePurge() {
     if (!lockManager.tryLock(LOCK_NAME)) {
       return;
     }
-    LOG.debug("Start of cleaning expired session tokens");
     try (DbSession dbSession = dbClient.openSession(false)) {
-      int deletedSessionTokens = dbClient.sessionTokensDao().deleteExpired(dbSession);
-      dbSession.commit();
-      LOG.info("Purge of expired session tokens has removed {} elements", deletedSessionTokens);
+      cleanExpiredSessionTokens(dbSession);
+      cleanExpiredSamlMessageIds(dbSession);
     }
+  }
+
+  private void cleanExpiredSessionTokens(DbSession dbSession) {
+    LOG.debug("Start of cleaning expired session tokens");
+    int deletedSessionTokens = dbClient.sessionTokensDao().deleteExpired(dbSession);
+    dbSession.commit();
+    LOG.info("Purge of expired session tokens has removed {} elements", deletedSessionTokens);
+  }
+
+  private void cleanExpiredSamlMessageIds(DbSession dbSession) {
+    LOG.debug("Start of cleaning expired SAML message IDs");
+    int deleted = dbClient.samlMessageIdDao().deleteExpired(dbSession);
+    dbSession.commit();
+    LOG.info("Purge of expired SAML message ids has removed {} elements", deleted);
   }
 
   @Override

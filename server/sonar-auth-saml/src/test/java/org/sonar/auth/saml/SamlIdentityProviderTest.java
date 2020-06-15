@@ -30,15 +30,16 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -47,11 +48,13 @@ import static org.mockito.Mockito.when;
 public class SamlIdentityProviderTest {
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+  public DbTester db = DbTester.create();
 
   private MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, SamlSettings.definitions()));
 
-  private SamlIdentityProvider underTest = new SamlIdentityProvider(new SamlSettings(settings.asConfig()));
+  private SamlMessageIdChecker samlMessageIdChecker = mock(SamlMessageIdChecker.class);
+
+  private SamlIdentityProvider underTest = new SamlIdentityProvider(new SamlSettings(settings.asConfig()), new SamlMessageIdChecker(db.getDbClient()));
 
   @Test
   public void check_fields() {
@@ -98,10 +101,9 @@ public class SamlIdentityProviderTest {
     settings.setProperty("sonar.auth.saml.loginUrl", "invalid");
     DumbInitContext context = new DumbInitContext();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to create Auth");
-
-    underTest.init(context);
+    assertThatThrownBy(() -> underTest.init(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to create Auth");
   }
 
   @Test
@@ -159,10 +161,10 @@ public class SamlIdentityProviderTest {
     setSettings(true);
     DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_response_without_login.txt");
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("login is missing");
+    assertThatThrownBy(() -> underTest.callback(callbackContext))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("login is missing");
 
-    underTest.callback(callbackContext);
   }
 
   @Test
@@ -170,10 +172,9 @@ public class SamlIdentityProviderTest {
     setSettings(true);
     DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_response_without_name.txt");
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name is missing");
-
-    underTest.callback(callbackContext);
+    assertThatThrownBy(() -> underTest.callback(callbackContext))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("name is missing");
   }
 
   @Test
@@ -182,10 +183,9 @@ public class SamlIdentityProviderTest {
     settings.setProperty("sonar.auth.saml.certificate.secured", "invalid");
     DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_full_response.txt");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to create Auth");
-
-    underTest.callback(callbackContext);
+    assertThatThrownBy(() -> underTest.callback(callbackContext))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Fail to create Auth");
   }
 
   @Test
@@ -218,10 +218,21 @@ public class SamlIdentityProviderTest {
       "-----END CERTIFICATE-----\n");
     DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_full_response.txt");
 
-    expectedException.expect(UnauthorizedException.class);
-    expectedException.expectMessage("Signature validation failed. SAML Response rejected");
+    assertThatThrownBy(() -> underTest.callback(callbackContext))
+      .isInstanceOf(UnauthorizedException.class)
+      .hasMessage("Signature validation failed. SAML Response rejected");
+  }
+
+  @Test
+  public void fail_callback_when_message_was_already_sent() {
+    setSettings(true);
+    DumbCallbackContext callbackContext = new DumbCallbackContext("encoded_minimal_response.txt");
 
     underTest.callback(callbackContext);
+
+    assertThatThrownBy(() -> underTest.callback(callbackContext))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("This message has already been processed");
   }
 
   private void setSettings(boolean enabled) {

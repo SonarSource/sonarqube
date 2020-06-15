@@ -21,8 +21,8 @@ package org.sonar.server.authentication;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.authentication.event.AuthenticationEventImpl;
-import org.sonar.server.authentication.purge.SessionTokensCleaner;
-import org.sonar.server.authentication.purge.SessionTokensCleanerExecutorServiceImpl;
+import org.sonar.server.authentication.purge.ExpiredSessionsCleaner;
+import org.sonar.server.authentication.purge.ExpiredSessionsCleanerExecutorServiceImpl;
 
 public class AuthenticationModule extends Module {
   @Override
@@ -45,8 +45,8 @@ public class AuthenticationModule extends Module {
       OAuth2ContextFactory.class,
       OAuthCsrfVerifier.class,
       RequestAuthenticatorImpl.class,
-      SessionTokensCleaner.class,
-      SessionTokensCleanerExecutorServiceImpl.class,
+      ExpiredSessionsCleaner.class,
+      ExpiredSessionsCleanerExecutorServiceImpl.class,
       UserLastConnectionDatesUpdaterImpl.class,
       UserRegistrarImpl.class,
       UserSessionInitializer.class);

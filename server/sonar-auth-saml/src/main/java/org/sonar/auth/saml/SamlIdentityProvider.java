@@ -56,9 +56,11 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
   private static final String STATE_REQUEST_PARAMETER = "RelayState";
 
   private final SamlSettings samlSettings;
+  private final SamlMessageIdChecker samlMessageIdChecker;
 
-  public SamlIdentityProvider(SamlSettings samlSettings) {
+  public SamlIdentityProvider(SamlSettings samlSettings, SamlMessageIdChecker samlMessageIdChecker) {
     this.samlSettings = samlSettings;
+    this.samlMessageIdChecker = samlMessageIdChecker;
   }
 
   @Override
@@ -107,6 +109,7 @@ public class SamlIdentityProvider implements OAuth2IdentityProvider {
 
     LOGGER.trace("Name ID : {}", auth.getNameId());
     checkAuthentication(auth);
+    samlMessageIdChecker.check(auth);
 
     LOGGER.trace("Attributes received : {}", auth.getAttributes());
     String login = getNonNullFirstAttribute(auth, samlSettings.getUserLogin());

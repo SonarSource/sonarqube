@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.SamlMessageIdMapper">
+
+  <sql id="columns">
+    smi.uuid as uuid,
+    smi.message_id as "messageId",
+    smi.expiration_date as "expirationDate",
+    smi.created_at as "createdAt"
+  </sql>
+
+  <select id="selectByMessageId" parameterType="String" resultType="org.sonar.db.user.SamlMessageIdDto">
+    select
+    <include refid="columns"/>
+    from saml_message_ids smi
+    where smi.message_id=#{messageId, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insert" parameterType="Map" useGeneratedKeys="false">
+    insert into saml_message_ids
+    (
+      uuid,
+      message_id,
+      expiration_date,
+      created_at
+    )
+    values (
+      #{dto.uuid, jdbcType=VARCHAR},
+      #{dto.messageId, jdbcType=VARCHAR},
+      #{dto.expirationDate, jdbcType=BIGINT},
+      #{dto.createdAt, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteExpired" parameterType="Long" >
+    delete from saml_message_ids where expiration_date &lt; #{now, jdbcType=BIGINT}
+  </delete>
+
+</mapper>

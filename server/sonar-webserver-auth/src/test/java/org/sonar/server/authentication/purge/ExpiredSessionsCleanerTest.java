@@ -26,13 +26,12 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.utils.log.LogAndArguments;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.SamlMessageIdDto;
 import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.util.AbstractStoppableExecutorService;
@@ -43,7 +42,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SessionTokensCleanerTest {
+public class ExpiredSessionsCleanerTest {
 
   private static final long NOW = 1_000_000_000L;
 
@@ -55,18 +54,15 @@ public class SessionTokensCleanerTest {
 
   private GlobalLockManager lockManager = mock(GlobalLockManager.class);
 
-  private final MapSettings settings = new MapSettings();
-  private final Configuration configuration = settings.asConfig();
-
   private SyncSessionTokensCleanerExecutorService executorService = new SyncSessionTokensCleanerExecutorService();
 
-  private SessionTokensCleaner underTest = new SessionTokensCleaner(executorService, db.getDbClient(), configuration, lockManager);
+  private ExpiredSessionsCleaner underTest = new ExpiredSessionsCleaner(executorService, db.getDbClient(), lockManager);
 
   @Test
   public void purge_expired_session_tokens() {
     when(lockManager.tryLock(anyString())).thenReturn(true);
     UserDto user = db.users().insertUser();
-    SessionTokenDto validSessionToken = db.users().insertSessionToken(user);
+    SessionTokenDto validSessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(NOW + 1_000_000L));
     SessionTokenDto expiredSessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(NOW - 1_000_000L));
     underTest.start();
 
@@ -76,7 +72,24 @@ public class SessionTokensCleanerTest {
     assertThat(db.getDbClient().sessionTokensDao().selectByUuid(db.getSession(), expiredSessionToken.getUuid())).isNotPresent();
     assertThat(logTester.getLogs(LoggerLevel.INFO))
       .extracting(LogAndArguments::getFormattedMsg)
-      .containsOnly("Purge of expired session tokens has removed 1 elements");
+      .contains("Purge of expired session tokens has removed 1 elements");
+  }
+
+  @Test
+  public void purge_expired_saml_message_ids() {
+    when(lockManager.tryLock(anyString())).thenReturn(true);
+    db.getDbClient().samlMessageIdDao().insert(db.getSession(), new SamlMessageIdDto().setMessageId("MESSAGE_1").setExpirationDate(NOW + 1_000_000L));
+    db.getDbClient().samlMessageIdDao().insert(db.getSession(), new SamlMessageIdDto().setMessageId("MESSAGE_2").setExpirationDate(NOW - 1_000_000L));
+    db.commit();
+    underTest.start();
+
+    executorService.runCommand();
+
+    assertThat(db.getDbClient().samlMessageIdDao().selectByMessageId(db.getSession(), "MESSAGE_1")).isPresent();
+    assertThat(db.getDbClient().samlMessageIdDao().selectByMessageId(db.getSession(), "MESSAGE_2")).isNotPresent();
+    assertThat(logTester.getLogs(LoggerLevel.INFO))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .contains("Purge of expired SAML message ids has removed 1 elements");
   }
 
   @Test
@@ -90,7 +103,7 @@ public class SessionTokensCleanerTest {
     assertThat(db.getDbClient().sessionTokensDao().selectByUuid(db.getSession(), expiredSessionToken.getUuid())).isPresent();
   }
 
-  private static class SyncSessionTokensCleanerExecutorService extends AbstractStoppableExecutorService<ScheduledExecutorService> implements SessionTokensCleanerExecutorService {
+  private static class SyncSessionTokensCleanerExecutorService extends AbstractStoppableExecutorService<ScheduledExecutorService> implements ExpiredSessionsCleanerExecutorService {
 
     private Runnable command;
 

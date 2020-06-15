@@ -23,5 +23,5 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.sonar.api.server.ServerSide;
 
 @ServerSide
-public interface SessionTokensCleanerExecutorService extends ScheduledExecutorService {
+public interface ExpiredSessionsCleanerExecutorService extends ScheduledExecutorService {
 }

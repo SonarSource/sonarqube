@@ -17,10 +17,12 @@ dependencies {
     compileOnly 'com.google.code.findbugs:jsr305'
     compileOnly 'com.squareup.okhttp3:okhttp'
     compileOnly 'javax.servlet:javax.servlet-api'
+    compileOnly project(':server:sonar-db-dao')
     compileOnly project(':sonar-core')
 
     testCompile 'com.tngtech.java:junit-dataprovider'
     testCompile 'junit:junit'
     testCompile 'org.assertj:assertj-core'
     testCompile 'org.mockito:mockito-core'
+    testCompile testFixtures(project(':server:sonar-db-dao'))
 }
