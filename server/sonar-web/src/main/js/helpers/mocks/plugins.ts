@@ -18,12 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { AvailablePlugin, InstalledPlugin, Plugin, Release, Update } from '../../types/plugins';
+import {
+  AvailablePlugin,
+  InstalledPlugin,
+  PendingPlugin,
+  Plugin,
+  Release,
+  Update
+} from '../../types/plugins';
 
 export function mockPlugin(overrides: Partial<Plugin> = {}): Plugin {
   return {
     key: 'sonar-foo',
     name: 'Sonar Foo',
+    ...overrides
+  };
+}
+
+export function mockPendingPlugin(overrides: Partial<PendingPlugin> = {}): PendingPlugin {
+  return {
+    key: 'sonar-foo',
+    name: 'Sonar Foo',
+    version: '1.0',
+    implementationBuild: '1.0.0.1234',
     ...overrides
   };
 }
