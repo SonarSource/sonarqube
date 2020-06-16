@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sanitize } from 'dompurify';
 import * as React from 'react';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
@@ -304,8 +305,8 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
       )}
       <div
         className="modal-field-description"
-        // Safe: defined by rule creator (instance admin?)
-        dangerouslySetInnerHTML={{ __html: param.htmlDesc || '' }}
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: sanitize(param.htmlDesc || '') }}
       />
     </div>
   );
