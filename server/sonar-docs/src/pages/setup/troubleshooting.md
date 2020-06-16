@@ -3,8 +3,6 @@ title: Troubleshooting
 url: /setup/troubleshooting/
 ---
 
-<!-- sonarqube -->
-
 ## Checking the logs
 
 If you're having trouble starting your server for the first time (or any subsequent time!) the first thing to do is check your server logs. You'll find them in `$SONARQUBE_HOME/logs`:
@@ -72,4 +70,18 @@ If you still have inconsistencies, you'll need to rebuild the indices (this oper
     
 **Note:** See [Configure & Operate a Cluster](/setup/operate-cluster/) for information on stopping and starting a cluster.
 
-<!-- /sonarqube -->
+## Failed tasks during reindexing
+
+During Elasticsearch reindexing due to disaster recovery or an upgrade, you may have a failed tasks in your branches or Pull Requests. If you only have a few failed tasks, you can reanalyze your branch or Pull Request. You may want to use web services to remove branches and Pull Requests that can't be reanalyzed because they have been removed from version control. If you have many failed tasks, you may want to delete your Elasticsearch directory and reindex again. To delete your Elasticsearch directory:
+
+**non-DCE:**  
+
+1. Stop SonarQube  
+1. Delete the data/es6 directory  
+1. Restart SonarQube  
+
+**DCE:**  
+
+1. Stop the whole cluster (ES and application nodes)  
+1. Delete the data/es6 directory on each ES node  
+1. Restart the whole cluster  

@@ -3,7 +3,7 @@ title: Managing Applications
 url: /project-administration/managing-applications/
 ---
 
-*Applications are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/).*
+*Applications are available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
 
 ## Permissions
 There are two levels of users with permissions for adding and editing Applications: users with the Create Applications permission and Global Administrators.  
@@ -28,3 +28,6 @@ Once your Application is populated with projects, you can create application bra
 
 ## Calculation
 By default, Applications are queued to be recalculated after each analysis of an included project. For each relevant Application, a “Background Task” is created, and you can follow the progress on each in the **[Administration > Projects > Background Tasks](/#sonarqube-admin#/admin/background_tasks)** by looking at the logs available for each item.
+
+## Reindexing
+During Elasticsearch reindexing due to disaster recovery or upgrading, Applications will become available after each Application is indexed.

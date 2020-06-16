@@ -3,9 +3,9 @@ title: Portfolios
 url: /user-guide/portfolios/
 ---
 
-*Portfolios are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/).*
+*Portfolios are available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
 
-### Portfolios Home Page
+## Portfolios Home Page
 
 The Portfolio Home Page is the central place for managers and tech leads to keep an eye on the Releasability of the projects under their supervision. Releasability is based on the project's quality gate: Passed is releasable and Failed is not. Each Portfolio home page offers an aggregate view of the releasability of all projects in the Portfolio.
 
@@ -17,7 +17,7 @@ For each domain, you'll see:
 * an indicator of when the rating last changed
 * an indicator of the worst-performing project(s) in the domain
 
-### Releasability Rating
+## Releasability Rating
 
 The Releasability rating is the ratio of projects in the Portfolio that have a **Passed** Quality Gate:
 
@@ -27,7 +27,7 @@ The Releasability rating is the ratio of projects in the Portfolio that have a *
 **D**: > 20%  
 **E**: <= 20%  
 
-### Reliability, Security Vulnerabilities, Security Review, and Maintainability Ratings
+## Reliability, Security Vulnerabilities, Security Review, and Maintainability Ratings
 
 The Reliability, Security Vulnerabilities, Security Review, and Maintainability ratings for a Portfolio are calculated as the average of the ratings for all projects included in the Portfolio. 
 
@@ -45,7 +45,7 @@ Rating conversion:
 
 *Note: the Portfolio Home Page is also available at Sub-Portfolio level*
 
-### Portfolio PDF Report
+## Portfolio PDF Report
 
 On a Portfolio Home Page, you can download a PDF overview of the Portfolio by selecting **Download as PDF** from the "Portfolio PDF Report" dropdown menu in the upper-right corner. This is really convenient, for example, if you're going into a meeting where you may not have access to your SonarQube instance.
 

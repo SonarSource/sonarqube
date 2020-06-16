@@ -3,7 +3,7 @@ title: Managing Portfolios
 url: /project-administration/managing-portfolios/
 ---
 
-*Portfolios are available as part of the [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/).*
+*Portfolios are available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html).*
 
 ## Permissions
 There are two levels of users with permissions for adding and editing Portfolios: users with the Create Portfolios permission and Global Administrators.  
@@ -56,3 +56,6 @@ To add an Application to a Portfolio, first make sure your Application is [alrea
 By default, Portfolios are queued to be recalculated after each analysis of an included project. For each relevant Portfolio, a “Background Task” is created, and you can follow the progress on each in the **[Administration > Projects > Background Tasks](/#sonarqube-admin#/admin/background_tasks)** by looking at the logs available for each item.
 
 If you're having performance issues related to automatic recalculation of large portfolios, you can specify the hour(s) at which you want them to be recalculated at **[Administration > Portfolios > Recalculation](/#sonarqube-admin#/admin/settings?category=portfolios)**. Portfolios are queued to be recalculated at the beginning of the hour(s) that you specify.
+
+## Reindexing
+During Elasticsearch reindexing due to disaster recovery or an upgrade, you won't have access to Portfolios until all projects are indexed.
