@@ -23,18 +23,10 @@
 
 #create-project header {
   padding-top: 20px;
-}
-
-.white-page #create-project header {
-  background-color: white;
+  background-color: var(--barBackgroundColor);
   position: sticky;
   top: var(--globalNavHeight);
   z-index: var(--pageMainZIndex);
-}
-
-.create-project-modes {
-  margin: 0 auto;
-  max-width: 500px;
 }
 
 .create-project-manual {
@@ -53,4 +45,18 @@
 .create-project-import-bbs-repo {
   width: 250px;
   min-height: 40px;
+}
+
+.create-project-github-repository {
+  box-sizing: border-box;
+  width: 33.33%;
+}
+
+.create-project-github-repository .notice {
+  display: block;
+  position: absolute;
+}
+
+.create-project-github-repository .notice svg {
+  color: var(--green);
 }

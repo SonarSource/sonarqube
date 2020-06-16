@@ -33,8 +33,6 @@ import CreateProjectPageHeader from './CreateProjectPageHeader';
 import './ManualProjectCreate.css';
 
 interface Props {
-  branchesEnabled?: boolean;
-  currentUser: T.LoggedInUser;
   onProjectCreate: (projectKeys: string[]) => void;
 }
 
@@ -182,16 +180,12 @@ export default class ManualProjectCreate extends React.PureComponent<Props, Stat
       touched,
       validating
     } = this.state;
-    const { branchesEnabled } = this.props;
     const projectNameIsInvalid = touched && projectNameError !== undefined;
     const projectNameIsValid = touched && projectNameError === undefined;
 
     return (
       <>
-        <CreateProjectPageHeader
-          showBreadcrumb={branchesEnabled}
-          title={translate('onboarding.create_project.setup_manually')}
-        />
+        <CreateProjectPageHeader title={translate('onboarding.create_project.setup_manually')} />
 
         <div className="create-project-manual">
           <div className="flex-1 huge-spacer-right">

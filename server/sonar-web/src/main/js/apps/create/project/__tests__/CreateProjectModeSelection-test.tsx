@@ -21,6 +21,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
+import { AlmKeys } from '../../../../types/alm-settings';
 import CreateProjectModeSelection, {
   CreateProjectModeSelectionProps
 } from '../CreateProjectModeSelection';
@@ -28,9 +29,10 @@ import { CreateProjectModes } from '../types';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ loadingBindings: true })).toMatchSnapshot('loading bbs instances');
-  expect(shallowRender({ bbsBindingCount: 0 })).toMatchSnapshot('no bbs instances');
-  expect(shallowRender({ bbsBindingCount: 2 })).toMatchSnapshot('too many bbs instances');
+  expect(shallowRender({ loadingBindings: true })).toMatchSnapshot('loading instances');
+  expect(shallowRender({}, { [AlmKeys.Bitbucket]: 0, [AlmKeys.GitHub]: 2 })).toMatchSnapshot(
+    'invalid configs'
+  );
 });
 
 it('should correctly pass the selected mode up', () => {
@@ -40,14 +42,27 @@ it('should correctly pass the selected mode up', () => {
   click(wrapper.find('button.create-project-mode-type-manual'));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.Manual);
 
-  click(wrapper.find('button.create-project-mode-type-bbs'));
+  click(wrapper.find('button.create-project-mode-type-bbs').at(0));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.BitbucketServer);
+
+  click(wrapper.find('button.create-project-mode-type-bbs').at(1));
+  expect(onSelectMode).toBeCalledWith(CreateProjectModes.GitHub);
 });
 
-function shallowRender(props: Partial<CreateProjectModeSelectionProps> = {}) {
+function shallowRender(
+  props: Partial<CreateProjectModeSelectionProps> = {},
+  almCountOverrides = {}
+) {
+  const almCounts = {
+    [AlmKeys.Azure]: 0,
+    [AlmKeys.Bitbucket]: 1,
+    [AlmKeys.GitHub]: 0,
+    [AlmKeys.GitLab]: 0,
+    ...almCountOverrides
+  };
   return shallow<CreateProjectModeSelectionProps>(
     <CreateProjectModeSelection
-      bbsBindingCount={1}
+      almCounts={almCounts}
       loadingBindings={false}
       onSelectMode={jest.fn()}
       {...props}

@@ -19,7 +19,12 @@
  */
 import { get, getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { BitbucketProject, BitbucketRepository } from '../types/alm-integration';
+import {
+  BitbucketProject,
+  BitbucketRepository,
+  GithubOrganization,
+  GithubRepository
+} from '../types/alm-integration';
 import { ProjectBase } from './components';
 
 export function setAlmPersonalAccessToken(almSetting: string, pat: string): Promise<void> {
@@ -29,7 +34,7 @@ export function setAlmPersonalAccessToken(almSetting: string, pat: string): Prom
 export function checkPersonalAccessTokenIsValid(almSetting: string): Promise<boolean> {
   return get('/api/alm_integrations/check_pat', { almSetting })
     .then(() => true)
-    .catch(response => {
+    .catch((response: Response) => {
       if (response.status === 400) {
         return false;
       } else {
@@ -79,5 +84,33 @@ export function searchForBitbucketServerRepositories(
   return getJSON('/api/alm_integrations/search_bitbucketserver_repos', {
     almSetting,
     repositoryName
+  });
+}
+
+export function getGithubClientId(almSetting: string): Promise<{ clientId: string }> {
+  return getJSON('/api/alm_integrations/get_github_client_id', { almSetting });
+}
+
+export function getGithubOrganizations(
+  almSetting: string,
+  token: string
+): Promise<{ organizations: GithubOrganization[] }> {
+  return getJSON('/api/alm_integrations/list_github_enterprise_organizations', {
+    almSetting,
+    token
+  });
+}
+
+export function getGithubRepositories(
+  almSetting: string,
+  organization: string,
+  p = 1,
+  query?: string
+): Promise<{ repositories: GithubRepository[]; paging: T.Paging }> {
+  return getJSON('/api/alm_integrations/list_github_enterprise_repositories', {
+    almSetting,
+    organization,
+    p,
+    query: query || undefined
   });
 }

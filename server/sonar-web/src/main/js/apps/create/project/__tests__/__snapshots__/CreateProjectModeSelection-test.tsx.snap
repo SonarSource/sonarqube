@@ -17,7 +17,7 @@ exports[`should render correctly: default 1`] = `
     </p>
   </header>
   <div
-    className="create-project-modes huge-spacer-top display-flex-space-around"
+    className="create-project-modes huge-spacer-top display-flex-justify-center"
   >
     <button
       className="button button-huge display-flex-column create-project-mode-type-manual"
@@ -45,19 +45,49 @@ exports[`should render correctly: default 1`] = `
         alt=""
         height={80}
         src="/images/alm/bitbucket.svg"
-        width={80}
       />
       <div
         className="medium big-spacer-top"
       >
-        onboarding.create_project.select_method.from_bbs
+        onboarding.create_project.select_method.bitbucket
+      </div>
+    </button>
+    <button
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs disabled"
+      disabled={true}
+      onClick={[Function]}
+      type="button"
+    >
+      <img
+        alt=""
+        height={80}
+        src="/images/alm/github.svg"
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.github
+      </div>
+      <div
+        className="text-muted small spacer-top"
+        style={
+          Object {
+            "lineHeight": 1.5,
+          }
+        }
+      >
+        onboarding.create_project.alm_not_configured
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay="onboarding.create_project.zero_alm_instances.github"
+        />
       </div>
     </button>
   </div>
 </Fragment>
 `;
 
-exports[`should render correctly: loading bbs instances 1`] = `
+exports[`should render correctly: invalid configs 1`] = `
 <Fragment>
   <header
     className="huge-spacer-top big-spacer-bottom padded"
@@ -74,7 +104,7 @@ exports[`should render correctly: loading bbs instances 1`] = `
     </p>
   </header>
   <div
-    className="create-project-modes huge-spacer-top display-flex-space-around"
+    className="create-project-modes huge-spacer-top display-flex-justify-center"
   >
     <button
       className="button button-huge display-flex-column create-project-mode-type-manual"
@@ -102,59 +132,121 @@ exports[`should render correctly: loading bbs instances 1`] = `
         alt=""
         height={80}
         src="/images/alm/bitbucket.svg"
-        width={80}
       />
       <div
         className="medium big-spacer-top"
       >
-        onboarding.create_project.select_method.from_bbs
+        onboarding.create_project.select_method.bitbucket
+      </div>
+      <div
+        className="text-muted small spacer-top"
+        style={
+          Object {
+            "lineHeight": 1.5,
+          }
+        }
+      >
+        onboarding.create_project.alm_not_configured
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay="onboarding.create_project.zero_alm_instances.bitbucket"
+        />
+      </div>
+    </button>
+    <button
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs disabled"
+      disabled={true}
+      onClick={[Function]}
+      type="button"
+    >
+      <img
+        alt=""
+        height={80}
+        src="/images/alm/github.svg"
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.github
+      </div>
+      <div
+        className="text-muted small spacer-top"
+        style={
+          Object {
+            "lineHeight": 1.5,
+          }
+        }
+      >
+        onboarding.create_project.alm_not_configured
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay="onboarding.create_project.too_many_alm_instances.github 
+                  onboarding.create_project.alm_instances_count_X.2"
+        />
+      </div>
+    </button>
+  </div>
+</Fragment>
+`;
+
+exports[`should render correctly: loading instances 1`] = `
+<Fragment>
+  <header
+    className="huge-spacer-top big-spacer-bottom padded"
+  >
+    <h1
+      className="text-center huge big-spacer-bottom"
+    >
+      my_account.create_new.TRK
+    </h1>
+    <p
+      className="text-center big"
+    >
+      onboarding.create_project.select_method
+    </p>
+  </header>
+  <div
+    className="create-project-modes huge-spacer-top display-flex-justify-center"
+  >
+    <button
+      className="button button-huge display-flex-column create-project-mode-type-manual"
+      onClick={[Function]}
+      type="button"
+    >
+      <img
+        alt=""
+        height={80}
+        src="/images/sonarcloud/analysis/manual.svg"
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.manual
+      </div>
+    </button>
+    <button
+      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs disabled"
+      disabled={true}
+      onClick={[Function]}
+      type="button"
+    >
+      <img
+        alt=""
+        height={80}
+        src="/images/alm/bitbucket.svg"
+      />
+      <div
+        className="medium big-spacer-top"
+      >
+        onboarding.create_project.select_method.bitbucket
       </div>
       <span>
-        onboarding.create_project.check_bbs_supported
+        onboarding.create_project.check_alm_supported
         <i
           className="little-spacer-left spinner"
         />
       </span>
     </button>
-  </div>
-</Fragment>
-`;
-
-exports[`should render correctly: no bbs instances 1`] = `
-<Fragment>
-  <header
-    className="huge-spacer-top big-spacer-bottom padded"
-  >
-    <h1
-      className="text-center huge big-spacer-bottom"
-    >
-      my_account.create_new.TRK
-    </h1>
-    <p
-      className="text-center big"
-    >
-      onboarding.create_project.select_method
-    </p>
-  </header>
-  <div
-    className="create-project-modes huge-spacer-top display-flex-space-around"
-  >
-    <button
-      className="button button-huge display-flex-column create-project-mode-type-manual"
-      onClick={[Function]}
-      type="button"
-    >
-      <img
-        alt=""
-        height={80}
-        src="/images/sonarcloud/analysis/manual.svg"
-      />
-      <div
-        className="medium big-spacer-top"
-      >
-        onboarding.create_project.select_method.manual
-      </div>
-    </button>
     <button
       className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs disabled"
       disabled={true}
@@ -164,99 +256,19 @@ exports[`should render correctly: no bbs instances 1`] = `
       <img
         alt=""
         height={80}
-        src="/images/alm/bitbucket.svg"
-        width={80}
+        src="/images/alm/github.svg"
       />
       <div
         className="medium big-spacer-top"
       >
-        onboarding.create_project.select_method.from_bbs
+        onboarding.create_project.select_method.github
       </div>
-      <div
-        className="text-muted small spacer-top"
-        style={
-          Object {
-            "lineHeight": 1.5,
-          }
-        }
-      >
-        onboarding.create_project.bbs_not_configured
-        <HelpTooltip
-          className="little-spacer-left"
-          overlay="onboarding.create_project.zero_bbs_instances"
+      <span>
+        onboarding.create_project.check_alm_supported
+        <i
+          className="little-spacer-left spinner"
         />
-      </div>
-    </button>
-  </div>
-</Fragment>
-`;
-
-exports[`should render correctly: too many bbs instances 1`] = `
-<Fragment>
-  <header
-    className="huge-spacer-top big-spacer-bottom padded"
-  >
-    <h1
-      className="text-center huge big-spacer-bottom"
-    >
-      my_account.create_new.TRK
-    </h1>
-    <p
-      className="text-center big"
-    >
-      onboarding.create_project.select_method
-    </p>
-  </header>
-  <div
-    className="create-project-modes huge-spacer-top display-flex-space-around"
-  >
-    <button
-      className="button button-huge display-flex-column create-project-mode-type-manual"
-      onClick={[Function]}
-      type="button"
-    >
-      <img
-        alt=""
-        height={80}
-        src="/images/sonarcloud/analysis/manual.svg"
-      />
-      <div
-        className="medium big-spacer-top"
-      >
-        onboarding.create_project.select_method.manual
-      </div>
-    </button>
-    <button
-      className="button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs disabled"
-      disabled={true}
-      onClick={[Function]}
-      type="button"
-    >
-      <img
-        alt=""
-        height={80}
-        src="/images/alm/bitbucket.svg"
-        width={80}
-      />
-      <div
-        className="medium big-spacer-top"
-      >
-        onboarding.create_project.select_method.from_bbs
-      </div>
-      <div
-        className="text-muted small spacer-top"
-        style={
-          Object {
-            "lineHeight": 1.5,
-          }
-        }
-      >
-        onboarding.create_project.bbs_not_configured
-        <HelpTooltip
-          className="little-spacer-left"
-          overlay="onboarding.create_project.too_many_bbs_instances_X.2"
-        />
-      </div>
+      </span>
     </button>
   </div>
 </Fragment>

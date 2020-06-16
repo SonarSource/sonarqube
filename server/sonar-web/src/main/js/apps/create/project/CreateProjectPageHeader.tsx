@@ -18,29 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
-import { translate } from 'sonar-ui-common/helpers/l10n';
 
 export interface CreateProjectPageHeaderProps {
   additionalActions?: React.ReactNode;
-  showBreadcrumb?: boolean;
   title: React.ReactNode;
 }
 
 export default function CreateProjectPageHeader(props: CreateProjectPageHeaderProps) {
-  const { additionalActions, showBreadcrumb, title } = props;
+  const { additionalActions, title } = props;
 
   return (
     <header className="huge-spacer-bottom bordered-bottom overflow-hidden">
-      <h1 className="pull-left huge big-spacer-bottom">
-        {showBreadcrumb && (
-          <>
-            <Link to="/projects/create">{translate('my_account.create_new.TRK')}</Link>
-            <span className="big-spacer-left big-spacer-right slash-separator" />
-          </>
-        )}
-        {title}
-      </h1>
+      <h1 className="pull-left huge big-spacer-bottom">{title}</h1>
 
       {additionalActions}
     </header>

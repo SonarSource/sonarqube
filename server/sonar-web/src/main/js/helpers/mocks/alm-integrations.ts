@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BitbucketProject, BitbucketRepository } from '../../types/alm-integration';
+import {
+  BitbucketProject,
+  BitbucketRepository,
+  GithubRepository
+} from '../../types/alm-integration';
 
 export function mockBitbucketProject(overrides: Partial<BitbucketProject> = {}): BitbucketProject {
   return {
@@ -36,6 +40,17 @@ export function mockBitbucketRepository(
     slug: 'project__repo',
     name: 'Repo',
     projectKey: 'project',
+    ...overrides
+  };
+}
+
+export function mockGitHubRepository(overrides: Partial<GithubRepository> = {}): GithubRepository {
+  return {
+    id: 'id1234',
+    key: 'key3456',
+    name: 'repository 1',
+    sqProjectKey: '',
+    url: 'owner/repo1',
     ...overrides
   };
 }

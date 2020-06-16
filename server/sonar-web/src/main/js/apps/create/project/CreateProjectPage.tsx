@@ -21,7 +21,6 @@ import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { WithRouterProps } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { addWhitePageClass, removeWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import { getAlmSettings } from '../../../api/alm-settings';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { whenLoggedIn } from '../../../components/hoc/whenLoggedIn';
@@ -30,50 +29,38 @@ import { getProjectUrl } from '../../../helpers/urls';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketProjectCreate from './BitbucketProjectCreate';
 import CreateProjectModeSelection from './CreateProjectModeSelection';
+import GitHubProjectCreate from './GitHubProjectCreate';
 import ManualProjectCreate from './ManualProjectCreate';
 import './style.css';
 import { CreateProjectModes } from './types';
 
 interface Props extends Pick<WithRouterProps, 'router' | 'location'> {
-  appState: Pick<T.AppState, 'branchesEnabled'>;
+  appState: Pick<T.AppState, 'branchesEnabled' | 'canAdmin'>;
   currentUser: T.LoggedInUser;
 }
 
 interface State {
   bitbucketSettings: AlmSettingsInstance[];
+  githubSettings: AlmSettingsInstance[];
   loading: boolean;
 }
 
 export class CreateProjectPage extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { bitbucketSettings: [], loading: false };
+  state: State = { bitbucketSettings: [], githubSettings: [], loading: false };
 
   componentDidMount() {
     const {
-      appState: { branchesEnabled },
-      location
+      appState: { branchesEnabled }
     } = this.props;
     this.mounted = true;
     if (branchesEnabled) {
       this.fetchAlmBindings();
     }
-
-    if (location.query?.mode || !branchesEnabled) {
-      addWhitePageClass();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (this.props.location.query?.mode && !prevProps.location.query?.mode) {
-      addWhitePageClass();
-    } else if (!this.props.location.query?.mode && prevProps.location.query?.mode) {
-      removeWhitePageClass();
-    }
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    removeWhitePageClass();
   }
 
   fetchAlmBindings = () => {
@@ -83,6 +70,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
         if (this.mounted) {
           this.setState({
             bitbucketSettings: almSettings.filter(s => s.alm === AlmKeys.Bitbucket),
+            githubSettings: almSettings.filter(s => s.alm === AlmKeys.GitHub),
             loading: false
           });
         }
@@ -108,47 +96,67 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     });
   };
 
+  renderForm(mode?: CreateProjectModes) {
+    const {
+      appState: { canAdmin },
+      location
+    } = this.props;
+    const { bitbucketSettings, githubSettings, loading } = this.state;
+
+    switch (mode) {
+      case CreateProjectModes.BitbucketServer: {
+        return (
+          <BitbucketProjectCreate
+            bitbucketSettings={bitbucketSettings}
+            loadingBindings={loading}
+            location={location}
+            onProjectCreate={this.handleProjectCreate}
+          />
+        );
+      }
+      case CreateProjectModes.GitHub: {
+        return (
+          <GitHubProjectCreate
+            canAdmin={!!canAdmin}
+            code={location.query?.code}
+            settings={githubSettings[0]}
+          />
+        );
+      }
+      case CreateProjectModes.Manual: {
+        return <ManualProjectCreate onProjectCreate={this.handleProjectCreate} />;
+      }
+      default: {
+        const almCounts = {
+          [AlmKeys.Azure]: 0,
+          [AlmKeys.Bitbucket]: bitbucketSettings.length,
+          [AlmKeys.GitHub]: githubSettings.length,
+          [AlmKeys.GitLab]: 0
+        };
+        return (
+          <CreateProjectModeSelection
+            almCounts={almCounts}
+            loadingBindings={loading}
+            onSelectMode={this.handleModeSelect}
+          />
+        );
+      }
+    }
+  }
+
   render() {
     const {
       appState: { branchesEnabled },
-      currentUser,
       location
     } = this.props;
-    const { bitbucketSettings, loading } = this.state;
-
     const mode: CreateProjectModes | undefined = location.query?.mode;
-    const showManualForm = !branchesEnabled || mode === CreateProjectModes.Manual;
-    const showBBSForm = branchesEnabled && mode === CreateProjectModes.BitbucketServer;
 
     return (
       <>
         <Helmet title={translate('my_account.create_new.TRK')} titleTemplate="%s" />
         <A11ySkipTarget anchor="create_project_main" />
         <div className="page page-limited huge-spacer-bottom position-relative" id="create-project">
-          {!showBBSForm && !showManualForm && (
-            <CreateProjectModeSelection
-              bbsBindingCount={bitbucketSettings.length}
-              loadingBindings={loading}
-              onSelectMode={this.handleModeSelect}
-            />
-          )}
-
-          {showManualForm && (
-            <ManualProjectCreate
-              branchesEnabled={branchesEnabled}
-              currentUser={currentUser}
-              onProjectCreate={this.handleProjectCreate}
-            />
-          )}
-
-          {showBBSForm && (
-            <BitbucketProjectCreate
-              bitbucketSettings={bitbucketSettings}
-              loadingBindings={loading}
-              location={location}
-              onProjectCreate={this.handleProjectCreate}
-            />
-          )}
+          {this.renderForm(branchesEnabled ? mode : CreateProjectModes.Manual)}
         </div>
       </>
     );

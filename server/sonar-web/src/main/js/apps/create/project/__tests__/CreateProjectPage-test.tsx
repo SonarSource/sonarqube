@@ -20,7 +20,6 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { addWhitePageClass } from 'sonar-ui-common/helpers/pages';
 import { getAlmSettings } from '../../../../api/alm-settings';
 import { mockLocation, mockLoggedInUser, mockRouter } from '../../../../helpers/testMocks';
 import { AlmKeys } from '../../../../types/alm-settings';
@@ -29,11 +28,6 @@ import { CreateProjectModes } from '../types';
 
 jest.mock('../../../../api/alm-settings', () => ({
   getAlmSettings: jest.fn().mockResolvedValue([{ alm: AlmKeys.Bitbucket, key: 'foo' }])
-}));
-
-jest.mock('sonar-ui-common/helpers/pages', () => ({
-  addWhitePageClass: jest.fn(),
-  removeWhitePageClass: jest.fn()
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -57,7 +51,6 @@ it('should render correctly if the manual method is selected', () => {
   expect(push).toBeCalledWith(expect.objectContaining(location));
 
   expect(wrapper.setProps({ location: mockLocation(location) })).toMatchSnapshot();
-  expect(addWhitePageClass).toBeCalled();
 });
 
 it('should render correctly if the BBS method is selected', () => {
@@ -69,7 +62,17 @@ it('should render correctly if the BBS method is selected', () => {
   expect(push).toBeCalledWith(expect.objectContaining(location));
 
   expect(wrapper.setProps({ location: mockLocation(location) })).toMatchSnapshot();
-  expect(addWhitePageClass).toBeCalled();
+});
+
+it('should render correctly if the GitHub method is selected', () => {
+  const push = jest.fn();
+  const location = { query: { mode: CreateProjectModes.GitHub } };
+  const wrapper = shallowRender({ router: mockRouter({ push }) });
+
+  wrapper.instance().handleModeSelect(CreateProjectModes.GitHub);
+  expect(push).toBeCalledWith(expect.objectContaining(location));
+
+  expect(wrapper.setProps({ location: mockLocation(location) })).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<CreateProjectPage['props']> = {}) {

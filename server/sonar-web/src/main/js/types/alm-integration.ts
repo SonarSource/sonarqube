@@ -35,3 +35,16 @@ export type BitbucketProjectRepositories = T.Dict<{
   allShown: boolean;
   repositories: BitbucketRepository[];
 }>;
+
+export interface GithubOrganization {
+  key: string;
+  name: string;
+}
+
+export interface GithubRepository {
+  id: string;
+  key: string;
+  name: string;
+  url: string;
+  sqProjectKey: string;
+}

@@ -144,10 +144,6 @@ it('should have an error when the name is incorrect', () => {
 
 function shallowRender(props: Partial<ManualProjectCreate['props']> = {}) {
   return shallow<ManualProjectCreate>(
-    <ManualProjectCreate
-      currentUser={{ groups: [], isLoggedIn: true, login: 'foo', name: 'Foo', scmAccounts: [] }}
-      onProjectCreate={jest.fn()}
-      {...props}
-    />
+    <ManualProjectCreate onProjectCreate={jest.fn()} {...props} />
   );
 }

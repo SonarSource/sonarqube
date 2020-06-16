@@ -24,7 +24,6 @@ import CreateProjectPageHeader, { CreateProjectPageHeaderProps } from '../Create
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ showBreadcrumb: true })).toMatchSnapshot('with breadcrumb');
   expect(shallowRender({ additionalActions: 'Bar' })).toMatchSnapshot('additional content');
 });
 

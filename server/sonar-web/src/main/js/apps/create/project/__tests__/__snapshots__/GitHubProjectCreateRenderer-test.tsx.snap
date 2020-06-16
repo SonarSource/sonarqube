@@ -1,0 +1,378 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+<div>
+  <CreateProjectPageHeader
+    title={
+      <span
+        className="text-middle display-flex-center"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height={24}
+          src="/images/alm/github.svg"
+        />
+        onboarding.create_project.github.title
+      </span>
+    }
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <div
+      className="form-field"
+    >
+      <label>
+        onboarding.create_project.github.choose_organization
+      </label>
+      <Alert
+        className="spacer-top"
+        variant="error"
+      >
+        onboarding.create_project.github.no_orgs
+      </Alert>
+    </div>
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly: error 1`] = `
+<div>
+  <CreateProjectPageHeader
+    title={
+      <span
+        className="text-middle display-flex-center"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height={24}
+          src="/images/alm/github.svg"
+        />
+        onboarding.create_project.github.title
+      </span>
+    }
+  />
+  <div
+    className="display-flex-justify-center"
+  >
+    <div
+      className="boxed-group padded width-50 huge-spacer-top"
+    >
+      <h2
+        className="big-spacer-bottom"
+      >
+        onboarding.create_project.github.warning.title
+      </h2>
+      <Alert
+        variant="warning"
+      >
+        onboarding.create_project.github.warning.message
+      </Alert>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: error for admin 1`] = `
+<div>
+  <CreateProjectPageHeader
+    title={
+      <span
+        className="text-middle display-flex-center"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height={24}
+          src="/images/alm/github.svg"
+        />
+        onboarding.create_project.github.title
+      </span>
+    }
+  />
+  <div
+    className="display-flex-justify-center"
+  >
+    <div
+      className="boxed-group padded width-50 huge-spacer-top"
+    >
+      <h2
+        className="big-spacer-bottom"
+      >
+        onboarding.create_project.github.warning.title
+      </h2>
+      <Alert
+        variant="warning"
+      >
+        <FormattedMessage
+          defaultMessage="onboarding.create_project.github.warning.message_admin"
+          id="onboarding.create_project.github.warning.message_admin"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to="/admin/settings?category=almintegration"
+              >
+                onboarding.create_project.github.warning.message_admin.link
+              </Link>,
+            }
+          }
+        />
+      </Alert>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: no repositories 1`] = `
+<div>
+  <CreateProjectPageHeader
+    title={
+      <span
+        className="text-middle display-flex-center"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height={24}
+          src="/images/alm/github.svg"
+        />
+        onboarding.create_project.github.title
+      </span>
+    }
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <div
+      className="form-field"
+    >
+      <label>
+        onboarding.create_project.github.choose_organization
+      </label>
+      <SearchSelect
+        defaultOptions={
+          Array [
+            Object {
+              "label": "org1",
+              "value": "o1",
+            },
+            Object {
+              "label": "org2",
+              "value": "o2",
+            },
+          ]
+        }
+        minimumQueryLength={0}
+        onSearch={[Function]}
+        onSelect={[Function]}
+        value={
+          Object {
+            "label": "org2",
+            "value": "o2",
+          }
+        }
+      />
+    </div>
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly: organizations 1`] = `
+<div>
+  <CreateProjectPageHeader
+    title={
+      <span
+        className="text-middle display-flex-center"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height={24}
+          src="/images/alm/github.svg"
+        />
+        onboarding.create_project.github.title
+      </span>
+    }
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <div
+      className="form-field"
+    >
+      <label>
+        onboarding.create_project.github.choose_organization
+      </label>
+      <SearchSelect
+        defaultOptions={
+          Array [
+            Object {
+              "label": "org1",
+              "value": "o1",
+            },
+            Object {
+              "label": "org2",
+              "value": "o2",
+            },
+          ]
+        }
+        minimumQueryLength={0}
+        onSearch={[Function]}
+        onSelect={[Function]}
+      />
+    </div>
+  </DeferredSpinner>
+</div>
+`;
+
+exports[`should render correctly: repositories 1`] = `
+<div>
+  <CreateProjectPageHeader
+    title={
+      <span
+        className="text-middle display-flex-center"
+      >
+        <img
+          alt=""
+          className="spacer-right"
+          height={24}
+          src="/images/alm/github.svg"
+        />
+        onboarding.create_project.github.title
+      </span>
+    }
+  />
+  <DeferredSpinner
+    loading={false}
+    timeout={100}
+  >
+    <div
+      className="form-field"
+    >
+      <label>
+        onboarding.create_project.github.choose_organization
+      </label>
+      <SearchSelect
+        defaultOptions={
+          Array [
+            Object {
+              "label": "org1",
+              "value": "o1",
+            },
+            Object {
+              "label": "org2",
+              "value": "o2",
+            },
+          ]
+        }
+        minimumQueryLength={0}
+        onSearch={[Function]}
+        onSelect={[Function]}
+        value={
+          Object {
+            "label": "org2",
+            "value": "o2",
+          }
+        }
+      />
+    </div>
+  </DeferredSpinner>
+  <div
+    className="boxed-group padded display-flex-wrap"
+  >
+    <div
+      className="width-100"
+    >
+      <SearchBox
+        className="big-spacer-bottom"
+        onChange={[MockFunction]}
+        placeholder="onboarding.create_project.search_repositories"
+        value=""
+      />
+    </div>
+    <Radio
+      checked={false}
+      className="spacer-top spacer-bottom padded github-repository"
+      disabled={false}
+      key="repo1"
+      onCheck={[MockFunction]}
+      value="repo1"
+    >
+      <div
+        className="big overflow-hidden"
+        title="repository 1"
+      >
+        <div
+          className="overflow-hidden text-ellipsis"
+        >
+          repository 1
+        </div>
+      </div>
+    </Radio>
+    <Radio
+      checked={true}
+      className="spacer-top spacer-bottom padded github-repository"
+      disabled={true}
+      key="repo2"
+      onCheck={[MockFunction]}
+      value="repo2"
+    >
+      <div
+        className="big overflow-hidden"
+        title="repository 1"
+      >
+        <div
+          className="overflow-hidden text-ellipsis"
+        >
+          repository 1
+        </div>
+        <em
+          className="notice text-muted-2 small display-flex-center"
+        >
+          onboarding.create_project.already_imported
+          <CheckIcon
+            className="little-spacer-left"
+            size={12}
+          />
+        </em>
+      </div>
+    </Radio>
+    <Radio
+      checked={true}
+      className="spacer-top spacer-bottom padded github-repository"
+      disabled={false}
+      key="repo3"
+      onCheck={[MockFunction]}
+      value="repo3"
+    >
+      <div
+        className="big overflow-hidden"
+        title="repository 1"
+      >
+        <div
+          className="overflow-hidden text-ellipsis"
+        >
+          repository 1
+        </div>
+      </div>
+    </Radio>
+    <div
+      className="display-flex-justify-center width-100"
+    >
+      <ListFooter
+        count={3}
+        loadMore={[MockFunction]}
+        loading={false}
+        total={0}
+      />
+    </div>
+  </div>
+</div>
+`;

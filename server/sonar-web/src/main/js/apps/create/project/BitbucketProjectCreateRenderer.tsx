@@ -88,7 +88,6 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
             </div>
           )
         }
-        showBreadcrumb={true}
         title={
           <span className="text-middle">
             <img
