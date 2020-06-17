@@ -73,7 +73,11 @@ function renderHeader(props: Props) {
         />
       )}
       <h2 className="project-card-name">
-        <Link to={getProjectUrl(project.key)}>{project.name}</Link>
+        {props.project.needIssueSync ? (
+          props.project.name
+        ) : (
+          <Link to={getProjectUrl(project.key)}>{props.project.name}</Link>
+        )}
       </h2>
       {project.analysisDate && <ProjectCardQualityGate status={project.measures['alert_status']} />}
       <div className="project-card-header-right">
@@ -172,13 +176,19 @@ function renderMeasures(props: Props, dates: Dates | undefined) {
 
 export default function ProjectCard(props: Props) {
   const { height, project, type } = props;
+  const { needIssueSync, key } = project;
 
   const dates = getDates(project, type);
 
   return (
     <div
-      className="boxed-group project-card big-padded display-flex-column display-flex-space-between"
-      data-key={project.key}
+      className={classNames(
+        'boxed-group project-card big-padded display-flex-column display-flex-space-between',
+        {
+          'need-issue-sync': needIssueSync
+        }
+      )}
+      data-key={key}
       style={{ height }}>
       <div>
         {renderHeader(props)}

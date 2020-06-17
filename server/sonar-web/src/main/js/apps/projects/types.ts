@@ -31,6 +31,7 @@ export interface Project {
   qualifier: ComponentQualifier;
   tags: string[];
   visibility: T.Visibility;
+  needIssueSync?: boolean;
 }
 
 export interface Facet {

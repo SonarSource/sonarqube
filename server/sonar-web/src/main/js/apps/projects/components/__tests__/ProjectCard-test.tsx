@@ -51,6 +51,10 @@ const PROJECT: Project = {
 const USER_LOGGED_OUT = mockCurrentUser();
 const USER_LOGGED_IN = mockLoggedInUser();
 
+it('should display correclty when project need issue synch', () => {
+  expect(shallowRender({ ...PROJECT, needIssueSync: true })).toMatchSnapshot();
+});
+
 it('should display analysis date (and not leak period) when defined', () => {
   expect(
     shallowRender(PROJECT)

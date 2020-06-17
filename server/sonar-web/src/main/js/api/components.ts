@@ -216,6 +216,7 @@ export interface Component {
   tags: string[];
   visibility: T.Visibility;
   leakPeriodDate?: string;
+  needIssueSync?: boolean;
 }
 
 export interface Facet {

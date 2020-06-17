@@ -295,3 +295,33 @@
   padding: calc(4 * var(--gridSize)) 0;
   text-align: center;
 }
+
+.need-issue-sync .rating,
+.need-issue-sync .size-rating,
+.need-issue-sync .duplications-rating:after,
+.need-issue-sync .level {
+  background-color: lightgray;
+}
+
+.need-issue-sync .project-card-dates path,
+.need-issue-sync .project-card-measure path,
+.need-issue-sync .project-card-leak-measures path {
+  fill: lightgray !important;
+}
+
+.need-issue-sync .duplications-rating {
+  border-color: lightgray;
+}
+
+.need-issue-sync * {
+  color: #adadad;
+}
+
+.need-issue-sync .project-card-header .icon-outline.is-filled path {
+  color: rgb(237, 125, 32);
+}
+
+.need-issue-sync .rating,
+.need-issue-sync .size-rating {
+  color: white !important;
+}
