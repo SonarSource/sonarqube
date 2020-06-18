@@ -120,13 +120,8 @@ sudo service sonar start
 
 ## Securing the Server Behind a Proxy
 
-This section helps you configure the SonarQube Server if you want to run it behind a proxy. This can be done for security concerns or to consolidate multiple disparate applications.
+This section helps you configure the SonarQube Server if you want to run it behind a proxy. This can be done for security concerns or to consolidate multiple disparate applications. To run the SonarQube server over HTTPS, see the HTTPS Configuration section below.
 
-### Server Configuration
-
-To run the SonarQube server over HTTPS, you must build a standard reverse proxy infrastructure.
-
-The reverse proxy must be configured to set the value `X_FORWARDED_PROTO: https` in each HTTP request header. Without this property, redirection initiated by the SonarQube server will fall back on HTTP.
 
 ### Using an Apache Proxy
 
@@ -156,14 +151,12 @@ We assume that you've already installed Nginx, that you are using a Virtual Host
 At this point, edit the Nginx configuration file. Include the following to expose SonarQube at http://www.somecompany.com/:
 
 ```
-# the server directive is nginx's virtual host directive
+# the server directive is Nginx's virtual host directive
 server {
   # port to listen on. Can also be set to an IP:PORT
   listen 80;
- 
   # sets the domain[s] that this vhost server requests for
   server_name www.somecompany.com;
- 
   location / {
     proxy_pass http://sonarhost:sonarport;
   }
@@ -178,6 +171,26 @@ Note that you may need to increase the max URL length since SonarQube requests c
 
 Please see: [http://blog.jessehouwing.nl/2016/02/configure-ssl-for-sonarqube-on-windows.html](http://blog.jessehouwing.nl/2016/02/configure-ssl-for-sonarqube-on-windows.html)
 
-Note that the setup described in this blog post is not approprite for SAML through IIS.
+Note that the setup described in this blog post is not appropriate for SAML through IIS.
 
-<!-- /sonarqube -->
+### HTTPS Configuration
+
+The reverse proxy must be configured to set the value `X_FORWARDED_PROTO: https` in each HTTP request header. Without this property, redirection initiated by the SonarQube server will fall back on HTTP.
+
+For example, with Nginx as a reverse proxy, you can paste the following or a similar snippet into the configuration file: 
+
+ ```
+# the server directive is Nginx's virtual host directive
+server { 
+  # port to listen on. Can also be set to an IP:PORT	
+  listen 443 ssl;
+  ssl_certificate ${path_to_your_certificate_file}
+  ssl_certificate_key ${path_to_your_certificate_key_file}
+  location / {
+    proxy_pass ${address_of_your_sonarqube_instance_behind_proxy}
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto https;
+  }
+}
+```

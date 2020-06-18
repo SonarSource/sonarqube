@@ -144,6 +144,9 @@ The following example may be useful if you're using Keycloak as a SAML Identity 
 |
 | In the login form, the new button "Log in with SAML" allows users to connect with their SAML account.
 
+### SAML and reverse proxy configuration
+When using SAML, make sure your reverse proxy is properly configured. See [Operating the Server](/setup/operate-server/) for more information.
+
 ## LDAP Authentication
 You can configure SonarQube authentication and authorization to an LDAP server (including LDAP Service of Active Directory) by configuring the correct values in _$SONARQUBE-HOME/conf/sonar.properties_.
 
