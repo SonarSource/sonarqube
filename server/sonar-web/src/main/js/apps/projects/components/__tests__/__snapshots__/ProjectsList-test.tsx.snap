@@ -14,7 +14,7 @@ exports[`renders correctly: list element 1`] = `
     overscanIndicesGetter={[Function]}
     overscanRowCount={2}
     rowCount={2}
-    rowHeight={163}
+    rowHeight={165}
     rowRenderer={[Function]}
     scrollToAlignment="auto"
     scrollToIndex={-1}
@@ -34,7 +34,7 @@ exports[`renders correctly: row element 1`] = `
   role="row"
   style={
     Object {
-      "height": 143,
+      "height": 145,
     }
   }
 >
@@ -47,7 +47,7 @@ exports[`renders correctly: row element 1`] = `
           "isLoggedIn": true,
         }
       }
-      height={143}
+      height={145}
       project={
         Object {
           "key": "foo",

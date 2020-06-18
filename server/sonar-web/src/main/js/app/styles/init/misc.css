@@ -179,9 +179,16 @@ th.hide-overflow {
 .big-padded-top {
   padding-top: calc(2 * var(--gridSize));
 }
+.big-padded-bottom {
+  padding-bottom: calc(2 * var(--gridSize));
+}
 
 .big-padded-right {
   padding-right: calc(2 * var(--gridSize));
+}
+
+.big-padded-left {
+  padding-left: calc(2 * var(--gridSize));
 }
 
 .huge-padded-top {
@@ -428,6 +435,11 @@ th.huge-spacer-right {
 .display-flex-start {
   display: flex !important;
   align-items: flex-start;
+}
+
+.display-flex-end {
+  display: flex !important;
+  align-items: flex-end;
 }
 
 .display-flex-wrap {

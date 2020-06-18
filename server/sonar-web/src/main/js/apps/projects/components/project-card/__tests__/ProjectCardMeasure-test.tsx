@@ -17,31 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ProjectCardRatingMeasure, {
-  ProjectCardRatingMeasureProps
-} from '../ProjectCardRatingMeasure';
+import ProjectCardMeasure, { ProjectCardMeasureProps } from '../ProjectCardMeasure';
 
-it('renders', () => {
-  expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ iconKey: 'overriddenIconKey' })).toMatchSnapshot('iconKey');
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
 });
 
-function shallowRender(overrides: Partial<ProjectCardRatingMeasureProps> = {}) {
-  const measures = {
-    security_rating: '1',
-    vulnerabilities: '0',
-    dummyThatShouldBeIgnored: 'yes'
-  };
-  return shallow(
-    <ProjectCardRatingMeasure
-      iconLabel="label"
-      measures={measures}
-      metricKey="vulnerabilities"
-      metricRatingKey="security_rating"
-      metricType="SHORT_INT"
-      {...overrides}
-    />
+function shallowRender(props: Partial<ProjectCardMeasureProps> = {}) {
+  return shallow<ProjectCardMeasureProps>(
+    <ProjectCardMeasure metricKey="test-metric-key" label="test-label" {...props} />
   );
 }

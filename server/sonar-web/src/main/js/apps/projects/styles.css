@@ -55,142 +55,12 @@
   margin-bottom: 0;
 }
 
-.project-card {
-  position: relative;
-  min-height: 114px;
-  box-sizing: border-box;
-}
-
-.project-card-header {
-  display: flex;
-  align-items: center;
-}
-
-.project-card-header-right {
-  margin-left: auto;
-}
-
 .project-card-name {
   font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.project-card-leak-date {
-  padding: 4px 8px;
-  margin: -5px -4px -5px 24px;
-  background-color: var(--leakPrimaryColor);
-  border: 1px solid var(--leakSecondaryColor);
-}
-
-.project-card-measures {
-  display: flex;
-  padding-top: 8px;
-  margin: 0 -15px 0 -30px;
-}
-
-.project-card-leak-measures {
-  display: flex;
-  padding: 8px 0;
-  margin: 4px -4px;
-  background-color: var(--leakPrimaryColor);
-  border: 1px solid var(--leakSecondaryColor);
-}
-
-.projects-leak-sorting-option {
-  background-color: var(--leakPrimaryColor);
-  margin-bottom: 2px;
 }
 
 .projects-leak-sorting-option.is-focused {
   background-color: var(--leakSecondaryColor);
-}
-
-.project-card-measure {
-  flex: 0 1 15%;
-}
-
-.project-card-measure {
-  position: relative;
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  box-sizing: border-box;
-  padding: 0 var(--gridSize);
-}
-
-.project-card-measure + .project-card-measure:before {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 0;
-  height: var(--controlHeight);
-  margin-top: -12px;
-  border-left: 1px solid var(--barBorderColor);
-  content: '';
-}
-
-.project-card-measure .level {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.project-card-measure-inner {
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-}
-
-.project-card-measure-number {
-  line-height: 25px;
-  font-size: 18px;
-  white-space: nowrap;
-}
-
-.project-card-measure-label {
-  margin-top: 4px;
-  font-size: var(--smallFontSize);
-}
-
-.project-card-measure-label-with-icon {
-  margin-top: 2px;
-  font-size: var(--smallFontSize);
-  white-space: nowrap;
-}
-
-.project-card-ncloc {
-  margin-left: auto;
-  text-align: right;
-}
-
-.project-card-ncloc:before {
-  display: none;
-}
-
-.project-card-ncloc .project-card-measure-inner {
-  text-align: right;
-}
-
-.project-card-languages {
-  display: inline-block;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.project-card-quality-gate {
-  line-height: var(--controlHeight);
-}
-
-.project-card-not-analyzed {
-  padding: 14px 0;
-}
-
-.projects-facet-header {
-  padding: 10px;
-  transition: none;
 }
 
 .projects-facet-list {
@@ -206,9 +76,6 @@
 
 .projects-facets-reset {
   float: right;
-}
-
-.projects-facets-reset .button {
 }
 
 .projects-facet-bar {
@@ -294,34 +161,4 @@
 .projects-empty-list {
   padding: calc(4 * var(--gridSize)) 0;
   text-align: center;
-}
-
-.need-issue-sync .rating,
-.need-issue-sync .size-rating,
-.need-issue-sync .duplications-rating:after,
-.need-issue-sync .level {
-  background-color: lightgray;
-}
-
-.need-issue-sync .project-card-dates path,
-.need-issue-sync .project-card-measure path,
-.need-issue-sync .project-card-leak-measures path {
-  fill: lightgray !important;
-}
-
-.need-issue-sync .duplications-rating {
-  border-color: lightgray;
-}
-
-.need-issue-sync * {
-  color: #adadad;
-}
-
-.need-issue-sync .project-card-header .icon-outline.is-filled path {
-  color: rgb(237, 125, 32);
-}
-
-.need-issue-sync .rating,
-.need-issue-sync .size-rating {
-  color: white !important;
 }

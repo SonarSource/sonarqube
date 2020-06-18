@@ -19,16 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import PrivacyBadgeContainer from '../../../../components/common/PrivacyBadgeContainer';
-import { mockCurrentUser, mockLoggedInUser } from '../../../../helpers/testMocks';
-import { ComponentQualifier } from '../../../../types/component';
-import { Project } from '../../types';
+import PrivacyBadgeContainer from '../../../../../components/common/PrivacyBadgeContainer';
+import TagsList from '../../../../../components/tags/TagsList';
+import { mockCurrentUser, mockLoggedInUser } from '../../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../../types/component';
+import { Project } from '../../../types';
 import ProjectCard from '../ProjectCard';
-
-jest.mock(
-  'date-fns/difference_in_milliseconds',
-  () => () => 1000 * 60 * 60 * 24 * 30 * 8 // ~ 8 months
-);
+import ProjectCardQualityGate from '../ProjectCardQualityGate';
 
 const MEASURES = {
   alert_status: 'OK',
@@ -55,24 +52,11 @@ it('should display correclty when project need issue synch', () => {
   expect(shallowRender({ ...PROJECT, needIssueSync: true })).toMatchSnapshot();
 });
 
-it('should display analysis date (and not leak period) when defined', () => {
-  expect(
-    shallowRender(PROJECT)
-      .find('.project-card-dates')
-      .exists()
-  ).toBe(true);
-  expect(
-    shallowRender({ ...PROJECT, analysisDate: undefined })
-      .find('.project-card-dates')
-      .exists()
-  ).toBe(false);
-});
-
 it('should not display the quality gate', () => {
   const project = { ...PROJECT, analysisDate: undefined };
   expect(
     shallowRender(project)
-      .find('ProjectCardOverallQualityGate')
+      .find(ProjectCardQualityGate)
       .exists()
   ).toBe(false);
 });
@@ -81,7 +65,7 @@ it('should display tags', () => {
   const project = { ...PROJECT, tags: ['foo', 'bar'] };
   expect(
     shallowRender(project)
-      .find('TagsList')
+      .find(TagsList)
       .exists()
   ).toBe(true);
 });
@@ -120,8 +104,14 @@ it('should display applications', () => {
   ).toMatchSnapshot('with project count');
 });
 
-function shallowRender(project: Project, user: T.CurrentUser = USER_LOGGED_OUT) {
+function shallowRender(project: Project, user: T.CurrentUser = USER_LOGGED_OUT, type?: string) {
   return shallow(
-    <ProjectCard currentUser={user} handleFavorite={jest.fn()} height={100} project={project} />
+    <ProjectCard
+      currentUser={user}
+      handleFavorite={jest.fn()}
+      height={100}
+      project={project}
+      type={type}
+    />
   );
 }

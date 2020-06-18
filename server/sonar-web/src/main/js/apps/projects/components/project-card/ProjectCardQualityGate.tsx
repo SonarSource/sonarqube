@@ -19,9 +19,8 @@
  */
 import * as React from 'react';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import Level from 'sonar-ui-common/components/ui/Level';
-import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 
 interface Props {
@@ -33,24 +32,17 @@ export default function ProjectCardQualityGate({ status }: Props) {
     return null;
   }
 
-  const tooltip = translateWithParameters(
-    'overview.quality_gate_x',
-    formatMeasure(status, 'LEVEL')
-  );
+  const title = `${translate('quality_gates.status')}: ${formatMeasure(status, 'LEVEL')}`;
 
   return (
-    <div className="project-card-quality-gate big-spacer-left">
-      <Tooltip overlay={tooltip}>
-        <div className="project-card-measure-inner">
-          <Level aria-label={translate('quality_gates.status')} level={status} small={true} />
-          {status === 'WARN' && (
-            <HelpTooltip
-              className="little-spacer-left"
-              overlay={translate('quality_gates.conditions.warning.tooltip')}
-            />
-          )}
-        </div>
-      </Tooltip>
+    <div className="big-spacer-left" title={title}>
+      <Level aria-label={title} level={status} small={true} />
+      {status === 'WARN' && (
+        <HelpTooltip
+          className="little-spacer-left"
+          overlay={translate('quality_gates.conditions.warning.tooltip')}
+        />
+      )}
     </div>
   );
 }

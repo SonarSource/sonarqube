@@ -17,23 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import OrganizationLink from '../../../components/ui/OrganizationLink';
+import { connect } from 'react-redux';
+import { getLanguages, Store } from '../../../../store/rootReducer';
+import ProjectCardLanguages from './ProjectCardLanguages';
 
-interface Props {
-  organization?: { key: string; name: string };
-  organizationsEnabled?: boolean;
-}
+const stateToProps = (state: Store) => ({
+  languages: getLanguages(state)
+});
 
-export default function ProjectCardOrganization({ organization, organizationsEnabled }: Props) {
-  if (!organization || !organizationsEnabled) {
-    return null;
-  }
-
-  return (
-    <span className="text-normal">
-      <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
-      <span className="slash-separator" />
-    </span>
-  );
-}
+export default connect(stateToProps)(ProjectCardLanguages);

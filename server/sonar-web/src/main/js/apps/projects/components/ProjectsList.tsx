@@ -28,7 +28,10 @@ import { Project } from '../types';
 import EmptyFavoriteSearch from './EmptyFavoriteSearch';
 import EmptyInstance from './EmptyInstance';
 import NoFavoriteProjects from './NoFavoriteProjects';
-import ProjectCard from './ProjectCard';
+import ProjectCard from './project-card/ProjectCard';
+
+const PROJECT_CARD_HEIGHT = 145;
+const PROJECT_CARD_MARGIN = 20;
 
 interface Props {
   cardType?: string;
@@ -41,10 +44,6 @@ interface Props {
 }
 
 export default class ProjectsList extends React.PureComponent<Props> {
-  getCardHeight = () => {
-    return this.props.cardType === 'leak' ? 159 : 143;
-  };
-
   renderNoProjects() {
     const { currentUser, isFavorite, isFiltered, query } = this.props;
     if (isFiltered) {
@@ -55,14 +54,14 @@ export default class ProjectsList extends React.PureComponent<Props> {
 
   renderRow = ({ index, key, style }: ListRowProps) => {
     const project = this.props.projects[index];
-    const height = this.getCardHeight();
+
     return (
-      <div key={key} role="row" style={{ ...style, height }}>
+      <div key={key} role="row" style={{ ...style, height: PROJECT_CARD_HEIGHT }}>
         <div role="gridcell">
           <ProjectCard
             currentUser={this.props.currentUser}
             handleFavorite={this.props.handleFavorite}
-            height={height}
+            height={PROJECT_CARD_HEIGHT}
             key={project.key}
             project={project}
             type={this.props.cardType}
@@ -73,7 +72,6 @@ export default class ProjectsList extends React.PureComponent<Props> {
   };
 
   renderList() {
-    const cardHeight = this.getCardHeight();
     return (
       <WindowScroller>
         {({ height, isScrolling, onChildScroll, scrollTop }) => (
@@ -88,7 +86,7 @@ export default class ProjectsList extends React.PureComponent<Props> {
                   onScroll={onChildScroll}
                   overscanRowCount={2}
                   rowCount={this.props.projects.length}
-                  rowHeight={cardHeight + 20}
+                  rowHeight={PROJECT_CARD_HEIGHT + PROJECT_CARD_MARGIN}
                   rowRenderer={this.renderRow}
                   scrollTop={scrollTop}
                   style={{ outline: 'none' }}

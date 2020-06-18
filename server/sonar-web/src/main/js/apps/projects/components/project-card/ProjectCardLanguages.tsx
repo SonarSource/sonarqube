@@ -19,7 +19,6 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
@@ -38,29 +37,12 @@ export default function ProjectCardLanguages({ className, distribution, language
     getLanguageName(languages, l[0])
   );
 
-  const languagesText =
-    finalLanguages.slice(0, 2).join(', ') + (finalLanguages.length > 2 ? ', ...' : '');
-
-  let tooltip;
-  if (finalLanguages.length > 2) {
-    tooltip = (
-      <span>
-        {finalLanguages.map(language => (
-          <span key={language}>
-            {language}
-            <br />
-          </span>
-        ))}
-      </span>
-    );
-  }
+  const languagesText = finalLanguages.join(', ');
 
   return (
-    <div className={className}>
-      <Tooltip overlay={tooltip}>
-        <span>{languagesText}</span>
-      </Tooltip>
-    </div>
+    <span className={className} title={languagesText}>
+      {languagesText}
+    </span>
   );
 }
 
