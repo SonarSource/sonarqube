@@ -57,7 +57,7 @@ dependencies {
   jdbc_postgresql 'org.postgresql:postgresql'
 
   bundledPlugin 'org.sonarsource.auth.github:sonar-auth-github-plugin:1.5.0.870@jar'
-  bundledPlugin 'org.sonarsource.auth.saml:sonar-auth-saml-plugin:1.1.0.181@jar'
+  bundledPlugin 'org.sonarsource.auth.saml:sonar-auth-saml-plugin:1.2.0.682@jar'
   bundledPlugin 'org.sonarsource.css:sonar-css-plugin:1.1.1.1010@jar'
   bundledPlugin "org.sonarsource.dotnet:sonar-csharp-plugin:${dotnetVersion}@jar"
   bundledPlugin "org.sonarsource.dotnet:sonar-vbnet-plugin:${dotnetVersion}@jar"
