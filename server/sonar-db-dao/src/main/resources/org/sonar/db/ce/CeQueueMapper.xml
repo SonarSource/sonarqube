@@ -319,4 +319,16 @@
     where
       status = 'IN_PROGRESS'
   </update>
+
+  <select id="hasAnyIssueSyncTaskPendingOrInProgress" parameterType="map" resultType="short">
+    select
+    case when exists
+    (
+    select cq.uuid from ce_queue cq where cq.task_type = 'ISSUE_SYNC' and status in ('IN_PROGRESS', 'PENDING')
+    )
+    then 1
+    else 0
+    end
+  </select>
+
 </mapper>

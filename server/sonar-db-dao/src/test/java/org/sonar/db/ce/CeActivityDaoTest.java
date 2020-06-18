@@ -47,6 +47,8 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
+import org.sonar.db.component.BranchDto;
+import org.sonar.db.project.ProjectDto;
 
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;

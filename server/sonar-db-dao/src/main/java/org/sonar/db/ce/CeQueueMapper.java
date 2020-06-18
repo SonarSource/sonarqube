@@ -84,4 +84,7 @@ public interface CeQueueMapper {
     @Param("old") UpdateIf.OldProperties oldProperties);
 
   int deleteByUuid(@Param("uuid") String uuid, @Nullable @Param("deleteIf") DeleteIf deleteIf);
+
+  short hasAnyIssueSyncTaskPendingOrInProgress();
+
 }

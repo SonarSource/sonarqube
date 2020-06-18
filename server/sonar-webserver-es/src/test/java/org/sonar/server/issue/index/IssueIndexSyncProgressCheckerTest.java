@@ -32,6 +32,10 @@ import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeQueueDto.Status;
+import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsIndexSyncInProgressException;
@@ -39,9 +43,13 @@ import org.sonar.server.es.EsIndexSyncInProgressException;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
+import static org.sonar.db.ce.CeActivityDto.Status.SUCCESS;
 
 @RunWith(DataProviderRunner.class)
 public class IssueIndexSyncProgressCheckerTest {
+
+  private System2 system2 = new System2();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -55,6 +63,7 @@ public class IssueIndexSyncProgressCheckerTest {
     assertThat(issueSyncProgress.getTotal()).isZero();
     assertThat(issueSyncProgress.toPercentCompleted()).isEqualTo(100);
     assertThat(issueSyncProgress.isCompleted()).isTrue();
+    assertThat(issueSyncProgress.hasFailures()).isFalse();
   }
 
   @Test
@@ -71,8 +80,26 @@ public class IssueIndexSyncProgressCheckerTest {
   }
 
   @Test
+  public void return_has_failure_true_if_exists_task() {
+    assertThat(underTest.getIssueSyncProgress(db.getSession()).hasFailures()).isFalse();
+
+    ProjectDto projectDto1 = insertProjectWithBranches(false, 0);
+    insertCeActivity("TASK_1", projectDto1, SUCCESS);
+
+    ProjectDto projectDto2 = insertProjectWithBranches(false, 0);
+    insertCeActivity("TASK_2", projectDto2, SUCCESS);
+
+    assertThat(underTest.getIssueSyncProgress(db.getSession()).hasFailures()).isFalse();
+
+    ProjectDto projectDto3 = insertProjectWithBranches(true, 0);
+    insertCeActivity("TASK_3", projectDto3, FAILED);
+
+    assertThat(underTest.getIssueSyncProgress(db.getSession()).hasFailures()).isTrue();
+  }
+
+  @Test
   @UseDataProvider("various_task_numbers")
-  public void return_correct_percent_value_for_branches_to_sync(int toSync, int synced, int expectedPercent, boolean isCompleted) {
+  public void return_correct_percent_value_for_branches_to_sync(int toSync, int synced, int expectedPercent) {
     IntStream.range(0, toSync).forEach(value -> insertProjectWithBranches(true, 0));
     IntStream.range(0, synced).forEach(value -> insertProjectWithBranches(false, 0));
 
@@ -80,28 +107,27 @@ public class IssueIndexSyncProgressCheckerTest {
     assertThat(result.getCompleted()).isEqualTo(synced);
     assertThat(result.getTotal()).isEqualTo(toSync + synced);
     assertThat(result.toPercentCompleted()).isEqualTo(expectedPercent);
-    assertThat(result.isCompleted()).isEqualTo(isCompleted);
   }
 
   @DataProvider
   public static Object[][] various_task_numbers() {
     return new Object[][] {
-      // toSync, synced, expected result, expectedCompleted
-      {0, 0, 100, true},
-      {0, 9, 100, true},
-      {10, 0, 0, false},
-      {99, 1, 1, false},
-      {2, 1, 33, false},
-      {6, 4, 40, false},
-      {7, 7, 50, false},
-      {1, 2, 66, false},
-      {4, 10, 71, false},
-      {1, 99, 99, false},
+      // toSync, synced, expected result
+      {0, 0, 100},
+      {0, 9, 100},
+      {10, 0, 0},
+      {99, 1, 1},
+      {2, 1, 33},
+      {6, 4, 40},
+      {7, 7, 50},
+      {1, 2, 66},
+      {4, 10, 71},
+      {1, 99, 99},
     };
   }
 
   @Test
-  public void return_0_if_all_branches_have_need_issue_sync_set_TRUE() {
+  public void return_0_if_all_branches_have_need_issue_sync_set_true() {
     // only project
     IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(true, 0));
 
@@ -112,6 +138,69 @@ public class IssueIndexSyncProgressCheckerTest {
     assertThat(result.getCompleted()).isZero();
     assertThat(result.getTotal()).isEqualTo(30);
     assertThat(result.toPercentCompleted()).isZero();
+  }
+
+  @Test
+  public void return_is_completed_true_if_no_pending_or_in_progress_tasks() {
+    // only project
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 0));
+
+    // project + additional branch
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 1));
+
+    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
+    assertThat(result.isCompleted()).isTrue();
+  }
+
+  @Test
+  public void return_is_completed_true_if_pending_task_exist_but_all_branches_have_been_synced() {
+    insertCeQueue("TASK_1", Status.PENDING);
+    // only project
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 0));
+
+    // project + additional branch
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 1));
+
+    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
+    assertThat(result.isCompleted()).isTrue();
+  }
+
+  @Test
+  public void return_is_completed_true_if_in_progress_task_exist_but_all_branches_have_been_synced() {
+    insertCeQueue("TASK_1", Status.IN_PROGRESS);
+    // only project
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 0));
+
+    // project + additional branch
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 1));
+
+    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
+    assertThat(result.isCompleted()).isTrue();
+  }
+
+  @Test
+  public void return_is_completed_false_if_pending_task_exist_and_branches_need_issue_sync() {
+    insertCeQueue("TASK_1", Status.PENDING);
+    // only project
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(true, 0));
+
+    // project + additional branch
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 1));
+
+    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
+    assertThat(result.isCompleted()).isFalse();
+  }
+
+  @Test
+  public void return_is_completed_false_if_in_progress_task_exist_and_branches_need_issue_sync() {
+    insertCeQueue("TASK_1", Status.IN_PROGRESS);
+    // only project
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(true, 0));
+
+    // project + additional branch
+    IntStream.range(0, 10).forEach(value -> insertProjectWithBranches(false, 1));
+
+    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
     assertThat(result.isCompleted()).isFalse();
   }
 
@@ -161,7 +250,7 @@ public class IssueIndexSyncProgressCheckerTest {
     List<String> projectKey2 = singletonList(projectDto1.getKey());
     // throws if flag set to TRUE
     assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session,
-        projectKey2))
+      projectKey2))
         .isInstanceOf(EsIndexSyncInProgressException.class)
         .hasFieldOrPropertyWithValue("httpCode", 503)
         .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
@@ -225,5 +314,30 @@ public class IssueIndexSyncProgressCheckerTest {
     IntStream.range(0, numberOfBranches).forEach(
       i -> db.components().insertProjectBranch(projectDto, branchDto -> branchDto.setNeedIssueSync(needIssueSync)));
     return projectDto;
+  }
+
+  private CeQueueDto insertCeQueue(String uuid, CeQueueDto.Status status) {
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setUuid(uuid);
+    queueDto.setStatus(status);
+    queueDto.setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC);
+    db.getDbClient().ceQueueDao().insert(db.getSession(), queueDto);
+    return queueDto;
+  }
+
+  private CeActivityDto insertCeActivity(String uuid, ProjectDto projectDto, CeActivityDto.Status status) {
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setUuid(uuid);
+    queueDto.setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC);
+
+    CeActivityDto dto = new CeActivityDto(queueDto);
+    dto.setComponentUuid(projectDto.getUuid());
+    dto.setMainComponentUuid(projectDto.getUuid());
+    dto.setStatus(status);
+    dto.setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC);
+    dto.setAnalysisUuid(uuid + "_AA");
+    dto.setCreatedAt(system2.now());
+    db.getDbClient().ceActivityDao().insert(db.getSession(), dto);
+    return dto;
   }
 }

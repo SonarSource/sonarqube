@@ -659,6 +659,32 @@ public class CeQueueDaoTest {
     assertThat(peek2.get().getUuid()).isEqualTo(TASK_UUID_2);
   }
 
+  @Test
+  public void hasAnyIssueSyncTaskPendingOrInProgress_PENDING() {
+    assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isFalse();
+
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setStatus(PENDING)
+      .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
+      .setCreatedAt(100_000L));
+
+    assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isTrue();
+  }
+
+  @Test
+  public void hasAnyIssueSyncTaskPendingOrInProgress_IN_PROGRESS() {
+    assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isFalse();
+
+    insertPending(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(MAIN_COMPONENT_UUID_1)
+      .setStatus(IN_PROGRESS)
+      .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
+      .setCreatedAt(100_000L));
+
+    assertThat(underTest.hasAnyIssueSyncTaskPendingOrInProgress(db.getSession())).isTrue();
+  }
+
   private void insertView(String view_uuid) {
     ComponentDto view = new ComponentDto();
     view.setQualifier("VW");

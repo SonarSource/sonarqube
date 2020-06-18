@@ -238,14 +238,26 @@
 
   <select id="selectLastByComponentUuidAndTaskType" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
     select
-      <include refid="columns"/>
+    <include refid="columns"/>
     from ce_activity ca
     left outer join ce_scanner_context csc on
-      ca.uuid = csc.task_uuid
+    ca.uuid = csc.task_uuid
     where
-      ca.component_uuid = #{componentUuid,jdbcType=VARCHAR}
-      and ca.task_type = #{taskType,jdbcType=VARCHAR}
-      and ca.is_last = ${_true}
+    ca.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    and ca.task_type = #{taskType,jdbcType=VARCHAR}
+    and ca.is_last = ${_true}
+  </select>
+
+  <select id="hasAnyFailedIssueSyncTask" parameterType="map" resultType="short">
+    select
+    case when exists
+    (
+    select ca.uuid from ce_activity ca where ca.task_type = 'ISSUE_SYNC' and status = 'FAILED'
+    and exists(select pb.uuid from project_branches pb where ca.component_uuid = pb.uuid and pb.need_issue_sync = ${_true})
+    )
+    then 1
+    else 0
+    end
   </select>
 
   <select id="selectByTaskType" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">

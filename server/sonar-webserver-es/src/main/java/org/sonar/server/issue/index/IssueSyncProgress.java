@@ -25,13 +25,22 @@ public class IssueSyncProgress {
   private final int completed;
   private final int total;
 
-  public IssueSyncProgress(int completed, int total) {
+  private final boolean hasFailures;
+  private final boolean isCompleted;
+
+  public IssueSyncProgress(boolean isCompleted, int completed, int total, boolean hasFailures) {
     this.completed = completed;
+    this.hasFailures = hasFailures;
+    this.isCompleted = isCompleted;
     this.total = total;
   }
 
   public int getCompleted() {
     return completed;
+  }
+
+  public boolean hasFailures() {
+    return hasFailures;
   }
 
   public int getTotal() {
@@ -46,6 +55,6 @@ public class IssueSyncProgress {
   }
 
   public boolean isCompleted() {
-    return completed == total;
+    return completed == total || isCompleted;
   }
 }

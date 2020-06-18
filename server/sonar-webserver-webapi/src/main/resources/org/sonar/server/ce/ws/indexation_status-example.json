@@ -1,4 +1,5 @@
 {
   "isCompleted": true,
-  "percentCompleted": 100
+  "percentCompleted": 100,
+  "hasFailures": false
 }

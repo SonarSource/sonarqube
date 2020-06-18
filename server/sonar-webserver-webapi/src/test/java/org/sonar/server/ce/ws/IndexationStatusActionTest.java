@@ -61,26 +61,28 @@ public class IndexationStatusActionTest {
 
   @Test
   public void verify_example_of_response() {
-    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(0, 0));
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(true,0, 0, false));
     ws.newRequest().execute().assertJson(ws.getDef().responseExampleAsString());
   }
 
   @Test
   public void return_100_if_there_is_no_tasks_left() {
-    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(10, 10));
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(true, 10, 10, false));
     IndexationStatusWsResponse response = ws.newRequest()
       .executeProtobuf(IndexationStatusWsResponse.class);
     assertThat(response.getPercentCompleted()).isEqualTo(100);
     assertThat(response.getIsCompleted()).isTrue();
+    assertThat(response.getHasFailures()).isFalse();
   }
 
   @Test
   public void return_0_if_all_branches_have_need_issue_sync_set_TRUE() {
-    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(0, 10));
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(false,0, 10, false));
 
     IndexationStatusWsResponse response = ws.newRequest()
       .executeProtobuf(IndexationStatusWsResponse.class);
     assertThat(response.getPercentCompleted()).isZero();
     assertThat(response.getIsCompleted()).isFalse();
+    assertThat(response.getHasFailures()).isFalse();
   }
 }

@@ -64,6 +64,7 @@ public class IndexationStatusAction implements CeWsAction {
     return IndexationStatusWsResponse.newBuilder()
       .setIsCompleted(issueSyncProgress.isCompleted())
       .setPercentCompleted(issueSyncProgress.toPercentCompleted())
+      .setHasFailures(issueSyncProgress.hasFailures())
       .build();
   }
 
