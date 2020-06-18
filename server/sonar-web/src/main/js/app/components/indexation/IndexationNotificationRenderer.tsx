@@ -21,68 +21,143 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
+import { Alert, AlertProps } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { BackgroundTaskTypes } from '../../../apps/background-tasks/constants';
-import { IndexationProgression } from './IndexationNotification';
+import { BackgroundTaskTypes, STATUSES } from '../../../apps/background-tasks/constants';
+import { IndexationNotificationType } from '../../../types/indexation';
 
 export interface IndexationNotificationRendererProps {
-  progression: IndexationProgression;
+  type: IndexationNotificationType;
   percentCompleted: number;
+  isSystemAdmin: boolean;
   onDismissCompletedNotification: VoidFunction;
-  displayBackgroundTaskLink?: boolean;
 }
 
-export default function IndexationNotificationRenderer(props: IndexationNotificationRendererProps) {
-  const { progression, percentCompleted, displayBackgroundTaskLink } = props;
+const NOTIFICATION_VARIANTS: { [key in IndexationNotificationType]: AlertProps['variant'] } = {
+  [IndexationNotificationType.InProgress]: 'warning',
+  [IndexationNotificationType.InProgressWithFailure]: 'error',
+  [IndexationNotificationType.Completed]: 'success',
+  [IndexationNotificationType.CompletedWithFailure]: 'error'
+};
 
-  const inProgress = progression === IndexationProgression.InProgress;
+export default function IndexationNotificationRenderer(props: IndexationNotificationRendererProps) {
+  const { type } = props;
 
   return (
     <div className="indexation-notification-wrapper">
       <Alert
         className="indexation-notification-banner"
         display="banner"
-        variant={inProgress ? 'warning' : 'success'}>
+        variant={NOTIFICATION_VARIANTS[type]}>
         <div className="display-flex-center">
-          {inProgress ? (
-            <>
-              <span>{translate('indexation.in_progress')}</span>
-              <i className="spinner spacer-left" />
-              <span className="spacer-left">
-                {translateWithParameters('indexation.in_progress.details', percentCompleted)}
-              </span>
-              {displayBackgroundTaskLink && (
-                <span className="spacer-left">
-                  <FormattedMessage
-                    id="indexation.in_progress.admin_details"
-                    defaultMessage={translate('indexation.in_progress.admin_details')}
-                    values={{
-                      link: (
-                        <Link
-                          to={{
-                            pathname: '/admin/background_tasks',
-                            query: { taskType: BackgroundTaskTypes.IssueSync }
-                          }}>
-                          {translate('background_tasks.page')}
-                        </Link>
-                      )
-                    }}
-                  />
-                </span>
-              )}
-            </>
-          ) : (
-            <>
-              <span>{translate('indexation.completed')}</span>
-              <ButtonLink className="spacer-left" onClick={props.onDismissCompletedNotification}>
-                <strong>{translate('dismiss')}</strong>
-              </ButtonLink>
-            </>
-          )}
+          {type === IndexationNotificationType.Completed && renderCompletedBanner(props)}
+          {type === IndexationNotificationType.CompletedWithFailure &&
+            renderCompletedWithFailureBanner(props)}
+          {type === IndexationNotificationType.InProgress && renderInProgressBanner(props)}
+          {type === IndexationNotificationType.InProgressWithFailure &&
+            renderInProgressWithFailureBanner(props)}
         </div>
       </Alert>
     </div>
+  );
+}
+
+function renderCompletedBanner(props: IndexationNotificationRendererProps) {
+  return (
+    <>
+      <span className="spacer-right">{translate('indexation.completed')}</span>
+      <ClearButton
+        className="button-tiny"
+        title={translate('dismiss')}
+        onClick={props.onDismissCompletedNotification}
+      />
+    </>
+  );
+}
+
+function renderCompletedWithFailureBanner(props: IndexationNotificationRendererProps) {
+  const { isSystemAdmin } = props;
+
+  return (
+    <span className="spacer-right">
+      <FormattedMessage
+        id="indexation.completed_with_error"
+        defaultMessage={translate('indexation.completed_with_error')}
+        values={{
+          link: isSystemAdmin
+            ? renderBackgroundTasksPageLink(true, translate('indexation.completed_with_error.link'))
+            : translate('indexation.completed_with_error.link')
+        }}
+      />
+    </span>
+  );
+}
+
+function renderInProgressBanner(props: IndexationNotificationRendererProps) {
+  const { percentCompleted, isSystemAdmin } = props;
+
+  return (
+    <>
+      <span className="spacer-right">{translate('indexation.in_progress')}</span>
+      <i className="spinner spacer-right" />
+      <span className="spacer-right">
+        {translateWithParameters('indexation.progression', percentCompleted)}
+      </span>
+      {isSystemAdmin && (
+        <span className="spacer-right">
+          <FormattedMessage
+            id="indexation.admin_link"
+            defaultMessage={translate('indexation.admin_link')}
+            values={{
+              link: renderBackgroundTasksPageLink(false, translate('background_tasks.page'))
+            }}
+          />
+        </span>
+      )}
+    </>
+  );
+}
+
+function renderInProgressWithFailureBanner(props: IndexationNotificationRendererProps) {
+  const { percentCompleted, isSystemAdmin } = props;
+
+  return (
+    <>
+      <span className="spacer-right">{translate('indexation.in_progress')}</span>
+      <i className="spinner spacer-right" />
+      <span className="spacer-right">
+        <FormattedMessage
+          id="indexation.progression_with_error"
+          defaultMessage={translateWithParameters(
+            'indexation.progression_with_error',
+            percentCompleted
+          )}
+          values={{
+            link: isSystemAdmin
+              ? renderBackgroundTasksPageLink(
+                  true,
+                  translate('indexation.progression_with_error.link')
+                )
+              : translate('indexation.progression_with_error.link')
+          }}
+        />
+      </span>
+    </>
+  );
+}
+
+function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
+  return (
+    <Link
+      to={{
+        pathname: '/admin/background_tasks',
+        query: {
+          taskType: BackgroundTaskTypes.IssueSync,
+          status: hasError ? STATUSES.FAILED : undefined
+        }
+      }}>
+      {text}
+    </Link>
   );
 }

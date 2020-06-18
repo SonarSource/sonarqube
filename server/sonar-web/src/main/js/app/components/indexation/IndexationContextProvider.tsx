@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+/* eslint-disable react/no-unused-state */
 import * as React from 'react';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { IndexationContextInterface, IndexationStatus } from '../../../types/indexation';
@@ -34,19 +35,13 @@ export class IndexationContextProvider extends React.PureComponent<
 > {
   mounted = false;
 
-  constructor(props: React.PropsWithChildren<Props>) {
-    super(props);
-
-    this.state = {
-      status: { isCompleted: !props.appState.needIssueSync }
-    };
-  }
-
   componentDidMount() {
     this.mounted = true;
 
-    if (!this.state.status.isCompleted) {
+    if (this.props.appState.needIssueSync) {
       IndexationNotificationHelper.startPolling(this.handleNewStatus);
+    } else {
+      this.setState({ status: { isCompleted: true, percentCompleted: 100, hasFailures: false } });
     }
   }
 

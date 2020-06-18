@@ -20,9 +20,17 @@
 
 export interface IndexationStatus {
   isCompleted: boolean;
-  percentCompleted?: number;
+  percentCompleted: number;
+  hasFailures: boolean;
 }
 
 export interface IndexationContextInterface {
   status: IndexationStatus;
+}
+
+export enum IndexationNotificationType {
+  InProgress = 'InProgress',
+  InProgressWithFailure = 'InProgressWithFailure',
+  Completed = 'Completed',
+  CompletedWithFailure = 'CompletedWithFailure'
 }

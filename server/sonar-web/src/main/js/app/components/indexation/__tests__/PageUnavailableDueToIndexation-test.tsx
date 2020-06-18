@@ -47,7 +47,7 @@ function shallowRender(props?: PageUnavailableDueToIndexation['props']) {
   return shallow(
     <PageUnavailableDueToIndexation
       indexationContext={{
-        status: { isCompleted: false }
+        status: { isCompleted: false, percentCompleted: 23, hasFailures: false }
       }}
       pageContext={PageContext.Issues}
       component={{ qualifier: ComponentQualifier.Portfolio, name: 'test-portfolio' }}

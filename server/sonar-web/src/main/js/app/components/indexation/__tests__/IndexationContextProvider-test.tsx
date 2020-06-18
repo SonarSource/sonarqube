@@ -29,26 +29,24 @@ beforeEach(() => jest.clearAllMocks());
 
 jest.mock('../IndexationNotificationHelper');
 
-it('should render correctly & start polling', () => {
+it('should render correctly and start polling if issue sync is needed', () => {
   const wrapper = mountRender();
 
-  expect(wrapper.state().status).toEqual({ isCompleted: false });
-
-  const child = wrapper.find(TestComponent);
-  expect(child.exists()).toBe(true);
-  expect(child.instance().context).toEqual(wrapper.state());
-});
-
-it('should start polling if needed', () => {
-  mountRender();
-
+  expect(wrapper).toMatchSnapshot();
   expect(IndexationNotificationHelper.startPolling).toHaveBeenCalled();
 });
 
-it('should not start polling if not needed', () => {
-  mountRender({ appState: { needIssueSync: false } });
+it('should not start polling if no issue sync is needed', () => {
+  const wrapper = mountRender({ appState: { needIssueSync: false } });
 
   expect(IndexationNotificationHelper.startPolling).not.toHaveBeenCalled();
+
+  const expectedStatus: IndexationStatus = {
+    isCompleted: true,
+    percentCompleted: 100,
+    hasFailures: false
+  };
+  expect(wrapper.state().status).toEqual(expectedStatus);
 });
 
 it('should update the state on new status & stop polling if indexation is complete', () => {
@@ -56,7 +54,11 @@ it('should update the state on new status & stop polling if indexation is comple
 
   const triggerNewStatus = (IndexationNotificationHelper.startPolling as jest.Mock).mock
     .calls[0][0] as (status: IndexationStatus) => void;
-  const newStatus = { isCompleted: true, percentCompleted: 100 };
+  const newStatus: IndexationStatus = {
+    isCompleted: true,
+    percentCompleted: 100,
+    hasFailures: false
+  };
 
   triggerNewStatus(newStatus);
 

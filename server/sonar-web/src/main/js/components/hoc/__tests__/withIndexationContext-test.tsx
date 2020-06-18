@@ -26,7 +26,7 @@ import withIndexationContext, { WithIndexationContextProps } from '../withIndexa
 
 it('should render correctly', () => {
   const indexationContext: IndexationContextInterface = {
-    status: { isCompleted: true, percentCompleted: 87 }
+    status: { isCompleted: true, percentCompleted: 87, hasFailures: false }
   };
 
   const wrapper = mountRender(indexationContext);
@@ -36,7 +36,11 @@ it('should render correctly', () => {
 
 function mountRender(indexationContext?: Partial<IndexationContextInterface>) {
   return mount(
-    <IndexationContext.Provider value={{ status: { isCompleted: false }, ...indexationContext }}>
+    <IndexationContext.Provider
+      value={{
+        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
+        ...indexationContext
+      }}>
       <TestComponentWithIndexationContext />
     </IndexationContext.Provider>
   );

@@ -40,16 +40,21 @@ jest.mock('sonar-ui-common/helpers/storage', () => ({
 
 it('should properly start & stop polling for indexation status', async () => {
   const onNewStatus = jest.fn();
-  const newStatus: IndexationStatus = { isCompleted: true, percentCompleted: 87 };
+  const newStatus: IndexationStatus = {
+    isCompleted: true,
+    percentCompleted: 100,
+    hasFailures: false
+  };
   (getIndexationStatus as jest.Mock).mockResolvedValueOnce(newStatus);
 
   IndexationNotificationHelper.startPolling(onNewStatus);
-
-  jest.runOnlyPendingTimers();
   expect(getIndexationStatus).toHaveBeenCalled();
 
   await new Promise(setImmediate);
   expect(onNewStatus).toHaveBeenCalledWith(newStatus);
+
+  jest.runOnlyPendingTimers();
+  expect(getIndexationStatus).toHaveBeenCalledTimes(2);
 
   (getIndexationStatus as jest.Mock).mockClear();
 
@@ -70,7 +75,7 @@ it('should properly handle the flag to show the completed banner', () => {
   expect(shouldDisplay).toBe(true);
   expect(get).toHaveBeenCalled();
 
-  IndexationNotificationHelper.markCompletedNotificationAsDisplayed();
+  IndexationNotificationHelper.markCompletedNotificationAsDismissed();
 
   expect(remove).toHaveBeenCalled();
 

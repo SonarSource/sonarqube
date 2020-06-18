@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly and start polling if issue sync is needed 1`] = `
+<IndexationContextProvider
+  appState={
+    Object {
+      "needIssueSync": true,
+    }
+  }
+>
+  <TestComponent>
+    <h1>
+      TestComponent
+    </h1>
+  </TestComponent>
+</IndexationContextProvider>
+`;

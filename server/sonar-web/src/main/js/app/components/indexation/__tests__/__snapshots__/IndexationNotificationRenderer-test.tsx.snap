@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly: completed 1`] = `
+exports[`should render correctly for type="Completed" & isSystemAdmin=false 1`] = `
 <div
   className="indexation-notification-wrapper"
 >
@@ -12,79 +12,96 @@ exports[`should render correctly: completed 1`] = `
     <div
       className="display-flex-center"
     >
-      <span>
+      <span
+        className="spacer-right"
+      >
         indexation.completed
       </span>
-      <ButtonLink
-        className="spacer-left"
+      <ClearButton
+        className="button-tiny"
         onClick={[MockFunction]}
-      >
-        <strong>
-          dismiss
-        </strong>
-      </ButtonLink>
+        title="dismiss"
+      />
     </div>
   </Alert>
 </div>
 `;
 
-exports[`should render correctly: in-progress 1`] = `
+exports[`should render correctly for type="Completed" & isSystemAdmin=true 1`] = `
 <div
   className="indexation-notification-wrapper"
 >
   <Alert
     className="indexation-notification-banner"
     display="banner"
-    variant="warning"
+    variant="success"
   >
     <div
       className="display-flex-center"
     >
-      <span>
-        indexation.in_progress
-      </span>
-      <i
-        className="spinner spacer-left"
-      />
       <span
-        className="spacer-left"
+        className="spacer-right"
       >
-        indexation.in_progress.details.25
+        indexation.completed
       </span>
+      <ClearButton
+        className="button-tiny"
+        onClick={[MockFunction]}
+        title="dismiss"
+      />
     </div>
   </Alert>
 </div>
 `;
 
-exports[`should render correctly: in-progress-admin 1`] = `
+exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin=false 1`] = `
 <div
   className="indexation-notification-wrapper"
 >
   <Alert
     className="indexation-notification-banner"
     display="banner"
-    variant="warning"
+    variant="error"
   >
     <div
       className="display-flex-center"
     >
-      <span>
-        indexation.in_progress
-      </span>
-      <i
-        className="spinner spacer-left"
-      />
       <span
-        className="spacer-left"
-      >
-        indexation.in_progress.details.25
-      </span>
-      <span
-        className="spacer-left"
+        className="spacer-right"
       >
         <FormattedMessage
-          defaultMessage="indexation.in_progress.admin_details"
-          id="indexation.in_progress.admin_details"
+          defaultMessage="indexation.completed_with_error"
+          id="indexation.completed_with_error"
+          values={
+            Object {
+              "link": "indexation.completed_with_error.link",
+            }
+          }
+        />
+      </span>
+    </div>
+  </Alert>
+</div>
+`;
+
+exports[`should render correctly for type="CompletedWithFailure" & isSystemAdmin=true 1`] = `
+<div
+  className="indexation-notification-wrapper"
+>
+  <Alert
+    className="indexation-notification-banner"
+    display="banner"
+    variant="error"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="spacer-right"
+      >
+        <FormattedMessage
+          defaultMessage="indexation.completed_with_error"
+          id="indexation.completed_with_error"
           values={
             Object {
               "link": <Link
@@ -94,12 +111,190 @@ exports[`should render correctly: in-progress-admin 1`] = `
                   Object {
                     "pathname": "/admin/background_tasks",
                     "query": Object {
+                      "status": "FAILED",
+                      "taskType": "ISSUE_SYNC",
+                    },
+                  }
+                }
+              >
+                indexation.completed_with_error.link
+              </Link>,
+            }
+          }
+        />
+      </span>
+    </div>
+  </Alert>
+</div>
+`;
+
+exports[`should render correctly for type="InProgress" & isSystemAdmin=false 1`] = `
+<div
+  className="indexation-notification-wrapper"
+>
+  <Alert
+    className="indexation-notification-banner"
+    display="banner"
+    variant="warning"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="spacer-right"
+      >
+        indexation.in_progress
+      </span>
+      <i
+        className="spinner spacer-right"
+      />
+      <span
+        className="spacer-right"
+      >
+        indexation.progression.25
+      </span>
+    </div>
+  </Alert>
+</div>
+`;
+
+exports[`should render correctly for type="InProgress" & isSystemAdmin=true 1`] = `
+<div
+  className="indexation-notification-wrapper"
+>
+  <Alert
+    className="indexation-notification-banner"
+    display="banner"
+    variant="warning"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="spacer-right"
+      >
+        indexation.in_progress
+      </span>
+      <i
+        className="spinner spacer-right"
+      />
+      <span
+        className="spacer-right"
+      >
+        indexation.progression.25
+      </span>
+      <span
+        className="spacer-right"
+      >
+        <FormattedMessage
+          defaultMessage="indexation.admin_link"
+          id="indexation.admin_link"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/admin/background_tasks",
+                    "query": Object {
+                      "status": undefined,
                       "taskType": "ISSUE_SYNC",
                     },
                   }
                 }
               >
                 background_tasks.page
+              </Link>,
+            }
+          }
+        />
+      </span>
+    </div>
+  </Alert>
+</div>
+`;
+
+exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmin=false 1`] = `
+<div
+  className="indexation-notification-wrapper"
+>
+  <Alert
+    className="indexation-notification-banner"
+    display="banner"
+    variant="error"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="spacer-right"
+      >
+        indexation.in_progress
+      </span>
+      <i
+        className="spinner spacer-right"
+      />
+      <span
+        className="spacer-right"
+      >
+        <FormattedMessage
+          defaultMessage="indexation.progression_with_error.25"
+          id="indexation.progression_with_error"
+          values={
+            Object {
+              "link": "indexation.progression_with_error.link",
+            }
+          }
+        />
+      </span>
+    </div>
+  </Alert>
+</div>
+`;
+
+exports[`should render correctly for type="InProgressWithFailure" & isSystemAdmin=true 1`] = `
+<div
+  className="indexation-notification-wrapper"
+>
+  <Alert
+    className="indexation-notification-banner"
+    display="banner"
+    variant="error"
+  >
+    <div
+      className="display-flex-center"
+    >
+      <span
+        className="spacer-right"
+      >
+        indexation.in_progress
+      </span>
+      <i
+        className="spinner spacer-right"
+      />
+      <span
+        className="spacer-right"
+      >
+        <FormattedMessage
+          defaultMessage="indexation.progression_with_error.25"
+          id="indexation.progression_with_error"
+          values={
+            Object {
+              "link": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                  Object {
+                    "pathname": "/admin/background_tasks",
+                    "query": Object {
+                      "status": "FAILED",
+                      "taskType": "ISSUE_SYNC",
+                    },
+                  }
+                }
+              >
+                indexation.progression_with_error.link
               </Link>,
             }
           }

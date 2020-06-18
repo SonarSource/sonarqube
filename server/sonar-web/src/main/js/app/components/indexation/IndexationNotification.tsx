@@ -24,6 +24,7 @@ import withIndexationContext, {
   WithIndexationContextProps
 } from '../../../components/hoc/withIndexationContext';
 import { hasGlobalPermission, isLoggedIn } from '../../../helpers/users';
+import { IndexationNotificationType } from '../../../types/indexation';
 import './IndexationNotification.css';
 import IndexationNotificationHelper from './IndexationNotificationHelper';
 import IndexationNotificationRenderer from './IndexationNotificationRenderer';
@@ -33,22 +34,16 @@ interface Props extends WithIndexationContextProps {
 }
 
 interface State {
-  progression?: IndexationProgression;
-}
-
-export enum IndexationProgression {
-  InProgress,
-  Completed
+  notificationType?: IndexationNotificationType;
 }
 
 export class IndexationNotification extends React.PureComponent<Props, State> {
-  state: State;
+  state: State = {};
   isSystemAdmin = false;
 
   constructor(props: Props) {
     super(props);
 
-    this.state = { progression: undefined };
     this.isSystemAdmin =
       isLoggedIn(this.props.currentUser) && hasGlobalPermission(this.props.currentUser, 'admin');
   }
@@ -57,42 +52,56 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
     this.refreshNotification();
   }
 
-  componentDidUpdate() {
-    this.refreshNotification();
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.indexationContext.status !== this.props.indexationContext.status) {
+      this.refreshNotification();
+    }
   }
 
   refreshNotification() {
-    if (!this.props.indexationContext.status.isCompleted) {
+    const { isCompleted, hasFailures } = this.props.indexationContext.status;
+
+    if (!isCompleted) {
       IndexationNotificationHelper.markInProgressNotificationAsDisplayed();
-      this.setState({ progression: IndexationProgression.InProgress });
+      this.setState({
+        notificationType: hasFailures
+          ? IndexationNotificationType.InProgressWithFailure
+          : IndexationNotificationType.InProgress
+      });
+    } else if (hasFailures) {
+      this.setState({ notificationType: IndexationNotificationType.CompletedWithFailure });
     } else if (IndexationNotificationHelper.shouldDisplayCompletedNotification()) {
-      this.setState({ progression: IndexationProgression.Completed });
+      this.setState({
+        notificationType: IndexationNotificationType.Completed
+      });
+    } else {
+      this.setState({ notificationType: undefined });
     }
   }
 
   handleDismissCompletedNotification = () => {
-    IndexationNotificationHelper.markCompletedNotificationAsDisplayed();
-    this.setState({ progression: undefined });
+    IndexationNotificationHelper.markCompletedNotificationAsDismissed();
+    this.refreshNotification();
   };
 
   render() {
-    const { progression } = this.state;
+    const { notificationType } = this.state;
     const {
       indexationContext: {
         status: { percentCompleted }
       }
     } = this.props;
 
-    if (progression === undefined) {
+    if (notificationType === undefined) {
       return null;
     }
 
     return (
       <IndexationNotificationRenderer
-        progression={progression}
-        percentCompleted={percentCompleted ?? 0}
+        type={notificationType}
+        percentCompleted={percentCompleted}
+        isSystemAdmin={this.isSystemAdmin}
         onDismissCompletedNotification={this.handleDismissCompletedNotification}
-        displayBackgroundTaskLink={this.isSystemAdmin}
       />
     );
   }

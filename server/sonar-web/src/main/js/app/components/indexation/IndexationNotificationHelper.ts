@@ -31,10 +31,10 @@ export default class IndexationNotificationHelper {
   static startPolling(onNewStatus: (status: IndexationStatus) => void) {
     this.stopPolling();
 
-    this.interval = setInterval(async () => {
-      const status = await getIndexationStatus();
-      onNewStatus(status);
-    }, POLLING_INTERVAL_MS);
+    // eslint-disable-next-line promise/catch-or-return
+    this.poll(onNewStatus).finally(() => {
+      this.interval = setInterval(() => this.poll(onNewStatus), POLLING_INTERVAL_MS);
+    });
   }
 
   static stopPolling() {
@@ -43,11 +43,17 @@ export default class IndexationNotificationHelper {
     }
   }
 
+  static async poll(onNewStatus: (status: IndexationStatus) => void) {
+    const status = await getIndexationStatus();
+
+    onNewStatus(status);
+  }
+
   static markInProgressNotificationAsDisplayed() {
     save(LS_INDEXATION_PROGRESS_WAS_DISPLAYED, true.toString());
   }
 
-  static markCompletedNotificationAsDisplayed() {
+  static markCompletedNotificationAsDismissed() {
     remove(LS_INDEXATION_PROGRESS_WAS_DISPLAYED);
   }
 

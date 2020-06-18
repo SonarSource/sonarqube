@@ -29,13 +29,19 @@ it('should render correctly', () => {
   let wrapper = mountRender();
   expect(wrapper.find(TestComponent).exists()).toBe(false);
 
-  wrapper = mountRender({ status: { isCompleted: true } });
+  wrapper = mountRender({
+    status: { isCompleted: true, percentCompleted: 100, hasFailures: false }
+  });
   expect(wrapper.find(TestComponent).exists()).toBe(true);
 });
 
 function mountRender(context?: Partial<IndexationContextInterface>) {
   return mount(
-    <IndexationContext.Provider value={{ status: { isCompleted: false }, ...context }}>
+    <IndexationContext.Provider
+      value={{
+        status: { isCompleted: false, percentCompleted: 23, hasFailures: false },
+        ...context
+      }}>
       <TestComponentWithGuard />
     </IndexationContext.Provider>
   );

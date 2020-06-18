@@ -20,37 +20,46 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import { IndexationProgression } from '../IndexationNotification';
+import { IndexationNotificationType } from '../../../../types/indexation';
 import IndexationNotificationRenderer, {
   IndexationNotificationRendererProps
 } from '../IndexationNotificationRenderer';
 
-it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('in-progress');
-  expect(shallowRender({ displayBackgroundTaskLink: true })).toMatchSnapshot('in-progress-admin');
-  expect(shallowRender({ progression: IndexationProgression.Completed })).toMatchSnapshot(
-    'completed'
-  );
-});
+it.each([
+  [IndexationNotificationType.InProgress, false],
+  [IndexationNotificationType.InProgress, true],
+  [IndexationNotificationType.InProgressWithFailure, false],
+  [IndexationNotificationType.InProgressWithFailure, true],
+  [IndexationNotificationType.Completed, false],
+  [IndexationNotificationType.Completed, true],
+  [IndexationNotificationType.CompletedWithFailure, false],
+  [IndexationNotificationType.CompletedWithFailure, true]
+])(
+  'should render correctly for type=%p & isSystemAdmin=%p',
+  (type: IndexationNotificationType, isSystemAdmin: boolean) => {
+    expect(shallowRender({ type, isSystemAdmin })).toMatchSnapshot();
+  }
+);
 
-it('should propagate the dismiss event', () => {
+it('should propagate the dismiss event from completed notification', () => {
   const onDismissCompletedNotification = jest.fn();
   const wrapper = shallowRender({
-    progression: IndexationProgression.Completed,
+    type: IndexationNotificationType.Completed,
     onDismissCompletedNotification
   });
 
-  click(wrapper.find(ButtonLink));
+  click(wrapper.find(ClearButton));
   expect(onDismissCompletedNotification).toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<IndexationNotificationRendererProps> = {}) {
   return shallow<IndexationNotificationRendererProps>(
     <IndexationNotificationRenderer
-      progression={IndexationProgression.InProgress}
+      type={IndexationNotificationType.InProgress}
       percentCompleted={25}
+      isSystemAdmin={false}
       onDismissCompletedNotification={jest.fn()}
       {...props}
     />
