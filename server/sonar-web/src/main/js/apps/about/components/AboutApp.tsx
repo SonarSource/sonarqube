@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sanitize } from 'dompurify';
 import { Location } from 'history';
 import { keyBy } from 'lodash';
 import * as React from 'react';
@@ -159,8 +160,8 @@ export class AboutApp extends React.PureComponent<Props, State> {
           {customText && (
             <div
               className="about-page-section"
-              // Safe: Defined by instance admin
-              dangerouslySetInnerHTML={{ __html: customText }}
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: sanitize(customText) }}
             />
           )}
 
