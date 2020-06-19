@@ -160,7 +160,7 @@ public class BranchDao implements Dao {
     if (!components.isEmpty()) {
       List<Boolean> result = new LinkedList<>();
       return executeLargeInputs(components, input -> {
-        boolean groupNeedIssueSync = mapper(session).doAnyOfComponentsNeedIssueSync(components) > 0;
+        boolean groupNeedIssueSync = mapper(session).doAnyOfComponentsNeedIssueSync(input) > 0;
         result.add(groupNeedIssueSync);
         return result;
       }).stream()

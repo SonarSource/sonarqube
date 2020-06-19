@@ -56,6 +56,7 @@ import org.sonar.db.source.FileSourceDto;
 import static com.google.common.collect.ImmutableSet.of;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -67,9 +68,12 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.SUBVIEW;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -1884,6 +1888,28 @@ public class ComponentDaoTest {
 
     assertThat(result).extracting(ProjectNclocDistributionDto::getName).containsExactly("foo", "bar");
     assertThat(result).extracting(ProjectNclocDistributionDto::getNcloc).containsExactly(30L, 10L);
+  }
+
+  @Test
+  public void existAnyOfComponentsWithQualifiers() {
+    ComponentDto projectDto = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+
+    ComponentDto view = db.components().insertComponent(newView(db.getDefaultOrganization()));
+    ComponentDto subview = db.components().insertComponent(newSubView(view));
+
+    ComponentDto app = db.components().insertComponent(newApplication(db.getDefaultOrganization()));
+
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), emptyList(), newHashSet(APP, VIEW, SUBVIEW))).isFalse();
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList("not-existing-component"), newHashSet(APP, VIEW, SUBVIEW))).isFalse();
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(projectDto.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isFalse();
+
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(projectDto.getKey()), newHashSet(PROJECT))).isTrue();
+
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(view.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isTrue();
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(subview.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isTrue();
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), singletonList(app.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isTrue();
+
+    assertThat(underTest.existAnyOfComponentsWithQualifiers(db.getSession(), newHashSet(projectDto.getKey(), view.getKey()), newHashSet(APP, VIEW, SUBVIEW))).isTrue();
   }
 
   private boolean privateFlagOfUuid(String uuid) {

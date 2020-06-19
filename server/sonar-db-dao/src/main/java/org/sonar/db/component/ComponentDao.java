@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -393,6 +394,18 @@ public class ComponentDao implements Dao {
 
   public Optional<ComponentDto> selectByAlmIdAndAlmRepositoryId(DbSession dbSession, String almId, String almRepositoryId) {
     return Optional.ofNullable(mapper(dbSession).selectByAlmIdAndAlmRepositoryId(almId, almRepositoryId));
+  }
+
+  public boolean existAnyOfComponentsWithQualifiers(DbSession session, Collection<String> componentKeys, Set<String> qualifiers) {
+    if (!componentKeys.isEmpty()) {
+      List<Boolean> result = new LinkedList<>();
+      return executeLargeInputs(componentKeys, input -> {
+        boolean groupNeedIssueSync = mapper(session).checkIfAnyOfComponentsWithQualifiers(input, qualifiers) > 0;
+        result.add(groupNeedIssueSync);
+        return result;
+      }).stream().anyMatch(b -> b);
+    }
+    return false;
   }
 
 }

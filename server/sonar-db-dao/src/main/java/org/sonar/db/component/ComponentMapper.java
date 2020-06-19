@@ -157,4 +157,6 @@ public interface ComponentMapper {
   List<ProjectNclocDistributionDto> selectPrivateProjectsWithNcloc(@Param("organizationUuid") String organizationUuid);
 
   List<ComponentWithModuleUuidDto> selectEnabledComponentsWithModuleUuidFromProjectKey(String projectKey);
+
+  short checkIfAnyOfComponentsWithQualifiers(@Param("componentKeys") Collection<String> componentKeys, @Param("qualifiers") Set<String> qualifiers);
 }

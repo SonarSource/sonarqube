@@ -40,7 +40,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.EsIndexSyncInProgressException;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
@@ -205,7 +204,7 @@ public class IssueIndexSyncProgressCheckerTest {
   }
 
   @Test
-  public void checkIfAnyComponentsIssueSyncInProgress_throws_exception_if_all_components_have_need_issue_sync_TRUE() {
+  public void checkIfAnyComponentsNeedIssueSync_throws_exception_if_all_components_have_need_issue_sync_TRUE() {
     ProjectDto projectDto1 = insertProjectWithBranches(true, 0);
     ProjectDto projectDto2 = insertProjectWithBranches(true, 0);
     DbSession session = db.getSession();
@@ -217,7 +216,7 @@ public class IssueIndexSyncProgressCheckerTest {
   }
 
   @Test
-  public void checkIfAnyComponentsIssueSyncInProgress_does_not_throw_exception_if_all_components_have_need_issue_sync_FALSE() {
+  public void checkIfAnyComponentsNeedIssueSync_does_not_throw_exception_if_all_components_have_need_issue_sync_FALSE() {
     underTest.checkIfAnyComponentsNeedIssueSync(db.getSession(), Collections.emptyList());
     ProjectDto projectDto1 = insertProjectWithBranches(false, 0);
     ProjectDto projectDto2 = insertProjectWithBranches(false, 0);
@@ -225,7 +224,7 @@ public class IssueIndexSyncProgressCheckerTest {
   }
 
   @Test
-  public void checkIfAnyComponentsIssueSyncInProgress_throws_exception_if_at_least_one_component_has_need_issue_sync_TRUE() {
+  public void checkIfAnyComponentsNeedIssueSync_throws_exception_if_at_least_one_component_has_need_issue_sync_TRUE() {
     ProjectDto projectDto1 = insertProjectWithBranches(false, 0);
     ProjectDto projectDto2 = insertProjectWithBranches(true, 0);
 
@@ -238,19 +237,17 @@ public class IssueIndexSyncProgressCheckerTest {
   }
 
   @Test
-  public void checkIfAnyComponentsIssueSyncInProgress_single_component() {
+  public void checkIfComponentNeedIssueSync_single_component() {
     ProjectDto projectDto1 = insertProjectWithBranches(true, 0);
     ProjectDto projectDto2 = insertProjectWithBranches(false, 0);
 
     DbSession session = db.getSession();
-    List<String> projectKey1 = singletonList(projectDto2.getKey());
     // do nothing when need issue sync false
-    underTest.checkIfAnyComponentsNeedIssueSync(session, projectKey1);
+    underTest.checkIfComponentNeedIssueSync(session, projectDto2.getKey());
 
-    List<String> projectKey2 = singletonList(projectDto1.getKey());
     // throws if flag set to TRUE
-    assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session,
-      projectKey2))
+    assertThatThrownBy(() -> underTest.checkIfComponentNeedIssueSync(session,
+      projectDto1.getKey()))
         .isInstanceOf(EsIndexSyncInProgressException.class)
         .hasFieldOrPropertyWithValue("httpCode", 503)
         .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");

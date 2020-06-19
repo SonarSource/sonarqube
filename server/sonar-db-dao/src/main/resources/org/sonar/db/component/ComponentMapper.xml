@@ -740,14 +740,34 @@
     where
       m.name = 'ncloc'
       and b.key_type = 'BRANCH'
-      and b.branch_type = 'BRANCH'
-      and p.enabled = ${_true}
-      and p.private = ${_true}
-      and p.scope = 'PRJ'
-      and p.qualifier = 'TRK'
-      and p.copy_component_uuid is null
-      and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    and b.branch_type = 'BRANCH'
+    and p.enabled = ${_true}
+    and p.private = ${_true}
+    and p.scope = 'PRJ'
+    and p.qualifier = 'TRK'
+    and p.copy_component_uuid is null
+    and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     group by p.kee, p.name
     order by ncloc desc
+  </select>
+
+  <select id="checkIfAnyOfComponentsWithQualifiers" resultType="short">
+    select
+    case when exists
+    (
+    select c.uuid from components c
+    where c.kee in
+    <foreach collection="componentKeys" open="(" close=")" item="componentKey" separator=",">
+      #{componentKey,jdbcType=VARCHAR}
+    </foreach>
+    and c.scope = 'PRJ'
+    and c.qualifier in
+    <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
+      #{qualifier,jdbcType=VARCHAR}
+    </foreach>
+    )
+    then 1
+    else 0
+    end
   </select>
 </mapper>

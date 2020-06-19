@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,7 +28,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.EsIndexSyncInProgressException;
 
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.SUBVIEW;
+import static org.sonar.api.resources.Qualifiers.VIEW;
+
 public class IssueIndexSyncProgressChecker {
+  private static final ImmutableSet<String> APP_VIEW_OR_SUBVIEW = ImmutableSet.<String>builder().add(VIEW, SUBVIEW, APP).build();
   private final DbClient dbClient;
 
   public IssueIndexSyncProgressChecker(DbClient dbClient) {
@@ -43,7 +49,13 @@ public class IssueIndexSyncProgressChecker {
   }
 
   public void checkIfAnyComponentsNeedIssueSync(DbSession dbSession, List<String> componentKeys) {
-    boolean needIssueSync = dbClient.branchDao().doAnyOfComponentsNeedIssueSync(dbSession, componentKeys);
+    boolean isAppOrViewOrSubview = dbClient.componentDao().existAnyOfComponentsWithQualifiers(dbSession, componentKeys, APP_VIEW_OR_SUBVIEW);
+    boolean needIssueSync;
+    if (isAppOrViewOrSubview) {
+      needIssueSync = dbClient.branchDao().hasAnyBranchWhereNeedIssueSync(dbSession, true);
+    } else {
+      needIssueSync = dbClient.branchDao().doAnyOfComponentsNeedIssueSync(dbSession, componentKeys);
+    }
     if (needIssueSync) {
       throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType(),
           "Results are temporarily unavailable. Indexing of issues is in progress.");
