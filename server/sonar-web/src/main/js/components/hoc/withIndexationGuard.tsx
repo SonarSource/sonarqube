@@ -33,7 +33,7 @@ export default function withIndexationGuard<P>(
       return (
         <IndexationContext.Consumer>
           {context =>
-            context?.status.isCompleted ? (
+            context?.status.isCompleted && !context?.status.hasFailures ? (
               <WrappedComponent {...this.props} />
             ) : (
               <PageUnavailableDueToIndexation pageContext={pageContext} />

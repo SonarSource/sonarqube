@@ -28,7 +28,7 @@ it('should render correctly', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should refresh the page once the indexation is complete', () => {
+it('should not refresh the page once the indexation is complete if there were failures', () => {
   const reload = jest.fn();
   delete window.location;
   (window as any).location = { reload };
@@ -37,14 +37,33 @@ it('should refresh the page once the indexation is complete', () => {
 
   expect(reload).not.toHaveBeenCalled();
 
-  wrapper.setProps({ indexationContext: { status: { isCompleted: true } } });
+  wrapper.setProps({
+    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: true } }
+  });
+  wrapper.update();
+
+  expect(reload).not.toHaveBeenCalled();
+});
+
+it('should refresh the page once the indexation is complete if there were NO failures', () => {
+  const reload = jest.fn();
+  delete window.location;
+  (window as any).location = { reload };
+
+  const wrapper = shallowRender();
+
+  expect(reload).not.toHaveBeenCalled();
+
+  wrapper.setProps({
+    indexationContext: { status: { isCompleted: true, percentCompleted: 100, hasFailures: false } }
+  });
   wrapper.update();
 
   expect(reload).toHaveBeenCalled();
 });
 
 function shallowRender(props?: PageUnavailableDueToIndexation['props']) {
-  return shallow(
+  return shallow<PageUnavailableDueToIndexation>(
     <PageUnavailableDueToIndexation
       indexationContext={{
         status: { isCompleted: false, percentCompleted: 23, hasFailures: false }

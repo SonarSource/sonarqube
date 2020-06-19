@@ -52,10 +52,6 @@ export class IndexationContextProvider extends React.PureComponent<
   }
 
   handleNewStatus = (newIndexationStatus: IndexationStatus) => {
-    if (newIndexationStatus.isCompleted) {
-      IndexationNotificationHelper.stopPolling();
-    }
-
     if (this.mounted) {
       this.setState({ status: newIndexationStatus });
     }

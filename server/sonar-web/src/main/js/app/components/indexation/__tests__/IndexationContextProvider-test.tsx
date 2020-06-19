@@ -49,7 +49,7 @@ it('should not start polling if no issue sync is needed', () => {
   expect(wrapper.state().status).toEqual(expectedStatus);
 });
 
-it('should update the state on new status & stop polling if indexation is complete', () => {
+it('should update the state on new status', () => {
   const wrapper = mountRender();
 
   const triggerNewStatus = (IndexationNotificationHelper.startPolling as jest.Mock).mock
@@ -63,7 +63,6 @@ it('should update the state on new status & stop polling if indexation is comple
   triggerNewStatus(newStatus);
 
   expect(wrapper.state().status).toEqual(newStatus);
-  expect(IndexationNotificationHelper.stopPolling).toHaveBeenCalled();
 });
 
 it('should stop polling when component is destroyed', () => {

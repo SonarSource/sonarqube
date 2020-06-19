@@ -38,7 +38,10 @@ export enum PageContext {
 
 export class PageUnavailableDueToIndexation extends React.PureComponent<Props> {
   componentDidUpdate() {
-    if (this.props.indexationContext?.status.isCompleted) {
+    if (
+      this.props.indexationContext.status.isCompleted &&
+      !this.props.indexationContext.status.hasFailures
+    ) {
       window.location.reload();
     }
   }

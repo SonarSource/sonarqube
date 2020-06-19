@@ -41,7 +41,7 @@ jest.mock('sonar-ui-common/helpers/storage', () => ({
 it('should properly start & stop polling for indexation status', async () => {
   const onNewStatus = jest.fn();
   const newStatus: IndexationStatus = {
-    isCompleted: true,
+    isCompleted: false,
     percentCompleted: 100,
     hasFailures: false
   };

@@ -32,8 +32,10 @@ export default class IndexationNotificationHelper {
     this.stopPolling();
 
     // eslint-disable-next-line promise/catch-or-return
-    this.poll(onNewStatus).finally(() => {
-      this.interval = setInterval(() => this.poll(onNewStatus), POLLING_INTERVAL_MS);
+    this.poll(onNewStatus).then(status => {
+      if (!status.isCompleted) {
+        this.interval = setInterval(() => this.poll(onNewStatus), POLLING_INTERVAL_MS);
+      }
     });
   }
 
@@ -47,6 +49,12 @@ export default class IndexationNotificationHelper {
     const status = await getIndexationStatus();
 
     onNewStatus(status);
+
+    if (status.isCompleted) {
+      this.stopPolling();
+    }
+
+    return status;
   }
 
   static markInProgressNotificationAsDisplayed() {
