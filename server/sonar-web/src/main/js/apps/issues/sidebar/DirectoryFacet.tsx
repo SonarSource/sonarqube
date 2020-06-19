@@ -41,7 +41,7 @@ interface Props {
 
 export default class DirectoryFacet extends React.PureComponent<Props> {
   getFacetItemText = (path: string) => {
-    return collapsePath(path, 15);
+    return path;
   };
 
   getSearchResultKey = (directory: TreeComponentWithPath) => {
