@@ -45,6 +45,7 @@ The `RuleRepository` value can be one of the following:
 * `javasecurity`: if you want to customize the Java Security Engine
 * `phpsecurity`: if you want to customize the PHP Security Engine
 * `roslyn.sonaranalyzer.security.cs`: if you want to customize the C# Security Engine
+* `pythonsecurity`: if you want to customize the Python Security Engine
 
 The `RuleKey` value can be one of the following:
 * For Java
@@ -90,12 +91,14 @@ The `RuleKey` value can be one of the following:
   * [S2091](https://rules.sonarsource.com/csharp/RSPEC-2091): XPath Injection
 * For Python
   * [S3649](https://rules.sonarsource.com/python/RSPEC-3649): SQL Injection
+  * [S5131](https://rules.sonarsource.com/python/RSPEC-5131): XSS
   * [S5146](https://rules.sonarsource.com/python/RSPEC-5146): Open Redirect
   * [S5167](https://rules.sonarsource.com/python/RSPEC-5167): HTTP Response Splitting
   * [S2083](https://rules.sonarsource.com/python/RSPEC-2083): Path Traversal Injection
   * [S2078](https://rules.sonarsource.com/python/RSPEC-2078): LDAP Injection
   * [S5145](https://rules.sonarsource.com/python/RSPEC-5145): Log Injection
   * [S2076](https://rules.sonarsource.com/python/RSPEC-2076): OS Command Injection
+  * [S2631](https://rules.sonarsource.com/python/RSPEC-2631): RegExp Injection
   * [S5144](https://rules.sonarsource.com/python/RSPEC-5144): Server-Side Request Forgery (SSRF)
   * [S2091](https://rules.sonarsource.com/python/RSPEC-2091): XPath Injection
   * [S5135](https://rules.sonarsource.com/python/RSPEC-5135): Object Injection
