@@ -252,12 +252,14 @@ public class JwtSerializerTest {
     Date createdAt = DateUtils.parseDate("2016-01-01");
     // Expired in 10 minutes
     Date expiredAt = addMinutes(new Date(), 10);
+    Date lastRefreshDate = addMinutes(new Date(), -4);
     Claims token = new DefaultClaims()
       .setId("id")
       .setSubject("subject")
       .setIssuer("sonarqube")
       .setIssuedAt(createdAt)
       .setExpiration(expiredAt);
+    token.put("lastRefreshTime", lastRefreshDate.getTime());
     token.put("key", "value");
 
     // Refresh the token with a higher expiration time
@@ -268,6 +270,7 @@ public class JwtSerializerTest {
     assertThat(result.getSubject()).isEqualTo("subject");
     assertThat(result.getIssuer()).isEqualTo("sonarqube");
     assertThat(result.getIssuedAt()).isEqualTo(createdAt);
+    assertThat(((long) result.get("lastRefreshTime"))).isGreaterThanOrEqualTo(now.getTime());
     assertThat(result.get("key")).isEqualTo("value");
     // Expiration date has been changed
     assertThat(result.getExpiration()).isNotEqualTo(expiredAt)

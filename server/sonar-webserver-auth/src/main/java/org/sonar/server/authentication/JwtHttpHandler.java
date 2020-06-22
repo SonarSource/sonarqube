@@ -44,6 +44,7 @@ import static org.apache.commons.lang.time.DateUtils.addSeconds;
 import static org.sonar.process.ProcessProperties.Property.WEB_SESSION_TIMEOUT_IN_MIN;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
+import static org.sonar.server.authentication.JwtSerializer.LAST_REFRESH_TIME_PARAM;
 
 @ServerSide
 public class JwtHttpHandler {
@@ -51,7 +52,6 @@ public class JwtHttpHandler {
   private static final int MAX_SESSION_TIMEOUT_IN_MINUTES = 3 * 30 * 24 * 60;
 
   private static final String JWT_COOKIE = "JWT-SESSION";
-  private static final String LAST_REFRESH_TIME_PARAM = "lastRefreshTime";
 
   private static final String CSRF_JWT_PARAM = "xsrfToken";
 

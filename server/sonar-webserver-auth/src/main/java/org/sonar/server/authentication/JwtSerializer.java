@@ -22,7 +22,6 @@ package org.sonar.server.authentication;
 import com.google.common.annotations.VisibleForTesting;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.SignatureException;
@@ -54,6 +53,8 @@ public class JwtSerializer implements Startable {
 
   private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
+  static final String LAST_REFRESH_TIME_PARAM = "lastRefreshTime";
+
   private final Configuration config;
   private final System2 system2;
 
@@ -79,16 +80,15 @@ public class JwtSerializer implements Startable {
 
   String encode(JwtSession jwtSession) {
     checkIsStarted();
-    JwtBuilder jwtBuilder = Jwts.builder()
+    return Jwts.builder()
+      .addClaims(jwtSession.getProperties())
+      .claim(LAST_REFRESH_TIME_PARAM, system2.now())
       .setId(jwtSession.getSessionTokenUuid())
       .setSubject(jwtSession.getUserLogin())
       .setIssuedAt(new Date(system2.now()))
       .setExpiration(new Date(jwtSession.getExpirationTime()))
-      .signWith(secretKey, SIGNATURE_ALGORITHM);
-    for (Map.Entry<String, Object> entry : jwtSession.getProperties().entrySet()) {
-      jwtBuilder.claim(entry.getKey(), entry.getValue());
-    }
-    return jwtBuilder.compact();
+      .signWith(secretKey, SIGNATURE_ALGORITHM)
+      .compact();
   }
 
   Optional<Claims> decode(String token) {
@@ -118,13 +118,12 @@ public class JwtSerializer implements Startable {
 
   String refresh(Claims token, long expirationTime) {
     checkIsStarted();
-    JwtBuilder jwtBuilder = Jwts.builder();
-    for (Map.Entry<String, Object> entry : token.entrySet()) {
-      jwtBuilder.claim(entry.getKey(), entry.getValue());
-    }
-    jwtBuilder.setExpiration(new Date(expirationTime))
-      .signWith(secretKey, SIGNATURE_ALGORITHM);
-    return jwtBuilder.compact();
+    return Jwts.builder()
+      .setClaims(token)
+      .claim(LAST_REFRESH_TIME_PARAM, system2.now())
+      .setExpiration(new Date(expirationTime))
+      .signWith(secretKey, SIGNATURE_ALGORITHM)
+      .compact();
   }
 
   private static SecretKey generateSecretKey() {
