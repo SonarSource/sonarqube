@@ -202,7 +202,7 @@ subprojects {
       }
       dependency 'commons-codec:commons-codec:1.14'
       dependency 'commons-dbutils:commons-dbutils:1.7'
-      dependency 'commons-io:commons-io:2.6'
+      dependency 'commons-io:commons-io:2.7'
       dependency 'commons-lang:commons-lang:2.6'
       dependencySet(group: 'com.fasterxml.jackson.core', version: '2.10.3') {
         entry 'jackson-core'
