@@ -204,10 +204,15 @@ subprojects {
       dependency 'commons-dbutils:commons-dbutils:1.7'
       dependency 'commons-io:commons-io:2.7'
       dependency 'commons-lang:commons-lang:2.6'
-      dependencySet(group: 'com.fasterxml.jackson.core', version: '2.10.3') {
-        entry 'jackson-core'
+      dependencySet(group: 'com.fasterxml.jackson.core', version: '2.10.4') {
         entry 'jackson-annotations'
+        entry 'jackson-core'
         entry 'jackson-databind'
+      }
+      dependencySet(group: 'com.fasterxml.jackson.dataformat', version: '2.10.4') {
+        entry 'jackson-dataformat-cbor'
+        entry 'jackson-dataformat-smile'
+        entry 'jackson-dataformat-yaml'
       }
       dependency 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
       dependencySet(group: 'com.github.scribejava', version: '6.9.0') {
