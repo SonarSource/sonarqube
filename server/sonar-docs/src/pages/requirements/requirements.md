@@ -90,10 +90,10 @@ GitLab.com is also supported.
 ### Linux
 If you're running on Linux, you must ensure that:
 
-* `vm.max_map_count` is greater or equals to 262144
-* `fs.file-max` is greater or equals to 65536
-* the user running SonarQube can open at least 65536 file descriptors
-* the user running SonarQube can open at least 4096 threads
+* `vm.max_map_count` is greater than or equal to 524288
+* `fs.file-max` is greater than or equal to 131072
+* the user running SonarQube can open at least 131072 file descriptors
+* the user running SonarQube can open at least 8192 threads
 
 You can see the values with the following commands:
 ```
@@ -105,18 +105,18 @@ ulimit -u
 
 You can set them dynamically for the current session by running  the following commands as `root`:
 ```
-sysctl -w vm.max_map_count=262144
-sysctl -w fs.file-max=65536
-ulimit -n 65536
-ulimit -u 4096
+sysctl -w vm.max_map_count=524288
+sysctl -w fs.file-max=131072
+ulimit -n 131072
+ulimit -u 8192
 ```
 
 To set these values more permanently, you must update either _/etc/sysctl.d/99-sonarqube.conf_ (or _/etc/sysctl.conf_ as you wish) to reflect these values.
 
-If the user running SonarQube (`sonarqube` in this example) does not have the permission to have at least 65536 open descriptors, you must insert this line in _/etc/security/limits.d/99-sonarqube.conf_ (or _/etc/security/limits.conf_ as you wish):
+If the user running SonarQube (`sonarqube` in this example) does not have the permission to have at least 131072 open descriptors, you must insert this line in _/etc/security/limits.d/99-sonarqube.conf_ (or _/etc/security/limits.conf_ as you wish):
 ```
-sonarqube   -   nofile   65536
-sonarqube   -   nproc    4096
+sonarqube   -   nofile   131072
+sonarqube   -   nproc    8192
 ```
 
 You can get more detail in the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/system-config.html).
@@ -125,8 +125,8 @@ If you are using `systemd` to start SonarQube, you must specify those limits ins
 ```
 [Service]
 ...
-LimitNOFILE=65536
-LimitNPROC=4096
+LimitNOFILE=131072
+LimitNPROC=8192
 ...
 ```
 

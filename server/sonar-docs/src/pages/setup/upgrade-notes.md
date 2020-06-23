@@ -8,6 +8,15 @@ The format of several IDs exposed in web services changed and their use is depre
 
 A related change is introduced in a plugin API method. See [SONAR-13420](https://jira.sonarsource.com/browse/SONAR-13420).
 
+**System settings recommendations changed**
+
+In previous versions, the recommended limits regarding threads, file descriptors, and vm.max_map_count were taken from Elasticsearch dependencies. This release reaches these limits occasionally, so we recommend increasing the following settings of your OS while upgrading:
+
+* vm.max_map_count is greater than or equal to 524288
+* fs.file-max is greater than or equal to 131072
+* the user running SonarQube can open at least 131072 file descriptors
+* the user running SonarQube can open at least 8192 threads
+
 ## Release 8.3 Upgrade Notes  
 **Security Hotspots in the built-in Quality Gate**   
 We've added a new condition to the built-in "Sonar way" Quality Gate to make sure all Security Hotspots on New Code are reviewed. The Quality Gate fails if the percentage of new Hotspots reviewed is less than 100%. ([MMF-1907](https://jira.sonarsource.com/browse/MMF-1907)).
