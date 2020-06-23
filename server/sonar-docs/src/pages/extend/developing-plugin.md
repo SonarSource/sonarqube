@@ -425,6 +425,9 @@ The rules are:
 ## API Changes
 
 ### Release 8.4
+![](/images/check.svg) Added
+* `org.sonar.api.batch.scm.ScmProvider#forkDate`
+
 ![](/images/exclamation.svg) Deprecated
 * `org.sonar.api.rules.Rule#getId()` is deprecated and will always throw UnsupportedOperationException.
 
