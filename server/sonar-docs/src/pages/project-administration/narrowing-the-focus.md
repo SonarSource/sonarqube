@@ -3,9 +3,9 @@ title: Narrowing the Focus
 url: /project-administration/narrowing-the-focus/
 ---
 
-If {instance}'s results aren't relevant, no one will want to use it. That's why precisely configuring what to analyze for each project is a very important step. Doing so allows you to remove noise, like the issues and duplications marked on generated code, or the issues from rules that aren't relevant for certain types of objects.
+If SonarQube's results aren't relevant, no one will want to use it. That's why precisely configuring what to analyze for each project is a very important step. Doing so allows you to remove noise, like the issues and duplications marked on generated code, or the issues from rules that aren't relevant for certain types of objects.
 
-{instance} gives you several options for configuring exactly what will be analyzed. You can
+SonarQube gives you several options for configuring exactly what will be analyzed. You can
 
 * completely ignore some files or directories
 * exclude files/directories from Issues detection (specific rules or all of them) but analyze all other aspects
@@ -38,7 +38,7 @@ We recommend that you exclude generated code, source code from libraries, etc. T
 Set the [sonar.sources](/analysis/analysis-parameters/) property to limit the scope of the analysis to certain directories.
 
 ### File Suffixes
-Most language plugins offer a way to restrict the scope of analysis to files matching a set of extensions. Go to **Administration > General Settings > [Language]** to set the File suffixes property.
+Most language plugins offer a way to restrict the scope of analysis to files matching a set of extensions. Go to **Project Settings > General Settings > [Language]** to set the File suffixes property.
 
 ### Choosing Files
 Your first line of defence having a well-defined set of files in your analysis is your `sonar.sources` value. For projects built and analyzed with Maven, Gradle, or MSBuild, this value is defined automatically with a generally thorough, yet sane value. For other projects, you want to make sure `sonar.sources` is set to your project _sub-directory_ that actually contains your source files. Setting it to `.` will cast a wider net than most people intend.
@@ -49,7 +49,7 @@ Once you've got all the files _in_ your analysis that you want, it's time to loo
 
 ![Use exclusions to keep libraries and generated files out of analysis](/images/exclusions.jpg)
 
-To use exclusions to analyze everything but the specified files, go to **Administration > General Settings > Analysis Scope > Files**.
+To use exclusions to analyze everything but the specified files, go to **Project Settings > General Settings > Analysis Scope > Files**.
 
 * **Source File Exclusions** (`sonar.exclusions`) - to exclude source code files
 * **Test File Exclusions** (`sonar.test.exclusions`) - to exclude test files
@@ -58,7 +58,7 @@ The vast majority of needs are met simply by setting `sonar.sources` carefully. 
 
 ![Use inclusions in the rare case that you want to analyze only a subset of files](/images/inclusions.jpg)
 
-To use exclusions to analyze _only_ the specified subset(s) of files in `sonar.sources`, go to **Administration > General Settings > Analysis Scope > Files**.
+To use exclusions to analyze _only_ the specified subset(s) of files in `sonar.sources`, go to **Project Settings > General Settings > Analysis Scope > Files**.
 
 * **Source File Inclusions** (`sonar.inclusions`)
 * **Test File Inclusions** (`sonar.test.inclusions`)
@@ -68,7 +68,7 @@ You can set these properties at both the project and global levels.
 See the Patterns section below for more details on the syntax to use in these inputs.
 
 ## Ignore Issues
-You can have {instance} ignore issues on certain components and against certain coding rules. Go to **Administration > General Settings > Analysis Scope > Issues**.
+You can have SonarQube ignore issues on certain components and against certain coding rules. Go to **Project Settings > General Settings > Analysis Scope > Issues**.
 
 Note that the properties below can only be set through the web interface because they are multi-valued.
 
@@ -127,10 +127,10 @@ PATH #2 = `bank/bankcard/**/*`
 
 You can prevent some files from being checked for duplications.
 
-To do so, go to [Administration > General Settings > Analysis Scope > Duplications](/#sonarqube-admin#/admin/settings) and set the *Duplication Exclusions* property. See the Patterns section for more details on the syntax.
+To do so, go to **Project Settings > General Settings > Analysis Scope > Duplications** and set the *Duplication Exclusions* property. See the Patterns section for more details on the syntax.
 
 ## Ignore Code Coverage
 
 You can prevent some files from being taken into account for code coverage by unit tests.
 
-To do so, go to **Administration > General Settings > Analysis Scope > Code Coverage** and set the *Coverage Exclusions* property. See the Patterns section for more details on the syntax.
+To do so, go to **Project Settings > General Settings > Analysis Scope > Code Coverage** and set the *Coverage Exclusions* property. See the Patterns section for more details on the syntax.
