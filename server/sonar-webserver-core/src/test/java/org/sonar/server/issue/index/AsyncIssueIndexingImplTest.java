@@ -19,7 +19,9 @@
  */
 package org.sonar.server.issue.index;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -38,18 +40,22 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityDto.Status;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 import static org.sonar.db.component.BranchType.BRANCH;
+import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 
 public class AsyncIssueIndexingImplTest {
@@ -128,11 +134,15 @@ public class AsyncIssueIndexingImplTest {
 
     assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
 
+    assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(Arrays.asList("uuid_2")))).hasSize(0);
+
     assertThat(logTester.logs(LoggerLevel.INFO))
       .contains(
         "1 pending indexation task found to be deleted...",
         "1 completed indexation task found to be deleted...",
-        "Indexation task deletion complete.");
+        "Indexation task deletion complete.",
+        "Deleting tasks characteristics...",
+        "Tasks characteristics deletion complete.");
   }
 
   @Test
@@ -172,6 +182,44 @@ public class AsyncIssueIndexingImplTest {
 
     assertThat(logTester.logs(LoggerLevel.INFO))
       .contains("2 projects found in need of issue sync.");
+  }
+
+  @Test
+  public void characteristics_are_defined() {
+    BranchDto dto = new BranchDto()
+      .setBranchType(BRANCH)
+      .setKey("branch_1")
+      .setUuid("branch_uuid1")
+      .setProjectUuid("project_uuid1");
+    dbClient.branchDao().insert(dbTester.getSession(), dto);
+    dbTester.commit();
+    insertSnapshot("analysis_1", "project_uuid1", 1);
+
+    BranchDto dto2 = new BranchDto()
+      .setBranchType(PULL_REQUEST)
+      .setKey("pr_1")
+      .setUuid("pr_uuid_1")
+      .setProjectUuid("project_uuid2");
+    dbClient.branchDao().insert(dbTester.getSession(), dto2);
+    dbTester.commit();
+    insertSnapshot("analysis_2", "project_uuid2", 2);
+
+    underTest.triggerOnIndexCreation();
+
+    ArgumentCaptor<Collection<CeTaskSubmit>> captor = ArgumentCaptor.forClass(Collection.class);
+    verify(ceQueue, times(1)).massSubmit(captor.capture());
+    List<Collection<CeTaskSubmit>> captures = captor.getAllValues();
+    assertThat(captures).hasSize(1);
+    Collection<CeTaskSubmit> tasks = captures.get(0);
+    assertThat(tasks).hasSize(2);
+
+    assertThat(tasks)
+      .extracting(p -> p.getCharacteristics().get(BRANCH_TYPE_KEY),
+        p -> p.getCharacteristics().get(CeTaskCharacteristicDto.BRANCH_KEY),
+        p -> p.getCharacteristics().get(CeTaskCharacteristicDto.PULL_REQUEST))
+      .containsExactlyInAnyOrder(
+        tuple("BRANCH", "branch_1", null),
+        tuple("PULL_REQUEST", null, "pr_1"));
   }
 
   private SnapshotDto insertSnapshot(String analysisUuid, String projectUuid, long createdAt) {

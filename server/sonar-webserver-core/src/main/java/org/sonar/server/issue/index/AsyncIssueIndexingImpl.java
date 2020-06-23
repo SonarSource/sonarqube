@@ -21,11 +21,13 @@ package org.sonar.server.issue.index;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -36,9 +38,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.SnapshotDto;
 
-import static java.util.Collections.emptyMap;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
+import static org.sonar.db.ce.CeTaskCharacteristicDto.PULL_REQUEST;
 import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 
 @ServerSide
@@ -134,12 +139,22 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
     dbClient.ceActivityDao().deleteByUuids(dbSession, ceUuids);
     dbSession.commit();
     LOG.info("Indexation task deletion complete.");
+
+    LOG.info("Deleting tasks characteristics...");
+    Set<String> tasksUuid = Stream.concat(uuids.stream(), ceUuids.stream()).collect(Collectors.toSet());
+    dbClient.ceTaskCharacteristicsDao().deleteByTaskUuids(dbSession, tasksUuid);
+    dbSession.commit();
+    LOG.info("Tasks characteristics deletion complete.");
   }
 
   private CeTaskSubmit buildTaskSubmit(BranchDto branch) {
+    Map<String, String> characteristics = new HashMap<>();
+    characteristics.put(branch.getBranchType() == BranchType.BRANCH ? BRANCH_KEY : PULL_REQUEST, branch.getKey());
+    characteristics.put(BRANCH_TYPE_KEY, branch.getBranchType().name());
+
     return ceQueue.prepareSubmit()
       .setType(BRANCH_ISSUE_SYNC)
       .setComponent(new CeTaskSubmit.Component(branch.getUuid(), branch.getProjectUuid()))
-      .setCharacteristics(emptyMap()).build();
+      .setCharacteristics(characteristics).build();
   }
 }
