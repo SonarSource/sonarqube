@@ -157,7 +157,7 @@ public class JwtHttpHandlerTest {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 0);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be strictly positive. Got 0");
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 0");
 
     new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
   }
@@ -167,7 +167,17 @@ public class JwtHttpHandlerTest {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", -10);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be strictly positive. Got -10");
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got -10");
+
+    new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
+  }
+
+  @Test
+  public void session_timeout_property_cannot_be_set_to_five_minutes() {
+    settings.setProperty("sonar.web.sessionTimeoutInMinutes", 5);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 5 minutes");
 
     new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
   }
@@ -177,7 +187,7 @@ public class JwtHttpHandlerTest {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 4 * 30 * 24 * 60);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must not be greater than 3 months (129600 minutes). Got 172800 minutes");
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be higher than 5 minutes and must not be greater than 3 months. Got 172800 minutes");
 
     new JwtHttpHandler(system2, dbClient, settings.asConfig(), jwtSerializer, jwtCsrfVerifier);
   }

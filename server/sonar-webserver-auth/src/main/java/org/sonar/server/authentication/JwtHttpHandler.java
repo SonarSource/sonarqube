@@ -215,10 +215,9 @@ public class JwtHttpHandler {
 
   private static int getSessionTimeoutInSeconds(Configuration config) {
     int minutes = config.getInt(WEB_SESSION_TIMEOUT_IN_MIN.getKey()).orElse(SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES);
-    checkArgument(minutes > 0, "Property %s must be strictly positive. Got %s", WEB_SESSION_TIMEOUT_IN_MIN.getKey(), minutes);
-    checkArgument(minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES,
-      "Property %s must not be greater than 3 months (%s minutes). Got %s minutes", WEB_SESSION_TIMEOUT_IN_MIN.getKey(),
-      MAX_SESSION_TIMEOUT_IN_MINUTES, minutes);
+    checkArgument(minutes > SESSION_REFRESH_IN_SECONDS / 60 && minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES,
+      "Property %s must be higher than 5 minutes and must not be greater than 3 months. Got %s minutes", WEB_SESSION_TIMEOUT_IN_MIN.getKey(),
+      minutes);
     return minutes * 60;
   }
 
