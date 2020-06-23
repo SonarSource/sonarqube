@@ -1,0 +1,161 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <li>
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
+      id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
+      values={
+        Object {
+          "link": <a
+            href="http://bbs.enterprise.com/plugins/servlet/webhooks/projects/PROJECT_KEY/repos/repo-slug/create"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.link
+          </a>,
+        }
+      }
+    />
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <LabelActionPair
+          translationKey="onboarding.tutorial.with.jenkins.webhook.step1.name"
+        />
+      </li>
+      <li
+        className="abs-width-600"
+      >
+        <p>
+          <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url"
+          />
+        </p>
+        <CodeSnippet
+          isOneLine={true}
+          snippet="***JENKINS_URL***/bitbucket-scmsource-hook/notify?server_url=http://bbs.enterprise.com"
+        />
+        <Alert
+          variant="info"
+        >
+          onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url.warning
+        </Alert>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "events",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2"
+    />
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <LabelActionPair
+          translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.repo"
+        />
+      </li>
+      <li>
+        <LabelActionPair
+          translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.pr"
+        />
+      </li>
+    </ul>
+  </li>
+  <li>
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "create",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+    />
+  </li>
+</Fragment>
+`;
+
+exports[`should render correctly: with no alm binding 1`] = `
+<Fragment>
+  <li>
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
+      id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
+      values={
+        Object {
+          "link": "onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.link",
+        }
+      }
+    />
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <LabelActionPair
+          translationKey="onboarding.tutorial.with.jenkins.webhook.step1.name"
+        />
+      </li>
+      <li
+        className="abs-width-600"
+      >
+        <p>
+          <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url"
+          />
+        </p>
+        <CodeSnippet
+          isOneLine={true}
+          snippet="***JENKINS_URL***/bitbucket-scmsource-hook/notify?server_url=***BITBUCKET_URL***"
+        />
+        <Alert
+          variant="info"
+        >
+          onboarding.tutorial.with.jenkins.webhook.bitbucket.step1.url.warning
+        </Alert>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "events",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2"
+    />
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <LabelActionPair
+          translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.repo"
+        />
+      </li>
+      <li>
+        <LabelActionPair
+          translationKey="onboarding.tutorial.with.jenkins.webhook.bitbucket.step2.pr"
+        />
+      </li>
+    </ul>
+  </li>
+  <li>
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "create",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+    />
+  </li>
+</Fragment>
+`;

@@ -20,22 +20,33 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { ProjectBitbucketBindingResponse } from '../../../types/alm-settings';
+import {
+  isGithubBindingDefinition,
+  isProjectBitbucketBindingResponse,
+  isProjectGitHubBindingResponse
+} from '../../../helpers/alm-settings';
+import {
+  AlmBindingDefinition,
+  ProjectBitbucketBindingResponse,
+  ProjectGitHubBindingResponse
+} from '../../../types/alm-settings';
 import LabelActionPair from '../components/LabelActionPair';
 import LabelValuePair from '../components/LabelValuePair';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
+import { buildGithubLink } from '../utils';
 
 export interface MultiBranchPipelineStepProps {
+  almBinding?: AlmBindingDefinition;
   finished: boolean;
   onDone: () => void;
   onOpen: () => void;
   open: boolean;
-  projectBinding: ProjectBitbucketBindingResponse;
+  projectBinding: ProjectBitbucketBindingResponse | ProjectGitHubBindingResponse;
 }
 
 export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepProps) {
-  const { finished, open, projectBinding } = props;
+  const { almBinding, finished, open, projectBinding } = props;
   return (
     <Step
       finished={finished}
@@ -56,27 +67,48 @@ export default function MultiBranchPipelineStep(props: MultiBranchPipelineStepPr
             <li>
               <SentenceWithHighlights
                 highlightKeys={['tab']}
-                translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2"
+                translationKey={`onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.${projectBinding.alm}`}
               />
               <ul className="list-styled">
-                <li>
-                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.server" />
-                </li>
-                <li>
-                  <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.creds" />
-                </li>
-                <li>
-                  <LabelValuePair
-                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.owner"
-                    value={projectBinding.repository}
-                  />
-                </li>
-                <li>
-                  <LabelValuePair
-                    translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.repo"
-                    value={projectBinding.slug}
-                  />
-                </li>
+                {isProjectBitbucketBindingResponse(projectBinding) && (
+                  <>
+                    <li>
+                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.server" />
+                    </li>
+                    <li>
+                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.creds" />
+                    </li>
+                    <li>
+                      <LabelValuePair
+                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.owner"
+                        value={projectBinding.repository}
+                      />
+                    </li>
+                    <li>
+                      <LabelValuePair
+                        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo"
+                        value={projectBinding.slug}
+                      />
+                    </li>
+                  </>
+                )}
+                {isProjectGitHubBindingResponse(projectBinding) && (
+                  <>
+                    <li>
+                      <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.creds" />
+                    </li>
+                    <li>
+                      {isGithubBindingDefinition(almBinding) ? (
+                        <LabelValuePair
+                          translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url"
+                          value={buildGithubLink(almBinding, projectBinding)}
+                        />
+                      ) : (
+                        <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url" />
+                      )}
+                    </li>
+                  </>
+                )}
                 <li>
                   <LabelActionPair translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviour" />
                 </li>

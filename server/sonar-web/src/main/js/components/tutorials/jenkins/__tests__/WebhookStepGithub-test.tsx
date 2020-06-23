@@ -20,25 +20,22 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { AlmKeys } from '../../../../types/alm-settings';
-import PreRequisitesStep, { PreRequisitesStepProps } from '../PreRequisitesStep';
-import { renderStepContent } from '../test-utils';
+import {
+  mockGithubBindingDefinition,
+  mockProjectGithubBindingResponse
+} from '../../../../helpers/mocks/alm-settings';
+import WebhookStepGithub, { WebhookStepGithubProps } from '../WebhookStepGithub';
 
 it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot('Step wrapper');
-  expect(renderStepContent(wrapper)).toMatchSnapshot('content');
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ almBinding: undefined })).toMatchSnapshot('with no alm binding');
 });
 
-function shallowRender(props: Partial<PreRequisitesStepProps> = {}) {
-  return shallow<PreRequisitesStepProps>(
-    <PreRequisitesStep
-      alm={AlmKeys.Bitbucket}
-      onChangeSkipNextTime={jest.fn()}
-      onDone={jest.fn()}
-      onOpen={jest.fn()}
-      open={false}
-      skipNextTime={true}
+function shallowRender(props: Partial<WebhookStepGithubProps> = {}) {
+  return shallow<WebhookStepGithubProps>(
+    <WebhookStepGithub
+      almBinding={mockGithubBindingDefinition()}
+      projectBinding={mockProjectGithubBindingResponse()}
       {...props}
     />
   );

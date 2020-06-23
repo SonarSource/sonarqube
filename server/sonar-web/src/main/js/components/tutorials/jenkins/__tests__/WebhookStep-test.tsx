@@ -21,30 +21,46 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import {
+  mockAzureBindingDefinition,
   mockBitbucketBindingDefinition,
-  mockProjectBitbucketBindingGet
+  mockGithubBindingDefinition,
+  mockGitlabBindingDefinition,
+  mockProjectAlmBindingResponse,
+  mockProjectBitbucketBindingResponse,
+  mockProjectGithubBindingResponse
 } from '../../../../helpers/mocks/alm-settings';
-import BitbucketWebhookStep, { BitbucketWebhookStepProps } from '../BitbucketWebhookStep';
+import { AlmKeys } from '../../../../types/alm-settings';
 import { renderStepContent } from '../test-utils';
+import WebhookStep, { WebhookStepProps } from '../WebhookStep';
 
-it('should render correctly', () => {
-  const wrapper = shallowRender();
-  expect(wrapper).toMatchSnapshot('Step wrapper');
+it.each([
+  [
+    AlmKeys.Azure,
+    mockAzureBindingDefinition(),
+    mockProjectAlmBindingResponse({ alm: AlmKeys.Azure })
+  ],
+  [AlmKeys.Bitbucket, mockBitbucketBindingDefinition(), mockProjectBitbucketBindingResponse()],
+  [AlmKeys.GitHub, mockGithubBindingDefinition(), mockProjectGithubBindingResponse()],
+  [
+    AlmKeys.GitLab,
+    mockGitlabBindingDefinition(),
+    mockProjectAlmBindingResponse({ alm: AlmKeys.GitLab })
+  ]
+])('it should render correctly for %s', (_, almBinding, projectBinding) => {
+  const wrapper = shallowRender({ almBinding, projectBinding });
+  expect(wrapper).toMatchSnapshot('wrapper');
   expect(renderStepContent(wrapper)).toMatchSnapshot('content');
-  expect(renderStepContent(wrapper.setProps({ almBinding: undefined }))).toMatchSnapshot(
-    'no alm binding'
-  );
 });
 
-function shallowRender(props: Partial<BitbucketWebhookStepProps> = {}) {
-  return shallow<BitbucketWebhookStepProps>(
-    <BitbucketWebhookStep
+function shallowRender(props: Partial<WebhookStepProps> = {}) {
+  return shallow<WebhookStepProps>(
+    <WebhookStep
       almBinding={mockBitbucketBindingDefinition()}
       finished={false}
       onDone={jest.fn()}
       onOpen={jest.fn()}
-      open={true}
-      projectBinding={mockProjectBitbucketBindingGet()}
+      open={false}
+      projectBinding={mockProjectBitbucketBindingResponse()}
       {...props}
     />
   );

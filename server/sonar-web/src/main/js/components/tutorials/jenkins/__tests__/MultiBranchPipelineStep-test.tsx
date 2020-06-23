@@ -20,14 +20,20 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { mockProjectBitbucketBindingGet } from '../../../../helpers/mocks/alm-settings';
+import {
+  mockProjectBitbucketBindingResponse,
+  mockProjectGithubBindingResponse
+} from '../../../../helpers/mocks/alm-settings';
 import MultiBranchPipelineStep, { MultiBranchPipelineStepProps } from '../MultiBranchPipelineStep';
 import { renderStepContent } from '../test-utils';
 
 it('should render correctly', () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('Step wrapper');
-  expect(renderStepContent(wrapper)).toMatchSnapshot('content');
+  expect(renderStepContent(wrapper)).toMatchSnapshot('content for bitbucket');
+  expect(
+    renderStepContent(shallowRender({ projectBinding: mockProjectGithubBindingResponse() }))
+  ).toMatchSnapshot('content for github');
 });
 
 function shallowRender(props: Partial<MultiBranchPipelineStepProps> = {}) {
@@ -37,7 +43,7 @@ function shallowRender(props: Partial<MultiBranchPipelineStepProps> = {}) {
       onDone={jest.fn()}
       onOpen={jest.fn()}
       open={true}
-      projectBinding={mockProjectBitbucketBindingGet()}
+      projectBinding={mockProjectBitbucketBindingResponse()}
       {...props}
     />
   );

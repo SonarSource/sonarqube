@@ -1,0 +1,211 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`it should render correctly for azure: content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      values={
+        Object {
+          "link": <ButtonLink
+            onClick={[MockFunction]}
+          >
+            onboarding.tutorial.with.jenkins.webhook.intro.link
+          </ButtonLink>,
+        }
+      }
+    />
+  </p>
+  <ol
+    className="list-styled"
+  />
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`it should render correctly for azure: wrapper 1`] = `
+<Step
+  finished={false}
+  onOpen={[MockFunction]}
+  open={false}
+  renderForm={[Function]}
+  stepNumber={2}
+  stepTitle="onboarding.tutorial.with.jenkins.webhook.azure.title"
+/>
+`;
+
+exports[`it should render correctly for bitbucket: content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      values={
+        Object {
+          "link": <ButtonLink
+            onClick={[MockFunction]}
+          >
+            onboarding.tutorial.with.jenkins.webhook.intro.link
+          </ButtonLink>,
+        }
+      }
+    />
+  </p>
+  <ol
+    className="list-styled"
+  >
+    <WebhookStepBitbucket
+      almBinding={
+        Object {
+          "key": "key",
+          "personalAccessToken": "asdf1234",
+          "url": "http://bbs.enterprise.com",
+        }
+      }
+      projectBinding={
+        Object {
+          "alm": "bitbucket",
+          "key": "foo",
+          "repository": "PROJECT_KEY",
+          "slug": "repo-slug",
+        }
+      }
+    />
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`it should render correctly for bitbucket: wrapper 1`] = `
+<Step
+  finished={false}
+  onOpen={[MockFunction]}
+  open={false}
+  renderForm={[Function]}
+  stepNumber={2}
+  stepTitle="onboarding.tutorial.with.jenkins.webhook.bitbucket.title"
+/>
+`;
+
+exports[`it should render correctly for github: content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      values={
+        Object {
+          "link": <ButtonLink
+            onClick={[MockFunction]}
+          >
+            onboarding.tutorial.with.jenkins.webhook.intro.link
+          </ButtonLink>,
+        }
+      }
+    />
+  </p>
+  <ol
+    className="list-styled"
+  >
+    <WebhookStepGithub
+      almBinding={
+        Object {
+          "appId": "123456",
+          "clientId": "client1",
+          "clientSecret": "**clientsecret**",
+          "key": "key",
+          "privateKey": "asdf1234",
+          "url": "http://github.enterprise.com",
+        }
+      }
+      projectBinding={
+        Object {
+          "alm": "github",
+          "key": "foo",
+          "repository": "PROJECT_KEY",
+        }
+      }
+    />
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`it should render correctly for github: wrapper 1`] = `
+<Step
+  finished={false}
+  onOpen={[MockFunction]}
+  open={false}
+  renderForm={[Function]}
+  stepNumber={2}
+  stepTitle="onboarding.tutorial.with.jenkins.webhook.github.title"
+/>
+`;
+
+exports[`it should render correctly for gitlab: content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      id="onboarding.tutorial.with.jenkins.webhook.intro.sentence"
+      values={
+        Object {
+          "link": <ButtonLink
+            onClick={[MockFunction]}
+          >
+            onboarding.tutorial.with.jenkins.webhook.intro.link
+          </ButtonLink>,
+        }
+      }
+    />
+  </p>
+  <ol
+    className="list-styled"
+  />
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`it should render correctly for gitlab: wrapper 1`] = `
+<Step
+  finished={false}
+  onOpen={[MockFunction]}
+  open={false}
+  renderForm={[Function]}
+  stepNumber={2}
+  stepTitle="onboarding.tutorial.with.jenkins.webhook.gitlab.title"
+/>
+`;

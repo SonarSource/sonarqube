@@ -23,10 +23,12 @@ import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { AlmKeys } from '../../../types/alm-settings';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
 
 export interface PreRequisitesStepProps {
+  alm: AlmKeys;
   onChangeSkipNextTime: (skip: boolean) => void;
   onDone: () => void;
   onOpen: () => void;
@@ -35,7 +37,7 @@ export interface PreRequisitesStepProps {
 }
 
 export default function PreRequisitesStep(props: PreRequisitesStepProps) {
-  const { open, skipNextTime } = props;
+  const { alm, open, skipNextTime } = props;
   return (
     <Step
       finished={!open}
@@ -50,7 +52,9 @@ export default function PreRequisitesStep(props: PreRequisitesStepProps) {
             />
           </p>
           <ul className="list-styled big-spacer-bottom">
-            <li>{translate('onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source')}</li>
+            <li>
+              {translate('onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source', alm)}
+            </li>
             <li>{translate('onboarding.tutorial.with.jenkins.prereqs.plugins.sonar_scanner')}</li>
           </ul>
           <p className="big-spacer-bottom">

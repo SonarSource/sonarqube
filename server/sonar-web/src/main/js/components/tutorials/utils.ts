@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { GithubBindingDefinition, ProjectAlmBindingResponse } from '../../types/alm-settings';
 import { LanguageConfig } from './types';
 
 export function isLanguageConfigured(config?: LanguageConfig) {
@@ -49,4 +50,17 @@ export function getUniqueTokenName(tokens: T.UserToken[], initialTokenName = '')
     i++;
   }
   return `${initialTokenName} ${i}`;
+}
+
+export function buildGithubLink(
+  almBinding: GithubBindingDefinition,
+  projectBinding: ProjectAlmBindingResponse
+) {
+  // strip the api path:
+  const urlRoot = almBinding.url
+    .replace('/api/v3', '') // GH Enterprise
+    .replace('api.', '') // GH.com
+    .replace(/\/$/, '');
+
+  return `${urlRoot}/${projectBinding.repository}`;
 }

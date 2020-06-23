@@ -30,7 +30,7 @@ exports[`should render correctly: content 1`] = `
     className="list-styled big-spacer-bottom"
   >
     <li>
-      onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source
+      onboarding.tutorial.with.jenkins.prereqs.plugins.branch_source.bitbucket
     </li>
     <li>
       onboarding.tutorial.with.jenkins.prereqs.plugins.sonar_scanner

@@ -17,27 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getUniqueTokenName } from '../utils';
+import {
+  mockGithubBindingDefinition,
+  mockProjectGithubBindingResponse
+} from '../../../helpers/mocks/alm-settings';
+import { buildGithubLink, getUniqueTokenName } from '../utils';
 
-const initialTokenName = 'Analyze "lightsaber"';
+describe('getUniqueTokenName', () => {
+  const initialTokenName = 'Analyze "lightsaber"';
 
-it('should return the given name when the user has no token', () => {
-  const userTokens: T.UserToken[] = [];
+  it('should return the given name when the user has no token', () => {
+    const userTokens: T.UserToken[] = [];
 
-  expect(getUniqueTokenName(userTokens, initialTokenName)).toBe(initialTokenName);
+    expect(getUniqueTokenName(userTokens, initialTokenName)).toBe(initialTokenName);
+  });
+
+  it('should generate a token with the given name', () => {
+    const userTokens = [{ name: initialTokenName, createdAt: '2019-06-14T09:45:52+0200' }];
+
+    expect(getUniqueTokenName(userTokens, 'Analyze "project"')).toBe('Analyze "project"');
+  });
+
+  it('should generate a unique token when the name already exists', () => {
+    const userTokens = [
+      { name: initialTokenName, createdAt: '2019-06-15T09:45:52+0200' },
+      { name: `${initialTokenName} 1`, createdAt: '2019-06-15T09:45:53+0200' }
+    ];
+
+    expect(getUniqueTokenName(userTokens, initialTokenName)).toBe('Analyze "lightsaber" 2');
+  });
 });
 
-it('should generate a token with the given name', () => {
-  const userTokens = [{ name: initialTokenName, createdAt: '2019-06-14T09:45:52+0200' }];
+describe('buildGithubLink', () => {
+  it('should work for GitHub Enterprise', () => {
+    expect(
+      buildGithubLink(
+        mockGithubBindingDefinition({ url: 'https://github.company.com/api/v3/' }),
+        mockProjectGithubBindingResponse({ repository: 'owner/reponame' })
+      )
+    ).toBe('https://github.company.com/owner/reponame');
+  });
 
-  expect(getUniqueTokenName(userTokens, 'Analyze "project"')).toBe('Analyze "project"');
-});
-
-it('should generate a unique token when the name already exists', () => {
-  const userTokens = [
-    { name: initialTokenName, createdAt: '2019-06-14T09:45:52+0200' },
-    { name: `${initialTokenName} 1`, createdAt: '2019-06-14T09:45:52+0200' }
-  ];
-
-  expect(getUniqueTokenName(userTokens, initialTokenName)).toBe('Analyze "lightsaber" 2');
+  it('should work for github.com', () => {
+    expect(
+      buildGithubLink(
+        mockGithubBindingDefinition({ url: 'https://api.github.com/' }),
+        mockProjectGithubBindingResponse({ repository: 'owner/reponame' })
+      )
+    ).toBe('https://github.com/owner/reponame');
+  });
 });

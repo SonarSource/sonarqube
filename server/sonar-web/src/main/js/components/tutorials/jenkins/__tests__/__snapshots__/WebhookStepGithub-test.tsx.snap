@@ -1,0 +1,143 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<Fragment>
+  <li>
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
+      id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
+      values={
+        Object {
+          "link": <a
+            href="http://github.enterprise.com/PROJECT_KEY/settings/hooks"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            onboarding.tutorial.with.jenkins.webhook.github.step1.link
+          </a>,
+        }
+      }
+    />
+    <ul
+      className="list-styled"
+    >
+      <li
+        className="abs-width-600"
+      >
+        <p>
+          <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.webhook.github.step1.url"
+          />
+        </p>
+        <CodeSnippet
+          isOneLine={true}
+          snippet="/github-webhook/"
+        />
+      </li>
+    </ul>
+  </li>
+  <li>
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "events",
+          "option",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.webhook.github.step2"
+    />
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <strong>
+          onboarding.tutorial.with.jenkins.webhook.github.step2.repo
+        </strong>
+      </li>
+      <li>
+        <strong>
+          onboarding.tutorial.with.jenkins.webhook.github.step2.pr
+        </strong>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "create",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+    />
+  </li>
+</Fragment>
+`;
+
+exports[`should render correctly: with no alm binding 1`] = `
+<Fragment>
+  <li>
+    <FormattedMessage
+      defaultMessage="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
+      id="onboarding.tutorial.with.jenkins.webhook.step1.sentence"
+      values={
+        Object {
+          "link": "onboarding.tutorial.with.jenkins.webhook.github.step1.link",
+        }
+      }
+    />
+    <ul
+      className="list-styled"
+    >
+      <li
+        className="abs-width-600"
+      >
+        <p>
+          <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.webhook.github.step1.url"
+          />
+        </p>
+        <CodeSnippet
+          isOneLine={true}
+          snippet="/github-webhook/"
+        />
+      </li>
+    </ul>
+  </li>
+  <li>
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "events",
+          "option",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.webhook.github.step2"
+    />
+    <ul
+      className="list-styled"
+    >
+      <li>
+        <strong>
+          onboarding.tutorial.with.jenkins.webhook.github.step2.repo
+        </strong>
+      </li>
+      <li>
+        <strong>
+          onboarding.tutorial.with.jenkins.webhook.github.step2.pr
+        </strong>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <SentenceWithHighlights
+      highlightKeys={
+        Array [
+          "create",
+        ]
+      }
+      translationKey="onboarding.tutorial.with.jenkins.webhook.step3"
+    />
+  </li>
+</Fragment>
+`;

@@ -23,7 +23,7 @@ import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import {
   mockBitbucketBindingDefinition,
-  mockProjectBitbucketBindingGet
+  mockProjectBitbucketBindingResponse
 } from '../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../helpers/testMocks';
 import TutorialSelectionRenderer, {
@@ -40,7 +40,7 @@ it('should render correctly', () => {
   expect(
     shallowRender({
       selectedTutorial: TutorialModes.Jenkins,
-      projectBinding: mockProjectBitbucketBindingGet()
+      projectBinding: mockProjectBitbucketBindingResponse()
     })
   ).toMatchSnapshot('jenkins tutorial');
 });

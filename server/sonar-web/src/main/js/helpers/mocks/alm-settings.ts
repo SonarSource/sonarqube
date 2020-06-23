@@ -25,7 +25,8 @@ import {
   GithubBindingDefinition,
   GitlabBindingDefinition,
   ProjectAlmBindingResponse,
-  ProjectBitbucketBindingResponse
+  ProjectBitbucketBindingResponse,
+  ProjectGitHubBindingResponse
 } from '../../types/alm-settings';
 
 export function mockAlmSettingsInstance(
@@ -93,7 +94,7 @@ export function mockProjectAlmBindingResponse(
   };
 }
 
-export function mockProjectBitbucketBindingGet(
+export function mockProjectBitbucketBindingResponse(
   overrides: Partial<ProjectBitbucketBindingResponse> = {}
 ): ProjectBitbucketBindingResponse {
   return {
@@ -101,6 +102,17 @@ export function mockProjectBitbucketBindingGet(
     key: 'foo',
     repository: 'PROJECT_KEY',
     slug: 'repo-slug',
+    ...overrides
+  };
+}
+
+export function mockProjectGithubBindingResponse(
+  overrides: Partial<ProjectGitHubBindingResponse> = {}
+): ProjectGitHubBindingResponse {
+  return {
+    alm: AlmKeys.GitHub,
+    key: 'foo',
+    repository: 'PROJECT_KEY',
     ...overrides
   };
 }

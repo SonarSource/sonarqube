@@ -64,6 +64,11 @@ export interface ProjectBitbucketBindingResponse extends ProjectAlmBindingRespon
   slug: string;
 }
 
+export interface ProjectGitHubBindingResponse extends ProjectAlmBindingResponse {
+  alm: AlmKeys.GitHub;
+  repository: string;
+}
+
 export interface ProjectAlmBindingParams {
   almSetting: string;
   project: string;

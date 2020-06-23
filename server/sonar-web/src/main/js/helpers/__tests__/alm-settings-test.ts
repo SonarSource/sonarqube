@@ -17,25 +17,51 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import { isBitbucketBindingDefinition, isProjectBitbucketBindingResponse } from '../alm-settings';
+import { AlmKeys } from '../../types/alm-settings';
+import {
+  isBitbucketBindingDefinition,
+  isGithubBindingDefinition,
+  isProjectBitbucketBindingResponse,
+  isProjectGitHubBindingResponse
+} from '../alm-settings';
 import {
   mockBitbucketBindingDefinition,
   mockGithubBindingDefinition,
   mockProjectAlmBindingResponse,
-  mockProjectBitbucketBindingGet
+  mockProjectBitbucketBindingResponse,
+  mockProjectGithubBindingResponse
 } from '../mocks/alm-settings';
+
+/* eslint-disable sonarjs/no-duplicate-string */
 
 describe('isProjectBitbucketBindingResponse', () => {
   it('works as expected', () => {
     expect(isProjectBitbucketBindingResponse(mockProjectAlmBindingResponse())).toBe(false);
-    expect(isProjectBitbucketBindingResponse(mockProjectBitbucketBindingGet())).toBe(true);
+    expect(isProjectBitbucketBindingResponse(mockProjectBitbucketBindingResponse())).toBe(true);
   });
 });
 
 describe('isBitbucketBindingDefinition', () => {
   it('works as expected', () => {
+    expect(isBitbucketBindingDefinition(undefined)).toBe(false);
     expect(isBitbucketBindingDefinition(mockGithubBindingDefinition())).toBe(false);
     expect(isBitbucketBindingDefinition(mockBitbucketBindingDefinition())).toBe(true);
+  });
+});
+
+describe('isProjectGithubBindingResponse', () => {
+  it('works as expected', () => {
+    expect(
+      isProjectGitHubBindingResponse(mockProjectAlmBindingResponse({ alm: AlmKeys.Azure }))
+    ).toBe(false);
+    expect(isProjectGitHubBindingResponse(mockProjectGithubBindingResponse())).toBe(true);
+  });
+});
+
+describe('isGithubBindingDefinition', () => {
+  it('works as expected', () => {
+    expect(isGithubBindingDefinition(undefined)).toBe(false);
+    expect(isGithubBindingDefinition(mockBitbucketBindingDefinition())).toBe(false);
+    expect(isGithubBindingDefinition(mockGithubBindingDefinition())).toBe(true);
   });
 });

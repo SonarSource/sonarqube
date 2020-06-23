@@ -12,6 +12,7 @@ exports[`should render correctly: default 1`] = `
     </h1>
   </div>
   <PreRequisitesStep
+    alm="bitbucket"
     onChangeSkipNextTime={[Function]}
     onDone={[Function]}
     onOpen={[Function]}
@@ -32,7 +33,7 @@ exports[`should render correctly: default 1`] = `
       }
     }
   />
-  <BitbucketWebhookStep
+  <WebhookStep
     finished={false}
     onDone={[Function]}
     onOpen={[Function]}
@@ -75,10 +76,10 @@ exports[`should render correctly: default 1`] = `
 </Fragment>
 `;
 
-exports[`should render correctly: not Bitbucket binding 1`] = `
+exports[`should render correctly: unsupported alm 1`] = `
 <Alert
   variant="error"
 >
-  onboarding.tutorial.with.jenkins.only_bitbucket
+  onboarding.tutorial.with.jenkins.unsupported
 </Alert>
 `;

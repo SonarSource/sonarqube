@@ -11,7 +11,7 @@ exports[`should render correctly: Step wrapper 1`] = `
 />
 `;
 
-exports[`should render correctly: content 1`] = `
+exports[`should render correctly: content for bitbucket 1`] = `
 <div
   className="boxed-group-inner"
 >
@@ -41,33 +41,132 @@ exports[`should render correctly: content 1`] = `
             "tab",
           ]
         }
-        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2"
+        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket"
+      />
+      <ul
+        className="list-styled"
+      >
+        <React.Fragment>
+          <li>
+            <LabelActionPair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.server"
+            />
+          </li>
+          <li>
+            <LabelActionPair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.creds"
+            />
+          </li>
+          <li>
+            <LabelValuePair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.owner"
+              value="PROJECT_KEY"
+            />
+          </li>
+          <li>
+            <LabelValuePair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.bitbucket.repo"
+              value="repo-slug"
+            />
+          </li>
+        </React.Fragment>
+        <li>
+          <LabelActionPair
+            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviour"
+          />
+        </li>
+      </ul>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "tab",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3"
       />
       <ul
         className="list-styled"
       >
         <li>
           <LabelActionPair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.server"
+            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3.mode"
           />
         </li>
         <li>
           <LabelActionPair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.creds"
+            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step3.script_path"
           />
         </li>
-        <li>
-          <LabelValuePair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.owner"
-            value="PROJECT_KEY"
-          />
-        </li>
-        <li>
-          <LabelValuePair
-            translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.repo"
-            value="repo-slug"
-          />
-        </li>
+      </ul>
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "save",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step4"
+      />
+    </li>
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`should render correctly: content for github 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <p
+    className="big-spacer-bottom"
+  >
+    onboarding.tutorial.with.jenkins.multi_branch_pipeline.intro
+  </p>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "new_item",
+            "type",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step1"
+      />
+    </li>
+    <li>
+      <SentenceWithHighlights
+        highlightKeys={
+          Array [
+            "tab",
+          ]
+        }
+        translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github"
+      />
+      <ul
+        className="list-styled"
+      >
+        <React.Fragment>
+          <li>
+            <LabelActionPair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.creds"
+            />
+          </li>
+          <li>
+            <LabelActionPair
+              translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.github.repo_url"
+            />
+          </li>
+        </React.Fragment>
         <li>
           <LabelActionPair
             translationKey="onboarding.tutorial.with.jenkins.multi_branch_pipeline.step2.behaviour"

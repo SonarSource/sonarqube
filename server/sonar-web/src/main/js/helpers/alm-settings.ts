@@ -21,8 +21,10 @@ import {
   AlmBindingDefinition,
   AlmKeys,
   BitbucketBindingDefinition,
+  GithubBindingDefinition,
   ProjectAlmBindingResponse,
-  ProjectBitbucketBindingResponse
+  ProjectBitbucketBindingResponse,
+  ProjectGitHubBindingResponse
 } from '../types/alm-settings';
 
 export function isProjectBitbucketBindingResponse(
@@ -31,8 +33,27 @@ export function isProjectBitbucketBindingResponse(
   return binding.alm === AlmKeys.Bitbucket;
 }
 
+export function isProjectGitHubBindingResponse(
+  binding: ProjectAlmBindingResponse
+): binding is ProjectGitHubBindingResponse {
+  return binding.alm === AlmKeys.GitHub;
+}
+
 export function isBitbucketBindingDefinition(
-  binding: AlmBindingDefinition & { url?: string; personalAccessToken?: string }
+  binding?: AlmBindingDefinition & { url?: string; personalAccessToken?: string }
 ): binding is BitbucketBindingDefinition {
-  return binding.url !== undefined && binding.personalAccessToken !== undefined;
+  return (
+    binding !== undefined && binding.url !== undefined && binding.personalAccessToken !== undefined
+  );
+}
+
+export function isGithubBindingDefinition(
+  binding?: AlmBindingDefinition & { appId?: string; privateKey?: string; url?: string }
+): binding is GithubBindingDefinition {
+  return (
+    binding !== undefined &&
+    binding.appId !== undefined &&
+    binding.privateKey !== undefined &&
+    binding.url !== undefined
+  );
 }

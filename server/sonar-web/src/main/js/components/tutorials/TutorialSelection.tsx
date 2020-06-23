@@ -59,13 +59,17 @@ export class TutorialSelection extends React.PureComponent<Props, State> {
     ]);
 
     if (this.mounted) {
-      // We only support Bitbucket for now.
-      if (projectBinding === undefined || projectBinding.alm !== AlmKeys.Bitbucket) {
+      // We only support Bitbucket & GitHub for now.
+      if (
+        projectBinding === undefined ||
+        (projectBinding.alm !== AlmKeys.Bitbucket && projectBinding.alm !== AlmKeys.GitHub)
+      ) {
         this.setState({ loading: false, forceManual: true });
       } else {
         let almBinding;
         if (almDefinitions !== undefined) {
-          almBinding = almDefinitions[projectBinding.alm].find(d => d.key === projectBinding.key);
+          const specificDefinitions = almDefinitions[projectBinding.alm] as AlmBindingDefinition[];
+          almBinding = specificDefinitions.find(d => d.key === projectBinding.key);
         }
         this.setState({ almBinding, forceManual: false, projectBinding, loading: false });
       }

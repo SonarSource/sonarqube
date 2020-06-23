@@ -22,16 +22,16 @@ import { connect } from 'react-redux';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
-  isBitbucketBindingDefinition,
-  isProjectBitbucketBindingResponse
+  isProjectBitbucketBindingResponse,
+  isProjectGitHubBindingResponse
 } from '../../../helpers/alm-settings';
 import { getCurrentUserSetting, Store } from '../../../store/rootReducer';
 import { setCurrentUserSetting } from '../../../store/users';
 import { AlmBindingDefinition, ProjectAlmBindingResponse } from '../../../types/alm-settings';
-import BitbucketWebhookStep from './BitbucketWebhookStep';
 import JenkinsfileStep from './JenkinsfileStep';
 import MultiBranchPipelineStep from './MultiBranchPipelineStep';
 import PreRequisitesStep from './PreRequisitesStep';
+import WebhookStep from './WebhookStep';
 
 export interface JenkinsTutorialProps {
   almBinding?: AlmBindingDefinition;
@@ -44,7 +44,7 @@ export interface JenkinsTutorialProps {
 enum Steps {
   PreRequisites = 0,
   MultiBranchPipeline = 1,
-  BitbucketWebhook = 2,
+  Webhook = 2,
   Jenkinsfile = 3
 }
 
@@ -57,9 +57,12 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
   );
 
   // Failsafe; should never happen.
-  if (!isProjectBitbucketBindingResponse(projectBinding)) {
+  if (
+    !isProjectBitbucketBindingResponse(projectBinding) &&
+    !isProjectGitHubBindingResponse(projectBinding)
+  ) {
     return (
-      <Alert variant="error">{translate('onboarding.tutorial.with.jenkins.only_bitbucket')}</Alert>
+      <Alert variant="error">{translate('onboarding.tutorial.with.jenkins.unsupported')}</Alert>
     );
   }
 
@@ -70,6 +73,7 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
       </div>
 
       <PreRequisitesStep
+        alm={projectBinding.alm}
         onDone={() => setStep(Steps.MultiBranchPipeline)}
         onOpen={() => setStep(Steps.PreRequisites)}
         onChangeSkipNextTime={skip => {
@@ -83,19 +87,20 @@ export function JenkinsTutorial(props: JenkinsTutorialProps) {
       />
 
       <MultiBranchPipelineStep
+        almBinding={almBinding}
         finished={step > Steps.MultiBranchPipeline}
-        onDone={() => setStep(Steps.BitbucketWebhook)}
+        onDone={() => setStep(Steps.Webhook)}
         onOpen={() => setStep(Steps.MultiBranchPipeline)}
         open={step === Steps.MultiBranchPipeline}
         projectBinding={projectBinding}
       />
 
-      <BitbucketWebhookStep
-        almBinding={almBinding && isBitbucketBindingDefinition(almBinding) ? almBinding : undefined}
-        finished={step > Steps.BitbucketWebhook}
+      <WebhookStep
+        almBinding={almBinding}
+        finished={step > Steps.Webhook}
         onDone={() => setStep(Steps.Jenkinsfile)}
-        onOpen={() => setStep(Steps.BitbucketWebhook)}
-        open={step === Steps.BitbucketWebhook}
+        onOpen={() => setStep(Steps.Webhook)}
+        open={step === Steps.Webhook}
         projectBinding={projectBinding}
       />
 
