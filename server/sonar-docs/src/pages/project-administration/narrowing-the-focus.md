@@ -3,7 +3,7 @@ title: Narrowing the Focus
 url: /project-administration/narrowing-the-focus/
 ---
 
-If SonarQube's results aren't relevant, no one will want to use it. That's why precisely configuring what to analyze for each project is a very important step. Doing so allows you to remove noise, like the issues and duplications marked on generated code, or the issues from rules that aren't relevant for certain types of objects.
+If SonarQube's results aren't relevant, no one will want to use it. That's why precisely configuring what to analyze for each project is a very important step. Doing so allows you to remove noise, like the issues and duplications marked on generated code, or the issues from rules that aren't relevant for certain types of files.
 
 SonarQube gives you several options for configuring exactly what will be analyzed. You can
 
@@ -45,14 +45,14 @@ Your first line of defence having a well-defined set of files in your analysis i
 
 ![Set sonar.sources to the project sub-directory that contains your source files](/images/sources.jpg)
 
-Once you've got all the files _in_ your analysis that you want, it's time to look at whether you have any files you'd rather leave _out_ of your analysis, such as JavaScript libraries, and generated files. Those can be handled with Exclusions. Specifying an exclusion means that everything under your `sonar.sources` directory will be included in analysis _except_ the files with paths that match your exclusion regular expression.
+Once you've got all the files _in_ your analysis that you want, it's time to look at whether you have any files you'd rather leave _out_ of your analysis, such as JavaScript libraries, and generated files. Those can be handled with Exclusions. Specifying an exclusion means that everything under your `sonar.sources` directory will be included in analysis _except_ the files with paths that match your exclusion pattern.
 
 ![Use exclusions to keep libraries and generated files out of analysis](/images/exclusions.jpg)
 
 To use exclusions to analyze everything but the specified files, go to **Project Settings > General Settings > Analysis Scope > Files**.
 
-* **Source File Exclusions** (`sonar.exclusions`) - to exclude source code files
-* **Test File Exclusions** (`sonar.test.exclusions`) - to exclude test files
+* **Source File Exclusions** - to exclude source code files
+* **Test File Exclusions** - to exclude test files
 
 The vast majority of needs are met simply by setting `sonar.sources` carefully. Most other needs are met with the addition of a few simple exclusions. In a few corner cases, it is necessary to be explicit about what's _included_ in analysis and leave out everything else, but that is not the normal case, and setting inclusions should not be the first thing you try when configuring a new project.
 
@@ -60,8 +60,8 @@ The vast majority of needs are met simply by setting `sonar.sources` carefully. 
 
 To use exclusions to analyze _only_ the specified subset(s) of files in `sonar.sources`, go to **Project Settings > General Settings > Analysis Scope > Files**.
 
-* **Source File Inclusions** (`sonar.inclusions`)
-* **Test File Inclusions** (`sonar.test.inclusions`)
+* **Source File Inclusions** 
+* **Test File Inclusions** 
 
 You can set these properties at both the project and global levels.
 
