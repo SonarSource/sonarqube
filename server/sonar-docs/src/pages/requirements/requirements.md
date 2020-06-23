@@ -119,8 +119,6 @@ sonarqube   -   nofile   131072
 sonarqube   -   nproc    8192
 ```
 
-You can get more detail in the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/system-config.html).
-
 If you are using `systemd` to start SonarQube, you must specify those limits inside your unit file in the section \[service\] :
 ```
 [Service]
