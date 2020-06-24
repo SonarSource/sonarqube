@@ -74,7 +74,7 @@ public class AssignAction implements HotspotsWsAction {
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action.createParam(PARAM_ASSIGNEE)
-      .setDescription("Login of the assignee")
+      .setDescription("Login of the assignee with 'Browse' project permission")
       .setRequired(true)
       .setExampleValue("admin");
 
@@ -129,11 +129,12 @@ public class AssignAction implements HotspotsWsAction {
     return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, assignee), "Unknown user: %s", assignee);
   }
 
-  private void checkAssigneeProjectPermission(DbSession dbSession, UserDto assignee, String projectUuid) {
-    ComponentDto componentDto = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, projectUuid),
+  private void checkAssigneeProjectPermission(DbSession dbSession, UserDto assignee, String issueProjectUuid) {
+    ComponentDto componentDto = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, issueProjectUuid),
       "Could not find project for issue");
-    if (componentDto.isPrivate() && !hasProjectPermission(dbSession, assignee.getUuid(), projectUuid)) {
-      throw new IllegalArgumentException(String.format("Provided user with login '%s' does not have access to project", assignee.getLogin()));
+    String mainProjectUuid = componentDto.getMainBranchProjectUuid() == null ? componentDto.uuid() : componentDto.getMainBranchProjectUuid();
+    if (componentDto.isPrivate() && !hasProjectPermission(dbSession, assignee.getUuid(), mainProjectUuid)) {
+      throw new IllegalArgumentException(String.format("Provided user with login '%s' does not have 'Browse' permission to project", assignee.getLogin()));
     }
   }
 

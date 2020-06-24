@@ -140,7 +140,24 @@ public class AssignActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), hotspot, project, UserRole.USER);
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
+    UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project);
+
+    when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
+
+    executeRequest(hotspot, assignee.getLogin(), null);
+
+    verifyFieldSetters(assignee, null);
+  }
+
+  @Test
+  public void assign_hotspot_to_someone_for_private_project_branch() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
+    IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
+
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
     UserDto assignee = insertUserWithProjectUserPermission(randomAlphanumeric(15), project);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
@@ -156,14 +173,31 @@ public class AssignActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), hotspot, project, UserRole.USER);
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
     UserDto assignee = insertUser(randomAlphanumeric(15));
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
 
     assertThatThrownBy(() -> executeRequest(hotspot, assignee.getLogin(), null))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Provided user with login '%s' does not have access to project", assignee.getLogin());
+      .hasMessage("Provided user with login '%s' does not have 'Browse' permission to project", assignee.getLogin());
+  }
+
+  @Test
+  public void fail_if_assignee_does_not_have_access_for_private_project_branch() {
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(branch));
+    IssueDto hotspot = dbTester.issues().insertHotspot(branch, file);
+
+    insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
+    UserDto assignee = insertUser(randomAlphanumeric(15));
+
+    when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(assignee), any(IssueChangeContext.class))).thenReturn(true);
+
+    assertThatThrownBy(() -> executeRequest(hotspot, assignee.getLogin(), null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Provided user with login '%s' does not have 'Browse' permission to project", assignee.getLogin());
   }
 
   @Test
@@ -173,7 +207,7 @@ public class AssignActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), hotspot, project, UserRole.USER);
+    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.USER);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(me), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -298,7 +332,7 @@ public class AssignActionTest {
     ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
     IssueDto hotspot = dbTester.issues().insertHotspot(project, file);
 
-    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), hotspot, project, UserRole.CODEVIEWER);
+    UserDto me = insertAndLoginAsUserWithProjectUserPermission(randomAlphanumeric(10), project, UserRole.CODEVIEWER);
 
     when(issueFieldsSetter.assign(eq(hotspot.toDefaultIssue()), userMatcher(me), any(IssueChangeContext.class))).thenReturn(true);
 
@@ -439,12 +473,11 @@ public class AssignActionTest {
     return insertUserWithProjectPermission(login, project, UserRole.USER);
   }
 
-  private UserDto insertAndLoginAsUserWithProjectUserPermission(String login, IssueDto issue, ComponentDto project, String permission) {
+  private UserDto insertAndLoginAsUserWithProjectUserPermission(String login, ComponentDto project, String permission) {
     UserDto user = insertUserWithProjectUserPermission(login, project);
     userSessionRule.logIn(user)
       .addProjectPermission(permission,
-        dbClient.componentDao().selectByUuid(dbTester.getSession(), issue.getProjectUuid()).get(),
-        dbClient.componentDao().selectByUuid(dbTester.getSession(), issue.getComponentUuid()).get());
+        dbClient.componentDao().selectByUuid(dbTester.getSession(), project.uuid()).get());
     return user;
   }
 
