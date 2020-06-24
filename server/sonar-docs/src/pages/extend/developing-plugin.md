@@ -414,6 +414,7 @@ The rules are:
 * An API is marked as deprecated with both:
    * the annotation @Deprecated
    * the javadoc tag @deprecated whose message must start with "in x.y", for example:
+   
     ```
     /**
      * @deprecated in 4.2. Replaced by {@link #newMethod()}.
