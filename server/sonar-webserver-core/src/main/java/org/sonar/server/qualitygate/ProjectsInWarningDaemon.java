@@ -40,7 +40,7 @@ import static org.sonar.api.measures.Metric.Level.WARN;
 
 /**
  * This class is regularly checking the number of projects in warning state, in order to not return the "Warning" value in the quality gate facet of the Projects page when there are no more projects in warning.
- * 
+ *
  * @see <a href="https://jira.sonarsource.com/browse/SONAR-12140">SONAR-12140</a> for more information
  */
 public class ProjectsInWarningDaemon implements Startable {
@@ -93,21 +93,22 @@ public class ProjectsInWarningDaemon implements Startable {
 
   private Runnable countProjectsInWarning() {
     return () -> {
+      long nbProjectsInWarning = projectMeasuresIndex.search(
+        new ProjectMeasuresQuery()
+          .setQualityGateStatus(WARN)
+          .setIgnoreAuthorization(true),
+        // We only need the number of projects in warning
+        new SearchOptions().setLimit(1)).getTotal();
+
       try (DbSession dbSession = dbClient.openSession(false)) {
-        long nbProjectsInWarning = projectMeasuresIndex.search(
-          new ProjectMeasuresQuery()
-            .setQualityGateStatus(WARN)
-            .setIgnoreAuthorization(true),
-          // We only need the number of projects in warning
-          new SearchOptions().setLimit(1)).getTotal();
-        projectsInWarning.update(nbProjectsInWarning);
         updateProjectsInWarningInDb(dbSession, nbProjectsInWarning);
-        if (nbProjectsInWarning == 0L) {
-          LOG.info("Counting number of projects in warning will be disabled as there are no more projects in warning.");
-          executorService.shutdown();
-        }
       } catch (Exception e) {
-        LOG.error("Error while counting number of projects in warning: {}", e);
+        LOG.error("Error updating number of projects in warning: {}", e);
+      }
+      projectsInWarning.update(nbProjectsInWarning);
+      if (nbProjectsInWarning == 0L) {
+        LOG.info("Counting number of projects in warning will be disabled as there are no more projects in warning.");
+        executorService.shutdown();
       }
     };
   }
