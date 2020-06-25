@@ -169,8 +169,8 @@ public class InternalCeQueueImplTest {
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, null, null);
 
     // queue is empty
-    assertThat(db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).isPresent()).isFalse();
-    assertThat(underTest.peek(WORKER_UUID_2, false, false).isPresent()).isFalse();
+    assertThat(db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid())).isNotPresent();
+    assertThat(underTest.peek(WORKER_UUID_2, false, false)).isNotPresent();
 
     // available in history
     Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());

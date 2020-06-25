@@ -94,15 +94,14 @@ public class AsyncIssueIndexingImplTest {
     verify(ceQueue, times(1)).prepareSubmit();
     verify(ceQueue, times(1)).massSubmit(anyCollection());
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("1 branch found in need of issue sync : BranchDto{uuid='branch_uuid', projectUuid='project_uuid'," +
-        " kee='branchName', keyType=BRANCH, branchType=BRANCH, mergeBranchUuid='null', excludeFromPurge=false, needIssueSync=true}");
+      .contains("1 branch found in need of issue sync.");
   }
 
   @Test
   public void triggerOnIndexCreation_no_branch() {
     underTest.triggerOnIndexCreation();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("No branch found in need of issue sync");
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("0 branch found in need of issue sync.");
   }
 
   @Test
@@ -134,7 +133,7 @@ public class AsyncIssueIndexingImplTest {
 
     assertThat(dbClient.ceActivityDao().selectByTaskType(dbTester.getSession(), REPORT)).hasSize(1);
 
-    assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(Arrays.asList("uuid_2")))).hasSize(0);
+    assertThat(dbClient.ceTaskCharacteristicsDao().selectByTaskUuids(dbTester.getSession(), new HashSet<>(Arrays.asList("uuid_2")))).isEmpty();
 
     assertThat(logTester.logs(LoggerLevel.INFO))
       .contains(

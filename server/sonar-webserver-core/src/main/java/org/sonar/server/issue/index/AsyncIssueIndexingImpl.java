@@ -69,16 +69,13 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
 
       dbClient.branchDao().updateAllNeedIssueSync(dbSession);
       List<BranchDto> branchInNeedOfIssueSync = dbClient.branchDao().selectBranchNeedingIssueSync(dbSession);
+      LOG.info("{} branch found in need of issue sync.", branchInNeedOfIssueSync.size());
 
       if (branchInNeedOfIssueSync.isEmpty()) {
-        LOG.info("No branch found in need of issue sync");
         return;
       }
 
-      String branchListForDisplay = branchInNeedOfIssueSync.stream().map(BranchDto::toString).collect(Collectors.joining(", "));
-      LOG.info("{} branch found in need of issue sync : {}", branchInNeedOfIssueSync.size(), branchListForDisplay);
-
-      List<String> projectUuids = new ArrayList<>(branchInNeedOfIssueSync.stream().map(BranchDto::getProjectUuid).collect(Collectors.toSet()));
+      List<String> projectUuids = branchInNeedOfIssueSync.stream().map(BranchDto::getProjectUuid).distinct().collect(Collectors.toList());
       LOG.info("{} projects found in need of issue sync.", projectUuids.size());
 
       sortProjectUuids(dbSession, projectUuids);

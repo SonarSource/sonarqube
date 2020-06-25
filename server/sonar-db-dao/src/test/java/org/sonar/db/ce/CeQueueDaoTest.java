@@ -393,11 +393,11 @@ public class CeQueueDaoTest {
 
   @Test
   public void peek_none_if_no_pendings() {
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false)).isNotPresent();
 
     // not pending, but in progress
     makeInProgress(WORKER_UUID_1, 2_232_222L, insertPending(TASK_UUID_1, MAIN_COMPONENT_UUID_1));
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false)).isNotPresent();
   }
 
   @Test
@@ -426,7 +426,7 @@ public class CeQueueDaoTest {
     verifyCeQueueStatuses(TASK_UUID_1, IN_PROGRESS, TASK_UUID_2, IN_PROGRESS);
 
     // no more pendings
-    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false).isPresent()).isFalse();
+    assertThat(underTest.peek(db.getSession(), WORKER_UUID_1, false, false)).isNotPresent();
   }
 
   @Test
