@@ -3,19 +3,25 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 ## Release 8.4 Upgrade Notes  
+**Updated system settings recommendations**  
+In previous versions, the recommended limits regarding threads, file descriptors, and vm.max_map_count were taken from Elasticsearch dependencies. This release can reach these limits occasionally, so we recommend increasing the following settings of your OS when upgrading:
+
+* `vm.max_map_` count is greater than or equal to 524288
+* `fs.file-max` is greater than or equal to 131072
+* the user running SonarQube can open at least 131072 file descriptors
+* the user running SonarQube can open at least 8192 threads
+
+For more information, see the [Requirements](/requirements/requirements/) documentation. 
+
+**Project, Application, and Portfolio availability when rebuilding Elasticsearch indexes**  
+From now on if your upgrade requires the rebuild of Elasticsearch indexes, your projects and Applications will become available as they are reindexed. Portfolios won't be available until all projects are reindexed. ([MMF-2010](https://jira.sonarsource.com/browse/MMF-2010)).
+
 **Changes in web services and plugin APIs**  
 The format of several IDs exposed in web services changed and their use is deprecated. See [SONAR-13248](https://jira.sonarsource.com/browse/SONAR-13248), [SONAR-13249](https://jira.sonarsource.com/browse/SONAR-13249), and [SONAR-13300](https://jira.sonarsource.com/browse/SONAR-13300).
 
 A related change is introduced in a plugin API method. See [SONAR-13420](https://jira.sonarsource.com/browse/SONAR-13420).
 
-**System settings recommendations changed**
-
-In previous versions, the recommended limits regarding threads, file descriptors, and vm.max_map_count were taken from Elasticsearch dependencies. This release reaches these limits occasionally, so we recommend increasing the following settings of your OS while upgrading:
-
-* vm.max_map_count is greater than or equal to 524288
-* fs.file-max is greater than or equal to 131072
-* the user running SonarQube can open at least 131072 file descriptors
-* the user running SonarQube can open at least 8192 threads
+[Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15833)
 
 ## Release 8.3 Upgrade Notes  
 **Security Hotspots in the built-in Quality Gate**   
