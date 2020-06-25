@@ -60,10 +60,10 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 |
 | ### Setting your project settings
 |
-| #### **Projects created from a GitHub repository**
-| If you create a project using the **GitHub** option, SonarQube automatically configures your project settings for Pull Request decoration.
+| #### **Projects imported from a GitHub repository**
+| If you create a project imported from a GitHub repository, SonarQube automatically configures your project settings for Pull Request decoration.
 |
-| #### Manually created projects and existing projects**
+| #### **Manually created projects and existing projects**
 | 
 | If you're creating a new project **Manually** or want to add Pull Request decoration to an existing project, set your project settings at **Project Settings > General Settings > Pull Request Decoration**. 
 |
@@ -92,9 +92,9 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 |
 | ### Setting your project settings
 |
-| #### **Projects created from a Bitbucket Server repository**
+| #### **Projects imported from a Bitbucket Server repository**
 |
-| If you create a project using the **Bitbucket** option, SonarQube automatically configures your project settings for Pull Request decoration. When creating your project, you'll need to provide a Personal Access Token from your user account with Read permissions for both projects and repositories. This Personal Access Token will be stored in SonarQube until you revoke it on the Bitbucket Server side.
+| If you create a project imported from a BitBucket server repository, SonarQube automatically configures your project settings for Pull Request decoration. When creating your project, you'll need to provide a Personal Access Token from your user account with Read permissions for both projects and repositories. This Personal Access Token will be stored in SonarQube until you revoke it on the Bitbucket Server side.
 |
 | #### **Manually created projects and existing projects**
 |

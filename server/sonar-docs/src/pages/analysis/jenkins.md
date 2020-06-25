@@ -9,42 +9,51 @@ SonarScanners running in Jenkins can automatically detect branches and Merge or 
 
 ## Analysis Prerequisites
 
-For analysis with Jenkins, you need to have the following Jenkins plugins installed and configured **in Jenkins**: 
-- Depending on your ALM: the Bitbucket, GitHub, or GitLab Branch Source plugin. 
+For analysis with Jenkins, you need to have the following Jenkins plugins installed and configured _in Jenkins_: 
+- The Branch Source plugin that corresponds to your ALM (Bitbucket, GitHub, or GitLab). 
 - The SonarQube Scanner plugin.
 
-### Bitbucket Server
+### Bitbucket Server and GitHub Tutorial
 
-With Bitbucket Server, you can easily configure and analyze your projects using the tutorial in SonarQube (tutorials for other ALMs are on the way). You'll find the tutorial by selecting **With Jenkins** when analyzing a project you've created from a Bitbucket Server repository. 
+With Bitbucket Server and GitHub, you can easily configure and analyze your projects by following the tutorial in SonarQube (which you can find by selecting **with Jenkins** when asked how you want to analyze your repository). Before going through the tutorial, you need to set up your Branch Source plugin and SonarQube Scanner plugin. Below you'll find recommended configurations.
 
-Click **Configuring Jenkins Plugins for Bitbucket Server** below to expand the instructions on installing and configuring these plguins.
+#### **Branch Source plugin**
+
+Click your ALM below to expand the instructions on installing and configuring the Branch Source plugin.
 
 [[collapse]]
-| ## Configuring Jenkins Plugins for Bitbucket Server
+| ## BitBucket Server
 |
-| ### Bitbucket Branch Source plugin
 | [Bitbucket Branch Source plugin](https://plugins.jenkins.io/cloudbees-bitbucket-branch-source/) version 2.7 or later is required
 | 
 | 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Manage Plugins** and install the **Bitbucket Branch Source** plugin.
-| 1. Back at the Jenkins Dashboard, navigate to **Credentials > System** from the left navigation. 
-| 1. Click the **Global credentials (unrestricted)** link in the **System** table. 
-| 1. Click **Add credentials** in the left navigation and add the following information:
-| 	- **Kind**: Username with password
-| 	- **Scope**: Global (Jenkins, nodes, items, all child items, etc)
-| 	- **Username**: Your Bitbucket username.
-| 	- **Password**: Generate a Personal Access Token in Bitbucket Server with **Read** permissions and copy and paste it here. 
-| 1. Click **OK**.
 | 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Configure System**. 
 | 1. From the **Bitbucket Endpoints** section, Click the **Add** drop-down menu and select **Bitbucket Server**. Add the following information:
 | 	- **Name**: Give a unique name to your Bitbucket Server instance.
 | 	- **Server URL**: Your Bitbucket Server instance URL.
 | 	- Check **Manage hooks**
-| 	- **Credentials**: Select the credentials you created in Step 4.
+| 	- **Credentials**: In your credentials, use a Bitbucket Server personal access token with **Read** permissions.
 | 	- **Webhook implementation to use**: Native	
-| 1. Click **Save**
+| 1. Click **Save**.
+
+[[collapse]]
+| ## GitHub
 |
-| ### SonarQube Scanner plugin
-| [SonarQube Scanner](https://plugins.jenkins.io/sonar/) version 2.11 or later
+| [GitHub Branch Source plugin](https://plugins.jenkins.io/github-branch-source/) version 2.7.1 or later is required
+| 
+| 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Manage Plugins** and install the **Bitbucket Branch Source** plugin.
+| 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Configure System**. 
+| 1. From the **GitHub** or **GitHub Enterprise Servers** section, add your GitHub server.
+| 1. Click **Save**.
+
+#### **SonarQube Scanner plugin**
+
+Click SonarQube Scanner below to expand instructions on installing and configuring the plugin.
+ 
+[[collapse]]
+| ## SonarQube Scanner
+|
+| [SonarQube Scanner plugin](https://plugins.jenkins.io/sonar/) version 2.11 or later is required. 
 |
 | 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Manage Plugins** and install the **SonarQube Scanner** plugin.
 | 1. Back at the Jenkins Dashboard, navigate to **Credentials > System** from the left navigation. 
