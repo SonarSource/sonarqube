@@ -22,7 +22,6 @@ package org.sonar.process.logging;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.jul.LevelChangePropagator;
 import ch.qos.logback.classic.spi.ILoggingEvent;

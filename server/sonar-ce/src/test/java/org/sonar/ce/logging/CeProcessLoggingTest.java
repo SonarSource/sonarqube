@@ -22,7 +22,6 @@ package org.sonar.ce.logging;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
@@ -40,6 +39,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
+import org.sonar.process.logging.PatternLayoutEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
