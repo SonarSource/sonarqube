@@ -132,8 +132,8 @@ public class TelemetryDaemonTest {
 
     internalProperties.write("telemetry.lastPing", String.valueOf(sevenDaysAgo));
 
-    verify(dataJsonWriter, timeout(2_000)).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
-    verify(client).upload(anyString());
+    verify(client,  timeout(2_000)).upload(anyString());
+    verify(dataJsonWriter).writeTelemetryData(any(JsonWriter.class), same(SOME_TELEMETRY_DATA));
   }
 
   @Test

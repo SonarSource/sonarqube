@@ -55,24 +55,24 @@ message GithubClientIdWsResponse {
   optional string clientId = 1;
 }
 
-// WS api/alm_integrations/list_github_enterprise_organizations
-message ListGithubEnterpriseOrganizationsWsResponse {
+// WS api/alm_integrations/list_github_organizations
+message ListGithubOrganizationsWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
-  repeated GithubEnterpriseOrganization organizations = 2;
+  repeated GithubOrganization organizations = 2;
 }
 
-message GithubEnterpriseOrganization {
+message GithubOrganization {
   optional string key = 1;
   optional string name = 2;
 }
 
-// WS api/alm_integrations/list_github_enterprise_repositories
-message ListGithubEnterpriseRepositoriesWsResponse {
+// WS api/alm_integrations/list_github_repositories
+message ListGithubRepositoriesWsResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
-  repeated GithubEnterpriseRepository repositories = 2;
+  repeated GithubRepository repositories = 2;
 }
 
-message GithubEnterpriseRepository {
+message GithubRepository {
   optional int64 id = 1;
   optional string key = 2;
   optional string name = 3;
