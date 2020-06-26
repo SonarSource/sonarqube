@@ -55,8 +55,6 @@
     "@babel/preset-react": "7.8.3",
     "@types/classnames": "2.2.10",
     "@types/d3-scale": "2.2.0",
-    "@types/d3-selection": "1.4.1",
-    "@types/d3-zoom": "1.7.4",
     "@types/dompurify": "2.0.1",
     "@types/enzyme": "3.10.5",
     "@types/jest": "25.1.4",

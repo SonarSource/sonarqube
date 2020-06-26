@@ -1564,18 +1564,6 @@
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha1-HBJhu+qhCoBVu8XYq4S3sq/IRqA=
 
-"@types/d3-color@*":
-  version "1.2.2"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-color/-/d3-color-1.2.2.tgz#80cf7cfff7401587b8f89307ba36fe4a576bc7cf"
-  integrity sha1-gM98//dAFYe4+JMHujb+Sldrx88=
-
-"@types/d3-interpolate@*":
-  version "1.3.1"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-interpolate/-/d3-interpolate-1.3.1.tgz#1c280511f622de9b0b47d463fa55f9a4fd6f5fc8"
-  integrity sha1-HCgFEfYi3psLR9Rj+lX5pP1vX8g=
-  dependencies:
-    "@types/d3-color" "*"
-
 "@types/d3-scale@2.2.0":
   version "2.2.0"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-scale/-/d3-scale-2.2.0.tgz#e5987a2857365823eb26ed5eb21bc566c4dcf1c0"
@@ -1583,23 +1571,10 @@
   dependencies:
     "@types/d3-time" "*"
 
-"@types/d3-selection@*", "@types/d3-selection@1.4.1":
-  version "1.4.1"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-selection/-/d3-selection-1.4.1.tgz#fa1f8710a6b5d7cfe5c6caa61d161be7cae4a022"
-  integrity sha1-+h+HEKa118/lxsqmHRYb58rkoCI=
-
 "@types/d3-time@*":
   version "1.0.10"
   resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-time/-/d3-time-1.0.10.tgz#d338c7feac93a98a32aac875d1100f92c7b61f4f"
   integrity sha1-0zjH/qyTqYoyqsh10RAPkse2H08=
-
-"@types/d3-zoom@1.7.4":
-  version "1.7.4"
-  resolved "https://repox.jfrog.io/repox/api/npm/npm/@types/d3-zoom/-/d3-zoom-1.7.4.tgz#9226ffd2bd3846ec0e4a4e2bff211612d3aafad5"
-  integrity sha1-kib/0r04RuwOSk4r/yEWEtOq+tU=
-  dependencies:
-    "@types/d3-interpolate" "*"
-    "@types/d3-selection" "*"
 
 "@types/domhandler@*":
   version "2.4.1"
