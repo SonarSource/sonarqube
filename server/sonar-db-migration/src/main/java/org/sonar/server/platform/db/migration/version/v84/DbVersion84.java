@@ -780,6 +780,8 @@ public class DbVersion84 implements DbVersion {
       .add(3803, "Add 'need_issue_sync' column to 'project_branches' table", AddProjectBranchesNeedIssueSync.class)
       .add(3804, "Populate 'need_issue_sync' of 'project_branches'", PopulateProjectBranchesNeedIssueSync.class)
       .add(3805, "Make 'need_issue_sync' of 'project_branches' not null", MakeProjectBranchesNeedIssueSyncNonNull.class)
+
+      .add(3806, "Drop local webhooks", DropLocalWebhooks.class)
     ;
   }
 }

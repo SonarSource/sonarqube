@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
@@ -49,6 +50,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
@@ -73,17 +75,18 @@ public class ListActionTest {
   @Rule
   public DbTester db = create();
 
-  private DbClient dbClient = db.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = from(db);
-  private WebhookSupport webhookSupport = new WebhookSupport(userSession);
-  private ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
-  private ListAction underTest = new ListAction(dbClient, userSession, defaultOrganizationProvider, webhookSupport, componentFinder);
+  private final DbClient dbClient = db.getDbClient();
+  private final DefaultOrganizationProvider defaultOrganizationProvider = from(db);
+  private final Configuration configuration = mock(Configuration.class);
+  private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration);
+  private final ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
+  private final ListAction underTest = new ListAction(dbClient, userSession, defaultOrganizationProvider, webhookSupport, componentFinder);
 
-  private ComponentDbTester componentDbTester = db.components();
-  private WebhookDbTester webhookDbTester = db.webhooks();
-  private WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
-  private OrganizationDbTester organizationDbTester = db.organizations();
-  private WsActionTester wsActionTester = new WsActionTester(underTest);
+  private final ComponentDbTester componentDbTester = db.components();
+  private final WebhookDbTester webhookDbTester = db.webhooks();
+  private final WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
+  private final OrganizationDbTester organizationDbTester = db.organizations();
+  private final WsActionTester wsActionTester = new WsActionTester(underTest);
 
   @Test
   public void definition() {

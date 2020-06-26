@@ -22,6 +22,7 @@ package org.sonar.server.webhook.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryFast;
@@ -46,6 +47,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
@@ -68,18 +70,17 @@ public class CreateActionTest {
 
   @Rule
   public DbTester db = create();
-  private DbClient dbClient = db.getDbClient();
-  private WebhookDbTester webhookDbTester = db.webhooks();
-  private OrganizationDbTester organizationDbTester = db.organizations();
-  private ComponentDbTester componentDbTester = db.components();
-
-  private DefaultOrganizationProvider defaultOrganizationProvider = from(db);
-  private UuidFactory uuidFactory = UuidFactoryFast.getInstance();
-
-  private WebhookSupport webhookSupport = new WebhookSupport(userSession);
-  private ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
-  private org.sonar.server.webhook.ws.CreateAction underTest = new CreateAction(dbClient, userSession, defaultOrganizationProvider, uuidFactory, webhookSupport, componentFinder);
-  private WsActionTester wsActionTester = new WsActionTester(underTest);
+  private final DbClient dbClient = db.getDbClient();
+  private final WebhookDbTester webhookDbTester = db.webhooks();
+  private final OrganizationDbTester organizationDbTester = db.organizations();
+  private final ComponentDbTester componentDbTester = db.components();
+  private final DefaultOrganizationProvider defaultOrganizationProvider = from(db);
+  private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
+  private final Configuration configuration = mock(Configuration.class);
+  private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration);
+  private final ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
+  private final CreateAction underTest = new CreateAction(dbClient, userSession, defaultOrganizationProvider, uuidFactory, webhookSupport, componentFinder);
+  private final WsActionTester wsActionTester = new WsActionTester(underTest);
 
   @Test
   public void test_ws_definition() {
