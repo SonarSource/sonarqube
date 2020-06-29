@@ -81,8 +81,7 @@ module.exports = ({ production = true, release = false }) => {
     optimization: {
       splitChunks: {
         chunks: 'all',
-        automaticNameDelimiter: '-',
-        maxSize: 310000
+        automaticNameDelimiter: '-'
       },
       minimize: production && release
     }
@@ -211,7 +210,7 @@ module.exports = ({ production = true, release = false }) => {
               // ignore source maps and documentation chunk
               assetFilter: assetFilename =>
                 !assetFilename.endsWith('.map') && !assetFilename.startsWith('js/docs'),
-              maxAssetSize: 310000,
+              maxAssetSize: 400000,
               hints: 'error'
             }
           : undefined
@@ -235,7 +234,14 @@ module.exports = ({ production = true, release = false }) => {
         rules: [
           {
             test: /(\.js$|\.ts(x?)$)/,
-            exclude: /(node_modules|libs)/,
+            exclude: p => {
+              // Transpile D3 packages.
+              if (/\/d3/.test(p)) {
+                return false;
+              }
+              // Ignore anything else in node_modules/.
+              return /node_modules/.test(p);
+            },
             use: [
               {
                 loader: 'babel-loader',
