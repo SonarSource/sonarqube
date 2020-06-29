@@ -34,6 +34,18 @@
       </foreach>
   </select>
 
+  <select id="selectByAlmSettingAndRepos" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+    select <include refid="sqlColumns"/>
+    from
+      project_alm_settings p
+    where
+      alm_setting_uuid=#{almSettingUuid, jdbcType=VARCHAR}
+    and alm_repo in
+      <foreach collection="repos" open="(" close=")" item="repo" separator=",">
+        #{repo, jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
     INSERT INTO project_alm_settings
     (

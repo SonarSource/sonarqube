@@ -22,13 +22,10 @@ package org.sonar.db.alm.setting;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.AlmAppInstallDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -82,5 +79,9 @@ public class ProjectAlmSettingDao implements Dao {
 
   public List<ProjectAlmSettingDto> selectByAlmSettingAndSlugs(DbSession dbSession, AlmSettingDto almSettingDto, Set<String> almSlugs) {
     return executeLargeInputs(almSlugs, slugs -> getMapper(dbSession).selectByAlmSettingAndSlugs(almSettingDto.getUuid(), slugs));
+  }
+
+  public List<ProjectAlmSettingDto> selectByAlmSettingAndRepos(DbSession dbSession, AlmSettingDto almSettingDto, Set<String> almRepos) {
+    return executeLargeInputs(almRepos, repos -> getMapper(dbSession).selectByAlmSettingAndRepos(almSettingDto.getUuid(), repos));
   }
 }

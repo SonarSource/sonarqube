@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { WithRouterProps } from 'react-router';
 import {
   checkPersonalAccessTokenIsValid,
@@ -28,7 +27,6 @@ import {
   searchForBitbucketServerRepositories,
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
-import { getAppState, Store } from '../../../store/rootReducer';
 import {
   BitbucketProject,
   BitbucketProjectRepositories,
@@ -38,8 +36,8 @@ import { AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
 
 interface Props extends Pick<WithRouterProps, 'location'> {
+  canAdmin: boolean;
   bitbucketSettings: AlmSettingsInstance[];
-  canAdmin?: boolean;
   loadingBindings: boolean;
   onProjectCreate: (projectKeys: string[]) => void;
 }
@@ -58,7 +56,7 @@ interface State {
   tokenValidationFailed: boolean;
 }
 
-export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
+export default class BitbucketProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
@@ -285,10 +283,3 @@ export class BitbucketProjectCreate extends React.PureComponent<Props, State> {
     );
   }
 }
-
-const mapStateToProps = (state: Store) => {
-  const { canAdmin } = getAppState(state);
-  return { canAdmin };
-};
-
-export default connect(mapStateToProps)(BitbucketProjectCreate);

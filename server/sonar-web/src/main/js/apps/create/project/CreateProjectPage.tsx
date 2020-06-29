@@ -47,7 +47,7 @@ interface State {
 
 export class CreateProjectPage extends React.PureComponent<Props, State> {
   mounted = false;
-  state: State = { bitbucketSettings: [], githubSettings: [], loading: false };
+  state: State = { bitbucketSettings: [], githubSettings: [], loading: true };
 
   componentDidMount() {
     const {
@@ -82,12 +82,6 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       });
   };
 
-  handleProjectCreate = (projectKeys: string[]) => {
-    if (projectKeys.length === 1) {
-      this.props.router.push(getProjectUrl(projectKeys[0]));
-    }
-  };
-
   handleModeSelect = (mode: CreateProjectModes) => {
     const { router, location } = this.props;
     router.push({
@@ -96,10 +90,17 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
     });
   };
 
+  handleProjectCreate = (projectKeys: string[]) => {
+    if (projectKeys.length === 1) {
+      this.props.router.push(getProjectUrl(projectKeys[0]));
+    }
+  };
+
   renderForm(mode?: CreateProjectModes) {
     const {
       appState: { canAdmin },
-      location
+      location,
+      router
     } = this.props;
     const { bitbucketSettings, githubSettings, loading } = this.state;
 
@@ -107,6 +108,7 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
       case CreateProjectModes.BitbucketServer: {
         return (
           <BitbucketProjectCreate
+            canAdmin={!!canAdmin}
             bitbucketSettings={bitbucketSettings}
             loadingBindings={loading}
             location={location}
@@ -118,8 +120,11 @@ export class CreateProjectPage extends React.PureComponent<Props, State> {
         return (
           <GitHubProjectCreate
             canAdmin={!!canAdmin}
-            code={location.query?.code}
-            settings={githubSettings[0]}
+            loadingBindings={loading}
+            location={location}
+            onProjectCreate={this.handleProjectCreate}
+            router={router}
+            settings={githubSettings}
           />
         );
       }

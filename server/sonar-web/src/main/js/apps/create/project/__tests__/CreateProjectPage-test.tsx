@@ -43,36 +43,26 @@ it('should render correctly if no branch support', () => {
 });
 
 it('should render correctly if the manual method is selected', () => {
-  const push = jest.fn();
-  const location = { query: { mode: CreateProjectModes.Manual } };
-  const wrapper = shallowRender({ router: mockRouter({ push }) });
-
-  wrapper.instance().handleModeSelect(CreateProjectModes.Manual);
-  expect(push).toBeCalledWith(expect.objectContaining(location));
-
-  expect(wrapper.setProps({ location: mockLocation(location) })).toMatchSnapshot();
+  expect(
+    shallowRender({
+      location: mockLocation({ query: { mode: CreateProjectModes.Manual } })
+    })
+  ).toMatchSnapshot();
 });
 
 it('should render correctly if the BBS method is selected', () => {
-  const push = jest.fn();
-  const location = { query: { mode: CreateProjectModes.BitbucketServer } };
-  const wrapper = shallowRender({ router: mockRouter({ push }) });
-
-  wrapper.instance().handleModeSelect(CreateProjectModes.BitbucketServer);
-  expect(push).toBeCalledWith(expect.objectContaining(location));
-
-  expect(wrapper.setProps({ location: mockLocation(location) })).toMatchSnapshot();
+  expect(
+    shallowRender({
+      location: mockLocation({ query: { mode: CreateProjectModes.BitbucketServer } })
+    })
+  ).toMatchSnapshot();
 });
 
 it('should render correctly if the GitHub method is selected', () => {
-  const push = jest.fn();
-  const location = { query: { mode: CreateProjectModes.GitHub } };
-  const wrapper = shallowRender({ router: mockRouter({ push }) });
-
-  wrapper.instance().handleModeSelect(CreateProjectModes.GitHub);
-  expect(push).toBeCalledWith(expect.objectContaining(location));
-
-  expect(wrapper.setProps({ location: mockLocation(location) })).toMatchSnapshot();
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { mode: CreateProjectModes.GitHub } })
+  });
+  expect(wrapper).toMatchSnapshot();
 });
 
 function shallowRender(props: Partial<CreateProjectPage['props']> = {}) {

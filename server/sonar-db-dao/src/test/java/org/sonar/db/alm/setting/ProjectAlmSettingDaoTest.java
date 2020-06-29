@@ -100,6 +100,34 @@ public class ProjectAlmSettingDaoTest {
   }
 
   @Test
+  public void select_by_alm_setting_and_repos() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmSettingDto almSettingsDto = db.almSettings().insertGitHubAlmSetting();
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(almSettingsDto, project);
+    githubProjectAlmSettingDto.setAlmRepo("repo1");
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto);
+    ProjectAlmSettingDto githubProjectAlmSettingDto2 = newGithubProjectAlmSettingDto(almSettingsDto, db.components().insertPrivateProjectDto());
+    githubProjectAlmSettingDto2.setAlmRepo("repo2");
+    when(uuidFactory.create()).thenReturn(A_UUID + 1);
+    underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto2);
+
+    Set<String> repos = new HashSet<>();
+    repos.add("repo1");
+    assertThat(underTest.selectByAlmSettingAndRepos(dbSession, almSettingsDto, repos))
+      .extracting(ProjectAlmSettingDto::getProjectUuid, ProjectAlmSettingDto::getSummaryCommentEnabled)
+      .containsExactly(tuple(project.getUuid(), githubProjectAlmSettingDto.getSummaryCommentEnabled()));
+  }
+
+  @Test
+  public void select_with_no_repos_return_empty() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmSettingDto almSettingsDto = db.almSettings().insertGitHubAlmSetting();
+
+    assertThat(underTest.selectByAlmSettingAndRepos(dbSession, almSettingsDto, new HashSet<>())).isEmpty();
+  }
+
+  @Test
   public void update_existing_binding() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();

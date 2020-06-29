@@ -128,9 +128,33 @@ exports[`should render correctly: error for admin 1`] = `
 </div>
 `;
 
+exports[`should render correctly: loading 1`] = `
+<DeferredSpinner
+  timeout={100}
+/>
+`;
+
 exports[`should render correctly: no repositories 1`] = `
 <div>
   <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+          timeout={100}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={true}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
     title={
       <span
         className="text-middle display-flex-center"
@@ -235,6 +259,24 @@ exports[`should render correctly: organizations 1`] = `
 exports[`should render correctly: repositories 1`] = `
 <div>
   <CreateProjectPageHeader
+    additionalActions={
+      <div
+        className="display-flex-center pull-right"
+      >
+        <DeferredSpinner
+          className="spacer-right"
+          loading={false}
+          timeout={100}
+        />
+        <Button
+          className="button-large button-primary"
+          disabled={false}
+          onClick={[MockFunction]}
+        >
+          onboarding.create_project.import_selected_repo
+        </Button>
+      </div>
+    }
     title={
       <span
         className="text-middle display-flex-center"
@@ -299,7 +341,7 @@ exports[`should render correctly: repositories 1`] = `
     </div>
     <Radio
       checked={false}
-      className="spacer-top spacer-bottom padded github-repository"
+      className="spacer-top spacer-bottom padded create-project-github-repository"
       disabled={false}
       key="repo1"
       onCheck={[MockFunction]}
@@ -310,7 +352,7 @@ exports[`should render correctly: repositories 1`] = `
         title="repository 1"
       >
         <div
-          className="overflow-hidden text-ellipsis"
+          className="text-ellipsis"
         >
           repository 1
         </div>
@@ -318,7 +360,7 @@ exports[`should render correctly: repositories 1`] = `
     </Radio>
     <Radio
       checked={true}
-      className="spacer-top spacer-bottom padded github-repository"
+      className="spacer-top spacer-bottom padded create-project-github-repository"
       disabled={true}
       key="repo2"
       onCheck={[MockFunction]}
@@ -329,14 +371,14 @@ exports[`should render correctly: repositories 1`] = `
         title="repository 1"
       >
         <div
-          className="overflow-hidden text-ellipsis"
+          className="text-ellipsis"
         >
           repository 1
         </div>
         <em
           className="notice text-muted-2 small display-flex-center"
         >
-          onboarding.create_project.already_imported
+          onboarding.create_project.repository_imported
           <CheckIcon
             className="little-spacer-left"
             size={12}
@@ -346,7 +388,7 @@ exports[`should render correctly: repositories 1`] = `
     </Radio>
     <Radio
       checked={true}
-      className="spacer-top spacer-bottom padded github-repository"
+      className="spacer-top spacer-bottom padded create-project-github-repository"
       disabled={false}
       key="repo3"
       onCheck={[MockFunction]}
@@ -357,7 +399,7 @@ exports[`should render correctly: repositories 1`] = `
         title="repository 1"
       >
         <div
-          className="overflow-hidden text-ellipsis"
+          className="text-ellipsis"
         >
           repository 1
         </div>

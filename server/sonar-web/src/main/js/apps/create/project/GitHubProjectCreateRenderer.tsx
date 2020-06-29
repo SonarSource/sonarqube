@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import Radio from 'sonar-ui-common/components/controls/Radio';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
@@ -35,8 +36,11 @@ import CreateProjectPageHeader from './CreateProjectPageHeader';
 export interface GitHubProjectCreateRendererProps {
   canAdmin: boolean;
   error: boolean;
-  loading: boolean;
+  importing: boolean;
+  loadingBindings: boolean;
+  loadingOrganizations: boolean;
   loadingRepositories: boolean;
+  onImportRepository: () => void;
   onLoadMore: () => void;
   onSearch: (q: string) => void;
   onSelectOrganization: (key: string) => void;
@@ -53,13 +57,13 @@ function orgToOption({ key, name }: GithubOrganization) {
   return { value: key, label: name };
 }
 
-export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRendererProps) {
+const handleSearch = (organizations: GithubOrganization[]) => (q: string) =>
+  Promise.resolve(organizations.filter(o => !q || o.name.includes(q)).map(orgToOption));
+
+function renderRepositoryList(props: GitHubProjectCreateRendererProps) {
   const {
-    canAdmin,
-    error,
-    loading,
+    importing,
     loadingRepositories,
-    organizations,
     repositories,
     repositoryPaging,
     searchQuery,
@@ -67,9 +71,99 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
     selectedRepository
   } = props;
 
+  const isChecked = (repository: GithubRepository) =>
+    !!repository.sqProjectKey ||
+    (!!selectedRepository && selectedRepository.key === repository.key);
+
+  const isDisabled = (repository: GithubRepository) =>
+    !!repository.sqProjectKey || loadingRepositories || importing;
+
+  return (
+    selectedOrganization &&
+    repositories && (
+      <div className="boxed-group padded display-flex-wrap">
+        <div className="width-100">
+          <SearchBox
+            className="big-spacer-bottom"
+            onChange={props.onSearch}
+            placeholder={translate('onboarding.create_project.search_repositories')}
+            value={searchQuery}
+          />
+        </div>
+
+        {repositories.length === 0 ? (
+          <div className="padded">
+            <DeferredSpinner loading={loadingRepositories}>
+              {translate('no_results')}
+            </DeferredSpinner>
+          </div>
+        ) : (
+          repositories.map(r => (
+            <Radio
+              className="spacer-top spacer-bottom padded create-project-github-repository"
+              key={r.key}
+              checked={isChecked(r)}
+              disabled={isDisabled(r)}
+              value={r.key}
+              onCheck={props.onSelectRepository}>
+              <div className="big overflow-hidden" title={r.name}>
+                <div className="text-ellipsis">{r.name}</div>
+                {r.sqProjectKey && (
+                  <em className="notice text-muted-2 small display-flex-center">
+                    {translate('onboarding.create_project.repository_imported')}
+                    <CheckIcon className="little-spacer-left" size={12} />
+                  </em>
+                )}
+              </div>
+            </Radio>
+          ))
+        )}
+
+        <div className="display-flex-justify-center width-100">
+          <ListFooter
+            count={repositories.length}
+            total={repositoryPaging.total}
+            loadMore={props.onLoadMore}
+            loading={loadingRepositories}
+          />
+        </div>
+      </div>
+    )
+  );
+}
+
+export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRendererProps) {
+  const {
+    canAdmin,
+    error,
+    importing,
+    loadingBindings,
+    loadingOrganizations,
+    organizations,
+    selectedOrganization,
+    selectedRepository
+  } = props;
+
+  if (loadingBindings) {
+    return <DeferredSpinner />;
+  }
+
   return (
     <div>
       <CreateProjectPageHeader
+        additionalActions={
+          selectedOrganization && (
+            <div className="display-flex-center pull-right">
+              <DeferredSpinner className="spacer-right" loading={importing} />
+              <Button
+                className="button-large button-primary"
+                disabled={!selectedRepository || importing}
+                onClick={props.onImportRepository}>
+                {translate('onboarding.create_project.import_selected_repo')}
+              </Button>
+            </div>
+          )
+        }
         title={
           <span className="text-middle display-flex-center">
             <img
@@ -111,23 +205,19 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
           </div>
         </div>
       ) : (
-        <DeferredSpinner loading={loading}>
+        <DeferredSpinner loading={loadingOrganizations}>
           <div className="form-field">
             <label>{translate('onboarding.create_project.github.choose_organization')}</label>
             {organizations.length > 0 ? (
               <SearchSelect
-                defaultOptions={organizations.slice(0, 10).map(orgToOption)}
-                onSearch={(q: string) =>
-                  Promise.resolve(
-                    organizations.filter(o => !q || o.name.includes(q)).map(orgToOption)
-                  )
-                }
+                defaultOptions={organizations.map(orgToOption)}
+                onSearch={handleSearch(organizations)}
                 minimumQueryLength={0}
                 onSelect={({ value }) => props.onSelectOrganization(value)}
                 value={selectedOrganization && orgToOption(selectedOrganization)}
               />
             ) : (
-              !loading && (
+              !loadingOrganizations && (
                 <Alert className="spacer-top" variant="error">
                   {canAdmin ? (
                     <FormattedMessage
@@ -153,57 +243,7 @@ export default function GitHubProjectCreateRenderer(props: GitHubProjectCreateRe
         </DeferredSpinner>
       )}
 
-      {selectedOrganization && repositories && (
-        <div className="boxed-group padded display-flex-wrap">
-          <div className="width-100">
-            <SearchBox
-              className="big-spacer-bottom"
-              onChange={props.onSearch}
-              placeholder={translate('onboarding.create_project.search_repositories')}
-              value={searchQuery}
-            />
-          </div>
-
-          {repositories.length === 0 ? (
-            <div className="padded">
-              <DeferredSpinner loading={loadingRepositories}>
-                {translate('no_results')}
-              </DeferredSpinner>
-            </div>
-          ) : (
-            repositories.map(r => (
-              <Radio
-                className="spacer-top spacer-bottom padded create-project-github-repository"
-                key={r.key}
-                checked={
-                  !!r.sqProjectKey || (!!selectedRepository && selectedRepository.key === r.key)
-                }
-                disabled={!!r.sqProjectKey || loadingRepositories || importing}
-                value={r.key}
-                onCheck={props.onSelectRepository}>
-                <div className="big overflow-hidden" title={r.name}>
-                  <div className="overflow-hidden text-ellipsis">{r.name}</div>
-                  {r.sqProjectKey && (
-                    <em className="notice text-muted-2 small display-flex-center">
-                      {translate('onboarding.create_project.repository_imported')}
-                      <CheckIcon className="little-spacer-left" size={12} />
-                    </em>
-                  )}
-                </div>
-              </Radio>
-            ))
-          )}
-
-          <div className="display-flex-justify-center width-100">
-            <ListFooter
-              count={repositories.length}
-              total={repositoryPaging.total}
-              loadMore={props.onLoadMore}
-              loading={loadingRepositories}
-            />
-          </div>
-        </div>
-      )}
+      {renderRepositoryList(props)}
     </div>
   );
 }

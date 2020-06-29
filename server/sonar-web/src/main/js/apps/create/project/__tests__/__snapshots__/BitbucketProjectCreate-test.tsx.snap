@@ -8,6 +8,7 @@ exports[`should render correctly 1`] = `
       "key": "foo",
     }
   }
+  canAdmin={false}
   importing={false}
   loading={true}
   onImportRepository={[Function]}

@@ -87,30 +87,49 @@ export function searchForBitbucketServerRepositories(
   });
 }
 
-export function getGithubClientId(almSetting: string): Promise<{ clientId: string }> {
+export function getGithubClientId(almSetting: string): Promise<{ clientId?: string }> {
   return getJSON('/api/alm_integrations/get_github_client_id', { almSetting });
+}
+
+export function importGithubRepository(
+  almSetting: string,
+  organization: string,
+  repositoryKey: string
+): Promise<{ project: ProjectBase }> {
+  return postJSON('/api/alm_integrations/import_github_project', {
+    almSetting,
+    organization,
+    repositoryKey
+  }).catch(throwGlobalError);
 }
 
 export function getGithubOrganizations(
   almSetting: string,
   token: string
 ): Promise<{ organizations: GithubOrganization[] }> {
-  return getJSON('/api/alm_integrations/list_github_enterprise_organizations', {
+  return getJSON('/api/alm_integrations/list_github_organizations', {
     almSetting,
     token
+  }).catch((response?: Response) => {
+    if (response && response.status !== 400) {
+      throwGlobalError(response);
+    }
   });
 }
 
-export function getGithubRepositories(
-  almSetting: string,
-  organization: string,
-  p = 1,
-  query?: string
-): Promise<{ repositories: GithubRepository[]; paging: T.Paging }> {
-  return getJSON('/api/alm_integrations/list_github_enterprise_repositories', {
+export function getGithubRepositories(data: {
+  almSetting: string;
+  organization: string;
+  ps: number;
+  p?: number;
+  query?: string;
+}): Promise<{ repositories: GithubRepository[]; paging: T.Paging }> {
+  const { almSetting, organization, ps, p = 1, query } = data;
+  return getJSON('/api/alm_integrations/list_github_repositories', {
     almSetting,
     organization,
     p,
-    query: query || undefined
-  });
+    ps,
+    q: query || undefined
+  }).catch(throwGlobalError);
 }

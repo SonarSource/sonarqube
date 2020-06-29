@@ -24,16 +24,19 @@ import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   getGithubClientId,
   getGithubOrganizations,
-  getGithubRepositories
+  getGithubRepositories,
+  importGithubRepository
 } from '../../../../api/alm-integrations';
 import { mockGitHubRepository } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
+import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import GitHubProjectCreate from '../GitHubProjectCreate';
 
 jest.mock('../../../../api/alm-integrations', () => ({
   getGithubClientId: jest.fn().mockResolvedValue({ clientId: 'client-id-124' }),
   getGithubOrganizations: jest.fn().mockResolvedValue({ organizations: [] }),
-  getGithubRepositories: jest.fn().mockResolvedValue({ repositories: [], paging: {} })
+  getGithubRepositories: jest.fn().mockResolvedValue({ repositories: [], paging: {} }),
+  importGithubRepository: jest.fn().mockResolvedValue({ project: {} })
 }));
 
 const originalLocation = window.location;
@@ -61,7 +64,7 @@ beforeEach(() => {
 });
 
 it('should handle no settings', async () => {
-  const wrapper = shallowRender({ settings: undefined });
+  const wrapper = shallowRender({ settings: [] });
   await waitAndUpdate(wrapper);
   expect(wrapper.state().error).toBe(true);
 });
@@ -74,15 +77,41 @@ it('should redirect when no code', async () => {
   expect(window.location.replace).toBeCalled();
 });
 
+it('should redirect when no code - github.com', async () => {
+  const wrapper = shallowRender({
+    settings: [mockAlmSettingsInstance({ key: 'a', url: 'api.github.com' })]
+  });
+  await waitAndUpdate(wrapper);
+
+  expect(getGithubClientId).toBeCalled();
+  expect(window.location.replace).toBeCalledWith(
+    'github.com/login/oauth/authorize?client_id=client-id-124&redirect_uri=http://localhost/projects/create?mode=github'
+  );
+});
+
+it('should not redirect when invalid clientId', async () => {
+  (getGithubClientId as jest.Mock).mockResolvedValue({ clientId: undefined });
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().error).toBe(true);
+  expect(window.location.replace).not.toBeCalled();
+});
+
 it('should fetch organizations when code', async () => {
   const organizations = [
     { key: '1', name: 'org1' },
     { key: '2', name: 'org2' }
   ];
   (getGithubOrganizations as jest.Mock).mockResolvedValueOnce({ organizations });
-  const wrapper = shallowRender({ code: '123456' });
+  const replace = jest.fn();
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { code: '123456' } }),
+    router: mockRouter({ replace })
+  });
   await waitAndUpdate(wrapper);
 
+  expect(replace).toBeCalled();
   expect(getGithubOrganizations).toBeCalled();
   expect(wrapper.state().organizations).toBe(organizations);
 });
@@ -98,7 +127,7 @@ it('should handle org selection', async () => {
     repositories,
     paging: { total: 1, pageIndex: 1 }
   });
-  const wrapper = shallowRender({ code: '123456' });
+  const wrapper = shallowRender({ location: mockLocation({ query: { code: '123456' } }) });
   await waitAndUpdate(wrapper);
 
   wrapper.instance().handleSelectOrganization('1');
@@ -154,7 +183,13 @@ it('should handle search', async () => {
 
   await waitAndUpdate(wrapper);
 
-  expect(getGithubRepositories).toBeCalledWith('a', 'o1', 1, query);
+  expect(getGithubRepositories).toBeCalledWith({
+    almSetting: 'a',
+    organization: 'o1',
+    p: 1,
+    ps: 30,
+    query: 'query'
+  });
   expect(wrapper.state().repositories).toEqual(repositories);
 });
 
@@ -169,11 +204,43 @@ it('should handle repository selection', async () => {
   expect(wrapper.state().selectedRepository).toBe(repo);
 });
 
+it('should handle importing', async () => {
+  const project = { key: 'new_project' };
+
+  (importGithubRepository as jest.Mock).mockResolvedValueOnce({ project });
+
+  const onProjectCreate = jest.fn();
+  const wrapper = shallowRender({ onProjectCreate });
+
+  wrapper.instance().handleImportRepository();
+  expect(importGithubRepository).not.toBeCalled();
+
+  const selectedOrganization = { key: 'org1', name: 'org1' };
+  const selectedRepository = mockGitHubRepository();
+  wrapper.setState({
+    selectedOrganization,
+    selectedRepository
+  });
+
+  wrapper.instance().handleImportRepository();
+  await waitAndUpdate(wrapper);
+  expect(importGithubRepository).toBeCalledWith(
+    'a',
+    selectedOrganization.key,
+    selectedRepository.key
+  );
+  expect(onProjectCreate).toBeCalledWith([project.key]);
+});
+
 function shallowRender(props: Partial<GitHubProjectCreate['props']> = {}) {
   return shallow<GitHubProjectCreate>(
     <GitHubProjectCreate
       canAdmin={false}
-      settings={mockAlmSettingsInstance({ key: 'a' })}
+      loadingBindings={false}
+      location={mockLocation()}
+      onProjectCreate={jest.fn()}
+      router={mockRouter()}
+      settings={[mockAlmSettingsInstance({ key: 'a', url: 'geh.company.com/api/v3' })]}
       {...props}
     />
   );

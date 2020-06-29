@@ -39,4 +39,6 @@ public interface ProjectAlmSettingMapper {
   void deleteByAlmSettingUuid(@Param("almSettingUuid") String almSettingUuid);
 
   List<ProjectAlmSettingDto> selectByAlmSettingAndSlugs(@Param("almSettingUuid") String almSettingUuid, @Param("slugs") List<String> slugs);
+
+  List<ProjectAlmSettingDto> selectByAlmSettingAndRepos(@Param("almSettingUuid") String almSettingUuid, @Param("repos") List<String> repos);
 }

@@ -68,8 +68,9 @@ exports[`should render correctly if the BBS method is selected 1`] = `
     className="page page-limited huge-spacer-bottom position-relative"
     id="create-project"
   >
-    <Connect(BitbucketProjectCreate)
+    <BitbucketProjectCreate
       bitbucketSettings={Array []}
+      canAdmin={false}
       loadingBindings={true}
       location={
         Object {
@@ -107,6 +108,35 @@ exports[`should render correctly if the GitHub method is selected 1`] = `
   >
     <GitHubProjectCreate
       canAdmin={false}
+      loadingBindings={true}
+      location={
+        Object {
+          "action": "PUSH",
+          "hash": "",
+          "key": "key",
+          "pathname": "/path",
+          "query": Object {
+            "mode": "github",
+          },
+          "search": "",
+          "state": Object {},
+        }
+      }
+      onProjectCreate={[Function]}
+      router={
+        Object {
+          "createHref": [MockFunction],
+          "createPath": [MockFunction],
+          "go": [MockFunction],
+          "goBack": [MockFunction],
+          "goForward": [MockFunction],
+          "isActive": [MockFunction],
+          "push": [MockFunction],
+          "replace": [MockFunction],
+          "setRouteLeaveHook": [MockFunction],
+        }
+      }
+      settings={Array []}
     />
   </div>
 </Fragment>

@@ -65,3 +65,17 @@ message GithubEnterpriseOrganization {
   optional string key = 1;
   optional string name = 2;
 }
+
+// WS api/alm_integrations/list_github_enterprise_repositories
+message ListGithubEnterpriseRepositoriesWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated GithubEnterpriseRepository repositories = 2;
+}
+
+message GithubEnterpriseRepository {
+  optional int64 id = 1;
+  optional string key = 2;
+  optional string name = 3;
+  optional string url = 4;
+  optional string sqProjectKey = 5;
+}

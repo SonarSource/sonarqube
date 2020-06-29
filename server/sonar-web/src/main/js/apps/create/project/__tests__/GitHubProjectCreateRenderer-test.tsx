@@ -31,6 +31,7 @@ import GitHubProjectCreateRenderer, {
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ loadingBindings: true })).toMatchSnapshot('loading');
   expect(shallowRender({ error: true })).toMatchSnapshot('error');
   expect(shallowRender({ canAdmin: true, error: true })).toMatchSnapshot('error for admin');
 
@@ -64,11 +65,13 @@ it('should render correctly', () => {
 });
 
 describe('callback', () => {
+  const onImportRepository = jest.fn();
   const onSelectOrganization = jest.fn();
   const onSelectRepository = jest.fn();
   const onSearch = jest.fn();
   const org = { key: 'o1', name: 'org' };
   const wrapper = shallowRender({
+    onImportRepository,
     onSelectOrganization,
     onSelectRepository,
     onSearch,
@@ -83,7 +86,7 @@ describe('callback', () => {
 
   it('should be called when org is selected', () => {
     const value = 'o1';
-    wrapper.find(SearchSelect).props().onSelect!({ value });
+    wrapper.find(SearchSelect).simulate('select', { value });
     expect(onSelectOrganization).toBeCalledWith(value);
   });
 
@@ -111,8 +114,11 @@ function shallowRender(props: Partial<GitHubProjectCreateRendererProps> = {}) {
     <GitHubProjectCreateRenderer
       canAdmin={false}
       error={false}
-      loading={false}
+      importing={false}
+      loadingBindings={false}
+      loadingOrganizations={false}
       loadingRepositories={false}
+      onImportRepository={jest.fn()}
       onLoadMore={jest.fn()}
       onSearch={jest.fn()}
       onSelectOrganization={jest.fn()}

@@ -19,25 +19,29 @@
  */
 import { debounce } from 'lodash';
 import * as React from 'react';
+import { WithRouterProps } from 'react-router';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
 import {
   getGithubClientId,
   getGithubOrganizations,
-  getGithubRepositories
+  getGithubRepositories,
+  importGithubRepository
 } from '../../../api/alm-integrations';
 import { GithubOrganization, GithubRepository } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import GitHubProjectCreateRenderer from './GitHubProjectCreateRenderer';
 
-interface Props {
+interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   canAdmin: boolean;
-  code?: string;
-  settings?: AlmSettingsInstance;
+  loadingBindings: boolean;
+  onProjectCreate: (projectKeys: string[]) => void;
+  settings: AlmSettingsInstance[];
 }
 
 interface State {
   error: boolean;
-  loading: boolean;
+  importing: boolean;
+  loadingOrganizations: boolean;
   loadingRepositories: boolean;
   organizations: GithubOrganization[];
   repositoryPaging: T.Paging;
@@ -45,6 +49,7 @@ interface State {
   searchQuery: string;
   selectedOrganization?: GithubOrganization;
   selectedRepository?: GithubRepository;
+  settings?: AlmSettingsInstance;
 }
 
 const REPOSITORY_PAGE_SIZE = 30;
@@ -57,12 +62,14 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
 
     this.state = {
       error: false,
-      loading: true,
+      importing: false,
+      loadingOrganizations: true,
       loadingRepositories: false,
       organizations: [],
       repositories: [],
       repositoryPaging: { pageSize: REPOSITORY_PAGE_SIZE, total: 0, pageIndex: 1 },
-      searchQuery: ''
+      searchQuery: '',
+      settings: props.settings[0]
     };
 
     this.triggerSearch = debounce(this.triggerSearch, 250);
@@ -75,8 +82,8 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (!prevProps.settings && this.props.settings) {
-      this.initialize();
+    if (prevProps.settings.length === 0 && this.props.settings.length > 0) {
+      this.setState({ settings: this.props.settings[0] }, () => this.initialize());
     }
   }
 
@@ -85,19 +92,24 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
   }
 
   async initialize() {
-    const { code, settings } = this.props;
+    const { location, router } = this.props;
+    const { settings } = this.state;
 
-    if (!settings) {
+    if (!settings || !settings.url) {
       this.setState({ error: true });
       return;
     } else {
       this.setState({ error: false });
     }
 
+    const code = location.query?.code;
+
     try {
       if (!code) {
         await this.redirectToGithub(settings);
       } else {
+        delete location.query.code;
+        router.replace(location);
         await this.fetchOrganizations(settings, code);
       }
     } catch (e) {
@@ -108,7 +120,16 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
   }
 
   async redirectToGithub(settings: AlmSettingsInstance) {
+    if (!settings.url) {
+      return;
+    }
+
     const { clientId } = await getGithubClientId(settings.key);
+
+    if (!clientId) {
+      this.setState({ error: true });
+      return;
+    }
 
     const queryParams = [
       { param: 'client_id', value: clientId },
@@ -117,20 +138,32 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       .map(({ param, value }) => `${param}=${value}`)
       .join('&');
 
-    window.location.replace(`https://github.com/login/oauth/authorize?${queryParams}`);
+    let instanceRootUrl;
+    // Strip the api section from the url, since we're not hitting the api here.
+    if (settings.url.includes('/api/v3')) {
+      // GitHub Enterprise
+      instanceRootUrl = settings.url.replace('/api/v3', '');
+    } else {
+      // github.com
+      instanceRootUrl = settings.url.replace('api.', '');
+    }
+
+    // strip the trailing /
+    instanceRootUrl = instanceRootUrl.replace(/\/$/, '');
+    window.location.replace(`${instanceRootUrl}/login/oauth/authorize?${queryParams}`);
   }
 
   async fetchOrganizations(settings: AlmSettingsInstance, token: string) {
     const { organizations } = await getGithubOrganizations(settings.key, token);
 
     if (this.mounted) {
-      this.setState({ loading: false, organizations });
+      this.setState({ loadingOrganizations: false, organizations });
     }
   }
 
   async fetchRepositories(params: { organizationKey: string; page?: number; query?: string }) {
     const { organizationKey, page = 1, query } = params;
-    const { settings } = this.props;
+    const { settings } = this.state;
 
     if (!settings) {
       this.setState({ error: true });
@@ -139,26 +172,45 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
 
     this.setState({ loadingRepositories: true });
 
-    const data = await getGithubRepositories(settings.key, organizationKey, page, query);
+    try {
+      const data = await getGithubRepositories({
+        almSetting: settings.key,
+        organization: organizationKey,
+        ps: REPOSITORY_PAGE_SIZE,
+        p: page,
+        query
+      });
 
-    if (this.mounted) {
-      this.setState(({ repositories }) => ({
-        loadingRepositories: false,
-        repositoryPaging: data.paging,
-        repositories: page === 1 ? data.repositories : [...repositories, ...data.repositories]
-      }));
+      if (this.mounted) {
+        this.setState(({ repositories }) => ({
+          loadingRepositories: false,
+          repositoryPaging: data.paging,
+          repositories: page === 1 ? data.repositories : [...repositories, ...data.repositories]
+        }));
+      }
+    } catch (_) {
+      if (this.mounted) {
+        this.setState({
+          loadingRepositories: false,
+          repositoryPaging: { pageIndex: 1, pageSize: REPOSITORY_PAGE_SIZE, total: 0 },
+          repositories: []
+        });
+      }
     }
   }
 
   triggerSearch = (query: string) => {
     const { selectedOrganization } = this.state;
     if (selectedOrganization) {
+      this.setState({ selectedRepository: undefined });
       this.fetchRepositories({ organizationKey: selectedOrganization.key, query });
     }
   };
 
   handleSelectOrganization = (key: string) => {
     this.setState(({ organizations }) => ({
+      searchQuery: '',
+      selectedRepository: undefined,
       selectedOrganization: organizations.find(o => o.key === key)
     }));
     this.fetchRepositories({ organizationKey: key });
@@ -187,11 +239,34 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
     }
   };
 
+  handleImportRepository = async () => {
+    const { selectedOrganization, selectedRepository, settings } = this.state;
+
+    if (settings && selectedOrganization && selectedRepository) {
+      this.setState({ importing: true });
+
+      try {
+        const { project } = await importGithubRepository(
+          settings.key,
+          selectedOrganization.key,
+          selectedRepository.key
+        );
+
+        this.props.onProjectCreate([project.key]);
+      } finally {
+        if (this.mounted) {
+          this.setState({ importing: false });
+        }
+      }
+    }
+  };
+
   render() {
-    const { canAdmin } = this.props;
+    const { canAdmin, loadingBindings } = this.props;
     const {
       error,
-      loading,
+      importing,
+      loadingOrganizations,
       loadingRepositories,
       organizations,
       repositoryPaging,
@@ -200,12 +275,16 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       selectedOrganization,
       selectedRepository
     } = this.state;
+
     return (
       <GitHubProjectCreateRenderer
         canAdmin={canAdmin}
         error={error}
-        loading={loading}
+        importing={importing}
+        loadingBindings={loadingBindings}
+        loadingOrganizations={loadingOrganizations}
         loadingRepositories={loadingRepositories}
+        onImportRepository={this.handleImportRepository}
         onLoadMore={this.handleLoadMore}
         onSearch={this.handleSearch}
         onSelectOrganization={this.handleSelectOrganization}
