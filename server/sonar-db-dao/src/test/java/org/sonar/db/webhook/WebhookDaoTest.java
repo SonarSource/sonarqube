@@ -19,7 +19,9 @@
  */
 package org.sonar.db.webhook;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +36,7 @@ import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 public class WebhookDaoTest {
 
@@ -43,7 +46,7 @@ public class WebhookDaoTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private System2 system2 = System2.INSTANCE;
+  private final System2 system2 = System2.INSTANCE;
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
@@ -212,6 +215,26 @@ public class WebhookDaoTest {
       .setProjectUuid("UUID_3");
 
     underTest.insert(dbSession, dto);
+  }
+
+  @Test
+  public void scrollAll() {
+    WebhookDto w1 = new WebhookDto().setProjectUuid("p1").setName("W1").setUuid("W1").setUrl("http://abc.com/w1");
+    WebhookDto w2 = new WebhookDto().setProjectUuid("p2").setName("W2").setUuid("W2").setUrl("http://abc.com/w2");
+    WebhookDto w3 = new WebhookDto().setOrganizationUuid("432").setName("W3").setUuid("W3").setUrl("http://abc.com/w3");
+    webhookDbTester.insert(w1);
+    webhookDbTester.insert(w2);
+    webhookDbTester.insert(w3);
+    List<WebhookDto> result = new ArrayList<>();
+
+    underTest.scrollAll(dbSession, result::add);
+
+    assertThat(result).extracting(WebhookDto::getUuid, WebhookDto::getName, WebhookDto::getUrl, WebhookDto::getOrganizationUuid, WebhookDto::getProjectUuid)
+      .containsExactlyInAnyOrder(
+        tuple(w1.getUuid(), w1.getName(), w1.getUrl(), null, w1.getProjectUuid()),
+        tuple(w2.getUuid(), w2.getName(), w2.getUrl(), null, w2.getProjectUuid()),
+        tuple(w3.getUuid(), w3.getName(), w3.getUrl(), w3.getOrganizationUuid(), null));
+
   }
 
   private WebhookDto selectByUuid(String uuid) {

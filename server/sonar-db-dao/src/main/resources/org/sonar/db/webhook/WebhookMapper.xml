@@ -16,20 +16,20 @@
   </sql>
 
   <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
-    select <include refid="sqlColumns" />
+    select <include refid="sqlColumns"/>
     from webhooks
     where uuid = #{webhookUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectForOrganizationUuidOrderedByName" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
-    select <include refid="sqlColumns" />
+    select <include refid="sqlColumns"/>
     from webhooks
     where organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     order by name asc
   </select>
 
   <select id="selectForProjectUuidOrderedByName" parameterType="String" resultType="org.sonar.db.webhook.WebhookDto">
-    select <include refid="sqlColumns" />
+    select <include refid="sqlColumns"/>
     from webhooks
     where project_uuid = #{projectUuid,jdbcType=VARCHAR}
     order by name asc
@@ -83,5 +83,11 @@
     where
     project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
+
+  <select id="scrollAll" resultType="org.sonar.db.webhook.WebhookDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select
+    <include refid="sqlColumns"/>
+    from webhooks
+  </select>
 
 </mapper>

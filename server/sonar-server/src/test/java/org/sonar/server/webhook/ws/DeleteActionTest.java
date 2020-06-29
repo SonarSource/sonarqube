@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -47,6 +48,7 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.DbTester.create;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
@@ -65,19 +67,18 @@ public class DeleteActionTest {
 
   @Rule
   public DbTester db = create();
-  private DbClient dbClient = db.getDbClient();
+  private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
-  private WebhookDbTester webhookDbTester = db.webhooks();
-  private WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
+  private final WebhookDbTester webhookDbTester = db.webhooks();
+  private final WebhookDeliveryDbTester webhookDeliveryDbTester = db.webhookDelivery();
   private final WebhookDeliveryDao deliveryDao = dbClient.webhookDeliveryDao();
-  private OrganizationDbTester organizationDbTester = db.organizations();
-  private ComponentDbTester componentDbTester = db.components();
-
-  private DefaultOrganizationProvider defaultOrganizationProvider = from(db);
-
-  private WebhookSupport webhookSupport = new WebhookSupport(userSession);
-  private DeleteAction underTest = new DeleteAction(dbClient, userSession, webhookSupport);
-  private WsActionTester wsActionTester = new WsActionTester(underTest);
+  private final OrganizationDbTester organizationDbTester = db.organizations();
+  private final ComponentDbTester componentDbTester = db.components();
+  private final DefaultOrganizationProvider defaultOrganizationProvider = from(db);
+  private final Configuration configuration = mock(Configuration.class);
+  private final WebhookSupport webhookSupport = new WebhookSupport(userSession, configuration);
+  private final DeleteAction underTest = new DeleteAction(dbClient, userSession, webhookSupport);
+  private final WsActionTester wsActionTester = new WsActionTester(underTest);
 
   @Test
   public void test_ws_definition() {

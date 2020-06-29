@@ -19,6 +19,10 @@
  */
 package org.sonar.server.webhook.ws;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import okhttp3.HttpUrl;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -27,13 +31,16 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.process.ProcessProperties.Property.SONAR_VALIDATE_WEBHOOKS;
 
 public class WebhookSupport {
 
   private final UserSession userSession;
+  private final Configuration configuration;
 
-  public WebhookSupport(UserSession userSession) {
+  public WebhookSupport(UserSession userSession, Configuration configuration) {
     this.userSession = userSession;
+    this.configuration = configuration;
   }
 
   void checkPermission(ComponentDto componentDto) {
@@ -45,8 +52,19 @@ public class WebhookSupport {
   }
 
   void checkUrlPattern(String url, String message, Object... messageArguments) {
-    if (okhttp3.HttpUrl.parse(url) == null) {
-      throw new IllegalArgumentException(format(message, messageArguments));
+    try {
+      HttpUrl okUrl = HttpUrl.parse(url);
+      if (okUrl == null) {
+        throw new IllegalArgumentException(String.format(message, messageArguments));
+      }
+      InetAddress address = InetAddress.getByName(okUrl.host());
+      if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey()).orElse(true)
+        && (address.isLoopbackAddress() || address.isAnyLocalAddress())) {
+        throw new IllegalArgumentException("Invalid URL");
+      }
+    } catch (UnknownHostException e) {
+      // if a host can not be resolved the deliveries will fail - no need to block it from being set
+      // this will only happen for public URLs
     }
   }
 

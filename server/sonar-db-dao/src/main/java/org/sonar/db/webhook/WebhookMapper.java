@@ -22,6 +22,7 @@ package org.sonar.db.webhook;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 
 public interface WebhookMapper {
 
@@ -31,6 +32,8 @@ public interface WebhookMapper {
   List<WebhookDto> selectForProjectUuidOrderedByName(@Param("projectUuid") String projectUuid);
 
   List<WebhookDto> selectForOrganizationUuidOrderedByName(@Param("organizationUuid") String organizationUuid);
+
+  void scrollAll(ResultHandler<WebhookDto> handler);
 
   void insert(WebhookDto dto);
 

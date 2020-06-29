@@ -33,9 +33,8 @@ import javax.annotation.Nullable;
 import org.sonar.core.extension.CoreExtension;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 
-import static java.lang.String.format;
-
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 
 /**
  * Constants shared by search, web server and app processes.
@@ -112,6 +111,7 @@ public class ProcessProperties {
     SONAR_WEB_SSO_REFRESH_INTERVAL_IN_MINUTES("sonar.web.sso.refreshIntervalInMinutes", "5"),
     SONAR_SECURITY_REALM("sonar.security.realm"),
     SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE("sonar.authenticator.ignoreStartupFailure", "false"),
+    SONAR_VALIDATE_WEBHOOKS("sonar.validateWebhooks", Boolean.TRUE.toString()),
 
     SONAR_TELEMETRY_ENABLE("sonar.telemetry.enable", "true"),
     SONAR_TELEMETRY_URL("sonar.telemetry.url", "https://telemetry.sonarsource.com/sonarqube"),

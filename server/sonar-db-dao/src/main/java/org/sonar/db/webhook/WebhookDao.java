@@ -21,6 +21,7 @@ package org.sonar.db.webhook;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -51,6 +52,13 @@ public class WebhookDao implements Dao {
 
   public List<WebhookDto> selectByProject(DbSession dbSession, ComponentDto componentDto) {
     return mapper(dbSession).selectForProjectUuidOrderedByName(componentDto.uuid());
+  }
+
+  public void scrollAll(DbSession dbSession, Consumer<WebhookDto> consumer) {
+    mapper(dbSession).scrollAll(context -> {
+      WebhookDto webhook = context.getResultObject();
+      consumer.accept(webhook);
+    });
   }
 
   public void insert(DbSession dbSession, WebhookDto dto) {
