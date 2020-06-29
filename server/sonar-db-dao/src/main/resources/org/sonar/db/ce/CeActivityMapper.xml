@@ -248,16 +248,27 @@
     and ca.is_last = ${_true}
   </select>
 
-  <select id="hasAnyFailedIssueSyncTask" parameterType="map" resultType="short">
+  <sql id="hasAnyFailedIssueSyncTaskSql">
     select
     case when exists
     (
-    select ca.uuid from ce_activity ca where ca.task_type = 'ISSUE_SYNC' and status = 'FAILED'
-    and exists(select pb.uuid from project_branches pb where ca.component_uuid = pb.uuid and pb.need_issue_sync = ${_true})
+    select ca.uuid from ce_activity ca inner join project_branches pb on ca.component_uuid = pb.uuid
+    where ca.task_type = 'ISSUE_SYNC'
+    and ca.status = 'FAILED'
+    and pb.need_issue_sync = ${_true}
     )
     then 1
     else 0
     end
+  </sql>
+
+  <select id="hasAnyFailedIssueSyncTask" parameterType="map" resultType="short" >
+    <include refid="hasAnyFailedIssueSyncTaskSql"/>
+  </select>
+
+  <select id="hasAnyFailedIssueSyncTask" parameterType="map" resultType="short" databaseId="oracle">
+    <include refid="hasAnyFailedIssueSyncTaskSql"/>
+    from dual
   </select>
 
   <select id="selectByTaskType" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">

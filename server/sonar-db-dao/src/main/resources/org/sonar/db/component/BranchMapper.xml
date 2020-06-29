@@ -139,7 +139,7 @@
     and pb.created_at &gt;= #{sinceDate, jdbcType=BIGINT}
   </select>
 
-  <select id="hasAnyBranchWhereNeedIssueSync" parameterType="map" resultType="short">
+  <sql id="hasAnyBranchWhereNeedIssueSyncSql">
     select
     case when exists
     (
@@ -148,6 +148,15 @@
     then 1
     else 0
     end
+  </sql>
+
+  <select id="hasAnyBranchWhereNeedIssueSync" parameterType="map" resultType="short">
+    <include refid="hasAnyBranchWhereNeedIssueSyncSql"/>
+  </select>
+
+  <select id="hasAnyBranchWhereNeedIssueSync" parameterType="map" resultType="short" databaseId="oracle">
+    <include refid="hasAnyBranchWhereNeedIssueSyncSql"/>
+    from dual
   </select>
 
   <select id="countByNeedIssueSync" parameterType="map" resultType="int">
@@ -188,7 +197,7 @@
       uuid = #{uuid, jdbcType=VARCHAR}
   </update>
 
-  <select id="doAnyOfComponentsNeedIssueSync" parameterType="map" resultType="short">
+  <sql id="doAnyOfComponentsNeedIssueSyncSql">
     select
     case when exists
     (
@@ -203,6 +212,15 @@
     then 1
     else 0
     end
+  </sql>
+
+  <select id="doAnyOfComponentsNeedIssueSync" parameterType="map" resultType="short">
+    <include refid="doAnyOfComponentsNeedIssueSyncSql"/>
+  </select>
+
+  <select id="doAnyOfComponentsNeedIssueSync" parameterType="map" resultType="short" databaseId="oracle">
+    <include refid="doAnyOfComponentsNeedIssueSyncSql"/>
+    from dual
   </select>
 
 </mapper>

@@ -688,6 +688,7 @@ public class CeQueueDaoTest {
   private void insertView(String view_uuid) {
     ComponentDto view = new ComponentDto();
     view.setQualifier("VW");
+    view.setDbKey(view_uuid + "_key");
     view.setUuid(view_uuid);
     view.setOrganizationUuid("org_uuid");
     view.setPrivate(false);
@@ -701,6 +702,7 @@ public class CeQueueDaoTest {
   private void insertBranch(String uuid) {
     ComponentDto branch = new ComponentDto();
     branch.setQualifier("TRK");
+    branch.setDbKey(uuid + "_key");
     branch.setUuid(uuid);
     branch.setOrganizationUuid("org_uuid");
     branch.setPrivate(false);

@@ -751,7 +751,7 @@
     order by ncloc desc
   </select>
 
-  <select id="checkIfAnyOfComponentsWithQualifiers" resultType="short">
+  <sql id="checkIfAnyOfComponentsWithQualifiersSql">
     select
     case when exists
     (
@@ -769,5 +769,14 @@
     then 1
     else 0
     end
+  </sql>
+
+  <select id="checkIfAnyOfComponentsWithQualifiers" resultType="short">
+    <include refid="checkIfAnyOfComponentsWithQualifiersSql"/>
+  </select>
+
+  <select id="checkIfAnyOfComponentsWithQualifiers" resultType="short" databaseId="oracle">
+    <include refid="checkIfAnyOfComponentsWithQualifiersSql"/>
+    from dual
   </select>
 </mapper>

@@ -85,6 +85,6 @@ public interface CeQueueMapper {
 
   int deleteByUuid(@Param("uuid") String uuid, @Nullable @Param("deleteIf") DeleteIf deleteIf);
 
-  short hasAnyIssueSyncTaskPendingOrInProgress();
+  boolean hasAnyIssueSyncTaskPendingOrInProgress();
 
 }

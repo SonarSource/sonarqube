@@ -155,7 +155,7 @@
     ) as query
     where
     query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-    <include refid="orderBySelectEligibleForPeek"/>
+    order by number asc
   </select>
 
   <select id="selectEligibleForPeek" parameterType="map" resultType="String" databaseId="oracle">
@@ -320,7 +320,7 @@
       status = 'IN_PROGRESS'
   </update>
 
-  <select id="hasAnyIssueSyncTaskPendingOrInProgress" parameterType="map" resultType="short">
+  <sql id="hasAnyIssueSyncTaskPendingOrInProgressSql">
     select
     case when exists
     (
@@ -329,6 +329,15 @@
     then 1
     else 0
     end
+  </sql>
+
+  <select id="hasAnyIssueSyncTaskPendingOrInProgress" parameterType="map" resultType="boolean">
+    <include refid="hasAnyIssueSyncTaskPendingOrInProgressSql"/>
+  </select>
+
+  <select id="hasAnyIssueSyncTaskPendingOrInProgress" parameterType="map" resultType="boolean" databaseId="oracle">
+    <include refid="hasAnyIssueSyncTaskPendingOrInProgressSql"/>
+    from dual
   </select>
 
 </mapper>

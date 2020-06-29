@@ -191,7 +191,7 @@ public class CeQueueDao implements Dao {
   }
 
   public boolean hasAnyIssueSyncTaskPendingOrInProgress(DbSession dbSession) {
-    return mapper(dbSession).hasAnyIssueSyncTaskPendingOrInProgress() > 0;
+    return mapper(dbSession).hasAnyIssueSyncTaskPendingOrInProgress();
   }
 
   private static CeQueueMapper mapper(DbSession session) {
