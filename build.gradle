@@ -158,7 +158,7 @@ subprojects {
       //    updateCenterKey: Update Center Plugin key, last release will be resolved from repox when not provided
       //    githubRepository: name of github repository of the plugin in the SonarSource organisation
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.8.0.2034' // bundled_plugin:abap:sonar-abap
-      dependency 'com.sonarsource.cobol:sonar-cobol-plugin:4.5.0.4434' // bundled_plugin:cobol:sonar-cobol
+      dependency 'com.sonarsource.cobol:sonar-cobol-plugin:4.4.0.3403' // bundled_plugin:cobol:sonar-cobol
       dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.11.0.19130' // bundled_plugin:cpp:sonar-cpp
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.10.0.1880' // bundled_plugin:pli:sonar-pli
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.4.1.2576' // bundled_plugin:plsql:sonar-plsql
