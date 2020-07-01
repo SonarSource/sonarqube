@@ -60,7 +60,7 @@ public class WebhookSupport {
       InetAddress address = InetAddress.getByName(okUrl.host());
       if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS.getKey()).orElse(true)
         && (address.isLoopbackAddress() || address.isAnyLocalAddress())) {
-        throw new IllegalArgumentException("Invalid URL");
+        throw new IllegalArgumentException("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
       }
     } catch (UnknownHostException e) {
       // if a host can not be resolved the deliveries will fail - no need to block it from being set
