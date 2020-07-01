@@ -16,9 +16,11 @@ For more information, see the [Requirements](/requirements/requirements/) docume
 **Project, Application, and Portfolio availability when rebuilding Elasticsearch indexes**  
 From now on if your upgrade requires the rebuild of Elasticsearch indexes, your projects and Applications will become available as they are reindexed. Portfolios won't be available until all projects are reindexed. ([MMF-2010](https://jira.sonarsource.com/browse/MMF-2010)).
 
-**Changes in web services and plugin APIs**  
-The format of several IDs exposed in web services changed and their use is deprecated. See [SONAR-13248](https://jira.sonarsource.com/browse/SONAR-13248), [SONAR-13249](https://jira.sonarsource.com/browse/SONAR-13249), and [SONAR-13300](https://jira.sonarsource.com/browse/SONAR-13300).
+**Additionnal SAML checks**  
+SAML authentication adds additional checks for validating SAML responses from the identity provider. This could reveal a non-standard configuration that needs to be updated. Information will appear in the logs upon a failed login attempt in the event that the configuration needs to be tweaked.
 
+**Changes in web services and plugin APIs**  
+The format of several IDs exposed in web services changed and their use is deprecated. See [SONAR-13248](https://jira.sonarsource.com/browse/SONAR-13248), [SONAR-13249](https://jira.sonarsource.com/browse/SONAR-13249), and [SONAR-13300](https://jira.sonarsource.com/browse/SONAR-13300).  
 A related change is introduced in a plugin API method. See [SONAR-13420](https://jira.sonarsource.com/browse/SONAR-13420).
 
 [Full release notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15833)
