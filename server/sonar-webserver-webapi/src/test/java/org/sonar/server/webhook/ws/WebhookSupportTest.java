@@ -78,7 +78,7 @@ public class WebhookSupportTest {
   public void checkUrlPatternFailsForLoopbackAddress(String url) {
     assertThatThrownBy(() -> underTest.checkUrlPattern(url, "msg"))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Invalid URL");
+      .hasMessage("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
   }
 
   @Test
