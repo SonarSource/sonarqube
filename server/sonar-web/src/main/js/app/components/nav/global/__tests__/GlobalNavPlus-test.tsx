@@ -46,8 +46,18 @@ jest.mock('../../../../../helpers/urls', () => ({
   getPortfolioAdminUrl: jest.fn()
 }));
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+it('should render correctly when no rights', async () => {
+  const wrapper = shallowRender();
+  expect(wrapper.type()).toBeNull();
+  await waitAndUpdate(wrapper);
+  expect(getAlmSettings).not.toBeCalled();
+});
+
 it('should render correctly', () => {
-  expect(shallowRender().type()).toBeNull();
   expect(
     shallowRender([APP_CREATION_RIGHT, PORTFOLIO_CREATION_RIGHT, PROJECT_CREATION_RIGHT])
   ).toMatchSnapshot('no governance');
@@ -67,7 +77,7 @@ it('should load correctly', async () => {
     { alm: AlmKeys.GitHub, key: 'GH1' }
   ]);
 
-  const wrapper = shallowRender();
+  const wrapper = shallowRender([PROJECT_CREATION_RIGHT]);
 
   await waitAndUpdate(wrapper);
 

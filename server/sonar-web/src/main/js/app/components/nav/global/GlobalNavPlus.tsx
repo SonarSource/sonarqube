@@ -56,7 +56,9 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    this.fetchAlmBindings();
+    if (hasGlobalPermission(this.props.currentUser, 'provisioning')) {
+      this.fetchAlmBindings();
+    }
 
     if (this.props.appState.qualifiers.includes('VW')) {
       getExtensionStart('governance/console').then(
