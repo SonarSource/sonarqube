@@ -19,10 +19,13 @@
  */
 package org.sonar.server.issue.index;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,6 +48,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.SnapshotDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
@@ -219,6 +223,43 @@ public class AsyncIssueIndexingImplTest {
       .containsExactlyInAnyOrder(
         tuple("BRANCH", "branch_1", null),
         tuple("PULL_REQUEST", null, "pr_1"));
+  }
+
+  @Test
+  public void verify_comparator_transitivity() {
+    Map<String, SnapshotDto> map = new HashMap<>();
+    map.put("A", new SnapshotDto().setCreatedAt(1L));
+    map.put("B", new SnapshotDto().setCreatedAt(2L));
+    map.put("C", new SnapshotDto().setCreatedAt(-1L));
+    List<String> uuids = new ArrayList<>(map.keySet());
+    uuids.add("D");
+    Comparators.verifyTransitivity(AsyncIssueIndexingImpl.compareBySnapshot(map), uuids);
+  }
+
+  @Test
+  public void trigger_with_lot_of_not_analyzed_project_should_not_raise_exception() {
+    for (int i = 0; i < 100; i++) {
+      BranchDto dto = new BranchDto()
+        .setBranchType(BRANCH)
+        .setKey("branch_" + i)
+        .setUuid("branch_uuid" + i)
+        .setProjectUuid("project_uuid" + i);
+      dbClient.branchDao().insert(dbTester.getSession(), dto);
+      dbTester.commit();
+      insertSnapshot("analysis_" + i, "project_uuid" + i, 1);
+    }
+
+    for (int i = 100; i < 200; i++) {
+      BranchDto dto = new BranchDto()
+        .setBranchType(BRANCH)
+        .setKey("branch_" + i)
+        .setUuid("branch_uuid" + i)
+        .setProjectUuid("project_uuid" + i);
+      dbClient.branchDao().insert(dbTester.getSession(), dto);
+      dbTester.commit();
+    }
+
+    assertThatCode(underTest::triggerOnIndexCreation).doesNotThrowAnyException();
   }
 
   private SnapshotDto insertSnapshot(String analysisUuid, String projectUuid, long createdAt) {
