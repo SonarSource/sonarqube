@@ -33,7 +33,7 @@ import { ComponentQualifier } from '../../../../types/component';
 import GlobalNavPlusMenu from './GlobalNavPlusMenu';
 
 interface Props {
-  appState: Pick<T.AppState, 'qualifiers'>;
+  appState: Pick<T.AppState, 'branchesEnabled' | 'qualifiers'>;
   currentUser: T.LoggedInUser;
   router: Router;
 }
@@ -56,9 +56,7 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    if (hasGlobalPermission(this.props.currentUser, 'provisioning')) {
-      this.fetchAlmBindings();
-    }
+    this.fetchAlmBindings();
 
     if (this.props.appState.qualifiers.includes('VW')) {
       getExtensionStart('governance/console').then(
@@ -81,6 +79,17 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
   };
 
   fetchAlmBindings = async () => {
+    const {
+      appState: { branchesEnabled },
+      currentUser
+    } = this.props;
+    const canCreateProject = hasGlobalPermission(currentUser, 'provisioning');
+
+    // getAlmSettings requires branchesEnabled
+    if (!canCreateProject || !branchesEnabled) {
+      return;
+    }
+
     const almSettings = await getAlmSettings();
 
     // Import is only available if exactly one binding is configured
@@ -134,7 +143,7 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
     return (
       <>
         <Dropdown
-          onOpen={canCreateProject ? this.fetchAlmBindings : undefined}
+          onOpen={this.fetchAlmBindings}
           overlay={
             <GlobalNavPlusMenu
               canCreateApplication={canCreateApplication}

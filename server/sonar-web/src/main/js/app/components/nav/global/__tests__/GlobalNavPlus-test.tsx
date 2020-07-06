@@ -51,20 +51,27 @@ beforeEach(() => {
 });
 
 it('should render correctly when no rights', async () => {
-  const wrapper = shallowRender();
+  const wrapper = shallowRender([], {});
   expect(wrapper.type()).toBeNull();
   await waitAndUpdate(wrapper);
   expect(getAlmSettings).not.toBeCalled();
 });
 
+it('should render correctly if branches not enabled', async () => {
+  const wrapper = shallowRender([PROJECT_CREATION_RIGHT], { branchesEnabled: false });
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot();
+  expect(getAlmSettings).not.toBeCalled();
+});
+
 it('should render correctly', () => {
   expect(
-    shallowRender([APP_CREATION_RIGHT, PORTFOLIO_CREATION_RIGHT, PROJECT_CREATION_RIGHT])
+    shallowRender([APP_CREATION_RIGHT, PORTFOLIO_CREATION_RIGHT, PROJECT_CREATION_RIGHT], {})
   ).toMatchSnapshot('no governance');
 
   const wrapper = shallowRender(
     [APP_CREATION_RIGHT, PORTFOLIO_CREATION_RIGHT, PROJECT_CREATION_RIGHT],
-    true
+    { enableGovernance: true }
   );
   wrapper.setState({ boundAlms: ['bitbucket'] });
   expect(wrapper).toMatchSnapshot('full rights and alms');
@@ -77,7 +84,7 @@ it('should load correctly', async () => {
     { alm: AlmKeys.GitHub, key: 'GH1' }
   ]);
 
-  const wrapper = shallowRender([PROJECT_CREATION_RIGHT]);
+  const wrapper = shallowRender([PROJECT_CREATION_RIGHT], {});
 
   await waitAndUpdate(wrapper);
 
@@ -86,7 +93,7 @@ it('should load correctly', async () => {
 });
 
 it('should display component creation form', () => {
-  const wrapper = shallowRender([PORTFOLIO_CREATION_RIGHT], true);
+  const wrapper = shallowRender([PORTFOLIO_CREATION_RIGHT], { enableGovernance: true });
 
   wrapper.instance().handleComponentCreationClick(ComponentQualifier.Portfolio);
   wrapper.setState({ governanceReady: true });
@@ -103,7 +110,7 @@ describe('handleComponentCreate', () => {
 
   const portfolio = { key: 'portfolio', qualifier: ComponentQualifier.Portfolio };
 
-  const wrapper = shallowRender([], true);
+  const wrapper = shallowRender([], { enableGovernance: true });
 
   it('should redirect to admin', async () => {
     wrapper.instance().handleComponentCreate(portfolio);
@@ -120,10 +127,16 @@ describe('handleComponentCreate', () => {
   });
 });
 
-function shallowRender(permissions: string[] = [], enableGovernance = false) {
+function shallowRender(
+  permissions: string[] = [],
+  { enableGovernance = false, branchesEnabled = true }
+) {
   return shallow<GlobalNavPlus>(
     <GlobalNavPlus
-      appState={{ qualifiers: enableGovernance ? [ComponentQualifier.Portfolio] : [] }}
+      appState={{
+        branchesEnabled,
+        qualifiers: enableGovernance ? [ComponentQualifier.Portfolio] : []
+      }}
       currentUser={mockLoggedInUser({ permissions: { global: permissions } })}
       router={mockRouter()}
     />
