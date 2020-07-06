@@ -104,10 +104,13 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
     projectUuids.sort(compareBySnapshot(snapshotByProjectUuid));
   }
 
-  private static Comparator<String> compareBySnapshot(Map<String, SnapshotDto> snapshotByProjectUuid) {
+  static Comparator<String> compareBySnapshot(Map<String, SnapshotDto> snapshotByProjectUuid) {
     return (uuid1, uuid2) -> {
       SnapshotDto snapshot1 = snapshotByProjectUuid.get(uuid1);
       SnapshotDto snapshot2 = snapshotByProjectUuid.get(uuid2);
+      if (snapshot1 == null && snapshot2 == null) {
+        return 0;
+      }
       if (snapshot1 == null) {
         return 1;
       }
