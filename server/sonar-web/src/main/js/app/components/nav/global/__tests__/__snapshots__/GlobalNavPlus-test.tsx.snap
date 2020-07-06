@@ -1,5 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly if branches not enabled 1`] = `
+<Fragment>
+  <Dropdown
+    onOpen={[Function]}
+    overlay={
+      <GlobalNavPlusMenu
+        canCreateApplication={false}
+        canCreatePortfolio={false}
+        canCreateProject={true}
+        compatibleAlms={Array []}
+        onComponentCreationClick={[Function]}
+      />
+    }
+    tagName="li"
+  >
+    <a
+      className="navbar-icon navbar-plus"
+      href="#"
+      title="my_account.create_new_project_portfolio_or_application"
+    >
+      <PlusIcon />
+    </a>
+  </Dropdown>
+</Fragment>
+`;
+
 exports[`should render correctly: full rights and alms 1`] = `
 <Fragment>
   <Dropdown
