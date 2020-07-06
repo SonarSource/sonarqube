@@ -193,7 +193,8 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               );
 
               const currentTaskChanged =
-                currentTask && newCurrentTask && currentTask.id !== newCurrentTask.id;
+                (!currentTask && newCurrentTask) ||
+                (currentTask && newCurrentTask && currentTask.id !== newCurrentTask.id);
               const progressChanged =
                 tasksInProgress &&
                 (newTasksInProgress.length !== tasksInProgress.length ||

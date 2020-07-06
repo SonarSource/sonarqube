@@ -161,22 +161,73 @@ it('filters correctly the pending tasks for a main branch', () => {
 
 it('reload component after task progress finished', async () => {
   jest.useFakeTimers();
-  const inProgressTask = { id: 'foo', status: STATUSES.IN_PROGRESS } as T.Task;
-  (getTasksForComponent as jest.Mock<any>).mockResolvedValueOnce({ queue: [inProgressTask] });
+  (getTasksForComponent as jest.Mock<any>)
+    .mockResolvedValueOnce({
+      queue: [{ id: 'foo', status: STATUSES.IN_PROGRESS }]
+    })
+    .mockResolvedValueOnce({
+      queue: []
+    });
   const wrapper = shallowRender();
+
+  // First round, there's something in the queue, and component navigation was
+  // not called again (it's called once at mount, hence the 1 times assertion
+  // here).
   await waitAndUpdate(wrapper);
   expect(getComponentNavigation).toHaveBeenCalledTimes(1);
   expect(getTasksForComponent).toHaveBeenCalledTimes(1);
 
-  jest.runAllTimers();
+  jest.runOnlyPendingTimers();
+
+  // Second round, the queue is now empty, hence we assume the previous task
+  // was done. We immediately load the component again.
   expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+
+  // Trigger the update.
   await waitAndUpdate(wrapper);
+  // The component was correctly re-loaded.
   expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+  // The status API call will be called 1 final time after the component is
+  // fully loaded, so the total will be 3.
   expect(getTasksForComponent).toHaveBeenCalledTimes(3);
 
+  // Make sure the timeout was cleared. It should not be called again.
   jest.runAllTimers();
   await waitAndUpdate(wrapper);
+  // The number of calls haven't changed.
   expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+  expect(getTasksForComponent).toHaveBeenCalledTimes(3);
+});
+
+it('reloads component after task progress finished, and moves straight to current', async () => {
+  jest.useFakeTimers();
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+    component: { key: 'bar' }
+  });
+  (getTasksForComponent as jest.Mock<any>)
+    .mockResolvedValueOnce({ queue: [] })
+    .mockResolvedValueOnce({ queue: [], current: { id: 'foo', status: STATUSES.SUCCESS } });
+  const wrapper = shallowRender();
+
+  // First round, nothing in the queue, and component navigation was not called
+  // again (it's called once at mount, hence the 1 times assertion here).
+  await waitAndUpdate(wrapper);
+  expect(getComponentNavigation).toHaveBeenCalledTimes(1);
+  expect(getTasksForComponent).toHaveBeenCalledTimes(1);
+
+  jest.runOnlyPendingTimers();
+
+  // Second round, nothing in the queue, BUT a success task is current. This
+  // means the queue was processed too quick for us to see, and we didn't see
+  // any pending tasks in the queue. So we immediately load the component again.
+  expect(getTasksForComponent).toHaveBeenCalledTimes(2);
+
+  // Trigger the update.
+  await waitAndUpdate(wrapper);
+  // The component was correctly re-loaded.
+  expect(getComponentNavigation).toHaveBeenCalledTimes(2);
+  // The status API call will be called 1 final time after the component is
+  // fully loaded, so the total will be 3.
   expect(getTasksForComponent).toHaveBeenCalledTimes(3);
 });
 
