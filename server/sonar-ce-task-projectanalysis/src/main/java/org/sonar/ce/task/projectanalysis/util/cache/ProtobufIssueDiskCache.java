@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.util.cache;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import java.io.BufferedOutputStream;
@@ -116,7 +115,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setAttributes(next.getAttributesMap());
     defaultIssue.setAuthorLogin(next.hasAuthorLogin() ? next.getAuthorLogin() : null);
     next.getCommentsList().forEach(c -> defaultIssue.addComment(toDefaultIssueComment(c)));
-    defaultIssue.setTags(ImmutableSet.copyOf(TAGS_SPLITTER.split(next.hasTags() ? "" : next.getTags())));
+    defaultIssue.setTags(ImmutableSet.copyOf(TAGS_SPLITTER.split(next.getTags())));
     defaultIssue.setLocations(next.hasLocations() ? next.getLocations() : null);
     defaultIssue.setIsFromExternalRuleEngine(next.getIsFromExternalRuleEngine());
     defaultIssue.setCreationDate(new Date(next.getCreationDate()));

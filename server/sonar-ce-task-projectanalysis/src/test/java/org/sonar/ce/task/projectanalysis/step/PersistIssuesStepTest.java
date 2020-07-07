@@ -132,6 +132,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setProjectKey(project.getKey())
       .setSeverity(BLOCKER)
       .setStatus(STATUS_OPEN)
+      .setTags(singletonList("test"))
       .setNew(false)
       .setCopied(true)
       .setType(RuleType.BUG)
@@ -164,9 +165,54 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getSeverity()).isEqualTo(BLOCKER);
     assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(result.getTags()).containsExactlyInAnyOrder("test");
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
     assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
+    assertThat(context.getStatistics().getAll()).contains(
+      entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
+  }
+
+  @Test
+  public void insert_copied_issue_with_minimal_info() {
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    db.rules().insert(rule);
+    OrganizationDto organizationDto = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organizationDto);
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null));
+    when(system2.now()).thenReturn(NOW);
+
+    protoIssueCache.newAppender().append(new DefaultIssue()
+      .setKey("ISSUE")
+      .setType(RuleType.CODE_SMELL)
+      .setRuleKey(rule.getKey())
+      .setComponentUuid(file.uuid())
+      .setComponentKey(file.getKey())
+      .setProjectUuid(project.uuid())
+      .setProjectKey(project.getKey())
+      .setSeverity(BLOCKER)
+      .setStatus(STATUS_OPEN)
+      .setNew(false)
+      .setCopied(true)
+      .setType(RuleType.BUG)
+      .setCreationDate(new Date(NOW))
+      .setSelectedAt(NOW))
+      .close();
+
+    TestComputationStepContext context = new TestComputationStepContext();
+    underTest.execute(context);
+
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
+    assertThat(result.getKey()).isEqualTo("ISSUE");
+    assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
+    assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
+    assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
+    assertThat(result.getSeverity()).isEqualTo(BLOCKER);
+    assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
+    assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(result.getTags()).isEmpty();
+
+    assertThat(dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"))).isEmpty();
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
   }

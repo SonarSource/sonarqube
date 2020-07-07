@@ -97,7 +97,8 @@ public class XooRulesDefinition implements RulesDefinition {
     ruleWithParameters.createParam("float").setType(RuleParamType.FLOAT);
 
     NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
-      .setHtmlDescription("Generate an issue on each line of a file. It requires the metric \"lines\".");
+      .setHtmlDescription("Generate an issue on each line of a file. It requires the metric \"lines\".")
+      .setTags("line");
     oneIssuePerLine
       .setDebtRemediationFunction(oneIssuePerLine.debtRemediationFunctions().linear("1min"))
       .setGapDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
