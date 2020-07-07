@@ -73,7 +73,7 @@ public class CreateTableBuilderTest {
   @Test
   public void constructor_fails_with_NPE_if_tablename_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Table name cannot be null");
+    expectedException.expectMessage("Table name can't be null");
 
     new CreateTableBuilder(mock(Dialect.class), null);
   }
@@ -292,7 +292,7 @@ public class CreateTableBuilderTest {
   @Test
   public void withPkConstraintName_throws_NPE_if_name_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Constraint name cannot be null");
+    expectedException.expectMessage("Constraint name can't be null");
 
     underTest.withPkConstraintName(null);
   }

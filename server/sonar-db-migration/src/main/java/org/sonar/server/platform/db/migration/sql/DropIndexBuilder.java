@@ -19,11 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.sql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
-import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -31,7 +27,7 @@ import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
 import static java.util.Collections.singletonList;
-import static org.sonar.server.platform.db.migration.def.Validations.validateIndexName;
+import static org.sonar.server.platform.db.migration.def.Validations.validateIndexNameIgnoreCase;
 import static org.sonar.server.platform.db.migration.def.Validations.validateTableName;
 
 public class DropIndexBuilder {
@@ -56,7 +52,7 @@ public class DropIndexBuilder {
 
   public List<String> build() {
     validateTableName(tableName);
-    validateIndexName(indexName);
+    validateIndexNameIgnoreCase(indexName);
     return singletonList(createSqlStatement());
   }
 
@@ -71,14 +67,6 @@ public class DropIndexBuilder {
         return "DROP INDEX IF EXISTS " + indexName;
       default:
         throw new IllegalStateException("Unsupported dialect for drop of index: " + dialect);
-    }
-  }
-
-  public boolean indexExists(Database database) throws SQLException {
-    validateTableName(tableName);
-    validateIndexName(indexName);
-    try (Connection connection = database.getDataSource().getConnection()) {
-      return DatabaseUtils.indexExists(tableName, indexName, connection);
     }
   }
 }

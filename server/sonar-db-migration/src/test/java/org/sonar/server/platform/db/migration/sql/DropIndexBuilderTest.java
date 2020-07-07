@@ -55,7 +55,7 @@ public class DropIndexBuilderTest {
   @Test
   public void throw_NPE_if_table_name_is_missing() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Table name cannot be null");
+    expectedException.expectMessage("Table name can't be null");
 
     new DropIndexBuilder(new H2())
       .setName("issues_key")
@@ -76,7 +76,7 @@ public class DropIndexBuilderTest {
   @Test
   public void throw_NPE_if_index_name_is_missing() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Index name cannot be null");
+    expectedException.expectMessage("Index name can't be null");
 
     new DropIndexBuilder(new H2())
       .setTable("issues")
@@ -86,7 +86,7 @@ public class DropIndexBuilderTest {
   @Test
   public void throw_IAE_if_index_name_is_not_valid() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Index name must be lower case and contain only alphanumeric chars or '_', got '(not valid)'");
+    expectedException.expectMessage("Index name must contain only alphanumeric chars or '_', got '(not valid)'");
 
     new DropIndexBuilder(new H2())
       .setTable("issues")

@@ -19,22 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.version.v84.qualitygates;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-public class DropUniqueIndexOnUuidColumnOfQualityGatesTable extends DdlChange {
+public class DropUniqueIndexOnUuidColumnOfQualityGatesTable extends DropIndexChange {
+  private static final String INDEX_NAME = "uniq_quality_gates_uuid";
+  private static final String TABLE_NAME = "quality_gates";
 
   public DropUniqueIndexOnUuidColumnOfQualityGatesTable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropIndexBuilder(getDialect())
-      .setTable("quality_gates")
-      .setName("uniq_quality_gates_uuid")
-      .build());
+    super(db, INDEX_NAME, TABLE_NAME);
   }
 }

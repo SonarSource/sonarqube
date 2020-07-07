@@ -694,7 +694,7 @@ public class DbVersion84 implements DbVersion {
       .add(3647, "Make 'user_uuid' not-null for 'ORGANIZATION_MEMBERS'", MakeOrganizationMembersUserUuidColumnNotNullable.class)
       .add(3648, "Drop index on 'user_id' column of 'ORGANIZATION_MEMBERS' table", DropIndexOnUserIdOfOrganizationMembersTable.class)
       .add(3649, "Add index on 'user_uuid' column of 'ORGANIZATION_MEMBERS' table", AddIndexOnUserUuidOfOrganizationMembersTable.class)
-      .add(3650, "Drop index on 'user_id', 'group_id' columns of 'ORGANIZATION_MEMBERS' table", DropPrimaryKeyOnUserIdAndOrganizationUuidOfOrganizationMembersTable.class)
+      .add(3650, "Drop primary key on 'user_id' column of 'ORGANIZATION_MEMBERS' table", DropPrimaryKeyOnUserIdAndOrganizationUuidOfOrganizationMembersTable.class)
       .add(3651, "Add PK on 'user_uuid', 'organization_uuid' columns of 'ORGANIZATION_MEMBERS' table", AddPrimaryKeyOnUserUuidAndOrganizationUuidColumnsOfUserRolesTable.class)
       .add(3652, "Drop column on 'user_id' column of 'ORGANIZATION_MEMBERS' table", DropUserIdColumnOfOrganizationMembersTable.class)
 

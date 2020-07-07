@@ -17,44 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v84.issuechanges;
+package org.sonar.server.platform.db.migration.step;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
-import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
 
-import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
+public abstract class DropIndexChange extends DdlChange {
+  private final String indexName;
+  private final String tableName;
 
-public class AddIndexOnIssueKeyOfIssueChangesTable extends DdlChange {
-  private static final String TABLE_NAME = "issue_changes";
-  private static final String INDEX_NAME = "issue_changes_issue_key";
-
-  public AddIndexOnIssueKeyOfIssueChangesTable(Database db) {
+  public DropIndexChange(Database db, String indexName, String tableName) {
     super(db);
+    this.indexName = indexName;
+    this.tableName = tableName;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (!indexExists()) {
-      context.execute(new CreateIndexBuilder()
-        .setUnique(false)
-        .setTable(TABLE_NAME)
-        .setName(INDEX_NAME)
-        .addColumn(newVarcharColumnDefBuilder()
-          .setColumnName("issue_key")
-          .setIsNullable(true)
-          .setLimit(50)
-          .build())
-        .build());
-    }
+    Optional<String> indexName = findExistingIndexName();
+    indexName.ifPresent(index -> context.execute(new DropIndexBuilder(getDialect())
+      .setTable(tableName)
+      .setName(index)
+      .build()));
   }
 
-  private boolean indexExists() throws SQLException {
+  private Optional<String> findExistingIndexName() throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.indexExistsIgnoreCase(TABLE_NAME, INDEX_NAME, connection);
+      return DatabaseUtils.findExistingIndex(connection, tableName, indexName);
     }
   }
 }

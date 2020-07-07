@@ -28,10 +28,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.AssumptionViolatedException;
-import org.sonar.api.config.internal.Settings;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.version.SqTables;
@@ -63,16 +62,20 @@ class CoreTestDb implements TestDb {
   }
 
   static CoreTestDb create(String schemaPath) {
+    return create(schemaPath, true);
+  }
+
+  static CoreTestDb create(String schemaPath, boolean databaseToUpper) {
     requireNonNull(schemaPath, "schemaPath can't be null");
 
-    return new CoreTestDb().init(schemaPath);
+    return new CoreTestDb().init(schemaPath, databaseToUpper);
   }
 
   static CoreTestDb createEmpty() {
-    return new CoreTestDb().init(null);
+    return new CoreTestDb().init(null, true);
   }
 
-  private CoreTestDb init(@Nullable String schemaPath) {
+  private CoreTestDb init(@Nullable String schemaPath, boolean databaseToUpper) {
     Consumer<Settings> noExtraSettingsLoaded = settings -> {
     };
     Function<Settings, Database> databaseCreator = settings -> {
@@ -83,7 +86,11 @@ class CoreTestDb implements TestDb {
         throw new AssumptionViolatedException("This test is intended to be run on H2 only");
       }
 
-      return new CoreH2Database("h2Tests-" + (schemaPath == null ? "empty" : DigestUtils.md5Hex(schemaPath)));
+      String name = "\"h2Tests-\" + (schemaPath == null ? \"empty\" : DigestUtils.md5Hex(schemaPath))";
+      if (!databaseToUpper) {
+        name = name + ";DATABASE_TO_UPPER=FALSE";
+      }
+      return new CoreH2Database(name);
     };
     Consumer<Database> databaseInitializer = database -> {
       if (schemaPath == null) {

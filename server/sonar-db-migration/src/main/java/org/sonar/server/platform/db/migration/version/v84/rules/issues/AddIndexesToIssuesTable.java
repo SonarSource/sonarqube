@@ -99,7 +99,7 @@ public class AddIndexesToIssuesTable extends DdlChange {
 
   private boolean indexExists(String name) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.indexExists(TABLE, name, connection);
+      return DatabaseUtils.indexExistsIgnoreCase(TABLE, name, connection);
     }
   }
 }

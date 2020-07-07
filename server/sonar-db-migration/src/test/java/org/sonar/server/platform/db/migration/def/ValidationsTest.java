@@ -73,7 +73,7 @@ public class ValidationsTest {
   @Test
   public void validateIndexName_throws_NPE_when_index_name_is_null() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Index name cannot be null");
+    thrown.expectMessage("Index name can't be null");
 
     validateIndexName(null);
   }

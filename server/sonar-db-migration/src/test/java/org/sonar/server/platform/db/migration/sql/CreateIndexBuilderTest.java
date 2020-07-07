@@ -84,7 +84,7 @@ public class CreateIndexBuilderTest {
   @Test
   public void throw_NPE_if_table_is_missing() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Table name cannot be null");
+    expectedException.expectMessage("Table name can't be null");
 
     new CreateIndexBuilder()
       .setName("issues_key")
@@ -95,7 +95,7 @@ public class CreateIndexBuilderTest {
   @Test
   public void throw_NPE_if_index_name_is_missing() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Index name cannot be null");
+    expectedException.expectMessage("Index name can't be null");
 
     new CreateIndexBuilder()
       .setTable("issues")

@@ -55,7 +55,7 @@ public class AddTechIndexOnUuidOfProjectMeasuresTable extends DdlChange {
 
   private boolean indexExists(String name) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.indexExists(TABLE_NAME, name, connection);
+      return DatabaseUtils.indexExistsIgnoreCase(TABLE_NAME, name, connection);
     }
   }
 }

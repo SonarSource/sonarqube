@@ -19,34 +19,15 @@
  */
 package org.sonar.server.platform.db.migration.version.v84.projectmeasures;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
-import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-public class DropTechIndexOnUuidOfProjectMeasuresTable extends DdlChange {
+public class DropTechIndexOnUuidOfProjectMeasuresTable extends DropIndexChange {
   private static final String TABLE_NAME = "project_measures";
   private static final String INDEX_NAME = "tech_index_uuid";
 
   public DropTechIndexOnUuidOfProjectMeasuresTable(Database db) {
-    super(db);
+    super(db, INDEX_NAME, TABLE_NAME);
   }
 
-  @Override
-  public void execute(Context context) throws SQLException {
-    if (indexExists(INDEX_NAME)) {
-      context.execute(new DropIndexBuilder(getDialect())
-        .setTable(TABLE_NAME)
-        .setName(INDEX_NAME)
-        .build());
-    }
-  }
-
-  private boolean indexExists(String name) throws SQLException {
-    try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.indexExists(TABLE_NAME, name, connection);
-    }
-  }
 }
