@@ -19,25 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.version.v84.rules.activerules;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-public class DropIndexOnRuleIdColumnOfActiveRulesTable extends DdlChange {
+public class DropIndexOnRuleIdColumnOfActiveRulesTable extends DropIndexChange {
   private static final String TABLE_NAME = "active_rules";
   private static final String INDEX_NAME = "uniq_profile_rule_ids";
 
   public DropIndexOnRuleIdColumnOfActiveRulesTable(Database db) {
-    super(db);
+    super(db, INDEX_NAME, TABLE_NAME);
   }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropIndexBuilder(getDialect())
-      .setTable(TABLE_NAME)
-      .setName(INDEX_NAME)
-      .build());
-  }
-
 }

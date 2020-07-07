@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -282,10 +283,10 @@ public class DatabaseUtils {
   }
 
   /**
-    * @param table case-insensitive name of table
-    * @return true if a table exists with this name, otherwise false
-    * @throws SQLException
-    */
+   * @param table case-insensitive name of table
+   * @return true if a table exists with this name, otherwise false
+   * @throws SQLException
+   */
   public static boolean tableExists(String table, Connection connection) {
     return doTableExists(table, connection) ||
       doTableExists(table.toLowerCase(Locale.ENGLISH), connection) ||
@@ -310,25 +311,43 @@ public class DatabaseUtils {
     }
   }
 
-  public static boolean indexExists(String table, String index, Connection connection) {
-    return doIndexExists(table, index, connection) ||
-      doIndexExists(table.toLowerCase(Locale.ENGLISH), index, connection) ||
-      doIndexExists(table.toUpperCase(Locale.ENGLISH), index, connection);
+  public static boolean indexExistsIgnoreCase(String table, String index, Connection connection) {
+    return doIndexExistsIgnoreIndexCase(table, index, connection) ||
+      doIndexExistsIgnoreIndexCase(table.toLowerCase(Locale.ENGLISH), index, connection) ||
+      doIndexExistsIgnoreIndexCase(table.toUpperCase(Locale.ENGLISH), index, connection);
   }
 
-  private static boolean doIndexExists(String table, String index, Connection connection) {
+  private static boolean doIndexExistsIgnoreIndexCase(String table, String index, Connection connection) {
+    return findIndex(connection, table, index).isPresent();
+  }
+
+  /**
+   * Finds an index by searching by its lower case or upper case name. If an index is found, it's name is returned with the matching case.
+   * This is useful when we need to drop an index that could exist with either lower case or upper case name.
+   * See SONAR-13594
+   */
+  public static Optional<String> findExistingIndex(Connection connection, String tableName, String indexName) {
+    Optional<String> result = findIndex(connection, tableName.toLowerCase(Locale.US), indexName);
+    if (result.isPresent()) {
+      return result;
+    }
+    // in tests, tables have uppercase name
+    return findIndex(connection, tableName.toUpperCase(Locale.US), indexName);
+  }
+
+  private static Optional<String> findIndex(Connection connection, String tableName, String indexName) {
     String schema = getSchema(connection);
 
-    try (ResultSet rs = connection.getMetaData().getIndexInfo(connection.getCatalog(), schema, table, false, true)) {
+    try (ResultSet rs = connection.getMetaData().getIndexInfo(connection.getCatalog(), schema, tableName, false, true)) {
       while (rs.next()) {
-        String indexName = rs.getString("INDEX_NAME");
-        if (index.equalsIgnoreCase(indexName)) {
-          return true;
+        String idx = rs.getString("INDEX_NAME");
+        if (indexName.equalsIgnoreCase(idx)) {
+          return Optional.of(idx);
         }
       }
-      return false;
+      return Optional.empty();
     } catch (SQLException e) {
-      throw wrapSqlException(e, "Can not check that table %s exists", table);
+      throw wrapSqlException(e, "Can not check that table %s exists", tableName);
     }
   }
 

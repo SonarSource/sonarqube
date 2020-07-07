@@ -19,35 +19,15 @@
  */
 package org.sonar.server.platform.db.migration.version.v84.users;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
-import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-public class DropUniqueIndexOnUuidColumnOfUsersTable extends DdlChange {
+public class DropUniqueIndexOnUuidColumnOfUsersTable extends DropIndexChange {
 
   private static final String TABLE_NAME = "users";
   private static final String INDEX_NAME = "users_uuid";
 
   public DropUniqueIndexOnUuidColumnOfUsersTable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    if (indexExists()) {
-      context.execute(new DropIndexBuilder(getDialect())
-        .setTable(TABLE_NAME)
-        .setName(INDEX_NAME)
-        .build());
-    }
-  }
-
-  private boolean indexExists() throws SQLException {
-    try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.indexExists(TABLE_NAME, INDEX_NAME, connection);
-    }
+    super(db, INDEX_NAME, TABLE_NAME);
   }
 }

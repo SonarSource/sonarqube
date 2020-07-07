@@ -34,9 +34,13 @@ public class CoreDbTester extends AbstractDbTester<CoreTestDb> {
   }
 
   public static CoreDbTester createForSchema(Class testClass, String filename) {
+    return createForSchema(testClass, filename, true);
+  }
+
+  public static CoreDbTester createForSchema(Class testClass, String filename, boolean databaseToUpper) {
     String path = StringUtils.replaceChars(testClass.getCanonicalName(), '.', '/');
     String schemaPath = path + "/" + filename;
-    return new CoreDbTester(CoreTestDb.create(schemaPath));
+    return new CoreDbTester(CoreTestDb.create(schemaPath, databaseToUpper));
   }
 
   public static CoreDbTester createEmpty() {

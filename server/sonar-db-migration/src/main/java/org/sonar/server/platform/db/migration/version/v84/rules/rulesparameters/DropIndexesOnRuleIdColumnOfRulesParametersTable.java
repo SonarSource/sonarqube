@@ -19,12 +19,17 @@
  */
 package org.sonar.server.platform.db.migration.version.v84.rules.rulesparameters;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
+import java.util.function.Consumer;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
 public class DropIndexesOnRuleIdColumnOfRulesParametersTable extends DdlChange {
+  private static final String TABLE_NAME = "rules_parameters";
 
   public DropIndexesOnRuleIdColumnOfRulesParametersTable(Database db) {
     super(db);
@@ -32,14 +37,18 @@ public class DropIndexesOnRuleIdColumnOfRulesParametersTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropIndexBuilder(getDialect())
-      .setTable("rules_parameters")
-      .setName("rules_parameters_rule_id")
+    Consumer<String> dropIndex = idx -> context.execute(new DropIndexBuilder(getDialect())
+      .setTable(TABLE_NAME)
+      .setName(idx)
       .build());
-    context.execute(new DropIndexBuilder(getDialect())
-      .setTable("rules_parameters")
-      .setName("rules_parameters_unique")
-      .build());
+
+    findExistingIndexName("rules_parameters_rule_id").ifPresent(dropIndex);
+    findExistingIndexName("rules_parameters_unique").ifPresent(dropIndex);
   }
 
+  private Optional<String> findExistingIndexName(String indexName) throws SQLException {
+    try (Connection connection = getDatabase().getDataSource().getConnection()) {
+      return DatabaseUtils.findExistingIndex(connection, TABLE_NAME, indexName);
+    }
+  }
 }

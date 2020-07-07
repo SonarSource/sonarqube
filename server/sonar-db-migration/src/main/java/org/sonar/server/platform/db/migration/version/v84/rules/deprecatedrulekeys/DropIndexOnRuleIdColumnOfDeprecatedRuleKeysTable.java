@@ -19,23 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.version.v84.rules.deprecatedrulekeys;
 
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-public class DropIndexOnRuleIdColumnOfDeprecatedRuleKeysTable extends DdlChange {
+public class DropIndexOnRuleIdColumnOfDeprecatedRuleKeysTable extends DropIndexChange {
+  private static final String TABLE_NAME = "deprecated_rule_keys";
+  private static final String INDEX_NAME = "rule_id_deprecated_rule_keys";
 
   public DropIndexOnRuleIdColumnOfDeprecatedRuleKeysTable(Database db) {
-    super(db);
+    super(db, INDEX_NAME, TABLE_NAME);
   }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropIndexBuilder(getDialect())
-      .setTable("deprecated_rule_keys")
-      .setName("rule_id_deprecated_rule_keys")
-      .build());
-  }
-
 }

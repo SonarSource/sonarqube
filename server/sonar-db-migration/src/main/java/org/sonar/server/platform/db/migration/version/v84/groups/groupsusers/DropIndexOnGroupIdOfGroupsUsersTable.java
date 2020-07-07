@@ -21,6 +21,8 @@ package org.sonar.server.platform.db.migration.version.v84.groups.groupsusers;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
+import java.util.function.Consumer;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
@@ -37,23 +39,18 @@ public class DropIndexOnGroupIdOfGroupsUsersTable extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (indexExists(INDEX_NAME1)) {
-      context.execute(new DropIndexBuilder(getDialect())
-        .setTable(TABLE_NAME)
-        .setName(INDEX_NAME1)
-        .build());
-    }
-    if (indexExists(INDEX_NAME2)) {
-      context.execute(new DropIndexBuilder(getDialect())
-        .setTable(TABLE_NAME)
-        .setName(INDEX_NAME2)
-        .build());
-    }
+    Consumer<String> dropIndex = idx -> context.execute(new DropIndexBuilder(getDialect())
+      .setTable(TABLE_NAME)
+      .setName(idx)
+      .build());
+
+    findExistingIndexName(INDEX_NAME1).ifPresent(dropIndex);
+    findExistingIndexName(INDEX_NAME2).ifPresent(dropIndex);
   }
 
-  private boolean indexExists(String name) throws SQLException {
+  private Optional<String> findExistingIndexName(String indexName) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.indexExists(TABLE_NAME, name, connection);
+      return DatabaseUtils.findExistingIndex(connection, TABLE_NAME, indexName);
     }
   }
 }

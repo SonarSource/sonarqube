@@ -58,7 +58,7 @@ public class AddIndexOnSlugOfProjectAlmSettings extends DdlChange {
 
   private boolean indexExists() throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.indexExists(TABLE_NAME, INDEX_NAME, connection);
+      return DatabaseUtils.indexExistsIgnoreCase(TABLE_NAME, INDEX_NAME, connection);
     }
   }
 

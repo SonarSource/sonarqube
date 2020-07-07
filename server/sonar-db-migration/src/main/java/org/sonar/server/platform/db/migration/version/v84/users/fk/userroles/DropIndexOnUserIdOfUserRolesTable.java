@@ -19,34 +19,14 @@
  */
 package org.sonar.server.platform.db.migration.version.v84.users.fk.userroles;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.DatabaseUtils;
-import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.step.DropIndexChange;
 
-public class DropIndexOnUserIdOfUserRolesTable extends DdlChange {
+public class DropIndexOnUserIdOfUserRolesTable extends DropIndexChange {
   private static final String TABLE_NAME = "user_roles";
   private static final String INDEX_NAME = "user_roles_user";
 
   public DropIndexOnUserIdOfUserRolesTable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    if (indexExists()) {
-      context.execute(new DropIndexBuilder(getDialect())
-        .setTable(TABLE_NAME)
-        .setName(INDEX_NAME)
-        .build());
-    }
-  }
-
-  private boolean indexExists() throws SQLException {
-    try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return DatabaseUtils.indexExists(TABLE_NAME, INDEX_NAME, connection);
-    }
+    super(db, INDEX_NAME, TABLE_NAME);
   }
 }

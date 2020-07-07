@@ -74,7 +74,7 @@ public class AddIndexesToRulesParametersTable extends DdlChange {
 
   private boolean indexDoesNotExist(String index) throws SQLException {
     try (Connection connection = getDatabase().getDataSource().getConnection()) {
-      return !DatabaseUtils.indexExists(TABLE, index, connection);
+      return !DatabaseUtils.indexExistsIgnoreCase(TABLE, index, connection);
     }
   }
 

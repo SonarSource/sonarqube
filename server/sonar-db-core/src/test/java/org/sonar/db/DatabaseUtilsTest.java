@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -57,19 +58,41 @@ import static org.sonar.db.DatabaseUtils.toUniqueAndSortedList;
 public class DatabaseUtilsTest {
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(DatabaseUtilsTest.class, "just_one_table.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(DatabaseUtilsTest.class, "sql.sql", false);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester();
 
   @Test
-  public void should_close_connection() throws Exception {
-    Connection connection = dbTester.openConnection();
-    assertThat(isClosed(connection)).isFalse();
+  public void find_index_with_lower_case() throws SQLException {
+    String tableName = "schema_migrations";
+    String indexName = "lower_case_name";
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, indexName)).contains(indexName);
+      assertThat(DatabaseUtils.findExistingIndex(connection, tableName.toLowerCase(Locale.US), indexName)).contains(indexName);
+    }
+  }
 
-    DatabaseUtils.closeQuietly(connection);
-    assertThat(isClosed(connection)).isTrue();
+  @Test
+  public void find_index_with_upper_case() throws SQLException {
+    String tableName = "schema_migrations";
+    String indexName = "UPPER_CASE_NAME";
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, indexName)).contains(indexName);
+      assertThat(DatabaseUtils.findExistingIndex(connection, tableName, indexName.toLowerCase(Locale.US))).contains(indexName);
+      assertThat(DatabaseUtils.findExistingIndex(connection, tableName.toLowerCase(Locale.US), indexName.toLowerCase(Locale.US))).contains(indexName);
+    }
+  }
+
+  @Test
+  public void should_close_connection() throws Exception {
+    try (Connection connection = dbTester.openConnection()) {
+      assertThat(isClosed(connection)).isFalse();
+
+      DatabaseUtils.closeQuietly(connection);
+      assertThat(isClosed(connection)).isTrue();
+    }
   }
 
   @Test
@@ -80,9 +103,7 @@ public class DatabaseUtilsTest {
 
   @Test
   public void should_close_statement_and_resultset() throws Exception {
-    Connection connection = dbTester.openConnection();
-    try {
-      PreparedStatement statement = connection.prepareStatement(selectDual());
+    try (Connection connection = dbTester.openConnection(); PreparedStatement statement = connection.prepareStatement(selectDual())) {
       ResultSet rs = statement.executeQuery();
 
       DatabaseUtils.closeQuietly(rs);
@@ -90,8 +111,6 @@ public class DatabaseUtilsTest {
 
       assertThat(isClosed(statement)).isTrue();
       assertThat(isClosed(rs)).isTrue();
-    } finally {
-      DatabaseUtils.closeQuietly(connection);
     }
   }
 
@@ -167,8 +186,8 @@ public class DatabaseUtilsTest {
   public void toUniqueAndSortedList_removes_duplicates_and_apply_natural_order_of_any_Comparable() {
     assertThat(
       toUniqueAndSortedList(asList(myComparable(2), myComparable(5), myComparable(2), myComparable(4), myComparable(-1), myComparable(10))))
-        .containsExactly(
-          myComparable(-1), myComparable(2), myComparable(4), myComparable(5), myComparable(10));
+      .containsExactly(
+        myComparable(-1), myComparable(2), myComparable(4), myComparable(5), myComparable(10));
   }
 
   private static DatabaseUtilsTest.MyComparable myComparable(int ordinal) {
@@ -291,8 +310,8 @@ public class DatabaseUtilsTest {
       },
       i -> i / 500);
 
-    assertThat(outputs).containsExactly(1,2,3);
-    assertThat(partitions).containsExactly(asList(1,2), asList(3));
+    assertThat(outputs).containsExactly(1, 2, 3);
+    assertThat(partitions).containsExactly(asList(1, 2), asList(3));
   }
 
   @Test

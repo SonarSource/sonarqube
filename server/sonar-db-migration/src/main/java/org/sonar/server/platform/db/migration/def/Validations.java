@@ -36,6 +36,7 @@ public class Validations {
 
   private static final CharMatcher DIGIT_CHAR_MATCHER = inRange('0', '9');
   private static final CharMatcher LOWER_CASE_ASCII_LETTERS_CHAR_MATCHER = inRange('a', 'z');
+  private static final CharMatcher UPPER_CASE_ASCII_LETTERS_CHAR_MATCHER = inRange('A', 'Z');
   private static final CharMatcher UNDERSCORE_CHAR_MATCHER = anyOf("_");
 
   private Validations() {
@@ -63,7 +64,6 @@ public class Validations {
    * @see #checkDbIdentifier(String, String, int)
    */
   public static String validateTableName(@Nullable String tableName) {
-    requireNonNull(tableName, "Table name cannot be null");
     checkDbIdentifier(tableName, "Table name", TABLE_NAME_MAX_SIZE);
     return tableName;
   }
@@ -76,7 +76,6 @@ public class Validations {
    * @see #checkDbIdentifier(String, String, int)
    */
   public static String validateConstraintName(@Nullable String constraintName) {
-    requireNonNull(constraintName, "Constraint name cannot be null");
     checkDbIdentifier(constraintName, "Constraint name", CONSTRAINT_NAME_MAX_SIZE);
     return constraintName;
   }
@@ -89,8 +88,12 @@ public class Validations {
    * @see #checkDbIdentifier(String, String, int)
    */
   public static String validateIndexName(@Nullable String indexName) {
-    requireNonNull(indexName, "Index name cannot be null");
     checkDbIdentifier(indexName, "Index name", INDEX_NAME_MAX_SIZE);
+    return indexName;
+  }
+
+  public static String validateIndexNameIgnoreCase(@Nullable String indexName) {
+    checkDbIdentifier(indexName, "Index name", INDEX_NAME_MAX_SIZE, true);
     return indexName;
   }
 
@@ -105,12 +108,20 @@ public class Validations {
    * @throws IllegalArgumentException if {@code identifier} starts with {@code _} or a number
    */
   static String checkDbIdentifier(@Nullable String identifier, String identifierDesc, int maxSize) {
+    return checkDbIdentifier(identifier, identifierDesc, maxSize, false);
+  }
+
+  static String checkDbIdentifier(@Nullable String identifier, String identifierDesc, int maxSize, boolean ignoreCase) {
     String res = checkNotNull(identifier, "%s can't be null", identifierDesc);
     checkArgument(!res.isEmpty(), "%s, can't be empty", identifierDesc);
     checkArgument(
       identifier.length() <= maxSize,
       "%s length can't be more than %s", identifierDesc, maxSize);
-    checkDbIdentifierCharacters(identifier, identifierDesc);
+    if (ignoreCase) {
+      checkDbIdentifierCharactersIgnoreCase(identifier, identifierDesc);
+    } else {
+      checkDbIdentifierCharacters(identifier, identifierDesc);
+    }
     return res;
   }
 
@@ -119,6 +130,15 @@ public class Validations {
     checkArgument(
       LOWER_CASE_ASCII_LETTERS_CHAR_MATCHER.or(DIGIT_CHAR_MATCHER).or(anyOf("_")).matchesAllOf(identifier),
       "%s must be lower case and contain only alphanumeric chars or '_', got '%s'", identifierDesc, identifier);
+    checkArgument(
+      DIGIT_CHAR_MATCHER.or(UNDERSCORE_CHAR_MATCHER).matchesNoneOf(identifier.subSequence(0, 1)),
+      "%s must not start by a number or '_', got '%s'", identifierDesc, identifier);
+  }
+
+  private static void checkDbIdentifierCharactersIgnoreCase(String identifier, String identifierDesc) {
+    checkArgument(identifier.length() > 0, "Identifier must not be empty");
+    checkArgument(LOWER_CASE_ASCII_LETTERS_CHAR_MATCHER.or(DIGIT_CHAR_MATCHER).or(UPPER_CASE_ASCII_LETTERS_CHAR_MATCHER).or(anyOf("_")).matchesAllOf(identifier),
+      "%s must contain only alphanumeric chars or '_', got '%s'", identifierDesc, identifier);
     checkArgument(
       DIGIT_CHAR_MATCHER.or(UNDERSCORE_CHAR_MATCHER).matchesNoneOf(identifier.subSequence(0, 1)),
       "%s must not start by a number or '_', got '%s'", identifierDesc, identifier);
