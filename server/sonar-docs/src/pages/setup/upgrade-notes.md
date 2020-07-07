@@ -3,6 +3,12 @@ title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
 
+## Release 7.9.4 LTS Upgrade Notes  
+**Additional SAML checks**  
+SAML authentication adds additional checks for validating SAML responses from the identity provider. This could reveal a non-standard configuration that needs to be updated. Information will appear in the logs upon a failed login attempt in the event that the configuration needs to be tweaked.
+
+[Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15832)
+
 ## Release 7.9.1 LTS Upgrade Notes  
 **Upgrade on Microsoft SQL Server fixed**  
 Upgrade failure and performance issues with Microsoft SQL Server have been fixed ([SONAR-12260](https://jira.sonarsource.com/browse/SONAR-12260), [SONAR-12251](https://jira.sonarsource.com/browse/SONAR-12251)).
@@ -11,7 +17,6 @@ Upgrade failure and performance issues with Microsoft SQL Server have been fixed
 Automatic execution of Pylint during python analysis on Windows has been fixed. Note that automatic execution of pylint during analysis remains deprecated on all OSes. ([SONAR-12274](https://jira.sonarsource.com/browse/SONAR-12274)).
 
 [Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15029)
-
 
 ## Release 7.9 LTS Upgrade Notes  
 **Upgrade can fail on Microsoft SQL Server**  
@@ -27,7 +32,6 @@ The SonarQube server now requires Java 11. Analyses may continue to use Java 8 i
 Running Pylint automatically during python analysis has been deprecated. Additionally, it is broken in this version on Windows. If needed, Pylint must be run ahead of time and the resulting report passed in to analysis. 
 
 [Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=14945)
-
 
 ## Release 7.8 Upgrade Notes
 **MySQL Deprecation and Migration**  
