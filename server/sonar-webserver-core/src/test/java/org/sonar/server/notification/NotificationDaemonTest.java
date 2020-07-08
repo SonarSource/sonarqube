@@ -34,6 +34,7 @@ import static java.util.Collections.singleton;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class NotificationDaemonTest {
@@ -71,7 +72,9 @@ public class NotificationDaemonTest {
     when(manager.getFromQueue()).thenReturn(notification).thenReturn(null);
 
     underTest.start();
-    inOrder.verify(notificationService, timeout(2000)).deliverEmails(singleton(notification));
+    verify(notificationService, timeout(2000)).deliver(notification);
+
+    inOrder.verify(notificationService).deliverEmails(singleton(notification));
     inOrder.verify(notificationService).deliver(notification);
     inOrder.verifyNoMoreInteractions();
     underTest.stop();
@@ -91,13 +94,15 @@ public class NotificationDaemonTest {
       .thenReturn(null);
 
     underTest.start();
-    inOrder.verify(notificationService, timeout(2000)).deliverEmails(singleton(notification1));
+    verify(notificationService, timeout(2000)).deliver(notification1);
+
+    inOrder.verify(notificationService).deliverEmails(singleton(notification1));
     inOrder.verify(notificationService).deliver(notification1);
-    inOrder.verify(notificationService, timeout(2000)).deliverEmails(singleton(notification2));
+    inOrder.verify(notificationService).deliverEmails(singleton(notification2));
     inOrder.verify(notificationService).deliver(notification2);
-    inOrder.verify(notificationService, timeout(2000)).deliverEmails(singleton(notification3));
+    inOrder.verify(notificationService).deliverEmails(singleton(notification3));
     inOrder.verify(notificationService).deliver(notification3);
-    inOrder.verify(notificationService, timeout(2000)).deliverEmails(singleton(notification4));
+    inOrder.verify(notificationService).deliverEmails(singleton(notification4));
     inOrder.verify(notificationService).deliver(notification4);
     inOrder.verifyNoMoreInteractions();
     underTest.stop();
