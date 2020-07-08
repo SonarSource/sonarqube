@@ -49,5 +49,17 @@ public class PopulateGroupsUsersUserUuid extends DataChange {
       update.setLong(3, userId);
       return true;
     });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select group_uuid, user_id from groups_users where user_uuid is null");
+    massUpdate.update("delete from groups_users where group_uuid = ? and user_id = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      update.setLong(2, row.getLong(2));
+
+      return true;
+    });
   }
 }

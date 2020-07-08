@@ -64,8 +64,13 @@ public class PopulatePermTemplatesUsersUserUuidTest {
     String permTemplatesUserUuid_5 = Uuids.createFast();
     insertPermTemplatesUser(permTemplatesUserUuid_5, userId_1);
 
+    // orphan FK
+    String permTemplatesUserUuid_6 = Uuids.createFast();
+    insertPermTemplatesUser(permTemplatesUserUuid_6, 100L);
+
     underTest.execute();
 
+    assertThat(db.countRowsOfTable("perm_templates_users")).isEqualTo(5);
     assertThatPermTemplatesUsersUserUuidIsEqualTo(permTemplatesUserUuid_1, userUuid_1);
     assertThatPermTemplatesUsersUserUuidIsEqualTo(permTemplatesUserUuid_2, userUuid_2);
     assertThatPermTemplatesUsersUserUuidIsEqualTo(permTemplatesUserUuid_3, userUuid_3);

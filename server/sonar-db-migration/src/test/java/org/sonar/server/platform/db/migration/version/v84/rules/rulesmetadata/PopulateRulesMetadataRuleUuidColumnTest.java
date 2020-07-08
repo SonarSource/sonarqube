@@ -47,6 +47,8 @@ public class PopulateRulesMetadataRuleUuidColumnTest {
     insertRuleMetadata(1L, "org-1");
     insertRuleMetadata(1L, "org-2");
     insertRuleMetadata(2L, "org-1");
+    // orphan FK
+    insertRuleMetadata(10L, "org-1");
   }
 
   @Test

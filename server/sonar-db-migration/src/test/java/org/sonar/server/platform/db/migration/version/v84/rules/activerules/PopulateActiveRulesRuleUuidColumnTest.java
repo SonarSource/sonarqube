@@ -46,6 +46,8 @@ public class PopulateActiveRulesRuleUuidColumnTest {
     insertActiveRule("uuid-ar-1", 1L, "uuid-profile-1");
     insertActiveRule("uuid-ar-2", 1L, "uuid-profile-2");
     insertActiveRule("uuid-ar-3", 2L, "uuid-profile-1");
+    // orphan FK
+    insertActiveRule("uuid-ar-4", 10L, "uuid-profile-1");
   }
 
   @Test

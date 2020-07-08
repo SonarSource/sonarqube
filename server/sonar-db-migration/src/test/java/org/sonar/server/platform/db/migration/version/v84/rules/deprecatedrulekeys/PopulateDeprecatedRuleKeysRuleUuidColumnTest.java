@@ -47,6 +47,8 @@ public class PopulateDeprecatedRuleKeysRuleUuidColumnTest {
     insertDeprecatedRuleKeyRow("uuid-drk-1", 1L);
     insertDeprecatedRuleKeyRow("uuid-drk-2", 1L);
     insertDeprecatedRuleKeyRow("uuid-drk-3", 2L);
+    // orphan FK
+    insertDeprecatedRuleKeyRow("uuid-drk-4", 10L);
   }
 
   @Test

@@ -64,8 +64,13 @@ public class PopulateQProfileEditUsersUserUuidTest {
     String qprofileEditUserUuid_5 = Uuids.createFast();
     insertQProfileEditUser(qprofileEditUserUuid_5, userId_1);
 
+    // orphan FK
+    String qprofileEditUserUuid_6 = Uuids.createFast();
+    insertQProfileEditUser(qprofileEditUserUuid_6, 100L);
+
     underTest.execute();
 
+    assertThat(db.countRowsOfTable("qprofile_edit_users")).isEqualTo(5);
     assertThatQProfileEditUserUserUuidIsEqualTo(qprofileEditUserUuid_1, userUuid_1);
     assertThatQProfileEditUserUserUuidIsEqualTo(qprofileEditUserUuid_2, userUuid_2);
     assertThatQProfileEditUserUserUuidIsEqualTo(qprofileEditUserUuid_3, userUuid_3);

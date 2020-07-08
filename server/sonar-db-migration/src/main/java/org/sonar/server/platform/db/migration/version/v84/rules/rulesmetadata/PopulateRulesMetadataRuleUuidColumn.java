@@ -45,5 +45,16 @@ public class PopulateRulesMetadataRuleUuidColumn extends DataChange {
       update.setLong(2, row.getLong(1));
       return true;
     });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select rule_id, organization_uuid from rules_metadata where rule_uuid is null");
+    massUpdate.update("delete from rules_metadata where rule_id = ? and organization_uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setLong(1, row.getLong(1));
+      update.setString(2, row.getString(2));
+      return true;
+    });
   }
 }
