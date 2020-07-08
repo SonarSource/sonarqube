@@ -48,5 +48,15 @@ public class PopulatePermTemplatesUsersUserUuid extends DataChange {
       update.setString(2, permTemplatesUuid);
       return true;
     });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select uuid from perm_templates_users where user_uuid is null");
+    massUpdate.update("delete from perm_templates_users where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      return true;
+    });
   }
 }

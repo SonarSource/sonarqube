@@ -62,9 +62,13 @@ public class PopulateGroupsUsersUserUuidTest {
     insertGroupUser(userId_3, groupUuid_3);
     String groupUuid_4 = Uuids.createFast();
     insertGroupUser(userId_1, groupUuid_4);
+    // orphan FK
+    String groupUuid_5 = Uuids.createFast();
+    insertGroupUser(100L, groupUuid_5);
 
     underTest.execute();
 
+    assertThat(db.countRowsOfTable("groups_users")).isEqualTo(4);
     assertThatGroupsUserUserUuidIsEqualTo(userId_1, groupUuid_1, userUuid_1);
     assertThatGroupsUserUserUuidIsEqualTo(userId_2, groupUuid_2, userUuid_2);
     assertThatGroupsUserUserUuidIsEqualTo(userId_3, groupUuid_3, userUuid_3);

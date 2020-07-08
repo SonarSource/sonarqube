@@ -48,5 +48,15 @@ public class PopulateQProfileEditUsersUserUuid extends DataChange {
       update.setString(2, permTemplatesUuid);
       return true;
     });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select uuid from qprofile_edit_users where user_uuid is null");
+    massUpdate.update("delete from qprofile_edit_users where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      return true;
+    });
   }
 }

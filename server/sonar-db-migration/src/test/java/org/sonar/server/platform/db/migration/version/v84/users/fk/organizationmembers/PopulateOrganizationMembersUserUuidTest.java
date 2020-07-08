@@ -64,8 +64,13 @@ public class PopulateOrganizationMembersUserUuidTest {
     String organizationUuid_5 = Uuids.createFast();
     insertOrganizationMember(userId_1, organizationUuid_5);
 
+    // orphan FK
+    String organizationUuid_6 = Uuids.createFast();
+    insertOrganizationMember(100L, organizationUuid_6);
+
     underTest.execute();
 
+    assertThat(db.countRowsOfTable("organization_members")).isEqualTo(5);
     assertThatQProfileChangeRulesProfileUuidIsEqualTo(userId_1, organizationUuid_1, userUuid_1);
     assertThatQProfileChangeRulesProfileUuidIsEqualTo(userId_2, organizationUuid_2, userUuid_2);
     assertThatQProfileChangeRulesProfileUuidIsEqualTo(userId_3, organizationUuid_3, userUuid_3);

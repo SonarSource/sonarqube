@@ -45,5 +45,15 @@ public class PopulateDeprecatedRuleKeysRuleUuidColumn extends DataChange {
       update.setLong(2, row.getLong(1));
       return true;
     });
+
+    massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select uuid from deprecated_rule_keys where rule_uuid is null");
+    massUpdate.update("delete from deprecated_rule_keys where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(1));
+      return true;
+    });
   }
 }
