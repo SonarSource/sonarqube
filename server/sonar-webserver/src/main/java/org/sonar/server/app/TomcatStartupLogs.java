@@ -21,8 +21,9 @@ package org.sonar.server.app;
 
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
+
+import java.util.Arrays;
 
 class TomcatStartupLogs {
 
@@ -35,7 +36,7 @@ class TomcatStartupLogs {
   void log(Tomcat tomcat) {
     Connector[] connectors = tomcat.getService().findConnectors();
     for (Connector connector : connectors) {
-      if (StringUtils.equalsIgnoreCase(connector.getScheme(), "http")) {
+      if (Arrays.asList("http", "https").contains(connector.getScheme())) {
         logHttp(connector);
       } else {
         throw new IllegalArgumentException("Unsupported connector: " + connector);
@@ -44,7 +45,7 @@ class TomcatStartupLogs {
   }
 
   private void logHttp(Connector connector) {
-    log.info(String.format("HTTP connector enabled on port %d", connector.getPort()));
+    log.info(String.format("%s connector enabled on port %d", connector.getScheme().toUpperCase(), connector.getPort()));
   }
 
 }

@@ -127,35 +127,6 @@ public class SamlIdentityProviderTest {
   }
 
   @Test
-  public void failed_callback_when_behind_a_reverse_proxy_without_needed_header() {
-    setSettings(true);
-    // simulate reverse proxy stripping SSL and not adding X-Forwarded-Proto header
-    when(this.request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/oauth2/callback/saml"));
-    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response_with_reverse_proxy.txt",
-      "https://localhost/oauth2/callback/saml");
-
-    assertThatThrownBy(() -> underTest.callback(callbackContext))
-      .isInstanceOf(UnauthorizedException.class)
-      .hasMessageContaining("The response was received at http://localhost/oauth2/callback/saml instead of https://localhost/oauth2/callback/saml");
-  }
-
-  @Test
-  public void successful_callback_when_behind_a_reverse_proxy_with_needed_header() {
-    setSettings(true);
-    // simulate reverse proxy stripping SSL and adding X-Forwarded-Proto header
-    when(this.request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/oauth2/callback/saml"));
-    when(this.request.getHeader("X-Forwarded-Proto")).thenReturn("https");
-    DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response_with_reverse_proxy.txt",
-      "https://localhost/oauth2/callback/saml");
-
-    underTest.callback(callbackContext);
-
-    assertThat(callbackContext.redirectedToRequestedPage.get()).isTrue();
-    assertThat(callbackContext.userIdentity.getProviderLogin()).isEqualTo("johndoe");
-    assertThat(callbackContext.verifyState.get()).isTrue();
-  }
-
-  @Test
   public void callback_on_full_response() {
     setSettings(true);
     DumbCallbackContext callbackContext = new DumbCallbackContext(request, response, "encoded_full_response.txt", SQ_CALLBACK_URL);

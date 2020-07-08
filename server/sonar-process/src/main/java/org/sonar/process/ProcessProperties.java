@@ -94,6 +94,9 @@ public class ProcessProperties {
     WEB_SYSTEM_PASS_CODE("sonar.web.systemPasscode"),
     WEB_ACCESSLOGS_ENABLE("sonar.web.accessLogs.enable"),
     WEB_ACCESSLOGS_PATTERN("sonar.web.accessLogs.pattern"),
+    WEB_PROXYNAME("sonar.web.proxyName"),
+    WEB_PROXYPORT("sonar.web.proxyPort"),
+    WEB_SCHEME("sonar.web.scheme"),
 
     CE_JAVA_OPTS("sonar.ce.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     CE_JAVA_ADDITIONAL_OPTS("sonar.ce.javaAdditionalOpts", ""),

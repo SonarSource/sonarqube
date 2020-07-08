@@ -22,6 +22,7 @@ package org.sonar.server.app;
 import javax.annotation.Nullable;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.process.Props;
 
 import static java.lang.String.format;
@@ -29,6 +30,9 @@ import static org.sonar.process.ProcessProperties.Property.WEB_HOST;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_ACCEPT_COUNT;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_MAX_THREADS;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_MIN_THREADS;
+import static org.sonar.process.ProcessProperties.Property.WEB_PROXYNAME;
+import static org.sonar.process.ProcessProperties.Property.WEB_PROXYPORT;
+import static org.sonar.process.ProcessProperties.Property.WEB_SCHEME;
 
 /**
  * Configuration of Tomcat connectors
@@ -66,6 +70,28 @@ class TomcatConnectors {
     configureMaxHttpHeaderSize(connector);
     connector.setPort(port);
     connector.setMaxPostSize(MAX_POST_SIZE);
+
+    //
+    // Workaround for onelogin/java-saml validation not taking into account running a reverse proxy configuration.
+    // More details here:
+    // - https://github.com/onelogin/java-saml/issues/198
+    // - https://github.com/onelogin/java-saml/issues/95
+    //
+    String proxyName = props.value(WEB_PROXYNAME.getKey());
+    if (!StringUtils.isEmpty(proxyName)) {
+      connector.setProxyName(proxyName);
+    }
+
+    int proxyPort = props.valueAsInt(WEB_PROXYPORT.getKey(), 0);
+    if (proxyPort > 0) {
+      connector.setProxyPort(proxyPort);
+    }
+
+    String scheme = props.value(WEB_SCHEME.getKey());
+    if (!StringUtils.isEmpty(scheme)) {
+      connector.setScheme(scheme);
+    }
+
     return connector;
   }
 
