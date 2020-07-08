@@ -179,6 +179,7 @@ public class ServerPluginRepositoryTest {
 
     underTest.start();
 
+    assertThat(logs.logs()).contains("Plugin Test Require New Plugin [testrequire] is ignored because the version 0.2 of required plugin [testbase] is not installed");
     // the plugin "requirenew" is not installed as it requires base 0.2+ to be installed.
     assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
   }
