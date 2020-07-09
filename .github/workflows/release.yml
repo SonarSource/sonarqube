@@ -9,6 +9,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     name: Start release process
+    timeout-minutes: 60
     steps:
       # Not sure why this is needed... Fixes issue with running the action.
       - name: Checkout release action
