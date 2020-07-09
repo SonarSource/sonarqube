@@ -19,7 +19,7 @@
  */
 import { LANGUAGES_CATEGORY } from './AdditionalCategoryKeys';
 
-export const CATEGORY_OVERRIDES: T.Dict<string> = {
+const CATEGORY_OVERRIDES: T.Dict<string> = {
   abap: LANGUAGES_CATEGORY,
   apex: LANGUAGES_CATEGORY,
   'c / c++ / objective-c': LANGUAGES_CATEGORY,
@@ -31,6 +31,7 @@ export const CATEGORY_OVERRIDES: T.Dict<string> = {
   html: LANGUAGES_CATEGORY,
   java: LANGUAGES_CATEGORY,
   javascript: LANGUAGES_CATEGORY,
+  'javascript / typescript': LANGUAGES_CATEGORY,
   kotlin: LANGUAGES_CATEGORY,
   php: LANGUAGES_CATEGORY,
   'pl/i': LANGUAGES_CATEGORY,
@@ -46,3 +47,5 @@ export const CATEGORY_OVERRIDES: T.Dict<string> = {
   'visual basic': LANGUAGES_CATEGORY,
   xml: LANGUAGES_CATEGORY
 };
+
+export default CATEGORY_OVERRIDES;

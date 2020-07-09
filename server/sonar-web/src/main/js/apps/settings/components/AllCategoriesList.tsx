@@ -25,7 +25,7 @@ import { IndexLink } from 'react-router';
 import { getAppState, getSettingsAppAllCategories, Store } from '../../../store/rootReducer';
 import { getCategoryName } from '../utils';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
-import { CATEGORY_OVERRIDES } from './CategoryOverrides';
+import CATEGORY_OVERRIDES from './CategoryOverrides';
 
 interface Category {
   key: string;

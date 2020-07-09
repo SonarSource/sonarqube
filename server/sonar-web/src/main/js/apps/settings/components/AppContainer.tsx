@@ -31,7 +31,7 @@ import '../styles.css';
 import { ADDITIONAL_CATEGORIES } from './AdditionalCategories';
 import AllCategoriesList from './AllCategoriesList';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
-import { CATEGORY_OVERRIDES } from './CategoryOverrides';
+import CATEGORY_OVERRIDES from './CategoryOverrides';
 import PageHeader from './PageHeader';
 
 interface Props {

@@ -27,7 +27,7 @@ import { getCategoryName } from '../utils';
 import { AdditionalCategoryComponentProps } from './AdditionalCategories';
 import { LANGUAGES_CATEGORY } from './AdditionalCategoryKeys';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
-import { CATEGORY_OVERRIDES } from './CategoryOverrides';
+import CATEGORY_OVERRIDES from './CategoryOverrides';
 
 export interface LanguagesProps extends AdditionalCategoryComponentProps {
   categories: string[];
