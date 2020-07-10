@@ -72,6 +72,6 @@ artifactory {
 
 artifactoryPublish {
   skip = false
-  publishPom = false
+  publishPom = true
   publications(publishing.publications.docs)
 }
