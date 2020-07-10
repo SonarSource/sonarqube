@@ -19,11 +19,13 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { ComponentQualifier } from '../../../../types/component';
 import ComponentBreadcrumbs from '../ComponentBreadcrumbs';
 
 const baseIssue = {
   component: 'comp',
   componentLongName: 'comp-name',
+  componentQualifier: ComponentQualifier.File,
   flows: [],
   organization: 'org',
   project: 'proj',

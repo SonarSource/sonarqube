@@ -4,6 +4,7 @@ exports[`should not render developer nominative facets when asked not to 1`] = `
 Array [
   "TypeFacet",
   "SeverityFacet",
+  "ScopeFacet",
   "ResolutionFacet",
   "StatusFacet",
   "StandardFacet",
@@ -19,6 +20,7 @@ exports[`should render facets for developer 1`] = `
 Array [
   "TypeFacet",
   "SeverityFacet",
+  "ScopeFacet",
   "ResolutionFacet",
   "StatusFacet",
   "StandardFacet",
@@ -37,6 +39,7 @@ exports[`should render facets for directory 1`] = `
 Array [
   "TypeFacet",
   "SeverityFacet",
+  "ScopeFacet",
   "ResolutionFacet",
   "StatusFacet",
   "StandardFacet",
@@ -54,6 +57,7 @@ exports[`should render facets for global page 1`] = `
 Array [
   "TypeFacet",
   "SeverityFacet",
+  "ScopeFacet",
   "ResolutionFacet",
   "StatusFacet",
   "StandardFacet",
@@ -71,6 +75,7 @@ exports[`should render facets for module 1`] = `
 Array [
   "TypeFacet",
   "SeverityFacet",
+  "ScopeFacet",
   "ResolutionFacet",
   "StatusFacet",
   "StandardFacet",
@@ -89,6 +94,7 @@ exports[`should render facets for project 1`] = `
 Array [
   "TypeFacet",
   "SeverityFacet",
+  "ScopeFacet",
   "ResolutionFacet",
   "StatusFacet",
   "StandardFacet",
@@ -107,6 +113,7 @@ exports[`should render facets when my issues are selected 1`] = `
 Array [
   "TypeFacet",
   "SeverityFacet",
+  "ScopeFacet",
   "ResolutionFacet",
   "StatusFacet",
   "StandardFacet",

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { collapsePath, limitComponentName } from 'sonar-ui-common/helpers/path';
 import Organization from '../../../components/shared/Organization';
 import { getSelectedLocation } from '../utils';
@@ -28,6 +29,7 @@ interface Props {
     T.Issue,
     | 'component'
     | 'componentLongName'
+    | 'componentQualifier'
     | 'flows'
     | 'organization'
     | 'project'
@@ -59,6 +61,8 @@ export default function ComponentBreadcrumbs({
 
   return (
     <div className="component-name text-ellipsis">
+      <QualifierIcon className="spacer-right" qualifier={issue.componentQualifier} />
+
       {displayOrganization && <Organization link={false} organizationKey={issue.organization} />}
 
       {displayProject && (

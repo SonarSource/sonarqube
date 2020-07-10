@@ -32,6 +32,7 @@ import LanguageFacet from './LanguageFacet';
 import ProjectFacet from './ProjectFacet';
 import ResolutionFacet from './ResolutionFacet';
 import RuleFacet from './RuleFacet';
+import ScopeFacet from './ScopeFacet';
 import SeverityFacet from './SeverityFacet';
 import StandardFacet from './StandardFacet';
 import StatusFacet from './StatusFacet';
@@ -125,6 +126,14 @@ export class Sidebar extends React.PureComponent<Props> {
           open={!!openFacets.severities}
           severities={query.severities}
           stats={facets.severities}
+        />
+        <ScopeFacet
+          fetching={this.props.loadingFacets.scopes === true}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={!!openFacets.scopes}
+          stats={facets.scopes}
+          scopes={query.scopes}
         />
         <ResolutionFacet
           fetching={this.props.loadingFacets.resolutions === true}

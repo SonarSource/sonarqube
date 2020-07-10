@@ -291,7 +291,7 @@
 }
 
 .issues-workspace-list-component {
-  padding: 10px 10px 6px;
+  padding: 10px 0 6px;
 }
 
 .issues-workspace-list-item + .issues-workspace-list-item {
