@@ -83,6 +83,10 @@ public class IssueDoc extends BaseDoc {
     return getField(IssueIndexDefinition.FIELD_ISSUE_RULE_UUID);
   }
 
+  public IssueScope scope() {
+    return IssueScope.valueOf(getField(IssueIndexDefinition.FIELD_ISSUE_SCOPE));
+  }
+
   public String language() {
     return getField(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE);
   }
@@ -192,6 +196,11 @@ public class IssueDoc extends BaseDoc {
 
   public IssueDoc setRuleUuid(String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_RULE_UUID, s);
+    return this;
+  }
+
+  public IssueDoc setScope(IssueScope s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_SCOPE, s.toString());
     return this;
   }
 

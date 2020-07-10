@@ -27,6 +27,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.issue.index.IssueScope;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -60,6 +61,7 @@ public class IssueDocTesting {
     doc.setType(RuleType.CODE_SMELL);
     doc.setAssigneeUuid("assignee_uuid_" + randomAlphabetic(26));
     doc.setAuthorLogin("author_" + randomAlphabetic(5));
+    doc.setScope(IssueScope.MAIN);
     doc.setLanguage("language_" + randomAlphabetic(5));
     doc.setComponentUuid(Uuids.createFast());
     doc.setFilePath("filePath_" + randomAlphabetic(5));

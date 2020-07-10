@@ -67,10 +67,9 @@ public class IssueQueryFactoryTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private RuleDbTester ruleDbTester = new RuleDbTester(db);
-
-  private Clock clock = mock(Clock.class);
-  private IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), clock, userSession);
+  private final RuleDbTester ruleDbTester = new RuleDbTester(db);
+  private final Clock clock = mock(Clock.class);
+  private final IssueQueryFactory underTest = new IssueQueryFactory(db.getDbClient(), clock, userSession);
 
   @Test
   public void create_from_parameters() {
@@ -94,6 +93,7 @@ public class IssueQueryFactoryTest {
       .setDirectories(asList("aDirPath"))
       .setFileUuids(asList(file.uuid()))
       .setAssigneesUuid(asList(user.getUuid()))
+      .setScopes(asList("MAIN", "TEST"))
       .setLanguages(asList("xoo"))
       .setTags(asList("tag1", "tag2"))
       .setOrganization(organization.getKey())
@@ -115,6 +115,7 @@ public class IssueQueryFactoryTest {
     assertThat(query.moduleUuids()).containsOnly(module.uuid());
     assertThat(query.fileUuids()).containsOnly(file.uuid());
     assertThat(query.assignees()).containsOnly(user.getUuid());
+    assertThat(query.scopes()).containsOnly("TEST", "MAIN");
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.organizationUuid()).isEqualTo(organization.getUuid());

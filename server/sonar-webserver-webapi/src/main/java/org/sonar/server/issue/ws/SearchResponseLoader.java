@@ -113,7 +113,7 @@ public class SearchResponseLoader {
 
     if (issueKeysToLoad.isEmpty()) {
       return issueKeys.stream()
-        .map(new KeyToIssueFunction(preloadedIssues)::apply).filter(Objects::nonNull)
+        .map(new KeyToIssueFunction(preloadedIssues)).filter(Objects::nonNull)
         .collect(Collectors.toList());
     }
 
@@ -122,7 +122,7 @@ public class SearchResponseLoader {
       .collect(toList(preloadedIssues.size() + loadedIssues.size()));
 
     return issueKeys.stream()
-      .map(new KeyToIssueFunction(unorderedIssues)::apply).filter(Objects::nonNull)
+      .map(new KeyToIssueFunction(unorderedIssues)).filter(Objects::nonNull)
       .collect(Collectors.toList());
   }
 

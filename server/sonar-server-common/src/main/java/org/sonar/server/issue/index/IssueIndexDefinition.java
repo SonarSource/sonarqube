@@ -57,6 +57,7 @@ public class IssueIndexDefinition implements IndexDefinition {
    */
   public static final String FIELD_ISSUE_FUNC_CLOSED_AT = "issueClosedAt";
   public static final String FIELD_ISSUE_KEY = "key";
+  public static final String FIELD_ISSUE_SCOPE = "scope";
   public static final String FIELD_ISSUE_LANGUAGE = "language";
   public static final String FIELD_ISSUE_LINE = "line";
   public static final String FIELD_ISSUE_MODULE_UUID = "module";
@@ -142,6 +143,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.createDateTimeField(FIELD_ISSUE_FUNC_UPDATED_AT);
     mapping.createDateTimeField(FIELD_ISSUE_FUNC_CLOSED_AT);
     mapping.keywordFieldBuilder(FIELD_ISSUE_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_ISSUE_SCOPE).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_ISSUE_LANGUAGE).disableNorms().build();
     mapping.createIntegerField(FIELD_ISSUE_LINE);
     mapping.keywordFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().build();

@@ -80,6 +80,7 @@ public class IssuesWsParameters {
   public static final String DEPRECATED_PARAM_AUTHORS = "authors";
 
   public static final String PARAM_AUTHOR = "author";
+  public static final String PARAM_SCOPES = "scopes";
   public static final String PARAM_LANGUAGES = "languages";
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_TYPES = "types";

@@ -32,6 +32,7 @@ import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.DatabaseUtils;
@@ -80,7 +81,8 @@ class IssueIteratorForSingleChunk implements IssueIterator {
     // column 21
     "i.tags",
     "i.issue_type",
-    "r.security_standards"
+    "r.security_standards",
+    "c.qualifier"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
@@ -235,6 +237,8 @@ class IssueIteratorForSingleChunk implements IssueIterator {
       doc.setSansTop25(securityStandards.getSansTop25());
       doc.setSonarSourceSecurityCategory(sqCategory);
       doc.setVulnerabilityProbability(sqCategory.getVulnerability());
+
+      doc.setScope(Qualifiers.UNIT_TEST_FILE.equals(rs.getString(24)) ? IssueScope.TEST : IssueScope.MAIN);
       return doc;
     }
 

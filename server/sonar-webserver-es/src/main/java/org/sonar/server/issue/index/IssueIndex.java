@@ -127,6 +127,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.PROJECT_UUIDS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.RESOLUTIONS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.RULES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SANS_TOP_25;
+import static org.sonar.server.issue.index.IssueIndex.Facet.SCOPES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SEVERITIES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.SONARSOURCE_SECURITY;
 import static org.sonar.server.issue.index.IssueIndex.Facet.STATUSES;
@@ -155,6 +156,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJ
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_RULE_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SANS_TOP_25;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SCOPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SQ_SECURITY_CATEGORY;
@@ -183,6 +185,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_1
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SCOPES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_STATUSES;
@@ -231,6 +234,7 @@ public class IssueIndex {
     // Resolutions facet returns one more element than the number of resolutions to take into account unresolved issues
     RESOLUTIONS(PARAM_RESOLUTIONS, FIELD_ISSUE_RESOLUTION, STICKY, Issue.RESOLUTIONS.size() + 1),
     TYPES(PARAM_TYPES, FIELD_ISSUE_TYPE, STICKY, RuleType.values().length),
+    SCOPES(PARAM_SCOPES, FIELD_ISSUE_SCOPE, STICKY, MAX_FACET_SIZE),
     LANGUAGES(PARAM_LANGUAGES, FIELD_ISSUE_LANGUAGE, STICKY, MAX_FACET_SIZE),
     RULES(PARAM_RULES, FIELD_ISSUE_RULE_UUID, STICKY, MAX_FACET_SIZE),
     TAGS(PARAM_TAGS, FIELD_ISSUE_TAGS, STICKY, MAX_FACET_SIZE),
@@ -416,6 +420,7 @@ public class IssueIndex {
     // Field Filters
     filters.addFilter(FIELD_ISSUE_KEY, new SimpleFieldFilterScope(FIELD_ISSUE_KEY), createTermsFilter(FIELD_ISSUE_KEY, query.issueKeys()));
     filters.addFilter(FIELD_ISSUE_ASSIGNEE_UUID, ASSIGNEES.getFilterScope(), createTermsFilter(FIELD_ISSUE_ASSIGNEE_UUID, query.assignees()));
+    filters.addFilter(FIELD_ISSUE_SCOPE, SCOPES.getFilterScope(), createTermsFilter(FIELD_ISSUE_SCOPE, query.scopes()));
     filters.addFilter(FIELD_ISSUE_LANGUAGE, LANGUAGES.getFilterScope(), createTermsFilter(FIELD_ISSUE_LANGUAGE, query.languages()));
     filters.addFilter(FIELD_ISSUE_TAGS, TAGS.getFilterScope(), createTermsFilter(FIELD_ISSUE_TAGS, query.tags()));
     filters.addFilter(FIELD_ISSUE_TYPE, TYPES.getFilterScope(), createTermsFilter(FIELD_ISSUE_TYPE, query.types()));
@@ -662,6 +667,7 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, MODULE_UUIDS, query.moduleUuids().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, DIRECTORIES, query.directories().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, FILE_UUIDS, query.fileUuids().toArray());
+    addFacetIfNeeded(options, aggregationHelper, esRequest, SCOPES, query.scopes().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, LANGUAGES, query.languages().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, RULES, query.rules().stream().map(RuleDefinitionDto::getUuid).toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, AUTHORS, query.authors().toArray());

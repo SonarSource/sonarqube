@@ -154,6 +154,7 @@ message Issue {
 
   optional string externalRuleEngine = 33;
   optional bool fromHotspot = 34;
+  optional string scope = 35;
 }
 
 message Transitions {

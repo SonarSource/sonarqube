@@ -52,6 +52,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.issue.index.IssueQuery;
 import org.sonar.server.issue.index.IssueQueryFactory;
+import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
@@ -121,6 +122,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLVED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SANS_TOP_25;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SCOPES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_PERIOD;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SONARSOURCE_SECURITY;
@@ -131,6 +133,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 public class SearchAction implements IssuesWsAction {
 
   private static final String LOGIN_MYSELF = "__me__";
+  private static final Set<String> ISSUE_SCOPES = Arrays.stream(IssueScope.values()).map(Enum::name).collect(Collectors.toSet());
   private static final EnumSet<RuleType> ALL_RULE_TYPES_EXCEPT_SECURITY_HOTSPOTS = EnumSet.complementOf(EnumSet.of(RuleType.SECURITY_HOTSPOT));
 
   static final List<String> SUPPORTED_FACETS = ImmutableList.of(
@@ -146,6 +149,7 @@ public class SearchAction implements IssuesWsAction {
     DEPRECATED_PARAM_AUTHORS,
     PARAM_AUTHOR,
     PARAM_DIRECTORIES,
+    PARAM_SCOPES,
     PARAM_LANGUAGES,
     PARAM_TAGS,
     PARAM_TYPES,
@@ -185,7 +189,7 @@ public class SearchAction implements IssuesWsAction {
       .createAction(ACTION_SEARCH)
       .setHandler(this)
       .setDescription("Search for issues.<br>Requires the 'Browse' permission on the specified project(s)."
-          + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
+        + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
         new Change("8.4", "parameters 'componentUuids', 'projectKeys' has been dropped."),
@@ -284,6 +288,10 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_ASSIGNED)
       .setDescription("To retrieve assigned or unassigned issues")
       .setBooleanPossibleValues();
+    action.createParam(PARAM_SCOPES)
+      .setDescription("Comma-separated list of scopes. Available since 8.5")
+      .setPossibleValues(IssueScope.MAIN.name(), IssueScope.TEST.name())
+      .setExampleValue(format("%s,%s", IssueScope.MAIN.name(), IssueScope.TEST.name()));
     action.createParam(PARAM_LANGUAGES)
       .setDescription("Comma-separated list of languages. Available since 4.4")
       .setExampleValue("java,js");
@@ -450,6 +458,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_ASSIGNEES, assignees);
     addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getUuid()));
     addMandatoryValuesToFacet(facets, PARAM_RULES, query.rules().stream().map(RuleDefinitionDto::getUuid).collect(toList()));
+    addMandatoryValuesToFacet(facets, PARAM_SCOPES, ISSUE_SCOPES);
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, PARAM_TAGS, request.getTags());
 
@@ -517,6 +526,7 @@ public class SearchAction implements IssuesWsAction {
       .setFacets(request.paramAsStrings(FACETS))
       .setFileUuids(request.paramAsStrings(PARAM_FILE_UUIDS))
       .setIssues(request.paramAsStrings(PARAM_ISSUES))
+      .setScopes(request.paramAsStrings(PARAM_SCOPES))
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
       .setModuleUuids(request.paramAsStrings(PARAM_MODULE_UUIDS))
       .setOnComponentOnly(request.paramAsBoolean(PARAM_ON_COMPONENT_ONLY))

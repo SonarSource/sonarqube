@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.DateUtils;
@@ -43,6 +44,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
 import org.sonar.server.issue.TextRangeResponseFormatter;
+import org.sonar.server.issue.index.IssueScope;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Common.Comment;
@@ -212,6 +214,7 @@ public class SearchResponseFormat {
     ofNullable(dto.getIssueCreationDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCreationDate);
     ofNullable(dto.getIssueUpdateDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setUpdateDate);
     ofNullable(dto.getIssueCloseDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setCloseDate);
+    issueBuilder.setScope(Qualifiers.UNIT_TEST_FILE.equals(component.qualifier()) ? IssueScope.TEST.name() : IssueScope.MAIN.name());
   }
 
   private static String engineNameFrom(RuleKey ruleKey) {

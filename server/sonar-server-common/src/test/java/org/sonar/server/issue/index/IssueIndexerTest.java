@@ -136,6 +136,7 @@ public class IssueIndexerTest {
     assertThat(doc.creationDate()).isEqualToIgnoringMillis(issue.getIssueCreationDate());
     assertThat(doc.directoryPath()).isEqualTo(dir.path());
     assertThat(doc.filePath()).isEqualTo(file.path());
+    assertThat(doc.scope()).isEqualTo(IssueScope.MAIN);
     assertThat(doc.language()).isEqualTo(issue.getLanguage());
     assertThat(doc.line()).isEqualTo(issue.getLine());
     // functional date
@@ -507,10 +508,59 @@ public class IssueIndexerTest {
     assertThat(doc.projectUuid()).isEqualTo(branch.getMainBranchProjectUuid());
     assertThat(doc.branchUuid()).isEqualTo(branch.uuid());
     assertThat(doc.isMainBranch()).isFalse();
+    assertThat(doc.scope()).isEqualTo(IssueScope.MAIN);
   }
 
   @Test
-  public void getType(){
+  public void issue_on_test_file_has_test_scope() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1").setQualifier("UTS"));
+    IssueDto issue = db.issues().insert(rule, project, file);
+
+    underTest.indexAllIssues();
+
+    IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
+    assertThat(doc.getId()).isEqualTo(issue.getKey());
+    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
+    assertThat(doc.componentUuid()).isEqualTo(file.uuid());
+    assertThat(doc.scope()).isEqualTo(IssueScope.TEST);
+  }
+
+  @Test
+  public void issue_on_directory_has_main_code_scope() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
+    IssueDto issue = db.issues().insert(rule, project, dir);
+
+    underTest.indexAllIssues();
+
+    IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
+    assertThat(doc.getId()).isEqualTo(issue.getKey());
+    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
+    assertThat(doc.componentUuid()).isEqualTo(dir.uuid());
+    assertThat(doc.scope()).isEqualTo(IssueScope.MAIN);
+  }
+
+  @Test
+  public void issue_on_project_has_main_code_scope() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    IssueDto issue = db.issues().insert(rule, project, project);
+
+    underTest.indexAllIssues();
+
+    IssueDoc doc = es.getDocuments(TYPE_ISSUE, IssueDoc.class).get(0);
+    assertThat(doc.getId()).isEqualTo(issue.getKey());
+    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
+    assertThat(doc.componentUuid()).isEqualTo(project.uuid());
+    assertThat(doc.scope()).isEqualTo(IssueScope.MAIN);
+  }
+
+  @Test
+  public void getType() {
     Assertions.assertThat(underTest.getType()).isEqualTo(StartupIndexer.Type.ASYNCHRONOUS);
   }
 

@@ -117,6 +117,7 @@ public class IssueQueryFactory {
         .rules(ruleKeysToRuleId(dbSession, request.getRules()))
         .assigneeUuids(request.getAssigneeUuids())
         .authors(request.getAuthors())
+        .scopes(request.getScopes())
         .languages(request.getLanguages())
         .tags(request.getTags())
         .types(request.getTypes())

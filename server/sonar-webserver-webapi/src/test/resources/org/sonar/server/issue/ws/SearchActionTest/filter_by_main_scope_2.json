@@ -1,0 +1,76 @@
+{
+  "total": 2,
+  "p": 1,
+  "ps": 100,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2
+  },
+  "effortTotal": 20,
+  "debtTotal": 20,
+  "issues": [
+    {
+      "key": "7b112bd4-b650-4037-80bc-82fd47d4eac2",
+      "rule": "xoo:x1",
+      "severity": "MAJOR",
+      "component": "FILE_KEY",
+      "project": "PROJECT_KEY",
+      "flows": [],
+      "status": "OPEN",
+      "effort": "10min",
+      "debt": "10min",
+      "organization": "org-1",
+      "scope": "MAIN"
+    },
+    {
+      "key": "83ec1d05-9397-4137-9978-85368bcc3b90",
+      "rule": "xoo:x1",
+      "severity": "MAJOR",
+      "component": "FILE_KEY",
+      "project": "PROJECT_KEY",
+      "flows": [],
+      "status": "OPEN",
+      "effort": "10min",
+      "debt": "10min",
+      "organization": "org-1",
+      "scope": "MAIN"
+    }
+  ],
+  "components": [
+    {
+      "organization": "org-1",
+      "key": "FILE_KEY",
+      "uuid": "FILE_ID",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "NAME_FILE_ID",
+      "longName": "null/NAME_FILE_ID",
+      "path": "null/NAME_FILE_ID"
+    },
+    {
+      "organization": "org-1",
+      "key": "PROJECT_KEY",
+      "uuid": "PROJECT_ID",
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "NAME_PROJECT_ID",
+      "longName": "LONG_NAME_PROJECT_ID"
+    }
+  ],
+  "facets": [
+    {
+      "property": "scopes",
+      "values": [
+        {
+          "val": "MAIN",
+          "count": 2
+        },
+        {
+          "val": "TEST",
+          "count": 0
+        }
+      ]
+    }
+  ]
+}

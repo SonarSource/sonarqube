@@ -1,0 +1,63 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 100,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 1
+  },
+  "effortTotal": 10,
+  "debtTotal": 10,
+  "issues": [
+    {
+      "key": "82fd47d4-4037-b650-80bc-7b112bd4eac2",
+      "rule": "xoo:x1",
+      "severity": "MAJOR",
+      "component": "ANOTHER_FILE_KEY",
+      "project": "PROJECT_KEY",
+      "flows": [],
+      "status": "OPEN",
+      "effort": "10min",
+      "debt": "10min",
+      "organization": "org-1",
+      "scope": "TEST"
+    }
+  ],
+  "components": [
+    {
+      "organization": "org-1",
+      "key": "ANOTHER_FILE_KEY",
+      "uuid": "ANOTHER_FILE_ID",
+      "enabled": true,
+      "qualifier": "UTS",
+      "name": "NAME_ANOTHER_FILE_ID",
+      "longName": "null/NAME_ANOTHER_FILE_ID",
+      "path": "null/NAME_ANOTHER_FILE_ID"
+    },
+    {
+      "organization": "org-1",
+      "key": "PROJECT_KEY",
+      "uuid": "PROJECT_ID",
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "NAME_PROJECT_ID",
+      "longName": "LONG_NAME_PROJECT_ID"
+    }
+  ],
+  "facets": [
+    {
+      "property": "scopes",
+      "values": [
+        {
+          "val": "TEST",
+          "count": 1
+        },
+        {
+          "val": "MAIN",
+          "count": 2
+        }
+      ]
+    }
+  ]
+}
