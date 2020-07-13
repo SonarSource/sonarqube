@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
+import org.sonar.server.platform.db.migration.version.v84.util.OrphanData;
 
 public class PopulateQProfileEditUsersUserUuid extends DataChange {
 
@@ -49,14 +50,6 @@ public class PopulateQProfileEditUsersUserUuid extends DataChange {
       return true;
     });
 
-    massUpdate = context.prepareMassUpdate();
-
-    massUpdate.select("select uuid from qprofile_edit_users where user_uuid is null");
-    massUpdate.update("delete from qprofile_edit_users where uuid = ?");
-
-    massUpdate.execute((row, update) -> {
-      update.setString(1, row.getString(1));
-      return true;
-    });
+    OrphanData.delete(context, "qprofile_edit_users", "user_uuid");
   }
 }

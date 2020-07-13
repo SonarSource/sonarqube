@@ -17,36 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v84.groups.qprofileeditgroups;
+package org.sonar.server.platform.db.migration.version.v84.util;
 
 import java.sql.SQLException;
-import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
-import org.sonar.server.platform.db.migration.version.v84.util.OrphanData;
 
-public class PopulateQProfileEditGroupsGroupUuid extends DataChange {
-
-  public PopulateQProfileEditGroupsGroupUuid(Database db) {
-    super(db);
+public class OrphanData {
+  private OrphanData() {
+    // static only
   }
-
-  @Override
-  protected void execute(Context context) throws SQLException {
+  /**
+   * Deletes from a table entries that contain a null foreign key.
+   * Primary key of the table must be 'uuid'
+   */
+  public static void delete(DataChange.Context context, String table, String foreignKeyColumn) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    massUpdate.select("select qeg.uuid, g.uuid " +
-      "from qprofile_edit_groups qeg " +
-      "join groups g on qeg.group_id = g.id");
-
-    massUpdate.update("update qprofile_edit_groups set group_uuid = ? where uuid = ?");
+    massUpdate.select("select uuid from " + table + " where " + foreignKeyColumn + " is null");
+    massUpdate.update("delete from " + table + " where " + " uuid = ?");
 
     massUpdate.execute((row, update) -> {
-      update.setString(1, row.getString(2));
-      update.setString(2, row.getString(1));
+      update.setString(1, row.getString(1));
       return true;
     });
-
-    OrphanData.delete(context, "qprofile_edit_groups", "group_uuid");
   }
 }

@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
+import org.sonar.server.platform.db.migration.version.v84.util.OrphanData;
 
 public class PopulateDeprecatedRuleKeysRuleUuidColumn extends DataChange {
 
@@ -46,14 +47,6 @@ public class PopulateDeprecatedRuleKeysRuleUuidColumn extends DataChange {
       return true;
     });
 
-    massUpdate = context.prepareMassUpdate();
-
-    massUpdate.select("select uuid from deprecated_rule_keys where rule_uuid is null");
-    massUpdate.update("delete from deprecated_rule_keys where uuid = ?");
-
-    massUpdate.execute((row, update) -> {
-      update.setString(1, row.getString(1));
-      return true;
-    });
+    OrphanData.delete(context, "deprecated_rule_keys", "rule_uuid");
   }
 }
