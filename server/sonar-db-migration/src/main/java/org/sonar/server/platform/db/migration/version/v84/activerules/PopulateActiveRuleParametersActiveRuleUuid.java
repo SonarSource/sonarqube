@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
+import org.sonar.server.platform.db.migration.version.v84.util.OrphanData;
 
 public class PopulateActiveRuleParametersActiveRuleUuid extends DataChange {
 
@@ -45,14 +46,6 @@ public class PopulateActiveRuleParametersActiveRuleUuid extends DataChange {
       return true;
     });
 
-    massUpdate = context.prepareMassUpdate();
-
-    massUpdate.select("select uuid from active_rule_parameters where active_rule_uuid is null");
-    massUpdate.update("delete from active_rule_parameters where uuid = ?");
-
-    massUpdate.execute((row, update) -> {
-      update.setString(1, row.getString(1));
-      return true;
-    });
+    OrphanData.delete(context, "active_rule_parameters", "active_rule_uuid");
   }
 }

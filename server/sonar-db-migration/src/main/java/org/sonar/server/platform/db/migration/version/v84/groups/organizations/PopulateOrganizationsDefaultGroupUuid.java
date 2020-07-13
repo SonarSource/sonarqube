@@ -30,6 +30,19 @@ public class PopulateOrganizationsDefaultGroupUuid extends DataChange {
     super(db);
   }
 
+  private static void removeOrphans(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+
+    massUpdate.select("select o.uuid, g.uuid from organizations o join groups g on o.default_group_id = g.id");
+    massUpdate.update("update organizations set default_group_uuid = ? where uuid = ?");
+
+    massUpdate.execute((row, update) -> {
+      update.setString(1, row.getString(2));
+      update.setString(2, row.getString(1));
+      return true;
+    });
+  }
+
   @Override
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
@@ -46,18 +59,6 @@ public class PopulateOrganizationsDefaultGroupUuid extends DataChange {
       return true;
     });
 
-    massUpdate = context.prepareMassUpdate();
-
-    massUpdate.select("select o.uuid, g.uuid " +
-      "from organizations o " +
-      "join groups g on o.default_group_id = g.id");
-
-    massUpdate.update("update organizations set default_group_uuid = ? where uuid = ?");
-
-    massUpdate.execute((row, update) -> {
-      update.setString(1, row.getString(2));
-      update.setString(2, row.getString(1));
-      return true;
-    });
+    removeOrphans(context);
   }
 }
