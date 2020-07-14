@@ -3,17 +3,12 @@ title: Concepts
 url: /user-guide/concepts/
 ---
 
-
-<!-- sonarqube -->
 ## Architecture
 | Concept  | Definition                                                                            |
 | -------- | ------------------------------------------------------------------------------------- |
 | Analyzer | A client application that analyzes the source code to compute **snapshots**.          |
 | Database | Stores configuration and **snapshots**                                                |
 | Server   | Web interface that is used to browse **snapshot** data and make configuration changes | 
-
-See also the [SonarQube Platform Overview](/architecture/architecture-integration/).
-<!-- /sonarqube -->
 
 ## Quality
 | Concept                    | Definition                                                                                                                                                                                                                                                                                                                                                                                                         |

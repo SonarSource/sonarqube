@@ -23,11 +23,11 @@ A project-level Background Tasks page is available at **Project Settings > Backg
 
 ### Deleting a Project
 
-#### Deleting a Single Project
+#### **Deleting a Single Project**
 
 You can delete a project through **Project Settings > Deletion**.
 
-#### Deleting Multiple Projects
+#### **Deleting Multiple Projects**
 You can also delete multiple projects simultaneously from the global **Project Settings > Projects > Management**.
 
 ### Updating the Project Key  

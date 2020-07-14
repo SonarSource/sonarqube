@@ -3,7 +3,34 @@ title: Install the Server
 url: /setup/install-server/
 ---
 
-## Installing the Database
+## Overview
+
+This section describes a single-node SonarQube instance. For details on clustered setup, see [Install the Server as a Cluster](/setup/install-cluster/).
+
+### Instance components
+
+A SonarQube instance comprises three components:
+
+![SonarQube Instance Components](/images/SQ-instance-components.png)
+
+1. The SonarQube server running the following processes:
+	- a web server that serves the SonarQube user interface.
+	- a search server based on Elasticsearch.
+	- the compute engine in charge of processing code analysis reports and saving them in the SonarQube database.
+
+2. The database to store the following:
+	- Metrics and issues for code quality and security generated during code scans.
+	- The SonarQube instance configuration.
+
+3. One or more scanners running on your build or continuous integration servers to analyze projects.
+
+### Hosts and locations
+
+For optimal performance, the SonarQube server and database should be installed on separate hosts, and the server host should be dedicated. The server and database hosts should be located in the same network.
+
+All hosts must be time-synchronized.
+
+## Installing the database
 
 Several [database engines](/requirements/requirements/) are supported. Be sure to follow the requirements listed for your database. They are real requirements not recommendations.
 
