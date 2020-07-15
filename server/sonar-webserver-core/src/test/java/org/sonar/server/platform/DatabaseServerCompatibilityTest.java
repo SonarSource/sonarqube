@@ -72,13 +72,13 @@ public class DatabaseServerCompatibilityTest {
     when(version.getVersion()).thenReturn(Optional.of(DatabaseVersion.MIN_UPGRADE_VERSION));
     new DatabaseServerCompatibility(version, settings.asConfig()).start();
 
-    assertThat(logTester.logs()).hasSize(2);
+    assertThat(logTester.logs()).hasSize(4);
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(
       "The database must be manually upgraded. Please backup the database and browse /setup. "
         + "For more information: https://docs.sonarqube.org/latest/setup/upgrading",
-      "\n################################################################################\n" +
-        "      The database must be manually upgraded. Please backup the database and browse /setup. "
-        + "For more information: https://docs.sonarqube.org/latest/setup/upgrading\n" +
+      "################################################################################",
+        "The database must be manually upgraded. Please backup the database and browse /setup. "
+        + "For more information: https://docs.sonarqube.org/latest/setup/upgrading",
         "################################################################################");
   }
 
