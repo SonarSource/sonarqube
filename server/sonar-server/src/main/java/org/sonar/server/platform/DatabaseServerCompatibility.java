@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
@@ -58,10 +59,10 @@ public class DatabaseServerCompatibility implements Startable {
         String msg = "The database must be manually upgraded. Please backup the database and browse /setup. "
           + "For more information: https://docs.sonarqube.org/latest/setup/upgrading";
         Loggers.get(DatabaseServerCompatibility.class).warn(msg);
-        Loggers.get(STARTUP_LOGGER_NAME).warn('\n'
-          + HIGHLIGHTER + '\n'
-          + "      " + msg
-          + '\n' + HIGHLIGHTER);
+        Logger logger = Loggers.get(STARTUP_LOGGER_NAME);
+        logger.warn(HIGHLIGHTER);
+        logger.warn(msg);
+        logger.warn(HIGHLIGHTER);
       }
     }
   }
