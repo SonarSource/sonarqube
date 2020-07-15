@@ -69,8 +69,6 @@ exports[`renders correctly 1`] = `
          
       </td>
     </tr>
-  </tbody>
-  <tbody>
     <withScrollTo(Component)
       canBePinned={true}
       canBrowse={true}
@@ -229,8 +227,6 @@ exports[`renders correctly for leak 1`] = `
          
       </td>
     </tr>
-  </tbody>
-  <tbody>
     <withScrollTo(Component)
       branchLike={
         Object {

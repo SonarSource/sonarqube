@@ -56,23 +56,24 @@ export class Components extends React.PureComponent<Props> {
             rootComponent={rootComponent}
           />
         )}
-        {baseComponent && (
-          <tbody>
-            <Component
-              branchLike={branchLike}
-              canBePinned={canBePinned}
-              component={baseComponent}
-              key={baseComponent.key}
-              metrics={metrics}
-              rootComponent={rootComponent}
-            />
-            <tr className="blank">
-              <td colSpan={3}>&nbsp;</td>
-              <td colSpan={colSpan}>&nbsp;</td>
-            </tr>
-          </tbody>
-        )}
         <tbody>
+          {baseComponent && (
+            <>
+              <Component
+                branchLike={branchLike}
+                canBePinned={canBePinned}
+                component={baseComponent}
+                key={baseComponent.key}
+                metrics={metrics}
+                rootComponent={rootComponent}
+              />
+              <tr className="blank">
+                <td colSpan={3}>&nbsp;</td>
+                <td colSpan={colSpan}>&nbsp;</td>
+              </tr>
+            </>
+          )}
+
           {components.length ? (
             components.map((component, index, list) => (
               <Component

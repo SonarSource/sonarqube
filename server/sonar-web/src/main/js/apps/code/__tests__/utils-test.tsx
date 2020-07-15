@@ -17,13 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getChildren } from '../../../api/components';
+import { getBreadcrumbs, getChildren, getComponent } from '../../../api/components';
 import { mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
-import { addComponent, addComponentChildren, getComponentBreadcrumbs } from '../bucket';
-import { getCodeMetrics, loadMoreChildren, retrieveComponentChildren } from '../utils';
+import {
+  addComponent,
+  addComponentBreadcrumbs,
+  addComponentChildren,
+  getComponentBreadcrumbs
+} from '../bucket';
+import {
+  getCodeMetrics,
+  loadMoreChildren,
+  retrieveComponent,
+  retrieveComponentChildren
+} from '../utils';
 
 jest.mock('../../../api/components', () => ({
-  getChildren: jest.fn().mockRejectedValue({})
+  getBreadcrumbs: jest.fn().mockRejectedValue({}),
+  getChildren: jest.fn().mockRejectedValue({}),
+  getComponent: jest.fn().mockRejectedValue({})
 }));
 
 jest.mock('../bucket', () => ({
@@ -63,11 +75,49 @@ describe('retrieveComponentChildren', () => {
       paging: { total: 2, pageIndex: 0 }
     });
 
-    await retrieveComponentChildren('key', 'TRK', mockMainBranch());
+    await retrieveComponentChildren('key', 'TRK', { mounted: true }, mockMainBranch());
 
     expect(addComponentChildren).toHaveBeenCalledWith('key', components, 2, 0);
     expect(addComponent).toHaveBeenCalledTimes(2);
     expect(getComponentBreadcrumbs).toHaveBeenCalledWith('key');
+  });
+});
+
+describe('retrieveComponent', () => {
+  it('should update bucket when component is mounted', async () => {
+    const components = [{}, {}];
+    (getChildren as jest.Mock).mockResolvedValueOnce({
+      components,
+      paging: { total: 2, pageIndex: 0 }
+    });
+    (getComponent as jest.Mock).mockResolvedValueOnce({
+      component: {}
+    });
+    (getBreadcrumbs as jest.Mock).mockResolvedValueOnce([]);
+
+    await retrieveComponent('key', 'TRK', { mounted: true }, mockMainBranch());
+
+    expect(addComponentChildren).toHaveBeenCalled();
+    expect(addComponent).toHaveBeenCalledTimes(3);
+    expect(addComponentBreadcrumbs).toHaveBeenCalled();
+  });
+
+  it('should not update bucket when component is not mounted', async () => {
+    const components = [{}, {}];
+    (getChildren as jest.Mock).mockResolvedValueOnce({
+      components,
+      paging: { total: 2, pageIndex: 0 }
+    });
+    (getComponent as jest.Mock).mockResolvedValueOnce({
+      component: {}
+    });
+    (getBreadcrumbs as jest.Mock).mockResolvedValueOnce([]);
+
+    await retrieveComponent('key', 'TRK', { mounted: false }, mockMainBranch());
+
+    expect(addComponentChildren).not.toHaveBeenCalled();
+    expect(addComponent).not.toHaveBeenCalled();
+    expect(addComponentBreadcrumbs).not.toHaveBeenCalled();
   });
 });
 
@@ -79,7 +129,7 @@ describe('loadMoreChildren', () => {
       paging: { total: 6, pageIndex: 1 }
     });
 
-    await loadMoreChildren('key', 1, 'TRK', mockMainBranch());
+    await loadMoreChildren('key', 1, 'TRK', { mounted: true }, mockMainBranch());
 
     expect(addComponentChildren).toHaveBeenCalledWith('key', components, 6, 1);
     expect(addComponent).toHaveBeenCalledTimes(3);

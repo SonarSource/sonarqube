@@ -110,35 +110,37 @@ export class App extends React.PureComponent<Props, State> {
 
   loadComponent = (componentKey: string) => {
     this.setState({ loading: true });
-    retrieveComponent(componentKey, this.props.component.qualifier, this.props.branchLike).then(
-      r => {
-        if (this.mounted) {
-          if (['FIL', 'UTS'].includes(r.component.qualifier)) {
-            this.setState({
-              breadcrumbs: r.breadcrumbs,
-              components: r.components,
-              loading: false,
-              page: 0,
-              searchResults: undefined,
-              sourceViewer: r.component,
-              total: 0
-            });
-          } else {
-            this.setState({
-              baseComponent: r.component,
-              breadcrumbs: r.breadcrumbs,
-              components: r.components,
-              loading: false,
-              page: r.page,
-              searchResults: undefined,
-              sourceViewer: undefined,
-              total: r.total
-            });
-          }
+    retrieveComponent(
+      componentKey,
+      this.props.component.qualifier,
+      this,
+      this.props.branchLike
+    ).then(r => {
+      if (this.mounted) {
+        if (['FIL', 'UTS'].includes(r.component.qualifier)) {
+          this.setState({
+            breadcrumbs: r.breadcrumbs,
+            components: r.components,
+            loading: false,
+            page: 0,
+            searchResults: undefined,
+            sourceViewer: r.component,
+            total: 0
+          });
+        } else {
+          this.setState({
+            baseComponent: r.component,
+            breadcrumbs: r.breadcrumbs,
+            components: r.components,
+            loading: false,
+            page: r.page,
+            searchResults: undefined,
+            sourceViewer: undefined,
+            total: r.total
+          });
         }
-      },
-      this.stopLoading
-    );
+      }
+    }, this.stopLoading);
   };
 
   stopLoading = () => {
@@ -154,7 +156,7 @@ export class App extends React.PureComponent<Props, State> {
     addComponentBreadcrumbs(component.key, component.breadcrumbs);
 
     this.setState({ loading: true });
-    retrieveComponentChildren(component.key, component.qualifier, branchLike).then(() => {
+    retrieveComponentChildren(component.key, component.qualifier, this, branchLike).then(() => {
       addComponent(component);
       if (this.mounted) {
         this.handleUpdate();
@@ -171,6 +173,7 @@ export class App extends React.PureComponent<Props, State> {
       baseComponent.key,
       page + 1,
       this.props.component.qualifier,
+      this,
       this.props.branchLike
     ).then(r => {
       if (this.mounted && r.components.length) {

@@ -119,7 +119,12 @@ export function getCodeMetrics(
   return [...METRICS];
 }
 
-function retrieveComponentBase(componentKey: string, qualifier: string, branchLike?: BranchLike) {
+function retrieveComponentBase(
+  componentKey: string,
+  qualifier: string,
+  instance: { mounted: boolean },
+  branchLike?: BranchLike
+) {
   const existing = getComponentFromBucket(componentKey);
   if (existing) {
     return Promise.resolve(existing);
@@ -132,7 +137,9 @@ function retrieveComponentBase(componentKey: string, qualifier: string, branchLi
     metricKeys: metrics.join(),
     ...getBranchLikeQuery(branchLike)
   }).then(({ component }) => {
-    addComponent(component);
+    if (instance.mounted) {
+      addComponent(component);
+    }
     return component;
   });
 }
@@ -140,6 +147,7 @@ function retrieveComponentBase(componentKey: string, qualifier: string, branchLi
 export function retrieveComponentChildren(
   componentKey: string,
   qualifier: string,
+  instance: { mounted: boolean },
   branchLike?: BranchLike
 ): Promise<{ components: T.ComponentMeasure[]; page: number; total: number }> {
   const existing = getComponentChildren(componentKey);
@@ -160,15 +168,18 @@ export function retrieveComponentChildren(
   })
     .then(prepareChildren)
     .then(r => {
-      addComponentChildren(componentKey, r.components, r.total, r.page);
-      storeChildrenBase(r.components);
-      storeChildrenBreadcrumbs(componentKey, r.components);
+      if (instance.mounted) {
+        addComponentChildren(componentKey, r.components, r.total, r.page);
+        storeChildrenBase(r.components);
+        storeChildrenBreadcrumbs(componentKey, r.components);
+      }
       return r;
     });
 }
 
 function retrieveComponentBreadcrumbs(
   component: string,
+  instance: { mounted: boolean },
   branchLike?: BranchLike
 ): Promise<T.Breadcrumb[]> {
   const existing = getComponentBreadcrumbs(component);
@@ -179,7 +190,9 @@ function retrieveComponentBreadcrumbs(
   return getBreadcrumbs({ component, ...getBranchLikeQuery(branchLike) })
     .then(skipRootDir)
     .then(breadcrumbs => {
-      addComponentBreadcrumbs(component, breadcrumbs);
+      if (instance.mounted) {
+        addComponentBreadcrumbs(component, breadcrumbs);
+      }
       return breadcrumbs;
     });
 }
@@ -187,6 +200,7 @@ function retrieveComponentBreadcrumbs(
 export function retrieveComponent(
   componentKey: string,
   qualifier: string,
+  instance: { mounted: boolean },
   branchLike?: BranchLike
 ): Promise<{
   breadcrumbs: T.Breadcrumb[];
@@ -196,9 +210,9 @@ export function retrieveComponent(
   total: number;
 }> {
   return Promise.all([
-    retrieveComponentBase(componentKey, qualifier, branchLike),
-    retrieveComponentChildren(componentKey, qualifier, branchLike),
-    retrieveComponentBreadcrumbs(componentKey, branchLike)
+    retrieveComponentBase(componentKey, qualifier, instance, branchLike),
+    retrieveComponentChildren(componentKey, qualifier, instance, branchLike),
+    retrieveComponentBreadcrumbs(componentKey, instance, branchLike)
   ]).then(r => {
     return {
       breadcrumbs: r[2],
@@ -214,6 +228,7 @@ export function loadMoreChildren(
   componentKey: string,
   page: number,
   qualifier: string,
+  instance: { mounted: boolean },
   branchLike?: BranchLike
 ): Promise<Children> {
   const metrics = getCodeMetrics(qualifier, branchLike, { includeQGStatus: true });
@@ -226,9 +241,11 @@ export function loadMoreChildren(
   })
     .then(prepareChildren)
     .then(r => {
-      addComponentChildren(componentKey, r.components, r.total, r.page);
-      storeChildrenBase(r.components);
-      storeChildrenBreadcrumbs(componentKey, r.components);
+      if (instance.mounted) {
+        addComponentChildren(componentKey, r.components, r.total, r.page);
+        storeChildrenBase(r.components);
+        storeChildrenBreadcrumbs(componentKey, r.components);
+      }
       return r;
     });
 }
