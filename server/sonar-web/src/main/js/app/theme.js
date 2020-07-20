@@ -195,6 +195,8 @@ module.exports = {
 
     globalBannerZIndex: '60',
 
+    contextbarZIndex: '420',
+
     tooltipZIndex: '8000',
 
     dropdownMenuZIndex: '7500',
