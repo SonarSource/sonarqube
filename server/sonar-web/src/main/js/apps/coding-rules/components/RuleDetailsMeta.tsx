@@ -24,7 +24,6 @@ import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
-import RuleScopeIcon from 'sonar-ui-common/components/icons/RuleScopeIcon';
 import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
@@ -197,18 +196,6 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
     );
   };
 
-  renderScope = () => {
-    const scope = this.props.ruleDetails.scope || 'MAIN';
-    return (
-      <Tooltip overlay={translate('coding_rules.scope.title')}>
-        <li className="coding-rules-detail-property">
-          <RuleScopeIcon className="little-spacer-right" />
-          {translate('coding_rules.scope', scope)}
-        </li>
-      </Tooltip>
-    );
-  };
-
   renderExternalBadge = () => {
     const { ruleDetails } = this.props;
     if (!ruleDetails.repo) {
@@ -265,12 +252,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           <ul className="coding-rules-detail-properties">
             {this.renderType()}
             {this.renderSeverity()}
-            {!ruleDetails.isExternal && (
-              <>
-                {this.renderStatus()}
-                {this.renderScope()}
-              </>
-            )}
+            {!ruleDetails.isExternal && this.renderStatus()}
             {this.renderTags()}
             {!ruleDetails.isExternal && this.renderCreationDate()}
             {this.renderRepository()}

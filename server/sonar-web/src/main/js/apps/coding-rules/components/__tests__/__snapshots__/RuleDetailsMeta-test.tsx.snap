@@ -88,18 +88,6 @@ exports[`should display right meta info 1`] = `
         />
       </li>
     </Tooltip>
-    <Tooltip
-      overlay="coding_rules.scope.title"
-    >
-      <li
-        className="coding-rules-detail-property"
-      >
-        <RuleScopeIcon
-          className="little-spacer-right"
-        />
-        coding_rules.scope.MAIN
-      </li>
-    </Tooltip>
     <li
       className="coding-rules-detail-property"
       data-meta="tags"
