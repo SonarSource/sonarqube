@@ -62,7 +62,7 @@ exports[`should render correctly 1`] = `
         Object {
           "active": true,
           "description": "settings.almintegration.feature.alm_repo_import.description",
-          "inactiveReason": "onboarding.create_project.too_many_bbs_instances_X.1",
+          "inactiveReason": "settings.almintegration.feature.alm_repo_import.bitbucket.wrong_count_x.1",
           "name": "settings.almintegration.feature.alm_repo_import.title",
         },
       ]

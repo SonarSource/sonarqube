@@ -15,6 +15,24 @@ exports[`should render correctly: with branch support 1`] = `
         "url",
       ]
     }
+    additionalTableInfo={
+      <Alert
+        className="big-spacer-bottom width-50"
+        variant="info"
+      >
+        <FormattedMessage
+          defaultMessage="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_gitlab_instances"
+          id="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_gitlab_instances"
+          values={
+            Object {
+              "feature": <em>
+                settings.almintegration.feature.alm_repo_import.title
+              </em>,
+            }
+          }
+        />
+      </Alert>
+    }
     alm="gitlab"
     createConfiguration={[Function]}
     defaultBinding={
@@ -39,6 +57,12 @@ exports[`should render correctly: with branch support 1`] = `
           "description": "settings.almintegration.feature.mr_decoration.description",
           "inactiveReason": "settings.almintegration.feature.need_at_least_1_binding",
           "name": "settings.almintegration.feature.mr_decoration.title",
+        },
+        Object {
+          "active": true,
+          "description": "settings.almintegration.feature.alm_repo_import.description",
+          "inactiveReason": "settings.almintegration.feature.alm_repo_import.gitlab.wrong_count_x.1",
+          "name": "settings.almintegration.feature.alm_repo_import.title",
         },
       ]
     }

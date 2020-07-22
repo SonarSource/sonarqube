@@ -78,7 +78,7 @@ export default function BitbucketTab(props: BitbucketTabProps) {
             active: definitions.length === 1,
             description: translate('settings.almintegration.feature.alm_repo_import.description'),
             inactiveReason: translateWithParameters(
-              'onboarding.create_project.too_many_bbs_instances_X',
+              'settings.almintegration.feature.alm_repo_import.bitbucket.wrong_count_x',
               definitions.length
             )
           }

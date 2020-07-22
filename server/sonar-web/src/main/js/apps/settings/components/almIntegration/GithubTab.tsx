@@ -119,7 +119,7 @@ export default function GithubTab(props: GithubTabProps) {
                     </>
                   ) : (
                     translateWithParameters(
-                      'settings.almintegration.feature.alm_repo_import.github.too_many_instances_x',
+                      'settings.almintegration.feature.alm_repo_import.github.wrong_count_x',
                       definitions.length
                     )
                   )
