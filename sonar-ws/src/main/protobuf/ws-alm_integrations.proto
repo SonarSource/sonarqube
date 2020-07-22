@@ -79,3 +79,19 @@ message GithubRepository {
   optional string url = 4;
   optional string sqProjectKey = 5;
 }
+
+// WS api/alm_integrations/search_gitlab_repos
+message SearchGitlabReposWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated GitlabRepository repositories = 2;
+}
+
+message GitlabRepository {
+  optional int64 id = 1;
+  optional string name = 2;
+  optional string pathName = 3;
+  optional string slug = 4;
+  optional string pathSlug = 5;
+  optional string url = 6;
+  optional string sqProjectKey = 7;
+}
