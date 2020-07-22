@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: bitbucket 1`] = `
+<Alert
+  variant="error"
+>
+  <FormattedMessage
+    defaultMessage="onboarding.create_project.wrong_binding_count"
+    id="onboarding.create_project.wrong_binding_count"
+    values={
+      Object {
+        "alm": "onboarding.alm.bitbucket",
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`should render correctly: for admin 1`] = `
+<Alert
+  variant="error"
+>
+  <FormattedMessage
+    defaultMessage="onboarding.create_project.wrong_binding_count.admin"
+    id="onboarding.create_project.wrong_binding_count.admin"
+    values={
+      Object {
+        "alm": "onboarding.alm.bitbucket",
+        "url": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/admin/settings",
+              "query": Object {
+                "category": "almintegration",
+              },
+            }
+          }
+        >
+          settings.page
+        </Link>,
+      }
+    }
+  />
+</Alert>
+`;
+
+exports[`should render correctly: gitlab 1`] = `
+<Alert
+  variant="error"
+>
+  <FormattedMessage
+    defaultMessage="onboarding.create_project.wrong_binding_count"
+    id="onboarding.create_project.wrong_binding_count"
+    values={
+      Object {
+        "alm": "onboarding.alm.gitlab",
+      }
+    }
+  />
+</Alert>
+`;

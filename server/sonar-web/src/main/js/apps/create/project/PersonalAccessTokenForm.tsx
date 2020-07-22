@@ -26,20 +26,29 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 
-export interface BitbucketPersonalAccessTokenFormProps {
-  bitbucketSetting: AlmSettingsInstance;
+export interface PersonalAccessTokenFormProps {
+  almSetting: AlmSettingsInstance;
   onPersonalAccessTokenCreate: (token: string) => void;
   submitting?: boolean;
   validationFailed: boolean;
 }
 
-export default function BitbucketPersonalAccessTokenForm(
-  props: BitbucketPersonalAccessTokenFormProps
-) {
+function getPatUrl(alm: AlmKeys, url: string) {
+  if (alm === AlmKeys.Bitbucket) {
+    return `${url.replace(/\/$/, '')}/plugins/servlet/access-tokens/add`;
+  } else {
+    // GitLab
+    return url.endsWith('/api/v4')
+      ? `${url.replace('/api/v4', '').replace(/\/$/, '')}/profile/personal_access_tokens`
+      : 'https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token';
+  }
+}
+
+export default function PersonalAccessTokenForm(props: PersonalAccessTokenFormProps) {
   const {
-    bitbucketSetting: { url },
+    almSetting: { alm, url },
     submitting = false,
     validationFailed
   } = props;
@@ -59,9 +68,9 @@ export default function BitbucketPersonalAccessTokenForm(
           const value = new FormData(e.currentTarget).get('personal_access_token') as string;
           props.onPersonalAccessTokenCreate(value);
         }}>
-        <h2 className="big">{translate('onboarding.create_project.grant_access_to_bbs.title')}</h2>
+        <h2 className="big">{translate('onboarding.create_project.pat_form.title', alm)}</h2>
         <p className="big-spacer-top big-spacer-bottom">
-          {translate('onboarding.create_project.grant_access_to_bbs.help')}
+          {translate('onboarding.create_project.pat_form.help', alm)}
         </p>
 
         <ValidationInput
@@ -96,7 +105,11 @@ export default function BitbucketPersonalAccessTokenForm(
         <h3>{translate('onboarding.create_project.pat_help.title')}</h3>
 
         <p className="big-spacer-top big-spacer-bottom">
-          {translate('onboarding.create_project.pat_help.bbs_help_1')}
+          <FormattedMessage
+            id="onboarding.create_project.pat_help.instructions"
+            defaultMessage={translate('onboarding.create_project.pat_help.instructions')}
+            values={{ alm: translate('onboarding.alm', alm) }}
+          />
         </p>
 
         {url && (
@@ -105,46 +118,60 @@ export default function BitbucketPersonalAccessTokenForm(
               alt="" // Should be ignored by screen readers
               className="spacer-right"
               height="16"
-              src={`${getBaseUrl()}/images/alm/bitbucket.svg`}
+              src={`${getBaseUrl()}/images/alm/${alm}.svg`}
             />
-            <a
-              href={`${url.replace(/\/$/, '')}/plugins/servlet/access-tokens/add`}
-              rel="noopener noreferrer"
-              target="_blank">
+            <a href={getPatUrl(alm, url)} rel="noopener noreferrer" target="_blank">
               {translate('onboarding.create_project.pat_help.link')}
             </a>
           </div>
         )}
 
         <p className="big-spacer-top big-spacer-bottom">
-          {translate('onboarding.create_project.pat_help.bbs_help_2')}
+          {translate('onboarding.create_project.pat_help.instructions2', alm)}
         </p>
 
         <ul>
-          <li>
-            <FormattedMessage
-              defaultMessage={translate(
-                'onboarding.create_project.pat_help.bbs_permission_projects'
-              )}
-              id="onboarding.create_project.pat_help.bbs_permission_projects"
-              values={{
-                perm: (
-                  <strong>{translate('onboarding.create_project.pat_help.read_permission')}</strong>
-                )
-              }}
-            />
-          </li>
-          <li>
-            <FormattedMessage
-              defaultMessage={translate('onboarding.create_project.pat_help.bbs_permission_repos')}
-              id="onboarding.create_project.pat_help.bbs_permission_repos"
-              values={{
-                perm: (
-                  <strong>{translate('onboarding.create_project.pat_help.read_permission')}</strong>
-                )
-              }}
-            />
-          </li>
+          {alm === AlmKeys.Bitbucket && (
+            <>
+              <li>
+                <FormattedMessage
+                  defaultMessage={translate(
+                    'onboarding.create_project.pat_help.bbs_permission_projects'
+                  )}
+                  id="onboarding.create_project.pat_help.bbs_permission_projects"
+                  values={{
+                    perm: (
+                      <strong>
+                        {translate('onboarding.create_project.pat_help.read_permission')}
+                      </strong>
+                    )
+                  }}
+                />
+              </li>
+              <li>
+                <FormattedMessage
+                  defaultMessage={translate(
+                    'onboarding.create_project.pat_help.bbs_permission_repos'
+                  )}
+                  id="onboarding.create_project.pat_help.bbs_permission_repos"
+                  values={{
+                    perm: (
+                      <strong>
+                        {translate('onboarding.create_project.pat_help.read_permission')}
+                      </strong>
+                    )
+                  }}
+                />
+              </li>
+            </>
+          )}
+          {alm === AlmKeys.GitLab && (
+            <li className="spacer-bottom">
+              <strong>
+                {translate('onboarding.create_project.pat_help.gitlab.read_api_permission')}
+              </strong>
+            </li>
+          )}
         </ul>
       </Alert>
     </div>

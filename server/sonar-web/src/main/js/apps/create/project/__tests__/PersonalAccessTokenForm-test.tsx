@@ -24,14 +24,25 @@ import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import { change, submit } from 'sonar-ui-common/helpers/testUtils';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
 import { AlmKeys } from '../../../../types/alm-settings';
-import BitbucketPersonalAccessTokenForm, {
-  BitbucketPersonalAccessTokenFormProps
-} from '../BitbucketPersonalAccessTokenForm';
+import PersonalAccessTokenForm, { PersonalAccessTokenFormProps } from '../PersonalAccessTokenForm';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender()).toMatchSnapshot('bitbucket');
   expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
   expect(shallowRender({ validationFailed: true })).toMatchSnapshot('validation failed');
+  expect(
+    shallowRender({
+      almSetting: mockAlmSettingsInstance({ alm: AlmKeys.GitLab, url: 'https://gitlab.com/api/v4' })
+    })
+  ).toMatchSnapshot('gitlab');
+  expect(
+    shallowRender({
+      almSetting: mockAlmSettingsInstance({
+        alm: AlmKeys.GitLab,
+        url: 'https://gitlabapi.unexpectedurl.org'
+      })
+    })
+  ).toMatchSnapshot('gitlab with non-standard api path');
 });
 
 it('should correctly handle form interactions', () => {
@@ -57,10 +68,10 @@ it('should correctly handle form interactions', () => {
   expect(wrapper.find(SubmitButton).prop('disabled')).toBe(true);
 });
 
-function shallowRender(props: Partial<BitbucketPersonalAccessTokenFormProps> = {}) {
-  return shallow<BitbucketPersonalAccessTokenFormProps>(
-    <BitbucketPersonalAccessTokenForm
-      bitbucketSetting={mockAlmSettingsInstance({
+function shallowRender(props: Partial<PersonalAccessTokenFormProps> = {}) {
+  return shallow<PersonalAccessTokenFormProps>(
+    <PersonalAccessTokenForm
+      almSetting={mockAlmSettingsInstance({
         alm: AlmKeys.Bitbucket,
         url: 'http://www.example.com'
       })}

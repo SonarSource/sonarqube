@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<GitlabProjectCreateRenderer
+  canAdmin={false}
+  loading={true}
+  onPersonalAccessTokenCreate={[Function]}
+  settings={
+    Object {
+      "alm": "gitlab",
+      "key": "gitlab-setting",
+    }
+  }
+  showPersonalAccessTokenForm={true}
+  submittingToken={false}
+  tokenValidationFailed={false}
+/>
+`;

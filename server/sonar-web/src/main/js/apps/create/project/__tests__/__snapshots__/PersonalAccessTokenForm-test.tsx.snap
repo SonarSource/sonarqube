@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly: default 1`] = `
+exports[`should render correctly: bitbucket 1`] = `
 <div
   className="display-flex-start"
 >
@@ -10,12 +10,12 @@ exports[`should render correctly: default 1`] = `
     <h2
       className="big"
     >
-      onboarding.create_project.grant_access_to_bbs.title
+      onboarding.create_project.pat_form.title.bitbucket
     </h2>
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.grant_access_to_bbs.help
+      onboarding.create_project.pat_form.help.bitbucket
     </p>
     <ValidationInput
       id="personal_access_token"
@@ -56,7 +56,15 @@ exports[`should render correctly: default 1`] = `
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.pat_help.bbs_help_1
+      <FormattedMessage
+        defaultMessage="onboarding.create_project.pat_help.instructions"
+        id="onboarding.create_project.pat_help.instructions"
+        values={
+          Object {
+            "alm": "onboarding.alm.bitbucket",
+          }
+        }
+      />
     </p>
     <div
       className="text-middle"
@@ -78,7 +86,7 @@ exports[`should render correctly: default 1`] = `
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.pat_help.bbs_help_2
+      onboarding.create_project.pat_help.instructions2.bitbucket
     </p>
     <ul>
       <li>
@@ -112,6 +120,208 @@ exports[`should render correctly: default 1`] = `
 </div>
 `;
 
+exports[`should render correctly: gitlab 1`] = `
+<div
+  className="display-flex-start"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <h2
+      className="big"
+    >
+      onboarding.create_project.pat_form.title.gitlab
+    </h2>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_form.help.gitlab
+    </p>
+    <ValidationInput
+      id="personal_access_token"
+      isInvalid={false}
+      isValid={false}
+      label="onboarding.create_project.enter_pat"
+      required={true}
+    >
+      <input
+        autoFocus={true}
+        className="input-super-large"
+        id="personal_access_token"
+        minLength={1}
+        name="personal_access_token"
+        onChange={[Function]}
+        type="text"
+      />
+    </ValidationInput>
+    <SubmitButton
+      disabled={true}
+    >
+      save
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
+      timeout={100}
+    />
+  </form>
+  <Alert
+    className="big-spacer-left big-spacer-top"
+    display="block"
+    variant="info"
+  >
+    <h3>
+      onboarding.create_project.pat_help.title
+    </h3>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.create_project.pat_help.instructions"
+        id="onboarding.create_project.pat_help.instructions"
+        values={
+          Object {
+            "alm": "onboarding.alm.gitlab",
+          }
+        }
+      />
+    </p>
+    <div
+      className="text-middle"
+    >
+      <img
+        alt=""
+        className="spacer-right"
+        height="16"
+        src="/images/alm/gitlab.svg"
+      />
+      <a
+        href="https://gitlab.com/profile/personal_access_tokens"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.create_project.pat_help.link
+      </a>
+    </div>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.instructions2.gitlab
+    </p>
+    <ul>
+      <li
+        className="spacer-bottom"
+      >
+        <strong>
+          onboarding.create_project.pat_help.gitlab.read_api_permission
+        </strong>
+      </li>
+    </ul>
+  </Alert>
+</div>
+`;
+
+exports[`should render correctly: gitlab with non-standard api path 1`] = `
+<div
+  className="display-flex-start"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <h2
+      className="big"
+    >
+      onboarding.create_project.pat_form.title.gitlab
+    </h2>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_form.help.gitlab
+    </p>
+    <ValidationInput
+      id="personal_access_token"
+      isInvalid={false}
+      isValid={false}
+      label="onboarding.create_project.enter_pat"
+      required={true}
+    >
+      <input
+        autoFocus={true}
+        className="input-super-large"
+        id="personal_access_token"
+        minLength={1}
+        name="personal_access_token"
+        onChange={[Function]}
+        type="text"
+      />
+    </ValidationInput>
+    <SubmitButton
+      disabled={true}
+    >
+      save
+    </SubmitButton>
+    <DeferredSpinner
+      className="spacer-left"
+      loading={false}
+      timeout={100}
+    />
+  </form>
+  <Alert
+    className="big-spacer-left big-spacer-top"
+    display="block"
+    variant="info"
+  >
+    <h3>
+      onboarding.create_project.pat_help.title
+    </h3>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.create_project.pat_help.instructions"
+        id="onboarding.create_project.pat_help.instructions"
+        values={
+          Object {
+            "alm": "onboarding.alm.gitlab",
+          }
+        }
+      />
+    </p>
+    <div
+      className="text-middle"
+    >
+      <img
+        alt=""
+        className="spacer-right"
+        height="16"
+        src="/images/alm/gitlab.svg"
+      />
+      <a
+        href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#creating-a-personal-access-token"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        onboarding.create_project.pat_help.link
+      </a>
+    </div>
+    <p
+      className="big-spacer-top big-spacer-bottom"
+    >
+      onboarding.create_project.pat_help.instructions2.gitlab
+    </p>
+    <ul>
+      <li
+        className="spacer-bottom"
+      >
+        <strong>
+          onboarding.create_project.pat_help.gitlab.read_api_permission
+        </strong>
+      </li>
+    </ul>
+  </Alert>
+</div>
+`;
+
 exports[`should render correctly: submitting 1`] = `
 <div
   className="display-flex-start"
@@ -122,12 +332,12 @@ exports[`should render correctly: submitting 1`] = `
     <h2
       className="big"
     >
-      onboarding.create_project.grant_access_to_bbs.title
+      onboarding.create_project.pat_form.title.bitbucket
     </h2>
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.grant_access_to_bbs.help
+      onboarding.create_project.pat_form.help.bitbucket
     </p>
     <ValidationInput
       id="personal_access_token"
@@ -168,7 +378,15 @@ exports[`should render correctly: submitting 1`] = `
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.pat_help.bbs_help_1
+      <FormattedMessage
+        defaultMessage="onboarding.create_project.pat_help.instructions"
+        id="onboarding.create_project.pat_help.instructions"
+        values={
+          Object {
+            "alm": "onboarding.alm.bitbucket",
+          }
+        }
+      />
     </p>
     <div
       className="text-middle"
@@ -190,7 +408,7 @@ exports[`should render correctly: submitting 1`] = `
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.pat_help.bbs_help_2
+      onboarding.create_project.pat_help.instructions2.bitbucket
     </p>
     <ul>
       <li>
@@ -234,12 +452,12 @@ exports[`should render correctly: validation failed 1`] = `
     <h2
       className="big"
     >
-      onboarding.create_project.grant_access_to_bbs.title
+      onboarding.create_project.pat_form.title.bitbucket
     </h2>
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.grant_access_to_bbs.help
+      onboarding.create_project.pat_form.help.bitbucket
     </p>
     <ValidationInput
       error="onboarding.create_project.pat_incorrect"
@@ -281,7 +499,15 @@ exports[`should render correctly: validation failed 1`] = `
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.pat_help.bbs_help_1
+      <FormattedMessage
+        defaultMessage="onboarding.create_project.pat_help.instructions"
+        id="onboarding.create_project.pat_help.instructions"
+        values={
+          Object {
+            "alm": "onboarding.alm.bitbucket",
+          }
+        }
+      />
     </p>
     <div
       className="text-middle"
@@ -303,7 +529,7 @@ exports[`should render correctly: validation failed 1`] = `
     <p
       className="big-spacer-top big-spacer-bottom"
     >
-      onboarding.create_project.pat_help.bbs_help_2
+      onboarding.create_project.pat_help.instructions2.bitbucket
     </p>
     <ul>
       <li>

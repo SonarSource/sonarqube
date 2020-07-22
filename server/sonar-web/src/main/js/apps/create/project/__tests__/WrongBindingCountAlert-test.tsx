@@ -17,9 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum CreateProjectModes {
-  Manual = 'manual',
-  BitbucketServer = 'bitbucket',
-  GitHub = 'github',
-  GitLab = 'gitlab'
+
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { AlmKeys } from '../../../../types/alm-settings';
+import WrongBindingCountAlert, { WrongBindingCountAlertProps } from '../WrongBindingCountAlert';
+
+it('should render correctly', () => {
+  expect(shallowRender({ canAdmin: true })).toMatchSnapshot('for admin');
+  expect(shallowRender({ alm: AlmKeys.Bitbucket })).toMatchSnapshot('bitbucket');
+  expect(shallowRender({ alm: AlmKeys.GitLab })).toMatchSnapshot('gitlab');
+});
+
+function shallowRender(props: Partial<WrongBindingCountAlertProps> = {}) {
+  return shallow(<WrongBindingCountAlert alm={AlmKeys.Bitbucket} canAdmin={false} {...props} />);
 }

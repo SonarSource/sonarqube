@@ -18,10 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
@@ -30,11 +27,11 @@ import {
   BitbucketProjectRepositories,
   BitbucketRepository
 } from '../../../types/alm-integration';
-import { AlmSettingsInstance } from '../../../types/alm-settings';
-import { ALM_INTEGRATION } from '../../settings/components/AdditionalCategoryKeys';
+import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketImportRepositoryForm from './BitbucketImportRepositoryForm';
-import BitbucketPersonalAccessTokenForm from './BitbucketPersonalAccessTokenForm';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
+import PersonalAccessTokenForm from './PersonalAccessTokenForm';
+import WrongBindingCountAlert from './WrongBindingCountAlert';
 
 export interface BitbucketProjectCreateRendererProps {
   bitbucketSetting?: AlmSettingsInstance;
@@ -104,34 +101,14 @@ export default function BitbucketProjectCreateRenderer(props: BitbucketProjectCr
       {loading && <i className="spinner" />}
 
       {!loading && !bitbucketSetting && (
-        <Alert variant="error">
-          {canAdmin ? (
-            <FormattedMessage
-              defaultMessage={translate('onboarding.create_project.no_bbs_binding.admin')}
-              id="onboarding.create_project.no_bbs_binding.admin"
-              values={{
-                url: (
-                  <Link
-                    to={{
-                      pathname: '/admin/settings',
-                      query: { category: ALM_INTEGRATION }
-                    }}>
-                    {translate('settings.page')}
-                  </Link>
-                )
-              }}
-            />
-          ) : (
-            translate('onboarding.create_project.no_bbs_binding')
-          )}
-        </Alert>
+        <WrongBindingCountAlert alm={AlmKeys.Bitbucket} canAdmin={!!canAdmin} />
       )}
 
       {!loading &&
         bitbucketSetting &&
         (showPersonalAccessTokenForm ? (
-          <BitbucketPersonalAccessTokenForm
-            bitbucketSetting={bitbucketSetting}
+          <PersonalAccessTokenForm
+            almSetting={bitbucketSetting}
             onPersonalAccessTokenCreate={props.onPersonalAccessTokenCreate}
             submitting={submittingToken}
             validationFailed={tokenValidationFailed}

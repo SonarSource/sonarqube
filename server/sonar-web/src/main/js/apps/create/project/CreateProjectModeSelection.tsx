@@ -44,7 +44,7 @@ function renderAlmOption(
   return (
     <button
       className={classNames(
-        'button button-huge big-spacer-left display-flex-column create-project-mode-type-bbs',
+        'button button-huge big-spacer-left display-flex-column create-project-mode-type-alm',
         { disabled }
       )}
       disabled={disabled}
@@ -114,6 +114,7 @@ export default function CreateProjectModeSelection(props: CreateProjectModeSelec
 
         {renderAlmOption(props, AlmKeys.Bitbucket, CreateProjectModes.BitbucketServer)}
         {renderAlmOption(props, AlmKeys.GitHub, CreateProjectModes.GitHub)}
+        {renderAlmOption(props, AlmKeys.GitLab, CreateProjectModes.GitLab)}
       </div>
     </>
   );

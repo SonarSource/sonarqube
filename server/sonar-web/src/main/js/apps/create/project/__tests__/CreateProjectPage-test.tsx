@@ -65,6 +65,13 @@ it('should render correctly if the GitHub method is selected', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
+it('should render correctly if the GitLab method is selected', () => {
+  const wrapper = shallowRender({
+    location: mockLocation({ query: { mode: CreateProjectModes.GitLab } })
+  });
+  expect(wrapper).toMatchSnapshot();
+});
+
 function shallowRender(props: Partial<CreateProjectPage['props']> = {}) {
   return shallow<CreateProjectPage>(
     <CreateProjectPage

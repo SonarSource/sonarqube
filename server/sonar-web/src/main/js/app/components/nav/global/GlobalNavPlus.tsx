@@ -47,7 +47,7 @@ interface State {
 /*
  * ALMs for which the import feature has been implemented
  */
-const IMPORT_COMPATIBLE_ALMS = [AlmKeys.Bitbucket, AlmKeys.GitHub];
+const IMPORT_COMPATIBLE_ALMS = [AlmKeys.Bitbucket, AlmKeys.GitHub, AlmKeys.GitLab];
 
 export class GlobalNavPlus extends React.PureComponent<Props, State> {
   mounted = false;

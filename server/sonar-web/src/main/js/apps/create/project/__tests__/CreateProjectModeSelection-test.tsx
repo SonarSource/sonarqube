@@ -42,10 +42,10 @@ it('should correctly pass the selected mode up', () => {
   click(wrapper.find('button.create-project-mode-type-manual'));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.Manual);
 
-  click(wrapper.find('button.create-project-mode-type-bbs').at(0));
+  click(wrapper.find('button.create-project-mode-type-alm').at(0));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.BitbucketServer);
 
-  click(wrapper.find('button.create-project-mode-type-bbs').at(1));
+  click(wrapper.find('button.create-project-mode-type-alm').at(1));
   expect(onSelectMode).toBeCalledWith(CreateProjectModes.GitHub);
 });
 

@@ -171,32 +171,10 @@ exports[`should render correctly: invalid config, admin user 1`] = `
       </span>
     }
   />
-  <Alert
-    variant="error"
-  >
-    <FormattedMessage
-      defaultMessage="onboarding.create_project.no_bbs_binding.admin"
-      id="onboarding.create_project.no_bbs_binding.admin"
-      values={
-        Object {
-          "url": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/admin/settings",
-                "query": Object {
-                  "category": "almintegration",
-                },
-              }
-            }
-          >
-            settings.page
-          </Link>,
-        }
-      }
-    />
-  </Alert>
+  <WrongBindingCountAlert
+    alm="bitbucket"
+    canAdmin={true}
+  />
 </Fragment>
 `;
 
@@ -235,11 +213,10 @@ exports[`should render correctly: invalid config, regular user 1`] = `
       </span>
     }
   />
-  <Alert
-    variant="error"
-  >
-    onboarding.create_project.no_bbs_binding
-  </Alert>
+  <WrongBindingCountAlert
+    alm="bitbucket"
+    canAdmin={false}
+  />
 </Fragment>
 `;
 
@@ -302,8 +279,8 @@ exports[`should render correctly: pat form 1`] = `
       </span>
     }
   />
-  <BitbucketPersonalAccessTokenForm
-    bitbucketSetting={
+  <PersonalAccessTokenForm
+    almSetting={
       Object {
         "alm": "bitbucket",
         "key": "key",
