@@ -5,42 +5,43 @@ url: /user-guide/quality-gates/
 
 ## Overview
 
-A quality gate is the best way to enforce a quality policy in your organization.
-It's there to answer ONE question: can I deliver my project to production today or not?
+Quality Gates enforce a quality policy in your organization by answering one question: is my project ready for release?
 
-In order to answer this question, you define a set of Boolean conditions based on measure thresholds against which projects are measured. For example:
+To answer this question, you define a set of conditions against which projects are measured. For example:
 
 * No new blocker issues
 * Code coverage on new code greater than 80%
-* Etc.
 
-Ideally, all projects will be verified against the same quality gate, but that's not always practical. For instance, you may find that:
+See the **Defining Quality Gates** section below for more information on defining conditions.
+
+Ideally, all projects will use the same quality gate, but that's not always practical. For instance, you may find that:
 
 * Technological implementation differs from one application to another (you might not require the same code coverage on new code for Web or Java applications).
 * You want to ensure stronger requirements on some of your applications (internal frameworks for example).
-* Etc.
 
-Which is why you can define as many quality gates as you wish. Quality Gates are defined and managed in the **[Quality Gates](/#sonarqube#/quality_gates)** page found in the top menu.
+Which is why you can define as many quality gates as you need. You can access the **[Quality Gates](/#sonarqube#/quality_gates)** page from the top menu. From here you can define and manage your Quality Gates.
 
-## Use the Best Quality Gate Configuration
+## Use the best Quality Gate configuration
 
-The quality gate "Sonar way" is provided by SonarSource, activated by default and considered as built-in and so read-only. It represents our view of the best way to implement the [Clean as You Code](/user-guide/clean-as-you-code/) concept. At each SonarQube release, we adjust automatically this default quality gate according to SonarQube's capabilities.
+The "Sonar way" Quality Gate is provided by SonarSource, activated by default, and considered as built-in and read-only. This Quality Gate represents the best way to implement the [Clean as You Code](/user-guide/clean-as-you-code/) concept by focusing on new code. With each SonarQube release, we automatically adjust this default quality gate according to SonarQube's capabilities.
 
-Three metrics allow you to enforce a given Rating of Reliability, Security and Maintainability, not just overall but also on new code. These metrics are recommended and come as part of the default quality gate. We strongly advise you to adjust your own quality gates to use them to make feedback more clear to your developers looking at their quality gate on their project page.
+With the Quality Gate, you can enforce ratings (reliability, security, security review, and maintainability) based on metrics on overall code and new code. These metrics are part of the default quality gate. Note that, while test code quality impacts your Quality Gate, it's only measured based on the maintainability and reliability metrics. Duplication and security issues aren't measured on test code.
 
-Don't forget also that quality gate conditions must use differential values. There is no point for example to check an absolute value such as : Number of Lines of Code is greater than 1000.
+You should adjust your quality gates so they provide clear feedback to developers looking at their project page.
+
+Don't forget that Quality Gate conditions must use differential values. For example, there's no point in checking an absolute value such as: `Number of Lines of Code is greater than 1000`.
 
 ### Recommended Quality Gate
 
-The `Sonar way` Built-in quality gate is recommended for most projects. If focuses on keeping new code clean, rather than spending a lot of effort remediating old code. Out of the box, it's already set as the default profile.
+We recommend the built-in `Sonar way` quality gate for most projects. It focuses on keeping new code clean, rather than spending a lot of effort remediating old code. Out of the box, it's already set as the default profile.
 
-## Quality Gate Status
+## Quality Gate status
 
 The current status is displayed prominently at the top of the Project Page:
 
 ![Quality Gate Status](/images/quality-gate-status.jpeg)
 
-## Getting Notified When a Quality Gate Fails
+## Getting notified when a Quality Gate fails
 
 Thanks to the notification mechanism, users can be notified when a quality gate fails. To do so, subscribe to the **New quality gate status** notification either for all projects or a set of projects you're interested in.
 
@@ -54,13 +55,11 @@ A **project administrator** can choose which quality gates his/her project is as
 
 ## Defining Quality Gates
 
-To manage quality gates, go to **[Quality Gates](/#sonarqube#/quality_gates)** (top menu bar).
-
 Each Quality Gate condition is a combination of:
 
-* measure
-* comparison operator
-* error value
+* a measure
+* a comparison operator
+* an error value
 
 For instance, a condition might be:
 
