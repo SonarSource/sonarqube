@@ -5,7 +5,11 @@ url: /setup/upgrade-notes/
 
 ## Release 7.9.4 LTS Upgrade Notes  
 **Additional SAML checks**  
-SAML authentication adds additional checks for validating SAML responses from the identity provider. This could reveal a non-standard configuration that needs to be updated. Information will appear in the logs upon a failed login attempt in the event that the configuration needs to be tweaked.
+SAML authentication adds additional checks for validating SAML responses from the identity provider. 
+
+This could reveal a non-standard configuration that needs to be updated. Information will appear in the logs upon a failed login attempt in the event that the configuration needs to be tweaked.
+
+Validation requires a proper HTTPS configuration, as documented in [Operating the Server](/setup/operate-server/).
 
 [Full Release Notes](https://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=15832)
 
