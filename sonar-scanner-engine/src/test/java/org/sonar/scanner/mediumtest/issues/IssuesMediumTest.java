@@ -38,6 +38,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.ExternalIssue;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.HasTagSensor;
+import org.sonar.xoo.rule.OneExternalIssueOnProjectSensor;
 import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -90,6 +91,21 @@ public class IssuesMediumTest {
 
     List<ExternalIssue> externalIssues = result.externalIssuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
     assertThat(externalIssues).hasSize(8 /* lines */);
+  }
+
+  @Test
+  public void testOneExternalIssueOnProject() throws Exception {
+    File projectDir = new File("test-resources/mediumtest/xoo/sample");
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
+
+    AnalysisResult result = tester
+      .newAnalysis(new File(tmpDir, "sonar-project.properties"))
+      .property(OneExternalIssueOnProjectSensor.ACTIVATE, "true")
+      .execute();
+
+    List<ExternalIssue> externalIssues = result.externalIssuesFor(result.project());
+    assertThat(externalIssues).hasSize(1);
   }
 
   @Test

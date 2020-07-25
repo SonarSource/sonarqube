@@ -20,11 +20,11 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 
@@ -86,7 +86,6 @@ public class DefaultExternalIssue extends AbstractDefaultIssue<DefaultExternalIs
     requireNonNull(this.engineId, "Engine id is mandatory on external issue");
     requireNonNull(this.ruleId, "Rule id is mandatory on external issue");
     checkState(primaryLocation != null, "Primary location is mandatory on every external issue");
-    checkState(primaryLocation.inputComponent().isFile(), "External issues must be located in files");
     checkState(primaryLocation.message() != null, "External issues must have a message");
     checkState(severity != null, "Severity is mandatory on every external issue");
     checkState(type != null, "Type is mandatory on every external issue");

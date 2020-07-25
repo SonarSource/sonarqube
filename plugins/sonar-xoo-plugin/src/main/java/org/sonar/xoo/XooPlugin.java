@@ -52,6 +52,7 @@ import org.sonar.xoo.rule.OneBugIssuePerTestLineSensor;
 import org.sonar.xoo.rule.OneCodeSmellIssuePerLineSensor;
 import org.sonar.xoo.rule.OneCodeSmellIssuePerTestLineSensor;
 import org.sonar.xoo.rule.OneDayDebtPerFileSensor;
+import org.sonar.xoo.rule.OneExternalIssueOnProjectSensor;
 import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerDirectorySensor;
@@ -146,6 +147,7 @@ public class XooPlugin implements Plugin {
       OneIssuePerUnknownFileSensor.class,
 
       OneExternalIssuePerLineSensor.class,
+      OneExternalIssueOnProjectSensor.class,
       OnePredefinedRuleExternalIssuePerLineSensor.class,
       OnePredefinedAndAdHocRuleExternalIssuePerLineSensor.class,
 

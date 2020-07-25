@@ -26,16 +26,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.batch.sensor.issue.internal.DefaultExternalIssue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
+import org.sonar.api.batch.rule.Severity;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -92,6 +89,33 @@ public class DefaultExternalIssueTest {
   }
 
   @Test
+  public void build_project_issue() {
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultExternalIssue issue = new DefaultExternalIssue(project, storage)
+      .at(new DefaultIssueLocation()
+        .on(project)
+        .message("Wrong way!"))
+      .forRule(RuleKey.of("repo", "rule"))
+      .remediationEffortMinutes(10l)
+      .type(RuleType.BUG)
+      .severity(Severity.BLOCKER);
+
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(project);
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("external_repo", "rule"));
+    assertThat(issue.engineId()).isEqualTo("repo");
+    assertThat(issue.ruleId()).isEqualTo("rule");
+    assertThat(issue.primaryLocation().textRange()).isNull();
+    assertThat(issue.remediationEffort()).isEqualTo(10l);
+    assertThat(issue.type()).isEqualTo(RuleType.BUG);
+    assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
+
+    issue.save();
+
+    verify(storage).store(issue);
+  }
+
+  @Test
   public void fail_to_store_if_no_type() {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultExternalIssue issue = new DefaultExternalIssue(project, storage)
@@ -105,22 +129,6 @@ public class DefaultExternalIssueTest {
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Type is mandatory");
-    issue.save();
-  }
-
-  @Test
-  public void fail_to_store_if_primary_location_is_not_a_file() {
-    SensorStorage storage = mock(SensorStorage.class);
-    DefaultExternalIssue issue = new DefaultExternalIssue(project, storage)
-      .at(new DefaultIssueLocation()
-        .on(mock(InputComponent.class))
-        .message("Wrong way!"))
-      .forRule(RuleKey.of("repo", "rule"))
-      .remediationEffortMinutes(10l)
-      .severity(Severity.BLOCKER);
-
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("External issues must be located in files");
     issue.save();
   }
 
