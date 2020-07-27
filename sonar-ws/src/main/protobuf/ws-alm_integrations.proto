@@ -94,4 +94,5 @@ message GitlabRepository {
   optional string pathSlug = 5;
   optional string url = 6;
   optional string sqProjectKey = 7;
+  optional string sqProjectName = 8;
 }
