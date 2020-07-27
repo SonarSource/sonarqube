@@ -176,8 +176,8 @@ export default class GitHubProjectCreate extends React.Component<Props, State> {
       const data = await getGithubRepositories({
         almSetting: settings.key,
         organization: organizationKey,
-        ps: REPOSITORY_PAGE_SIZE,
-        p: page,
+        pageSize: REPOSITORY_PAGE_SIZE,
+        page,
         query
       });
 

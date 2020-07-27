@@ -20,15 +20,24 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
+import { GitlabProject } from '../../../types/alm-integration';
 import { AlmKeys, AlmSettingsInstance } from '../../../types/alm-settings';
 import CreateProjectPageHeader from './CreateProjectPageHeader';
+import GitlabProjectSelectionForm from './GitlabProjectSelectionForm';
 import PersonalAccessTokenForm from './PersonalAccessTokenForm';
 import WrongBindingCountAlert from './WrongBindingCountAlert';
 
 export interface GitlabProjectCreateRendererProps {
   canAdmin?: boolean;
   loading: boolean;
+  loadingMore: boolean;
+  onLoadMore: () => void;
   onPersonalAccessTokenCreate: (pat: string) => void;
+  onSearch: (searchQuery: string) => void;
+  projects?: GitlabProject[];
+  projectsPaging: T.Paging;
+  searching: boolean;
+  searchQuery: string;
   settings?: AlmSettingsInstance;
   showPersonalAccessTokenForm?: boolean;
   submittingToken?: boolean;
@@ -39,6 +48,11 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
   const {
     canAdmin,
     loading,
+    loadingMore,
+    projects,
+    projectsPaging,
+    searching,
+    searchQuery,
     settings,
     showPersonalAccessTokenForm,
     submittingToken,
@@ -77,7 +91,15 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
             validationFailed={tokenValidationFailed}
           />
         ) : (
-          <div>Token is valid!</div>
+          <GitlabProjectSelectionForm
+            loadingMore={loadingMore}
+            onLoadMore={props.onLoadMore}
+            onSearch={props.onSearch}
+            projects={projects}
+            projectsPaging={projectsPaging}
+            searching={searching}
+            searchQuery={searchQuery}
+          />
         ))}
     </>
   );

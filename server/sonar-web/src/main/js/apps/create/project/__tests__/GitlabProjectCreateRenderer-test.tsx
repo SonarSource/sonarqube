@@ -33,6 +33,9 @@ it('should render correctly', () => {
     'invalid settings, admin user'
   );
   expect(shallowRender()).toMatchSnapshot('pat form');
+  expect(shallowRender({ showPersonalAccessTokenForm: false })).toMatchSnapshot(
+    'project selection form'
+  );
 });
 
 function shallowRender(props: Partial<GitlabProjectCreateRendererProps> = {}) {
@@ -40,7 +43,14 @@ function shallowRender(props: Partial<GitlabProjectCreateRendererProps> = {}) {
     <GitlabProjectCreateRenderer
       canAdmin={false}
       loading={false}
+      loadingMore={false}
+      onLoadMore={jest.fn()}
       onPersonalAccessTokenCreate={jest.fn()}
+      onSearch={jest.fn()}
+      projects={undefined}
+      projectsPaging={{ pageIndex: 1, pageSize: 30, total: 0 }}
+      searching={false}
+      searchQuery=""
       showPersonalAccessTokenForm={true}
       submittingToken={false}
       tokenValidationFailed={false}

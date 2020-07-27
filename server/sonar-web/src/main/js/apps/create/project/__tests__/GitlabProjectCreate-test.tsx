@@ -23,16 +23,19 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   checkPersonalAccessTokenIsValid,
+  getGitlabProjects,
   setAlmPersonalAccessToken
 } from '../../../../api/alm-integrations';
+import { mockGitlabProject } from '../../../../helpers/mocks/alm-integrations';
 import { mockAlmSettingsInstance } from '../../../../helpers/mocks/alm-settings';
-import { mockLocation } from '../../../../helpers/testMocks';
+import { mockLocation, mockRouter } from '../../../../helpers/testMocks';
 import { AlmKeys } from '../../../../types/alm-settings';
 import GitlabProjectCreate from '../GitlabProjectCreate';
 
 jest.mock('../../../../api/alm-integrations', () => ({
   checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue(true),
-  setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null)
+  setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null),
+  getGitlabProjects: jest.fn().mockRejectedValue('error')
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -75,7 +78,12 @@ it('should correctly handle an invalid PAT', async () => {
 });
 
 describe('setting a new PAT', () => {
-  const wrapper = shallowRender();
+  const routerReplace = jest.fn();
+  const wrapper = shallowRender({ router: mockRouter({ replace: routerReplace }) });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it('should correctly handle it if invalid', async () => {
     (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(false);
@@ -99,7 +107,97 @@ describe('setting a new PAT', () => {
     expect(checkPersonalAccessTokenIsValid).toBeCalled();
     expect(wrapper.state().submittingToken).toBe(false);
     expect(wrapper.state().tokenValidationFailed).toBe(false);
+
+    expect(routerReplace).toBeCalled();
   });
+});
+
+it('should fetch more projects and preserve search', async () => {
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+
+  const projects = [
+    mockGitlabProject({ id: '1' }),
+    mockGitlabProject({ id: '2' }),
+    mockGitlabProject({ id: '3' }),
+    mockGitlabProject({ id: '4' }),
+    mockGitlabProject({ id: '5' }),
+    mockGitlabProject({ id: '6' })
+  ];
+  (getGitlabProjects as jest.Mock)
+    .mockResolvedValueOnce({
+      projects: projects.slice(0, 5),
+      projectsPaging: {
+        pageIndex: 1,
+        pageSize: 4,
+        total: 6
+      }
+    })
+    .mockResolvedValueOnce({
+      projects: projects.slice(5),
+      projectsPaging: {
+        pageIndex: 2,
+        pageSize: 4,
+        total: 6
+      }
+    });
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+  wrapper.setState({ searchQuery: 'query' });
+
+  wrapper.instance().handleLoadMore();
+  expect(wrapper.state().loadingMore).toBe(true);
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().loadingMore).toBe(false);
+  expect(wrapper.state().projects).toEqual(projects);
+
+  expect(getGitlabProjects).toBeCalledWith(expect.objectContaining({ query: 'query' }));
+});
+
+it('should search for projects', async () => {
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+
+  const projects = [
+    mockGitlabProject({ id: '1' }),
+    mockGitlabProject({ id: '2' }),
+    mockGitlabProject({ id: '3' }),
+    mockGitlabProject({ id: '4' }),
+    mockGitlabProject({ id: '5' }),
+    mockGitlabProject({ id: '6' })
+  ];
+  (getGitlabProjects as jest.Mock)
+    .mockResolvedValueOnce({
+      projects,
+      projectsPaging: {
+        pageIndex: 1,
+        pageSize: 6,
+        total: 6
+      }
+    })
+    .mockResolvedValueOnce({
+      projects: projects.slice(3, 5),
+      projectsPaging: {
+        pageIndex: 1,
+        pageSize: 6,
+        total: 2
+      }
+    });
+  const query = 'query';
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleSearch(query);
+  expect(wrapper.state().searching).toBe(true);
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper.state().searching).toBe(false);
+  expect(wrapper.state().searchQuery).toBe(query);
+  expect(wrapper.state().projects).toEqual([projects[3], projects[4]]);
+
+  expect(getGitlabProjects).toBeCalledWith(expect.objectContaining({ query }));
 });
 
 function shallowRender(props: Partial<GitlabProjectCreate['props']> = {}) {
@@ -109,6 +207,7 @@ function shallowRender(props: Partial<GitlabProjectCreate['props']> = {}) {
       loadingBindings={false}
       location={mockLocation()}
       onProjectCreate={jest.fn()}
+      router={mockRouter()}
       settings={[mockAlmSettingsInstance({ alm: AlmKeys.GitLab, key: almSettingKey })]}
       {...props}
     />

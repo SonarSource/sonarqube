@@ -48,3 +48,14 @@ export interface GithubRepository {
   url: string;
   sqProjectKey: string;
 }
+
+export interface GitlabProject {
+  id: string;
+  name: string;
+  pathName: string;
+  pathSlug: string;
+  sqProjectKey?: string;
+  sqProjectName?: string;
+  slug: string;
+  url: string;
+}

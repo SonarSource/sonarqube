@@ -4,7 +4,19 @@ exports[`should render correctly 1`] = `
 <GitlabProjectCreateRenderer
   canAdmin={false}
   loading={true}
+  loadingMore={false}
+  onLoadMore={[Function]}
   onPersonalAccessTokenCreate={[Function]}
+  onSearch={[Function]}
+  projectsPaging={
+    Object {
+      "pageIndex": 1,
+      "pageSize": 30,
+      "total": 0,
+    }
+  }
+  searchQuery=""
+  searching={false}
   settings={
     Object {
       "alm": "gitlab",

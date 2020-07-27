@@ -20,7 +20,8 @@
 import {
   BitbucketProject,
   BitbucketRepository,
-  GithubRepository
+  GithubRepository,
+  GitlabProject
 } from '../../types/alm-integration';
 
 export function mockBitbucketProject(overrides: Partial<BitbucketProject> = {}): BitbucketProject {
@@ -51,6 +52,19 @@ export function mockGitHubRepository(overrides: Partial<GithubRepository> = {}):
     name: 'repository 1',
     sqProjectKey: '',
     url: 'owner/repo1',
+    ...overrides
+  };
+}
+
+export function mockGitlabProject(overrides: Partial<GitlabProject> = {}): GitlabProject {
+  return {
+    id: 'id1234',
+    name: 'Awesome Project !',
+    slug: 'awesome-project-exclamation',
+    pathName: 'Company / Best Projects',
+    pathSlug: 'company/best-projects',
+    sqProjectKey: '',
+    url: 'https://gitlab.company.com/best-projects/awesome-project-exclamation',
     ...overrides
   };
 }

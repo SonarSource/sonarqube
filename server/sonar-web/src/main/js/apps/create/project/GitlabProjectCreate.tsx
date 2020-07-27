@@ -21,12 +21,14 @@ import * as React from 'react';
 import { WithRouterProps } from 'react-router';
 import {
   checkPersonalAccessTokenIsValid,
+  getGitlabProjects,
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
+import { GitlabProject } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import GitlabProjectCreateRenderer from './GitlabProjectCreateRenderer';
 
-interface Props extends Pick<WithRouterProps, 'location'> {
+interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
   canAdmin: boolean;
   loadingBindings: boolean;
   onProjectCreate: (projectKeys: string[]) => void;
@@ -35,20 +37,32 @@ interface Props extends Pick<WithRouterProps, 'location'> {
 
 interface State {
   loading: boolean;
+  loadingMore: boolean;
+  projects?: GitlabProject[];
+  projectsPaging: T.Paging;
   submittingToken: boolean;
   tokenIsValid: boolean;
   tokenValidationFailed: boolean;
+  searching: boolean;
+  searchQuery: string;
   settings?: AlmSettingsInstance;
 }
+
+const GITLAB_PROJECTS_PAGESIZE = 30;
 
 export default class GitlabProjectCreate extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
     super(props);
+
     this.state = {
       loading: false,
+      loadingMore: false,
+      projectsPaging: { pageIndex: 1, total: 0, pageSize: GITLAB_PROJECTS_PAGESIZE },
       tokenIsValid: false,
+      searching: false,
+      searchQuery: '',
       settings: props.settings.length === 1 ? props.settings[0] : undefined,
       submittingToken: false,
       tokenValidationFailed: false
@@ -78,11 +92,27 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
 
     const tokenIsValid = await this.checkPersonalAccessToken();
 
+    let result;
+    if (tokenIsValid) {
+      result = await this.fetchProjects();
+    }
+
     if (this.mounted) {
-      this.setState({
-        tokenIsValid,
-        loading: false
-      });
+      if (result) {
+        const { projects, projectsPaging } = result;
+
+        this.setState({
+          tokenIsValid,
+          loading: false,
+          projects,
+          projectsPaging
+        });
+      } else {
+        this.setState({
+          tokenIsValid,
+          loading: false
+        });
+      }
     }
   };
 
@@ -96,7 +126,61 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     return checkPersonalAccessTokenIsValid(settings.key).catch(() => false);
   };
 
-  handlePersonalAccessTokenCreate = (token: string) => {
+  fetchProjects = (pageIndex = 1, query?: string) => {
+    const { settings } = this.state;
+
+    if (!settings) {
+      return Promise.resolve(undefined);
+    }
+
+    return getGitlabProjects({
+      almSetting: settings.key,
+      page: pageIndex,
+      pageSize: GITLAB_PROJECTS_PAGESIZE,
+      query
+    }).catch(() => undefined);
+  };
+
+  handleLoadMore = async () => {
+    this.setState({ loadingMore: true });
+
+    const {
+      projectsPaging: { pageIndex },
+      searchQuery
+    } = this.state;
+
+    const result = await this.fetchProjects(pageIndex + 1, searchQuery);
+
+    if (this.mounted) {
+      this.setState(({ projects = [], projectsPaging }) => ({
+        loadingMore: false,
+        projects: result ? [...projects, ...result.projects] : projects,
+        projectsPaging: result ? result.projectsPaging : projectsPaging
+      }));
+    }
+  };
+
+  handleSearch = async (searchQuery: string) => {
+    this.setState({ searching: true, searchQuery });
+
+    const result = await this.fetchProjects(1, searchQuery);
+
+    if (this.mounted) {
+      this.setState(({ projects, projectsPaging }) => ({
+        searching: false,
+        projects: result ? result.projects : projects,
+        projectsPaging: result ? result.projectsPaging : projectsPaging
+      }));
+    }
+  };
+
+  cleanUrl = () => {
+    const { location, router } = this.props;
+    delete location.query.resetPat;
+    router.replace(location);
+  };
+
+  handlePersonalAccessTokenCreate = async (token: string) => {
     const { settings } = this.state;
 
     if (!settings || token.length < 1) {
@@ -104,37 +188,59 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     }
 
     this.setState({ submittingToken: true, tokenValidationFailed: false });
-    setAlmPersonalAccessToken(settings.key, token)
-      .then(this.checkPersonalAccessToken)
-      .then(patIsValid => {
-        if (this.mounted) {
-          this.setState({
-            submittingToken: false,
-            tokenIsValid: patIsValid,
-            tokenValidationFailed: !patIsValid
-          });
-          if (patIsValid) {
-            this.fetchInitialData();
-          }
+
+    try {
+      await setAlmPersonalAccessToken(settings.key, token);
+
+      const patIsValid = await this.checkPersonalAccessToken();
+
+      if (this.mounted) {
+        this.setState({
+          submittingToken: false,
+          tokenIsValid: patIsValid,
+          tokenValidationFailed: !patIsValid
+        });
+
+        if (patIsValid) {
+          this.cleanUrl();
+          await this.fetchInitialData();
         }
-      })
-      .catch(() => {
-        if (this.mounted) {
-          this.setState({ submittingToken: false });
-        }
-      });
+      }
+    } catch (e) {
+      if (this.mounted) {
+        this.setState({ submittingToken: false });
+      }
+    }
   };
 
   render() {
     const { canAdmin, loadingBindings, location } = this.props;
-    const { loading, tokenIsValid, settings, submittingToken, tokenValidationFailed } = this.state;
+    const {
+      loading,
+      loadingMore,
+      projects,
+      projectsPaging,
+      tokenIsValid,
+      searching,
+      searchQuery,
+      settings,
+      submittingToken,
+      tokenValidationFailed
+    } = this.state;
 
     return (
       <GitlabProjectCreateRenderer
         settings={settings}
         canAdmin={canAdmin}
         loading={loading || loadingBindings}
+        loadingMore={loadingMore}
+        onLoadMore={this.handleLoadMore}
         onPersonalAccessTokenCreate={this.handlePersonalAccessTokenCreate}
+        onSearch={this.handleSearch}
+        projects={projects}
+        projectsPaging={projectsPaging}
+        searching={searching}
+        searchQuery={searchQuery}
         showPersonalAccessTokenForm={!tokenIsValid || Boolean(location.query.resetPat)}
         submittingToken={submittingToken}
         tokenValidationFailed={tokenValidationFailed}

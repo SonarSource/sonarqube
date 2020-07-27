@@ -186,8 +186,8 @@ it('should handle search', async () => {
   expect(getGithubRepositories).toBeCalledWith({
     almSetting: 'a',
     organization: 'o1',
-    p: 1,
-    ps: 30,
+    page: 1,
+    pageSize: 30,
     query: 'query'
   });
   expect(wrapper.state().repositories).toEqual(repositories);

@@ -23,7 +23,8 @@ import {
   BitbucketProject,
   BitbucketRepository,
   GithubOrganization,
-  GithubRepository
+  GithubRepository,
+  GitlabProject
 } from '../types/alm-integration';
 import { ProjectBase } from './components';
 
@@ -120,16 +121,33 @@ export function getGithubOrganizations(
 export function getGithubRepositories(data: {
   almSetting: string;
   organization: string;
-  ps: number;
-  p?: number;
+  pageSize: number;
+  page?: number;
   query?: string;
 }): Promise<{ repositories: GithubRepository[]; paging: T.Paging }> {
-  const { almSetting, organization, ps, p = 1, query } = data;
+  const { almSetting, organization, pageSize, page = 1, query } = data;
   return getJSON('/api/alm_integrations/list_github_repositories', {
     almSetting,
     organization,
-    p,
-    ps,
+    p: page,
+    ps: pageSize,
     q: query || undefined
   }).catch(throwGlobalError);
+}
+
+export function getGitlabProjects(data: {
+  almSetting: string;
+  page?: number;
+  pageSize?: number;
+  query?: string;
+}): Promise<{ projects: GitlabProject[]; projectsPaging: T.Paging }> {
+  const { almSetting, pageSize, page, query } = data;
+  return getJSON('/api/alm_integrations/search_gitlab_repos', {
+    almSetting,
+    projectName: query || undefined,
+    p: page,
+    ps: pageSize
+  })
+    .then(({ repositories, paging }) => ({ projects: repositories, projectsPaging: paging }))
+    .catch(throwGlobalError);
 }
