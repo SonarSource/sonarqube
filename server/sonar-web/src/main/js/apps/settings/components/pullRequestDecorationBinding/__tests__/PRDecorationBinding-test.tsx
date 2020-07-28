@@ -272,7 +272,7 @@ it('should validate form', async () => {
     wrapper.instance().validateForm({ key: 'bitbucket', repository: 'key', slug: 'slug' })
   ).toBe(true);
 
-  expect(wrapper.instance().validateForm({ key: 'gitlab' })).toBe(true);
+  expect(wrapper.instance().validateForm({ key: 'gitlab' })).toBe(false);
   expect(wrapper.instance().validateForm({ key: 'gitlab', repository: 'key' })).toBe(true);
 });
 

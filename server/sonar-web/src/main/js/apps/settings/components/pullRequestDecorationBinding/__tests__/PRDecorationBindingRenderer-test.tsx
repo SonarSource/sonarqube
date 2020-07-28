@@ -137,9 +137,9 @@ it('should render optional fields correctly', () => {
       },
       isChanged: true,
       isConfigured: false,
-      instances: [{ key: 'key', url: 'http://example.com', alm: AlmKeys.GitLab }],
+      instances: [{ key: 'key', url: 'http://example.com', alm: AlmKeys.GitHub }],
       loading: false
-    })
+    }).find('label[htmlFor="github.summary_comment_setting"]')
   ).toMatchSnapshot();
 });
 

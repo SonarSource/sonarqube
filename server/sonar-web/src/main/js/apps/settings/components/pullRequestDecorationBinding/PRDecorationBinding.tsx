@@ -59,7 +59,7 @@ const REQUIRED_FIELDS_BY_ALM: {
   [AlmKeys.Azure]: [],
   [AlmKeys.Bitbucket]: ['repository', 'slug'],
   [AlmKeys.GitHub]: ['repository'],
-  [AlmKeys.GitLab]: []
+  [AlmKeys.GitLab]: ['repository']
 };
 
 export default class PRDecorationBinding extends React.PureComponent<Props, State> {

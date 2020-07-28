@@ -272,10 +272,8 @@ export default function PRDecorationBindingRenderer(props: PRDecorationBindingRe
 
         {alm === AlmKeys.GitLab &&
           renderField({
-            help: true,
             id: 'gitlab.repository',
             onFieldChange: props.onFieldChange,
-            optional: true,
             propKey: 'repository',
             value: repository || ''
           })}
