@@ -5,6 +5,7 @@ exports[`should render correctly 1`] = `
   canAdmin={false}
   loading={true}
   loadingMore={false}
+  onImport={[Function]}
   onLoadMore={[Function]}
   onPersonalAccessTokenCreate={[Function]}
   onSearch={[Function]}

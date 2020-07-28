@@ -20,6 +20,9 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
+import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
+import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { mockGitlabProject } from '../../../../helpers/mocks/alm-integrations';
 import GitlabProjectSelectionForm, {
   GitlabProjectSelectionFormProps
@@ -37,6 +40,42 @@ it('should render correctly', () => {
   expect(
     shallowRender({ projects: [], projectsPaging: mockPaging(), searchQuery: 'findme' })
   ).toMatchSnapshot('no projects when searching');
+
+  expect(shallowRender({ importingGitlabProjectId: '2' })).toMatchSnapshot('importing');
+});
+
+describe('appropriate callback', () => {
+  const onImport = jest.fn();
+  const onLoadMore = jest.fn();
+  const onSearch = jest.fn();
+  const wrapper = shallowRender({ onImport, onLoadMore, onSearch });
+
+  it('should be called when clicking to import', () => {
+    wrapper
+      .find(Button)
+      .first()
+      .simulate('click');
+
+    expect(onImport).toBeCalled();
+  });
+
+  it('should be assigned to the list footer', () => {
+    const { loadMore } = wrapper
+      .find(ListFooter)
+      .first()
+      .props();
+
+    expect(loadMore).toBe(onLoadMore);
+  });
+
+  it('should be assigned to the search box', () => {
+    const { onChange } = wrapper
+      .find(SearchBox)
+      .first()
+      .props();
+
+    expect(onChange).toBe(onSearch);
+  });
 });
 
 function shallowRender(props: Partial<GitlabProjectSelectionFormProps> = {}) {
@@ -52,6 +91,7 @@ function shallowRender(props: Partial<GitlabProjectSelectionFormProps> = {}) {
   return shallow<GitlabProjectSelectionFormProps>(
     <GitlabProjectSelectionForm
       loadingMore={false}
+      onImport={jest.fn()}
       onLoadMore={jest.fn()}
       onSearch={jest.fn()}
       projects={projects}

@@ -24,6 +24,7 @@ import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import {
   checkPersonalAccessTokenIsValid,
   getGitlabProjects,
+  importGitlabProject,
   setAlmPersonalAccessToken
 } from '../../../../api/alm-integrations';
 import { mockGitlabProject } from '../../../../helpers/mocks/alm-integrations';
@@ -35,7 +36,8 @@ import GitlabProjectCreate from '../GitlabProjectCreate';
 jest.mock('../../../../api/alm-integrations', () => ({
   checkPersonalAccessTokenIsValid: jest.fn().mockResolvedValue(true),
   setAlmPersonalAccessToken: jest.fn().mockResolvedValue(null),
-  getGitlabProjects: jest.fn().mockRejectedValue('error')
+  getGitlabProjects: jest.fn().mockRejectedValue('error'),
+  importGitlabProject: jest.fn().mockRejectedValue('error')
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -198,6 +200,54 @@ it('should search for projects', async () => {
   expect(wrapper.state().projects).toEqual([projects[3], projects[4]]);
 
   expect(getGitlabProjects).toBeCalledWith(expect.objectContaining({ query }));
+});
+
+it('should import', async () => {
+  (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+
+  const projects = [mockGitlabProject({ id: '1' }), mockGitlabProject({ id: '2' })];
+  (getGitlabProjects as jest.Mock).mockResolvedValueOnce({
+    projects,
+    projectsPaging: {
+      pageIndex: 1,
+      pageSize: 6,
+      total: 2
+    }
+  });
+  const createdProjectkey = 'imported_project_key';
+
+  (importGitlabProject as jest.Mock).mockResolvedValueOnce({
+    project: { key: createdProjectkey }
+  });
+
+  const onProjectCreate = jest.fn();
+
+  const wrapper = shallowRender({ onProjectCreate });
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleImport(projects[1].id);
+  expect(wrapper.state().importingGitlabProjectId).toBe(projects[1].id);
+
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().importingGitlabProjectId).toBeUndefined();
+  expect(onProjectCreate).toBeCalledWith([createdProjectkey]);
+});
+
+it('should do nothing with missing settings', async () => {
+  const wrapper = shallowRender({ settings: [] });
+
+  await waitAndUpdate(wrapper);
+
+  wrapper.instance().handleLoadMore();
+  wrapper.instance().handleSearch('whatever');
+  wrapper.instance().handlePersonalAccessTokenCreate('token');
+  wrapper.instance().handleImport('gitlab project id');
+
+  expect(checkPersonalAccessTokenIsValid).not.toHaveBeenCalled();
+  expect(getGitlabProjects).not.toHaveBeenCalled();
+  expect(importGitlabProject).not.toHaveBeenCalled();
+  expect(setAlmPersonalAccessToken).not.toHaveBeenCalled();
 });
 
 function shallowRender(props: Partial<GitlabProjectCreate['props']> = {}) {

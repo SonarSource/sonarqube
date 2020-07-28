@@ -151,3 +151,14 @@ export function getGitlabProjects(data: {
     .then(({ repositories, paging }) => ({ projects: repositories, projectsPaging: paging }))
     .catch(throwGlobalError);
 }
+
+export function importGitlabProject(data: {
+  almSetting: string;
+  gitlabProjectId: string;
+}): Promise<{ project: ProjectBase }> {
+  const { almSetting, gitlabProjectId } = data;
+  return postJSON('/api/alm_integrations/import_gitlab_project', {
+    almSetting,
+    gitlabProjectId
+  }).catch(throwGlobalError);
+}

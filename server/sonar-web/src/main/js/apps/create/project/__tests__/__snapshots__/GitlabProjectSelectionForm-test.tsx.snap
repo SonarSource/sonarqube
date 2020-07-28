@@ -1,5 +1,156 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly: importing 1`] = `
+<div
+  className="boxed-group big-padded create-project-import-gitlab"
+>
+  <SearchBox
+    className="spacer"
+    loading={false}
+    minLength={3}
+    onChange={[MockFunction]}
+    placeholder="onboarding.create_project.gitlab.search_prompt"
+  />
+  <hr />
+  <table
+    className="data zebra zebra-hover"
+  >
+    <tbody>
+      <tr
+        key="id1234"
+      >
+        <td>
+          <Tooltip
+            overlay="awesome-project-exclamation"
+          >
+            <strong
+              className="project-name display-inline-block text-ellipsis"
+            >
+              Awesome Project !
+            </strong>
+          </Tooltip>
+          <br />
+          <Tooltip
+            overlay="company/best-projects"
+          >
+            <span
+              className="text-muted project-path display-inline-block text-ellipsis"
+            >
+              Company / Best Projects
+            </span>
+          </Tooltip>
+        </td>
+        <td>
+          <a
+            className="display-inline-flex-center big-spacer-right"
+            href="https://gitlab.company.com/best-projects/awesome-project-exclamation"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <DetachIcon
+              className="little-spacer-right"
+            />
+            onboarding.create_project.gitlab.link
+          </a>
+        </td>
+        <td
+          className="text-right"
+          colSpan={2}
+        >
+          <Button
+            disabled={true}
+            onClick={[Function]}
+          >
+            onboarding.create_project.gitlab.set_up
+          </Button>
+        </td>
+      </tr>
+      <tr
+        key="2"
+      >
+        <td>
+          <Tooltip
+            overlay="awesome-project-exclamation"
+          >
+            <strong
+              className="project-name display-inline-block text-ellipsis"
+            >
+              Awesome Project !
+            </strong>
+          </Tooltip>
+          <br />
+          <Tooltip
+            overlay="company/best-projects"
+          >
+            <span
+              className="text-muted project-path display-inline-block text-ellipsis"
+            >
+              Company / Best Projects
+            </span>
+          </Tooltip>
+        </td>
+        <td>
+          <a
+            className="display-inline-flex-center big-spacer-right"
+            href="https://gitlab.company.com/best-projects/awesome-project-exclamation"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <DetachIcon
+              className="little-spacer-right"
+            />
+            onboarding.create_project.gitlab.link
+          </a>
+        </td>
+        <td>
+          <span
+            className="display-flex-center display-flex-justify-end already-set-up"
+          >
+            <CheckIcon
+              className="little-spacer-right"
+              size={12}
+            />
+            onboarding.create_project.repository_imported
+            :
+          </span>
+        </td>
+        <td>
+          <div
+            className="sq-project-link text-ellipsis"
+          >
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "already-imported",
+                  },
+                }
+              }
+            >
+              <QualifierIcon
+                className="spacer-right"
+                qualifier="TRK"
+              />
+              Already Imported
+            </Link>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <ListFooter
+    count={2}
+    loadMore={[MockFunction]}
+    loading={false}
+    total={2}
+  />
+</div>
+`;
+
 exports[`should render correctly: no projects 1`] = `
 <Alert
   className="spacer-top"
@@ -111,9 +262,15 @@ exports[`should render correctly: projects 1`] = `
           </a>
         </td>
         <td
+          className="text-right"
           colSpan={2}
         >
-           
+          <Button
+            disabled={false}
+            onClick={[Function]}
+          >
+            onboarding.create_project.gitlab.set_up
+          </Button>
         </td>
       </tr>
       <tr

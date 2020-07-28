@@ -44,6 +44,7 @@ function shallowRender(props: Partial<GitlabProjectCreateRendererProps> = {}) {
       canAdmin={false}
       loading={false}
       loadingMore={false}
+      onImport={jest.fn()}
       onLoadMore={jest.fn()}
       onPersonalAccessTokenCreate={jest.fn()}
       onSearch={jest.fn()}

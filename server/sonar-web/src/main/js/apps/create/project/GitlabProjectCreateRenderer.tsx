@@ -29,8 +29,10 @@ import WrongBindingCountAlert from './WrongBindingCountAlert';
 
 export interface GitlabProjectCreateRendererProps {
   canAdmin?: boolean;
+  importingGitlabProjectId?: string;
   loading: boolean;
   loadingMore: boolean;
+  onImport: (gitlabProjectId: string) => void;
   onLoadMore: () => void;
   onPersonalAccessTokenCreate: (pat: string) => void;
   onSearch: (searchQuery: string) => void;
@@ -47,6 +49,7 @@ export interface GitlabProjectCreateRendererProps {
 export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRendererProps) {
   const {
     canAdmin,
+    importingGitlabProjectId,
     loading,
     loadingMore,
     projects,
@@ -92,7 +95,9 @@ export default function GitlabProjectCreateRenderer(props: GitlabProjectCreateRe
           />
         ) : (
           <GitlabProjectSelectionForm
+            importingGitlabProjectId={importingGitlabProjectId}
             loadingMore={loadingMore}
+            onImport={props.onImport}
             onLoadMore={props.onLoadMore}
             onSearch={props.onSearch}
             projects={projects}

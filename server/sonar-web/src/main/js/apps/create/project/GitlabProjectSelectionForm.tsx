@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
+import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
@@ -27,6 +28,7 @@ import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
 import DetachIcon from 'sonar-ui-common/components/icons/DetachIcon';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getProjectUrl } from '../../../helpers/urls';
 import { GitlabProject } from '../../../types/alm-integration';
@@ -34,7 +36,9 @@ import { ComponentQualifier } from '../../../types/component';
 import { CreateProjectModes } from './types';
 
 export interface GitlabProjectSelectionFormProps {
+  importingGitlabProjectId?: string;
   loadingMore: boolean;
+  onImport: (gitlabProjectId: string) => void;
   onLoadMore: () => void;
   onSearch: (searchQuery: string) => void;
   projects?: GitlabProject[];
@@ -44,7 +48,14 @@ export interface GitlabProjectSelectionFormProps {
 }
 
 export default function GitlabProjectSelectionForm(props: GitlabProjectSelectionFormProps) {
-  const { loadingMore, projects = [], projectsPaging, searching, searchQuery } = props;
+  const {
+    importingGitlabProjectId,
+    loadingMore,
+    projects = [],
+    projectsPaging,
+    searching,
+    searchQuery
+  } = props;
 
   if (projects.length === 0 && searchQuery.length === 0 && !searching) {
     return (
@@ -131,7 +142,16 @@ export default function GitlabProjectSelectionForm(props: GitlabProjectSelection
                     </td>
                   </>
                 ) : (
-                  <td colSpan={2}>&nbsp;</td>
+                  <td colSpan={2} className="text-right">
+                    <Button
+                      disabled={!!importingGitlabProjectId}
+                      onClick={() => props.onImport(project.id)}>
+                      {translate('onboarding.create_project.gitlab.set_up')}
+                      {importingGitlabProjectId === project.id && (
+                        <DeferredSpinner className="spacer-left" />
+                      )}
+                    </Button>
+                  </td>
                 )}
               </tr>
             ))}

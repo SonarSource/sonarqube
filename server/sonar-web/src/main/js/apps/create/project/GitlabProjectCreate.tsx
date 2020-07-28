@@ -22,6 +22,7 @@ import { WithRouterProps } from 'react-router';
 import {
   checkPersonalAccessTokenIsValid,
   getGitlabProjects,
+  importGitlabProject,
   setAlmPersonalAccessToken
 } from '../../../api/alm-integrations';
 import { GitlabProject } from '../../../types/alm-integration';
@@ -36,6 +37,7 @@ interface Props extends Pick<WithRouterProps, 'location' | 'router'> {
 }
 
 interface State {
+  importingGitlabProjectId?: string;
   loading: boolean;
   loadingMore: boolean;
   projects?: GitlabProject[];
@@ -141,6 +143,29 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     }).catch(() => undefined);
   };
 
+  handleImport = async (gitlabProjectId: string) => {
+    const { settings } = this.state;
+
+    if (!settings) {
+      return;
+    }
+
+    this.setState({ importingGitlabProjectId: gitlabProjectId });
+
+    const result = await importGitlabProject({
+      almSetting: settings.key,
+      gitlabProjectId
+    }).catch(() => undefined);
+
+    if (this.mounted) {
+      this.setState({ importingGitlabProjectId: undefined });
+
+      if (result) {
+        this.props.onProjectCreate([result.project.key]);
+      }
+    }
+  };
+
   handleLoadMore = async () => {
     this.setState({ loadingMore: true });
 
@@ -216,6 +241,7 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
   render() {
     const { canAdmin, loadingBindings, location } = this.props;
     const {
+      importingGitlabProjectId,
       loading,
       loadingMore,
       projects,
@@ -232,8 +258,10 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
       <GitlabProjectCreateRenderer
         settings={settings}
         canAdmin={canAdmin}
+        importingGitlabProjectId={importingGitlabProjectId}
         loading={loading || loadingBindings}
         loadingMore={loadingMore}
+        onImport={this.handleImport}
         onLoadMore={this.handleLoadMore}
         onPersonalAccessTokenCreate={this.handlePersonalAccessTokenCreate}
         onSearch={this.handleSearch}

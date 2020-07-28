@@ -121,6 +121,7 @@ exports[`should render correctly: project selection form 1`] = `
   />
   <GitlabProjectSelectionForm
     loadingMore={false}
+    onImport={[MockFunction]}
     onLoadMore={[MockFunction]}
     onSearch={[MockFunction]}
     projectsPaging={
