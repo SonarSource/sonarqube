@@ -85,6 +85,21 @@ public class AlmIntegrationsService extends BaseService {
       Projects.CreateWsResponse.parser());
   }
 
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_integrations/search_gitlab_repos">Further information about this action online (including a response example)</a>
+   * @since 8.5
+   */
+  public AlmIntegrations.SearchGitlabReposWsResponse searchGitlabRepos(SearchGitlabReposRequest request) {
+    return call(
+      new GetRequest(path("search_gitlab_repos"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("projectName", request.getProjectName())
+        .setMediaType(MediaTypes.JSON),
+      AlmIntegrations.SearchGitlabReposWsResponse.parser());
+  }
 
   /**
    *
