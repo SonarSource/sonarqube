@@ -309,6 +309,12 @@ public interface CoreProperties {
   String SCAN_TASK = "scan";
 
   /**
+   * @since 3.6
+   * Removed in 8.4 by mistake and reintroduced in 8.5
+   */
+  String PROFILING_LOG_PROPERTY = "sonar.showProfiling";
+
+  /**
    * @since 4.0
    */
   String WORKING_DIRECTORY = "sonar.working.directory";

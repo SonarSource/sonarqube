@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.purge;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
@@ -34,7 +35,9 @@ import org.sonar.db.purge.period.DefaultPeriodCleaner;
 
 import static java.util.Collections.emptySet;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class ProjectCleanerTest {
@@ -59,5 +62,23 @@ public class ProjectCleanerTest {
 
     verify(periodCleaner).clean(any(), any(), any());
     verify(dao).purge(any(), any(), any(), any());
+  }
+
+  @Test
+  public void no_profiling_when_property_is_false() {
+    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, false);
+
+    underTest.purge(mock(DbSession.class), "root", "project", settings.asConfig(), emptySet());
+
+    verify(profiler, never()).dump(anyLong(), any());
+  }
+
+  @Test
+  public void profiling_when_property_is_true() {
+    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
+
+    underTest.purge(mock(DbSession.class), "root", "project", settings.asConfig(), emptySet());
+
+    verify(profiler).dump(anyLong(), any());
   }
 }
