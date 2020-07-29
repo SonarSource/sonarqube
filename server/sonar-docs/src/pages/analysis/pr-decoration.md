@@ -61,7 +61,7 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 | ### Setting your project settings
 |
 | #### **Projects imported from a GitHub repository**
-| If you create a project imported from a GitHub repository, SonarQube automatically configures your project settings for Pull Request decoration.
+| If you create a project by importing it from a GitHub repository, SonarQube automatically configures your project settings for Pull Request decoration.
 |
 | #### **Manually created projects and existing projects**
 | 
@@ -94,7 +94,7 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 |
 | #### **Projects imported from a Bitbucket Server repository**
 |
-| If you create a project imported from a BitBucket server repository, SonarQube automatically configures your project settings for Pull Request decoration. When creating your project, you'll need to provide a Personal Access Token from your user account with Read permissions for both projects and repositories. This Personal Access Token will be stored in SonarQube until you revoke it on the Bitbucket Server side.
+| If you create a project by importing it from a Bitbucket server repository, SonarQube automatically configures your project settings for Pull Request decoration. When creating your project, you'll need to provide a personal access token from your user account with `Read` permissions for both projects and repositories. This personal access token will be stored in SonarQube until you revoke it on the Bitbucket Server side.
 |
 | #### **Manually created projects and existing projects**
 |
@@ -116,7 +116,7 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 [[collapse]]
 | ## Azure DevOps Server
 |
-| An Azure DevOps Server user account is used to decorate Pull Requests. We recommend using a dedicated Azure DevOps Server account with Administrator permissions. You need a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write** for the repositories that will be analyzed.
+| An Azure DevOps Server user account is used to decorate Pull Requests. We recommend using a dedicated Azure DevOps Server account with Administrator permissions. You need a [personal access token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=tfs-2017&tabs=preview-page) from this account with the scope authorized for **Code > Read & Write** for the repositories that will be analyzed.
 |
 | To add Pull Request decoration on Azure DevOps Server, you also need to update your global and project settings. 
 |
@@ -137,7 +137,7 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 |
 |*For GitLab Self-Managed, the minimum version is 11.7*
 |
-| A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a Personal Access Token from this account with the scope authorized for **api** for the repositories that will be analyzed.
+| A GitLab user account is used to decorate Merge Requests. We recommend using a dedicated GitLab account with at least **Reporter** [permissions](https://docs.gitlab.com/ee/user/permissions.html) (the account needs permission to leave comments). You need a personal access token from this account with the scope authorized for **api** for the repositories that will be analyzed.
 |
 | To add Merge Request decoration to GitLab, you also need to update your global and project settings.
 |
@@ -151,7 +151,13 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 |
 | ### Setting your project settings
 |
-| Go to **Project Settings > General Settings > Pull Request Decoration** and select your **Configuration name**. If you're using [GitLab CI](/analysis/gitlab-cicd/), you can leave **Project ID** blank, as it will be auto-detected. If you're using a different CI tool (e.g.: Jenkins, Travis CI, etc), or run the analysis manually, provide the project's numerical ID.
+| #### **Projects imported from a GitLab repository**
+|
+| If you create a project by importing it from a GitLab repository, SonarQube automatically configures your project settings for Merge Request decoration. When creating your project, you'll need to provide a personal access token from your user account with the **read_api** scope. This personal access token will be stored in SonarQube until you revoke it on the GitLab side.
+|
+| #### **Manually created projects and existing projects**
+|
+| If you create a new project **Manually** or want to add Merge Request decoration to an existing project, you need to set your project settings at **Project Settings > General Settings > Pull Request Decoration** and select your GitLab **Configuration name** and provide the GitLab **Project ID**.
 
 ## Multiple ALM instances
 
@@ -160,8 +166,9 @@ It's possible to decorate Pull Requests from multiple ALM instances. To do this,
 As part of [Developer Edition](https://redirect.sonarsource.com/editions/developer.html), you can create one configuration for each ALM. 
 
 As part of [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html) and [above](https://www.sonarsource.com/plans-and-pricing/), you can create multiple configurations for each ALM.
+
 [[warning]]
-| If you have multiple Bitbucket Server or GitHub Enterprise configurations connected to SonarQube, you cannot use the automated create a new project **From a Bitbucket Server/GitHub Enterprise repository** option and will have to create projects manually.
+| If you have multiple configurations of the same ALM connected to SonarQube, you cannot create a project by importing it from the ALM and will have to create projects manually.
 
 ## Issue links
 During pull request decoration, individual issues will be linked to their SonarQube counterparts automatically. However, for this to work correctly, the instance's **Server base URL** (**[Administration > Configuration > General Settings > General > General](/#sonarqube-admin#/admin/settings/)**) must be set correctly. Otherwise, the links will default to `localhost`.
