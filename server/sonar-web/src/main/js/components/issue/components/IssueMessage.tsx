@@ -42,19 +42,19 @@ export default function IssueMessage(props: IssueMessageProps) {
       <span className="spacer-right">{message}</span>
       <ButtonLink
         aria-label={translate('issue.why_this_issue.long')}
-        className="issue-see-rule spacer-right"
+        className="issue-see-rule spacer-right text-baseline"
         onClick={() => props.onOpenRule({ key: ruleKey, organization })}>
         {translate('issue.why_this_issue')}
       </ButtonLink>
 
       {ruleEngine && (
         <Tooltip overlay={translateWithParameters('issue.from_external_rule_engine', ruleEngine)}>
-          <div className="badge spacer-right text-top">{ruleEngine}</div>
+          <div className="badge spacer-right text-baseline">{ruleEngine}</div>
         </Tooltip>
       )}
       {manualVulnerability && (
         <Tooltip overlay={translate('issue.manual_vulnerability.description')}>
-          <div className="badge spacer-right text-top">
+          <div className="badge spacer-right text-baseline">
             {translate('issue.manual_vulnerability')}
           </div>
         </Tooltip>
