@@ -21,5 +21,4 @@
 import { createContext } from 'react';
 import { IndexationContextInterface } from '../../../types/indexation';
 
-// eslint-disable-next-line import/prefer-default-export
 export const IndexationContext = createContext<IndexationContextInterface | null>(null);

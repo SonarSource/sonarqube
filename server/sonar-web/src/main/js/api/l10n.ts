@@ -21,7 +21,6 @@
 import { getJSON } from 'sonar-ui-common/helpers/request';
 import { L10nBundleRequestParams, L10nBundleRequestResponse } from '../types/l10n';
 
-// eslint-disable-next-line import/prefer-default-export
 export function fetchL10nBundle(
   params: L10nBundleRequestParams
 ): Promise<L10nBundleRequestResponse> {

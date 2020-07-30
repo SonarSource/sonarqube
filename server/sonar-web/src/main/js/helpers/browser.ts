@@ -20,7 +20,6 @@
 
 import { EnhancedWindow } from '../types/browser';
 
-// eslint-disable-next-line import/prefer-default-export
 export function getEnhancedWindow() {
   return (window as unknown) as EnhancedWindow;
 }
