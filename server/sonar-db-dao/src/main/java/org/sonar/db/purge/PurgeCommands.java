@@ -406,6 +406,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  public void deleteProjectAlmSettings(String rootUuid) {
+    profiler.start("deleteProjectAlmSettings (project_alm_settings)");
+    purgeMapper.deleteProjectAlmSettingsByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteBranch(String rootUuid) {
     profiler.start("deleteBranch (project_branches)");
     purgeMapper.deleteBranchByUuid(rootUuid);
@@ -426,4 +433,5 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
   }
+
 }

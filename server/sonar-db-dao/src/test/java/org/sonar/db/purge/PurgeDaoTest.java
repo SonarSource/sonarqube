@@ -48,6 +48,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.ALM;
+import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeQueueDto.Status;
@@ -335,7 +336,7 @@ public class PurgeDaoTest {
     // note: projectEvent3 has no component change
 
     // delete non existing analysis has no effect
-    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), singletonList( "foo"));
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), singletonList("foo"));
     assertThat(uuidsIn("event_component_changes", "event_analysis_uuid"))
       .containsOnly(projectAnalysis1.getUuid(), projectAnalysis2.getUuid());
     assertThat(db.countRowsOfTable("event_component_changes"))
@@ -1235,6 +1236,20 @@ public class PurgeDaoTest {
 
     assertThat(dbClient.projectAlmBindingsDao().findProjectKey(dbSession, alm, repoId)).isEmpty();
     assertThat(dbClient.projectAlmBindingsDao().findProjectKey(dbSession, alm, otherRepoId)).isNotEmpty();
+  }
+
+  @Test
+  public void deleteProject_deletes_project_alm_settings() {
+    ProjectDto project = db.components().insertPublicProjectDto();
+    ProjectDto otherProject = db.components().insertPublicProjectDto();
+    AlmSettingDto almSettingDto = db.almSettings().insertGitlabAlmSetting();
+    db.almSettings().insertGitlabProjectAlmSetting(almSettingDto, project);
+    db.almSettings().insertGitlabProjectAlmSetting(almSettingDto, otherProject);
+
+    underTest.deleteProject(dbSession, project.getUuid());
+
+    assertThat(dbClient.projectAlmSettingDao().selectByProject(dbSession, project)).isEmpty();
+    assertThat(dbClient.projectAlmSettingDao().selectByProject(dbSession, otherProject)).isNotEmpty();
   }
 
   @Test
