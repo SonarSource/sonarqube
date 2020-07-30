@@ -122,8 +122,10 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
       ...range,
       ...getBranchLikeQuery(branchLike)
     }).then(additionalLines => {
+      const { lastLine: previousLastLine } = this.state;
+
       const lastLine =
-        direction === 'down' ? this.checkLastLine(additionalLines, range.to) : undefined;
+        direction === 'down' ? this.checkLastLine(additionalLines, range.to) : previousLastLine;
 
       let concatSourceLines;
       if (direction === 'up') {
@@ -160,7 +162,6 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
         displayProjectName={component.qualifier === ComponentQualifier.Application}
         highlightedSymbols={highlightedSymbols}
         hotspot={hotspot}
-        lastLine={lastLine}
         loading={loading}
         locations={locations}
         onExpandBlock={this.handleExpansion}

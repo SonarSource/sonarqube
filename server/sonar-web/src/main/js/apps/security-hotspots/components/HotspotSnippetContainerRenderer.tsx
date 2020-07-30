@@ -30,7 +30,6 @@ export interface HotspotSnippetContainerRendererProps {
   displayProjectName?: boolean;
   highlightedSymbols: string[];
   hotspot: Hotspot;
-  lastLine?: number;
   loading: boolean;
   locations: { [line: number]: T.LinearIssueLocation[] };
   onExpandBlock: (direction: T.ExpandDirection) => Promise<void>;
