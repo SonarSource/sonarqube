@@ -34,7 +34,7 @@ public class DeleteProjectAlmSettingsOrphans extends DataChange {
   protected void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select pas.uuid from project_alm_settings pas left join "
-      + "projects p on pas.project_uuid = p.uuid where p.uuid is null;");
+      + "projects p on pas.project_uuid = p.uuid where p.uuid is null");
     massUpdate.update("delete from project_alm_settings where uuid = ?");
 
     massUpdate.execute((row, update) -> {
