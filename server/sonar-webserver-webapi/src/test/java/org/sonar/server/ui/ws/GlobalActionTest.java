@@ -51,7 +51,6 @@ import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -116,6 +115,7 @@ public class GlobalActionTest {
     settings.setProperty("sonar.lf.enableGravatar", true);
     settings.setProperty("sonar.updatecenter.activate", false);
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
+    settings.setProperty("sonar.developerAggregatedInfo.disabled", false);
     // This setting should be ignored as it's not needed
     settings.setProperty("sonar.defaultGroup", "sonar-users");
     init();
@@ -128,6 +128,7 @@ public class GlobalActionTest {
       "    \"sonar.lf.enableGravatar\": \"true\"," +
       "    \"sonar.updatecenter.activate\": \"false\"," +
       "    \"sonar.technicalDebt.ratingGrid\": \"0.05,0.1,0.2,0.5\"" +
+      "    \"sonar.developerAggregatedInfo.disabled\": \"false\"" +
       "  }" +
       "}");
   }
@@ -145,6 +146,18 @@ public class GlobalActionTest {
       "    \"sonar.prismic.accessToken\": \"secret\"," +
       "    \"sonar.analytics.gtm.trackingId\": \"gtm_id\"," +
       "    \"sonar.homepage.url\": \"https://s3/homepage.json\"" +
+      "  }" +
+      "}");
+  }
+
+  @Test
+  public void return_developer_info_disabled_setting() {
+    init();
+    settings.setProperty("sonar.developerAggregatedInfo.disabled", true);
+
+    assertJson(call()).isSimilarTo("{" +
+      "  \"settings\": {" +
+      "    \"sonar.developerAggregatedInfo.disabled\": \"true\"" +
       "  }" +
       "}");
   }

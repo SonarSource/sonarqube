@@ -20,15 +20,61 @@
 import { shallow, ShallowWrapper } from 'enzyme';
 import { flatten } from 'lodash';
 import * as React from 'react';
+import { mockComponent } from '../../../../helpers/testMocks';
+import { getGlobalSettingValue } from '../../../../store/rootReducer';
+import { ComponentQualifier } from '../../../../types/component';
 import { Query } from '../../utils';
-import Sidebar, { Props } from '../Sidebar';
+import { mapStateToProps, Sidebar } from '../Sidebar';
 
-jest.mock('../../../../store/rootReducer', () => ({}));
+jest.mock('../../../../store/rootReducer', () => ({ getGlobalSettingValue: jest.fn() }));
 
-const renderSidebar = (props?: Partial<Props>) => {
+it('should render facets for global page', () => {
+  expect(renderSidebar()).toMatchSnapshot();
+});
+
+it('should render facets for project', () => {
+  expect(renderSidebar({ component: mockComponent() })).toMatchSnapshot();
+});
+
+it('should render facets for module', () => {
+  expect(
+    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.SubProject }) })
+  ).toMatchSnapshot();
+});
+
+it('should render facets for directory', () => {
+  expect(
+    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Directory }) })
+  ).toMatchSnapshot();
+});
+
+it('should render facets for developer', () => {
+  expect(
+    renderSidebar({ component: mockComponent({ qualifier: ComponentQualifier.Developper }) })
+  ).toMatchSnapshot();
+});
+
+it('should render facets when my issues are selected', () => {
+  expect(renderSidebar({ myIssues: true })).toMatchSnapshot();
+});
+
+it('should not render developer nominative facets when asked not to', () => {
+  expect(renderSidebar({ disableDeveloperAggregatedInfo: true })).toMatchSnapshot();
+});
+
+it('should init the component with the proper store value', () => {
+  mapStateToProps({} as any);
+
+  expect(getGlobalSettingValue).toHaveBeenCalledWith(
+    expect.any(Object),
+    'sonar.developerAggregatedInfo.disabled'
+  );
+});
+
+const renderSidebar = (props?: Partial<Sidebar['props']>) => {
   return flatten(
     mapChildren(
-      shallow(
+      shallow<Sidebar>(
         <Sidebar
           component={undefined}
           facets={{}}
@@ -45,6 +91,7 @@ const renderSidebar = (props?: Partial<Props>) => {
           referencedLanguages={{}}
           referencedRules={{}}
           referencedUsers={{}}
+          disableDeveloperAggregatedInfo={false}
           {...props}
         />
       )
@@ -54,40 +101,9 @@ const renderSidebar = (props?: Partial<Props>) => {
   function mapChildren(wrapper: ShallowWrapper) {
     return wrapper.children().map(node => {
       if (typeof node.type() === 'symbol') {
-        return node.children().map(node => node.name());
+        return node.children().map(n => n.name());
       }
       return node.name();
     });
   }
 };
-
-const component = {
-  breadcrumbs: [],
-  name: 'foo',
-  key: 'foo',
-  organization: 'org'
-};
-
-it('should render facets for global page', () => {
-  expect(renderSidebar()).toMatchSnapshot();
-});
-
-it('should render facets for project', () => {
-  expect(renderSidebar({ component: { ...component, qualifier: 'TRK' } })).toMatchSnapshot();
-});
-
-it('should render facets for module', () => {
-  expect(renderSidebar({ component: { ...component, qualifier: 'BRC' } })).toMatchSnapshot();
-});
-
-it('should render facets for directory', () => {
-  expect(renderSidebar({ component: { ...component, qualifier: 'DIR' } })).toMatchSnapshot();
-});
-
-it('should render facets for developer', () => {
-  expect(renderSidebar({ component: { ...component, qualifier: 'DEV' } })).toMatchSnapshot();
-});
-
-it('should render facets when my issues are selected', () => {
-  expect(renderSidebar({ myIssues: true })).toMatchSnapshot();
-});

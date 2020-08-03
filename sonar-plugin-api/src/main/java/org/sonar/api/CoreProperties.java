@@ -393,6 +393,11 @@ public interface CoreProperties {
   String DEFAULT_ISSUE_ASSIGNEE = "sonar.issues.defaultAssigneeLogin";
 
   /**
+   * @since 8.5
+   */
+  String DEVELOPER_AGGREGATED_INFO_DISABLED = "sonar.developerAggregatedInfo.disabled";
+
+  /**
    * @since 7.6
    */
   String MODULE_LEVEL_ARCHIVED_SETTINGS = "sonar.subproject.settings.archived";

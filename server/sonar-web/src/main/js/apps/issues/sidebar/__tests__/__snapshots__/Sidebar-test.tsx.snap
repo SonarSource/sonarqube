@@ -1,5 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not render developer nominative facets when asked not to 1`] = `
+Array [
+  "TypeFacet",
+  "SeverityFacet",
+  "ResolutionFacet",
+  "StatusFacet",
+  "StandardFacet",
+  "InjectIntl(CreationDateFacet)",
+  "Connect(LanguageFacet)",
+  "RuleFacet",
+  "TagFacet",
+  "ProjectFacet",
+]
+`;
+
 exports[`should render facets for developer 1`] = `
 Array [
   "TypeFacet",

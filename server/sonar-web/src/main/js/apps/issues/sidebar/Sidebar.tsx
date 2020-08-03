@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
 import { Facet, Query, ReferencedComponent, ReferencedLanguage, ReferencedRule } from '../utils';
 import AssigneeFacet from './AssigneeFacet';
 import AuthorFacet from './AuthorFacet';
@@ -51,9 +53,10 @@ export interface Props {
   referencedLanguages: T.Dict<ReferencedLanguage>;
   referencedRules: T.Dict<ReferencedRule>;
   referencedUsers: T.Dict<T.UserBase>;
+  disableDeveloperAggregatedInfo: boolean;
 }
 
-export default class Sidebar extends React.PureComponent<Props> {
+export class Sidebar extends React.PureComponent<Props> {
   renderComponentFacets() {
     const { component, facets, loadingFacets, openFacets, query } = this.props;
     if (!component) {
@@ -223,7 +226,7 @@ export default class Sidebar extends React.PureComponent<Props> {
           />
         )}
         {this.renderComponentFacets()}
-        {!this.props.myIssues && (
+        {!this.props.myIssues && !this.props.disableDeveloperAggregatedInfo && (
           <AssigneeFacet
             assigned={query.assigned}
             assignees={query.assignees}
@@ -238,7 +241,7 @@ export default class Sidebar extends React.PureComponent<Props> {
             stats={facets.assignees}
           />
         )}
-        {displayAuthorFacet && (
+        {displayAuthorFacet && !this.props.disableDeveloperAggregatedInfo && (
           <AuthorFacet
             authors={query.authors}
             component={component}
@@ -256,3 +259,15 @@ export default class Sidebar extends React.PureComponent<Props> {
     );
   }
 }
+
+export const mapStateToProps = (state: Store) => {
+  const disableDeveloperAggregatedInfo = getGlobalSettingValue(
+    state,
+    'sonar.developerAggregatedInfo.disabled'
+  );
+  return {
+    disableDeveloperAggregatedInfo: disableDeveloperAggregatedInfo?.value === true.toString()
+  };
+};
+
+export default connect(mapStateToProps)(Sidebar);
