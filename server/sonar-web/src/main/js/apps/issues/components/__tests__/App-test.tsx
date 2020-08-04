@@ -20,6 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import handleRequiredAuthentication from 'sonar-ui-common/helpers/handleRequiredAuthentication';
+import { KeyCodes } from 'sonar-ui-common/helpers/keycodes';
 import { KEYCODE_MAP, keydown, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import {
@@ -83,7 +84,7 @@ it('should render a list of issue', async () => {
 it('should not render for anonymous user', () => {
   shallowRender({
     currentUser: mockCurrentUser({ isLoggedIn: false }),
-    myIssues: true
+    location: mockLocation({ query: { myIssues: true.toString() } })
   });
   expect(handleRequiredAuthentication).toBeCalled();
 });
@@ -129,25 +130,25 @@ it('should correctly bind key events for issue navigation', async () => {
 
   expect(wrapper.state('selected')).toBe(ISSUES[0].key);
 
-  keydown('down');
+  keydown(KeyCodes.DownArrow);
   expect(wrapper.state('selected')).toBe(ISSUES[1].key);
 
-  keydown('up');
-  keydown('up');
+  keydown(KeyCodes.UpArrow);
+  keydown(KeyCodes.UpArrow);
   expect(wrapper.state('selected')).toBe(ISSUES[0].key);
 
-  keydown('down');
-  keydown('down');
-  keydown('down');
-  keydown('down');
-  keydown('down');
-  keydown('down');
+  keydown(KeyCodes.DownArrow);
+  keydown(KeyCodes.DownArrow);
+  keydown(KeyCodes.DownArrow);
+  keydown(KeyCodes.DownArrow);
+  keydown(KeyCodes.DownArrow);
+  keydown(KeyCodes.DownArrow);
   expect(wrapper.state('selected')).toBe(ISSUES[3].key);
 
-  keydown('right');
+  keydown(KeyCodes.RightArrow);
   expect(push).toBeCalledTimes(1);
 
-  keydown('left');
+  keydown(KeyCodes.LeftArrow);
   expect(push).toBeCalledTimes(2);
 });
 

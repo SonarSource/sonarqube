@@ -41,10 +41,6 @@ export class DefaultPageSelector extends React.PureComponent<Props, State> {
   state: State = {};
 
   componentDidMount() {
-    if (isSonarCloud() && !isLoggedIn(this.props.currentUser)) {
-      this.props.router.replace('/explore/projects');
-    }
-
     if (!isSonarCloud()) {
       this.defineIfShouldBeRedirected();
     }

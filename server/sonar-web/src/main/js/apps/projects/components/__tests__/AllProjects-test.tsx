@@ -21,7 +21,12 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { get, save } from 'sonar-ui-common/helpers/storage';
 import { ComponentQualifier } from '../../../../types/component';
-import { AllProjects } from '../AllProjects';
+import {
+  AllProjects,
+  LS_PROJECTS_SORT,
+  LS_PROJECTS_VIEW,
+  LS_PROJECTS_VISUALIZATION
+} from '../AllProjects';
 
 jest.mock('../ProjectsList', () => ({
   // eslint-disable-next-line
@@ -100,12 +105,24 @@ it('fetches projects', () => {
 });
 
 it('redirects to the saved search', () => {
-  (get as jest.Mock).mockImplementation((key: string) =>
-    key === 'sonarqube.projects.view' ? 'leak' : null
-  );
+  const localeStorageMock: T.Dict<string> = {
+    [LS_PROJECTS_VIEW]: 'leak',
+    [LS_PROJECTS_SORT]: 'coverage',
+    [LS_PROJECTS_VISUALIZATION]: 'security'
+  };
+
+  (get as jest.Mock).mockImplementation((key: string) => localeStorageMock[key]);
   const replace = jest.fn();
   shallowRender({}, jest.fn(), replace);
-  expect(replace).lastCalledWith({ pathname: '/projects', query: { view: 'leak' } });
+
+  expect(replace).lastCalledWith({
+    pathname: '/projects',
+    query: {
+      view: localeStorageMock[LS_PROJECTS_VIEW],
+      sort: localeStorageMock[LS_PROJECTS_SORT],
+      visualization: localeStorageMock[LS_PROJECTS_VISUALIZATION]
+    }
+  });
 });
 
 it('changes sort', () => {
@@ -113,7 +130,7 @@ it('changes sort', () => {
   const wrapper = shallowRender({}, push);
   wrapper.find('PageHeader').prop<Function>('onSortChange')('size', false);
   expect(push).lastCalledWith({ pathname: '/projects', query: { sort: 'size' } });
-  expect(save).lastCalledWith('sonarqube.projects.sort', 'size', undefined);
+  expect(save).lastCalledWith(LS_PROJECTS_SORT, 'size');
 });
 
 it('changes perspective to leak', () => {
@@ -124,9 +141,9 @@ it('changes perspective to leak', () => {
     pathname: '/projects',
     query: { view: 'leak', visualization: undefined }
   });
-  expect(save).toHaveBeenCalledWith('sonarqube.projects.sort', undefined, undefined);
-  expect(save).toHaveBeenCalledWith('sonarqube.projects.view', 'leak', undefined);
-  expect(save).toHaveBeenCalledWith('sonarqube.projects.visualization', undefined, undefined);
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, undefined);
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'leak');
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VISUALIZATION, undefined);
 });
 
 it('updates sorting when changing perspective from leak', () => {
@@ -140,9 +157,9 @@ it('updates sorting when changing perspective from leak', () => {
     pathname: '/projects',
     query: { sort: 'coverage', view: undefined, visualization: undefined }
   });
-  expect(save).toHaveBeenCalledWith('sonarqube.projects.sort', 'coverage', undefined);
-  expect(save).toHaveBeenCalledWith('sonarqube.projects.view', undefined, undefined);
-  expect(save).toHaveBeenCalledWith('sonarqube.projects.visualization', undefined, undefined);
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, 'coverage');
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, undefined);
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VISUALIZATION, undefined);
 });
 
 it('changes perspective to risk visualization', () => {
@@ -156,9 +173,9 @@ it('changes perspective to risk visualization', () => {
     pathname: '/projects',
     query: { view: 'visualizations', visualization: 'risk' }
   });
-  expect(save).toHaveBeenCalledWith('sonarqube.projects.sort', undefined, undefined);
-  expect(save).toHaveBeenCalledWith('sonarqube.projects.view', 'visualizations', undefined);
-  expect(save).toHaveBeenCalledWith('sonarqube.projects.visualization', 'risk', undefined);
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_SORT, undefined);
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VIEW, 'visualizations');
+  expect(save).toHaveBeenCalledWith(LS_PROJECTS_VISUALIZATION, 'risk');
 });
 
 it('handles favorite projects', () => {

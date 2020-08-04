@@ -53,13 +53,6 @@ exports[`should render correctly if there are new features 1`] = `
       onClick={[Function]}
       setCurrentUserSetting={[MockFunction]}
     />
-    <GlobalNavExplore
-      location={
-        Object {
-          "pathname": "",
-        }
-      }
-    />
     <EmbedDocsPopupHelper />
     <withRouter(Search)
       appState={

@@ -42,7 +42,6 @@ import EmbedDocsPopupHelper from '../../embed-docs-modal/EmbedDocsPopupHelper';
 import Search from '../../search/Search';
 import './GlobalNav.css';
 import GlobalNavBranding, { SonarCloudNavBranding } from './GlobalNavBranding';
-import GlobalNavExplore from './GlobalNavExplore';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 
@@ -188,7 +187,6 @@ export class GlobalNav extends React.PureComponent<Props, State> {
               setCurrentUserSetting={this.props.setCurrentUserSetting}
             />
           )}
-          {isSonarCloud() && <GlobalNavExplore location={this.props.location} />}
           <EmbedDocsPopupHelper />
           <Search appState={appState} currentUser={currentUser} />
           {isLoggedIn(currentUser) && (

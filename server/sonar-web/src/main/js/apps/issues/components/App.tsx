@@ -101,10 +101,7 @@ interface Props {
   currentUser: T.CurrentUser;
   fetchBranchStatus: (branchLike: BranchLike, projectKey: string) => Promise<void>;
   fetchIssues: (query: T.RawQuery, requestOrganizations?: boolean) => Promise<FetchIssuesPromise>;
-  hideAuthorFacet?: boolean;
   location: Location;
-  multiOrganizations?: boolean;
-  myIssues?: boolean;
   onBranchesChange?: () => void;
   organization?: { key: string };
   router: Pick<Router, 'push' | 'replace'>;
@@ -157,7 +154,7 @@ export default class App extends React.PureComponent<Props, State> {
       loadingFacets: {},
       loadingMore: false,
       locationsNavigator: false,
-      myIssues: props.myIssues || areMyIssuesSelected(props.location.query),
+      myIssues: areMyIssuesSelected(props.location.query),
       openFacets: {
         owaspTop10: shouldOpenStandardsChildFacet({}, query, 'owaspTop10'),
         sansTop25: shouldOpenStandardsChildFacet({}, query, 'sansTop25'),
@@ -209,7 +206,7 @@ export default class App extends React.PureComponent<Props, State> {
     }
 
     this.setState({
-      myIssues: nextProps.myIssues || areMyIssuesSelected(nextProps.location.query),
+      myIssues: areMyIssuesSelected(nextProps.location.query),
       openIssue,
       query: parseQuery(nextProps.location.query)
     });
@@ -411,11 +408,7 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  fetchIssues = (
-    additional: T.RawQuery,
-    requestFacets = false,
-    requestOrganizations = true
-  ): Promise<FetchIssuesPromise> => {
+  fetchIssues = (additional: T.RawQuery, requestFacets = false): Promise<FetchIssuesPromise> => {
     const { component } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
@@ -451,10 +444,7 @@ export default class App extends React.PureComponent<Props, State> {
       Object.assign(parameters, { assignees: '__me__' });
     }
 
-    return this.props.fetchIssues(
-      parameters,
-      Boolean(requestOrganizations && this.props.multiOrganizations)
-    );
+    return this.props.fetchIssues(parameters, false);
   };
 
   fetchFirstIssues() {
@@ -609,8 +599,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   fetchFacet = (facet: string) => {
-    const requestOrganizations = facet === 'projects';
-    return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }, false, requestOrganizations).then(
+    return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }, false).then(
       ({ facets, ...other }) => {
         if (this.mounted) {
           this.setState(state => ({
@@ -940,8 +929,7 @@ export default class App extends React.PureComponent<Props, State> {
       userOrganizations.find(o => {
         return o.key === organizationKey;
       });
-    const hideAuthorFacet =
-      this.props.hideAuthorFacet || (isSonarCloud() && this.props.myIssues) || !userOrganization;
+    const hideAuthorFacet = !userOrganization;
 
     return (
       <div className="layout-page-filters">
@@ -1103,11 +1091,7 @@ export default class App extends React.PureComponent<Props, State> {
 
             {this.renderBulkChange(openIssue)}
             <PageActions
-              canSetHome={Boolean(
-                !this.props.organization &&
-                  !this.props.component &&
-                  (!isSonarCloud() || this.props.myIssues)
-              )}
+              canSetHome={Boolean(!this.props.organization && !this.props.component)}
               effortTotal={this.state.effortTotal}
               onReload={this.handleReload}
               paging={paging}

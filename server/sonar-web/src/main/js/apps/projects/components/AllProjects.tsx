@@ -49,7 +49,6 @@ interface Props {
   organization: T.Organization | undefined;
   qualifiers: ComponentQualifier[];
   router: Pick<Router, 'push' | 'replace'>;
-  storageOptionsSuffix?: string;
 }
 
 interface State {
@@ -61,9 +60,9 @@ interface State {
   total?: number;
 }
 
-const PROJECTS_SORT = 'sonarqube.projects.sort';
-const PROJECTS_VIEW = 'sonarqube.projects.view';
-const PROJECTS_VISUALIZATION = 'sonarqube.projects.visualization';
+export const LS_PROJECTS_SORT = 'sonarqube.projects.sort';
+export const LS_PROJECTS_VIEW = 'sonarqube.projects.view';
+export const LS_PROJECTS_VISUALIZATION = 'sonarqube.projects.visualization';
 
 export class AllProjects extends React.PureComponent<Props, State> {
   mounted = false;
@@ -132,20 +131,19 @@ export class AllProjects extends React.PureComponent<Props, State> {
   getSort = () => this.state.query.sort || 'name';
 
   getStorageOptions = () => {
-    const { storageOptionsSuffix } = this.props;
     const options: {
       sort?: string;
       view?: string;
       visualization?: string;
     } = {};
-    if (get(PROJECTS_SORT, storageOptionsSuffix)) {
-      options.sort = get(PROJECTS_SORT, storageOptionsSuffix) || undefined;
+    if (get(LS_PROJECTS_SORT)) {
+      options.sort = get(LS_PROJECTS_SORT) || undefined;
     }
-    if (get(PROJECTS_VIEW, storageOptionsSuffix)) {
-      options.view = get(PROJECTS_VIEW, storageOptionsSuffix) || undefined;
+    if (get(LS_PROJECTS_VIEW)) {
+      options.view = get(LS_PROJECTS_VIEW) || undefined;
     }
-    if (get(PROJECTS_VISUALIZATION, storageOptionsSuffix)) {
-      options.visualization = get(PROJECTS_VISUALIZATION, storageOptionsSuffix) || undefined;
+    if (get(LS_PROJECTS_VISUALIZATION)) {
+      options.visualization = get(LS_PROJECTS_VISUALIZATION) || undefined;
     }
     return options;
   };
@@ -171,7 +169,6 @@ export class AllProjects extends React.PureComponent<Props, State> {
   };
 
   handlePerspectiveChange = ({ view, visualization }: { view: string; visualization?: string }) => {
-    const { storageOptionsSuffix } = this.props;
     const query: {
       view: string | undefined;
       visualization: string | undefined;
@@ -193,9 +190,9 @@ export class AllProjects extends React.PureComponent<Props, State> {
       this.updateLocationQuery(query);
     }
 
-    save(PROJECTS_SORT, query.sort, storageOptionsSuffix);
-    save(PROJECTS_VIEW, query.view, storageOptionsSuffix);
-    save(PROJECTS_VISUALIZATION, visualization, storageOptionsSuffix);
+    save(LS_PROJECTS_SORT, query.sort);
+    save(LS_PROJECTS_VIEW, query.view);
+    save(LS_PROJECTS_VISUALIZATION, visualization);
   };
 
   handleQueryChange(initialMount: boolean) {
@@ -214,7 +211,7 @@ export class AllProjects extends React.PureComponent<Props, State> {
   handleSortChange = (sort: string, desc: boolean) => {
     const asString = (desc ? '-' : '') + sort;
     this.updateLocationQuery({ sort: asString });
-    save(PROJECTS_SORT, asString, this.props.storageOptionsSuffix);
+    save(LS_PROJECTS_SORT, asString);
   };
 
   stopLoading = () => {

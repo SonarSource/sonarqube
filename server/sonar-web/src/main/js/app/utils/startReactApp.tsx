@@ -38,9 +38,6 @@ import componentMeasuresRoutes from '../../apps/component-measures/routes';
 import customMeasuresRoutes from '../../apps/custom-measures/routes';
 import customMetricsRoutes from '../../apps/custom-metrics/routes';
 import documentationRoutes from '../../apps/documentation/routes';
-import Explore from '../../apps/explore/Explore';
-import ExploreIssues from '../../apps/explore/ExploreIssues';
-import ExploreProjects from '../../apps/explore/ExploreProjects';
 import groupsRoutes from '../../apps/groups/routes';
 import Issues from '../../apps/issues/components/AppContainer';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
@@ -292,10 +289,6 @@ export default function startReactApp(
                     <RouteWithChildRoutes path="account" childRoutes={accountRoutes} />
                     <RouteWithChildRoutes path="coding_rules" childRoutes={codingRulesRoutes} />
                     <RouteWithChildRoutes path="documentation" childRoutes={documentationRoutes} />
-                    <Route path="explore" component={Explore}>
-                      <Route path="issues" component={ExploreIssues} />
-                      <Route path="projects" component={ExploreProjects} />
-                    </Route>
                     <Route
                       path="extension/:pluginKey/:extensionKey"
                       component={lazyLoadComponent(() =>
