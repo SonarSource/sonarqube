@@ -51,10 +51,15 @@
       pb.uuid
     from
       project_branches pb
+    left join snapshots s
+    on
+        s.component_uuid = pb.uuid
+        and s.islast=${_true}
     where
         pb.project_uuid=#{projectUuid,jdbcType=VARCHAR}
         and pb.exclude_from_purge = ${_false}
-        and pb.updated_at &lt; #{toDate}
+        and (s.created_at is null or s.created_at &lt; #{toDate})
+
   </select>
 
   <select id="selectRootAndModulesOrSubviewsByProjectUuid" resultType="String" parameterType="String">

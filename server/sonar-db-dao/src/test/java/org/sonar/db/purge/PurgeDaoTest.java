@@ -141,16 +141,22 @@ public class PurgeDaoTest {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch1 = db.components().insertProjectBranch(project);
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    db.components().insertSnapshot(branch1);
+    db.components().insertSnapshot(branch2);
 
-    // branch with other components and issues, updated 31 days ago
-    when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
+    // branch with other components and issues, last analysed 31 days ago
     ComponentDto branch3 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    db.components().insertSnapshot(branch3, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
+
     ComponentDto module = db.components().insertComponent(newModuleDto(branch3));
     ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
     ComponentDto file = db.components().insertComponent(newFileDto(subModule));
     db.issues().insert(rule, branch3, file);
     db.issues().insert(rule, branch3, subModule);
     db.issues().insert(rule, branch3, module);
+
+    // branch with no analysis
+    ComponentDto branch4 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
 
     underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, project.uuid(), project.uuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -161,15 +167,16 @@ public class PurgeDaoTest {
 
   @Test
   public void purge_inactive_pull_request() {
-    when(system2.now()).thenReturn(new Date().getTime());
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project);
+    db.components().insertSnapshot(nonMainBranch);
     ComponentDto recentPullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    db.components().insertSnapshot(recentPullRequest);
 
     // pull request with other components and issues, updated 31 days ago
-    when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    db.components().insertSnapshot(pullRequest, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
     ComponentDto module = db.components().insertComponent(newModuleDto(pullRequest));
     ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
     ComponentDto file = db.components().insertComponent(newFileDto(subModule));
@@ -186,25 +193,23 @@ public class PurgeDaoTest {
 
   @Test
   public void purge_inactive_branches_when_analyzing_non_main_branch() {
-    when(system2.now()).thenReturn(new Date().getTime());
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto nonMainBranch = db.components().insertProjectBranch(project);
-
-    when(system2.now()).thenReturn(DateUtils.addDays(new Date(), -31).getTime());
+    db.components().insertSnapshot(nonMainBranch);
 
     // branch updated 31 days ago
     ComponentDto branch1 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.BRANCH));
+    db.components().insertSnapshot(branch1, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
 
     // branch with other components and issues, updated 31 days ago
     ComponentDto branch2 = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.PULL_REQUEST));
+    db.components().insertSnapshot(branch2, dto -> dto.setCreatedAt(DateUtils.addDays(new Date(), -31).getTime()));
     ComponentDto file = db.components().insertComponent(newFileDto(branch2));
     db.issues().insert(rule, branch2, file);
 
-    // back to present
-    when(system2.now()).thenReturn(new Date().getTime());
     // analysing branch1
-    underTest.purge(dbSession, newConfigurationWith30Days(system2, branch1.uuid(), branch1.getMainBranchProjectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(dbSession, newConfigurationWith30Days(System2.INSTANCE, branch1.uuid(), branch1.getMainBranchProjectUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
 
     // branch1 wasn't deleted since it was being analyzed!
