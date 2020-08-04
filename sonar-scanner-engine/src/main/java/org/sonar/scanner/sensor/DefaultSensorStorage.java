@@ -21,11 +21,11 @@ package org.sonar.scanner.sensor;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputComponent;
@@ -332,7 +332,7 @@ public class DefaultSensorStorage implements SensorStorage {
     DefaultInputFile inputFile = (DefaultInputFile) defaultCoverage.inputFile();
     inputFile.setPublished(true);
 
-    Map<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine = reloadExistingCoverage(inputFile);
+    SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine = reloadExistingCoverage(inputFile);
 
     int lineCount = inputFile.lines();
     mergeLineCoverageValues(lineCount, defaultCoverage.hitsByLine(), coveragePerLine, (value, builder) -> builder.setHits(builder.getHits() || value > 0));
@@ -345,8 +345,8 @@ public class DefaultSensorStorage implements SensorStorage {
 
   }
 
-  private Map<Integer, ScannerReport.LineCoverage.Builder> reloadExistingCoverage(DefaultInputFile inputFile) {
-    Map<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine = new LinkedHashMap<>();
+  private SortedMap<Integer, ScannerReport.LineCoverage.Builder> reloadExistingCoverage(DefaultInputFile inputFile) {
+    SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine = new TreeMap<>();
     try (CloseableIterator<ScannerReport.LineCoverage> lineCoverageCloseableIterator = reportPublisher.getReader().readComponentCoverage(inputFile.scannerId())) {
       while (lineCoverageCloseableIterator.hasNext()) {
         final ScannerReport.LineCoverage lineCoverage = lineCoverageCloseableIterator.next();
@@ -360,7 +360,7 @@ public class DefaultSensorStorage implements SensorStorage {
     void apply(Integer value, ScannerReport.LineCoverage.Builder builder);
   }
 
-  private void mergeLineCoverageValues(int lineCount, SortedMap<Integer, Integer> valueByLine, Map<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine,
+  private void mergeLineCoverageValues(int lineCount, SortedMap<Integer, Integer> valueByLine, SortedMap<Integer, ScannerReport.LineCoverage.Builder> coveragePerLine,
     LineCoverageOperation op) {
     for (Map.Entry<Integer, Integer> lineMeasure : valueByLine.entrySet()) {
       int lineIdx = lineMeasure.getKey();

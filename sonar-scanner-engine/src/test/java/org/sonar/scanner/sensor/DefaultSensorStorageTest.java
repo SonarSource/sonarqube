@@ -21,6 +21,8 @@ package org.sonar.scanner.sensor;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +38,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.code.internal.DefaultSignificantCode;
+import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
@@ -110,6 +113,28 @@ public class DefaultSensorStorageTest {
       .setKey("foo")
       .setBaseDir(temp.newFolder())
       .setWorkDir(temp.newFolder()));
+  }
+
+  @Test
+  public void should_merge_coverage() {
+    DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setLines(5).build();
+
+    DefaultCoverage coverage = new DefaultCoverage(underTest);
+    coverage.onFile(file).lineHits(3, 1);
+
+    DefaultCoverage coverage2 = new DefaultCoverage(underTest);
+    coverage2.onFile(file).lineHits(1, 1);
+
+    underTest.store(coverage);
+    underTest.store(coverage2);
+
+    List<ScannerReport.LineCoverage> lineCoverage = new ArrayList<>();
+    reportReader.readComponentCoverage(file.scannerId()).forEachRemaining(lineCoverage::add);
+    assertThat(lineCoverage).containsExactly(
+      // should be sorted by line
+      ScannerReport.LineCoverage.newBuilder().setLine(1).setHits(true).build(),
+      ScannerReport.LineCoverage.newBuilder().setLine(3).setHits(true).build());
+
   }
 
   @Test
