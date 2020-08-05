@@ -42,6 +42,20 @@ export enum ProjectKeyValidationResult {
   OnlyDigits = 'only_digits'
 }
 
+export interface TreeComponent extends T.LightComponent {
+  id?: string;
+  name: string;
+  path?: string;
+  refId?: string;
+  refKey?: string;
+  tags?: string[];
+  visibility: T.Visibility;
+}
+
+export interface TreeComponentWithPath extends TreeComponent {
+  path: string;
+}
+
 export function isPortfolioLike(componentQualifier?: string | ComponentQualifier) {
   return Boolean(
     componentQualifier &&

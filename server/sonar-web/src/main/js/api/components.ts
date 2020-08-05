@@ -20,7 +20,7 @@
 import { getJSON, post, postJSON, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { BranchParameters } from '../types/branch-like';
-import { ComponentQualifier } from '../types/component';
+import { ComponentQualifier, TreeComponent, TreeComponentWithPath } from '../types/component';
 
 export interface BaseSearchProjectsParameters {
   analyzedBefore?: string;
@@ -130,20 +130,6 @@ export function getComponent(
   data: { component: string; metricKeys: string } & BranchParameters
 ): Promise<{ component: T.ComponentMeasure }> {
   return getJSON('/api/measures/component', data);
-}
-
-export interface TreeComponent extends T.LightComponent {
-  id?: string;
-  name: string;
-  path?: string;
-  refId?: string;
-  refKey?: string;
-  tags?: string[];
-  visibility: T.Visibility;
-}
-
-export interface TreeComponentWithPath extends TreeComponent {
-  path: string;
 }
 
 type GetTreeParams = {

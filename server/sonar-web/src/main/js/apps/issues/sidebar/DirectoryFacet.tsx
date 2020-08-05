@@ -23,11 +23,15 @@ import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { collapsePath } from 'sonar-ui-common/helpers/path';
 import { highlightTerm } from 'sonar-ui-common/helpers/search';
-import { getDirectories, TreeComponentWithPath } from '../../../api/components';
+import { getDirectories } from '../../../api/components';
 import ListStyleFacet from '../../../components/facet/ListStyleFacet';
+import { getBranchLikeQuery } from '../../../helpers/branch-like';
+import { BranchLike } from '../../../types/branch-like';
+import { TreeComponentWithPath } from '../../../types/component';
 import { Facet, Query } from '../utils';
 
 interface Props {
+  branchLike?: BranchLike;
   componentKey: string;
   directories: string[];
   fetching: boolean;
@@ -53,8 +57,11 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
   };
 
   handleSearch = (query: string, page: number) => {
+    const { branchLike } = this.props;
+
     return getDirectories({
       component: this.props.componentKey,
+      ...getBranchLikeQuery(branchLike),
       q: query,
       p: page,
       ps: 30

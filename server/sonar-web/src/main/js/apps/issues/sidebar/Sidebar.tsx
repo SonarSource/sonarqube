@@ -20,6 +20,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { getGlobalSettingValue, Store } from '../../../store/rootReducer';
+import { BranchLike } from '../../../types/branch-like';
+import { ComponentQualifier } from '../../../types/component';
 import { Facet, Query, ReferencedComponent, ReferencedLanguage, ReferencedRule } from '../utils';
 import AssigneeFacet from './AssigneeFacet';
 import AuthorFacet from './AuthorFacet';
@@ -37,6 +39,7 @@ import TagFacet from './TagFacet';
 import TypeFacet from './TypeFacet';
 
 export interface Props {
+  branchLike?: BranchLike;
   component: T.Component | undefined;
   facets: T.Dict<Facet | undefined>;
   hideAuthorFacet?: boolean;
@@ -58,7 +61,7 @@ export interface Props {
 
 export class Sidebar extends React.PureComponent<Props> {
   renderComponentFacets() {
-    const { component, facets, loadingFacets, openFacets, query } = this.props;
+    const { component, facets, loadingFacets, openFacets, query, branchLike } = this.props;
     if (!component) {
       return null;
     }
@@ -71,8 +74,9 @@ export class Sidebar extends React.PureComponent<Props> {
     };
     return (
       <>
-        {component.qualifier !== 'DIR' && (
+        {component.qualifier !== ComponentQualifier.Directory && (
           <DirectoryFacet
+            branchLike={branchLike}
             directories={query.directories}
             fetching={loadingFacets.directories === true}
             open={!!openFacets.directories}
@@ -81,6 +85,7 @@ export class Sidebar extends React.PureComponent<Props> {
           />
         )}
         <FileFacet
+          branchLike={branchLike}
           fetching={loadingFacets.files === true}
           fileUuids={query.files}
           open={!!openFacets.files}

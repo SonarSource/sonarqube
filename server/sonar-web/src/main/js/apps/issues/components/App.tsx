@@ -928,7 +928,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   renderFacets() {
-    const { component, currentUser, userOrganizations } = this.props;
+    const { component, currentUser, userOrganizations, branchLike } = this.props;
     const { query } = this.state;
 
     const organizationKey =
@@ -953,6 +953,7 @@ export default class App extends React.PureComponent<Props, State> {
         )}
         <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
         <Sidebar
+          branchLike={branchLike}
           component={component}
           facets={this.state.facets}
           hideAuthorFacet={hideAuthorFacet}
