@@ -44,7 +44,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -74,7 +74,7 @@ public class SearchAction implements CustomMeasuresWsAction {
       .setSince("5.2")
       .setDeprecatedSince("7.4")
       .addFieldsParam(CustomMeasureJsonWriter.OPTIONAL_FIELDS)
-      .addPagingParams(100, MAX_LIMIT)
+      .addPagingParams(100, MAX_PAGE_SIZE)
       .setResponseExample(getClass().getResource("example-search.json"))
       .setHandler(this);
 

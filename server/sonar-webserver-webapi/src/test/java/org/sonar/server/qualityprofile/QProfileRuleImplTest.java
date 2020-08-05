@@ -707,7 +707,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void bulk_activation() {
-    int bulkSize = SearchOptions.MAX_LIMIT + 10 + new Random().nextInt(100);
+    int bulkSize = SearchOptions.MAX_PAGE_SIZE + 10 + new Random().nextInt(100);
     String language = randomAlphanumeric(10);
     String repositoryKey = randomAlphanumeric(10);
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(language));
@@ -734,7 +734,7 @@ public class QProfileRuleImplTest {
 
   @Test
   public void bulk_deactivation() {
-    int bulkSize = SearchOptions.MAX_LIMIT + 10 + new Random().nextInt(100);
+    int bulkSize = SearchOptions.MAX_PAGE_SIZE + 10 + new Random().nextInt(100);
     String language = randomAlphanumeric(10);
     String repositoryKey = randomAlphanumeric(10);
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(language));

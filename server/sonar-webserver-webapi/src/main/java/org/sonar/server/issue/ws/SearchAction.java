@@ -76,7 +76,7 @@ import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.index.IssueIndex.FACET_ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.IssueIndex.FACET_PROJECTS;
 import static org.sonar.server.issue.index.IssueQuery.SORT_BY_ASSIGNEE;
@@ -211,7 +211,7 @@ public class SearchAction implements IssuesWsAction {
         new Change("5.5", "response field 'debt' is renamed 'effort'"))
       .setResponseExample(getClass().getResource("search-example.json"));
 
-    action.addPagingParams(100, MAX_LIMIT);
+    action.addPagingParams(100, MAX_PAGE_SIZE);
     action.createParam(FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(SUPPORTED_FACETS);

@@ -38,7 +38,7 @@ public class SearchOptions {
 
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
-  public static final int MAX_LIMIT = 500;
+  public static final int MAX_PAGE_SIZE = 500;
   private static final int MAX_RETURNABLE_RESULTS = 10_000;
 
   private int offset = DEFAULT_OFFSET;
@@ -63,15 +63,14 @@ public class SearchOptions {
   }
 
   /**
-   * Set offset and limit according to page approach. If pageSize is negative, then
-   * {@link #MAX_LIMIT} is used.
+   * Set offset and limit according to page approach
    */
   public SearchOptions setPage(int page, int pageSize) {
     checkArgument(page >= 1, "Page must be greater or equal to 1 (got " + page + ")");
+    setLimit(pageSize);
     int lastResultIndex = page * pageSize;
     checkArgument(lastResultIndex <= MAX_RETURNABLE_RESULTS, "Can return only the first %s results. %sth result asked.", MAX_RETURNABLE_RESULTS, lastResultIndex);
-    setLimit(pageSize);
-    setOffset((page * this.limit) - this.limit);
+    setOffset(lastResultIndex - pageSize);
     return this;
   }
 
@@ -90,11 +89,8 @@ public class SearchOptions {
    * Sets the limit on the number of results to return.
    */
   public SearchOptions setLimit(int limit) {
-    if (limit <= 0) {
-      this.limit = MAX_LIMIT;
-    } else {
-      this.limit = Math.min(limit, MAX_LIMIT);
-    }
+    checkArgument(limit > 0 && limit <= MAX_PAGE_SIZE, "Page size must be between 1 and " + MAX_PAGE_SIZE + " (got " + limit + ")");
+    this.limit = limit;
     return this;
   }
 

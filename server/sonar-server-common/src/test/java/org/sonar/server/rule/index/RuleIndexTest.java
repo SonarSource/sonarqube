@@ -1115,12 +1115,6 @@ public class RuleIndexTest {
     results = underTest.search(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
     assertThat(results.getUuids()).hasSize(1);
-
-    // from 2 to 11 included
-    options.setOffset(2).setLimit(0);
-    results = underTest.search(new RuleQuery(), options);
-    assertThat(results.getTotal()).isEqualTo(3);
-    assertThat(results.getUuids()).hasSize(1);
   }
 
   @Test

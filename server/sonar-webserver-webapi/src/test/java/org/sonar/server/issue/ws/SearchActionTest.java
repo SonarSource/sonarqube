@@ -450,7 +450,7 @@ public class SearchActionTest {
     ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
     indexPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
-    for (int i = 0; i < SearchOptions.MAX_LIMIT + 1; i++) {
+    for (int i = 0; i < SearchOptions.MAX_PAGE_SIZE + 1; i++) {
       IssueDto issue = newDto(rule, file, project).setAssigneeUuid(null);
       dbClient.issueDao().insert(session, issue);
     }
@@ -1038,23 +1038,12 @@ public class SearchActionTest {
 
   @Test
   public void paging_with_page_size_to_minus_one() {
-    RuleDto rule = newIssueRule();
-    OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org-1"));
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPublicProjectDto(organization, "PROJECT_ID").setDbKey("PROJECT_KEY"));
-    indexPermissions();
-    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
-    for (int i = 0; i < 12; i++) {
-      IssueDto issue = newDto(rule, file, project);
-      dbClient.issueDao().insert(session, issue);
-    }
-    session.commit();
-    indexIssues();
-
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page size must be between 1 and 500 (got -1)");
     ws.newRequest()
       .setParam(WebService.Param.PAGE, "1")
       .setParam(WebService.Param.PAGE_SIZE, "-1")
-      .execute()
-      .assertJson(this.getClass(), "paging_with_page_size_to_minus_one.json");
+      .execute();
   }
 
   @Test

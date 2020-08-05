@@ -108,7 +108,7 @@ public class IssueIndexTest {
     assertThat(result.getHits().getHits()).hasSize(5);
     assertThat(result.getHits().getTotalHits()).isEqualTo(12);
 
-    result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(2).setLimit(0));
+    result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(2).setLimit(10));
     assertThat(result.getHits().getHits()).hasSize(10);
     assertThat(result.getHits().getTotalHits()).isEqualTo(12);
   }
@@ -125,8 +125,8 @@ public class IssueIndexTest {
     indexIssues(issues.toArray(new IssueDoc[] {}));
 
     IssueQuery.Builder query = IssueQuery.builder();
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(Integer.MAX_VALUE));
-    assertThat(result.getHits().getHits()).hasSize(SearchOptions.MAX_LIMIT);
+    SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
+    assertThat(result.getHits().getHits()).hasSize(SearchOptions.MAX_PAGE_SIZE);
   }
 
   @Test

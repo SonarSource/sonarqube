@@ -57,7 +57,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -89,7 +89,7 @@ public class SearchAction implements ComponentsWsAction {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setSince("6.3")
       .setDescription("Search for components")
-      .addPagingParams(100, MAX_LIMIT)
+      .addPagingParams(100, MAX_PAGE_SIZE)
       .setChangelog(
         new Change("8.4", "Param 'language' has been removed"),
         new Change("8.4", String.format("The use of 'DIR','FIL','UTS' as values for parameter '%s' is no longer supported", PARAM_QUALIFIERS)),

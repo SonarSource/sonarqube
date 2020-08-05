@@ -91,7 +91,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.issue.AbstractChangeTagsAction.TAGS_PARAMETER;
 import static org.sonar.server.issue.AssignAction.ASSIGNEE_PARAMETER;
 import static org.sonar.server.issue.CommentAction.COMMENT_KEY;
@@ -356,7 +356,7 @@ public class BulkChangeAction implements IssuesWsAction {
       this.propertiesByActions = toPropertiesByActions(request);
 
       List<String> issueKeys = request.mandatoryParamAsStrings(PARAM_ISSUES);
-      checkArgument(issueKeys.size() <= MAX_LIMIT, "Number of issues is limited to %s", MAX_LIMIT);
+      checkArgument(issueKeys.size() <= MAX_PAGE_SIZE, "Number of issues is limited to %s", MAX_PAGE_SIZE);
       List<IssueDto> allIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeys)
         .stream()
         .filter(issueDto -> SECURITY_HOTSPOT.getDbConstant() != issueDto.getType())

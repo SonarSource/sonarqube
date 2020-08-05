@@ -27,7 +27,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class SearchOptionsTest {
 
@@ -64,27 +63,39 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void with_zero_page_size() {
-    SearchOptions options = new SearchOptions().setPage(1, 0);
-    assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
-    assertThat(options.getOffset()).isEqualTo(0);
-    assertThat(options.getPage()).isEqualTo(1);
+  public void fail_if_page_is_not_strictly_positive() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page must be greater or equal to 1 (got 0)");
+    new SearchOptions().setPage(0, 10);
   }
 
   @Test
-  public void page_must_be_strictly_positive() {
-    try {
-      new SearchOptions().setPage(0, 10);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Page must be greater or equal to 1 (got 0)");
-    }
+  public void fail_if_ps_is_zero() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page size must be between 1 and 500 (got 0)");
+    new SearchOptions().setPage(1, 0);
   }
 
   @Test
-  public void use_max_limit_if_negative() {
-    SearchOptions options = new SearchOptions().setPage(2, -1);
-    assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
+  public void fail_if_ps_is_negative() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page size must be between 1 and 500 (got -1)");
+    new SearchOptions().setPage(2, -1);
+  }
+
+  @Test
+  public void fail_if_ps_is_over_limit() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page size must be between 1 and 500 (got 510)");
+    new SearchOptions().setPage(3, SearchOptions.MAX_PAGE_SIZE + 10);
+  }
+
+  @Test
+  public void fail_if_result_after_first_10_000() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Can return only the first 10000 results. 10500th result asked.");
+
+    underTest.setPage(21, 500);
   }
 
   @Test
@@ -92,15 +103,9 @@ public class SearchOptionsTest {
     SearchOptions options = new SearchOptions().setLimit(42);
     assertThat(options.getLimit()).isEqualTo(42);
 
-    options.setLimit(SearchOptions.MAX_LIMIT + 10);
-    assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
-  }
-
-  @Test
-  public void max_page_size() {
-    SearchOptions options = new SearchOptions().setPage(3, SearchOptions.MAX_LIMIT + 10);
-    assertThat(options.getOffset()).isEqualTo(SearchOptions.MAX_LIMIT * 2);
-    assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page size must be between 1 and 500 (got 510)");
+    options.setLimit(SearchOptions.MAX_PAGE_SIZE + 10);
   }
 
   @Test
@@ -112,13 +117,5 @@ public class SearchOptionsTest {
     jsonWriter.endObject().close();
 
     JsonAssert.assertJson(json.toString()).isSimilarTo("{\"total\": 42, \"p\": 3, \"ps\": 10}");
-  }
-
-  @Test
-  public void fail_if_result_after_first_10_000() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Can return only the first 10000 results. 10500th result asked.");
-
-    underTest.setPage(21, 500);
   }
 }

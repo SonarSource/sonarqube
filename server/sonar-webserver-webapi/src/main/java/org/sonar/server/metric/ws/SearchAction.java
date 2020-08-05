@@ -34,7 +34,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.es.SearchOptions;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_ID;
 import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_KEY;
 
@@ -61,7 +61,7 @@ public class SearchAction implements MetricsWsAction {
       .setSince("5.2")
       .setDescription("Search for metrics")
       .setResponseExample(getClass().getResource("example-search.json"))
-      .addPagingParams(100, MAX_LIMIT)
+      .addPagingParams(100, MAX_PAGE_SIZE)
       .setChangelog(
         new Change("8.4", "Field 'id' in the response is deprecated"),
         new Change("7.7", "Field 'custom' in the response is deprecated"))

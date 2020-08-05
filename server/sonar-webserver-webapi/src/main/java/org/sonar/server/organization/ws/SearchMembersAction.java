@@ -52,7 +52,7 @@ import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -86,7 +86,7 @@ public class SearchMembersAction implements OrganizationsWsAction {
 
     action.createSearchQuery("orwe", "names", "logins")
       .setMinimumLength(2);
-    action.addPagingParams(50, MAX_LIMIT);
+    action.addPagingParams(50, MAX_PAGE_SIZE);
 
     action.createParam(Param.SELECTED)
       .setDescription("Depending on the value, show only selected items (selected=selected) or deselected items (selected=deselected).")

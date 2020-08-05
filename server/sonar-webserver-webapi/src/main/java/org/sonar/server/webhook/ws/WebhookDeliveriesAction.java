@@ -48,7 +48,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.webhook.ws.WebhookWsSupport.copyDtoToProtobuf;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -92,7 +92,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
         "auto-generated value that can be obtained through api/webhooks/create or api/webhooks/list")
       .setExampleValue(UUID_EXAMPLE_02);
 
-    action.addPagingParamsSince(10, MAX_LIMIT, "7.1");
+    action.addPagingParamsSince(10, MAX_PAGE_SIZE, "7.1");
   }
 
   @Override
