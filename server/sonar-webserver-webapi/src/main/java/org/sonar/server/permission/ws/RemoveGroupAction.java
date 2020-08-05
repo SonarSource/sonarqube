@@ -80,7 +80,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
         new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
 
-    wsParameters.createPermissionParameter(action);
+    wsParameters.createPermissionParameter(action, "The permission you would like to revoke from the group.");
     createOrganizationParameter(action).setSince("6.2");
     createGroupNameParameter(action);
     createGroupIdParameter(action);

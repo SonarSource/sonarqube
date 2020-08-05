@@ -66,7 +66,7 @@ public class AddGroupAction implements PermissionsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
-      .setDescription("Add permission to a group.<br /> " +
+      .setDescription("Add a permission to a group.<br /> " +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> " +
         "The group name or group id must be provided. <br />" +
         "Requires one of the following permissions:" +
@@ -80,7 +80,7 @@ public class AddGroupAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    wsParameters.createPermissionParameter(action);
+    wsParameters.createPermissionParameter(action, "The permission you would like to grant to the group.");
     createOrganizationParameter(action).setSince("6.2");
     createGroupNameParameter(action);
     createGroupIdParameter(action);

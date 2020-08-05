@@ -84,7 +84,7 @@ public class AddUserAction implements PermissionsWsAction {
       .setChangelog(
         new Change("7.4", "If organizationKey and projectId are both set, the organisationKey must be the key of the organization of the project"));
 
-    wsParameters.createPermissionParameter(action);
+    wsParameters.createPermissionParameter(action, "The permission you would like to grant to the user");
     createUserLoginParameter(action);
     createProjectParameters(action);
     createOrganizationParameter(action)

@@ -48,23 +48,26 @@ public class WsParameters {
   public WsParameters(PermissionService permissionService) {
     this.permissionService = permissionService;
     String allProjectsPermissionsOnOneLine = Joiner.on(", ").join(permissionService.getAllProjectPermissions());
-    permissionParamDescription = String.format("Permission" +
-      "<ul>" +
-      "<li>Possible values for global permissions: %s</li>" +
-      "<li>Possible values for project permissions %s</li>" +
-      "</ul>",
+    permissionParamDescription = String.format("<ul>" +
+        "<li>Possible values for global permissions: %s</li>" +
+        "<li>Possible values for project permissions %s</li>" +
+        "</ul>",
       GlobalPermissions.ALL_ON_ONE_LINE,
       allProjectsPermissionsOnOneLine);
     projectPermissionParamDescription = String.format("Permission" +
-      "<ul>" +
-      "<li>Possible values for project permissions %s</li>" +
-      "</ul>",
+        "<ul>" +
+        "<li>Possible values for project permissions %s</li>" +
+        "</ul>",
       allProjectsPermissionsOnOneLine);
   }
 
   public WebService.NewParam createPermissionParameter(WebService.NewAction action) {
+    return createPermissionParameter(action, "Permission.");
+  }
+
+  public WebService.NewParam createPermissionParameter(WebService.NewAction action, String descriptionHeader) {
     return action.createParam(PARAM_PERMISSION)
-      .setDescription(permissionParamDescription)
+      .setDescription(descriptionHeader + permissionParamDescription)
       .setRequired(true);
   }
 

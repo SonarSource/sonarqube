@@ -78,7 +78,7 @@ public class RemoveUserAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    wsParameters.createPermissionParameter(action);
+    wsParameters.createPermissionParameter(action, "The permission you would like to revoke from the user.");
     createUserLoginParameter(action);
     createProjectParameters(action);
     createOrganizationParameter(action).setSince("6.2");
