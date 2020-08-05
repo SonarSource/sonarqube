@@ -65,7 +65,7 @@ it('should properly start & stop polling for indexation status', async () => {
 });
 
 it('should properly handle the flag to show the completed banner', () => {
-  IndexationNotificationHelper.markInProgressNotificationAsDisplayed();
+  IndexationNotificationHelper.markCompletedNotificationAsToDisplay();
 
   expect(save).toHaveBeenCalledWith(expect.any(String), 'true');
 
@@ -75,7 +75,7 @@ it('should properly handle the flag to show the completed banner', () => {
   expect(shouldDisplay).toBe(true);
   expect(get).toHaveBeenCalled();
 
-  IndexationNotificationHelper.markCompletedNotificationAsDismissed();
+  IndexationNotificationHelper.markCompletedNotificationAsDisplayed();
 
   expect(remove).toHaveBeenCalled();
 

@@ -20,8 +20,6 @@
 
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { ClearButton } from 'sonar-ui-common/components/controls/buttons';
-import { click } from 'sonar-ui-common/helpers/testUtils';
 import { IndexationNotificationType } from '../../../../types/indexation';
 import IndexationNotificationRenderer, {
   IndexationNotificationRendererProps
@@ -43,24 +41,12 @@ it.each([
   }
 );
 
-it('should propagate the dismiss event from completed notification', () => {
-  const onDismissCompletedNotification = jest.fn();
-  const wrapper = shallowRender({
-    type: IndexationNotificationType.Completed,
-    onDismissCompletedNotification
-  });
-
-  click(wrapper.find(ClearButton));
-  expect(onDismissCompletedNotification).toHaveBeenCalled();
-});
-
 function shallowRender(props: Partial<IndexationNotificationRendererProps> = {}) {
   return shallow<IndexationNotificationRendererProps>(
     <IndexationNotificationRenderer
       type={IndexationNotificationType.InProgress}
       percentCompleted={25}
       isSystemAdmin={false}
-      onDismissCompletedNotification={jest.fn()}
       {...props}
     />
   );

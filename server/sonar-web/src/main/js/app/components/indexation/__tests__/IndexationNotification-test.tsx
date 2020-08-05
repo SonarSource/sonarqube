@@ -24,7 +24,6 @@ import { mockCurrentUser } from '../../../../helpers/testMocks';
 import { IndexationNotificationType } from '../../../../types/indexation';
 import { IndexationNotification } from '../IndexationNotification';
 import IndexationNotificationHelper from '../IndexationNotificationHelper';
-import IndexationNotificationRenderer from '../IndexationNotificationRenderer';
 
 beforeEach(() => jest.clearAllMocks());
 
@@ -63,7 +62,7 @@ describe('Completed banner', () => {
     expect(wrapper.state().notificationType).toBe(IndexationNotificationType.Completed);
   });
 
-  it('should be hidden on dismiss action', () => {
+  it('should be hidden on refresh once displayed', () => {
     (IndexationNotificationHelper.shouldDisplayCompletedNotification as jest.Mock).mockReturnValueOnce(
       true
     );
@@ -75,14 +74,7 @@ describe('Completed banner', () => {
     });
 
     expect(wrapper.state().notificationType).toBe(IndexationNotificationType.Completed);
-
-    wrapper
-      .find(IndexationNotificationRenderer)
-      .props()
-      .onDismissCompletedNotification();
-
-    expect(IndexationNotificationHelper.markCompletedNotificationAsDismissed).toHaveBeenCalled();
-    expect(wrapper.state().notificationType).toBeUndefined();
+    expect(IndexationNotificationHelper.markCompletedNotificationAsDisplayed).toHaveBeenCalled();
   });
 });
 
@@ -99,7 +91,7 @@ it('should display the progress banner', () => {
     indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: false } }
   });
 
-  expect(IndexationNotificationHelper.markInProgressNotificationAsDisplayed).toHaveBeenCalled();
+  expect(IndexationNotificationHelper.markCompletedNotificationAsToDisplay).toHaveBeenCalled();
   expect(wrapper.state().notificationType).toBe(IndexationNotificationType.InProgress);
 });
 
@@ -108,7 +100,7 @@ it('should display the progress-with-failure banner', () => {
     indexationContext: { status: { isCompleted: false, percentCompleted: 23, hasFailures: true } }
   });
 
-  expect(IndexationNotificationHelper.markInProgressNotificationAsDisplayed).toHaveBeenCalled();
+  expect(IndexationNotificationHelper.markCompletedNotificationAsToDisplay).toHaveBeenCalled();
   expect(wrapper.state().notificationType).toBe(IndexationNotificationType.InProgressWithFailure);
 });
 

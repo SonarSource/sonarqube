@@ -17,11 +17,6 @@ exports[`should render correctly for type="Completed" & isSystemAdmin=false 1`] 
       >
         indexation.completed
       </span>
-      <ClearButton
-        className="button-tiny"
-        onClick={[MockFunction]}
-        title="dismiss"
-      />
     </div>
   </Alert>
 </div>
@@ -44,11 +39,6 @@ exports[`should render correctly for type="Completed" & isSystemAdmin=true 1`] =
       >
         indexation.completed
       </span>
-      <ClearButton
-        className="button-tiny"
-        onClick={[MockFunction]}
-        title="dismiss"
-      />
     </div>
   </Alert>
 </div>

@@ -62,7 +62,7 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
     const { isCompleted, hasFailures } = this.props.indexationContext.status;
 
     if (!isCompleted) {
-      IndexationNotificationHelper.markInProgressNotificationAsDisplayed();
+      IndexationNotificationHelper.markCompletedNotificationAsToDisplay();
       this.setState({
         notificationType: hasFailures
           ? IndexationNotificationType.InProgressWithFailure
@@ -74,15 +74,11 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
       this.setState({
         notificationType: IndexationNotificationType.Completed
       });
+      IndexationNotificationHelper.markCompletedNotificationAsDisplayed();
     } else {
       this.setState({ notificationType: undefined });
     }
   }
-
-  handleDismissCompletedNotification = () => {
-    IndexationNotificationHelper.markCompletedNotificationAsDismissed();
-    this.refreshNotification();
-  };
 
   render() {
     const { notificationType } = this.state;
@@ -101,7 +97,6 @@ export class IndexationNotification extends React.PureComponent<Props, State> {
         type={notificationType}
         percentCompleted={percentCompleted}
         isSystemAdmin={this.isSystemAdmin}
-        onDismissCompletedNotification={this.handleDismissCompletedNotification}
       />
     );
   }
