@@ -67,6 +67,14 @@ it('should correctly check PAT when settings are added after mount', async () =>
 
 it('should correctly handle a valid PAT', async () => {
   (checkPersonalAccessTokenIsValid as jest.Mock).mockResolvedValueOnce(true);
+  (getGitlabProjects as jest.Mock).mockResolvedValueOnce({
+    projects: [mockGitlabProject()],
+    projectsPaging: {
+      pageIndex: 1,
+      pageSize: 10,
+      total: 1
+    }
+  });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper.state().tokenIsValid).toBe(true);
@@ -248,6 +256,37 @@ it('should do nothing with missing settings', async () => {
   expect(getGitlabProjects).not.toHaveBeenCalled();
   expect(importGitlabProject).not.toHaveBeenCalled();
   expect(setAlmPersonalAccessToken).not.toHaveBeenCalled();
+});
+
+it('should handle errors when fetching projects', async () => {
+  (getGitlabProjects as jest.Mock).mockRejectedValueOnce({});
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().tokenIsValid).toBe(false);
+});
+
+it('should handle errors when importing a project', async () => {
+  (importGitlabProject as jest.Mock).mockRejectedValueOnce({});
+  (getGitlabProjects as jest.Mock).mockResolvedValueOnce({
+    projects: [mockGitlabProject()],
+    projectsPaging: {
+      pageIndex: 1,
+      pageSize: 10,
+      total: 1
+    }
+  });
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().tokenIsValid).toBe(true);
+
+  await wrapper.instance().handleImport('gitlabId');
+  await waitAndUpdate(wrapper);
+
+  expect(wrapper.state().tokenIsValid).toBe(false);
 });
 
 function shallowRender(props: Partial<GitlabProjectCreate['props']> = {}) {

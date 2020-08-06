@@ -111,7 +111,6 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
         });
       } else {
         this.setState({
-          tokenIsValid,
           loading: false
         });
       }
@@ -128,34 +127,54 @@ export default class GitlabProjectCreate extends React.PureComponent<Props, Stat
     return checkPersonalAccessTokenIsValid(settings.key).catch(() => false);
   };
 
-  fetchProjects = (pageIndex = 1, query?: string) => {
+  handleError = () => {
+    if (this.mounted) {
+      this.setState({ tokenIsValid: false });
+    }
+
+    return undefined;
+  };
+
+  fetchProjects = async (pageIndex = 1, query?: string) => {
     const { settings } = this.state;
 
     if (!settings) {
       return Promise.resolve(undefined);
     }
 
-    return getGitlabProjects({
-      almSetting: settings.key,
-      page: pageIndex,
-      pageSize: GITLAB_PROJECTS_PAGESIZE,
-      query
-    }).catch(() => undefined);
+    try {
+      return await getGitlabProjects({
+        almSetting: settings.key,
+        page: pageIndex,
+        pageSize: GITLAB_PROJECTS_PAGESIZE,
+        query
+      });
+    } catch (_) {
+      return this.handleError();
+    }
   };
 
-  handleImport = async (gitlabProjectId: string) => {
+  doImport = async (gitlabProjectId: string) => {
     const { settings } = this.state;
 
     if (!settings) {
-      return;
+      return Promise.resolve(undefined);
     }
 
+    try {
+      return await importGitlabProject({
+        almSetting: settings.key,
+        gitlabProjectId
+      });
+    } catch (_) {
+      return this.handleError();
+    }
+  };
+
+  handleImport = async (gitlabProjectId: string) => {
     this.setState({ importingGitlabProjectId: gitlabProjectId });
 
-    const result = await importGitlabProject({
-      almSetting: settings.key,
-      gitlabProjectId
-    }).catch(() => undefined);
+    const result = await this.doImport(gitlabProjectId);
 
     if (this.mounted) {
       this.setState({ importingGitlabProjectId: undefined });
