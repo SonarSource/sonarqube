@@ -25,7 +25,7 @@ To view/install plugin updates, your SonarQube server needs internet access. Ins
 
 ## Pending Operations
 
-When you perform an action in the Markplace (install, update or uninstall a plugin), a yellow banner appears at the top of the page showing pending operations that will be executed once SonarQube is restarted. Pending operations can be canceled until the server is restarted.
+When you perform an action in the Marketplace (install, update, or uninstall a plugin), a yellow banner appears at the top of the page showing pending operations that will be executed once SonarQube is restarted. Pending operations can be canceled until the server is restarted.
 
 ## Restart SonarQube
 Restarting SonarQube can be done manually from the command line by running `sonar.sh restart` or directly from the UI:
@@ -34,11 +34,14 @@ Restarting SonarQube can be done manually from the command line by running `sona
 * in the System Info page at any time
 
 ## Manual Updates
-If your server has no access to the internet, you won't be able to rely on the Marketplace for plugins, and will have to handle plugin installations and upgrades manually.
+If your server doesn't have internet access, you won't be able to rely on the Marketplace for plugins, and will have to handle plugin installations and upgrades manually.
 
 To see what plugins are available and which version of a plugin is appropriate for your server, use the [plugin version matrix](/instance-administration/plugin-version-matrix/), which is kept up to date with current plugin availability and compatibility.
 
 To install a plugin, simply download it using the manual download link on the plugin documentation page, place it in _$SONARQUBE-HOME/extensions/downloads_, and restart the server.
+
+### Stopping the Marketplace from searching for plugin updates
+Your SonarQube server needs internet access for the Marketplace to search for plugin updates. If your server doesn't have internet access, you may get errors in your logs when the Marketplace tries to search for new plugins. You can stop this by updating `sonar.updatecenter.activate` in `$SONARQUBE-HOME/conf/sonar.properties`.
 
 ## Which URLs does the Marketplace connect to?
 The SonarQube Marketplace connects to https://update.sonarsource.org/ to get the list of plugins. Most of the referenced plugins are downloaded from:
