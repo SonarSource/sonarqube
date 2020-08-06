@@ -41,10 +41,7 @@ export default function CodeSnippet(props: CodeSnippetProps) {
   }
 
   return (
-    <div
-      className={classNames('code-snippet spacer-top spacer-bottom display-flex-row', {
-        'code-snippet-oneline': isOneLine
-      })}>
+    <div className={classNames('code-snippet spacer-top spacer-bottom display-flex-row', {})}>
       <pre className="flex-1" ref={snippetRef}>
         {finalSnippet}
       </pre>

@@ -30,7 +30,7 @@
 }
 
 .code-snippet > button {
-  height: 36px;
+  height: auto;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -42,8 +42,4 @@
 .code-snippet > button:active {
   background-color: var(--transparentGray);
   color: var(--darkBlue);
-}
-
-.code-snippet-oneline > button {
-  height: auto;
 }

@@ -49,7 +49,7 @@ bar
 
 exports[`renders correctly: single line with array snippet 1`] = `
 <div
-  className="code-snippet spacer-top spacer-bottom display-flex-row code-snippet-oneline"
+  className="code-snippet spacer-top spacer-bottom display-flex-row"
 >
   <pre
     className="flex-1"
