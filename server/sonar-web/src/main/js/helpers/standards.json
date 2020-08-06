@@ -3620,6 +3620,9 @@
     }
   },
   "sonarsourceSecurity": {
+    "buffer-overflow": {
+      "title": "Buffer Overflow"
+    },
     "sql-injection": {
       "title": "SQL Injection"
     },

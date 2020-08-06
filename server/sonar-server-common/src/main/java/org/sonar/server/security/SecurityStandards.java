@@ -90,6 +90,7 @@ public final class SecurityStandards {
   }
 
   public enum SQCategory {
+    BUFFER_OVERFLOW("buffer-overflow", HIGH),
     SQL_INJECTION("sql-injection", HIGH),
     COMMAND_INJECTION("command-injection", HIGH),
     PATH_TRAVERSAL_INJECTION("path-traversal-injection", HIGH),
@@ -134,6 +135,7 @@ public final class SecurityStandards {
   }
 
   public static final Map<SQCategory, Set<String>> CWES_BY_SQ_CATEGORY = ImmutableMap.<SQCategory, Set<String>>builder()
+    .put(SQCategory.BUFFER_OVERFLOW, ImmutableSet.of("119", "120", "131", "676", "788"))
     .put(SQCategory.SQL_INJECTION, ImmutableSet.of("89", "564"))
     .put(SQCategory.COMMAND_INJECTION, ImmutableSet.of("77", "78", "88", "214"))
     .put(SQCategory.PATH_TRAVERSAL_INJECTION, ImmutableSet.of("22"))
