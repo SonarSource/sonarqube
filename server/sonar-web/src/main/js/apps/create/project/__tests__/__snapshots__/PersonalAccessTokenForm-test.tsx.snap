@@ -5,6 +5,7 @@ exports[`should render correctly: bitbucket 1`] = `
   className="display-flex-start"
 >
   <form
+    className="width-50"
     onSubmit={[Function]}
   >
     <h2
@@ -46,7 +47,7 @@ exports[`should render correctly: bitbucket 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left big-spacer-top"
+    className="big-spacer-left huge-spacer-top width-50"
     display="block"
     variant="info"
   >
@@ -125,6 +126,7 @@ exports[`should render correctly: gitlab 1`] = `
   className="display-flex-start"
 >
   <form
+    className="width-50"
     onSubmit={[Function]}
   >
     <h2
@@ -166,7 +168,7 @@ exports[`should render correctly: gitlab 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left big-spacer-top"
+    className="big-spacer-left huge-spacer-top width-50"
     display="block"
     variant="info"
   >
@@ -226,6 +228,7 @@ exports[`should render correctly: gitlab with non-standard api path 1`] = `
   className="display-flex-start"
 >
   <form
+    className="width-50"
     onSubmit={[Function]}
   >
     <h2
@@ -267,7 +270,7 @@ exports[`should render correctly: gitlab with non-standard api path 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left big-spacer-top"
+    className="big-spacer-left huge-spacer-top width-50"
     display="block"
     variant="info"
   >
@@ -327,6 +330,7 @@ exports[`should render correctly: submitting 1`] = `
   className="display-flex-start"
 >
   <form
+    className="width-50"
     onSubmit={[Function]}
   >
     <h2
@@ -368,7 +372,7 @@ exports[`should render correctly: submitting 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left big-spacer-top"
+    className="big-spacer-left huge-spacer-top width-50"
     display="block"
     variant="info"
   >
@@ -447,6 +451,7 @@ exports[`should render correctly: validation failed 1`] = `
   className="display-flex-start"
 >
   <form
+    className="width-50"
     onSubmit={[Function]}
   >
     <h2
@@ -460,7 +465,7 @@ exports[`should render correctly: validation failed 1`] = `
       onboarding.create_project.pat_form.help.bitbucket
     </p>
     <ValidationInput
-      error="onboarding.create_project.pat_incorrect"
+      error="onboarding.create_project.pat_incorrect.bitbucket"
       id="personal_access_token"
       isInvalid={true}
       isValid={false}
@@ -489,7 +494,7 @@ exports[`should render correctly: validation failed 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left big-spacer-top"
+    className="big-spacer-left huge-spacer-top width-50"
     display="block"
     variant="info"
   >

@@ -63,6 +63,7 @@ export default function PersonalAccessTokenForm(props: PersonalAccessTokenFormPr
   return (
     <div className="display-flex-start">
       <form
+        className="width-50"
         onSubmit={(e: React.SyntheticEvent<HTMLFormElement>) => {
           e.preventDefault();
           const value = new FormData(e.currentTarget).get('personal_access_token') as string;
@@ -74,7 +75,7 @@ export default function PersonalAccessTokenForm(props: PersonalAccessTokenFormPr
         </p>
 
         <ValidationInput
-          error={isInvalid ? translate('onboarding.create_project.pat_incorrect') : undefined}
+          error={isInvalid ? translate('onboarding.create_project.pat_incorrect', alm) : undefined}
           id="personal_access_token"
           isInvalid={isInvalid}
           isValid={false}
@@ -101,7 +102,7 @@ export default function PersonalAccessTokenForm(props: PersonalAccessTokenFormPr
         <DeferredSpinner className="spacer-left" loading={submitting} />
       </form>
 
-      <Alert className="big-spacer-left big-spacer-top" display="block" variant="info">
+      <Alert className="big-spacer-left huge-spacer-top width-50" display="block" variant="info">
         <h3>{translate('onboarding.create_project.pat_help.title')}</h3>
 
         <p className="big-spacer-top big-spacer-bottom">
