@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { State } from './components/App';
-import { allLocationsEmpty } from './utils';
 
 export function enableLocationsNavigator(state: State) {
   const { openIssue, selectedLocationIndex } = state;
@@ -26,15 +25,13 @@ export function enableLocationsNavigator(state: State) {
     const selectedFlowIndex =
       state.selectedFlowIndex || (openIssue.flows.length > 0 ? 0 : undefined);
 
-    if (!allLocationsEmpty(openIssue, selectedFlowIndex)) {
-      return {
-        locationsNavigator: true,
-        selectedFlowIndex,
-        // Also reset index = -1 to 0, we don't want to start on the issue when enabling the location navigator
-        selectedLocationIndex:
-          !selectedLocationIndex || selectedLocationIndex < 0 ? 0 : selectedLocationIndex
-      };
-    }
+    return {
+      locationsNavigator: true,
+      selectedFlowIndex,
+      // Also reset index = -1 to 0, we don't want to start on the issue when enabling the location navigator
+      selectedLocationIndex:
+        !selectedLocationIndex || selectedLocationIndex < 0 ? 0 : selectedLocationIndex
+    };
   }
   return null;
 }
