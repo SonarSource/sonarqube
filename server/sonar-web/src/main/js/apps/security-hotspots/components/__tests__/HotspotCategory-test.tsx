@@ -23,7 +23,7 @@ import { mockRawHotspot } from '../../../../helpers/mocks/security-hotspots';
 import HotspotCategory, { HotspotCategoryProps } from '../HotspotCategory';
 
 it('should render correctly', () => {
-  expect(shallowRender()).toMatchSnapshot('empty');
+  expect(shallowRender().type()).toBeNull();
 });
 
 it('should render correctly with hotspots', () => {
@@ -37,6 +37,9 @@ it('should render correctly with hotspots', () => {
   expect(
     shallowRender({ categoryKey: securityCategory, hotspots, selectedHotspot: hotspots[0] })
   ).toMatchSnapshot('contains selected');
+  expect(shallowRender({ hotspots, isLastAndIncomplete: true })).toMatchSnapshot(
+    'lastAndIncomplete'
+  );
 });
 
 it('should handle collapse and expand', () => {
@@ -71,6 +74,7 @@ function shallowRender(props: Partial<HotspotCategoryProps> = {}) {
       onToggleExpand={jest.fn()}
       selectedHotspot={mockRawHotspot()}
       title="Class Injection"
+      isLastAndIncomplete={false}
       {...props}
     />
   );

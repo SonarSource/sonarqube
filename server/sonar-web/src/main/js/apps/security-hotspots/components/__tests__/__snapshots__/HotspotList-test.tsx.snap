@@ -129,6 +129,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
                 },
               ]
             }
+            isLastAndIncomplete={false}
             onHotspotClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
@@ -176,6 +177,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
                 },
               ]
             }
+            isLastAndIncomplete={false}
             onHotspotClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
@@ -258,6 +260,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
                 },
               ]
             }
+            isLastAndIncomplete={false}
             onHotspotClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
@@ -305,6 +308,7 @@ exports[`should render correctly with hotspots: no pagination 1`] = `
                 },
               ]
             }
+            isLastAndIncomplete={false}
             onHotspotClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
@@ -397,6 +401,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
                 },
               ]
             }
+            isLastAndIncomplete={false}
             onHotspotClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
@@ -444,6 +449,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
                 },
               ]
             }
+            isLastAndIncomplete={false}
             onHotspotClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
@@ -526,6 +532,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
                 },
               ]
             }
+            isLastAndIncomplete={false}
             onHotspotClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={
@@ -573,6 +580,7 @@ exports[`should render correctly with hotspots: pagination 1`] = `
                 },
               ]
             }
+            isLastAndIncomplete={true}
             onHotspotClick={[MockFunction]}
             onToggleExpand={[Function]}
             selectedHotspot={

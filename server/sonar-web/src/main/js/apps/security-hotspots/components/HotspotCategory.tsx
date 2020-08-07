@@ -32,10 +32,11 @@ export interface HotspotCategoryProps {
   onToggleExpand: (categoryKey: string, value: boolean) => void;
   selectedHotspot: RawHotspot;
   title: string;
+  isLastAndIncomplete: boolean;
 }
 
 export default function HotspotCategory(props: HotspotCategoryProps) {
-  const { categoryKey, expanded, hotspots, selectedHotspot, title } = props;
+  const { categoryKey, expanded, hotspots, selectedHotspot, title, isLastAndIncomplete } = props;
 
   if (hotspots.length < 1) {
     return null;
@@ -54,7 +55,10 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
         onClick={() => props.onToggleExpand(categoryKey, !expanded)}>
         <strong className="flex-1">{title}</strong>
         <span>
-          <span className="counter-badge">{hotspots.length}</span>
+          <span className="counter-badge">
+            {hotspots.length}
+            {isLastAndIncomplete && '+'}
+          </span>
           {expanded ? (
             <ChevronUpIcon className="big-spacer-left" />
           ) : (

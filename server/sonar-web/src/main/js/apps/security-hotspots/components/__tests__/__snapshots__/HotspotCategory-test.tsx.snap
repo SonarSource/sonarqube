@@ -192,4 +192,85 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
 </div>
 `;
 
-exports[`should render correctly: empty 1`] = `""`;
+exports[`should render correctly with hotspots: lastAndIncomplete 1`] = `
+<div
+  className="hotspot-category HIGH"
+>
+  <a
+    className="hotspot-category-header display-flex-space-between display-flex-center"
+    href="#"
+    onClick={[Function]}
+  >
+    <strong
+      className="flex-1"
+    >
+      Class Injection
+    </strong>
+    <span>
+      <span
+        className="counter-badge"
+      >
+        2
+        +
+      </span>
+      <ChevronUpIcon
+        className="big-spacer-left"
+      />
+    </span>
+  </a>
+  <ul>
+    <li
+      data-hotspot-key="h1"
+      key="h1"
+    >
+      <HotspotListItem
+        hotspot={
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h1",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": undefined,
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "TO_REVIEW",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          }
+        }
+        onClick={[MockFunction]}
+        selected={false}
+      />
+    </li>
+    <li
+      data-hotspot-key="h2"
+      key="h2"
+    >
+      <HotspotListItem
+        hotspot={
+          Object {
+            "author": "Developer 1",
+            "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+            "creationDate": "2013-05-13T17:55:39+0200",
+            "key": "h2",
+            "line": 81,
+            "message": "'3' is a magic number.",
+            "project": "com.github.kevinsawicki:http-request",
+            "resolution": undefined,
+            "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+            "securityCategory": "command-injection",
+            "status": "TO_REVIEW",
+            "updateDate": "2013-05-13T17:55:39+0200",
+            "vulnerabilityProbability": "HIGH",
+          }
+        }
+        onClick={[MockFunction]}
+        selected={false}
+      />
+    </li>
+  </ul>
+</div>
+`;
