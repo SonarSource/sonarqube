@@ -433,22 +433,31 @@ public class IssueIndex {
     filters.addFilter(
       FIELD_ISSUE_ORGANIZATION_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_ORGANIZATION_UUID),
       createTermFilter(FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
-    filters.addFilter(
-      FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10.getFilterScope(),
-      createTermsFilter(FIELD_ISSUE_OWASP_TOP_10, query.owaspTop10()));
-    filters.addFilter(
-      FIELD_ISSUE_SANS_TOP_25, SANS_TOP_25.getFilterScope(),
-      createTermsFilter(FIELD_ISSUE_SANS_TOP_25, query.sansTop25()));
-    filters.addFilter(FIELD_ISSUE_CWE, CWE.getFilterScope(), createTermsFilter(FIELD_ISSUE_CWE, query.cwe()));
+
+    // security category
+    addSecurityCategoryFilter(FIELD_ISSUE_OWASP_TOP_10, OWASP_TOP_10, query.owaspTop10(), filters);
+    addSecurityCategoryFilter(FIELD_ISSUE_SANS_TOP_25, SANS_TOP_25, query.sansTop25(), filters);
+    addSecurityCategoryFilter(FIELD_ISSUE_CWE, CWE, query.cwe(), filters);
+    addSecurityCategoryFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, SONARSOURCE_SECURITY, query.sonarsourceSecurity(), filters);
+
     addSeverityFilter(query, filters);
-    filters.addFilter(
-      FIELD_ISSUE_SQ_SECURITY_CATEGORY, SONARSOURCE_SECURITY.getFilterScope(),
-      createTermsFilter(FIELD_ISSUE_SQ_SECURITY_CATEGORY, query.sonarsourceSecurity()));
 
     addComponentRelatedFilters(query, filters);
     addDatesFilter(filters, query);
     addCreatedAfterByProjectsFilter(filters, query);
     return filters;
+  }
+
+  private static void addSecurityCategoryFilter(String fieldName, Facet facet, Collection<String> values, AllFilters allFilters) {
+    QueryBuilder securityCategoryFilter = createTermsFilter(fieldName, values);
+    if (securityCategoryFilter != null) {
+      allFilters.addFilter(
+        fieldName,
+        facet.getFilterScope(),
+        boolQuery()
+          .must(securityCategoryFilter)
+          .must(termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name())));
+    }
   }
 
   private static void addSeverityFilter(IssueQuery query, AllFilters allFilters) {
@@ -659,10 +668,12 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, AUTHOR, query.authors().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TAGS, query.tags().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, TYPES, query.types().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, OWASP_TOP_10, query.owaspTop10().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, SANS_TOP_25, query.sansTop25().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, CWE, query.cwe().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, SONARSOURCE_SECURITY, query.sonarsourceSecurity().toArray());
+
+    addSecurityCategoryFacetIfNeeded(PARAM_OWASP_TOP_10, OWASP_TOP_10, options, aggregationHelper, esRequest, query.owaspTop10().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_SANS_TOP_25, SANS_TOP_25, options, aggregationHelper, esRequest, query.sansTop25().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_CWE, CWE, options, aggregationHelper, esRequest, query.cwe().toArray());
+    addSecurityCategoryFacetIfNeeded(PARAM_SONARSOURCE_SECURITY, SONARSOURCE_SECURITY, options, aggregationHelper, esRequest, query.sonarsourceSecurity().toArray());
+
     addSeverityFacetIfNeeded(options, aggregationHelper, esRequest);
     addResolutionFacetIfNeeded(options, query, aggregationHelper, esRequest);
     addAssigneesFacetIfNeeded(options, query, aggregationHelper, esRequest);
@@ -683,6 +694,20 @@ public class IssueIndex {
       t -> aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(facet.getName(), facet.getTopAggregationDef(), selectedValues)
         .ifPresent(t::subAggregation));
     esRequest.addAggregation(topAggregation);
+  }
+
+  private static void addSecurityCategoryFacetIfNeeded(String param, Facet facet, SearchOptions options, TopAggregationHelper aggregationHelper, SearchRequestBuilder esRequest,
+    Object[] selectedValues) {
+    if (!options.getFacets().contains(param)) {
+      return;
+    }
+
+    AggregationBuilder aggregation = aggregationHelper.buildTermTopAggregation(
+      facet.getName(), facet.getTopAggregationDef(), facet.getNumberOfTerms(),
+      filter -> filter.must(termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name())),
+      t -> aggregationHelper.getSubAggregationHelper().buildSelectedItemsAggregation(facet.getName(), facet.getTopAggregationDef(), selectedValues)
+        .ifPresent(t::subAggregation));
+    esRequest.addAggregation(aggregation);
   }
 
   private static void addSeverityFacetIfNeeded(SearchOptions options, TopAggregationHelper aggregationHelper, SearchRequestBuilder esRequest) {

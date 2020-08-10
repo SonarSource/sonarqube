@@ -77,10 +77,13 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
 import static org.sonar.server.es.EsUtils.optimizeScrollRequest;
 import static org.sonar.server.es.EsUtils.scrollIds;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
+import static org.sonar.server.es.StickyFacetBuilder.FACET_DEFAULT_SIZE;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER;
@@ -281,22 +284,30 @@ public class RuleIndex {
 
     if (isNotEmpty(query.getCwe())) {
       filters.put(FIELD_RULE_CWE,
-        QueryBuilders.termsQuery(FIELD_RULE_CWE, query.getCwe()));
+        boolQuery()
+          .must(QueryBuilders.termsQuery(FIELD_RULE_CWE, query.getCwe()))
+          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
 
     if (isNotEmpty(query.getOwaspTop10())) {
       filters.put(FIELD_RULE_OWASP_TOP_10,
-        QueryBuilders.termsQuery(FIELD_RULE_OWASP_TOP_10, query.getOwaspTop10()));
+        boolQuery()
+          .must(QueryBuilders.termsQuery(FIELD_RULE_OWASP_TOP_10, query.getOwaspTop10()))
+          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
 
     if (isNotEmpty(query.getSansTop25())) {
       filters.put(FIELD_RULE_SANS_TOP_25,
-        QueryBuilders.termsQuery(FIELD_RULE_SANS_TOP_25, query.getSansTop25()));
+        boolQuery()
+          .must(QueryBuilders.termsQuery(FIELD_RULE_SANS_TOP_25, query.getSansTop25()))
+          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
 
     if (isNotEmpty(query.getSonarsourceSecurity())) {
       filters.put(FIELD_RULE_SONARSOURCE_SECURITY,
-        QueryBuilders.termsQuery(FIELD_RULE_SONARSOURCE_SECURITY, query.getSonarsourceSecurity()));
+        boolQuery()
+          .must(QueryBuilders.termsQuery(FIELD_RULE_SONARSOURCE_SECURITY, query.getSonarsourceSecurity()))
+          .must(QueryBuilders.termsQuery(FIELD_RULE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
 
     if (StringUtils.isNotEmpty(query.getKey())) {
@@ -484,30 +495,43 @@ public class RuleIndex {
     addDefaultSecurityFacets(query, options, aggregations, stickyFacetBuilder);
   }
 
+  private static Function<TermsAggregationBuilder, AggregationBuilder> filterSecurityCategories() {
+    return termsAggregation -> AggregationBuilders.filter(
+      "filter_by_rule_types_" + termsAggregation.getName(),
+      termsQuery(FIELD_RULE_TYPE,
+        VULNERABILITY.name(),
+        SECURITY_HOTSPOT.name()))
+      .subAggregation(termsAggregation);
+  }
+
   private static void addDefaultSecurityFacets(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations,
     StickyFacetBuilder stickyFacetBuilder) {
     if (options.getFacets().contains(FACET_CWE)) {
       Collection<String> categories = query.getCwe();
       aggregations.put(FACET_CWE,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_CWE, FACET_CWE,
+          FACET_DEFAULT_SIZE, filterSecurityCategories(),
           (categories == null) ? (new String[0]) : categories.toArray()));
     }
     if (options.getFacets().contains(FACET_OWASP_TOP_10)) {
       Collection<String> categories = query.getOwaspTop10();
       aggregations.put(FACET_OWASP_TOP_10,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_OWASP_TOP_10, FACET_OWASP_TOP_10,
+          FACET_DEFAULT_SIZE, filterSecurityCategories(),
           (categories == null) ? (new String[0]) : categories.toArray()));
     }
     if (options.getFacets().contains(FACET_SANS_TOP_25)) {
       Collection<String> categories = query.getSansTop25();
       aggregations.put(FACET_SANS_TOP_25,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_SANS_TOP_25, FACET_SANS_TOP_25,
+          FACET_DEFAULT_SIZE, filterSecurityCategories(),
           (categories == null) ? (new String[0]) : categories.toArray()));
     }
     if (options.getFacets().contains(FACET_SONARSOURCE_SECURITY)) {
       Collection<String> categories = query.getSonarsourceSecurity();
       aggregations.put(FACET_SONARSOURCE_SECURITY,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_SONARSOURCE_SECURITY, FACET_SONARSOURCE_SECURITY,
+          FACET_DEFAULT_SIZE, filterSecurityCategories(),
           (categories == null) ? (new String[0]) : categories.toArray()));
     }
   }

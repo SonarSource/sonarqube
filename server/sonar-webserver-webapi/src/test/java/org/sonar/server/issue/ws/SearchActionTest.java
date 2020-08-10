@@ -824,6 +824,110 @@ public class SearchActionTest {
   }
 
   @Test
+  public void only_vulnerabilities_are_returned_by_cwe() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<RuleDefinitionDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
+    indexPermissions();
+    indexIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("cwe", "20")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+  }
+
+  @Test
+  public void only_vulnerabilities_are_returned_by_owasp() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<RuleDefinitionDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1"))
+      .setSystemTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("bad-practice", "cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
+    indexPermissions();
+    indexIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("owaspTop10", "a1")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+  }
+
+  @Test
+  public void only_vulnerabilities_are_returned_by_sansTop25() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<RuleDefinitionDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:266", "cwe:732", "owaspTop10:a5"))
+      .setSystemTags(Sets.newHashSet("cert", "cwe", "owasp-a5", "sans-top25-porous"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("cert", "cwe", "owasp-a5", "sans-top25-porous"));
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
+    indexPermissions();
+    indexIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("sansTop25", "porous-defenses")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+  }
+
+  @Test
+  public void only_vulnerabilities_are_returned_by_sonarsource_security() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    Consumer<RuleDefinitionDto> ruleConsumer = ruleDefinitionDto -> ruleDefinitionDto
+      .setSecurityStandards(Sets.newHashSet("cwe:20", "cwe:564", "cwe:89", "cwe:943", "owaspTop10:a1"))
+      .setSystemTags(Sets.newHashSet("cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    Consumer<IssueDto> issueConsumer = issueDto -> issueDto.setTags(Sets.newHashSet("cwe", "owasp-a1", "sans-top25-insecure", "sql"));
+    RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
+    db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
+    RuleDefinitionDto issueRule = db.rules().insertIssueRule(ruleConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto3 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(CODE_SMELL));
+    indexPermissions();
+    indexIssues();
+
+    SearchWsResponse result = ws.newRequest()
+      .setParam("sonarsourceSecurity", "sql-injection")
+      .executeProtobuf(SearchWsResponse.class);
+
+    assertThat(result.getIssuesList())
+      .extracting(Issue::getKey)
+      .containsExactlyInAnyOrder(issueDto1.getKey(), issueDto2.getKey());
+  }
+
+  @Test
   public void security_hotspots_are_not_returned_by_default() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
@@ -875,8 +979,8 @@ public class SearchActionTest {
     RuleDefinitionDto hotspotRule = db.rules().insertHotspotRule(ruleConsumer);
     db.issues().insertHotspot(hotspotRule, project, file, issueConsumer);
     RuleDefinitionDto issueRule = db.rules().insertIssueRule(ruleConsumer);
-    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer);
-    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer);
+    IssueDto issueDto1 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
+    IssueDto issueDto2 = db.issues().insertIssue(issueRule, project, file, issueConsumer, issueDto -> issueDto.setType(RuleType.VULNERABILITY));
     indexPermissions();
     indexIssues();
 

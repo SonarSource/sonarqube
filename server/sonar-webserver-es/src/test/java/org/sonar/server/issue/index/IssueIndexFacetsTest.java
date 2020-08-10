@@ -24,8 +24,9 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -36,6 +37,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.permission.index.IndexPermissions;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
@@ -167,6 +169,70 @@ public class IssueIndexFacetsTest {
 
     assertThatFacetHasSize(IssueQuery.builder().build(), "directories", 100);
     assertThatFacetHasSize(IssueQuery.builder().directories(asList(issue1.directoryPath(), issue2.directoryPath())).build(), "directories", 102);
+  }
+
+  @Test
+  public void facets_on_cwe() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setCwe(asList("20", "564", "89", "943")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setCwe(asList("943")),
+      newDoc("I3", file));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "cwe",
+      entry("943", 2L),
+      entry("20", 1L),
+      entry("564", 1L),
+      entry("89", 1L));
+  }
+
+  @Test
+  public void facets_on_owaspTop10() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspTop10(asList("a1", "a2")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setOwaspTop10(singletonList("a3")),
+      newDoc("I3", file));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "owaspTop10",
+      entry("a1", 1L),
+      entry("a2", 1L),
+      entry("a3", 1L));
+  }
+
+  @Test
+  public void facets_on_sansTop25() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setSansTop25(asList("porous-defenses", "risky-resource", "insecure-interaction")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setSansTop25(singletonList("porous-defenses")),
+      newDoc("I3", file));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "sansTop25",
+      entry("insecure-interaction", 1L),
+      entry("porous-defenses", 2L),
+      entry("risky-resource", 1L));
+  }
+
+  @Test
+  public void facets_on_sonarSourceSecurity() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.BUFFER_OVERFLOW),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.DOS),
+      newDoc("I3", file));
+
+    assertThatFacetHasOnly(IssueQuery.builder(), "sonarsourceSecurity",
+      entry("buffer-overflow", 1L),
+      entry("dos", 1L));
   }
 
   @Test

@@ -31,6 +31,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -59,6 +60,7 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.rules.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.db.rule.RuleTesting.setCreatedAt;
 import static org.sonar.db.rule.RuleTesting.setIsExternal;
@@ -455,10 +457,10 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void search_by_security_cwe() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("cwe:543", "cwe:123", "owaspTop10:a1")));
-    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("cwe:543", "owaspTop10:a1")));
-    createRule(setSecurityStandards(of("owaspTop10:a1")));
+  public void search_by_security_cwe_return_vulnerabilities_and_hotspots_only() {
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("cwe:543", "cwe:123", "owaspTop10:a1")), r -> r.setType(VULNERABILITY));
+    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("cwe:543", "owaspTop10:a1")), r -> r.setType(SECURITY_HOTSPOT));
+    createRule(setSecurityStandards(of("owaspTop10:a1")), r -> r.setType(CODE_SMELL));
     index();
 
     RuleQuery query = new RuleQuery().setCwe(of("543"));
@@ -467,10 +469,10 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void search_by_security_owaspTop10() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:543")));
-    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:543")));
-    createRule(setSecurityStandards(of("cwe:543")));
+  public void search_by_security_owaspTop10_return_vulnerabilities_and_hotspots_only() {
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:543")), r -> r.setType(VULNERABILITY));
+    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:543")), r -> r.setType(SECURITY_HOTSPOT));
+    createRule(setSecurityStandards(of("cwe:543")), r -> r.setType(CODE_SMELL));
     index();
 
     RuleQuery query = new RuleQuery().setOwaspTop10(of("a5", "a10"));
@@ -479,10 +481,10 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void search_by_security_sansTop25() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")));
-    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")));
-    createRule(setSecurityStandards(of("cwe:306")));
+  public void search_by_security_sansTop25_return_vulnerabilities_and_hotspots_only() {
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
+    RuleDefinitionDto rule2 = createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")), r -> r.setType(SECURITY_HOTSPOT));
+    createRule(setSecurityStandards(of("cwe:306")), r -> r.setType(CODE_SMELL));
     index();
 
     RuleQuery query = new RuleQuery().setSansTop25(of(SANS_TOP_25_INSECURE_INTERACTION, SANS_TOP_25_RISKY_RESOURCE));
@@ -491,10 +493,10 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void search_by_security_sonarsource() {
-    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")));
-    createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")));
-    RuleDefinitionDto rule3 = createRule(setSecurityStandards(of("cwe:601")));
+  public void search_by_security_sonarsource_return_vulnerabilities_and_hotspots_only() {
+    RuleDefinitionDto rule1 = createRule(setSecurityStandards(of("owaspTop10:a1", "owaspTop10:a10", "cwe:89")), r -> r.setType(VULNERABILITY));
+    createRule(setSecurityStandards(of("owaspTop10:a10", "cwe:829")), r -> r.setType(CODE_SMELL));
+    RuleDefinitionDto rule3 = createRule(setSecurityStandards(of("cwe:601")), r -> r.setType(SECURITY_HOTSPOT));
     index();
 
     RuleQuery query = new RuleQuery().setSonarsourceSecurity(of("sql-injection", "open-redirect"));

@@ -32,6 +32,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -42,6 +43,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.permission.index.IndexPermissions;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.security.SecurityStandards.SQCategory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexer;
@@ -738,6 +740,58 @@ public class IssueIndexFiltersTest {
     // conflict
     query = IssueQuery.builder().organizationUuid(org1.getUuid()).projectUuids(singletonList(projectInOrg2.uuid()));
     assertThatSearchReturnsEmpty(query);
+  }
+
+  @Test
+  public void filter_by_cwe() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setCwe(asList("20", "564", "89", "943")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setCwe(asList("943")),
+      newDoc("I3", file));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().cwe(asList("20")), "I1");
+  }
+
+  @Test
+  public void filter_by_owaspTop10() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setOwaspTop10(asList("a1", "a2")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setCwe(singletonList("a3")),
+      newDoc("I3", file));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().owaspTop10(asList("a1")), "I1");
+  }
+
+  @Test
+  public void filter_by_sansTop25() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setSansTop25(asList("porous-defenses", "risky-resource", "insecure-interaction")),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setSansTop25(singletonList("porous-defenses")),
+      newDoc("I3", file));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().sansTop25(asList("risky-resource")), "I1");
+  }
+
+  @Test
+  public void filter_by_sonarSecurity() {
+    ComponentDto project = newPrivateProjectDto(newOrganizationDto());
+    ComponentDto file = newFileDto(project, null);
+
+    indexIssues(
+      newDoc("I1", file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.BUFFER_OVERFLOW),
+      newDoc("I2", file).setType(RuleType.VULNERABILITY).setSonarSourceSecurityCategory(SQCategory.DOS),
+      newDoc("I3", file));
+
+    assertThatSearchReturnsOnly(IssueQuery.builder().sonarsourceSecurity(singletonList("buffer-overflow")), "I1");
   }
 
   private void verifyOrganizationFilter(String organizationUuid, String... expectedIssueKeys) {

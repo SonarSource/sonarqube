@@ -43,7 +43,7 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 public class StickyFacetBuilder {
 
   private static final int FACET_DEFAULT_MIN_DOC_COUNT = 1;
-  private static final int FACET_DEFAULT_SIZE = 10;
+  public static final int FACET_DEFAULT_SIZE = 10;
   private static final BucketOrder FACET_DEFAULT_ORDER = BucketOrder.count(false);
   /** In some cases the user selects >15 items for one facet. In that case, we want to calculate the doc count for all of them (not just the first 15 items, which would be the
    * default for the TermsAggregation). */
@@ -67,7 +67,7 @@ public class StickyFacetBuilder {
   }
 
   public AggregationBuilder buildStickyFacet(String fieldName, String facetName, Object... selected) {
-    return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE,  t -> t, selected);
+    return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE, t -> t, selected);
   }
 
   public AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Object... selected) {
