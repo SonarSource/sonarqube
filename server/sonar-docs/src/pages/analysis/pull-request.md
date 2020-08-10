@@ -24,7 +24,10 @@ Pull Request analyses on SonarQube are deleted automatically after 30 days with 
 
 ## Analysis Parameters
 
-These parameters enable PR analysis:
+The following parameters enable PR analysis.
+
+[[info]]
+| Scanners running on Jenkins with the Branch Source plugin configured, GitLab CI/CD, and Cirrus CI automatically detect these parameters, and you don't need to pass them manually.
 
 | Parameter Name        | Description |
 | --------------------- | ---------------------------------- |
