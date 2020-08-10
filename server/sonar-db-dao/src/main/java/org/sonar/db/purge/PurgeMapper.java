@@ -139,8 +139,6 @@ public interface PurgeMapper {
 
   void deleteProjectMappingsByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  void deleteProjectAlmBindingsByProjectUuid(@Param("projectUuid") String projectUuid);
-
   void deleteBranchByUuid(@Param("uuid") String uuid);
 
   void deleteLiveMeasuresByProjectUuid(@Param("projectUuid") String projectUuid);

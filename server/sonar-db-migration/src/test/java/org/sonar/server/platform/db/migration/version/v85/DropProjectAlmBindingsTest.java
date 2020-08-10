@@ -19,16 +19,35 @@
  */
 package org.sonar.server.platform.db.migration.version.v85;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class DbVersion85 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(4000, "Delete 'project_alm_settings' orphans", DeleteProjectAlmSettingsOrphans.class)
-      .add(4001, "Drop 'period', 'value_warning' columns from 'quality_gates_conditions' table", DropPeriodAndValueWarningColumnsFromQualityGateConditionsTable.class)
-      .add(4001, "Drop 'project_alm_bindings' table", DropProjectAlmBindings.class)
-    ;
+public class DropProjectAlmBindingsTest {
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropProjectAlmBindingsTest.class, "schema.sql");
+
+  private MigrationStep underTest = new DropProjectAlmBindings(db.database());
+
+  @Test
+  public void drops_table() throws SQLException {
+    insertData();
+    db.assertTableExists("project_alm_bindings");
+    underTest.execute();
+    db.assertTableDoesNotExist("project_alm_bindings");
+  }
+
+  private void insertData() {
+    db.executeInsert("project_alm_bindings",
+      "uuid", "uuid1",
+      "alm_id", "alm1",
+      "repo_id", "repo1",
+      "project_uuid", "project1",
+      "url", "url1",
+      "created_at", 123L,
+      "updated_at", 456L
+    );
   }
 }

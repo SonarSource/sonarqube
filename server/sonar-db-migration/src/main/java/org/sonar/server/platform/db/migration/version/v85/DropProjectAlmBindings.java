@@ -19,16 +19,22 @@
  */
 package org.sonar.server.platform.db.migration.version.v85;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.sql.DropTableBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion85 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(4000, "Delete 'project_alm_settings' orphans", DeleteProjectAlmSettingsOrphans.class)
-      .add(4001, "Drop 'period', 'value_warning' columns from 'quality_gates_conditions' table", DropPeriodAndValueWarningColumnsFromQualityGateConditionsTable.class)
-      .add(4001, "Drop 'project_alm_bindings' table", DropProjectAlmBindings.class)
-    ;
+public class DropProjectAlmBindings extends DdlChange {
+  private static final String TABLE_NAME = "project_alm_bindings";
+
+  public DropProjectAlmBindings(Database db) {
+    super(db);
+  }
+
+  @Override public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("project_alm_bindings_alm_repo").build());
+    context.execute(new DropIndexBuilder(getDialect()).setTable(TABLE_NAME).setName("project_alm_bindings_project").build());
+    context.execute(new DropTableBuilder(getDialect(), TABLE_NAME).build());
   }
 }

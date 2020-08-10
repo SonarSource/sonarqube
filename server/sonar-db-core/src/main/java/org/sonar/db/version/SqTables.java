@@ -93,7 +93,6 @@ public final class SqTables {
     "perm_tpl_characteristics",
     "plugins",
     "projects",
-    "project_alm_bindings",
     "project_alm_settings",
     "project_branches",
     "project_links",

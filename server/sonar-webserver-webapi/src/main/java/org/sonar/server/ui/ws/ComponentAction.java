@@ -42,7 +42,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.ProjectAlmBindingDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
@@ -166,7 +165,6 @@ public class ComponentAction implements NavigationWsAction {
         json.beginObject();
         boolean isFavourite = isFavourite(session, rootProject);
         writeComponent(json, component, org, analysis.orElse(null), isFavourite);
-        writeAlmDetails(json, session, rootProject);
         writeProfiles(json, session, component);
         writeQualityGate(json, session, org, rootProject);
         if (userSession.hasComponentPermission(ADMIN, component) ||
@@ -190,17 +188,6 @@ public class ComponentAction implements NavigationWsAction {
     } else {
       return component;
     }
-  }
-
-  private void writeAlmDetails(JsonWriter json, DbSession session, ComponentDto component) {
-    Optional<ProjectAlmBindingDto> bindingOpt = dbClient.projectAlmBindingsDao().selectByProjectUuid(session, component.uuid());
-    bindingOpt.ifPresent(b -> {
-      String almId = b.getAlm().getId();
-      json.name("alm").beginObject()
-        .prop("key", almId)
-        .prop("url", b.getUrl())
-        .endObject();
-    });
   }
 
   private static void writeToJson(JsonWriter json, QualityProfile profile, boolean deleted) {

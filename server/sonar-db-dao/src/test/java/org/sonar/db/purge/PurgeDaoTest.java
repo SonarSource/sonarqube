@@ -1227,23 +1227,6 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void deleteProject_deletes_project_alm_bindings() {
-    ALM alm = ALM.GITHUB;
-    String repoId = "123";
-    String otherRepoId = repoId + "-foo";
-
-    ComponentDto project = db.components().insertPublicProject();
-    ComponentDto otherProject = db.components().insertPublicProject();
-    dbClient.projectAlmBindingsDao().insertOrUpdate(dbSession, alm, repoId, project.uuid(), null, "foo");
-    dbClient.projectAlmBindingsDao().insertOrUpdate(dbSession, alm, otherRepoId, otherProject.uuid(), null, "bar");
-
-    underTest.deleteProject(dbSession, project.uuid());
-
-    assertThat(dbClient.projectAlmBindingsDao().findProjectKey(dbSession, alm, repoId)).isEmpty();
-    assertThat(dbClient.projectAlmBindingsDao().findProjectKey(dbSession, alm, otherRepoId)).isNotEmpty();
-  }
-
-  @Test
   public void deleteProject_deletes_project_alm_settings() {
     ProjectDto project = db.components().insertPublicProjectDto();
     ProjectDto otherProject = db.components().insertPublicProjectDto();

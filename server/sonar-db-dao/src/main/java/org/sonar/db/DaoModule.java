@@ -25,7 +25,6 @@ import java.util.List;
 import org.sonar.core.platform.Module;
 import org.sonar.db.alm.AlmAppInstallDao;
 import org.sonar.db.alm.OrganizationAlmBindingDao;
-import org.sonar.db.alm.ProjectAlmBindingDao;
 import org.sonar.db.alm.pat.AlmPatDao;
 import org.sonar.db.alm.setting.AlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
@@ -124,7 +123,6 @@ public class DaoModule extends Module {
     AlmSettingDao.class,
     AlmPatDao.class,
     ProjectAlmSettingDao.class,
-    ProjectAlmBindingDao.class,
     InternalComponentPropertiesDao.class,
     InternalPropertiesDao.class,
     IssueChangeDao.class,

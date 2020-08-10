@@ -63,17 +63,6 @@
       p.uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByAlmIdAndAlmRepositoryId" resultType="Component">
-    select
-    <include refid="componentColumns"/>
-    from
-    components p
-    inner join
-    project_alm_bindings pab on pab.project_uuid = p.uuid
-    where
-    pab.alm_id = #{almId,jdbcType=VARCHAR} and pab.repo_id = #{almRepositoryId,jdbcType=VARCHAR}
-  </select>
-
   <select id="selectByProjectUuid" parameterType="string" resultType="Component">
     select
     <include refid="componentColumns"/>

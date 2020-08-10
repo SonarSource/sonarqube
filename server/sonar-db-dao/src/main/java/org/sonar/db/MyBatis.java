@@ -36,8 +36,6 @@ import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.sonar.api.Startable;
 import org.sonar.db.alm.AlmAppInstallMapper;
 import org.sonar.db.alm.OrganizationAlmBindingMapper;
-import org.sonar.db.alm.ProjectAlmBindingDto;
-import org.sonar.db.alm.ProjectAlmBindingMapper;
 import org.sonar.db.alm.pat.AlmPatMapper;
 import org.sonar.db.alm.setting.AlmSettingMapper;
 import org.sonar.db.alm.setting.ProjectAlmSettingMapper;
@@ -203,7 +201,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
     confBuilder.loadAlias("Plugin", PluginDto.class);
     confBuilder.loadAlias("PrIssue", PrIssueDto.class);
-    confBuilder.loadAlias("ProjectAlmBinding", ProjectAlmBindingDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
     confBuilder.loadAlias("Project", ProjectDto.class);
     confBuilder.loadAlias("ProjectMapping", ProjectMappingDto.class);
@@ -269,7 +266,6 @@ public class MyBatis implements Startable {
       PermissionTemplateCharacteristicMapper.class,
       PermissionTemplateMapper.class,
       PluginMapper.class,
-      ProjectAlmBindingMapper.class,
       ProjectAlmSettingMapper.class,
       ProjectLinkMapper.class,
       ProjectMapper.class,

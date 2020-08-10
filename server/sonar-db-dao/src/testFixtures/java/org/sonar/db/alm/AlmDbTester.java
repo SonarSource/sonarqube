@@ -46,13 +46,6 @@ public class AlmDbTester {
     return db.getDbClient().organizationAlmBindingDao().selectByOrganization(db.getSession(), organization).get();
   }
 
-  public ProjectAlmBindingDto insertProjectAlmBinding(ALM alm, ComponentDto componentDto, String repositoryUuid) {
-    db.getDbClient().projectAlmBindingsDao().insertOrUpdate(db.getSession(), alm, repositoryUuid, componentDto.uuid(),
-      "some_org/some_repo", "http://alm/some_org_some_repo");
-    db.commit();
-    return db.getDbClient().projectAlmBindingsDao().selectByProjectUuid(db.getSession(), componentDto.uuid()).get();
-  }
-
   @SafeVarargs
   public final AlmAppInstallDto insertAlmAppInstall(Consumer<AlmAppInstallDto>... dtoPopulators) {
     AlmAppInstallDto dto = new AlmAppInstallDto()
