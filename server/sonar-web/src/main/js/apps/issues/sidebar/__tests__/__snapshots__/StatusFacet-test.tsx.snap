@@ -12,9 +12,7 @@ exports[`should render correctly 1`] = `
     open={true}
     values={Array []}
   />
-  <FacetItemsList
-    title="issues"
-  >
+  <FacetItemsList>
     <FacetItem
       active={false}
       disabled={false}

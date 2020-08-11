@@ -107,9 +107,7 @@ export default class StatusFacet extends React.PureComponent<Props> {
 
         {this.props.open && (
           <>
-            <FacetItemsList title={translate('issues')}>
-              {STATUSES.map(this.renderItem)}
-            </FacetItemsList>
+            <FacetItemsList>{STATUSES.map(this.renderItem)}</FacetItemsList>
             <MultipleSelectionHint options={Object.keys(stats).length} values={statuses.length} />
           </>
         )}
