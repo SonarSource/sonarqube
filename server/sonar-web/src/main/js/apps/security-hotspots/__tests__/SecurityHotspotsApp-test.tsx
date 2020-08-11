@@ -343,6 +343,32 @@ it('should handle leakPeriod filter change', async () => {
   expect(getSecurityHotspots).toBeCalledWith(expect.objectContaining({ sinceLeakPeriod: true }));
 });
 
+describe('keyboard navigation', () => {
+  const hotspots = [
+    mockRawHotspot({ key: 'k1' }),
+    mockRawHotspot({ key: 'k2' }),
+    mockRawHotspot({ key: 'k3' })
+  ];
+  (getSecurityHotspots as jest.Mock).mockResolvedValueOnce({ hotspots, paging: { total: 3 } });
+
+  const wrapper = shallowRender();
+
+  it.each([
+    ['selecting next', 0, 1, 1],
+    ['selecting previous', 1, -1, 0],
+    ['selecting previous, non-existent', 0, -1, 0],
+    ['selecting next, non-existent', 2, 1, 2],
+    ['jumping down', 0, 18, 2],
+    ['jumping up', 2, -18, 0],
+    ['none selected', 4, -2, 4]
+  ])('should work when %s', (_, start, shift, expected) => {
+    wrapper.setState({ selectedHotspot: hotspots[start] });
+    wrapper.instance().selectNeighboringHotspot(shift);
+
+    expect(wrapper.state().selectedHotspot).toBe(hotspots[expected]);
+  });
+});
+
 function shallowRender(props: Partial<SecurityHotspotsApp['props']> = {}) {
   return shallow<SecurityHotspotsApp>(
     <SecurityHotspotsApp

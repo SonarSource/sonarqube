@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Location } from 'history';
+import * as key from 'keymaster';
 import { flatMap, range } from 'lodash';
 import * as React from 'react';
 import { addSideBarClass, removeSideBarClass } from 'sonar-ui-common/helpers/pages';
@@ -40,6 +41,7 @@ import {
 import SecurityHotspotsAppRenderer from './SecurityHotspotsAppRenderer';
 import './styles.css';
 
+const HOTSPOT_KEYMASTER_SCOPE = 'hotspots-list';
 const PAGE_SIZE = 500;
 
 interface Props {
@@ -91,6 +93,7 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
     this.mounted = true;
     addSideBarClass();
     this.fetchInitialData();
+    this.registerKeyboardEvents();
   }
 
   componentDidUpdate(previous: Props) {
@@ -115,7 +118,39 @@ export class SecurityHotspotsApp extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     removeSideBarClass();
+    this.unregisterKeyboardEvents();
     this.mounted = false;
+  }
+
+  registerKeyboardEvents() {
+    key.setScope(HOTSPOT_KEYMASTER_SCOPE);
+    key('up', HOTSPOT_KEYMASTER_SCOPE, () => {
+      this.selectNeighboringHotspot(-1);
+      return false;
+    });
+    key('down', HOTSPOT_KEYMASTER_SCOPE, () => {
+      this.selectNeighboringHotspot(+1);
+      return false;
+    });
+  }
+
+  selectNeighboringHotspot = (shift: number) => {
+    this.setState(({ hotspots, selectedHotspot }) => {
+      const index = selectedHotspot && hotspots.findIndex(h => h.key === selectedHotspot.key);
+
+      if (index !== undefined && index > -1) {
+        const newIndex = Math.max(0, Math.min(hotspots.length - 1, index + shift));
+        return {
+          selectedHotspot: hotspots[newIndex]
+        };
+      }
+
+      return { selectedHotspot };
+    });
+  };
+
+  unregisterKeyboardEvents() {
+    key.deleteScope(HOTSPOT_KEYMASTER_SCOPE);
   }
 
   constructFiltersFromProps(
