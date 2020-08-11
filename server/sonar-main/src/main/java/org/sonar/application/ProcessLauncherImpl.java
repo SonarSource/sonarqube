@@ -50,10 +50,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_GRACEFUL_STOP_TIMEOUT_MS;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
-import static org.sonar.process.ProcessEntryPoint.PROPERTY_GRACEFUL_STOP_TIMEOUT_MS;
 
 public class ProcessLauncherImpl implements ProcessLauncher {
   private static final Logger LOG = LoggerFactory.getLogger(ProcessLauncherImpl.class);
@@ -148,10 +148,10 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       throw new IllegalStateException(error);
     }
 
-    try {
-      esInstallation.getEsYmlSettings().writeToYmlSettingsFile(esInstallation.getElasticsearchYml());
-      esInstallation.getEsJvmOptions().writeToJvmOptionFile(esInstallation.getJvmOptions());
-      esInstallation.getLog4j2Properties().store(new FileOutputStream(esInstallation.getLog4j2PropertiesLocation()), "log4j2 properties file for ES bundled in SonarQube");
+    esInstallation.getEsYmlSettings().writeToYmlSettingsFile(esInstallation.getElasticsearchYml());
+    esInstallation.getEsJvmOptions().writeToJvmOptionFile(esInstallation.getJvmOptions());
+    try (FileOutputStream fileOutputStream = new FileOutputStream(esInstallation.getLog4j2PropertiesLocation())) {
+      esInstallation.getLog4j2Properties().store(fileOutputStream, "log4j2 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write ES configuration files", e);
     }
