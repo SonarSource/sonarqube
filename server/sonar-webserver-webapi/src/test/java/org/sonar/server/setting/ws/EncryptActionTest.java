@@ -20,6 +20,7 @@
 package org.sonar.server.setting.ws;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -59,7 +60,7 @@ public class EncryptActionTest {
     logInAsSystemAdministrator();
 
     File secretKeyFile = folder.newFile();
-    FileUtils.writeStringToFile(secretKeyFile, "fCVFf/JHRi8Qwu5KLNva7g==");
+    FileUtils.writeStringToFile(secretKeyFile, "fCVFf/JHRi8Qwu5KLNva7g==", StandardCharsets.UTF_8);
 
     encryption.setPathToSecretKey(secretKeyFile.getAbsolutePath());
   }

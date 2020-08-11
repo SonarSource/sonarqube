@@ -36,11 +36,7 @@ import org.sonar.api.CoreProperties;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 final class AesCipher implements Cipher {
-
-  // Can't be increased because of Java 6 policy files :
-  // https://confluence.terena.org/display/~visser/No+256+bit+ciphers+for+Java+apps
-  // http://java.sun.com/javase/6/webnotes/install/jre/README
-  static final int KEY_SIZE_IN_BITS = 128;
+  static final int KEY_SIZE_IN_BITS = 256;
 
   private static final String CRYPTO_KEY = "AES";
 

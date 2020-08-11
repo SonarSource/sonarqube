@@ -21,6 +21,7 @@ package org.sonar.server.setting.ws;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,7 +56,7 @@ public class GenerateSecretKeyActionTest {
 
     String secretKey = result.getSecretKey();
     File file = temporaryFolder.newFile();
-    FileUtils.writeStringToFile(file, secretKey);
+    FileUtils.writeStringToFile(file, secretKey, StandardCharsets.UTF_8);
     encryption.setPathToSecretKey(file.getAbsolutePath());
     String encryptedValue = encryption.encrypt("my value");
     String decryptedValue = encryption.decrypt(encryptedValue);
