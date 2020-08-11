@@ -39,10 +39,8 @@ import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.alm.ALM;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDbTester;
@@ -644,29 +642,6 @@ public class ComponentActionTest {
     assertThat(componentId.deprecatedKeySince()).isEqualTo("6.4");
   }
 
-  @Test
-  public void return_alm_info_on_project() {
-    ComponentDto project = insertOrganizationAndProject();
-    dbClient.projectAlmBindingsDao().insertOrUpdate(db.getSession(), ALM.BITBUCKETCLOUD, "{123456789}", project.uuid(), null, "http://bitbucket.org/foo/bar");
-    db.getSession().commit();
-    userSession.addProjectPermission(UserRole.USER, project);
-    init();
-
-    String json = execute(project.getKey());
-
-    assertJson(json).isSimilarTo("{\n" +
-      "  \"organization\": \"my-org\",\n" +
-      "  \"key\": \"polop\",\n" +
-      "  \"id\": \"abcd\",\n" +
-      "  \"name\": \"Polop\",\n" +
-      "  \"description\": \"test project\",\n" +
-      "  \"alm\": {\n" +
-      "     \"key\": \"bitbucketcloud\",\n" +
-      "     \"url\": \"http://bitbucket.org/foo/bar\"\n" +
-      "  }\n" +
-      "}\n");
-  }
-
   @Test(expected = BadRequestException.class)
   public void fail_on_module_key_as_param() {
     ComponentDto project = insertOrganizationAndProject();
@@ -685,35 +660,6 @@ public class ComponentActionTest {
     init();
 
     execute(directory.getDbKey());
-  }
-
-  @Test
-  public void return_alm_info_on_branch() {
-    ComponentDto project = insertOrganizationAndProject();
-    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1").setUuid("xyz"));
-    dbClient.projectAlmBindingsDao().insertOrUpdate(db.getSession(), ALM.BITBUCKETCLOUD, "{123456789}", project.uuid(), null, "http://bitbucket.org/foo/bar");
-    db.getSession().commit();
-    userSession.addProjectPermission(UserRole.USER, project);
-    init();
-
-    String json = ws.newRequest()
-      .setParam("componentKey", project.getKey())
-      .setParam("branch", branch.getBranch())
-      .execute()
-      .getInput();
-
-    assertJson(json).isSimilarTo("{\n" +
-      "  \"organization\": \"my-org\",\n" +
-      "  \"key\": \"polop\",\n" +
-      "  \"id\": \"xyz\",\n" +
-      "  \"branch\": \"feature1\"," +
-      "  \"name\": \"Polop\",\n" +
-      "  \"description\": \"test project\",\n" +
-      "  \"alm\": {\n" +
-      "     \"key\": \"bitbucketcloud\",\n" +
-      "     \"url\": \"http://bitbucket.org/foo/bar\"\n" +
-      "  }\n" +
-      "}\n");
   }
 
   private ComponentDto insertOrganizationAndProject() {
