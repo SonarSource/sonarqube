@@ -41,7 +41,7 @@ Click your ALM below to expand the instructions on installing and configuring th
 |
 | [GitHub Branch Source plugin](https://plugins.jenkins.io/github-branch-source/) version 2.7.1 or later is required
 | 
-| 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Manage Plugins** and install the **Bitbucket Branch Source** plugin.
+| 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Manage Plugins** and install the **GitHub Branch Source** plugin.
 | 1. From the Jenkins Dashboard, navigate to **Manage Jenkins > Configure System**. 
 | 1. From the **GitHub** or **GitHub Enterprise Servers** section, add your GitHub server.
 | 1. Click **Save**.
