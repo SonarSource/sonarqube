@@ -32,13 +32,14 @@ import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../.
 import { fetchBranchStatus } from '../../../store/rootActions';
 import { getBranchStatusByBranchLike, Store } from '../../../store/rootReducer';
 import { BranchLike, PullRequest } from '../../../types/branch-like';
+import { IssueType } from '../../../types/issues';
 import { QualityGateStatusCondition } from '../../../types/quality-gates';
 import IssueLabel from '../components/IssueLabel';
 import IssueRating from '../components/IssueRating';
 import MeasurementLabel from '../components/MeasurementLabel';
 import QualityGateConditions from '../components/QualityGateConditions';
 import '../styles.css';
-import { IssueType, MeasurementType, PR_METRICS } from '../utils';
+import { MeasurementType, PR_METRICS } from '../utils';
 import AfterMergeEstimate from './AfterMergeEstimate';
 import LargeQualityGateBadge from './LargeQualityGateBadge';
 

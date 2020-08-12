@@ -18,14 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { colors } from '../app/theme';
+import { IssueType } from '../types/issues';
 
 export const SEVERITIES = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
 export const STATUSES = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED'];
 export const ISSUE_TYPES: T.IssueType[] = [
-  'BUG',
-  'VULNERABILITY',
-  'CODE_SMELL',
-  'SECURITY_HOTSPOT'
+  IssueType.Bug,
+  IssueType.Vulnerability,
+  IssueType.CodeSmell,
+  IssueType.SecurityHotspot
 ];
 export const RULE_TYPES: T.RuleType[] = ['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'];
 export const RULE_STATUSES = ['READY', 'BETA', 'DEPRECATED'];

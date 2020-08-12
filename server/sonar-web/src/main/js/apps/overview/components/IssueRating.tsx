@@ -24,7 +24,8 @@ import { getLeakValue, getRatingTooltip } from '../../../components/measure/util
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { findMeasure } from '../../../helpers/measures';
 import { BranchLike } from '../../../types/branch-like';
-import { getIssueRatingMetricKey, getIssueRatingName, IssueType } from '../utils';
+import { IssueType } from '../../../types/issues';
+import { getIssueRatingMetricKey, getIssueRatingName } from '../utils';
 
 export interface IssueRatingProps {
   branchLike?: BranchLike;

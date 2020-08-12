@@ -21,8 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockPullRequest } from '../../../../helpers/mocks/branch-like';
 import { mockComponent, mockMeasureEnhanced, mockMetric } from '../../../../helpers/testMocks';
+import { IssueType } from '../../../../types/issues';
 import { MetricKey } from '../../../../types/metrics';
-import { IssueType } from '../../utils';
 import { IssueRating, IssueRatingProps } from '../IssueRating';
 
 it('should render correctly for bugs', () => {

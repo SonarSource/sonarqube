@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import BugIcon from 'sonar-ui-common/components/icons/BugIcon';
-import CodeSmellIcon from 'sonar-ui-common/components/icons/CodeSmellIcon';
-import SecurityHotspotIcon from 'sonar-ui-common/components/icons/SecurityHotspotIcon';
-import VulnerabilityIcon from 'sonar-ui-common/components/icons/VulnerabilityIcon';
 import DuplicationsRating from 'sonar-ui-common/components/ui/DuplicationsRating';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CoverageRating from '../../components/ui/CoverageRating';
+import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
+import { IssueType } from '../../types/issues';
 import { MetricKey } from '../../types/metrics';
 
 export const METRICS: string[] = [
@@ -136,62 +134,24 @@ const MEASUREMENTS_MAP = {
   }
 };
 
-export enum IssueType {
-  CodeSmell = 'CODE_SMELL',
-  Vulnerability = 'VULNERABILITY',
-  Bug = 'BUG',
-  SecurityHotspot = 'SECURITY_HOTSPOT'
-}
-
-const ISSUETYPE_MAP = {
-  [IssueType.CodeSmell]: {
-    metric: MetricKey.code_smells,
-    newMetric: MetricKey.new_code_smells,
-    rating: MetricKey.sqale_rating,
-    newRating: MetricKey.new_maintainability_rating,
-    ratingName: 'Maintainability',
-    iconClass: CodeSmellIcon
-  },
-  [IssueType.Vulnerability]: {
-    metric: MetricKey.vulnerabilities,
-    newMetric: MetricKey.new_vulnerabilities,
-    rating: MetricKey.security_rating,
-    newRating: MetricKey.new_security_rating,
-    ratingName: 'Security',
-    iconClass: VulnerabilityIcon
-  },
-  [IssueType.Bug]: {
-    metric: MetricKey.bugs,
-    newMetric: MetricKey.new_bugs,
-    rating: MetricKey.reliability_rating,
-    newRating: MetricKey.new_reliability_rating,
-    ratingName: 'Reliability',
-    iconClass: BugIcon
-  },
-  [IssueType.SecurityHotspot]: {
-    metric: MetricKey.security_hotspots,
-    newMetric: MetricKey.new_security_hotspots,
-    rating: MetricKey.security_review_rating,
-    newRating: MetricKey.new_security_review_rating,
-    ratingName: 'SecurityReview',
-    iconClass: SecurityHotspotIcon
-  }
-};
-
 export function getIssueRatingName(type: IssueType) {
-  return translate('metric_domain', ISSUETYPE_MAP[type].ratingName);
+  return translate('metric_domain', ISSUETYPE_METRIC_KEYS_MAP[type].ratingName);
 }
 
 export function getIssueIconClass(type: IssueType) {
-  return ISSUETYPE_MAP[type].iconClass;
+  return ISSUETYPE_METRIC_KEYS_MAP[type].iconClass;
 }
 
 export function getIssueMetricKey(type: IssueType, useDiffMetric: boolean) {
-  return useDiffMetric ? ISSUETYPE_MAP[type].newMetric : ISSUETYPE_MAP[type].metric;
+  return useDiffMetric
+    ? ISSUETYPE_METRIC_KEYS_MAP[type].newMetric
+    : ISSUETYPE_METRIC_KEYS_MAP[type].metric;
 }
 
 export function getIssueRatingMetricKey(type: IssueType, useDiffMetric: boolean) {
-  return useDiffMetric ? ISSUETYPE_MAP[type].newRating : ISSUETYPE_MAP[type].rating;
+  return useDiffMetric
+    ? ISSUETYPE_METRIC_KEYS_MAP[type].newRating
+    : ISSUETYPE_METRIC_KEYS_MAP[type].rating;
 }
 
 export function getMeasurementIconClass(type: MeasurementType) {

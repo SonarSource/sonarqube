@@ -27,7 +27,8 @@ import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure } from '../../../helpers/measures';
 import { getComponentIssuesUrl, getComponentSecurityHotspotsUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
-import { getIssueIconClass, getIssueMetricKey, IssueType } from '../utils';
+import { IssueType } from '../../../types/issues';
+import { getIssueIconClass, getIssueMetricKey } from '../utils';
 
 export interface IssueLabelProps {
   branchLike?: BranchLike;

@@ -20,9 +20,9 @@
 import * as React from 'react';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
+import { IssueType } from '../../../types/issues';
 import IssueLabel from '../components/IssueLabel';
 import IssueRating from '../components/IssueRating';
-import { IssueType } from '../utils';
 import DebtValue from './DebtValue';
 import SecurityHotspotsReviewed from './SecurityHotspotsReviewed';
 

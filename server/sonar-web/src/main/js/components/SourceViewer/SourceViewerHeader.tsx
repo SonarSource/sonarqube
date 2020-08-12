@@ -32,6 +32,8 @@ import { collapsedDirFromPath, fileFromPath } from 'sonar-ui-common/helpers/path
 import { omitNil } from 'sonar-ui-common/helpers/request';
 import { getBaseUrl, getPathUrlAsString } from 'sonar-ui-common/helpers/urls';
 import { getBranchLikeQuery } from '../../helpers/branch-like';
+import { ISSUE_TYPES } from '../../helpers/constants';
+import { ISSUETYPE_METRIC_KEYS_MAP } from '../../helpers/issues';
 import { getBranchLikeUrl, getCodeUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { BranchLike } from '../../types/branch-like';
 import { ComponentQualifier } from '../../types/component';
@@ -49,13 +51,6 @@ interface Props {
 interface State {
   measuresOverlay: boolean;
 }
-
-const METRIC_KEY_FOR_ISSUE_TYPE: { [type in T.IssueType]: string } = {
-  BUG: 'bugs',
-  VULNERABILITY: 'vulnerabilities',
-  CODE_SMELL: 'code_smells',
-  SECURITY_HOTSPOT: 'security_hotspots'
-};
 
 export default class SourceViewerHeader extends React.PureComponent<Props, State> {
   state: State = { measuresOverlay: false };
@@ -83,7 +78,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
         <>
           <div className="source-viewer-header-measure-separator" />
 
-          {['BUG', 'VULNERABILITY', 'CODE_SMELL', 'SECURITY_HOTSPOT'].map((type: T.IssueType) => {
+          {ISSUE_TYPES.map((type: T.IssueType) => {
             const params = {
               ...getBranchLikeQuery(branchLike),
               fileUuids: sourceViewerFile.uuid,
@@ -92,7 +87,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
             };
 
             const measure = componentMeasures.find(
-              m => m.metric === METRIC_KEY_FOR_ISSUE_TYPE[type]
+              m => m.metric === ISSUETYPE_METRIC_KEYS_MAP[type].metric
             );
             return (
               <div className="source-viewer-header-measure" key={type}>
