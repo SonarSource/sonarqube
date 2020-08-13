@@ -124,7 +124,7 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 |
 | To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations** and select the **Azure DevOps Server** tab.
 |
-| From here, set your **Configuration name** and the **Personal Access Token** of the account you're using to decorate your Pull Requests.
+| From here, set your **Configuration name** and the **Personal Access Token** from the account you're using to decorate your Pull Requests.
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
@@ -145,7 +145,7 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 |
 | To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations** and select the **GitLab** tab.  
 |
-| From here, set your **Configuration name** and the **Personal Access Token** of the account you're using to decorate your Merge Requests. If you're using [GitLab CI](/analysis/gitlab-cicd/) to scan your project, you can leave the **GitLab URL** blank, as it will be auto-detected. If you're using a different CI tool (e.g.: Jenkins, Travis CI, etc), or run the analysis manually, provide the base URL for GitLab's API.
+| From here, set your **Configuration name**, **GitLab URL**, and the **Personal Access Token** from the account you're using to decorate your Merge Requests.
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
