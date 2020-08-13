@@ -61,11 +61,6 @@ public class AlmAppInstallDao implements Dao {
     return Optional.ofNullable(mapper.selectByOrganizationAlmId(alm.getId(), organizationAlmId));
   }
 
-  public Optional<AlmAppInstallDto> selectByInstallationId(DbSession dbSession, ALM alm, String installationId) {
-    AlmAppInstallMapper mapper = getMapper(dbSession);
-    return Optional.ofNullable(mapper.selectByInstallationId(alm.getId(), installationId));
-  }
-
   public Optional<AlmAppInstallDto> selectByOrganization(DbSession dbSession, OrganizationDto organization) {
     AlmAppInstallMapper mapper = getMapper(dbSession);
     return Optional.ofNullable(mapper.selectByOrganizationUuid(organization.getUuid()));
@@ -74,10 +69,6 @@ public class AlmAppInstallDao implements Dao {
   public List<AlmAppInstallDto> selectByOrganizations(DbSession dbSession, List<OrganizationDto> organizations) {
     Set<String> organizationUuids = organizations.stream().map(OrganizationDto::getUuid).collect(Collectors.toSet());
     return executeLargeInputs(organizationUuids, uuids -> getMapper(dbSession).selectByOrganizationUuids(uuids));
-  }
-
-  public List<AlmAppInstallDto> selectUnboundByUserExternalId(DbSession dbSession, String userExternalId) {
-    return getMapper(dbSession).selectUnboundByUserExternalId(userExternalId);
   }
 
   public void insertOrUpdate(DbSession dbSession, ALM alm, String organizationAlmId, @Nullable Boolean isOwnerUser, String installId, @Nullable String userExternalId) {

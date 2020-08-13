@@ -60,16 +60,6 @@
       </foreach>
   </select>
 
-  <select id="selectUnboundByUserExternalId" parameterType="Map" resultType="org.sonar.db.alm.AlmAppInstallDto">
-    select <include refid="sqlColumns" />
-    from
-    alm_app_installs aai
-    left outer join organization_alm_bindings bind on bind.alm_app_install_uuid = aai.uuid
-    where
-    aai.user_external_id = #{userExternalId, jdbcType=VARCHAR}
-    and bind.uuid is null
-  </select>
-
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
     INSERT INTO alm_app_installs
     (

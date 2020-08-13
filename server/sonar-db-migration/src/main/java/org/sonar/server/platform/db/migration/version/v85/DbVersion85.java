@@ -28,9 +28,9 @@ public class DbVersion85 implements DbVersion {
     registry
       .add(4000, "Delete 'project_alm_settings' orphans", DeleteProjectAlmSettingsOrphans.class)
       .add(4001, "Drop 'period', 'value_warning' columns from 'quality_gates_conditions' table", DropPeriodAndValueWarningColumnsFromQualityGateConditionsTable.class)
-      .add(4001, "Drop 'project_alm_bindings' table", DropProjectAlmBindings.class)
-      .add(4002, "Drop unused variation values columns in 'project_measures' table", DropUnusedVariationsInProjectMeasures.class)
-      .add(4003, "Drop unused periods in 'snapshots' table", DropUnusedPeriodsInSnapshots.class)
+      .add(4002, "Drop 'project_alm_bindings' table", DropProjectAlmBindings.class)
+      .add(4003, "Drop unused variation values columns in 'project_measures' table", DropUnusedVariationsInProjectMeasures.class)
+      .add(4004, "Drop unused periods in 'snapshots' table", DropUnusedPeriodsInSnapshots.class)
 
     ;
   }

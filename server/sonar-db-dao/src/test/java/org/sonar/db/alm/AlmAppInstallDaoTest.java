@@ -32,7 +32,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.user.UserDto;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -115,41 +114,6 @@ public class AlmAppInstallDaoTest {
     expectOrganizationAlmIdNullOrEmptyIAE();
 
     underTest.selectByOrganizationAlmId(dbSession, GITHUB, EMPTY_STRING);
-  }
-
-  @Test
-  public void selectByInstallationId() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(DATE);
-    underTest.insertOrUpdate(dbSession, GITHUB, AN_ORGANIZATION_ALM_ID, true, AN_INSTALL, Uuids.createFast());
-
-    assertThat(underTest.selectByInstallationId(dbSession, GITHUB, AN_INSTALL).get())
-      .extracting(AlmAppInstallDto::getUuid, AlmAppInstallDto::getAlm, AlmAppInstallDto::getInstallId, AlmAppInstallDto::getOrganizationAlmId,
-        AlmAppInstallDto::getCreatedAt, AlmAppInstallDto::getUpdatedAt)
-      .contains(A_UUID, GITHUB, AN_ORGANIZATION_ALM_ID, AN_INSTALL, DATE, DATE);
-
-    assertThat(underTest.selectByInstallationId(dbSession, GITHUB, "unknown installation")).isEmpty();
-    assertThat(underTest.selectByInstallationId(dbSession, BITBUCKETCLOUD, AN_INSTALL)).isEmpty();
-  }
-
-  @Test
-  public void selectUnboundByUserExternalId() {
-    when(uuidFactory.create()).thenReturn(A_UUID);
-    when(system2.now()).thenReturn(DATE);
-    UserDto user1 = db.users().insertUser();
-    UserDto user2 = db.users().insertUser();
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    AlmAppInstallDto almAppInstall1 = db.alm().insertAlmAppInstall(app -> app.setUserExternalId(user1.getExternalId()));
-    AlmAppInstallDto almAppInstall2 = db.alm().insertAlmAppInstall(app -> app.setUserExternalId(user1.getExternalId()));
-    AlmAppInstallDto almAppInstall3 = db.alm().insertAlmAppInstall(app -> app.setUserExternalId(user2.getExternalId()));
-    db.alm().insertOrganizationAlmBinding(organization1, almAppInstall1, true);
-    db.alm().insertOrganizationAlmBinding(organization2, almAppInstall3, true);
-
-    assertThat(underTest.selectUnboundByUserExternalId(dbSession, user1.getExternalId()))
-      .extracting(AlmAppInstallDto::getUuid)
-      .containsExactlyInAnyOrder(almAppInstall2.getUuid());
-    assertThat(underTest.selectUnboundByUserExternalId(dbSession, user2.getExternalId())).isEmpty();
   }
 
   @Test
