@@ -30,6 +30,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.CeTask;
+import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbTester;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -44,7 +46,9 @@ public class PopulateFileSourceLineCountTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateFileSourceLineCountTest.class, "file_sources.sql");
+  public DbTester db = DbTester.create(System2.INSTANCE);
+
+  private UuidFactory uuidFactory = new SequenceUuidFactory();
 
   private Random random = new Random();
   private CeTask ceTask = mock(CeTask.class);
@@ -178,6 +182,7 @@ public class PopulateFileSourceLineCountTest {
   private void insertFileSource(String projectUuid, String fileUuid, @Nullable String lineHashes, int lineCount) {
     db.executeInsert(
       "FILE_SOURCES",
+      "UUID", uuidFactory.create(),
       "PROJECT_UUID", projectUuid,
       "FILE_UUID", fileUuid,
       "LINE_HASHES", lineHashes,
