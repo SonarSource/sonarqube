@@ -41,7 +41,7 @@ import org.sonar.api.scanner.ScannerSide;
  * </pre>
  *
  * <h2>How to use in unit tests</h2>
- * The unit tests needing an instance of FileSystem can use the implementation
+ * The unit tests needing an instance of FileSystem can use the implementation, available in sonar-plugin-api-impl,
  * {@link org.sonar.api.batch.fs.internal.DefaultFileSystem} and the related {@link org.sonar.api.batch.fs.internal.DefaultInputFile},
  * for example :
  * <pre>

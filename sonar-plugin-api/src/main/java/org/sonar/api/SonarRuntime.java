@@ -133,7 +133,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * </p>
  *
  * <p>
- * Unit tests of plugin extensions can create instances of {@link SonarRuntime}
+ * Unit tests of plugin extensions can add a test dependency to available in sonar-plugin-api-impl and create instances of {@link SonarRuntime}
  * via {@link org.sonar.api.internal.SonarRuntimeImpl}.
  * </p>
  *

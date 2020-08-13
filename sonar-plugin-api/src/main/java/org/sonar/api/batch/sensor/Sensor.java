@@ -32,7 +32,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * <p>
  * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on files.
  * 
- * For testing purpose you can use SensorContextTester
+ * For testing purpose you can use SensorContextTester, available in sonar-plugin-api-impl
  * @since 5.1
  * @since 7.6 use {@link ProjectSensor} instead to make your Sensor run only once per analysis, and no more once per module
  */

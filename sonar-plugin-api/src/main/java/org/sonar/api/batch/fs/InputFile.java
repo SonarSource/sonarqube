@@ -29,7 +29,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 
 /**
  * This layer over {@link java.io.File} adds information for code analyzers.
- * For unit testing purpose, use TestInputFileBuilder and initialize
+ * For unit testing purpose, use TestInputFileBuilder available in sonar-plugin-api-impl and initialize
  * the needed fields:
  * 
  * <pre>

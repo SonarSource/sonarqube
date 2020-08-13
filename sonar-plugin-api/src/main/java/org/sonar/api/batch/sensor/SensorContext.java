@@ -47,7 +47,7 @@ import org.sonar.api.utils.Version;
 
 /**
  * See {@link Sensor#execute(SensorContext)}
- * In order to write unit tests you can use SensorContextTester
+ * In order to write unit tests you can use SensorContextTester, available in sonar-plugin-api-impl
  * @since 5.1
  */
 public interface SensorContext {

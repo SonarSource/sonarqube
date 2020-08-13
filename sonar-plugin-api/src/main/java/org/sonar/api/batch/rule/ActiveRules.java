@@ -31,7 +31,7 @@ import java.util.Collection;
  * The rules that are activated on the current project. Quality profiles are
  * merged, so rules can relate to different repositories and languages.
  * <br>
- * Use {@link org.sonar.api.batch.rule.internal.ActiveRulesBuilder} to instantiate
+ * Use {@link org.sonar.api.batch.rule.internal.ActiveRulesBuilder} available in sonar-plugin-api-impl to instantiate
  * this component in unit tests.
  *
  * @since 4.2

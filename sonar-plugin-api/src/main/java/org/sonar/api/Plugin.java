@@ -69,6 +69,7 @@ import static java.util.Objects.requireNonNull;
  * </pre>
  *
  * <p>Example of Test
+ * Add a test dependency to sonar-plugin-api-impl to have access to implementation classes in tests.
  * <pre>
  *{@literal @}Test
  * public void test_plugin_extensions_compatible_with_5_6() {
