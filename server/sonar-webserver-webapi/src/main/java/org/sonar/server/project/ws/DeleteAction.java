@@ -68,6 +68,7 @@ public class DeleteAction implements ProjectsWsAction {
     action
       .createParam(PARAM_PROJECT)
       .setDescription("Project key")
+      .setRequired(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
