@@ -20,6 +20,7 @@
 package org.sonar.server.qualitygate.ws;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -101,7 +102,7 @@ public class ProjectStatusActionTest {
       .setPeriodDate(956789123987L));
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(gateDetailsMetric, project, snapshot)
-        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
+        .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"), StandardCharsets.UTF_8)));
     dbSession.commit();
 
     String response = ws.newRequest()

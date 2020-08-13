@@ -35,6 +35,7 @@ message ProjectStatusResponse {
     repeated Condition conditions = 2;
     repeated Period periods = 3;
     optional bool ignoredConditions = 4;
+    optional NewCodePeriod period = 5;
   }
 
   message Condition {
@@ -46,6 +47,12 @@ message ProjectStatusResponse {
     optional string errorThreshold = 6;
     optional string actualValue = 7;
   }
+
+    message NewCodePeriod {
+      optional string mode = 1;
+      optional string date = 2;
+      optional string parameter = 3;
+    }
 
   message Period {
     optional int32 index = 1;

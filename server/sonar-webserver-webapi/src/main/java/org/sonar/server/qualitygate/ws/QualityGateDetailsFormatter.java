@@ -29,6 +29,8 @@ import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.db.component.SnapshotDto;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.NewCodePeriod;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Period;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -75,25 +77,30 @@ public class QualityGateDetailsFormatter {
       return;
     }
 
-    ProjectStatusResponse.Period.Builder periodBuilder = ProjectStatusResponse.Period.newBuilder();
-    periodBuilder.clear();
+    Period.Builder periodsBuilder = Period.newBuilder();
+    NewCodePeriod.Builder periodBuilder = NewCodePeriod.newBuilder();
 
     SnapshotDto snapshot = this.optionalSnapshot.get();
 
     if (isNullOrEmpty(snapshot.getPeriodMode())) {
       return;
     }
-    periodBuilder.setIndex(1);
+    periodsBuilder.setIndex(1);
+    periodsBuilder.setMode(snapshot.getPeriodMode());
     periodBuilder.setMode(snapshot.getPeriodMode());
     Long periodDate = snapshot.getPeriodDate();
     if (periodDate != null) {
-      periodBuilder.setDate(formatDateTime(periodDate));
+      String formattedDateTime = formatDateTime(periodDate);
+      periodsBuilder.setDate(formattedDateTime);
+      periodBuilder.setDate(formattedDateTime);
     }
     String periodModeParameter = snapshot.getPeriodModeParameter();
     if (!isNullOrEmpty(periodModeParameter)) {
+      periodsBuilder.setParameter(periodModeParameter);
       periodBuilder.setParameter(periodModeParameter);
     }
-    projectStatusBuilder.addPeriods(periodBuilder);
+    projectStatusBuilder.addPeriods(periodsBuilder);
+    projectStatusBuilder.setPeriod(periodBuilder);
   }
 
   private void formatConditions(@Nullable JsonArray jsonConditions) {
