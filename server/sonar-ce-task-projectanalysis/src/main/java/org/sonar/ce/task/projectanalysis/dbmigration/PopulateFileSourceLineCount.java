@@ -49,22 +49,22 @@ public class PopulateFileSourceLineCount extends DataChange implements ProjectAn
 
     if (unInitializedFileSources != null && unInitializedFileSources > 0) {
       MassUpdate massUpdate = context.prepareMassUpdate();
-      massUpdate.select("select id,line_hashes from file_sources where line_count = ? and project_uuid = ?")
+      massUpdate.select("select uuid,line_hashes from file_sources where line_count = ? and project_uuid = ?")
         .setInt(1, LINE_COUNT_NOT_POPULATED)
         .setString(2, componentUuid);
-      massUpdate.update("update file_sources set line_count = ? where id = ?");
+      massUpdate.update("update file_sources set line_count = ? where uuid = ?");
       massUpdate.rowPluralName("line counts of sources of project " + componentUuid);
       massUpdate.execute(PopulateFileSourceLineCount::handle);
     }
   }
 
   private static boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-    int rowId = row.getInt(1);
+    String rowUuid = row.getString(1);
     String rawData = row.getNullableString(2);
 
     int lineCount = rawData == null ? 0 : Iterables.size(FileSourceDto.LINES_HASHES_SPLITTER.split(rawData));
     update.setInt(1, lineCount);
-    update.setInt(2, rowId);
+    update.setString(2, rowUuid);
     return true;
   }
 }

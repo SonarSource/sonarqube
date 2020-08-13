@@ -150,12 +150,6 @@ public class DbTester extends AbstractDbTester<TestDbImpl> {
     return new DbTester(system2, null, new DbTesterMyBatisConfExtension(firstMapperClass, otherMapperClasses));
   }
 
-  public static DbTester createForSchema(System2 system2, Class testClass, String filename) {
-    String path = StringUtils.replaceChars(testClass.getCanonicalName(), '.', '/');
-    String schemaPath = path + "/" + filename;
-    return new DbTester(system2, schemaPath).setDisableDefaultOrganization(true);
-  }
-
   private void initDbClient() {
     TransientPicoContainer ioc = new TransientPicoContainer();
     ioc.addComponent(db.getMyBatis());
