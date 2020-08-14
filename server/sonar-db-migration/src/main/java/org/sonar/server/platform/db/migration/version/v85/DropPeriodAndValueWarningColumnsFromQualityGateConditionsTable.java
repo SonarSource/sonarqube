@@ -19,14 +19,19 @@
  */
 package org.sonar.server.platform.db.migration.version.v85;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion85 implements DbVersion {
+public class DropPeriodAndValueWarningColumnsFromQualityGateConditionsTable extends DdlChange {
+
+  public DropPeriodAndValueWarningColumnsFromQualityGateConditionsTable(Database db) {
+    super(db);
+  }
+
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(4000, "Delete 'project_alm_settings' orphans", DeleteProjectAlmSettingsOrphans.class)
-      .add(4001, "Drop 'period', 'value_warning' columns from 'quality_gates_conditions' table", DropPeriodAndValueWarningColumnsFromQualityGateConditionsTable.class);
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), "quality_gate_conditions", "value_warning", "period").build());
   }
 }
