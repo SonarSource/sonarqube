@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -55,6 +56,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
@@ -275,9 +277,14 @@ public class ActivityAction implements CeWsAction {
   private static ActivityResponse buildResponse(Iterable<Ce.Task> queuedTasks, Iterable<Ce.Task> pastTasks, int pageSize) {
     Ce.ActivityResponse.Builder wsResponseBuilder = Ce.ActivityResponse.newBuilder();
 
+    Set<String> pastIds = StreamSupport
+      .stream(pastTasks.spliterator(), false)
+      .map(Ce.Task::getId)
+      .collect(toSet());
+
     int nbInsertedTasks = 0;
     for (Ce.Task queuedTask : queuedTasks) {
-      if (nbInsertedTasks < pageSize) {
+      if (nbInsertedTasks < pageSize && !pastIds.contains(queuedTask.getId())) {
         wsResponseBuilder.addTasks(queuedTask);
         nbInsertedTasks++;
       }

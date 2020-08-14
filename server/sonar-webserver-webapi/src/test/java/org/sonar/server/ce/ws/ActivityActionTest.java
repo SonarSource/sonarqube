@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.Uuids;
@@ -390,7 +392,7 @@ public class ActivityActionTest {
       .setParam(PARAM_TYPE, CeTaskTypes.REPORT)
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
 
-    assertThat(result.getTasksCount()).isEqualTo(2);
+    assertThat(result.getTasksCount()).isEqualTo(1);
   }
 
   @Test
@@ -574,6 +576,24 @@ public class ActivityActionTest {
       .execute();
 
     JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[]}");
+  }
+
+  @Test
+  public void filter_out_duplicate_tasks_in_progress_and_success(){
+    logInAsSystemAdministrator();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject();
+    insertQueue("T2", project2, IN_PROGRESS);
+    insertQueue("T3", project3, IN_PROGRESS);
+    insertActivity("T1", project1, SUCCESS);
+    insertActivity("T2", project2, SUCCESS);
+
+    ActivityResponse response = ws.newRequest().setParam("status", "FAILED,IN_PROGRESS,SUCCESS").executeProtobuf(ActivityResponse.class);
+
+    assertThat(response.getTasksList())
+      .extracting(Task::getId)
+      .containsExactlyInAnyOrder("T1","T2","T3");
   }
 
   private void logInAsSystemAdministrator() {
