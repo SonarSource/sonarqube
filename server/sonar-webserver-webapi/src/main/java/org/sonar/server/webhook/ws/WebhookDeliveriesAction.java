@@ -19,8 +19,13 @@
  */
 package org.sonar.server.webhook.ws;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,12 +37,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Webhooks;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -110,60 +115,67 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
   }
 
   private Data loadFromDatabase(@Nullable String webhookUuid, @Nullable String ceTaskId, @Nullable String projectKey, int page, int pageSize) {
-    ProjectDto project;
+    Map<String, ProjectDto> projectUuidMap;
     List<WebhookDeliveryLiteDto> deliveries;
     int totalElements;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (isNotBlank(webhookUuid)) {
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByWebhookUuid(dbSession, webhookUuid);
         deliveries = dbClient.webhookDeliveryDao().selectByWebhookUuid(dbSession, webhookUuid, offset(page, pageSize), pageSize);
-        project = getProjectDto(dbSession, deliveries);
+        projectUuidMap = getProjectsDto(dbSession, deliveries);
       } else if (projectKey != null) {
-        project = componentFinder.getProjectByKey(dbSession, projectKey);
+        ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
+        projectUuidMap = new HashMap<>();
+        projectUuidMap.put(project.getUuid(), project);
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByComponentUuid(dbSession, project.getUuid());
         deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, project.getUuid(), offset(page, pageSize), pageSize);
       } else {
         totalElements = dbClient.webhookDeliveryDao().countDeliveriesByCeTaskUuid(dbSession, ceTaskId);
         deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId, offset(page, pageSize), pageSize);
-        project = getProjectDto(dbSession, deliveries);
+        projectUuidMap = getProjectsDto(dbSession, deliveries);
       }
     }
-    return new Data(project, deliveries).withPagingInfo(page, pageSize, totalElements);
+    return new Data(projectUuidMap, deliveries).withPagingInfo(page, pageSize, totalElements);
   }
 
-  private ProjectDto getProjectDto(DbSession dbSession, List<WebhookDeliveryLiteDto> deliveries) {
-    Optional<String> deliveredComponentUuid = deliveries
+  private Map<String, ProjectDto> getProjectsDto(DbSession dbSession, List<WebhookDeliveryLiteDto> deliveries) {
+    Map<String, String> deliveredComponentUuid = deliveries
       .stream()
-      .map(WebhookDeliveryLiteDto::getComponentUuid)
-      .findFirst();
+      .collect(Collectors.toMap(WebhookDeliveryLiteDto::getUuid, WebhookDeliveryLiteDto::getComponentUuid));
 
-    if (deliveredComponentUuid.isPresent()) {
-      return componentFinder.getProjectByUuid(dbSession, deliveredComponentUuid.get());
+    if (!deliveredComponentUuid.isEmpty()) {
+      return dbClient.projectDao().selectByUuids(dbSession, new HashSet<>(deliveredComponentUuid.values()))
+        .stream()
+        .collect(Collectors.toMap(ProjectDto::getUuid, Function.identity()));
     } else {
-      return null;
+      return Collections.emptyMap();
     }
   }
 
   private static class Data {
-    private final ProjectDto project;
+    private final Map<String, ProjectDto> projectUuidMap;
     private final List<WebhookDeliveryLiteDto> deliveryDtos;
 
     private int pageIndex;
     private int pageSize;
     private int totalElements;
 
-    Data(@Nullable ProjectDto project, List<WebhookDeliveryLiteDto> deliveries) {
+    Data(Map<String, ProjectDto> projectUuidMap, List<WebhookDeliveryLiteDto> deliveries) {
       this.deliveryDtos = deliveries;
       if (deliveries.isEmpty()) {
-        this.project = null;
+        this.projectUuidMap = projectUuidMap;
       } else {
-        this.project = requireNonNull(project);
+        checkArgument(!projectUuidMap.isEmpty());
+        this.projectUuidMap = projectUuidMap;
       }
     }
 
     void ensureAdminPermission(UserSession userSession) {
-      if (project != null) {
-        userSession.checkProjectPermission(UserRole.ADMIN, project);
+      if (!projectUuidMap.isEmpty()) {
+        List<ProjectDto> projectsUserHasAccessTo = userSession.keepAuthorizedProjects(UserRole.ADMIN, projectUuidMap.values());
+        if (projectsUserHasAccessTo.size() != projectUuidMap.size()) {
+          throw new ForbiddenException("Insufficient privileges");
+        }
       }
     }
 
@@ -171,6 +183,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
       Webhooks.DeliveriesWsResponse.Builder responseBuilder = Webhooks.DeliveriesWsResponse.newBuilder();
       Webhooks.Delivery.Builder deliveryBuilder = Webhooks.Delivery.newBuilder();
       for (WebhookDeliveryLiteDto dto : deliveryDtos) {
+        ProjectDto project = projectUuidMap.get(dto.getComponentUuid());
         copyDtoToProtobuf(project, dto, deliveryBuilder);
         responseBuilder.addDeliveries(deliveryBuilder);
       }

@@ -22,7 +22,6 @@ package org.sonar.server.webhook.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -36,18 +35,17 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Webhooks;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.webhook.WebhookDeliveryTesting.newDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class WebhookDeliveriesActionTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -60,6 +58,7 @@ public class WebhookDeliveriesActionTest {
 
   private WsActionTester ws;
   private ComponentDto project;
+  private ComponentDto otherProject;
 
   @Before
   public void setUp() {
@@ -67,6 +66,7 @@ public class WebhookDeliveriesActionTest {
     WebhookDeliveriesAction underTest = new WebhookDeliveriesAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
     project = db.components().insertPrivateProject(c -> c.setDbKey("my-project"));
+    otherProject = db.components().insertPrivateProject(c -> c.setDbKey("other-project"));
   }
 
   @Test
@@ -79,9 +79,9 @@ public class WebhookDeliveriesActionTest {
 
   @Test
   public void throw_UnauthorizedException_if_anonymous() {
-    expectedException.expect(UnauthorizedException.class);
-
-    ws.newRequest().execute();
+    TestRequest request = ws.newRequest();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(UnauthorizedException.class);
   }
 
   @Test
@@ -164,17 +164,30 @@ public class WebhookDeliveriesActionTest {
     WebhookDeliveryDto dto1 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
     WebhookDeliveryDto dto2 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1").setWebhookUuid("wh-1-uuid");
     WebhookDeliveryDto dto3 = newDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2").setWebhookUuid("wh-2-uuid");
+
+    WebhookDeliveryDto dto4 = newDto().setComponentUuid(otherProject.uuid()).setCeTaskUuid("t4").setWebhookUuid("wh-1-uuid");
+    WebhookDeliveryDto dto5 = newDto().setComponentUuid(otherProject.uuid()).setCeTaskUuid("t5").setWebhookUuid("wh-1-uuid");
+
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto1);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto2);
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto3);
+    dbClient.webhookDeliveryDao().insert(db.getSession(), dto4);
+    dbClient.webhookDeliveryDao().insert(db.getSession(), dto5);
     db.commit();
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project, otherProject);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setParam("webhook", "wh-1-uuid")
       .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
-    assertThat(response.getDeliveriesCount()).isEqualTo(2);
-    assertThat(response.getDeliveriesList()).extracting(Webhooks.Delivery::getId).containsOnly(dto1.getUuid(), dto2.getUuid());
+    assertThat(response.getDeliveriesCount()).isEqualTo(4);
+    assertThat(response.getDeliveriesList()).extracting(Webhooks.Delivery::getId)
+      .containsOnly(dto1.getUuid(), dto2.getUuid(), dto4.getUuid(), dto5.getUuid());
+    assertThat(response.getDeliveriesList()).extracting(Webhooks.Delivery::getId, Webhooks.Delivery::getComponentKey)
+      .containsOnly(
+        tuple(dto1.getUuid(), project.getDbKey()),
+        tuple(dto2.getUuid(), project.getDbKey()),
+        tuple(dto4.getUuid(), otherProject.getDbKey()),
+        tuple(dto5.getUuid(), otherProject.getDbKey()));
   }
 
   @Test
@@ -242,12 +255,11 @@ public class WebhookDeliveriesActionTest {
     db.commit();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
-      .setParam("componentKey", project.getDbKey())
-      .execute();
+    TestRequest request = ws.newRequest()
+      .setParam("componentKey", project.getDbKey());
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
@@ -258,37 +270,34 @@ public class WebhookDeliveriesActionTest {
     db.commit();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    ws.newRequest()
-      .setParam("ceTaskId", dto.getCeTaskUuid())
-      .execute();
+    TestRequest request = ws.newRequest()
+      .setParam("ceTaskId", dto.getCeTaskUuid());
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
   }
 
   @Test
   public void throw_IAE_if_both_component_and_task_parameters_are_set() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'ceTaskId' or 'componentKey' or 'webhook' must be provided");
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("componentKey", project.getDbKey())
-      .setParam("ceTaskId", "t1")
-      .execute();
+      .setParam("ceTaskId", "t1");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Either 'ceTaskId' or 'componentKey' or 'webhook' must be provided");
   }
 
   @Test
   public void throw_IAE_if_both_component_and_webhook_are_set() {
     userSession.logIn();
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'ceTaskId' or 'componentKey' or 'webhook' must be provided");
-
-    ws.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("componentKey", project.getDbKey())
-      .setParam("webhook", "wh-uuid")
-      .execute();
+      .setParam("webhook", "wh-uuid");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Either 'ceTaskId' or 'componentKey' or 'webhook' must be provided");
   }
 }
