@@ -13,10 +13,7 @@ exports[`should render correctly 1`] = `
   <AlmBindingDefinitionFormField
     help={
       <React.Fragment>
-        settings.almintegration.form.url.gitlab.help1
-        <br />
-        <br />
-        settings.almintegration.form.url.gitlab.help2
+        settings.almintegration.form.url.gitlab.help
         <br />
         <em>
           https://gitlab.com/api/v4
@@ -26,7 +23,6 @@ exports[`should render correctly 1`] = `
     id="url.gitlab"
     maxLength={2000}
     onFieldChange={[MockFunction]}
-    optional={true}
     propKey="url"
     value=""
   />
@@ -54,10 +50,7 @@ exports[`should render correctly 2`] = `
   <AlmBindingDefinitionFormField
     help={
       <React.Fragment>
-        settings.almintegration.form.url.gitlab.help1
-        <br />
-        <br />
-        settings.almintegration.form.url.gitlab.help2
+        settings.almintegration.form.url.gitlab.help
         <br />
         <em>
           https://gitlab.com/api/v4
@@ -67,7 +60,6 @@ exports[`should render correctly 2`] = `
     id="url.gitlab"
     maxLength={2000}
     onFieldChange={[MockFunction]}
-    optional={true}
     propKey="url"
     value=""
   />

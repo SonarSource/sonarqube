@@ -1,5 +1,94 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly: with URL 1`] = `
+<div
+  className="bordered"
+>
+  <AlmTab
+    additionalColumnsHeaders={
+      Array [
+        "settings.almintegration.table.column.gitlab.url",
+      ]
+    }
+    additionalColumnsKeys={
+      Array [
+        "url",
+      ]
+    }
+    additionalTableInfo={
+      <Alert
+        className="big-spacer-bottom width-50"
+        variant="info"
+      >
+        <FormattedMessage
+          defaultMessage="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_gitlab_instances"
+          id="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_gitlab_instances"
+          values={
+            Object {
+              "feature": <em>
+                settings.almintegration.feature.alm_repo_import.title
+              </em>,
+            }
+          }
+        />
+      </Alert>
+    }
+    alm="gitlab"
+    createConfiguration={[Function]}
+    defaultBinding={
+      Object {
+        "key": "",
+        "personalAccessToken": "",
+        "url": "",
+      }
+    }
+    definitions={
+      Array [
+        Object {
+          "key": "foo",
+          "personalAccessToken": "foobar",
+          "url": "https://gitlab.com/api/v4",
+        },
+      ]
+    }
+    features={
+      Array [
+        Object {
+          "active": true,
+          "description": "settings.almintegration.feature.mr_decoration.description",
+          "inactiveReason": "settings.almintegration.feature.need_at_least_1_binding",
+          "name": "settings.almintegration.feature.mr_decoration.title",
+        },
+        Object {
+          "active": true,
+          "description": "settings.almintegration.feature.alm_repo_import.description",
+          "inactiveReason": "settings.almintegration.feature.alm_repo_import.gitlab.requires_fields",
+          "name": "settings.almintegration.feature.alm_repo_import.title",
+        },
+      ]
+    }
+    form={[Function]}
+    loadingAlmDefinitions={false}
+    loadingProjectCount={false}
+    multipleAlmEnabled={true}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
+    updateConfiguration={[Function]}
+  />
+  <div
+    className="huge-spacer-top huge-spacer-bottom bordered-top"
+  />
+  <div
+    className="big-padded"
+  >
+    <Connect(SubCategoryDefinitionsList)
+      category="almintegration"
+      subCategory="gitlab"
+    />
+  </div>
+</div>
+`;
+
 exports[`should render correctly: with branch support 1`] = `
 <div
   className="bordered"
@@ -59,9 +148,9 @@ exports[`should render correctly: with branch support 1`] = `
           "name": "settings.almintegration.feature.mr_decoration.title",
         },
         Object {
-          "active": true,
+          "active": false,
           "description": "settings.almintegration.feature.alm_repo_import.description",
-          "inactiveReason": "settings.almintegration.feature.alm_repo_import.gitlab.wrong_count_x.1",
+          "inactiveReason": "settings.almintegration.feature.alm_repo_import.gitlab.requires_fields",
           "name": "settings.almintegration.feature.alm_repo_import.title",
         },
       ]
@@ -72,11 +161,87 @@ exports[`should render correctly: with branch support 1`] = `
     multipleAlmEnabled={true}
     onDelete={[MockFunction]}
     onUpdateDefinitions={[MockFunction]}
-    optionalFields={
+    updateConfiguration={[Function]}
+  />
+  <div
+    className="huge-spacer-top huge-spacer-bottom bordered-top"
+  />
+  <div
+    className="big-padded"
+  >
+    <Connect(SubCategoryDefinitionsList)
+      category="almintegration"
+      subCategory="gitlab"
+    />
+  </div>
+</div>
+`;
+
+exports[`should render correctly: with no definitions 1`] = `
+<div
+  className="bordered"
+>
+  <AlmTab
+    additionalColumnsHeaders={
+      Array [
+        "settings.almintegration.table.column.gitlab.url",
+      ]
+    }
+    additionalColumnsKeys={
       Array [
         "url",
       ]
     }
+    additionalTableInfo={
+      <Alert
+        className="big-spacer-bottom width-50"
+        variant="info"
+      >
+        <FormattedMessage
+          defaultMessage="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_gitlab_instances"
+          id="settings.almintegration.feature.alm_repo_import.disabled_if_multiple_gitlab_instances"
+          values={
+            Object {
+              "feature": <em>
+                settings.almintegration.feature.alm_repo_import.title
+              </em>,
+            }
+          }
+        />
+      </Alert>
+    }
+    alm="gitlab"
+    createConfiguration={[Function]}
+    defaultBinding={
+      Object {
+        "key": "",
+        "personalAccessToken": "",
+        "url": "",
+      }
+    }
+    definitions={Array []}
+    features={
+      Array [
+        Object {
+          "active": false,
+          "description": "settings.almintegration.feature.mr_decoration.description",
+          "inactiveReason": "settings.almintegration.feature.need_at_least_1_binding",
+          "name": "settings.almintegration.feature.mr_decoration.title",
+        },
+        Object {
+          "active": false,
+          "description": "settings.almintegration.feature.alm_repo_import.description",
+          "inactiveReason": "settings.almintegration.feature.alm_repo_import.gitlab.wrong_count_x.0",
+          "name": "settings.almintegration.feature.alm_repo_import.title",
+        },
+      ]
+    }
+    form={[Function]}
+    loadingAlmDefinitions={false}
+    loadingProjectCount={false}
+    multipleAlmEnabled={true}
+    onDelete={[MockFunction]}
+    onUpdateDefinitions={[MockFunction]}
     updateConfiguration={[Function]}
   />
   <div

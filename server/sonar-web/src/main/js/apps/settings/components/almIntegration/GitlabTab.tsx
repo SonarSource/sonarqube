@@ -49,6 +49,8 @@ export default function GitlabTab(props: GitlabTabProps) {
     loadingProjectCount
   } = props;
 
+  const importFeatureEnabled = Boolean(definitions.length === 1 && definitions[0].url);
+
   return (
     <div className="bordered">
       {branchesEnabled && (
@@ -86,14 +88,19 @@ export default function GitlabTab(props: GitlabTabProps) {
               },
               {
                 name: translate('settings.almintegration.feature.alm_repo_import.title'),
-                active: definitions.length === 1,
+                active: importFeatureEnabled,
                 description: translate(
                   'settings.almintegration.feature.alm_repo_import.description'
                 ),
-                inactiveReason: translateWithParameters(
-                  'settings.almintegration.feature.alm_repo_import.gitlab.wrong_count_x',
-                  definitions.length
-                )
+                inactiveReason:
+                  definitions.length === 1
+                    ? translate(
+                        'settings.almintegration.feature.alm_repo_import.gitlab.requires_fields'
+                      )
+                    : translateWithParameters(
+                        'settings.almintegration.feature.alm_repo_import.gitlab.wrong_count_x',
+                        definitions.length
+                      )
               }
             ]}
             form={childProps => <GitlabForm {...childProps} />}
@@ -102,7 +109,6 @@ export default function GitlabTab(props: GitlabTabProps) {
             multipleAlmEnabled={multipleAlmEnabled}
             onDelete={props.onDelete}
             onUpdateDefinitions={props.onUpdateDefinitions}
-            optionalFields={['url']}
             updateConfiguration={updateGitlabConfiguration}
           />
 

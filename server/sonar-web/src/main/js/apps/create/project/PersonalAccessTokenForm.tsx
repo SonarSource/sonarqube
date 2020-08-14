@@ -102,7 +102,7 @@ export default function PersonalAccessTokenForm(props: PersonalAccessTokenFormPr
         <DeferredSpinner className="spacer-left" loading={submitting} />
       </form>
 
-      <Alert className="big-spacer-left huge-spacer-top width-50" display="block" variant="info">
+      <Alert className="big-spacer-left width-50" display="block" variant="info">
         <h3>{translate('onboarding.create_project.pat_help.title')}</h3>
 
         <p className="big-spacer-top big-spacer-bottom">

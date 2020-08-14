@@ -79,9 +79,10 @@ it('should render correctly', () => {
 
 it('should load correctly', async () => {
   (getAlmSettings as jest.Mock).mockResolvedValueOnce([
-    { alm: AlmKeys.Azure, key: 'A1' },
+    { alm: AlmKeys.Azure, key: 'A1' }, // No azure onboarding for now
     { alm: AlmKeys.Bitbucket, key: 'B1' },
-    { alm: AlmKeys.GitHub, key: 'GH1' }
+    { alm: AlmKeys.GitHub, key: 'GH1' },
+    { alm: AlmKeys.GitLab, key: 'GL1', url: 'ok' }
   ]);
 
   const wrapper = shallowRender([PROJECT_CREATION_RIGHT], {});
@@ -89,7 +90,18 @@ it('should load correctly', async () => {
   await waitAndUpdate(wrapper);
 
   expect(getAlmSettings).toBeCalled();
-  expect(wrapper.state().boundAlms).toEqual([AlmKeys.Bitbucket, AlmKeys.GitHub]);
+  expect(wrapper.state().boundAlms).toEqual([AlmKeys.Bitbucket, AlmKeys.GitHub, AlmKeys.GitLab]);
+});
+
+it('should load without gitlab when no url', async () => {
+  (getAlmSettings as jest.Mock).mockResolvedValueOnce([{ alm: AlmKeys.GitLab, key: 'GL1' }]);
+
+  const wrapper = shallowRender([PROJECT_CREATION_RIGHT], {});
+
+  await waitAndUpdate(wrapper);
+
+  expect(getAlmSettings).toBeCalled();
+  expect(wrapper.state().boundAlms).toEqual([]);
 });
 
 it('should display component creation form', () => {

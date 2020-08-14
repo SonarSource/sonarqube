@@ -48,10 +48,7 @@ export default function GitlabForm(props: GitlabFormProps) {
       <AlmBindingDefinitionFormField
         help={
           <>
-            {translate('settings.almintegration.form.url.gitlab.help1')}
-            <br />
-            <br />
-            {translate('settings.almintegration.form.url.gitlab.help2')}
+            {translate('settings.almintegration.form.url.gitlab.help')}
             <br />
             <em>https://gitlab.com/api/v4</em>
           </>
@@ -59,7 +56,6 @@ export default function GitlabForm(props: GitlabFormProps) {
         id="url.gitlab"
         maxLength={2000}
         onFieldChange={onFieldChange}
-        optional={true}
         propKey="url"
         readOnly={readOnly}
         value={formData.url || ''}

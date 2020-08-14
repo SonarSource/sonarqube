@@ -47,7 +47,7 @@ exports[`should render correctly: bitbucket 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left huge-spacer-top width-50"
+    className="big-spacer-left width-50"
     display="block"
     variant="info"
   >
@@ -168,7 +168,7 @@ exports[`should render correctly: gitlab 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left huge-spacer-top width-50"
+    className="big-spacer-left width-50"
     display="block"
     variant="info"
   >
@@ -270,7 +270,7 @@ exports[`should render correctly: gitlab with non-standard api path 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left huge-spacer-top width-50"
+    className="big-spacer-left width-50"
     display="block"
     variant="info"
   >
@@ -372,7 +372,7 @@ exports[`should render correctly: submitting 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left huge-spacer-top width-50"
+    className="big-spacer-left width-50"
     display="block"
     variant="info"
   >
@@ -494,7 +494,7 @@ exports[`should render correctly: validation failed 1`] = `
     />
   </form>
   <Alert
-    className="big-spacer-left huge-spacer-top width-50"
+    className="big-spacer-left width-50"
     display="block"
     variant="info"
   >
