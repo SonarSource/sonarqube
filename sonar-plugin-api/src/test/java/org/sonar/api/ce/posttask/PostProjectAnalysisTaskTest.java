@@ -25,7 +25,6 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTask.Context;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask.ProjectAnalysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,18 +34,14 @@ public class PostProjectAnalysisTaskTest {
   private final ProjectAnalysis projectAnalysis = Mockito.mock(ProjectAnalysis.class);
 
   @Test
-  public void default_implementation_of_finished_ProjectAnalysis_throws_ISE() {
-    PostProjectAnalysisTask underTest = () -> {
-      throw new UnsupportedOperationException("getDescription not implemented");
-    };
+  public void default_implementation_of_finished_ProjectAnalysis_returns_class_name() {
+    PostProjectAnalysisTask underTest = new PostTask();
 
-    try {
-      underTest.finished(projectAnalysis);
-      fail("should have thrown an ISE");
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Provide an implementation of method finished(Context)");
-      Mockito.verifyZeroInteractions(projectAnalysis);
-    }
+    assertThat(underTest.getDescription()).isEqualTo("PostTask");
+  }
+
+  private static class PostTask implements PostProjectAnalysisTask {
+
   }
 
   @Test

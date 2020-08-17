@@ -46,19 +46,25 @@ public interface PostProjectAnalysisTask {
    * A short description or name for the task.
    * <p>
    * This will be used (but not limited to) in logs reporting the execution of the task.
+   * @since 8.0
    */
-  String getDescription();
+  default String getDescription() {
+    return this.getClass().getSimpleName();
+  }
 
   /**
    * This method is called whenever the processing of a Project analysis has finished, whether successfully or not.
    *
-   * @deprecated implement {@link #finished(Context)} instead
+   * @deprecated in 8.0. Implement {@link #finished(Context)} instead
    */
   @Deprecated
   default void finished(ProjectAnalysis analysis) {
     throw new IllegalStateException("Provide an implementation of method finished(Context)");
   }
 
+  /**
+   * @since 8.0
+   */
   default void finished(Context context) {
     finished(context.getProjectAnalysis());
   }
