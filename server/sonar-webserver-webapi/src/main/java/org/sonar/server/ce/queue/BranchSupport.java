@@ -24,16 +24,13 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Branch code for {@link ReportSubmitter}.
@@ -78,12 +75,12 @@ public class BranchSupport {
 
     public abstract String getDbKey();
 
-    public abstract Optional<Branch> getBranch();
+    public abstract Optional<String> getBranchName();
 
     public abstract Optional<String> getPullRequestKey();
 
     public final boolean isMainBranch() {
-      return !getBranch().isPresent() && !getPullRequestKey().isPresent();
+      return !getBranchName().isPresent() && !getPullRequestKey().isPresent();
     }
 
     /**
@@ -92,49 +89,6 @@ public class BranchSupport {
     public abstract ComponentKey getMainBranchComponentKey();
   }
 
-  @Immutable
-  public static final class Branch {
-    private final String name;
-    private final BranchType type;
-
-    public Branch(String name, BranchType type) {
-      this.name = requireNonNull(name, "name can't be null");
-      this.type = requireNonNull(type, "type can't be null");
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public BranchType getType() {
-      return type;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      Branch branch = (Branch) o;
-      return name.equals(branch.name) && type == branch.type;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(name, type);
-    }
-
-    @Override
-    public String toString() {
-      return "Branch{" +
-        "name='" + name + '\'' +
-        ", type=" + type +
-        '}';
-    }
-  }
 
   private static final class ComponentKeyImpl extends ComponentKey {
     private final String key;
@@ -156,7 +110,7 @@ public class BranchSupport {
     }
 
     @Override
-    public Optional<Branch> getBranch() {
+    public Optional<String> getBranchName() {
       return Optional.empty();
     }
 

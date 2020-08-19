@@ -66,8 +66,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
@@ -110,7 +110,7 @@ public class BranchReportSubmitterTest {
 
     underTest.submit(organization.getKey(), project.getDbKey(), project.name(), emptyMap(), reportInput);
 
-    verifyZeroInteractions(branchSupportDelegate);
+    verifyNoInteractions(branchSupportDelegate);
   }
 
   @Test
@@ -129,8 +129,8 @@ public class BranchReportSubmitterTest {
 
     underTest.submit(organization.getKey(), project.getDbKey(), project.name(), randomCharacteristics, reportInput);
 
-    verifyZeroInteractions(permissionTemplateService);
-    verifyZeroInteractions(favoriteUpdater);
+    verifyNoInteractions(permissionTemplateService);
+    verifyNoInteractions(favoriteUpdater);
     verify(branchSupport, times(0)).createBranchComponent(any(), any(), any(), any(), any());
     verify(branchSupportDelegate).createComponentKey(project.getDbKey(), randomCharacteristics);
     verify(branchSupportDelegate, times(0)).createBranchComponent(any(), any(), any(), any(), any());
@@ -157,8 +157,8 @@ public class BranchReportSubmitterTest {
 
     underTest.submit(organization.getKey(), existingProject.getDbKey(), existingProject.name(), randomCharacteristics, reportInput);
 
-    verifyZeroInteractions(permissionTemplateService);
-    verifyZeroInteractions(favoriteUpdater);
+    verifyNoInteractions(permissionTemplateService);
+    verifyNoInteractions(favoriteUpdater);
     verify(branchSupport).createBranchComponent(any(DbSession.class), same(componentKey), eq(organization), eq(existingProject), eq(exitingProjectMainBranch));
     verify(branchSupportDelegate).createComponentKey(existingProject.getDbKey(), randomCharacteristics);
     verify(branchSupportDelegate).createBranchComponent(any(DbSession.class), same(componentKey), eq(organization), eq(existingProject), eq(exitingProjectMainBranch));
@@ -281,7 +281,7 @@ public class BranchReportSubmitterTest {
     when(mainComponentKey.getMainBranchComponentKey()).thenReturn(mainComponentKey);
 
     BranchSupport.ComponentKey componentKey = mockComponentKey(branch.getKey(), branch.getDbKey());
-    when(componentKey.getBranch()).thenReturn(Optional.ofNullable(branch).map(b -> new BranchSupport.Branch(b.name(), BranchType.BRANCH)));
+    when(componentKey.getBranchName()).thenReturn(Optional.of(branch).map(ComponentDto::name));
     when(componentKey.getMainBranchComponentKey()).thenReturn(mainComponentKey);
 
     return componentKey;

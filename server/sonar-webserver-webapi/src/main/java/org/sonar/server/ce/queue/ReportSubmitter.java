@@ -76,24 +76,51 @@ public class ReportSubmitter {
    * @throws NotFoundException if the organization with the specified key does not exist
    * @throws IllegalArgumentException if the organization with the specified key is not the organization of the specified project (when it already exists in DB)
    */
-  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectName,
-    Map<String, String> characteristics, InputStream reportInput) {
+  public CeTask submit(String organizationKey, String projectKey, @Nullable String projectName, Map<String, String> characteristics, InputStream reportInput) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      boolean projectCreated = false;
       OrganizationDto organizationDto = getOrganizationDtoOrFail(dbSession, organizationKey);
+      // Note: when the main branch is analyzed, the characteristics may or may not have the branch name, so componentKey#isMainBranch is not reliable!
       BranchSupport.ComponentKey componentKey = branchSupport.createComponentKey(projectKey, characteristics);
-      Optional<ComponentDto> existingComponent = dbClient.componentDao().selectByKey(dbSession, componentKey.getDbKey());
-      ComponentDto component;
-      if (existingComponent.isPresent()) {
-        component = existingComponent.get();
-        validateProject(dbSession, component, projectKey);
-        ensureOrganizationIsConsistent(component, organizationDto);
+      Optional<ComponentDto> mainBranchComponentOpt = dbClient.componentDao().selectByKey(dbSession, componentKey.getKey());
+      ComponentDto mainBranchComponent;
+
+      if (mainBranchComponentOpt.isPresent()) {
+        mainBranchComponent = mainBranchComponentOpt.get();
+        validateProject(dbSession, mainBranchComponent, projectKey);
+        ensureOrganizationIsConsistent(mainBranchComponent, organizationDto);
       } else {
-        component = createComponent(dbSession, organizationDto, componentKey, projectName);
+        mainBranchComponent = createProject(dbSession, organizationDto, componentKey.getMainBranchComponentKey(), projectName);
+        projectCreated = true;
       }
 
-      checkScanPermission(component);
-      return submitReport(dbSession, reportInput, component, characteristics);
+      BranchDto mainBranch = dbClient.branchDao().selectByUuid(dbSession, mainBranchComponent.projectUuid())
+        .orElseThrow(() -> new IllegalStateException("Couldn't find the main branch of the project"));
+      ComponentDto branchComponent;
+      if (isMainBranch(componentKey, mainBranch)) {
+        branchComponent = mainBranchComponent;
+      } else {
+        branchComponent = dbClient.componentDao().selectByKey(dbSession, componentKey.getDbKey())
+          .orElseGet(() -> branchSupport.createBranchComponent(dbSession, componentKey, organizationDto, mainBranchComponent, mainBranch));
+      }
+
+      if (projectCreated) {
+        componentUpdater.commitAndIndex(dbSession, mainBranchComponent);
+      } else {
+        dbSession.commit();
+      }
+
+      checkScanPermission(branchComponent);
+      return submitReport(dbSession, reportInput, branchComponent, characteristics);
     }
+  }
+
+  private static boolean isMainBranch(BranchSupport.ComponentKey componentKey, BranchDto mainBranch) {
+    if (componentKey.isMainBranch()) {
+      return true;
+    }
+
+    return componentKey.getBranchName().isPresent() && componentKey.getBranchName().get().equals(mainBranch.getKey());
   }
 
   private void checkScanPermission(ComponentDto project) {
@@ -102,8 +129,7 @@ public class ReportSubmitter {
     // they don't have the direct permission on the project.
     // That means that dropping the permission on the project does not have any effects
     // if user has still the permission on the organization
-    if (!userSession.hasComponentPermission(UserRole.SCAN, project) &&
-      !userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
+    if (!userSession.hasComponentPermission(UserRole.SCAN, project) && !userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
       throw insufficientPrivilegesException();
     }
   }
@@ -137,29 +163,7 @@ public class ReportSubmitter {
       project.getDbKey(), organizationDto.getKey());
   }
 
-  private ComponentDto createComponent(DbSession dbSession, OrganizationDto organization, BranchSupport.ComponentKey componentKey, @Nullable String projectName) {
-    if (componentKey.isMainBranch()) {
-      ComponentDto project = createProject(dbSession, organization, componentKey, projectName);
-      componentUpdater.commitAndIndex(dbSession, project);
-      return project;
-    }
-
-    Optional<ComponentDto> existingMainComponent = dbClient.componentDao().selectByKey(dbSession, componentKey.getKey());
-    ComponentDto mainComponentDto = existingMainComponent
-      .orElseGet(() -> createProject(dbSession, organization, componentKey.getMainBranchComponentKey(), projectName));
-    BranchDto mainComponentBranchDto = dbClient.branchDao().selectByUuid(dbSession, mainComponentDto.uuid())
-      .orElseThrow(() -> new IllegalStateException("Branch of main component does not exist"));
-    ComponentDto branchComponent = branchSupport.createBranchComponent(dbSession, componentKey, organization, mainComponentDto, mainComponentBranchDto);
-    if (existingMainComponent.isPresent()) {
-      dbSession.commit();
-    } else {
-      componentUpdater.commitAndIndex(dbSession, mainComponentDto);
-    }
-    return branchComponent;
-  }
-
-  private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, BranchSupport.ComponentKey componentKey,
-    @Nullable String projectName) {
+  private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, BranchSupport.ComponentKey componentKey, @Nullable String projectName) {
     userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
     String userUuid = userSession.getUuid();
 
