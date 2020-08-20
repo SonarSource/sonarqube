@@ -26,7 +26,24 @@ exports[`should render "bad code setting" explanation: no link 1`] = `
     <p
       className="spacer-bottom big-spacer-top big"
     >
-      overview.measures.bad_setting.explanation
+      overview.measures.bad_reference.explanation
+    </p>
+    <p>
+      <FormattedMessage
+        defaultMessage="overview.measures.empty_link"
+        id="overview.measures.empty_link"
+        values={
+          Object {
+            "learn_more_link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to="/documentation/user-guide/clean-as-you-code/"
+            >
+              learn_more
+            </Link>,
+          }
+        }
+      />
     </p>
   </div>
 </div>
@@ -58,27 +75,101 @@ exports[`should render "bad code setting" explanation: with link 1`] = `
     <p
       className="spacer-bottom big-spacer-top big"
     >
-      overview.measures.bad_setting.explanation
+      overview.measures.bad_reference.explanation
     </p>
     <p>
       <FormattedMessage
-        defaultMessage="overview.measures.bad_setting.link"
-        id="overview.measures.bad_setting.link"
+        defaultMessage="overview.measures.empty_link"
+        id="overview.measures.empty_link"
         values={
           Object {
-            "setting_link": <Link
+            "learn_more_link": <Link
               onlyActiveOnIndex={false}
               style={Object {}}
-              to={
-                Object {
-                  "pathname": "/project/baseline",
-                  "query": Object {
-                    "id": "my-project",
-                  },
-                }
-              }
+              to="/documentation/user-guide/clean-as-you-code/"
             >
-              settings.new_code_period.category
+              learn_more
+            </Link>,
+          }
+        }
+      />
+    </p>
+  </div>
+</div>
+`;
+
+exports[`should render the default message 5`] = `
+<div
+  className="display-flex-center display-flex-justify-center"
+  style={
+    Object {
+      "height": 500,
+    }
+  }
+>
+  <img
+    alt=""
+    className="spacer-right"
+    height={52}
+    src="/images/source-code.svg"
+  />
+  <div
+    className="big-spacer-left text-muted"
+    style={
+      Object {
+        "maxWidth": 500,
+      }
+    }
+  >
+    <p
+      className="spacer-bottom big-spacer-top big"
+    >
+      overview.measures.same_reference.explanation
+    </p>
+  </div>
+</div>
+`;
+
+exports[`should render the default message 6`] = `
+<div
+  className="display-flex-center display-flex-justify-center"
+  style={
+    Object {
+      "height": 500,
+    }
+  }
+>
+  <img
+    alt=""
+    className="spacer-right"
+    height={52}
+    src="/images/source-code.svg"
+  />
+  <div
+    className="big-spacer-left text-muted"
+    style={
+      Object {
+        "maxWidth": 500,
+      }
+    }
+  >
+    <p
+      className="spacer-bottom big-spacer-top big"
+    >
+      overview.measures.bad_reference.explanation
+    </p>
+    <p>
+      <FormattedMessage
+        defaultMessage="overview.measures.empty_link"
+        id="overview.measures.empty_link"
+        values={
+          Object {
+            "learn_more_link": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to="/documentation/user-guide/clean-as-you-code/"
+            >
+              learn_more
             </Link>,
           }
         }

@@ -33,7 +33,7 @@ it('should render correctly', () => {
 function shallowRender(props: Partial<BranchOverviewRendererProps> = {}) {
   return shallow(
     <BranchOverviewRenderer
-      branchLike={mockMainBranch()}
+      branch={mockMainBranch()}
       component={mockComponent()}
       graph={GraphType.issues}
       loadingHistory={false}

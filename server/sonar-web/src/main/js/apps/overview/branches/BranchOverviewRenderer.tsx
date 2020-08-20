@@ -21,7 +21,7 @@ import * as React from 'react';
 import { parseDate } from 'sonar-ui-common/helpers/dates';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import { ApplicationPeriod } from '../../../types/application';
-import { BranchLike } from '../../../types/branch-like';
+import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
 import { QualityGateStatus } from '../../../types/quality-gates';
@@ -33,7 +33,7 @@ import QualityGatePanel from './QualityGatePanel';
 export interface BranchOverviewRendererProps {
   analyses?: T.Analysis[];
   appLeak?: ApplicationPeriod;
-  branchLike?: BranchLike;
+  branch?: Branch;
   component: T.Component;
   graph?: GraphType;
   loadingHistory?: boolean;
@@ -51,7 +51,7 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
   const {
     analyses,
     appLeak,
-    branchLike,
+    branch,
     component,
     graph,
     loadingHistory,
@@ -73,7 +73,7 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
         <A11ySkipTarget anchor="overview_main" />
 
         {projectIsEmpty ? (
-          <NoCodeWarning branchLike={branchLike} component={component} measures={measures} />
+          <NoCodeWarning branchLike={branch} component={component} measures={measures} />
         ) : (
           <div className="display-flex-row">
             <div className="width-25 big-spacer-right">
@@ -88,7 +88,7 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
               <div className="display-flex-column">
                 <MeasuresPanel
                   appLeak={appLeak}
-                  branchLike={branchLike}
+                  branch={branch}
                   component={component}
                   loading={loadingStatus}
                   measures={measures}
@@ -97,7 +97,7 @@ export function BranchOverviewRenderer(props: BranchOverviewRendererProps) {
 
                 <ActivityPanel
                   analyses={analyses}
-                  branchLike={branchLike}
+                  branchLike={branch}
                   component={component}
                   graph={graph}
                   leakPeriodDate={leakPeriod && parseDate(leakPeriod.date)}

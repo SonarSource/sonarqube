@@ -43,7 +43,7 @@ import {
   extractStatusConditionsFromProjectStatus
 } from '../../../helpers/qualityGates';
 import { ApplicationPeriod } from '../../../types/application';
-import { BranchLike } from '../../../types/branch-like';
+import { Branch, BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { MetricKey } from '../../../types/metrics';
 import { GraphType, MeasureHistory } from '../../../types/project-activity';
@@ -53,7 +53,7 @@ import { HISTORY_METRICS_LIST, METRICS } from '../utils';
 import BranchOverviewRenderer from './BranchOverviewRenderer';
 
 interface Props {
-  branchLike?: BranchLike;
+  branch?: Branch;
   component: T.Component;
 }
 
@@ -95,7 +95,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props) {
     if (
       this.props.component.key !== prevProps.component.key ||
-      !isSameBranchLike(this.props.branchLike, prevProps.branchLike)
+      !isSameBranchLike(this.props.branch, prevProps.branch)
     ) {
       this.loadStatus();
       this.loadHistory();
@@ -115,22 +115,21 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   };
 
   loadApplicationStatus = async () => {
-    const { branchLike, component } = this.props;
+    const { branch, component } = this.props;
     this.setState({ loadingStatus: true });
     // Start by loading the application quality gate info, as well as the meta
     // data for the application as a whole.
     const appStatus = await getApplicationQualityGate({
       application: component.key,
-      ...getBranchLikeQuery(branchLike)
+      ...getBranchLikeQuery(branch)
     });
     const { measures: appMeasures, metrics, period } = await this.loadMeasuresAndMeta(
       component.key,
-      branchLike
+      branch
     );
 
     const appBranchName =
-      (branchLike && !isMainBranch(branchLike) && getBranchLikeDisplayName(branchLike)) ||
-      undefined;
+      (branch && !isMainBranch(branch) && getBranchLikeDisplayName(branch)) || undefined;
 
     const appDetails = await getApplicationDetails(component.key, appBranchName);
 
@@ -212,14 +211,14 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
 
   loadProjectStatus = async () => {
     const {
-      branchLike,
+      branch,
       component: { key, name }
     } = this.props;
     this.setState({ loadingStatus: true });
 
     const projectStatus = await getQualityGateProjectStatus({
       projectKey: key,
-      ...getBranchLikeQuery(branchLike)
+      ...getBranchLikeQuery(branch)
     });
 
     // Get failing condition metric keys. We need measures for them as well to
@@ -229,7 +228,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
         ? uniq([...METRICS, ...projectStatus.conditions.map(c => c.metricKey)])
         : METRICS;
 
-    this.loadMeasuresAndMeta(key, branchLike, metricKeys).then(
+    this.loadMeasuresAndMeta(key, branch, metricKeys).then(
       ({ measures, metrics, period }) => {
         if (this.mounted && measures) {
           const { ignoredConditions, status } = projectStatus;
@@ -242,7 +241,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
             key,
             name,
             status,
-            branchLike
+            branchLike: branch
           };
 
           this.setState({
@@ -292,14 +291,14 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   };
 
   loadHistoryMeasures = () => {
-    const { branchLike, component } = this.props;
+    const { branch, component } = this.props;
     const { graph } = this.state;
 
     const graphMetrics = getHistoryMetrics(graph, []);
     const metrics = uniq([...HISTORY_METRICS_LIST, ...graphMetrics]);
 
     return getAllTimeMachineData({
-      ...getBranchLikeQuery(branchLike),
+      ...getBranchLikeQuery(branch),
       from: FROM_DATE,
       component: component.key,
       metrics: metrics.join()
@@ -322,10 +321,10 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   };
 
   loadAnalyses = () => {
-    const { branchLike } = this.props;
+    const { branch } = this.props;
 
     return getProjectActivity({
-      ...getBranchLikeQuery(branchLike),
+      ...getBranchLikeQuery(branch),
       project: this.getTopLevelComponent(),
       from: FROM_DATE
     }).then(
@@ -389,7 +388,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { branchLike, component } = this.props;
+    const { branch, component } = this.props;
     const {
       analyses,
       appLeak,
@@ -414,7 +413,7 @@ export default class BranchOverview extends React.PureComponent<Props, State> {
       <BranchOverviewRenderer
         analyses={analyses}
         appLeak={appLeak}
-        branchLike={branchLike}
+        branch={branch}
         component={component}
         graph={graph}
         loadingHistory={loadingHistory}

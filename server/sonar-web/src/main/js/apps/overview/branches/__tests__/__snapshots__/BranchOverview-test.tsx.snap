@@ -43,7 +43,7 @@ exports[`application overview should fetch correctly other branch 1`] = `
       "projectName": "Foo",
     }
   }
-  branchLike={
+  branch={
     Object {
       "analysisDate": "2018-01-01",
       "excludedFromPurge": true,
@@ -965,7 +965,7 @@ exports[`application overview should render correctly 1`] = `
       "projectName": "Foo",
     }
   }
-  branchLike={
+  branch={
     Object {
       "analysisDate": "2018-01-01",
       "excludedFromPurge": true,
@@ -1880,7 +1880,7 @@ exports[`project overview should render correctly 1`] = `
       },
     ]
   }
-  branchLike={
+  branch={
     Object {
       "analysisDate": "2018-01-01",
       "excludedFromPurge": true,

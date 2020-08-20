@@ -23,27 +23,35 @@ import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { BranchLike } from '../../../types/branch-like';
+import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 
 export interface MeasuresPanelNoNewCodeProps {
-  branchLike?: BranchLike;
+  branch?: Branch;
   component: T.Component;
   period?: T.Period;
 }
 
 export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProps) {
-  const { branchLike, component, period } = props;
+  const { branch, component, period } = props;
 
   const isApp = component.qualifier === ComponentQualifier.Application;
+
+  const hasBadReferenceBranch =
+    !isApp && !!period && !period.date && period.mode === 'REFERENCE_BRANCH';
   /*
    * If the period is "reference branch"-based, and if there's no date, it means
    * that we're not lacking a second analysis, but that we'll never have new code because the
    * selected reference branch is itself, or has disappeared for some reason.
    * Makes no sense for Apps (project aggregate)
    */
-  const hasBadNewCodeSetting =
-    !isApp && !!period && !period.date && period.mode === 'REFERENCE_BRANCH';
+  const hasBadNewCodeSettingSameRef = hasBadReferenceBranch && branch?.name === period?.parameter;
+
+  const badExplanationKey = hasBadReferenceBranch
+    ? hasBadNewCodeSettingSameRef
+      ? 'overview.measures.same_reference.explanation'
+      : 'overview.measures.bad_reference.explanation'
+    : 'overview.measures.empty_explanation';
 
   const showSettingsLink = !!(component.configuration && component.configuration.showSettings);
 
@@ -56,12 +64,8 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
         src={`${getBaseUrl()}/images/source-code.svg`}
       />
       <div className="big-spacer-left text-muted" style={{ maxWidth: 500 }}>
-        <p className="spacer-bottom big-spacer-top big">
-          {hasBadNewCodeSetting
-            ? translate('overview.measures.bad_setting.explanation')
-            : translate('overview.measures.empty_explanation')}
-        </p>
-        {hasBadNewCodeSetting ? (
+        <p className="spacer-bottom big-spacer-top big">{translate(badExplanationKey)}</p>
+        {hasBadNewCodeSettingSameRef ? (
           showSettingsLink && (
             <p>
               <FormattedMessage
@@ -72,7 +76,7 @@ export default function MeasuresPanelNoNewCode(props: MeasuresPanelNoNewCodeProp
                     <Link
                       to={{
                         pathname: '/project/baseline',
-                        query: { id: component.key, ...getBranchLikeQuery(branchLike) }
+                        query: { id: component.key, ...getBranchLikeQuery(branch) }
                       }}>
                       {translate('settings.new_code_period.category')}
                     </Link>

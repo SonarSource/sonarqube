@@ -84,6 +84,16 @@ it('should render the default message', () => {
   expect(
     shallowRender({ period: mockPeriod({ date: '2018-05-23', mode: 'PREVIOUS_VERSION' }) })
   ).toMatchInlineSnapshot(defaultMessage);
+  expect(
+    shallowRender({
+      period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'master' })
+    })
+  ).toMatchSnapshot();
+  expect(
+    shallowRender({
+      period: mockPeriod({ date: undefined, mode: 'REFERENCE_BRANCH', parameter: 'notsame' })
+    })
+  ).toMatchSnapshot();
 });
 
 it('should render "bad code setting" explanation', () => {
@@ -96,6 +106,6 @@ it('should render "bad code setting" explanation', () => {
 
 function shallowRender(props: Partial<MeasuresPanelNoNewCodeProps> = {}) {
   return shallow<MeasuresPanelNoNewCodeProps>(
-    <MeasuresPanelNoNewCode branchLike={mockMainBranch()} component={mockComponent()} {...props} />
+    <MeasuresPanelNoNewCode branch={mockMainBranch()} component={mockComponent()} {...props} />
   );
 }

@@ -25,7 +25,7 @@ import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
 import { rawSizes } from '../../../app/theme';
 import { findMeasure } from '../../../helpers/measures';
 import { ApplicationPeriod } from '../../../types/application';
-import { BranchLike } from '../../../types/branch-like';
+import { Branch } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
 import { MetricKey } from '../../../types/metrics';
@@ -38,7 +38,7 @@ import MeasuresPanelNoNewCode from './MeasuresPanelNoNewCode';
 
 export interface MeasuresPanelProps {
   appLeak?: ApplicationPeriod;
-  branchLike?: BranchLike;
+  branch?: Branch;
   component: T.Component;
   loading?: boolean;
   measures?: T.MeasureEnhanced[];
@@ -51,7 +51,7 @@ export enum MeasuresPanelTabs {
 }
 
 export function MeasuresPanel(props: MeasuresPanelProps) {
-  const { appLeak, branchLike, component, loading, measures = [], period } = props;
+  const { appLeak, branch, component, loading, measures = [], period } = props;
 
   const hasDiffMeasures = measures.some(m => isDiffMetric(m.metric.key));
   const isApp = component.qualifier === ComponentQualifier.Application;
@@ -107,11 +107,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
 
           <div className="overview-panel-content flex-1 bordered">
             {!hasDiffMeasures && isNewCodeTab ? (
-              <MeasuresPanelNoNewCode
-                branchLike={branchLike}
-                component={component}
-                period={period}
-              />
+              <MeasuresPanelNoNewCode branch={branch} component={component} period={period} />
             ) : (
               <>
                 {[
@@ -121,7 +117,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
                   IssueType.CodeSmell
                 ].map((type: IssueType) => (
                   <MeasuresPanelIssueMeasureRow
-                    branchLike={branchLike}
+                    branchLike={branch}
                     component={component}
                     isNewCodeTab={isNewCodeTab}
                     key={type}
@@ -137,7 +133,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
                       className="overview-panel-huge-padded flex-1 bordered-right display-flex-center"
                       data-test="overview__measures-coverage">
                       <MeasurementLabel
-                        branchLike={branchLike}
+                        branchLike={branch}
                         centered={isNewCodeTab}
                         component={component}
                         measures={measures}
@@ -148,7 +144,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
                       {tab === MeasuresPanelTabs.Overall && (
                         <div className="huge-spacer-left">
                           <DrilldownMeasureValue
-                            branchLike={branchLike}
+                            branchLike={branch}
                             component={component}
                             measures={measures}
                             metric={MetricKey.tests}
@@ -159,7 +155,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
                   )}
                   <div className="overview-panel-huge-padded flex-1 display-flex-center">
                     <MeasurementLabel
-                      branchLike={branchLike}
+                      branchLike={branch}
                       centered={isNewCodeTab}
                       component={component}
                       measures={measures}
@@ -170,7 +166,7 @@ export function MeasuresPanel(props: MeasuresPanelProps) {
                     {tab === MeasuresPanelTabs.Overall && (
                       <div className="huge-spacer-left">
                         <DrilldownMeasureValue
-                          branchLike={branchLike}
+                          branchLike={branch}
                           component={component}
                           measures={measures}
                           metric={MetricKey.duplicated_blocks}

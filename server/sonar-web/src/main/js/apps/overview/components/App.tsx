@@ -67,7 +67,7 @@ export class App extends React.PureComponent<Props> {
             hasAnalyses={this.props.isPending || this.props.isInProgress}
           />
         ) : (
-          <BranchOverview branchLike={branchLike} component={component} />
+          <BranchOverview branch={branchLike} component={component} />
         )}
       </>
     );

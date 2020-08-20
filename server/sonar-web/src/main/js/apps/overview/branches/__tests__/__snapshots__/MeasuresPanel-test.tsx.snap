@@ -3254,7 +3254,7 @@ exports[`should render correctly if branch is misconfigured: hide settings 1`] =
     className="overview-panel-content flex-1 bordered"
   >
     <MeasuresPanelNoNewCode
-      branchLike={
+      branch={
         Object {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
@@ -3360,7 +3360,7 @@ exports[`should render correctly if branch is misconfigured: show settings 1`] =
     className="overview-panel-content flex-1 bordered"
   >
     <MeasuresPanelNoNewCode
-      branchLike={
+      branch={
         Object {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,
@@ -3903,7 +3903,7 @@ exports[`should render correctly if there is no new code measures 1`] = `
     className="overview-panel-content flex-1 bordered"
   >
     <MeasuresPanelNoNewCode
-      branchLike={
+      branch={
         Object {
           "analysisDate": "2018-01-01",
           "excludedFromPurge": true,

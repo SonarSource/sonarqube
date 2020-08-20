@@ -50,7 +50,7 @@ exports[`should render correctly 1`] = `
           className="display-flex-column"
         >
           <MeasuresPanel
-            branchLike={
+            branch={
               Object {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
@@ -265,7 +265,7 @@ exports[`should render correctly 3`] = `
           className="display-flex-column"
         >
           <MeasuresPanel
-            branchLike={
+            branch={
               Object {
                 "analysisDate": "2018-01-01",
                 "excludedFromPurge": true,
