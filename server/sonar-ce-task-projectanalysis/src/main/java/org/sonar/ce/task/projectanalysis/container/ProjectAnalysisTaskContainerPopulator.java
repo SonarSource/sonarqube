@@ -38,7 +38,6 @@ import org.sonar.ce.task.projectanalysis.component.ReferenceBranchComponentUuids
 import org.sonar.ce.task.projectanalysis.component.ReportModulesPath;
 import org.sonar.ce.task.projectanalysis.component.SiblingComponentsWithOpenIssues;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderImpl;
-import org.sonar.ce.task.projectanalysis.dbmigration.DbMigrationModule;
 import org.sonar.ce.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationMeasures;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepositoryImpl;
@@ -182,7 +181,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       // File System
       new ComputationTempFolderProvider(),
 
-      DbMigrationModule.class,
       ReportModulesPath.class,
       MetricModule.class,
 

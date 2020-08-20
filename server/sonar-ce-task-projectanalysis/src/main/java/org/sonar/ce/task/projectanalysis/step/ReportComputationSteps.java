@@ -39,7 +39,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     ExtractReportStep.class,
     PersistScannerContextStep.class,
     PersistAnalysisWarningsStep.class,
-    DbMigrationsStep.class,
     GenerateAnalysisUuid.class,
 
     // Builds Component tree
