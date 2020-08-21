@@ -223,6 +223,12 @@
       project_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
 
+    <delete id="deleteComponentsByMainBranchProjectUuid" parameterType="map">
+    delete from components
+    where
+      main_branch_project_uuid = #{uuid,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteProjectsByProjectUuid" parameterType="map">
     delete from projects
     where

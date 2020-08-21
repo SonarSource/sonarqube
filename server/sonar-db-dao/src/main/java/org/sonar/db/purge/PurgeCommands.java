@@ -266,6 +266,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteComponentsByMainBranchProjectUuid(String uuid) {
+    profiler.start("deleteComponentsByMainBranchProjectUuid (projects)");
+    purgeMapper.deleteComponentsByMainBranchProjectUuid(uuid);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteProject(String projectUuid) {
     profiler.start("deleteProject (projects)");
     purgeMapper.deleteProjectsByProjectUuid(projectUuid);

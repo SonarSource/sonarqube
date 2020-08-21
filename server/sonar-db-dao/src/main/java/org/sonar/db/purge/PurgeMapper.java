@@ -68,6 +68,8 @@ public interface PurgeMapper {
 
   void deleteComponentsByProjectUuid(@Param("rootUuid") String rootUuid);
 
+  void deleteComponentsByMainBranchProjectUuid(@Param("uuid") String uuid);
+
   void deleteProjectsByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteComponentsByUuids(@Param("componentUuids") List<String> componentUuids);

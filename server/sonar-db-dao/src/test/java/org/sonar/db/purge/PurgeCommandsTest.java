@@ -149,6 +149,28 @@ public class PurgeCommandsTest {
   }
 
   @Test
+  @UseDataProvider("projects")
+  public void deleteComponentsByMainBranchProjectUuid_deletes_all_branches_of_a_project(OrganizationDto organizationDto, ComponentDto project) {
+    dbTester.organizations().insert(organizationDto);
+    dbTester.components().insertComponent(project);
+    ComponentDto branch = dbTester.components().insertProjectBranch(project);
+    Stream.of(project, branch).forEach(prj -> {
+      ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(prj));
+      ComponentDto directory1 = dbTester.components().insertComponent(ComponentTesting.newDirectory(module, "a"));
+      ComponentDto directory2 = dbTester.components().insertComponent(ComponentTesting.newDirectory(prj, "b"));
+      dbTester.components().insertComponent(newFileDto(prj));
+      dbTester.components().insertComponent(newFileDto(module));
+      dbTester.components().insertComponent(newFileDto(directory1));
+      dbTester.components().insertComponent(newFileDto(directory2));
+    });
+
+    underTest.deleteComponentsByMainBranchProjectUuid(project.uuid());
+
+    assertThat(countComponentOfRoot(project)).isEqualTo(8);
+    assertThat(countComponentOfRoot(branch)).isZero();
+  }
+
+  @Test
   @UseDataProvider("views")
   public void deleteComponents_delete_tree_of_components_of_a_view(OrganizationDto organizationDto, ComponentDto view) {
     dbTester.organizations().insert(organizationDto);
