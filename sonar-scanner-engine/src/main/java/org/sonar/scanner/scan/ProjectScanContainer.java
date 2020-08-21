@@ -131,6 +131,7 @@ import org.sonar.scanner.sensor.ProjectSensorContext;
 import org.sonar.scanner.sensor.ProjectSensorExtensionDictionnary;
 import org.sonar.scanner.sensor.ProjectSensorOptimizer;
 import org.sonar.scanner.sensor.ProjectSensorsExecutor;
+import org.sonar.scm.git.GitScmSupport;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
 import static org.sonar.core.extension.CoreExtensionsInstaller.noExtensionFilter;
@@ -300,6 +301,8 @@ public class ProjectScanContainer extends ComponentContainer {
       TravisCi.class,
 
       AnalysisObservers.class);
+
+    add(GitScmSupport.getClasses());
 
     addIfMissing(DefaultProjectSettingsLoader.class, ProjectSettingsLoader.class);
     addIfMissing(DefaultRulesLoader.class, RulesLoader.class);

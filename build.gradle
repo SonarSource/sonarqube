@@ -182,7 +182,6 @@ subprojects {
       dependency 'org.sonarsource.javascript:sonar-javascript-plugin:6.3.0.12464' // bundled_plugin:javascript:SonarJS
       dependency 'org.sonarsource.php:sonar-php-plugin:3.5.0.5655' // bundled_plugin:php:sonar-php
       dependency 'org.sonarsource.python:sonar-python-plugin:2.13.0.7236' // bundled_plugin:python:sonar-python
-      dependency 'org.sonarsource.scm.git:sonar-scm-git-plugin:1.12.0.2034' // bundled_plugin:scmgit:sonar-scm-git
       dependency 'org.sonarsource.scm.svn:sonar-scm-svn-plugin:1.10.0.1917' // bundled_plugin:scmsvn:sonar-scm-svn
       dependency 'org.sonarsource.slang:sonar-go-plugin:1.6.0.719' // bundled_plugin:go:slang-enterprise
       dependency 'org.sonarsource.slang:sonar-kotlin-plugin:1.5.0.315' // bundled_plugin:kotlin:slang-enterprise

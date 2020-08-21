@@ -751,6 +751,7 @@ public class FileSystemMediumTest {
       .newAnalysis(new File(projectDir, "sonar-project.properties"))
       .property("sonar.exclusions", "**/*.xoo.measures,**/*.xoo.scm")
       .property("sonar.test.exclusions", "**/*.xoo.measures,**/*.xoo.scm")
+      .property("sonar.scm.exclusions.disabled", "true")
       .execute();
 
     assertThat(result.inputFiles()).hasSize(3);
