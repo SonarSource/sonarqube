@@ -77,28 +77,38 @@ export default class HotspotSnippetContainer extends React.Component<Props, Stat
     return undefined;
   }
 
-  fetchSources() {
+  async fetchSources() {
     const {
       branchLike,
       hotspot: { component, textRange }
     } = this.props;
+
+    if (!textRange) {
+      // Hotspot not associated to any loc
+      this.setState({ loading: false, lastLine: undefined, sourceLines: [] });
+      return;
+    }
 
     const from = Math.max(1, textRange.startLine - BUFFER_LINES);
     // Add 1 to check for end-of-file:
     const to = textRange.endLine + BUFFER_LINES + 1;
 
     this.setState({ loading: true });
-    return getSources({ key: component.key, from, to, ...getBranchLikeQuery(branchLike) })
-      .then(sourceLines => {
-        if (this.mounted) {
-          const lastLine = this.checkLastLine(sourceLines, to);
 
-          // remove extra sourceline if we didn't reach the end:
-          sourceLines = lastLine ? sourceLines : sourceLines.slice(0, -1);
-          this.setState({ lastLine, loading: false, sourceLines });
-        }
-      })
-      .catch(() => this.mounted && this.setState({ loading: false }));
+    let sourceLines = await getSources({
+      key: component.key,
+      from,
+      to,
+      ...getBranchLikeQuery(branchLike)
+    }).catch(() => [] as T.SourceLine[]);
+
+    if (this.mounted) {
+      const lastLine = this.checkLastLine(sourceLines, to);
+
+      // remove extra sourceline if we didn't reach the end:
+      sourceLines = lastLine ? sourceLines : sourceLines.slice(0, -1);
+      this.setState({ lastLine, loading: false, sourceLines });
+    }
   }
 
   handleExpansion = (direction: T.ExpandDirection) => {

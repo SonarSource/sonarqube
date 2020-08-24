@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { SourceViewerContext } from '../../../components/SourceViewer/SourceViewerContext';
 import SourceViewerHeaderSlim from '../../../components/SourceViewer/SourceViewerHeaderSlim';
 import { BranchLike } from '../../../types/branch-like';
@@ -55,46 +56,51 @@ export default function HotspotSnippetContainerRenderer(
   } = props;
 
   return (
-    <div className="bordered big-spacer-bottom">
-      <SourceViewerHeaderSlim
-        branchLike={branchLike}
-        expandable={false}
-        displayProjectName={displayProjectName}
-        linkToProject={false}
-        loading={loading}
-        onExpand={noop}
-        sourceViewerFile={sourceViewerFile}
-      />
-      <DeferredSpinner loading={loading}>
-        {sourceLines.length > 0 && (
-          <SourceViewerContext.Provider /* Used by LineOptionsPopup */
-            value={{ branchLike, file: sourceViewerFile }}>
-            <SnippetViewer
-              branchLike={branchLike}
-              component={sourceViewerFile}
-              displaySCM={false}
-              expandBlock={(_i, direction) => props.onExpandBlock(direction)}
-              handleCloseIssues={noop}
-              handleOpenIssues={noop}
-              handleSymbolClick={props.onSymbolClick}
-              highlightedLocationMessage={undefined}
-              highlightedSymbols={highlightedSymbols}
-              index={0}
-              issue={hotspot}
-              issuesByLine={{}}
-              lastSnippetOfLastGroup={false}
-              locations={[]}
-              locationsByLine={locations}
-              onIssueChange={noop}
-              onIssuePopupToggle={noop}
-              onLocationSelect={noop}
-              openIssuesByLine={{}}
-              renderDuplicationPopup={noop}
-              snippet={sourceLines}
-            />
-          </SourceViewerContext.Provider>
-        )}
-      </DeferredSpinner>
-    </div>
+    <>
+      {!loading && sourceLines.length === 0 && (
+        <p className="spacer-bottom">{translate('hotspots.no_associated_lines')}</p>
+      )}
+      <div className="bordered big-spacer-bottom">
+        <SourceViewerHeaderSlim
+          branchLike={branchLike}
+          expandable={false}
+          displayProjectName={displayProjectName}
+          linkToProject={false}
+          loading={loading}
+          onExpand={noop}
+          sourceViewerFile={sourceViewerFile}
+        />
+        <DeferredSpinner loading={loading}>
+          {sourceLines.length > 0 && (
+            <SourceViewerContext.Provider /* Used by LineOptionsPopup */
+              value={{ branchLike, file: sourceViewerFile }}>
+              <SnippetViewer
+                branchLike={branchLike}
+                component={sourceViewerFile}
+                displaySCM={false}
+                expandBlock={(_i, direction) => props.onExpandBlock(direction)}
+                handleCloseIssues={noop}
+                handleOpenIssues={noop}
+                handleSymbolClick={props.onSymbolClick}
+                highlightedLocationMessage={undefined}
+                highlightedSymbols={highlightedSymbols}
+                index={0}
+                issue={hotspot}
+                issuesByLine={{}}
+                lastSnippetOfLastGroup={false}
+                locations={[]}
+                locationsByLine={locations}
+                onIssueChange={noop}
+                onIssuePopupToggle={noop}
+                onLocationSelect={noop}
+                openIssuesByLine={{}}
+                renderDuplicationPopup={noop}
+                snippet={sourceLines}
+              />
+            </SourceViewerContext.Provider>
+          )}
+        </DeferredSpinner>
+      </div>
+    </>
   );
 }

@@ -32,6 +32,8 @@ jest.mock('../../../../api/components', () => ({
   getSources: jest.fn().mockResolvedValue([])
 }));
 
+beforeEach(() => jest.clearAllMocks());
+
 const branch = mockBranch();
 
 it('should render correctly', () => {
@@ -58,6 +60,34 @@ it('should load sources on mount', async () => {
   );
   expect(wrapper.state().lastLine).toBeUndefined();
   expect(wrapper.state().sourceLines).toHaveLength(12);
+});
+
+it('should handle load sources failure', async () => {
+  (getSources as jest.Mock).mockRejectedValueOnce(null);
+
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+
+  expect(getSources).toHaveBeenCalled();
+  expect(wrapper.state().loading).toBe(false);
+  expect(wrapper.state().lastLine).toBeUndefined();
+  expect(wrapper.state().sourceLines).toHaveLength(0);
+});
+
+it('should not load sources on mount when the hotspot is not associated to any loc', async () => {
+  const hotspot = mockHotspot({
+    line: undefined,
+    textRange: undefined
+  });
+
+  const wrapper = shallowRender({ hotspot });
+
+  await waitAndUpdate(wrapper);
+
+  expect(getSources).not.toBeCalled();
+  expect(wrapper.state().lastLine).toBeUndefined();
+  expect(wrapper.state().sourceLines).toHaveLength(0);
 });
 
 it('should handle end-of-file on mount', async () => {
