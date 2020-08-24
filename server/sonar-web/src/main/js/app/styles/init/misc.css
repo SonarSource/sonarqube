@@ -580,3 +580,7 @@ th.huge-spacer-right {
   border: 1px solid var(--leakSecondaryColor);
   padding: 4px 6px;
 }
+
+.break-word {
+  word-break: break-word;
+}

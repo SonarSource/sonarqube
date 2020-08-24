@@ -2,7 +2,7 @@
 
 exports[`should render correctly: default 1`] = `
 <div
-  className="issue-message"
+  className="issue-message break-word"
 >
   <span
     className="spacer-right"
@@ -21,7 +21,7 @@ exports[`should render correctly: default 1`] = `
 
 exports[`should render correctly: is manual vulnerability 1`] = `
 <div
-  className="issue-message"
+  className="issue-message break-word"
 >
   <span
     className="spacer-right"
@@ -49,7 +49,7 @@ exports[`should render correctly: is manual vulnerability 1`] = `
 
 exports[`should render correctly: with engine info 1`] = `
 <div
-  className="issue-message"
+  className="issue-message break-word"
 >
   <span
     className="spacer-right"
@@ -77,7 +77,7 @@ exports[`should render correctly: with engine info 1`] = `
 
 exports[`should render correctly: with engine name 1`] = `
 <div
-  className="issue-message"
+  className="issue-message break-word"
 >
   <span
     className="spacer-right"

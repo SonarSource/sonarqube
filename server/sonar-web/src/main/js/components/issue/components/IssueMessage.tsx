@@ -38,7 +38,7 @@ export default function IssueMessage(props: IssueMessageProps) {
   const ruleEngine = engineName ? engineName : engine;
 
   return (
-    <div className="issue-message">
+    <div className="issue-message break-word">
       <span className="spacer-right">{message}</span>
       <ButtonLink
         aria-label={translate('issue.why_this_issue.long')}
