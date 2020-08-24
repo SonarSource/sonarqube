@@ -17,9 +17,10 @@ Otherwise, you can also find an overview and common scenarios below or navigate 
 
 ![SonarQube Instance Components](/images/dev-cycle.png)
 
-In a typical development process:
-1. Developers develop and merge code in an IDE (preferably using [SonarLint](https://www.sonarlint.org/) to receive immediate feedback in the editor) and check-in their code to their ALM. 
-1. An organization’s continuous integration (CI) tool checks out, builds, and runs unit tests, and an integrated SonarQube scanner analyzes the results. 
+In a typical development process:  
+
+1. Developers develop and merge code in an IDE (preferably using [SonarLint](https://www.sonarlint.org/) to receive immediate feedback in the editor) and check-in their code to their ALM.
+1. An organization’s continuous integration (CI) tool checks out, builds, and runs unit tests, and an integrated SonarQube scanner analyzes the results.
 1. The scanner posts the results to the SonarQube server which provides feedback to developers through the SonarQube interface, email, in-IDE notifications (through SonarLint), and decoration on pull or merge requests (when using [Developer Edition](https://redirect.sonarsource.com/editions/developer.html) and above).
 
 ## Installing, monitoring, and upgrading
