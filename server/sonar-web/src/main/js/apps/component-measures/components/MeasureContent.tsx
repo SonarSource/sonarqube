@@ -27,7 +27,7 @@ import { getMeasures } from '../../../api/measures';
 import A11ySkipTarget from '../../../app/components/a11y/A11ySkipTarget';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 import { getBranchLikeQuery, isSameBranchLike } from '../../../helpers/branch-like';
-import { getPeriodValue, isDiffMetric } from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { getProjectUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { MetricKey } from '../../../types/metrics';
@@ -299,7 +299,7 @@ export default class MeasureContent extends React.PureComponent<Props, State> {
     }
 
     const measureValue =
-      measure && (isDiffMetric(measure.metric) ? getPeriodValue(measure, 1) : measure.value);
+      measure && (isDiffMetric(measure.metric) ? measure.period?.value : measure.value);
     const isFile = isFileType(baseComponent);
     const selectedIdx = this.getSelectedIndex();
 

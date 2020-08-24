@@ -102,7 +102,7 @@ function quickMock(
         type
       }),
       value: '3',
-      ...(addPeriod ? { periods: [{ value: '3', index: 1 }] } : {})
+      ...(addPeriod ? { period: { value: '3', index: 1 } } : {})
     },
     metric,
     ...(addPeriod ? { period: 1 } : {})

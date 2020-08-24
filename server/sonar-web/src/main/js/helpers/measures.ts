@@ -62,30 +62,15 @@ export function enhanceConditionWithMeasure(
   // Make sure we have a period index. This is necessary when dealing with
   // applications.
   let { period } = condition;
-  if (measure && measure.periods && !period) {
-    period = measure.periods[0].index;
+  if (measure && measure.period && !period) {
+    period = measure.period.index;
   }
 
   return measure && { ...condition, period, measure };
 }
 
-/** Get period value of a measure */
-export function getPeriodValue(
-  measure: T.Measure | T.MeasureEnhanced,
-  periodIndex: number
-): string | undefined {
-  const { periods } = measure;
-  const period = periods && periods.find(period => period.index === periodIndex);
-  return period ? period.value : undefined;
-}
-
-export function isPeriodBestValue(
-  measure: T.Measure | T.MeasureEnhanced,
-  periodIndex: number
-): boolean {
-  const { periods } = measure;
-  const period = periods && periods.find(period => period.index === periodIndex);
-  return (period && period.bestValue) || false;
+export function isPeriodBestValue(measure: T.Measure | T.MeasureEnhanced): boolean {
+  return measure.period?.bestValue || false;
 }
 
 /** Check if metric is differential */

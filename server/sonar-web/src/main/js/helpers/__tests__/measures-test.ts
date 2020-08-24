@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { enhanceConditionWithMeasure } from '../measures';
+import { enhanceConditionWithMeasure, isPeriodBestValue } from '../measures';
 import { mockQualityGateStatusCondition } from '../mocks/quality-gates';
 import { mockMeasureEnhanced, mockMetric } from '../testMocks';
 
 describe('enhanceConditionWithMeasure', () => {
   it('should correctly map enhance conditions with measure data', () => {
     const measures = [
-      mockMeasureEnhanced({ metric: mockMetric({ key: 'bugs' }), periods: undefined }),
+      mockMeasureEnhanced({ metric: mockMetric({ key: 'bugs' }), period: undefined }),
       mockMeasureEnhanced({ metric: mockMetric({ key: 'new_bugs' }) })
     ];
 
@@ -46,5 +46,21 @@ describe('enhanceConditionWithMeasure', () => {
 
   it('should return undefined if no match can be found', () => {
     expect(enhanceConditionWithMeasure(mockQualityGateStatusCondition(), [])).toBeUndefined();
+  });
+});
+
+describe('isPeriodBestValue', () => {
+  it('should work as expected', () => {
+    expect(isPeriodBestValue(mockMeasureEnhanced({ period: undefined }))).toBe(false);
+    expect(
+      isPeriodBestValue(
+        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: false } })
+      )
+    ).toBe(false);
+    expect(
+      isPeriodBestValue(
+        mockMeasureEnhanced({ period: { index: 1, value: '1.0', bestValue: true } })
+      )
+    ).toBe(true);
   });
 });

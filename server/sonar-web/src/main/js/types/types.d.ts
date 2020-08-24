@@ -452,7 +452,7 @@ declare namespace T {
 
   interface MeasureIntern {
     bestValue?: boolean;
-    periods?: PeriodMeasure[];
+    period?: PeriodMeasure;
     value?: string;
   }
 

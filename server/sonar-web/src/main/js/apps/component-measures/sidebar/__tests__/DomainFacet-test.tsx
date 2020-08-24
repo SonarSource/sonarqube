@@ -87,7 +87,7 @@ function shallowRender(props: Partial<DomainFacet['props']> = {}) {
               domain: 'Reliability'
             },
             value: '5',
-            periods: [{ index: 1, value: '5' }],
+            period: { index: 1, value: '5' },
             leak: '5'
           },
           {
@@ -98,7 +98,7 @@ function shallowRender(props: Partial<DomainFacet['props']> = {}) {
               name: 'New Bugs',
               domain: 'Reliability'
             },
-            periods: [{ index: 1, value: '5' }],
+            period: { index: 1, value: '5' },
             leak: '5'
           }
         ]

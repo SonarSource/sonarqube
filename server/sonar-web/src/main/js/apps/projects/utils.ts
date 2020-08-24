@@ -23,7 +23,7 @@ import { RequestData } from 'sonar-ui-common/helpers/request';
 import { Facet, searchProjects } from '../../api/components';
 import { getMeasuresForProjects } from '../../api/measures';
 import { getOrganizations } from '../../api/organizations';
-import { getPeriodValue, isDiffMetric } from '../../helpers/measures';
+import { isDiffMetric } from '../../helpers/measures';
 import { MetricKey } from '../../types/metrics';
 import { convertToFilter, Query } from './query';
 
@@ -225,9 +225,7 @@ export function fetchProjects(
             measures
               .filter(measure => measure.component === component.key)
               .forEach(measure => {
-                const value = isDiffMetric(measure.metric)
-                  ? getPeriodValue(measure, 1)
-                  : measure.value;
+                const value = isDiffMetric(measure.metric) ? measure.period?.value : measure.value;
                 if (value !== undefined) {
                   componentMeasures[measure.metric] = value;
                 }

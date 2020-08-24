@@ -26,13 +26,11 @@ exports[`should render correctly 1`] = `
                 "name": "Coverage",
                 "type": "PERCENT",
               },
-              "periods": Array [
-                Object {
-                  "bestValue": true,
-                  "index": 1,
-                  "value": "1.0",
-                },
-              ],
+              "period": Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
               "value": "1.0",
             },
             "metric": "bugs",
@@ -51,13 +49,11 @@ exports[`should render correctly 1`] = `
                 "name": "Coverage",
                 "type": "PERCENT",
               },
-              "periods": Array [
-                Object {
-                  "bestValue": true,
-                  "index": 1,
-                  "value": "1.0",
-                },
-              ],
+              "period": Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
               "value": "1.0",
             },
             "metric": "new_bugs",
@@ -85,13 +81,11 @@ exports[`should render correctly 1`] = `
               "name": "Coverage",
               "type": "PERCENT",
             },
-            "periods": Array [
-              Object {
-                "bestValue": true,
-                "index": 1,
-                "value": "1.0",
-              },
-            ],
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
             "value": "1.0",
           },
           "metric": "new_bugs",
@@ -122,13 +116,11 @@ exports[`should render correctly 1`] = `
                 "name": "Coverage",
                 "type": "PERCENT",
               },
-              "periods": Array [
-                Object {
-                  "bestValue": true,
-                  "index": 1,
-                  "value": "1.0",
-                },
-              ],
+              "period": Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
               "value": "1.0",
             },
             "metric": "bugs",
@@ -147,13 +139,11 @@ exports[`should render correctly 1`] = `
                 "name": "Coverage",
                 "type": "PERCENT",
               },
-              "periods": Array [
-                Object {
-                  "bestValue": true,
-                  "index": 1,
-                  "value": "1.0",
-                },
-              ],
+              "period": Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
               "value": "1.0",
             },
             "metric": "new_bugs",
@@ -181,13 +171,11 @@ exports[`should render correctly 1`] = `
               "name": "Coverage",
               "type": "PERCENT",
             },
-            "periods": Array [
-              Object {
-                "bestValue": true,
-                "index": 1,
-                "value": "1.0",
-              },
-            ],
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
             "value": "1.0",
           },
           "metric": "bugs",
@@ -230,13 +218,11 @@ exports[`should render correctly 2`] = `
                 "name": "Coverage",
                 "type": "PERCENT",
               },
-              "periods": Array [
-                Object {
-                  "bestValue": true,
-                  "index": 1,
-                  "value": "1.0",
-                },
-              ],
+              "period": Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
               "value": "1.0",
             },
             "metric": "bugs",
@@ -255,13 +241,11 @@ exports[`should render correctly 2`] = `
                 "name": "Coverage",
                 "type": "PERCENT",
               },
-              "periods": Array [
-                Object {
-                  "bestValue": true,
-                  "index": 1,
-                  "value": "1.0",
-                },
-              ],
+              "period": Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
               "value": "1.0",
             },
             "metric": "new_bugs",
@@ -289,13 +273,11 @@ exports[`should render correctly 2`] = `
               "name": "Coverage",
               "type": "PERCENT",
             },
-            "periods": Array [
-              Object {
-                "bestValue": true,
-                "index": 1,
-                "value": "1.0",
-              },
-            ],
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
             "value": "1.0",
           },
           "metric": "new_bugs",
@@ -326,13 +308,11 @@ exports[`should render correctly 2`] = `
                 "name": "Coverage",
                 "type": "PERCENT",
               },
-              "periods": Array [
-                Object {
-                  "bestValue": true,
-                  "index": 1,
-                  "value": "1.0",
-                },
-              ],
+              "period": Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
               "value": "1.0",
             },
             "metric": "bugs",
@@ -351,13 +331,11 @@ exports[`should render correctly 2`] = `
                 "name": "Coverage",
                 "type": "PERCENT",
               },
-              "periods": Array [
-                Object {
-                  "bestValue": true,
-                  "index": 1,
-                  "value": "1.0",
-                },
-              ],
+              "period": Object {
+                "bestValue": true,
+                "index": 1,
+                "value": "1.0",
+              },
               "value": "1.0",
             },
             "metric": "new_bugs",
@@ -385,13 +363,11 @@ exports[`should render correctly 2`] = `
               "name": "Coverage",
               "type": "PERCENT",
             },
-            "periods": Array [
-              Object {
-                "bestValue": true,
-                "index": 1,
-                "value": "1.0",
-              },
-            ],
+            "period": Object {
+              "bestValue": true,
+              "index": 1,
+              "value": "1.0",
+            },
             "value": "1.0",
           },
           "metric": "bugs",

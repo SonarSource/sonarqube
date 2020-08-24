@@ -26,7 +26,7 @@ import { formatMeasure } from 'sonar-ui-common/helpers/measures';
 import Measure from '../../../components/measure/Measure';
 import DrilldownLink from '../../../components/shared/DrilldownLink';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
-import { getPeriodValue, isDiffMetric } from '../../../helpers/measures';
+import { isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { BranchLike } from '../../../types/branch-like';
 import { QualityGateStatusConditionEnhanced } from '../../../types/quality-gates';
@@ -120,9 +120,7 @@ export default class QualityGateCondition extends React.PureComponent<Props> {
     const isDiff = isDiffMetric(metric.key);
 
     const threshold = (condition.level === 'ERROR' ? condition.error : condition.warning) as string;
-    const actual = (condition.period
-      ? getPeriodValue(measure, condition.period)
-      : measure.value) as string;
+    const actual = (condition.period ? measure.period?.value : measure.value) as string;
 
     let operator = translate('quality_gates.operator', condition.op);
 

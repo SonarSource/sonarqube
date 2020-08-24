@@ -31,7 +31,7 @@ const MEASURES = [
       domain: 'Coverage'
     },
     value: '431',
-    periods: [{ index: 1, value: '70' }],
+    period: { index: 1, value: '70' },
     leak: '70'
   },
   {
@@ -43,7 +43,7 @@ const MEASURES = [
       domain: 'Coverage'
     },
     value: '99.3',
-    periods: [{ index: 1, value: '0.0999999999999943' }],
+    period: { index: 1, value: '0.0999999999999943' },
     leak: '0.0999999999999943'
   },
   {
@@ -55,7 +55,7 @@ const MEASURES = [
       domain: 'Duplications'
     },
     value: '3.2',
-    periods: [{ index: 1, value: '0.0' }],
+    period: { index: 1, value: '0.0' },
     leak: '0.0'
   }
 ];
@@ -163,17 +163,17 @@ describe('extract measure', () => {
         {
           metric: 'alert_status',
           value: '3.2',
-          periods: [{ index: 1, value: '0.0' }]
+          period: { index: 1, value: '0.0' }
         },
         {
           metric: 'releasability_rating',
           value: '3.2',
-          periods: [{ index: 1, value: '0.0' }]
+          period: { index: 1, value: '0.0' }
         },
         {
           metric: 'releasability_effort',
           value: '3.2',
-          periods: [{ index: 1, value: '0.0' }]
+          period: { index: 1, value: '0.0' }
         }
       ]
     };

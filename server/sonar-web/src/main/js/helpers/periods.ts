@@ -21,17 +21,6 @@ import { parseDate } from 'sonar-ui-common/helpers/dates';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { ApplicationPeriod } from '../types/application';
 
-function getPeriod<T extends T.Period | T.PeriodMeasure>(periods: T[] | undefined, index: number) {
-  if (!Array.isArray(periods)) {
-    return undefined;
-  }
-  return periods.find(period => period.index === index);
-}
-
-export function getLeakPeriod<T extends T.Period | T.PeriodMeasure>(periods: T[] | undefined) {
-  return getPeriod(periods, 1);
-}
-
 export function getPeriodLabel(
   period: T.Period | undefined,
   dateFormatter: (date: string) => string

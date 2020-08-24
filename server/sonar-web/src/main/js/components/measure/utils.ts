@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getRatingTooltip as nextGetRatingTooltip, isDiffMetric } from '../../helpers/measures';
-import { getLeakPeriod } from '../../helpers/periods';
 
 const KNOWN_RATINGS = [
   'sqale_rating',
@@ -37,11 +36,7 @@ export function enhanceMeasure(measure: T.Measure, metrics: T.Dict<T.Metric>): T
 }
 
 export function getLeakValue(measure: T.MeasureIntern | undefined): string | undefined {
-  if (!measure || !measure.periods) {
-    return undefined;
-  }
-  const period = getLeakPeriod(measure.periods);
-  return period && period.value;
+  return measure?.period?.value;
 }
 
 export function getRatingTooltip(metricKey: string, value: number): string | undefined {

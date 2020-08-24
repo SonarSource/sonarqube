@@ -30,7 +30,7 @@ const MEASURE = {
     domain: 'Reliability'
   },
   value: '5',
-  periods: [{ index: 1, value: '5' }],
+  period: { index: 1, value: '5' },
   leak: '5'
 };
 const LEAK_MEASURE = {
@@ -41,7 +41,7 @@ const LEAK_MEASURE = {
     name: 'New Bugs',
     domain: 'Reliability'
   },
-  periods: [{ index: 1, value: '5' }],
+  period: { index: 1, value: '5' },
   leak: '5'
 };
 

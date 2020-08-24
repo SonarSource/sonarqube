@@ -67,7 +67,7 @@ jest.mock('../../../../api/measures', () => {
         measures.push(
           mockMeasure({
             metric: key,
-            ...(isDiffMetric(key) ? { leak: '1' } : { periods: undefined })
+            ...(isDiffMetric(key) ? { leak: '1' } : { period: undefined })
           })
         );
       });

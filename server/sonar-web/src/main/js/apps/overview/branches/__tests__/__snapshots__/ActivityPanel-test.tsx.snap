@@ -69,13 +69,11 @@ exports[`should render correctly 1`] = `
                     },
                   ],
                   "metric": "bugs",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
                   "value": "1.0",
                 },
               ]
@@ -241,13 +239,11 @@ exports[`should render correctly 2`] = `
                     },
                   ],
                   "metric": "bugs",
-                  "periods": Array [
-                    Object {
-                      "bestValue": true,
-                      "index": 1,
-                      "value": "1.0",
-                    },
-                  ],
+                  "period": Object {
+                    "bestValue": true,
+                    "index": 1,
+                    "value": "1.0",
+                  },
                   "value": "1.0",
                 },
               ]

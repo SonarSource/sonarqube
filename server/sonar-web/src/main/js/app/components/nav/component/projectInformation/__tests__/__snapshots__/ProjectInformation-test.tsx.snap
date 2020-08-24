@@ -169,13 +169,11 @@ exports[`should render correctly: measures loaded 1`] = `
         Object {
           "bestValue": true,
           "metric": "bugs",
-          "periods": Array [
-            Object {
-              "bestValue": true,
-              "index": 1,
-              "value": "1.0",
-            },
-          ],
+          "period": Object {
+            "bestValue": true,
+            "index": 1,
+            "value": "1.0",
+          },
           "value": "1.0",
         },
       ]

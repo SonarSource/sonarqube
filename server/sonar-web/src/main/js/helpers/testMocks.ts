@@ -470,13 +470,11 @@ export function mockMeasure(overrides: Partial<T.Measure> = {}): T.Measure {
   return {
     bestValue: true,
     metric: 'bugs',
-    periods: [
-      {
-        bestValue: true,
-        index: 1,
-        value: '1.0'
-      }
-    ],
+    period: {
+      bestValue: true,
+      index: 1,
+      value: '1.0'
+    },
     value: '1.0',
     ...overrides
   };
@@ -487,13 +485,11 @@ export function mockMeasureEnhanced(overrides: Partial<T.MeasureEnhanced> = {}):
     bestValue: true,
     leak: '1',
     metric: mockMetric({ ...(overrides.metric || {}) }),
-    periods: [
-      {
-        bestValue: true,
-        index: 1,
-        value: '1.0'
-      }
-    ],
+    period: {
+      bestValue: true,
+      index: 1,
+      value: '1.0'
+    },
     value: '1.0',
     ...overrides
   };

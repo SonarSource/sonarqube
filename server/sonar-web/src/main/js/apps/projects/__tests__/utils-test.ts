@@ -27,7 +27,7 @@ jest.mock('../../../api/components', () => ({
 
 jest.mock('../../../api/measures', () => ({
   getMeasuresForProjects: jest.fn().mockResolvedValue([
-    { component: 'foo', metric: 'new_coverage', periods: [{ index: 1, value: '10' }] },
+    { component: 'foo', metric: 'new_coverage', period: { index: 1, value: '10' } },
     { component: 'bar', metric: 'languages', value: '20' }
   ])
 }));

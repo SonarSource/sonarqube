@@ -47,7 +47,7 @@ function shallowRender(props = {}) {
             domain: 'Coverage'
           },
           value: '431',
-          periods: [{ index: 1, value: '70' }],
+          period: { index: 1, value: '70' },
           leak: '70'
         },
         {
@@ -59,7 +59,7 @@ function shallowRender(props = {}) {
             domain: 'Coverage'
           },
           value: '99.3',
-          periods: [{ index: 1, value: '0.0999999999999943' }],
+          period: { index: 1, value: '0.0999999999999943' },
           leak: '0.0999999999999943'
         },
         {
@@ -71,7 +71,7 @@ function shallowRender(props = {}) {
             domain: 'Duplications'
           },
           value: '3.2',
-          periods: [{ index: 1, value: '0.0' }],
+          period: { index: 1, value: '0.0' },
           leak: '0.0'
         }
       ]}

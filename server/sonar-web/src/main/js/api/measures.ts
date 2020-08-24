@@ -20,16 +20,18 @@
 import { getJSON, post, postJSON } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { BranchParameters } from '../types/branch-like';
+import {
+  MeasuresAndMetaWithMetrics,
+  MeasuresAndMetaWithPeriod,
+  MeasuresForProjects
+} from '../types/measures';
+
+const COMPONENT_URL = '/api/measures/component';
 
 export function getMeasures(
   data: { component: string; metricKeys: string } & BranchParameters
 ): Promise<T.Measure[]> {
-  return getJSON('/api/measures/component', data).then(r => r.component.measures, throwGlobalError);
-}
-
-interface MeasuresAndMetaWithMetrics {
-  component: T.ComponentMeasure;
-  metrics: T.Metric[];
+  return getJSON(COMPONENT_URL, data).then(r => r.component.measures, throwGlobalError);
 }
 
 export function getMeasuresWithMetrics(
@@ -37,7 +39,7 @@ export function getMeasuresWithMetrics(
   metrics: string[],
   branchParameters?: BranchParameters
 ): Promise<MeasuresAndMetaWithMetrics> {
-  return getJSON('/api/measures/component', {
+  return getJSON(COMPONENT_URL, {
     additionalFields: 'metrics',
     component,
     metricKeys: metrics.join(','),
@@ -45,17 +47,12 @@ export function getMeasuresWithMetrics(
   }).catch(throwGlobalError);
 }
 
-interface MeasuresAndMetaWithPeriod {
-  component: T.ComponentMeasure;
-  period: T.Period;
-}
-
 export function getMeasuresWithPeriod(
   component: string,
   metrics: string[],
   branchParameters?: BranchParameters
 ): Promise<MeasuresAndMetaWithPeriod> {
-  return getJSON('/api/measures/component', {
+  return getJSON(COMPONENT_URL, {
     additionalFields: 'period',
     component,
     metricKeys: metrics.join(','),
@@ -68,19 +65,12 @@ export function getMeasuresWithPeriodAndMetrics(
   metrics: string[],
   branchParameters?: BranchParameters
 ): Promise<MeasuresAndMetaWithPeriod & MeasuresAndMetaWithMetrics> {
-  return getJSON('/api/measures/component', {
+  return getJSON(COMPONENT_URL, {
     additionalFields: 'period,metrics',
     component,
     metricKeys: metrics.join(','),
     ...branchParameters
   }).catch(throwGlobalError);
-}
-
-interface MeasuresForProjects {
-  component: string;
-  metric: string;
-  periods?: T.PeriodMeasure[];
-  value?: string;
 }
 
 export function getMeasuresForProjects(

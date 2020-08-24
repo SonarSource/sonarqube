@@ -13,12 +13,10 @@ Array [
           "name": "Lines to Cover",
           "type": "INT",
         },
-        "periods": Array [
-          Object {
-            "index": 1,
-            "value": "70",
-          },
-        ],
+        "period": Object {
+          "index": 1,
+          "value": "70",
+        },
         "value": "431",
       },
       Object {
@@ -30,12 +28,10 @@ Array [
           "name": "Coverage",
           "type": "PERCENT",
         },
-        "periods": Array [
-          Object {
-            "index": 1,
-            "value": "0.0999999999999943",
-          },
-        ],
+        "period": Object {
+          "index": 1,
+          "value": "0.0999999999999943",
+        },
         "value": "99.3",
       },
     ],
@@ -52,12 +48,10 @@ Array [
           "name": "Duplicated Lines (%)",
           "type": "PERCENT",
         },
-        "periods": Array [
-          Object {
-            "index": 1,
-            "value": "0.0",
-          },
-        ],
+        "period": Object {
+          "index": 1,
+          "value": "0.0",
+        },
         "value": "3.2",
       },
     ],
