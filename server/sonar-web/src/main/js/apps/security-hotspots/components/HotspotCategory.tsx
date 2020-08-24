@@ -53,7 +53,7 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
         )}
         href="#"
         onClick={() => props.onToggleExpand(categoryKey, !expanded)}>
-        <strong className="flex-1">{title}</strong>
+        <strong className="flex-1 spacer-right break-word">{title}</strong>
         <span>
           <span className="counter-badge">
             {hotspots.length}

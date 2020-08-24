@@ -10,7 +10,7 @@ exports[`should render correctly with hotspots 1`] = `
     onClick={[Function]}
   >
     <strong
-      className="flex-1"
+      className="flex-1 spacer-right break-word"
     >
       Class Injection
     </strong>
@@ -92,7 +92,7 @@ exports[`should render correctly with hotspots: collapsed 1`] = `
     onClick={[Function]}
   >
     <strong
-      className="flex-1"
+      className="flex-1 spacer-right break-word"
     >
       Class Injection
     </strong>
@@ -120,7 +120,7 @@ exports[`should render correctly with hotspots: contains selected 1`] = `
     onClick={[Function]}
   >
     <strong
-      className="flex-1"
+      className="flex-1 spacer-right break-word"
     >
       Class Injection
     </strong>
@@ -202,7 +202,7 @@ exports[`should render correctly with hotspots: lastAndIncomplete 1`] = `
     onClick={[Function]}
   >
     <strong
-      className="flex-1"
+      className="flex-1 spacer-right break-word"
     >
       Class Injection
     </strong>
