@@ -149,7 +149,8 @@ sonar.web.context=/sonarqube
 
 Execute the following script to start the server:
 
-- On Linux/Mac OS: bin/<YOUR OS>/sonar.sh start
+- On Linux: bin/linux-x86-64/sonar.sh start
+- On macOS: bin/macosx-universal-64/sonar.sh start
 - On Windows: bin/windows-x86-64/StartSonar.bat
 
 You can now browse SonarQube at _http://localhost:9000_ (the default System administrator credentials are `admin`/`admin`).
