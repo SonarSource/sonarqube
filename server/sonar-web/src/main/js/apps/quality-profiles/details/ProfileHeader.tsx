@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { IndexLink, Link } from 'react-router';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
-import ProfileDate from '../components/ProfileDate';
 import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
 import { getProfileChangelogPath, getProfilesForLanguagePath, getProfilesPath } from '../utils';
@@ -67,10 +67,10 @@ export default class ProfileHeader extends React.PureComponent<Props> {
         <div className="pull-right">
           <ul className="list-inline" style={{ lineHeight: '24px' }}>
             <li className="small spacer-right">
-              {translate('quality_profiles.updated_')} <ProfileDate date={profile.rulesUpdatedAt} />
+              {translate('quality_profiles.updated_')} <DateFromNow date={profile.rulesUpdatedAt} />
             </li>
             <li className="small big-spacer-right">
-              {translate('quality_profiles.used_')} <ProfileDate date={profile.lastUsed} />
+              {translate('quality_profiles.used_')} <DateFromNow date={profile.lastUsed} />
             </li>
             <li>
               <Link

@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import DocTooltip from '../../../components/docs/DocTooltip';
 import { getRulesUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
-import ProfileDate from '../components/ProfileDate';
 import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
 
@@ -104,11 +104,11 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
       </td>
 
       <td className="quality-profiles-table-date thin nowrap text-middle text-right">
-        <ProfileDate date={profile.rulesUpdatedAt} />
+        <DateFromNow date={profile.rulesUpdatedAt} />
       </td>
 
       <td className="quality-profiles-table-date thin nowrap text-middle text-right">
-        <ProfileDate date={profile.lastUsed} />
+        <DateFromNow date={profile.lastUsed} />
       </td>
 
       <td className="quality-profiles-table-actions thin nowrap text-middle text-right">

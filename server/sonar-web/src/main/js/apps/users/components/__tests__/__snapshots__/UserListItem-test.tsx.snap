@@ -32,8 +32,9 @@ exports[`should render correctly 1`] = `
   <td
     className="thin nowrap text-middle"
   >
-    <DateFromNowHourPrecision
+    <DateFromNow
       date="2019-01-18T15:06:33+0100"
+      hourPrecision={true}
     />
   </td>
   <td
@@ -118,8 +119,9 @@ exports[`should render correctly without last connection date 1`] = `
   <td
     className="thin nowrap text-middle"
   >
-    <DateFromNowHourPrecision
+    <DateFromNow
       date="2019-01-18T15:06:33+0100"
+      hourPrecision={true}
     />
   </td>
   <td

@@ -19,7 +19,7 @@
  */
 import { sortBy } from 'lodash';
 import * as React from 'react';
-import DateTooltipFormatter from 'sonar-ui-common/components/intl/DateTooltipFormatter';
+import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { ComponentQualifier } from '../../../types/component';
 import Event from './Event';
@@ -48,7 +48,7 @@ export function Analysis({ analysis, ...props }: AnalysisProps) {
     <li className="overview-analysis">
       <div className="small little-spacer-bottom">
         <strong>
-          <DateTooltipFormatter date={analysis.date} />
+          <DateTimeFormatter date={analysis.date} />
         </strong>
       </div>
 

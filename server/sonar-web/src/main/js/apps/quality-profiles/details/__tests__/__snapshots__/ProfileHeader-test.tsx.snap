@@ -60,14 +60,14 @@ exports[`should render correctly 1`] = `
       >
         quality_profiles.updated_
          
-        <ProfileDate />
+        <DateFromNow />
       </li>
       <li
         className="small big-spacer-right"
       >
         quality_profiles.used_
          
-        <ProfileDate />
+        <DateFromNow />
       </li>
       <li>
         <Link

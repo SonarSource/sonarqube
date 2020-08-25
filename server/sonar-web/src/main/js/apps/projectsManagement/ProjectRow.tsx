@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import QualifierIcon from 'sonar-ui-common/components/icons/QualifierIcon';
-import DateTooltipFormatter from 'sonar-ui-common/components/intl/DateTooltipFormatter';
+import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
 import { Project } from '../../api/components';
 import PrivacyBadgeContainer from '../../components/common/PrivacyBadgeContainer';
 import { getComponentOverviewUrl } from '../../helpers/urls';
@@ -75,7 +75,7 @@ export default class ProjectRow extends React.PureComponent<Props> {
 
         <td className="thin nowrap text-right">
           {project.lastAnalysisDate ? (
-            <DateTooltipFormatter date={project.lastAnalysisDate} />
+            <DateFormatter date={project.lastAnalysisDate} />
           ) : (
             <span className="note">—</span>
           )}

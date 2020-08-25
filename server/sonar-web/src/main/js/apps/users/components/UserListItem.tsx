@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 import BulletListIcon from 'sonar-ui-common/components/icons/BulletListIcon';
-import DateFromNowHourPrecision from 'sonar-ui-common/components/intl/DateFromNowHourPrecision';
+import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Avatar from '../../../components/ui/Avatar';
 import TokensFormModal from './TokensFormModal';
@@ -61,7 +61,7 @@ export default class UserListItem extends React.PureComponent<Props, State> {
           <UserScmAccounts scmAccounts={user.scmAccounts || []} />
         </td>
         <td className="thin nowrap text-middle">
-          <DateFromNowHourPrecision date={user.lastConnectionDate} />
+          <DateFromNow date={user.lastConnectionDate} hourPrecision={true} />
         </td>
         {!organizationsEnabled && (
           <td className="thin nowrap text-middle">

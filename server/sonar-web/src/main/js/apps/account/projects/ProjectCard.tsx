@@ -20,9 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
-import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import Level from 'sonar-ui-common/components/ui/Level';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import MetaLink from '../../../app/components/nav/component/projectInformation/meta/MetaLink';
@@ -56,11 +54,7 @@ export default function ProjectCard({ project }: Props) {
         {lastAnalysisDate !== undefined ? (
           <div className="account-project-analysis">
             <DateFromNow date={lastAnalysisDate}>
-              {fromNow => (
-                <Tooltip overlay={<DateTimeFormatter date={lastAnalysisDate} />}>
-                  <span>{translateWithParameters('my_account.projects.analyzed_x', fromNow)}</span>
-                </Tooltip>
-              )}
+              {fromNow => translateWithParameters('my_account.projects.analyzed_x', fromNow)}
             </DateFromNow>
           </div>
         ) : (

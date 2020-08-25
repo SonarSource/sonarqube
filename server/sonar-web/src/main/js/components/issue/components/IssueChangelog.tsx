@@ -20,10 +20,8 @@
 import * as React from 'react';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Toggler from 'sonar-ui-common/components/controls/Toggler';
-import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
-import DateTimeFormatter from 'sonar-ui-common/components/intl/DateTimeFormatter';
 import ChangelogPopup from '../popups/ChangelogPopup';
 
 interface Props {
@@ -53,18 +51,14 @@ export default class IssueChangelog extends React.PureComponent<Props> {
           onRequestClose={this.handleClose}
           open={this.props.isOpen}
           overlay={<ChangelogPopup issue={this.props.issue} />}>
-          <Tooltip
-            mouseEnterDelay={0.5}
-            overlay={<DateTimeFormatter date={this.props.creationDate} />}>
-            <ButtonLink
-              className="issue-action issue-action-with-options js-issue-show-changelog"
-              onClick={this.handleClick}>
-              <span className="issue-meta-label">
-                <DateFromNow date={this.props.creationDate} />
-              </span>
-              <DropdownIcon className="little-spacer-left" />
-            </ButtonLink>
-          </Tooltip>
+          <ButtonLink
+            className="issue-action issue-action-with-options js-issue-show-changelog"
+            onClick={this.handleClick}>
+            <span className="issue-meta-label">
+              <DateFromNow date={this.props.creationDate} />
+            </span>
+            <DropdownIcon className="little-spacer-left" />
+          </ButtonLink>
         </Toggler>
       </div>
     );
