@@ -29,6 +29,7 @@ dependencies {
   compile 'org.codehaus.woodstox:stax2-api'
   compile 'org.codehaus.woodstox:woodstox-core-lgpl'
   compile 'org.eclipse.jgit:org.eclipse.jgit'
+  compile 'org.tmatesoft.svnkit:svnkit'
   compile 'org.picocontainer:picocontainer'
   compile 'org.slf4j:jcl-over-slf4j'
   compile 'org.slf4j:jul-to-slf4j'

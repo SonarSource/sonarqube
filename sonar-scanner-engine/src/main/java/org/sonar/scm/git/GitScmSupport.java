@@ -24,7 +24,11 @@ import java.util.List;
 import org.eclipse.jgit.util.FS;
 
 public final class GitScmSupport {
-  public static List<Class<?>> getClasses() {
+  private GitScmSupport() {
+    // static only
+  }
+
+  public static List<Object> getObjects() {
     FS.FileStoreAttributes.setBackground(true);
     return Arrays.asList(
       JGitBlameCommand.class,

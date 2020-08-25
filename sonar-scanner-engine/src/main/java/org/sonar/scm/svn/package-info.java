@@ -17,17 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scm.git;
+@ParametersAreNonnullByDefault
+package org.sonar.scm.svn;
 
-import org.junit.Test;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class GitScmSupportTest {
-
-  @Test
-  public void getClasses() {
-    assertThat(GitScmSupport.getObjects()).hasSize(3);
-  }
-
-}

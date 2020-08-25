@@ -17,17 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scm.git;
+package org.sonar.scm.svn;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.scm.svn.SvnScmSupport.newSvnClientManager;
 
-public class GitScmSupportTest {
+public class SvnScmSupportTest {
+  @Test
+  public void getExtensions() {
+    assertThat(SvnScmSupport.getObjects()).isNotEmpty();
+  }
 
   @Test
-  public void getClasses() {
-    assertThat(GitScmSupport.getObjects()).hasSize(3);
+  public void newSvnClientManager_with_auth() {
+    SvnConfiguration config = mock(SvnConfiguration.class);
+    when(config.password()).thenReturn("password");
+    when(config.passPhrase()).thenReturn("passPhrase");
+    assertThat(newSvnClientManager(config)).isNotNull();
+  }
+
+  @Test
+  public void newSvnClientManager_without_auth() {
+    SvnConfiguration config = mock(SvnConfiguration.class);
+    assertThat(config.password()).isNull();
+    assertThat(config.passPhrase()).isNull();
+    assertThat(newSvnClientManager(config)).isNotNull();
   }
 
 }

@@ -17,17 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scm.git;
+package org.sonar.scm.svn;
 
-import org.junit.Test;
+import java.time.Instant;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class ForkPoint {
+  private String commit;
+  private Instant date;
 
-public class GitScmSupportTest {
-
-  @Test
-  public void getClasses() {
-    assertThat(GitScmSupport.getObjects()).hasSize(3);
+  public ForkPoint(String commit, Instant date) {
+    this.commit = commit;
+    this.date = date;
   }
 
+  public String commit() {
+    return commit;
+  }
+
+  public Instant date() {
+    return date;
+  }
+
+  @Override
+  public String toString() {
+    return "ForkPoint{" +
+      "commit='" + commit + '\'' +
+      ", date=" + date +
+      '}';
+  }
 }
