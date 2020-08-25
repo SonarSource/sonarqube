@@ -3,7 +3,7 @@ title: PLI
 url: /analysis/languages/pli/
 ---
 
-_PL/I is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
+_PL/I analysis is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 
 <!-- static -->
 <!-- update_center:pli -->
