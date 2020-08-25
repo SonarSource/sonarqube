@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { SubmitButton } from 'sonar-ui-common/components/controls/buttons';
 import { ClipboardButton } from 'sonar-ui-common/components/controls/clipboard';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
@@ -128,12 +129,9 @@ export default class EncryptionForm extends React.PureComponent<Props, State> {
               id="encryption.form_note"
               values={{
                 moreInformationLink: (
-                  <a
-                    href="https://redirect.sonarsource.com/doc/settings-encryption.html"
-                    rel="noopener noreferrer"
-                    target="_blank">
+                  <Link to="/documentation/instance-administration/security/" target="_blank">
                     {translate('more_information')}
-                  </a>
+                  </Link>
                 )
               }}
             />

@@ -51,13 +51,14 @@ exports[`should render correctly 1`] = `
         id="encryption.form_note"
         values={
           Object {
-            "moreInformationLink": <a
-              href="https://redirect.sonarsource.com/doc/settings-encryption.html"
-              rel="noopener noreferrer"
+            "moreInformationLink": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
               target="_blank"
+              to="/documentation/instance-administration/security/"
             >
               more_information
-            </a>,
+            </Link>,
           }
         }
       />

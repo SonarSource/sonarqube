@@ -18,33 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 
 const scanners = [
   {
     key: 'sonarqube',
-    link: 'https://redirect.sonarsource.com/doc/install-configure-scanner.html'
+    link: '/documentation/analysis/scan/sonarscanner/'
   },
   {
     key: 'msbuild',
-    link: 'https://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html'
+    link: '/documentation/analysis/scan/sonarscanner-for-msbuild/'
   },
   {
     key: 'maven',
-    link: 'https://redirect.sonarsource.com/doc/install-configure-scanner-maven.html'
+    link: '/documentation/analysis/scan/sonarscanner-for-maven/'
   },
   {
     key: 'gradle',
-    link: 'https://redirect.sonarsource.com/doc/gradle.html'
+    link: '/documentation/analysis/scan/sonarscanner-for-gradle/'
   },
   {
     key: 'jenkins',
-    link: 'https://redirect.sonarsource.com/plugins/jenkins.html'
+    link: '/documentation/analysis/scan/sonarscanner-for-jenkins/'
   },
   {
     key: 'ant',
-    link: 'https://redirect.sonarsource.com/doc/install-configure-scanner-ant.html'
+    link: '/documentation/analysis/scan/sonarscanner-for-ant/'
   }
 ];
 
@@ -56,13 +57,17 @@ export default function AboutScanners() {
         <p className="about-page-text">{translate('about_page.scanners.text')}</p>
         <div className="about-page-analyzers">
           {scanners.map(scanner => (
-            <a className="about-page-analyzer-box" href={scanner.link} key={scanner.key}>
+            <Link
+              className="about-page-analyzer-box"
+              key={scanner.key}
+              to={scanner.link}
+              target="_blank">
               <img
                 alt={translate('about_page.scanners', scanner.key)}
                 height={60}
                 src={`${getBaseUrl()}/images/scanner-logos/${scanner.key}.svg`}
               />
-            </a>
+            </Link>
           ))}
         </div>
       </div>

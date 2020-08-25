@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
@@ -27,9 +28,9 @@ interface Props {
 export default function ReadMore({ link }: Props) {
   return (
     <div className="big-spacer-top">
-      <a className="about-page-link-more" href={link} rel="noopener noreferrer" target="_blank">
+      <Link className="about-page-link-more" to={link} target="_blank">
         <span>{translate('about_page.read_more')}</span>
-      </a>
+      </Link>
     </div>
   );
 }

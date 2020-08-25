@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
@@ -69,12 +70,9 @@ export default function JavaGradle(props: Props) {
           id="onboarding.analysis.docs"
           values={{
             link: (
-              <a
-                href="http://redirect.sonarsource.com/doc/gradle.html"
-                rel="noopener noreferrer"
-                target="_blank">
+              <Link to="/documentation/analysis/scan/sonarscanner-for-gradle/" target="_blank">
                 {translate('onboarding.analysis.java.gradle.docs_link')}
-              </a>
+              </Link>
             )
           }}
         />

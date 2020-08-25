@@ -26,14 +26,15 @@ exports[`renders correctly 1`] = `
     />
   </p>
   <p>
-    <a
+    <Link
       className="button"
-      href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
-      rel="noopener noreferrer"
+      onlyActiveOnIndex={false}
+      style={Object {}}
       target="_blank"
+      to="/documentation/analysis/scan/sonarscanner/"
     >
       download_verb
-    </a>
+    </Link>
   </p>
 </div>
 `;
@@ -64,14 +65,15 @@ exports[`renders correctly 2`] = `
     />
   </p>
   <p>
-    <a
+    <Link
       className="button"
-      href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
-      rel="noopener noreferrer"
+      onlyActiveOnIndex={false}
+      style={Object {}}
       target="_blank"
+      to="/documentation/analysis/scan/sonarscanner/"
     >
       download_verb
-    </a>
+    </Link>
   </p>
 </div>
 `;
@@ -102,14 +104,15 @@ exports[`renders correctly 3`] = `
     />
   </p>
   <p>
-    <a
+    <Link
       className="button"
-      href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
-      rel="noopener noreferrer"
+      onlyActiveOnIndex={false}
+      style={Object {}}
       target="_blank"
+      to="/documentation/analysis/scan/sonarscanner/"
     >
       download_verb
-    </a>
+    </Link>
   </p>
 </div>
 `;

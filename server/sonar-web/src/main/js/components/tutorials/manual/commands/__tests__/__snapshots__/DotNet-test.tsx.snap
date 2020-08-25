@@ -48,13 +48,14 @@ exports[`DotNet renders correctly 2`] = `
       id="onboarding.analysis.docs"
       values={
         Object {
-          "link": <a
-            href="http://redirect.sonarsource.com/doc/install-configure-scanner-msbuild.html"
-            rel="noopener noreferrer"
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
             target="_blank"
+            to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
           >
             onboarding.analysis.msbuild.docs_link
-          </a>,
+          </Link>,
         }
       }
     />

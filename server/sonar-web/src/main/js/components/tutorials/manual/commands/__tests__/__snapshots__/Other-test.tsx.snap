@@ -36,13 +36,14 @@ exports[`renders correctly 1`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <a
-            href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
-            rel="noopener noreferrer"
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
             target="_blank"
+            to="/documentation/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </a>,
+          </Link>,
         }
       }
     />
@@ -86,13 +87,14 @@ exports[`renders correctly 2`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <a
-            href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
-            rel="noopener noreferrer"
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
             target="_blank"
+            to="/documentation/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </a>,
+          </Link>,
         }
       }
     />
@@ -136,13 +138,14 @@ exports[`renders correctly 3`] = `
       id="onboarding.analysis.sq_scanner.docs"
       values={
         Object {
-          "link": <a
-            href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
-            rel="noopener noreferrer"
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
             target="_blank"
+            to="/documentation/analysis/scan/sonarscanner/"
           >
             onboarding.analysis.sq_scanner.docs_link
-          </a>,
+          </Link>,
         }
       }
     />

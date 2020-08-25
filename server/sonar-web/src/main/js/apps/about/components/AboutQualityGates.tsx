@@ -21,7 +21,7 @@ import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import ReadMore from './ReadMore';
 
-const link = 'https://redirect.sonarsource.com/doc/quality-gates.html';
+const link = '/documentation/user-guide/quality-gates/';
 
 export default function AboutQualityGates() {
   return (

@@ -17,20 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import ReadMore from './ReadMore';
+import AboutScanners from '../AboutScanners';
 
-const link = '/documentation/user-guide/clean-as-you-code/';
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+});
 
-export default function AboutLeakPeriod() {
-  return (
-    <div className="boxed-group">
-      <h2>{translate('about_page.fix_the_leak')}</h2>
-      <div className="boxed-group-inner">
-        <p className="about-page-text">{translate('about_page.fix_the_leak_on_new_code.text')}</p>
-        <ReadMore link={link} />
-      </div>
-    </div>
-  );
+function shallowRender() {
+  return shallow(<AboutScanners />);
 }

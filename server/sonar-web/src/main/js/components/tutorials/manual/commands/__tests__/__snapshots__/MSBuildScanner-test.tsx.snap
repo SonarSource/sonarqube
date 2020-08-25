@@ -23,14 +23,15 @@ exports[`renders correctly 1`] = `
     />
   </p>
   <p>
-    <a
+    <Link
       className="button"
-      href="https://sonarcloud.io/documentation/analysis/scan/sonarscanner-for-msbuild/"
-      rel="noopener noreferrer"
+      onlyActiveOnIndex={false}
+      style={Object {}}
       target="_blank"
+      to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
     >
       download_verb
-    </a>
+    </Link>
   </p>
 </div>
 `;

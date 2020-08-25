@@ -33,13 +33,14 @@ exports[`renders correctly 1`] = `
       id="onboarding.analysis.docs"
       values={
         Object {
-          "link": <a
-            href="http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
-            rel="noopener noreferrer"
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
             target="_blank"
+            to="/documentation/analysis/scan/sonarscanner-for-gradle/"
           >
             onboarding.analysis.java.maven.docs_link
-          </a>,
+          </Link>,
         }
       }
     />
@@ -85,13 +86,14 @@ exports[`renders correctly 2`] = `
       id="onboarding.analysis.docs"
       values={
         Object {
-          "link": <a
-            href="http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
-            rel="noopener noreferrer"
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
             target="_blank"
+            to="/documentation/analysis/scan/sonarscanner-for-gradle/"
           >
             onboarding.analysis.java.maven.docs_link
-          </a>,
+          </Link>,
         }
       }
     />
@@ -137,13 +139,14 @@ exports[`renders with projectKey 1`] = `
       id="onboarding.analysis.docs"
       values={
         Object {
-          "link": <a
-            href="http://redirect.sonarsource.com/doc/install-configure-scanner-maven.html"
-            rel="noopener noreferrer"
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
             target="_blank"
+            to="/documentation/analysis/scan/sonarscanner-for-gradle/"
           >
             onboarding.analysis.java.maven.docs_link
-          </a>,
+          </Link>,
         }
       }
     />

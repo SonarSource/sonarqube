@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
@@ -37,13 +38,12 @@ export default function MSBuildScanner(props: Props) {
         />
       </p>
       <p>
-        <a
+        <Link
           className="button"
-          href="https://sonarcloud.io/documentation/analysis/scan/sonarscanner-for-msbuild/"
-          rel="noopener noreferrer"
+          to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
           target="_blank">
           {translate('download_verb')}
-        </a>
+        </Link>
       </p>
     </div>
   );

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
@@ -43,13 +44,9 @@ export default function SQScanner(props: Props) {
         />
       </p>
       <p>
-        <a
-          className="button"
-          href="http://redirect.sonarsource.com/doc/install-configure-scanner.html"
-          rel="noopener noreferrer"
-          target="_blank">
+        <Link className="button" to="/documentation/analysis/scan/sonarscanner/" target="_blank">
           {translate('download_verb')}
-        </a>
+        </Link>
       </p>
     </div>
   );

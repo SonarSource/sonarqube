@@ -24,7 +24,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import ReadMore from './ReadMore';
 
-const link = 'https://redirect.sonarsource.com/doc/rules.html';
+const link = '/documentation/user-guide/rules/';
 
 const owaspTags =
   'owasp-a1,owasp-a2,owasp-a3,owasp-a4,owasp-a5,owasp-a6,owasp-a7,owasp-a8,owasp-a9,owasp-a10';
