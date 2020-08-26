@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -620,6 +621,23 @@ public class SearchProjectsActionTest {
     ComponentDto markDownProject = insertProject(organization);
     ComponentDto sonarQubeProject = insertProject(organization);
     Stream.of(javaProject, markDownProject).forEach(this::addFavourite);
+
+    SearchProjectsWsResponse result = call(request.setFilter("isFavorite"));
+
+    assertThat(result.getComponentsCount()).isEqualTo(2);
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(javaProject.getDbKey(), markDownProject.getDbKey());
+  }
+
+  @Test
+  public void does_not_fail_on_orphan_favorite() {
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto javaProject = insertProject(organization);
+    ComponentDto markDownProject = insertProject(organization);
+    ComponentDto sonarQubeProject = insertProject(organization);
+    Stream.of(javaProject, markDownProject).forEach(this::addFavourite);
+
+    addFavourite((String) null);
 
     SearchProjectsWsResponse result = call(request.setFilter("isFavorite"));
 
@@ -1411,7 +1429,11 @@ public class SearchProjectsActionTest {
   }
 
   private void addFavourite(ComponentDto project) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setComponentUuid(project.uuid()).setUserUuid(userSession.getUuid()));
+    addFavourite(project.uuid());
+  }
+
+  private void addFavourite(@Nullable String componentUuid) {
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setKey("favourite").setComponentUuid(componentUuid).setUserUuid(userSession.getUuid()));
     dbSession.commit();
   }
 

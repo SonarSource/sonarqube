@@ -360,6 +360,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     List<String> favoriteDbUuids = props.stream()
       .map(PropertyDto::getComponentUuid)
+      .filter(Objects::nonNull)
       .collect(MoreCollectors.toList(props.size()));
 
     return dbClient.componentDao().selectByUuids(dbSession, favoriteDbUuids).stream()

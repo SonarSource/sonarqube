@@ -31,6 +31,7 @@ public class DbVersion85 implements DbVersion {
       .add(4002, "Drop 'project_alm_bindings' table", DropProjectAlmBindings.class)
       .add(4003, "Drop unused variation values columns in 'project_measures' table", DropUnusedVariationsInProjectMeasures.class)
       .add(4004, "Drop unused periods in 'snapshots' table", DropUnusedPeriodsInSnapshots.class)
+      .add(4005, "Drop orphan favorites from 'properties' table", DropOrphanFavoritesFromProperties.class)
 
     ;
   }

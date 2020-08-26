@@ -98,10 +98,10 @@ public class ComponentViewerJsonWriter {
     writeComponentWithoutFav(json, component, session, true);
 
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-        .setKey("favourite")
-        .setComponentUuid(component.uuid())
+      .setKey("favourite")
+      .setComponentUuid(component.uuid())
       .setUserUuid(userSession.getUuid())
-        .build(),
+      .build(),
       session);
     boolean isFavourite = propertyDtos.size() == 1;
     json.prop("fav", isFavourite);
