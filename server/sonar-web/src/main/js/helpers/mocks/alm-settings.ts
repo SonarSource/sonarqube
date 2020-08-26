@@ -26,7 +26,8 @@ import {
   GitlabBindingDefinition,
   ProjectAlmBindingResponse,
   ProjectBitbucketBindingResponse,
-  ProjectGitHubBindingResponse
+  ProjectGitHubBindingResponse,
+  ProjectGitLabBindingResponse
 } from '../../types/alm-settings';
 
 export function mockAlmSettingsInstance(
@@ -113,6 +114,18 @@ export function mockProjectGithubBindingResponse(
     alm: AlmKeys.GitHub,
     key: 'foo',
     repository: 'PROJECT_KEY',
+    ...overrides
+  };
+}
+
+export function mockProjectGitLabBindingResponse(
+  overrides: Partial<ProjectGitLabBindingResponse> = {}
+): ProjectGitLabBindingResponse {
+  return {
+    alm: AlmKeys.GitLab,
+    key: 'foo',
+    repository: 'PROJECT_KEY',
+    url: 'https://gitlab.com/api/v4',
     ...overrides
   };
 }

@@ -1,0 +1,226 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for build tool gradle 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        checked="gradle"
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "other",
+          ]
+        }
+      />
+    </li>
+    <li
+      className="abs-width-600"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.project_key.gradle.step2"
+        id="onboarding.tutorial.with.gitlab_ci.project_key.gradle.step2"
+        values={
+          Object {
+            "file": <React.Fragment>
+              <code
+                className="rule"
+              >
+                build.gradle
+              </code>
+              <ClipboardIconButton
+                className="little-spacer-left"
+                copyValue="build.gradle"
+              />
+            </React.Fragment>,
+          }
+        }
+      />
+      <CodeSnippet
+        snippet="plugins {
+  id \\"org.sonarqube\\" version \\"3.0\\"
+}
+
+sonarqube {
+  properties {
+    property \\"sonar.projectKey\\", \\"my-project\\"
+    property \\"sonar.qualitygate.wait\\", true 
+  }
+}"
+      />
+    </li>
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`should render correctly for build tool maven 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        checked="maven"
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "other",
+          ]
+        }
+      />
+    </li>
+    <li
+      className="abs-width-600"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.project_key.maven.step2"
+        id="onboarding.tutorial.with.gitlab_ci.project_key.maven.step2"
+        values={
+          Object {
+            "file": <React.Fragment>
+              <code
+                className="rule"
+              >
+                pom.xml
+              </code>
+              <ClipboardIconButton
+                className="little-spacer-left"
+                copyValue="pom.xml"
+              />
+            </React.Fragment>,
+          }
+        }
+      />
+      <CodeSnippet
+        snippet="<properties>
+  <sonar.projectKey>my-project</sonar.projectKey>
+  <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+</properties>"
+      />
+    </li>
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`should render correctly for build tool other 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        checked="other"
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "other",
+          ]
+        }
+      />
+    </li>
+    <li
+      className="abs-width-600"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.project_key.other.step2"
+        id="onboarding.tutorial.with.gitlab_ci.project_key.other.step2"
+        values={
+          Object {
+            "file": <React.Fragment>
+              <code
+                className="rule"
+              >
+                sonar-project.properties
+              </code>
+              <ClipboardIconButton
+                className="little-spacer-left"
+                copyValue="sonar-project.properties"
+              />
+            </React.Fragment>,
+          }
+        }
+      />
+      <CodeSnippet
+        snippet="sonar.projectKey=my-project
+sonar.qualitygate.wait=true
+"
+      />
+    </li>
+  </ol>
+  <Button
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;
+
+exports[`should render correctly: Step wrapper 1`] = `
+<Step
+  finished={false}
+  onOpen={[MockFunction]}
+  open={true}
+  renderForm={[Function]}
+  stepNumber={1}
+  stepTitle="onboarding.tutorial.with.gitlab_ci.project_key.title"
+/>
+`;
+
+exports[`should render correctly: initial content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <ol
+    className="list-styled"
+  >
+    <li>
+      onboarding.build
+      <RenderOptions
+        name="buildtool"
+        onCheck={[Function]}
+        optionLabelKey="onboarding.build"
+        options={
+          Array [
+            "maven",
+            "gradle",
+            "other",
+          ]
+        }
+      />
+    </li>
+  </ol>
+</div>
+`;

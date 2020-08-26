@@ -17,16 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  GitLabCI = 'gitlab-ci'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import PipeCommandOther from '../PipeCommandOther';
 
-export interface LanguageConfig {
-  language?: string;
-  javaBuild?: string;
-  cFamilyCompiler?: string;
-  os?: string;
-  projectKey?: string;
-}
+it('should render correctly', () => {
+  expect(shallow(<PipeCommandOther />)).toMatchSnapshot();
+});

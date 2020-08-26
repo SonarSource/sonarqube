@@ -17,16 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  GitLabCI = 'gitlab-ci'
-}
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import { renderStepContent } from '../../jenkins/test-utils';
+import { BuildTools } from '../types';
+import YmlFileStep, { YmlFileStepProps } from '../YmlFileStep';
 
-export interface LanguageConfig {
-  language?: string;
-  javaBuild?: string;
-  cFamilyCompiler?: string;
-  os?: string;
-  projectKey?: string;
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot('Step wrapper');
+  expect(renderStepContent(wrapper)).toMatchSnapshot('initial content');
+});
+
+it.each([[BuildTools.Maven], [BuildTools.Gradle], [BuildTools.Other]])(
+  'should render correctly for build tool %s',
+  buildTool => {
+    expect(renderStepContent(shallowRender({ buildTool }))).toMatchSnapshot();
+  }
+);
+
+function shallowRender(props: Partial<YmlFileStepProps> = {}) {
+  return shallow<YmlFileStepProps>(<YmlFileStep open={true} {...props} />);
 }

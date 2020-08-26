@@ -17,16 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  GitLabCI = 'gitlab-ci'
-}
-
-export interface LanguageConfig {
-  language?: string;
-  javaBuild?: string;
-  cFamilyCompiler?: string;
-  os?: string;
-  projectKey?: string;
+export enum BuildTools {
+  Maven = 'maven',
+  Gradle = 'gradle',
+  // MSBuild = 'msbuild', // Not yet supported
+  Other = 'other'
 }

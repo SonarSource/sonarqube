@@ -1,0 +1,173 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: Step wrapper 1`] = `
+<Fragment>
+  <Step
+    finished={false}
+    onOpen={[MockFunction]}
+    open={true}
+    renderForm={[Function]}
+    stepNumber={2}
+    stepTitle="onboarding.tutorial.with.gitlab_ci.env_variables.title"
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: initial content 1`] = `
+<div
+  className="boxed-group-inner"
+>
+  <h2
+    className="spacer-bottom spacer-top"
+  >
+    onboarding.tutorial.with.gitlab_ci.env_variables.section.title
+  </h2>
+  <FormattedMessage
+    defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
+    id="onboarding.tutorial.with.gitlab_ci.env_variables.section.description"
+    values={
+      Object {
+        "link": <strong>
+          onboarding.tutorial.with.gitlab_ci.env_variables.description.link
+        </strong>,
+      }
+    }
+  />
+  <ol
+    className="list-styled big-spacer-top"
+  >
+    <li
+      className="big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.enter_field_value"
+        id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
+        values={
+          Object {
+            "extra": <ClipboardIconButton
+              copyValue="SONAR_TOKEN"
+            />,
+            "field": "onboarding.tutorial.with.gitlab_ci.env_variables.step1",
+            "value": <code
+              className="rule"
+            >
+              SONAR_TOKEN
+            </code>,
+          }
+        }
+      />
+    </li>
+    <li
+      className="big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.enter_field_value"
+        id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
+        values={
+          Object {
+            "extra": <Button
+              className="spacer-left"
+              onClick={[Function]}
+            >
+              onboarding.token.generate_token
+            </Button>,
+            "field": "onboarding.tutorial.with.gitlab_ci.env_variables.step2",
+            "value": "onboarding.tutorial.with.gitlab_ci.env_variables.section.step2.value",
+          }
+        }
+      />
+    </li>
+    <li
+      className="big-spacer-bottom"
+    >
+      onboarding.tutorial.with.gitlab_ci.env_variables.step3
+    </li>
+    <li
+      className="big-spacer-bottom"
+    >
+      onboarding.tutorial.with.gitlab_ci.env_variables.section.step4
+    </li>
+  </ol>
+  <hr
+    className="no-horizontal-margins"
+  />
+  <h2
+    className="spacer-bottom big-spacer-top"
+  >
+    onboarding.tutorial.with.gitlab_ci.env_variables.section2.title
+  </h2>
+  <FormattedMessage
+    defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
+    id="onboarding.tutorial.with.gitlab_ci.env_variables.section2.description"
+    values={
+      Object {
+        "link": <strong>
+          onboarding.tutorial.with.gitlab_ci.env_variables.description.link
+        </strong>,
+      }
+    }
+  />
+  <ol
+    className="list-styled big-spacer-top big-spacer-bottom"
+  >
+    <li
+      className="big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.enter_field_value"
+        id="onboarding.tutorial.with.gitlab_ci.env_variables.step1"
+        values={
+          Object {
+            "extra": <ClipboardIconButton
+              copyValue="SONAR_HOST_URL"
+            />,
+            "field": "onboarding.tutorial.with.gitlab_ci.env_variables.step1",
+            "value": <code
+              className="rule"
+            >
+              SONAR_HOST_URL
+            </code>,
+          }
+        }
+      />
+    </li>
+    <li
+      className="big-spacer-bottom"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.tutorial.with.gitlab_ci.env_variables.enter_field_value"
+        id="onboarding.tutorial.with.gitlab_ci.env_variables.step2"
+        values={
+          Object {
+            "extra": <ClipboardIconButton
+              copyValue="http://localhost"
+            />,
+            "field": "onboarding.tutorial.with.gitlab_ci.env_variables.step2",
+            "value": <code
+              className="rule"
+            >
+              http://localhost
+            </code>,
+          }
+        }
+      />
+    </li>
+    <li
+      className="big-spacer-bottom"
+    >
+      onboarding.tutorial.with.gitlab_ci.env_variables.step3
+    </li>
+    <li
+      className="big-spacer-bottom"
+    >
+      onboarding.tutorial.with.gitlab_ci.env_variables.section2.step4
+    </li>
+  </ol>
+  <Button
+    className="big-spacer-bottom"
+    onClick={[MockFunction]}
+  >
+    continue
+  </Button>
+</div>
+`;

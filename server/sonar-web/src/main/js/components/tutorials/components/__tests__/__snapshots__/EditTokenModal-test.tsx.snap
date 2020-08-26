@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<SimpleModal
+  header="onboarding.token.generate_token"
+  onClose={[MockFunction]}
+  onSubmit={[MockFunction]}
+>
+  <Component />
+</SimpleModal>
+`;

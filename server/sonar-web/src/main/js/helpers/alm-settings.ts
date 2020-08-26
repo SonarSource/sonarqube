@@ -24,7 +24,8 @@ import {
   GithubBindingDefinition,
   ProjectAlmBindingResponse,
   ProjectBitbucketBindingResponse,
-  ProjectGitHubBindingResponse
+  ProjectGitHubBindingResponse,
+  ProjectGitLabBindingResponse
 } from '../types/alm-settings';
 
 export function isProjectBitbucketBindingResponse(
@@ -37,6 +38,12 @@ export function isProjectGitHubBindingResponse(
   binding: ProjectAlmBindingResponse
 ): binding is ProjectGitHubBindingResponse {
   return binding.alm === AlmKeys.GitHub;
+}
+
+export function isProjectGitLabBindingResponse(
+  binding: ProjectAlmBindingResponse
+): binding is ProjectGitLabBindingResponse {
+  return binding.alm === AlmKeys.GitLab;
 }
 
 export function isBitbucketBindingDefinition(

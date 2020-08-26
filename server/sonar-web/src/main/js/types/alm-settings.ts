@@ -69,6 +69,12 @@ export interface ProjectGitHubBindingResponse extends ProjectAlmBindingResponse 
   repository: string;
 }
 
+export interface ProjectGitLabBindingResponse extends ProjectAlmBindingResponse {
+  alm: AlmKeys.GitLab;
+  repository: string;
+  url: string;
+}
+
 export interface ProjectAlmBindingParams {
   almSetting: string;
   project: string;

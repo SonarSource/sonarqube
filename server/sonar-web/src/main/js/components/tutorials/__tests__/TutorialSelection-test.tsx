@@ -57,8 +57,8 @@ it('should not select anything if project is bound to Bitbucket', async () => {
   expect(wrapper.state().forceManual).toBe(false);
 });
 
-it('should select manual if project is bound to any other ALM', async () => {
-  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce({ alm: AlmKeys.GitLab });
+it('should select manual if project is bound to unsupported ALM', async () => {
+  (getProjectAlmBinding as jest.Mock).mockResolvedValueOnce({ alm: AlmKeys.Azure });
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
   expect(wrapper.state().forceManual).toBe(true);

@@ -23,7 +23,8 @@ import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import {
   mockBitbucketBindingDefinition,
-  mockProjectBitbucketBindingResponse
+  mockProjectBitbucketBindingResponse,
+  mockProjectGitLabBindingResponse
 } from '../../../helpers/mocks/alm-settings';
 import { mockComponent, mockLoggedInUser } from '../../../helpers/testMocks';
 import TutorialSelectionRenderer, {
@@ -33,6 +34,9 @@ import { TutorialModes } from '../types';
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('selection');
+  expect(shallowRender({ projectBinding: mockProjectBitbucketBindingResponse() })).toMatchSnapshot(
+    'selection with jenkins available'
+  );
   expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
   expect(shallowRender({ selectedTutorial: TutorialModes.Manual })).toMatchSnapshot(
     'manual tutorial'
@@ -43,17 +47,37 @@ it('should render correctly', () => {
       projectBinding: mockProjectBitbucketBindingResponse()
     })
   ).toMatchSnapshot('jenkins tutorial');
+  expect(
+    shallowRender({
+      selectedTutorial: TutorialModes.GitLabCI,
+      projectBinding: mockProjectGitLabBindingResponse()
+    })
+  ).toMatchSnapshot('gitlab tutorial');
 });
 
 it('should allow mode selection', () => {
   const onSelectTutorial = jest.fn();
-  const wrapper = shallowRender({ onSelectTutorial });
+  const wrapper = shallowRender({
+    onSelectTutorial,
+    projectBinding: mockProjectBitbucketBindingResponse()
+  });
 
   click(wrapper.find('button.tutorial-mode-jenkins'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Jenkins);
 
   click(wrapper.find('button.tutorial-mode-manual'));
   expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.Manual);
+});
+
+it('should allow gitlab selection', () => {
+  const onSelectTutorial = jest.fn();
+  const wrapper = shallowRender({
+    onSelectTutorial,
+    projectBinding: mockProjectGitLabBindingResponse()
+  });
+
+  click(wrapper.find('button.tutorial-mode-gitlab'));
+  expect(onSelectTutorial).toHaveBeenLastCalledWith(TutorialModes.GitLabCI);
 });
 
 function shallowRender(props: Partial<TutorialSelectionRendererProps> = {}) {

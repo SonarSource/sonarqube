@@ -17,7 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-.tutorial-selection {
-  margin: 0 auto;
-  max-width: 500px;
+import * as React from 'react';
+import CodeSnippet from '../../../common/CodeSnippet';
+
+export default function PipeCommandGradle() {
+  const command = `sonarqube-check:
+  image: gradle:jre11-slim
+  variables:
+    SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "\${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: gradle sonarqube
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+    - develop
+`;
+
+  return <CodeSnippet snippet={command} />;
 }

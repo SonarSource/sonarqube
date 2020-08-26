@@ -17,16 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export enum TutorialModes {
-  Manual = 'manual',
-  Jenkins = 'jenkins',
-  GitLabCI = 'gitlab-ci'
-}
+import * as React from 'react';
+import CodeSnippet from '../../../common/CodeSnippet';
 
-export interface LanguageConfig {
-  language?: string;
-  javaBuild?: string;
-  cFamilyCompiler?: string;
-  os?: string;
-  projectKey?: string;
+export default function PipeCommandOther() {
+  const command = `sonarqube-check:
+  image:
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "\${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "\${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script:
+    - sonar-scanner
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+    - develop
+`;
+
+  return <CodeSnippet snippet={command} />;
 }
