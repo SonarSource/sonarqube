@@ -44,6 +44,9 @@ public class DbVersion85 implements DbVersion {
       .add(4013, "add index on 'issue_key' for table 'issue_changes'", AddIndexOnIssueKeyForIssueChangesTable.class)
       .add(4014, "add index on 'kee' for table 'issue_changes'", AddIndexOnKeeForIssueChangesTable.class)
       .add(4015, "add index on 'project_uuid' for table 'issue_changes'", AddIndexOnProjectUuidOnIssueChangesTable.class)
+      .add(4016, "Add 'type' column to 'plugins' table", AddTypeToPlugins.class)
+      .add(4017, "Populate 'type' column in 'plugins' table", PopulateTypeInPlugins.class)
+      .add(4018, "Alter 'type' column in 'plugins' to not nullable", AlterTypeInPluginNotNullable.class)
 
     ;
   }

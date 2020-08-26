@@ -147,11 +147,11 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
 
   private void loadQualityProfiles(ScannerReport.Metadata reportMetadata, Organization organization) {
     checkQualityProfilesConsistency(reportMetadata, organization);
-    analysisMetadata.setQProfilesByLanguage(reportMetadata.getQprofilesPerLanguage().values().stream()
+    analysisMetadata.setQProfilesByLanguage(reportMetadata.getQprofilesPerLanguageMap().values().stream()
       .collect(toMap(
         QProfile::getLanguage,
         qp -> new QualityProfile(qp.getKey(), qp.getName(), qp.getLanguage(), new Date(qp.getRulesUpdatedAt())))));
-    analysisMetadata.setScannerPluginsByKey(reportMetadata.getPluginsByKey().values().stream()
+    analysisMetadata.setScannerPluginsByKey(reportMetadata.getPluginsByKeyMap().values().stream()
       .collect(toMap(
         Plugin::getKey,
         p -> new ScannerPlugin(p.getKey(), getBasePluginKey(p), p.getUpdatedAt()))));
@@ -171,9 +171,9 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
    * Check that the Quality profiles sent by scanner correctly relate to the project organization.
    */
   private void checkQualityProfilesConsistency(ScannerReport.Metadata metadata, Organization organization) {
-    List<String> profileKeys = metadata.getQprofilesPerLanguage().values().stream()
+    List<String> profileKeys = metadata.getQprofilesPerLanguageMap().values().stream()
       .map(QProfile::getKey)
-      .collect(toList(metadata.getQprofilesPerLanguage().size()));
+      .collect(toList(metadata.getQprofilesPerLanguageMap().size()));
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<QProfileDto> profiles = dbClient.qualityProfileDao().selectByUuids(dbSession, profileKeys);
       String badKeys = profiles.stream()

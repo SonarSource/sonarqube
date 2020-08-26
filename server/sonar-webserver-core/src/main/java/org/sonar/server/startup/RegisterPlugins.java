@@ -32,8 +32,9 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.plugin.PluginDto;
-import org.sonar.server.plugins.InstalledPlugin;
-import org.sonar.server.plugins.PluginFileSystem;
+import org.sonar.server.plugins.PluginType;
+import org.sonar.server.plugins.ServerPlugin;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 import static java.util.function.Function.identity;
 
@@ -45,13 +46,13 @@ public class RegisterPlugins implements Startable {
 
   private static final Logger LOG = Loggers.get(RegisterPlugins.class);
 
-  private final PluginFileSystem pluginFileSystem;
+  private final ServerPluginRepository serverPluginRepository;
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
   private final System2 system;
 
-  public RegisterPlugins(PluginFileSystem pluginFileSystem, DbClient dbClient, UuidFactory uuidFactory, System2 system) {
-    this.pluginFileSystem = pluginFileSystem;
+  public RegisterPlugins(ServerPluginRepository serverPluginRepository, DbClient dbClient, UuidFactory uuidFactory, System2 system) {
+    this.serverPluginRepository = serverPluginRepository;
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
     this.system = system;
@@ -74,7 +75,7 @@ public class RegisterPlugins implements Startable {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, PluginDto> allPreviousPluginsByKey = dbClient.pluginDao().selectAll(dbSession).stream()
         .collect(Collectors.toMap(PluginDto::getKee, identity()));
-      for (InstalledPlugin installed : pluginFileSystem.getInstalledFiles()) {
+      for (ServerPlugin installed : serverPluginRepository.getPlugins()) {
         PluginInfo info = installed.getPluginInfo();
         PluginDto previousDto = allPreviousPluginsByKey.get(info.getKey());
         if (previousDto == null) {
@@ -83,21 +84,34 @@ public class RegisterPlugins implements Startable {
             .setUuid(uuidFactory.create())
             .setKee(info.getKey())
             .setBasePluginKey(info.getBasePlugin())
-            .setFileHash(installed.getLoadedJar().getMd5())
+            .setFileHash(installed.getJar().getMd5())
+            .setType(toTypeDto(installed.getType()))
             .setCreatedAt(now)
             .setUpdatedAt(now);
           dbClient.pluginDao().insert(dbSession, pluginDto);
-        } else if (!previousDto.getFileHash().equals(installed.getLoadedJar().getMd5())) {
+        } else if (!previousDto.getFileHash().equals(installed.getJar().getMd5()) || !previousDto.getType().equals(toTypeDto(installed.getType()))) {
           LOG.debug("Update plugin {}", info.getKey());
           previousDto
             .setBasePluginKey(info.getBasePlugin())
-            .setFileHash(installed.getLoadedJar().getMd5())
+            .setFileHash(installed.getJar().getMd5())
+            .setType(toTypeDto(installed.getType()))
             .setUpdatedAt(now);
           dbClient.pluginDao().update(dbSession, previousDto);
         }
         // Don't remove uninstalled plugins, because corresponding rules and active rules are also not deleted
       }
       dbSession.commit();
+    }
+  }
+
+  private static PluginDto.Type toTypeDto(PluginType type) {
+    switch (type) {
+      case EXTERNAL:
+        return PluginDto.Type.EXTERNAL;
+      case BUNDLED:
+        return PluginDto.Type.BUNDLED;
+      default:
+        throw new IllegalStateException("Unknown type: " + type);
     }
   }
 

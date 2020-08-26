@@ -26,12 +26,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.ExplodedPlugin;
+import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.ServerFileSystem;
 
@@ -49,16 +51,18 @@ public class CePluginRepository implements PluginRepository, Startable {
   private static final String NOT_STARTED_YET = "not started yet";
 
   private final ServerFileSystem fs;
-  private final PluginLoader loader;
+  private final PluginClassLoader loader;
+  private final CePluginJarExploder cePluginJarExploder;
   private final AtomicBoolean started = new AtomicBoolean(false);
 
   // following fields are available after startup
   private final Map<String, PluginInfo> pluginInfosByKeys = new HashMap<>();
   private final Map<String, Plugin> pluginInstancesByKeys = new HashMap<>();
 
-  public CePluginRepository(ServerFileSystem fs, PluginLoader loader) {
+  public CePluginRepository(ServerFileSystem fs, PluginClassLoader loader, CePluginJarExploder cePluginJarExploder) {
     this.fs = fs;
     this.loader = loader;
+    this.cePluginJarExploder = cePluginJarExploder;
   }
 
   @Override
@@ -66,7 +70,8 @@ public class CePluginRepository implements PluginRepository, Startable {
     Loggers.get(getClass()).info("Load plugins");
     registerPluginsFromDir(fs.getInstalledBundledPluginsDir());
     registerPluginsFromDir(fs.getInstalledExternalPluginsDir());
-    pluginInstancesByKeys.putAll(loader.load(pluginInfosByKeys));
+    Map<String, ExplodedPlugin> explodedPluginsByKey = extractPlugins(pluginInfosByKeys);
+    pluginInstancesByKeys.putAll(loader.load(explodedPluginsByKey));
     started.set(true);
   }
 
@@ -75,6 +80,12 @@ public class CePluginRepository implements PluginRepository, Startable {
       PluginInfo info = PluginInfo.create(file);
       pluginInfosByKeys.put(info.getKey(), info);
     }
+  }
+
+  private Map<String, ExplodedPlugin> extractPlugins(Map<String, PluginInfo> pluginsByKey) {
+    return pluginsByKey.values().stream()
+      .map(cePluginJarExploder::explode)
+      .collect(Collectors.toMap(ExplodedPlugin::getKey, p -> p));
   }
 
   @Override
@@ -108,6 +119,11 @@ public class CePluginRepository implements PluginRepository, Startable {
     Plugin plugin = pluginInstancesByKeys.get(key);
     checkArgument(plugin != null, "Plugin [%s] does not exist", key);
     return plugin;
+  }
+
+  @Override
+  public Collection<Plugin> getPluginInstances() {
+    return pluginInstancesByKeys.values();
   }
 
   @Override

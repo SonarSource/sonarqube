@@ -19,11 +19,8 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.Optional;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -86,11 +83,9 @@ public class UpdateAction implements PluginsWsAction {
     PluginUpdate pluginUpdate = MISSING_PLUGIN;
 
     if (updateCenter.isPresent()) {
-      pluginUpdate = Iterables.find(
-        updateCenter.get().findPluginUpdates(),
-        new PluginKeyPredicate(key),
-        MISSING_PLUGIN
-        );
+      pluginUpdate = updateCenter.get().findPluginUpdates().stream()
+        .filter(update -> update != null && key.equals(update.getPlugin().getKey()))
+        .findFirst().orElse(MISSING_PLUGIN);
     }
 
     if (pluginUpdate == MISSING_PLUGIN) {
@@ -98,18 +93,5 @@ public class UpdateAction implements PluginsWsAction {
         format("No plugin with key '%s' or plugin '%s' is already in latest compatible version", key, key));
     }
     return pluginUpdate;
-  }
-
-  private static class PluginKeyPredicate implements Predicate<PluginUpdate> {
-    private final String key;
-
-    public PluginKeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(@Nullable PluginUpdate input) {
-      return input != null && key.equals(input.getPlugin().getKey());
-    }
   }
 }

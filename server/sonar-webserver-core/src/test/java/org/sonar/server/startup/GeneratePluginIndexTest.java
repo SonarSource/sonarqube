@@ -29,14 +29,15 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.platform.ServerFileSystem;
-import org.sonar.server.plugins.InstalledPlugin;
-import org.sonar.server.plugins.InstalledPlugin.FileAndMd5;
-import org.sonar.server.plugins.PluginFileSystem;
+import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
+import org.sonar.server.plugins.ServerPlugin;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.plugins.PluginType.BUNDLED;
 
 public class GeneratePluginIndexTest {
 
@@ -44,7 +45,7 @@ public class GeneratePluginIndexTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private ServerFileSystem serverFileSystem = mock(ServerFileSystem.class);
-  private PluginFileSystem pluginFileSystem = mock(PluginFileSystem.class);
+  private ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
   private File index;
 
   @Before
@@ -55,17 +56,17 @@ public class GeneratePluginIndexTest {
 
   @Test
   public void shouldWriteIndex() throws IOException {
-    InstalledPlugin javaPlugin = newInstalledPlugin("java", true);
-    InstalledPlugin gitPlugin = newInstalledPlugin("scmgit", false);
-    when(pluginFileSystem.getInstalledFiles()).thenReturn(asList(javaPlugin, gitPlugin));
+    ServerPlugin javaPlugin = newInstalledPlugin("java", true);
+    ServerPlugin gitPlugin = newInstalledPlugin("scmgit", false);
+    when(serverPluginRepository.getPlugins()).thenReturn(asList(javaPlugin, gitPlugin));
 
-    GeneratePluginIndex underTest = new GeneratePluginIndex(serverFileSystem, pluginFileSystem);
+    GeneratePluginIndex underTest = new GeneratePluginIndex(serverFileSystem, serverPluginRepository);
     underTest.start();
 
     List<String> lines = FileUtils.readLines(index);
     assertThat(lines).containsExactly(
-      "java,true," + javaPlugin.getLoadedJar().getFile().getName() + "|" + javaPlugin.getLoadedJar().getMd5(),
-      "scmgit,false," + gitPlugin.getLoadedJar().getFile().getName() + "|" + gitPlugin.getLoadedJar().getMd5());
+      "java,true," + javaPlugin.getJar().getFile().getName() + "|" + javaPlugin.getJar().getMd5(),
+      "scmgit,false," + gitPlugin.getJar().getFile().getName() + "|" + gitPlugin.getJar().getMd5());
 
     underTest.stop();
   }
@@ -77,12 +78,12 @@ public class GeneratePluginIndexTest {
     File wrongIndex = new File(wrongParent, "index.txt");
     when(serverFileSystem.getPluginIndex()).thenReturn(wrongIndex);
 
-    new GeneratePluginIndex(serverFileSystem, pluginFileSystem).start();
+    new GeneratePluginIndex(serverFileSystem, serverPluginRepository).start();
   }
 
-  private InstalledPlugin newInstalledPlugin(String key, boolean supportSonarLint) throws IOException {
+  private ServerPlugin newInstalledPlugin(String key, boolean supportSonarLint) throws IOException {
     FileAndMd5 jar = new FileAndMd5(temp.newFile());
     PluginInfo pluginInfo = new PluginInfo(key).setJarFile(jar.getFile()).setSonarLintSupported(supportSonarLint);
-    return new InstalledPlugin(pluginInfo, jar, null);
+    return new ServerPlugin(pluginInfo, BUNDLED, null, jar, null, null);
   }
 }

@@ -25,17 +25,19 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class PluginDto {
   /** Technical unique identifier, can't be null */
-  private String uuid;
+  private String uuid = null;
   /** Plugin key, unique, can't be null */
-  private String kee;
+  private String kee = null;
   /** Base plugin key, can be null */
-  private String basePluginKey;
+  private String basePluginKey = null;
   /** JAR file MD5 checksum, can't be null */
-  private String fileHash;
+  private String fileHash = null;
+  // core feature or not
+  private Type type = null;
   /** Time plugin was first installed */
-  private long createdAt;
+  private long createdAt = 0L;
   /** Time of last plugin update (=md5 change) */
-  private long updatedAt;
+  private long updatedAt = 0L;
 
   public String getUuid() {
     return uuid;
@@ -90,6 +92,20 @@ public class PluginDto {
   public PluginDto setUpdatedAt(long l) {
     this.updatedAt = l;
     return this;
+  }
+
+  public Type getType() {
+    return type;
+  }
+
+  public PluginDto setType(Type type) {
+    this.type = type;
+    return this;
+  }
+
+  public enum Type {
+    BUNDLED,
+    EXTERNAL
   }
 
   @Override

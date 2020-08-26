@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 
-public class PluginLoaderTest {
+public class PluginClassLoaderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -46,25 +46,26 @@ public class PluginLoaderTest {
   public LogTester logTester = new LogTester();
 
   private PluginClassloaderFactory classloaderFactory = mock(PluginClassloaderFactory.class);
-  private PluginLoader underTest = new PluginLoader(new FakePluginExploder(), classloaderFactory);
+  private PluginClassLoader underTest = new PluginClassLoader(classloaderFactory);
 
   @Test
   public void define_classloader() throws Exception {
     File jarFile = temp.newFile();
-    PluginInfo info = new PluginInfo("foo")
+    PluginInfo plugin = new PluginInfo("foo")
       .setJarFile(jarFile)
       .setMainClass("org.foo.FooPlugin")
       .setMinimalSqVersion(Version.create("5.2"));
 
-    Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(ImmutableMap.of("foo", info));
+    ExplodedPlugin explodedPlugin = createExplodedPlugin(plugin);
+    Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(
+      ImmutableMap.of("foo", explodedPlugin));
 
     assertThat(defs).hasSize(1);
     PluginClassLoaderDef def = defs.iterator().next();
     assertThat(def.getBasePluginKey()).isEqualTo("foo");
     assertThat(def.isSelfFirstStrategy()).isFalse();
-    assertThat(def.getFiles()).containsOnly(jarFile);
+    assertThat(def.getFiles()).containsAll(explodedPlugin.getLibs());
     assertThat(def.getMainClassesByPluginKey()).containsOnly(MapEntry.entry("foo", "org.foo.FooPlugin"));
-    // TODO test mask - require change in sonar-classloader
   }
 
   /**
@@ -95,19 +96,27 @@ public class PluginLoaderTest {
       .setBasePlugin("foo")
       .setUseChildFirstClassLoader(true);
 
+    ExplodedPlugin baseExplodedPlugin = createExplodedPlugin(base);
+    ExplodedPlugin extension1ExplodedPlugin = createExplodedPlugin(extension1);
+    ExplodedPlugin extension2ExplodedPlugin = createExplodedPlugin(extension2);
     Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(ImmutableMap.of(
-      base.getKey(), base, extension1.getKey(), extension1, extension2.getKey(), extension2));
+      base.getKey(), baseExplodedPlugin,
+      extension1.getKey(), extension1ExplodedPlugin,
+      extension2.getKey(), extension2ExplodedPlugin));
 
     assertThat(defs).hasSize(1);
     PluginClassLoaderDef def = defs.iterator().next();
     assertThat(def.getBasePluginKey()).isEqualTo("foo");
     assertThat(def.isSelfFirstStrategy()).isFalse();
-    assertThat(def.getFiles()).containsOnly(baseJarFile, extensionJar1, extensionJar2);
+
+    assertThat(def.getFiles())
+      .containsAll(baseExplodedPlugin.getLibs())
+      .containsAll(extension1ExplodedPlugin.getLibs())
+      .containsAll(extension2ExplodedPlugin.getLibs());
     assertThat(def.getMainClassesByPluginKey()).containsOnly(
       entry("foo", "org.foo.FooPlugin"),
       entry("fooExtension1", "org.foo.Extension1Plugin"),
       entry("fooExtension2", "org.foo.Extension2Plugin"));
-    // TODO test mask - require change in sonar-classloader
   }
 
   @Test
@@ -118,7 +127,8 @@ public class PluginLoaderTest {
       .setUseChildFirstClassLoader(true)
       .setMainClass("org.foo.FooPlugin");
 
-    Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(ImmutableMap.of("foo", info));
+    Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(
+      ImmutableMap.of("foo", createExplodedPlugin(info)));
     assertThat(defs).extracting(PluginClassLoaderDef::getBasePluginKey).containsExactly("foo");
 
     List<String> warnings = logTester.logs(LoggerLevel.WARN);
@@ -133,20 +143,16 @@ public class PluginLoaderTest {
       .setMainClass("org.foo.FooPlugin")
       .setMinimalSqVersion(Version.create("4.5.2"));
 
-    Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(ImmutableMap.of("foo", info));
+    Collection<PluginClassLoaderDef> defs = underTest.defineClassloaders(
+      ImmutableMap.of("foo", createExplodedPlugin(info)));
     assertThat(defs).extracting(PluginClassLoaderDef::getBasePluginKey).containsExactly("foo");
 
     List<String> warnings = logTester.logs(LoggerLevel.WARN);
     assertThat(warnings).contains("API compatibility mode is no longer supported. In case of error, plugin foo [foo] should package its dependencies.");
   }
 
-  /**
-   * Does not unzip jar file. It directly returns the JAR file defined on PluginInfo.
-   */
-  private static class FakePluginExploder extends PluginJarExploder {
-    @Override
-    public ExplodedPlugin explode(PluginInfo info) {
-      return new ExplodedPlugin(info.getKey(), info.getNonNullJarFile(), Collections.emptyList());
-    }
+  private ExplodedPlugin createExplodedPlugin(PluginInfo plugin) {
+    return new ExplodedPlugin(plugin, plugin.getKey(), new File(plugin.getKey() + ".jar"), Collections
+      .singleton(new File(plugin.getKey() + "-lib.jar")));
   }
 }

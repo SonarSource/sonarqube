@@ -31,14 +31,17 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.plugins.InstalledPlugin;
-import org.sonar.server.plugins.InstalledPlugin.FileAndMd5;
-import org.sonar.server.plugins.PluginFileSystem;
+import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
+import org.sonar.server.plugins.PluginType;
+import org.sonar.server.plugins.ServerPlugin;
+import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,9 +52,9 @@ public class DownloadActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private PluginFileSystem pluginFileSystem = mock(PluginFileSystem.class);
-  private WsAction underTest = new DownloadAction(pluginFileSystem);
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
+  private final WsAction underTest = new DownloadAction(serverPluginRepository);
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void test_definition() {
@@ -66,90 +69,87 @@ public class DownloadActionTest {
 
   @Test
   public void return_404_if_plugin_not_found() {
-    when(pluginFileSystem.getInstalledPlugin("foo")).thenReturn(Optional.empty());
+    when(serverPluginRepository.findPlugin("foo")).thenReturn(Optional.empty());
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Plugin foo not found");
-
-    tester.newRequest()
-      .setParam("plugin", "foo")
-      .execute();
+    TestRequest request = tester.newRequest().setParam("plugin", "foo");
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Plugin foo not found");
   }
 
   @Test
   public void return_jar_if_plugin_exists() throws Exception {
-    InstalledPlugin plugin = newPlugin();
-    when(pluginFileSystem.getInstalledPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
-
+    ServerPlugin plugin = newPlugin();
+    when(serverPluginRepository.findPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
     TestResponse response = tester.newRequest()
       .setParam("plugin", plugin.getPluginInfo().getKey())
       .execute();
 
-    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getLoadedJar().getMd5());
+    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getJar().getMd5());
     assertThat(response.getHeader("Sonar-Compression")).isNull();
     assertThat(response.getMediaType()).isEqualTo("application/java-archive");
-    verifySameContent(response, plugin.getLoadedJar().getFile());
+    verifySameContent(response, plugin.getJar().getFile());
   }
 
   @Test
   public void return_uncompressed_jar_if_client_does_not_accept_compression() throws Exception {
-    InstalledPlugin plugin = newCompressedPlugin();
-    when(pluginFileSystem.getInstalledPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
+    ServerPlugin plugin = newCompressedPlugin();
+    when(serverPluginRepository.findPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
 
     TestResponse response = tester.newRequest()
       .setParam("plugin", plugin.getPluginInfo().getKey())
       .execute();
 
-    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getLoadedJar().getMd5());
+    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getJar().getMd5());
     assertThat(response.getHeader("Sonar-Compression")).isNull();
     assertThat(response.getHeader("Sonar-UncompressedMD5")).isNull();
     assertThat(response.getMediaType()).isEqualTo("application/java-archive");
-    verifySameContent(response, plugin.getLoadedJar().getFile());
+    verifySameContent(response, plugin.getJar().getFile());
   }
 
   @Test
   public void return_uncompressed_jar_if_client_requests_unsupported_compression() throws Exception {
-    InstalledPlugin plugin = newCompressedPlugin();
-    when(pluginFileSystem.getInstalledPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
+    ServerPlugin plugin = newCompressedPlugin();
+    when(serverPluginRepository.findPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
 
     TestResponse response = tester.newRequest()
       .setParam("plugin", plugin.getPluginInfo().getKey())
       .setParam("acceptCompressions", "zip")
       .execute();
 
-    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getLoadedJar().getMd5());
+    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getJar().getMd5());
     assertThat(response.getHeader("Sonar-Compression")).isNull();
     assertThat(response.getHeader("Sonar-UncompressedMD5")).isNull();
     assertThat(response.getMediaType()).isEqualTo("application/java-archive");
-    verifySameContent(response, plugin.getLoadedJar().getFile());
+    verifySameContent(response, plugin.getJar().getFile());
   }
 
   @Test
   public void return_compressed_jar_if_client_accepts_pack200() throws Exception {
-    InstalledPlugin plugin = newCompressedPlugin();
-    when(pluginFileSystem.getInstalledPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
+    ServerPlugin plugin = newCompressedPlugin();
+    when(serverPluginRepository.findPlugin(plugin.getPluginInfo().getKey())).thenReturn(Optional.of(plugin));
 
     TestResponse response = tester.newRequest()
       .setParam("plugin", plugin.getPluginInfo().getKey())
       .setParam("acceptCompressions", "pack200")
       .execute();
 
-    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getCompressedJar().getMd5());
-    assertThat(response.getHeader("Sonar-UncompressedMD5")).isEqualTo(plugin.getLoadedJar().getMd5());
+    assertThat(response.getHeader("Sonar-MD5")).isEqualTo(plugin.getCompressed().getMd5());
+    assertThat(response.getHeader("Sonar-UncompressedMD5")).isEqualTo(plugin.getJar().getMd5());
     assertThat(response.getHeader("Sonar-Compression")).isEqualTo("pack200");
     assertThat(response.getMediaType()).isEqualTo("application/octet-stream");
-    verifySameContent(response, plugin.getCompressedJar().getFile());
+    verifySameContent(response, plugin.getCompressed().getFile());
   }
 
-  private InstalledPlugin newPlugin() throws IOException {
+  private ServerPlugin newPlugin() throws IOException {
     FileAndMd5 jar = new FileAndMd5(temp.newFile());
-    return new InstalledPlugin(new PluginInfo("foo"), jar, null);
+    return new ServerPlugin(new PluginInfo("foo"), PluginType.BUNDLED, null, jar, null, null);
   }
 
-  private InstalledPlugin newCompressedPlugin() throws IOException {
+  private ServerPlugin newCompressedPlugin() throws IOException {
     FileAndMd5 jar = new FileAndMd5(temp.newFile());
     FileAndMd5 compressedJar = new FileAndMd5(temp.newFile());
-    return new InstalledPlugin(new PluginInfo("foo"), jar, compressedJar);
+    return new ServerPlugin(new PluginInfo("foo"), PluginType.BUNDLED, null, jar, compressedJar, null);
   }
 
   private static void verifySameContent(TestResponse response, File file) throws IOException {

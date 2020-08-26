@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -114,7 +114,7 @@ public class UpgradesActionTest {
 
   @Test
   public void empty_array_is_returned_when_update_center_is_unavailable() {
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
 
     TestResponse response = tester.newRequest().execute();
 

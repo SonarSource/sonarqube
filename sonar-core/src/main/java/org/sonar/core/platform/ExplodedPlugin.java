@@ -23,12 +23,13 @@ import java.io.File;
 import java.util.Collection;
 
 public class ExplodedPlugin {
-
+  private final PluginInfo pluginInfo;
   private final String key;
   private final File main;
   private final Collection<File> libs;
 
-  public ExplodedPlugin(String key, File main, Collection<File> libs) {
+  public ExplodedPlugin(PluginInfo pluginInfo, String key, File main, Collection<File> libs) {
+    this.pluginInfo = pluginInfo;
     this.key = key;
     this.main = main;
     this.libs = libs;
@@ -44,5 +45,9 @@ public class ExplodedPlugin {
 
   public Collection<File> getLibs() {
     return libs;
+  }
+
+  public PluginInfo getPluginInfo() {
+    return pluginInfo;
   }
 }

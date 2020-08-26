@@ -44,7 +44,7 @@ public class PluginJarExploderTest {
       public ExplodedPlugin explode(PluginInfo info) {
         try {
           ZipUtils.unzip(jarFile, toDir, newLibFilter());
-          return explodeFromUnzippedDir(info.getKey(), info.getNonNullJarFile(), toDir);
+          return explodeFromUnzippedDir(info, info.getNonNullJarFile(), toDir);
         } catch (Exception e) {
           throw new IllegalStateException(e);
         }
@@ -65,7 +65,7 @@ public class PluginJarExploderTest {
     PluginJarExploder exploder = new PluginJarExploder() {
       @Override
       public ExplodedPlugin explode(PluginInfo info) {
-        return explodeFromUnzippedDir("foo", info.getNonNullJarFile(), toDir);
+        return explodeFromUnzippedDir(pluginInfo, info.getNonNullJarFile(), toDir);
       }
     };
     ExplodedPlugin exploded = exploder.explode(pluginInfo);

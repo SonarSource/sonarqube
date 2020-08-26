@@ -31,13 +31,13 @@ public abstract class PluginJarExploder {
 
   protected static final String LIB_RELATIVE_PATH_IN_JAR = "META-INF/lib";
 
-  public abstract ExplodedPlugin explode(PluginInfo info);
+  public abstract ExplodedPlugin explode(PluginInfo plugin);
 
   protected Predicate<ZipEntry> newLibFilter() {
     return ze -> ze.getName().startsWith(LIB_RELATIVE_PATH_IN_JAR);
   }
 
-  protected ExplodedPlugin explodeFromUnzippedDir(String pluginKey, File jarFile, File unzippedDir) {
+  protected ExplodedPlugin explodeFromUnzippedDir(PluginInfo pluginInfo, File jarFile, File unzippedDir) {
     File libDir = new File(unzippedDir, PluginJarExploder.LIB_RELATIVE_PATH_IN_JAR);
     Collection<File> libs;
     if (libDir.isDirectory() && libDir.exists()) {
@@ -45,6 +45,6 @@ public abstract class PluginJarExploder {
     } else {
       libs = Collections.emptyList();
     }
-    return new ExplodedPlugin(pluginKey, jarFile, libs);
+    return new ExplodedPlugin(pluginInfo, pluginInfo.getKey(), jarFile, libs);
   }
 }

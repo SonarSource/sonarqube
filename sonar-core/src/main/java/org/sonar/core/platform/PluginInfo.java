@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -47,57 +48,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
   private static final Logger LOGGER = Loggers.get(PluginInfo.class);
 
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
-
-  public static class RequiredPlugin {
-
-    private static final Pattern PARSER = Pattern.compile("\\w+:.+");
-
-    private final String key;
-    private final Version minimalVersion;
-
-    public RequiredPlugin(String key, Version minimalVersion) {
-      this.key = key;
-      this.minimalVersion = minimalVersion;
-    }
-
-    public String getKey() {
-      return key;
-    }
-
-    public Version getMinimalVersion() {
-      return minimalVersion;
-    }
-
-    public static RequiredPlugin parse(String s) {
-      if (!PARSER.matcher(s).matches()) {
-        throw new IllegalArgumentException("Manifest field does not have correct format: " + s);
-      }
-      String[] fields = StringUtils.split(s, ':');
-      return new RequiredPlugin(fields[0], Version.create(fields[1]).removeQualifier());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      RequiredPlugin that = (RequiredPlugin) o;
-      return key.equals(that.key);
-    }
-
-    @Override
-    public int hashCode() {
-      return key.hashCode();
-    }
-
-    @Override
-    public String toString() {
-      return new StringBuilder().append(key).append(':').append(minimalVersion.getName()).toString();
-    }
-  }
 
   private final String key;
   private String name;
@@ -385,18 +335,13 @@ public class PluginInfo implements Comparable<PluginInfo> {
       return false;
     }
     PluginInfo info = (PluginInfo) o;
-    if (!key.equals(info.key)) {
-      return false;
-    }
-    return !(version != null ? !version.equals(info.version) : info.version != null);
+    return Objects.equals(key, info.key) && Objects.equals(version, info.version);
 
   }
 
   @Override
   public int hashCode() {
-    int result = key.hashCode();
-    result = 31 * result + (version != null ? version.hashCode() : 0);
-    return result;
+    return Objects.hash(key, version);
   }
 
   @Override
@@ -419,41 +364,48 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   @VisibleForTesting
   static PluginInfo create(File jarFile, PluginManifest manifest) {
+    validateManifest(jarFile, manifest);
+    PluginInfo info = new PluginInfo(manifest.getKey());
+    info.fillFields(jarFile, manifest);
+    return info;
+  }
+
+  private static void validateManifest(File jarFile, PluginManifest manifest) {
     if (StringUtils.isBlank(manifest.getKey())) {
       throw MessageException.of(String.format("File is not a plugin. Please delete it and restart: %s", jarFile.getAbsolutePath()));
     }
-    PluginInfo info = new PluginInfo(manifest.getKey());
+  }
 
-    info.setJarFile(jarFile);
-    info.setName(manifest.getName());
-    info.setMainClass(manifest.getMainClass());
-    info.setVersion(Version.create(manifest.getVersion()));
-    info.setDocumentationPath(getDocumentationPath(jarFile));
+  protected void fillFields(File jarFile, PluginManifest manifest) {
+    setJarFile(jarFile);
+    setName(manifest.getName());
+    setMainClass(manifest.getMainClass());
+    setVersion(Version.create(manifest.getVersion()));
+    setDocumentationPath(getDocumentationPath(jarFile));
 
     // optional fields
-    info.setDescription(manifest.getDescription());
-    info.setLicense(manifest.getLicense());
-    info.setOrganizationName(manifest.getOrganization());
-    info.setOrganizationUrl(manifest.getOrganizationUrl());
-    info.setDisplayVersion(manifest.getDisplayVersion());
+    setDescription(manifest.getDescription());
+    setLicense(manifest.getLicense());
+    setOrganizationName(manifest.getOrganization());
+    setOrganizationUrl(manifest.getOrganizationUrl());
+    setDisplayVersion(manifest.getDisplayVersion());
     String minSqVersion = manifest.getSonarVersion();
     if (minSqVersion != null) {
-      info.setMinimalSqVersion(Version.create(minSqVersion));
+      setMinimalSqVersion(Version.create(minSqVersion));
     }
-    info.setHomepageUrl(manifest.getHomepage());
-    info.setIssueTrackerUrl(manifest.getIssueTrackerUrl());
-    info.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
-    info.setSonarLintSupported(manifest.isSonarLintSupported());
-    info.setBasePlugin(manifest.getBasePlugin());
-    info.setImplementationBuild(manifest.getImplementationBuild());
-    String[] requiredPlugins = manifest.getRequirePlugins();
-    if (requiredPlugins != null) {
-      Arrays.stream(requiredPlugins)
+    setHomepageUrl(manifest.getHomepage());
+    setIssueTrackerUrl(manifest.getIssueTrackerUrl());
+    setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
+    setSonarLintSupported(manifest.isSonarLintSupported());
+    setBasePlugin(manifest.getBasePlugin());
+    setImplementationBuild(manifest.getImplementationBuild());
+    String[] requiredPluginsFromManifest = manifest.getRequirePlugins();
+    if (requiredPluginsFromManifest != null) {
+      Arrays.stream(requiredPluginsFromManifest)
         .map(RequiredPlugin::parse)
         .filter(t -> !"license".equals(t.key))
-        .forEach(info::addRequiredPlugin);
+        .forEach(this::addRequiredPlugin);
     }
-    return info;
   }
 
   private static String getDocumentationPath(File file) {
@@ -467,4 +419,54 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return null;
   }
 
+  public static class RequiredPlugin {
+
+    private static final Pattern PARSER = Pattern.compile("\\w+:.+");
+
+    private final String key;
+    private final Version minimalVersion;
+
+    public RequiredPlugin(String key, Version minimalVersion) {
+      this.key = key;
+      this.minimalVersion = minimalVersion;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    public Version getMinimalVersion() {
+      return minimalVersion;
+    }
+
+    public static RequiredPlugin parse(String s) {
+      if (!PARSER.matcher(s).matches()) {
+        throw new IllegalArgumentException("Manifest field does not have correct format: " + s);
+      }
+      String[] fields = StringUtils.split(s, ':');
+      return new RequiredPlugin(fields[0], Version.create(fields[1]).removeQualifier());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      RequiredPlugin that = (RequiredPlugin) o;
+      return key.equals(that.key);
+    }
+
+    @Override
+    public int hashCode() {
+      return key.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return key + ':' + minimalVersion.getName();
+    }
+  }
 }

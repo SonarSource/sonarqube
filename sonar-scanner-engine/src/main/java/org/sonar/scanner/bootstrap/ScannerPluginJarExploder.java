@@ -42,7 +42,7 @@ public class ScannerPluginJarExploder extends PluginJarExploder {
   public ExplodedPlugin explode(PluginInfo info) {
     try {
       File dir = unzipFile(info.getNonNullJarFile());
-      return explodeFromUnzippedDir(info.getKey(), info.getNonNullJarFile(), dir);
+      return explodeFromUnzippedDir(info, info.getNonNullJarFile(), dir);
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to open plugin [%s]: %s", info.getKey(), info.getNonNullJarFile().getAbsolutePath()), e);
     }

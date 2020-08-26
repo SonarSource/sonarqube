@@ -51,7 +51,7 @@ public class CePluginJarExploder extends PluginJarExploder {
       File jarTarget = new File(toDir, jarSource.getName());
       FileUtils.copyFile(jarSource, jarTarget);
       ZipUtils.unzip(jarSource, toDir, newLibFilter());
-      return explodeFromUnzippedDir(pluginInfo.getKey(), jarTarget, toDir);
+      return explodeFromUnzippedDir(pluginInfo, jarTarget, toDir);
     } catch (Exception e) {
       throw new IllegalStateException(String.format(
         "Fail to unzip plugin [%s] %s to %s", pluginInfo.getKey(), pluginInfo.getNonNullJarFile().getAbsolutePath(), toDir.getAbsolutePath()), e);

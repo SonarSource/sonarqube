@@ -19,15 +19,13 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -41,8 +39,6 @@ import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.Plugin;
 
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.io.Resources.getResource;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
 import static org.sonar.server.plugins.ws.PluginWSCommons.categoryOrNull;
@@ -59,15 +55,15 @@ public class PendingAction implements PluginsWsAction {
 
   private final UserSession userSession;
   private final PluginDownloader pluginDownloader;
-  private final ServerPluginRepository installer;
+  private final ServerPluginRepository serverPluginRepository;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final PluginUninstaller pluginUninstaller;
 
   public PendingAction(UserSession userSession, PluginDownloader pluginDownloader,
-    ServerPluginRepository installer, PluginUninstaller pluginUninstaller, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
+    ServerPluginRepository serverPluginRepository, PluginUninstaller pluginUninstaller, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
     this.userSession = userSession;
     this.pluginDownloader = pluginDownloader;
-    this.installer = installer;
+    this.serverPluginRepository = serverPluginRepository;
     this.pluginUninstaller = pluginUninstaller;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
   }
@@ -100,13 +96,13 @@ public class PendingAction implements PluginsWsAction {
   private void writePlugins(JsonWriter json, Map<String, Plugin> compatiblePluginsByKey) {
     Collection<PluginInfo> uninstalledPlugins = pluginUninstaller.getUninstalledPlugins();
     Collection<PluginInfo> downloadedPlugins = pluginDownloader.getDownloadedPlugins();
-    Collection<PluginInfo> installedPlugins = installer.getPluginInfos();
-    MatchPluginKeys matchPluginKeys = new MatchPluginKeys(from(installedPlugins).transform(PluginInfoToKey.INSTANCE).toSet());
+    Collection<PluginInfo> installedPlugins = serverPluginRepository.getPluginInfos();
+    Set<String> installedPluginKeys = installedPlugins.stream().map(PluginInfo::getKey).collect(Collectors.toSet());
 
     Collection<PluginInfo> newPlugins = new ArrayList<>();
     Collection<PluginInfo> updatedPlugins = new ArrayList<>();
     for (PluginInfo pluginInfo : downloadedPlugins) {
-      if (matchPluginKeys.apply(pluginInfo)) {
+      if (installedPluginKeys.contains(pluginInfo.getKey())) {
         updatedPlugins.add(pluginInfo);
       } else {
         newPlugins.add(pluginInfo);
@@ -126,27 +122,5 @@ public class PendingAction implements PluginsWsAction {
       PluginWSCommons.writePluginInfo(json, pluginInfo, categoryOrNull(plugin), null, null);
     }
     json.endArray();
-  }
-
-  private enum PluginInfoToKey implements Function<PluginInfo, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull PluginInfo input) {
-      return input.getKey();
-    }
-  }
-
-  private static class MatchPluginKeys implements Predicate<PluginInfo> {
-    private final Set<String> pluginKeys;
-
-    private MatchPluginKeys(Collection<String> pluginKeys) {
-      this.pluginKeys = copyOf(pluginKeys);
-    }
-
-    @Override
-    public boolean apply(@Nonnull PluginInfo input) {
-      return pluginKeys.contains(input.getKey());
-    }
   }
 }

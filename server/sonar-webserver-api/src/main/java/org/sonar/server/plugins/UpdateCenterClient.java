@@ -19,12 +19,12 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.base.Optional;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -75,14 +75,14 @@ public class UpdateCenterClient {
 
   public Optional<UpdateCenter> getUpdateCenter(boolean forceRefresh) {
     if (!isActivated) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     if (pluginCenter == null || forceRefresh || needsRefresh()) {
       pluginCenter = init();
       lastRefreshDate = System.currentTimeMillis();
     }
-    return Optional.fromNullable(pluginCenter);
+    return Optional.ofNullable(pluginCenter);
   }
 
   public Date getLastRefreshDate() {

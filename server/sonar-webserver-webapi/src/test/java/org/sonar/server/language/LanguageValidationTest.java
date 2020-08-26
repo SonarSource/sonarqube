@@ -25,6 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.server.plugins.ServerPluginRepository;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,11 +44,11 @@ public class LanguageValidationTest {
     when(repo.getPluginKey(lang1)).thenReturn("plugin1");
     when(repo.getPluginKey(lang2)).thenReturn("plugin2");
 
-    exception.expect(IllegalStateException.class);
-    exception.expectMessage("There are two languages declared with the same key 'key' declared by the plugins 'plugin1' and 'plugin2'. "
-      + "Please uninstall one of the conflicting plugins.");
     LanguageValidation languageValidation = new LanguageValidation(repo, lang1, lang2);
-    languageValidation.start();
+    assertThatThrownBy(languageValidation::start)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("There are two languages declared with the same key 'key' declared by the plugins 'plugin1' and 'plugin2'. "
+        + "Please uninstall one of the conflicting plugins.");
   }
 
   @Test
@@ -67,6 +68,7 @@ public class LanguageValidationTest {
     when(lang2.getKey()).thenReturn("key2");
 
     ServerPluginRepository repo = mock(ServerPluginRepository.class);
+
     when(repo.getPluginKey(lang1)).thenReturn("plugin1");
     when(repo.getPluginKey(lang2)).thenReturn("plugin2");
 

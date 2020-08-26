@@ -19,15 +19,14 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.base.Optional;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.HttpDownloader;
@@ -97,14 +96,6 @@ public class PluginDownloader implements Startable {
     } catch (IOException e) {
       throw new IllegalStateException("Fail to clean the plugin downloads directory: " + downloadDir, e);
     }
-  }
-
-  public List<String> getDownloadedPluginFilenames() {
-    List<String> names = new ArrayList<>();
-    for (File file : listPlugins(this.downloadDir)) {
-      names.add(file.getName());
-    }
-    return names;
   }
 
   /**

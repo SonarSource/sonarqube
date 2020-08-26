@@ -35,8 +35,11 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.plugin.PluginDto;
-import org.sonar.server.plugins.InstalledPlugin;
-import org.sonar.server.plugins.PluginFileSystem;
+import org.sonar.db.plugin.PluginDto.Type;
+import org.sonar.server.plugins.PluginFilesAndMd5;
+import org.sonar.server.plugins.PluginType;
+import org.sonar.server.plugins.ServerPlugin;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,10 +55,10 @@ public class RegisterPluginsTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private final long now = 12345L;
-  private DbClient dbClient = dbTester.getDbClient();
-  private PluginFileSystem pluginFileSystem = mock(PluginFileSystem.class);
-  private UuidFactory uuidFactory = mock(UuidFactory.class);
-  private System2 system2 = mock(System2.class);
+  private final DbClient dbClient = dbTester.getDbClient();
+  private final ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
+  private final UuidFactory uuidFactory = mock(UuidFactory.class);
+  private final System2 system2 = mock(System2.class);
 
   @Before
   public void setUp() {
@@ -71,17 +74,17 @@ public class RegisterPluginsTest {
     FileUtils.write(fakeJavaJar, "fakejava", StandardCharsets.UTF_8);
     File fakeJavaCustomJar = temp.newFile();
     FileUtils.write(fakeJavaCustomJar, "fakejavacustom", StandardCharsets.UTF_8);
-    when(pluginFileSystem.getInstalledFiles()).thenReturn(asList(
+    when(serverPluginRepository.getPlugins()).thenReturn(asList(
       newPlugin("java", fakeJavaJar, null),
       newPlugin("javacustom", fakeJavaCustomJar, "java")));
     when(uuidFactory.create()).thenReturn("a").thenReturn("b").thenThrow(new IllegalStateException("Should be called only twice"));
-    RegisterPlugins register = new RegisterPlugins(pluginFileSystem, dbClient, uuidFactory, system2);
+    RegisterPlugins register = new RegisterPlugins(serverPluginRepository, dbClient, uuidFactory, system2);
     register.start();
 
     Map<String, PluginDto> pluginsByKey = selectAllPlugins();
     assertThat(pluginsByKey).hasSize(2);
-    verify(pluginsByKey.get("java"), null, "bd451e47a1aa76e73da0359cef63dd63", now, now);
-    verify(pluginsByKey.get("javacustom"), "java", "de9b2de3ddc0680904939686c0dba5be", now, now);
+    verify(pluginsByKey.get("java"), Type.BUNDLED, null, "bd451e47a1aa76e73da0359cef63dd63", now, now);
+    verify(pluginsByKey.get("javacustom"), Type.BUNDLED, "java", "de9b2de3ddc0680904939686c0dba5be", now, now);
 
     register.stop();
   }
@@ -96,6 +99,7 @@ public class RegisterPluginsTest {
       .setKee("java")
       .setBasePluginKey(null)
       .setFileHash("bd451e47a1aa76e73da0359cef63dd63")
+      .setType(Type.BUNDLED)
       .setCreatedAt(1L)
       .setUpdatedAt(1L));
     dbClient.pluginDao().insert(dbTester.getSession(), new PluginDto()
@@ -103,39 +107,69 @@ public class RegisterPluginsTest {
       .setKee("javacustom")
       .setBasePluginKey("java")
       .setFileHash("de9b2de3ddc0680904939686c0dba5be")
+      .setType(Type.BUNDLED)
       .setCreatedAt(1L)
       .setUpdatedAt(1L));
+    dbClient.pluginDao().insert(dbTester.getSession(), new PluginDto()
+      .setUuid("c")
+      .setKee("csharp")
+      .setBasePluginKey(null)
+      .setFileHash("a4813b6d879c4ec852747c175cdd6141")
+      .setType(Type.EXTERNAL)
+      .setCreatedAt(1L)
+      .setUpdatedAt(1L));
+    dbClient.pluginDao().insert(dbTester.getSession(), new PluginDto()
+      .setUuid("d")
+      .setKee("new-measures")
+      .setBasePluginKey(null)
+      .setFileHash("6d24712cf701c41ce5eaa948e0bd6d22")
+      .setType(Type.EXTERNAL)
+      .setCreatedAt(1L)
+      .setUpdatedAt(1L));
+
     dbTester.commit();
 
     File fakeJavaCustomJar = temp.newFile();
     FileUtils.write(fakeJavaCustomJar, "fakejavacustomchanged", StandardCharsets.UTF_8);
-    when(pluginFileSystem.getInstalledFiles()).thenReturn(asList(
-      newPlugin("javacustom", fakeJavaCustomJar, "java2")));
 
-    new RegisterPlugins(pluginFileSystem, dbClient, uuidFactory, system2).start();
+    File fakeCSharpJar = temp.newFile();
+    FileUtils.write(fakeCSharpJar, "fakecsharp", StandardCharsets.UTF_8);
+
+    when(serverPluginRepository.getPlugins()).thenReturn(asList(
+      newPlugin("javacustom", PluginType.BUNDLED, fakeJavaCustomJar, "java2"),
+      // csharp plugin type changed
+      newPlugin("csharp", PluginType.BUNDLED, fakeCSharpJar, null)));
+
+    new RegisterPlugins(serverPluginRepository, dbClient, uuidFactory, system2).start();
 
     Map<String, PluginDto> pluginsByKey = selectAllPlugins();
-    assertThat(pluginsByKey).hasSize(2);
-    verify(pluginsByKey.get("java"), null, "bd451e47a1aa76e73da0359cef63dd63", 1L, 1L);
-    verify(pluginsByKey.get("javacustom"), "java2", "d22091cff5155e892cfe2f9dab51f811", 1L, now);
+    assertThat(pluginsByKey).hasSize(4);
+    verify(pluginsByKey.get("java"), Type.BUNDLED, null, "bd451e47a1aa76e73da0359cef63dd63", 1L, 1L);
+    verify(pluginsByKey.get("javacustom"), Type.BUNDLED, "java2", "d22091cff5155e892cfe2f9dab51f811", 1L, now);
+    verify(pluginsByKey.get("csharp"), Type.BUNDLED, null, "a4813b6d879c4ec852747c175cdd6141", 1L, now);
+    verify(pluginsByKey.get("new-measures"), Type.EXTERNAL, null, "6d24712cf701c41ce5eaa948e0bd6d22", 1L, 1L);
   }
 
-  private static InstalledPlugin newPlugin(String key, File file, @Nullable String basePlugin) {
-    InstalledPlugin.FileAndMd5 jar = new InstalledPlugin.FileAndMd5(file);
+  private static ServerPlugin newPlugin(String key, File file, @Nullable String basePlugin) {
+    return newPlugin(key, PluginType.BUNDLED, file, basePlugin);
+  }
+
+  private static ServerPlugin newPlugin(String key, PluginType type, File file, @Nullable String basePlugin) {
+    PluginFilesAndMd5.FileAndMd5 jar = new PluginFilesAndMd5.FileAndMd5(file);
     PluginInfo info = new PluginInfo(key)
       .setBasePlugin(basePlugin)
       .setJarFile(file);
-    return new InstalledPlugin(info, jar, null);
+    return new ServerPlugin(info, PluginType.BUNDLED, null, jar, null, null);
   }
 
   private Map<String, PluginDto> selectAllPlugins() {
-    return dbTester.getDbClient().pluginDao().selectAll(dbTester.getSession())
-      .stream()
+    return dbTester.getDbClient().pluginDao().selectAll(dbTester.getSession()).stream()
       .collect(uniqueIndex(PluginDto::getKee));
   }
 
-  private void verify(PluginDto java, @Nullable String basePluginKey, String fileHash, @Nullable Long createdAt, long updatedAt) {
+  private void verify(PluginDto java, Type type, @Nullable String basePluginKey, String fileHash, @Nullable Long createdAt, long updatedAt) {
     assertThat(java.getBasePluginKey()).isEqualTo(basePluginKey);
+    assertThat(java.getType()).isEqualTo(type);
     assertThat(java.getFileHash()).isEqualTo(fileHash);
     assertThat(java.getCreatedAt()).isEqualTo(createdAt);
     assertThat(java.getUpdatedAt()).isEqualTo(updatedAt);

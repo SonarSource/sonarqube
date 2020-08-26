@@ -20,12 +20,13 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.io.Resources;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.SortedSet;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,8 +35,10 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.plugin.PluginDto;
-import org.sonar.server.plugins.InstalledPlugin;
-import org.sonar.server.plugins.PluginFileSystem;
+import org.sonar.db.plugin.PluginDto.Type;
+import org.sonar.server.plugins.PluginType;
+import org.sonar.server.plugins.ServerPlugin;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Plugin;
 
@@ -54,14 +57,14 @@ import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey
 public class InstalledAction implements PluginsWsAction {
   private static final String ARRAY_PLUGINS = "plugins";
   private static final String FIELD_CATEGORY = "category";
+  private static final String PARAM_TYPE = "type";
 
-  private final PluginFileSystem pluginFileSystem;
+  private final ServerPluginRepository serverPluginRepository;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final DbClient dbClient;
 
-  public InstalledAction(PluginFileSystem pluginFileSystem,
-    UpdateCenterMatrixFactory updateCenterMatrixFactory, DbClient dbClient) {
-    this.pluginFileSystem = pluginFileSystem;
+  public InstalledAction(ServerPluginRepository serverPluginRepository, UpdateCenterMatrixFactory updateCenterMatrixFactory, DbClient dbClient) {
+    this.serverPluginRepository = serverPluginRepository;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.dbClient = dbClient;
   }
@@ -72,12 +75,12 @@ public class InstalledAction implements PluginsWsAction {
       .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name.")
       .setSince("5.2")
       .setChangelog(
+        new Change("8.0", "The 'documentationPath' field is added"),
+        new Change("7.0", "The fields 'compressedHash' and 'compressedFilename' are added"),
         new Change("6.6", "The 'filename' field is added"),
         new Change("6.6", "The 'fileHash' field is added"),
         new Change("6.6", "The 'sonarLintSupported' field is added"),
-        new Change("6.6", "The 'updatedAt' field is added"),
-        new Change("7.0", "The fields 'compressedHash' and 'compressedFilename' are added"),
-        new Change("8.0", "The 'documentationPath' field is added"))
+        new Change("6.6", "The 'updatedAt' field is added"))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-installed_plugins.json"));
 
@@ -87,11 +90,18 @@ public class InstalledAction implements PluginsWsAction {
         "<li>%s - category as defined in the Update Center. A connection to the Update Center is needed</li>" +
         "</lu>", FIELD_CATEGORY))
       .setSince("5.6");
+
+    action.createParam(PARAM_TYPE)
+      .setInternal(true)
+      .setSince("8.5")
+      .setPossibleValues(Type.values())
+      .setDescription("Allows to filter plugins by type");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Collection<InstalledPlugin> installedPlugins = loadInstalledPlugins();
+    String typeParam = request.param(PARAM_TYPE);
+    SortedSet<ServerPlugin> installedPlugins = loadInstalledPlugins(typeParam);
     Map<String, PluginDto> dtosByKey;
     try (DbSession dbSession = dbClient.openSession(false)) {
       dtosByKey = dbClient.pluginDao().selectAll(dbSession).stream().collect(toMap(PluginDto::getKee, Function.identity()));
@@ -106,7 +116,7 @@ public class InstalledAction implements PluginsWsAction {
 
     json.name(ARRAY_PLUGINS);
     json.beginArray();
-    for (InstalledPlugin installedPlugin : copyOf(NAME_KEY_COMPARATOR, installedPlugins)) {
+    for (ServerPlugin installedPlugin : installedPlugins) {
       PluginDto pluginDto = dtosByKey.get(installedPlugin.getPluginInfo().getKey());
       Objects.requireNonNull(pluginDto, () -> format("Plugin %s is installed but not in DB", installedPlugin.getPluginInfo().getKey()));
       Plugin updateCenterPlugin = updateCenterPlugins.get(installedPlugin.getPluginInfo().getKey());
@@ -117,7 +127,12 @@ public class InstalledAction implements PluginsWsAction {
     json.close();
   }
 
-  private SortedSet<InstalledPlugin> loadInstalledPlugins() {
-    return copyOf(NAME_KEY_COMPARATOR, pluginFileSystem.getInstalledFiles());
+  private SortedSet<ServerPlugin> loadInstalledPlugins(@Nullable String typeParam) {
+    if (typeParam != null) {
+      return copyOf(NAME_KEY_COMPARATOR, serverPluginRepository.getPlugins().stream()
+        .filter(serverPlugin -> serverPlugin.getType().equals(PluginType.valueOf(typeParam)))
+        .collect(Collectors.toSet()));
+    }
+    return copyOf(NAME_KEY_COMPARATOR, serverPluginRepository.getPlugins());
   }
 }

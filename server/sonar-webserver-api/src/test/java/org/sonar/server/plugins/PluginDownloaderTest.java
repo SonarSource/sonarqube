@@ -19,9 +19,9 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.base.Optional;
 import java.io.File;
 import java.net.URI;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -129,7 +129,7 @@ public class PluginDownloaderTest {
 
   @Test
   public void download_when_update_center_is_unavailable_with_no_exception_thrown() {
-    when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
+    when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
 
     Plugin test = Plugin.factory("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");

@@ -19,9 +19,9 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -47,9 +47,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class PendingActionTest {
-
-  private static final String DUMMY_CONTROLLER_KEY = "dummy";
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -105,7 +102,7 @@ public class PendingActionTest {
   @Test
   public void empty_arrays_are_returned_when_update_center_is_unavailable() {
     logInAsSystemAdministrator();
-    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.absent());
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.empty());
 
     TestResponse response = tester.newRequest().execute();
 

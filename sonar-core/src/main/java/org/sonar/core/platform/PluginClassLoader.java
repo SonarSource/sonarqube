@@ -25,12 +25,13 @@ import java.io.Closeable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.Version;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
 
 /**
  * Loads the plugin JAR files by creating the appropriate classloaders and by instantiating
@@ -46,22 +47,22 @@ import static java.util.Arrays.asList;
  * <p/>
  * This class is stateless. It does not keep pointers to classloaders and {@link org.sonar.api.Plugin}.
  */
-public class PluginLoader {
-
+public class PluginClassLoader {
   private static final String[] DEFAULT_SHARED_RESOURCES = {"org/sonar/plugins", "com/sonar/plugins", "com/sonarsource/plugins"};
-
   private static final Version COMPATIBILITY_MODE_MAX_VERSION = Version.create("5.2");
 
-  private final PluginJarExploder jarExploder;
   private final PluginClassloaderFactory classloaderFactory;
 
-  public PluginLoader(PluginJarExploder jarExploder, PluginClassloaderFactory classloaderFactory) {
-    this.jarExploder = jarExploder;
+  public PluginClassLoader(PluginClassloaderFactory classloaderFactory) {
     this.classloaderFactory = classloaderFactory;
   }
 
-  public Map<String, Plugin> load(Map<String, PluginInfo> infoByKeys) {
-    Collection<PluginClassLoaderDef> defs = defineClassloaders(infoByKeys);
+  public Map<String, Plugin> load(Collection<ExplodedPlugin> plugins) {
+    return load(plugins.stream().collect(Collectors.toMap(ExplodedPlugin::getKey, x -> x)));
+  }
+
+  public Map<String, Plugin> load(Map<String, ExplodedPlugin> pluginsByKey) {
+    Collection<PluginClassLoaderDef> defs = defineClassloaders(pluginsByKey);
     Map<PluginClassLoaderDef, ClassLoader> classloaders = classloaderFactory.create(defs);
     return instantiatePluginClasses(classloaders);
   }
@@ -71,19 +72,19 @@ public class PluginLoader {
    * different than number of plugins.
    */
   @VisibleForTesting
-  Collection<PluginClassLoaderDef> defineClassloaders(Map<String, PluginInfo> infoByKeys) {
+  Collection<PluginClassLoaderDef> defineClassloaders(Map<String, ExplodedPlugin> pluginsByKey) {
     Map<String, PluginClassLoaderDef> classloadersByBasePlugin = new HashMap<>();
 
-    for (PluginInfo info : infoByKeys.values()) {
-      String baseKey = basePluginKey(info, infoByKeys);
+    for (ExplodedPlugin plugin : pluginsByKey.values()) {
+      PluginInfo info = plugin.getPluginInfo();
+      String baseKey = basePluginKey(info, pluginsByKey);
       PluginClassLoaderDef def = classloadersByBasePlugin.get(baseKey);
       if (def == null) {
         def = new PluginClassLoaderDef(baseKey);
         classloadersByBasePlugin.put(baseKey, def);
       }
-      ExplodedPlugin explodedPlugin = jarExploder.explode(info);
-      def.addFiles(asList(explodedPlugin.getMain()));
-      def.addFiles(explodedPlugin.getLibs());
+      def.addFiles(singleton(plugin.getMain()));
+      def.addFiles(plugin.getLibs());
       def.addMainClass(info.getKey(), info.getMainClass());
 
       for (String defaultSharedResource : DEFAULT_SHARED_RESOURCES) {
@@ -115,8 +116,7 @@ public class PluginLoader {
    * @return the instances grouped by plugin key
    * @throws IllegalStateException if at least one plugin can't be correctly loaded
    */
-  @VisibleForTesting
-  Map<String, Plugin> instantiatePluginClasses(Map<PluginClassLoaderDef, ClassLoader> classloaders) {
+  private static Map<String, Plugin> instantiatePluginClasses(Map<PluginClassLoaderDef, ClassLoader> classloaders) {
     // instantiate plugins
     Map<String, Plugin> instancesByPluginKey = new HashMap<>();
     for (Map.Entry<PluginClassLoaderDef, ClassLoader> entry : classloaders.entrySet()) {
@@ -128,13 +128,11 @@ public class PluginLoader {
         String pluginKey = mainClassEntry.getKey();
         String mainClass = mainClassEntry.getValue();
         try {
-          instancesByPluginKey.put(pluginKey, (Plugin) classLoader.loadClass(mainClass).newInstance());
+          instancesByPluginKey.put(pluginKey, (Plugin) classLoader.loadClass(mainClass).getDeclaredConstructor().newInstance());
         } catch (UnsupportedClassVersionError e) {
-          throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s",
-            pluginKey, SystemUtils.JAVA_VERSION_TRIMMED), e);
+          throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s", pluginKey, SystemUtils.JAVA_VERSION_TRIMMED), e);
         } catch (Throwable e) {
-          throw new IllegalStateException(String.format(
-            "Fail to instantiate class [%s] of plugin [%s]", mainClass, pluginKey), e);
+          throw new IllegalStateException(String.format("Fail to instantiate class [%s] of plugin [%s]", mainClass, pluginKey), e);
         }
       }
     }
@@ -158,11 +156,11 @@ public class PluginLoader {
    * Get the root key of a tree of plugins. For example if plugin C depends on B, which depends on A, then
    * B and C must be attached to the classloader of A. The method returns A in the three cases.
    */
-  static String basePluginKey(PluginInfo plugin, Map<String, PluginInfo> allPluginsPerKey) {
+  private static String basePluginKey(PluginInfo plugin, Map<String, ExplodedPlugin> pluginsByKey) {
     String base = plugin.getKey();
     String parentKey = plugin.getBasePlugin();
     while (!Strings.isNullOrEmpty(parentKey)) {
-      PluginInfo parentPlugin = allPluginsPerKey.get(parentKey);
+      PluginInfo parentPlugin = pluginsByKey.get(parentKey).getPluginInfo();
       base = parentPlugin.getKey();
       parentKey = parentPlugin.getBasePlugin();
     }

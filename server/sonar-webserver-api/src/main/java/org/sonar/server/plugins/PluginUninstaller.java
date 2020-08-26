@@ -23,23 +23,83 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.ServerFileSystem;
 
 import static java.lang.String.format;
 import static org.apache.commons.io.FileUtils.forceMkdir;
+import static org.apache.commons.io.FileUtils.moveFileToDirectory;
+import static org.sonar.server.plugins.PluginType.EXTERNAL;
 
 public class PluginUninstaller implements Startable {
+  private static final Logger LOG = Loggers.get(PluginUninstaller.class);
   private static final String PLUGIN_EXTENSION = "jar";
-  private final ServerPluginRepository serverPluginRepository;
-  private final File uninstallDir;
 
-  public PluginUninstaller(ServerPluginRepository serverPluginRepository, ServerFileSystem fs) {
-    this.serverPluginRepository = serverPluginRepository;
-    this.uninstallDir = fs.getUninstalledPluginsDir();
+  private final ServerFileSystem fs;
+  private final ServerPluginRepository pluginRepository;
+
+  public PluginUninstaller(ServerFileSystem fs, ServerPluginRepository pluginRepository) {
+    this.fs = fs;
+    this.pluginRepository = pluginRepository;
+  }
+
+  @Override
+  public void start() {
+    try {
+      forceMkdir(fs.getUninstalledPluginsDir());
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to create the directory: " + fs.getUninstalledPluginsDir(), e);
+    }
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to do
+  }
+
+  /**
+   * Uninstall a plugin and its dependents
+   */
+  public void uninstall(String pluginKey) {
+    if (!pluginRepository.hasPlugin(pluginKey) || pluginRepository.getPlugin(pluginKey).getType() != EXTERNAL) {
+      throw new IllegalArgumentException(format("Plugin [%s] is not installed", pluginKey));
+    }
+
+    Set<String> uninstallKeys = new HashSet<>();
+    uninstallKeys.add(pluginKey);
+    appendDependentPluginKeys(pluginKey, uninstallKeys);
+
+    for (String uninstallKey : uninstallKeys) {
+      PluginInfo info = pluginRepository.getPluginInfo(uninstallKey);
+      // we don't check type because the dependent of an external plugin should never be a bundled plugin!
+      uninstall(info.getKey(), info.getName(), info.getNonNullJarFile().getName());
+    }
+  }
+
+  public void cancelUninstalls() {
+    for (File file : listJarFiles(fs.getUninstalledPluginsDir())) {
+      try {
+        moveFileToDirectory(file, fs.getInstalledExternalPluginsDir(), false);
+      } catch (IOException e) {
+        throw new IllegalStateException("Fail to cancel plugin uninstalls", e);
+      }
+    }
+  }
+
+  /**
+   * @return the list of plugins to be uninstalled as {@link PluginInfo} instances
+   */
+  public Collection<PluginInfo> getUninstalledPlugins() {
+    return listJarFiles(fs.getUninstalledPluginsDir()).stream()
+      .map(PluginInfo::create)
+      .collect(MoreCollectors.toList());
   }
 
   private static Collection<File> listJarFiles(File dir) {
@@ -49,42 +109,39 @@ public class PluginUninstaller implements Startable {
     return Collections.emptyList();
   }
 
-  @Override
-  public void start() {
+  private void uninstall(String key, String name, String fileName) {
     try {
-      forceMkdir(uninstallDir);
+      if (!getPluginFile(fileName).exists()) {
+        LOG.info("Plugin already uninstalled: {} [{}]", name, key);
+        return;
+      }
+
+      LOG.info("Uninstalling plugin {} [{}]", name, key);
+
+      File masterFile = getPluginFile(fileName);
+      moveFileToDirectory(masterFile, fs.getUninstalledPluginsDir(), true);
     } catch (IOException e) {
-      throw new IllegalStateException("Fail to create the directory: " + uninstallDir, e);
+      throw new IllegalStateException(format("Fail to uninstall plugin %s [%s]", name, key), e);
     }
   }
 
-  @Override
-  public void stop() {
-    // Nothing to do
+  private File getPluginFile(String fileName) {
+    // just to be sure that file is located in from extensions/plugins
+    return new File(fs.getInstalledExternalPluginsDir(), fileName);
   }
 
-  public void uninstall(String pluginKey) {
-    ensurePluginIsInstalled(pluginKey);
-    serverPluginRepository.uninstall(pluginKey, uninstallDir);
-  }
+  private void appendDependentPluginKeys(String pluginKey, Set<String> appendTo) {
+    for (PluginInfo otherPlugin : pluginRepository.getPluginInfos()) {
+      if (otherPlugin.getKey().equals(pluginKey)) {
+        continue;
+      }
 
-  public void cancelUninstalls() {
-    serverPluginRepository.cancelUninstalls(uninstallDir);
-  }
-
-  /**
-   * @return the list of plugins to be uninstalled as {@link PluginInfo} instances
-   */
-  public Collection<PluginInfo> getUninstalledPlugins() {
-    return listJarFiles(uninstallDir)
-      .stream()
-      .map(PluginInfo::create)
-      .collect(MoreCollectors.toList());
-  }
-
-  private void ensurePluginIsInstalled(String key) {
-    if (!serverPluginRepository.hasPlugin(key)) {
-      throw new IllegalArgumentException(format("Plugin [%s] is not installed", key));
+      for (PluginInfo.RequiredPlugin requirement : otherPlugin.getRequiredPlugins()) {
+        if (requirement.getKey().equals(pluginKey)) {
+          appendTo.add(otherPlugin.getKey());
+          appendDependentPluginKeys(otherPlugin.getKey(), appendTo);
+        }
+      }
     }
   }
 }

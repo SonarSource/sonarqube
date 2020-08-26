@@ -33,8 +33,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.platform.ServerFileSystem;
-import org.sonar.server.plugins.InstalledPlugin;
-import org.sonar.server.plugins.PluginFileSystem;
+import org.sonar.server.plugins.ServerPlugin;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 /**
  * The file deploy/plugins/index.txt is required for old versions of SonarLint.
@@ -48,11 +48,11 @@ public final class GeneratePluginIndex implements Startable {
   private static final Logger LOG = Loggers.get(GeneratePluginIndex.class);
 
   private final ServerFileSystem serverFs;
-  private final PluginFileSystem pluginFs;
+  private final ServerPluginRepository serverPluginRepository;
 
-  public GeneratePluginIndex(ServerFileSystem serverFs, PluginFileSystem pluginFs) {
+  public GeneratePluginIndex(ServerFileSystem serverFs, ServerPluginRepository serverPluginRepository) {
     this.serverFs = serverFs;
-    this.pluginFs = pluginFs;
+    this.serverPluginRepository = serverPluginRepository;
   }
 
   @Override
@@ -71,7 +71,7 @@ public final class GeneratePluginIndex implements Startable {
     try {
       FileUtils.forceMkdir(indexFile.getParentFile());
       try (Writer writer = new OutputStreamWriter(new FileOutputStream(indexFile), StandardCharsets.UTF_8)) {
-        for (InstalledPlugin plugin : pluginFs.getInstalledFiles()) {
+        for (ServerPlugin plugin : serverPluginRepository.getPlugins()) {
           writer.append(toRow(plugin));
           writer.append(CharUtils.LF);
         }
@@ -82,16 +82,15 @@ public final class GeneratePluginIndex implements Startable {
     }
   }
 
-  private static String toRow(InstalledPlugin file) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(file.getPluginInfo().getKey())
+  private static String toRow(ServerPlugin file) {
+    return new StringBuilder().append(file.getPluginInfo().getKey())
       .append(",")
       .append(file.getPluginInfo().isSonarLintSupported())
       .append(",")
-      .append(file.getLoadedJar().getFile().getName())
+      .append(file.getJar().getFile().getName())
       .append("|")
-      .append(file.getLoadedJar().getMd5());
-    return sb.toString();
+      .append(file.getJar().getMd5())
+      .toString();
   }
 
 }

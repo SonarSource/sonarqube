@@ -19,7 +19,7 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.SonarRuntime;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
@@ -50,6 +50,6 @@ public class UpdateCenterMatrixFactory {
         installedPluginReferentialFactory.getInstalledPluginReferential())
         .setDate(centerClient.getLastRefreshDate()));
     }
-    return Optional.absent();
+    return Optional.empty();
   }
 }

@@ -26,9 +26,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.jar.JarInputStream;
 import java.util.jar.Pack200;
@@ -38,56 +35,40 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.server.plugins.InstalledPlugin.FileAndMd5;
-
-import static com.google.common.base.Preconditions.checkState;
+import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
 
 @ServerSide
-public class PluginFileSystem {
+public class PluginCompressor {
 
   public static final String PROPERTY_PLUGIN_COMPRESSION_ENABLE = "sonar.pluginsCompression.enable";
-  private static final Logger LOG = Loggers.get(PluginFileSystem.class);
+  private static final Logger LOG = Loggers.get(PluginCompressor.class);
 
   private final Configuration configuration;
-  private final Map<String, InstalledPlugin> installedFiles = new HashMap<>();
 
-  public PluginFileSystem(Configuration configuration) {
+  public PluginCompressor(Configuration configuration) {
     this.configuration = configuration;
   }
 
+  public boolean enabled() {
+    return configuration.getBoolean(PROPERTY_PLUGIN_COMPRESSION_ENABLE).orElse(false);
+  }
+
   /**
-   * @param plugin
-   * @param loadedJar the JAR loaded by classloaders. It differs from {@code plugin.getJarFile()}
+   * @param loadedJar the JAR loaded by classloaders. It differs from {@code jar}
    *                  which is the initial location of JAR as seen by users
    */
-  public void addInstalledPlugin(PluginInfo plugin, File loadedJar) {
-    checkState(!installedFiles.containsKey(plugin.getKey()), "Plugin %s is already loaded", plugin.getKey());
-    checkState(loadedJar.exists(), "loadedJar does not exist: %s", loadedJar);
-
-    Optional<File> compressed = compressJar(plugin, loadedJar);
-    InstalledPlugin installedFile = new InstalledPlugin(
-      plugin,
-      new FileAndMd5(loadedJar),
-      compressed.map(FileAndMd5::new).orElse(null));
-    installedFiles.put(plugin.getKey(), installedFile);
+  public PluginFilesAndMd5 compress(String key,  File jar, File loadedJar) {
+    Optional<File> compressed = compressJar(key, jar, loadedJar);
+    return new PluginFilesAndMd5(new FileAndMd5(loadedJar), compressed.map(FileAndMd5::new).orElse(null));
   }
 
-  public Optional<InstalledPlugin> getInstalledPlugin(String pluginKey) {
-    return Optional.ofNullable(installedFiles.get(pluginKey));
-  }
-
-  public Collection<InstalledPlugin> getInstalledFiles() {
-    return installedFiles.values();
-  }
-
-  private Optional<File> compressJar(PluginInfo plugin, File jar) {
+  private Optional<File> compressJar(String key,  File jar, File loadedJar) {
     if (!configuration.getBoolean(PROPERTY_PLUGIN_COMPRESSION_ENABLE).orElse(false)) {
       return Optional.empty();
     }
 
-    Path targetPack200 = getPack200Path(jar.toPath());
-    Path sourcePack200Path = getPack200Path(plugin.getNonNullJarFile().toPath());
+    Path targetPack200 = getPack200Path(loadedJar.toPath());
+    Path sourcePack200Path = getPack200Path(jar.toPath());
 
     // check if packed file was deployed alongside the jar. If that's the case, use it instead of generating it (SONAR-10395).
     if (sourcePack200Path.toFile().exists()) {
@@ -98,7 +79,7 @@ public class PluginFileSystem {
         throw new IllegalStateException("Failed to copy pack200 file from " + sourcePack200Path + " to " + targetPack200, e);
       }
     } else {
-      pack200(jar.toPath(), targetPack200, plugin.getKey());
+      pack200(loadedJar.toPath(), targetPack200, key);
     }
     return Optional.of(targetPack200.toFile());
   }

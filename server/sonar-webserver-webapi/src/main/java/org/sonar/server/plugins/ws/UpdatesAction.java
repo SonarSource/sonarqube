@@ -19,12 +19,12 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;

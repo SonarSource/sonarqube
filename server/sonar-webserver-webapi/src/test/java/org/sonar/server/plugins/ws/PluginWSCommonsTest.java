@@ -27,8 +27,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.plugin.PluginDto;
-import org.sonar.server.plugins.InstalledPlugin;
-import org.sonar.server.plugins.InstalledPlugin.FileAndMd5;
+import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
+import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.ws.DumbResponse;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
@@ -37,6 +37,7 @@ import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.server.plugins.PluginType.BUNDLED;
 import static org.sonar.server.plugins.ws.PluginWSCommons.toJSon;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
@@ -96,25 +97,25 @@ public class PluginWSCommonsTest {
     PluginDto dto = new PluginDto().setUpdatedAt(100L);
     FileAndMd5 loadedJar = new FileAndMd5(temp.newFile());
     FileAndMd5 compressedJar = new FileAndMd5(temp.newFile());
-    InstalledPlugin installedFile = new InstalledPlugin(gitPluginInfo(), loadedJar, compressedJar);
+    ServerPlugin serverPlugin = new ServerPlugin(gitPluginInfo(), BUNDLED, null, loadedJar, compressedJar, null);
 
-    PluginWSCommons.writePluginInfo(jsonWriter, gitPluginInfo(), null, dto, installedFile);
+    PluginWSCommons.writePluginInfo(jsonWriter, gitPluginInfo(), null, dto, serverPlugin);
 
     jsonWriter.close();
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
-        "  \"key\": \"scmgit\"," +
-        "  \"name\": \"Git\"," +
-        "  \"description\": \"Git SCM Provider.\"," +
-        "  \"version\": \"1.0\"," +
-        "  \"license\": \"GNU LGPL 3\"," +
-        "  \"organizationName\": \"SonarSource\"," +
-        "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "  \"homepageUrl\": \"https://redirect.sonarsource.com/plugins/scmgit.html\"," +
-        "  \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
-        "  \"sonarLintSupported\": true," +
-        "  \"updatedAt\": 100," +
-        "  \"filename\": \"" + loadedJar.getFile().getName() + "\"," +
-        "  \"hash\": \"" + loadedJar.getMd5() + "\"" +
+      "  \"key\": \"scmgit\"," +
+      "  \"name\": \"Git\"," +
+      "  \"description\": \"Git SCM Provider.\"," +
+      "  \"version\": \"1.0\"," +
+      "  \"license\": \"GNU LGPL 3\"," +
+      "  \"organizationName\": \"SonarSource\"," +
+      "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
+      "  \"homepageUrl\": \"https://redirect.sonarsource.com/plugins/scmgit.html\"," +
+      "  \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
+      "  \"sonarLintSupported\": true," +
+      "  \"updatedAt\": 100," +
+      "  \"filename\": \"" + loadedJar.getFile().getName() + "\"," +
+      "  \"hash\": \"" + loadedJar.getMd5() + "\"" +
       "}");
   }
 
@@ -193,6 +194,7 @@ public class PluginWSCommonsTest {
       "  }" +
       "}");
   }
+
   @Test
   public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() {
     assertThat(toJSon(COMPATIBLE)).isEqualTo("COMPATIBLE");

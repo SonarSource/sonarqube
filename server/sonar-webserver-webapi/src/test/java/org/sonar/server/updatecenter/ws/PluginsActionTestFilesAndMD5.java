@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class InstalledPluginsActionTest {
+public class PluginsActionTestFilesAndMD5 {
 
   private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
 

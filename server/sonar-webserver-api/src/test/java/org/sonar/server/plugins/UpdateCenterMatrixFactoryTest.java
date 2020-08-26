@@ -19,12 +19,12 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.updatecenter.common.UpdateCenter;
 
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,12 +36,12 @@ public class UpdateCenterMatrixFactoryTest {
   @Test
   public void return_absent_update_center() {
     UpdateCenterClient updateCenterClient = mock(UpdateCenterClient.class);
-    when(updateCenterClient.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
+    when(updateCenterClient.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
 
     underTest = new UpdateCenterMatrixFactory(updateCenterClient, mock(SonarRuntime.class), mock(InstalledPluginReferentialFactory.class));
 
     Optional<UpdateCenter> updateCenter = underTest.getUpdateCenter(false);
 
-    assertThat(updateCenter).isAbsent();
+    assertThat(updateCenter).isEmpty();
   }
 }

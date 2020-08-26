@@ -19,8 +19,8 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Optional;
 import java.util.Objects;
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;

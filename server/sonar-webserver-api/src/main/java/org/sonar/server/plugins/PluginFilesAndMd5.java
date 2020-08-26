@@ -26,25 +26,18 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.sonar.core.platform.PluginInfo;
 
 import static java.util.Objects.requireNonNull;
 
 @Immutable
-public class InstalledPlugin {
-  private final PluginInfo plugin;
+public class PluginFilesAndMd5 {
   private final FileAndMd5 loadedJar;
   @Nullable
   private final FileAndMd5 compressedJar;
 
-  public InstalledPlugin(PluginInfo plugin, FileAndMd5 loadedJar, @Nullable FileAndMd5 compressedJar) {
-    this.plugin = requireNonNull(plugin);
+  public PluginFilesAndMd5(FileAndMd5 loadedJar, @Nullable FileAndMd5 compressedJar) {
     this.loadedJar = requireNonNull(loadedJar);
     this.compressedJar = compressedJar;
-  }
-
-  public PluginInfo getPluginInfo() {
-    return plugin;
   }
 
   public FileAndMd5 getLoadedJar() {
@@ -57,7 +50,7 @@ public class InstalledPlugin {
   }
 
   @Immutable
-  public static final class FileAndMd5 {
+  public static class FileAndMd5 {
     private final File file;
     private final String md5;
 

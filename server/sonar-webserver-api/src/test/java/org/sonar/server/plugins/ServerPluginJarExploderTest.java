@@ -29,7 +29,6 @@ import org.sonar.server.platform.ServerFileSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ServerPluginJarExploderTest {
@@ -38,8 +37,7 @@ public class ServerPluginJarExploderTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private ServerFileSystem fs = mock(ServerFileSystem.class);
-  private PluginFileSystem pluginFileSystem = mock(PluginFileSystem.class);
-  private ServerPluginJarExploder underTest = new ServerPluginJarExploder(fs, pluginFileSystem);
+  private ServerPluginJarExploder underTest = new ServerPluginJarExploder(fs);
 
   @Test
   public void copy_all_classloader_files_to_dedicated_directory() throws Exception {
@@ -62,6 +60,5 @@ public class ServerPluginJarExploderTest {
       assertThat(lib.getCanonicalPath()).startsWith(pluginDeployDir.getCanonicalPath());
     }
     File targetJar = new File(fs.getDeployedPluginsDir(), "testlibs/test-libs-plugin-0.1-SNAPSHOT.jar");
-    verify(pluginFileSystem).addInstalledPlugin(info, targetJar);
   }
 }

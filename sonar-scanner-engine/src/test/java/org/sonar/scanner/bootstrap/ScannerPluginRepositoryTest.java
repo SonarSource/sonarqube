@@ -20,10 +20,14 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.Plugin;
+import org.sonar.core.platform.ExplodedPlugin;
+import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginLoader;
+import org.sonar.core.platform.PluginJarExploder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -36,8 +40,9 @@ import static org.mockito.Mockito.when;
 public class ScannerPluginRepositoryTest {
 
   PluginInstaller installer = mock(PluginInstaller.class);
-  PluginLoader loader = mock(PluginLoader.class);
-  ScannerPluginRepository underTest = new ScannerPluginRepository(installer, loader);
+  PluginClassLoader loader = mock(PluginClassLoader.class);
+  PluginJarExploder exploder = new FakePluginJarExploder();
+  ScannerPluginRepository underTest = new ScannerPluginRepository(installer, exploder, loader);
 
   @Test
   public void install_and_load_plugins() {
@@ -53,6 +58,7 @@ public class ScannerPluginRepositoryTest {
     assertThat(underTest.getPluginsByKey()).isEqualTo(plugins);
     assertThat(underTest.getPluginInfo("squid")).isSameAs(info);
     assertThat(underTest.getPluginInstance("squid")).isSameAs(instance);
+    assertThat(underTest.getPluginInstances()).containsOnly(instance);
 
     underTest.stop();
     verify(loader).unload(anyCollection());
@@ -74,5 +80,14 @@ public class ScannerPluginRepositoryTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Plugin [unknown] does not exist");
     }
+  }
+
+  private static class FakePluginJarExploder extends PluginJarExploder {
+    @Override
+    public ExplodedPlugin explode(PluginInfo plugin) {
+      return new ExplodedPlugin(plugin, plugin.getKey(), new File(plugin.getKey() + ".jar"), Collections
+        .singleton(new File(plugin.getKey() + "-lib.jar")));
+    }
+
   }
 }

@@ -20,19 +20,19 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.plugin.PluginDto;
-import org.sonar.server.plugins.InstalledPlugin;
+import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.edition.EditionBundledPlugins;
 import org.sonar.updatecenter.common.Artifact;
@@ -78,8 +78,8 @@ public class PluginWSCommons {
   public static final Ordering<PluginInfo> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginInfo::getName)
     .compound(Ordering.natural().onResultOf(PluginInfo::getKey));
-  public static final Comparator<InstalledPlugin> NAME_KEY_COMPARATOR = Comparator
-    .comparing((java.util.function.Function<InstalledPlugin, String>) installedPluginFile -> installedPluginFile.getPluginInfo().getName())
+  public static final Comparator<ServerPlugin> NAME_KEY_COMPARATOR = Comparator
+    .comparing((java.util.function.Function<ServerPlugin, String>) installedPluginFile -> installedPluginFile.getPluginInfo().getName())
     .thenComparing(f -> f.getPluginInfo().getKey());
   public static final Comparator<Plugin> NAME_KEY_PLUGIN_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
     .onResultOf(Plugin::getName)
@@ -92,7 +92,7 @@ public class PluginWSCommons {
     // prevent instantiation
   }
 
-  public static void writePluginInfo(JsonWriter json, PluginInfo pluginInfo, @Nullable String category, @Nullable PluginDto pluginDto, @Nullable InstalledPlugin installedFile) {
+  public static void writePluginInfo(JsonWriter json, PluginInfo pluginInfo, @Nullable String category, @Nullable PluginDto pluginDto, @Nullable ServerPlugin installedFile) {
     json.beginObject();
     json.prop(PROPERTY_KEY, pluginInfo.getKey());
     json.prop(PROPERTY_NAME, pluginInfo.getName());
@@ -115,9 +115,9 @@ public class PluginWSCommons {
       json.prop(PROPERTY_UPDATED_AT, pluginDto.getUpdatedAt());
     }
     if (installedFile != null) {
-      json.prop(PROPERTY_FILENAME, installedFile.getLoadedJar().getFile().getName());
+      json.prop(PROPERTY_FILENAME, installedFile.getJar().getFile().getName());
       json.prop(PROPERTY_SONARLINT_SUPPORTED, installedFile.getPluginInfo().isSonarLintSupported());
-      json.prop(PROPERTY_HASH, installedFile.getLoadedJar().getMd5());
+      json.prop(PROPERTY_HASH, installedFile.getJar().getMd5());
     }
     json.endObject();
   }

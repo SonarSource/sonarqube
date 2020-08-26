@@ -42,7 +42,7 @@ import org.sonar.core.extension.CoreExtensionsLoader;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginLoader;
+import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
@@ -99,7 +99,7 @@ public class GlobalContainer extends ComponentContainer {
     add(
       // plugins
       ScannerPluginRepository.class,
-      PluginLoader.class,
+      PluginClassLoader.class,
       PluginClassloaderFactory.class,
       ScannerPluginJarExploder.class,
       ExtensionInstaller.class,

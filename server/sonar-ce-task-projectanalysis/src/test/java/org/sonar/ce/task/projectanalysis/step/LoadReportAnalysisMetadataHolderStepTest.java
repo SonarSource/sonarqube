@@ -487,6 +487,11 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     }
 
     @Override
+    public Collection<Plugin> getPluginInstances() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean hasPlugin(String key) {
       return pluginsMap.containsKey(key);
     }

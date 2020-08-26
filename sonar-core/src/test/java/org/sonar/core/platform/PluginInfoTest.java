@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -31,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.MessageException;
@@ -41,6 +41,7 @@ import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.Ordering.natural;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 @RunWith(DataProviderRunner.class)
@@ -49,17 +50,14 @@ public class PluginInfoTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   @Test
   public void test_RequiredPlugin() {
     PluginInfo.RequiredPlugin plugin = PluginInfo.RequiredPlugin.parse("java:1.1");
     assertThat(plugin.getKey()).isEqualTo("java");
     assertThat(plugin.getMinimalVersion().getName()).isEqualTo("1.1");
-    assertThat(plugin.toString()).isEqualTo("java:1.1");
-    assertThat(plugin.equals(PluginInfo.RequiredPlugin.parse("java:1.2"))).isTrue();
-    assertThat(plugin.equals(PluginInfo.RequiredPlugin.parse("php:1.2"))).isFalse();
+    assertThat(plugin).hasToString("java:1.1")
+      .isEqualTo(PluginInfo.RequiredPlugin.parse("java:1.2"))
+      .isNotEqualTo(PluginInfo.RequiredPlugin.parse("php:1.2"));
 
     try {
       PluginInfo.RequiredPlugin.parse("java");
@@ -210,7 +208,7 @@ public class PluginInfoTest {
     manifest.setOrganization("SonarSource");
     manifest.setOrganizationUrl("http://sonarsource.com");
     manifest.setIssueTrackerUrl("http://jira.com");
-    manifest.setRequirePlugins(new String[]{"java:2.0", "pmd:1.3"});
+    manifest.setRequirePlugins(new String[] {"java:2.0", "pmd:1.3"});
     manifest.setSonarLintSupported(true);
 
     File jarFile = temp.newFile();
@@ -237,7 +235,7 @@ public class PluginInfoTest {
     manifest.setVersion("1.0");
     manifest.setName("Java");
     manifest.setMainClass("org.foo.FooPlugin");
-    manifest.setRequirePlugins(new String[]{"license:" + version});
+    manifest.setRequirePlugins(new String[] {"license:" + version});
 
     File jarFile = temp.newFile();
     PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest);
@@ -252,7 +250,7 @@ public class PluginInfoTest {
     manifest.setVersion("1.0");
     manifest.setName("Java");
     manifest.setMainClass("org.foo.FooPlugin");
-    manifest.setRequirePlugins(new String[]{"java:2.0", "license:" + version, "pmd:1.3"});
+    manifest.setRequirePlugins(new String[] {"java:2.0", "license:" + version, "pmd:1.3"});
 
     File jarFile = temp.newFile();
     PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest);
@@ -261,7 +259,7 @@ public class PluginInfoTest {
 
   @DataProvider
   public static Object[][] licenseVersions() {
-    return new Object[][]{
+    return new Object[][] {
       {"0.3"},
       {"7.2.0.1253"}
     };
@@ -292,7 +290,7 @@ public class PluginInfoTest {
     assertThat(pluginInfo.toString()).isEqualTo("[java / 1.1]");
 
     pluginInfo.setImplementationBuild("SHA1");
-    assertThat(pluginInfo.toString()).isEqualTo("[java / 1.1 / SHA1]");
+    assertThat(pluginInfo).hasToString("[java / 1.1 / SHA1]");
   }
 
   /**
@@ -309,14 +307,13 @@ public class PluginInfoTest {
   public void fail_when_jar_is_not_a_plugin() throws IOException {
     // this JAR has a manifest but is not a plugin
     File jarRootDir = temp.newFolder();
-    FileUtils.write(new File(jarRootDir, "META-INF/MANIFEST.MF"), "Build-Jdk: 1.6.0_15");
+    FileUtils.write(new File(jarRootDir, "META-INF/MANIFEST.MF"), "Build-Jdk: 1.6.0_15", StandardCharsets.UTF_8);
     File jar = temp.newFile();
     ZipUtils.zipDir(jarRootDir, jar);
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("File is not a plugin. Please delete it and restart: " + jar.getAbsolutePath());
-
-    PluginInfo.create(jar);
+    assertThatThrownBy(() -> PluginInfo.create(jar))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("File is not a plugin. Please delete it and restart: " + jar.getAbsolutePath());
   }
 
   PluginInfo withMinSqVersion(@Nullable String version) {

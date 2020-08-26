@@ -22,8 +22,8 @@ package org.sonar.server.platform.platformlevel;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginClassloaderFactory;
-import org.sonar.core.platform.PluginLoader;
 import org.sonar.server.es.MigrationEsClientImpl;
 import org.sonar.server.l18n.ServerI18n;
 import org.sonar.server.platform.DatabaseServerCompatibility;
@@ -41,8 +41,11 @@ import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.web.WebPagesCache;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
-import org.sonar.server.plugins.PluginFileSystem;
+import org.sonar.server.plugins.PluginCompressor;
+import org.sonar.server.plugins.PluginJarLoader;
+import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerPluginJarExploder;
+import org.sonar.server.plugins.ServerPluginManager;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.WebServerExtensionInstaller;
 
@@ -70,10 +73,12 @@ public class PlatformLevel2 extends PlatformLevel {
       WebPagesCache.class,
 
       // plugins
+      PluginJarLoader.class,
       ServerPluginRepository.class,
+      ServerPluginManager.class,
       ServerPluginJarExploder.class,
-      PluginLoader.class,
-      PluginFileSystem.class,
+      PluginClassLoader.class,
+      PluginCompressor.class,
       PluginClassloaderFactory.class,
       InstalledPluginReferentialFactory.class,
       WebServerExtensionInstaller.class,

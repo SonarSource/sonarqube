@@ -20,21 +20,22 @@
 package org.sonar.ce.container;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.Plugin;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginLoader;
+import org.sonar.core.platform.ExplodedPlugin;
+import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.server.platform.ServerFileSystem;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,12 +44,10 @@ public class CePluginRepositoryTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
   private ServerFileSystem fs = mock(ServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
-  private PluginLoader pluginLoader = new DumbPluginLoader();
-  private CePluginRepository underTest = new CePluginRepository(fs, pluginLoader);
+  private PluginClassLoader pluginClassLoader = new DumbPluginClassLoader();
+  private CePluginJarExploder cePluginJarExploder = new CePluginJarExploder(fs);
+  private CePluginRepository underTest = new CePluginRepository(fs, pluginClassLoader, cePluginJarExploder);
 
   @After
   public void tearDown() {
@@ -67,8 +66,9 @@ public class CePluginRepositoryTest {
   }
 
   @Test
-  public void load_plugins() {
+  public void load_plugins() throws IOException {
     String pluginKey = "test";
+    when(fs.getTempDir()).thenReturn(temp.newFolder());
     when(fs.getInstalledExternalPluginsDir()).thenReturn(new File("src/test/plugins/sonar-test-plugin/target"));
 
     underTest.start();
@@ -76,74 +76,69 @@ public class CePluginRepositoryTest {
     assertThat(underTest.getPluginInfos()).extracting("key").containsOnly(pluginKey);
     assertThat(underTest.getPluginInfo(pluginKey).getKey()).isEqualTo(pluginKey);
     assertThat(underTest.getPluginInstance(pluginKey)).isNotNull();
+    assertThat(underTest.getPluginInstances()).isNotEmpty();
     assertThat(underTest.hasPlugin(pluginKey)).isTrue();
   }
 
   @Test
   public void getPluginInfo_fails_if_plugin_does_not_exist() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Plugin [foo] does not exist");
-
     // empty folder
     when(fs.getInstalledExternalPluginsDir()).thenReturn(temp.newFolder());
     underTest.start();
-    underTest.getPluginInfo("foo");
+    assertThatThrownBy(() -> underTest.getPluginInfo("foo"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Plugin [foo] does not exist");
   }
 
   @Test
   public void getPluginInstance_fails_if_plugin_does_not_exist() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Plugin [foo] does not exist");
-
     // empty folder
     when(fs.getInstalledExternalPluginsDir()).thenReturn(temp.newFolder());
     underTest.start();
-    underTest.getPluginInstance("foo");
+    assertThatThrownBy(() -> underTest.getPluginInstance("foo"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Plugin [foo] does not exist");
   }
 
   @Test
   public void getPluginInstance_throws_ISE_if_repo_is_not_started() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("not started yet");
-
-    underTest.getPluginInstance("foo");
+    assertThatThrownBy(() -> underTest.getPluginInstance("foo"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("not started yet");
   }
 
   @Test
   public void getPluginInfo_throws_ISE_if_repo_is_not_started() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("not started yet");
-
-    underTest.getPluginInfo("foo");
+    assertThatThrownBy(() -> underTest.getPluginInfo("foo"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("not started yet");
   }
 
   @Test
   public void hasPlugin_throws_ISE_if_repo_is_not_started() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("not started yet");
-
-    underTest.hasPlugin("foo");
+    assertThatThrownBy(() -> underTest.hasPlugin("foo"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("not started yet");
   }
 
   @Test
   public void getPluginInfos_throws_ISE_if_repo_is_not_started() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("not started yet");
-
-    underTest.getPluginInfos();
+    assertThatThrownBy(() -> underTest.getPluginInfos())
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("not started yet");
   }
 
-  private static class DumbPluginLoader extends PluginLoader {
+  private static class DumbPluginClassLoader extends PluginClassLoader {
 
-    public DumbPluginLoader() {
-      super(null, null);
+    public DumbPluginClassLoader() {
+      super(null);
     }
 
     /**
      * Does nothing except returning the specified list of plugins
      */
     @Override
-    public Map<String, Plugin> load(Map<String, PluginInfo> infoByKeys) {
+    public Map<String, Plugin> load(Map<String, ExplodedPlugin> infoByKeys) {
       Map<String, Plugin> result = new HashMap<>();
       for (String pluginKey : infoByKeys.keySet()) {
         result.put(pluginKey, mock(Plugin.class));

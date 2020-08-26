@@ -32,7 +32,6 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -72,7 +71,7 @@ public class UpdateCenterClientTest {
   @Test
   public void ignore_connection_errors() {
     when(reader.readString(any(URI.class), eq(StandardCharsets.UTF_8))).thenThrow(new SonarException());
-    assertThat(underTest.getUpdateCenter()).isAbsent();
+    assertThat(underTest.getUpdateCenter()).isEmpty();
   }
 
   @Test
@@ -99,6 +98,6 @@ public class UpdateCenterClientTest {
   public void update_center_is_null_when_property_is_false() {
     settings.setProperty(ProcessProperties.Property.SONAR_UPDATECENTER_ACTIVATE.getKey(), false);
 
-    assertThat(underTest.getUpdateCenter()).isAbsent();
+    assertThat(underTest.getUpdateCenter()).isEmpty();
   }
 }

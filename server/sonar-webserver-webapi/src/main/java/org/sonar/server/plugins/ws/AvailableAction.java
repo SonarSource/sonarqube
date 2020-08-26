@@ -19,10 +19,10 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -94,10 +94,7 @@ public class AvailableAction implements PluginsWsAction {
   }
 
   private static Collection<PluginUpdate> retrieveAvailablePlugins(UpdateCenter updateCenter) {
-    return ImmutableSortedSet.copyOf(
-      NAME_KEY_PLUGIN_UPDATE_ORDERING,
-      updateCenter.findAvailablePlugins()
-    );
+    return updateCenter.findAvailablePlugins().stream().sorted(NAME_KEY_PLUGIN_UPDATE_ORDERING).collect(Collectors.toList());
   }
 
 }

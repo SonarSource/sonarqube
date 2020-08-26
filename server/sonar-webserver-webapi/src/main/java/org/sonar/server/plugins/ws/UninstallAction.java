@@ -22,13 +22,8 @@ package org.sonar.server.plugins.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.PluginUninstaller;
-import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.user.UserSession;
-
-import static java.lang.String.format;
-import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
 
 /**
  * Implementation of the {@code uninstall} action for the Plugins WebService.
@@ -36,12 +31,10 @@ import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBu
 public class UninstallAction implements PluginsWsAction {
   private static final String PARAM_KEY = "key";
 
-  private final ServerPluginRepository serverPluginRepository;
   private final PluginUninstaller pluginUninstaller;
   private final UserSession userSession;
 
-  public UninstallAction(ServerPluginRepository serverPluginRepository, PluginUninstaller pluginUninstaller, UserSession userSession) {
-    this.serverPluginRepository = serverPluginRepository;
+  public UninstallAction(PluginUninstaller pluginUninstaller, UserSession userSession) {
     this.pluginUninstaller = pluginUninstaller;
     this.userSession = userSession;
   }
@@ -64,18 +57,7 @@ public class UninstallAction implements PluginsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkIsSystemAdministrator();
-
-    String key = request.mandatoryParam(PARAM_KEY);
-    PluginInfo pluginInfo = serverPluginRepository.getPluginInfo(key);
-    if (pluginInfo != null) {
-      if (isEditionBundled(pluginInfo)) {
-        throw new IllegalArgumentException(format(
-          "SonarSource commercial plugin with key '%s' can only be uninstalled as part of a SonarSource edition",
-          pluginInfo.getKey()));
-      }
-      pluginUninstaller.uninstall(key);
-    }
+    pluginUninstaller.uninstall(request.mandatoryParam(PARAM_KEY));
     response.noContent();
   }
-
 }

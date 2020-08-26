@@ -151,6 +151,11 @@ public class ServerExtensionInstallerTest {
     }
 
     @Override
+    public Collection<Plugin> getPluginInstances() {
+      return pluginsMap.values();
+    }
+
+    @Override
     public boolean hasPlugin(String key) {
       return pluginsMap.containsKey(key);
     }

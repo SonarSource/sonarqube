@@ -21,6 +21,7 @@ package org.sonar.server.plugins;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
@@ -30,12 +31,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.core.platform.PluginInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.plugins.PluginFileSystem.PROPERTY_PLUGIN_COMPRESSION_ENABLE;
+import static org.sonar.server.plugins.PluginCompressor.PROPERTY_PLUGIN_COMPRESSION_ENABLE;
 
-public class PluginFileSystemTest {
+public class PluginCompressorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -43,42 +43,21 @@ public class PluginFileSystemTest {
 
   @Before
   public void setUp() throws IOException {
-    Path sourceFolder = temp.newFolder("source").toPath();
     Path targetFolder = temp.newFolder("target").toPath();
     Path targetJarPath = targetFolder.resolve("test.jar");
     Files.createFile(targetJarPath);
   }
 
   @Test
-  public void add_plugin_to_list_of_installed_plugins() throws IOException {
-    File jar = touch(temp.newFolder(), "sonar-foo-plugin.jar");
-    PluginInfo info = new PluginInfo("foo");
-
-    PluginFileSystem underTest = new PluginFileSystem(settings.asConfig());
-    underTest.addInstalledPlugin(info, jar);
-
-    assertThat(underTest.getInstalledFiles()).hasSize(1);
-    InstalledPlugin installedPlugin = underTest.getInstalledPlugin("foo").get();
-    assertThat(installedPlugin.getCompressedJar()).isNull();
-    assertThat(installedPlugin.getLoadedJar().getFile().toPath()).isEqualTo(jar.toPath());
-    assertThat(installedPlugin.getPluginInfo()).isSameAs(info);
-  }
-
-  @Test
   public void compress_jar_if_compression_enabled() throws IOException {
     File jar = touch(temp.newFolder(), "sonar-foo-plugin.jar");
-    PluginInfo info = new PluginInfo("foo").setJarFile(jar);
     // the JAR is copied somewhere else in order to be loaded by classloaders
     File loadedJar = touch(temp.newFolder(), "sonar-foo-plugin.jar");
 
     settings.setProperty(PROPERTY_PLUGIN_COMPRESSION_ENABLE, true);
-    PluginFileSystem underTest = new PluginFileSystem(settings.asConfig());
-    underTest.addInstalledPlugin(info, loadedJar);
+    PluginCompressor underTest = new PluginCompressor(settings.asConfig());
 
-    assertThat(underTest.getInstalledFiles()).hasSize(1);
-
-    InstalledPlugin installedPlugin = underTest.getInstalledPlugin("foo").get();
-    assertThat(installedPlugin.getPluginInfo()).isSameAs(info);
+    PluginFilesAndMd5 installedPlugin = underTest.compress("foo", jar, loadedJar);
     assertThat(installedPlugin.getLoadedJar().getFile().toPath()).isEqualTo(loadedJar.toPath());
     assertThat(installedPlugin.getCompressedJar().getFile())
       .exists()
@@ -88,33 +67,43 @@ public class PluginFileSystemTest {
   }
 
   @Test
+  public void dont_compress_jar_if_compression_disable() throws IOException {
+    File jar = touch(temp.newFolder(), "sonar-foo-plugin.jar");
+    // the JAR is copied somewhere else in order to be loaded by classloaders
+    File loadedJar = touch(temp.newFolder(), "sonar-foo-plugin.jar");
+
+    settings.setProperty(PROPERTY_PLUGIN_COMPRESSION_ENABLE, false);
+    PluginCompressor underTest = new PluginCompressor(settings.asConfig());
+
+    PluginFilesAndMd5 installedPlugin = underTest.compress("foo", jar, loadedJar);
+    assertThat(installedPlugin.getLoadedJar().getFile().toPath()).isEqualTo(loadedJar.toPath());
+    assertThat(installedPlugin.getCompressedJar()).isNull();
+    assertThat(installedPlugin.getLoadedJar().getFile().getParentFile().listFiles()).containsOnly(loadedJar);
+  }
+
+  @Test
   public void copy_and_use_existing_packed_jar_if_compression_enabled() throws IOException {
     File jar = touch(temp.newFolder(), "sonar-foo-plugin.jar");
     File packedJar = touch(jar.getParentFile(), "sonar-foo-plugin.pack.gz");
-    PluginInfo info = new PluginInfo("foo").setJarFile(jar);
     // the JAR is copied somewhere else in order to be loaded by classloaders
     File loadedJar = touch(temp.newFolder(), "sonar-foo-plugin.jar");
 
     settings.setProperty(PROPERTY_PLUGIN_COMPRESSION_ENABLE, true);
-    PluginFileSystem underTest = new PluginFileSystem(settings.asConfig());
-    underTest.addInstalledPlugin(info, loadedJar);
+    PluginCompressor underTest = new PluginCompressor(settings.asConfig());
 
-    assertThat(underTest.getInstalledFiles()).hasSize(1);
-
-    InstalledPlugin installedPlugin = underTest.getInstalledPlugin("foo").get();
-    assertThat(installedPlugin.getPluginInfo()).isSameAs(info);
+    PluginFilesAndMd5 installedPlugin = underTest.compress("foo", jar, loadedJar);
     assertThat(installedPlugin.getLoadedJar().getFile().toPath()).isEqualTo(loadedJar.toPath());
     assertThat(installedPlugin.getCompressedJar().getFile())
       .exists()
       .isFile()
       .hasName(packedJar.getName())
       .hasParent(loadedJar.getParentFile())
-      .hasSameContentAs(packedJar);
+      .hasSameTextualContentAs(packedJar);
   }
 
   private static File touch(File dir, String filename) throws IOException {
     File file = new File(dir, filename);
-    FileUtils.write(file, RandomStringUtils.random(10));
+    FileUtils.write(file, RandomStringUtils.random(10), StandardCharsets.UTF_8);
     return file;
   }
 

@@ -9,6 +9,7 @@
     kee,
     base_plugin_key as basePluginKey,
     file_hash as fileHash,
+    type,
     created_at as createdAt,
     updated_at as updatedAt
   </sql>
@@ -31,6 +32,7 @@
     kee,
     base_plugin_key,
     file_hash,
+    type,
     created_at,
     updated_at
     ) values (
@@ -38,6 +40,7 @@
     #{kee,jdbcType=VARCHAR},
     #{basePluginKey,jdbcType=VARCHAR},
     #{fileHash,jdbcType=VARCHAR},
+    #{type,jdbcType=VARCHAR},
     #{createdAt,jdbcType=TIMESTAMP},
     #{updatedAt,jdbcType=TIMESTAMP}
     )
@@ -47,6 +50,7 @@
     update plugins set
       base_plugin_key=#{basePluginKey,jdbcType=VARCHAR},
       file_hash=#{fileHash,jdbcType=VARCHAR},
+      type=#{type,jdbcType=VARCHAR},
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       uuid=#{uuid,jdbcType=VARCHAR}

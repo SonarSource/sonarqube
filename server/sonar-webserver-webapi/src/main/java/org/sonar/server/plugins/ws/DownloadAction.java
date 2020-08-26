@@ -27,9 +27,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.plugins.InstalledPlugin;
-import org.sonar.server.plugins.InstalledPlugin.FileAndMd5;
-import org.sonar.server.plugins.PluginFileSystem;
+import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
+import org.sonar.server.plugins.ServerPlugin;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 public class DownloadAction implements PluginsWsAction {
 
@@ -37,10 +37,10 @@ public class DownloadAction implements PluginsWsAction {
   private static final String ACCEPT_COMPRESSIONS_PARAM = "acceptCompressions";
   private static final String PLUGIN_PARAM = "plugin";
 
-  private final PluginFileSystem pluginFileSystem;
+  private final ServerPluginRepository pluginRepository;
 
-  public DownloadAction(PluginFileSystem pluginFileSystem) {
-    this.pluginFileSystem = pluginFileSystem;
+  public DownloadAction(ServerPluginRepository pluginRepository) {
+    this.pluginRepository = pluginRepository;
   }
 
   @Override
@@ -64,22 +64,22 @@ public class DownloadAction implements PluginsWsAction {
   public void handle(Request request, Response response) throws Exception {
     String pluginKey = request.mandatoryParam(PLUGIN_PARAM);
 
-    Optional<InstalledPlugin> file = pluginFileSystem.getInstalledPlugin(pluginKey);
+    Optional<ServerPlugin> file = pluginRepository.findPlugin(pluginKey);
     if (!file.isPresent()) {
       throw new NotFoundException("Plugin " + pluginKey + " not found");
     }
 
     FileAndMd5 downloadedFile;
-    FileAndMd5 compressedJar = file.get().getCompressedJar();
+    FileAndMd5 compressedJar = file.get().getCompressed();
     if (compressedJar != null && PACK200.equals(request.param(ACCEPT_COMPRESSIONS_PARAM))) {
       response.stream().setMediaType("application/octet-stream");
 
       response.setHeader("Sonar-Compression", PACK200);
-      response.setHeader("Sonar-UncompressedMD5", file.get().getLoadedJar().getMd5());
+      response.setHeader("Sonar-UncompressedMD5", file.get().getJar().getMd5());
       downloadedFile = compressedJar;
     } else {
       response.stream().setMediaType("application/java-archive");
-      downloadedFile = file.get().getLoadedJar();
+      downloadedFile = file.get().getJar();
     }
     response.setHeader("Sonar-MD5", downloadedFile.getMd5());
     try (InputStream input = FileUtils.openInputStream(downloadedFile.getFile())) {

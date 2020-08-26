@@ -22,18 +22,19 @@ package org.sonar.scanner.bootstrap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.ExplodedPlugin;
+import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginLoader;
+import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.core.platform.PluginRepository;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.utils.Preconditions.checkState;
 
 /**
@@ -43,24 +44,25 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
   private static final Logger LOG = Loggers.get(ScannerPluginRepository.class);
 
   private final PluginInstaller installer;
-  private final PluginLoader loader;
+  private final PluginJarExploder pluginJarExploder;
+  private final PluginClassLoader loader;
 
   private Map<String, Plugin> pluginInstancesByKeys;
   private Map<String, ScannerPlugin> pluginsByKeys;
   private Map<ClassLoader, String> keysByClassLoader;
 
-  public ScannerPluginRepository(PluginInstaller installer, PluginLoader loader) {
+  public ScannerPluginRepository(PluginInstaller installer, PluginJarExploder pluginJarExploder, PluginClassLoader loader) {
     this.installer = installer;
+    this.pluginJarExploder = pluginJarExploder;
     this.loader = loader;
   }
 
   @Override
   public void start() {
     pluginsByKeys = new HashMap<>(installer.installRemotes());
-    pluginInstancesByKeys = new HashMap<>(
-      loader.load(pluginsByKeys.values().stream()
-        .map(ScannerPlugin::getInfo)
-        .collect(toMap(PluginInfo::getKey, Function.identity()))));
+    Map<String, ExplodedPlugin> explodedPLuginsByKey = pluginsByKeys.entrySet().stream()
+      .collect(Collectors.toMap(Map.Entry::getKey, e -> pluginJarExploder.explode(e.getValue().getInfo())));
+    pluginInstancesByKeys = new HashMap<>(loader.load(explodedPLuginsByKey));
 
     // this part is only used by medium tests
     for (Object[] localPlugin : installer.installLocals()) {
@@ -125,6 +127,11 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
     Plugin instance = pluginInstancesByKeys.get(key);
     checkState(instance != null, "Plugin [%s] does not exist", key);
     return instance;
+  }
+
+  @Override
+  public Collection<Plugin> getPluginInstances() {
+    return pluginInstancesByKeys.values();
   }
 
   @Override

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -138,7 +138,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   @Test
   public void empty_array_is_returned_when_update_center_is_not_accessible() {
     logInAsSystemAdministrator();
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
 
     TestResponse response = tester.newRequest().execute();
 

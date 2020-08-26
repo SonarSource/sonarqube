@@ -19,7 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Before;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;

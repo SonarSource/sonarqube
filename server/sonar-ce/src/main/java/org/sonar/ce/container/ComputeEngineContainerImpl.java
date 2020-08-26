@@ -77,7 +77,7 @@ import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.Module;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.platform.PluginClassloaderFactory;
-import org.sonar.core.platform.PluginLoader;
+import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
@@ -335,7 +335,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // plugins
       PluginClassloaderFactory.class,
       CePluginJarExploder.class,
-      PluginLoader.class,
+      PluginClassLoader.class,
       CePluginRepository.class,
       InstalledPluginReferentialFactory.class,
       ComputeEngineExtensionInstaller.class,

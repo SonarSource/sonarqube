@@ -19,11 +19,11 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,7 +50,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class InstallActionTest {
-  private static final String DUMMY_CONTROLLER_KEY = "dummy";
   private static final String ACTION_KEY = "install";
   private static final String KEY_PARAM = "key";
   private static final String PLUGIN_KEY = "pluginKey";
@@ -153,7 +152,7 @@ public class InstallActionTest {
   @Test
   public void IAE_is_raised_when_update_center_is_unavailable() {
     logInAsSystemAdministrator();
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.absent());
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.empty());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("No plugin with key 'pluginKey'");
