@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -38,11 +37,13 @@ import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.qualityprofile.QProfileParser;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.organization.OrganizationDto.Subscription.FREE;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 
@@ -50,8 +51,6 @@ public class BackupActionTest {
 
   private static final String A_LANGUAGE = "xoo";
 
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
   @Rule
@@ -132,14 +131,14 @@ public class BackupActionTest {
 
   @Test
   public void throws_NotFoundException_if_specified_organization_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No organization with key 'the-missing-org'");
-
-    tester.newRequest()
+    TestRequest request = tester.newRequest()
       .setParam("organization", "the-missing-org")
       .setParam("language", A_LANGUAGE)
-      .setParam("qualityProfile", "the-name")
-      .execute();
+      .setParam("qualityProfile", "the-name");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("No organization with key 'the-missing-org'");
   }
 
   @Test
@@ -149,21 +148,22 @@ public class BackupActionTest {
     OrganizationDto org2 = db.organizations().insert();
     QProfileDto profileInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(A_LANGUAGE));
 
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality Profile for language 'xoo' and name '" + profileInOrg1.getName() + "' does not exist in organization '" + org2.getKey() + "'");
-
-    tester.newRequest()
+    TestRequest request = tester.newRequest()
       .setParam("organization", org2.getKey())
       .setParam("language", profileInOrg1.getLanguage())
-      .setParam("qualityProfile", profileInOrg1.getName())
-      .execute();
+      .setParam("qualityProfile", profileInOrg1.getName());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Quality Profile for language 'xoo' and name '" + profileInOrg1.getName() + "' does not exist in organization '" + org2.getKey() + "'");
   }
 
   @Test
   public void throws_IAE_if_profile_reference_is_not_set() {
-    expectedException.expect(IllegalArgumentException.class);
+    TestRequest request = tester.newRequest();
 
-    tester.newRequest().execute();
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -172,14 +172,14 @@ public class BackupActionTest {
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
     userSession.logIn();
 
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    tester.newRequest()
+    TestRequest request = tester.newRequest()
       .setParam("organization", organization.getKey())
       .setParam("language", profile.getLanguage())
-      .setParam("qualityProfile", profile.getName())
-      .execute();
+      .setParam("qualityProfile", profile.getName());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage(format("You're not member of organization '%s'", organization.getKey()));
   }
 
   @Test
