@@ -58,7 +58,7 @@ public class CePluginRepositoryTest {
   @Test
   public void empty_plugins() throws Exception {
     // empty folder
-    when(fs.getInstalledPluginsDir()).thenReturn(temp.newFolder());
+    when(fs.getInstalledExternalPluginsDir()).thenReturn(temp.newFolder());
 
     underTest.start();
 
@@ -69,7 +69,7 @@ public class CePluginRepositoryTest {
   @Test
   public void load_plugins() {
     String pluginKey = "test";
-    when(fs.getInstalledPluginsDir()).thenReturn(new File("src/test/plugins/sonar-test-plugin/target"));
+    when(fs.getInstalledExternalPluginsDir()).thenReturn(new File("src/test/plugins/sonar-test-plugin/target"));
 
     underTest.start();
 
@@ -85,7 +85,7 @@ public class CePluginRepositoryTest {
     expectedException.expectMessage("Plugin [foo] does not exist");
 
     // empty folder
-    when(fs.getInstalledPluginsDir()).thenReturn(temp.newFolder());
+    when(fs.getInstalledExternalPluginsDir()).thenReturn(temp.newFolder());
     underTest.start();
     underTest.getPluginInfo("foo");
   }
@@ -96,7 +96,7 @@ public class CePluginRepositoryTest {
     expectedException.expectMessage("Plugin [foo] does not exist");
 
     // empty folder
-    when(fs.getInstalledPluginsDir()).thenReturn(temp.newFolder());
+    when(fs.getInstalledExternalPluginsDir()).thenReturn(temp.newFolder());
     underTest.start();
     underTest.getPluginInstance("foo");
   }

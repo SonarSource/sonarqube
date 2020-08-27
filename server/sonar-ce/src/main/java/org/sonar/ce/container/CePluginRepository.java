@@ -64,12 +64,17 @@ public class CePluginRepository implements PluginRepository, Startable {
   @Override
   public void start() {
     Loggers.get(getClass()).info("Load plugins");
-    for (File file : listJarFiles(fs.getInstalledPluginsDir())) {
+    registerPluginsFromDir(fs.getInstalledBundledPluginsDir());
+    registerPluginsFromDir(fs.getInstalledExternalPluginsDir());
+    pluginInstancesByKeys.putAll(loader.load(pluginInfosByKeys));
+    started.set(true);
+  }
+
+  private void registerPluginsFromDir(File pluginsDir) {
+    for (File file : listJarFiles(pluginsDir)) {
       PluginInfo info = PluginInfo.create(file);
       pluginInfosByKeys.put(info.getKey(), info);
     }
-    pluginInstancesByKeys.putAll(loader.load(pluginInfosByKeys));
-    started.set(true);
   }
 
   @Override

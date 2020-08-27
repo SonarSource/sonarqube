@@ -51,7 +51,7 @@ dependencies {
     jdbc_postgresql 'org.postgresql:postgresql'
 }
 
-// declare dependencies in configuration bundledPlugin to be packaged in extensions/plugins
+// declare dependencies in configuration bundledPlugin to be packaged in lib/extensions
 apply from: 'bundled_plugins.gradle'
 
 jar {
@@ -130,7 +130,7 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
   into("${archiveDir}/lib/") {
     from jar
   }
-  into("${archiveDir}/extensions/plugins/") {
+  into("${archiveDir}/lib/extensions/") {
     from configurations.bundledPlugin
   }
   into("${archiveDir}/lib/jsw/") {

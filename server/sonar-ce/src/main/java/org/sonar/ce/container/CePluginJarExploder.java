@@ -28,7 +28,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginJarExploder;
 
 /**
- * Explodes the plugin JARs of extensions/plugins/ into a temporary directory
+ * Explodes the plugin JARs of extensions/plugins or lib/extensions into a temporary directory
  * dedicated to compute engine.
  */
 public class CePluginJarExploder extends PluginJarExploder {

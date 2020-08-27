@@ -125,7 +125,12 @@ public class CePluginJarExploderTest {
     }
 
     @Override
-    public File getInstalledPluginsDir() {
+    public File getInstalledExternalPluginsDir() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getInstalledBundledPluginsDir() {
       throw new UnsupportedOperationException();
     }
 

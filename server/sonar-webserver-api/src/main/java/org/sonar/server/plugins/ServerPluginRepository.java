@@ -127,11 +127,16 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   /**
-   * Load the plugins that are located in extensions/plugins. Blacklisted plugins are
+   * Load the plugins that are located in lib/extensions and extensions/plugins. Blacklisted plugins are
    * deleted.
    */
   private void loadPreInstalledPlugins() {
-    for (File file : listJarFiles(fs.getInstalledPluginsDir())) {
+    registerPluginsFromDir(fs.getInstalledBundledPluginsDir());
+    registerPluginsFromDir(fs.getInstalledExternalPluginsDir());
+  }
+
+  private void registerPluginsFromDir(File pluginsDir) {
+    for (File file : listJarFiles(pluginsDir)) {
       PluginInfo info = PluginInfo.create(file);
       registerPluginInfo(info);
     }
@@ -160,10 +165,18 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     }
     PluginInfo existing = pluginInfosByKeys.put(pluginKey, info);
     if (existing != null) {
-      throw MessageException.of(format("Found two versions of the plugin %s [%s] in the directory extensions/plugins. Please remove one of %s or %s.",
-        info.getName(), pluginKey, info.getNonNullJarFile().getName(), existing.getNonNullJarFile().getName()));
+      File existingPluginParentDir = existing.getNonNullJarFile().getParentFile();
+      File currentPluginParentDir = info.getNonNullJarFile().getParentFile();
+      if (existingPluginParentDir.equals(currentPluginParentDir)) {
+        String directory = existingPluginParentDir.equals(fs.getInstalledBundledPluginsDir()) ? "lib/extensions" : "extensions/plugins";
+        throw MessageException.of(format("Found two versions of the plugin %s [%s] in the directory %s. Please remove one of %s or %s.",
+          info.getName(), pluginKey, directory, info.getNonNullJarFile().getName(), existing.getNonNullJarFile().getName()));
+      } else {
+        throw MessageException
+          .of(format("Found two versions of the plugin %s [%s] in different directories lib/extensions and extension/plugins. Please remove the one from extension/plugins: %s.",
+            info.getName(), pluginKey, info.getNonNullJarFile().getName()));
+      }
     }
-
   }
 
   /**
@@ -171,30 +184,45 @@ public class ServerPluginRepository implements PluginRepository, Startable {
    * already exists then it's deleted.
    */
   private void overrideAndRegisterPlugin(File sourceFile) {
-    File destDir = fs.getInstalledPluginsDir();
+    File destDir = fs.getInstalledExternalPluginsDir();
     File destFile = new File(destDir, sourceFile.getName());
     if (destFile.exists()) {
       // plugin with same filename already installed
       deleteQuietly(destFile);
     }
 
-    try {
-      moveFile(sourceFile, destFile);
-
-    } catch (IOException e) {
-      throw new IllegalStateException(format("Fail to move plugin: %s to %s",
-        sourceFile.getAbsolutePath(), destFile.getAbsolutePath()), e);
-    }
+    movePlugin(sourceFile, destFile);
 
     PluginInfo info = PluginInfo.create(destFile);
     PluginInfo existing = pluginInfosByKeys.put(info.getKey(), info);
+
     if (existing != null) {
-      if (!existing.getNonNullJarFile().getName().equals(destFile.getName())) {
-        deleteQuietly(existing.getNonNullJarFile());
+      File existingJarFile = existing.getNonNullJarFile();
+
+      if (existingJarFile.getParentFile().equals(fs.getInstalledBundledPluginsDir())) {
+        // move downloaded plugin back to origin location
+        movePlugin(destFile, sourceFile);
+        throw MessageException.of(format("Fail to update plugin: %s. Bundled plugin with same key already exists: %s. "
+          + "Move or delete plugin from extensions/downloads directory",
+          sourceFile.getName(), existing.getKey()));
+      }
+
+      if (!existingJarFile.getName().equals(destFile.getName())) {
+        deleteQuietly(existingJarFile);
       }
       LOG.info("Plugin {} [{}] updated to version {}", info.getName(), info.getKey(), info.getVersion());
     } else {
       LOG.info("Plugin {} [{}] installed", info.getName(), info.getKey());
+    }
+  }
+
+  private void movePlugin(File sourcePluginFile, File destPluginFile) {
+    try {
+      moveFile(sourcePluginFile, destPluginFile);
+
+    } catch (IOException e) {
+      throw new IllegalStateException(format("Fail to move plugin: %s to %s",
+        sourcePluginFile.getAbsolutePath(), destPluginFile.getAbsolutePath()), e);
     }
   }
 
@@ -301,7 +329,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   public void cancelUninstalls(File uninstallDir) {
     for (File file : listJarFiles(uninstallDir)) {
       try {
-        moveFileToDirectory(file, fs.getInstalledPluginsDir(), false);
+        moveFileToDirectory(file, fs.getInstalledExternalPluginsDir(), false);
       } catch (IOException e) {
         throw new IllegalStateException("Fail to cancel plugin uninstalls", e);
       }
@@ -326,7 +354,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   private File getPluginFile(PluginInfo info) {
     // we don't reuse info.getFile() just to be sure that file is located in from extensions/plugins
-    return new File(fs.getInstalledPluginsDir(), info.getNonNullJarFile().getName());
+    return new File(fs.getInstalledExternalPluginsDir(), info.getNonNullJarFile().getName());
   }
 
   public Map<String, PluginInfo> getPluginInfosByKeys() {

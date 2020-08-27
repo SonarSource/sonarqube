@@ -47,16 +47,22 @@ public interface ServerFileSystem {
 
   /**
    * Directory of plugins downloaded through update center. Files
-   * will be moved to {@link #getInstalledPluginsDir()} on startup.
+   * will be moved to {@link #getInstalledExternalPluginsDir()} on startup.
    * @return a directory which may or not exist
    */
   File getDownloadedPluginsDir();
 
   /**
-   * Directory of currently installed plugins. Used at startup.
+   * Directory of currently installed external plugins. Used at startup.
    * @return a directory which may or not exist
    */
-  File getInstalledPluginsDir();
+  File getInstalledExternalPluginsDir();
+
+  /**
+   * Directory of currently installed bundled plugins. Used at startup.
+   * @return a directory which may or not exist
+   */
+  File getInstalledBundledPluginsDir();
 
   /**
    * The file listing all the installed plugins. Used by scanner only.

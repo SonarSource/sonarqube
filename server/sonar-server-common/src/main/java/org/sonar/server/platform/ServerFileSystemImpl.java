@@ -79,8 +79,13 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
   }
 
   @Override
-  public File getInstalledPluginsDir() {
+  public File getInstalledExternalPluginsDir() {
     return new File(getHomeDir(), "extensions/plugins");
+  }
+
+  @Override
+  public File getInstalledBundledPluginsDir() {
+    return new File(getHomeDir(), "lib/extensions");
   }
 
   @Override

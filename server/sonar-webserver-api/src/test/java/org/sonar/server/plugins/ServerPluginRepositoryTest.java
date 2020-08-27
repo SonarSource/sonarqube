@@ -42,6 +42,7 @@ import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -67,7 +68,8 @@ public class ServerPluginRepositoryTest {
     when(fs.getDeployedPluginsDir()).thenReturn(temp.newFolder());
     when(fs.getDownloadedPluginsDir()).thenReturn(temp.newFolder());
     when(fs.getHomeDir()).thenReturn(temp.newFolder());
-    when(fs.getInstalledPluginsDir()).thenReturn(temp.newFolder());
+    when(fs.getInstalledExternalPluginsDir()).thenReturn(temp.newFolder());
+    when(fs.getInstalledBundledPluginsDir()).thenReturn(temp.newFolder());
     when(fs.getTempDir()).thenReturn(temp.newFolder());
     when(runtime.getApiVersion()).thenReturn(org.sonar.api.utils.Version.parse("5.2"));
   }
@@ -78,12 +80,13 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
-  public void standard_startup_loads_installed_plugins() throws Exception {
-    copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
+  public void standard_startup_loads_installed_bundled_and_external_plugins() throws Exception {
+    copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
+    copyTestPluginTo("test-extend-plugin", fs.getInstalledBundledPluginsDir());
 
     underTest.start();
 
-    assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
+    assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase", "testextend");
   }
 
   @Test
@@ -96,9 +99,9 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
-  public void fail_if_multiple_jars_for_same_installed_plugin_on_startup() throws Exception {
-    copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-    copyTestPluginTo("test-base-plugin-v2", fs.getInstalledPluginsDir());
+  public void fail_if_multiple_jars_for_same_installed_external_plugin_on_startup() throws Exception {
+    copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
+    copyTestPluginTo("test-base-plugin-v2", fs.getInstalledExternalPluginsDir());
 
     try {
       underTest.start();
@@ -113,6 +116,39 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
+  public void fail_if_multiple_jars_for_same_installed_bundled_plugin_on_startup() throws Exception {
+    copyTestPluginTo("test-base-plugin", fs.getInstalledBundledPluginsDir());
+    copyTestPluginTo("test-base-plugin-v2", fs.getInstalledBundledPluginsDir());
+
+    try {
+      underTest.start();
+      fail();
+    } catch (MessageException e) {
+      assertThat(e)
+        .hasMessageStartingWith("Found two versions of the plugin Base Plugin [testbase] in the directory lib/extensions. Please remove one of ")
+        // order is not guaranteed, so assertion is split
+        .hasMessageContaining("test-base-plugin-0.1-SNAPSHOT.jar")
+        .hasMessageContaining("test-base-plugin-0.2-SNAPSHOT.jar");
+    }
+  }
+
+  @Test
+  public void fail_if_multiple_jars_for_same_installed_external_bundled_plugin_on_startup() throws Exception {
+    copyTestPluginTo("test-base-plugin", fs.getInstalledBundledPluginsDir());
+    copyTestPluginTo("test-base-plugin-v2", fs.getInstalledExternalPluginsDir());
+
+    try {
+      underTest.start();
+      fail();
+    } catch (MessageException e) {
+      assertThat(e)
+        .hasMessageStartingWith(
+          "Found two versions of the plugin Base Plugin [testbase] in different directories lib/extensions and extension/plugins. Please remove the one from extension/plugins: ")
+        .hasMessageContaining("test-base-plugin-0.2-SNAPSHOT.jar");
+    }
+  }
+
+  @Test
   public void install_downloaded_plugins_on_startup() throws Exception {
     File downloadedJar = copyTestPluginTo("test-base-plugin", fs.getDownloadedPluginsDir());
 
@@ -120,13 +156,13 @@ public class ServerPluginRepositoryTest {
 
     // plugin is moved to extensions/plugins then loaded
     assertThat(downloadedJar).doesNotExist();
-    assertThat(new File(fs.getInstalledPluginsDir(), downloadedJar.getName())).isFile().exists();
+    assertThat(new File(fs.getInstalledExternalPluginsDir(), downloadedJar.getName())).isFile().exists();
     assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
   }
 
   @Test
   public void downloaded_file_overrides_existing_installed_file_on_startup() throws Exception {
-    File installedV1 = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
+    File installedV1 = copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
     File downloadedV2 = copyTestPluginTo("test-base-plugin-v2", fs.getDownloadedPluginsDir());
 
     underTest.start();
@@ -134,15 +170,33 @@ public class ServerPluginRepositoryTest {
     // plugin is moved to extensions/plugins and replaces v1
     assertThat(downloadedV2).doesNotExist();
     assertThat(installedV1).doesNotExist();
-    assertThat(new File(fs.getInstalledPluginsDir(), downloadedV2.getName())).exists();
+    assertThat(new File(fs.getInstalledExternalPluginsDir(), downloadedV2.getName())).exists();
     assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
     assertThat(underTest.getPluginInfo("testbase").getVersion()).isEqualTo(Version.create("0.2-SNAPSHOT"));
   }
 
   @Test
+  public void downloaded_file_does_not_override_existing_bundled_file_on_startup() throws Exception {
+    File installedV1 = copyTestPluginTo("test-base-plugin", fs.getInstalledBundledPluginsDir());
+    File downloadedV2 = copyTestPluginTo("test-base-plugin-v2", fs.getDownloadedPluginsDir());
+
+    assertThatThrownBy(() -> underTest.start())
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Fail to update plugin: test-base-plugin-0.2-SNAPSHOT.jar. Bundled plugin with same key already exists: testbase. "
+        + "Move or delete plugin from extensions/downloads directory");
+
+    // downloaded plugin stays in origin location
+    assertThat(downloadedV2).exists();
+    // installed plugin has not been deleted
+    assertThat(installedV1).exists();
+    assertThat(new File(fs.getInstalledExternalPluginsDir(), downloadedV2.getName())).doesNotExist();
+    assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
+  }
+
+  @Test
   public void blacklisted_plugin_is_automatically_uninstalled_on_startup() throws Exception {
     underTest.setBlacklistedPluginKeys(ImmutableSet.of("testbase", "issuesreport"));
-    File jar = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
+    File jar = copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
 
     underTest.start();
 
@@ -153,8 +207,8 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void test_plugin_requirements_at_startup() throws Exception {
-    copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-    copyTestPluginTo("test-require-plugin", fs.getInstalledPluginsDir());
+    copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
+    copyTestPluginTo("test-require-plugin", fs.getInstalledExternalPluginsDir());
 
     underTest.start();
 
@@ -164,7 +218,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void plugin_is_ignored_if_required_plugin_is_missing_at_startup() throws Exception {
-    copyTestPluginTo("test-require-plugin", fs.getInstalledPluginsDir());
+    copyTestPluginTo("test-require-plugin", fs.getInstalledExternalPluginsDir());
 
     underTest.start();
 
@@ -174,8 +228,8 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void plugin_is_ignored_if_required_plugin_is_too_old_at_startup() throws Exception {
-    copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-    copyTestPluginTo("test-requirenew-plugin", fs.getInstalledPluginsDir());
+    copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
+    copyTestPluginTo("test-requirenew-plugin", fs.getInstalledExternalPluginsDir());
 
     underTest.start();
 
@@ -187,7 +241,7 @@ public class ServerPluginRepositoryTest {
   @Test
   public void fail_if_plugin_does_not_support_sq_version() throws Exception {
     when(runtime.getApiVersion()).thenReturn(org.sonar.api.utils.Version.parse("1.0"));
-    copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
+    copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
 
     try {
       underTest.start();
@@ -199,7 +253,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void uninstall() throws Exception {
-    File installedJar = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
+    File installedJar = copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
     File uninstallDir = temp.newFolder("uninstallDir");
 
     underTest.start();
@@ -214,8 +268,8 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void uninstall_dependents() throws Exception {
-    File base = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-    File extension = copyTestPluginTo("test-require-plugin", fs.getInstalledPluginsDir());
+    File base = copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
+    File extension = copyTestPluginTo("test-require-plugin", fs.getInstalledExternalPluginsDir());
     File uninstallDir = temp.newFolder("uninstallDir");
 
     underTest.start();
@@ -228,8 +282,8 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void dont_uninstall_non_existing_dependents() throws IOException {
-    File base = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-    File extension = copyTestPluginTo("test-require-plugin", fs.getInstalledPluginsDir());
+    File base = copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
+    File extension = copyTestPluginTo("test-require-plugin", fs.getInstalledExternalPluginsDir());
     File uninstallDir = temp.newFolder("uninstallDir");
 
     underTest.start();
@@ -245,8 +299,8 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void dont_uninstall_non_existing_files() throws IOException {
-    File base = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-    File extension = copyTestPluginTo("test-require-plugin", fs.getInstalledPluginsDir());
+    File base = copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
+    File extension = copyTestPluginTo("test-require-plugin", fs.getInstalledExternalPluginsDir());
     File uninstallDir = temp.newFolder("uninstallDir");
 
     underTest.start();
@@ -262,8 +316,8 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void install_plugin_and_its_extension_plugins_at_startup() throws Exception {
-    copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-    copyTestPluginTo("test-extend-plugin", fs.getInstalledPluginsDir());
+    copyTestPluginTo("test-base-plugin", fs.getInstalledExternalPluginsDir());
+    copyTestPluginTo("test-extend-plugin", fs.getInstalledExternalPluginsDir());
 
     underTest.start();
 
@@ -273,7 +327,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void extension_plugin_is_ignored_if_base_plugin_is_missing_at_startup() throws Exception {
-    copyTestPluginTo("test-extend-plugin", fs.getInstalledPluginsDir());
+    copyTestPluginTo("test-extend-plugin", fs.getInstalledExternalPluginsDir());
 
     underTest.start();
 
@@ -308,7 +362,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void fail_when_views_is_installed() throws Exception {
-    copyTestPluginTo("fake-views-plugin", fs.getInstalledPluginsDir());
+    copyTestPluginTo("fake-views-plugin", fs.getInstalledExternalPluginsDir());
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Plugin 'views' is no longer compatible with this version of SonarQube");
@@ -317,7 +371,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void fail_when_sqale_plugin_is_installed() throws Exception {
-    copyTestPluginTo("fake-sqale-plugin", fs.getInstalledPluginsDir());
+    copyTestPluginTo("fake-sqale-plugin", fs.getInstalledExternalPluginsDir());
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Plugin 'sqale' is no longer compatible with this version of SonarQube");
@@ -326,7 +380,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void fail_when_report_is_installed() throws Exception {
-    copyTestPluginTo("fake-report-plugin", fs.getInstalledPluginsDir());
+    copyTestPluginTo("fake-report-plugin", fs.getInstalledExternalPluginsDir());
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Plugin 'report' is no longer compatible with this version of SonarQube");
