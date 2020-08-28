@@ -2,6 +2,10 @@
 title: Release Upgrade Notes
 url: /setup/upgrade-notes/
 ---
+## Release 8.5 Upgrade Notes  
+**GitHub Enterprise compatibility**  
+SonarQube 8.5 supports GitHub Enterprise 2.15+ for pull request decoration (the previous minimum version was 2.14).
+
 ## Release 8.4 Upgrade Notes  
 **Updated system settings recommendations**  
 In previous versions, the recommended limits regarding threads, file descriptors, and vm.max_map_count were taken from Elasticsearch dependencies. This release can reach these limits occasionally, so we recommend increasing the following settings of your OS when upgrading:

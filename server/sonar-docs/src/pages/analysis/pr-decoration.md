@@ -17,7 +17,7 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 [[collapse]]
 | ## GitHub Enterprise and GitHub.com
 |
-|*Minimum GitHub Enterprise version is 2.14*
+|*Minimum GitHub Enterprise version is 2.15*
 |
 | ### Creating a GitHub App
 |

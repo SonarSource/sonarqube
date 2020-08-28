@@ -77,7 +77,7 @@ The [SonarScanner for Azure Devops](/analysis/scan/sonarscanner-for-azure-devops
 To add Pull Request analysis to Code Insights in Bitbucket Server, you must be running Bitbucket Server version 5.15+.
 
 ### GitHub Enterprise and GitHub.com
-To add Pull Request analysis to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.14+.
+To add Pull Request analysis to Checks in GitHub Enterprise, you must be running GitHub Enterprise version 2.15+.
 
 GitHub.com is also supported.
 
