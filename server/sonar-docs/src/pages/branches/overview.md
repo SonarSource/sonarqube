@@ -15,7 +15,7 @@ This is the default branch and typically corresponds to what's being developed f
 
 ### Settings and Quality Profiles on Branches
 
-Branch settings and quality profiles are the same as those set for the master branch, and by design, it's not possible to configure other values. The New Code Period is the only exception to this as it can be set on a branch-by-branch basis. 
+Branch settings and Quality Profiles are the same as those set for the master branch, and by design, it's not possible to configure other values. The New Code Period is the only exception to this as it can be set on a branch-by-branch basis. 
 
 ### New Code
 

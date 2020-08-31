@@ -92,9 +92,7 @@ export default class ProfileHeader extends React.PureComponent<Props> {
 
         {profile.isBuiltIn && (
           <div className="page-description">
-            {translate('quality_profiles.built_in.description.1')}
-            <br />
-            {translate('quality_profiles.built_in.description.2')}
+            {translate('quality_profiles.built_in.description')}
           </div>
         )}
       </header>

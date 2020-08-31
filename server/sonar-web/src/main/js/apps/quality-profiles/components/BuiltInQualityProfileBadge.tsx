@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
   className?: string;
@@ -35,14 +35,8 @@ export default function BuiltInQualityProfileBadge({ className, tooltip = true }
   );
 
   if (tooltip) {
-    return (
-      <DocTooltip
-        doc={import(
-          /* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/built-in-quality-profile.md'
-        )}>
-        {badge}
-      </DocTooltip>
-    );
+    return <Tooltip overlay={translate('quality_profiles.built_in.description')}>{badge}</Tooltip>;
   }
+
   return badge;
 }

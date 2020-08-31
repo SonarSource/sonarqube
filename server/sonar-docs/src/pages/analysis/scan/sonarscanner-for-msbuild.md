@@ -89,7 +89,7 @@ Notes:
 
 ## Analysis steps
 ### Begin
-The begin step is executed when you add the `begin` command line argument. It hooks into the MSBuild pipeline, downloads SonarQube quality profiles and settings and prepares your project for the analysis.
+The begin step is executed when you add the `begin` command line argument. It hooks into the MSBuild pipeline, downloads SonarQube Quality Profiles and settings and prepares your project for the analysis.
 
 Command Line Parameters:
 
@@ -107,7 +107,7 @@ For detailed information about all available parameters, see [Analysis Parameter
 
 [[warning]]
 | The "begin" step will modify your build like this:
-| * the active `CodeAnalysisRuleSet` will be updated to match the SonarQube quality profile
+| * the active `CodeAnalysisRuleSet` will be updated to match the SonarQube Quality Profile
 | * `WarningsAsErrors` will be turned off
 |
 | If your build process cannot tolerate these changes we recommend creating a second build job for SonarQube analysis.

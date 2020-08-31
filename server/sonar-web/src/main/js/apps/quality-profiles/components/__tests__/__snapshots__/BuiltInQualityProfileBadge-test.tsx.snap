@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<DocTooltip
-  doc={Promise {}}
+<Tooltip
+  overlay="quality_profiles.built_in.description"
 >
   <div
     className="badge badge-info"
   >
     quality_profiles.built_in
   </div>
-</DocTooltip>
+</Tooltip>
 `;
 
 exports[`should render correctly 2`] = `

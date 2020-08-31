@@ -249,7 +249,7 @@ To get started, clone the sample plugin project and follow the steps below:
 - Add your newly created jar into the `$SONARQUBE_HOME/extensions/plugins` directory
 - Restart the SonarQube server
 
-If you now look at the COBOL quality profiles, you will find the new coding rule (“Sample check”). Don’t forget to activate it. Run an analysis of a COBOL project, and you will find that an issue was logged at line 5 on every file.
+If you now look at the COBOL Quality Profiles, you will find the new coding rule (“Sample check”). Don’t forget to activate it. Run an analysis of a COBOL project, and you will find that an issue was logged at line 5 on every file.
 
 ### Subscribing to a NodeType
 

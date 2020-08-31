@@ -11,7 +11,7 @@ Graphs on the activity page help you understand the evolution of up to three mea
 There are four types of events:
 
 * Quality Gate - the status of the [quality gate](/user-guide/quality-gates/) changed.
-* Profile - the [quality profile](/instance-administration/quality-profiles/) used to analyze the project changed - either the profile was edited, or a different profile was used to analyze the project.
+* Profile - the [Quality Profile](/instance-administration/quality-profiles/) used to analyze the project changed - either the profile was edited, or a different profile was used to analyze the project.
 * Version - the project's version changed.
 * Other - an event was manually created on a snapshot. See [Managing History](/project-administration/managing-project-history/)
 

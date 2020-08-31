@@ -5,9 +5,9 @@ url: /organizations/manage-team/
 
 Members can collaborate on the projects in the organizations to which they belong. Depending on their permisssions within the organization, members can:
 * Analyze projects
-* Manage project settings (permissions, visibility, quality profiles, ...)
+* Manage project settings (permissions, visibility, Quality Profiles, ...)
 * Update issues
-* Manage quality gates and quality profiles
+* Manage quality gates and Quality Profiles
 * Administer the organization itself
 
 Members are managed on the "Members" page of the organization. Only organization administrators can manage members. 

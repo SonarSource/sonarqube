@@ -3,7 +3,7 @@ title: Issues
 url: /user-guide/issues/
 ---
 
-While running an analysis, {instance} raises an issue every time a piece of code breaks a coding rule. The set of coding rules is defined through the associated [quality profile](/instance-administration/quality-profiles/) for each language in the project. 
+While running an analysis, {instance} raises an issue every time a piece of code breaks a coding rule. The set of coding rules is defined through the associated [Quality Profile](/instance-administration/quality-profiles/) for each language in the project. 
 
 ### Issue Types
 
@@ -116,7 +116,7 @@ The Confirm, False Positive, Won't Fix, Severity change, and Resolve actions all
 * **Severity change** - This is the middle ground between the first two options. Yes, it's a problem, but it's not as bad a problem as the rule's default severity makes it out to be. Or perhaps it's actually far worse. Either way, you adjust the severity of the issue to bring it in line with what you feel it deserves.  Requires Administer Issues permission on the project.
 * **Resolve** - If you think you've fixed an open issue, you can Resolve it. If you're right, the next analysis will move it to closed status. If you're wrong, its status will go to re-opened.
 
-If you tend to mark a lot of issues False Positive or Won't Fix, it means that some coding rules are not appropriate for your context. So, you can either completely deactivate them in the quality profile or use issue exclusions to narrow the focus of the rules so they are not used on specific parts (or types of object) of your application. Similarly, making a lot of severity changes should prompt you to consider updating the rule severities in your profiles.
+If you tend to mark a lot of issues False Positive or Won't Fix, it means that some coding rules are not appropriate for your context. So, you can either completely deactivate them in the Quality Profile or use issue exclusions to narrow the focus of the rules so they are not used on specific parts (or types of object) of your application. Similarly, making a lot of severity changes should prompt you to consider updating the rule severities in your profiles.
 
 As you edit issues, the related metrics (e.g. New Bugs), will update automatically, as will the Quality Gate status if it's relevant.
 

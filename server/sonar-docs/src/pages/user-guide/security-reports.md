@@ -8,7 +8,7 @@ url: /user-guide/security-reports/
 ## What do Security Reports show?
 Security Reports quickly give you the big picture on your application's security, with breakdowns of just where you stand in regard to each of the [OWASP Top 10](https://www.owasp.org/index.php/Top_10-2017_Top_10), and [SANS Top 25](https://www.sans.org/top25-software-errors) categories, and [CWE](https://cwe.mitre.org/)-specific details.
 
-The Security Reports are fed by the analyzers, which rely on the rules activated in your quality profiles to raise security issues. If there are no rules corresponding to a given OWASP category activated in your Quality Profile, you will get no issues linked to that specific category and the rating displayed will be A. That won't mean you are safe for that category, but that you need to activate more rules (assuming some exist).
+The Security Reports are fed by the analyzers, which rely on the rules activated in your Quality Profiles to raise security issues. If there are no rules corresponding to a given OWASP category activated in your Quality Profile, you will get no issues linked to that specific category and the rating displayed will be A. That won't mean you are safe for that category, but that you need to activate more rules (assuming some exist).
 
 ## What's the difference between a Security Hotspot and a Vulnerability?
 

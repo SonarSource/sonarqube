@@ -34,7 +34,7 @@ By default, when entering the top menu item "Rules", you will see all the availa
 * **Template**: display rule templates that allow to create custom rules (see later on this page).
 * **Quality Profile**: inclusion in or exclusion from a specific profile
 
-If a quality profile is selected, it is also possible to check for its active severity and whether it is inherited or not. See the Quality Profile documentation for more.
+If a Quality Profile is selected, it is also possible to check for its active severity and whether it is inherited or not. See the Quality Profile documentation for more.
 
 ## Rule Details
 

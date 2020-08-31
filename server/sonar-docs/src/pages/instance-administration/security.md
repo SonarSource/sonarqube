@@ -132,7 +132,7 @@ Two groups have a special meaning:
 To set global permissions, log in as a System administrator and go to **[Administration > Security > Global Permissions](/#sonarqube-admin#/admin/permissions)**. 
 
 * **Administer System**: All administration functions for the instance: global configuration.
-* **Administer Quality Profiles**: Any action on quality profiles.
+* **Administer Quality Profiles**: Any action on Quality Profiles.
 * **Administer Quality Gates**: Any action on quality gates
 * **Execute Analysis**: Execute analyses (project, view, report, developer), and to get all settings required to perform the analysis, even the secured ones like the scm account password, and so on.
 * **Create Projects**: Initialize the structure of a new project before its first analysis. This permission is also required when doing the very first analysis of a project that has not already been created via the GUI. * **

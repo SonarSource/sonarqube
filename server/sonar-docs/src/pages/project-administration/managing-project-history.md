@@ -8,7 +8,7 @@ One of the most powerful features of {instance} is that it shows you not just yo
 Typically these aren't things you need to even think about; {instance} just handles them for you. But occasionally you may need to remove a bad snapshot from a project's history or change the housekeeping algorithms.
 
 ## Managing History
-Occasionally, you may need to manually delete a project snapshot, whether because the wrong quality profile was used, or because there was a problem with analysis, and so on. Note that the most recent snapshot (labeled "Last snapshot") can never be deleted.
+Occasionally, you may need to manually delete a project snapshot, whether because the wrong Quality Profile was used, or because there was a problem with analysis, and so on. Note that the most recent snapshot (labeled "Last snapshot") can never be deleted.
 
 [[warning]]
 |**About deleting snapshots**<br/><br/>
