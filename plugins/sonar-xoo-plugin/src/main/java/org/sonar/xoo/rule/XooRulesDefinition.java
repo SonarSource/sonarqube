@@ -113,7 +113,21 @@ public class XooRulesDefinition implements RulesDefinition {
     NewRule oneIssuePerTestFile = repo.createRule(OneIssuePerTestFileSensor.RULE_KEY).setName("One Issue Per Test File")
       .setScope(RuleScope.TEST)
       .setHtmlDescription("Generate an issue on each test file");
-    oneIssuePerTestFile.setDebtRemediationFunction(oneIssuePerTestFile.debtRemediationFunctions().linear(TEN_MIN));
+    oneIssuePerTestFile.setDebtRemediationFunction(oneIssuePerTestFile.debtRemediationFunctions().linear("8min"));
+
+    NewRule oneBugIssuePerTestLine = repo.createRule(OneBugIssuePerTestLineSensor.RULE_KEY).setName("One Bug Issue Per Test Line")
+      .setScope(RuleScope.TEST)
+      .setHtmlDescription("Generate a bug issue on each line of a test file. It requires the metric \"lines\".")
+      .setType(RuleType.BUG);
+    oneBugIssuePerTestLine
+      .setDebtRemediationFunction(oneBugIssuePerTestLine.debtRemediationFunctions().linear("4min"));
+
+    NewRule oneCodeSmellIssuePerTestLine = repo.createRule(OneCodeSmellIssuePerTestLineSensor.RULE_KEY).setName("One Code Smell Issue Per Test Line")
+      .setScope(RuleScope.TEST)
+      .setHtmlDescription("Generate a code smell issue on each line of a test file. It requires the metric \"lines\".")
+      .setType(RuleType.CODE_SMELL);
+    oneCodeSmellIssuePerTestLine
+      .setDebtRemediationFunction(oneCodeSmellIssuePerTestLine.debtRemediationFunctions().linear("3min"));
 
     NewRule oneIssuePerDirectory = repo.createRule(OneIssuePerDirectorySensor.RULE_KEY).setName("One Issue Per Directory")
       .setHtmlDescription("Generate an issue on each non-empty directory");
@@ -150,6 +164,12 @@ public class XooRulesDefinition implements RulesDefinition {
       .setType(RuleType.BUG);
     oneBugIssuePerLine
       .setDebtRemediationFunction(oneBugIssuePerLine.debtRemediationFunctions().linear("5min"));
+
+    NewRule oneCodeSmellIssuePerLine = repo.createRule(OneCodeSmellIssuePerLineSensor.RULE_KEY).setName("One Code Smell Issue Per Line")
+      .setHtmlDescription("Generate a code smell issue on each line of a file. It requires the metric \"lines\".")
+      .setType(RuleType.CODE_SMELL);
+    oneCodeSmellIssuePerLine
+      .setDebtRemediationFunction(oneBugIssuePerLine.debtRemediationFunctions().linear("9min"));
 
     NewRule oneVulnerabilityIssuePerModule = repo.createRule(OneVulnerabilityIssuePerModuleSensor.RULE_KEY).setName("One Vulnerability Issue Per Module")
       .setHtmlDescription("Generate an issue on each module")

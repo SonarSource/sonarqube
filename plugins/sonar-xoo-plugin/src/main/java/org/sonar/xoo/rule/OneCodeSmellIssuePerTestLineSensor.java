@@ -23,53 +23,58 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
+import org.sonar.xoo.Xoo2;
 
-public class OneIssuePerTestFileSensor implements Sensor {
+public class OneCodeSmellIssuePerTestLineSensor implements Sensor {
 
-  public static final String RULE_KEY = "OneIssuePerTestFile";
-
-  private final FileSystem fs;
-  private final ActiveRules activeRules;
-
-  public OneIssuePerTestFileSensor(FileSystem fs, ActiveRules activeRules) {
-    this.fs = fs;
-    this.activeRules = activeRules;
-  }
+  public static final String RULE_KEY = "OneCodeSmellIssuePerTestLine";
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .onlyOnLanguage(Xoo.KEY)
+      .name("One Code Smell Issue Per Line of Test File")
       .onlyOnFileType(Type.TEST)
-      .createIssuesForRuleRepository(XooRulesDefinition.XOO_REPOSITORY);
+      .onlyOnLanguages(Xoo.KEY, Xoo2.KEY)
+      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY, XooRulesDefinition.XOO2_REPOSITORY);
   }
 
   @Override
   public void execute(SensorContext context) {
-    RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
-    if (activeRules.find(ruleKey) == null) {
-      return;
-    }
+    analyse(context, Xoo.KEY, XooRulesDefinition.XOO_REPOSITORY);
+  }
+
+  private void analyse(SensorContext context, String language, String repo) {
+    FileSystem fs = context.fileSystem();
     FilePredicates p = fs.predicates();
-    for (InputFile inputFile : fs.inputFiles(p.and(p.hasLanguages(Xoo.KEY), p.hasType(Type.TEST)))) {
-      processFile(inputFile, context, ruleKey);
+    for (InputFile file : fs.inputFiles(p.and(p.hasLanguages(language), p.hasType(Type.TEST)))) {
+      createIssues(file, context, repo);
     }
   }
 
-  private void processFile(InputFile inputFile, SensorContext context, RuleKey ruleKey) {
-    NewIssue newIssue = context.newIssue();
-    newIssue
-      .forRule(ruleKey)
-      .at(newIssue.newLocation().message("This issue is generated on each test file")
-        .on(inputFile))
-      .save();
+  private static void createIssues(InputFile file, SensorContext context, String repo) {
+    RuleKey ruleKey = RuleKey.of(repo, RULE_KEY);
+    for (int line = 1; line <= file.lines(); line++) {
+      TextRange text = file.selectLine(line);
+      // do not count empty lines, which can be a pain with end-of-file return
+      if (text.end().lineOffset() == 0) {
+        continue;
+      }
+      NewIssue newIssue = context.newIssue();
+      newIssue
+        .forRule(ruleKey)
+        .at(newIssue.newLocation()
+          .on(file)
+          .at(text)
+          .message("This code smell issue is generated on each line of a test file"))
+        .save();
+    }
   }
 
 }

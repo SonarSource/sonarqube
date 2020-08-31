@@ -19,25 +19,26 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.api.SonarEdition;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
+import org.sonar.api.impl.server.RulesDefinitionContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
-import org.sonar.api.impl.server.RulesDefinitionContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class XooRulesDefinitionTest {
-  RulesDefinition.Context context;
+
+  private XooRulesDefinition def = new XooRulesDefinition(SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
+
+  private RulesDefinition.Context context = new RulesDefinitionContext();
 
   @Before
   public void setUp() {
-    XooRulesDefinition def = new XooRulesDefinition(SonarRuntimeImpl.forSonarQube(Version.create(7, 3), SonarQubeSide.SCANNER, SonarEdition.COMMUNITY));
-    context = new RulesDefinitionContext();
     def.define(context);
   }
 
@@ -47,7 +48,7 @@ public class XooRulesDefinitionTest {
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
-    assertThat(repo.rules()).hasSize(19);
+    assertThat(repo.rules()).hasSize(22);
 
     RulesDefinition.Rule rule = repo.rule(OneIssuePerLineSensor.RULE_KEY);
     assertThat(rule.name()).isNotEmpty();
@@ -63,7 +64,7 @@ public class XooRulesDefinitionTest {
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
-    assertThat(repo.rules()).hasSize(19);
+    assertThat(repo.rules()).hasSize(22);
 
     RulesDefinition.Rule rule = repo.rule(HotspotSensor.RULE_KEY);
     assertThat(rule.name()).isNotEmpty();

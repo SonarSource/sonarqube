@@ -24,7 +24,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.Version;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
@@ -49,6 +48,9 @@ import org.sonar.xoo.rule.MultilineIssuesSensor;
 import org.sonar.xoo.rule.NoSonarSensor;
 import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
 import org.sonar.xoo.rule.OneBugIssuePerLineSensor;
+import org.sonar.xoo.rule.OneBugIssuePerTestLineSensor;
+import org.sonar.xoo.rule.OneCodeSmellIssuePerLineSensor;
+import org.sonar.xoo.rule.OneCodeSmellIssuePerTestLineSensor;
 import org.sonar.xoo.rule.OneDayDebtPerFileSensor;
 import org.sonar.xoo.rule.OneExternalIssuePerLineSensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
@@ -107,6 +109,7 @@ public class XooPlugin implements Plugin {
       Xoo.class,
       Xoo2.class,
       XooRulesDefinition.class,
+      XooBuiltInQualityProfilesDefinition.class,
       XooSonarWayProfile.class,
       XooBasicProfile.class,
       Xoo2SonarWayProfile.class,
@@ -137,16 +140,29 @@ public class XooPlugin implements Plugin {
       OneDayDebtPerFileSensor.class,
       OneIssuePerFileSensor.class,
       OneIssuePerTestFileSensor.class,
+      OneBugIssuePerTestLineSensor.class,
+      OneCodeSmellIssuePerTestLineSensor.class,
       OneIssuePerDirectorySensor.class,
       OneIssuePerModuleSensor.class,
       OneIssueOnDirPerFileSensor.class,
       OneIssuePerUnknownFileSensor.class,
+
+      OneExternalIssuePerLineSensor.class,
+      OnePredefinedRuleExternalIssuePerLineSensor.class,
+      OnePredefinedAndAdHocRuleExternalIssuePerLineSensor.class,
+
       CreateIssueByInternalKeySensor.class,
       MultilineIssuesSensor.class,
       CustomMessageSensor.class,
 
       OneBugIssuePerLineSensor.class,
+      OneCodeSmellIssuePerLineSensor.class,
       OneVulnerabilityIssuePerModuleSensor.class,
+
+      DeprecatedGlobalSensor.class,
+      GlobalProjectSensor.class,
+
+      HotspotSensor.class,
 
       // Coverage
       UtCoverageSensor.class,
@@ -163,32 +179,12 @@ public class XooPlugin implements Plugin {
       // Other
       XooProjectBuilder.class,
       XooPostJob.class,
-      XooIssueFilter.class);
+      XooIssueFilter.class,
+      XooIgnoreCommand.class,
+      SignificantCodeSensor.class);
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
       context.addExtension(MeasureSensor.class);
-    }
-
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6, 6))) {
-      context.addExtension(XooBuiltInQualityProfilesDefinition.class);
-    }
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6, 4))) {
-      context.addExtension(DeprecatedGlobalSensor.class);
-    }
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 6))) {
-      context.addExtensions(
-        GlobalProjectSensor.class,
-        XooIgnoreCommand.class);
-    }
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 2))) {
-      context.addExtensions(
-        OneExternalIssuePerLineSensor.class,
-        OnePredefinedRuleExternalIssuePerLineSensor.class,
-        OnePredefinedAndAdHocRuleExternalIssuePerLineSensor.class,
-        SignificantCodeSensor.class);
-    }
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(7, 3))) {
-      context.addExtension(HotspotSensor.class);
     }
   }
 
