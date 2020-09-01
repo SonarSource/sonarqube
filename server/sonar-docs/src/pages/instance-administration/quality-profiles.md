@@ -40,7 +40,7 @@ Many times people want to work from a profile that's based on a built-in profile
 
 When {instance} notices that an analysis was performed with a profile that is different in some way from the previous analysis, a Quality Profile event is added to the project's event log. To see the changes in a profile, navigate to the profile (**Quality Profiles > [ Profile Name ]**), and choose **Changelog**. This may help you understand how profile changes impact the issues raised in an analysis.
 
-Additionally, users with Quality Profile administration privileges are notified by email each time a built-in profile (one that is provided directly by an analyzer) is updated. These updates can only be caused by analyzer updates.
+Additionally, users with Quality Profile administration privileges are notified by email each time a built-in profile is updated. These updates can be caused by updating SonarQube or updating third-party analyzers.
 
 ### Copy a profile from one SonarQube instance to another?
 
@@ -58,7 +58,7 @@ One profile for each language is marked the default. Barring any other intervent
 
 ### Make sure I've got all the relevant new rules in my profile?
 
-Each time a language plugin update is released, new rules are added, but they won't appear automatically in your profile unless you're using a built-in profile such as _Sonar way_.
+Each time a new SonarQube version is released, new rules are added, but they won't appear automatically in your profile unless you're using a built-in profile such as _Sonar way_.
 
 If you're not using a built-in profile, you can compare your profile to the built-in profile to see what new on-by-default rules you're missing.
 

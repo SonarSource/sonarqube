@@ -24,7 +24,7 @@ A project is created in SonarQube automatically on its first analysis. However, 
 
 
 ## What does analysis produce? 
-{instance} can perform analysis on up to 27 different languages depending on your edition. The outcome of this analysis will be quality measures and issues (instances where coding rules were broken). However, what gets analyzed will vary depending on the language:
+SonarQube can analyze up to 27 different languages depending on your edition. The outcome of this analysis will be quality measures and issues (instances where coding rules were broken). However, what gets analyzed will vary depending on the language:
 
 * On all languages, "blame" data will automatically be imported from supported SCM providers. [Git and SVN are supported automatically](/analysis/scm-integration/). Other providers require additional plugins.
 * On all languages, a static analysis of source code is performed (Java files, COBOL programs, etc.)
@@ -32,7 +32,7 @@ A project is created in SonarQube automatically on its first analysis. However, 
 
 
 ## Will all files be analyzed?
-By default, only files that are recognized by a language analyzer are loaded into the project during analysis. 
+By default, only files that are recognized by your edition of SonarQube are loaded into the project during analysis. 
 For example if you're using SonarQube Community Edition, which includes analysis of Java and JavaScript, but not C++, all `.java` and `.js` files would be loaded, but `.cpp` files would be ignored.
 
 ## What about branches and pull requests?

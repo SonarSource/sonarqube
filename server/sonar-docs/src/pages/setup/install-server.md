@@ -182,7 +182,7 @@ Follow these steps for your first installation:
 1.	Creating the following volumes helps prevent the loss of information when updating to a new version or upgrading to a higher edition:
 	- `sonarqube_data` – contains data files, such as the embedded H2 database and Elasticsearch indexes
 	- `sonarqube_logs` – contains SonarQube logs about access, web process, CE process, and Elasticsearch
-	- `sonarqube_extensions` – contains plugins, such as language analyzers 
+	- `sonarqube_extensions` – contains external plugins 
 	
 	Create the volumes with the following commands:
 	```bash

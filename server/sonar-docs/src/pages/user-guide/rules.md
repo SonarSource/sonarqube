@@ -3,7 +3,7 @@ title: Rules
 url: /user-guide/rules/
 ---
 ## Overview
-In {instance}, analyzers contribute rules which are executed on source code to generate issues. There are four types of rules:
+SonarQube executes rules on source code to generate issues. There are four types of rules:
 * Code Smell (Maintainability domain)
 * Bug (Reliability domain)
 * Vulnerability (Security domain)
@@ -19,18 +19,18 @@ The Rules page is the entry point where you can discover all the existing rules 
 
 ## Rules
 
-By default, when entering the top menu item "Rules", you will see all the available rules brought by the analyzers <!-- sonarqube -->installed on your {instance} instance<!-- /sonarqube --><!-- sonarcloud -->available on SonarCloud<!-- /sonarcloud -->. You have the ability to narrow the selection based on search criteria in the left pane:
+By default, when entering the top menu item "Rules", you will see all the available rules installed on your SonarQube instance. You have the ability to narrow the selection based on search criteria in the left pane:
 
 * **Language**: the language to which a rule applies.
 * **Type**: Bug, Vulnerability, Code Smell or Security Hotspot rules.
 * **Tag**: it is possible to add tags to rules in order to classify them and to help discover them more easily.
-* **Repository**: the engine/analyzer that contributes rules to {instance}.
-* **Default Severity**: the original severity of the rule - as defined by the analyzer that contributes this rule.
+* **Repository**: the engine/analyzer that contributes rules to SonarQube.
+* **Default Severity**: the original severity of the rule - as defined by SonarQube.
 * **Status**: rules can have 3 different statuses:
   * **Beta**: The rule has been recently implemented and we haven't gotten enough feedback from users yet, so there may be false positives or false negatives.
   * **Deprecated**: The rule should no longer be used because a similar, but more powerful and accurate rule exists.
   * **Ready**: The rule is ready to be used in production.
-* **Available Since**: date when a rule was first added on {instance}. This is useful to list all the new rules since the last upgrade of a plugin for instance.
+* **Available Since**: date when a rule was first added on SonarQube. This is useful to list all the new rules since the last upgrade of a plugin for instance.
 * **Template**: display rule templates that allow to create custom rules (see later on this page).
 * **Quality Profile**: inclusion in or exclusion from a specific profile
 

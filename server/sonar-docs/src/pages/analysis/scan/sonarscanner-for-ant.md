@@ -10,7 +10,7 @@ url: /analysis/scan/sonarscanner-for-ant/
 
 The SonarScanner for Ant provides a `task` to allow integration of SonarQube analysis into an Apache Ant build script.
 
-The SonarScanner for Ant is an Ant Task that is wrapper of [SonarScanner](/analysis/scan/sonarscanner/), which works by invoking SonarScanner and passing to it all [properties](/analysis/analysis-parameters/) named following a `sonar.*` convention. This has the downside of not being very Ant-y, but the upside of providing instant availability of any new analysis parameter introduced by a new version of a plugin or of SonarQube itself. Therefore, successful use of the SonarScanner for Ant requires strict adherence to the property names shown below.
+The SonarScanner for Ant is an Ant Task that is wrapper of [SonarScanner](/analysis/scan/sonarscanner/), which works by invoking SonarScanner and passing to it all [properties](/analysis/analysis-parameters/) named following a `sonar.*` convention. This has the downside of not being very Ant-y, but the upside of providing instant availability of any new analysis parameter introduced by a new version of SonarQube. Therefore, successful use of the SonarScanner for Ant requires strict adherence to the property names shown below.
 
 
 ## Use

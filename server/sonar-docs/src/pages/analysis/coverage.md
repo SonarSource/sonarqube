@@ -5,7 +5,7 @@ url: /analysis/coverage/
 
 This page lists analysis parameters related to test coverage and execution reports. For more other parameters, see [Analysis Parameters](/analysis/analysis-parameters/).
 
-SonarSource analyzers do not run your tests or generate reports. They only import pre-generated reports. Below you'll find language- and tool-specific analysis parameters for importing coverage and execution reports.
+SonarQube doesn't run your tests or generate reports. It only imports pre-generated reports. Below you'll find language- and tool-specific analysis parameters for importing coverage and execution reports.
 
 In the [Guides](https://community.sonarsource.com/c/announce/guides) category of the [SonarSource Community forum](https://community.sonarsource.com/) you might find instructions on generating these reports.
 
@@ -16,8 +16,6 @@ Symbol|Meaning
 `?`|a single character
 `*`|any number of characters
 `**`|any number of directories
-
-
 
 ## Test Coverage
 Unless otherwise specified, these properties require values that are relative to project root.

@@ -8,11 +8,9 @@ url: /analysis/scan/sonarscanner-for-maven/
 <!-- /static -->
 <update-center updatecenterkey="scannermaven"></update-center>
 
-The SonarScanner is recommended as the default analyzer for Maven projects.
+The SonarScanner for Maven is recommended as the default scanner for Maven projects.
 
 The ability to execute the SonarQube analysis via a regular Maven goal makes it available anywhere Maven is available (developer build, CI server, etc.), without the need to manually download, setup, and maintain a SonarQube Runner installation. The Maven build already has much of the information needed for SonarQube to successfully analyze a project. By preconfiguring the analysis based on that information, the need for manual configuration is reduced significantly. 
-
-
 
 ## Prerequisites
 * Maven 3.x

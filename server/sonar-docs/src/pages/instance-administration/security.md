@@ -186,7 +186,7 @@ Encryption is mostly used to remove clear passwords from settings (database or S
 The algorithm is AES 128 bits. Note that 256 bits cipher is not used because it's not supported by default on all Java Virtual Machines ([see this article](https://confluence.terena.org/display/~visser/No+256+bit+ciphers+for+Java+apps)).
 
 1. **Generate the secret key**  
-A unique secret key must be shared between all parts of the SonarQube infrastructure (server and analyzers). To generate it, go to **[Administration > Configuration > Encryption](/#sonarqube-admin#/admin/settings/encryption)** and click on Generate Secret Key.
+A unique secret key must be shared between all parts of the SonarQube infrastructure. To generate it, go to **[Administration > Configuration > Encryption](/#sonarqube-admin#/admin/settings/encryption)** and click on Generate Secret Key.
 1. **Store the secret key on the SonarQube server**  
    * Copy the generated secred key to a file on the machine hosting the SonarQube server. The default location is _~/.sonar/sonar-secret.txt_. If you want to store it somewhere else, set its path through the `sonar.secretKeyPath` property in _$SONARQUBE-HOME/conf/sonar.properties_
    * Restrict file permissions to the account running the SonarQube server (ownership and read-access only).

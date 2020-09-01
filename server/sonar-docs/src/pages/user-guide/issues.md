@@ -84,7 +84,7 @@ Once an issue has been determied to be "new", as described above, the next quest
 
 * On first analysis of a project or branch
 * When the rule is new in the profile (a brand new rule activated or a rule that was deactivated and is now activated)
-* When the analyzer has just been upgraded (because rule implementations could be smarter now)
+* When SonarQube has just been upgraded (because rule implementations could be smarter now)
 * When the rule is external
 
 As a consequence, it is possible that backdating will keep newly raised issues out of New Code.

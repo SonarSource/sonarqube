@@ -3,7 +3,7 @@ title: Generic Test Data
 url: /analysis/generic-test/
 ---
 
-Out of the box, {instance} supports generic formats for test coverage and test execution import. If your coverage engines' native output formats aren't supported by your language plugins, simply covert them to these formats.
+Out of the box, SonarQube supports generic formats for test coverage and test execution import. If your coverage engines' native output formats aren't supported by SonarQube, simply covert them to these formats:
 
 ## Generic Coverage
 Report paths should be passed in a comma-delimited list to:

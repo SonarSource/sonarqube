@@ -3,7 +3,7 @@ title: Overview
 url: /analysis/languages/overview/
 ---
 
-SonarQube allows to analyze different languages depending on the Edition you are running.
+SonarQube provides analysis of different languages depending on the edition you're running.
 
 | Language                             | Community Edition      | Developer Edition      | Enterprise Edition and Data Center Edtion |
 | ------------------------------------ | ---------------------- | ---------------------- | ----------------------------------------- |
@@ -35,4 +35,4 @@ SonarQube allows to analyze different languages depending on the Edition you are
 | [HTML](/analysis/languages/html/)             | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 | [XML](/analysis/languages/xml/)               | ![](/images/check.svg) | ![](/images/check.svg) | ![](/images/check.svg)                    |
 
-In this section you will find the documentation related to language analyzers made and supported by SonarSource.
+In this section, you'll find documentation related to languages supported by SonarSource.

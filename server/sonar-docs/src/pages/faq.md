@@ -8,7 +8,7 @@ url: /faq/
 You can mark individual issues False Positive or Won't Fix through the issues interface. If you're using PR analysis provided by the Developer Edition, issues marked False Positive or Won't Fix will retain that status after merge. This is the preferred approach.
 
 **//NOSONAR**  
-Most language analyzers support the use of the generic mechanism: `//NOSONAR` at the end of the line of the issue. This will suppress the all issues - now and in the future - that might be raised on the line.
+For most languages, SonarQube supports the use of the generic mechanism: `//NOSONAR` at the end of the line of the issue. This will suppress all issues - now and in the future - that might be raised on the line.
 
 ## How do I find and remove projects that haven't been analyzed in a while?
 In **[Administration > Projects > Management](/#sonarqube-admin#/admin/projects_management)** you can search for **Last analysis before** to filter projects not analyzed since a specific date, and then use bulk **Delete** to remove the projects that match your filter.

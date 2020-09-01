@@ -38,7 +38,7 @@ We recommend that you exclude generated code, source code from libraries, etc. T
 Set the [sonar.sources](/analysis/analysis-parameters/) property to limit the scope of the analysis to certain directories.
 
 ### File Suffixes
-Most language plugins offer a way to restrict the scope of analysis to files matching a set of extensions. Go to **Project Settings > General Settings > [Language]** to set the File suffixes property.
+For most languages, you can restrict the scope of analysis to files matching a set of extensions. Go to **Project Settings > General Settings > [Language]** to set the File suffixes property.
 
 ### Choosing Files
 Your first line of defence having a well-defined set of files in your analysis is your `sonar.sources` value. For projects built and analyzed with Maven, Gradle, or MSBuild, this value is defined automatically with a generally thorough, yet sane value. For other projects, you want to make sure `sonar.sources` is set to your project _sub-directory_ that actually contains your source files. Setting it to `.` will cast a wider net than most people intend.
