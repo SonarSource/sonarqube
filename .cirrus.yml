@@ -176,17 +176,9 @@ qa_ha_task:
 
 # GitLab QA is executed in a dedicated task in order to not slow down the pipeline, as a GitLab on-prem server docker image is required.
 qa_gitlab_task:
-  depends_on: build
-  # Comment the following line and commit with message "DO NOT MERGE" in order to run
-  # this task on your branch
-  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
+  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
+    <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
     memory: 5Gb
     additional_containers:
@@ -221,10 +213,7 @@ qa_gitlab_task:
 
 # SAML QA is executed in a dedicated task in order to not slow down the pipeline, as a Keycloak server docker image is required.
 qa_saml_task:
-  depends_on: build
-  # Comment the following line and commit with message "DO NOT MERGE" in order to run
-  # this task on your branch
-  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
+  <<: *TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 2.4
