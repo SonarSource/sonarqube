@@ -3,9 +3,6 @@ title: CSS
 url: /analysis/languages/css/
 ---
 
-<!-- static -->
-<!-- update_center:cssfamily -->
-<!-- /static -->
 
 
 ## Prerequisites

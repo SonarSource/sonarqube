@@ -9,9 +9,6 @@ _Apex analysis is available starting in [Enterprise Edition](https://redirect.so
 
 <!-- /sonarqube -->
 
-<!-- static -->
-<!-- update_center:sonarapex -->
-<!-- /static -->
 
 ## Language-Specific Properties
 

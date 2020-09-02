@@ -5,9 +5,6 @@ url: /analysis/languages/cfamily/
 
 _C/C++/Objective-C analysis is available starting with [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
-<!-- static -->
-<!-- update_center:cpp -->
-<!-- /static -->
 
 
 C/C++/Objective-C analysis is officially registered as [CWE Compatible](https://cwe.mitre.org/compatible/).

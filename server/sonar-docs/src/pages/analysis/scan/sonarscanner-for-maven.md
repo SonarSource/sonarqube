@@ -3,9 +3,6 @@ title: SonarScanner for Maven
 url: /analysis/scan/sonarscanner-for-maven/
 ---
 
-<!-- static -->
-<!-- update_center:scannermaven -->
-<!-- /static -->
 <update-center updatecenterkey="scannermaven"></update-center>
 
 The SonarScanner for Maven is recommended as the default scanner for Maven projects.

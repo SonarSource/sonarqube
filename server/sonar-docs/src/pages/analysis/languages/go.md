@@ -3,9 +3,6 @@ title: Go
 url: /analysis/languages/go/
 ---
 
-<!-- static -->
-<!-- update_center:go -->
-<!-- /static -->
 
 
 

@@ -5,9 +5,6 @@ url: /analysis/languages/cobol/
 
 _Cobol analysis is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 
-<!-- static -->
-<!-- update_center:cobol -->
-<!-- /static -->
 
 ## Language-Specific Properties
 

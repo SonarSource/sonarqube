@@ -3,9 +3,6 @@ title: SonarScanner for Ant
 url: /analysis/scan/sonarscanner-for-ant/
 ---
 
-<!-- static -->
-<!-- update_center:scannerant -->
-<!-- /static -->
 <update-center updatecenterkey="scannerant"></update-center>
 
 The SonarScanner for Ant provides a `task` to allow integration of SonarQube analysis into an Apache Ant build script.

@@ -3,9 +3,6 @@ title: T-SQL
 url: /analysis/languages/tsql/
 ---
 
-<!-- static -->
-<!-- update_center:tsql -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

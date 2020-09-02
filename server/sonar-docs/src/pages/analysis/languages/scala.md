@@ -3,9 +3,6 @@ title: Scala
 url: /analysis/languages/scala/
 ---
 
-<!-- static -->
-<!-- update_center:sonarscala -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

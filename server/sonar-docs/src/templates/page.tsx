@@ -18,21 +18,60 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { graphql } from 'gatsby';
+import { selectAll } from 'hast-util-select';
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import rehypeReact from 'rehype-react';
+import MetaData from 'sonar-ui-common/components/ui/update-center/MetaData';
 import { MarkdownHeading, MarkdownRemark, MarkdownRemarkConnection } from '../@types/graphql-types';
 import HeaderList from '../components/HeaderList';
+import { HtmlAST, HtmlASTNode } from '../types/hast';
 
 interface Props {
   data: {
     allMarkdownRemark: Pick<MarkdownRemarkConnection, 'edges'>;
-    markdownRemark: Pick<MarkdownRemark, 'html' | 'headings' | 'frontmatter'>;
+    markdownRemark: Pick<MarkdownRemark, 'htmlAst' | 'headings' | 'frontmatter'>;
   };
   location: Location;
 }
 
+export const query = graphql`
+  query($slug: String!) {
+    allMarkdownRemark {
+      edges {
+        node {
+          html
+          fields {
+            slug
+          }
+        }
+      }
+    }
+    markdownRemark(fields: { slug: { eq: $slug } }) {
+      htmlAst
+      headings {
+        depth
+        value
+      }
+      frontmatter {
+        title
+      }
+    }
+  }
+`;
+
 export default class Page extends React.PureComponent<Props> {
   baseUrl = '';
+
+  // @ts-ignore
+  renderAst = new rehypeReact({
+    createElement: React.createElement,
+    components: {
+      'update-center': ({ updatecenterkey }: { updatecenterkey: string }) => (
+        <MetaData updateCenterKey={updatecenterkey} />
+      )
+    }
+  }).Compiler;
 
   componentDidMount() {
     if (window) {
@@ -73,14 +112,11 @@ export default class Page extends React.PureComponent<Props> {
     const mainTitle = 'SonarQube Docs';
     const pageTitle = page.frontmatter && page.frontmatter.title;
 
-    let htmlPageContent = page.html || '';
-
-    const realHeadingsList = removeExtraHeadings(htmlPageContent, page.headings || []);
-
-    htmlPageContent = removeTableOfContents(htmlPageContent);
-    htmlPageContent = createAnchorForHeadings(htmlPageContent, realHeadingsList);
-    htmlPageContent = replaceDynamicLinks(htmlPageContent);
-    htmlPageContent = replaceImageLinks(htmlPageContent);
+    page.headings = filterHeaderList(page.htmlAst, page.headings);
+    addSlugToHeader(page.htmlAst);
+    makeExternalLinkOpenInNewTab(page.htmlAst);
+    removeInAppLinks(page.htmlAst);
+    addDocVersionToImagesLinks(page.htmlAst);
 
     return (
       <>
@@ -102,104 +138,67 @@ export default class Page extends React.PureComponent<Props> {
             })(window,document);
           `}</script>
         </Helmet>
-        <HeaderList headers={realHeadingsList} />
+        <HeaderList headers={page.headings || []} />
         <h1>{pageTitle || mainTitle}</h1>
-        <div
-          className="markdown-content"
-          // Safe: comes from the backend
-          dangerouslySetInnerHTML={{ __html: htmlPageContent }}
-        />
+        <div className="markdown-content">{this.renderAst(page.htmlAst)}</div>
       </>
     );
   }
 }
 
-export const query = graphql`
-  query($slug: String!) {
-    allMarkdownRemark {
-      edges {
-        node {
-          html
-          fields {
-            slug
-          }
-        }
-      }
-    }
-    markdownRemark(fields: { slug: { eq: $slug } }) {
-      html
-      headings {
-        depth
-        value
-      }
-      frontmatter {
-        title
-      }
-    }
+function filterHeaderList(hast: HtmlAST, headers: MarkdownHeading[] | null) {
+  if (!headers) {
+    return null;
   }
-`;
 
-function replaceImageLinks(content: string) {
-  const version = process.env.GATSBY_DOCS_VERSION || '';
-  if (version !== '') {
-    content = content.replace(/<img src="\/images\/(.*?)"/gim, `<img src="/${version}/images/$1"`);
-  }
-  return content;
-}
-
-function replaceDynamicLinks(content: string) {
-  // Make outside link open in a new tab
-  content = content.replace(
-    /<a href="http(.*?)">(.*?)<\/a>/gim,
-    '<a href="http$1" target="_blank">$2</a>'
-  );
-
-  // Render only the text part of links going inside the app
-  return content.replace(
-    /<a href="(.*)\/#(?:sonarqube|sonarcloud|sonarqube-admin)#.*?">(.*?)<\/a>/gim,
-    '$2'
-  );
-}
-
-/**
- * For the sidebar table of content, we do not want headers for sonarcloud,
- * collapsable container title, of table of contents headers.
- */
-function removeExtraHeadings(content: string, headings: MarkdownHeading[]) {
-  return headings
-    .filter(
-      heading =>
-        content.indexOf(
-          `<div class="custom-block collapse"><div class="custom-block-body"><h2>${heading.value}</h2>`
-        ) < 0
+  // Keep only first level h2
+  return headers.filter(header =>
+    hast.children.some(
+      elt =>
+        elt.tagName === 'h2' &&
+        elt.children &&
+        elt.children.some(child => child.value === header.value)
     )
-    .filter(heading => !heading.value || !heading.value.match(/Table of content/i))
-    .filter(heading => {
-      const regex = new RegExp(
-        `<!-- sonarcloud -->[\\s\\S]*<h2>${heading.value!.replace(
-          /[.*+?^${}()|[\]\\]/g,
-          '\\$&'
-        )}<\\/h2>[\\s\\S]*<!-- /sonarcloud -->`,
-        'gim'
-      );
-      return !content.match(regex);
-    });
+  );
 }
 
-function createAnchorForHeadings(content: string, headings: MarkdownHeading[]) {
+function addSlugToHeader(hast: HtmlAST) {
   let counter = 1;
-  headings.forEach(h => {
-    if (h.depth === 2) {
-      content = content.replace(
-        `<h${h.depth}>${h.value}</h${h.depth}>`,
-        `<h${h.depth} id="header-${counter}">${h.value}</h${h.depth}>`
-      );
+
+  hast.children.forEach(elt => {
+    if (elt.tagName === 'h2') {
+      elt.properties = { ...elt.properties, id: `header-${counter}` };
       counter++;
     }
   });
-  return content;
 }
 
-function removeTableOfContents(content: string) {
-  return content.replace(/<h[1-9]>Table Of Contents<\/h[1-9]>/i, '');
+function makeExternalLinkOpenInNewTab(hast: HtmlAST) {
+  selectAll('a[href^=http]', hast).forEach(
+    (elt: HtmlASTNode) => (elt.properties = { ...elt.properties, target: '_blank' })
+  );
+}
+
+function removeInAppLinks(hast: HtmlAST) {
+  const inAppLinksTags = ['/#sonarqube#/', '/#sonarcloud#/', '/#sonarqube-admin#/'];
+
+  selectAll(inAppLinksTags.map(tag => `a[href*=${tag}]`).join(','), hast).forEach(
+    (elt: HtmlASTNode) => {
+      elt.tagName = 'span';
+      delete elt.properties?.href;
+    }
+  );
+}
+
+function addDocVersionToImagesLinks(hast: HtmlAST) {
+  const version = process.env.GATSBY_DOCS_VERSION || '';
+  const imgPrefix = 'images';
+
+  if (version !== '') {
+    selectAll(`img[src^=/${imgPrefix}/]`, hast).forEach((elt: HtmlASTNode) => {
+      if (elt.properties?.src) {
+        elt.properties.src = elt.properties.src.replace(imgPrefix, `${version}/${imgPrefix}`);
+      }
+    });
+  }
 }

@@ -3,9 +3,6 @@ title: Python
 url: /analysis/languages/python/
 ---
 
-<!-- static -->
-<!-- update_center:python -->
-<!-- /static -->
 
 
 ## Supported Versions

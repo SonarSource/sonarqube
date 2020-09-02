@@ -3,9 +3,6 @@ title: Flex
 url: /analysis/languages/flex/
 ---
 
-<!-- static -->
-<!-- update_center:flex -->
-<!-- /static -->
 
 ## Supported Versions
 * ActionScript 2

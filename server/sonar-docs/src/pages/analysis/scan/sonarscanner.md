@@ -3,9 +3,6 @@ title: SonarScanner
 url: /analysis/scan/sonarscanner/
 ---
 
-<!-- static -->
-<!-- update_center:scannercli -->
-<!-- /static -->
 <update-center updatecenterkey="scannercli"></update-center>
 
 The SonarScanner is the scanner to use when there is no specific scanner for your build system.

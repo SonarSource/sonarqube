@@ -3,9 +3,6 @@ title: PL/SQL
 url: /analysis/languages/plsql/
 ---
 
-<!-- static -->
-<!-- update_center:plsql -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

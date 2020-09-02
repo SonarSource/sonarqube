@@ -3,9 +3,6 @@ title: Ruby
 url: /analysis/languages/ruby/
 ---
 
-<!-- static -->
-<!-- update_center:ruby -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

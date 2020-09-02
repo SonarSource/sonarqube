@@ -24,7 +24,6 @@ import Footer from '../components/Footer';
 import HeaderListProvider from '../components/HeaderListProvider';
 import HeadingsLink from '../components/HeadingsLink';
 import Sidebar from '../components/Sidebar';
-import UpdateCenterMetaDataInjector from '../components/UpdateCenterMetaDataInjector';
 import './layout.css';
 
 const version = process.env.GATSBY_DOCS_VERSION || '1.0';
@@ -95,7 +94,6 @@ export default function Layout({ children, location }: Props) {
                 <div className="markdown-container">{children}</div>
               </div>
               <Footer />
-              <UpdateCenterMetaDataInjector location={location} />
             </div>
           </div>
         )}

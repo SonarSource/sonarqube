@@ -3,9 +3,6 @@ title: Java
 url: /analysis/languages/java/
 ---
 
-<!-- static -->
-<!-- update_center:java -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

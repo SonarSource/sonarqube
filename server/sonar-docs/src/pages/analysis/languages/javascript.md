@@ -3,9 +3,6 @@ title: JavaScript
 url: /analysis/languages/javascript/
 ---
 
-<!-- static -->
-<!-- update_center:javascript -->
-<!-- /static -->
 
 
 ## Prerequisites

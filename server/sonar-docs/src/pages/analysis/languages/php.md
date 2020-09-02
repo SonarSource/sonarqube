@@ -3,9 +3,6 @@ title: PHP
 url: /analysis/languages/php/
 ---
 
-<!-- static -->
-<!-- update_center:php -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

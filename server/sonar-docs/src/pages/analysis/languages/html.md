@@ -3,9 +3,6 @@ title: HTML
 url: /analysis/languages/html/
 ---
 
-<!-- static -->
-<!-- update_center:web -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

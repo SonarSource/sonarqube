@@ -3,9 +3,6 @@ title: Swift
 url: /analysis/languages/swift/
 ---
 
-<!-- static -->
-<!-- update_center:swift -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

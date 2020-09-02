@@ -5,9 +5,6 @@ url: /analysis/languages/rpg/
 
 _RPG analysis is available starting in [Enterprise Edition](https://redirect.sonarsource.com/editions/enterprise.html)._
 
-<!-- static -->
-<!-- update_center:rpg -->
-<!-- /static -->
 
 ## Language-Specific Properties
 

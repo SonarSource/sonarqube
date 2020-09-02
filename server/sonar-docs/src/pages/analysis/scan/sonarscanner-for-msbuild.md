@@ -3,9 +3,6 @@ title: SonarScanner for MSBuild
 url: /analysis/scan/sonarscanner-for-msbuild/
 ---
 
-<!-- static -->
-<!-- update_center:scannermsbuild -->
-<!-- /static -->
 <update-center updatecenterkey="scannermsbuild"></update-center>
 
 The SonarScanner for MSBuild is the recommended way to launch an analysis for projects/solutions using MSBuild or dotnet command as a build tool. It is the result of a [collaboration between SonarSource and Microsoft](http://www.sonarqube.org/announcing-sonarqube-integration-with-msbuild-and-team-build/). 

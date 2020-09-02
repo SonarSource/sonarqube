@@ -3,9 +3,6 @@ title: Kotlin
 url: /analysis/languages/kotlin/
 ---
 
-<!-- static -->
-<!-- update_center:kotlin -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

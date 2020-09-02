@@ -5,9 +5,6 @@ url: /analysis/languages/abap/
 
 _ABAP analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
-<!-- static -->
-<!-- update_center:abap -->
-<!-- /static -->
 
 ## Language-Specific Properties
 

@@ -3,9 +3,6 @@ title: XML
 url: /analysis/languages/xml/
 ---
 
-<!-- static -->
-<!-- update_center:xml -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

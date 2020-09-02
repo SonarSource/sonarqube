@@ -3,9 +3,6 @@ title: SonarScanner for Gradle
 url: /analysis/scan/sonarscanner-for-gradle/
 ---
 
-<!-- static -->
-<!-- update_center:scannergradle -->
-<!-- /static -->
 <update-center updatecenterkey="scannergradle"></update-center>
 
 The SonarScanner for Gradle provides an easy way to start SonarQube analysis of a Gradle project.

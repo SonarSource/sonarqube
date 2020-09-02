@@ -3,9 +3,6 @@ title: VB.NET
 url: /analysis/languages/vbnet/
 ---
 
-<!-- static -->
-<!-- update_center:vbnet -->
-<!-- /static -->
 
 
 ## Language-Specific Properties

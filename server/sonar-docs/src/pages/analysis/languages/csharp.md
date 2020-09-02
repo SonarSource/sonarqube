@@ -3,9 +3,6 @@ title: C#
 url: /analysis/languages/csharp/
 ---
 
-<!-- static -->
-<!-- update_center:csharp -->
-<!-- /static -->
 
 
 ## Language-Specific Properties
