@@ -87,6 +87,14 @@ public class RulesDefinitionTest {
   }
 
   @Test
+  public void override_sonaranalyzer_repositories_name() {
+    context.createRepository("k", "java").setName("SonarAnalyzer").done();
+    RulesDefinition.Repository repo = context.repository("k");
+    assertThat(repo).isNotNull();
+    assertThat(repo.name()).isEqualTo("SonarQube");
+  }
+
+  @Test
   public void define_rules() {
     RulesDefinition.NewRepository newRepo = context.createRepository("findbugs", "java");
     newRepo.createRule("NPE")
