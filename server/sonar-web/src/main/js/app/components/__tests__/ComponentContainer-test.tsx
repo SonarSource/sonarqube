@@ -71,8 +71,6 @@ jest.mock('../nav/component/ComponentNav', () => ({
 
 const Inner = () => <div />;
 
-const mainBranch = mockMainBranch();
-
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -107,7 +105,7 @@ it('updates branches on change', async () => {
     registerBranchStatus
   });
   wrapper.setState({
-    branchLikes: [mainBranch],
+    branchLikes: [mockMainBranch()],
     component: mockComponent({
       breadcrumbs: [{ key: 'projectKey', name: 'project', qualifier: 'TRK' }]
     }),
@@ -138,8 +136,9 @@ it('filters correctly the pending tasks for a main branch', () => {
   const branch2 = mockBranch({ name: 'branch-2' });
   const pullRequest = mockPullRequest();
 
-  expect(component.isSameBranch({}, undefined)).toBe(true);
+  expect(component.isSameBranch({} /*, undefined*/)).toBe(true);
   expect(component.isSameBranch({}, mainBranch)).toBe(true);
+  expect(component.isSameBranch({ branch: mainBranch.name }, mainBranch)).toBe(true);
   expect(component.isSameBranch({}, branch3)).toBe(false);
   expect(component.isSameBranch({ branch: branch3.name }, branch3)).toBe(true);
   expect(component.isSameBranch({ branch: 'feature' }, branch2)).toBe(false);

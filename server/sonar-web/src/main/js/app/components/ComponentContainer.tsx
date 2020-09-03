@@ -269,7 +269,10 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   };
 
   isSameBranch = (task: Pick<T.Task, 'branch' | 'pullRequest'>, branchLike?: BranchLike) => {
-    if (branchLike && !isMainBranch(branchLike)) {
+    if (branchLike) {
+      if (isMainBranch(branchLike)) {
+        return (!task.pullRequest && !task.branch) || branchLike.name === task.branch;
+      }
       if (isPullRequest(branchLike)) {
         return branchLike.key === task.pullRequest;
       }
