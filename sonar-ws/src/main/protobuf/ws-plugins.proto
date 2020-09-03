@@ -1,0 +1,135 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.plugins;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Plugins";
+option optimize_for = SPEED;
+
+// WS api/plugins/available
+message AvailablePluginsWsResponse {
+  repeated AvailablePlugin plugins = 1;
+  optional string updateCenterRefresh = 2;
+}
+
+message AvailablePlugin {
+  optional string key = 1;
+  optional string name = 2;
+  optional string category = 3;
+  optional string description = 4;
+  optional string license = 5;
+  optional string termsAndConditionsUrl = 6;
+  optional string organizationName = 7;
+  optional string organizationUrl = 8;
+  optional string issueTrackerUrl = 9;
+  optional string homepageUrl = 10;
+  optional bool editionBundled = 11;
+  optional Release release = 12;
+  optional Update update = 13;
+}
+
+message Release {
+  optional string version = 1;
+  optional string date = 2;
+  optional string description = 3;
+  optional string changeLogUrl = 4;
+}
+
+message Update {
+  optional UpdateStatus status = 1;
+  repeated Require requires = 2;
+}
+
+enum UpdateStatus {
+  COMPATIBLE = 0;
+  INCOMPATIBLE = 1;
+  REQUIRES_SYSTEM_UPGRADE = 2;
+  DEPS_REQUIRE_SYSTEM_UPGRADE = 3;
+}
+
+message Require {
+  optional string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+}
+
+// WS api/plugins/updates
+message UpdatesPluginsWsResponse {
+  repeated UpdatablePlugin plugins = 1;
+  optional string updateCenterRefresh = 2;
+}
+
+message UpdatablePlugin {
+  optional string key = 1;
+  optional string name = 2;
+  optional string category = 3;
+  optional string description = 4;
+  optional string license = 5;
+  optional string termsAndConditionsUrl = 6;
+  optional string organizationName = 7;
+  optional string organizationUrl = 8;
+  optional string issueTrackerUrl = 9;
+  optional string homepageUrl = 10;
+  optional bool editionBundled = 11;
+  repeated AvailableUpdate updates = 12;
+}
+
+message AvailableUpdate {
+  optional Release release = 1;
+  optional UpdateStatus status = 2;
+  repeated Require requires = 3;
+}
+
+// WS api/plugins/installed
+message InstalledPluginsWsResponse {
+  repeated PluginDetails plugins = 1;
+}
+
+message PluginDetails {
+  optional string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional string category = 4;
+  optional string version = 5;
+  optional string license = 6;
+  optional string organizationName = 7;
+  optional string organizationUrl = 8;
+  optional bool editionBundled = 9;
+  optional string homepageUrl = 10;
+  optional string issueTrackerUrl = 11;
+  optional string implementationBuild = 12;
+  optional string filename = 13;
+  optional string hash = 14;
+  optional bool sonarLintSupported = 15;
+  optional string documentationPath = 16;
+  optional int64 updatedAt = 17;
+}
+
+// WS api/plugins/pending
+message PendingPluginsWsResponse {
+  repeated PluginDetails installing = 1;
+  repeated PluginDetails updating = 2;
+  repeated PluginDetails removing = 3;
+}
+
+

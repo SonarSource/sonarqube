@@ -19,25 +19,36 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
+import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonarqube.ws.Plugins.AvailablePlugin;
+import org.sonarqube.ws.Plugins.AvailablePluginsWsResponse;
+import org.sonarqube.ws.Plugins.AvailablePluginsWsResponse.Builder;
+import org.sonarqube.ws.Plugins.Update;
 
+import static java.util.Optional.ofNullable;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_UPDATE_ORDERING;
+import static org.sonar.server.plugins.ws.PluginWSCommons.buildRelease;
+import static org.sonar.server.plugins.ws.PluginWSCommons.buildRequires;
+import static org.sonar.server.plugins.ws.PluginWSCommons.convertUpdateCenterStatus;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class AvailableAction implements PluginsWsAction {
 
   private static final boolean DO_NOT_FORCE_REFRESH = false;
-  private static final String ARRAY_PLUGINS = "plugins";
 
   private final UserSession userSession;
   private final UpdateCenterMatrixFactory updateCenterFactory;
@@ -64,33 +75,49 @@ public class AvailableAction implements PluginsWsAction {
         "Require 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-available_plugins.json"));
+      .setResponseExample(this.getClass().getResource("example-available_plugins.json"));
   }
 
   @Override
   public void handle(Request request, Response response) {
     userSession.checkIsSystemAdministrator();
 
-    JsonWriter jsonWriter = response.newJsonWriter();
-    jsonWriter.beginObject();
-
     Optional<UpdateCenter> updateCenter = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
+    Collection<AvailablePlugin> plugins = updateCenter.isPresent() ? getPlugins(updateCenter.get()) : Collections.emptyList();
+    Builder responseBuilder = AvailablePluginsWsResponse.newBuilder().addAllPlugins(plugins);
+    updateCenter.ifPresent(u -> responseBuilder.setUpdateCenterRefresh(formatDateTime(u.getDate().getTime())));
 
-    writePlugins(jsonWriter, updateCenter);
-    PluginWSCommons.writeUpdateCenterProperties(jsonWriter, updateCenter);
-
-    jsonWriter.endObject();
-    jsonWriter.close();
+    writeProtobuf(responseBuilder.build(), request, response);
   }
 
-  private static void writePlugins(JsonWriter jsonWriter, Optional<UpdateCenter> updateCenter) {
-    jsonWriter.name(ARRAY_PLUGINS).beginArray();
-    if (updateCenter.isPresent()) {
-      for (PluginUpdate pluginUpdate : retrieveAvailablePlugins(updateCenter.get())) {
-        PluginWSCommons.writePluginUpdate(jsonWriter, pluginUpdate);
-      }
-    }
-    jsonWriter.endArray();
+  private static List<AvailablePlugin> getPlugins(UpdateCenter updateCenter) {
+    return retrieveAvailablePlugins(updateCenter)
+      .stream()
+      .map(pluginUpdate -> {
+        Plugin plugin = pluginUpdate.getPlugin();
+        AvailablePlugin.Builder builder = AvailablePlugin.newBuilder()
+          .setKey(plugin.getKey())
+          .setEditionBundled(isEditionBundled(plugin))
+          .setRelease(buildRelease(pluginUpdate.getRelease()))
+          .setUpdate(buildUpdate(pluginUpdate));
+        ofNullable(plugin.getName()).ifPresent(builder::setName);
+        ofNullable(plugin.getCategory()).ifPresent(builder::setCategory);
+        ofNullable(plugin.getDescription()).ifPresent(builder::setDescription);
+        ofNullable(plugin.getLicense()).ifPresent(builder::setLicense);
+        ofNullable(plugin.getTermsConditionsUrl()).ifPresent(builder::setTermsAndConditionsUrl);
+        ofNullable(plugin.getOrganization()).ifPresent(builder::setOrganizationName);
+        ofNullable(plugin.getOrganizationUrl()).ifPresent(builder::setOrganizationUrl);
+        ofNullable(plugin.getIssueTrackerUrl()).ifPresent(builder::setIssueTrackerUrl);
+        ofNullable(plugin.getHomepageUrl()).ifPresent(builder::setHomepageUrl);
+        return builder.build();
+      }).collect(Collectors.toList());
+  }
+
+  private static Update buildUpdate(PluginUpdate pluginUpdate) {
+    return Update.newBuilder()
+      .setStatus(convertUpdateCenterStatus(pluginUpdate.getStatus()))
+      .addAllRequires(buildRequires(pluginUpdate))
+      .build();
   }
 
   private static Collection<PluginUpdate> retrieveAvailablePlugins(UpdateCenter updateCenter) {

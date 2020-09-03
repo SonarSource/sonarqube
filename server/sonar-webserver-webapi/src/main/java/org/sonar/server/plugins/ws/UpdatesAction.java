@@ -21,20 +21,33 @@ package org.sonar.server.plugins.ws;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
-import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.ws.PluginUpdateAggregator.PluginUpdateAggregate;
 import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonarqube.ws.Plugins.AvailableUpdate;
+import org.sonarqube.ws.Plugins.UpdatablePlugin;
+import org.sonarqube.ws.Plugins.UpdatesPluginsWsResponse;
+import org.sonarqube.ws.Plugins.UpdatesPluginsWsResponse.Builder;
+
+import static java.util.Optional.ofNullable;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
+import static org.sonar.server.plugins.ws.PluginWSCommons.buildRelease;
+import static org.sonar.server.plugins.ws.PluginWSCommons.buildRequires;
+import static org.sonar.server.plugins.ws.PluginWSCommons.convertUpdateCenterStatus;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
  * Implementation of the {@code updates} action for the Plugins WebService.
@@ -42,13 +55,12 @@ import org.sonar.updatecenter.common.UpdateCenter;
 public class UpdatesAction implements PluginsWsAction {
 
   private static final boolean DO_NOT_FORCE_REFRESH = false;
-  private static final String ARRAY_PLUGINS = "plugins";
-  private static final String ARRAY_UPDATES = "updates";
+  private static final String HTML_TAG_BR = "<br/>";
 
   private static final Ordering<PluginUpdateAggregate> NAME_KEY_PLUGIN_UPGRADE_AGGREGATE_ORDERING = Ordering.from(PluginWSCommons.NAME_KEY_PLUGIN_ORDERING)
     .onResultOf(PluginUpdateAggregate::getPlugin);
   private static final Ordering<PluginUpdate> PLUGIN_UPDATE_BY_VERSION_ORDERING = Ordering.natural()
-    .onResultOf(input -> input.getRelease().getVersion().toString());
+    .onResultOf(input -> Objects.requireNonNull(input).getRelease().getVersion().toString());
 
   private final UserSession userSession;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
@@ -65,66 +77,62 @@ public class UpdatesAction implements PluginsWsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("updates")
       .setDescription("Lists plugins installed on the SonarQube instance for which at least one newer version is available, sorted by plugin name." +
-        "<br/>" +
+        HTML_TAG_BR +
         "Each newer version is listed, ordered from the oldest to the newest, with its own update/compatibility status." +
-        "<br/>" +
+        HTML_TAG_BR +
         "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed is provided in the response." +
-        "<br/>" +
-        "Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE].<br/>" +
+        HTML_TAG_BR +
+        "Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE]." +
+        HTML_TAG_BR +
         "Require 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-updates_plugins.json"));
+      .setResponseExample(this.getClass().getResource("example-updates_plugins.json"));
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkIsSystemAdministrator();
 
-    JsonWriter jsonWriter = response.newJsonWriter();
-    jsonWriter.beginObject();
-
     Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
 
-    writePlugins(jsonWriter, updateCenter);
+    Collection<UpdatablePlugin> plugins = updateCenter.isPresent() ? getPluginUpdates(updateCenter.get()) : Collections.emptyList();
+    Builder responseBuilder = UpdatesPluginsWsResponse.newBuilder().addAllPlugins(plugins);
+    updateCenter.ifPresent(u -> responseBuilder.setUpdateCenterRefresh(formatDateTime(u.getDate().getTime())));
 
-    PluginWSCommons.writeUpdateCenterProperties(jsonWriter, updateCenter);
-
-    jsonWriter.endObject();
-    jsonWriter.close();
+    writeProtobuf(responseBuilder.build(), request, response);
   }
 
-  private void writePlugins(JsonWriter jsonWriter, Optional<UpdateCenter> updateCenter) {
-    jsonWriter.name(ARRAY_PLUGINS);
-    jsonWriter.beginArray();
-    if (updateCenter.isPresent()) {
-      for (PluginUpdateAggregate aggregate : retrieveUpdatablePlugins(updateCenter.get())) {
-        writePluginUpdateAggregate(jsonWriter, aggregate);
-      }
-    }
-    jsonWriter.endArray();
+  private List<UpdatablePlugin> getPluginUpdates(UpdateCenter updateCenter) {
+    return retrieveUpdatablePlugins(updateCenter)
+      .stream()
+      .map(pluginUpdateAggregate -> {
+        Plugin plugin = pluginUpdateAggregate.getPlugin();
+        UpdatablePlugin.Builder builder = UpdatablePlugin.newBuilder()
+          .setKey(plugin.getKey())
+          .setEditionBundled(isEditionBundled(plugin))
+          .addAllUpdates(buildUpdates(pluginUpdateAggregate));
+        ofNullable(plugin.getName()).ifPresent(builder::setName);
+        ofNullable(plugin.getCategory()).ifPresent(builder::setCategory);
+        ofNullable(plugin.getDescription()).ifPresent(builder::setDescription);
+        ofNullable(plugin.getLicense()).ifPresent(builder::setLicense);
+        ofNullable(plugin.getTermsConditionsUrl()).ifPresent(builder::setTermsAndConditionsUrl);
+        ofNullable(plugin.getOrganization()).ifPresent(builder::setOrganizationName);
+        ofNullable(plugin.getOrganizationUrl()).ifPresent(builder::setOrganizationUrl);
+        ofNullable(plugin.getIssueTrackerUrl()).ifPresent(builder::setIssueTrackerUrl);
+        ofNullable(plugin.getHomepageUrl()).ifPresent(builder::setHomepageUrl);
+        return builder.build();
+      }).collect(Collectors.toList());
   }
 
-  private static void writePluginUpdateAggregate(JsonWriter jsonWriter, PluginUpdateAggregate aggregate) {
-    jsonWriter.beginObject();
-    Plugin plugin = aggregate.getPlugin();
-
-    PluginWSCommons.writePlugin(jsonWriter, plugin);
-
-    writeUpdates(jsonWriter, aggregate.getUpdates());
-
-    jsonWriter.endObject();
-  }
-
-  private static void writeUpdates(JsonWriter jsonWriter, Collection<PluginUpdate> pluginUpdates) {
-    jsonWriter.name(ARRAY_UPDATES).beginArray();
-    for (PluginUpdate pluginUpdate : ImmutableSortedSet.copyOf(PLUGIN_UPDATE_BY_VERSION_ORDERING, pluginUpdates)) {
-      jsonWriter.beginObject();
-      PluginWSCommons.writeRelease(jsonWriter, pluginUpdate.getRelease());
-      PluginWSCommons.writeUpdateProperties(jsonWriter, pluginUpdate);
-      jsonWriter.endObject();
-    }
-    jsonWriter.endArray();
+  private static Collection<AvailableUpdate> buildUpdates(PluginUpdateAggregate pluginUpdateAggregate) {
+    return ImmutableSortedSet.copyOf(PLUGIN_UPDATE_BY_VERSION_ORDERING, pluginUpdateAggregate.getUpdates()).stream()
+      .map(pluginUpdate -> AvailableUpdate.newBuilder()
+        .setRelease(buildRelease(pluginUpdate.getRelease()))
+        .setStatus(convertUpdateCenterStatus(pluginUpdate.getStatus()))
+        .addAllRequires(buildRequires(pluginUpdate))
+        .build())
+      .collect(Collectors.toList());
   }
 
   private Collection<PluginUpdateAggregate> retrieveUpdatablePlugins(UpdateCenter updateCenter) {

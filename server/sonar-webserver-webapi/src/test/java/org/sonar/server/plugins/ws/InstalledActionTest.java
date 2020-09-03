@@ -177,14 +177,14 @@ public class InstalledActionTest {
   public void empty_fields_are_not_serialized_to_json() throws IOException {
     when(serverPluginRepository.getPlugins()).thenReturn(
       singletonList(newInstalledPlugin(new PluginInfo("foo")
-        .setName("")
-        .setDescription("")
-        .setLicense("")
-        .setOrganizationName("")
-        .setOrganizationUrl("")
-        .setImplementationBuild("")
-        .setHomepageUrl("")
-        .setIssueTrackerUrl(""))));
+        .setName(null)
+        .setDescription(null)
+        .setLicense(null)
+        .setOrganizationName(null)
+        .setOrganizationUrl(null)
+        .setImplementationBuild(null)
+        .setHomepageUrl(null)
+        .setIssueTrackerUrl(null))));
     db.pluginDbTester().insertPlugin(
       p -> p.setKee("foo"),
       p -> p.setType(Type.EXTERNAL),
@@ -193,7 +193,7 @@ public class InstalledActionTest {
     String response = tester.newRequest().execute().getInput();
     JsonObject json = Json.parse(response).asObject().get("plugins").asArray().get(0).asObject();
     assertThat(json.get("key")).isNotNull();
-    assertThat(json.get("name")).isNull();
+    assertThat(json.get("name")).isNotNull();
     assertThat(json.get("description")).isNull();
     assertThat(json.get("license")).isNull();
     assertThat(json.get("organizationName")).isNull();

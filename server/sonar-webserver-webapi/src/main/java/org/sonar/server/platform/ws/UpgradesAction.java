@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.ui.VersionFormatter;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
@@ -35,6 +34,7 @@ import org.sonar.updatecenter.common.SonarUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
 
 /**
  * Implementation of the {@code upgrades} action for the System WebService.
@@ -56,6 +56,16 @@ public class UpgradesAction implements SystemWsAction {
   private static final String OBJECT_PLUGINS = "plugins";
   private static final String ARRAY_REQUIRE_UPDATE = "requireUpdate";
   private static final String ARRAY_INCOMPATIBLE = "incompatible";
+  private static final String PROPERTY_KEY = "key";
+  private static final String PROPERTY_NAME = "name";
+  private static final String PROPERTY_LICENSE = "license";
+  private static final String PROPERTY_CATEGORY = "category";
+  private static final String PROPERTY_ORGANIZATION_NAME = "organizationName";
+  private static final String PROPERTY_ORGANIZATION_URL = "organizationUrl";
+  private static final String PROPERTY_HOMEPAGE_URL = "homepageUrl";
+  private static final String PROPERTY_ISSUE_TRACKER_URL = "issueTrackerUrl";
+  private static final String PROPERTY_EDITION_BUNDLED = "editionBundled";
+  private static final String PROPERTY_TERMS_AND_CONDITIONS_URL = "termsAndConditionsUrl";
 
   private final UpdateCenterMatrixFactory updateCenterFactory;
 
@@ -144,7 +154,7 @@ public class UpgradesAction implements SystemWsAction {
     for (Release release : pluginsToUpgrade) {
       jsonWriter.beginObject();
 
-      PluginWSCommons.writePlugin(jsonWriter, (Plugin) release.getArtifact());
+      writePlugin(jsonWriter, (Plugin) release.getArtifact());
       String version = isNotBlank(release.getDisplayVersion()) ? release.getDisplayVersion() : release.getVersion().toString();
       jsonWriter.prop(PROPERTY_VERSION, version);
 
@@ -159,10 +169,24 @@ public class UpgradesAction implements SystemWsAction {
 
     for (Plugin incompatiblePlugin : incompatiblePlugins) {
       jsonWriter.beginObject();
-      PluginWSCommons.writePlugin(jsonWriter, incompatiblePlugin);
+      writePlugin(jsonWriter, incompatiblePlugin);
       jsonWriter.endObject();
     }
 
     jsonWriter.endArray();
+  }
+
+  public static void writePlugin(JsonWriter jsonWriter, Plugin plugin) {
+    jsonWriter.prop(PROPERTY_KEY, plugin.getKey());
+    jsonWriter.prop(PROPERTY_NAME, plugin.getName());
+    jsonWriter.prop(PROPERTY_CATEGORY, plugin.getCategory());
+    jsonWriter.prop(PROPERTY_DESCRIPTION, plugin.getDescription());
+    jsonWriter.prop(PROPERTY_LICENSE, plugin.getLicense());
+    jsonWriter.prop(PROPERTY_TERMS_AND_CONDITIONS_URL, plugin.getTermsConditionsUrl());
+    jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, plugin.getOrganization());
+    jsonWriter.prop(PROPERTY_ORGANIZATION_URL, plugin.getOrganizationUrl());
+    jsonWriter.prop(PROPERTY_HOMEPAGE_URL, plugin.getHomepageUrl());
+    jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, plugin.getIssueTrackerUrl());
+    jsonWriter.prop(PROPERTY_EDITION_BUNDLED, isEditionBundled(plugin));
   }
 }

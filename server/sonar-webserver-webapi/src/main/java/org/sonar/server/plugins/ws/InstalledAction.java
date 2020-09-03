@@ -20,6 +20,7 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.io.Resources;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,7 +32,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.plugin.PluginDto;
@@ -41,6 +42,8 @@ import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Plugin;
+import org.sonarqube.ws.Plugins.InstalledPluginsWsResponse;
+import org.sonarqube.ws.Plugins.PluginDetails;
 
 import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static java.lang.String.format;
@@ -48,14 +51,14 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_COMPARATOR;
-import static org.sonar.server.plugins.ws.PluginWSCommons.categoryOrNull;
+import static org.sonar.server.plugins.ws.PluginWSCommons.buildPluginDetails;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
  * Implementation of the {@code installed} action for the Plugins WebService.
  */
 public class InstalledAction implements PluginsWsAction {
-  private static final String ARRAY_PLUGINS = "plugins";
   private static final String FIELD_CATEGORY = "category";
   private static final String PARAM_TYPE = "type";
 
@@ -107,24 +110,24 @@ public class InstalledAction implements PluginsWsAction {
       dtosByKey = dbClient.pluginDao().selectAll(dbSession).stream().collect(toMap(PluginDto::getKee, Function.identity()));
     }
 
-    JsonWriter json = response.newJsonWriter();
-    json.setSerializeEmptys(false);
-    json.beginObject();
-
     List<String> additionalFields = request.paramAsStrings(WebService.Param.FIELDS);
     Map<String, Plugin> updateCenterPlugins = (additionalFields == null || additionalFields.isEmpty()) ? emptyMap() : compatiblePluginsByKey(updateCenterMatrixFactory);
 
-    json.name(ARRAY_PLUGINS);
-    json.beginArray();
+    List<PluginDetails> pluginList = new LinkedList<>();
+
     for (ServerPlugin installedPlugin : installedPlugins) {
-      PluginDto pluginDto = dtosByKey.get(installedPlugin.getPluginInfo().getKey());
-      Objects.requireNonNull(pluginDto, () -> format("Plugin %s is installed but not in DB", installedPlugin.getPluginInfo().getKey()));
-      Plugin updateCenterPlugin = updateCenterPlugins.get(installedPlugin.getPluginInfo().getKey());
-      PluginWSCommons.writePluginInfo(json, installedPlugin.getPluginInfo(), categoryOrNull(updateCenterPlugin), pluginDto, installedPlugin);
+      PluginInfo pluginInfo = installedPlugin.getPluginInfo();
+      PluginDto pluginDto = dtosByKey.get(pluginInfo.getKey());
+      Objects.requireNonNull(pluginDto, () -> format("Plugin %s is installed but not in DB", pluginInfo.getKey()));
+      Plugin updateCenterPlugin = updateCenterPlugins.get(pluginInfo.getKey());
+
+      pluginList.add(buildPluginDetails(installedPlugin, pluginInfo, pluginDto, updateCenterPlugin));
     }
-    json.endArray();
-    json.endObject();
-    json.close();
+
+    InstalledPluginsWsResponse wsResponse = InstalledPluginsWsResponse.newBuilder()
+      .addAllPlugins(pluginList)
+      .build();
+    writeProtobuf(wsResponse, request, response);
   }
 
   private SortedSet<ServerPlugin> loadInstalledPlugins(@Nullable String typeParam) {
