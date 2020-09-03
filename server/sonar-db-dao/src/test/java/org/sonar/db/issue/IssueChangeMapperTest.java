@@ -48,6 +48,7 @@ public class IssueChangeMapperTest {
     dto.setCreatedAt(1_500_000_000_000L);
     dto.setUpdatedAt(1_500_000_000_000L);
     dto.setIssueChangeCreationDate(1_500_000_000_000L);
+    dto.setProjectUuid("project_uuid");
     underTest.insert(dto);
     dbTester.getSession().commit();
 
@@ -69,6 +70,7 @@ public class IssueChangeMapperTest {
     dto.setCreatedAt(1_500_000_000_000L);
     dto.setUpdatedAt(1_500_000_000_000L);
     dto.setIssueChangeCreationDate(1_500_000_000_000L);
+    dto.setProjectUuid("project_uuid");
 
     underTest.insert(dto);
     dbTester.getSession().commit();

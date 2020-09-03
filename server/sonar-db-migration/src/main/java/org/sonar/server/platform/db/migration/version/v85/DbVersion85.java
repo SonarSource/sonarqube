@@ -21,8 +21,10 @@ package org.sonar.server.platform.db.migration.version.v85;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.server.platform.db.migration.version.v84.issuechanges.DropIssueChangesTable;
 
 public class DbVersion85 implements DbVersion {
+
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
@@ -32,6 +34,16 @@ public class DbVersion85 implements DbVersion {
       .add(4003, "Drop unused variation values columns in 'project_measures' table", DropUnusedVariationsInProjectMeasures.class)
       .add(4004, "Drop unused periods in 'snapshots' table", DropUnusedPeriodsInSnapshots.class)
       .add(4005, "Drop orphan favorites from 'properties' table", DropOrphanFavoritesFromProperties.class)
+      .add(4006, "create 'tmp_issue_changes' table", CreateTmpIssueChangesTable.class)
+      .add(4007, "drop 'issue_changes' table", DropIssueChangesTable.class)
+      .add(4008, "rename 'tmp_issue_changes' table to 'issue_changes'", RenameTmpIssueChangesToIssueChanges.class)
+      .add(4009, "Make 'issueKey' not nullable for 'issue_changes' table", MakeIssueKeyNotNullOnIssueChangesTable.class)
+      .add(4010, "Make 'uuid' not nullable for 'issue_changes' table", MakeUuidNotNullOnIssueChangesTable.class)
+      .add(4011, "Make 'project_uuid' not nullable for 'issue_changes' table", MakeProjectUuidNotNullOnIssueChangesTable.class)
+      .add(4012, "add PK table to 'issue_changes'", AddPrimaryKeyOnUuidForIssueChangesTable.class)
+      .add(4013, "add index on 'issue_key' for table 'issue_changes'", AddIndexOnIssueKeyForIssueChangesTable.class)
+      .add(4014, "add index on 'kee' for table 'issue_changes'", AddIndexOnKeeForIssueChangesTable.class)
+      .add(4015, "add index on 'project_uuid' for table 'issue_changes'", AddIndexOnProjectUuidOnIssueChangesTable.class)
 
     ;
   }

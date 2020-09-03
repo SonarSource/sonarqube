@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -181,12 +182,26 @@ public class PurgeDao implements Dao {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeMapper purgeMapper = mapper(session);
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
+    long start = System2.INSTANCE.now();
 
     session.getMapper(BranchMapper.class).selectByProjectUuid(uuid).stream()
       .filter(branch -> !uuid.equals(branch.getUuid()))
       .forEach(branch -> deleteRootComponent(branch.getUuid(), purgeMapper, purgeCommands));
 
     deleteRootComponent(uuid, purgeMapper, purgeCommands);
+
+    logProfiling(profiler, start);
+  }
+
+  private static void logProfiling(PurgeProfiler profiler, long start) {
+    long duration = System.currentTimeMillis() - start;
+    LOG.info("");
+    LOG.info(" -------- Profiling for project deletion: " + TimeUtils.formatDuration(duration) + " --------");
+    LOG.info("");
+    profiler.dump(duration, LOG);
+    LOG.info("");
+    LOG.info(" -------- End of profiling for project deletion--------");
+    LOG.info("");
   }
 
   private static void deleteRootComponent(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {

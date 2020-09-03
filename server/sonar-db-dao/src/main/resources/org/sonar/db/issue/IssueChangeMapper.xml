@@ -13,15 +13,16 @@
     c.change_data as changeData,
     c.created_at as createdAt,
     c.updated_at as updatedAt,
+    c.project_uuid as projectUuid,
     c.issue_change_creation_date as issueChangeCreationDate
   </sql>
 
   <insert id="insert" useGeneratedKeys="false" parameterType="IssueChange">
     INSERT INTO issue_changes (kee, uuid, issue_key, user_login, change_type, change_data, created_at, updated_at,
-    issue_change_creation_date)
+    issue_change_creation_date, project_uuid)
     VALUES (#{kee,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR}, #{issueKey,jdbcType=VARCHAR}, #{userUuid,jdbcType=VARCHAR},
     #{changeType,jdbcType=VARCHAR}, #{changeData,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
-    #{updatedAt,jdbcType=BIGINT}, #{issueChangeCreationDate,jdbcType=BIGINT})
+    #{updatedAt,jdbcType=BIGINT}, #{issueChangeCreationDate,jdbcType=BIGINT}, #{projectUuid,jdbcType=VARCHAR})
   </insert>
 
   <delete id="delete" parameterType="string">

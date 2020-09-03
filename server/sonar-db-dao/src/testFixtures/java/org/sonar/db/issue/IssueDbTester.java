@@ -224,13 +224,13 @@ public class IssueDbTester {
   }
 
   public IssueChangeDto insertComment(IssueDto issueDto, @Nullable UserDto user, String text) {
-    IssueChangeDto issueChangeDto = IssueChangeDto.of(DefaultIssueComment.create(issueDto.getKey(), user == null ? null : user.getUuid(), text));
+    IssueChangeDto issueChangeDto = IssueChangeDto.of(DefaultIssueComment.create(issueDto.getKey(), user == null ? null : user.getUuid(), text), issueDto.getProjectUuid());
     issueChangeDto.setUuid(Uuids.create());
     return insertChange(issueChangeDto);
   }
 
   public void insertFieldDiffs(IssueDto issueDto, FieldDiffs... diffs) {
-    Arrays.stream(diffs).forEach(diff -> db.getDbClient().issueChangeDao().insert(db.getSession(), IssueChangeDto.of(issueDto.getKey(), diff)
+    Arrays.stream(diffs).forEach(diff -> db.getDbClient().issueChangeDao().insert(db.getSession(), IssueChangeDto.of(issueDto.getKey(), diff, issueDto.getProjectUuid())
     .setUuid(Uuids.createFast())));
     db.commit();
   }

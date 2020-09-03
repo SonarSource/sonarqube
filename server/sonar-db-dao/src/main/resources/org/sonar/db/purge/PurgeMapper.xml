@@ -276,18 +276,7 @@
   </delete>
 
   <delete id="deleteIssueChangesByProjectUuid" parameterType="map">
-    delete from issue_changes ic
-    where
-      exists (select 1 from issues i where i.kee=ic.issue_key and i.project_uuid = #{projectUuid,jdbcType=VARCHAR})
-  </delete>
-
-  <!-- Mssql -->
-  <delete id="deleteIssueChangesByProjectUuid" databaseId="mssql" parameterType="map">
-    delete issue_changes from issue_changes
-    inner join issues on
-      issue_changes.issue_key=issues.kee
-    where
-      issues.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+    delete from issue_changes where project_uuid = #{projectUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteIssuesByProjectUuid" parameterType="map">

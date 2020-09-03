@@ -43,6 +43,9 @@ public final class IssueChangeDto implements Serializable {
   private String uuid;
   private String kee;
   private String issueKey;
+  private String projectUuid;
+
+
   /**
    * The column USER_LOGIN hasn't been renamed to USER_UUID because we don't know yet the cost of renaming a column on a table that can contain huge number of data
    */
@@ -58,7 +61,11 @@ public final class IssueChangeDto implements Serializable {
   @Nullable
   private Long issueChangeCreationDate;
 
-  public static IssueChangeDto of(DefaultIssueComment comment) {
+  public IssueChangeDto() {
+    // nothing to do
+  }
+
+  public static IssueChangeDto of(DefaultIssueComment comment, String projectUuid) {
     IssueChangeDto dto = newDto(comment.issueKey());
     dto.setKey(comment.key());
     dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
@@ -66,16 +73,18 @@ public final class IssueChangeDto implements Serializable {
     dto.setUserUuid(comment.userUuid());
     Date createdAt = requireNonNull(comment.createdAt(), "Comment created at must not be null");
     dto.setIssueChangeCreationDate(createdAt.getTime());
+    dto.setProjectUuid(projectUuid);
     return dto;
   }
 
-  public static IssueChangeDto of(String issueKey, FieldDiffs diffs) {
+  public static IssueChangeDto of(String issueKey, FieldDiffs diffs, String projectUuid) {
     IssueChangeDto dto = newDto(issueKey);
     dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
     dto.setChangeData(diffs.toEncodedString());
     dto.setUserUuid(diffs.userUuid());
     Date createdAt = requireNonNull(diffs.creationDate(), "Diffs created at must not be null");
     dto.setIssueChangeCreationDate(createdAt.getTime());
+    dto.setProjectUuid(projectUuid);
     return dto;
   }
 
@@ -194,5 +203,14 @@ public final class IssueChangeDto implements Serializable {
       .setUserUuid(userUuid)
       .setCreationDate(new Date(getIssueChangeCreationDate()))
       .setIssueKey(issueKey);
+  }
+
+  public String getProjectUuid() {
+    return projectUuid;
+  }
+
+  public IssueChangeDto setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
+    return this;
   }
 }

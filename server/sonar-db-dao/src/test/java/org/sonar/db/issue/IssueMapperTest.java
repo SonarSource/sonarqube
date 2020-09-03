@@ -478,7 +478,7 @@ public class IssueMapperTest {
     diffs.setDiff("status", previousStatus, nextStatus);
     IntStream.range(0, random.nextInt(3)).forEach(i -> diffs.setDiff("key_a" + i, "old_" + i, "new_" + i));
 
-    IssueChangeDto changeDto = IssueChangeDto.of(issue.getKey(), diffs);
+    IssueChangeDto changeDto = IssueChangeDto.of(issue.getKey(), diffs, issue.getProjectUuid());
     changeDto.setUuid(Uuids.createFast());
     dbTester.getDbClient().issueChangeDao().insert(dbSession, changeDto);
     return changeDto;

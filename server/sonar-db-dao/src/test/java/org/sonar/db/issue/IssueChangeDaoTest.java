@@ -133,16 +133,17 @@ public class IssueChangeDaoTest {
       .setIssueKey(issue.getKey())
       .setCreatedAt(1_500_000_000_000L)
       .setUpdatedAt(1_501_000_000_000L)
-      .setIssueChangeCreationDate(1_502_000_000_000L);
+      .setIssueChangeCreationDate(1_502_000_000_000L)
+      .setProjectUuid("project_uuid");
 
     underTest.insert(db.getSession(), changeDto);
     db.getSession().commit();
 
     assertThat(underTest.selectByIssueKeys(db.getSession(), singletonList(issue.getKey())))
       .extracting(IssueChangeDto::getKey, IssueChangeDto::getUuid, IssueChangeDto::getIssueKey, IssueChangeDto::getChangeData, IssueChangeDto::getChangeType,
-        IssueChangeDto::getIssueChangeCreationDate, IssueChangeDto::getCreatedAt, IssueChangeDto::getUpdatedAt)
+        IssueChangeDto::getIssueChangeCreationDate, IssueChangeDto::getCreatedAt, IssueChangeDto::getUpdatedAt, IssueChangeDto::getProjectUuid)
       .containsExactlyInAnyOrder(
-        tuple("EFGH", "uuid", issue.getKey(), "Some text", TYPE_COMMENT, 1_502_000_000_000L, 1_500_000_000_000L, 1_501_000_000_000L));
+        tuple("EFGH", "uuid", issue.getKey(), "Some text", TYPE_COMMENT, 1_502_000_000_000L, 1_500_000_000_000L, 1_501_000_000_000L, "project_uuid"));
   }
 
   @Test

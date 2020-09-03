@@ -294,6 +294,7 @@ public class SearchActionTest {
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(john.getUuid())
+        .setProjectUuid(project.projectUuid())
         .setIssueChangeCreationDate(parseDateTime("2014-09-09T12:00:00+0000").getTime()));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto()
@@ -303,6 +304,7 @@ public class SearchActionTest {
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(fabrice.getUuid())
+        .setProjectUuid(project.projectUuid())
         .setIssueChangeCreationDate(parseDateTime("2014-09-10T12:00:00+0000").getTime()));
     session.commit();
     indexIssues();
@@ -331,6 +333,7 @@ public class SearchActionTest {
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(john.getUuid())
+        .setProjectUuid(project.projectUuid())
         .setCreatedAt(parseDateTime("2014-09-09T12:00:00+0000").getTime()));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto()
@@ -340,6 +343,7 @@ public class SearchActionTest {
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserUuid(fabrice.getUuid())
+        .setProjectUuid(project.projectUuid())
         .setCreatedAt(parseDateTime("2014-09-10T19:10:03+0000").getTime()));
     session.commit();
     indexIssues();

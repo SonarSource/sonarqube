@@ -90,6 +90,7 @@ public class IssueTesting {
       .setChangeData("data_" + randomAlphanumeric(40))
       .setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE)
       .setUserUuid("userUuid_" + randomAlphanumeric(40))
+      .setProjectUuid(issue.getProjectUuid())
       .setIssueChangeCreationDate(nextLong())
       .setCreatedAt(nextLong())
       .setUpdatedAt(nextLong());

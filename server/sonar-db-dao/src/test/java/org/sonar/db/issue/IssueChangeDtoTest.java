@@ -33,7 +33,7 @@ public class IssueChangeDtoTest {
   public void create_from_comment() {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
 
-    IssueChangeDto dto = IssueChangeDto.of(comment);
+    IssueChangeDto dto = IssueChangeDto.of(comment, "project_uuid");
 
     assertThat(dto.getChangeData()).isEqualTo("the comment");
     assertThat(dto.getChangeType()).isEqualTo("comment");
@@ -42,6 +42,7 @@ public class IssueChangeDtoTest {
     assertThat(dto.getIssueChangeCreationDate()).isNotNull();
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
     assertThat(dto.getUserUuid()).isEqualTo("user_uuid");
+    assertThat(dto.getProjectUuid()).isEqualTo("project_uuid");
   }
 
   @Test
@@ -49,7 +50,7 @@ public class IssueChangeDtoTest {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
     comment.setCreatedAt(parseDate("2015-01-13"));
 
-    IssueChangeDto dto = IssueChangeDto.of(comment);
+    IssueChangeDto dto = IssueChangeDto.of(comment, "project_uuid");
 
     assertThat(dto.getIssueChangeCreationDate()).isEqualTo(parseDate("2015-01-13").getTime());
   }
@@ -61,7 +62,7 @@ public class IssueChangeDtoTest {
     diffs.setUserUuid("user_uuid");
     diffs.setCreationDate(parseDate("2015-01-13"));
 
-    IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
+    IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs, "project_uuid");
 
     assertThat(dto.getChangeData()).isEqualTo("severity=INFO|BLOCKER");
     assertThat(dto.getChangeType()).isEqualTo("diff");
@@ -70,6 +71,7 @@ public class IssueChangeDtoTest {
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
     assertThat(dto.getUserUuid()).isEqualTo("user_uuid");
     assertThat(dto.getIssueChangeCreationDate()).isEqualTo(parseDate("2015-01-13").getTime());
+    assertThat(dto.getProjectUuid()).isEqualTo("project_uuid");
   }
 
   @Test
@@ -79,7 +81,7 @@ public class IssueChangeDtoTest {
     diffs.setUserUuid("user_uuid");
     diffs.setCreationDate(parseDate("2015-01-13"));
 
-    IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
+    IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs, "project_uuid");
 
     assertThat(dto.getIssueChangeCreationDate()).isEqualTo(parseDate("2015-01-13").getTime());
   }
@@ -149,7 +151,7 @@ public class IssueChangeDtoTest {
   @Test
   public void to_string() {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "user_uuid", "the comment");
-    IssueChangeDto dto = IssueChangeDto.of(comment);
+    IssueChangeDto dto = IssueChangeDto.of(comment, "project_uuid");
     assertThat(dto.toString()).contains("ABCDE");
   }
 }
