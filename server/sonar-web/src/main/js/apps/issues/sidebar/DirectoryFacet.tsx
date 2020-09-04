@@ -53,7 +53,7 @@ export default class DirectoryFacet extends React.PureComponent<Props> {
   };
 
   getSearchResultText = (directory: TreeComponentWithPath) => {
-    return directory.name;
+    return directory.path;
   };
 
   handleSearch = (query: string, page: number) => {

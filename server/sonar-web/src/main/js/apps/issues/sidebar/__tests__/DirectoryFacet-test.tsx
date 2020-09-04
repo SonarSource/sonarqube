@@ -70,7 +70,7 @@ describe("ListStyleFacet's callback props", () => {
   const instance = wrapper.instance();
 
   it('#getSearchResultText()', () => {
-    expect(instance.getSearchResultText({ name: 'bar' } as TreeComponentWithPath)).toBe('bar');
+    expect(instance.getSearchResultText({ path: 'bar' } as TreeComponentWithPath)).toBe('bar');
   });
 
   it('#getSearchResultKey()', () => {
