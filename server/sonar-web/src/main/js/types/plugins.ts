@@ -71,6 +71,11 @@ export interface Update {
   previousUpdates?: Update[];
 }
 
+export enum PluginType {
+  Bundled = 'BUNDLED',
+  External = 'EXTERNAL'
+}
+
 export function isAvailablePlugin(plugin: Plugin): plugin is AvailablePlugin {
   return (plugin as any).release !== undefined;
 }

@@ -21,7 +21,13 @@ import { findLastIndex } from 'lodash';
 import { getJSON, post } from 'sonar-ui-common/helpers/request';
 import { isDefined } from 'sonar-ui-common/helpers/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { AvailablePlugin, InstalledPlugin, PendingPluginResult, Update } from '../types/plugins';
+import {
+  AvailablePlugin,
+  InstalledPlugin,
+  PendingPluginResult,
+  PluginType,
+  Update
+} from '../types/plugins';
 
 export function getAvailablePlugins(): Promise<{
   plugins: AvailablePlugin[];
@@ -56,18 +62,22 @@ function addChangelog(update: Update, updates?: Update[]) {
   return { ...update, previousUpdates };
 }
 
-export function getInstalledPlugins(): Promise<InstalledPlugin[]> {
-  return getJSON('/api/plugins/installed', { f: 'category' }).then(
-    ({ plugins }) => plugins,
-    throwGlobalError
-  );
+function getInstalledPluginApi(type = PluginType.External) {
+  return getJSON('/api/plugins/installed', { f: 'category', type });
+}
+
+function getUpdatesPluginApi() {
+  return getJSON('/api/plugins/updates');
+}
+
+export function getInstalledPlugins(
+  type: PluginType = PluginType.External
+): Promise<InstalledPlugin[]> {
+  return getInstalledPluginApi(type).then(({ plugins }) => plugins, throwGlobalError);
 }
 
 export function getInstalledPluginsWithUpdates(): Promise<InstalledPlugin[]> {
-  return Promise.all([
-    getJSON('/api/plugins/installed', { f: 'category' }),
-    getJSON('/api/plugins/updates')
-  ])
+  return Promise.all([getInstalledPluginApi(), getUpdatesPluginApi()])
     .then(([installed, updates]) =>
       installed.plugins.map((plugin: InstalledPlugin) => {
         const updatePlugin: InstalledPlugin = updates.plugins.find(
@@ -89,7 +99,7 @@ export function getInstalledPluginsWithUpdates(): Promise<InstalledPlugin[]> {
 }
 
 export function getPluginUpdates(): Promise<InstalledPlugin[]> {
-  return Promise.all([getJSON('/api/plugins/updates'), getJSON('/api/plugins/installed')])
+  return Promise.all([getUpdatesPluginApi(), getInstalledPluginApi()])
     .then(([updates, installed]) =>
       updates.plugins.map((updatePlugin: InstalledPlugin) => {
         const updates = getLastUpdates(updatePlugin.updates).map(update =>

@@ -35,6 +35,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import { ParsedContent, separateFrontMatter } from '../../../helpers/markdown';
 import { isSonarCloud } from '../../../helpers/system';
+import { PluginType } from '../../../types/plugins';
 import { getUrlsList } from '../navTreeUtils';
 import getPages from '../pages';
 import '../styles.css';
@@ -97,7 +98,7 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   getLanguagePluginsDocumentation = (tree: DocNavigationItem[]) => {
-    return getInstalledPlugins()
+    return getInstalledPlugins(PluginType.Bundled)
       .then(plugins =>
         Promise.all(
           plugins.map(plugin => {
