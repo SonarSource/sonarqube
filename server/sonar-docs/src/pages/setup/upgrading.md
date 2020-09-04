@@ -49,35 +49,19 @@ If you are using the Oracle DB, copy its JDBC driver into `$NEW_SONARQUBE_HOME/e
 
 ### Upgrading from the Docker image
 
-### To 8.2+
+[[info]]
+| If you're upgrading with an Oracle database or you're using non-default plugins, you can reuse your extensions volume from the previous version to avoid moving plugins or drivers. If you have any SonarSource language analyzers in your extensions volume, you need to remove them before upgrading.
 
-To upgrade to SonarQube 8.2+:
+To upgrade SonarQube using the Docker image:
 
-1. Create a **new** `sonarqube_extensions_8_x` volume.
-
-2. Stop and remove the existing SonarQube container (a restart from the UI is not enough as the environment variables are only evaluated during the first run, not during a restart):
+1. Stop and remove the existing SonarQube container (a restart from the UI is not enough as the environment variables are only evaluated during the first run, not during a restart):
     
 	```console
 	$ docker stop <container_id>
     $ docker rm <container_id>
 	```
 
-3. If you're using non-default plugins, they need to be manually added to the new `sonarqube_extensions_8_x` volume after the first start-up only. If you're using an Oracle database, the same applies to the JDBC driver. To do this:
-
-	a. Start the SonarQube container with the embedded H2 database:
-   
-    ```
-	$ docker run --rm \
-		-p 9000:9000 \
-		-v sonarqube_extensions_8_x:/opt/sonarqube/extensions \
-		<image_name>
-	```
-	
-	b. Exit once SonarQube has started properly. 
-   
-	c. Copy non-default plugins into `sonarqube_extensions_8_x/plugins` and, if needed, the Oracle driver into `sonarqube_extensions_8_x/jdbc-driver/oracle`.
-
-4. Run docker:
+2. Run docker:
 
 	```bash
 	$> docker run -d --name sonarqube \
@@ -86,19 +70,18 @@ To upgrade to SonarQube 8.2+:
 		-e SONAR_JDBC_USERNAME=... \
 		-e SONAR_JDBC_PASSWORD=... \
 		-v sonarqube_data:/opt/sonarqube/data \
-		-v sonarqube_extensions_8_x:/opt/sonarqube/extensions \
+		-v sonarqube_extensions:/opt/sonarqube/extensions \
 		-v sonarqube_logs:/opt/sonarqube/logs \
 		<image_name>
 	```
 
-5. Browse to `http://yourSonarQubeServerURL/setup` and follow the setup instructions.
+3. Go to `http://yourSonarQubeServerURL/setup` and follow the setup instructions.
 
-6. Reanalyze your projects to get fresh data.
+4. Reanalyze your projects to get fresh data.
 
-### From 7.9.x LTS to another 7.9.x LTS version
+#### **From 7.9.x LTS to another 7.9.x LTS **
 
 No specific Docker operations are needed, just use the new tag.
-
 
 ## Edition Upgrade
 If you're moving to a different edition within the same version (upgrade or downgrade) the steps are exactly the same as above, without the need to browse to `http://yourSonarQubeServerURL/setup` or reanalyze your projects.
