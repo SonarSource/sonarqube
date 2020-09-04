@@ -249,7 +249,18 @@ public class PluginJarLoaderTest {
     copyTestPluginTo("fake-sqale-plugin", fs.getInstalledExternalPluginsDir());
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugin 'sqale' is no longer compatible with this version of SonarQube");
+    expectedException.expectMessage("The following plugin is no longer compatible with this version of SonarQube: 'sqale'");
+    underTest.loadPlugins();
+  }
+
+  @Test
+  public void fail_when_incompatible_plugins_are_installed() throws Exception {
+    createJar(fs.getInstalledExternalPluginsDir(), "sqale", "main", null);
+    createJar(fs.getInstalledExternalPluginsDir(), "scmgit", "main", null);
+    createJar(fs.getInstalledExternalPluginsDir(), "scmsvn", "main", null);
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("The following plugins are no longer compatible with this version of SonarQube: 'scmgit', 'scmsvn', 'sqale'");
     underTest.loadPlugins();
   }
 
@@ -258,7 +269,7 @@ public class PluginJarLoaderTest {
     copyTestPluginTo("fake-report-plugin", fs.getInstalledExternalPluginsDir());
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugin 'report' is no longer compatible with this version of SonarQube");
+    expectedException.expectMessage("The following plugin is no longer compatible with this version of SonarQube: 'report'");
     underTest.loadPlugins();
   }
 
@@ -267,7 +278,7 @@ public class PluginJarLoaderTest {
     copyTestPluginTo("fake-views-plugin", fs.getInstalledExternalPluginsDir());
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugin 'views' is no longer compatible with this version of SonarQube");
+    expectedException.expectMessage("The following plugin is no longer compatible with this version of SonarQube: 'views'");
     underTest.loadPlugins();
   }
 

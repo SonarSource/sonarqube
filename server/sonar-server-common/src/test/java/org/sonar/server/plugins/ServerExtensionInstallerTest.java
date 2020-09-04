@@ -31,7 +31,6 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.Version;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
@@ -62,55 +61,6 @@ public class ServerExtensionInstallerTest {
     underTest.installExtensions(componentContainer);
 
     assertThat(componentContainer.getPicoContainer().getComponents()).contains(fooPlugin);
-  }
-
-  @Test
-  public void fail_when_detecting_github_auth_plugin() {
-    PluginInfo foo = newPlugin("authgithub", "GitHub Auth");
-    pluginRepository.add(foo, mock(Plugin.class));
-    ComponentContainer componentContainer = new ComponentContainer();
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugins 'GitHub Auth' are no longer compatible with this version of SonarQube. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
-
-    underTest.installExtensions(componentContainer);
-  }
-
-  @Test
-  public void fail_when_detecting_auth_plugins() {
-    pluginRepository.add(newPlugin("authgitlab", "GitLab Auth"), mock(Plugin.class));
-    pluginRepository.add(newPlugin("authsaml", "SAML Auth"), mock(Plugin.class));
-    pluginRepository.add(newPlugin("ldap", "LDAP"), mock(Plugin.class));
-    ComponentContainer componentContainer = new ComponentContainer();
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugins 'GitLab Auth, LDAP, SAML Auth' are no longer compatible with this version of SonarQube. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
-
-    underTest.installExtensions(componentContainer);
-  }
-
-  @Test
-  public void fail_when_detecting_saml_auth_plugin() {
-    PluginInfo foo = newPlugin("authsaml", "SAML Auth");
-    pluginRepository.add(foo, mock(Plugin.class));
-    ComponentContainer componentContainer = new ComponentContainer();
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugins 'SAML Auth' are no longer compatible with this version of SonarQube. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
-
-    underTest.installExtensions(componentContainer);
-  }
-
-  @Test
-  public void fail_when_detecting_ldap_auth_plugin() {
-    PluginInfo foo = newPlugin("ldap", "LDAP");
-    pluginRepository.add(foo, mock(Plugin.class));
-    ComponentContainer componentContainer = new ComponentContainer();
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Plugins 'LDAP' are no longer compatible with this version of SonarQube. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/");
-
-    underTest.installExtensions(componentContainer);
   }
 
   private static PluginInfo newPlugin(String key, String name) {

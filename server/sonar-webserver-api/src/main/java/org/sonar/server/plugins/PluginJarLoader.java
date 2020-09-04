@@ -56,7 +56,8 @@ public class PluginJarLoader {
   // List of plugins that are silently removed if installed
   private static final Set<String> DEFAULT_BLACKLISTED_PLUGINS = ImmutableSet.of("scmactivity", "issuesreport", "genericcoverage");
   // List of plugins that should prevent the server to finish its startup
-  private static final Set<String> FORBIDDEN_COMPATIBLE_PLUGINS = ImmutableSet.of("sqale", "report", "views");
+  private static final Set<String> FORBIDDEN_INCOMPATIBLE_PLUGINS = ImmutableSet
+    .of("sqale", "report", "views", "authgithub", "authgitlab", "authsaml", "ldap", "scmgit", "scmsvn");
 
   private final ServerFileSystem fs;
   private final SonarRuntime runtime;
@@ -212,11 +213,26 @@ public class PluginJarLoader {
     }
   }
 
-  private <T extends PluginInfo> List<T> loadPluginsFromDir(File pluginsDir, Function<File, T> f) {
-    return listJarFiles(pluginsDir).stream()
-      .map(f)
+  private <T extends PluginInfo> List<T> loadPluginsFromDir(File pluginsDir, Function<File, T> toPluginInfo) {
+    List<T> list = listJarFiles(pluginsDir).stream()
+      .map(toPluginInfo)
       .filter(this::checkPluginInfo)
       .collect(Collectors.toList());
+    failIfContainsIncompatiblePlugins(list);
+    return list;
+  }
+
+  private void failIfContainsIncompatiblePlugins(List<? extends PluginInfo> plugins) {
+    List<String> incompatiblePlugins = plugins.stream()
+      .filter(p -> FORBIDDEN_INCOMPATIBLE_PLUGINS.contains(p.getKey()))
+      .map(p -> "'" + p.getKey() + "'")
+      .sorted()
+      .collect(Collectors.toList());
+
+    if (!incompatiblePlugins.isEmpty()) {
+      throw MessageException.of(String.format("The following %s no longer compatible with this version of SonarQube: %s",
+        incompatiblePlugins.size() > 1 ? "plugins are" : "plugin is", String.join(", ", incompatiblePlugins)));
+    }
   }
 
   private boolean checkPluginInfo(PluginInfo info) {
@@ -225,9 +241,6 @@ public class PluginJarLoader {
       LOG.warn("Plugin {} [{}] is blacklisted and is being uninstalled", info.getName(), pluginKey);
       deleteQuietly(info.getNonNullJarFile());
       return false;
-    }
-    if (FORBIDDEN_COMPATIBLE_PLUGINS.contains(pluginKey)) {
-      throw MessageException.of(String.format("Plugin '%s' is no longer compatible with this version of SonarQube", pluginKey));
     }
 
     if (Strings.isNullOrEmpty(info.getMainClass()) && Strings.isNullOrEmpty(info.getBasePlugin())) {

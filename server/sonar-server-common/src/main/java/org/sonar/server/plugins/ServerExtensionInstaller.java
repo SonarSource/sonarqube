@@ -26,15 +26,12 @@ import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.internal.PluginContextImpl;
 import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.api.utils.MessageException;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -47,15 +44,11 @@ import static org.sonar.core.extension.ExtensionProviderSupport.isExtensionProvi
  * Loads the plugins server extensions and injects them to DI container
  */
 public abstract class ServerExtensionInstaller {
-
-  private static final Set<String> NO_MORE_COMPATIBLE_PLUGINS = ImmutableSet.of("authgithub", "authgitlab", "authsaml", "ldap");
-
   private final SonarRuntime sonarRuntime;
   private final PluginRepository pluginRepository;
   private final Set<Class<? extends Annotation>> supportedAnnotationTypes;
 
-  protected ServerExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository,
-    Collection<Class<? extends Annotation>> supportedAnnotationTypes) {
+  protected ServerExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository, Collection<Class<? extends Annotation>> supportedAnnotationTypes) {
     requireNonNull(supportedAnnotationTypes, "At least one supported annotation type must be specified");
     this.sonarRuntime = sonarRuntime;
     this.pluginRepository = pluginRepository;
@@ -63,7 +56,6 @@ public abstract class ServerExtensionInstaller {
   }
 
   public void installExtensions(ComponentContainer container) {
-    failWhenNoMoreCompatiblePlugins();
     ListMultimap<PluginInfo, Object> installedExtensionsByPlugin = ArrayListMultimap.create();
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
       try {
@@ -100,17 +92,6 @@ public abstract class ServerExtensionInstaller {
         // catch Throwable because we want to catch Error too (IncompatibleClassChangeError, ...)
         throw new IllegalStateException(format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
       }
-    }
-  }
-
-  private void failWhenNoMoreCompatiblePlugins() {
-    Set<String> noMoreCompatiblePluginNames = pluginRepository.getPluginInfos()
-      .stream()
-      .filter(pluginInfo -> NO_MORE_COMPATIBLE_PLUGINS.contains(pluginInfo.getKey()))
-      .map(PluginInfo::getName)
-      .collect(Collectors.toCollection(TreeSet::new));
-    if (!noMoreCompatiblePluginNames.isEmpty()) {
-      throw MessageException.of(format("Plugins '%s' are no longer compatible with this version of SonarQube. Refer to https://docs.sonarqube.org/latest/instance-administration/plugin-version-matrix/", String.join(", ", noMoreCompatiblePluginNames)));
     }
   }
 
