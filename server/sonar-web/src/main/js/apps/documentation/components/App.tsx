@@ -35,7 +35,7 @@ import ScreenPositionHelper from '../../../components/common/ScreenPositionHelpe
 import DocMarkdownBlock from '../../../components/docs/DocMarkdownBlock';
 import { ParsedContent, separateFrontMatter } from '../../../helpers/markdown';
 import { isSonarCloud } from '../../../helpers/system';
-import { PluginType } from '../../../types/plugins';
+import { InstalledPlugin, PluginType } from '../../../types/plugins';
 import { getUrlsList } from '../navTreeUtils';
 import getPages from '../pages';
 import '../styles.css';
@@ -97,49 +97,55 @@ export default class App extends React.PureComponent<Props, State> {
     removeSideBarClass();
   }
 
-  getLanguagePluginsDocumentation = (tree: DocNavigationItem[]) => {
-    return getInstalledPlugins(PluginType.Bundled)
-      .then(plugins =>
-        Promise.all(
-          plugins.map(plugin => {
-            if (plugin.documentationPath) {
-              const matchArray = /^static\/(.*)/.exec(plugin.documentationPath);
+  getLanguagePluginsDocumentation = async (tree: DocNavigationItem[]) => {
+    const plugins = await getInstalledPlugins(PluginType.Bundled).catch(
+      () => [] as InstalledPlugin[]
+    );
 
-              if (matchArray && matchArray.length > 1) {
-                // eslint-disable-next-line promise/no-nesting
-                return getPluginStaticFileContent(plugin.key, matchArray[1]).then(
-                  content => content,
-                  () => undefined
-                );
-              }
-            }
-            return undefined;
-          })
-        )
-      )
-      .then(contents => contents.filter(isDefined))
-      .then(contents => {
-        const regex = new RegExp(`/${LANGUAGES_BASE_URL}/\\w+/$`);
-        const overridablePaths = getUrlsList(tree).filter(
-          path => regex.test(path) && path !== `/${LANGUAGES_BASE_URL}/overview/`
-        );
+    const pluginsWithDoc = await Promise.all(
+      plugins.map(plugin => {
+        if (plugin.documentationPath) {
+          const matchArray = /^static\/(.*)/.exec(plugin.documentationPath);
 
-        const parsedContent: T.Dict<ParsedContent> = {};
-
-        contents.forEach(content => {
-          const parsed = separateFrontMatter(content);
-          if (
-            parsed &&
-            parsed.frontmatter &&
-            parsed.frontmatter.key &&
-            overridablePaths.includes(`/${LANGUAGES_BASE_URL}/${parsed.frontmatter.key}/`)
-          ) {
-            parsedContent[`${LANGUAGES_BASE_URL}/${parsed.frontmatter.key}`] = parsed;
+          if (matchArray && matchArray.length > 1) {
+            return getPluginStaticFileContent(plugin.key, matchArray[1]).then(
+              content => ({ ...plugin, content }),
+              () => undefined
+            );
           }
-        });
+        }
 
-        return parsedContent;
-      });
+        return undefined;
+      })
+    );
+
+    const regex = new RegExp(`/${LANGUAGES_BASE_URL}/\\w+/$`);
+    const overridablePaths = getUrlsList(tree).filter(
+      path => regex.test(path) && path !== `/${LANGUAGES_BASE_URL}/overview/`
+    );
+
+    const parsedContent: T.Dict<ParsedContent> = {};
+
+    pluginsWithDoc.filter(isDefined).forEach(plugin => {
+      const parsed = separateFrontMatter(plugin.content);
+
+      if (plugin.issueTrackerUrl) {
+        // Inject issue tracker link
+        let issueTrackerLink = '## Issue Tracker';
+        issueTrackerLink += '\r\n';
+        issueTrackerLink += `Check the [issue tracker](${plugin.issueTrackerUrl}) for this language.`;
+        parsed.content = `${parsed.content}\r\n${issueTrackerLink}`;
+      }
+
+      if (
+        parsed?.frontmatter?.key &&
+        overridablePaths.includes(`/${LANGUAGES_BASE_URL}/${parsed.frontmatter.key}/`)
+      ) {
+        parsedContent[`${LANGUAGES_BASE_URL}/${parsed.frontmatter.key}`] = parsed;
+      }
+    });
+
+    return parsedContent;
   };
 
   render() {
@@ -154,7 +160,7 @@ export default class App extends React.PureComponent<Props, State> {
       );
     }
 
-    const page = pages.find(p => p.url === '/' + splat);
+    const page = pages.find(p => p.url === `/${splat}`);
     const mainTitle = translate(
       'documentation.page_title',
       isSonarCloud() ? 'sonarcloud' : 'sonarqube'

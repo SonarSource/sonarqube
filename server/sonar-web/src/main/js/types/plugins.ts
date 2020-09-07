@@ -50,6 +50,7 @@ export interface PendingPlugin extends Plugin {
 
 export interface InstalledPlugin extends PendingPlugin {
   documentationPath?: string;
+  issueTrackerUrl?: string;
   filename: string;
   hash: string;
   sonarLintSupported: boolean;
