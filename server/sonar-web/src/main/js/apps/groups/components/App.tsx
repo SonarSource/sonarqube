@@ -22,23 +22,24 @@ import { Helmet } from 'react-helmet-async';
 import ListFooter from 'sonar-ui-common/components/controls/ListFooter';
 import SearchBox from 'sonar-ui-common/components/controls/SearchBox';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { omitNil } from 'sonar-ui-common/helpers/request';
 import { createGroup, deleteGroup, searchUsersGroups, updateGroup } from '../../../api/user_groups';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
+import DeleteForm from './DeleteForm';
+import Form from './Form';
 import Header from './Header';
 import List from './List';
 
-interface Props {
-  organization?: Pick<T.Organization, 'key'>;
-}
-
 interface State {
   groups?: T.Group[];
+  editedGroup?: T.Group;
+  groupToBeDeleted?: T.Group;
   loading: boolean;
   paging?: T.Paging;
   query: string;
 }
 
-export default class App extends React.PureComponent<Props, State> {
+export default class App extends React.PureComponent<{}, State> {
   mounted = false;
   state: State = { loading: true, query: '' };
 
@@ -51,14 +52,9 @@ export default class App extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  get organization() {
-    return this.props.organization && this.props.organization.key;
-  }
-
   makeFetchGroupsRequest = (data?: { p?: number; q?: string }) => {
     this.setState({ loading: true });
     return searchUsersGroups({
-      organization: this.organization,
       q: this.state.query,
       ...data
     });
@@ -70,18 +66,24 @@ export default class App extends React.PureComponent<Props, State> {
     }
   };
 
-  fetchGroups = (data?: { p?: number; q?: string }) => {
-    this.makeFetchGroupsRequest(data).then(({ groups, paging }) => {
+  fetchGroups = async (data?: { p?: number; q?: string }) => {
+    try {
+      const { groups, paging } = await this.makeFetchGroupsRequest(data);
       if (this.mounted) {
         this.setState({ groups, loading: false, paging });
       }
-    }, this.stopLoading);
+    } catch {
+      this.stopLoading();
+    }
   };
 
-  fetchMoreGroups = () => {
-    const { paging } = this.state;
-    if (paging && paging.total > paging.pageIndex * paging.pageSize) {
-      this.makeFetchGroupsRequest({ p: paging.pageIndex + 1 }).then(({ groups, paging }) => {
+  fetchMoreGroups = async () => {
+    const { paging: currentPaging } = this.state;
+    if (currentPaging && currentPaging.total > currentPaging.pageIndex * currentPaging.pageSize) {
+      try {
+        const { groups, paging } = await this.makeFetchGroupsRequest({
+          p: currentPaging.pageIndex + 1
+        });
         if (this.mounted) {
           this.setState(({ groups: existingGroups = [] }) => ({
             groups: [...existingGroups, ...groups],
@@ -89,7 +91,9 @@ export default class App extends React.PureComponent<Props, State> {
             paging
           }));
         }
-      }, this.stopLoading);
+      } catch {
+        this.stopLoading();
+      }
     }
   };
 
@@ -98,52 +102,94 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState({ query });
   };
 
-  refresh = () => {
-    this.fetchGroups({ q: this.state.query });
+  refresh = async () => {
+    const { paging, query } = this.state;
+
+    await this.fetchGroups({ q: query });
+
+    // reload all pages in order
+    if (paging && paging.pageIndex > 1) {
+      for (let p = 1; p < paging.pageIndex; p++) {
+        await this.fetchMoreGroups();
+      }
+    }
   };
 
-  handleCreate = (data: { description: string; name: string }) => {
-    return createGroup({ ...data, organization: this.organization }).then(group => {
-      if (this.mounted) {
-        this.setState(({ groups = [] }: State) => ({
-          groups: [...groups, group]
-        }));
-      }
-    });
+  closeDeleteForm = () => {
+    this.setState({ groupToBeDeleted: undefined });
   };
 
-  handleDelete = (name: string) => {
-    return deleteGroup({ name, organization: this.organization }).then(() => {
-      if (this.mounted) {
-        this.setState(({ groups = [] }: State) => ({
-          groups: groups.filter(group => group.name !== name)
-        }));
-      }
-    });
+  closeEditForm = () => {
+    this.setState({ editedGroup: undefined });
   };
 
-  handleEdit = (data: { description?: string; id: number; name?: string }) => {
-    return updateGroup(data).then(() => {
-      if (this.mounted) {
-        this.setState(({ groups = [] }: State) => ({
-          groups: groups.map(group => (group.id === data.id ? { ...group, ...data } : group))
-        }));
-      }
-    });
+  openDeleteForm = (group: T.Group) => {
+    this.setState({ groupToBeDeleted: group });
+  };
+
+  openEditForm = (group: T.Group) => {
+    this.setState({ editedGroup: group });
+  };
+
+  handleCreate = async (data: { description: string; name: string }) => {
+    await createGroup({ ...data });
+
+    await this.refresh();
+  };
+
+  handleDelete = async () => {
+    const { groupToBeDeleted } = this.state;
+
+    if (!groupToBeDeleted) {
+      return;
+    }
+
+    await deleteGroup({ name: groupToBeDeleted.name });
+
+    await this.refresh();
+
+    if (this.mounted) {
+      this.setState({ groupToBeDeleted: undefined });
+    }
+  };
+
+  handleEdit = async ({ name, description }: { name?: string; description: string }) => {
+    const { editedGroup } = this.state;
+
+    if (!editedGroup) {
+      return;
+    }
+
+    const data = {
+      description,
+      id: editedGroup.id,
+      // pass `name` only if it has changed, otherwise the WS fails
+      ...omitNil({ name: name !== editedGroup.name ? name : undefined })
+    };
+
+    await updateGroup(data);
+
+    if (this.mounted) {
+      this.setState(({ groups = [] }: State) => ({
+        editedGroup: undefined,
+        groups: groups.map(group =>
+          group.name === editedGroup.name ? { ...group, ...data } : group
+        )
+      }));
+    }
   };
 
   render() {
-    const { groups, loading, paging, query } = this.state;
+    const { editedGroup, groupToBeDeleted, groups, loading, paging, query } = this.state;
 
-    const showAnyone =
-      this.props.organization === undefined && 'anyone'.includes(query.toLowerCase());
+    const showAnyone = 'anyone'.includes(query.toLowerCase());
 
     return (
       <>
         <Suggestions suggestions="user_groups" />
         <Helmet defer={false} title={translate('user_groups.page')} />
         <div className="page page-limited" id="groups-page">
-          <Header loading={loading} onCreate={this.handleCreate} />
+          <Header onCreate={this.handleCreate} />
 
           <SearchBox
             className="big-spacer-bottom"
@@ -157,10 +203,9 @@ export default class App extends React.PureComponent<Props, State> {
           {groups !== undefined && (
             <List
               groups={groups}
-              onDelete={this.handleDelete}
-              onEdit={this.handleEdit}
+              onDelete={this.openDeleteForm}
+              onEdit={this.openEditForm}
               onEditMembers={this.refresh}
-              organization={this.organization}
               showAnyone={showAnyone}
             />
           )}
@@ -169,11 +214,30 @@ export default class App extends React.PureComponent<Props, State> {
             <div id="groups-list-footer">
               <ListFooter
                 count={showAnyone ? groups.length + 1 : groups.length}
+                loading={loading}
                 loadMore={this.fetchMoreGroups}
                 ready={!loading}
                 total={showAnyone ? paging.total + 1 : paging.total}
               />
             </div>
+          )}
+
+          {groupToBeDeleted && (
+            <DeleteForm
+              group={groupToBeDeleted}
+              onClose={this.closeDeleteForm}
+              onSubmit={this.handleDelete}
+            />
+          )}
+
+          {editedGroup && (
+            <Form
+              confirmButtonText={translate('update_verb')}
+              group={editedGroup}
+              header={translate('groups.update_group')}
+              onClose={this.closeEditForm}
+              onSubmit={this.handleEdit}
+            />
           )}
         </div>
       </>

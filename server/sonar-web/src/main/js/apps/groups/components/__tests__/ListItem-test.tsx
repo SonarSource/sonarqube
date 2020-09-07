@@ -19,60 +19,22 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import { click } from 'sonar-ui-common/helpers/testUtils';
-import ListItem from '../ListItem';
+import { mockGroup } from '../../../../helpers/testMocks';
+import ListItem, { ListItemProps } from '../ListItem';
 
-it('should edit group', () => {
-  const group = { id: 3, name: 'Foo', membersCount: 5 };
-  const onEdit = jest.fn();
-  const wrapper = shallow(
-    <ListItem
-      group={group}
-      onDelete={jest.fn()}
-      onEdit={onEdit}
-      onEditMembers={jest.fn()}
-      organization="org"
-    />
-  );
-
-  click(wrapper.find('.js-group-update'));
-  wrapper.update();
-
-  wrapper.find('Form').prop<Function>('onSubmit')({ name: 'Bar', description: 'bla bla' });
-  expect(onEdit).lastCalledWith({ description: 'bla bla', id: 3, name: 'Bar' });
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ group: mockGroup({ default: true }) })).toMatchSnapshot('default group');
 });
 
-it('should delete group', () => {
-  const group = { id: 3, name: 'Foo', membersCount: 5 };
-  const onDelete = jest.fn();
-  const wrapper = shallow(
+function shallowRender(overrides: Partial<ListItemProps> = {}) {
+  return shallow(
     <ListItem
-      group={group}
-      onDelete={onDelete}
-      onEdit={jest.fn()}
-      onEditMembers={jest.fn()}
-      organization="org"
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
-
-  click(wrapper.find('.js-group-delete'));
-  wrapper.update();
-
-  wrapper.find('DeleteForm').prop<Function>('onSubmit')();
-  expect(onDelete).toBeCalledWith('Foo');
-});
-
-it('should render default group', () => {
-  const group = { default: true, id: 3, name: 'Foo', membersCount: 5 };
-  const wrapper = shallow(
-    <ListItem
-      group={group}
+      group={mockGroup()}
       onDelete={jest.fn()}
       onEdit={jest.fn()}
       onEditMembers={jest.fn()}
-      organization="org"
+      {...overrides}
     />
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}

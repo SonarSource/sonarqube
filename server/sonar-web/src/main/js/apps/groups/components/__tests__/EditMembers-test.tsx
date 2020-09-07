@@ -26,7 +26,7 @@ it('should edit members', () => {
   const group = { id: 3, name: 'Foo', membersCount: 5 };
   const onEdit = jest.fn();
 
-  const wrapper = shallow(<EditMembers group={group} onEdit={onEdit} organization="org" />);
+  const wrapper = shallow(<EditMembers group={group} onEdit={onEdit} />);
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('ButtonIcon'));

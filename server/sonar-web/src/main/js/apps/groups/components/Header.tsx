@@ -19,12 +19,10 @@
  */
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Form from './Form';
 
 interface Props {
-  loading: boolean;
   onCreate: (data: { description: string; name: string }) => Promise<void>;
 }
 
@@ -63,8 +61,6 @@ export default class Header extends React.PureComponent<Props, State> {
       <>
         <header className="page-header" id="groups-header">
           <h1 className="page-title">{translate('user_groups.page')}</h1>
-
-          <DeferredSpinner loading={this.props.loading} />
 
           <div className="page-actions">
             <Button id="groups-create" onClick={this.handleCreateClick}>

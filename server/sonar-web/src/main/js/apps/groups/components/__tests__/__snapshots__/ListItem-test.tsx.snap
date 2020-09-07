@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should delete group 1`] = `
+exports[`should render correctly 1`] = `
 <tr
-  data-id={3}
+  data-id="Foo"
 >
   <td
-    className=" width-20"
+    className="width-20"
   >
     <strong
       className="js-group-name"
@@ -14,28 +14,23 @@ exports[`should delete group 1`] = `
     </strong>
   </td>
   <td
-    className="width-10"
+    className="thin text-middle text-right little-padded-right"
   >
-    <div
-      className="display-flex-center"
-    >
-      <span
-        className="spacer-right"
-      >
-        5
-      </span>
-      <EditMembers
-        group={
-          Object {
-            "id": 3,
-            "membersCount": 5,
-            "name": "Foo",
-          }
+    1
+  </td>
+  <td
+    className="little-padded-left"
+  >
+    <EditMembers
+      group={
+        Object {
+          "id": 1,
+          "membersCount": 1,
+          "name": "Foo",
         }
-        onEdit={[MockFunction]}
-        organization="org"
-      />
-    </div>
+      }
+      onEdit={[MockFunction]}
+    />
   </td>
   <td
     className="width-40"
@@ -67,12 +62,12 @@ exports[`should delete group 1`] = `
 </tr>
 `;
 
-exports[`should render default group 1`] = `
+exports[`should render correctly: default group 1`] = `
 <tr
-  data-id={3}
+  data-id="Foo"
 >
   <td
-    className=" width-20"
+    className="width-20"
   >
     <strong
       className="js-group-name"
@@ -88,18 +83,13 @@ exports[`should render default group 1`] = `
     </span>
   </td>
   <td
-    className="width-10"
+    className="thin text-middle text-right little-padded-right"
   >
-    <div
-      className="display-flex-center"
-    >
-      <span
-        className="spacer-right"
-      >
-        5
-      </span>
-    </div>
+    1
   </td>
+  <td
+    className="little-padded-left"
+  />
   <td
     className="width-40"
   >

@@ -24,10 +24,9 @@ import ListItem from './ListItem';
 
 interface Props {
   groups: T.Group[];
-  onDelete: (name: string) => Promise<void>;
-  onEdit: (data: { description?: string; id: number; name?: string }) => Promise<void>;
+  onDelete: (group: T.Group) => void;
+  onEdit: (group: T.Group) => void;
   onEditMembers: () => void;
-  organization: string | undefined;
   showAnyone: boolean;
 }
 
@@ -38,7 +37,9 @@ export default function List(props: Props) {
         <thead>
           <tr>
             <th />
-            <th className="nowrap">{translate('members')}</th>
+            <th className="nowrap width-10" colSpan={2}>
+              {translate('members')}
+            </th>
             <th className="nowrap">{translate('description')}</th>
             <th />
           </tr>
@@ -49,7 +50,7 @@ export default function List(props: Props) {
               <td className="width-20">
                 <strong className="js-group-name">{translate('groups.anyone')}</strong>
               </td>
-              <td className="width-10" />
+              <td className="width-10" colSpan={2} />
               <td className="width-40" colSpan={2}>
                 <span className="js-group-description">
                   {translate('user_groups.anyone.description')}
@@ -61,11 +62,10 @@ export default function List(props: Props) {
           {sortBy(props.groups, group => group.name.toLowerCase()).map(group => (
             <ListItem
               group={group}
-              key={group.id}
+              key={group.name}
               onDelete={props.onDelete}
               onEdit={props.onEdit}
               onEditMembers={props.onEditMembers}
-              organization={props.organization}
             />
           ))}
         </tbody>

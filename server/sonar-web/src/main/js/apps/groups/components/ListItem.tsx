@@ -23,132 +23,50 @@ import ActionsDropdown, {
   ActionsDropdownItem
 } from 'sonar-ui-common/components/controls/ActionsDropdown';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { omitNil } from 'sonar-ui-common/helpers/request';
-import DeleteForm from './DeleteForm';
 import EditMembers from './EditMembers';
-import Form from './Form';
 
-interface Props {
+export interface ListItemProps {
   group: T.Group;
-  onDelete: (name: string) => Promise<void>;
-  onEdit: (data: { description?: string; id: number; name?: string }) => Promise<void>;
+  onDelete: (group: T.Group) => void;
+  onEdit: (group: T.Group) => void;
   onEditMembers: () => void;
-  organization: string | undefined;
 }
 
-interface State {
-  deleteForm: boolean;
-  editForm: boolean;
-}
+export default function ListItem(props: ListItemProps) {
+  const { group } = props;
 
-export default class ListItem extends React.PureComponent<Props, State> {
-  mounted = false;
-  state: State = { deleteForm: false, editForm: false };
+  return (
+    <tr data-id={group.name}>
+      <td className="width-20">
+        <strong className="js-group-name">{group.name}</strong>
+        {group.default && <span className="little-spacer-left">({translate('default')})</span>}
+      </td>
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+      <td className="thin text-middle text-right little-padded-right">{group.membersCount}</td>
+      <td className="little-padded-left">
+        {!group.default && <EditMembers group={group} onEdit={props.onEditMembers} />}
+      </td>
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+      <td className="width-40">
+        <span className="js-group-description">{group.description}</span>
+      </td>
 
-  handleDeleteClick = () => {
-    this.setState({ deleteForm: true });
-  };
-
-  handleEditClick = () => {
-    this.setState({ editForm: true });
-  };
-
-  closeDeleteForm = () => {
-    if (this.mounted) {
-      this.setState({ deleteForm: false });
-    }
-  };
-
-  closeEditForm = () => {
-    if (this.mounted) {
-      this.setState({ editForm: false });
-    }
-  };
-
-  handleDeleteFormSubmit = () => {
-    return this.props.onDelete(this.props.group.name);
-  };
-
-  handleEditFormSubmit = ({ name, description }: { name: string; description: string }) => {
-    const { group } = this.props;
-    return this.props.onEdit({
-      description,
-      id: group.id,
-      // pass `name` only if it has changed, otherwise the WS fails
-      ...omitNil({ name: name !== group.name ? name : undefined })
-    });
-  };
-
-  render() {
-    const { group } = this.props;
-
-    return (
-      <tr data-id={group.id}>
-        <td className=" width-20">
-          <strong className="js-group-name">{group.name}</strong>
-          {group.default && <span className="little-spacer-left">({translate('default')})</span>}
-        </td>
-
-        <td className="width-10">
-          <div className="display-flex-center">
-            <span className="spacer-right">{group.membersCount}</span>
-            {!group.default && (
-              <EditMembers
-                group={group}
-                onEdit={this.props.onEditMembers}
-                organization={this.props.organization}
-              />
-            )}
-          </div>
-        </td>
-
-        <td className="width-40">
-          <span className="js-group-description">{group.description}</span>
-        </td>
-
-        <td className="thin nowrap text-right">
-          {!group.default && (
-            <ActionsDropdown>
-              <ActionsDropdownItem className="js-group-update" onClick={this.handleEditClick}>
-                {translate('update_details')}
-              </ActionsDropdownItem>
-              <ActionsDropdownDivider />
-              <ActionsDropdownItem
-                className="js-group-delete"
-                destructive={true}
-                onClick={this.handleDeleteClick}>
-                {translate('delete')}
-              </ActionsDropdownItem>
-            </ActionsDropdown>
-          )}
-        </td>
-
-        {this.state.deleteForm && (
-          <DeleteForm
-            group={group}
-            onClose={this.closeDeleteForm}
-            onSubmit={this.handleDeleteFormSubmit}
-          />
+      <td className="thin nowrap text-right">
+        {!group.default && (
+          <ActionsDropdown>
+            <ActionsDropdownItem className="js-group-update" onClick={() => props.onEdit(group)}>
+              {translate('update_details')}
+            </ActionsDropdownItem>
+            <ActionsDropdownDivider />
+            <ActionsDropdownItem
+              className="js-group-delete"
+              destructive={true}
+              onClick={() => props.onDelete(group)}>
+              {translate('delete')}
+            </ActionsDropdownItem>
+          </ActionsDropdown>
         )}
-
-        {this.state.editForm && (
-          <Form
-            confirmButtonText={translate('update_verb')}
-            group={group}
-            header={translate('groups.update_group')}
-            onClose={this.closeEditForm}
-            onSubmit={this.handleEditFormSubmit}
-          />
-        )}
-      </tr>
-    );
-  }
+      </td>
+    </tr>
+  );
 }

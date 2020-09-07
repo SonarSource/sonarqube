@@ -139,7 +139,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent<Props, S
                     <OrganizationGroupCheckbox
                       checked={this.isGroupSelected(group.name)}
                       group={group}
-                      key={group.id}
+                      key={group.name}
                       onCheck={this.onCheck}
                     />
                   ))}

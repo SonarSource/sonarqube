@@ -12,7 +12,8 @@ exports[`should render 1`] = `
       <tr>
         <th />
         <th
-          className="nowrap"
+          className="nowrap width-10"
+          colSpan={2}
         >
           members
         </th>
@@ -40,6 +41,7 @@ exports[`should render 1`] = `
         </td>
         <td
           className="width-10"
+          colSpan={2}
         />
         <td
           className="width-40"
@@ -62,11 +64,10 @@ exports[`should render 1`] = `
             "name": "bar",
           }
         }
-        key="3"
+        key="bar"
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
         onEditMembers={[MockFunction]}
-        organization="org"
       />
       <ListItem
         group={
@@ -78,11 +79,10 @@ exports[`should render 1`] = `
             "name": "foo",
           }
         }
-        key="2"
+        key="foo"
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
         onEditMembers={[MockFunction]}
-        organization="org"
       />
       <ListItem
         group={
@@ -94,11 +94,10 @@ exports[`should render 1`] = `
             "name": "sonar-users",
           }
         }
-        key="1"
+        key="sonar-users"
         onDelete={[MockFunction]}
         onEdit={[MockFunction]}
         onEditMembers={[MockFunction]}
-        organization="org"
       />
     </tbody>
   </table>

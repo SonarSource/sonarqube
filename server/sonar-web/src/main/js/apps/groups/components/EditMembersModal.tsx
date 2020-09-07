@@ -31,7 +31,6 @@ import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../a
 interface Props {
   group: T.Group;
   onClose: () => void;
-  organization: string | undefined;
 }
 
 interface State {
@@ -66,7 +65,6 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
   fetchUsers = (searchParams: SelectListSearchParams) =>
     getUsersInGroup({
       name: this.props.group.name,
-      organization: this.props.organization,
       p: searchParams.page,
       ps: searchParams.pageSize,
       q: searchParams.query !== '' ? searchParams.query : undefined,
@@ -97,8 +95,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
   handleSelect = (login: string) =>
     addUserToGroup({
       name: this.props.group.name,
-      login,
-      organization: this.props.organization
+      login
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({
@@ -111,8 +108,7 @@ export default class EditMembersModal extends React.PureComponent<Props, State> 
   handleUnselect = (login: string) =>
     removeUserFromGroup({
       name: this.props.group.name,
-      login,
-      organization: this.props.organization
+      login
     }).then(() => {
       if (this.mounted) {
         this.setState((state: State) => ({

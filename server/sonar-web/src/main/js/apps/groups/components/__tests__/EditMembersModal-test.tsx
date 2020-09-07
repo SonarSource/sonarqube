@@ -24,7 +24,6 @@ import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { addUserToGroup, getUsersInGroup, removeUserFromGroup } from '../../../../api/user_groups';
 import EditMembersModal from '../EditMembersModal';
 
-const organization = 'orga';
 const group = { id: 1, name: 'foo', membersCount: 1 };
 
 jest.mock('../../../../api/user_groups', () => ({
@@ -68,7 +67,6 @@ it('should render modal properly', async () => {
   expect(getUsersInGroup).toHaveBeenCalledWith(
     expect.objectContaining({
       name: group.name,
-      organization,
       p: 1,
       ps: 100,
       q: undefined,
@@ -88,7 +86,6 @@ it('should handle selection properly', async () => {
   expect(addUserToGroup).toHaveBeenCalledWith(
     expect.objectContaining({
       name: group.name,
-      organization,
       login: 'toto'
     })
   );
@@ -103,7 +100,6 @@ it('should handle deselection properly', async () => {
   expect(removeUserFromGroup).toHaveBeenCalledWith(
     expect.objectContaining({
       name: group.name,
-      organization,
       login: 'tata'
     })
   );
@@ -112,6 +108,6 @@ it('should handle deselection properly', async () => {
 
 function shallowRender(props: Partial<EditMembersModal['props']> = {}) {
   return shallow<EditMembersModal>(
-    <EditMembersModal group={group} onClose={jest.fn()} organization={organization} {...props} />
+    <EditMembersModal group={group} onClose={jest.fn()} {...props} />
   );
 }

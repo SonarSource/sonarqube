@@ -15,7 +15,6 @@ exports[`should render correctly 1`] = `
     id="groups-page"
   >
     <Header
-      loading={true}
       onCreate={[Function]}
     />
     <SearchBox
@@ -45,7 +44,6 @@ exports[`should render correctly 2`] = `
     id="groups-page"
   >
     <Header
-      loading={false}
       onCreate={[Function]}
     />
     <SearchBox
@@ -78,17 +76,17 @@ exports[`should render correctly 2`] = `
       onDelete={[Function]}
       onEdit={[Function]}
       onEditMembers={[Function]}
-      organization="foo"
-      showAnyone={false}
+      showAnyone={true}
     />
     <div
       id="groups-list-footer"
     >
       <ListFooter
-        count={2}
+        count={3}
         loadMore={[Function]}
+        loading={false}
         ready={true}
-        total={4}
+        total={5}
       />
     </div>
   </div>

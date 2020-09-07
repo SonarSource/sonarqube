@@ -24,7 +24,7 @@ import Header from '../Header';
 
 it('should create new group', () => {
   const onCreate = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(<Header loading={false} onCreate={onCreate} />);
+  const wrapper = shallow(<Header onCreate={onCreate} />);
   expect(wrapper).toMatchSnapshot();
 
   click(wrapper.find('[id="groups-create"]'));

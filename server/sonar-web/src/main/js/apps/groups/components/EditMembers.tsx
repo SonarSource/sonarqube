@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { ButtonIcon } from 'sonar-ui-common/components/controls/buttons';
 import BulletListIcon from 'sonar-ui-common/components/icons/BulletListIcon';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import EditMembersModal from './EditMembersModal';
 
 interface Props {
   group: T.Group;
   onEdit: () => void;
-  organization: string | undefined;
 }
 
 interface State {
@@ -59,15 +59,15 @@ export default class EditMembers extends React.PureComponent<Props, State> {
   render() {
     return (
       <>
-        <ButtonIcon className="button-small" onClick={this.handleMembersClick}>
+        <ButtonIcon
+          aria-label={translate('groups.users.edit')}
+          className="button-small"
+          onClick={this.handleMembersClick}
+          title={translate('groups.users.edit')}>
           <BulletListIcon />
         </ButtonIcon>
         {this.state.modal && (
-          <EditMembersModal
-            group={this.props.group}
-            onClose={this.handleModalClose}
-            organization={this.props.organization}
-          />
+          <EditMembersModal group={this.props.group} onClose={this.handleModalClose} />
         )}
       </>
     );

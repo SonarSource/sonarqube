@@ -11,10 +11,6 @@ exports[`should create new group 1`] = `
     >
       user_groups.page
     </h1>
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
-    />
     <div
       className="page-actions"
     >
@@ -45,10 +41,6 @@ exports[`should create new group 2`] = `
     >
       user_groups.page
     </h1>
-    <DeferredSpinner
-      loading={false}
-      timeout={100}
-    />
     <div
       className="page-actions"
     >

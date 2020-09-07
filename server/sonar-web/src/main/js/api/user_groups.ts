@@ -62,7 +62,7 @@ export function removeUserFromGroup(data: {
 
 export function createGroup(data: {
   description?: string;
-  organization: string | undefined;
+  organization?: string;
   name: string;
 }): Promise<T.Group> {
   return postJSON('/api/user_groups/create', data).then(r => r.group, throwGlobalError);
@@ -72,6 +72,6 @@ export function updateGroup(data: { description?: string; id: number; name?: str
   return post('/api/user_groups/update', data).catch(throwGlobalError);
 }
 
-export function deleteGroup(data: { name: string; organization: string | undefined }) {
+export function deleteGroup(data: { name: string; organization?: string }) {
   return post('/api/user_groups/delete', data).catch(throwGlobalError);
 }
