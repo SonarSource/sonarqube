@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<ProjectQualityGateAppRenderer
+  loading={true}
+  onSelect={[Function]}
+  onSubmit={[Function]}
+  selectedQualityGateId="-1"
+  submitting={false}
+/>
+`;

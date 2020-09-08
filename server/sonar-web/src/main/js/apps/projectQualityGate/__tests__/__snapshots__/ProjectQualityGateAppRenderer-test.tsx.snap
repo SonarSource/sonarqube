@@ -1,0 +1,743 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: always use system default 1`] = `
+<div
+  className="page page-limited"
+  id="project-quality-gate"
+>
+  <Suggestions
+    suggestions="project_quality_gate"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="project_quality_gate.page"
+  />
+  <A11ySkipTarget
+    anchor="qg_main"
+  />
+  <header
+    className="page-header"
+  >
+    <div
+      className="page-title display-flex-center"
+    >
+      <h1>
+        project_quality_gate.page
+      </h1>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <div
+            className="big-padded-top big-padded-bottom"
+          >
+            quality_gates.projects.help
+          </div>
+        }
+      />
+    </div>
+  </header>
+  <div
+    className="boxed-group"
+  >
+    <h2
+      className="boxed-group-header"
+    >
+      project_quality_gate.subtitle
+    </h2>
+    <form
+      className="boxed-group-inner"
+      onSubmit={[Function]}
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        project_quality_gate.page.description
+      </p>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={true}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="-1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_default
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <span
+                className="text-muted little-spacer-right"
+              >
+                current_noun
+                :
+              </span>
+              qualitygate
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={false}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="2"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_specific
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <Select
+                className="abs-width-300"
+                clearable={false}
+                disabled={true}
+                onChange={[Function]}
+                optionRenderer={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "label": "qualitygate",
+                      "value": "1",
+                    },
+                    Object {
+                      "label": "qualitygate",
+                      "value": "2",
+                    },
+                  ]
+                }
+                value="-1"
+              />
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div>
+        <SubmitButton
+          disabled={false}
+        >
+          save
+        </SubmitButton>
+      </div>
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: default 1`] = `
+<div
+  className="page page-limited"
+  id="project-quality-gate"
+>
+  <Suggestions
+    suggestions="project_quality_gate"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="project_quality_gate.page"
+  />
+  <A11ySkipTarget
+    anchor="qg_main"
+  />
+  <header
+    className="page-header"
+  >
+    <div
+      className="page-title display-flex-center"
+    >
+      <h1>
+        project_quality_gate.page
+      </h1>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <div
+            className="big-padded-top big-padded-bottom"
+          >
+            quality_gates.projects.help
+          </div>
+        }
+      />
+    </div>
+  </header>
+  <div
+    className="boxed-group"
+  >
+    <h2
+      className="boxed-group-header"
+    >
+      project_quality_gate.subtitle
+    </h2>
+    <form
+      className="boxed-group-inner"
+      onSubmit={[Function]}
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        project_quality_gate.page.description
+      </p>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={false}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="-1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_default
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <span
+                className="text-muted little-spacer-right"
+              >
+                current_noun
+                :
+              </span>
+              qualitygate
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={true}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_specific
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <Select
+                className="abs-width-300"
+                clearable={false}
+                disabled={false}
+                onChange={[Function]}
+                optionRenderer={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "label": "qualitygate",
+                      "value": "1",
+                    },
+                    Object {
+                      "label": "qualitygate",
+                      "value": "2",
+                    },
+                  ]
+                }
+                value="1"
+              />
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div>
+        <SubmitButton
+          disabled={false}
+        >
+          save
+        </SubmitButton>
+      </div>
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: loading 1`] = `
+<i
+  className="spinner"
+/>
+`;
+
+exports[`should render correctly: show warning 1`] = `
+<div
+  className="page page-limited"
+  id="project-quality-gate"
+>
+  <Suggestions
+    suggestions="project_quality_gate"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="project_quality_gate.page"
+  />
+  <A11ySkipTarget
+    anchor="qg_main"
+  />
+  <header
+    className="page-header"
+  >
+    <div
+      className="page-title display-flex-center"
+    >
+      <h1>
+        project_quality_gate.page
+      </h1>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <div
+            className="big-padded-top big-padded-bottom"
+          >
+            quality_gates.projects.help
+          </div>
+        }
+      />
+    </div>
+  </header>
+  <div
+    className="boxed-group"
+  >
+    <h2
+      className="boxed-group-header"
+    >
+      project_quality_gate.subtitle
+    </h2>
+    <form
+      className="boxed-group-inner"
+      onSubmit={[Function]}
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        project_quality_gate.page.description
+      </p>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={false}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="-1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_default
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <span
+                className="text-muted little-spacer-right"
+              >
+                current_noun
+                :
+              </span>
+              qualitygate
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={true}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="5"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_specific
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <Select
+                className="abs-width-300"
+                clearable={false}
+                disabled={false}
+                onChange={[Function]}
+                optionRenderer={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "label": "qualitygate",
+                      "value": "1",
+                    },
+                    Object {
+                      "label": "qualitygate",
+                      "value": "2",
+                    },
+                  ]
+                }
+                value="5"
+              />
+            </div>
+          </div>
+        </Radio>
+        <Alert
+          className="big-spacer-top"
+          variant="warning"
+        >
+          project_quality_gate.requires_new_analysis
+        </Alert>
+      </div>
+      <div>
+        <SubmitButton
+          disabled={false}
+        >
+          save
+        </SubmitButton>
+      </div>
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: show warning if not using default 1`] = `
+<div
+  className="page page-limited"
+  id="project-quality-gate"
+>
+  <Suggestions
+    suggestions="project_quality_gate"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="project_quality_gate.page"
+  />
+  <A11ySkipTarget
+    anchor="qg_main"
+  />
+  <header
+    className="page-header"
+  >
+    <div
+      className="page-title display-flex-center"
+    >
+      <h1>
+        project_quality_gate.page
+      </h1>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <div
+            className="big-padded-top big-padded-bottom"
+          >
+            quality_gates.projects.help
+          </div>
+        }
+      />
+    </div>
+  </header>
+  <div
+    className="boxed-group"
+  >
+    <h2
+      className="boxed-group-header"
+    >
+      project_quality_gate.subtitle
+    </h2>
+    <form
+      className="boxed-group-inner"
+      onSubmit={[Function]}
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        project_quality_gate.page.description
+      </p>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={true}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="-1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_default
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <span
+                className="text-muted little-spacer-right"
+              >
+                current_noun
+                :
+              </span>
+              qualitygate
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={false}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_specific
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <Select
+                className="abs-width-300"
+                clearable={false}
+                disabled={true}
+                onChange={[Function]}
+                optionRenderer={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "label": "qualitygate",
+                      "value": "1",
+                    },
+                    Object {
+                      "label": "qualitygate",
+                      "value": "2",
+                    },
+                  ]
+                }
+                value="-1"
+              />
+            </div>
+          </div>
+        </Radio>
+        <Alert
+          className="big-spacer-top"
+          variant="warning"
+        >
+          project_quality_gate.requires_new_analysis
+        </Alert>
+      </div>
+      <div>
+        <SubmitButton
+          disabled={false}
+        >
+          save
+        </SubmitButton>
+      </div>
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render correctly: submitting 1`] = `
+<div
+  className="page page-limited"
+  id="project-quality-gate"
+>
+  <Suggestions
+    suggestions="project_quality_gate"
+  />
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="project_quality_gate.page"
+  />
+  <A11ySkipTarget
+    anchor="qg_main"
+  />
+  <header
+    className="page-header"
+  >
+    <div
+      className="page-title display-flex-center"
+    >
+      <h1>
+        project_quality_gate.page
+      </h1>
+      <HelpTooltip
+        className="spacer-left"
+        overlay={
+          <div
+            className="big-padded-top big-padded-bottom"
+          >
+            quality_gates.projects.help
+          </div>
+        }
+      />
+    </div>
+  </header>
+  <div
+    className="boxed-group"
+  >
+    <h2
+      className="boxed-group-header"
+    >
+      project_quality_gate.subtitle
+    </h2>
+    <form
+      className="boxed-group-inner"
+      onSubmit={[Function]}
+    >
+      <p
+        className="big-spacer-bottom"
+      >
+        project_quality_gate.page.description
+      </p>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={false}
+          className="display-flex-start"
+          disabled={true}
+          onCheck={[Function]}
+          value="-1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_default
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <span
+                className="text-muted little-spacer-right"
+              >
+                current_noun
+                :
+              </span>
+              qualitygate
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={true}
+          className="display-flex-start"
+          disabled={true}
+          onCheck={[Function]}
+          value="1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_gate.always_use_specific
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <Select
+                className="abs-width-300"
+                clearable={false}
+                disabled={true}
+                onChange={[Function]}
+                optionRenderer={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "label": "qualitygate",
+                      "value": "1",
+                    },
+                    Object {
+                      "label": "qualitygate",
+                      "value": "2",
+                    },
+                  ]
+                }
+                value="1"
+              />
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div>
+        <SubmitButton
+          disabled={true}
+        >
+          save
+        </SubmitButton>
+        <i
+          className="spinner spacer-left"
+        />
+      </div>
+    </form>
+  </div>
+</div>
+`;
+
+exports[`should render select options correctly: default 1`] = `
+<span>
+  Gate 1
+</span>
+`;

@@ -22,7 +22,7 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 import { BranchParameters } from '../types/branch-like';
 import { QualityGateApplicationStatus, QualityGateProjectStatus } from '../types/quality-gates';
 
-export function fetchQualityGates(data: {
+export function fetchQualityGates(data?: {
   organization?: string;
 }): Promise<{
   actions: { create: boolean };

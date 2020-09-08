@@ -434,7 +434,7 @@ th.huge-spacer-right {
 
 .display-flex-start {
   display: flex !important;
-  align-items: flex-start;
+  align-items: flex-start !important;
 }
 
 .display-flex-end {

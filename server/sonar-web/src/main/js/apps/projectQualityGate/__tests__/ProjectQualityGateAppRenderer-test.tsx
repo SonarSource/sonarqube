@@ -1,0 +1,111 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2020 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+import { shallow } from 'enzyme';
+import * as React from 'react';
+import Radio from 'sonar-ui-common/components/controls/Radio';
+import Select from 'sonar-ui-common/components/controls/Select';
+import { submit } from 'sonar-ui-common/helpers/testUtils';
+import { mockQualityGate } from '../../../helpers/mocks/quality-gates';
+import { USE_SYSTEM_DEFAULT } from '../constants';
+import ProjectQualityGateAppRenderer, {
+  ProjectQualityGateAppRendererProps
+} from '../ProjectQualityGateAppRenderer';
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ loading: true })).toMatchSnapshot('loading');
+  expect(shallowRender({ submitting: true })).toMatchSnapshot('submitting');
+  expect(
+    shallowRender({
+      currentQualityGate: mockQualityGate({ id: '2', isDefault: true }),
+      selectedQualityGateId: USE_SYSTEM_DEFAULT
+    })
+  ).toMatchSnapshot('always use system default');
+  expect(
+    shallowRender({
+      selectedQualityGateId: '5'
+    })
+  ).toMatchSnapshot('show warning');
+  expect(
+    shallowRender({
+      selectedQualityGateId: USE_SYSTEM_DEFAULT
+    })
+  ).toMatchSnapshot('show warning if not using default');
+  expect(shallowRender({ allQualityGates: undefined }).type()).toBeNull(); // no quality gates
+});
+
+it('should render select options correctly', () => {
+  return new Promise(resolve => {
+    const wrapper = shallowRender();
+    const render = wrapper.find(Select).props().optionRenderer;
+    if (render) {
+      expect(render({ value: '1', label: 'Gate 1' })).toMatchSnapshot('default');
+      resolve();
+    }
+  });
+});
+
+it('should correctly handle changes', () => {
+  const wrapper = shallowRender();
+  const onSelect = jest.fn(selectedQualityGateId => {
+    wrapper.setProps({ selectedQualityGateId });
+  });
+  wrapper.setProps({ onSelect });
+
+  wrapper
+    .find(Radio)
+    .at(0)
+    .props()
+    .onCheck(USE_SYSTEM_DEFAULT);
+  expect(onSelect).toHaveBeenLastCalledWith(USE_SYSTEM_DEFAULT);
+
+  wrapper
+    .find(Radio)
+    .at(1)
+    .props()
+    .onCheck('1');
+  expect(onSelect).toHaveBeenLastCalledWith('1');
+
+  wrapper.find(Select).props().onChange!({ value: '2' });
+  expect(onSelect).toHaveBeenLastCalledWith('2');
+});
+
+it('should correctly handle form submission', () => {
+  const onSubmit = jest.fn();
+  const wrapper = shallowRender({ onSubmit });
+  submit(wrapper.find('form'));
+  expect(onSubmit).toBeCalled();
+});
+
+function shallowRender(props: Partial<ProjectQualityGateAppRendererProps> = {}) {
+  return shallow<ProjectQualityGateAppRendererProps>(
+    <ProjectQualityGateAppRenderer
+      allQualityGates={[mockQualityGate(), mockQualityGate({ id: '2', isDefault: true })]}
+      currentQualityGate={mockQualityGate({ id: '1' })}
+      loading={false}
+      onSelect={jest.fn()}
+      onSubmit={jest.fn()}
+      selectedQualityGateId="1"
+      submitting={false}
+      {...props}
+    />
+  );
+}
