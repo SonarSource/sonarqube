@@ -4,7 +4,10 @@ url: /setup/upgrade-notes/
 ---
 ## Release 8.5 Upgrade Notes  
 **GitHub Enterprise compatibility**  
-SonarQube 8.5 supports GitHub Enterprise 2.15+ for pull request decoration (the previous minimum version was 2.14).
+SonarQube 8.5 only supports GitHub Enterprise 2.15+ for pull request decoration (the previous minimum version was 2.14).
+
+**SonarScanner for MSBuild compatibility**  
+Analyzing a C# / VB.NET solution in SonarQube 8.5 requires SonarScanner for MSBuild 4.0+.
 
 ## Release 8.4 Upgrade Notes  
 **Updated system settings recommendations**  
