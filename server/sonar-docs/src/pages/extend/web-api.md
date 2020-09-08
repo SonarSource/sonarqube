@@ -1,12 +1,18 @@
 ---
-title: Web API Authentication
+title: Web API
 url: /extend/web-api/
 ---
-SonarQube provides web API to access its functionalities from applications. The web services composing the web API are documented within SonarQube, through the URL [/web_api](/#sonarqube#/web_api), which can also be reached from a link in the page footer. 
+## Documentation
+
+SonarQube provides web API to access its functionalities from applications. The web services composing the web API are documented within SonarQube, through the URL [/web_api](/#sonarqube#/web_api). You can also access the web API documentation from the top bar in SonarQube:
+
+ ![web API documentation](/images/webapi.png)
+
+## Authentication
 
 Administrative web services are secured and require the user to have specific permissions. In order to be authenticated, the user must provide credentials as described below.
 
-## User Token
+### User Token
 
 This is the recommended way. Benefits are described in the page [User Token](/user-guide/user-token/). The token is sent via the login field of HTTP basic authentication, without any password.
 ```
@@ -14,7 +20,8 @@ This is the recommended way. Benefits are described in the page [User Token](/us
 curl -u THIS_IS_MY_TOKEN: https://sonarqube.com/api/user_tokens/search
 ```
 
-## HTTP Basic Access
+### HTTP Basic Access
+
 Login and password are sent via the standard HTTP Basic fields:
 ```
 curl -u MY_LOGIN:MY_PASSWORD https://sonarqube.com/api/user_tokens/search
