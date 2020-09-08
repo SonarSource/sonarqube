@@ -43,7 +43,7 @@ message SearchWsResponse {
 }
 
 message Group {
-  optional string uuid = 1;
+  optional string id = 1;
   optional string organization = 2;
   optional string name = 3;
   optional string description = 4;

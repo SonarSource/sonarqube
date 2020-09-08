@@ -147,7 +147,7 @@ public class GroupWsSupport {
 
   static UserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount, boolean isDefault) {
     UserGroups.Group.Builder wsGroup = UserGroups.Group.newBuilder()
-      .setUuid(group.getUuid())
+      .setId(group.getUuid())
       .setOrganization(organization.getKey())
       .setName(group.getName())
       .setMembersCount(membersCount)

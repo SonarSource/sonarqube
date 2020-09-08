@@ -165,15 +165,15 @@ public class SearchActionTest {
     insertDefaultGroup(db.getDefaultOrganization(), "sonar-users", 0);
     loginAsDefaultOrgAdmin();
 
-    assertThat(call(ws.newRequest()).getGroupsList()).extracting(Group::hasUuid, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+    assertThat(call(ws.newRequest()).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
       .containsOnly(tuple(true, true, true, true));
-    assertThat(call(ws.newRequest().setParam(FIELDS, "")).getGroupsList()).extracting(Group::hasUuid, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+    assertThat(call(ws.newRequest().setParam(FIELDS, "")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
       .containsOnly(tuple(true, true, true, true));
-    assertThat(call(ws.newRequest().setParam(FIELDS, "name")).getGroupsList()).extracting(Group::hasUuid, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+    assertThat(call(ws.newRequest().setParam(FIELDS, "name")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
       .containsOnly(tuple(true, true, false, false));
-    assertThat(call(ws.newRequest().setParam(FIELDS, "description")).getGroupsList()).extracting(Group::hasUuid, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+    assertThat(call(ws.newRequest().setParam(FIELDS, "description")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
       .containsOnly(tuple(true, false, true, false));
-    assertThat(call(ws.newRequest().setParam(FIELDS, "membersCount")).getGroupsList()).extracting(Group::hasUuid, Group::hasName, Group::hasDescription, Group::hasMembersCount)
+    assertThat(call(ws.newRequest().setParam(FIELDS, "membersCount")).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
       .containsOnly(tuple(true, false, false, true));
   }
 
@@ -188,7 +188,7 @@ public class SearchActionTest {
 
     SearchWsResponse response = call(ws.newRequest().setParam("organization", org.getKey()));
 
-    assertThat(response.getGroupsList()).extracting(Group::getUuid, Group::getName).containsOnly(tuple(group.getUuid(), "users"));
+    assertThat(response.getGroupsList()).extracting(Group::getId, Group::getName).containsOnly(tuple(group.getUuid(), "users"));
   }
 
   @Test

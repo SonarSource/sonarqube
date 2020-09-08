@@ -141,7 +141,7 @@ public class SearchAction implements UserGroupsWsAction {
 
   private static Group toWsGroup(GroupDto group, Integer memberCount, Set<String> fields, boolean isDefault) {
     Group.Builder groupBuilder = Group.newBuilder()
-      .setUuid(group.getUuid())
+      .setId(group.getUuid())
       .setDefault(isDefault);
     if (fields.contains(FIELD_NAME)) {
       groupBuilder.setName(group.getName());
