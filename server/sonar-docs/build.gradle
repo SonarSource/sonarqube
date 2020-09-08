@@ -35,16 +35,21 @@ task extractAnalyzerDocFiles {
     configurations.bundledPlugin.files.each {
       File file = it
       copy {
-        from(zipTree(file).matching { include 'static/documentation.md' }) {
+        from(zipTree(file).matching { include 'static/documentation.md', 'META-INF/MANIFEST.MF' }) {
           eachFile { fcd ->
-            Matcher m = PLUGIN_NAME_PATTERN.matcher(file.getName())
-            if (m.find()) {
-              fcd.relativePath = new RelativePath(true, m.group(1) + '.md')
+            if (fcd.getName().endsWith('.md')) {
+              fcd.relativePath = new RelativePath(true, 'documentation' + '.md')
+            } else {
+              fcd.relativePath = new RelativePath(true, 'MANIFEST' + '.MF')
             }
           }
           includeEmptyDirs = false
         }
-        into "$buildDir/tmp/plugin-documentation/"
+        Matcher m = PLUGIN_NAME_PATTERN.matcher(file.getName())
+        if (m.find()) {
+          into "$buildDir/tmp/plugin-documentation/" + m.group(1)
+        }
+
       }
     }
   }

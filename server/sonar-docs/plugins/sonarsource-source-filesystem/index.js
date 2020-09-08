@@ -17,35 +17,116 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 const { createFilePath, createRemoteFileNode } = require('gatsby-source-filesystem');
 const fs = require('fs-extra');
 const path = require('path');
 
+const documentationFileName = 'documentation.md';
+const manifestFileName = 'manifest.mf';
+const manifestIssueTrackerUrlSection = 'Plugin-IssueTrackerUrl';
+
 let overrides;
 
-function getPluginOverrideIfAvailable(content) {
+function processPluginOverridesIfAvailable(content) {
   if (overrides === undefined) {
-    const dir = path.normalize(`${__dirname}/../../build/tmp/plugin-documentation/`);
-    overrides = {};
-    if (fs.existsSync(dir)) {
-      fs.readdirSync(dir).forEach(filename => {
-        let content = fs.readFileSync(dir + filename, 'utf-8');
-        const regex = /^key\s*:\s*(.+)$/m;
-        const match = content.match(regex);
-        if (match && match[1]) {
-          const url = `/analysis/languages/${match[1]}/`;
-          content = content.replace(regex, `url: ${url}\n`);
-          overrides[url] = content;
-        }
-      });
-    }
+    const pluginFileList = getPluginFilesList();
+
+    overrides = pluginFileList
+      .map(fileList => processPluginFileList(fileList))
+      .filter(res => !!res)
+      .map(addIssueTrackerLink)
+      .reduce((prev, cur) => {
+        prev[cur.url] = cur.content;
+        return prev;
+      }, {});
   }
 
   const match = content.match(/^url\s*:\s*(.+)$/m);
   if (match && match[1] && overrides[match[1]]) {
     return overrides[match[1]];
   }
+
   return content;
+}
+
+function addIssueTrackerLink(page) {
+  let issueTrackerLink = '## Issue Tracker';
+  issueTrackerLink += '\r\n';
+  issueTrackerLink += `Check the [issue tracker](${page.issueTrackerUrl}) for this language.`;
+
+  page.content = `${page.content}\r\n${issueTrackerLink}`;
+
+  return page;
+}
+
+function getPluginFilesList() {
+  const dir = path.normalize(`${__dirname}/../../build/tmp/plugin-documentation/`);
+
+  if (fs.pathExistsSync(dir)) {
+    return fs.readdirSync(dir).map(subDir => {
+      const pluginDir = path.normalize(`${dir}/${subDir}`);
+
+      if (fs.pathExistsSync(pluginDir)) {
+        return fs
+          .readdirSync(pluginDir)
+          .map(fileName => path.normalize(`${pluginDir}/${fileName}`));
+      }
+
+      return [];
+    });
+  }
+
+  return [];
+}
+
+function processPluginFileList(pluginFileList) {
+  let md;
+  let mf;
+
+  pluginFileList.forEach(fileFullName => {
+    const fileName = path.basename(fileFullName);
+
+    if (fileName.toLowerCase() === documentationFileName.toLowerCase()) {
+      md = fileFullName;
+    } else if (fileName.toLowerCase() === manifestFileName.toLowerCase()) {
+      mf = fileFullName;
+    }
+  });
+
+  if (!md) {
+    return undefined;
+  }
+
+  return { ...parsePluginMarkdownFile(md), ...parsePluginManifestFile(mf) };
+}
+
+function parsePluginMarkdownFile(fileFullPath) {
+  let mdContent = fs.readFileSync(fileFullPath, 'utf-8');
+  const regex = /^key\s*:\s*(.+)$/m;
+  const match = mdContent.match(regex);
+
+  if (match && match[1]) {
+    const url = `/analysis/languages/${match[1]}/`;
+    mdContent = mdContent.replace(regex, `url: ${url}\n`);
+    return { url, content: mdContent };
+  }
+
+  return undefined;
+}
+
+function parsePluginManifestFile(fileFullPath) {
+  const mfContent = fs.readFileSync(fileFullPath, 'utf-8');
+  const regex = /^Plugin-IssueTrackerUrl:\s*(.+\r?\n?\s?\w+)$/m;
+  const match = mfContent.match(regex);
+
+  if (match && match[1]) {
+    // Manifest value might be split on many lines and contains space => get rid of it
+    const issueTrackerUrl = match[1].replace(/\r\n\s/m, '');
+    return { issueTrackerUrl };
+  }
+
+  return undefined;
 }
 
 function loadNodeContent(fileNode) {
@@ -53,7 +134,9 @@ function loadNodeContent(fileNode) {
 }
 
 function loadNodeContentSync(fileNode) {
-  const content = getPluginOverrideIfAvailable(fs.readFileSync(fileNode.absolutePath, 'utf-8'));
+  const content = processPluginOverridesIfAvailable(
+    fs.readFileSync(fileNode.absolutePath, 'utf-8')
+  );
   let newContent = cutSonarCloudContent(content);
   newContent = removeRemainingContentTags(newContent);
   newContent = handleIncludes(newContent, fileNode);
