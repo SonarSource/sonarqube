@@ -172,4 +172,4 @@ The following is an example of the default SonarQube cluster installation proces
 4. After all search nodes are running, start all application nodes.
 5. Configure the load balancer to proxy with both application nodes.
 
-Congratulations, you have a fully-functional SonarQube cluster.  Once these steps are complete, take a break and a coffee, then you can [Operate your Cluster](/setup/operate-cluster/).
+Congratulations, you have a fully-functional SonarQube cluster.  Once you've complete these steps, you can [Operate your Cluster](/setup/operate-cluster/).

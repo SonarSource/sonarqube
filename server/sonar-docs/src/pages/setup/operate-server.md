@@ -125,7 +125,7 @@ This section helps you configure the SonarQube Server if you want to run it behi
 
 ### Using an Apache Proxy
 
-We assume that you've already installed Apache 2 with module mod_proxy, that SonarQube is running and available on `http://private_sonar_host:sonar_port/` and that you want to configure a Virtual Host for `www.public_sonar.com`.
+We assume that you've already installed Apache 2 with module mod\_proxy, that SonarQube is running and available on `http://private_sonar_host:sonar_port/`, and that you want to configure a Virtual Host for `www.public_sonar.com`.
 
 At this point, edit the HTTPd configuration file for the `www.public_sonar.com` virtual host. Include the following to expose SonarQube via `mod_proxy` at `http://www.public_sonar.com/`:
 
@@ -142,7 +142,7 @@ ProxyPreserveHost On
 </VirtualHost>
 ```
 
-Apache configuration is going to vary based on your own application's requirements and the way you intend to expose SonarQube to the outside world. If you need more details about Apache HTTPd and mod_proxy, please see [http://httpd.apache.org](http://httpd.apache.org).
+Apache configuration is going to vary based on your own application's requirements and the way you intend to expose SonarQube to the outside world. If you need more details about Apache HTTPd and mod\_proxy, please see [http://httpd.apache.org](http://httpd.apache.org).
 
 ### Using Nginx
 

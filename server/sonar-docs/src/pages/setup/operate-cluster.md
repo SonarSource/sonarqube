@@ -104,7 +104,7 @@ Property | Description | Default | Required |
 `sonar.cluster.search.hosts`|Comma-delimited list of search hosts in the cluster. Each item in the list must contain the port if the default `sonar.search.port` value is not used. Item format is `sonar.search.host` or `sonar.search.host:sonar.search.port`.| |yes
 `sonar.cluster.node.name`|The name of the node that is used on Elasticsearch and stored in Hazelcast member attribute (NODE_NAME) for sonar-application|`sonarqube-{UUID}`|no
 `sonar.cluster.node.type`|Type of node: either `application` or `search`| |yes
-`sonar.cluster.node.host`|IP address of the network card that will be used by Hazelcast to communicate with the members of the cluster| |yes
+`sonar.cluster.node.host`|IP address of the network card that will be used by Hazelcast to communicate with the members of the cluster. Must not be a loopback address.| |yes
 
 
 ### Application nodes

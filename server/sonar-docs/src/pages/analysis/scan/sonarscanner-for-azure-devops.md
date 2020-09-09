@@ -154,6 +154,9 @@ _Branch and Pull Request analysis are available starting in [Developer Edition](
 ### Branches
 When a build is run on a branch of your project, the extension automatically configures the analysis to be pushed to the relevant project branch in {instance}. The same build definition can apply to all your branches, whatever type of Git repository you are analyzing,
 
+[[info]]
+| If the branch to be analyzed is the **default** branch of your repository, it will be analyzed as the **master** or **main** branch of your SonarQube project. You can [rename](/branches/overview/) it in SonarQube after the first analysis.
+
 If you are working with branches on TFVC projects, you still need to manually specify the branch to be used on {instance}: in the **Prepare Analysis Configuration** task, in the **Additional Properties**, you need to set `sonar.branch.name`.
 
 ### Pull Requests
