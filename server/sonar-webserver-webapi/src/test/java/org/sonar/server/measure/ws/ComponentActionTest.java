@@ -84,7 +84,7 @@ public class ComponentActionTest {
 
     WebService.Param branch = def.param("branch");
     assertThat(branch.since()).isEqualTo("6.6");
-    assertThat(branch.isInternal()).isTrue();
+    assertThat(branch.isInternal()).isFalse();
     assertThat(branch.isRequired()).isFalse();
   }
 
