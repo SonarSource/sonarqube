@@ -79,6 +79,9 @@ Starting in [Developer Edition](https://redirect.sonarsource.com/editions/develo
 
 For configuration examples, see the [SonarScanner for Jenkins](/analysis/scan/sonarscanner-for-jenkins/) documentation.
 
+### Setting your Branch Source Plugin for Pull Request Decoration
+You need to configure your Multibranch Pipeline job correctly to avoid issues with Pull Request decoration. From your Multibranch Pipeline job in Jenkins, go to **Configure > Branch Sources > Behaviors > Discover pull requests from origin** and make sure **The current pull request revision** is selected.
+
 ## Detecting changed code in Pull Requests
 SonarScanners need access to a Pull Request's target branch to detect code changes in the Pull Request. If you're using a Jenkins Pull Request discovery strategy that only fetches the Pull Request and doesn't merge with the target branch, the target branch is not fetched and is not available in the local git clone for the scanner to read. 
 
@@ -93,3 +96,6 @@ To fix this, either change the discovery strategy or manually fetch the target b
 ```
 git fetch +refs/heads/${CHANGE_TARGET}:refs/remotes/origin/${CHANGE_TARGET}
 ```
+
+
+

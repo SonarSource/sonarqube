@@ -5,11 +5,15 @@ url: /analysis/pull-request/
 
 _Pull Request analysis is available starting in [Developer Edition](https://redirect.sonarsource.com/editions/developer.html)._
 
-You can see your Pull Requests in SonarQube from the Branches and Pull Requests dropdown menu of your project.
+You can see your Pull Requests in SonarQube from the Branches and Pull Requests dropdown menu of your project.  
 
-Pull Request analysis allows you to see your Pull Request's Quality Gate and analysis in the SonarQube interface:
+Pull Request analysis shows your Pull Request's Quality Gate and analysis in the SonarQube interface. This analysis shows new issues introduced by the Pull Request before merging with the target branch:
 
 ![Pull Request Analysis.](/images/pranalysis.png)
+
+## Prerequisites
+
+Before analyzing your Pull Requests, make sure the Pull Request branch is checked out. Avoid any attempt at previewing the merge or actions involving your main branch.
 
 ## Pull Request Decoration
 You can also add Pull Request decoration that shows the Pull Request analysis and Quality Gate directly in your ALM's interface. See [Decorating Pull Requests](/analysis/pr-decoration/) for more information on setting it up.
