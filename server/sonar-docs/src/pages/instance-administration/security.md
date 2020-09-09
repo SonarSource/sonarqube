@@ -28,6 +28,50 @@ To force user authentication, log in as a system administrator, go to **[Adminis
 [[info]]
 | SonarQube does not support sharing email addresses across multiple users.
 
+### API Endpoints Authentication
+
+If the **Force user authentication** property is set to false, the following API endpoints are accessible **without authentication** (click **API endpoints** below to expand the list):
+
+[[collapse]]
+| ## API endpoints
+|
+| * api/components/search
+| * api/issues/tags
+| * api/languages/list
+| * api/metrics/domains
+| * api/metrics/search
+| * api/metrics/types
+| * api/plugins/installed
+| * api/project_tags/search
+| * api/qualitygates/list
+| * api/qualitygates/search
+| * api/qualitygates/show
+| * api/qualityprofiles/backup
+| * api/qualityprofiles/changelog
+| * api/qualityprofiles/export
+| * api/qualityprofiles/exporters
+| * api/qualityprofiles/importers
+| * api/qualityprofiles/inheritance
+| * api/qualityprofiles/projects
+| * api/qualityprofiles/search
+| * api/rules/repositories
+| * api/rules/search
+| * api/rules/show
+| * api/rules/tags
+| * api/server/version
+| * api/sources/scm (for public repositories)
+| * api/sources/show (for public repositories)
+| * api/system/db_migration_status
+| * api/system/migrate_db
+| * api/system/ping
+| * api/system/status
+| * api/system/upgrades
+| * api/users/search
+| * api/views/run
+| * api/webservices/list
+| * api/webservices/response_example
+
+It is advised to enable **Force user authentication** if you have your SonarQube instance publicly accessible.
 
 ### Authentication Mechanisms
 Authentication can be managed through a number of mechanisms:
@@ -157,4 +201,3 @@ sonar.jdbc.password={aes}CCGCFg4Xpm6r+PiJb1Swfg==  # Encrypted DB password
 ...
 sonar.secretKeyPath=C:/path/to/my/secure/location/my_secret_key.txt
 ```
-

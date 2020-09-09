@@ -51,8 +51,9 @@ public class SearchAction implements UserTokensWsAction {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setDescription("List the access tokens of a user.<br>" +
         "The login must exist and active.<br>" +
-        "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user is using a token many times in less than one hour.<br/" +
-        "It requires administration permissions to specify a 'login' and list the tokens of another user. Otherwise, tokens for the current user are listed.")
+        "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user is using a token many times in less than one hour.<br> " +
+        "It requires administration permissions to specify a 'login' and list the tokens of another user. Otherwise, tokens for the current user are listed. <br> " +
+        "Authentication is required for this API endpoint")
       .setChangelog(new Change("7.7", "New field 'lastConnectionDate' is added to response"))
       .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("5.3")
