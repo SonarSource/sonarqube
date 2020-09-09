@@ -88,7 +88,7 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 | From here, set your:
 |- **Configuration Name** – If you're using Enterprise Edition or above, create a configuration name that is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration. If you're using Developer Edition, your configuration will be named based on your ALM.
 | - **Bitbucket Server URL** 
-| - **Personal Access Token** - Token of the account you're using to decorate your Pull Requests.
+| - **Personal Access Token** - Token from the account you're using to decorate your Pull Requests.
 |
 | ### Setting your project settings
 |
@@ -124,7 +124,9 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 |
 | To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations** and select the **Azure DevOps Server** tab.
 |
-| From here, set your **Configuration name** and the **Personal Access Token** from the account you're using to decorate your Pull Requests.
+| From here, set your:
+| - **Configuration name** – If you're using Enterprise Edition or above, create a configuration name that is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration. If you're using Developer Edition, your configuration will be named based on your ALM.
+| - **Personal Access Token** – Token from the account you're using to decorate your Pull Requests.
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
@@ -145,7 +147,10 @@ Click your ALM provider below to expand the instructions on configuring SonarQub
 |
 | To set your global settings in SonarQube, navigate to **Administration > Configuration > General Settings > ALM Integrations** and select the **GitLab** tab.  
 |
-| From here, set your **Configuration name**, **GitLab URL**, and the **Personal Access Token** from the account you're using to decorate your Merge Requests.
+| From here, set your:  
+| - **Configuration name** – If you're using Enterprise Edition or above, create a configuration name that is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration. If you're using Developer Edition, your configuration will be named based on your ALM.
+| - **GitLab URL** – The GitLab API URL.
+| - **Personal Access Token** – Token from the account you're using to decorate your Pull Requests.
 |
 | **Note:** Make sure the Configuration name is succinct and easily recognizable as it will be used at the project level to identify the correct ALM configuration.
 |
