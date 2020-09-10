@@ -47,6 +47,7 @@ import org.sonar.updatecenter.common.Version;
 import static java.lang.String.format;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
+import static org.sonar.server.log.ServerProcessLogging.STARTUP_LOGGER_NAME;
 import static org.sonar.server.plugins.PluginType.BUNDLED;
 import static org.sonar.server.plugins.PluginType.EXTERNAL;
 
@@ -58,6 +59,8 @@ public class PluginJarLoader {
   // List of plugins that should prevent the server to finish its startup
   private static final Set<String> FORBIDDEN_INCOMPATIBLE_PLUGINS = ImmutableSet
     .of("sqale", "report", "views", "authgithub", "authgitlab", "authsaml", "ldap", "scmgit", "scmsvn");
+
+  private static final String LOAD_ERROR_GENERIC_MESSAGE = "Startup failed: Plugins can't be loaded. See web logs for more information";
 
   private final ServerFileSystem fs;
   private final SonarRuntime runtime;
@@ -79,26 +82,27 @@ public class PluginJarLoader {
   public Collection<ServerPluginInfo> loadPlugins() {
     Map<String, ServerPluginInfo> bundledPluginsByKey = new LinkedHashMap<>();
     for (ServerPluginInfo bundled : getBundledPluginsMetadata()) {
-      failIfContains(bundledPluginsByKey, bundled, plugin ->
-        MessageException.of(format("Found two versions of the plugin %s [%s] in the directory %s. Please remove one of %s or %s.",
+      failIfContains(bundledPluginsByKey, bundled,
+        plugin -> MessageException.of(format("Found two versions of the plugin %s [%s] in the directory %s. Please remove one of %s or %s.",
           bundled.getName(), bundled.getKey(), getRelativeDir(fs.getInstalledBundledPluginsDir()), bundled.getNonNullJarFile().getName(), plugin.getNonNullJarFile().getName())));
       bundledPluginsByKey.put(bundled.getKey(), bundled);
     }
 
     Map<String, ServerPluginInfo> externalPluginsByKey = new LinkedHashMap<>();
     for (ServerPluginInfo external : getExternalPluginsMetadata()) {
-      failIfContains(bundledPluginsByKey, external, plugin ->
-        MessageException.of(format("Found a plugin '%s' in the directory %s with the same key [%s] as a bundled plugin '%s'. Please remove %s.",
-          external.getName(), getRelativeDir(fs.getInstalledExternalPluginsDir()), external.getKey(), plugin.getName(), external.getNonNullJarFile().getName())));
-      failIfContains(externalPluginsByKey, external, plugin ->
-        MessageException.of(format("Found two versions of the plugin '%s' [%s] in the directory %s. Please remove %s or %s.", external.getName(), external.getKey(),
+      failIfContains(bundledPluginsByKey, external,
+        plugin -> MessageException.of(format("Found a plugin '%s' in the directory '%s' with the same key [%s] as a built-in feature '%s'. Please remove '%s'.",
+          external.getName(), getRelativeDir(fs.getInstalledExternalPluginsDir()), external.getKey(), plugin.getName(),
+          new File(getRelativeDir(fs.getInstalledExternalPluginsDir()), external.getNonNullJarFile().getName()))));
+      failIfContains(externalPluginsByKey, external,
+        plugin -> MessageException.of(format("Found two versions of the plugin '%s' [%s] in the directory '%s'. Please remove %s or %s.", external.getName(), external.getKey(),
           getRelativeDir(fs.getInstalledExternalPluginsDir()), external.getNonNullJarFile().getName(), plugin.getNonNullJarFile().getName())));
       externalPluginsByKey.put(external.getKey(), external);
     }
 
     for (PluginInfo downloaded : getDownloadedPluginsMetadata()) {
-      failIfContains(bundledPluginsByKey, downloaded, plugin ->
-        MessageException.of(format("Fail to update plugin: %s. Bundled plugin with same key already exists: %s. Move or delete plugin from %s directory",
+      failIfContains(bundledPluginsByKey, downloaded,
+        plugin -> MessageException.of(format("Fail to update plugin: %s. Built-in feature with same key already exists: %s. Move or delete plugin from %s directory",
           plugin.getName(), plugin.getKey(), getRelativeDir(fs.getDownloadedPluginsDir()))));
 
       ServerPluginInfo installedPlugin;
@@ -178,8 +182,15 @@ public class PluginJarLoader {
   private static void failIfContains(Map<String, ? extends PluginInfo> map, PluginInfo value, Function<PluginInfo, RuntimeException> msg) {
     PluginInfo pluginInfo = map.get(value.getKey());
     if (pluginInfo != null) {
-      throw msg.apply(pluginInfo);
+      RuntimeException exception = msg.apply(pluginInfo);
+      logGenericPluginLoadErrorLog();
+      throw exception;
     }
+  }
+
+  private static void logGenericPluginLoadErrorLog() {
+    Logger logger = Loggers.get(STARTUP_LOGGER_NAME);
+    logger.error(LOAD_ERROR_GENERIC_MESSAGE);
   }
 
   private List<ServerPluginInfo> getBundledPluginsMetadata() {
@@ -230,6 +241,7 @@ public class PluginJarLoader {
       .collect(Collectors.toList());
 
     if (!incompatiblePlugins.isEmpty()) {
+      logGenericPluginLoadErrorLog();
       throw MessageException.of(String.format("The following %s no longer compatible with this version of SonarQube: %s",
         incompatiblePlugins.size() > 1 ? "plugins are" : "plugin is", String.join(", ", incompatiblePlugins)));
     }

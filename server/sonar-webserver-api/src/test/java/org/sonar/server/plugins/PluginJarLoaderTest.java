@@ -202,8 +202,8 @@ public class PluginJarLoaderTest {
     createJar(fs.getInstalledBundledPluginsDir(), "plugin1", "main", null);
 
     String dir = getDirName(fs.getInstalledExternalPluginsDir());
-    expectedException.expectMessage("Found a plugin 'plugin1' in the directory " + dir + " with the same key [plugin1] as a bundled plugin 'plugin1'. "
-      + "Please remove " + jar.getName());
+    expectedException.expectMessage("Found a plugin 'plugin1' in the directory '" + dir + "' with the same key [plugin1] as a built-in feature 'plugin1'. "
+      + "Please remove '" + new File(dir, jar.getName()) + "'");
     expectedException.expect(MessageException.class);
     underTest.loadPlugins();
   }
@@ -213,7 +213,7 @@ public class PluginJarLoaderTest {
     File downloaded = createJar(fs.getDownloadedPluginsDir(), "plugin1", "main", null);
     createJar(fs.getInstalledBundledPluginsDir(), "plugin1", "main", null);
     String dir = getDirName(fs.getDownloadedPluginsDir());
-    expectedException.expectMessage("Fail to update plugin: plugin1. Bundled plugin with same key already exists: plugin1. "
+    expectedException.expectMessage("Fail to update plugin: plugin1. Built-in feature with same key already exists: plugin1. "
       + "Move or delete plugin from " + dir + " directory");
     expectedException.expect(MessageException.class);
     underTest.loadPlugins();
@@ -225,7 +225,7 @@ public class PluginJarLoaderTest {
     File jar2 = createJar(fs.getInstalledExternalPluginsDir(), "plugin1", "main", null);
 
     String dir = getDirName(fs.getInstalledExternalPluginsDir());
-    expectedException.expectMessage("Found two versions of the plugin 'plugin1' [plugin1] in the directory " + dir + ". Please remove ");
+    expectedException.expectMessage("Found two versions of the plugin 'plugin1' [plugin1] in the directory '" + dir + "'. Please remove ");
     expectedException.expectMessage(jar2.getName());
     expectedException.expectMessage(jar1.getName());
     expectedException.expect(MessageException.class);
