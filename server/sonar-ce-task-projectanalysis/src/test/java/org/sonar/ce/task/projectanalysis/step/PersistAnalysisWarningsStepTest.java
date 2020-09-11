@@ -34,7 +34,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class PersistAnalysisWarningsStepTest {
 
@@ -70,6 +70,6 @@ public class PersistAnalysisWarningsStepTest {
 
     underTest.execute(new TestComputationStepContext());
 
-    verifyZeroInteractions(ceTaskMessages);
+    verifyNoInteractions(ceTaskMessages);
   }
 }
