@@ -30,16 +30,16 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputFileFilter;
+import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.scm.IgnoreCommand;
 import org.sonar.api.notifications.AnalysisWarnings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.scanner.scan.ScanProperties;
 import org.sonar.scanner.util.ProgressReport;
@@ -52,6 +52,7 @@ import static java.lang.String.format;
 public class FileIndexer {
 
   private static final Logger LOG = Loggers.get(FileIndexer.class);
+
   private final AnalysisWarnings analysisWarnings;
   private final ScanProperties properties;
   private final InputFileFilter[] filters;
@@ -89,10 +90,11 @@ public class FileIndexer {
   }
 
   public FileIndexer(DefaultInputProject project, ScannerComponentIdGenerator scannerComponentIdGenerator, InputComponentStore componentStore,
-    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions, IssueExclusionsLoader issueExclusionsLoader,
-    MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy, LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties) {
-    this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, projectCoverageAndDuplicationExclusions, issueExclusionsLoader, metadataGenerator,
-      sensorStrategy, languageDetection, analysisWarnings, properties, new InputFileFilter[0]);
+    ProjectExclusionFilters projectExclusionFilters, ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions,
+    IssueExclusionsLoader issueExclusionsLoader, MetadataGenerator metadataGenerator, SensorStrategy sensorStrategy,
+    LanguageDetection languageDetection, AnalysisWarnings analysisWarnings, ScanProperties properties) {
+    this(project, scannerComponentIdGenerator, componentStore, projectExclusionFilters, projectCoverageAndDuplicationExclusions, issueExclusionsLoader,
+      metadataGenerator, sensorStrategy, languageDetection, analysisWarnings, properties, new InputFileFilter[0]);
   }
 
   void indexFile(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
@@ -269,5 +271,4 @@ public class FileIndexer {
   private static String pluralizeFiles(int count) {
     return count == 1 ? "file" : "files";
   }
-
 }
