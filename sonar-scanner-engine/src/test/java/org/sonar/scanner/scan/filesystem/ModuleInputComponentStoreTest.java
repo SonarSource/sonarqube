@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
@@ -49,7 +50,7 @@ public class ModuleInputComponentStoreTest {
   @Before
   public void setUp() throws IOException {
     DefaultInputProject root = TestInputFileBuilder.newDefaultInputProject(projectKey, temp.newFolder());
-    componentStore = new InputComponentStore(mock(BranchConfiguration.class));
+    componentStore = new InputComponentStore(mock(BranchConfiguration.class), mock(SonarRuntime.class));
   }
 
   @Test

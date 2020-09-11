@@ -64,7 +64,7 @@ public class ProjectFileIndexer {
   private static final Logger LOG = Loggers.get(ProjectFileIndexer.class);
   private final ProjectExclusionFilters projectExclusionFilters;
   private final ProjectCoverageAndDuplicationExclusions projectCoverageAndDuplicationExclusions;
-  private ScmConfiguration scmConfiguration;
+  private final ScmConfiguration scmConfiguration;
   private final InputComponentStore componentStore;
   private final InputModuleHierarchy inputModuleHierarchy;
   private final GlobalConfiguration globalConfig;
@@ -189,14 +189,15 @@ public class ProjectFileIndexer {
     return count == 1 ? "file" : "files";
   }
 
-  private void indexFiles(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters, ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions,
-    List<Path> sources, Type type, ExclusionCounter exclusionCounter) {
+  private void indexFiles(DefaultInputModule module, ModuleExclusionFilters moduleExclusionFilters,
+    ModuleCoverageAndDuplicationExclusions moduleCoverageAndDuplicationExclusions, List<Path> sources, Type type, ExclusionCounter exclusionCounter) {
     try {
       for (Path dirOrFile : sources) {
         if (dirOrFile.toFile().isDirectory()) {
           indexDirectory(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, dirOrFile, type, exclusionCounter);
         } else {
-          fileIndexer.indexFile(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, dirOrFile, type, progressReport, exclusionCounter, ignoreCommand);
+          fileIndexer.indexFile(module, moduleExclusionFilters, moduleCoverageAndDuplicationExclusions, dirOrFile, type, progressReport, exclusionCounter,
+            ignoreCommand);
         }
       }
     } catch (IOException e) {

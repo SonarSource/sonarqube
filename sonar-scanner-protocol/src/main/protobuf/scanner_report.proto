@@ -58,6 +58,8 @@ message Metadata {
 
   int64 forkDate = 19;
 
+  map<string, int32> not_analyzed_files_by_language = 20;
+
   message QProfile {
     string key = 1;
     string name = 2;

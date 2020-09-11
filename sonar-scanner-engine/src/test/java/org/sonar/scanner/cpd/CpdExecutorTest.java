@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatchers;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.util.CloseableIterator;
@@ -72,10 +73,11 @@ public class CpdExecutorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private CpdExecutor executor;
-  private ExecutorService executorService = mock(ExecutorService.class);
-  private CpdSettings settings = mock(CpdSettings.class);
-  private ReportPublisher publisher = mock(ReportPublisher.class);
-  private SonarCpdBlockIndex index = new SonarCpdBlockIndex(publisher, settings);
+  private final ExecutorService executorService = mock(ExecutorService.class);
+  private final CpdSettings settings = mock(CpdSettings.class);
+  private final ReportPublisher publisher = mock(ReportPublisher.class);
+  private final SonarRuntime sonarRuntime = mock(SonarRuntime.class);
+  private final SonarCpdBlockIndex index = new SonarCpdBlockIndex(publisher, settings);
   private ScannerReportReader reader;
   private DefaultInputFile batchComponent1;
   private DefaultInputFile batchComponent2;
@@ -90,7 +92,7 @@ public class CpdExecutorTest {
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));
 
     DefaultInputProject project = TestInputFileBuilder.newDefaultInputProject("foo", baseDir);
-    componentStore = new InputComponentStore(mock(BranchConfiguration.class));
+    componentStore = new InputComponentStore(mock(BranchConfiguration.class), sonarRuntime);
     executor = new CpdExecutor(settings, index, publisher, componentStore, executorService);
     reader = new ScannerReportReader(outputDir);
 

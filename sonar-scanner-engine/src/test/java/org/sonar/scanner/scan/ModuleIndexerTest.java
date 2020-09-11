@@ -21,6 +21,7 @@ package org.sonar.scanner.scan;
 
 import java.util.Arrays;
 import org.junit.Test;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
@@ -35,7 +36,7 @@ public class ModuleIndexerTest {
   private DefaultInputModuleHierarchy moduleHierarchy;
 
   public void createIndexer() {
-    InputComponentStore componentStore = new InputComponentStore(mock(BranchConfiguration.class));
+    InputComponentStore componentStore = new InputComponentStore(mock(BranchConfiguration.class), mock(SonarRuntime.class));
     moduleHierarchy = mock(DefaultInputModuleHierarchy.class);
     indexer = new ModuleIndexer(componentStore, moduleHierarchy);
   }
