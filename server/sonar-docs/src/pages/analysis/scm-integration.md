@@ -18,7 +18,7 @@ If need be, you can toggle it off at global level via administration settings an
 
 Auto-detection of Git during analysis will happen if there is a .git folder in the project root directory or in one of its parent folders. Otherwise you can force the provider using `-Dsonar.scm.provider=git`. A full clone is required for this integration to be able to collect the required blame information (see Known Issues). If a shallow clone is detected, a warning will be logged and no attempt will be made to retrieve blame information.
 
-The plugin uses [JGit](https://www.eclipse.org/jgit/). JGit is a pure Java implementation of the Git client.
+Git integration uses [JGit](https://www.eclipse.org/jgit/). JGit is a pure Java implementation of the Git client.
 
 ### Known Issues
 
