@@ -20,7 +20,7 @@
 import * as React from 'react';
 import PendingIcon from 'sonar-ui-common/components/icons/PendingIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { STATUSES } from '../constants';
+import { TaskStatuses } from '../../../types/tasks';
 
 interface Props {
   status: string;
@@ -30,23 +30,23 @@ export default function TaskStatus({ status }: Props) {
   let inner;
 
   switch (status) {
-    case STATUSES.PENDING:
+    case TaskStatuses.Pending:
       inner = <PendingIcon />;
       break;
-    case STATUSES.IN_PROGRESS:
+    case TaskStatuses.InProgress:
       inner = <i className="spinner" />;
       break;
-    case STATUSES.SUCCESS:
+    case TaskStatuses.Success:
       inner = (
         <span className="badge badge-success">{translate('background_task.status.SUCCESS')}</span>
       );
       break;
-    case STATUSES.FAILED:
+    case TaskStatuses.Failed:
       inner = (
         <span className="badge badge-error">{translate('background_task.status.FAILED')}</span>
       );
       break;
-    case STATUSES.CANCELED:
+    case TaskStatuses.Canceled:
       inner = <span className="badge">{translate('background_task.status.CANCELED')}</span>;
       break;
     default:

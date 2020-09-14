@@ -24,11 +24,12 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { hasMessage, translate } from 'sonar-ui-common/helpers/l10n';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
+import { Task, TaskStatuses } from '../../../../types/tasks';
 import ComponentNavLicenseNotif from './ComponentNavLicenseNotif';
 
 interface Props {
   component: T.Component;
-  currentTask?: T.Task;
+  currentTask?: Task;
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
@@ -79,7 +80,7 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
           {this.renderMessage('component_navigation.status.pending', STATUSES.ALL)}
         </Alert>
       );
-    } else if (currentTask && currentTask.status === STATUSES.FAILED) {
+    } else if (currentTask && currentTask.status === TaskStatuses.Failed) {
       if (
         currentTask.errorType &&
         hasMessage('license.component_navigation.button', currentTask.errorType)

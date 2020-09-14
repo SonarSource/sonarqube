@@ -24,10 +24,11 @@ import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n
 import { isValidLicense } from '../../../../api/marketplace';
 import { withAppState } from '../../../../components/hoc/withAppState';
 import { ComponentQualifier } from '../../../../types/component';
+import { Task } from '../../../../types/tasks';
 
 interface Props {
   appState: Pick<T.AppState, 'canAdmin'>;
-  currentTask?: T.Task;
+  currentTask?: Task;
 }
 
 interface State {

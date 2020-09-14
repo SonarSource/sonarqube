@@ -34,8 +34,9 @@ import {
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
 import { Location, Router } from '../../../components/hoc/withRouter';
 import { fetchOrganizations } from '../../../store/rootActions';
+import { Task, TaskStatuses } from '../../../types/tasks';
 import '../background-tasks.css';
-import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS, STATUSES } from '../constants';
+import { CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../constants';
 import { mapFiltersToParameters, Query, updateTask } from '../utils';
 import Footer from './Footer';
 import Header from './Header';
@@ -55,7 +56,7 @@ interface State {
   loading: boolean;
   pendingCount: number;
   pendingTime?: number;
-  tasks: T.Task[];
+  tasks: Task[];
   types?: string[];
 }
 
@@ -161,7 +162,7 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     });
   };
 
-  handleCancelTask = (task: T.Task) => {
+  handleCancelTask = (task: Task) => {
     this.setState({ loading: true });
 
     return cancelTaskAPI(task.id).then(nextTask => {
@@ -174,14 +175,14 @@ export class BackgroundTasksApp extends React.PureComponent<Props, State> {
     }, this.stopLoading);
   };
 
-  handleFilterTask = (task: T.Task) => {
+  handleFilterTask = (task: Task) => {
     this.handleFilterUpdate({ query: task.componentKey });
   };
 
   handleShowFailing = () => {
     this.handleFilterUpdate({
       ...DEFAULT_FILTERS,
-      status: STATUSES.FAILED,
+      status: TaskStatuses.Failed,
       currents: CURRENTS.ONLY_CURRENTS
     });
   };

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Task as ITask } from '../../../types/tasks';
 import TaskActions from './TaskActions';
 import TaskComponent from './TaskComponent';
 import TaskDate from './TaskDate';
@@ -29,10 +30,10 @@ import TaskSubmitter from './TaskSubmitter';
 
 interface Props {
   component?: unknown;
-  onCancelTask: (task: T.Task) => Promise<void>;
-  onFilterTask: (task: T.Task) => void;
-  task: T.Task;
-  previousTask?: T.Task;
+  onCancelTask: (task: ITask) => Promise<void>;
+  onFilterTask: (task: ITask) => void;
+  task: ITask;
+  previousTask?: ITask;
 }
 
 export default function Task(props: Props) {

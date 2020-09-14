@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { toShortNotSoISOString } from 'sonar-ui-common/helpers/dates';
+import { Task, TaskStatuses } from '../../types/tasks';
 import { ALL_TYPES, CURRENTS, STATUSES } from './constants';
 
 export interface Query {
@@ -29,7 +30,7 @@ export interface Query {
   taskType: string;
 }
 
-export function updateTask(tasks: T.Task[], newTask: T.Task) {
+export function updateTask(tasks: Task[], newTask: Task) {
   return tasks.map(task => (task.id === newTask.id ? newTask : task));
 }
 
@@ -38,18 +39,18 @@ export function mapFiltersToParameters(filters: Partial<Query> = {}) {
 
   if (filters.status === STATUSES.ALL) {
     parameters.status = [
-      STATUSES.PENDING,
-      STATUSES.IN_PROGRESS,
-      STATUSES.SUCCESS,
-      STATUSES.FAILED,
-      STATUSES.CANCELED
+      TaskStatuses.Pending,
+      TaskStatuses.InProgress,
+      TaskStatuses.Success,
+      TaskStatuses.Failed,
+      TaskStatuses.Canceled
     ].join();
   } else if (filters.status === STATUSES.ALL_EXCEPT_PENDING) {
     parameters.status = [
-      STATUSES.IN_PROGRESS,
-      STATUSES.SUCCESS,
-      STATUSES.FAILED,
-      STATUSES.CANCELED
+      TaskStatuses.InProgress,
+      TaskStatuses.Success,
+      TaskStatuses.Failed,
+      TaskStatuses.Canceled
     ].join();
   } else {
     parameters.status = filters.status;

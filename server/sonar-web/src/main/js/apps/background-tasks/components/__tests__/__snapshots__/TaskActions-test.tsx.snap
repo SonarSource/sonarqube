@@ -11,7 +11,7 @@ exports[`renders 1`] = `
       className="js-task-filter"
       onClick={[Function]}
     >
-      background_tasks.filter_by_component_x.foo
+      background_tasks.filter_by_component_x.Foo
     </ActionsDropdownItem>
     <ActionsDropdownItem
       className="js-task-cancel"
@@ -35,7 +35,7 @@ exports[`renders 2`] = `
       className="js-task-filter"
       onClick={[Function]}
     >
-      background_tasks.filter_by_component_x.foo
+      background_tasks.filter_by_component_x.Foo
     </ActionsDropdownItem>
   </ActionsDropdown>
 </td>
@@ -52,7 +52,7 @@ exports[`renders 3`] = `
       className="js-task-filter"
       onClick={[Function]}
     >
-      background_tasks.filter_by_component_x.foo
+      background_tasks.filter_by_component_x.Foo
     </ActionsDropdownItem>
     <ActionsDropdownItem
       className="js-task-cancel"
@@ -82,7 +82,7 @@ exports[`renders 4`] = `
       className="js-task-filter"
       onClick={[Function]}
     >
-      background_tasks.filter_by_component_x.foo
+      background_tasks.filter_by_component_x.Foo
     </ActionsDropdownItem>
     <ActionsDropdownItem
       className="js-task-cancel"
@@ -124,12 +124,15 @@ exports[`shows scanner context 1`] = `
   onClose={[Function]}
   task={
     Object {
-      "componentName": "foo",
+      "analysisId": "x123",
+      "componentKey": "foo",
+      "componentName": "Foo",
+      "componentQualifier": "TRK",
       "hasScannerContext": true,
-      "id": "123",
-      "organization": "org",
+      "id": "AXR8jg_0mF2ZsYr8Wzs2",
+      "organization": "bar",
       "status": "PENDING",
-      "submittedAt": "2017-01-01",
+      "submittedAt": "2020-09-11T11:45:35+0200",
       "type": "REPORT",
     }
   }
@@ -141,12 +144,15 @@ exports[`shows stack trace 1`] = `
   onClose={[Function]}
   task={
     Object {
-      "componentName": "foo",
+      "analysisId": "x123",
+      "componentKey": "foo",
+      "componentName": "Foo",
+      "componentQualifier": "TRK",
       "errorMessage": "error!",
-      "id": "123",
-      "organization": "org",
+      "id": "AXR8jg_0mF2ZsYr8Wzs2",
+      "organization": "bar",
       "status": "PENDING",
-      "submittedAt": "2017-01-01",
+      "submittedAt": "2020-09-11T11:45:35+0200",
       "type": "REPORT",
     }
   }
@@ -156,6 +162,6 @@ exports[`shows stack trace 1`] = `
 exports[`shows warnings 1`] = `
 <AnalysisWarningsModal
   onClose={[Function]}
-  taskId="123"
+  taskId="AXR8jg_0mF2ZsYr8Wzs2"
 />
 `;

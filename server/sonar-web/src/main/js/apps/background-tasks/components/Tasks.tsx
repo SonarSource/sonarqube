@@ -20,14 +20,15 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { Task as ITask } from '../../../types/tasks';
 import Task from './Task';
 
 interface Props {
-  tasks: T.Task[];
+  tasks: ITask[];
   component?: unknown;
   loading: boolean;
-  onCancelTask: (task: T.Task) => Promise<void>;
-  onFilterTask: (task: T.Task) => void;
+  onCancelTask: (task: ITask) => Promise<void>;
+  onFilterTask: (task: ITask) => void;
 }
 
 export default function Tasks({ tasks, component, loading, onCancelTask, onFilterTask }: Props) {

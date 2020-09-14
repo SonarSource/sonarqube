@@ -24,7 +24,6 @@ import { getBranches, getPullRequests } from '../../api/branches';
 import { getAnalysisStatus, getTasksForComponent } from '../../api/ce';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
-import { STATUSES } from '../../apps/background-tasks/constants';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import {
   getBranchLikeQuery,
@@ -40,6 +39,7 @@ import {
 } from '../../store/rootActions';
 import { BranchLike } from '../../types/branch-like';
 import { isPortfolioLike } from '../../types/component';
+import { Task, TaskStatuses } from '../../types/tasks';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
@@ -58,10 +58,10 @@ interface State {
   branchLike?: BranchLike;
   branchLikes: BranchLike[];
   component?: T.Component;
-  currentTask?: T.Task;
+  currentTask?: Task;
   isPending: boolean;
   loading: boolean;
-  tasksInProgress?: T.Task[];
+  tasksInProgress?: Task[];
   warnings: string[];
 }
 
@@ -189,7 +189,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
               const newCurrentTask = this.getCurrentTask(current, branchLike);
               const pendingTasks = this.getPendingTasks(queue, branchLike);
               const newTasksInProgress = pendingTasks.filter(
-                task => task.status === STATUSES.IN_PROGRESS
+                task => task.status === TaskStatuses.InProgress
               );
 
               const currentTaskChanged =
@@ -214,7 +214,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
                 );
               }
 
-              const isPending = pendingTasks.some(task => task.status === STATUSES.PENDING);
+              const isPending = pendingTasks.some(task => task.status === TaskStatuses.Pending);
               return {
                 currentTask: newCurrentTask,
                 isPending,
@@ -254,21 +254,21 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       : branchLikes.find(b => isBranch(b) && (query.branch ? b.name === query.branch : b.isMain));
   };
 
-  getCurrentTask = (current: T.Task, branchLike?: BranchLike) => {
+  getCurrentTask = (current: Task, branchLike?: BranchLike) => {
     if (!current) {
       return undefined;
     }
 
-    return current.status === STATUSES.FAILED || this.isSameBranch(current, branchLike)
+    return current.status === TaskStatuses.Failed || this.isSameBranch(current, branchLike)
       ? current
       : undefined;
   };
 
-  getPendingTasks = (pendingTasks: T.Task[], branchLike?: BranchLike) => {
+  getPendingTasks = (pendingTasks: Task[], branchLike?: BranchLike) => {
     return pendingTasks.filter(task => this.isSameBranch(task, branchLike));
   };
 
-  isSameBranch = (task: Pick<T.Task, 'branch' | 'pullRequest'>, branchLike?: BranchLike) => {
+  isSameBranch = (task: Pick<Task, 'branch' | 'pullRequest'>, branchLike?: BranchLike) => {
     if (branchLike) {
       if (isMainBranch(branchLike)) {
         return (!task.pullRequest && !task.branch) || branchLike.name === task.branch;

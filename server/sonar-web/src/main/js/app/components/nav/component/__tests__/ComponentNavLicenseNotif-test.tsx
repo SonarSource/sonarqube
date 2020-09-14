@@ -21,6 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { isValidLicense } from '../../../../../api/marketplace';
+import { mockTask } from '../../../../../helpers/mocks/tasks';
+import { TaskStatuses } from '../../../../../types/tasks';
 import { ComponentNavLicenseNotif } from '../ComponentNavLicenseNotif';
 
 jest.mock('sonar-ui-common/helpers/l10n', () => ({
@@ -38,14 +40,22 @@ beforeEach(() => {
 
 it('renders background task license info correctly', async () => {
   let wrapper = getWrapper({
-    currentTask: { status: 'FAILED', errorType: 'LICENSING', errorMessage: 'Foo' } as T.Task
+    currentTask: mockTask({
+      status: TaskStatuses.Failed,
+      errorType: 'LICENSING',
+      errorMessage: 'Foo'
+    })
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
 
   wrapper = getWrapper({
     appState: { canAdmin: false },
-    currentTask: { status: 'FAILED', errorType: 'LICENSING', errorMessage: 'Foo' } as T.Task
+    currentTask: mockTask({
+      status: TaskStatuses.Failed,
+      errorType: 'LICENSING',
+      errorMessage: 'Foo'
+    })
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -54,7 +64,11 @@ it('renders background task license info correctly', async () => {
 it('renders a different message if the license is valid', async () => {
   (isValidLicense as jest.Mock<any>).mockResolvedValueOnce({ isValidLicense: true });
   const wrapper = getWrapper({
-    currentTask: { status: 'FAILED', errorType: 'LICENSING', errorMessage: 'Foo' } as T.Task
+    currentTask: mockTask({
+      status: TaskStatuses.Failed,
+      errorType: 'LICENSING',
+      errorMessage: 'Foo'
+    })
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -63,7 +77,11 @@ it('renders a different message if the license is valid', async () => {
 it('renders correctly for LICENSING_LOC error', async () => {
   (isValidLicense as jest.Mock<any>).mockResolvedValueOnce({ isValidLicense: true });
   const wrapper = getWrapper({
-    currentTask: { status: 'FAILED', errorType: 'LICENSING_LOC', errorMessage: 'Foo' } as T.Task
+    currentTask: mockTask({
+      status: TaskStatuses.Failed,
+      errorType: 'LICENSING_LOC',
+      errorMessage: 'Foo'
+    })
   });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
@@ -73,7 +91,7 @@ function getWrapper(props: Partial<ComponentNavLicenseNotif['props']> = {}) {
   return shallow(
     <ComponentNavLicenseNotif
       appState={{ canAdmin: true }}
-      currentTask={{ errorMessage: 'Foo', errorType: 'LICENSING' } as T.Task}
+      currentTask={mockTask({ errorMessage: 'Foo', errorType: 'LICENSING' })}
       {...props}
     />
   );

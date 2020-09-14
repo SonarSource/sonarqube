@@ -23,8 +23,8 @@ import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router';
 import { Alert, AlertProps } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { BackgroundTaskTypes, STATUSES } from '../../../apps/background-tasks/constants';
 import { IndexationNotificationType } from '../../../types/indexation';
+import { TaskStatuses, TaskTypes } from '../../../types/tasks';
 
 export interface IndexationNotificationRendererProps {
   type: IndexationNotificationType;
@@ -142,8 +142,8 @@ function renderBackgroundTasksPageLink(hasError: boolean, text: string) {
       to={{
         pathname: '/admin/background_tasks',
         query: {
-          taskType: BackgroundTaskTypes.IssueSync,
-          status: hasError ? STATUSES.FAILED : undefined
+          taskType: TaskTypes.IssueSync,
+          status: hasError ? TaskStatuses.Failed : undefined
         }
       }}>
       {text}

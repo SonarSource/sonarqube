@@ -21,10 +21,11 @@ import * as React from 'react';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getTask } from '../../../api/ce';
+import { Task } from '../../../types/tasks';
 
 interface Props {
   onClose: () => void;
-  task: Pick<T.Task, 'componentName' | 'errorMessage' | 'id' | 'type'>;
+  task: Pick<Task, 'componentName' | 'errorMessage' | 'id' | 'type'>;
 }
 
 interface State {

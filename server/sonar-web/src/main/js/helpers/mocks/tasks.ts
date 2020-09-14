@@ -17,35 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Query } from './utils';
+import { ComponentQualifier } from '../../types/component';
+import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
 
-export const STATUSES = {
-  ALL: '__ALL__',
-  ALL_EXCEPT_PENDING: '__ALL_EXCEPT_PENDING__'
-};
-
-export const ALL_TYPES = 'ALL_TYPES';
-
-export const CURRENTS = {
-  ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
-};
-
-export const DATE = {
-  ANY: 'ANY',
-  TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
-};
-
-export const DEFAULT_FILTERS: Query = {
-  status: STATUSES.ALL_EXCEPT_PENDING,
-  taskType: ALL_TYPES,
-  currents: CURRENTS.ALL,
-  minSubmittedAt: undefined,
-  maxExecutedAt: undefined,
-  query: ''
-};
-
-export const DATE_FORMAT = 'YYYY-MM-DD';
-
-export const DEBOUNCE_DELAY = 250;
+export function mockTask(overrides: Partial<Task> = {}): Task {
+  return {
+    analysisId: 'x123',
+    componentKey: 'foo',
+    componentName: 'Foo',
+    componentQualifier: ComponentQualifier.Project,
+    id: 'AXR8jg_0mF2ZsYr8Wzs2',
+    organization: 'bar',
+    status: TaskStatuses.Pending,
+    submittedAt: '2020-09-11T11:45:35+0200',
+    type: TaskTypes.Report,
+    ...overrides
+  };
+}

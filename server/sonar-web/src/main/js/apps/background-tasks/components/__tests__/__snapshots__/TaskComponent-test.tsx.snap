@@ -10,7 +10,7 @@ exports[`renders correctly 1`] = `
     />
   </span>
   <Connect(Organization)
-    organizationKey="org"
+    organizationKey="bar"
   />
   <Link
     className="spacer-right"
@@ -26,7 +26,7 @@ exports[`renders correctly 1`] = `
       }
     }
   >
-    foo
+    Foo
   </Link>
   <TaskType
     type="REPORT"
@@ -40,7 +40,7 @@ exports[`renders correctly: branch 1`] = `
     className="little-spacer-right"
   />
   <Connect(Organization)
-    organizationKey="org"
+    organizationKey="bar"
   />
   <Link
     className="spacer-right"
@@ -56,7 +56,7 @@ exports[`renders correctly: branch 1`] = `
       }
     }
   >
-    foo
+    Foo
     <span
       className="text-limited text-text-top"
       title="feature"
@@ -86,7 +86,7 @@ exports[`renders correctly: branch 2`] = `
     className="little-spacer-right"
   />
   <Connect(Organization)
-    organizationKey="org"
+    organizationKey="bar"
   />
   <Link
     className="spacer-right"
@@ -102,7 +102,7 @@ exports[`renders correctly: branch 2`] = `
       }
     }
   >
-    foo
+    Foo
     <span
       className="text-limited text-text-top"
       title="branch-6.7"
@@ -136,7 +136,7 @@ exports[`renders correctly: portfolio 1`] = `
     />
   </span>
   <Connect(Organization)
-    organizationKey="org"
+    organizationKey="bar"
   />
   <Link
     className="spacer-right"
@@ -151,7 +151,7 @@ exports[`renders correctly: portfolio 1`] = `
       }
     }
   >
-    foo
+    Foo
   </Link>
   <TaskType
     type="REPORT"
@@ -165,7 +165,7 @@ exports[`renders correctly: pull request 1`] = `
     className="little-spacer-right"
   />
   <Connect(Organization)
-    organizationKey="org"
+    organizationKey="bar"
   />
   <Link
     className="spacer-right"
@@ -181,7 +181,7 @@ exports[`renders correctly: pull request 1`] = `
       }
     }
   >
-    foo
+    Foo
     <span
       className="text-limited text-text-top"
     >
@@ -209,7 +209,7 @@ exports[`renders correctly: undefined key 1`] = `
   <span
     className="note"
   >
-    bar
+    AXR8jg_0mF2ZsYr8Wzs2
   </span>
   <TaskType
     type="REPORT"

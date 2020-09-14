@@ -19,11 +19,12 @@
  */
 import * as React from 'react';
 import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { Task } from '../../../types/tasks';
 
 const LIMIT = 1000;
 
 interface Props {
-  tasks: T.Task[];
+  tasks: Task[];
 }
 
 export default function Footer({ tasks }: Props) {

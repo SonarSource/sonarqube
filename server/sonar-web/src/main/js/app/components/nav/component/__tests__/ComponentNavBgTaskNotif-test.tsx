@@ -19,6 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockTask } from '../../../../../helpers/mocks/tasks';
+import { mockComponent } from '../../../../../helpers/testMocks';
+import { TaskStatuses } from '../../../../../types/tasks';
 import ComponentNavBgTaskNotif from '../ComponentNavBgTaskNotif';
 
 jest.mock('sonar-ui-common/helpers/l10n', () => ({
@@ -26,67 +29,49 @@ jest.mock('sonar-ui-common/helpers/l10n', () => ({
   hasMessage: jest.fn().mockReturnValue(true)
 }));
 
-const component = {
-  analysisDate: '2017-01-02T00:00:00.000Z',
-  breadcrumbs: [],
-  key: 'foo',
-  name: 'Foo',
-  organization: 'org',
-  qualifier: 'TRK',
-  version: '0.0.1'
-};
-
-it('renders background task error correctly', () => {
-  expect(getWrapper()).toMatchSnapshot();
-});
-
-it('renders background task error correctly for a different branch/PR', () => {
+it('renders correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ isPending: true })).toMatchSnapshot('pending');
   expect(
-    getWrapper({
-      currentTask: { branch: 'my/branch', status: 'FAILED' } as T.Task,
-      currentTaskOnSameBranch: false
-    })
-  ).toMatchSnapshot();
-  expect(
-    getWrapper({
-      currentTask: {
-        pullRequest: '650',
-        pullRequestTitle: 'feature/my_pr',
-        status: 'FAILED'
-      } as T.Task,
-      currentTaskOnSameBranch: false
-    })
-  ).toMatchSnapshot();
-});
-
-it('renders background task pending info correctly', () => {
-  expect(getWrapper({ isPending: true })).toMatchSnapshot();
-});
-
-it('renders background task pending info correctly for admin', () => {
-  expect(
-    getWrapper({
-      component: { ...component, configuration: { showBackgroundTasks: true } },
+    shallowRender({
+      component: mockComponent({ configuration: { showBackgroundTasks: true } }),
       isPending: true
     })
-  ).toMatchSnapshot();
-});
-
-it('renders background task in progress info correctly', () => {
-  expect(getWrapper({ isInProgress: true, isPending: true })).toMatchSnapshot();
-});
-
-it('renders background task license info correctly', () => {
+  ).toMatchSnapshot('pending for admins');
+  expect(shallowRender({ isInProgress: true, isPending: true })).toMatchSnapshot('in progress');
   expect(
-    getWrapper({ currentTask: { status: 'FAILED', errorType: 'LICENSING', errorMessage: 'Foo' } })
-  ).toMatchSnapshot();
+    shallowRender({
+      currentTask: mockTask({
+        status: TaskStatuses.Failed,
+        errorType: 'LICENSING',
+        errorMessage: 'Foo'
+      })
+    })
+  ).toMatchSnapshot('license issue');
+  expect(
+    shallowRender({
+      currentTask: mockTask({ branch: 'my/branch', status: TaskStatuses.Failed }),
+      currentTaskOnSameBranch: false
+    })
+  ).toMatchSnapshot('branch');
+  expect(
+    shallowRender({
+      currentTask: mockTask({
+        pullRequest: '650',
+        pullRequestTitle: 'feature/my_pr',
+        status: TaskStatuses.Failed
+      }),
+      currentTaskOnSameBranch: false
+    })
+  ).toMatchSnapshot('pul request');
+  expect(shallowRender({ currentTask: undefined })).toMatchSnapshot('no current task');
 });
 
-function getWrapper(props = {}) {
-  return shallow(
+function shallowRender(props: Partial<ComponentNavBgTaskNotif['props']> = {}) {
+  return shallow<ComponentNavBgTaskNotif>(
     <ComponentNavBgTaskNotif
-      component={component}
-      currentTask={{ status: 'FAILED' } as T.Task}
+      component={mockComponent()}
+      currentTask={mockTask({ status: TaskStatuses.Failed })}
       {...props}
     />
   );

@@ -24,10 +24,11 @@ import { getBranches, getPullRequests } from '../../../api/branches';
 import { getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
-import { STATUSES } from '../../../apps/background-tasks/constants';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
+import { mockTask } from '../../../helpers/mocks/tasks';
 import { mockComponent, mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../types/component';
+import { TaskStatuses } from '../../../types/tasks';
 import { ComponentContainer } from '../ComponentContainer';
 import PageUnavailableDueToIndexation from '../indexation/PageUnavailableDueToIndexation';
 
@@ -147,9 +148,9 @@ it('filters correctly the pending tasks for a main branch', () => {
   expect(component.isSameBranch({ branch: 'branch-6.7' }, pullRequest)).toBe(false);
   expect(component.isSameBranch({ pullRequest: pullRequest.key }, pullRequest)).toBe(true);
 
-  const currentTask = { pullRequest: pullRequest.key, status: STATUSES.IN_PROGRESS } as T.Task;
-  const failedTask = { ...currentTask, status: STATUSES.FAILED };
-  const pendingTasks = [currentTask, { branch: branch3.name } as T.Task, {} as T.Task];
+  const currentTask = mockTask({ pullRequest: pullRequest.key, status: TaskStatuses.InProgress });
+  const failedTask = { ...currentTask, status: TaskStatuses.Failed };
+  const pendingTasks = [currentTask, mockTask({ branch: branch3.name }), mockTask()];
   expect(component.getCurrentTask(currentTask, undefined)).toBeUndefined();
   expect(component.getCurrentTask(failedTask, mainBranch)).toBe(failedTask);
   expect(component.getCurrentTask(currentTask, mainBranch)).toBeUndefined();
@@ -162,7 +163,7 @@ it('reload component after task progress finished', async () => {
   jest.useFakeTimers();
   (getTasksForComponent as jest.Mock<any>)
     .mockResolvedValueOnce({
-      queue: [{ id: 'foo', status: STATUSES.IN_PROGRESS }]
+      queue: [{ id: 'foo', status: TaskStatuses.InProgress }]
     })
     .mockResolvedValueOnce({
       queue: []
@@ -205,7 +206,7 @@ it('reloads component after task progress finished, and moves straight to curren
   });
   (getTasksForComponent as jest.Mock<any>)
     .mockResolvedValueOnce({ queue: [] })
-    .mockResolvedValueOnce({ queue: [], current: { id: 'foo', status: STATUSES.SUCCESS } });
+    .mockResolvedValueOnce({ queue: [], current: { id: 'foo', status: TaskStatuses.Success } });
   const wrapper = shallowRender();
 
   // First round, nothing in the queue, and component navigation was not called

@@ -20,6 +20,7 @@
 import { getJSON, post, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { IndexationStatus } from '../types/indexation';
+import { Task } from '../types/tasks';
 
 export function getAnalysisStatus(data: {
   component: string;
@@ -38,7 +39,7 @@ export function getAnalysisStatus(data: {
   return getJSON('/api/ce/analysis_status', data).catch(throwGlobalError);
 }
 
-export function getActivity(data: RequestData): Promise<{ tasks: T.Task[] }> {
+export function getActivity(data: RequestData): Promise<{ tasks: Task[] }> {
   return getJSON('/api/ce/activity', data);
 }
 
@@ -52,7 +53,7 @@ export function getStatus(
   return getJSON('/api/ce/activity_status', data);
 }
 
-export function getTask(id: string, additionalFields?: string[]): Promise<T.Task> {
+export function getTask(id: string, additionalFields?: string[]): Promise<Task> {
   return getJSON('/api/ce/task', { id, additionalFields }).then(r => r.task);
 }
 
@@ -67,9 +68,7 @@ export function cancelAllTasks(): Promise<any> {
   return post('/api/ce/cancel_all');
 }
 
-export function getTasksForComponent(
-  component: string
-): Promise<{ queue: T.Task[]; current: T.Task }> {
+export function getTasksForComponent(component: string): Promise<{ queue: Task[]; current: Task }> {
   return getJSON('/api/ce/component', { component }).catch(throwGlobalError);
 }
 

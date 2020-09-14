@@ -20,6 +20,7 @@
 import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { TaskStatuses } from '../../../types/tasks';
 import { STATUSES } from '../constants';
 
 interface Props {
@@ -39,11 +40,11 @@ export default class StatusFilter extends React.PureComponent<Props> {
         value: STATUSES.ALL_EXCEPT_PENDING,
         label: translate('background_task.status.ALL_EXCEPT_PENDING')
       },
-      { value: STATUSES.PENDING, label: translate('background_task.status.PENDING') },
-      { value: STATUSES.IN_PROGRESS, label: translate('background_task.status.IN_PROGRESS') },
-      { value: STATUSES.SUCCESS, label: translate('background_task.status.SUCCESS') },
-      { value: STATUSES.FAILED, label: translate('background_task.status.FAILED') },
-      { value: STATUSES.CANCELED, label: translate('background_task.status.CANCELED') }
+      { value: TaskStatuses.Pending, label: translate('background_task.status.PENDING') },
+      { value: TaskStatuses.InProgress, label: translate('background_task.status.IN_PROGRESS') },
+      { value: TaskStatuses.Success, label: translate('background_task.status.SUCCESS') },
+      { value: TaskStatuses.Failed, label: translate('background_task.status.FAILED') },
+      { value: TaskStatuses.Canceled, label: translate('background_task.status.CANCELED') }
     ];
 
     return (

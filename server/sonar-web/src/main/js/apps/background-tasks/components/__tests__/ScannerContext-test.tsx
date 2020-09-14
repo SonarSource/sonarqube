@@ -20,6 +20,8 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
+import { mockTask } from '../../../../helpers/mocks/tasks';
+import { TaskTypes } from '../../../../types/tasks';
 import ScannerContext from '../ScannerContext';
 
 jest.mock('../../../../api/ce', () => ({
@@ -28,11 +30,11 @@ jest.mock('../../../../api/ce', () => ({
 
 const getTask = require('../../../../api/ce').getTask as jest.Mock<any>;
 
-const task = {
+const task = mockTask({
   componentName: 'foo',
   id: '123',
-  type: 'REPORT'
-};
+  type: TaskTypes.Report
+});
 
 beforeEach(() => {
   getTask.mockClear();

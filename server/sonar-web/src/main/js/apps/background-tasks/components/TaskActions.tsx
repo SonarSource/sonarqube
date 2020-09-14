@@ -24,7 +24,7 @@ import ActionsDropdown, {
 import ConfirmModal from 'sonar-ui-common/components/controls/ConfirmModal';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import { STATUSES } from '../constants';
+import { Task, TaskStatuses } from '../../../types/tasks';
 import ScannerContext from './ScannerContext';
 import Stacktrace from './Stacktrace';
 
@@ -35,9 +35,9 @@ const AnalysisWarningsModal = lazyLoadComponent(
 
 interface Props {
   component?: unknown;
-  onCancelTask: (task: T.Task) => Promise<void>;
-  onFilterTask: (task: T.Task) => void;
-  task: T.Task;
+  onCancelTask: (task: Task) => Promise<void>;
+  onFilterTask: (task: Task) => void;
+  task: Task;
 }
 
 interface State {
@@ -99,7 +99,7 @@ export default class TaskActions extends React.PureComponent<Props, State> {
     const { component, task } = this.props;
 
     const canFilter = component === undefined;
-    const canCancel = task.status === STATUSES.PENDING;
+    const canCancel = task.status === TaskStatuses.Pending;
     const canShowStacktrace = task.errorMessage !== undefined;
     const canShowWarnings = task.warningCount !== undefined && task.warningCount > 0;
     const hasActions =

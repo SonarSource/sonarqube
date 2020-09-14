@@ -30,10 +30,11 @@ import {
   getPullRequestUrl
 } from '../../../helpers/urls';
 import { isPortfolioLike } from '../../../types/component';
+import { Task } from '../../../types/tasks';
 import TaskType from './TaskType';
 
 interface Props {
-  task: T.Task;
+  task: Task;
 }
 
 export default function TaskComponent({ task }: Props) {
@@ -84,7 +85,7 @@ export default function TaskComponent({ task }: Props) {
   );
 }
 
-function getTaskComponentUrl(componentKey: string, task: T.Task) {
+function getTaskComponentUrl(componentKey: string, task: Task) {
   if (isPortfolioLike(task.componentQualifier)) {
     return getPortfolioUrl(componentKey);
   } else if (task.branch) {

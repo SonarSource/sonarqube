@@ -21,18 +21,8 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
 import Search from '../components/Search';
-import { CURRENTS, DEFAULT_FILTERS, STATUSES } from '../constants';
+import { DEFAULT_FILTERS } from '../constants';
 import { formatDuration } from '../utils';
-
-describe('Constants', () => {
-  it('should have STATUSES', () => {
-    expect(Object.keys(STATUSES).length).toBe(7);
-  });
-
-  it('should have CURRENTS', () => {
-    expect(Object.keys(CURRENTS).length).toBe(2);
-  });
-});
 
 describe('Search', () => {
   const defaultProps: Search['props'] = {

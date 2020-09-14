@@ -19,7 +19,9 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockTask } from '../../../../helpers/mocks/tasks';
 import { ComponentQualifier } from '../../../../types/component';
+import { Task } from '../../../../types/tasks';
 import TaskComponent from '../TaskComponent';
 
 it('renders correctly', () => {
@@ -33,17 +35,6 @@ it('renders correctly', () => {
   expect(shallowRender({ pullRequest: 'pr-89' })).toMatchSnapshot('pull request');
 });
 
-function shallowRender(taskOverrides: Partial<T.Task> = {}) {
-  const TASK = {
-    componentKey: 'foo',
-    componentName: 'foo',
-    componentQualifier: 'TRK',
-    id: 'bar',
-    organization: 'org',
-    status: 'PENDING',
-    submittedAt: '2017-01-01',
-    submitterLogin: 'yoda',
-    type: 'REPORT'
-  };
-  return shallow(<TaskComponent task={{ ...TASK, ...taskOverrides }} />);
+function shallowRender(taskOverrides: Partial<Task> = {}) {
+  return shallow(<TaskComponent task={mockTask({ ...taskOverrides })} />);
 }

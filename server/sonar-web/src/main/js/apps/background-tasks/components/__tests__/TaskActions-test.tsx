@@ -20,11 +20,13 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
+import { mockTask } from '../../../../helpers/mocks/tasks';
+import { Task, TaskStatuses } from '../../../../types/tasks';
 import TaskActions from '../TaskActions';
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();
-  expect(shallowRender({ status: 'SUCCESS' })).toMatchSnapshot();
+  expect(shallowRender({ status: TaskStatuses.Success })).toMatchSnapshot();
   expect(shallowRender({ hasScannerContext: true })).toMatchSnapshot();
   expect(shallowRender({ errorMessage: 'error!' })).toMatchSnapshot();
   expect(shallowRender({}, { component: { key: 'foo' } })).toMatchSnapshot();
@@ -57,20 +59,12 @@ it('shows warnings', () => {
   expect(wrapper.find('AnalysisWarningsModal').exists()).toBe(false);
 });
 
-function shallowRender(fields?: Partial<T.Task>, props?: Partial<TaskActions['props']>) {
+function shallowRender(fields?: Partial<Task>, props?: Partial<TaskActions['props']>) {
   return shallow(
     <TaskActions
       onCancelTask={jest.fn()}
       onFilterTask={jest.fn()}
-      task={{
-        componentName: 'foo',
-        status: 'PENDING',
-        id: '123',
-        organization: 'org',
-        submittedAt: '2017-01-01',
-        type: 'REPORT',
-        ...fields
-      }}
+      task={mockTask({ ...fields })}
       {...props}
     />
   );

@@ -20,9 +20,9 @@
 import * as classNames from 'classnames';
 import * as React from 'react';
 import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
-import { STATUSES } from '../../../../apps/background-tasks/constants';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
+import { Task, TaskStatuses } from '../../../../types/tasks';
 import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
@@ -36,7 +36,7 @@ interface Props {
   branchLikes: BranchLike[];
   currentBranchLike: BranchLike | undefined;
   component: T.Component;
-  currentTask?: T.Task;
+  currentTask?: Task;
   currentTaskOnSameBranch?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
@@ -75,7 +75,7 @@ export default function ComponentNav(props: Props) {
   }, [component, component.key]);
 
   let notifComponent;
-  if (isInProgress || isPending || (currentTask && currentTask.status === STATUSES.FAILED)) {
+  if (isInProgress || isPending || (currentTask && currentTask.status === TaskStatuses.Failed)) {
     notifComponent = (
       <ComponentNavBgTaskNotif
         component={component}

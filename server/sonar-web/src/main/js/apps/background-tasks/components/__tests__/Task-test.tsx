@@ -19,24 +19,11 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockTask } from '../../../../helpers/mocks/tasks';
 import Task from '../Task';
 
 it('renders', () => {
   expect(
-    shallow(
-      <Task
-        onCancelTask={jest.fn()}
-        onFilterTask={jest.fn()}
-        task={{
-          componentName: 'foo',
-          id: '123',
-          organization: 'org',
-          status: 'PENDING',
-          submittedAt: '2017-01-01',
-          submitterLogin: 'yoda',
-          type: 'REPORT'
-        }}
-      />
-    )
+    shallow(<Task onCancelTask={jest.fn()} onFilterTask={jest.fn()} task={mockTask()} />)
   ).toMatchSnapshot();
 });
