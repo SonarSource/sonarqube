@@ -5,6 +5,9 @@ url: /setup/operate-server/
 
 ## Running SonarQube as a Service on Windows
 
+[[warning]]
+| When installing SonarQube as a service on Windows, the path to the executable should be quoted to prevent unquoted service path attacks. 
+
 ### Install or Uninstall NT Service (may have to run these files via Run As Administrator):
 
 ```
