@@ -45,7 +45,7 @@ TypeScript|`sonar.typescript.tslint.reportPaths`|Comma-delimited list of paths t
 **Notes on external .NET issues**  
 Issues from third-party Roslyn analyzers (including Roslyn analyzers provided by Microsoft) are included in the MSBuild output and imported by default into {instance} so no properties exist to enable that behavior. Instead, properties are available to adjust the import and to _stop_ importing those issues.
 
-Note that Roslyn issues with an *error* severity automatically fail the build, and it is not recommended to run the Scanner for MSBuild's end step if the MSBuild step fails for any reason because it will result in an essentially empty analysis, which will close all outstanding issues in the project.
+Note that Roslyn issues with an *error* severity automatically fail the build. We don't recommended running the Scanner for MSBuild's end step if the MSBuild step fails for any reason because it will result in an essentially empty analysis.
 
 Language|Property|Remarks
 ----|----|----
