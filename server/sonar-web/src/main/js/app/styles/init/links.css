@@ -33,23 +33,23 @@ a:focus {
 }
 
 .link-base-color {
-  border-bottom: 1px solid #d0d0d0;
-  color: var(--baseFontColor);
+  border-bottom: 1px solid #d0d0d0 !important;
+  color: var(--baseFontColor) !important;
 }
 
 .link-base-color:hover,
 .link-base-color:active,
 .link-base-color:focus {
-  color: var(--blue);
+  color: var(--blue) !important;
 }
 
 .link-base-color:hover {
-  border-bottom-color: var(--lightBlue);
+  border-bottom-color: var(--lightBlue) !important;
 }
 
 .link-base-color:active,
 .link-base-color:focus {
-  border-bottom-color: var(--lightBlue);
+  border-bottom-color: var(--lightBlue) !important;
 }
 
 .link-no-underline {

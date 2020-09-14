@@ -19,10 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { mockTaskWarning } from '../../../../../helpers/mocks/tasks';
 import ComponentNavWarnings from '../ComponentNavWarnings';
 
 it('should render', () => {
-  const wrapper = shallow(<ComponentNavWarnings warnings={['warning 1']} />);
+  const wrapper = shallow(
+    <ComponentNavWarnings
+      componentKey="foo"
+      onWarningDismiss={jest.fn()}
+      warnings={[mockTaskWarning({ message: 'warning 1' })]}
+    />
+  );
   wrapper.setState({ modal: true });
   expect(wrapper).toMatchSnapshot();
 });

@@ -22,7 +22,7 @@ import * as React from 'react';
 import ContextNavBar from 'sonar-ui-common/components/ui/ContextNavBar';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
-import { Task, TaskStatuses } from '../../../../types/tasks';
+import { Task, TaskStatuses, TaskWarning } from '../../../../types/tasks';
 import { rawSizes } from '../../../theme';
 import RecentHistory from '../../RecentHistory';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
@@ -32,7 +32,7 @@ import Menu from './Menu';
 import InfoDrawer from './projectInformation/InfoDrawer';
 import ProjectInformation from './projectInformation/ProjectInformation';
 
-interface Props {
+export interface ComponentNavProps {
   branchLikes: BranchLike[];
   currentBranchLike: BranchLike | undefined;
   component: T.Component;
@@ -41,10 +41,11 @@ interface Props {
   isInProgress?: boolean;
   isPending?: boolean;
   onComponentChange: (changes: Partial<T.Component>) => void;
-  warnings: string[];
+  onWarningDismiss: () => void;
+  warnings: TaskWarning[];
 }
 
-export default function ComponentNav(props: Props) {
+export default function ComponentNav(props: ComponentNavProps) {
   const {
     branchLikes,
     component,
@@ -100,7 +101,12 @@ export default function ComponentNav(props: Props) {
           component={component}
           currentBranchLike={currentBranchLike}
         />
-        <HeaderMeta branchLike={currentBranchLike} component={component} warnings={warnings} />
+        <HeaderMeta
+          branchLike={currentBranchLike}
+          component={component}
+          onWarningDismiss={props.onWarningDismiss}
+          warnings={warnings}
+        />
       </div>
       <Menu
         branchLike={currentBranchLike}

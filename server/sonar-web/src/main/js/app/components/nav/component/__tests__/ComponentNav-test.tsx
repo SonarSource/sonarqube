@@ -19,27 +19,96 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import ComponentNav from '../ComponentNav';
+import { mockTask, mockTaskWarning } from '../../../../../helpers/mocks/tasks';
+import { mockComponent } from '../../../../../helpers/testMocks';
+import { ComponentQualifier } from '../../../../../types/component';
+import { TaskStatuses } from '../../../../../types/tasks';
+import RecentHistory from '../../../RecentHistory';
+import ComponentNav, { ComponentNavProps } from '../ComponentNav';
+import Menu from '../Menu';
+import InfoDrawer from '../projectInformation/InfoDrawer';
 
-const component = {
-  breadcrumbs: [{ key: 'component', name: 'component', qualifier: 'TRK' }],
-  key: 'component',
-  name: 'component',
-  organization: 'org',
-  qualifier: 'TRK'
-};
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.spyOn(React, 'useEffect').mockImplementationOnce(f => f());
+});
 
-it('renders', () => {
-  const wrapper = shallow(
+it('renders correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ warnings: [mockTaskWarning()] })).toMatchSnapshot('has warnings');
+  expect(shallowRender({ isInProgress: true })).toMatchSnapshot('has in progress notification');
+  expect(shallowRender({ isPending: true })).toMatchSnapshot('has pending notification');
+  expect(shallowRender({ currentTask: mockTask({ status: TaskStatuses.Failed }) })).toMatchSnapshot(
+    'has failed notification'
+  );
+});
+
+it('correctly adds data to the history if there are breadcrumbs', () => {
+  const key = 'foo';
+  const name = 'Foo';
+  const organization = 'baz';
+  const qualifier = ComponentQualifier.Portfolio;
+  const spy = jest.spyOn(RecentHistory, 'add');
+
+  shallowRender({
+    component: mockComponent({
+      key,
+      name,
+      organization,
+      breadcrumbs: [
+        {
+          key: 'bar',
+          name: 'Bar',
+          qualifier
+        }
+      ]
+    })
+  });
+
+  expect(spy).toBeCalledWith(key, name, qualifier.toLowerCase(), organization);
+});
+
+it('correctly toggles the project info display', () => {
+  const wrapper = shallowRender();
+  expect(wrapper.find(InfoDrawer).props().displayed).toBe(false);
+
+  wrapper
+    .find(Menu)
+    .props()
+    .onToggleProjectInfo();
+  expect(wrapper.find(InfoDrawer).props().displayed).toBe(true);
+
+  wrapper
+    .find(Menu)
+    .props()
+    .onToggleProjectInfo();
+  expect(wrapper.find(InfoDrawer).props().displayed).toBe(false);
+
+  wrapper
+    .find(Menu)
+    .props()
+    .onToggleProjectInfo();
+  wrapper
+    .find(InfoDrawer)
+    .props()
+    .onClose();
+  expect(wrapper.find(InfoDrawer).props().displayed).toBe(false);
+});
+
+function shallowRender(props: Partial<ComponentNavProps> = {}) {
+  return shallow<ComponentNavProps>(
     <ComponentNav
       branchLikes={[]}
-      component={component}
+      component={mockComponent({
+        breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }]
+      })}
       currentBranchLike={undefined}
-      isInProgress={true}
-      isPending={true}
+      isInProgress={false}
+      isPending={false}
       onComponentChange={jest.fn()}
+      onWarningDismiss={jest.fn()}
       warnings={[]}
+      {...props}
     />
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}

@@ -9,10 +9,20 @@ exports[`should render correctly for a branch 1`] = `
       className="header-meta-warnings"
     >
       <ComponentNavWarnings
+        componentKey="my-project"
+        onWarningDismiss={[MockFunction]}
         warnings={
           Array [
-            "ERROR_1",
-            "ERROR_2",
+            Object {
+              "dismissable": false,
+              "key": "foo",
+              "message": "ERROR_1",
+            },
+            Object {
+              "dismissable": false,
+              "key": "foo",
+              "message": "ERROR_2",
+            },
           ]
         }
       />
@@ -52,10 +62,20 @@ exports[`should render correctly for a main project branch 1`] = `
       className="header-meta-warnings"
     >
       <ComponentNavWarnings
+        componentKey="my-project"
+        onWarningDismiss={[MockFunction]}
         warnings={
           Array [
-            "ERROR_1",
-            "ERROR_2",
+            Object {
+              "dismissable": false,
+              "key": "foo",
+              "message": "ERROR_1",
+            },
+            Object {
+              "dismissable": false,
+              "key": "foo",
+              "message": "ERROR_2",
+            },
           ]
         }
       />
@@ -95,10 +115,20 @@ exports[`should render correctly for a portfolio 1`] = `
       className="header-meta-warnings"
     >
       <ComponentNavWarnings
+        componentKey="foo"
+        onWarningDismiss={[MockFunction]}
         warnings={
           Array [
-            "ERROR_1",
-            "ERROR_2",
+            Object {
+              "dismissable": false,
+              "key": "foo",
+              "message": "ERROR_1",
+            },
+            Object {
+              "dismissable": false,
+              "key": "foo",
+              "message": "ERROR_2",
+            },
           ]
         }
       />
@@ -125,10 +155,20 @@ exports[`should render correctly for a pull request 1`] = `
       className="header-meta-warnings"
     >
       <ComponentNavWarnings
+        componentKey="my-project"
+        onWarningDismiss={[MockFunction]}
         warnings={
           Array [
-            "ERROR_1",
-            "ERROR_2",
+            Object {
+              "dismissable": false,
+              "key": "foo",
+              "message": "ERROR_1",
+            },
+            Object {
+              "dismissable": false,
+              "key": "foo",
+              "message": "ERROR_2",
+            },
           ]
         }
       />

@@ -170,7 +170,11 @@ export default class TaskActions extends React.PureComponent<Props, State> {
         {this.state.stacktraceOpen && <Stacktrace onClose={this.closeStacktrace} task={task} />}
 
         {this.state.warningsOpen && (
-          <AnalysisWarningsModal onClose={this.closeWarnings} taskId={task.id} />
+          <AnalysisWarningsModal
+            componentKey={task.componentKey}
+            onClose={this.closeWarnings}
+            taskId={task.id}
+          />
         )}
       </td>
     );

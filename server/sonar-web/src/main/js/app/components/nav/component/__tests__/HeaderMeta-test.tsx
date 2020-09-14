@@ -21,6 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import HomePageSelect from '../../../../../components/controls/HomePageSelect';
 import { mockBranch, mockPullRequest } from '../../../../../helpers/mocks/branch-like';
+import { mockTaskWarning } from '../../../../../helpers/mocks/tasks';
 import { mockComponent, mockCurrentUser } from '../../../../../helpers/testMocks';
 import { ComponentQualifier } from '../../../../../types/component';
 import { getCurrentPage, HeaderMeta, HeaderMetaProps } from '../HeaderMeta';
@@ -95,7 +96,8 @@ function shallowRender(props: Partial<HeaderMetaProps> = {}) {
       branchLike={mockBranch()}
       component={mockComponent({ analysisDate: '2017-01-02T00:00:00.000Z', version: '0.0.1' })}
       currentUser={mockCurrentUser({ isLoggedIn: true })}
-      warnings={['ERROR_1', 'ERROR_2']}
+      onWarningDismiss={jest.fn()}
+      warnings={[mockTaskWarning({ message: 'ERROR_1' }), mockTaskWarning({ message: 'ERROR_2' })]}
       {...props}
     />
   );

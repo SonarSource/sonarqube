@@ -39,7 +39,7 @@ import {
 } from '../../store/rootActions';
 import { BranchLike } from '../../types/branch-like';
 import { isPortfolioLike } from '../../types/component';
-import { Task, TaskStatuses } from '../../types/tasks';
+import { Task, TaskStatuses, TaskWarning } from '../../types/tasks';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import { ComponentContext } from './ComponentContext';
 import PageUnavailableDueToIndexation from './indexation/PageUnavailableDueToIndexation';
@@ -62,7 +62,7 @@ interface State {
   isPending: boolean;
   loading: boolean;
   tasksInProgress?: Task[];
-  warnings: string[];
+  warnings: TaskWarning[];
 }
 
 const FETCH_STATUS_WAIT_TIME = 3000;
@@ -320,6 +320,13 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     }
   };
 
+  handleWarningDismiss = () => {
+    const { component } = this.state;
+    if (component !== undefined) {
+      this.fetchWarnings(component);
+    }
+  };
+
   render() {
     const { component, loading } = this.state;
 
@@ -346,6 +353,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
             isInProgress={isInProgress}
             isPending={isPending}
             onComponentChange={this.handleComponentChange}
+            onWarningDismiss={this.handleWarningDismiss}
             warnings={this.state.warnings}
           />
         )}

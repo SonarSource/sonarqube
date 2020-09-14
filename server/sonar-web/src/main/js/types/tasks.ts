@@ -58,3 +58,9 @@ export interface Task {
   warningCount?: number;
   warnings?: string[];
 }
+
+export interface TaskWarning {
+  key: string;
+  message: string;
+  dismissable: boolean;
+}

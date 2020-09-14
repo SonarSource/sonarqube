@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should fetch warnings and render 1`] = `
+exports[`should fetch task warnings if it has to 1`] = `
 <Modal
   contentLabel="warnings"
   onRequestClose={[MockFunction]}
@@ -20,7 +20,7 @@ exports[`should fetch warnings and render 1`] = `
     >
       <div
         className="panel panel-vertical"
-        key="0"
+        key="message foo"
       >
         <WarningIcon
           className="pull-left spacer-right"
@@ -28,12 +28,18 @@ exports[`should fetch warnings and render 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          message foo
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "message foo",
+              }
+            }
+          />
         </div>
       </div>
       <div
         className="panel panel-vertical"
-        key="1"
+        key="message-bar"
       >
         <WarningIcon
           className="pull-left spacer-right"
@@ -41,12 +47,20 @@ exports[`should fetch warnings and render 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          message-bar
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "message-bar",
+              }
+            }
+          />
         </div>
       </div>
       <div
         className="panel panel-vertical"
-        key="2"
+        key="multiline message
+secondline
+  third line"
       >
         <WarningIcon
           className="pull-left spacer-right"
@@ -54,11 +68,13 @@ exports[`should fetch warnings and render 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          multiline message
-          <br />
-          secondline
-          <br />
-            third line
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "multiline message<br>secondline<br>  third line",
+              }
+            }
+          />
         </div>
       </div>
     </DeferredSpinner>
@@ -66,17 +82,17 @@ exports[`should fetch warnings and render 1`] = `
   <footer
     className="modal-foot"
   >
-    <ResetButtonLink
+    <ButtonLink
       className="js-modal-close"
       onClick={[MockFunction]}
     >
       close
-    </ResetButtonLink>
+    </ButtonLink>
   </footer>
 </Modal>
 `;
 
-exports[`should render warnings without fetch 1`] = `
+exports[`should render correctly: default 1`] = `
 <Modal
   contentLabel="warnings"
   onRequestClose={[MockFunction]}
@@ -96,7 +112,7 @@ exports[`should render warnings without fetch 1`] = `
     >
       <div
         className="panel panel-vertical"
-        key="0"
+        key="foo"
       >
         <WarningIcon
           className="pull-left spacer-right"
@@ -104,12 +120,18 @@ exports[`should render warnings without fetch 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          warning 1
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "warning 1",
+              }
+            }
+          />
         </div>
       </div>
       <div
         className="panel panel-vertical"
-        key="1"
+        key="foo"
       >
         <WarningIcon
           className="pull-left spacer-right"
@@ -117,7 +139,13 @@ exports[`should render warnings without fetch 1`] = `
         <div
           className="overflow-hidden markdown"
         >
-          warning 2
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "warning 2",
+              }
+            }
+          />
         </div>
       </div>
     </DeferredSpinner>
@@ -125,12 +153,127 @@ exports[`should render warnings without fetch 1`] = `
   <footer
     className="modal-foot"
   >
-    <ResetButtonLink
+    <ButtonLink
       className="js-modal-close"
       onClick={[MockFunction]}
     >
       close
-    </ResetButtonLink>
+    </ButtonLink>
+  </footer>
+</Modal>
+`;
+
+exports[`should render correctly: do not show dismissable links for anonymous 1`] = `
+<Modal
+  contentLabel="warnings"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      warnings
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container js-analysis-warnings"
+  >
+    <DeferredSpinner
+      loading={false}
+    >
+      <div
+        className="panel panel-vertical"
+        key="foo"
+      >
+        <WarningIcon
+          className="pull-left spacer-right"
+        />
+        <div
+          className="overflow-hidden markdown"
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Lorem ipsum",
+              }
+            }
+          />
+        </div>
+      </div>
+    </DeferredSpinner>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ButtonLink
+      className="js-modal-close"
+      onClick={[MockFunction]}
+    >
+      close
+    </ButtonLink>
+  </footer>
+</Modal>
+`;
+
+exports[`should render correctly: with dismissable warnings 1`] = `
+<Modal
+  contentLabel="warnings"
+  onRequestClose={[MockFunction]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      warnings
+    </h2>
+  </header>
+  <div
+    className="modal-body modal-container js-analysis-warnings"
+  >
+    <DeferredSpinner
+      loading={false}
+    >
+      <div
+        className="panel panel-vertical"
+        key="foo"
+      >
+        <WarningIcon
+          className="pull-left spacer-right"
+        />
+        <div
+          className="overflow-hidden markdown"
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Lorem ipsum",
+              }
+            }
+          />
+          <div
+            className="spacer-top display-flex-inline"
+          >
+            <ButtonLink
+              className="link-base-color"
+              disabled={false}
+              onClick={[Function]}
+            >
+              dismiss_permanently
+            </ButtonLink>
+          </div>
+        </div>
+      </div>
+    </DeferredSpinner>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <ButtonLink
+      className="js-modal-close"
+      onClick={[MockFunction]}
+    >
+      close
+    </ButtonLink>
   </footer>
 </Modal>
 `;

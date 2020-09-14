@@ -20,30 +20,95 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { getTask } from '../../../api/ce';
-import AnalysisWarningsModal from '../AnalysisWarningsModal';
+import { dismissAnalysisWarning, getTask } from '../../../api/ce';
+import { mockTaskWarning } from '../../../helpers/mocks/tasks';
+import { mockCurrentUser, mockEvent } from '../../../helpers/testMocks';
+import { AnalysisWarningsModal } from '../AnalysisWarningsModal';
 
 jest.mock('../../../api/ce', () => ({
+  dismissAnalysisWarning: jest.fn().mockResolvedValue(null),
   getTask: jest.fn().mockResolvedValue({
     warnings: ['message foo', 'message-bar', 'multiline message\nsecondline\n  third line']
   })
 }));
 
-beforeEach(() => {
-  (getTask as jest.Mock<any>).mockClear();
+beforeEach(jest.clearAllMocks);
+
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('default');
+  expect(shallowRender({ warnings: [mockTaskWarning({ dismissable: true })] })).toMatchSnapshot(
+    'with dismissable warnings'
+  );
+  expect(
+    shallowRender({
+      currentUser: mockCurrentUser({ isLoggedIn: false }),
+      warnings: [mockTaskWarning({ dismissable: true })]
+    })
+  ).toMatchSnapshot('do not show dismissable links for anonymous');
 });
 
-it('should fetch warnings and render', async () => {
-  const wrapper = shallow(<AnalysisWarningsModal onClose={jest.fn()} taskId="abcd1234" />);
+it('should not fetch task warnings if it does not have to', () => {
+  shallowRender();
+  expect(getTask).not.toBeCalled();
+});
+
+it('should fetch task warnings if it has to', async () => {
+  const wrapper = shallowRender({ taskId: 'abcd1234', warnings: undefined });
   await waitAndUpdate(wrapper);
   expect(wrapper).toMatchSnapshot();
   expect(getTask).toBeCalledWith('abcd1234', ['warnings']);
 });
 
-it('should render warnings without fetch', () => {
-  const wrapper = shallow(
-    <AnalysisWarningsModal onClose={jest.fn()} warnings={['warning 1', 'warning 2']} />
-  );
-  expect(wrapper).toMatchSnapshot();
+it('should correctly handle dismissing warnings', () => {
+  return new Promise(resolve => {
+    const onWarningDismiss = jest.fn();
+    const wrapper = shallowRender({
+      componentKey: 'foo',
+      onWarningDismiss,
+      warnings: [mockTaskWarning({ key: 'bar', dismissable: true })]
+    });
+
+    const click = wrapper.find('ButtonLink.link-base-color').props().onClick;
+    if (click) {
+      click(mockEvent());
+
+      waitAndUpdate(wrapper).then(
+        () => {
+          expect(dismissAnalysisWarning).toBeCalledWith('foo', 'bar');
+          expect(onWarningDismiss).toBeCalled();
+          resolve();
+        },
+        () => {}
+      );
+    }
+  });
+});
+
+it('should correctly handle updates', async () => {
+  const wrapper = shallowRender();
+
+  await waitAndUpdate(wrapper);
+  expect(getTask).not.toBeCalled();
+
+  wrapper.setProps({ taskId: '1', warnings: undefined });
+  await waitAndUpdate(wrapper);
+  expect(getTask).toBeCalled();
+
+  (getTask as jest.Mock).mockClear();
+  wrapper.setProps({ taskId: undefined, warnings: [mockTaskWarning()] });
   expect(getTask).not.toBeCalled();
 });
+
+function shallowRender(props: Partial<AnalysisWarningsModal['props']> = {}) {
+  return shallow<AnalysisWarningsModal>(
+    <AnalysisWarningsModal
+      currentUser={mockCurrentUser({ isLoggedIn: true })}
+      onClose={jest.fn()}
+      warnings={[
+        mockTaskWarning({ message: 'warning 1' }),
+        mockTaskWarning({ message: 'warning 2' })
+      ]}
+      {...props}
+    />
+  );
+}

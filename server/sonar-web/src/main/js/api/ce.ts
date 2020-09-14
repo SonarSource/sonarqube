@@ -20,7 +20,7 @@
 import { getJSON, post, RequestData } from 'sonar-ui-common/helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 import { IndexationStatus } from '../types/indexation';
-import { Task } from '../types/tasks';
+import { Task, TaskWarning } from '../types/tasks';
 
 export function getAnalysisStatus(data: {
   component: string;
@@ -33,7 +33,7 @@ export function getAnalysisStatus(data: {
     name: string;
     organization?: string;
     pullRequest?: string;
-    warnings: string[];
+    warnings: TaskWarning[];
   };
 }> {
   return getJSON('/api/ce/analysis_status', data).catch(throwGlobalError);
@@ -86,4 +86,8 @@ export function setWorkerCount(count: number): Promise<void | Response> {
 
 export function getIndexationStatus(): Promise<IndexationStatus> {
   return getJSON('/api/ce/indexation_status').catch(throwGlobalError);
+}
+
+export function dismissAnalysisWarning(component: string, warning: string) {
+  return post('/api/ce/dismiss_analysis_warning', { component, warning }).catch(throwGlobalError);
 }

@@ -22,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { TaskWarning } from '../../../../types/tasks';
 
 const AnalysisWarningsModal = lazyLoadComponent(
   () => import('../../../../components/common/AnalysisWarningsModal'),
@@ -29,7 +30,9 @@ const AnalysisWarningsModal = lazyLoadComponent(
 );
 
 interface Props {
-  warnings: string[];
+  componentKey: string;
+  onWarningDismiss: () => void;
+  warnings: TaskWarning[];
 }
 
 interface State {
@@ -72,7 +75,12 @@ export default class ComponentNavWarnings extends React.PureComponent<Props, Sta
           />
         </Alert>
         {this.state.modal && (
-          <AnalysisWarningsModal onClose={this.handleCloseModal} warnings={this.props.warnings} />
+          <AnalysisWarningsModal
+            componentKey={this.props.componentKey}
+            onClose={this.handleCloseModal}
+            onWarningDismiss={this.props.onWarningDismiss}
+            warnings={this.props.warnings}
+          />
         )}
       </>
     );

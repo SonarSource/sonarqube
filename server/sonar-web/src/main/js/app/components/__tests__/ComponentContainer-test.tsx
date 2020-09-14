@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getBranches, getPullRequests } from '../../../api/branches';
-import { getTasksForComponent } from '../../../api/ce';
+import { getAnalysisStatus, getTasksForComponent } from '../../../api/ce';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
 import { mockBranch, mockMainBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
@@ -272,6 +272,22 @@ it('should display display the unavailable page if the component needs issue syn
   await waitAndUpdate(wrapper);
 
   expect(wrapper.find(PageUnavailableDueToIndexation).exists()).toBe(true);
+});
+
+it('should correctly reload last task warnings if anything got dismissed', async () => {
+  (getComponentData as jest.Mock<any>).mockResolvedValueOnce({
+    component: mockComponent({
+      breadcrumbs: [{ key: 'foo', name: 'Foo', qualifier: ComponentQualifier.Project }]
+    })
+  });
+  (getComponentNavigation as jest.Mock).mockResolvedValueOnce({});
+
+  const wrapper = shallowRender();
+  await waitAndUpdate(wrapper);
+  (getAnalysisStatus as jest.Mock).mockClear();
+
+  wrapper.instance().handleWarningDismiss();
+  expect(getAnalysisStatus).toBeCalledTimes(1);
 });
 
 function shallowRender(props: Partial<ComponentContainer['props']> = {}) {

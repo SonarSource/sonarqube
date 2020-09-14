@@ -161,6 +161,7 @@ exports[`shows stack trace 1`] = `
 
 exports[`shows warnings 1`] = `
 <AnalysisWarningsModal
+  componentKey="foo"
   onClose={[Function]}
   taskId="AXR8jg_0mF2ZsYr8Wzs2"
 />

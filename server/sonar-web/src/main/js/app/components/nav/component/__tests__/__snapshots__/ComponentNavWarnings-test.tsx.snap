@@ -31,10 +31,16 @@ exports[`should render 1`] = `
     />
   </Alert>
   <AnalysisWarningsModal
+    componentKey="foo"
     onClose={[Function]}
+    onWarningDismiss={[MockFunction]}
     warnings={
       Array [
-        "warning 1",
+        Object {
+          "dismissable": false,
+          "key": "foo",
+          "message": "warning 1",
+        },
       ]
     }
   />

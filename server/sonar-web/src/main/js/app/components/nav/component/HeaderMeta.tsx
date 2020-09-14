@@ -29,6 +29,7 @@ import { isLoggedIn } from '../../../../helpers/users';
 import { getCurrentUser, Store } from '../../../../store/rootReducer';
 import { BranchLike } from '../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../types/component';
+import { TaskWarning } from '../../../../types/tasks';
 import ComponentNavWarnings from './ComponentNavWarnings';
 import './HeaderMeta.css';
 
@@ -36,7 +37,8 @@ export interface HeaderMetaProps {
   branchLike?: BranchLike;
   currentUser: T.CurrentUser;
   component: T.Component;
-  warnings: string[];
+  onWarningDismiss: () => void;
+  warnings: TaskWarning[];
 }
 
 export function HeaderMeta(props: HeaderMetaProps) {
@@ -51,7 +53,11 @@ export function HeaderMeta(props: HeaderMetaProps) {
       <div className="display-flex-center flex-0 small">
         {warnings.length > 0 && (
           <span className="header-meta-warnings">
-            <ComponentNavWarnings warnings={warnings} />
+            <ComponentNavWarnings
+              componentKey={component.key}
+              onWarningDismiss={props.onWarningDismiss}
+              warnings={warnings}
+            />
           </span>
         )}
         {component.analysisDate && (

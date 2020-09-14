@@ -1,6 +1,156 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders 1`] = `
+exports[`renders correctly: default 1`] = `
+<ContextNavBar
+  height={72}
+  id="context-navigation"
+>
+  <div
+    className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
+  >
+    <Connect(Component)
+      branchLikes={Array []}
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+    <Connect(HeaderMeta)
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onWarningDismiss={[MockFunction]}
+      warnings={Array []}
+    />
+  </div>
+  <Connect(withAppState(Menu))
+    branchLikes={Array []}
+    component={
+      Object {
+        "breadcrumbs": Array [
+          Object {
+            "key": "foo",
+            "name": "Foo",
+            "qualifier": "TRK",
+          },
+        ],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    isInProgress={false}
+    isPending={false}
+    onToggleProjectInfo={[Function]}
+  />
+  <InfoDrawer
+    displayed={false}
+    onClose={[Function]}
+    top={120}
+  >
+    <Connect(ProjectInformation)
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onComponentChange={[MockFunction]}
+    />
+  </InfoDrawer>
+</ContextNavBar>
+`;
+
+exports[`renders correctly: has failed notification 1`] = `
 <ContextNavBar
   height={102}
   id="context-navigation"
@@ -10,18 +160,415 @@ exports[`renders 1`] = `
         Object {
           "breadcrumbs": Array [
             Object {
-              "key": "component",
-              "name": "component",
+              "key": "foo",
+              "name": "Foo",
               "qualifier": "TRK",
             },
           ],
-          "key": "component",
-          "name": "component",
-          "organization": "org",
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
           "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      currentTask={
+        Object {
+          "analysisId": "x123",
+          "componentKey": "foo",
+          "componentName": "Foo",
+          "componentQualifier": "TRK",
+          "id": "AXR8jg_0mF2ZsYr8Wzs2",
+          "organization": "bar",
+          "status": "FAILED",
+          "submittedAt": "2020-09-11T11:45:35+0200",
+          "type": "REPORT",
+        }
+      }
+      isInProgress={false}
+      isPending={false}
+    />
+  }
+>
+  <div
+    className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
+  >
+    <Connect(Component)
+      branchLikes={Array []}
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+    <Connect(HeaderMeta)
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onWarningDismiss={[MockFunction]}
+      warnings={Array []}
+    />
+  </div>
+  <Connect(withAppState(Menu))
+    branchLikes={Array []}
+    component={
+      Object {
+        "breadcrumbs": Array [
+          Object {
+            "key": "foo",
+            "name": "Foo",
+            "qualifier": "TRK",
+          },
+        ],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    isInProgress={false}
+    isPending={false}
+    onToggleProjectInfo={[Function]}
+  />
+  <InfoDrawer
+    displayed={false}
+    onClose={[Function]}
+    top={120}
+  >
+    <Connect(ProjectInformation)
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onComponentChange={[MockFunction]}
+    />
+  </InfoDrawer>
+</ContextNavBar>
+`;
+
+exports[`renders correctly: has in progress notification 1`] = `
+<ContextNavBar
+  height={102}
+  id="context-navigation"
+  notif={
+    <ComponentNavBgTaskNotif
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
         }
       }
       isInProgress={true}
+      isPending={false}
+    />
+  }
+>
+  <div
+    className="display-flex-center display-flex-space-between little-padded-top padded-bottom"
+  >
+    <Connect(Component)
+      branchLikes={Array []}
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+    <Connect(HeaderMeta)
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onWarningDismiss={[MockFunction]}
+      warnings={Array []}
+    />
+  </div>
+  <Connect(withAppState(Menu))
+    branchLikes={Array []}
+    component={
+      Object {
+        "breadcrumbs": Array [
+          Object {
+            "key": "foo",
+            "name": "Foo",
+            "qualifier": "TRK",
+          },
+        ],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    isInProgress={true}
+    isPending={false}
+    onToggleProjectInfo={[Function]}
+  />
+  <InfoDrawer
+    displayed={false}
+    onClose={[Function]}
+    top={120}
+  >
+    <Connect(ProjectInformation)
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onComponentChange={[MockFunction]}
+    />
+  </InfoDrawer>
+</ContextNavBar>
+`;
+
+exports[`renders correctly: has pending notification 1`] = `
+<ContextNavBar
+  height={102}
+  id="context-navigation"
+  notif={
+    <ComponentNavBgTaskNotif
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      isInProgress={false}
       isPending={true}
     />
   }
@@ -35,15 +582,29 @@ exports[`renders 1`] = `
         Object {
           "breadcrumbs": Array [
             Object {
-              "key": "component",
-              "name": "component",
+              "key": "foo",
+              "name": "Foo",
               "qualifier": "TRK",
             },
           ],
-          "key": "component",
-          "name": "component",
-          "organization": "org",
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
           "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
         }
       }
     />
@@ -52,17 +613,32 @@ exports[`renders 1`] = `
         Object {
           "breadcrumbs": Array [
             Object {
-              "key": "component",
-              "name": "component",
+              "key": "foo",
+              "name": "Foo",
               "qualifier": "TRK",
             },
           ],
-          "key": "component",
-          "name": "component",
-          "organization": "org",
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
           "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
         }
       }
+      onWarningDismiss={[MockFunction]}
       warnings={Array []}
     />
   </div>
@@ -72,18 +648,32 @@ exports[`renders 1`] = `
       Object {
         "breadcrumbs": Array [
           Object {
-            "key": "component",
-            "name": "component",
+            "key": "foo",
+            "name": "Foo",
             "qualifier": "TRK",
           },
         ],
-        "key": "component",
-        "name": "component",
-        "organization": "org",
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
         "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
       }
     }
-    isInProgress={true}
+    isInProgress={false}
     isPending={true}
     onToggleProjectInfo={[Function]}
   />
@@ -97,15 +687,187 @@ exports[`renders 1`] = `
         Object {
           "breadcrumbs": Array [
             Object {
-              "key": "component",
-              "name": "component",
+              "key": "foo",
+              "name": "Foo",
               "qualifier": "TRK",
             },
           ],
-          "key": "component",
-          "name": "component",
-          "organization": "org",
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
           "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onComponentChange={[MockFunction]}
+    />
+  </InfoDrawer>
+</ContextNavBar>
+`;
+
+exports[`renders correctly: has warnings 1`] = `
+<ContextNavBar
+  height={72}
+  id="context-navigation"
+>
+  <div
+    className="display-flex-center display-flex-space-between little-padded-top"
+  >
+    <Connect(Component)
+      branchLikes={Array []}
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+    />
+    <Connect(HeaderMeta)
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
+        }
+      }
+      onWarningDismiss={[MockFunction]}
+      warnings={
+        Array [
+          Object {
+            "dismissable": false,
+            "key": "foo",
+            "message": "Lorem ipsum",
+          },
+        ]
+      }
+    />
+  </div>
+  <Connect(withAppState(Menu))
+    branchLikes={Array []}
+    component={
+      Object {
+        "breadcrumbs": Array [
+          Object {
+            "key": "foo",
+            "name": "Foo",
+            "qualifier": "TRK",
+          },
+        ],
+        "key": "my-project",
+        "name": "MyProject",
+        "organization": "foo",
+        "qualifier": "TRK",
+        "qualityGate": Object {
+          "isDefault": true,
+          "key": "30",
+          "name": "Sonar way",
+        },
+        "qualityProfiles": Array [
+          Object {
+            "deleted": false,
+            "key": "my-qp",
+            "language": "ts",
+            "name": "Sonar way",
+          },
+        ],
+        "tags": Array [],
+      }
+    }
+    isInProgress={false}
+    isPending={false}
+    onToggleProjectInfo={[Function]}
+  />
+  <InfoDrawer
+    displayed={false}
+    onClose={[Function]}
+    top={120}
+  >
+    <Connect(ProjectInformation)
+      component={
+        Object {
+          "breadcrumbs": Array [
+            Object {
+              "key": "foo",
+              "name": "Foo",
+              "qualifier": "TRK",
+            },
+          ],
+          "key": "my-project",
+          "name": "MyProject",
+          "organization": "foo",
+          "qualifier": "TRK",
+          "qualityGate": Object {
+            "isDefault": true,
+            "key": "30",
+            "name": "Sonar way",
+          },
+          "qualityProfiles": Array [
+            Object {
+              "deleted": false,
+              "key": "my-qp",
+              "language": "ts",
+              "name": "Sonar way",
+            },
+          ],
+          "tags": Array [],
         }
       }
       onComponentChange={[MockFunction]}

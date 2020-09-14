@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from '../../types/component';
-import { Task, TaskStatuses, TaskTypes } from '../../types/tasks';
+import { Task, TaskStatuses, TaskTypes, TaskWarning } from '../../types/tasks';
 
 export function mockTask(overrides: Partial<Task> = {}): Task {
   return {
@@ -31,6 +31,15 @@ export function mockTask(overrides: Partial<Task> = {}): Task {
     status: TaskStatuses.Pending,
     submittedAt: '2020-09-11T11:45:35+0200',
     type: TaskTypes.Report,
+    ...overrides
+  };
+}
+
+export function mockTaskWarning(overrides: Partial<TaskWarning> = {}): TaskWarning {
+  return {
+    key: 'foo',
+    message: 'Lorem ipsum',
+    dismissable: false,
     ...overrides
   };
 }

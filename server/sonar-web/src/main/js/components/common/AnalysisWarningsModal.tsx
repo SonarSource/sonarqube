@@ -17,31 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { sanitize } from 'dompurify';
 import * as React from 'react';
-import { ResetButtonLink } from 'sonar-ui-common/components/controls/buttons';
+import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import WarningIcon from 'sonar-ui-common/components/icons/WarningIcon';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getTask } from '../../api/ce';
+import { dismissAnalysisWarning, getTask } from '../../api/ce';
+import { TaskWarning } from '../../types/tasks';
+import { withCurrentUser } from '../hoc/withCurrentUser';
 
 interface Props {
+  componentKey?: string;
+  currentUser: T.CurrentUser;
   onClose: () => void;
+  onWarningDismiss?: () => void;
   taskId?: string;
-  warnings?: string[];
+  warnings?: TaskWarning[];
 }
 
 interface State {
   loading: boolean;
-  warnings: string[];
+  dismissedWarning?: string;
+  warnings: TaskWarning[];
 }
 
-export default class AnalysisWarningsModal extends React.PureComponent<Props, State> {
+export class AnalysisWarningsModal extends React.PureComponent<Props, State> {
   mounted = false;
 
   constructor(props: Props) {
     super(props);
-    this.state = { loading: !props.warnings, warnings: props.warnings || [] };
+    this.state = {
+      loading: !props.warnings,
+      warnings: props.warnings || []
+    };
   }
 
   componentDidMount() {
@@ -64,42 +74,54 @@ export default class AnalysisWarningsModal extends React.PureComponent<Props, St
     this.mounted = false;
   }
 
-  loadWarnings(taskId: string) {
-    this.setState({ loading: true });
-    getTask(taskId, ['warnings']).then(
-      ({ warnings = [] }) => {
-        if (this.mounted) {
-          this.setState({ loading: false, warnings });
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loading: false });
-        }
-      }
-    );
-  }
+  handleDismissMessage = async (messageKey: string) => {
+    const { componentKey } = this.props;
 
-  keepLineBreaks = (warning: string) => {
-    if (warning.includes('\n')) {
-      const lines = warning.split('\n');
-      return (
-        <>
-          {lines.map((line, index) => (
-            <React.Fragment key={index}>
-              {line}
-              {index < lines.length - 1 && <br />}
-            </React.Fragment>
-          ))}
-        </>
-      );
-    } else {
-      return warning;
+    if (componentKey === undefined) {
+      return;
+    }
+
+    this.setState({ dismissedWarning: messageKey });
+
+    try {
+      await dismissAnalysisWarning(componentKey, messageKey);
+
+      if (this.props.onWarningDismiss) {
+        this.props.onWarningDismiss();
+      }
+    } catch (e) {
+      // Noop
+    }
+
+    if (this.mounted) {
+      this.setState({ dismissedWarning: undefined });
+    }
+  };
+
+  loadWarnings = async (taskId: string) => {
+    this.setState({ loading: true });
+    try {
+      const { warnings = [] } = await getTask(taskId, ['warnings']);
+
+      if (this.mounted) {
+        this.setState({
+          loading: false,
+          warnings: warnings.map(w => ({ key: w, message: w, dismissable: false }))
+        });
+      }
+    } catch (e) {
+      if (this.mounted) {
+        this.setState({ loading: false });
+      }
     }
   };
 
   render() {
+    const { currentUser } = this.props;
+    const { loading, dismissedWarning, warnings } = this.state;
+
     const header = translate('warnings');
+
     return (
       <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <header className="modal-head">
@@ -107,22 +129,47 @@ export default class AnalysisWarningsModal extends React.PureComponent<Props, St
         </header>
 
         <div className="modal-body modal-container js-analysis-warnings">
-          <DeferredSpinner loading={this.state.loading}>
-            {this.state.warnings.map((warning, index) => (
-              <div className="panel panel-vertical" key={index}>
+          <DeferredSpinner loading={loading}>
+            {warnings.map(({ dismissable, key, message }) => (
+              <div className="panel panel-vertical" key={key}>
                 <WarningIcon className="pull-left spacer-right" />
-                <div className="overflow-hidden markdown">{this.keepLineBreaks(warning)}</div>
+                <div className="overflow-hidden markdown">
+                  <span
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{
+                      __html: sanitize(message.trim().replace(/\n/g, '<br />'), {
+                        ALLOWED_ATTR: ['target', 'href']
+                      })
+                    }}
+                  />
+
+                  {dismissable && currentUser.isLoggedIn && (
+                    <div className="spacer-top display-flex-inline">
+                      <ButtonLink
+                        className="link-base-color"
+                        disabled={Boolean(dismissedWarning)}
+                        onClick={() => {
+                          this.handleDismissMessage(key);
+                        }}>
+                        {translate('dismiss_permanently')}
+                      </ButtonLink>
+                      {dismissedWarning === key && <i className="spinner spacer-left" />}
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </DeferredSpinner>
         </div>
 
         <footer className="modal-foot">
-          <ResetButtonLink className="js-modal-close" onClick={this.props.onClose}>
+          <ButtonLink className="js-modal-close" onClick={this.props.onClose}>
             {translate('close')}
-          </ResetButtonLink>
+          </ButtonLink>
         </footer>
       </Modal>
     );
   }
 }
+
+export default withCurrentUser(AnalysisWarningsModal);
