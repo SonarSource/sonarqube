@@ -112,6 +112,22 @@ public class AlmSettingsService extends BaseService {
   }
 
   /**
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/create_gitea">Further information about this action online (including a response example)</a>
+   * @since 8.5
+   */
+  public void createGitea(CreateGiteaRequest request) {
+    call(
+      new PostRequest(path("create_gitea"))
+        .setParam("appId", request.getAppId())
+        .setParam("key", request.getKey())
+        .setParam("url", request.getUrl())
+        .setParam("clientId", request.getClientId())
+        .setParam("clientSecret", request.getClientSecret())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
    *
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/delete">Further information about this action online (including a response example)</a>
@@ -232,6 +248,20 @@ public class AlmSettingsService extends BaseService {
   }
 
   /**
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/set_gitea_binding">Further information about this action online (including a response example)</a>
+   * @since 8.5
+   */
+  public void setGiteaBinding(SetGiteaBindingRequest request) {
+    call(
+      new PostRequest(path("set_gitea_binding"))
+        .setParam("almSetting", request.getAlmSetting())
+        .setParam("project", request.getProject())
+        .setParam("repository", request.getRepository())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
    *
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_azure">Further information about this action online (including a response example)</a>
@@ -290,6 +320,24 @@ public class AlmSettingsService extends BaseService {
         .setParam("key", request.getKey())
         .setParam("newKey", request.getNewKey())
         .setParam("privateKey", request.getPrivateKey())
+        .setParam("url", request.getUrl())
+        .setParam("clientId", request.getClientId())
+        .setParam("clientSecret", request.getClientSecret())
+        .setMediaType(MediaTypes.JSON)).content();
+  }
+
+  /**
+   *
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/alm_settings/update_gitea">Further information about this action online (including a response example)</a>
+   * @since 8.5
+   */
+  public void updateGitea(UpdateGiteaRequest request) {
+    call(
+      new PostRequest(path("update_gitea"))
+        .setParam("appId", request.getAppId())
+        .setParam("key", request.getKey())
+        .setParam("newKey", request.getNewKey())
         .setParam("url", request.getUrl())
         .setParam("clientId", request.getClientId())
         .setParam("clientSecret", request.getClientSecret())

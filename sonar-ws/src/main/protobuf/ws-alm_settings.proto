@@ -30,6 +30,7 @@ message ListDefinitionsWsResponse {
   repeated AlmSettingAzure azure = 2;
   repeated AlmSettingBitbucket bitbucket = 3;
   repeated AlmSettingGitlab gitlab = 4;
+  repeated AlmSettingGitea gitea = 5;
 }
 
 message AlmSettingGithub {
@@ -58,6 +59,14 @@ message AlmSettingGitlab {
   optional string url = 3;
 }
 
+message AlmSettingGitea {
+  optional string key = 1;
+  optional string url = 2;
+  optional string appId = 3;
+  optional string clientId = 4;
+  optional string clientSecret = 5;
+}
+
 // WS api/alm_settings/get_binding
 message GetBindingWsResponse {
   optional string key = 1;
@@ -73,6 +82,7 @@ enum Alm {
   azure = 1;
   bitbucket = 2;
   gitlab = 3;
+  gitea = 4;
 }
 
 // WS api/alm_settings/list
