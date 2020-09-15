@@ -65,6 +65,26 @@ public class ProjectQgateAssociationDaoTest {
   }
 
   @Test
+  public void select_all_projects_by_query_should_have_deterministic_order() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate1 = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization, d -> d.setName("p1").setDbKey("key1"));
+    ComponentDto project2 = db.components().insertPrivateProject(organization, d -> d.setName("p1").setDbKey("key2"));
+    ComponentDto project3 = db.components().insertPrivateProject(organization, d -> d.setName("p2").setDbKey("key3"));
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project1), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project2), qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(db.components().getProjectDto(project3), qualityGate1);
+
+    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
+      .qualityGate(qualityGate1)
+      .build());
+
+    assertThat(result)
+      .extracting(ProjectQgateAssociationDto::getUuid)
+      .containsExactlyInAnyOrder(project1.uuid(), project2.uuid(), project3.uuid());
+  }
+
+  @Test
   public void select_projects_by_query() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
