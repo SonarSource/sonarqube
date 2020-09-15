@@ -72,9 +72,11 @@ import org.sonar.server.rule.index.RuleQuery;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.valueOf;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -850,10 +852,8 @@ public class RegisterRulesTest {
     execute(new FindbugsRepository());
 
     List<RuleDefinitionDto> rules = dbClient.ruleDao().selectAllDefinitions(db.getSession());
-    assertThat(rules).hasSize(1);
-    RuleDefinitionDto result = rules.get(0);
-    assertThat(result.getKey()).isEqualTo(RuleKey.of("findbugs", "rule1"));
-    assertThat(result.getSystemTags()).isEmpty();
+    assertThat(rules).hasSize(1).extracting(RuleDefinitionDto::getKey, RuleDefinitionDto::getSystemTags)
+      .containsOnly(tuple(RuleKey.of("findbugs", "rule1"), emptySet()));
   }
 
   @Test
@@ -877,27 +877,13 @@ public class RegisterRulesTest {
   public void rules_that_deprecate_previous_rule_must_be_recorded() {
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
-      repo.createRule("rule1")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .setStatus(RuleStatus.BETA);
+      createRule(repo, "rule1");
       repo.done();
     });
 
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
-      repo.createRule("newKey")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .setStatus(RuleStatus.BETA)
+      createRule(repo, "newKey")
         .addDeprecatedRuleKey("fake", "rule1")
         .addDeprecatedRuleKey("fake", "rule2");
       repo.done();
@@ -913,27 +899,13 @@ public class RegisterRulesTest {
   public void rules_that_remove_deprecated_key_must_remove_records() {
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
-      repo.createRule("rule1")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .setStatus(RuleStatus.BETA);
+      createRule(repo, "rule1");
       repo.done();
     });
 
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
-      repo.createRule("newKey")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .setStatus(RuleStatus.BETA)
+      createRule(repo, "newKey")
         .addDeprecatedRuleKey("fake", "rule1")
         .addDeprecatedRuleKey("fake", "rule2");
       repo.done();
@@ -945,14 +917,7 @@ public class RegisterRulesTest {
 
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
-      repo.createRule("newKey")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .setStatus(RuleStatus.BETA);
+      createRule(repo, "newKey");
       repo.done();
     });
 
@@ -968,24 +933,10 @@ public class RegisterRulesTest {
 
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
-      repo.createRule("newKey1")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .addDeprecatedRuleKey("fake", "old")
-        .setStatus(RuleStatus.BETA);
-      repo.createRule("newKey2")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .addDeprecatedRuleKey("fake", "old")
-        .setStatus(RuleStatus.BETA);
+      createRule(repo, "newKey1")
+        .addDeprecatedRuleKey("fake", "old");
+      createRule(repo, "newKey2")
+        .addDeprecatedRuleKey("fake", "old");
       repo.done();
     });
   }
@@ -997,24 +948,9 @@ public class RegisterRulesTest {
 
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
-      repo.createRule("newKey1")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .setStatus(RuleStatus.BETA);
-
-      repo.createRule("newKey2")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .addDeprecatedRuleKey("fake", "newKey1")
-        .setStatus(RuleStatus.BETA);
+      createRule(repo, "newKey1");
+      createRule(repo, "newKey2")
+        .addDeprecatedRuleKey("fake", "newKey1");
       repo.done();
     });
   }
@@ -1035,30 +971,26 @@ public class RegisterRulesTest {
   }
 
   @Test
+  public void deprecate_rule_that_deprecated_another_rule() {
+    execute(context -> createRule(context, "javascript", "javascript", "s103"));
+    execute(context -> createRule(context, "javascript", "javascript", "s104",
+      r -> r.addDeprecatedRuleKey("javascript", "s103")));
+
+    // This rule should have been moved to another repository
+    execute(context -> createRule(context, "javascript", "sonarjs", "s105",
+      r -> r.addDeprecatedRuleKey("javascript", "s103")
+        .addDeprecatedRuleKey("javascript", "s104")));
+  }
+
+  @Test
   public void declaring_a_rule_with_an_existing_RuleKey_still_used_should_throw_IAE() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The rule 'newKey1' of repository 'fake' is declared several times");
 
     execute(context -> {
       NewRepository repo = context.createRepository("fake", "java");
-      repo.createRule("newKey1")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .setStatus(RuleStatus.BETA);
-
-      repo.createRule("newKey1")
-        .setName("One")
-        .setHtmlDescription("Description of One")
-        .setSeverity(BLOCKER)
-        .setInternalKey("config1")
-        .setTags("tag1", "tag2", "tag3")
-        .setType(RuleType.CODE_SMELL)
-        .addDeprecatedRuleKey("fake", "newKey1")
-        .setStatus(RuleStatus.BETA);
+      createRule(repo, "newKey1");
+      createRule(repo, "newKey1");
       repo.done();
     });
   }
@@ -1079,6 +1011,17 @@ public class RegisterRulesTest {
     db.getSession().commit();
 
     verify(webServerRuleFinder).startCaching();
+  }
+
+  private NewRule createRule(NewRepository repo, String key) {
+    return repo.createRule(key)
+      .setName(key + " name")
+      .setHtmlDescription("Description of " + key)
+      .setSeverity(BLOCKER)
+      .setInternalKey("config1")
+      .setTags("tag1", "tag2", "tag3")
+      .setType(RuleType.CODE_SMELL)
+      .setStatus(RuleStatus.BETA);
   }
 
   @SafeVarargs

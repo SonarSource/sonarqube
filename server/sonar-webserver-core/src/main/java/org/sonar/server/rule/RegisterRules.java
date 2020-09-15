@@ -817,8 +817,7 @@ public class RegisterRules implements Startable {
       lazyToString(() -> String.join("\n", incorrectRuleKeyMessage)));
   }
 
-  private static Stream<String> filterInvalidDeprecatedRuleKeys(ImmutableMap<RuleKey, SingleDeprecatedRuleKey> dbDeprecatedRuleKeysByOldRuleKey,
-    RulesDefinition.Rule rule) {
+  private static Stream<String> filterInvalidDeprecatedRuleKeys(Map<RuleKey, SingleDeprecatedRuleKey> dbDeprecatedRuleKeysByOldRuleKey, RulesDefinition.Rule rule) {
     return rule.deprecatedRuleKeys().stream()
       .map(rk -> {
         SingleDeprecatedRuleKey singleDeprecatedRuleKey = dbDeprecatedRuleKeysByOldRuleKey.get(rk);
@@ -831,7 +830,7 @@ public class RegisterRules implements Startable {
           // same parent : OK
           return null;
         }
-        if (rule.deprecatedRuleKeys().contains(parentRuleKey)) {
+        if (rule.deprecatedRuleKeys().contains(singleDeprecatedRuleKey.getNewRuleKeyAsRuleKey())) {
           // the new rule is deprecating the old parentRuleKey : OK
           return null;
         }
