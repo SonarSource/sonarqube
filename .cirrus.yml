@@ -35,16 +35,16 @@ task_only_nightly_depending_on_build_template: &TASK_ONLY_NIGHTLY_DEPENDING_ON_B
 docker_build_container_template: &GKE_CONTAINER_TEMPLATE
   dockerfile: private/docker/Dockerfile-build
   builder_image_project: sonarqube-team
-  builder_image_name: docker-builder-v20200821
+  builder_image_name: docker-builder-v20200915
   cluster_name: cirrus-ci-cluster
-  zone: europe-west4-a
+  zone: us-central1-a
   namespace: default
   cpu: 1
   memory: 1Gb
 
 oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   name: oracle
-  image: gcr.io/sonarqube-team/oracle12:0.0.1 # see https://github.com/SonarSource/vms/blob/master/docker/README.md#oracle-12c to build it
+  image: us.gcr.io/sonarqube-team/oracle12:0.0.1 # see https://github.com/SonarSource/vms/blob/master/docker/README.md#oracle-12c to build it
   port: 1521
   cpu: 2
   memory: 5Gb
