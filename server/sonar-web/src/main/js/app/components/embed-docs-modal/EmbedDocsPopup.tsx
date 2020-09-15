@@ -117,7 +117,7 @@ export default class EmbedDocsPopup extends React.PureComponent<Props> {
         {this.renderTitle(translate('embed_docs.stay_connected'))}
         <li>
           {this.renderIconLink(
-            'https://www.sonarqube.org/whats-new/',
+            'https://www.sonarqube.org/whats-new/?referrer=sonarqube',
             'embed-doc/sq-icon.svg',
             translate('embed_docs.news')
           )}

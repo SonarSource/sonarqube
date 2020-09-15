@@ -73,7 +73,7 @@ export default function GlobalFooter({
           <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">{translate('footer.license')}</a>
         </li>
         <li className="page-footer-menu-item">
-          <a href="http://www.sonarqube.org">{translate('footer.community')}</a>
+          <a href="http://www.sonarqube.org?referrer=sonarqube">{translate('footer.community')}</a>
         </li>
         <li className="page-footer-menu-item">
           <Link to="/documentation">{translate('footer.documentation')}</Link>

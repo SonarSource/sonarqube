@@ -79,7 +79,7 @@ exports[`should display correctly 1`] = `
   >
     <a
       className="pull-left"
-      href="https://www.sonarqube.org/downloads/"
+      href="https://www.sonarqube.org/downloads/?referrer=sonarqube"
       rel="noopener noreferrer"
       target="_blank"
     >
