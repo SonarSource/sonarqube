@@ -28,7 +28,7 @@ exports[`should render \`leak\` view correctly 1`] = `
   <SecurityReviewFilter
     className="leak-facet-box"
     onQueryChange={[MockFunction]}
-    property="new_security_review_rating"
+    property="new_security_review"
   />
   <NewMaintainabilityFilter
     onQueryChange={[MockFunction]}
@@ -92,7 +92,7 @@ exports[`should render \`leak\` view correctly with no applications 1`] = `
   <SecurityReviewFilter
     className="leak-facet-box"
     onQueryChange={[MockFunction]}
-    property="new_security_review_rating"
+    property="new_security_review"
   />
   <NewMaintainabilityFilter
     onQueryChange={[MockFunction]}
