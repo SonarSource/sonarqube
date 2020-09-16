@@ -99,6 +99,5 @@ exports[`should render correctly: with leak legend 1`] = `
       </span>
     </Tooltip>
   </div>
-  <GraphsLegendNewCode />
 </div>
 `;

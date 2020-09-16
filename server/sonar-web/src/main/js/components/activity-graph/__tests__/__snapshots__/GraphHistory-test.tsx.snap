@@ -28,7 +28,46 @@ exports[`should correctly render a graph 1`] = `
         },
       ]
     }
-    showLeakLegend={true}
+  />
+  <div
+    className="flex-1"
+  >
+    <AutoSizer>
+      <Component />
+    </AutoSizer>
+  </div>
+</div>
+`;
+
+exports[`should correctly render a graph: custom 1`] = `
+<div
+  className="activity-graph-container flex-grow display-flex-column display-flex-stretch display-flex-justify-center"
+>
+  <GraphsLegendCustom
+    removeMetric={[MockFunction]}
+    series={
+      Array [
+        Object {
+          "data": Array [
+            Object {
+              "x": 2016-10-27T14:33:50.000Z,
+              "y": 5,
+            },
+            Object {
+              "x": 2016-10-27T10:21:15.000Z,
+              "y": 16,
+            },
+            Object {
+              "x": 2016-10-26T10:17:29.000Z,
+              "y": 12,
+            },
+          ],
+          "name": "bugs",
+          "translatedName": "metric.bugs.name",
+          "type": "INT",
+        },
+      ]
+    }
   />
   <div
     className="flex-1"

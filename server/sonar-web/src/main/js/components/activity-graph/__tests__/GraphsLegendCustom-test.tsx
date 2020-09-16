@@ -24,7 +24,6 @@ import GraphsLegendCustom, { GraphsLegendCustomProps } from '../GraphsLegendCust
 
 it('should render correctly', () => {
   expect(shallowRender()).toMatchSnapshot('default');
-  expect(shallowRender({ showLeakLegend: true })).toMatchSnapshot('with leak legend');
 });
 
 function shallowRender(props: Partial<GraphsLegendCustomProps> = {}) {
@@ -51,7 +50,6 @@ function shallowRender(props: Partial<GraphsLegendCustomProps> = {}) {
           type: 'INT'
         }
       ]}
-      showLeakLegend={false}
       {...props}
     />
   );

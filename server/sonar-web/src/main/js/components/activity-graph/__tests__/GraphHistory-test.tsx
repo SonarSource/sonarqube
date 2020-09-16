@@ -36,21 +36,27 @@ const SERIES = [
   }
 ];
 
-const DEFAULT_PROPS: GraphHistory['props'] = {
-  events: [],
-  graph: DEFAULT_GRAPH,
-  leakPeriodDate: parseDate('2017-05-16T13:50:02+0200'),
-  isCustom: false,
-  measuresHistory: [],
-  metricsType: 'INT',
-  removeCustomMetric: () => {},
-  showAreas: true,
-  series: SERIES,
-  updateGraphZoom: () => {},
-  updateSelectedDate: () => {},
-  updateTooltip: () => {}
-};
-
 it('should correctly render a graph', () => {
-  expect(shallow(<GraphHistory {...DEFAULT_PROPS} />)).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot();
+  expect(shallowRender({ isCustom: true })).toMatchSnapshot('custom');
 });
+
+function shallowRender(overrides: Partial<GraphHistory['props']> = {}) {
+  return shallow(
+    <GraphHistory
+      events={[]}
+      graph={DEFAULT_GRAPH}
+      leakPeriodDate={parseDate('2017-05-16T13:50:02+0200')}
+      isCustom={false}
+      measuresHistory={[]}
+      metricsType="INT"
+      removeCustomMetric={jest.fn()}
+      showAreas={true}
+      series={SERIES}
+      updateGraphZoom={jest.fn()}
+      updateSelectedDate={jest.fn()}
+      updateTooltip={jest.fn()}
+      {...overrides}
+    />
+  );
+}

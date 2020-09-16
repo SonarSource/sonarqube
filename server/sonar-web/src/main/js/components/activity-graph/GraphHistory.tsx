@@ -85,13 +85,9 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
     return (
       <div className="activity-graph-container flex-grow display-flex-column display-flex-stretch display-flex-justify-center">
         {isCustom && this.props.removeCustomMetric ? (
-          <GraphsLegendCustom
-            removeMetric={this.props.removeCustomMetric}
-            series={series}
-            showLeakLegend={Boolean(leakPeriodDate)}
-          />
+          <GraphsLegendCustom removeMetric={this.props.removeCustomMetric} series={series} />
         ) : (
-          <GraphsLegendStatic series={series} showLeakLegend={Boolean(leakPeriodDate)} />
+          <GraphsLegendStatic series={series} />
         )}
 
         <div className="flex-1">
@@ -99,6 +95,7 @@ export default class GraphHistory extends React.PureComponent<Props, State> {
             {({ height, width }) => (
               <div>
                 <AdvancedTimeline
+                  displayNewCodeLegend={true}
                   endDate={graphEndDate}
                   formatYTick={this.formatValue}
                   height={height}

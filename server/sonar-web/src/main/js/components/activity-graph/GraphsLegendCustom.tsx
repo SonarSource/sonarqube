@@ -22,17 +22,15 @@ import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Serie } from '../../types/project-activity';
 import GraphsLegendItem from './GraphsLegendItem';
-import GraphsLegendNewCode from './GraphsLegendNewCode';
 import { hasDataValues } from './utils';
 
 export interface GraphsLegendCustomProps {
   removeMetric: (metric: string) => void;
   series: Serie[];
-  showLeakLegend: boolean;
 }
 
 export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
-  const { series, showLeakLegend } = props;
+  const { series } = props;
   return (
     <div className="activity-graph-legends display-flex-center">
       <div className="flex-1">
@@ -63,8 +61,6 @@ export default function GraphsLegendCustom(props: GraphsLegendCustomProps) {
           );
         })}
       </div>
-
-      {showLeakLegend && <GraphsLegendNewCode />}
     </div>
   );
 }

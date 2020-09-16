@@ -39,6 +39,5 @@ exports[`should render correctly: with leak legend 1`] = `
     metric="code_smells"
     name="Code Smells"
   />
-  <GraphsLegendNewCode />
 </div>
 `;

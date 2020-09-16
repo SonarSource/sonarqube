@@ -20,14 +20,12 @@
 import * as React from 'react';
 import { Serie } from '../../types/project-activity';
 import GraphsLegendItem from './GraphsLegendItem';
-import GraphsLegendNewCode from './GraphsLegendNewCode';
 
 export interface GraphsLegendStaticProps {
   series: Array<Pick<Serie, 'name' | 'translatedName'>>;
-  showLeakLegend: boolean;
 }
 
-export default function GraphsLegendStatic({ series, showLeakLegend }: GraphsLegendStaticProps) {
+export default function GraphsLegendStatic({ series }: GraphsLegendStaticProps) {
   return (
     <div className="activity-graph-legends">
       {series.map((serie, idx) => (
@@ -39,8 +37,6 @@ export default function GraphsLegendStatic({ series, showLeakLegend }: GraphsLeg
           name={serie.translatedName}
         />
       ))}
-
-      {showLeakLegend && <GraphsLegendNewCode />}
     </div>
   );
 }
