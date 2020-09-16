@@ -25,6 +25,7 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.ComputeEngineSide;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Provides the ability to record message attached to the current task.
@@ -47,12 +48,19 @@ public interface CeTaskMessages {
   class Message {
     private final String text;
     private final long timestamp;
+    private final boolean dismissible;
 
-    public Message(String text, long timestamp) {
-      checkArgument(text != null && !text.isEmpty(), "Text can't be null nor empty");
-      checkArgument(timestamp >= 0, "Text can't be less than 0");
+    public Message(String text, long timestamp, boolean dismissible) {
+      requireNonNull(text, "Text can't be null");
+      checkArgument(!text.isEmpty(), "Text can't be empty");
+      checkArgument(timestamp >= 0, "Timestamp can't be less than 0");
       this.text = text;
       this.timestamp = timestamp;
+      this.dismissible = dismissible;
+    }
+
+    public Message(String text, long timestamp) {
+      this(text, timestamp, false);
     }
 
     public String getText() {
@@ -61,6 +69,10 @@ public interface CeTaskMessages {
 
     public long getTimestamp() {
       return timestamp;
+    }
+
+    public boolean isDismissible() {
+      return dismissible;
     }
 
     @Override
@@ -86,6 +98,7 @@ public interface CeTaskMessages {
       return "Message{" +
         "text='" + text + '\'' +
         ", timestamp=" + timestamp +
+        ", dismissible=" + dismissible +
         '}';
     }
   }

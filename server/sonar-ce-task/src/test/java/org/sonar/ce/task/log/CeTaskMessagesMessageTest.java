@@ -19,76 +19,62 @@
  */
 package org.sonar.ce.task.log;
 
-import java.util.Random;
-import java.util.stream.LongStream;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.task.log.CeTaskMessages.Message;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CeTaskMessagesMessageTest {
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void constructor_throws_IAE_if_text_is_null() {
-    expectTextCantBeNullNorEmptyIAE();
-
-    new Message(null, 12L);
+    assertThatThrownBy(() -> new Message(null, 12L))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("Text can't be null");
   }
 
   @Test
   public void constructor_throws_IAE_if_text_is_empty() {
-    expectTextCantBeNullNorEmptyIAE();
-
-    new Message("", 12L);
-  }
-
-  private void expectTextCantBeNullNorEmptyIAE() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Text can't be null nor empty");
+    assertThatThrownBy(() -> new Message("", 12L))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Text can't be empty");
   }
 
   @Test
   public void constructor_throws_IAE_if_timestamp_is_less_than_0() {
-    LongStream.of(0, 1 + new Random().nextInt(12))
-      .forEach(timestamp -> assertThat(new Message("foo", timestamp).getTimestamp()).isEqualTo(timestamp));
-
-    long lessThanZero = -1 - new Random().nextInt(33);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Text can't be less than 0");
-
-    new Message("bar", lessThanZero);
+    assertThatThrownBy(() -> new Message("bar", -1))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Timestamp can't be less than 0");
   }
 
   @Test
   public void equals_is_based_on_text_and_timestamp() {
-    long timestamp = new Random().nextInt(10_999);
+    long timestamp = 10_000_000_000L;
     String text = randomAlphabetic(23);
     Message underTest = new Message(text, timestamp);
 
-    assertThat(underTest).isEqualTo(underTest);
-    assertThat(underTest).isEqualTo(new Message(text, timestamp));
-    assertThat(underTest).isNotEqualTo(new Message(text + "ç", timestamp));
-    assertThat(underTest).isNotEqualTo(new Message(text, timestamp + 10_999L));
-    assertThat(underTest).isNotEqualTo(null);
-    assertThat(underTest).isNotEqualTo(new Object());
+    assertThat(underTest)
+      .isEqualTo(underTest)
+      .isEqualTo(new Message(text, timestamp))
+      .isNotEqualTo(new Message(text + "ç", timestamp))
+      .isNotEqualTo(new Message(text, timestamp + 10_999L))
+      .isNotEqualTo(null)
+      .isNotEqualTo(new Object());
   }
 
   @Test
   public void hashsode_is_based_on_text_and_timestamp() {
-    long timestamp = new Random().nextInt(10_999);
+    long timestamp = 10_000_000_000L;
     String text = randomAlphabetic(23);
     Message underTest = new Message(text, timestamp);
 
-    assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
-    assertThat(underTest.hashCode()).isEqualTo(new Message(text, timestamp).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new Message(text + "ç", timestamp).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new Message(text, timestamp + 10_999L).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
+    assertThat(underTest.hashCode())
+      .isEqualTo(underTest.hashCode())
+      .isEqualTo(new Message(text, timestamp).hashCode())
+      .isNotEqualTo(new Message(text + "ç", timestamp).hashCode())
+      .isNotEqualTo(new Message(text, timestamp + 10_999L).hashCode())
+      .isNotEqualTo(new Object().hashCode());
   }
 }

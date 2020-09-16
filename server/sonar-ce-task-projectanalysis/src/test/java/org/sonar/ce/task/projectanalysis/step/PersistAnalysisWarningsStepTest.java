@@ -21,9 +21,9 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -32,7 +32,9 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import static com.google.common.collect.ImmutableList.of;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -55,13 +57,14 @@ public class PersistAnalysisWarningsStepTest {
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
     ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
+    ArgumentCaptor<List<CeTaskMessages.Message>> argumentCaptor = ArgumentCaptor.forClass(List.class);
 
     underTest.execute(new TestComputationStepContext());
 
-    List<CeTaskMessages.Message> messages = warnings.stream()
-      .map(w -> new CeTaskMessages.Message(w.getText(), w.getTimestamp()))
-      .collect(Collectors.toList());
-    verify(ceTaskMessages).addAll(messages);
+    verify(ceTaskMessages, times(1)).addAll(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue())
+      .extracting(CeTaskMessages.Message::getText, CeTaskMessages.Message::isDismissible)
+      .containsExactly(tuple("warning 1", false), tuple("warning 2", false));
   }
 
   @Test

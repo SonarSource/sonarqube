@@ -29,7 +29,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
@@ -122,13 +121,18 @@ public class AnalysisStatusAction implements CeWsAction {
       builder.setPullRequest(pullRequestKey);
     }
 
-    if (lastActivity != null) {
-      List<String> warnings = dbClient.ceTaskMessageDao().selectByTask(dbSession, lastActivity.getUuid()).stream()
-        .map(CeTaskMessageDto::getMessage)
-        .collect(Collectors.toList());
-
-      builder.addAllWarnings(warnings);
+    if (lastActivity == null) {
+      return builder.build();
     }
+    List<AnalysisStatusWsResponse.Warning> warnings = dbClient.ceTaskMessageDao().selectByTask(dbSession, lastActivity.getUuid()).stream()
+      .map(dto -> AnalysisStatusWsResponse.Warning.newBuilder()
+        .setKey(dto.getUuid())
+        .setMessage(dto.getMessage())
+        .setDismissable(dto.isDismissible())
+        .build())
+      .collect(Collectors.toList());
+
+    builder.addAllWarnings(warnings);
 
     return builder.build();
   }

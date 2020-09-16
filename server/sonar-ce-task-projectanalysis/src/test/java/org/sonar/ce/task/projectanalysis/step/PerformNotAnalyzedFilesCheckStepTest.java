@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.log.CeTaskMessages;
+import org.sonar.ce.task.log.CeTaskMessages.Message;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.platform.EditionProvider;
@@ -35,6 +36,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -68,16 +70,18 @@ public class PerformNotAnalyzedFilesCheckStepTest {
       .putNotAnalyzedFilesByLanguage("C", 10)
       .putNotAnalyzedFilesByLanguage("SomeLang", 1000)
       .build());
-    ArgumentCaptor<CeTaskMessages.Message> argumentCaptor = ArgumentCaptor.forClass(CeTaskMessages.Message.class);
+    ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
 
     underTest.execute(new TestComputationStepContext());
 
     verify(ceTaskMessages, times(1)).add(argumentCaptor.capture());
-    List<CeTaskMessages.Message> messages = argumentCaptor.getAllValues();
-    assertThat(messages).extracting(CeTaskMessages.Message::getText).containsExactly(
-      "10 C, 20 C++ and 1000 SomeLang file(s) detected during the last analysis. C, C++ and SomeLang code cannot be analyzed with SonarQube community " +
-        "edition. Please consider <a href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to the Developer " +
-        "Edition</a> to analyze this language.");
+    assertThat(argumentCaptor.getAllValues())
+      .extracting(Message::getText, Message::isDismissible)
+      .containsExactly(tuple(
+        "10 C, 20 C++ and 1000 SomeLang file(s) detected during the last analysis. C, C++ and SomeLang code cannot be analyzed with SonarQube community " +
+          "edition. Please consider <a href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to the Developer " +
+          "Edition</a> to analyze this language.",
+        true));
   }
 
   @Test

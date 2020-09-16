@@ -3,6 +3,12 @@
     "organization": "my-org-1",
     "key": "com.github.kevinsawicki:http-request-parent",
     "name": "HttpRequest",
-    "warnings": []
+    "warnings": [
+      {
+        "key": "AU-Tpxb--iU5OvuD2FLy",
+        "message": "Property \"sonar.jacoco.reportPaths\" is no longer supported. Use JaCoCo xml report and sonar-jacoco plugin.",
+        "dismissable": false
+      }
+    ]
   }
 }

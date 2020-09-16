@@ -67,9 +67,15 @@ message AnalysisStatusWsResponse {
     optional string organization = 1;
     optional string key = 2;
     optional string name = 3;
-    repeated string warnings = 4;
+    repeated Warning warnings = 4;
     optional string branch = 5;
     optional string pullRequest = 6;
+  }
+
+  message Warning {
+    optional string key = 1;
+    optional string message = 2;
+    optional bool dismissable = 3;
   }
 }
 

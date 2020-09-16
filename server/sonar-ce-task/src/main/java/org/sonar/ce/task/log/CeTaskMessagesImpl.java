@@ -74,6 +74,7 @@ public class CeTaskMessagesImpl implements CeTaskMessages {
     .setUuid(uuidFactory.create())
     .setTaskUuid(ceTask.getUuid())
     .setMessage(message.getText())
+    .setDismissible(message.isDismissible())
     .setCreatedAt(message.getTimestamp()));
   }
 

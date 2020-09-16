@@ -38,6 +38,10 @@ public class CeTaskMessageDto {
    * Timestamp the message was created. Not null
    */
   private long createdAt;
+  /**
+   * Information if this message can be dismissed by the user
+   */
+  private boolean dismissible;
 
   public String getUuid() {
     return uuid;
@@ -74,6 +78,15 @@ public class CeTaskMessageDto {
 
   public CeTaskMessageDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
+    return this;
+  }
+
+  public boolean isDismissible() {
+    return dismissible;
+  }
+
+  public CeTaskMessageDto setDismissible(boolean dismissible) {
+    this.dismissible = dismissible;
     return this;
   }
 }

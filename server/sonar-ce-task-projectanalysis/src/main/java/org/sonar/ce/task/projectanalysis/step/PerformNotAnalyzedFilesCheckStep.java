@@ -101,7 +101,7 @@ public class PerformNotAnalyzedFilesCheckStep implements ComputationStep {
       fileCountLabel.append(format("%s %s", nextLanguage.getValue(), nextLanguage.getKey()));
     }
 
-    return new CeTaskMessages.Message(format(LANGUAGE_UPGRADE_MESSAGE, fileCountLabel, languageLabel), system.now());
+    return new CeTaskMessages.Message(format(LANGUAGE_UPGRADE_MESSAGE, fileCountLabel, languageLabel), system.now(), true);
   }
 
   @Override
