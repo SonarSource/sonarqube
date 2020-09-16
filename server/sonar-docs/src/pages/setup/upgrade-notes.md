@@ -9,6 +9,9 @@ SonarQube 8.5 only supports GitHub Enterprise 2.15+ for pull request decoration 
 **SonarScanner for MSBuild compatibility**  
 Analyzing a C# / VB.NET solution in SonarQube 8.5 requires SonarScanner for MSBuild 4.0+.
 
+**Upgrade simplified: Languages, GIT and SVN support now built-in**  
+Languages provided with your edition and support for GIT and SVN version control are now built-in and don’t require plugins. If you were using these plugins, you need to remove them from SonarQube before upgrading. ([MMF-2042](https://jira.sonarsource.com/browse/MMF-2042)).
+
 ## Release 8.4 Upgrade Notes  
 **Updated system settings recommendations**  
 In previous versions, the recommended limits regarding threads, file descriptors, and vm.max_map_count were taken from Elasticsearch dependencies. This release can reach these limits occasionally, so we recommend increasing the following settings of your OS when upgrading:
