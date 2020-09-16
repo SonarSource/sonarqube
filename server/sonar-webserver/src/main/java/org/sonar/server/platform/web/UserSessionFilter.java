@@ -30,11 +30,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.db.DBSessions;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
-import org.sonar.server.organization.DefaultOrganizationCache;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.PlatformImpl;
 import org.sonar.server.setting.ThreadLocalSettings;
@@ -47,8 +46,7 @@ public class UserSessionFilter implements Filter {
     this.platform = PlatformImpl.getInstance();
   }
 
-  @VisibleForTesting
-  UserSessionFilter(Platform platform) {
+  @VisibleForTesting UserSessionFilter(Platform platform) {
     this.platform = platform;
   }
 
@@ -59,22 +57,16 @@ public class UserSessionFilter implements Filter {
 
     DBSessions dbSessions = platform.getContainer().getComponentByType(DBSessions.class);
     ThreadLocalSettings settings = platform.getContainer().getComponentByType(ThreadLocalSettings.class);
-    DefaultOrganizationCache defaultOrganizationCache = platform.getContainer().getComponentByType(DefaultOrganizationCache.class);
     UserSessionInitializer userSessionInitializer = platform.getContainer().getComponentByType(UserSessionInitializer.class);
 
     LOG.trace("{} serves {}", Thread.currentThread(), request.getRequestURI());
     dbSessions.enableCaching();
     try {
-      defaultOrganizationCache.load();
+      settings.load();
       try {
-        settings.load();
-        try {
-          doFilter(request, response, chain, userSessionInitializer);
-        } finally {
-          settings.unload();
-        }
+        doFilter(request, response, chain, userSessionInitializer);
       } finally {
-        defaultOrganizationCache.unload();
+        settings.unload();
       }
     } finally {
       dbSessions.disableCaching();

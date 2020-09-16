@@ -31,7 +31,6 @@ import org.mockito.InOrder;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
-import org.sonar.server.organization.DefaultOrganizationCache;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.setting.ThreadLocalSettings;
 
@@ -42,7 +41,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class UserSessionFilterTest {
@@ -55,12 +54,11 @@ public class UserSessionFilterTest {
   private FilterChain chain = mock(FilterChain.class);
   private DBSessions dbSessions = mock(DBSessions.class);
   private ThreadLocalSettings settings = mock(ThreadLocalSettings.class);
-  private DefaultOrganizationCache defaultOrganizationCache = mock(DefaultOrganizationCache.class);
   private UserSessionFilter underTest = new UserSessionFilter(platform);
 
   @Before
   public void setUp() {
-    container.add(dbSessions, settings, defaultOrganizationCache);
+    container.add(dbSessions, settings);
     when(platform.getContainer()).thenReturn(container);
   }
 
@@ -89,7 +87,7 @@ public class UserSessionFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(chain).doFilter(request, response);
-    verifyZeroInteractions(userSessionInitializer);
+    verifyNoInteractions(userSessionInitializer);
   }
 
   @Test
@@ -139,22 +137,6 @@ public class UserSessionFilterTest {
   }
 
   @Test
-  public void doFilter_unloads_Settings_even_if_DefaultOrganizationCache_unload_fails() throws Exception {
-    RuntimeException thrown = new RuntimeException("Faking DefaultOrganizationCache.unload failing");
-    doThrow(thrown)
-        .when(defaultOrganizationCache)
-        .unload();
-
-    try {
-      underTest.doFilter(request, response, chain);
-      fail("A RuntimeException should have been thrown");
-    } catch (RuntimeException e) {
-      assertThat(e).isSameAs(thrown);
-      verify(settings).unload();
-    }
-  }
-
-  @Test
   public void doFilter_unloads_Settings_even_if_UserSessionInitializer_removeUserSession_fails() throws Exception {
     RuntimeException thrown = mockUserSessionInitializerRemoveUserSessionFailing();
 
@@ -164,58 +146,6 @@ public class UserSessionFilterTest {
     } catch (RuntimeException e) {
       assertThat(e).isSameAs(thrown);
       verify(settings).unload();
-    }
-  }
-
-  @Test
-  public void doFilter_loads_and_unloads_DefaultOrganizationCache() throws Exception {
-    underTest.doFilter(request, response, chain);
-
-    InOrder inOrder = inOrder(defaultOrganizationCache);
-    inOrder.verify(defaultOrganizationCache).load();
-    inOrder.verify(defaultOrganizationCache).unload();
-    inOrder.verifyNoMoreInteractions();
-  }
-
-  @Test
-  public void doFilter_unloads_DefaultOrganizationCache_even_if_chain_throws_exception() throws Exception {
-    RuntimeException thrown = mockChainDoFilterError();
-
-    try {
-      underTest.doFilter(request, response, chain);
-      fail("A RuntimeException should have been thrown");
-    } catch (RuntimeException e) {
-      assertThat(e).isSameAs(thrown);
-      verify(defaultOrganizationCache).unload();
-    }
-  }
-
-  @Test
-  public void doFilter_unloads_DefaultOrganizationCache_even_if_Settings_unload_fails() throws Exception {
-    RuntimeException thrown = new RuntimeException("Faking Settings.unload failing");
-    doThrow(thrown)
-        .when(settings)
-        .unload();
-
-    try {
-      underTest.doFilter(request, response, chain);
-      fail("A RuntimeException should have been thrown");
-    } catch (RuntimeException e) {
-      assertThat(e).isSameAs(thrown);
-      verify(defaultOrganizationCache).unload();
-    }
-  }
-
-  @Test
-  public void doFilter_unloads_DefaultOrganizationCache_even_if_UserSessionInitializer_removeUserSession_fails() throws Exception {
-    RuntimeException thrown = mockUserSessionInitializerRemoveUserSessionFailing();
-
-    try {
-      underTest.doFilter(request, response, chain);
-      fail("A RuntimeException should have been thrown");
-    } catch (RuntimeException e) {
-      assertThat(e).isSameAs(thrown);
-      verify(defaultOrganizationCache).unload();
     }
   }
 
@@ -236,16 +166,16 @@ public class UserSessionFilterTest {
     container.add(userSessionInitializer);
     RuntimeException thrown = new RuntimeException("Faking UserSessionInitializer.removeUserSession failing");
     doThrow(thrown)
-        .when(userSessionInitializer)
-        .removeUserSession();
+      .when(userSessionInitializer)
+      .removeUserSession();
     return thrown;
   }
 
   private RuntimeException mockChainDoFilterError() throws IOException, ServletException {
     RuntimeException thrown = new RuntimeException("Faking chain.doFilter failing");
     doThrow(thrown)
-        .when(chain)
-        .doFilter(request, response);
+      .when(chain)
+      .doFilter(request, response);
     return thrown;
   }
 }

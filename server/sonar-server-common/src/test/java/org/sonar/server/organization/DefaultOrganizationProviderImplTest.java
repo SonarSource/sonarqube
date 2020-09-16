@@ -19,7 +19,6 @@
  */
 package org.sonar.server.organization;
 
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,11 +52,6 @@ public class DefaultOrganizationProviderImplTest {
   private DbSession dbSession = dbTester.getSession();
 
   private DefaultOrganizationProviderImpl underTest = new DefaultOrganizationProviderImpl(dbClient);
-
-  @After
-  public void tearDown() {
-    underTest.unload();
-  }
 
   @Test
   public void get_fails_with_ISE_if_default_organization_internal_property_does_not_exist() {
@@ -104,83 +98,6 @@ public class DefaultOrganizationProviderImplTest {
     assertThat(defaultOrganization.getName()).isEqualTo(ORGANIZATION_DTO_1.getName());
     assertThat(defaultOrganization.getCreatedAt()).isEqualTo(DATE_1);
     assertThat(defaultOrganization.getUpdatedAt()).isEqualTo(DATE_1);
-  }
-
-  @Test
-  public void get_returns_new_DefaultOrganization_with_each_call_when_cache_is_not_loaded() {
-    insertOrganization(ORGANIZATION_DTO_1, DATE_1);
-    dbClient.internalPropertiesDao().save(dbSession, DEFAULT_ORGANIZATION, ORGANIZATION_DTO_1.getUuid());
-    dbSession.commit();
-
-    assertThat(underTest.get()).isNotSameAs(underTest.get());
-  }
-
-  @Test
-  public void unload_does_not_fail_if_load_has_not_been_called() {
-    underTest.unload();
-  }
-
-  @Test
-  public void load_resets_thread_local_when_called_twice() {
-    insertOrganization(ORGANIZATION_DTO_1, DATE_1);
-    dbClient.internalPropertiesDao().save(dbSession, DEFAULT_ORGANIZATION, ORGANIZATION_DTO_1.getUuid());
-    dbSession.commit();
-
-    underTest.load();
-    DefaultOrganization org1 = underTest.get();
-
-    underTest.load();
-    DefaultOrganization org2 = underTest.get();
-    assertThat(org1).isNotSameAs(org2);
-  }
-
-  @Test
-  public void load_and_unload_cache_DefaultOrganization_object_by_thread() throws InterruptedException {
-    insertOrganization(ORGANIZATION_DTO_1, DATE_1);
-    dbClient.internalPropertiesDao().save(dbSession, DEFAULT_ORGANIZATION, ORGANIZATION_DTO_1.getUuid());
-    dbSession.commit();
-
-    try {
-      underTest.load();
-
-      DefaultOrganization cachedForThread1 = underTest.get();
-      assertThat(cachedForThread1).isSameAs(underTest.get());
-
-      Thread otherThread = new Thread(() -> {
-        try {
-          underTest.load();
-
-          assertThat(underTest.get())
-              .isNotSameAs(cachedForThread1)
-              .isSameAs(underTest.get());
-        } finally {
-          underTest.unload();
-        }
-      });
-      otherThread.start();
-      otherThread.join();
-    } finally {
-      underTest.unload();
-    }
-  }
-
-  @Test
-  public void get_returns_new_instance_for_each_call_once_unload_has_been_called() {
-    insertOrganization(ORGANIZATION_DTO_1, DATE_1);
-    dbClient.internalPropertiesDao().save(dbSession, DEFAULT_ORGANIZATION, ORGANIZATION_DTO_1.getUuid());
-    dbSession.commit();
-
-    try {
-      underTest.load();
-      DefaultOrganization cached = underTest.get();
-      assertThat(cached).isSameAs(underTest.get());
-
-      underTest.unload();
-      assertThat(underTest.get()).isNotSameAs(underTest.get()).isNotSameAs(cached);
-    } finally {
-      // fail safe
-      underTest.unload();
-    }
   }
 
   private void insertOrganization(OrganizationDto dto, long createdAt) {
