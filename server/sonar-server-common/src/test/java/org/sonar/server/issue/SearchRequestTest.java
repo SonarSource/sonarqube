@@ -38,7 +38,7 @@ public class SearchRequestTest {
       .setProjects(singletonList("project-a"))
       .setModuleUuids(singletonList("module-a"))
       .setDirectories(singletonList("aDirPath"))
-      .setFileUuids(asList("file-a", "file-b"))
+      .setFiles(asList("file-a", "file-b"))
       .setAssigneesUuid(asList("user-a", "user-b"))
       .setScopes(asList("MAIN", "TEST"))
       .setLanguages(singletonList("xoo"))
@@ -59,7 +59,7 @@ public class SearchRequestTest {
     assertThat(underTest.getProjects()).containsExactly("project-a");
     assertThat(underTest.getModuleUuids()).containsExactly("module-a");
     assertThat(underTest.getDirectories()).containsExactly("aDirPath");
-    assertThat(underTest.getFileUuids()).containsExactly("file-a", "file-b");
+    assertThat(underTest.getFiles()).containsExactly("file-a", "file-b");
     assertThat(underTest.getAssigneeUuids()).containsExactly("user-a", "user-b");
     assertThat(underTest.getScopes()).containsExactly("MAIN", "TEST");
     assertThat(underTest.getLanguages()).containsExactly("xoo");

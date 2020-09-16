@@ -68,7 +68,7 @@ import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_UUIDS;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
@@ -117,7 +117,7 @@ public class SearchActionFacetsTest {
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,moduleUuids,fileUuids,assignees")
+      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,moduleUuids,files,assignees")
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
@@ -134,7 +134,7 @@ public class SearchActionFacetsTest {
         tuple("languages", of(rule.getLanguage(), 1L)),
         tuple("projects", of(project.getKey(), 1L)),
         tuple("moduleUuids", of(module.uuid(), 1L)),
-        tuple("fileUuids", of(file.uuid(), 1L)),
+        tuple("files", of(file.path(), 1L)),
         tuple("assignees", of("", 0L, user.getLogin(), 1L)));
   }
 
@@ -154,7 +154,7 @@ public class SearchActionFacetsTest {
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,fileUuids,assignees")
+      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,files,assignees")
       .setParam("facetMode", FACET_MODE_EFFORT)
       .executeProtobuf(SearchWsResponse.class);
 
@@ -171,7 +171,7 @@ public class SearchActionFacetsTest {
         tuple("types", of("CODE_SMELL", 10L, "BUG", 0L, "VULNERABILITY", 0L)),
         tuple("languages", of(rule.getLanguage(), 10L)),
         tuple("projects", of(project.getKey(), 10L)),
-        tuple("fileUuids", of(file.uuid(), 10L)),
+        tuple("files", of(file.path(), 10L)),
         tuple("assignees", of("", 10L)));
   }
 
@@ -358,7 +358,7 @@ public class SearchActionFacetsTest {
   }
 
   @Test
-  public void display_fileUuids_facet_with_project() {
+  public void display_files_facet_with_project() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPublicProject(organization);
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
@@ -372,13 +372,13 @@ public class SearchActionFacetsTest {
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(PARAM_FILE_UUIDS, file1.uuid())
-      .setParam(WebService.Param.FACETS, "fileUuids")
+      .setParam(PARAM_FILES, file1.path())
+      .setParam(WebService.Param.FACETS, "files")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(tuple("fileUuids", of(file1.uuid(), 1L, file2.uuid(), 1L)));
+      .containsExactlyInAnyOrder(tuple("files", of(file1.path(), 1L, file2.path(), 1L)));
   }
 
   @Test
@@ -396,13 +396,13 @@ public class SearchActionFacetsTest {
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_FILE_UUIDS, file1.uuid())
-      .setParam(WebService.Param.FACETS, "fileUuids")
+      .setParam(PARAM_FILES, file1.path())
+      .setParam(WebService.Param.FACETS, "files")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, facet -> facet.getValuesList().stream().collect(toMap(FacetValue::getVal, FacetValue::getCount)))
-      .containsExactlyInAnyOrder(tuple("fileUuids", of(file1.uuid(), 1L, file2.uuid(), 1L)));
+      .containsExactlyInAnyOrder(tuple("files", of(file1.path(), 1L, file2.path(), 1L)));
   }
 
   @Test
@@ -415,11 +415,11 @@ public class SearchActionFacetsTest {
     indexIssues();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Facet(s) 'fileUuids' require to also filter by project or organization");
+    expectedException.expectMessage("Facet(s) 'files' require to also filter by project or organization");
 
     ws.newRequest()
-      .setParam(PARAM_FILE_UUIDS, file.uuid())
-      .setParam(WebService.Param.FACETS, "fileUuids")
+      .setParam(PARAM_FILES, file.path())
+      .setParam(WebService.Param.FACETS, "files")
       .execute();
   }
 
@@ -457,13 +457,13 @@ public class SearchActionFacetsTest {
 
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getKey())
-      .setParam(FACETS, "fileUuids,directories,moduleUuids,statuses,resolutions,severities,types,rules,languages,assignees")
+      .setParam(FACETS, "files,directories,moduleUuids,statuses,resolutions,severities,types,rules,languages,assignees")
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(response.getFacets().getFacetsList())
       .extracting(Common.Facet::getProperty, Common.Facet::getValuesCount)
       .containsExactlyInAnyOrder(
-        tuple("fileUuids", 100),
+        tuple("files", 100),
         tuple("directories", 100),
         tuple("moduleUuids", 100),
         tuple("rules", 100),
@@ -521,12 +521,12 @@ public class SearchActionFacetsTest {
     SearchWsResponse response = ws.newRequest()
       .setParam(PARAM_PROJECTS, project1.getKey() + "," + project2.getKey())
       .setParam(PARAM_MODULE_UUIDS, module1.uuid() + "," + module2.uuid())
-      .setParam(PARAM_FILE_UUIDS, file1.uuid() + "," + file2.uuid())
+      .setParam(PARAM_FILES, file1.path() + "," + file2.path())
       .setParam("rules", rule1.getKey().toString() + "," + rule2.getKey().toString())
       .setParam("severities", "MAJOR,MINOR")
       .setParam("languages", rule1.getLanguage() + "," + rule2.getLanguage())
       .setParam("assignees", user1.getLogin() + "," + user2.getLogin())
-      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,moduleUuids,fileUuids,assignees")
+      .setParam(FACETS, "severities,statuses,resolutions,rules,types,languages,projects,moduleUuids,files,assignees")
       .executeProtobuf(SearchWsResponse.class);
 
     Map<String, Number> expectedStatuses = ImmutableMap.<String, Number>builder().put("OPEN", 1L).put("CONFIRMED", 0L)
@@ -543,7 +543,7 @@ public class SearchActionFacetsTest {
         tuple("languages", of(rule1.getLanguage(), 1L, rule2.getLanguage(), 0L)),
         tuple("projects", of(project1.getKey(), 1L, project2.getKey(), 0L)),
         tuple("moduleUuids", of(module1.uuid(), 1L, module2.uuid(), 0L)),
-        tuple("fileUuids", of(file1.uuid(), 1L, file2.uuid(), 0L)),
+        tuple("files", of(file1.path(), 1L, file2.path(), 0L)),
         tuple("assignees", of("", 0L, user1.getLogin(), 1L, user2.getLogin(), 0L)));
   }
 

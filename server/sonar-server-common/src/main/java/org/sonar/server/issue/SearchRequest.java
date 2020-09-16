@@ -42,7 +42,7 @@ public class SearchRequest {
   private List<String> directories;
   private String facetMode;
   private List<String> facets;
-  private List<String> fileUuids;
+  private List<String> files;
   private List<String> issues;
   private Set<String> scopes;
   private List<String> languages;
@@ -213,12 +213,12 @@ public class SearchRequest {
   }
 
   @CheckForNull
-  public List<String> getFileUuids() {
-    return fileUuids;
+  public List<String> getFiles() {
+    return files;
   }
 
-  public SearchRequest setFileUuids(@Nullable List<String> fileUuids) {
-    this.fileUuids = fileUuids;
+  public SearchRequest setFiles(@Nullable List<String> files) {
+    this.files = files;
     return this;
   }
 

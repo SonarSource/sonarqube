@@ -118,9 +118,10 @@ public class IssueIndexFacetsTest {
   @Test
   public void facets_on_files() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto(), "A");
-    ComponentDto file1 = newFileDto(project, null, "ABCD");
-    ComponentDto file2 = newFileDto(project, null, "BCDE");
-    ComponentDto file3 = newFileDto(project, null, "CDEF");
+    ComponentDto dir = newDirectory(project, "src");
+    ComponentDto file1 = newFileDto(project, dir, "ABCD");
+    ComponentDto file2 = newFileDto(project, dir, "BCDE");
+    ComponentDto file3 = newFileDto(project, dir, "CDEF");
 
     indexIssues(
       newDoc("I1", project),
@@ -129,7 +130,7 @@ public class IssueIndexFacetsTest {
       newDoc("I4", file2),
       newDoc("I5", file3));
 
-    assertThatFacetHasOnly(IssueQuery.builder(), "fileUuids", entry("A", 1L), entry("ABCD", 1L), entry("BCDE", 2L), entry("CDEF", 1L));
+    assertThatFacetHasOnly(IssueQuery.builder(), "files", entry("src/NAME_ABCD", 1L), entry("src/NAME_BCDE", 2L), entry("src/NAME_CDEF", 1L));
   }
 
   @Test
@@ -141,8 +142,8 @@ public class IssueIndexFacetsTest {
     IssueDoc issue2 = newDoc(newFileDto(project, null, "file2"));
     indexIssues(issue1, issue2);
 
-    assertThatFacetHasSize(IssueQuery.builder().build(), "fileUuids", 100);
-    assertThatFacetHasSize(IssueQuery.builder().fileUuids(asList(issue1.componentUuid(), issue2.componentUuid())).build(), "fileUuids", 102);
+    assertThatFacetHasSize(IssueQuery.builder().build(), "files", 100);
+    assertThatFacetHasSize(IssueQuery.builder().files(asList(issue1.filePath(), issue2.filePath())).build(), "files", 102);
   }
 
   @Test

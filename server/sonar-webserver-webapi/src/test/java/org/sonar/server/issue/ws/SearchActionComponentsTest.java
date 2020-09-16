@@ -77,7 +77,7 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PULL_REQUEST;
@@ -111,7 +111,7 @@ public class SearchActionComponentsTest {
 
   private WsActionTester ws = new WsActionTester(
     new SearchAction(userSession, issueIndex, issueQueryFactory, issueIndexSyncProgressChecker, searchResponseLoader, searchResponseFormat,
-    System2.INSTANCE, dbClient));
+      System2.INSTANCE, dbClient));
 
   @Test
   public void search_all_issues_when_no_parameter() {
@@ -242,7 +242,7 @@ public class SearchActionComponentsTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, project.getDbKey())
-      .setParam(PARAM_FILE_UUIDS, file.uuid())
+      .setParam(PARAM_FILES, file.path())
       .setParam(PARAM_SINCE_LEAK_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "search_since_leak_period.json");
@@ -258,12 +258,12 @@ public class SearchActionComponentsTest {
     indexIssues();
 
     ws.newRequest()
-      .setParam(PARAM_FILE_UUIDS, file.uuid())
+      .setParam(PARAM_FILES, file.path())
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
     ws.newRequest()
-      .setParam(PARAM_FILE_UUIDS, "unknown")
+      .setParam(PARAM_FILES, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
@@ -672,7 +672,6 @@ public class SearchActionComponentsTest {
       .executeProtobuf(SearchWsResponse.class).getIssuesList())
         .extracting(Issue::getKey, Issue::getComponent, Issue::getBranch)
         .containsExactlyInAnyOrder(tuple(branchIssue.getKey(), branchFile.getKey(), branchFile.getBranch()));
-
     // On file key + branch
     assertThat(ws.newRequest()
       .setParam(PARAM_COMPONENT_KEYS, branchFile.getKey())

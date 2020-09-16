@@ -109,7 +109,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_BEF
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_IN_LAST;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
@@ -139,7 +139,7 @@ public class SearchAction implements IssuesWsAction {
   static final List<String> SUPPORTED_FACETS = ImmutableList.of(
     FACET_PROJECTS,
     PARAM_MODULE_UUIDS,
-    PARAM_FILE_UUIDS,
+    PARAM_FILES,
     FACET_ASSIGNED_TO_ME,
     PARAM_SEVERITIES,
     PARAM_STATUSES,
@@ -160,7 +160,7 @@ public class SearchAction implements IssuesWsAction {
     PARAM_SONARSOURCE_SECURITY);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
-  private static final Set<String> FACETS_REQUIRING_PROJECT_OR_ORGANIZATION = newHashSet(PARAM_MODULE_UUIDS, PARAM_FILE_UUIDS, PARAM_DIRECTORIES);
+  private static final Set<String> FACETS_REQUIRING_PROJECT_OR_ORGANIZATION = newHashSet(PARAM_MODULE_UUIDS, PARAM_FILES, PARAM_DIRECTORIES);
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
@@ -192,6 +192,9 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change("8.5", "Facet 'fileUuids' is dropped in favour of the new facet 'files'" +
+            "Note that they are not strictly identical, the latter returns the file paths."),
+        new Change("8.5", "Internal parameter 'fileUuids' has been dropped"),
         new Change("8.4", "parameters 'componentUuids', 'projectKeys' has been dropped."),
         new Change("8.2", "'REVIEWED', 'TO_REVIEW' status param values are no longer supported"),
         new Change("8.2", "Security hotspots are no longer returned as type 'SECURITY_HOTSPOT' is not supported anymore, use dedicated api/hotspots"),
@@ -322,7 +325,7 @@ public class SearchAction implements IssuesWsAction {
   private static void addComponentRelatedParams(WebService.NewAction action) {
     action.createParam(PARAM_ON_COMPONENT_ONLY)
       .setDescription("Return only issues at a component's level, not on its descendants (modules, directories, files, etc). " +
-        "This parameter is only considered when componentKeys or componentUuids is set.")
+        "This parameter is only considered when componentKeys is set.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
 
@@ -353,11 +356,11 @@ public class SearchAction implements IssuesWsAction {
       .setSince("5.1")
       .setExampleValue("src/main/java/org/sonar/server/");
 
-    action.createParam(PARAM_FILE_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of files (comma-separated list of file IDs). " +
+    action.createParam(PARAM_FILES)
+      .setDescription("To retrieve issues associated to a specific list of files (comma-separated list of file paths). " +
         INTERNAL_PARAMETER_DISCLAIMER)
       .setInternal(true)
-      .setExampleValue("bdd82933-3070-4903-9188-7d8749e8bb92");
+      .setExampleValue("src/main/java/org/sonar/server/Test.java");
 
     action.createParam(PARAM_BRANCH)
       .setDescription("Branch key. Not available in the community edition.")
@@ -447,7 +450,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), RESOLUTIONS));
     addMandatoryValuesToFacet(facets, FACET_PROJECTS, query.projectUuids());
     addMandatoryValuesToFacet(facets, PARAM_MODULE_UUIDS, query.moduleUuids());
-    addMandatoryValuesToFacet(facets, PARAM_FILE_UUIDS, query.fileUuids());
+    addMandatoryValuesToFacet(facets, PARAM_FILES, query.files());
 
     List<String> assignees = Lists.newArrayList("");
     List<String> assigneesFromRequest = request.getAssigneeUuids();
@@ -498,13 +501,11 @@ public class SearchAction implements IssuesWsAction {
   private static void collectFacets(SearchResponseLoader.Collector collector, Facets facets) {
     collector.addProjectUuids(facets.getBucketKeys(FACET_PROJECTS));
     collector.addComponentUuids(facets.getBucketKeys(PARAM_MODULE_UUIDS));
-    collector.addComponentUuids(facets.getBucketKeys(PARAM_FILE_UUIDS));
     collector.addRuleIds(facets.getBucketKeys(PARAM_RULES));
     collector.addUserUuids(facets.getBucketKeys(PARAM_ASSIGNEES));
   }
 
   private static void collectRequestParams(SearchResponseLoader.Collector collector, SearchRequest request) {
-    collector.addComponentUuids(request.getFileUuids());
     collector.addComponentUuids(request.getModuleUuids());
     collector.addUserUuids(request.getAssigneeUuids());
   }
@@ -524,7 +525,7 @@ public class SearchAction implements IssuesWsAction {
       .setDirectories(request.paramAsStrings(PARAM_DIRECTORIES))
       .setFacetMode(request.mandatoryParam(FACET_MODE))
       .setFacets(request.paramAsStrings(FACETS))
-      .setFileUuids(request.paramAsStrings(PARAM_FILE_UUIDS))
+      .setFiles(request.paramAsStrings(PARAM_FILES))
       .setIssues(request.paramAsStrings(PARAM_ISSUES))
       .setScopes(request.paramAsStrings(PARAM_SCOPES))
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))

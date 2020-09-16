@@ -1329,7 +1329,7 @@ public class SearchActionTest {
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
       "additionalFields", "asc", "assigned", "assignees", "authors", "author", "componentKeys", "branch",
       "pullRequest", "organization",
-      "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "fileUuids", "issues", "scopes", "languages", "moduleUuids",
+      "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "files", "issues", "scopes", "languages", "moduleUuids",
       "onComponentOnly",
       "p", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",
       "statuses", "tags", "types", "owaspTop10", "sansTop25", "cwe", "sonarsourceSecurity");

@@ -155,8 +155,8 @@ public class IssueIndexFiltersTest {
       newDoc("I5", subModule),
       newDoc("I6", file3));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(asList(file1.uuid(), file2.uuid(), file3.uuid())), "I2", "I4", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(singletonList(file1.uuid())), "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().files(asList(file1.path(), file2.path(), file3.path())), "I2", "I4", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().files(singletonList(file1.path())), "I2");
     assertThatSearchReturnsOnly(IssueQuery.builder().moduleRootUuids(singletonList(subModule.uuid())), "I5", "I6");
     assertThatSearchReturnsOnly(IssueQuery.builder().moduleRootUuids(singletonList(module.uuid())), "I3", "I4", "I5", "I6");
     assertThatSearchReturnsOnly(IssueQuery.builder().projectUuids(singletonList(project.uuid())), "I1", "I2", "I3", "I4", "I5", "I6");
@@ -188,8 +188,8 @@ public class IssueIndexFiltersTest {
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(view)), "I1", "I2", "I3", "I4", "I5", "I6");
     assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(module.uuid())), "I3", "I4");
     assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(subModule.uuid())), "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(singletonList(file1.uuid())), "I2");
-    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(asList(file1.uuid(), file2.uuid(), file3.uuid())), "I2", "I4", "I6");
+    assertThatSearchReturnsOnly(IssueQuery.builder().files(singletonList(file1.path())), "I2");
+    assertThatSearchReturnsOnly(IssueQuery.builder().files(asList(file1.path(), file2.path(), file3.path())), "I2", "I4", "I6");
   }
 
   @Test
@@ -228,7 +228,7 @@ public class IssueIndexFiltersTest {
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(portfolio1.uuid(), portfolio2.uuid())), issueOnProject1.key(), issueOnFile.key(), issueOnProject2.key());
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(portfolio1.uuid())).projectUuids(singletonList(project1.uuid())), issueOnProject1.key(),
       issueOnFile.key());
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(portfolio1.uuid())).fileUuids(singletonList(file.uuid())), issueOnFile.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(portfolio1.uuid())).files(singletonList(file.path())), issueOnFile.key());
     assertThatSearchReturnsEmpty(IssueQuery.builder().viewUuids(singletonList("unknown")));
   }
 
@@ -302,8 +302,8 @@ public class IssueIndexFiltersTest {
 
     assertThatSearchReturnsOnly(IssueQuery.builder().branchUuid(branch.uuid()).mainBranch(false), "I4", "I5", "I6");
     assertThatSearchReturnsOnly(IssueQuery.builder().moduleUuids(singletonList(branchModule.uuid())).branchUuid(branch.uuid()).mainBranch(false), "I5", "I6");
-    assertThatSearchReturnsOnly(IssueQuery.builder().fileUuids(singletonList(branchFile.uuid())).branchUuid(branch.uuid()).mainBranch(false), "I6");
-    assertThatSearchReturnsEmpty(IssueQuery.builder().fileUuids(singletonList(branchFile.uuid())).mainBranch(false).branchUuid("unknown"));
+    assertThatSearchReturnsOnly(IssueQuery.builder().files(singletonList(branchFile.path())).branchUuid(branch.uuid()).mainBranch(false), "I6");
+    assertThatSearchReturnsEmpty(IssueQuery.builder().files(singletonList(branchFile.uuid())).mainBranch(false).branchUuid("unknown"));
   }
 
   @Test
@@ -355,7 +355,7 @@ public class IssueIndexFiltersTest {
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(asList(application1.uuid(), application2.uuid())), issueOnProject1.key(), issueOnFile.key(), issueOnProject2.key());
     assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(application1.uuid())).projectUuids(singletonList(project1.uuid())), issueOnProject1.key(),
       issueOnFile.key());
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(application1.uuid())).fileUuids(singletonList(file.uuid())), issueOnFile.key());
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(application1.uuid())).files(singletonList(file.path())), issueOnFile.key());
     assertThatSearchReturnsEmpty(IssueQuery.builder().viewUuids(singletonList("unknown")));
   }
 
@@ -380,7 +380,7 @@ public class IssueIndexFiltersTest {
     assertThatSearchReturnsOnly(
       IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).projectUuids(singletonList(project1.uuid())).branchUuid(branch1.uuid()).mainBranch(false),
       issueOnProject1.key(), issueOnFile.key());
-    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).fileUuids(singletonList(file.uuid())).branchUuid(branch1.uuid()).mainBranch(false),
+    assertThatSearchReturnsOnly(IssueQuery.builder().viewUuids(singletonList(branch1.uuid())).files(singletonList(file.path())).branchUuid(branch1.uuid()).mainBranch(false),
       issueOnFile.key());
     assertThatSearchReturnsEmpty(IssueQuery.builder().branchUuid("unknown"));
   }
@@ -411,7 +411,7 @@ public class IssueIndexFiltersTest {
       IssueQuery.builder().viewUuids(singletonList(applicationBranch1.uuid())).projectUuids(singletonList(project1.uuid())).branchUuid(applicationBranch1.uuid()).mainBranch(false),
       issueOnProject1Branch1.key(), issueOnFileOnProject1Branch1.key());
     assertThatSearchReturnsOnly(
-      IssueQuery.builder().viewUuids(singletonList(applicationBranch1.uuid())).fileUuids(singletonList(fileOnProject1Branch1.uuid())).branchUuid(applicationBranch1.uuid())
+      IssueQuery.builder().viewUuids(singletonList(applicationBranch1.uuid())).files(singletonList(fileOnProject1Branch1.path())).branchUuid(applicationBranch1.uuid())
         .mainBranch(false),
       issueOnFileOnProject1Branch1.key());
     assertThatSearchReturnsEmpty(

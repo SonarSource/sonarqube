@@ -171,7 +171,7 @@ public class IssueQuery {
     return directories;
   }
 
-  public Collection<String> fileUuids() {
+  public Collection<String> files() {
     return files;
   }
 
@@ -380,7 +380,7 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder fileUuids(@Nullable Collection<String> l) {
+    public Builder files(@Nullable Collection<String> l) {
       this.files = l;
       return this;
     }

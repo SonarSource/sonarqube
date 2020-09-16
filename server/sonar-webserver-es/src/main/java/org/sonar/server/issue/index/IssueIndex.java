@@ -37,7 +37,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -119,7 +118,7 @@ import static org.sonar.server.issue.index.IssueIndex.Facet.AUTHORS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CREATED_AT;
 import static org.sonar.server.issue.index.IssueIndex.Facet.CWE;
 import static org.sonar.server.issue.index.IssueIndex.Facet.DIRECTORIES;
-import static org.sonar.server.issue.index.IssueIndex.Facet.FILE_UUIDS;
+import static org.sonar.server.issue.index.IssueIndex.Facet.FILES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.LANGUAGES;
 import static org.sonar.server.issue.index.IssueIndex.Facet.MODULE_UUIDS;
 import static org.sonar.server.issue.index.IssueIndex.Facet.OWASP_TOP_10;
@@ -178,7 +177,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_AUTHOR;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CWE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_DIRECTORIES;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILE_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_FILES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_OWASP_TOP_10;
@@ -242,7 +241,7 @@ public class IssueIndex {
     AUTHOR(PARAM_AUTHOR, FIELD_ISSUE_AUTHOR_LOGIN, STICKY, MAX_FACET_SIZE),
     PROJECT_UUIDS(FACET_PROJECTS, FIELD_ISSUE_PROJECT_UUID, STICKY, MAX_FACET_SIZE),
     MODULE_UUIDS(PARAM_MODULE_UUIDS, FIELD_ISSUE_MODULE_UUID, STICKY, MAX_FACET_SIZE),
-    FILE_UUIDS(PARAM_FILE_UUIDS, FIELD_ISSUE_COMPONENT_UUID, STICKY, MAX_FACET_SIZE),
+    FILES(PARAM_FILES, FIELD_ISSUE_FILE_PATH, STICKY, MAX_FACET_SIZE),
     DIRECTORIES(PARAM_DIRECTORIES, FIELD_ISSUE_DIRECTORY_PATH, STICKY, MAX_FACET_SIZE),
     ASSIGNEES(PARAM_ASSIGNEES, FIELD_ISSUE_ASSIGNEE_UUID, STICKY, MAX_FACET_SIZE),
     ASSIGNED_TO_ME(FACET_ASSIGNED_TO_ME, FIELD_ISSUE_ASSIGNEE_UUID, STICKY, 1),
@@ -404,16 +403,16 @@ public class IssueIndex {
     filters.addFilter("__authorization", new SimpleFieldFilterScope("parent"), createAuthorizationFilter());
 
     // Issue is assigned Filter
-    if (BooleanUtils.isTrue(query.assigned())) {
+    if (Boolean.TRUE.equals(query.assigned())) {
       filters.addFilter(IS_ASSIGNED_FILTER, Facet.ASSIGNEES.getFilterScope(), existsQuery(FIELD_ISSUE_ASSIGNEE_UUID));
-    } else if (BooleanUtils.isFalse(query.assigned())) {
+    } else if (Boolean.FALSE.equals(query.assigned())) {
       filters.addFilter(IS_ASSIGNED_FILTER, ASSIGNEES.getFilterScope(), boolQuery().mustNot(existsQuery(FIELD_ISSUE_ASSIGNEE_UUID)));
     }
 
     // Issue is Resolved Filter
-    if (BooleanUtils.isTrue(query.resolved())) {
+    if (Boolean.TRUE.equals(query.resolved())) {
       filters.addFilter("__isResolved", Facet.RESOLUTIONS.getFilterScope(), existsQuery(FIELD_ISSUE_RESOLUTION));
-    } else if (BooleanUtils.isFalse(query.resolved())) {
+    } else if (Boolean.FALSE.equals(query.resolved())) {
       filters.addFilter("__isResolved", Facet.RESOLUTIONS.getFilterScope(), boolQuery().mustNot(existsQuery(FIELD_ISSUE_RESOLUTION)));
     }
 
@@ -488,12 +487,10 @@ public class IssueIndex {
   }
 
   private static void addCommonComponentRelatedFilters(IssueQuery query, AllFilters filters) {
-    QueryBuilder componentFilter = createTermsFilter(FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
-    QueryBuilder fileFilter = createTermsFilter(FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
+    filters.addFilter(FIELD_ISSUE_COMPONENT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_COMPONENT_UUID),
+      createTermsFilter(FIELD_ISSUE_COMPONENT_UUID, query.componentUuids()));
 
-    if (BooleanUtils.isTrue(query.onComponentOnly())) {
-      filters.addFilter(FIELD_ISSUE_COMPONENT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_COMPONENT_UUID), componentFilter);
-    } else {
+    if (!Boolean.TRUE.equals(query.onComponentOnly())) {
       filters.addFilter(
         FIELD_ISSUE_PROJECT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_PROJECT_UUID),
         createTermsFilter(FIELD_ISSUE_PROJECT_UUID, query.projectUuids()));
@@ -507,13 +504,13 @@ public class IssueIndex {
         FIELD_ISSUE_DIRECTORY_PATH, new SimpleFieldFilterScope(FIELD_ISSUE_DIRECTORY_PATH),
         createTermsFilter(FIELD_ISSUE_DIRECTORY_PATH, query.directories()));
       filters.addFilter(
-        FIELD_ISSUE_COMPONENT_UUID, new SimpleFieldFilterScope(FIELD_ISSUE_COMPONENT_UUID),
-        fileFilter == null ? componentFilter : fileFilter);
+        FIELD_ISSUE_FILE_PATH, new SimpleFieldFilterScope(FIELD_ISSUE_FILE_PATH),
+        createTermsFilter(FIELD_ISSUE_FILE_PATH, query.files()));
     }
   }
 
   private static void addBranchComponentRelatedFilters(IssueQuery query, AllFilters allFilters) {
-    if (BooleanUtils.isTrue(query.onComponentOnly())) {
+    if (Boolean.TRUE.equals(query.onComponentOnly())) {
       return;
     }
     allFilters.addFilter(
@@ -525,7 +522,7 @@ public class IssueIndex {
   }
 
   private static void addViewRelatedFilters(IssueQuery query, AllFilters allFilters) {
-    if (BooleanUtils.isTrue(query.onComponentOnly())) {
+    if (Boolean.TRUE.equals(query.onComponentOnly())) {
       return;
     }
     Collection<String> viewUuids = query.viewUuids();
@@ -606,7 +603,7 @@ public class IssueIndex {
   private List<FieldSortBuilder> createSortBuilders(IssueQuery query) {
     String sortField = query.sort();
     if (sortField != null) {
-      boolean asc = BooleanUtils.isTrue(query.asc());
+      boolean asc = Boolean.TRUE.equals(query.asc());
       return sorting.fill(sortField, asc);
     }
     return sorting.fillDefault();
@@ -666,7 +663,7 @@ public class IssueIndex {
     addFacetIfNeeded(options, aggregationHelper, esRequest, PROJECT_UUIDS, query.projectUuids().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, MODULE_UUIDS, query.moduleUuids().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, DIRECTORIES, query.directories().toArray());
-    addFacetIfNeeded(options, aggregationHelper, esRequest, FILE_UUIDS, query.fileUuids().toArray());
+    addFacetIfNeeded(options, aggregationHelper, esRequest, FILES, query.files().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, SCOPES, query.scopes().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, LANGUAGES, query.languages().toArray());
     addFacetIfNeeded(options, aggregationHelper, esRequest, RULES, query.rules().stream().map(RuleDefinitionDto::getUuid).toArray());

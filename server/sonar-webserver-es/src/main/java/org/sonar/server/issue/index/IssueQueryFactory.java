@@ -237,7 +237,7 @@ public class IssueQueryFactory {
     }
     builder.moduleUuids(request.getModuleUuids());
     builder.directories(request.getDirectories());
-    builder.fileUuids(request.getFileUuids());
+    builder.files(request.getFiles());
 
     addComponentsBasedOnQualifier(builder, session, components, request);
   }
@@ -276,7 +276,7 @@ public class IssueQueryFactory {
         break;
       case Qualifiers.FILE:
       case Qualifiers.UNIT_TEST_FILE:
-        builder.fileUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
+        builder.componentUuids(components.stream().map(ComponentDto::uuid).collect(toList()));
         break;
       default:
         throw new IllegalArgumentException("Unable to set search root context for components " + Joiner.on(',').join(components));
