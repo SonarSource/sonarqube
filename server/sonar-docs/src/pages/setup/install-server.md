@@ -182,7 +182,7 @@ Follow these steps for your first installation:
 1.	Creating the following volumes helps prevent the loss of information when updating to a new version or upgrading to a higher edition:
 	- `sonarqube_data` – contains data files, such as the embedded H2 database and Elasticsearch indexes
 	- `sonarqube_logs` – contains SonarQube logs about access, web process, CE process, and Elasticsearch
-	- `sonarqube_extensions` – contains external plugins 
+	- `sonarqube_extensions` – will contain any plugins you install and the Oracle JDBC driver if necessary.
 	
 	Create the volumes with the following commands:
 	```bash
@@ -206,7 +206,7 @@ Follow these steps for your first installation:
 	
 	b. Exit once SonarQube has started properly. 
    
-	c. Copy the Oracle driver into `sonarqube_extensions/jdbc-driver/oracle`.
+	c. Copy the Oracle JDBC driver into `sonarqube_extensions/jdbc-driver/oracle`.
    
 3. Run the image with your database properties defined using the -e environment variable flag:
 
