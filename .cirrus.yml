@@ -1,5 +1,5 @@
 # content of service-account-credentials.json, used to access to Google Cloud Platform
-gcp_credentials: ENCRYPTED[534d4b89444f3e4e3ba299769a98010609e71992355c132fd6e448f1d8fcb039184224c8b4cdf7933b0aec16d6a8896d]
+gcp_credentials: ENCRYPTED[ec86f04ec57d8a7f29ad6b84b41262c9d576abc533485754fdfdb24db103adf0d33ba4ba89a57d29d2549790be5abc72]
 
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+PrintFlagsFinal -XshowSettings:vm -XX:+HeapDumpOnOutOfMemoryError -XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF8 -Duser.language=en -Duser.country=US"
@@ -30,18 +30,60 @@ env:
 
 auto_cancellation: $CIRRUS_BRANCH != 'master' && $CIRRUS_BRANCH !=~ 'branch.*'
 
+task_only_nightly_depending_on_build_template: &TASK_ONLY_NIGHTLY_DEPENDING_ON_BUILD_TEMPLATE
+  depends_on: build
+  # Comment the following line and commit with message "DO NOT MERGE" in order to run
+  # this task on your branch
+  only_if: $CIRRUS_BRANCH == "branch-nightly-build"
+
+docker_build_container_template: &GKE_CONTAINER_TEMPLATE
+  dockerfile: private/docker/Dockerfile-build
+  builder_image_project: sonarqube-team
+  builder_image_name: docker-builder-v20200915
+  cluster_name: cirrus-ci-cluster
+  zone: us-central1-a
+  namespace: default
+  cpu: 1
+  memory: 1Gb
+
+oracle_additional_container_template: &ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
+  name: oracle
+  image: us.gcr.io/sonarqube-team/oracle12:0.0.1 # see https://github.com/SonarSource/vms/blob/master/docker/README.md#oracle-12c to build it
+  port: 1521
+  cpu: 2
+  memory: 5Gb
+  env:
+    ORACLE_PWD: sonarqube
+
+postgres_additional_container_template: &POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
+  name: postgres
+  image: postgres:10.6
+  port: 5432
+  cpu: 1
+  memory: 1Gb
+  env:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+
+reports_junit_on_failure_template: &REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  reports_artifacts:
+    path: "**/build/reports/**/*"
+  junit_artifacts:
+    path: "**/test-results/**/*.xml"
+    format: junit
+
+screenshots_on_failure_template: &REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
+  <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
+  screenshots_artifacts:
+    path: "**/build/screenshots/**/*"
+
 build_task:
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master"
   timeout_in: 90m
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
-    cpu: 3
-    memory: 10Gb
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 4
+    memory: 7Gb
   gradle_cache:
     folder: ~/.gradle/caches
   env:
@@ -61,14 +103,7 @@ deploy_docs_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH == 'dogfood-on-next'
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
-    cpu: 1
-    memory: 1Gb
+    <<: *GKE_CONTAINER_TEMPLATE
   env:
     # No need to clone the full history.
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
@@ -82,23 +117,11 @@ validate_task:
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_TAG != "nightly-build"
   timeout_in: 90m
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
-    cpu: 2.4
-    memory: 10Gb
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 2
+    memory: 9Gb
     additional_containers:
-      - name: postgres
-        image: postgres:10.6
-        port: 5432
-        cpu: 1
-        memory: 1Gb
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   gradle_cache:
     folder: ~/.gradle/caches
   script:
@@ -106,33 +129,17 @@ validate_task:
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 qa_task:
   depends_on: build
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_TAG != "nightly-build"
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
-    cpu: 2.4
-    memory: 10Gb
+    <<: *GKE_CONTAINER_TEMPLATE
+    cpu: 3
+    memory: 7Gb
     additional_containers:
-      - name: postgres
-        image: postgres:10.6
-        port: 5432
-        cpu: 1
-        memory: 1Gb
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
   env:
     # No need to clone the full history.
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
@@ -159,13 +166,7 @@ qa_task:
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    screenshots_artifacts:
-      path: "**/build/screenshots/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
+    <<: *REPORTS_JUNIT_SCREENSHOTS_ON_FAILURE_TEMPLATE
 
 promote_task:
   depends_on:
@@ -174,14 +175,8 @@ promote_task:
     - qa
   only_if: $CIRRUS_BRANCH !=~ "dogfood/.*" && $CIRRUS_BRANCH != "public_master" && $CIRRUS_TAG != "nightly-build"
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
-    cpu: 1
-    memory: 1Gb
+    <<: *GKE_CONTAINER_TEMPLATE
+  stateful: true
   env:
     # No need to clone the full history.
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
@@ -196,13 +191,7 @@ sql_mssql2017_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
-    cpu: 1
+    <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
       - name: mssql
@@ -221,11 +210,7 @@ sql_mssql2017_task:
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 
 # this is the oldest compatible version of PostgreSQL
@@ -235,23 +220,11 @@ sql_postgres93_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
-    cpu: 1
+    <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
-      - name: postgres
+      - <<: *POSTGRES_ADDITIONAL_CONTAINER_TEMPLATE
         image: postgres:9.3
-        port: 5432
-        cpu: 1
-        memory: 1Gb
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
   gradle_cache:
     folder: ~/.gradle/caches
   script:
@@ -259,11 +232,7 @@ sql_postgres93_task:
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 sql_oracle12_task:
   depends_on: build
@@ -271,34 +240,16 @@ sql_oracle12_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
-    cpu: 1
+    <<: *GKE_CONTAINER_TEMPLATE
     memory: 5Gb
     additional_containers:
-      - name: oracle
-        image: gcr.io/ci-cd-215716/oracle12:0.0.1 # see https://github.com/SonarSource/vms/blob/master/docker/README.md#oracle-12c to build it
-        port: 1521
-        cpu: 2
-        memory: 5Gb
-        env:
-          ORACLE_PWD: sonarqube
-  gradle_cache:
-    folder: ~/.gradle/caches
+      - <<: *ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   script:
     - ./private/cirrus/cirrus-db-unit-test.sh oracle12
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 upgd_mssql2017_task:
   depends_on: build
@@ -306,12 +257,7 @@ upgd_mssql2017_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
+    <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.5
     memory: 6Gb
     additional_containers:
@@ -338,11 +284,7 @@ upgd_mssql2017_task:
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
 
 
 upgd_oracle12_task:
@@ -351,22 +293,11 @@ upgd_oracle12_task:
   # this task on your branch
   only_if: $CIRRUS_TAG == "nightly-build"
   gke_container:
-    dockerfile: private/docker/Dockerfile-build
-    builder_image_project: ci-cd-215716
-    builder_image_name: docker-builder-v1
-    cluster_name: cirrus-uscentral1a-cluster
-    zone: us-central1-a
-    namespace: default
+    <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.5
     memory: 6Gb
     additional_containers:
-      - name: oracle
-        image: gcr.io/ci-cd-215716/oracle12:0.0.1 # see https://github.com/SonarSource/vms/blob/master/docker/README.md#oracle-12c to build it
-        port: 1521
-        cpu: 2
-        memory: 5Gb
-        env:
-          ORACLE_PWD: sonarqube
+      - <<: *ORACLE_ADDITIONAL_CONTAINER_TEMPLATE
   env:
     # No need to clone the full history.
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
@@ -381,8 +312,4 @@ upgd_oracle12_task:
   cleanup_before_cache_script:
     - ./private/cirrus/cleanup-gradle-cache.sh
   on_failure:
-    reports_artifacts:
-      path: "**/build/reports/**/*"
-    junit_artifacts:
-      path: "**/test-results/**/*.xml"
-      format: junit
+    <<: *REPORTS_JUNIT_ON_FAILURE_TEMPLATE
