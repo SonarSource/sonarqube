@@ -125,7 +125,10 @@ export class App extends React.PureComponent<Props, State> {
         <Header currentEdition={currentEdition} />
         <EditionBoxes currentEdition={currentEdition} />
         <header className="page-header">
-          <h1 className="page-title">{translate('marketplace.page.open_source_plugins')}</h1>
+          <h1 className="page-title">{translate('marketplace.page.plugins')}</h1>
+          <div className="page-description">
+            {translate('marketplace.page.plugins.description')}
+          </div>
         </header>
         <Search
           query={query}

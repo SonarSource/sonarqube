@@ -21,8 +21,13 @@ exports[`should render correctly: loaded 1`] = `
     <h1
       className="page-title"
     >
-      marketplace.page.open_source_plugins
+      marketplace.page.plugins
     </h1>
+    <div
+      className="page-description"
+    >
+      marketplace.page.plugins.description
+    </div>
   </header>
   <Search
     query={
@@ -73,8 +78,13 @@ exports[`should render correctly: loading 1`] = `
     <h1
       className="page-title"
     >
-      marketplace.page.open_source_plugins
+      marketplace.page.plugins
     </h1>
+    <div
+      className="page-description"
+    >
+      marketplace.page.plugins.description
+    </div>
   </header>
   <Search
     query={
