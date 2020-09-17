@@ -20,6 +20,7 @@
 import { sortBy, uniqBy } from 'lodash';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
+import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import {
   getAvailablePlugins,
@@ -135,16 +136,21 @@ export class App extends React.PureComponent<Props, State> {
           updateCenterActive={this.props.updateCenterActive}
           updateQuery={this.updateQuery}
         />
-        {loadingPlugins && <i className="spinner" />}
-        {!loadingPlugins && (
-          <PluginsList
-            pending={pendingPlugins}
-            plugins={filteredPlugins}
-            readOnly={!standaloneMode}
-            refreshPending={this.props.fetchPendingPlugins}
-          />
-        )}
-        {!loadingPlugins && <Footer total={filteredPlugins.length} />}
+        <DeferredSpinner loading={loadingPlugins}>
+          {filteredPlugins.length === 0 &&
+            translate('marketplace.plugin_list.no_plugins', query.filter)}
+          {filteredPlugins.length > 0 && (
+            <>
+              <PluginsList
+                pending={pendingPlugins}
+                plugins={filteredPlugins}
+                readOnly={!standaloneMode}
+                refreshPending={this.props.fetchPendingPlugins}
+              />
+              <Footer total={filteredPlugins.length} />
+            </>
+          )}
+        </DeferredSpinner>
       </div>
     );
   }

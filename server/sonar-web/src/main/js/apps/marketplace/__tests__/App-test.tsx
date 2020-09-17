@@ -29,19 +29,25 @@ import {
 import { mockLocation, mockRouter } from '../../../helpers/testMocks';
 import { App } from '../App';
 
-jest.mock('../../../api/plugins', () => ({
-  getAvailablePlugins: jest.fn().mockResolvedValue({ plugins: [] }),
-  getInstalledPlugins: jest.fn().mockResolvedValue([]),
-  getInstalledPluginsWithUpdates: jest.fn().mockResolvedValue([]),
-  getPluginUpdates: jest.fn().mockResolvedValue([])
-}));
+jest.mock('../../../api/plugins', () => {
+  const plugin = jest.requireActual('../../../helpers/mocks/plugins').mockPlugin();
+
+  return {
+    getAvailablePlugins: jest.fn().mockResolvedValue({ plugins: [plugin] }),
+    getInstalledPlugins: jest.fn().mockResolvedValue([]),
+    getInstalledPluginsWithUpdates: jest.fn().mockResolvedValue([]),
+    getPluginUpdates: jest.fn().mockResolvedValue([])
+  };
+});
 
 beforeEach(jest.clearAllMocks);
 
-it('should render correctly', () => {
+it('should render correctly', async () => {
   const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot('loading');
-  expect(wrapper.setState({ loadingPlugins: false })).toMatchSnapshot('loaded');
+
+  await waitAndUpdate(wrapper);
+  expect(wrapper).toMatchSnapshot('loaded');
 });
 
 it('should fetch plugin info', async () => {
