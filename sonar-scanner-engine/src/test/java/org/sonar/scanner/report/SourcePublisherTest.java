@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputProject;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -59,7 +58,7 @@ public class SourcePublisherTest {
       .build();
 
     DefaultInputProject rootProject = TestInputFileBuilder.newDefaultInputProject(moduleKey, baseDir);
-    InputComponentStore componentStore = new InputComponentStore(mock(BranchConfiguration.class), mock(SonarRuntime.class));
+    InputComponentStore componentStore = new InputComponentStore(mock(BranchConfiguration.class));
     componentStore.put(moduleKey, inputFile);
 
     publisher = new SourcePublisher(componentStore);

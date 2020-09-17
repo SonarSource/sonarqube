@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,11 +29,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -51,9 +47,6 @@ import static org.sonar.api.utils.Preconditions.checkState;
  * exclusion patterns are already applied.
  */
 public class InputComponentStore extends DefaultFileSystem.Cache {
-  private static final Map<String, Pattern> FILE_PATTERN_BY_LANGUAGE = ImmutableMap.of(
-    "C", Pattern.compile(".*\\.c", Pattern.CASE_INSENSITIVE),
-    "C++", Pattern.compile(".*\\.cpp|.*\\.cc|.*\\.cxx|.*\\.c\\+\\+", Pattern.CASE_INSENSITIVE));
 
   private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
   private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
@@ -65,12 +58,9 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
   private final Map<String, Set<InputFile>> filesByNameCache = new HashMap<>();
   private final Map<String, Set<InputFile>> filesByExtensionCache = new HashMap<>();
   private final BranchConfiguration branchConfiguration;
-  private final SonarRuntime sonarRuntime;
-  private final Map<String, Integer> notAnalysedFilesByLanguage = new HashMap<>();
 
-  public InputComponentStore(BranchConfiguration branchConfiguration, SonarRuntime sonarRuntime) {
+  public InputComponentStore(BranchConfiguration branchConfiguration) {
     this.branchConfiguration = branchConfiguration;
-    this.sonarRuntime = sonarRuntime;
   }
 
   public Collection<InputComponent> all() {
@@ -107,8 +97,6 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
 
   public InputComponentStore put(String moduleKey, InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
-    updateNotAnalysedCAndCppFileCount(file);
-
     addToLanguageCache(moduleKey, file);
     inputFileByModuleCache.computeIfAbsent(moduleKey, x -> new HashMap<>()).put(file.getModuleRelativePath(), inputFile);
     inputModuleKeyByFileCache.put(inputFile, moduleKey);
@@ -181,19 +169,4 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
     throw new UnsupportedOperationException();
   }
 
-  private void updateNotAnalysedCAndCppFileCount(DefaultInputFile inputFile) {
-    if (!SonarEdition.COMMUNITY.equals(sonarRuntime.getEdition())) {
-      return;
-    }
-
-    FILE_PATTERN_BY_LANGUAGE.forEach((language, filePattern) -> {
-      if (filePattern.matcher(inputFile.filename()).matches()) {
-        notAnalysedFilesByLanguage.put(language, notAnalysedFilesByLanguage.getOrDefault(language, 0) + 1);
-      }
-    });
-  }
-
-  public Map<String, Integer> getNotAnalysedFilesByLanguage() {
-    return ImmutableMap.copyOf(notAnalysedFilesByLanguage);
-  }
 }

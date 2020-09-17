@@ -32,12 +32,9 @@ import java.util.Map;
 import java.util.Scanner;
 import javax.annotation.CheckForNull;
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.UIManager.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.CloseableIterator;
@@ -97,8 +94,6 @@ public class ScannerReportViewerApp {
   private JEditorPane cpdTextBlocksEditor;
   private JScrollPane significantCodeTab;
   private JEditorPane significantCodeEditor;
-  private JScrollPane metadataTab;
-  private JEditorPane metadataEditor;
 
   /**
    * Create the application.
@@ -192,7 +187,6 @@ public class ScannerReportViewerApp {
     updateAdHocRules();
     updateQualityProfiles();
     updatePlugins();
-    updateMetadata();
   }
 
   private void loadComponents() {
@@ -352,21 +346,6 @@ public class ScannerReportViewerApp {
         sourceEditor.setText(errors.toString());
       }
     }
-  }
-
-  private void updateMetadata() {
-    metadataEditor.setText("");
-
-    StringBuilder builder = new StringBuilder();
-    Metadata data = reader.readMetadata();
-    builder.append("Project key: ").append(data.getProjectKey()).append("\n");
-    builder.append("Project version: ").append(data.getProjectVersion()).append("\n");
-    builder.append("Scm revision ID: ").append(data.getScmRevisionId()).append("\n");
-    if (data.getNotAnalyzedFilesByLanguageCount() > 0) {
-      builder.append("Not analyzed files in project:").append("\n");
-      data.getNotAnalyzedFilesByLanguageMap().forEach((key, value) -> builder.append("   ").append(key).append(": ").append(value).append("\n"));
-    }
-    metadataEditor.setText(builder.toString());
   }
 
   private void updateActiveRules() {
@@ -608,12 +587,6 @@ public class ScannerReportViewerApp {
 
     significantCodeEditor = new JEditorPane();
     significantCodeTab.setViewportView(significantCodeEditor);
-
-    metadataTab = new JScrollPane();
-    tabbedPane.addTab("Metadata", null, metadataTab, null);
-
-    metadataEditor = new JEditorPane();
-    metadataTab.setViewportView(metadataEditor);
 
     treeScrollPane = new JScrollPane();
     treeScrollPane.setPreferredSize(new Dimension(200, 400));
