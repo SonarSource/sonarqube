@@ -17,20 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ce.ws;
+package org.sonar.server.platform.db.migration.version.v85;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+import static java.sql.Types.VARCHAR;
 
-public class CeWsModuleTest {
+public class MakeMessageTypeColumnNotNullableOnCeTaskMessageTableTest {
+
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeMessageTypeColumnNotNullableOnCeTaskMessageTableTest.class, "schema.sql");
+
+  private final MigrationStep underTest = new MakeMessageTypeColumnNotNullableOnCeTaskMessageTable(db.database());
 
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(20 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
+  public void message_type_column_is_not_null() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDefinition("ce_task_message", "message_type", VARCHAR, 255, false);
   }
 }

@@ -434,4 +434,11 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteUserDismissedMessages(String projectUuid) {
+    profiler.start("deleteUserDismissedMessages (user_dismissed_messages)");
+    purgeMapper.deleteUserDismissedMessagesByProjectUuid(projectUuid);
+    session.commit();
+    profiler.stop();
+  }
+
 }

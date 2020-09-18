@@ -20,31 +20,24 @@
 package org.sonar.server.platform.db.migration.version.v85;
 
 import java.sql.SQLException;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
-import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
+public class AddIndexOnMessageTypeColumnOfCeTaskMessageTableTest {
+  private static final String TABLE_NAME = "ce_task_message";
+  private static final String INDEX_NAME = "ctm_message_type";
 
-public class MakeIsDismissibleColumnNotNullableOnCeTaskMessageTable extends DdlChange {
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(AddIndexOnMessageTypeColumnOfCeTaskMessageTableTest.class, "schema.sql");
 
-  private static final String TABLE = "ce_task_message";
-  private static final String NEW_COLUMN = "is_dismissible";
+  DdlChange underTest = new AddIndexOnMessageTypeColumnOfCeTaskMessageTable(db.database());
 
-  private static final BooleanColumnDef IS_DISMISSIBLE = newBooleanColumnDefBuilder()
-    .setColumnName(NEW_COLUMN)
-    .setIsNullable(false)
-    .build();
+  @Test
+  public void add_index() throws SQLException {
+    underTest.execute();
 
-  public MakeIsDismissibleColumnNotNullableOnCeTaskMessageTable(Database db) {
-    super(db);
-  }
-
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new AlterColumnsBuilder(getDialect(), TABLE)
-      .updateColumn(IS_DISMISSIBLE)
-      .build());
+    db.assertIndex(TABLE_NAME, INDEX_NAME, "message_type");
   }
 }

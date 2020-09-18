@@ -32,11 +32,13 @@ import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -399,6 +401,17 @@ public class UserDbTester {
       .setExpirationDate(nextLong());
     stream(populators).forEach(p -> p.accept(dto));
     db.getDbClient().sessionTokensDao().insert(db.getSession(), dto);
+    db.commit();
+    return dto;
+  }
+
+  public final UserDismissedMessageDto insertUserDismissedMessage(UserDto userDto, ProjectDto projectDto, CeTaskMessageType messageType) {
+    UserDismissedMessageDto dto = new UserDismissedMessageDto()
+      .setUuid(Uuids.create())
+      .setUserUuid(userDto.getUuid())
+      .setProjectUuid(projectDto.getUuid())
+      .setCeMessageType(messageType);
+    db.getDbClient().userDismissedMessagesDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
   }

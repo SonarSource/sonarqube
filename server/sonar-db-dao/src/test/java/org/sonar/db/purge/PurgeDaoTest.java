@@ -47,7 +47,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.alm.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -55,6 +54,7 @@ import org.sonar.db.ce.CeQueueDto.Status;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskInputDao;
 import org.sonar.db.ce.CeTaskMessageDto;
+import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
@@ -78,6 +78,8 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.db.user.UserDismissedMessageDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.db.webhook.WebhookDto;
 
@@ -110,16 +112,16 @@ public class PurgeDaoTest {
 
   private static final String PROJECT_UUID = "P1";
 
-  private System2 system2 = mock(System2.class);
+  private final System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private PurgeDao underTest = db.getDbClient().purgeDao();
+  private final DbClient dbClient = db.getDbClient();
+  private final DbSession dbSession = db.getSession();
+  private final PurgeDao underTest = db.getDbClient().purgeDao();
 
   @Test
   public void purge_failed_ce_tasks() {
@@ -700,6 +702,25 @@ public class PurgeDaoTest {
 
     assertThat(uuidsIn("ce_activity")).containsOnly(anotherProjectTask.getUuid());
     assertThat(taskUuidsIn("ce_task_message")).containsOnly(anotherProjectTask.getUuid(), "non existing task");
+  }
+
+  @Test
+  public void delete_rows_in_user_dismissed_messages_when_deleting_project() {
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    ProjectDto anotherProject = db.components().insertPrivateProjectDto();
+
+    UserDismissedMessageDto msg1 = db.users().insertUserDismissedMessage(user1, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDismissedMessageDto msg2 = db.users().insertUserDismissedMessage(user2, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDismissedMessageDto msg3 = db.users().insertUserDismissedMessage(user1, anotherProject, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+
+    assertThat(uuidsIn("user_dismissed_messages")).containsOnly(msg1.getUuid(), msg2.getUuid(), msg3.getUuid());
+
+    underTest.deleteProject(dbSession, project.getUuid());
+    dbSession.commit();
+
+    assertThat(uuidsIn("user_dismissed_messages")).containsOnly(msg3.getUuid());
   }
 
   @Test
@@ -1629,6 +1650,7 @@ public class PurgeDaoTest {
         .setUuid(UuidFactoryFast.getInstance().create())
         .setTaskUuid(uuid)
         .setMessage("key_" + uuid.hashCode() + i)
+        .setType(CeTaskMessageType.GENERIC)
         .setCreatedAt(2_333_444L + i))
       .forEach(dto -> dbClient.ceTaskMessageDao().insert(dbSession, dto));
     dbSession.commit();

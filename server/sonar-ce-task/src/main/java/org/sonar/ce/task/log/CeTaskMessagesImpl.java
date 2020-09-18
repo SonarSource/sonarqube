@@ -71,11 +71,11 @@ public class CeTaskMessagesImpl implements CeTaskMessages {
 
   public void insert(DbSession dbSession, Message message) {
     dbClient.ceTaskMessageDao().insert(dbSession, new CeTaskMessageDto()
-    .setUuid(uuidFactory.create())
-    .setTaskUuid(ceTask.getUuid())
-    .setMessage(message.getText())
-    .setDismissible(message.isDismissible())
-    .setCreatedAt(message.getTimestamp()));
+      .setUuid(uuidFactory.create())
+      .setTaskUuid(ceTask.getUuid())
+      .setMessage(message.getText())
+      .setType(message.getType())
+      .setCreatedAt(message.getTimestamp()));
   }
 
   private static void checkMessage(Message message) {

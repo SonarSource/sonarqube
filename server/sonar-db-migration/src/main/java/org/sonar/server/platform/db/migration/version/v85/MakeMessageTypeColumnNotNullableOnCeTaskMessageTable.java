@@ -21,29 +21,27 @@ package org.sonar.server.platform.db.migration.version.v85;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
-import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class AddIsDismissibleColumnToCeTaskMessageTable extends DdlChange {
-  private static final String TABLE = "ce_task_message";
-  private static final String NEW_COLUMN = "is_dismissible";
-
-  private static final BooleanColumnDef IS_DISMISSIBLE = newBooleanColumnDefBuilder()
-    .setColumnName(NEW_COLUMN)
-    .setIsNullable(true)
+public class MakeMessageTypeColumnNotNullableOnCeTaskMessageTable extends DdlChange {
+  private static final VarcharColumnDef MESSAGE_TYPE = newVarcharColumnDefBuilder()
+    .setColumnName("message_type")
+    .setIsNullable(false)
+    .setLimit(255)
     .build();
 
-  public AddIsDismissibleColumnToCeTaskMessageTable(Database db) {
+  public MakeMessageTypeColumnNotNullableOnCeTaskMessageTable(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AddColumnsBuilder(getDialect(), TABLE)
-      .addColumn(IS_DISMISSIBLE)
+    context.execute(new AlterColumnsBuilder(getDialect(), "ce_task_message")
+      .updateColumn(MESSAGE_TYPE)
       .build());
   }
 }

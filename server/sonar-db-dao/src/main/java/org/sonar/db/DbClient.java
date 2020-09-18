@@ -84,6 +84,7 @@ import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.SamlMessageIdDao;
 import org.sonar.db.user.SessionTokensDao;
 import org.sonar.db.user.UserDao;
+import org.sonar.db.user.UserDismissedMessagesDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserPropertiesDao;
 import org.sonar.db.user.UserTokenDao;
@@ -164,6 +165,7 @@ public class DbClient {
   private final ProjectDao projectDao;
   private final SessionTokensDao sessionTokensDao;
   private final SamlMessageIdDao samlMessageIdDao;
+  private final UserDismissedMessagesDao userDismissedMessagesDao;
 
   public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
@@ -242,6 +244,7 @@ public class DbClient {
     projectDao = getDao(map, ProjectDao.class);
     sessionTokensDao = getDao(map, SessionTokensDao.class);
     samlMessageIdDao = getDao(map, SamlMessageIdDao.class);
+    userDismissedMessagesDao = getDao(map, UserDismissedMessagesDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -532,6 +535,10 @@ public class DbClient {
 
   public SamlMessageIdDao samlMessageIdDao() {
     return samlMessageIdDao;
+  }
+
+  public UserDismissedMessagesDao userDismissedMessagesDao() {
+    return userDismissedMessagesDao;
   }
 
 }

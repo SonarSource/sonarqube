@@ -86,6 +86,7 @@ import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.SamlMessageIdDao;
 import org.sonar.db.user.SessionTokensDao;
 import org.sonar.db.user.UserDao;
+import org.sonar.db.user.UserDismissedMessagesDao;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserPropertiesDao;
 import org.sonar.db.user.UserTokenDao;
@@ -159,6 +160,7 @@ public class DaoModule extends Module {
     SchemaMigrationDao.class,
     SessionTokensDao.class,
     UserDao.class,
+    UserDismissedMessagesDao.class,
     UserGroupDao.class,
     UserPermissionDao.class,
     UserPropertiesDao.class,

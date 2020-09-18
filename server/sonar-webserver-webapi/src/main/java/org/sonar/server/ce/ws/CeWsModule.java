@@ -46,6 +46,7 @@ public class CeWsModule extends Module {
       TaskFormatter.class,
       TaskAction.class,
       TaskTypesAction.class,
-      WorkerCountAction.class);
+      WorkerCountAction.class,
+      DismissAnalysisWarningAction.class);
   }
 }

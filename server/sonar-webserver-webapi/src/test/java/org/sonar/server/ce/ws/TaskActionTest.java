@@ -38,6 +38,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskMessageDto;
+import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -74,9 +75,9 @@ public class TaskActionTest {
   private OrganizationDto organization;
   private ComponentDto privateProject;
   private ComponentDto publicProject;
-  private TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
-  private TaskAction underTest = new TaskAction(db.getDbClient(), formatter, userSession);
-  private WsActionTester ws = new WsActionTester(underTest);
+  private final TaskFormatter formatter = new TaskFormatter(db.getDbClient(), System2.INSTANCE);
+  private final TaskAction underTest = new TaskAction(db.getDbClient(), formatter, userSession);
+  private final WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
@@ -125,6 +126,7 @@ public class TaskActionTest {
           .setUuid("u_" + i)
           .setTaskUuid(queueDto.getUuid())
           .setMessage("m_" + i)
+          .setType(CeTaskMessageType.GENERIC)
           .setCreatedAt(queueDto.getUuid().hashCode() + i)));
     db.commit();
 
@@ -393,7 +395,7 @@ public class TaskActionTest {
     CeActivityDto task = createAndPersistArchivedTask(publicProject);
 
     expectedException.expect(ForbiddenException.class);
-    
+
     call(task.getUuid());
   }
 
@@ -488,6 +490,7 @@ public class TaskActionTest {
       .setUuid(UuidFactoryFast.getInstance().create())
       .setTaskUuid(task.getUuid())
       .setMessage("msg_" + task.getUuid() + "_" + i)
+      .setType(CeTaskMessageType.GENERIC)
       .setCreatedAt(task.getUuid().hashCode() + i);
     db.getDbClient().ceTaskMessageDao().insert(db.getSession(), res);
     db.getSession().commit();

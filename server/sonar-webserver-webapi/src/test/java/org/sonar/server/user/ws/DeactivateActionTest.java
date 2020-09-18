@@ -30,15 +30,18 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.SessionTokenDto;
+import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -71,7 +74,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class DeactivateActionTest {
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -85,11 +88,11 @@ public class DeactivateActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private DbClient dbClient = db.getDbClient();
-  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private DbSession dbSession = db.getSession();
-  private WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession,
+  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private final DbClient dbClient = db.getDbClient();
+  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+  private final DbSession dbSession = db.getSession();
+  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession,
     new UserJsonWriter(userSession), defaultOrganizationProvider));
 
   @Test
@@ -265,15 +268,36 @@ public class DeactivateActionTest {
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     SessionTokenDto sessionToken1 = db.users().insertSessionToken(user);
-    SessionTokenDto sessionToken2 =db.users().insertSessionToken(user);
+    SessionTokenDto sessionToken2 = db.users().insertSessionToken(user);
     UserDto anotherUser = db.users().insertUser();
-    SessionTokenDto sessionToken3 =db.users().insertSessionToken(anotherUser);
+    SessionTokenDto sessionToken3 = db.users().insertSessionToken(anotherUser);
 
     deactivate(user.getLogin());
 
     assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken1.getUuid())).isNotPresent();
     assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken2.getUuid())).isNotPresent();
     assertThat(db.getDbClient().sessionTokensDao().selectByUuid(dbSession, sessionToken3.getUuid())).isPresent();
+  }
+
+  @Test
+  public void deactivate_user_deletes_his_dismissed_messages() {
+    logInAsSystemAdministrator();
+    ProjectDto project1 = db.components().insertPrivateProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProjectDto();
+    UserDto user = db.users().insertUser();
+
+    db.users().insertUserDismissedMessage(user, project1, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    db.users().insertUserDismissedMessage(user, project2, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDto anotherUser = db.users().insertUser();
+    UserDismissedMessageDto msg3 = db.users().insertUserDismissedMessage(anotherUser, project1, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    UserDismissedMessageDto msg4 = db.users().insertUserDismissedMessage(anotherUser, project2, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+
+    deactivate(user.getLogin());
+
+    assertThat(db.getDbClient().userDismissedMessagesDao().selectByUser(dbSession, user)).isEmpty();
+    assertThat(db.getDbClient().userDismissedMessagesDao().selectByUser(dbSession, anotherUser))
+      .extracting(UserDismissedMessageDto::getUuid)
+      .containsExactlyInAnyOrder(msg3.getUuid(), msg4.getUuid());
   }
 
   @Test

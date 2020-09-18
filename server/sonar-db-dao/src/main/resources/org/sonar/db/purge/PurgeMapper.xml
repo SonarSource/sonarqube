@@ -504,5 +504,9 @@
   <delete id="deleteLiveMeasuresByComponentUuids">
     delete from live_measures where component_uuid in <foreach item="componentUuid" index="index" collection="componentUuids" open="(" separator="," close=")">#{componentUuid, jdbcType=VARCHAR}</foreach>
   </delete>
+
+  <delete id="deleteUserDismissedMessagesByProjectUuid">
+    delete from user_dismissed_messages where project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
 </mapper>
 

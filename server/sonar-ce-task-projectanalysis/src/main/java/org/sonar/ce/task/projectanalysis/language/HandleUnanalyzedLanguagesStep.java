@@ -36,6 +36,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
+import org.sonar.db.ce.CeTaskMessageType;
 
 import static java.lang.String.format;
 import static org.sonar.core.language.UnanalyzedLanguages.C;
@@ -50,9 +51,9 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
 
   static final String DESCRIPTION = "Check upgrade possibility for not analyzed code files.";
 
-  private static final String LANGUAGE_UPGRADE_MESSAGE = "%s file(s) detected during the last analysis. %s code cannot be analyzed with SonarQube " +
-    "community edition. Please consider <a href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to " +
-    "the Developer Edition</a> to analyze this language.";
+  private static final String LANGUAGE_UPGRADE_MESSAGE = "%s detected in this project during the last analysis. %s cannot be analyzed with your" +
+    " current SonarQube edition. Please consider <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to" +
+    " Developer Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in %s.";
 
   private final BatchReportReader reportReader;
   private final CeTaskMessages ceTaskMessages;
@@ -102,7 +103,7 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
     Iterator<Map.Entry<String, Integer>> iterator = sortedLanguageMap.entrySet().iterator();
     Map.Entry<String, Integer> firstLanguage = iterator.next();
     StringBuilder languageLabel = new StringBuilder(firstLanguage.getKey());
-    StringBuilder fileCountLabel = new StringBuilder(format("%s %s", firstLanguage.getValue(), firstLanguage.getKey()));
+    StringBuilder fileCountLabel = new StringBuilder(format("%s unanalyzed %s", firstLanguage.getValue(), firstLanguage.getKey()));
     while (iterator.hasNext()) {
       Map.Entry<String, Integer> nextLanguage = iterator.next();
       if (iterator.hasNext()) {
@@ -113,10 +114,17 @@ public class HandleUnanalyzedLanguagesStep implements ComputationStep {
         fileCountLabel.append(" and ");
       }
       languageLabel.append(nextLanguage.getKey());
-      fileCountLabel.append(format("%s %s", nextLanguage.getValue(), nextLanguage.getKey()));
+      fileCountLabel.append(format("%s unanalyzed %s", nextLanguage.getValue(), nextLanguage.getKey()));
     }
 
-    return new CeTaskMessages.Message(format(LANGUAGE_UPGRADE_MESSAGE, fileCountLabel, languageLabel), system.now(), true);
+    if (sortedLanguageMap.size() == 1 && sortedLanguageMap.entrySet().iterator().next().getValue() == 1) {
+      fileCountLabel.append(" file was");
+    } else {
+      fileCountLabel.append(" files were");
+    }
+
+    String message = format(LANGUAGE_UPGRADE_MESSAGE, fileCountLabel, languageLabel, sortedLanguageMap.size() == 1 ? "this file" : "these files");
+    return new CeTaskMessages.Message(message, system.now(), CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
   }
 
   private void computeMeasures(Map<String, Integer> filesPerLanguage) {

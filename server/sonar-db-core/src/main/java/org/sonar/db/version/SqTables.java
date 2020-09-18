@@ -115,6 +115,7 @@ public final class SqTables {
     "session_tokens",
     "snapshots",
     "users",
+    "user_dismissed_messages",
     "user_properties",
     "user_roles",
     "user_tokens",

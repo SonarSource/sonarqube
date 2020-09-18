@@ -23,10 +23,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -38,10 +42,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PersistAnalysisWarningsStepTest {
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
+  @Captor
+  private ArgumentCaptor<List<CeTaskMessages.Message>> argumentCaptor;
 
   private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
   private final PersistAnalysisWarningsStep underTest = new PersistAnalysisWarningsStep(reportReader, ceTaskMessages);
@@ -57,14 +65,13 @@ public class PersistAnalysisWarningsStepTest {
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
     ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
-    ArgumentCaptor<List<CeTaskMessages.Message>> argumentCaptor = ArgumentCaptor.forClass(List.class);
 
     underTest.execute(new TestComputationStepContext());
 
     verify(ceTaskMessages, times(1)).addAll(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue())
-      .extracting(CeTaskMessages.Message::getText, CeTaskMessages.Message::isDismissible)
-      .containsExactly(tuple("warning 1", false), tuple("warning 2", false));
+      .extracting(CeTaskMessages.Message::getText, CeTaskMessages.Message::getType)
+      .containsExactly(tuple("warning 1", CeTaskMessageType.GENERIC), tuple("warning 2", CeTaskMessageType.GENERIC));
   }
 
   @Test

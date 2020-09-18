@@ -36,6 +36,7 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -623,6 +624,22 @@ public class PurgeCommandsTest {
 
     // should delete branch and project settings only
     assertThat(dbTester.countRowsOfTable("new_code_periods")).isEqualTo(3);
+  }
+
+  @Test
+  public void deleteUserDismissedMessages_deletes_dismissed_warnings_on_project_for_all_users() {
+    UserDto user1 = dbTester.users().insertUser();
+    UserDto user2 = dbTester.users().insertUser();
+    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    ProjectDto anotherProject = dbTester.components().insertPrivateProjectDto();
+    dbTester.users().insertUserDismissedMessage(user1, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    dbTester.users().insertUserDismissedMessage(user2, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    dbTester.users().insertUserDismissedMessage(user1, anotherProject, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
+
+    purgeCommands.deleteUserDismissedMessages(project.getUuid());
+
+    assertThat(dbTester.countRowsOfTable("user_dismissed_messages")).isEqualTo(1);
   }
 
   private void addPermissions(OrganizationDto organization, ComponentDto root) {

@@ -30,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskMessageDto;
+import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -92,7 +93,7 @@ public class AnalysisStatusActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
     CeTaskMessageDto taskMessage = createTaskMessage(activity, WARNING_IN_MAIN);
-    CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "Dismissible warning", true);
+    CeTaskMessageDto taskMessageDismissible = createTaskMessage(activity, "Dismissible warning", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
 
     Ce.AnalysisStatusWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -288,7 +289,7 @@ public class AnalysisStatusActionTest {
       .setUuid("AU-Tpxb--iU5OvuD2FLy")
       .setTaskUuid(activity.getUuid())
       .setMessage("Property \"sonar.jacoco.reportPaths\" is no longer supported. Use JaCoCo xml report and sonar-jacoco plugin.")
-      .setDismissible(false)
+      .setType(CeTaskMessageType.GENERIC)
       .setCreatedAt(counter);
     db.getDbClient().ceTaskMessageDao().insert(db.getSession(), ceTaskMessage);
     db.commit();
@@ -329,15 +330,15 @@ public class AnalysisStatusActionTest {
   }
 
   private CeTaskMessageDto createTaskMessage(CeActivityDto activity, String warning) {
-    return createTaskMessage(activity, warning, false);
+    return createTaskMessage(activity, warning, CeTaskMessageType.GENERIC);
   }
 
-  private CeTaskMessageDto createTaskMessage(CeActivityDto activity, String warning, boolean dismissible) {
+  private CeTaskMessageDto createTaskMessage(CeActivityDto activity, String warning, CeTaskMessageType messageType) {
     CeTaskMessageDto ceTaskMessageDto = new CeTaskMessageDto()
       .setUuid("m-uuid-" + counter++)
       .setTaskUuid(activity.getUuid())
       .setMessage(warning)
-      .setDismissible(dismissible)
+      .setType(messageType)
       .setCreatedAt(counter);
     db.getDbClient().ceTaskMessageDao().insert(db.getSession(), ceTaskMessageDto);
     db.commit();

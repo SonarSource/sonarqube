@@ -17,20 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ce.ws;
+package org.sonar.db.user;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
+import java.util.Optional;
+import org.apache.ibatis.annotations.Param;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+public interface UserDismissedMessagesMapper {
+  void insert(@Param("dto") UserDismissedMessageDto dto);
 
-public class CeWsModuleTest {
+  Optional<UserDismissedMessageDto> selectByUserUuidAndProjectUuidAndMessageType(@Param("userUuid") String userUuid, @Param("projectUuid") String projectUuid,
+    @Param("ceMessageType") String ceMessageType);
 
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(20 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
-  }
+  List<UserDismissedMessageDto> selectByUserUuid(@Param("userUuid") String userUuid);
+
+  void deleteByUserUuid(@Param("userUuid") String userUuid);
+
+  void deleteByType(@Param("ceMessageType") String ceMessageType);
 }

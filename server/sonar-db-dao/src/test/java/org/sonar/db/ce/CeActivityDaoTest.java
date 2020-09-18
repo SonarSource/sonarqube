@@ -139,6 +139,7 @@ public class CeActivityDaoTest {
         .setUuid(UuidFactoryFast.getInstance().create())
         .setTaskUuid(task.getUuid())
         .setMessage("message_" + task.getUuid() + "_" + i)
+        .setType(CeTaskMessageType.GENERIC)
         .setCreatedAt(task.getUuid().hashCode() + i)));
     db.commit();
   }

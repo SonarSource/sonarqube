@@ -17,67 +17,67 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
+package org.sonar.db.user;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import org.sonar.db.ce.CeTaskMessageType;
 
-public class CeTaskMessageDto {
-  /**
-   * Unique identifier of each message. Not null
-   */
+public class UserDismissedMessageDto {
+
   private String uuid;
   /**
-   * UUID of the task the message belongs to. Not null
+   * Uuid of the user that dismissed the message type
    */
-  private String taskUuid;
+  private String userUuid;
   /**
-   * The text of the message. Not null
+   * Uuid of the project for which the message type was dismissed
    */
-  private String message;
+  private String projectUuid;
   /**
-   * Type of the message
+   * Message type of the dismissed message
    */
-  private CeTaskMessageType type;
+  private CeTaskMessageType ceMessageType;
   /**
-   * Timestamp the message was created. Not null
+   * Technical creation date
    */
   private long createdAt;
+
+  public UserDismissedMessageDto() {
+    // nothing to do here
+  }
 
   public String getUuid() {
     return uuid;
   }
 
-  public CeTaskMessageDto setUuid(String uuid) {
+  public UserDismissedMessageDto setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }
 
-  public String getTaskUuid() {
-    return taskUuid;
+  public String getUserUuid() {
+    return userUuid;
   }
 
-  public CeTaskMessageDto setTaskUuid(String taskUuid) {
-    this.taskUuid = taskUuid;
+  public UserDismissedMessageDto setUserUuid(String userUuid) {
+    this.userUuid = userUuid;
     return this;
   }
 
-  public String getMessage() {
-    return message;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
-  public CeTaskMessageDto setMessage(String message) {
-    checkArgument(message != null && !message.isEmpty(), "message can't be null nor empty");
-    checkArgument(message.length() <= 4000, "message is too long: %s", message.length());
-    this.message = message;
+  public UserDismissedMessageDto setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
     return this;
   }
 
-  public CeTaskMessageType getType() {
-    return type;
+  public CeTaskMessageType getCeMessageType() {
+    return ceMessageType;
   }
 
-  public CeTaskMessageDto setType(CeTaskMessageType type) {
-    this.type = type;
+  public UserDismissedMessageDto setCeMessageType(CeTaskMessageType ceMessageType) {
+    this.ceMessageType = ceMessageType;
     return this;
   }
 
@@ -85,7 +85,7 @@ public class CeTaskMessageDto {
     return createdAt;
   }
 
-  public CeTaskMessageDto setCreatedAt(long createdAt) {
+  public UserDismissedMessageDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
     return this;
   }

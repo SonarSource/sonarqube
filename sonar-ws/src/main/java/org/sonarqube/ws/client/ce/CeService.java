@@ -144,6 +144,22 @@ public class CeService extends BaseService {
   /**
    *
    * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/dismiss_analysis_warning">Further information about this action online (including a response example)</a>
+   * @since 8.5
+   */
+  public void dismissAnalysisWarning(DismissAnalysisWarningRequest request) {
+    call(
+      new PostRequest(path("dismiss_analysis_warning"))
+        .setParam("component", request.getComponent())
+        .setParam("warning", request.getWarning())
+        .setMediaType(MediaTypes.JSON)
+    ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
    * This is a GET request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/info">Further information about this action online (including a response example)</a>
    * @since 7.2

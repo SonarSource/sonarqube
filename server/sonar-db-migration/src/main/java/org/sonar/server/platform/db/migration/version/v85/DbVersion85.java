@@ -47,9 +47,11 @@ public class DbVersion85 implements DbVersion {
       .add(4016, "Add 'type' column to 'plugins' table", AddTypeToPlugins.class)
       .add(4017, "Populate 'type' column in 'plugins' table", PopulateTypeInPlugins.class)
       .add(4018, "Alter 'type' column in 'plugins' to not nullable", AlterTypeInPluginNotNullable.class)
-      .add(4019, "Add 'is_dismissible' column to `ce_task_message` table", AddIsDismissibleColumnToCeTaskMessageTable.class)
-      .add(4020, "Populate 'is_dismissible' column of `ce_task_message` table", PopulateIsDismissibleColumnOfCeTaskMessageTable.class)
-      .add(4021, "Make 'is_dismissible' column not nullable for `ce_task_message` table", MakeIsDismissibleColumnNotNullableOnCeTaskMessageTable.class)
-    ;
+      .add(4019, "Add 'message_type' column to 'ce_task_message' table", AddMessageTypeColumnToCeTaskMessageTable.class)
+      .add(4020, "Populate 'message_type' column of 'ce_task_message' table", PopulateMessageTypeColumnOfCeTaskMessageTable.class)
+      .add(4021, "Make 'message_type' column not nullable for `ce_task_message` table", MakeMessageTypeColumnNotNullableOnCeTaskMessageTable.class)
+      .add(4022, "Add index on 'message_type' column of `ce_task_message` table", AddIndexOnMessageTypeColumnOfCeTaskMessageTable.class)
+      .add(4023, "Create 'user_dismissed_messages' table", CreateUserDismissedMessagesTable.class
+      );
   }
 }

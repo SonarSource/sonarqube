@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ce.ws;
+package org.sonar.db.ce;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+public enum CeTaskMessageType {
+  GENERIC(false),
+  SUGGEST_DEVELOPER_EDITION_UPGRADE(true);
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+  private final boolean dismissible;
 
-public class CeWsModuleTest {
+  CeTaskMessageType(boolean dismissible) {
+    this.dismissible = dismissible;
+  }
 
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(20 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
+  public boolean isDismissible() {
+    return dismissible;
   }
 }

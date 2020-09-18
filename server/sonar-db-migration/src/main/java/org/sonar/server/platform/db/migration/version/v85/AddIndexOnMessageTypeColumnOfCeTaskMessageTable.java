@@ -21,25 +21,22 @@ package org.sonar.server.platform.db.migration.version.v85;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.step.MassUpdate;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class PopulateIsDismissibleColumnOfCeTaskMessageTable extends DataChange {
+public class AddIndexOnMessageTypeColumnOfCeTaskMessageTable extends DdlChange {
+  private static final String TABLE = "ce_task_message";
 
-  public PopulateIsDismissibleColumnOfCeTaskMessageTable(Database db) {
+  public AddIndexOnMessageTypeColumnOfCeTaskMessageTable(Database db) {
     super(db);
   }
 
   @Override
-  protected void execute(Context context) throws SQLException {
-    MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select ctm.uuid from ce_task_message ctm where ctm.is_dismissible is null");
-    massUpdate.update("update ce_task_message set is_dismissible = ? where uuid = ?");
-
-    massUpdate.execute((row, update) -> {
-      update.setBoolean(1, false);
-      update.setString(2, row.getString(1));
-      return true;
-    });
+  public void execute(Context context) throws SQLException {
+    context.execute(new CreateIndexBuilder()
+      .setTable(TABLE)
+      .setName("ctm_message_type")
+      .addColumn("message_type")
+      .build());
   }
 }

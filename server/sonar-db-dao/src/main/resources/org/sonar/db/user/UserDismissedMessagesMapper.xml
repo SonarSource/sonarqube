@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.UserDismissedMessagesMapper">
+
+  <sql id="columns">
+    udm.uuid,
+    udm.user_uuid as userUuid,
+    udm.project_uuid as projectUuid,
+    udm.message_type as ceMessageType,
+    udm.created_at as createdAt
+  </sql>
+
+  <insert id="insert" parameterType="org.sonar.db.user.UserDismissedMessageDto" useGeneratedKeys="false">
+    insert into user_dismissed_messages
+    (
+      uuid,
+      user_uuid,
+      project_uuid,
+      message_type,
+      created_at
+    )
+    values (
+      #{dto.uuid,jdbcType=VARCHAR},
+      #{dto.userUuid,jdbcType=VARCHAR},
+      #{dto.projectUuid,jdbcType=VARCHAR},
+      #{dto.ceMessageType,jdbcType=VARCHAR},
+      #{dto.createdAt,jdbcType=BIGINT}
+    )
+  </insert>
+
+  <select id="selectByUserUuidAndProjectUuidAndMessageType" resultType="org.sonar.db.user.UserDismissedMessageDto">
+    select
+      <include refid="columns"/>
+    from
+      user_dismissed_messages udm
+    where
+      udm.user_uuid=#{userUuid,jdbcType=VARCHAR} and
+      udm.project_uuid=#{projectUuid,jdbcType=VARCHAR} and
+      udm.message_type=#{ceMessageType,jdbcType=VARCHAR}
+  </select>
+
+    <select id="selectByUserUuid" resultType="org.sonar.db.user.UserDismissedMessageDto" parameterType="String">
+    select
+      <include refid="columns"/>
+    from
+      user_dismissed_messages udm
+    where
+      udm.user_uuid=#{userUuid,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByUserUuid" parameterType="String">
+    delete from user_dismissed_messages where user_uuid = #{userUuid, jdbcType=VARCHAR}
+  </delete>
+
+  <delete id="deleteByType" parameterType="String">
+    delete from user_dismissed_messages where message_type = #{ceMessageType, jdbcType=VARCHAR}
+  </delete>
+
+</mapper>

@@ -24,7 +24,10 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.log.CeTaskMessages.Message;
@@ -37,6 +40,7 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
+import org.sonar.db.ce.CeTaskMessageType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -54,6 +58,7 @@ import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
 import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 
+@RunWith(MockitoJUnitRunner.class)
 public class HandleUnanalyzedLanguagesStepTest {
 
   private static final int PROJECT_REF = 1;
@@ -69,6 +74,9 @@ public class HandleUnanalyzedLanguagesStepTest {
     .add(UNANALYZED_CPP);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+
+  @Captor
+  private ArgumentCaptor<Message> argumentCaptor;
 
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
@@ -93,18 +101,18 @@ public class HandleUnanalyzedLanguagesStepTest {
       .putNotAnalyzedFilesByLanguage("C", 10)
       .putNotAnalyzedFilesByLanguage("SomeLang", 1000)
       .build());
-    ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
 
     underTest.execute(new TestComputationStepContext());
 
     verify(ceTaskMessages, times(1)).add(argumentCaptor.capture());
     assertThat(argumentCaptor.getAllValues())
-      .extracting(Message::getText, Message::isDismissible)
+      .extracting(Message::getText, Message::getType)
       .containsExactly(tuple(
-        "10 C, 20 C++ and 1000 SomeLang file(s) detected during the last analysis. C, C++ and SomeLang code cannot be analyzed with SonarQube community " +
-          "edition. Please consider <a href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to the Developer " +
-          "Edition</a> to analyze this language.",
-        true));
+        "10 unanalyzed C, 20 unanalyzed C++ and 1000 unanalyzed SomeLang files were detected in this project during the last analysis. C," +
+          " C++ and SomeLang cannot be analyzed with your current SonarQube edition. Please consider" +
+          " <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to Developer Edition</a> to find Bugs," +
+          " Code Smells, Vulnerabilities and Security Hotspots in these files.",
+        CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE));
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY).get().getIntValue()).isEqualTo(10);
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isEqualTo(20);
   }
@@ -115,16 +123,15 @@ public class HandleUnanalyzedLanguagesStepTest {
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
       .putNotAnalyzedFilesByLanguage("C", 10)
       .build());
-    ArgumentCaptor<CeTaskMessages.Message> argumentCaptor = ArgumentCaptor.forClass(CeTaskMessages.Message.class);
 
     underTest.execute(new TestComputationStepContext());
 
     verify(ceTaskMessages, times(1)).add(argumentCaptor.capture());
     List<CeTaskMessages.Message> messages = argumentCaptor.getAllValues();
     assertThat(messages).extracting(CeTaskMessages.Message::getText).containsExactly(
-      "10 C file(s) detected during the last analysis. C code cannot be analyzed with SonarQube community " +
-        "edition. Please consider <a href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to the Developer " +
-        "Edition</a> to analyze this language.");
+      "10 unanalyzed C files were detected in this project during the last analysis. C cannot be analyzed with your current SonarQube edition. Please" +
+        " consider <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to Developer" +
+        " Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in this file.");
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY).get().getIntValue()).isEqualTo(10);
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY)).isEmpty();
   }
@@ -133,19 +140,18 @@ public class HandleUnanalyzedLanguagesStepTest {
   public void adds_warning_in_SQ_community_edition_if_there_are_cpp_files() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
-      .putNotAnalyzedFilesByLanguage("C++", 9)
+      .putNotAnalyzedFilesByLanguage("C++", 1)
       .build());
-    ArgumentCaptor<CeTaskMessages.Message> argumentCaptor = ArgumentCaptor.forClass(CeTaskMessages.Message.class);
 
     underTest.execute(new TestComputationStepContext());
 
     verify(ceTaskMessages, times(1)).add(argumentCaptor.capture());
     List<CeTaskMessages.Message> messages = argumentCaptor.getAllValues();
     assertThat(messages).extracting(CeTaskMessages.Message::getText).containsExactly(
-      "9 C++ file(s) detected during the last analysis. C++ code cannot be analyzed with SonarQube community " +
-        "edition. Please consider <a href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to the Developer " +
-        "Edition</a> to analyze this language.");
-    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isEqualTo(9);
+      "1 unanalyzed C++ file was detected in this project during the last analysis. C++ cannot be analyzed with your current SonarQube edition. Please" +
+        " consider <a target=\"_blank\" href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to Developer" +
+        " Edition</a> to find Bugs, Code Smells, Vulnerabilities and Security Hotspots in this file.");
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isEqualTo(1);
     assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY)).isEmpty();
   }
 

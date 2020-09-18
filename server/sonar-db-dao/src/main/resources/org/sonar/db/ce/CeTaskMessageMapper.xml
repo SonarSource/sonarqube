@@ -7,9 +7,18 @@
     ctm.uuid,
     ctm.task_uuid as taskUuid,
     ctm.message as message,
-    ctm.created_at as createdAt,
-    ctm.is_dismissible as dismissible
+    ctm.message_type as type,
+    ctm.created_at as createdAt
   </sql>
+
+  <select id="selectByUuid" resultType="org.sonar.db.ce.CeTaskMessageDto">
+    select
+      <include refid="columns"/>
+    from
+      ce_task_message ctm
+    where
+      ctm.uuid=#{uuid,jdbcType=VARCHAR}
+  </select>
 
   <select id="selectByTask" resultType="org.sonar.db.ce.CeTaskMessageDto">
     select
@@ -28,16 +37,20 @@
       uuid,
       task_uuid,
       message,
-      created_at,
-      is_dismissible
+      message_type,
+      created_at
     )
     values (
       #{dto.uuid,jdbcType=VARCHAR},
       #{dto.taskUuid,jdbcType=VARCHAR},
       #{dto.message,jdbcType=VARCHAR},
-      #{dto.createdAt,jdbcType=BIGINT},
-      #{dto.dismissible,jdbcType=BOOLEAN}
+      #{dto.type,jdbcType=VARCHAR},
+      #{dto.createdAt,jdbcType=BIGINT}
     )
   </insert>
+
+  <delete id="deleteByType" parameterType="String">
+    delete from ce_task_message where message_type = #{ceMessageType, jdbcType=VARCHAR}
+  </delete>
 
 </mapper>

@@ -150,4 +150,6 @@ public interface PurgeMapper {
   void deleteNewCodePeriodsByRootUuid(String rootUuid);
 
   void deleteProjectAlmSettingsByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteUserDismissedMessagesByProjectUuid(@Param("projectUuid") String projectUuid);
 }

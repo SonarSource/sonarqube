@@ -20,25 +20,24 @@
 package org.sonar.server.platform.db.migration.version.v85;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.step.MigrationStep;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static java.sql.Types.BOOLEAN;
-
-public class MakeIsDismissibleColumnNotNullableOnCeTaskMessageTableTest {
-
-  @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(MakeIsDismissibleColumnNotNullableOnCeTaskMessageTableTest.class, "schema.sql");
-
-  private MigrationStep underTest = new MakeIsDismissibleColumnNotNullableOnCeTaskMessageTable(db.database());
-
-  @Test
-  public void ce_task_message_column_is_not_null() throws SQLException {
-    underTest.execute();
-
-    db.assertColumnDefinition("ce_task_message", "is_dismissible", BOOLEAN, null, false);
+public class PopulateMessageTypeColumnOfCeTaskMessageTable extends DataChange {
+  public PopulateMessageTypeColumnOfCeTaskMessageTable(Database db) {
+    super(db);
   }
 
+  @Override
+  protected void execute(DataChange.Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select ctm.uuid from ce_task_message ctm where ctm.message_type is null");
+    massUpdate.update("update ce_task_message set message_type = ? where uuid = ?");
+    massUpdate.execute((row, update) -> {
+      update.setString(1, "GENERIC");
+      update.setString(2, row.getString(1));
+      return true;
+    });
+  }
 }

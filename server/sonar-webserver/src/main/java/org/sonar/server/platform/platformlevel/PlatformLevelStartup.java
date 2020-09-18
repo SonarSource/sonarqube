@@ -44,6 +44,7 @@ import org.sonar.server.startup.RegisterPlugins;
 import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.user.DoPrivileged;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.startup.UpgradeSuggestionsCleaner;
 
 public class PlatformLevelStartup extends PlatformLevel {
   public PlatformLevelStartup(PlatformLevel parent) {
@@ -70,7 +71,8 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterQualityProfiles.class,
       RegisterPermissionTemplates.class,
       RenameDeprecatedPropertyKeys.class,
-      CeQueueCleaner.class);
+      CeQueueCleaner.class,
+      UpgradeSuggestionsCleaner.class);
 
     // RegisterServletFilters makes the WebService engine of Level4 served by the MasterServletFilter, therefor it
     // must be started after all the other startup tasks

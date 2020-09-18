@@ -128,7 +128,7 @@ public class AnalysisStatusAction implements CeWsAction {
       .map(dto -> AnalysisStatusWsResponse.Warning.newBuilder()
         .setKey(dto.getUuid())
         .setMessage(dto.getMessage())
-        .setDismissable(dto.isDismissible())
+        .setDismissable(dto.getType().isDismissible())
         .build())
       .collect(Collectors.toList());
 
