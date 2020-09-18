@@ -376,7 +376,6 @@ exports[`should render correctly: loading 1`] = `
     >
       <DeferredSpinner
         className="big-spacer-top"
-        timeout={100}
       />
       <ul />
     </div>

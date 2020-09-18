@@ -65,7 +65,6 @@ exports[`render correctly 2`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         disabled={true}

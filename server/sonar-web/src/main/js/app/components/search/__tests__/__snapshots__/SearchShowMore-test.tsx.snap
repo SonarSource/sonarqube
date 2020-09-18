@@ -8,7 +8,6 @@ exports[`should render 1`] = `
   <DeferredSpinner
     className="navbar-search-icon"
     loading={false}
-    timeout={100}
   >
     <a
       className=""

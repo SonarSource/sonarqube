@@ -43,7 +43,6 @@ exports[`should render correctly: bitbucket 1`] = `
     <DeferredSpinner
       className="spacer-left"
       loading={false}
-      timeout={100}
     />
   </form>
   <Alert
@@ -164,7 +163,6 @@ exports[`should render correctly: gitlab 1`] = `
     <DeferredSpinner
       className="spacer-left"
       loading={false}
-      timeout={100}
     />
   </form>
   <Alert
@@ -266,7 +264,6 @@ exports[`should render correctly: gitlab with non-standard api path 1`] = `
     <DeferredSpinner
       className="spacer-left"
       loading={false}
-      timeout={100}
     />
   </form>
   <Alert
@@ -368,7 +365,6 @@ exports[`should render correctly: submitting 1`] = `
     <DeferredSpinner
       className="spacer-left"
       loading={true}
-      timeout={100}
     />
   </form>
   <Alert
@@ -490,7 +486,6 @@ exports[`should render correctly: validation failed 1`] = `
     <DeferredSpinner
       className="spacer-left"
       loading={false}
-      timeout={100}
     />
   </form>
   <Alert

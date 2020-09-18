@@ -90,7 +90,6 @@ exports[`should render correctly 1`] = `
     <DeferredSpinner
       className="spacer-right"
       loading={false}
-      timeout={100}
     />
     <SubmitButton
       disabled={true}
@@ -186,7 +185,6 @@ exports[`should render correctly 2`] = `
     <DeferredSpinner
       className="spacer-right"
       loading={false}
-      timeout={100}
     />
     <SubmitButton
       disabled={true}
@@ -282,7 +280,6 @@ exports[`should render correctly 3`] = `
     <DeferredSpinner
       className="spacer-right"
       loading={false}
-      timeout={100}
     />
     <SubmitButton
       disabled={true}

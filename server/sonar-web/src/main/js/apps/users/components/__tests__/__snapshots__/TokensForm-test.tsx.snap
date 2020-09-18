@@ -60,7 +60,6 @@ exports[`should render correctly 1`] = `
           </tr>
         }
         loading={true}
-        timeout={100}
       >
         <tr>
           <td
@@ -136,7 +135,6 @@ exports[`should render correctly 2`] = `
           </tr>
         }
         loading={false}
-        timeout={100}
       >
         <TokensFormItem
           deleteConfirmation="inline"

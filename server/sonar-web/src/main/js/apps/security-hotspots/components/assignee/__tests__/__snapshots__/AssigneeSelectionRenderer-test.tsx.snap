@@ -28,7 +28,6 @@ exports[`should render correctly: loading 1`] = `
     />
     <DeferredSpinner
       className="spacer-left"
-      timeout={100}
     />
   </div>
 </Fragment>

@@ -121,7 +121,6 @@ exports[`should render correctly 1`] = `
           <DeferredSpinner
             className="spacer-top spacer-left"
             loading={false}
-            timeout={100}
           >
             <ul
               className="spacer-top spacer-left"
@@ -291,7 +290,6 @@ exports[`should render correctly 2`] = `
           <DeferredSpinner
             className="spacer-top spacer-left"
             loading={true}
-            timeout={100}
           >
             <p
               className="spacer-top spacer-left note"

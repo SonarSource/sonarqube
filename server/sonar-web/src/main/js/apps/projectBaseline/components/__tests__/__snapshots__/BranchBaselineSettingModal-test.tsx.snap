@@ -69,7 +69,6 @@ exports[`should render correctly: multiple branches 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         disabled={true}
@@ -150,7 +149,6 @@ exports[`should render correctly: only one branch 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         disabled={true}

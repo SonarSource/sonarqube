@@ -68,7 +68,6 @@ exports[`expands more options 2`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         disabled={false}
@@ -140,7 +139,6 @@ exports[`logs in with simple credentials 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         disabled={false}
@@ -212,7 +210,6 @@ exports[`should display a spinner and disabled button while loading 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={true}
-        timeout={100}
       />
       <SubmitButton
         disabled={true}

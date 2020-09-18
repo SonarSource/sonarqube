@@ -6,7 +6,6 @@ exports[`should render correctly: default 1`] = `
 >
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <BitbucketProjectAccordion
       disableRepositories={false}
@@ -51,7 +50,6 @@ exports[`should render correctly: searching 1`] = `
 >
   <DeferredSpinner
     loading={true}
-    timeout={100}
   />
 </div>
 `;

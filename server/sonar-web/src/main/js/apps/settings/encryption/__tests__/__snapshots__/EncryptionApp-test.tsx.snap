@@ -20,7 +20,6 @@ exports[`should render correctly: encryption form 1`] = `
     </h1>
     <DeferredSpinner
       loading={false}
-      timeout={100}
     />
   </header>
   <EncryptionForm
@@ -49,7 +48,6 @@ exports[`should render correctly: generate form 1`] = `
     </h1>
     <DeferredSpinner
       loading={false}
-      timeout={100}
     />
   </header>
   <GenerateSecretKeyForm
@@ -78,7 +76,6 @@ exports[`should render correctly: loading 1`] = `
     </h1>
     <DeferredSpinner
       loading={true}
-      timeout={100}
     />
   </header>
 </div>

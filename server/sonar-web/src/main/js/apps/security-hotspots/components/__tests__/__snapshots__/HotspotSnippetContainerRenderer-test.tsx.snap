@@ -43,7 +43,6 @@ exports[`should render correctly 1`] = `
     />
     <DeferredSpinner
       loading={false}
-      timeout={100}
     />
   </div>
 </Fragment>
@@ -87,7 +86,6 @@ exports[`should render correctly: with sourcelines 1`] = `
     />
     <DeferredSpinner
       loading={false}
-      timeout={100}
     >
       <ContextProvider
         value={

@@ -3,14 +3,12 @@
 exports[`should render 1`] = `
 <DeferredSpinner
   loading={true}
-  timeout={100}
 />
 `;
 
 exports[`should render 2`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <RuleDetailsMeta
     canWrite={false}

@@ -9,7 +9,6 @@ exports[`should fetch issues and render 1`] = `
   />
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <h3
       className="coding-rules-detail-title"

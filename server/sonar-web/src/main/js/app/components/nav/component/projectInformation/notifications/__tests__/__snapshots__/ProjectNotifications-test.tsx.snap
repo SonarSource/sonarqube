@@ -13,7 +13,6 @@ exports[`should render correctly 1`] = `
   </Alert>
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <table
       className="data zebra notifications-table"

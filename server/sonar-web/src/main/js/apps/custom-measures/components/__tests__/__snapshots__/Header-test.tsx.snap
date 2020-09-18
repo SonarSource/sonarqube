@@ -12,7 +12,6 @@ exports[`should create new custom measure 1`] = `
   </h1>
   <DeferredSpinner
     loading={false}
-    timeout={100}
   />
   <div
     className="page-actions"

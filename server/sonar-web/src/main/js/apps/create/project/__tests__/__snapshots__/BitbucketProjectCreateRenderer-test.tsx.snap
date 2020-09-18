@@ -10,7 +10,6 @@ exports[`should render correctly: default 1`] = `
         <DeferredSpinner
           className="spacer-right"
           loading={false}
-          timeout={100}
         />
         <Button
           className="button-large button-primary"
@@ -78,7 +77,6 @@ exports[`should render correctly: importing 1`] = `
         <DeferredSpinner
           className="spacer-right"
           loading={true}
-          timeout={100}
         />
         <Button
           className="button-large button-primary"
@@ -146,7 +144,6 @@ exports[`should render correctly: invalid config, admin user 1`] = `
         <DeferredSpinner
           className="spacer-right"
           loading={false}
-          timeout={100}
         />
         <Button
           className="button-large button-primary"
@@ -188,7 +185,6 @@ exports[`should render correctly: invalid config, regular user 1`] = `
         <DeferredSpinner
           className="spacer-right"
           loading={false}
-          timeout={100}
         />
         <Button
           className="button-large button-primary"
@@ -230,7 +226,6 @@ exports[`should render correctly: loading 1`] = `
         <DeferredSpinner
           className="spacer-right"
           loading={false}
-          timeout={100}
         />
         <Button
           className="button-large button-primary"
@@ -302,7 +297,6 @@ exports[`should render correctly: selected repo 1`] = `
         <DeferredSpinner
           className="spacer-right"
           loading={false}
-          timeout={100}
         />
         <Button
           className="button-large button-primary"

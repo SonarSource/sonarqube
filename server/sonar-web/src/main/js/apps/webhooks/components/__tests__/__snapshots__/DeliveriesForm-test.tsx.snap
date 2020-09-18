@@ -20,7 +20,6 @@ exports[`should render correctly 1`] = `
     >
       <DeferredSpinner
         loading={true}
-        timeout={100}
       />
     </div>
   </div>
@@ -81,7 +80,6 @@ exports[`should render correctly 2`] = `
     >
       <DeferredSpinner
         loading={false}
-        timeout={100}
       />
     </div>
     <ListFooter

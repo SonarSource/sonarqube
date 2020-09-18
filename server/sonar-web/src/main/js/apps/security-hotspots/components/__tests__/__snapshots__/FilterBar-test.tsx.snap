@@ -106,7 +106,6 @@ exports[`should render correctly: anonymous 1`] = `
           />
           <DeferredSpinner
             loading={false}
-            timeout={100}
           >
             <Measure
               className="spacer-left huge"
@@ -223,7 +222,6 @@ exports[`should render correctly: logged-in 1`] = `
           />
           <DeferredSpinner
             loading={false}
-            timeout={100}
           >
             <Measure
               className="spacer-left huge"
@@ -396,7 +394,6 @@ exports[`should render correctly: on Pull request 1`] = `
           />
           <DeferredSpinner
             loading={false}
-            timeout={100}
           >
             <Measure
               className="spacer-left huge"
@@ -494,7 +491,6 @@ exports[`should render correctly: with hotspots reviewed measure 1`] = `
           />
           <DeferredSpinner
             loading={false}
-            timeout={100}
           >
             <CoverageRating
               value="23.30"

@@ -3,7 +3,6 @@
 exports[`should render correctly 1`] = `
 <DeferredSpinner
   loading={true}
-  timeout={100}
 >
   <p
     className="page-description"
@@ -24,14 +23,12 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly if not lifetime has been fetch 1`] = `
 <DeferredSpinner
   loading={true}
-  timeout={100}
 />
 `;
 
 exports[`should render correctly when user is admin 1`] = `
 <DeferredSpinner
   loading={true}
-  timeout={100}
 >
   <p
     className="page-description"

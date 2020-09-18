@@ -12,7 +12,6 @@ exports[`should render correctly 1`] = `
   </h1>
   <DeferredSpinner
     loading={true}
-    timeout={100}
   />
   <div
     className="page-actions"

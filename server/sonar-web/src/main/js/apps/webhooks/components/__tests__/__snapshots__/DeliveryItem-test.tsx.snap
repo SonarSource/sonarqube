@@ -20,7 +20,6 @@ exports[`should render correctly 1`] = `
   <DeferredSpinner
     className="spacer-left spacer-top"
     loading={false}
-    timeout={100}
   >
     <CodeSnippet
       noCopy={true}
@@ -50,7 +49,6 @@ exports[`should render correctly when no http status 1`] = `
   <DeferredSpinner
     className="spacer-left spacer-top"
     loading={false}
-    timeout={100}
   >
     <CodeSnippet
       noCopy={true}
@@ -80,7 +78,6 @@ exports[`should render correctly when no payload 1`] = `
   <DeferredSpinner
     className="spacer-left spacer-top"
     loading={true}
-    timeout={100}
   />
 </div>
 `;

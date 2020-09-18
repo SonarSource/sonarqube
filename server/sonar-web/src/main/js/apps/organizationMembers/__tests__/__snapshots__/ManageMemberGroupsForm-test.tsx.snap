@@ -89,7 +89,6 @@ exports[`should render 2`] = `
       </p>
       <DeferredSpinner
         className="spacer-top"
-        timeout={100}
       />
     </div>
     <footer
@@ -98,7 +97,6 @@ exports[`should render 2`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         disabled={true}

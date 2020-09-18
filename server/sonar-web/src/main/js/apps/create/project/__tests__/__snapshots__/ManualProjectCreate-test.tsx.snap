@@ -51,7 +51,6 @@ exports[`should render correctly 1`] = `
         <DeferredSpinner
           className="spacer-left"
           loading={false}
-          timeout={100}
         />
       </form>
     </div>

@@ -3,7 +3,6 @@
 exports[`should activate 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <Button
     disabled={false}
@@ -15,7 +14,6 @@ exports[`should activate 1`] = `
 exports[`should activate 2`] = `
 <DeferredSpinner
   loading={true}
-  timeout={100}
 >
   <Button
     disabled={true}
@@ -27,7 +25,6 @@ exports[`should activate 2`] = `
 exports[`should activate 3`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <Button
     disabled={true}
@@ -54,7 +51,6 @@ exports[`should activate 3`] = `
 exports[`should activate 4`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <Button
     disabled={false}

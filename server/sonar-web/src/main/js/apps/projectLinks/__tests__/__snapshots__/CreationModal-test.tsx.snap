@@ -73,7 +73,6 @@ exports[`should create link 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         disabled={false}

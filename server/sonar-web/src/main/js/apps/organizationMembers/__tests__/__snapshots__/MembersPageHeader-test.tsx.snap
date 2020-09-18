@@ -11,7 +11,6 @@ exports[`should render correctly 1`] = `
     <DeferredSpinner
       className="little-spacer-left"
       loading={true}
-      timeout={100}
     />
   </h1>
   <div
@@ -48,7 +47,6 @@ exports[`should render for Bitbucket bound organization 1`] = `
     <DeferredSpinner
       className="little-spacer-left"
       loading={false}
-      timeout={100}
     />
   </h1>
   <div
@@ -116,7 +114,6 @@ exports[`should render for GitHub bound organization without sync 1`] = `
     <DeferredSpinner
       className="little-spacer-left"
       loading={false}
-      timeout={100}
     />
   </h1>
   <div
@@ -215,7 +212,6 @@ exports[`should render for admin 1`] = `
     <DeferredSpinner
       className="little-spacer-left"
       loading={false}
-      timeout={100}
     />
   </h1>
   <div
@@ -277,7 +273,6 @@ exports[`should render for personal GitHub bound organization without sync 1`] =
     <DeferredSpinner
       className="little-spacer-left"
       loading={false}
-      timeout={100}
     />
   </h1>
   <div

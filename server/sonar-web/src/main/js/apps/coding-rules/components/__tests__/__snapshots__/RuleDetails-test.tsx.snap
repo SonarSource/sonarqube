@@ -6,7 +6,6 @@ exports[`should render correctly: loaded 1`] = `
 >
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <RuleDetailsMeta
       onFilterChange={[MockFunction]}

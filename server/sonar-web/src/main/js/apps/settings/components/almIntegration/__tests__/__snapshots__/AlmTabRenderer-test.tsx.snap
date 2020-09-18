@@ -6,7 +6,6 @@ exports[`should render correctly for multi-ALM binding: editing a definition 1`]
 >
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <AlmBindingDefinitionsTable
       additionalColumnsHeaders={
@@ -77,7 +76,6 @@ exports[`should render correctly for multi-ALM binding: loaded 1`] = `
 >
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <AlmBindingDefinitionsTable
       additionalColumnsHeaders={
@@ -113,7 +111,6 @@ exports[`should render correctly for multi-ALM binding: loading ALM definitions 
 >
   <DeferredSpinner
     loading={true}
-    timeout={100}
   >
     <AlmBindingDefinitionsTable
       additionalColumnsHeaders={
@@ -149,7 +146,6 @@ exports[`should render correctly for multi-ALM binding: loading project count 1`
 >
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <AlmBindingDefinitionsTable
       additionalColumnsHeaders={
@@ -185,7 +181,6 @@ exports[`should render correctly for multi-ALM binding: submitting 1`] = `
 >
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <AlmBindingDefinitionsTable
       additionalColumnsHeaders={
@@ -221,7 +216,6 @@ exports[`should render correctly for multi-ALM binding: with features 1`] = `
 >
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <AlmBindingDefinitionsTable
       additionalColumnsHeaders={

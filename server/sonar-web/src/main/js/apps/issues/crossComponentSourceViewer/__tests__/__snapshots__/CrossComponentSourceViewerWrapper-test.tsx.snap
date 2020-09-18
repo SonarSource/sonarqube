@@ -17,9 +17,7 @@ exports[`should handle duplication popup 1`] = `
 
 exports[`should render correctly 1`] = `
 <div>
-  <DeferredSpinner
-    timeout={100}
-  />
+  <DeferredSpinner />
 </div>
 `;
 

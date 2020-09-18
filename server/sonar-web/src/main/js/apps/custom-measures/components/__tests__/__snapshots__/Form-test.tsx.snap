@@ -82,7 +82,6 @@ exports[`should render form 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         disabled={true}
@@ -195,7 +194,6 @@ exports[`should render form 2`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         disabled={false}

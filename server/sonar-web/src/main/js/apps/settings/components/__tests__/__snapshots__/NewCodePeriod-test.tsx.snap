@@ -49,9 +49,7 @@ exports[`should render correctly 1`] = `
           <div
             className="settings-definition-right"
           >
-            <DeferredSpinner
-              timeout={100}
-            />
+            <DeferredSpinner />
           </div>
         </div>
       </li>

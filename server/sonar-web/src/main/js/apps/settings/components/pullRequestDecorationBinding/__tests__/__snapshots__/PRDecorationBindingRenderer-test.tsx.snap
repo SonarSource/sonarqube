@@ -66,7 +66,6 @@ exports[`should display action state correctly 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={true}
-        timeout={100}
       />
     </div>
   </form>
@@ -139,7 +138,6 @@ exports[`should display action state correctly 2`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <span
         className="text-success"
@@ -220,18 +218,13 @@ exports[`should display action state correctly 3`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
     </div>
   </form>
 </div>
 `;
 
-exports[`should render correctly 1`] = `
-<DeferredSpinner
-  timeout={100}
-/>
-`;
+exports[`should render correctly 1`] = `<DeferredSpinner />`;
 
 exports[`should render correctly 2`] = `
 <div>
@@ -338,7 +331,6 @@ exports[`should render multiple instances correctly 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
     </div>
   </form>
@@ -491,7 +483,6 @@ exports[`should render multiple instances correctly 2`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <Button
         className="spacer-right"
@@ -614,7 +605,6 @@ exports[`should render single instance correctly 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
     </div>
   </form>

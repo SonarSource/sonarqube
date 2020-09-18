@@ -3,7 +3,6 @@
 exports[`should render correctly 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <div
     className="big-padded hotspot-content"
@@ -651,7 +650,6 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly: anonymous user 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <div
     className="big-padded hotspot-content"
@@ -1299,7 +1297,6 @@ exports[`should render correctly: anonymous user 1`] = `
 exports[`should render correctly: assignee without name 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <div
     className="big-padded hotspot-content"
@@ -1947,7 +1944,6 @@ exports[`should render correctly: assignee without name 1`] = `
 exports[`should render correctly: deleted assignee 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <div
     className="big-padded hotspot-content"
@@ -2595,14 +2591,12 @@ exports[`should render correctly: deleted assignee 1`] = `
 exports[`should render correctly: no hotspot 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 />
 `;
 
 exports[`should render correctly: unassigned 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <div
     className="big-padded hotspot-content"

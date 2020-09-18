@@ -16,7 +16,6 @@ exports[`should render correctly 1`] = `
   </Alert>
   <DeferredSpinner
     loading={true}
-    timeout={100}
   >
     <GlobalNotifications
       addNotification={[MockFunction]}
@@ -95,7 +94,6 @@ exports[`should render correctly 2`] = `
   </Alert>
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <GlobalNotifications
       addNotification={[MockFunction]}
@@ -174,7 +172,6 @@ exports[`should render correctly 3`] = `
   </Alert>
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <GlobalNotifications
       addNotification={[MockFunction]}

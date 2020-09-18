@@ -17,7 +17,6 @@ exports[`should fetch warnings and render 1`] = `
   >
     <DeferredSpinner
       loading={false}
-      timeout={100}
     >
       <div
         className="panel panel-vertical"
@@ -94,7 +93,6 @@ exports[`should render warnings without fetch 1`] = `
   >
     <DeferredSpinner
       loading={false}
-      timeout={100}
     >
       <div
         className="panel panel-vertical"

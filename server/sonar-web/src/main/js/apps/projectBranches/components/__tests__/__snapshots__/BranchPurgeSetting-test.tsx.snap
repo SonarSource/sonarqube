@@ -12,7 +12,6 @@ exports[`should render correctly for a main branch 1`] = `
   >
     <DeferredSpinner
       loading={false}
-      timeout={100}
     />
   </span>
   <HelpTooltip
@@ -33,7 +32,6 @@ exports[`should render correctly for a non-main branch 1`] = `
   >
     <DeferredSpinner
       loading={false}
-      timeout={100}
     />
   </span>
 </Fragment>

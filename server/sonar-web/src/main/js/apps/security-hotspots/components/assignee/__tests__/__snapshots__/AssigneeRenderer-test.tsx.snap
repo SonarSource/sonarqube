@@ -3,7 +3,6 @@
 exports[`should render correctly: editing 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <EscKeydownHandler
     onKeydown={[MockFunction]}
@@ -32,7 +31,6 @@ exports[`should render correctly: editing 1`] = `
 exports[`should render correctly: not editing 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <div
     className="display-flex-center"
@@ -53,7 +51,6 @@ exports[`should render correctly: not editing 1`] = `
 exports[`should render correctly: with active assignee 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <div
     className="display-flex-center"
@@ -74,7 +71,6 @@ exports[`should render correctly: with active assignee 1`] = `
 exports[`should render correctly: without current assignee 1`] = `
 <DeferredSpinner
   loading={false}
-  timeout={100}
 >
   <div
     className="display-flex-center"

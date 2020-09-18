@@ -94,7 +94,6 @@ exports[`should switch to source view if an issue is selected 1`] = `
     >
       <DeferredSpinner
         loading={false}
-        timeout={100}
       >
         <div>
           <IssuesList

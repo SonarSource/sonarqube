@@ -248,7 +248,6 @@ exports[`should render correctly: loading 1`] = `
   />
   <DeferredSpinner
     className="huge-spacer-left big-spacer-top"
-    timeout={100}
   />
 </div>
 `;

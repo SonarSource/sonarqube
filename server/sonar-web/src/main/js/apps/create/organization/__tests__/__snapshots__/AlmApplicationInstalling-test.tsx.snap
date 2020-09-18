@@ -20,7 +20,6 @@ exports[`should render correctly 1`] = `
       </div>
     </div>
   }
-  timeout={100}
 />
 `;
 
@@ -44,6 +43,5 @@ exports[`should render correctly 2`] = `
       </div>
     </div>
   }
-  timeout={100}
 />
 `;

@@ -20,24 +20,3 @@ exports[`should render correctly: default 1`] = `
   />
 </div>
 `;
-
-exports[`should render correctly: with leak legend 1`] = `
-<div
-  className="activity-graph-legends"
->
-  <GraphsLegendItem
-    className="big-spacer-left big-spacer-right"
-    index={0}
-    key="bugs"
-    metric="bugs"
-    name="Bugs"
-  />
-  <GraphsLegendItem
-    className="big-spacer-left big-spacer-right"
-    index={1}
-    key="code_smells"
-    metric="code_smells"
-    name="Code Smells"
-  />
-</div>
-`;

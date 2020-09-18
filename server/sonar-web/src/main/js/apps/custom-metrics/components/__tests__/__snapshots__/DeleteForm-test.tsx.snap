@@ -26,7 +26,6 @@ exports[`should render 1`] = `
       <DeferredSpinner
         className="spacer-right"
         loading={false}
-        timeout={100}
       />
       <SubmitButton
         className="button-red"

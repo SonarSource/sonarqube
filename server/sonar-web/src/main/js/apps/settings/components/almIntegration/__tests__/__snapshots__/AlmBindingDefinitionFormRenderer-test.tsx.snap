@@ -152,7 +152,6 @@ exports[`should render correctly 5`] = `
         </SubmitButton>
         <DeferredSpinner
           className="spacer-left"
-          timeout={100}
         />
       </div>
     </div>

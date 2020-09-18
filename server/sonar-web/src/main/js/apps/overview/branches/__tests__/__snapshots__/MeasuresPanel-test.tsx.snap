@@ -3422,7 +3422,6 @@ exports[`should render correctly if the data is still loading 1`] = `
   >
     <DeferredSpinner
       loading={true}
-      timeout={100}
     />
   </div>
 </div>

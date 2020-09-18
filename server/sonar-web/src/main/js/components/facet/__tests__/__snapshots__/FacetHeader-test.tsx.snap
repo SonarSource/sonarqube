@@ -162,9 +162,7 @@ exports[`should render with a spinner if loading 1`] = `
   <span
     className="little-spacer-right"
   >
-    <DeferredSpinner
-      timeout={100}
-    />
+    <DeferredSpinner />
   </span>
 </div>
 `;

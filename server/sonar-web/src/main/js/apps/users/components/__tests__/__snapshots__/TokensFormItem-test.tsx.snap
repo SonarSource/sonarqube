@@ -32,7 +32,6 @@ exports[`should render correctly 1`] = `
   >
     <DeferredSpinner
       loading={false}
-      timeout={100}
     >
       <i
         className="deferred-spinner-placeholder"
@@ -81,7 +80,6 @@ exports[`should render correctly 2`] = `
   >
     <DeferredSpinner
       loading={false}
-      timeout={100}
     >
       <i
         className="deferred-spinner-placeholder"

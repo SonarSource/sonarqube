@@ -70,7 +70,6 @@ exports[`should render correctly 1`] = `
   </div>
   <DeferredSpinner
     className="little-spacer-right"
-    timeout={100}
   >
     <div
       className="flex-0 big-spacer-left"
@@ -165,7 +164,6 @@ exports[`should render correctly for subproject 1`] = `
   </div>
   <DeferredSpinner
     className="little-spacer-right"
-    timeout={100}
   >
     <div
       className="flex-0 big-spacer-left"
@@ -246,7 +244,6 @@ exports[`should render correctly: no link to project 1`] = `
   </div>
   <DeferredSpinner
     className="little-spacer-right"
-    timeout={100}
   >
     <div
       className="flex-0 big-spacer-left"
@@ -316,7 +313,6 @@ exports[`should render correctly: no project name 1`] = `
   </div>
   <DeferredSpinner
     className="little-spacer-right"
-    timeout={100}
   >
     <div
       className="flex-0 big-spacer-left"

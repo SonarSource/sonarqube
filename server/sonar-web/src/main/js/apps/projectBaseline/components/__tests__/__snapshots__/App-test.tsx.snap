@@ -11,9 +11,7 @@ exports[`should render correctly 1`] = `
     <AppHeader
       canAdmin={true}
     />
-    <DeferredSpinner
-      timeout={100}
-    />
+    <DeferredSpinner />
   </div>
 </Fragment>
 `;

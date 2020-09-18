@@ -19,7 +19,6 @@ exports[`should render correctly: default 1`] = `
   />
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <div
       className="form-field"
@@ -128,11 +127,7 @@ exports[`should render correctly: error for admin 1`] = `
 </div>
 `;
 
-exports[`should render correctly: loading 1`] = `
-<DeferredSpinner
-  timeout={100}
-/>
-`;
+exports[`should render correctly: loading 1`] = `<DeferredSpinner />`;
 
 exports[`should render correctly: no repositories 1`] = `
 <div>
@@ -144,7 +139,6 @@ exports[`should render correctly: no repositories 1`] = `
         <DeferredSpinner
           className="spacer-right"
           loading={false}
-          timeout={100}
         />
         <Button
           className="button-large button-primary"
@@ -171,7 +165,6 @@ exports[`should render correctly: no repositories 1`] = `
   />
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <div
       className="form-field"
@@ -226,7 +219,6 @@ exports[`should render correctly: organizations 1`] = `
   />
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <div
       className="form-field"
@@ -266,7 +258,6 @@ exports[`should render correctly: repositories 1`] = `
         <DeferredSpinner
           className="spacer-right"
           loading={false}
-          timeout={100}
         />
         <Button
           className="button-large button-primary"
@@ -293,7 +284,6 @@ exports[`should render correctly: repositories 1`] = `
   />
   <DeferredSpinner
     loading={false}
-    timeout={100}
   >
     <div
       className="form-field"
