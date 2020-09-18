@@ -58,7 +58,7 @@ exports[`should render correctly 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "fileUuids": "foo-bar",
+            "files": "foo/bar.ts",
             "id": "my-project",
             "resolved": "false",
           },
@@ -152,7 +152,7 @@ exports[`should render correctly for subproject 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "fileUuids": "foo-bar",
+            "files": "foo/bar.ts",
             "id": "my-project",
             "resolved": "false",
           },
@@ -232,7 +232,7 @@ exports[`should render correctly: no link to project 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "fileUuids": "foo-bar",
+            "files": "foo/bar.ts",
             "id": "my-project",
             "resolved": "false",
           },
@@ -301,7 +301,7 @@ exports[`should render correctly: no project name 1`] = `
         Object {
           "pathname": "/project/issues",
           "query": Object {
-            "fileUuids": "foo-bar",
+            "files": "foo/bar.ts",
             "id": "my-project",
             "resolved": "false",
           },

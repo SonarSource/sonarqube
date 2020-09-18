@@ -24,7 +24,7 @@ import ListStyleFacet from '../../../../components/facet/ListStyleFacet';
 import { mockBranch } from '../../../../helpers/mocks/branch-like';
 import { mockComponent } from '../../../../helpers/testMocks';
 import { TreeComponentWithPath } from '../../../../types/component';
-import { Query, ReferencedComponent } from '../../utils';
+import { Query } from '../../utils';
 import FileFacet from '../FileFacet';
 
 jest.mock('../../../../api/components', () => ({
@@ -76,12 +76,12 @@ describe("ListStyleFacet's callback props", () => {
   });
 
   it('#getSearchResultKey()', () => {
-    expect(instance.getSearchResultKey({ key: 'foo' } as TreeComponentWithPath)).toBe('fooUuid');
-    expect(instance.getSearchResultKey({ key: 'bar' } as TreeComponentWithPath)).toBe('bar');
+    expect(instance.getSearchResultKey({ key: 'bar', path: 'bar' } as TreeComponentWithPath)).toBe(
+      'bar'
+    );
   });
 
   it('#getFacetItemText()', () => {
-    expect(instance.getFacetItemText('fooUuid')).toBe('foo/bar.js');
     expect(instance.getFacetItemText('bar')).toBe('bar');
   });
 });
@@ -92,15 +92,12 @@ function shallowRender(props: Partial<FileFacet['props']> = {}) {
       branchLike={branch}
       componentKey={component.key}
       fetching={false}
-      fileUuids={['foo', 'bar']}
+      files={['foo', 'bar']}
       loadSearchResultCount={jest.fn()}
       onChange={jest.fn()}
       onToggle={jest.fn()}
       open={false}
       query={{} as Query}
-      referencedComponents={{
-        fooUuid: { key: 'foo', uuid: 'fooUuid', path: 'foo/bar.js' } as ReferencedComponent
-      }}
       stats={undefined}
       {...props}
     />

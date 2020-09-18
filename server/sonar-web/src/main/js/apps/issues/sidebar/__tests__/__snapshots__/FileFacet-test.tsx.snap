@@ -50,6 +50,6 @@ exports[`should render correctly 3`] = `
     className="little-spacer-right"
     qualifier="FIL"
   />
-  foo/bar.js
+  fooUuid
 </React.Fragment>
 `;

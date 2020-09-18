@@ -81,7 +81,7 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
           {ISSUE_TYPES.map((type: T.IssueType) => {
             const params = {
               ...getBranchLikeQuery(branchLike),
-              fileUuids: sourceViewerFile.uuid,
+              files: sourceViewerFile.path,
               resolved: 'false',
               types: type
             };

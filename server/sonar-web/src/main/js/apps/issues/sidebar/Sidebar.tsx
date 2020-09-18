@@ -88,9 +88,8 @@ export class Sidebar extends React.PureComponent<Props> {
         <FileFacet
           branchLike={branchLike}
           fetching={loadingFacets.files === true}
-          fileUuids={query.files}
+          files={query.files}
           open={!!openFacets.files}
-          referencedComponents={this.props.referencedComponentsById}
           stats={facets.files}
           {...commonProps}
         />

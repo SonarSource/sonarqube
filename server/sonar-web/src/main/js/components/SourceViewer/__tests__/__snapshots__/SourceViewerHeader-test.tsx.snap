@@ -377,7 +377,7 @@ exports[`should render correctly if issue details are passed 1`] = `
             Object {
               "pathname": "/project/issues",
               "query": Object {
-                "fileUuids": "foo-bar",
+                "files": "foo/bar.ts",
                 "id": "my-project",
                 "resolved": "false",
                 "types": "BUG",
@@ -408,7 +408,7 @@ exports[`should render correctly if issue details are passed 1`] = `
             Object {
               "pathname": "/project/issues",
               "query": Object {
-                "fileUuids": "foo-bar",
+                "files": "foo/bar.ts",
                 "id": "my-project",
                 "resolved": "false",
                 "types": "VULNERABILITY",
@@ -439,7 +439,7 @@ exports[`should render correctly if issue details are passed 1`] = `
             Object {
               "pathname": "/project/issues",
               "query": Object {
-                "fileUuids": "foo-bar",
+                "files": "foo/bar.ts",
                 "id": "my-project",
                 "resolved": "false",
                 "types": "CODE_SMELL",
@@ -470,7 +470,7 @@ exports[`should render correctly if issue details are passed 1`] = `
             Object {
               "pathname": "/project/issues",
               "query": Object {
-                "fileUuids": "foo-bar",
+                "files": "foo/bar.ts",
                 "id": "my-project",
                 "resolved": "false",
                 "types": "SECURITY_HOTSPOT",

@@ -87,7 +87,7 @@ export function parseQuery(query: T.RawQuery): Query {
     createdInLast: parseAsString(query.createdInLast),
     cwe: parseAsArray(query.cwe, parseAsString),
     directories: parseAsArray(query.directories, parseAsString),
-    files: parseAsArray(query.fileUuids, parseAsString),
+    files: parseAsArray(query.files, parseAsString),
     issues: parseAsArray(query.issues, parseAsString),
     languages: parseAsArray(query.languages, parseAsString),
     modules: parseAsArray(query.moduleUuids, parseAsString),
@@ -125,7 +125,7 @@ export function serializeQuery(query: Query): T.RawQuery {
     createdInLast: serializeString(query.createdInLast),
     cwe: serializeStringArray(query.cwe),
     directories: serializeStringArray(query.directories),
-    fileUuids: serializeStringArray(query.files),
+    files: serializeStringArray(query.files),
     issues: serializeStringArray(query.issues),
     languages: serializeStringArray(query.languages),
     moduleUuids: serializeStringArray(query.modules),
@@ -161,7 +161,6 @@ export interface Facet {
 
 export function mapFacet(facet: string) {
   const propertyMapping: T.Dict<string> = {
-    files: 'fileUuids',
     modules: 'moduleUuids'
   };
   return propertyMapping[facet] || facet;
@@ -174,7 +173,6 @@ export function parseFacets(facets: RawFacet[]): T.Dict<Facet> {
 
   // for readability purpose
   const propertyMapping: T.Dict<string> = {
-    fileUuids: 'files',
     moduleUuids: 'modules'
   };
 
