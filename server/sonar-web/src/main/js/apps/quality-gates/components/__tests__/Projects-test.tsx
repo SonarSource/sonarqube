@@ -69,7 +69,7 @@ it('should render correctly', async () => {
 
   expect(searchProjects).toHaveBeenCalledWith(
     expect.objectContaining({
-      gateId: qualityGate.id,
+      gateName: qualityGate.name,
       organization,
       page: 1,
       pageSize: 100,

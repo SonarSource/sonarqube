@@ -109,7 +109,7 @@ export function getGateForProject(data: {
 }
 
 export function searchProjects(data: {
-  gateId: string;
+  gateName: string;
   organization?: string;
   page?: number;
   pageSize?: number;

@@ -67,7 +67,7 @@ export default class Projects extends React.PureComponent<Props, State> {
 
   fetchProjects = (searchParams: SelectListSearchParams) =>
     searchProjects({
-      gateId: this.props.qualityGate.id,
+      gateName: this.props.qualityGate.name,
       organization: this.props.organization,
       page: searchParams.page,
       pageSize: searchParams.pageSize,
