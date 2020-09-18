@@ -25,7 +25,8 @@ public enum ALM {
   GITHUB,
   BITBUCKET,
   AZURE_DEVOPS,
-  GITLAB;
+  GITLAB,
+  GITEA;
 
   public static ALM fromId(String almId) {
     return ALM.valueOf(almId.toUpperCase(Locale.ENGLISH));

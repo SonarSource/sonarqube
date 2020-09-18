@@ -73,6 +73,7 @@ enum Alm {
   azure = 1;
   bitbucket = 2;
   gitlab = 3;
+  gitea = 4;
 }
 
 // WS api/alm_settings/list
