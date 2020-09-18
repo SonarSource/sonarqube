@@ -21,7 +21,9 @@ import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent'
 
 const routes = [
   {
-    indexRoute: { component: lazyLoadComponent(() => import('./App')) }
+    indexRoute: {
+      component: lazyLoadComponent(() => import('./ProjectQualityProfilesApp'))
+    }
   }
 ];
 

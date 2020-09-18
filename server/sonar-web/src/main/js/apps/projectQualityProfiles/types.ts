@@ -17,33 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import * as React from 'react';
-import Table from '../Table';
+import { Profile } from '../../api/quality-profiles';
 
-it('renders', () => {
-  const fooJava = randomProfile('foo-java', 'java');
-  const fooJs = randomProfile('foo-js', 'js');
-  const allProfiles = [
-    fooJava,
-    randomProfile('bar-java', 'java'),
-    randomProfile('baz-java', 'java'),
-    fooJs
-  ];
-  const profiles = [fooJava, fooJs];
-  expect(
-    shallow(<Table allProfiles={allProfiles} onChangeProfile={jest.fn()} profiles={profiles} />)
-  ).toMatchSnapshot();
-});
-
-function randomProfile(key: string, language: string) {
-  return {
-    activeRuleCount: 17,
-    activeDeprecatedRuleCount: 0,
-    key,
-    name: key,
-    language,
-    languageName: language,
-    organization: 'org'
-  };
+export interface ProjectProfile {
+  profile: Profile;
+  selected: boolean;
 }

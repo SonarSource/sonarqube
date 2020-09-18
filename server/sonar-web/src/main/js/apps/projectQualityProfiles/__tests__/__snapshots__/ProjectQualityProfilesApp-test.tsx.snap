@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<ProjectQualityProfilesAppRenderer
+  component={
+    Object {
+      "breadcrumbs": Array [],
+      "configuration": Object {
+        "showQualityProfiles": true,
+      },
+      "key": "foo",
+      "name": "MyProject",
+      "organization": "foo",
+      "qualifier": "TRK",
+      "qualityGate": Object {
+        "isDefault": true,
+        "key": "30",
+        "name": "Sonar way",
+      },
+      "qualityProfiles": Array [
+        Object {
+          "key": "css2",
+          "language": "css",
+          "name": "CSS 2",
+        },
+        Object {
+          "key": "js",
+          "language": "js",
+          "name": "JS",
+        },
+        Object {
+          "key": "ts_default",
+          "language": "ts",
+          "name": "TS (default)",
+        },
+        Object {
+          "key": "html",
+          "language": "html",
+          "name": "HTML",
+        },
+      ],
+      "tags": Array [],
+    }
+  }
+  loading={true}
+  onAddLanguage={[Function]}
+  onCloseModal={[Function]}
+  onOpenAddLanguageModal={[Function]}
+  onOpenSetProfileModal={[Function]}
+  onSetProfile={[Function]}
+/>
+`;

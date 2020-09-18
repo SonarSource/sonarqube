@@ -1,0 +1,348 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: default 1`] = `
+Array [
+  <div
+    className="modal-head"
+  >
+    <h2>
+      project_quality_profile.change_lang_X_profile.JavaScript
+    </h2>
+  </div>,
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-body"
+    >
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={false}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="-1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_profile.always_use_default
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <span
+                className="text-muted spacer-right"
+              >
+                current_noun
+                :
+              </span>
+              name
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={true}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="foo"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_profile.always_use_specific
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <Select
+                className="abs-width-300"
+                clearable={false}
+                disabled={false}
+                onChange={[Function]}
+                optionRenderer={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "label": "name",
+                      "value": "foo",
+                    },
+                    Object {
+                      "label": "name",
+                      "value": "bar",
+                    },
+                  ]
+                }
+                value="foo"
+              />
+            </div>
+          </div>
+        </Radio>
+      </div>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <ButtonLink
+        disabled={false}
+        onClick={[Function]}
+      >
+        cancel
+      </ButtonLink>
+    </div>
+  </form>,
+]
+`;
+
+exports[`should render correctly: inherits system default 1`] = `
+Array [
+  <div
+    className="modal-head"
+  >
+    <h2>
+      project_quality_profile.change_lang_X_profile.JavaScript
+    </h2>
+  </div>,
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-body"
+    >
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={true}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="-1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_profile.always_use_default
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <span
+                className="text-muted spacer-right"
+              >
+                current_noun
+                :
+              </span>
+              name
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={false}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="foo"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_profile.always_use_specific
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <Select
+                className="abs-width-300"
+                clearable={false}
+                disabled={true}
+                onChange={[Function]}
+                optionRenderer={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "label": "name",
+                      "value": "foo",
+                    },
+                    Object {
+                      "label": "name",
+                      "value": "bar",
+                    },
+                  ]
+                }
+                value="foo"
+              />
+            </div>
+          </div>
+        </Radio>
+      </div>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <ButtonLink
+        disabled={false}
+        onClick={[Function]}
+      >
+        cancel
+      </ButtonLink>
+    </div>
+  </form>,
+]
+`;
+
+exports[`should render correctly: needs reanalysis 1`] = `
+Array [
+  <div
+    className="modal-head"
+  >
+    <h2>
+      project_quality_profile.change_lang_X_profile.JavaScript
+    </h2>
+  </div>,
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-body"
+    >
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={false}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="-1"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_profile.always_use_default
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <span
+                className="text-muted spacer-right"
+              >
+                current_noun
+                :
+              </span>
+              name
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <div
+        className="big-spacer-bottom"
+      >
+        <Radio
+          checked={true}
+          className="display-flex-start"
+          disabled={false}
+          onCheck={[Function]}
+          value="foo"
+        >
+          <div
+            className="spacer-left"
+          >
+            <div
+              className="little-spacer-bottom"
+            >
+              project_quality_profile.always_use_specific
+            </div>
+            <div
+              className="display-flex-center"
+            >
+              <Select
+                className="abs-width-300"
+                clearable={false}
+                disabled={false}
+                onChange={[Function]}
+                optionRenderer={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "label": "name",
+                      "value": "foo",
+                    },
+                    Object {
+                      "label": "name",
+                      "value": "bar",
+                    },
+                  ]
+                }
+                value="foo"
+              />
+            </div>
+          </div>
+        </Radio>
+      </div>
+      <Alert
+        variant="warning"
+      >
+        project_quality_profile.requires_new_analysis
+      </Alert>
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={true}
+      >
+        save
+      </SubmitButton>
+      <ButtonLink
+        disabled={false}
+        onClick={[Function]}
+      >
+        cancel
+      </ButtonLink>
+    </div>
+  </form>,
+]
+`;
+
+exports[`should render select options correctly: default 1`] = `
+<span>
+  Profile 1
+</span>
+`;

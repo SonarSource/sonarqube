@@ -69,7 +69,7 @@ export interface SearchQualityProfilesResponse {
 }
 
 export function searchQualityProfiles(
-  parameters: SearchQualityProfilesParameters
+  parameters?: SearchQualityProfilesParameters
 ): Promise<SearchQualityProfilesResponse> {
   return getJSON('/api/qualityprofiles/search', parameters).catch(throwGlobalError);
 }

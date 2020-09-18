@@ -17,27 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-
-export default function Header() {
-  return (
-    <header className="page-header">
-      <div className="page-title display-flex-center">
-        <h1>{translate('project_quality_profiles.page')}</h1>
-        <HelpTooltip
-          className="spacer-left"
-          overlay={
-            <div className="big-padded-top big-padded-bottom">
-              {translate('quality_profiles.list.projects.help')}
-            </div>
-          }
-        />
-      </div>
-      <div className="page-description">
-        {translate('project_quality_profiles.page.description')}
-      </div>
-    </header>
-  );
-}
+export const USE_SYSTEM_DEFAULT = '-1';
