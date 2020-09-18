@@ -5,24 +5,39 @@ on:
     types:
       - published
 
+env:
+  PYTHONUNBUFFERED: 1
+
 jobs:
   release:
     runs-on: ubuntu-latest
     name: Start release process
     timeout-minutes: 60
     steps:
-      # Not sure why this is needed... Fixes issue with running the action.
-      - name: Checkout release action
-        uses: actions/checkout@v2
-        with:
-          repository: SonarSource/gh-action_LT_release
       - name: Run release action
         id: run_release
-        uses: SonarSource/gh-action_LT_release@master
+        uses: SonarSource/gh-action_LT_release@v2
         with:
           distribute: true
+          publish_to_binaries: true
+          attach_artifacts_to_github_release: false
+          run_rules_cov: false
+          slack_channel: sonarqube-build
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_ORG_TOKEN }}
+          ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
+          BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+          BINTRAY_TOKEN: ${{ secrets.BINTRAY_TOKEN }}
+          BURGRX_USER: ${{ secrets.BURGRX_USER }}
+          BURGRX_PASSWORD: ${{ secrets.BURGRX_PASSWORD }}
+          CENTRAL_USER: ${{ secrets.CENTRAL_USER }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          PATH_PREFIX: ${{ secrets.BINARIES_PATH_PREFIX }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          RELEASE_SSH_USER: ${{ secrets.RELEASE_SSH_USER }}
+          RELEASE_SSH_KEY: ${{ secrets.RELEASE_SSH_KEY }}
+          SLACK_API_TOKEN: ${{secrets.SLACK_API_TOKEN }}
       - name: Log outputs
         if: always()
         run: |
