@@ -3,9 +3,9 @@ title: Configure & Operate a Cluster
 url: /setup/operate-cluster/
 ---
 
-_High Availability and cluster scalability are features of the [Data Center Edition](https://redirect.sonarsource.com/editions/datacenter.html)._
+_High availability and cluster scalability are features of the [Data Center Edition](https://redirect.sonarsource.com/editions/datacenter.html)._
 
-Once the [SonarQube cluster is installed](/setup/install-cluster/), you have a High Availability configuration that allows your SonarQube instance to stay up and running even if there is a crash or failure in one of the cluster's nodes. Your SonarQube cluster is also scalable, and you can add application nodes to increase your computing capabilities.
+Once the [SonarQube cluster is installed](/setup/install-cluster/), you have a high availability configuration that allows your SonarQube instance to stay up and running even if there is a crash or failure in one of the cluster's nodes. Your SonarQube cluster is also scalable, and you can add application nodes to increase your computing capabilities.
 
 ## Start, Stop, or Upgrade the Cluster
 
@@ -125,8 +125,8 @@ Property  | Description | Default | Required
 
 ## Limitations
 * Cluster downtime is required for SonarQube upgrades or plugin installations.
-* All application nodes must be stopped when installing, uninstalling or upgrading a plugin.
-* Plugins are not shared, it means if you install/uninstall/upgrade a given plugin in one application node, you need to perform the same actions on the other application node.
+* All application nodes must be stopped when installing, uninstalling, or upgrading a plugin.
+* Plugins are not shared, meaning if you install/uninstall/upgrade a given plugin on one application node, you need to perform the same actions on the other application node.
 * There is no way to perform actions on the cluster from a central app - all operations must be done manually on each node of the cluster.
 
 
@@ -134,6 +134,6 @@ Property  | Description | Default | Required
 ### Does Elasticsearch discover automatically other ES nodes? 
 No. Multicast is disabled. All hosts (IP+port) must be listed.
 ### Can different nodes run on the same machine? 
-Yes, but the best is to have 5 machines to be really resilient to failures.
+Yes, but it's best to have one machine for each node to be resilient to failures. To maintain an even higher level of availability, each of your three search nodes can be located in a separate availability zone *within the same region*.
 ### Can the members of a cluster be discovered automatically? 
 No, all nodes must be configured in _$SONARQUBE-HOME/conf/sonar.properties_
