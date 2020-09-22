@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { formatMeasure, localizeMetric } from 'sonar-ui-common/helpers/measures';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import { getLeakValue } from '../../../components/measure/utils';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { findMeasure } from '../../../helpers/measures';
@@ -33,14 +33,14 @@ import { getIssueIconClass, getIssueMetricKey } from '../utils';
 export interface IssueLabelProps {
   branchLike?: BranchLike;
   component: T.Component;
-  docTooltip?: Promise<{ default: string }>;
+  helpTooltip?: string;
   measures: T.MeasureEnhanced[];
   type: IssueType;
   useDiffMetric?: boolean;
 }
 
 export function IssueLabel(props: IssueLabelProps) {
-  const { branchLike, component, docTooltip, measures, type, useDiffMetric = false } = props;
+  const { branchLike, component, helpTooltip, measures, type, useDiffMetric = false } = props;
   const metric = getIssueMetricKey(type, useDiffMetric);
   const measure = findMeasure(measures, metric);
   const iconClass = getIssueIconClass(type);
@@ -74,7 +74,7 @@ export function IssueLabel(props: IssueLabelProps) {
       )}
       {React.createElement(iconClass, { className: 'big-spacer-left little-spacer-right' })}
       {localizeMetric(metric)}
-      {docTooltip && <DocTooltip className="little-spacer-left" doc={docTooltip} />}
+      {helpTooltip && <HelpTooltip className="little-spacer-left" overlay={helpTooltip} />}
     </>
   );
 }

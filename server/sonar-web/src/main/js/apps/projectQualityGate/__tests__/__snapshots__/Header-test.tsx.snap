@@ -10,9 +10,15 @@ exports[`renders 1`] = `
     <h1>
       project_quality_gate.page
     </h1>
-    <DocTooltip
+    <HelpTooltip
       className="spacer-left"
-      doc={Promise {}}
+      overlay={
+        <div
+          className="big-padded-top big-padded-bottom"
+        >
+          quality_gates.projects.help
+        </div>
+      }
     />
   </div>
   <div

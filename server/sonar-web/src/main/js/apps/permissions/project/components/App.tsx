@@ -23,7 +23,6 @@ import { Helmet } from 'react-helmet-async';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import * as api from '../../../../api/permissions';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
-import UpgradeOrganizationBox from '../../../create/components/UpgradeOrganizationBox';
 import '../../styles.css';
 import AllHoldersList from './AllHoldersList';
 import PageHeader from './PageHeader';
@@ -31,9 +30,7 @@ import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 
 interface Props {
   component: T.Component;
-  fetchOrganization: (organization: string) => void;
   onComponentChange: (changes: Partial<T.Component>) => void;
-  organization?: T.Organization;
 }
 
 interface State {
@@ -88,7 +85,6 @@ export default class App extends React.PureComponent<Props, State> {
             projectKey: component.key,
             q: query || undefined,
             permission: selectedPermission,
-            organization: component.organization,
             p: userPage
           })
         : Promise.resolve({ paging: undefined, users: [] });
@@ -99,7 +95,6 @@ export default class App extends React.PureComponent<Props, State> {
             projectKey: component.key,
             q: query || undefined,
             permission: selectedPermission,
-            organization: component.organization,
             p: groupsPage
           })
         : Promise.resolve({ paging: undefined, groups: [] });
@@ -207,8 +202,7 @@ export default class App extends React.PureComponent<Props, State> {
         .grantPermissionToGroup({
           projectKey: this.props.component.key,
           groupName: group,
-          permission,
-          organization: this.props.component.organization
+          permission
         })
         .then(this.stopLoading, () => {
           if (this.mounted) {
@@ -232,8 +226,7 @@ export default class App extends React.PureComponent<Props, State> {
         .grantPermissionToUser({
           projectKey: this.props.component.key,
           login: user,
-          permission,
-          organization: this.props.component.organization
+          permission
         })
         .then(this.stopLoading, () => {
           if (this.mounted) {
@@ -257,8 +250,7 @@ export default class App extends React.PureComponent<Props, State> {
         .revokePermissionFromGroup({
           projectKey: this.props.component.key,
           groupName: group,
-          permission,
-          organization: this.props.component.organization
+          permission
         })
         .then(this.stopLoading, () => {
           if (this.mounted) {
@@ -282,8 +274,7 @@ export default class App extends React.PureComponent<Props, State> {
         .revokePermissionFromUser({
           projectKey: this.props.component.key,
           login: user,
-          permission,
-          organization: this.props.component.organization
+          permission
         })
         .then(this.stopLoading, () => {
           if (this.mounted) {
@@ -295,16 +286,6 @@ export default class App extends React.PureComponent<Props, State> {
         });
     }
     return Promise.resolve();
-  };
-
-  handleOrganizationUpgrade = () => {
-    const { component, organization } = this.props;
-    if (organization) {
-      this.props.onComponentChange({
-        configuration: { ...component.configuration, canUpdateProjectVisibilityToPrivate: true }
-      });
-      this.props.fetchOrganization(organization.key);
-    }
   };
 
   handleVisibilityChange = (visibility: string) => {
@@ -356,18 +337,9 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { component, organization } = this.props;
+    const { component } = this.props;
     const canTurnToPrivate =
       component.configuration && component.configuration.canUpdateProjectVisibilityToPrivate;
-
-    let showUpgradeBox;
-    if (organization && !canTurnToPrivate) {
-      const isOrgAdmin = organization.actions && organization.actions.admin;
-      showUpgradeBox =
-        isOrgAdmin &&
-        this.props.component.qualifier === 'TRK' &&
-        !organization.canUpdateProjectsVisibilityToPrivate;
-    }
 
     return (
       <div className="page page-limited" id="project-permissions-page">
@@ -385,13 +357,6 @@ export default class App extends React.PureComponent<Props, State> {
             onChange={this.handleVisibilityChange}
             visibility={component.visibility}
           />
-          {showUpgradeBox && organization && (
-            <UpgradeOrganizationBox
-              className="big-spacer-bottom"
-              onOrganizationUpgrade={this.handleOrganizationUpgrade}
-              organization={organization}
-            />
-          )}
           {this.state.disclaimer && (
             <PublicProjectDisclaimer
               component={component}

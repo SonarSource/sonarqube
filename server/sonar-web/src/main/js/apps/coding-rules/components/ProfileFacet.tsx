@@ -22,7 +22,7 @@ import { sortBy } from 'lodash';
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Profile } from '../../../api/quality-profiles';
-import DocTooltip from '../../../components/docs/DocTooltip';
+import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import FacetBox from '../../../components/facet/FacetBox';
 import FacetHeader from '../../../components/facet/FacetHeader';
 import FacetItem from '../../../components/facet/FacetItem';
@@ -169,9 +169,15 @@ export default class ProfileFacet extends React.PureComponent<Props> {
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.getTextValue()}>
-          <DocTooltip
+          <DocumentationTooltip
             className="spacer-left"
-            doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/rules/rules-quality-profiles.md')}
+            content={translate('coding_rules.facet.qprofile.help')}
+            links={[
+              {
+                href: '/documentation/instance-administration/quality-profiles/',
+                label: translate('coding_rules.facet.qprofile.link')
+              }
+            ]}
           />
         </FacetHeader>
 

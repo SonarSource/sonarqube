@@ -27,7 +27,6 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createProject } from '../../api/components';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { getProjectUrl } from '../../helpers/urls';
-import UpgradeOrganizationBox from '../create/components/UpgradeOrganizationBox';
 
 interface Props {
   onClose: () => void;
@@ -196,18 +195,6 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
                   visibility={this.state.visibility}
                 />
               </div>
-              {organization.actions &&
-                organization.actions.admin &&
-                !organization.canUpdateProjectsVisibilityToPrivate && (
-                  <div className="spacer-top">
-                    <UpgradeOrganizationBox
-                      className="width-100"
-                      insideModal={true}
-                      onOrganizationUpgrade={this.props.onOrganizationUpgrade}
-                      organization={organization}
-                    />
-                  </div>
-                )}
             </div>
 
             <footer className="modal-foot">

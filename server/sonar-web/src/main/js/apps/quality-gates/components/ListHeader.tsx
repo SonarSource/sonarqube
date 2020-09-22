@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
+import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import CreateQualityGateForm from './CreateQualityGateForm';
 
 interface Props {
@@ -54,9 +54,15 @@ export default function ListHeader({ canCreate, refreshQualityGates, organizatio
 
       <div className="display-flex-center">
         <h1 className="page-title">{translate('quality_gates.page')}</h1>
-        <DocTooltip
+        <DocumentationTooltip
           className="spacer-left"
-          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate.md')}
+          content={translate('quality_gates.help')}
+          links={[
+            {
+              href: '/documentation/user-guide/quality-gates/',
+              label: translate('learn_more')
+            }
+          ]}
         />
       </div>
     </header>

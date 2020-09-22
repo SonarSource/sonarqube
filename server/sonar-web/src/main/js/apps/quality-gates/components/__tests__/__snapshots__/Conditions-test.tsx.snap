@@ -10,9 +10,17 @@ exports[`should render correctly 1`] = `
     <h3>
       quality_gates.conditions
     </h3>
-    <DocTooltip
+    <DocumentationTooltip
       className="spacer-left"
-      doc={Promise {}}
+      content="quality_gates.conditions.help"
+      links={
+        Array [
+          Object {
+            "href": "/documentation/user-guide/clean-as-you-code/",
+            "label": "quality_gates.conditions.help.link",
+          },
+        ]
+      }
     />
   </header>
   <div
@@ -129,9 +137,17 @@ exports[`should render correctly for no conditions 1`] = `
     <h3>
       quality_gates.conditions
     </h3>
-    <DocTooltip
+    <DocumentationTooltip
       className="spacer-left"
-      doc={Promise {}}
+      content="quality_gates.conditions.help"
+      links={
+        Array [
+          Object {
+            "href": "/documentation/user-guide/clean-as-you-code/",
+            "label": "quality_gates.conditions.help.link",
+          },
+        ]
+      }
     />
   </header>
   <div
@@ -152,9 +168,17 @@ exports[`should render correctly with an updated condition 1`] = `
     <h3>
       quality_gates.conditions
     </h3>
-    <DocTooltip
+    <DocumentationTooltip
       className="spacer-left"
-      doc={Promise {}}
+      content="quality_gates.conditions.help"
+      links={
+        Array [
+          Object {
+            "href": "/documentation/user-guide/clean-as-you-code/",
+            "label": "quality_gates.conditions.help.link",
+          },
+        ]
+      }
     />
   </header>
   <div
@@ -271,9 +295,17 @@ exports[`should render correctly with new code conditions 1`] = `
     <h3>
       quality_gates.conditions
     </h3>
-    <DocTooltip
+    <DocumentationTooltip
       className="spacer-left"
-      doc={Promise {}}
+      content="quality_gates.conditions.help"
+      links={
+        Array [
+          Object {
+            "href": "/documentation/user-guide/clean-as-you-code/",
+            "label": "quality_gates.conditions.help.link",
+          },
+        ]
+      }
     />
   </header>
   <div
@@ -500,9 +532,17 @@ exports[`should render the add conditions button and modal 1`] = `
     <h3>
       quality_gates.conditions
     </h3>
-    <DocTooltip
+    <DocumentationTooltip
       className="spacer-left"
-      doc={Promise {}}
+      content="quality_gates.conditions.help"
+      links={
+        Array [
+          Object {
+            "href": "/documentation/user-guide/clean-as-you-code/",
+            "label": "quality_gates.conditions.help.link",
+          },
+        ]
+      }
     />
   </header>
   <div

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import Facet, { BasicProps } from './Facet';
 
 interface Props extends T.Omit<BasicProps, 'onChange' | 'values'> {
@@ -56,9 +56,13 @@ export default class TemplateFacet extends React.PureComponent<Props> {
         renderTextName={this.renderName}
         singleSelection={true}
         values={value !== undefined ? [String(value)] : []}>
-        <DocTooltip
+        <HelpTooltip
           className="spacer-left"
-          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/rules/rule-templates.md')}
+          overlay={
+            <div className="big-padded-top big-padded-bottom">
+              {translate('coding_rules.rule_template.help')}
+            </div>
+          }
         />
       </Facet>
     );

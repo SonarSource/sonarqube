@@ -927,7 +927,7 @@ exports[`should render correctly for projects: Hotspot 1`] = `
           "tags": Array [],
         }
       }
-      docTooltip={Promise {}}
+      helpTooltip="metric.security_hotspots.full_description"
       measures={
         Array [
           Object {

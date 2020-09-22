@@ -21,10 +21,10 @@ import { keyBy } from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getQualityProfile } from '../../../api/quality-profiles';
 import { searchRules, takeFacet } from '../../../api/rules';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Profile } from '../types';
 import ProfileRulesDeprecatedWarning from './ProfileRulesDeprecatedWarning';
@@ -197,14 +197,11 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
           {/* in such cases it's better to show the button but disable it with a tooltip */}
           {actions.copy && profile.isBuiltIn && (
             <div className="text-right big-spacer-top">
-              <DocTooltip
-                doc={import(
-                  /* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/activate-rules-in-built-in-profile.md'
-                )}>
+              <Tooltip overlay={translate('quality_profiles.activate_more.help.built_in')}>
                 <Button className="disabled js-activate-rules">
                   {translate('quality_profiles.activate_more')}
                 </Button>
-              </DocTooltip>
+              </Tooltip>
             </div>
           )}
         </div>

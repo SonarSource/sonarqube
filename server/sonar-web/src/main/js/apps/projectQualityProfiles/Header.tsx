@@ -18,19 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../components/docs/DocTooltip';
 
 export default function Header() {
   return (
     <header className="page-header">
       <div className="page-title display-flex-center">
         <h1>{translate('project_quality_profiles.page')}</h1>
-        <DocTooltip
+        <HelpTooltip
           className="spacer-left"
-          doc={import(
-            /* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/quality-profile-projects.md'
-          )}
+          overlay={
+            <div className="big-padded-top big-padded-bottom">
+              {translate('quality_profiles.list.projects.help')}
+            </div>
+          }
         />
       </div>
       <div className="page-description">

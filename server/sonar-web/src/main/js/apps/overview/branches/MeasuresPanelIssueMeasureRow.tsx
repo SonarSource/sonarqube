@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { translate } from 'sonar-ui-common/helpers/l10n';
 import { BranchLike } from '../../../types/branch-like';
 import { ComponentQualifier } from '../../../types/component';
 import { IssueType } from '../../../types/issues';
@@ -68,9 +69,9 @@ export default function MeasuresPanelIssueMeasureRow(props: MeasuresPanelIssueMe
           <IssueLabel
             branchLike={branchLike}
             component={component}
-            docTooltip={
+            helpTooltip={
               type === IssueType.SecurityHotspot
-                ? import(/* webpackMode: "eager" */ 'Docs/tooltips/metrics/security-hotspots.md')
+                ? translate('metric.security_hotspots.full_description')
                 : undefined
             }
             measures={measures}

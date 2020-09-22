@@ -20,9 +20,9 @@
 import { Location } from 'history';
 import { groupBy, pick, sortBy } from 'lodash';
 import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import { Profile } from '../types';
 import ProfilesListHeader from './ProfilesListHeader';
 import ProfilesListRow from './ProfilesListRow';
@@ -64,11 +64,13 @@ export default class ProfilesList extends React.PureComponent<Props> {
           </th>
           <th className="text-right nowrap">
             {translate('quality_profiles.list.projects')}
-            <DocTooltip
+            <HelpTooltip
               className="table-cell-doc"
-              doc={import(
-                /* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/quality-profile-projects.md'
-              )}
+              overlay={
+                <div className="big-padded-top big-padded-bottom">
+                  {translate('quality_profiles.list.projects.help')}
+                </div>
+              }
             />
           </th>
           <th className="text-right nowrap">{translate('quality_profiles.list.rules')}</th>

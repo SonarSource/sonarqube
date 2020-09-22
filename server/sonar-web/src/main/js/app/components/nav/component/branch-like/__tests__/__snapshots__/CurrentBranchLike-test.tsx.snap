@@ -122,15 +122,24 @@ exports[`CurrentBranchLikeRenderer should render correctly for project when bran
   >
     master
   </span>
-  <DocTooltip
+  <DocumentationTooltip
+    content="branch_like_navigation.no_branch_support.content"
     data-test="branches-support-disabled"
-    doc={Promise {}}
+    links={
+      Array [
+        Object {
+          "href": "https://redirect.sonarsource.com/editions/developer.html",
+          "label": "learn_more",
+        },
+      ]
+    }
+    title="branch_like_navigation.no_branch_support.title"
   >
     <PlusCircleIcon
       fill="#4b9fd5"
       size={12}
     />
-  </DocTooltip>
+  </DocumentationTooltip>
 </span>
 `;
 
@@ -178,14 +187,27 @@ exports[`CurrentBranchLikeRenderer should render correctly for project when ther
   >
     master
   </span>
-  <DocTooltip
+  <DocumentationTooltip
+    content="branch_like_navigation.only_one_branch.content"
     data-test="only-one-branch-like"
-    doc={Promise {}}
+    links={
+      Array [
+        Object {
+          "href": "/documentation/branches/overview/",
+          "label": "branch_like_navigation.only_one_branch.documentation",
+        },
+        Object {
+          "href": "/documentation/analysis/pull-request/",
+          "label": "branch_like_navigation.only_one_branch.pr_analysis",
+        },
+      ]
+    }
+    title="branch_like_navigation.only_one_branch.title"
   >
     <PlusCircleIcon
       fill="#4b9fd5"
       size={12}
     />
-  </DocTooltip>
+  </DocumentationTooltip>
 </span>
 `;

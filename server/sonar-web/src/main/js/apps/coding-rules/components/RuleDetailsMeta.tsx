@@ -21,13 +21,13 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { ButtonLink } from 'sonar-ui-common/components/controls/buttons';
 import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import IssueTypeIcon from 'sonar-ui-common/components/icons/IssueTypeIcon';
 import LinkIcon from 'sonar-ui-common/components/icons/LinkIcon';
 import DateFormatter from 'sonar-ui-common/components/intl/DateFormatter';
 import { PopupPlacement } from 'sonar-ui-common/components/ui/popups';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import TagsList from '../../../components/tags/TagsList';
 import { getRuleUrl } from '../../../helpers/urls';
@@ -169,9 +169,9 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
           {translate('coding_rules.show_template')}
         </Link>
         {')'}
-        <DocTooltip
+        <HelpTooltip
           className="little-spacer-left"
-          doc={import(/* webpackMode: "eager" */ 'Docs/tooltips/rules/custom-rules.md')}
+          overlay={translate('coding_rules.custom_rule.help')}
         />
       </li>
     );

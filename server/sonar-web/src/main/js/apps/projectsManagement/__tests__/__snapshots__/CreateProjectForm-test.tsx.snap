@@ -78,25 +78,6 @@ exports[`creates project 1`] = `
           visibility="public"
         />
       </div>
-      <div
-        className="spacer-top"
-      >
-        <UpgradeOrganizationBox
-          className="width-100"
-          insideModal={true}
-          onOrganizationUpgrade={[MockFunction]}
-          organization={
-            Object {
-              "actions": Object {
-                "admin": true,
-              },
-              "key": "org",
-              "name": "org",
-              "projectVisibility": "public",
-            }
-          }
-        />
-      </div>
     </div>
     <footer
       className="modal-foot"
@@ -196,25 +177,6 @@ exports[`creates project 2`] = `
           visibility="private"
         />
       </div>
-      <div
-        className="spacer-top"
-      >
-        <UpgradeOrganizationBox
-          className="width-100"
-          insideModal={true}
-          onOrganizationUpgrade={[MockFunction]}
-          organization={
-            Object {
-              "actions": Object {
-                "admin": true,
-              },
-              "key": "org",
-              "name": "org",
-              "projectVisibility": "public",
-            }
-          }
-        />
-      </div>
     </div>
     <footer
       className="modal-foot"
@@ -312,25 +274,6 @@ exports[`creates project 3`] = `
           className="little-spacer-top"
           onChange={[Function]}
           visibility="private"
-        />
-      </div>
-      <div
-        className="spacer-top"
-      >
-        <UpgradeOrganizationBox
-          className="width-100"
-          insideModal={true}
-          onOrganizationUpgrade={[MockFunction]}
-          organization={
-            Object {
-              "actions": Object {
-                "admin": true,
-              },
-              "key": "org",
-              "name": "org",
-              "projectVisibility": "public",
-            }
-          }
         />
       </div>
     </div>

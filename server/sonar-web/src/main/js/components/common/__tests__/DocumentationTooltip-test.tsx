@@ -19,30 +19,22 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import BillingFormShim from '../BillingFormShim';
+import DocumentationTooltip, { DocumentationTooltipProps } from '../DocumentationTooltip';
 
-beforeAll(() => {
-  function BillingForm() {
-    return <div id="billing-form" />;
-  }
-
-  (window as any).SonarBilling = { BillingForm };
-});
-
-afterAll(() => {
-  delete (window as any).SonarBilling;
-});
-
-it('should render', () => {
+it('renders correctly', () => {
+  expect(shallowRender()).toMatchSnapshot('basic');
   expect(
-    shallow(
-      <BillingFormShim
-        currentUser={{ isLoggedIn: false }}
-        onCommit={jest.fn()}
-        organizationKey="org"
-        subscriptionPlans={[]}>
-        {() => <div id="inner-billing-form" />}
-      </BillingFormShim>
-    )
-  ).toMatchSnapshot();
+    shallowRender({
+      links: [
+        { href: 'http://link.tosome.place', label: 'external link' },
+        { href: '/documentation/guide', label: 'internal link' }
+      ]
+    })
+  ).toMatchSnapshot('with links');
+  expect(shallowRender({ title: undefined })).toMatchSnapshot('no title');
+  expect(shallowRender({ content: undefined })).toMatchSnapshot('no content');
 });
+
+function shallowRender(props: Partial<DocumentationTooltipProps> = {}) {
+  return shallow(<DocumentationTooltip content="content" title="title" {...props} />);
+}

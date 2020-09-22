@@ -26,7 +26,6 @@ import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isDefined } from 'sonar-ui-common/helpers/types';
 import { getMeasuresWithMetrics } from '../../../api/measures';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import { getBranchLikeQuery } from '../../../helpers/branch-like';
 import { enhanceConditionWithMeasure, enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { fetchBranchStatus } from '../../../store/rootActions';
@@ -186,13 +185,15 @@ export class PullRequestOverview extends React.PureComponent<Props, State> {
           )}
           <div className="display-flex-row">
             <div className="big-spacer-right">
-              <h2 className="overview-panel-title spacer-bottom small">
+              <h2 className="overview-panel-title spacer-bottom small display-inline-flex-center">
                 {translate('overview.quality_gate')}
-                <DocTooltip
-                  className="spacer-left"
-                  doc={import(
-                    /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md'
-                  )}
+                <HelpTooltip
+                  className="little-spacer-left"
+                  overlay={
+                    <div className="big-padded-top big-padded-bottom">
+                      {translate('overview.quality_gate.help')}
+                    </div>
+                  }
                 />
               </h2>
               <LargeQualityGateBadge component={component} level={status} />

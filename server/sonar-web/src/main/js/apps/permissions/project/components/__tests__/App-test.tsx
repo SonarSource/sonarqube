@@ -26,7 +26,7 @@ import {
   revokePermissionFromGroup,
   revokePermissionFromUser
 } from '../../../../../api/permissions';
-import { mockComponent, mockOrganization } from '../../../../../helpers/testMocks';
+import { mockComponent } from '../../../../../helpers/testMocks';
 import App from '../App';
 
 jest.mock('../../../../../api/permissions', () => ({
@@ -98,8 +98,7 @@ describe('should manage state correctly', () => {
     const apiPayload = {
       projectKey: 'my-project',
       groupName: 'Anyone',
-      permission: 'foo',
-      organization: 'foo'
+      permission: 'foo'
     };
 
     instance.grantPermissionToGroup('Anyone', 'foo');
@@ -132,8 +131,7 @@ describe('should manage state correctly', () => {
     const apiPayload = {
       projectKey: 'my-project',
       login: 'user1',
-      permission: 'foo',
-      organization: 'foo'
+      permission: 'foo'
     };
 
     instance.grantPermissionToUser('user1', 'foo');
@@ -150,13 +148,5 @@ describe('should manage state correctly', () => {
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow<App>(
-    <App
-      component={mockComponent()}
-      fetchOrganization={jest.fn()}
-      onComponentChange={jest.fn()}
-      organization={mockOrganization()}
-      {...props}
-    />
-  );
+  return shallow<App>(<App component={mockComponent()} onComponentChange={jest.fn()} {...props} />);
 }

@@ -55,7 +55,7 @@ it('should render correctly for vulnerabilities', () => {
 });
 
 it('should render correctly for hotspots', () => {
-  const docTooltip = Promise.resolve({ default: 'tooltip text' });
+  const helpTooltip = 'tooltip text';
   const type = IssueType.SecurityHotspot;
   const measures = [
     mockMeasureEnhanced({ metric: mockMetric({ key: MetricKey.security_hotspots }) }),
@@ -63,14 +63,14 @@ it('should render correctly for hotspots', () => {
   ];
   expect(
     shallowRender({
-      docTooltip,
+      helpTooltip,
       measures,
       type
     })
   ).toMatchSnapshot();
   expect(
     shallowRender({
-      docTooltip,
+      helpTooltip,
       measures,
       type,
       useDiffMetric: true

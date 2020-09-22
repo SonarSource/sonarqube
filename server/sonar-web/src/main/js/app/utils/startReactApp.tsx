@@ -42,7 +42,6 @@ import groupsRoutes from '../../apps/groups/routes';
 import Issues from '../../apps/issues/components/AppContainer';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
 import marketplaceRoutes from '../../apps/marketplace/routes';
-import organizationsRoutes from '../../apps/organizations/routes';
 import overviewRoutes from '../../apps/overview/routes';
 import permissionTemplatesRoutes from '../../apps/permission-templates/routes';
 import { globalPermissionsRoutes, projectPermissionsRoutes } from '../../apps/permissions/routes';
@@ -299,7 +298,6 @@ export default function startReactApp(
                       path="issues"
                       component={withIndexationGuard(Issues, PageContext.Issues)}
                     />
-                    <RouteWithChildRoutes path="organizations" childRoutes={organizationsRoutes} />
                     <RouteWithChildRoutes path="projects" childRoutes={projectsRoutes} />
                     <RouteWithChildRoutes path="quality_gates" childRoutes={qualityGatesRoutes} />
                     <Route

@@ -27,9 +27,15 @@ exports[`should render correctly: is default 1`] = `
       <h3>
         quality_gates.projects
       </h3>
-      <DocTooltip
+      <HelpTooltip
         className="spacer-left"
-        doc={Promise {}}
+        overlay={
+          <div
+            className="big-padded-top big-padded-bottom"
+          >
+            quality_gates.projects.help
+          </div>
+        }
       />
     </header>
     quality_gates.projects_for_default
@@ -64,9 +70,15 @@ exports[`should render correctly: is not default 1`] = `
       <h3>
         quality_gates.projects
       </h3>
-      <DocTooltip
+      <HelpTooltip
         className="spacer-left"
-        doc={Promise {}}
+        overlay={
+          <div
+            className="big-padded-top big-padded-bottom"
+          >
+            quality_gates.projects.help
+          </div>
+        }
       />
     </header>
     <Projects

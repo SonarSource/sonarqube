@@ -22,7 +22,6 @@ import { Link } from 'react-router';
 import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import DateFromNow from 'sonar-ui-common/components/intl/DateFromNow';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import { getRulesUrl } from '../../../helpers/urls';
 import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import ProfileActions from '../components/ProfileActions';
@@ -76,12 +75,9 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
 
       <td className="quality-profiles-table-projects thin nowrap text-middle text-right">
         {profile.isDefault ? (
-          <DocTooltip
-            doc={import(
-              /* webpackMode: "eager" */ 'Docs/tooltips/quality-profiles/default-quality-profile.md'
-            )}>
+          <Tooltip overlay={translate('quality_profiles.list.default.help')}>
             <span className="badge">{translate('default')}</span>
-          </DocTooltip>
+          </Tooltip>
         ) : (
           <span>{profile.projectCount}</span>
         )}

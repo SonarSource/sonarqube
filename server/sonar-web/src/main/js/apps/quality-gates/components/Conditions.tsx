@@ -24,7 +24,7 @@ import ModalButton from 'sonar-ui-common/components/controls/ModalButton';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import { getLocalizedMetricName, translate } from 'sonar-ui-common/helpers/l10n';
 import { isDiffMetric } from 'sonar-ui-common/helpers/measures';
-import DocTooltip from '../../../components/docs/DocTooltip';
+import DocumentationTooltip from '../../../components/common/DocumentationTooltip';
 import { withAppState } from '../../../components/hoc/withAppState';
 import { MetricKey } from '../../../types/metrics';
 import Condition from './Condition';
@@ -165,11 +165,15 @@ export class Conditions extends React.PureComponent<Props> {
 
         <header className="display-flex-center spacer-bottom">
           <h3>{translate('quality_gates.conditions')}</h3>
-          <DocTooltip
+          <DocumentationTooltip
             className="spacer-left"
-            doc={import(
-              /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-conditions.md'
-            )}
+            content={translate('quality_gates.conditions.help')}
+            links={[
+              {
+                href: '/documentation/user-guide/clean-as-you-code/',
+                label: translate('quality_gates.conditions.help.link')
+              }
+            ]}
           />
         </header>
 

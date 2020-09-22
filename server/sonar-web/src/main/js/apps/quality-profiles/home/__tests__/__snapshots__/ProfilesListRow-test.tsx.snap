@@ -249,15 +249,15 @@ exports[`should render correctly: default profile 1`] = `
   <td
     className="quality-profiles-table-projects thin nowrap text-middle text-right"
   >
-    <DocTooltip
-      doc={Promise {}}
+    <Tooltip
+      overlay="quality_profiles.list.default.help"
     >
       <span
         className="badge"
       >
         default
       </span>
-    </DocTooltip>
+    </Tooltip>
   </td>
   <td
     className="quality-profiles-table-rules thin nowrap text-middle text-right"

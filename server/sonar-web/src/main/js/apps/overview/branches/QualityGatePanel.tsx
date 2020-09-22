@@ -23,7 +23,6 @@ import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { Alert } from 'sonar-ui-common/components/ui/Alert';
 import DeferredSpinner from 'sonar-ui-common/components/ui/DeferredSpinner';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import { QualityGateStatus } from '../../../types/quality-gates';
 import QualityGatePanelSection from './QualityGatePanelSection';
 
@@ -57,11 +56,13 @@ export function QualityGatePanel(props: QualityGatePanelProps) {
     <div className="overview-panel" data-test="overview__quality-gate-panel">
       <h2 className="overview-panel-title display-inline-flex-center">
         {translate('overview.quality_gate')}{' '}
-        <DocTooltip
+        <HelpTooltip
           className="little-spacer-left"
-          doc={import(
-            /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/project-homepage-quality-gate.md'
-          )}
+          overlay={
+            <div className="big-padded-top big-padded-bottom">
+              {translate('overview.quality_gate.help')}
+            </div>
+          }
         />
       </h2>
 

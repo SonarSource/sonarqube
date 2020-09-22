@@ -1,1 +1,0 @@
-The estimated time it will take to fix all Code Smells. 

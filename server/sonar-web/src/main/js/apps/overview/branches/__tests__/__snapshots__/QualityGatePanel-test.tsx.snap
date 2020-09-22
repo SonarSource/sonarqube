@@ -10,9 +10,15 @@ exports[`should render correctly for applications 1`] = `
   >
     overview.quality_gate
      
-    <DocTooltip
+    <HelpTooltip
       className="little-spacer-left"
-      doc={Promise {}}
+      overlay={
+        <div
+          className="big-padded-top big-padded-bottom"
+        >
+          overview.quality_gate.help
+        </div>
+      }
     />
   </h2>
   <div
@@ -191,9 +197,15 @@ exports[`should render correctly for applications 2`] = `
   >
     overview.quality_gate
      
-    <DocTooltip
+    <HelpTooltip
       className="little-spacer-left"
-      doc={Promise {}}
+      overlay={
+        <div
+          className="big-padded-top big-padded-bottom"
+        >
+          overview.quality_gate.help
+        </div>
+      }
     />
   </h2>
   <div
@@ -325,9 +337,15 @@ exports[`should render correctly for projects 1`] = `
   >
     overview.quality_gate
      
-    <DocTooltip
+    <HelpTooltip
       className="little-spacer-left"
-      doc={Promise {}}
+      overlay={
+        <div
+          className="big-padded-top big-padded-bottom"
+        >
+          overview.quality_gate.help
+        </div>
+      }
     />
   </h2>
   <div
@@ -424,9 +442,15 @@ exports[`should render correctly for projects 2`] = `
   >
     overview.quality_gate
      
-    <DocTooltip
+    <HelpTooltip
       className="little-spacer-left"
-      doc={Promise {}}
+      overlay={
+        <div
+          className="big-padded-top big-padded-bottom"
+        >
+          overview.quality_gate.help
+        </div>
+      }
     />
   </h2>
   <div
@@ -460,9 +484,15 @@ exports[`should render correctly for projects 3`] = `
   >
     overview.quality_gate
      
-    <DocTooltip
+    <HelpTooltip
       className="little-spacer-left"
-      doc={Promise {}}
+      overlay={
+        <div
+          className="big-padded-top big-padded-bottom"
+        >
+          overview.quality_gate.help
+        </div>
+      }
     />
   </h2>
   <Alert

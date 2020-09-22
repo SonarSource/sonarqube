@@ -19,8 +19,8 @@
  */
 import * as classNames from 'classnames';
 import * as React from 'react';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
 
 interface Props {
   className?: string;
@@ -28,11 +28,8 @@ interface Props {
 
 export default function BuiltInQualityGateBadge({ className }: Props) {
   return (
-    <DocTooltip
-      doc={import(
-        /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/built-in-quality-gate.md'
-      )}>
+    <Tooltip overlay={translate('quality_gates.built_in.help')}>
       <div className={classNames('badge', className)}>{translate('quality_gates.built_in')}</div>
-    </DocTooltip>
+    </Tooltip>
   );
 }

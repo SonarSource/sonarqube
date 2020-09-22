@@ -12,9 +12,17 @@ exports[`should render correctly 1`] = `
     >
       quality_gates.page
     </h1>
-    <DocTooltip
+    <DocumentationTooltip
       className="spacer-left"
-      doc={Promise {}}
+      content="quality_gates.help"
+      links={
+        Array [
+          Object {
+            "href": "/documentation/user-guide/quality-gates/",
+            "label": "learn_more",
+          },
+        ]
+      }
     />
   </div>
 </header>

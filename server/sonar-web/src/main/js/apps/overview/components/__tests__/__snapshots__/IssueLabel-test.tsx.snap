@@ -139,9 +139,9 @@ exports[`should render correctly for hotspots 1`] = `
     className="big-spacer-left little-spacer-right"
   />
   metric.security_hotspots.name
-  <DocTooltip
+  <HelpTooltip
     className="little-spacer-left"
-    doc={Promise {}}
+    overlay="tooltip text"
   />
 </Fragment>
 `;
@@ -173,9 +173,9 @@ exports[`should render correctly for hotspots 2`] = `
     className="big-spacer-left little-spacer-right"
   />
   metric.new_security_hotspots.name
-  <DocTooltip
+  <HelpTooltip
     className="little-spacer-left"
-    doc={Promise {}}
+    overlay="tooltip text"
   />
 </Fragment>
 `;

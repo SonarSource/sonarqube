@@ -14,12 +14,18 @@ exports[`should render correctly for a failed QG 1`] = `
         className="big-spacer-right"
       >
         <h2
-          className="overview-panel-title spacer-bottom small"
+          className="overview-panel-title spacer-bottom small display-inline-flex-center"
         >
           overview.quality_gate
-          <DocTooltip
-            className="spacer-left"
-            doc={Promise {}}
+          <HelpTooltip
+            className="little-spacer-left"
+            overlay={
+              <div
+                className="big-padded-top big-padded-bottom"
+              >
+                overview.quality_gate.help
+              </div>
+            }
           />
         </h2>
         <Memo(LargeQualityGateBadge)
@@ -1369,12 +1375,18 @@ exports[`should render correctly for a passed QG 1`] = `
         className="big-spacer-right"
       >
         <h2
-          className="overview-panel-title spacer-bottom small"
+          className="overview-panel-title spacer-bottom small display-inline-flex-center"
         >
           overview.quality_gate
-          <DocTooltip
-            className="spacer-left"
-            doc={Promise {}}
+          <HelpTooltip
+            className="little-spacer-left"
+            overlay={
+              <div
+                className="big-padded-top big-padded-bottom"
+              >
+                overview.quality_gate.help
+              </div>
+            }
           />
         </h2>
         <Memo(LargeQualityGateBadge)

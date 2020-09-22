@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly: basic 1`] = `
+<HelpTooltip
+  overlay={
+    <div
+      className="big-padded-top big-padded-bottom"
+    >
+      <div
+        className="spacer-bottom"
+      >
+        <strong>
+          title
+        </strong>
+      </div>
+      <p>
+        content
+      </p>
+    </div>
+  }
+/>
+`;
+
+exports[`renders correctly: no content 1`] = `
+<HelpTooltip
+  overlay={
+    <div
+      className="big-padded-top big-padded-bottom"
+    >
+      <div
+        className="spacer-bottom"
+      >
+        <strong>
+          title
+        </strong>
+      </div>
+    </div>
+  }
+/>
+`;
+
+exports[`renders correctly: no title 1`] = `
+<HelpTooltip
+  overlay={
+    <div
+      className="big-padded-top big-padded-bottom"
+    >
+      <p>
+        content
+      </p>
+    </div>
+  }
+/>
+`;
+
+exports[`renders correctly: with links 1`] = `
+<HelpTooltip
+  overlay={
+    <div
+      className="big-padded-top big-padded-bottom"
+    >
+      <div
+        className="spacer-bottom"
+      >
+        <strong>
+          title
+        </strong>
+      </div>
+      <p>
+        content
+      </p>
+      <React.Fragment>
+        <hr
+          className="big-spacer-top big-spacer-bottom"
+        />
+        <div
+          className="little-spacer-bottom"
+        >
+          <a
+            className="display-inline-flex-center link-with-icon"
+            href="http://link.tosome.place"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <DetachIcon
+              className="spacer-right"
+              size={14}
+            />
+            <span>
+              external link
+            </span>
+          </a>
+        </div>
+        <div
+          className="little-spacer-bottom"
+        >
+          <a
+            className="display-inline-flex-center link-with-icon"
+            href="/documentation/guide"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <span>
+              internal link
+            </span>
+          </a>
+        </div>
+      </React.Fragment>
+    </div>
+  }
+/>
+`;

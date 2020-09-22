@@ -1,1 +1,0 @@
-The number of duplicated blocks of lines of code.

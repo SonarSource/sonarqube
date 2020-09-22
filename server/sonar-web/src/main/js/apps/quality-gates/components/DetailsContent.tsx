@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import HelpTooltip from 'sonar-ui-common/components/controls/HelpTooltip';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import DocTooltip from '../../../components/docs/DocTooltip';
 import Conditions from './Conditions';
 import Projects from './Projects';
 
@@ -56,11 +56,13 @@ export function DetailsContent(props: DetailsContentProps) {
       <div className="quality-gate-section" id="quality-gate-projects">
         <header className="display-flex-center spacer-bottom">
           <h3>{translate('quality_gates.projects')}</h3>
-          <DocTooltip
+          <HelpTooltip
             className="spacer-left"
-            doc={import(
-              /* webpackMode: "eager" */ 'Docs/tooltips/quality-gates/quality-gate-projects.md'
-            )}
+            overlay={
+              <div className="big-padded-top big-padded-bottom">
+                {translate('quality_gates.projects.help')}
+              </div>
+            }
           />
         </header>
         {isDefault ? (

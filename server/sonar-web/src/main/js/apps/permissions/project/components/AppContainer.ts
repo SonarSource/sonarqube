@@ -18,20 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import { fetchOrganization } from '../../../../store/rootActions';
-import { getCurrentUser, getOrganizationByKey, Store } from '../../../../store/rootReducer';
+import { getCurrentUser, Store } from '../../../../store/rootReducer';
 import App from './App';
 
-interface OwnProps {
-  component: T.Component;
-  onComponentChange: (changes: Partial<T.Component>) => void;
-}
-
-const mapStateToProps = (state: Store, { component }: OwnProps) => ({
-  currentUser: getCurrentUser(state),
-  organization: getOrganizationByKey(state, component.organization)
+const mapStateToProps = (state: Store) => ({
+  currentUser: getCurrentUser(state)
 });
 
-const mapDispatchToProps = { fetchOrganization };
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps)(App);

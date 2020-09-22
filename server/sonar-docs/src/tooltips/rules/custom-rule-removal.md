@@ -1,1 +1,0 @@
-Only custom rules may be deleted. When a custom rule is deleted, it is not removed from the SonarQube instance. Instead its status is set to "REMOVED", allowing relevant issues to continue to be displayed properly.
