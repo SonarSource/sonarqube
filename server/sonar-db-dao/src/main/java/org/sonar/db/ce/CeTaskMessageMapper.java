@@ -30,5 +30,7 @@ public interface CeTaskMessageMapper {
 
   List<CeTaskMessageDto> selectByTask(@Param("taskUuid") String taskUuid);
 
+  List<CeTaskMessageDto> selectNonDismissedByUserAndTask(@Param("taskUuid") String taskUuid, @Param("userUuid") String userUuid);
+
   void deleteByType(@Param("ceMessageType") String ceMessageType);
 }

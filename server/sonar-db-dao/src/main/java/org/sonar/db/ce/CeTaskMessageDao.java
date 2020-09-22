@@ -40,6 +40,13 @@ public class CeTaskMessageDao implements Dao {
     return getMapper(dbSession).selectByTask(taskUuid);
   }
 
+  /**
+   * @return the non dismissed messages for the specific task and specific user, if any, in ascending order of column {@code CREATED_AT}.
+   */
+  public List<CeTaskMessageDto> selectNonDismissedByUserAndTask(DbSession dbSession, String taskUuid, String userUuid) {
+    return getMapper(dbSession).selectNonDismissedByUserAndTask(taskUuid, userUuid);
+  }
+
   public void deleteByType(DbSession session, CeTaskMessageType type) {
     getMapper(session).deleteByType(type.name());
   }

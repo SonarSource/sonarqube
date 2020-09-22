@@ -28,6 +28,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.project.ProjectDto;
+import org.sonar.db.user.UserDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -125,6 +127,31 @@ public class CeTaskMessageDaoTest {
     assertThat(underTest.selectByTask(dbTester.getSession(), task1))
       .extracting(CeTaskMessageDto::getUuid)
       .containsExactlyInAnyOrder(messages[0].getUuid(), messages[2].getUuid());
+  }
+
+  @Test
+  public void selectNonDismissedByUserAndTask_returns_empty_on_empty_table() {
+    UserDto user = dbTester.users().insertUser();
+    String taskUuid = "17ae66e6-fe83-4c80-b704-4b04e9c5abe8";
+
+    List<CeTaskMessageDto> dto = underTest.selectNonDismissedByUserAndTask(dbTester.getSession(), taskUuid, user.getUuid());
+
+    assertThat(dto).isEmpty();
+  }
+
+  @Test
+  public void selectNonDismissedByUserAndTask_returns_non_dismissed_messages() {
+    UserDto user = dbTester.users().insertUser();
+    ProjectDto project = dbTester.components().insertPrivateProjectDto();
+    dbTester.users().insertUserDismissedMessage(user, project, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    String taskUuid = "17ae66e6-fe83-4c80-b704-4b04e9c5abe8";
+    CeTaskMessageDto msg1 = insertMessage(taskUuid, 1, 1_222_333L);
+    insertMessage(taskUuid, 2, 1_222_334L, CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+    CeTaskMessageDto msg3 = insertMessage(taskUuid, 3, 1_222_335L);
+    List<CeTaskMessageDto> messages = underTest.selectNonDismissedByUserAndTask(dbTester.getSession(), taskUuid, user.getUuid());
+
+    assertThat(messages).hasSize(2);
+    assertThat(messages).extracting(CeTaskMessageDto::getUuid).containsExactlyInAnyOrder(msg1.getUuid(), msg3.getUuid());
   }
 
   private CeTaskMessageDto insertMessage(String taskUuid, int i, long createdAt) {

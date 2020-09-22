@@ -29,6 +29,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeTaskMessageDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
@@ -109,7 +110,6 @@ public class AnalysisStatusAction implements CeWsAction {
 
   private AnalysisStatusWsResponse.Component formatComponent(DbSession dbSession, ProjectDto project, @Nullable CeActivityDto lastActivity,
     @Nullable String branchKey, @Nullable String pullRequestKey) {
-
     AnalysisStatusWsResponse.Component.Builder builder = AnalysisStatusWsResponse.Component.newBuilder()
       .setOrganization(getOrganizationKey(dbSession, project))
       .setKey(project.getKey())
@@ -124,16 +124,22 @@ public class AnalysisStatusAction implements CeWsAction {
     if (lastActivity == null) {
       return builder.build();
     }
-    List<AnalysisStatusWsResponse.Warning> warnings = dbClient.ceTaskMessageDao().selectByTask(dbSession, lastActivity.getUuid()).stream()
-      .map(dto -> AnalysisStatusWsResponse.Warning.newBuilder()
-        .setKey(dto.getUuid())
-        .setMessage(dto.getMessage())
-        .setDismissable(dto.getType().isDismissible())
-        .build())
+
+    List<CeTaskMessageDto> warnings;
+    String userUuid = userSession.getUuid();
+    if (userUuid != null) {
+      warnings = dbClient.ceTaskMessageDao().selectNonDismissedByUserAndTask(dbSession, lastActivity.getUuid(), userUuid);
+    } else {
+      warnings = dbClient.ceTaskMessageDao().selectByTask(dbSession, lastActivity.getUuid());
+    }
+
+    List<AnalysisStatusWsResponse.Warning> result = warnings.stream().map(dto -> AnalysisStatusWsResponse.Warning.newBuilder()
+      .setKey(dto.getUuid())
+      .setMessage(dto.getMessage())
+      .setDismissable(dto.getType().isDismissible())
+      .build())
       .collect(Collectors.toList());
-
-    builder.addAllWarnings(warnings);
-
+    builder.addAllWarnings(result);
     return builder.build();
   }
 

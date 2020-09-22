@@ -66,7 +66,7 @@ public class AnalysisStatusActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -76,7 +76,7 @@ public class AnalysisStatusActionTest {
   @Test
   public void no_errors_no_warnings() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     Ce.AnalysisStatusWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
@@ -86,9 +86,25 @@ public class AnalysisStatusActionTest {
   }
 
   @Test
+  public void allows_unauthenticated_access() {
+    ComponentDto project = db.components().insertPublicProject(db.getDefaultOrganization());
+    userSession.registerComponents(project);
+    SnapshotDto analysis = db.components().insertSnapshot(project);
+    CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
+    createTaskMessage(activity, WARNING_IN_MAIN);
+    createTaskMessage(activity, "Dismissible warning", CeTaskMessageType.SUGGEST_DEVELOPER_EDITION_UPGRADE);
+
+    Ce.AnalysisStatusWsResponse response = ws.newRequest()
+      .setParam(PARAM_COMPONENT, project.getKey())
+      .executeProtobuf(Ce.AnalysisStatusWsResponse.class);
+
+    assertThat(response.getComponent().getWarningsList()).hasSize(2);
+  }
+
+  @Test
   public void return_warnings_for_last_analysis_of_main() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
@@ -119,7 +135,7 @@ public class AnalysisStatusActionTest {
   @Test
   public void return_warnings_for_last_analysis_of_branch() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITH_WARNING));
     SnapshotDto analysis = db.components().insertSnapshot(branch);
@@ -150,7 +166,7 @@ public class AnalysisStatusActionTest {
   @Test
   public void return_warnings_for_last_analysis_of_pull_request() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> {
       b.setBranchType(BranchType.PULL_REQUEST);
@@ -184,7 +200,7 @@ public class AnalysisStatusActionTest {
   @Test
   public void return_warnings_per_branch() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     SnapshotDto analysis = db.components().insertSnapshot(project);
     CeActivityDto activity = insertActivity("task-uuid" + counter++, project, SUCCESS, analysis, REPORT);
@@ -244,7 +260,7 @@ public class AnalysisStatusActionTest {
   @Test
   public void response_contains_branch_or_pullRequest_for_branch_or_pullRequest_only() {
     ComponentDto project = db.components().insertPrivateProject();
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     db.components().insertProjectBranch(project, b -> b.setKey(BRANCH_WITHOUT_WARNING));
 
@@ -294,7 +310,7 @@ public class AnalysisStatusActionTest {
     db.getDbClient().ceTaskMessageDao().insert(db.getSession(), ceTaskMessage);
     db.commit();
 
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.logIn().setSystemAdministrator().addProjectPermission(UserRole.USER, project);
 
     String result = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
