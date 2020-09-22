@@ -14,7 +14,7 @@ buildscript {
     classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
     classpath 'net.rdrei.android.buildtimetracker:gradle-plugin:0.11.0'
     classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.7.5'
-    classpath "org.owasp:dependency-check-gradle:4.0.2"
+    classpath 'org.owasp:dependency-check-gradle:6.0.2'
     classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'
   }
 }
@@ -47,6 +47,39 @@ sonarqube {
 
 if (!JavaVersion.current().java11Compatible) {
   throw new GradleException("JDK 11+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
+}
+
+apply plugin: 'org.owasp.dependencycheck'
+dependencyCheck {
+  analyzers {
+    assemblyEnabled = false
+    autoconfEnabled = false
+    bundleAuditEnabled = false
+    cmakeEnabled = false
+    cocoapodsEnabled = false
+    composerEnabled = false
+    cocoapodsEnabled = false
+    golangDepEnabled = false
+    golangModEnabled = false
+    nodeAudit {
+      skipDevDependencies = true
+    }
+    nuspecEnabled = false
+    nugetconfEnabled = false
+    rubygemsEnabled = false
+    swiftEnabled = false
+
+  }
+  format = 'ALL'
+  junitFailOnCVSS = 0
+  failBuildOnCVSS = 0
+  suppressionFiles = ["${project.rootDir}/owasp-suppressions.xml", "${project.rootDir}/owasp-vulnerabilities.xml"]
+  skipProjects = project.subprojects
+      .findAll {it.name.contains('testing') ||
+          it.name.startsWith('it-') ||
+          it.name.contains('-test') ||
+          it.name == 'sonar-ws-generator'}
+      .collect { it.path }
 }
 
 allprojects {
@@ -90,7 +123,6 @@ subprojects {
   apply plugin: 'java'
   apply plugin: 'jacoco'
   apply plugin: 'idea'
-  apply plugin: 'org.owasp.dependencycheck'
 
   // do not deploy to Artifactory by default
   artifactoryPublish.skip = true
