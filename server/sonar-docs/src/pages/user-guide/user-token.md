@@ -1,9 +1,9 @@
 ---
-title: User Token
+title: Generating and Using Tokens
 url: /user-guide/user-token/
 ---
 
-Each user has the ability to generate tokens that can be used to run analyses or invoke web services without access to the user's actual credentials.
+Each user can generate tokens that can be used to run analyses or invoke web services without access to the user's actual credentials.
 
 ## How to Generate a Token
 
@@ -13,7 +13,7 @@ The form at the bottom of the page allows you to generate new tokens. Once you c
 
 ## How to Use a Token
 
-User tokens have to be used as a replacement of your usual login:
+User tokens must replace your normal login process in the following scenarios:
 
 * when running analyses on your code: replace your login by the token in the `sonar.login` property. 
 * when invoking web services: just pass the token instead of your login while doing the basic authentication.

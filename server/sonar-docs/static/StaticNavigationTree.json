@@ -113,24 +113,34 @@
   {
     "title": "User Guide",
     "children": [
+      "/user-guide/concepts/",
       "/user-guide/clean-as-you-code/",
-      "/user-guide/project-page/",
-      "/user-guide/applications/",
-      "/user-guide/portfolios/",
+      "/user-guide/metric-definitions/",
+      "/user-guide/quality-gates/",
+      {
+        "title": "Rules",
+        "children": [
+		  "/user-guide/rules/",
+		  "/user-guide/security-rules/",
+		  "/user-guide/built-in-rule-tags/"
+        ]
+      },
+      {
+        "title": "User Account",
+        "children": [
+		  "/user-guide/user-account/",
+		  "/user-guide/user-token/"
+        ]
+      },
       "/user-guide/issues/",
       "/user-guide/security-hotspots/",
-      "/user-guide/rules/",
-      "/user-guide/security-rules/",
-      "/user-guide/built-in-rule-tags/",
-      "/user-guide/quality-gates/",
-      "/user-guide/metric-definitions/",
-      "/user-guide/concepts/",
+      "/user-guide/portfolios/",
+      "/user-guide/applications/",
+      "/user-guide/security-reports/",
       "/user-guide/activity-history/",
+      "/user-guide/project-page/",
       "/user-guide/visualizations/",
       "/user-guide/sonarlint-notifications/",
-      "/user-guide/security-reports/",
-      "/user-guide/user-account/",
-      "/user-guide/user-token/",
       "/user-guide/keyboard-shortcuts/"
     ]
   },
