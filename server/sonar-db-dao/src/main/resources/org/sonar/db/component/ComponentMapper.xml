@@ -728,7 +728,6 @@
     inner join components p on b.project_uuid = p.uuid
     where
       m.name = 'ncloc'
-      and b.key_type = 'BRANCH'
     and b.branch_type = 'BRANCH'
     and p.enabled = ${_true}
     and p.private = ${_true}

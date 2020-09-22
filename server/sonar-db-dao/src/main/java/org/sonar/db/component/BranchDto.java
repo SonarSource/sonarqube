@@ -61,12 +61,6 @@ public class BranchDto {
   private String kee;
 
   /**
-   * Key type, as provided by {@link KeyType}.
-   * Not null.
-   */
-  private KeyType keyType;
-
-  /**
    * Branch type, as provided by {@link BranchType}.
    * Not null.
    */
@@ -135,11 +129,6 @@ public class BranchDto {
   public BranchDto setKey(String s) {
     checkArgument(s.length() <= KEE_MAX_LENGTH, "Maximum length of branch name or pull request id is %s: %s", KEE_MAX_LENGTH, s);
     setKee(s);
-    return this;
-  }
-
-  BranchDto setKeyType(KeyType keyType) {
-    this.keyType = keyType;
     return this;
   }
 
@@ -239,7 +228,6 @@ public class BranchDto {
       "uuid='" + uuid + '\'' +
       ", projectUuid='" + projectUuid + '\'' +
       ", kee='" + kee + '\'' +
-      ", keyType=" + keyType +
       ", branchType=" + branchType +
       ", mergeBranchUuid='" + mergeBranchUuid + '\'' +
       ", excludeFromPurge=" + excludeFromPurge +

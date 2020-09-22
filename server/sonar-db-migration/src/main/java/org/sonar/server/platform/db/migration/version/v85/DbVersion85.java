@@ -51,7 +51,11 @@ public class DbVersion85 implements DbVersion {
       .add(4020, "Populate 'message_type' column of 'ce_task_message' table", PopulateMessageTypeColumnOfCeTaskMessageTable.class)
       .add(4021, "Make 'message_type' column not nullable for `ce_task_message` table", MakeMessageTypeColumnNotNullableOnCeTaskMessageTable.class)
       .add(4022, "Add index on 'message_type' column of `ce_task_message` table", AddIndexOnMessageTypeColumnOfCeTaskMessageTable.class)
-      .add(4023, "Create 'user_dismissed_messages' table", CreateUserDismissedMessagesTable.class
-      );
+      .add(4023, "Create 'user_dismissed_messages' table", CreateUserDismissedMessagesTable.class)
+      .add(4024, "Populate 'branch_type' in 'project_branches'", FillProjectBranchesBranchType.class)
+      .add(4025, "Make 'branch_type' in 'project_branches' not nullable", MakeProjectBranchesBranchTypeNotNullable.class)
+      .add(4026, "Drop column 'key_type' in table 'project_branches'", DropProjectBranchesKeyType.class)
+
+    ;
   }
 }

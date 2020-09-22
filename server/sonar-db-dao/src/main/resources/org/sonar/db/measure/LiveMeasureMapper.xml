@@ -68,7 +68,6 @@
         and p.copy_component_uuid is null
         and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
         and b.branch_type = #{branchType, jdbcType=VARCHAR}
-        and b.key_type = #{branch, jdbcType=VARCHAR}
         <if test="projectUuidToExclude != null">
           and b.project_uuid &lt;&gt; #{projectUuidToExclude,jdbcType=VARCHAR}
         </if>

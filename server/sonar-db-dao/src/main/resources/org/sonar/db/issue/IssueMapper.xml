@@ -296,7 +296,7 @@
       r.plugin_rule_key as ruleKey,
       r.plugin_name as ruleRepo,
       b.kee as branchKey,
-      b.key_type as keyType
+      b.branch_type as branchType
     from issues i
     inner join rules r on r.uuid = i.rule_uuid
     inner join project_branches b on i.project_uuid = b.uuid

@@ -6,7 +6,6 @@
     pb.uuid as uuid,
     pb.project_uuid as projectUuid,
     pb.kee as kee,
-    pb.key_type as keyType,
     pb.branch_type as branchType,
     pb.merge_branch_uuid as mergeBranchUuid,
     pb.pull_request_binary as pullRequestBinary,
@@ -19,7 +18,6 @@
     uuid,
     project_uuid,
     kee,
-    key_type,
     branch_type,
     merge_branch_uuid,
     pull_request_binary,
@@ -31,7 +29,6 @@
     #{dto.uuid, jdbcType=VARCHAR},
     #{dto.projectUuid, jdbcType=VARCHAR},
     #{dto.kee, jdbcType=VARCHAR},
-    #{dto.keyType, jdbcType=VARCHAR},
     #{dto.branchType, jdbcType=VARCHAR},
     #{dto.mergeBranchUuid, jdbcType=VARCHAR},
     #{dto.pullRequestBinary, jdbcType=BINARY},
@@ -76,7 +73,7 @@
     where
       pb.project_uuid = #{projectUuid, jdbcType=VARCHAR} and
       pb.kee = #{key, jdbcType=VARCHAR} and
-      pb.key_type = #{keyType, jdbcType=VARCHAR}
+      pb.branch_type = #{branchType, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByBranchKeys" resultType="org.sonar.db.component.BranchDto">

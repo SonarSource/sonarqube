@@ -30,7 +30,6 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.KeyType;
 import org.sonar.db.dialect.Dialect;
 
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
@@ -101,7 +100,7 @@ public class LiveMeasureDao implements Dao {
    */
   public long sumNclocOfBiggestBranch(DbSession dbSession, SumNclocDbQuery dbQuery) {
     Long ncloc = mapper(dbSession).sumNclocOfBiggestBranch(
-      NCLOC_KEY, KeyType.BRANCH, BranchType.BRANCH, dbQuery.getOrganizationUuid(), dbQuery.getOnlyPrivateProjects(), dbQuery.getProjectUuidToExclude());
+      NCLOC_KEY, BranchType.BRANCH, dbQuery.getOrganizationUuid(), dbQuery.getOnlyPrivateProjects(), dbQuery.getProjectUuidToExclude());
     return ncloc == null ? 0L : ncloc;
   }
 

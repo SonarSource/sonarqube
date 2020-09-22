@@ -38,7 +38,7 @@ public interface BranchMapper {
   int updateExcludeFromPurge(@Param("uuid") String uuid, @Param("excludeFromPurge") boolean excludeFromPurge,
     @Param("now") long now);
 
-  BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("keyType") KeyType keyType);
+  BranchDto selectByKey(@Param("projectUuid") String projectUuid, @Param("key") String key, @Param("branchType") BranchType branchType);
 
   BranchDto selectByUuid(@Param("uuid") String uuid);
 

@@ -41,24 +41,14 @@ public class BranchDao implements Dao {
   }
 
   public void insert(DbSession dbSession, BranchDto dto) {
-    setKeyType(dto);
     mapper(dbSession).insert(dto, system2.now());
   }
 
   public void upsert(DbSession dbSession, BranchDto dto) {
     BranchMapper mapper = mapper(dbSession);
     long now = system2.now();
-    setKeyType(dto);
     if (mapper.update(dto, now) == 0) {
       mapper.insert(dto, now);
-    }
-  }
-
-  private static void setKeyType(BranchDto dto) {
-    if (dto.getBranchType() == BranchType.PULL_REQUEST) {
-      dto.setKeyType(KeyType.PULL_REQUEST);
-    } else {
-      dto.setKeyType(KeyType.BRANCH);
     }
   }
 
@@ -73,7 +63,7 @@ public class BranchDao implements Dao {
   }
 
   public Optional<BranchDto> selectByBranchKey(DbSession dbSession, String projectUuid, String key) {
-    return selectByKey(dbSession, projectUuid, key, KeyType.BRANCH);
+    return selectByKey(dbSession, projectUuid, key, BranchType.BRANCH);
   }
 
   public List<BranchDto> selectByBranchKeys(DbSession dbSession, Map<String, String> branchKeyByProjectUuid) {
@@ -84,11 +74,11 @@ public class BranchDao implements Dao {
   }
 
   public Optional<BranchDto> selectByPullRequestKey(DbSession dbSession, String projectUuid, String key) {
-    return selectByKey(dbSession, projectUuid, key, KeyType.PULL_REQUEST);
+    return selectByKey(dbSession, projectUuid, key, BranchType.PULL_REQUEST);
   }
 
-  private static Optional<BranchDto> selectByKey(DbSession dbSession, String projectUuid, String key, KeyType keyType) {
-    return Optional.ofNullable(mapper(dbSession).selectByKey(projectUuid, key, keyType));
+  private static Optional<BranchDto> selectByKey(DbSession dbSession, String projectUuid, String key, BranchType branchType) {
+    return Optional.ofNullable(mapper(dbSession).selectByKey(projectUuid, key, branchType));
   }
 
   public Collection<BranchDto> selectByComponent(DbSession dbSession, ComponentDto component) {

@@ -203,7 +203,6 @@
     and p.copy_component_uuid is null
     and p.organization_uuid in <foreach collection="organizationUuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
     and b.branch_type = #{branchType, jdbcType=VARCHAR}
-    and b.key_type = #{branch, jdbcType=VARCHAR}
     group by b.project_uuid, p.organization_uuid
     ) sumncloc
     group by orgUuid

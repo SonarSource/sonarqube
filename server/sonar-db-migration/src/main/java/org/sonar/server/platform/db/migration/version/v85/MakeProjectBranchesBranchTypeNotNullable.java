@@ -17,10 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.component;
+package org.sonar.server.platform.db.migration.version.v85;
 
-public enum KeyType {
-  BRANCH,
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-  PULL_REQUEST
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class MakeProjectBranchesBranchTypeNotNullable extends DdlChange {
+  public MakeProjectBranchesBranchTypeNotNullable(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDialect(), "project_branches")
+      .updateColumn(newVarcharColumnDefBuilder()
+        .setLimit(12)
+        .setIsNullable(false)
+        .setColumnName("branch_type")
+        .build()).build());
+  }
 }

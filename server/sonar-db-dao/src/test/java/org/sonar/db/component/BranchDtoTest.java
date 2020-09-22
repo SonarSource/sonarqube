@@ -59,7 +59,7 @@ public class BranchDtoTest {
     underTest.setExcludeFromPurge(true);
 
     assertThat(underTest.toString()).isEqualTo("BranchDto{uuid='U1', " +
-      "projectUuid='U2', kee='K1', keyType=null, branchType=BRANCH, mergeBranchUuid='U3', excludeFromPurge=true, needIssueSync=false}");
+      "projectUuid='U2', kee='K1', branchType=BRANCH, mergeBranchUuid='U3', excludeFromPurge=true, needIssueSync=false}");
   }
 
   @Test

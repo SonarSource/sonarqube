@@ -29,7 +29,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.alm.ALM;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.component.KeyType;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.user.GroupDto;
 
@@ -145,7 +144,7 @@ public class OrganizationDao implements Dao {
   public List<OrganizationWithNclocDto> selectOrganizationsWithNcloc(DbSession dbSession, List<String> organizationUuids) {
     List<OrganizationWithNclocDto> result = new ArrayList<>();
     executeLargeUpdates(organizationUuids, chunk ->
-      result.addAll(getMapper(dbSession).selectOrganizationsWithNcloc(NCLOC_KEY, chunk, KeyType.BRANCH, BranchType.BRANCH))
+      result.addAll(getMapper(dbSession).selectOrganizationsWithNcloc(NCLOC_KEY, chunk, BranchType.BRANCH))
     );
     return result;
   }

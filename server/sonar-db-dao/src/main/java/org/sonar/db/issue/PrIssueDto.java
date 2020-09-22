@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.db.component.KeyType;
+import org.sonar.db.component.BranchType;
 
 public final class PrIssueDto implements Serializable {
 
@@ -40,7 +40,7 @@ public final class PrIssueDto implements Serializable {
   private String ruleKey;
   private String ruleRepo;
   private String branchKey;
-  private KeyType keyType;
+  private BranchType branchType;
 
   public String getKey() {
     return kee;
@@ -83,12 +83,12 @@ public final class PrIssueDto implements Serializable {
     return this;
   }
 
-  public KeyType getKeyType() {
-    return keyType;
+  public BranchType getBranchType() {
+    return branchType;
   }
 
-  public PrIssueDto setKeyType(KeyType s) {
-    this.keyType = s;
+  public PrIssueDto setBranchType(BranchType s) {
+    this.branchType = s;
     return this;
   }
 
