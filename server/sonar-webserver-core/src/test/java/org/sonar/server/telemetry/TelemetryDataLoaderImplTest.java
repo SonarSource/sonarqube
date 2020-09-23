@@ -58,9 +58,12 @@ import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
 import static org.sonar.core.platform.EditionProvider.Edition.DEVELOPER;
 import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 
 public class TelemetryDataLoaderImplTest {
   @Rule
@@ -227,6 +230,49 @@ public class TelemetryDataLoaderImplTest {
     data = commercialUnderTest.load();
     assertThat(data.getInstallationDate()).isNull();
     assertThat(data.getInstallationVersion()).isNull();
+  }
+
+  @Test
+  public void send_unanalyzed_languages_flags_when_edition_is_community() {
+    when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
+    MetricDto unanalyzedC = db.measures().insertMetric(m -> m.setKey(UNANALYZED_C_KEY));
+    MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey(UNANALYZED_CPP_KEY));
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPublicProject();
+    db.measures().insertLiveMeasure(project1, unanalyzedC);
+    db.measures().insertLiveMeasure(project2, unanalyzedC);
+    db.measures().insertLiveMeasure(project2, unanalyzedCpp);
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.hasUnanalyzedC().get()).isTrue();
+    assertThat(data.hasUnanalyzedCpp().get()).isTrue();
+  }
+
+  @Test
+  public void do_not_send_unanalyzed_languages_flags_when_edition_is_not_community() {
+    when(editionProvider.get()).thenReturn(Optional.of(DEVELOPER));
+    MetricDto unanalyzedC = db.measures().insertMetric(m -> m.setKey(UNANALYZED_C_KEY));
+    MetricDto unanalyzedCpp = db.measures().insertMetric(m -> m.setKey(UNANALYZED_CPP_KEY));
+    ComponentDto project1 = db.components().insertPublicProject();
+    ComponentDto project2 = db.components().insertPublicProject();
+    db.measures().insertLiveMeasure(project1, unanalyzedC);
+    db.measures().insertLiveMeasure(project2, unanalyzedCpp);
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.hasUnanalyzedC()).isEmpty();
+    assertThat(data.hasUnanalyzedCpp()).isEmpty();
+  }
+
+  @Test
+  public void unanalyzed_languages_flags_are_set_to_false_when_no_unanalyzed_languages_and_edition_is_community() {
+    when(editionProvider.get()).thenReturn(Optional.of(COMMUNITY));
+
+    TelemetryData data = communityUnderTest.load();
+
+    assertThat(data.hasUnanalyzedC().get()).isFalse();
+    assertThat(data.hasUnanalyzedCpp().get()).isFalse();
   }
 
   private PluginInfo newPlugin(String key, String version) {

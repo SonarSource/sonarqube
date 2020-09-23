@@ -21,7 +21,6 @@ package org.sonar.server.telemetry;
 
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.server.measure.index.ProjectMeasuresStatistics;
@@ -39,12 +38,13 @@ public class TelemetryData {
   private final Database database;
   private final Map<String, Long> projectCountByLanguage;
   private final Map<String, Long> nclocByLanguage;
-  @CheckForNull
   private final EditionProvider.Edition edition;
   private final String licenseType;
   private final Long installationDate;
   private final String installationVersion;
   private final boolean inDocker;
+  private final Boolean hasUnanalyzedC;
+  private final Boolean hasUnanalyzedCpp;
 
   private TelemetryData(Builder builder) {
     serverId = builder.serverId;
@@ -62,6 +62,8 @@ public class TelemetryData {
     installationDate = builder.installationDate;
     installationVersion = builder.installationVersion;
     inDocker = builder.inDocker;
+    hasUnanalyzedC = builder.hasUnanalyzedC;
+    hasUnanalyzedCpp = builder.hasUnanalyzedCpp;
   }
 
   public String getServerId() {
@@ -112,16 +114,24 @@ public class TelemetryData {
     return Optional.ofNullable(licenseType);
   }
 
-  public Long getInstallationDate(){
+  public Long getInstallationDate() {
     return installationDate;
   }
 
-  public String getInstallationVersion(){
+  public String getInstallationVersion() {
     return installationVersion;
   }
 
   public boolean isInDocker() {
     return inDocker;
+  }
+
+  public Optional<Boolean> hasUnanalyzedC() {
+    return Optional.ofNullable(hasUnanalyzedC);
+  }
+
+  public Optional<Boolean> hasUnanalyzedCpp() {
+    return Optional.ofNullable(hasUnanalyzedCpp);
   }
 
   static Builder builder() {
@@ -142,6 +152,8 @@ public class TelemetryData {
     private Long installationDate;
     private String installationVersion;
     private boolean inDocker = false;
+    private Boolean hasUnanalyzedC;
+    private Boolean hasUnanalyzedCpp;
 
     private Builder() {
       // enforce static factory method
@@ -187,28 +199,38 @@ public class TelemetryData {
       return this;
     }
 
-    public Builder setEdition(@Nullable EditionProvider.Edition edition) {
+    Builder setEdition(@Nullable EditionProvider.Edition edition) {
       this.edition = edition;
       return this;
     }
 
-    public Builder setLicenseType(@Nullable String licenseType) {
+    Builder setLicenseType(@Nullable String licenseType) {
       this.licenseType = licenseType;
       return this;
     }
 
-    public Builder setInstallationDate(@Nullable Long installationDate){
+    Builder setInstallationDate(@Nullable Long installationDate) {
       this.installationDate = installationDate;
       return this;
     }
 
-    public Builder setInstallationVersion(@Nullable String installationVersion){
+    Builder setInstallationVersion(@Nullable String installationVersion) {
       this.installationVersion = installationVersion;
       return this;
     }
 
-    public Builder setInDocker(boolean inDocker) {
+    Builder setInDocker(boolean inDocker) {
       this.inDocker = inDocker;
+      return this;
+    }
+
+    Builder setHasUnanalyzedC(@Nullable Boolean hasUnanalyzedC) {
+      this.hasUnanalyzedC = hasUnanalyzedC;
+      return this;
+    }
+
+    Builder setHasUnanalyzedCpp(@Nullable Boolean hasUnanalyzedCpp) {
+      this.hasUnanalyzedCpp = hasUnanalyzedCpp;
       return this;
     }
 

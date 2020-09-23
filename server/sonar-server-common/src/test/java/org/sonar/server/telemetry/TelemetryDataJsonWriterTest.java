@@ -299,6 +299,21 @@ public class TelemetryDataJsonWriterTest {
       "}");
   }
 
+  @Test
+  public void writes_has_unanalyzed_languages() {
+    TelemetryData data = SOME_TELEMETRY_DATA
+      .setHasUnanalyzedC(true)
+      .setHasUnanalyzedCpp(false)
+      .build();
+
+    String json = writeTelemetryData(data);
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"hasUnanalyzedC\":true," +
+      "  \"hasUnanalyzedCpp\":false," +
+      "}");
+  }
+
   @DataProvider
   public static Object[][] allEditions() {
     return Arrays.stream(EditionProvider.Edition.values())

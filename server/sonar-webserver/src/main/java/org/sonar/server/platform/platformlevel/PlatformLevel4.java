@@ -103,6 +103,7 @@ import org.sonar.server.measure.live.LiveMeasureModule;
 import org.sonar.server.measure.ws.MeasuresWsModule;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
+import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.newcodeperiod.ws.NewCodePeriodsWsModule;
 import org.sonar.server.notification.NotificationModule;
@@ -329,6 +330,7 @@ public class PlatformLevel4 extends PlatformLevel {
       CustomMeasuresWsModule.class,
       CoreCustomMetrics.class,
       DefaultMetricFinder.class,
+      UnanalyzedLanguageMetrics.class,
 
       QualityGateModule.class,
       ProjectsInWarningModule.class,

@@ -46,6 +46,9 @@ import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
 
 import static java.util.Optional.ofNullable;
+import static org.sonar.core.platform.EditionProvider.Edition.COMMUNITY;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 
 @ServerSide
 public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
@@ -115,12 +118,17 @@ public class TelemetryDataLoaderImpl implements TelemetryDataLoader {
         .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .build();
       data.setNcloc(dbClient.liveMeasureDao().sumNclocOfBiggestBranch(dbSession, query));
+      long numberOfUnanalyzedCMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_C_KEY);
+      long numberOfUnanalyzedCppMeasures = dbClient.liveMeasureDao().countProjectsHavingMeasure(dbSession, UNANALYZED_CPP_KEY);
+      editionProvider.get()
+        .filter(edition -> edition.equals(COMMUNITY))
+        .ifPresent(edition -> {
+          data.setHasUnanalyzedC(numberOfUnanalyzedCMeasures > 0);
+          data.setHasUnanalyzedCpp(numberOfUnanalyzedCppMeasures > 0);
+        });
     }
-
     Optional<String> installationDateProperty = internalProperties.read(InternalProperties.INSTALLATION_DATE);
-    if (installationDateProperty.isPresent()) {
-      data.setInstallationDate(Long.valueOf(installationDateProperty.get()));
-    }
+    installationDateProperty.ifPresent(s -> data.setInstallationDate(Long.valueOf(s)));
     Optional<String> installationVersionProperty = internalProperties.read(InternalProperties.INSTALLATION_VERSION);
     data.setInstallationVersion(installationVersionProperty.orElse(null));
     data.setInDocker(dockerSupport.isRunningInDocker());

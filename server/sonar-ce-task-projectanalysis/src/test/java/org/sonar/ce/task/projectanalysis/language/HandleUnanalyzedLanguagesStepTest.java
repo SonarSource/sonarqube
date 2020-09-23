@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
+package org.sonar.ce.task.projectanalysis.language;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -29,6 +29,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.log.CeTaskMessages.Message;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReaderRule;
+import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ReportComponent;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
+import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -43,23 +48,41 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 
-public class PerformNotAnalyzedFilesCheckStepTest {
+public class HandleUnanalyzedLanguagesStepTest {
+
+  private static final int PROJECT_REF = 1;
+  private static final Component ROOT_PROJECT = ReportComponent.builder(PROJECT, PROJECT_REF).build();
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(ROOT_PROJECT);
+  @Rule
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+    .add(UNANALYZED_C)
+    .add(UNANALYZED_CPP);
+  @Rule
+  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   private final PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
   private final CeTaskMessages ceTaskMessages = mock(CeTaskMessages.class);
-  private final PerformNotAnalyzedFilesCheckStep underTest = new PerformNotAnalyzedFilesCheckStep(reportReader, ceTaskMessages, editionProvider, System2.INSTANCE);
+
+  private final HandleUnanalyzedLanguagesStep underTest = new HandleUnanalyzedLanguagesStep(reportReader, ceTaskMessages, editionProvider, System2.INSTANCE, treeRootHolder,
+    metricRepository, measureRepository);
 
   @Test
   public void getDescription() {
-    assertThat(underTest.getDescription()).isEqualTo(PerformNotAnalyzedFilesCheckStep.DESCRIPTION);
+    assertThat(underTest.getDescription()).isEqualTo(HandleUnanalyzedLanguagesStep.DESCRIPTION);
   }
 
   @Test
-  public void execute_adds_warning_in_SQ_community_edition_if_there_are_c_or_cpp_files() {
+  public void add_warning_and_measures_in_SQ_community_edition_if_there_are_c_or_cpp_files() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     ScannerReport.AnalysisWarning warning1 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 1").build();
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
@@ -82,10 +105,12 @@ public class PerformNotAnalyzedFilesCheckStepTest {
           "edition. Please consider <a href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to the Developer " +
           "Edition</a> to analyze this language.",
         true));
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY).get().getIntValue()).isEqualTo(10);
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isEqualTo(20);
   }
 
   @Test
-  public void execute_adds_warning_in_SQ_community_edition_if_there_are_c_files() {
+  public void adds_warning_and_measures_in_SQ_community_edition_if_there_are_c_files() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
       .putNotAnalyzedFilesByLanguage("C", 10)
@@ -100,10 +125,12 @@ public class PerformNotAnalyzedFilesCheckStepTest {
       "10 C file(s) detected during the last analysis. C code cannot be analyzed with SonarQube community " +
         "edition. Please consider <a href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to the Developer " +
         "Edition</a> to analyze this language.");
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY).get().getIntValue()).isEqualTo(10);
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY)).isEmpty();
   }
 
   @Test
-  public void execute_adds_warning_in_SQ_community_edition_if_there_are_cpp_files() {
+  public void adds_warning_in_SQ_community_edition_if_there_are_cpp_files() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     reportReader.setMetadata(ScannerReport.Metadata.newBuilder()
       .putNotAnalyzedFilesByLanguage("C++", 9)
@@ -118,10 +145,12 @@ public class PerformNotAnalyzedFilesCheckStepTest {
       "9 C++ file(s) detected during the last analysis. C++ code cannot be analyzed with SonarQube community " +
         "edition. Please consider <a href=\"https://www.sonarqube.org/trial-request/developer-edition/?referrer=sonarqube-cpp\">upgrading to the Developer " +
         "Edition</a> to analyze this language.");
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY).get().getIntValue()).isEqualTo(9);
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY)).isEmpty();
   }
 
   @Test
-  public void execute_does_not_add_a_warning_in_SQ_community_edition_if_cpp_files_in_report_is_zero() {
+  public void do_nothing_SQ_community_edition_if_cpp_files_in_report_is_zero() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     ScannerReport.AnalysisWarning warning1 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 1").build();
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
@@ -132,10 +161,13 @@ public class PerformNotAnalyzedFilesCheckStepTest {
     underTest.execute(new TestComputationStepContext());
 
     verify(ceTaskMessages, never()).add(any());
+
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY)).isEmpty();
   }
 
   @Test
-  public void execute_does_not_add_a_warning_in_SQ_community_edition_if_no_c_or_cpp_files_2() {
+  public void execute_does_not_add_a_warning_in_SQ_community_edition_if_no_c_or_cpp_files() {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
     ScannerReport.AnalysisWarning warning1 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 1").build();
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
@@ -146,6 +178,8 @@ public class PerformNotAnalyzedFilesCheckStepTest {
     underTest.execute(new TestComputationStepContext());
 
     verify(ceTaskMessages, never()).add(any());
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY)).isEmpty();
   }
 
   @Test
@@ -160,5 +194,7 @@ public class PerformNotAnalyzedFilesCheckStepTest {
     underTest.execute(new TestComputationStepContext());
 
     verify(ceTaskMessages, never()).add(any());
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_C_KEY)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasure(PROJECT_REF, UNANALYZED_CPP_KEY)).isEmpty();
   }
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.step;
+package org.sonar.ce.task.projectanalysis.language;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -27,18 +27,27 @@ import java.util.stream.Collectors;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.log.CeTaskMessages;
 import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
+import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.measure.Measure;
+import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
+import org.sonar.ce.task.projectanalysis.metric.Metric;
+import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
+import static org.sonar.core.language.UnanalyzedLanguages.C;
+import static org.sonar.core.language.UnanalyzedLanguages.CPP;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_CPP_KEY;
+import static org.sonar.server.metric.UnanalyzedLanguageMetrics.UNANALYZED_C_KEY;
 
 /**
  * Check if there are files that could be analyzed with a higher SQ edition.
  */
-public class PerformNotAnalyzedFilesCheckStep implements ComputationStep {
+public class HandleUnanalyzedLanguagesStep implements ComputationStep {
+
   static final String DESCRIPTION = "Check upgrade possibility for not analyzed code files.";
 
   private static final String LANGUAGE_UPGRADE_MESSAGE = "%s file(s) detected during the last analysis. %s code cannot be analyzed with SonarQube " +
@@ -49,13 +58,21 @@ public class PerformNotAnalyzedFilesCheckStep implements ComputationStep {
   private final CeTaskMessages ceTaskMessages;
   private final PlatformEditionProvider editionProvider;
   private final System2 system;
+  private final TreeRootHolder treeRootHolder;
+  private final MeasureRepository measureRepository;
+  private final Metric unanalyzedCMetric;
+  private final Metric unanalyzedCppMetric;
 
-  public PerformNotAnalyzedFilesCheckStep(BatchReportReader reportReader, CeTaskMessages ceTaskMessages, PlatformEditionProvider editionProvider,
-    System2 system) {
+  public HandleUnanalyzedLanguagesStep(BatchReportReader reportReader, CeTaskMessages ceTaskMessages, PlatformEditionProvider editionProvider,
+    System2 system, TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.reportReader = reportReader;
     this.ceTaskMessages = ceTaskMessages;
     this.editionProvider = editionProvider;
     this.system = system;
+    this.treeRootHolder = treeRootHolder;
+    this.measureRepository = measureRepository;
+    this.unanalyzedCMetric = metricRepository.getByKey(UNANALYZED_C_KEY);
+    this.unanalyzedCppMetric = metricRepository.getByKey(UNANALYZED_CPP_KEY);
   }
 
   @Override
@@ -76,13 +93,11 @@ public class PerformNotAnalyzedFilesCheckStep implements ComputationStep {
       }
 
       ceTaskMessages.add(constructMessage(filesPerLanguage));
+      computeMeasures(filesPerLanguage);
     });
   }
 
   private CeTaskMessages.Message constructMessage(Map<String, Integer> filesPerLanguage) {
-    checkNotNull(filesPerLanguage);
-    checkArgument(filesPerLanguage.size() > 0);
-
     SortedMap<String, Integer> sortedLanguageMap = new TreeMap<>(filesPerLanguage);
     Iterator<Map.Entry<String, Integer>> iterator = sortedLanguageMap.entrySet().iterator();
     Map.Entry<String, Integer> firstLanguage = iterator.next();
@@ -102,6 +117,18 @@ public class PerformNotAnalyzedFilesCheckStep implements ComputationStep {
     }
 
     return new CeTaskMessages.Message(format(LANGUAGE_UPGRADE_MESSAGE, fileCountLabel, languageLabel), system.now(), true);
+  }
+
+  private void computeMeasures(Map<String, Integer> filesPerLanguage) {
+    Component project = treeRootHolder.getRoot();
+    Integer unanalyzedCFiles = filesPerLanguage.getOrDefault(C.toString(), 0);
+    if (unanalyzedCFiles > 0) {
+      measureRepository.add(project, unanalyzedCMetric, Measure.newMeasureBuilder().create(unanalyzedCFiles));
+    }
+    Integer unanalyzedCppFiles = filesPerLanguage.getOrDefault(CPP.toString(), 0);
+    if (unanalyzedCppFiles > 0) {
+      measureRepository.add(project, unanalyzedCppMetric, Measure.newMeasureBuilder().create(unanalyzedCppFiles));
+    }
   }
 
   @Override

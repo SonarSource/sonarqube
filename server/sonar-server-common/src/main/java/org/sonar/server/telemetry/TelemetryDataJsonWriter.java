@@ -68,6 +68,8 @@ public class TelemetryDataJsonWriter {
       json.endObject();
     });
     json.endArray();
+    statistics.hasUnanalyzedC().ifPresent(hasUnanalyzedC -> json.prop("hasUnanalyzedC", hasUnanalyzedC));
+    statistics.hasUnanalyzedCpp().ifPresent(hasUnanalyzedCpp -> json.prop("hasUnanalyzedCpp", hasUnanalyzedCpp));
     if (statistics.getInstallationDate() != null) {
       json.prop("installationDate", statistics.getInstallationDate());
     }

@@ -453,6 +453,21 @@ public class LiveMeasureDaoTest {
   }
 
   @Test
+  public void countProjectsHavingMeasure() {
+    MetricDto metric1 = db.measures().insertMetric();
+    MetricDto metric2 = db.measures().insertMetric();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    db.measures().insertLiveMeasure(project1, metric1);
+    db.measures().insertLiveMeasure(project2, metric1);
+    db.measures().insertLiveMeasure(project1, metric2);
+
+    assertThat(underTest.countProjectsHavingMeasure(db.getSession(), metric1.getKey())).isEqualTo(2);
+    assertThat(underTest.countProjectsHavingMeasure(db.getSession(), metric2.getKey())).isEqualTo(1);
+    assertThat(underTest.countProjectsHavingMeasure(db.getSession(), "unknown")).isZero();
+  }
+
+  @Test
   public void upsert_inserts_or_updates_row() {
     if (!db.getDbClient().getDatabase().getDialect().supportsUpsert()) {
       return;

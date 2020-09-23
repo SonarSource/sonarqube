@@ -105,6 +105,10 @@ public class LiveMeasureDao implements Dao {
     return ncloc == null ? 0L : ncloc;
   }
 
+  public long countProjectsHavingMeasure(DbSession dbSession, String metric) {
+    return mapper(dbSession).countProjectsHavingMeasure(metric);
+  }
+
   public void insert(DbSession dbSession, LiveMeasureDto dto) {
     mapper(dbSession).insert(dto, Uuids.create(), system2.now());
   }

@@ -41,6 +41,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.predicates.FileExtensionPredicate;
+import org.sonar.core.language.UnanalyzedLanguages;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.sonar.api.utils.Preconditions.checkNotNull;
@@ -51,9 +52,9 @@ import static org.sonar.api.utils.Preconditions.checkState;
  * exclusion patterns are already applied.
  */
 public class InputComponentStore extends DefaultFileSystem.Cache {
-  private static final Map<String, Pattern> FILE_PATTERN_BY_LANGUAGE = ImmutableMap.of(
-    "C", Pattern.compile(".*\\.c", Pattern.CASE_INSENSITIVE),
-    "C++", Pattern.compile(".*\\.cpp|.*\\.cc|.*\\.cxx|.*\\.c\\+\\+", Pattern.CASE_INSENSITIVE));
+  private static final Map<UnanalyzedLanguages, Pattern> FILE_PATTERN_BY_LANGUAGE = ImmutableMap.of(
+    UnanalyzedLanguages.C, Pattern.compile(".*\\.c", Pattern.CASE_INSENSITIVE),
+    UnanalyzedLanguages.CPP, Pattern.compile(".*\\.cpp|.*\\.cc|.*\\.cxx|.*\\.c\\+\\+", Pattern.CASE_INSENSITIVE));
 
   private final SortedSet<String> globalLanguagesCache = new TreeSet<>();
   private final Map<String, SortedSet<String>> languagesCache = new HashMap<>();
@@ -188,7 +189,7 @@ public class InputComponentStore extends DefaultFileSystem.Cache {
 
     FILE_PATTERN_BY_LANGUAGE.forEach((language, filePattern) -> {
       if (filePattern.matcher(inputFile.filename()).matches()) {
-        notAnalysedFilesByLanguage.put(language, notAnalysedFilesByLanguage.getOrDefault(language, 0) + 1);
+        notAnalysedFilesByLanguage.put(language.toString(), notAnalysedFilesByLanguage.getOrDefault(language.toString(), 0) + 1);
       }
     });
   }

@@ -64,6 +64,9 @@ public interface LiveMeasureMapper {
     @Param("private") Boolean privateProject,
     @Nullable @Param("projectUuidToExclude") String projectUuidToExclude);
 
+  Long countProjectsHavingMeasure(
+    @Param("metric") String metric);
+
   void insert(
     @Param("dto") LiveMeasureDto dto,
     @Param("uuid") String uuid,
