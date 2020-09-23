@@ -3,7 +3,7 @@ SonarQube [![Build Status](https://travis-ci.org/SonarSource/sonarqube.svg?branc
 
 Continuous Inspection
 ---------------------
-SonarQube provides the capability to not only show health of an application but also to highlight issues newly introduced. With a Quality Gate in place, you can [fix the leak](https://blog.sonarsource.com/water-leak-changes-the-game-for-technical-debt-management) and therefore improve code quality systematically.
+SonarQube provides the capability to not only show health of an application but also to highlight issues newly introduced. With a Quality Gate in place, you can [Clean As You Code](https://blog.sonarsource.com/clean-as-you-code) and therefore improve code quality systematically.
 
 Links
 -----
@@ -12,22 +12,22 @@ Links
 * [Download](https://www.sonarqube.org/downloads/)
 * [Documentation](https://docs.sonarqube.org)
 * [Twitter](https://twitter.com/SonarQube)
-* [SonarSource](https://www.sonarsource.com), editor of SonarQube
+* [SonarSource](https://www.sonarsource.com), author of SonarQube
 * [Issue tracking](https://jira.sonarsource.com/browse/SONAR/), read-only. Only SonarSourcers can create tickets.
-* [Demo](https://next.sonarqube.com/sonarqube) of the next version to be released
+* [Dogfood](https://next.sonarqube.com/sonarqube) instance of the next SonarQube version
 
 Have Question or Feedback?
 --------------------------
 
-For support questions ("How do I?", "I got this error, why?", ...), please first read the [documentation](https://docs.sonarqube.org) and then head to the [SonarSource forum](https://community.sonarsource.com/). There are chances that a question similar to yours has already been answered. 
+For support questions ("How do I?", "I got this error, why?", ...), please first read the [documentation](https://docs.sonarqube.org) and then head to the [SonarSource Community](https://community.sonarsource.com/c/help/sq/10). The answer to your question has likely already been answered! 🤓
 
-Be aware that this forum is a community, so the standard pleasantries ("Hi", "Thanks", ...) are expected. And if you don't get an answer to your thread, you should sit on your hands for at least three days before bumping it. Operators are not standing by. :-)
+Be aware that this forum is a community, so the standard pleasantries ("Hi", "Thanks", ...) are expected. And if you don't get an answer to your thread, you should sit on your hands for at least three days before bumping it. Operators are not standing by. 😄
 
 
 Contributing
 ------------
 
-If you would like to see a new feature, please create a new thread in the forum ["Suggest new features"](https://community.sonarsource.com/c/suggestions/features).
+If you would like to see a new feature, please create a new Community thread: ["Suggest new features"](https://community.sonarsource.com/c/suggestions/features).
 
 Please be aware that we are not actively looking for feature contributions. The truth is that it's extremely difficult for someone outside SonarSource to comply with our roadmap and expectations. Therefore, we typically only accept minor cosmetic changes and typo fixes.
 
