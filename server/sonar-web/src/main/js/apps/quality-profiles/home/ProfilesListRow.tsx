@@ -38,21 +38,15 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
   const { organization, profile } = props;
 
   const offset = 25 * (profile.depth - 1);
-  const activeRulesUrl = getRulesUrl(
-    {
-      qprofile: profile.key,
-      activation: 'true'
-    },
-    organization
-  );
-  const deprecatedRulesUrl = getRulesUrl(
-    {
-      qprofile: profile.key,
-      activation: 'true',
-      statuses: 'DEPRECATED'
-    },
-    organization
-  );
+  const activeRulesUrl = getRulesUrl({
+    qprofile: profile.key,
+    activation: 'true'
+  });
+  const deprecatedRulesUrl = getRulesUrl({
+    qprofile: profile.key,
+    activation: 'true',
+    statuses: 'DEPRECATED'
+  });
 
   return (
     <tr
@@ -62,10 +56,7 @@ export function ProfilesListRow(props: ProfilesListRowProps) {
       <td className="quality-profiles-table-name text-middle">
         <div className="display-flex-center" style={{ paddingLeft: offset }}>
           <div>
-            <ProfileLink
-              language={profile.language}
-              name={profile.name}
-              organization={organization}>
+            <ProfileLink language={profile.language} name={profile.name}>
               {profile.name}
             </ProfileLink>
           </div>

@@ -38,7 +38,7 @@ class DeleteQualityGateForm extends React.PureComponent<Props> {
     return deleteQualityGate({ id: qualityGate.id, organization })
       .then(this.props.onDelete)
       .then(() => {
-        this.props.router.push(getQualityGatesUrl(organization));
+        this.props.router.push(getQualityGatesUrl());
       });
   };
 

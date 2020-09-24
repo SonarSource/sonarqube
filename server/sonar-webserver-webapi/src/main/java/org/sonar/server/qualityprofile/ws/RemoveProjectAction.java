@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
@@ -68,7 +67,6 @@ public class RemoveProjectAction implements QProfileWsAction {
       .setPost(true)
       .setHandler(this);
     QProfileReference.defineParams(action, languages);
-    QProfileWsSupport.createOrganizationParam(action).setSince("6.4");
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
@@ -83,11 +81,7 @@ public class RemoveProjectAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = loadProject(dbSession, request);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
-      checkPermissions(dbSession, organization, profile, project);
-      if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
-        throw new IllegalArgumentException("Project and Quality profile must have the same organization");
-      }
+      checkPermissions(dbSession, profile, project);
 
       dbClient.qualityProfileDao().deleteProjectProfileAssociation(dbSession, project, profile);
       dbSession.commit();
@@ -101,8 +95,8 @@ public class RemoveProjectAction implements QProfileWsAction {
     return componentFinder.getProjectByKey(dbSession, projectKey);
   }
 
-  private void checkPermissions(DbSession dbSession, OrganizationDto organization, QProfileDto profile, ProjectDto project) {
-    if (wsSupport.canEdit(dbSession, organization, profile) || userSession.hasProjectPermission(UserRole.ADMIN, project)) {
+  private void checkPermissions(DbSession dbSession, QProfileDto profile, ProjectDto project) {
+    if (wsSupport.canEdit(dbSession, profile) || userSession.hasProjectPermission(UserRole.ADMIN, project)) {
       return;
     }
 

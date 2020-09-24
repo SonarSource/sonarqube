@@ -9,7 +9,7 @@ exports[`should render correctly 1`] = `
   >
     <IndexLink
       className="text-muted"
-      to="/organizations/foo/quality_profiles"
+      to="/profiles"
     >
       quality_profiles.page
     </IndexLink>
@@ -20,7 +20,7 @@ exports[`should render correctly 1`] = `
       style={Object {}}
       to={
         Object {
-          "pathname": "/organizations/foo/quality_profiles",
+          "pathname": "/profiles",
           "query": Object {
             "language": "js",
           },
@@ -37,7 +37,6 @@ exports[`should render correctly 1`] = `
       className="link-base-color"
       language="js"
       name="name"
-      organization="foo"
     >
       <span>
         name
@@ -76,7 +75,7 @@ exports[`should render correctly 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/organizations/foo/quality_profiles/changelog",
+              "pathname": "/profiles/changelog",
               "query": Object {
                 "language": "js",
                 "name": "name",

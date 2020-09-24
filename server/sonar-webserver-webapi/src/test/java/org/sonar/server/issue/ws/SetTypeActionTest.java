@@ -98,7 +98,6 @@ public class SetTypeActionTest {
   private DbClient dbClient = dbTester.getDbClient();
 
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
@@ -107,7 +106,7 @@ public class SetTypeActionTest {
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private WsActionTester tester = new WsActionTester(new SetTypeAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer, new SequenceUuidFactory()),
+      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient), issueIndexer, new SequenceUuidFactory()),
       mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer), responseWriter, system2));
 
   @Test

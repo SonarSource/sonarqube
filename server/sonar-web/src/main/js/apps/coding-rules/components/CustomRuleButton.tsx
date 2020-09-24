@@ -24,7 +24,6 @@ interface Props {
   children: (props: { onClick: () => void }) => React.ReactNode;
   customRule?: T.RuleDetails;
   onDone: (newRuleDetails: T.RuleDetails) => void;
-  organization: string | undefined;
   templateRule: T.RuleDetails;
 }
 
@@ -68,7 +67,6 @@ export default class CustomRuleButton extends React.PureComponent<Props, State> 
             customRule={this.props.customRule}
             onClose={this.handleModalClose}
             onDone={this.handleDone}
-            organization={this.props.organization}
             templateRule={this.props.templateRule}
           />
         )}

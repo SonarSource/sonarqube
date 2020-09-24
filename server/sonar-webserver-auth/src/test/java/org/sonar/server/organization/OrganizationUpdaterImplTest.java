@@ -226,10 +226,10 @@ public class OrganizationUpdaterImplTest {
     underTest.create(dbSession, user, FULL_POPULATED_NEW_ORGANIZATION, EMPTY_ORGANIZATION_CONSUMER);
 
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
-    List<QProfileDto> profiles = dbClient.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization);
+    List<QProfileDto> profiles = dbClient.qualityProfileDao().selectAll(dbSession);
     assertThat(profiles).extracting(p -> new QProfileName(p.getLanguage(), p.getName())).containsExactlyInAnyOrder(
       builtIn1.getQProfileName(), builtIn2.getQProfileName());
-    assertThat(dbClient.qualityProfileDao().selectDefaultProfile(dbSession, organization, "foo").getName())
+    assertThat(dbClient.qualityProfileDao().selectDefaultProfile(dbSession, "foo").getName())
       .isEqualTo("qp1");
   }
 

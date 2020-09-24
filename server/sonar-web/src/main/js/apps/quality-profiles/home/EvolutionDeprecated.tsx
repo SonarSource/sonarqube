@@ -124,8 +124,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
                 <ProfileLink
                   className="link-no-underline"
                   language={profile.language}
-                  name={profile.name}
-                  organization={this.props.organization}>
+                  name={profile.name}>
                   {profile.name}
                 </ProfileLink>
               </div>
@@ -134,10 +133,7 @@ export default class EvolutionDeprecated extends React.PureComponent<Props> {
                 {', '}
                 <Link
                   className="text-muted"
-                  to={getDeprecatedActiveRulesUrl(
-                    { qprofile: profile.key },
-                    this.props.organization
-                  )}>
+                  to={getDeprecatedActiveRulesUrl({ qprofile: profile.key })}>
                   {translateWithParameters(
                     'quality_profile.x_rules',
                     profile.activeDeprecatedRuleCount

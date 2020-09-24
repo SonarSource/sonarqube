@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.rule.RuleUpdate.RuleUpdateUseCase.CUSTOM_RULE;
@@ -56,7 +55,6 @@ public class RuleUpdate {
   private String severity;
   private RuleStatus status;
   private final Map<String, String> parameters = new HashMap<>();
-  private OrganizationDto organization;
 
   private RuleUpdate(RuleKey ruleKey, RuleUpdateUseCase useCase) {
     this.ruleKey = ruleKey;
@@ -165,11 +163,6 @@ public class RuleUpdate {
     return this;
   }
 
-  public RuleUpdate setOrganization(OrganizationDto organization) {
-    this.organization = organization;
-    return this;
-  }
-
   public Map<String, String> getParameters() {
     return parameters;
   }
@@ -225,10 +218,6 @@ public class RuleUpdate {
 
   private void checkCustomRule() {
     checkArgument(useCase == CUSTOM_RULE, "Not a custom rule");
-  }
-
-  public OrganizationDto getOrganization() {
-    return organization;
   }
 
   /**

@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -63,9 +62,8 @@ public class ActiveRuleIndexerTest {
   public void before() {
     rule1 = db.rules().insert();
     rule2 = db.rules().insert();
-    OrganizationDto org = db.organizations().insert();
-    profile1 = db.qualityProfiles().insert(org);
-    profile2 = db.qualityProfiles().insert(org);
+    profile1 = db.qualityProfiles().insert();
+    profile2 = db.qualityProfiles().insert();
   }
 
   @Test

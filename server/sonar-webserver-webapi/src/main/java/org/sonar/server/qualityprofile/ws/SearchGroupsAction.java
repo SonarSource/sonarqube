@@ -31,7 +31,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.GroupMembershipDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.SearchGroupsQuery;
@@ -54,11 +53,9 @@ import static org.sonar.db.qualityprofile.SearchGroupsQuery.ANY;
 import static org.sonar.db.qualityprofile.SearchGroupsQuery.IN;
 import static org.sonar.db.qualityprofile.SearchGroupsQuery.OUT;
 import static org.sonar.db.qualityprofile.SearchGroupsQuery.builder;
-import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH_GROUPS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchGroupsAction implements QProfileWsAction {
@@ -103,20 +100,16 @@ public class SearchGroupsAction implements QProfileWsAction {
       .setDescription("Quality profile language")
       .setRequired(true)
       .setPossibleValues(Arrays.stream(languages.all()).map(Language::getKey).collect(toSet()));
-
-    createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     SearchUsersRequest wsRequest = buildRequest(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, wsRequest.getOrganization());
-      QProfileDto profile = wsSupport.getProfile(dbSession, organization, wsRequest.getQualityProfile(), wsRequest.getLanguage());
-      wsSupport.checkCanEdit(dbSession, organization, profile);
+      QProfileDto profile = wsSupport.getProfile(dbSession, wsRequest.getQualityProfile(), wsRequest.getLanguage());
+      wsSupport.checkCanEdit(dbSession, profile);
 
       SearchGroupsQuery query = builder()
-        .setOrganization(organization)
         .setProfile(profile)
         .setQuery(wsRequest.getQuery())
         .setMembership(MEMBERSHIP.get(fromParam(wsRequest.getSelected())))
@@ -140,7 +133,6 @@ public class SearchGroupsAction implements QProfileWsAction {
 
   private static SearchUsersRequest buildRequest(Request request) {
     return SearchUsersRequest.builder()
-      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setQualityProfile(request.mandatoryParam(PARAM_QUALITY_PROFILE))
       .setLanguage(request.mandatoryParam(PARAM_LANGUAGE))
       .setQuery(request.param(TEXT_QUERY))

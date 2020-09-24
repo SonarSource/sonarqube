@@ -31,19 +31,15 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 
 public class ProjectsActionTest {
@@ -55,15 +51,13 @@ public class ProjectsActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private WsActionTester ws = new WsActionTester(
-    new ProjectsAction(db.getDbClient(), userSession, new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db))));
+  private WsActionTester ws = new WsActionTester(new ProjectsAction(db.getDbClient(), userSession));
 
   @Test
   public void list_authorized_projects_only() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, db.components().getProjectDto(project1), db.components().getProjectDto(project2));
     // user only sees project1
     UserDto user = db.users().insertUser();
@@ -86,12 +80,12 @@ public class ProjectsActionTest {
 
   @Test
   public void paginate() {
-    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
     ProjectDto project1 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project One"));
     ProjectDto project2 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project Two"));
     ProjectDto project3 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project Three"));
     ProjectDto project4 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project Four"));
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project1, project2, project3, project4);
 
     ws.newRequest()
@@ -195,10 +189,9 @@ public class ProjectsActionTest {
 
   @Test
   public void show_unselected() {
-    OrganizationDto organization = db.organizations().insert();
-    ProjectDto project1 = db.components().insertPublicProjectDto(organization);
-    ProjectDto project2 = db.components().insertPublicProjectDto(organization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    ProjectDto project1 = db.components().insertPublicProjectDto();
+    ProjectDto project2 = db.components().insertPublicProjectDto();
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project1);
 
     ws.newRequest()
@@ -216,14 +209,13 @@ public class ProjectsActionTest {
 
   @Test
   public void show_all() {
-    OrganizationDto organization = db.organizations().insert();
-    ProjectDto project1 = db.components().insertPublicProjectDto(organization);
-    ProjectDto project2 = db.components().insertPublicProjectDto(organization);
-    ProjectDto project3 = db.components().insertPublicProjectDto(organization);
-    ProjectDto project4 = db.components().insertPublicProjectDto(organization);
-    QProfileDto qualityProfile1 = db.qualityProfiles().insert(organization);
+    ProjectDto project1 = db.components().insertPublicProjectDto();
+    ProjectDto project2 = db.components().insertPublicProjectDto();
+    ProjectDto project3 = db.components().insertPublicProjectDto();
+    ProjectDto project4 = db.components().insertPublicProjectDto();
+    QProfileDto qualityProfile1 = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile1, project1, project2);
-    QProfileDto qualityProfile2 = db.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile2 = db.qualityProfiles().insert();
     // project3 is associated with P2, must appear as not associated with xooP1
     associateProjectsWithProfile(qualityProfile2, project3);
 
@@ -254,12 +246,11 @@ public class ProjectsActionTest {
 
   @Test
   public void filter_on_name() {
-    OrganizationDto organization = db.organizations().insert();
-    ProjectDto project1 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project One"));
-    ProjectDto project2 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project Two"));
-    ProjectDto project3 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project Three"));
-    ProjectDto project4 = db.components().insertPublicProjectDto(organization, p -> p.setName("Project Four"));
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    ProjectDto project1 = db.components().insertPublicProjectDto(p -> p.setName("Project One"));
+    ProjectDto project2 = db.components().insertPublicProjectDto(p -> p.setName("Project Two"));
+    ProjectDto project3 = db.components().insertPublicProjectDto(p -> p.setName("Project Three"));
+    ProjectDto project4 = db.components().insertPublicProjectDto(p -> p.setName("Project Four"));
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project1, project2);
 
     ws.newRequest()
@@ -285,9 +276,8 @@ public class ProjectsActionTest {
 
   @Test
   public void return_deprecated_uuid_field() {
-    OrganizationDto organization = db.organizations().insert();
-    ProjectDto project = db.components().insertPublicProjectDto(organization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    ProjectDto project = db.components().insertPublicProjectDto();
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     associateProjectsWithProfile(qualityProfile, project);
 
     ws.newRequest()
@@ -304,46 +294,11 @@ public class ProjectsActionTest {
   }
 
   @Test
-  public void projects_on_paid_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    ProjectDto project = db.components().insertPublicProjectDto(organization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-    associateProjectsWithProfile(qualityProfile, project);
-    UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    userSession.logIn(user);
-
-    ws.newRequest()
-      .setParam(PARAM_KEY, qualityProfile.getKee())
-      .setParam("selected", "all")
-      .execute()
-      .assertJson("{\"results\":\n" +
-        "  [\n" +
-        "    {\n" +
-        "      \"key\": \"" + project.getKey() + "\",\n" +
-        "    }\n" +
-        "  ]}");
-  }
-
-  @Test
   public void fail_on_nonexistent_profile() {
     expectedException.expect(NotFoundException.class);
 
     ws.newRequest()
       .setParam(PARAM_KEY, "unknown")
-      .execute();
-  }
-
-  @Test
-  public void fail_on_paid_organization_when_not_member() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_KEY, qualityProfile.getKee())
       .execute();
   }
 

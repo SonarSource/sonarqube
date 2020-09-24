@@ -29,7 +29,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleParamDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -58,16 +57,16 @@ public class ActiveRuleDao implements Dao {
     return Optional.ofNullable(mapper(dbSession).selectByKey(key.getRuleProfileUuid(), key.getRuleKey().repository(), key.getRuleKey().rule()));
   }
 
-  public List<OrgActiveRuleDto> selectByRuleUuid(DbSession dbSession, OrganizationDto organization, String ruleUuid) {
-    return mapper(dbSession).selectByRuleUuid(organization.getUuid(), ruleUuid);
+  public List<OrgActiveRuleDto> selectByOrgRuleUuid(DbSession dbSession, String ruleUuid) {
+    return mapper(dbSession).selectOrgByRuleUuid(ruleUuid);
   }
 
-  public List<ActiveRuleDto> selectByRuleUuidOfAllOrganizations(DbSession dbSession, String ruleUuid) {
-    return mapper(dbSession).selectByRuleUuidOfAllOrganizations(ruleUuid);
+  public List<ActiveRuleDto> selectByRuleUuid(DbSession dbSession, String ruleUuid) {
+    return mapper(dbSession).selectByRuleUuid(ruleUuid);
   }
 
-  public List<OrgActiveRuleDto> selectByRuleUuids(DbSession dbSession, OrganizationDto organization, List<String> uuids) {
-    return executeLargeInputs(uuids, chunk -> mapper(dbSession).selectByRuleUuids(organization.getUuid(), chunk));
+  public List<OrgActiveRuleDto> selectByRuleUuids(DbSession dbSession, List<String> uuids) {
+    return executeLargeInputs(uuids, chunk -> mapper(dbSession).selectByRuleUuids(chunk));
   }
 
   /**
@@ -176,8 +175,8 @@ public class ActiveRuleDao implements Dao {
     mapper(dbSession).deleteParameter(uuid);
   }
 
-  public void deleteParamsByRuleParamOfAllOrganizations(DbSession dbSession, RuleParamDto param) {
-    List<ActiveRuleDto> activeRules = selectByRuleUuidOfAllOrganizations(dbSession, param.getRuleUuid());
+  public void deleteParamsByRuleParam(DbSession dbSession, RuleParamDto param) {
+    List<ActiveRuleDto> activeRules = selectByRuleUuid(dbSession, param.getRuleUuid());
     for (ActiveRuleDto activeRule : activeRules) {
       for (ActiveRuleParamDto activeParam : selectParamsByActiveRuleUuid(dbSession, activeRule.getUuid())) {
         if (activeParam.getKey().equals(param.getName())) {
@@ -194,7 +193,7 @@ public class ActiveRuleDao implements Dao {
 
   public Map<String, Long> countActiveRulesByQuery(DbSession dbSession, ActiveRuleCountQuery query) {
     return toMap(executeLargeInputs(query.getProfileUuids(),
-      partition -> mapper(dbSession).countActiveRulesByQuery(query.getOrganization().getUuid(), partition, query.getRuleStatus(), query.getInheritance())));
+      partition -> mapper(dbSession).countActiveRulesByQuery(partition, query.getRuleStatus(), query.getInheritance())));
   }
 
   public void scrollAllForIndexing(DbSession dbSession, Consumer<IndexedActiveRuleDto> consumer) {

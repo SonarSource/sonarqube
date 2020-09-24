@@ -80,7 +80,6 @@ public class IssueUpdaterTest {
   public EsTester es = EsTester.create();
 
   private DbClient dbClient = db.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private NotificationManager notificationManager = mock(NotificationManager.class);
@@ -90,7 +89,7 @@ public class IssueUpdaterTest {
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private IssueUpdater underTest = new IssueUpdater(dbClient,
-    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), issueIndexer, new SequenceUuidFactory()), notificationManager,
+    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient), issueIndexer, new SequenceUuidFactory()), notificationManager,
     issueChangePostProcessor, issuesChangesSerializer);
 
   @Test

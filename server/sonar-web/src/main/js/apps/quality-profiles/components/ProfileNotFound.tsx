@@ -20,17 +20,13 @@
 import * as React from 'react';
 import { IndexLink } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { getProfilesPath } from '../utils';
+import { PROFILE_PATH } from '../utils';
 
-interface Props {
-  organization: string | null;
-}
-
-export default function ProfileNotFound(props: Props) {
+export default function ProfileNotFound() {
   return (
     <div className="quality-profile-not-found">
       <div className="note spacer-bottom">
-        <IndexLink className="text-muted" to={getProfilesPath(props.organization)}>
+        <IndexLink className="text-muted" to={PROFILE_PATH}>
           {translate('quality_profiles.page')}
         </IndexLink>
       </div>

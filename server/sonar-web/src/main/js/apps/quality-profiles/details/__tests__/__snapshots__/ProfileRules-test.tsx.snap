@@ -84,7 +84,7 @@ exports[`should show a button to activate more rules for admins 1`] = `
   style={Object {}}
   to={
     Object {
-      "pathname": "/organizations/foo/rules",
+      "pathname": "/coding_rules",
       "query": Object {
         "activation": "false",
         "qprofile": "key",

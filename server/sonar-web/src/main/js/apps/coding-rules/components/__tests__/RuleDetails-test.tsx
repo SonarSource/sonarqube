@@ -91,7 +91,6 @@ it('should correctly handle tag changes', async () => {
 
   expect(updateRule).toHaveBeenCalledWith({
     key: 'squid:S1337',
-    organization: undefined,
     tags: 'foo,bar'
   });
 });
@@ -160,7 +159,6 @@ function shallowRender(props: Partial<RuleDetails['props']> = {}) {
       onDeactivate={jest.fn()}
       onDelete={jest.fn()}
       onFilterChange={jest.fn()}
-      organization={undefined}
       referencedProfiles={{ key: profile }}
       referencedRepositories={{
         javascript: { key: 'javascript', language: 'js', name: 'SonarAnalyzer' }

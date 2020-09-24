@@ -408,15 +408,6 @@ public class RuleDto {
     }
   }
 
-  public String getOrganizationUuid() {
-    return metadata.getOrganizationUuid();
-  }
-
-  public RuleDto setOrganizationUuid(String organizationUuid) {
-    metadata.setOrganizationUuid(organizationUuid);
-    return this;
-  }
-
   @CheckForNull
   public String getNoteData() {
     return metadata.getNoteData();

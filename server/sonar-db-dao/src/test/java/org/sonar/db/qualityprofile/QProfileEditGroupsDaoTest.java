@@ -21,11 +21,10 @@ package org.sonar.db.qualityprofile;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Arrays.asList;
@@ -52,11 +51,10 @@ public class QProfileEditGroupsDaoTest {
 
   @Test
   public void exists() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
-    QProfileDto anotherProfile = db.qualityProfiles().insert(organization);
-    GroupDto group = db.users().insertGroup(organization);
-    GroupDto anotherGroup = db.users().insertGroup(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
+    QProfileDto anotherProfile = db.qualityProfiles().insert();
+    GroupDto group = db.users().insertGroup();
+    GroupDto anotherGroup = db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile, group);
 
     assertThat(underTest.exists(db.getSession(), profile, group)).isTrue();
@@ -70,28 +68,24 @@ public class QProfileEditGroupsDaoTest {
 
   @Test
   public void countByQuery() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
-    GroupDto group1 = db.users().insertGroup(organization);
-    GroupDto group2 = db.users().insertGroup(organization);
-    GroupDto group3 = db.users().insertGroup(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    GroupDto group3 = db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile, group1);
     db.qualityProfiles().addGroupPermission(profile, group2);
 
     assertThat(underTest.countByQuery(db.getSession(), builder()
-      .setOrganization(organization)
       .setProfile(profile)
       .setMembership(ANY).build()))
       .isEqualTo(3);
 
     assertThat(underTest.countByQuery(db.getSession(), builder()
-      .setOrganization(organization)
       .setProfile(profile)
       .setMembership(IN).build()))
       .isEqualTo(2);
 
     assertThat(underTest.countByQuery(db.getSession(), builder()
-      .setOrganization(organization)
       .setProfile(profile)
       .setMembership(OUT).build()))
       .isEqualTo(1);
@@ -99,16 +93,14 @@ public class QProfileEditGroupsDaoTest {
 
   @Test
   public void selectByQuery() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
-    GroupDto group1 = db.users().insertGroup(organization);
-    GroupDto group2 = db.users().insertGroup(organization);
-    GroupDto group3 = db.users().insertGroup(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
+    GroupDto group3 = db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile, group1);
     db.qualityProfiles().addGroupPermission(profile, group2);
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-      .setOrganization(organization)
       .setProfile(profile)
       .setMembership(ANY).build(), Pagination.all()))
       .extracting(GroupMembershipDto::getGroupUuid, GroupMembershipDto::isSelected)
@@ -118,7 +110,6 @@ public class QProfileEditGroupsDaoTest {
         tuple(group3.getUuid(), false));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-        .setOrganization(organization)
         .setProfile(profile)
         .setMembership(IN).build(),
       Pagination.all()))
@@ -126,7 +117,6 @@ public class QProfileEditGroupsDaoTest {
       .containsExactlyInAnyOrder(tuple(group1.getUuid(), true), tuple(group2.getUuid(), true));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-        .setOrganization(organization)
         .setProfile(profile)
         .setMembership(OUT).build(),
       Pagination.all()))
@@ -136,17 +126,15 @@ public class QProfileEditGroupsDaoTest {
 
   @Test
   public void selectByQuery_search_by_name() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
-    GroupDto group1 = db.users().insertGroup(organization, "sonar-users-project");
-    GroupDto group2 = db.users().insertGroup(organization, "sonar-users-qprofile");
-    GroupDto group3 = db.users().insertGroup(organization, "sonar-admin");
+    QProfileDto profile = db.qualityProfiles().insert();
+    GroupDto group1 = db.users().insertGroup("sonar-users-project");
+    GroupDto group2 = db.users().insertGroup("sonar-users-qprofile");
+    GroupDto group3 = db.users().insertGroup("sonar-admin");
     db.qualityProfiles().addGroupPermission(profile, group1);
     db.qualityProfiles().addGroupPermission(profile, group2);
     db.qualityProfiles().addGroupPermission(profile, group3);
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-        .setOrganization(organization)
         .setProfile(profile)
         .setMembership(IN)
         .setQuery("project").build(),
@@ -155,7 +143,6 @@ public class QProfileEditGroupsDaoTest {
       .containsExactlyInAnyOrder(group1.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-        .setOrganization(organization)
         .setProfile(profile)
         .setMembership(IN)
         .setQuery("UserS").build(),
@@ -166,16 +153,14 @@ public class QProfileEditGroupsDaoTest {
 
   @Test
   public void selectByQuery_with_paging() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
-    GroupDto group1 = db.users().insertGroup(organization, "group1");
-    GroupDto group2 = db.users().insertGroup(organization, "group2");
-    GroupDto group3 = db.users().insertGroup(organization, "group3");
+    QProfileDto profile = db.qualityProfiles().insert();
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
+    GroupDto group3 = db.users().insertGroup("group3");
     db.qualityProfiles().addGroupPermission(profile, group1);
     db.qualityProfiles().addGroupPermission(profile, group2);
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-        .setOrganization(organization)
         .setProfile(profile)
         .setMembership(ANY)
         .build(),
@@ -184,7 +169,6 @@ public class QProfileEditGroupsDaoTest {
       .containsExactly(group1.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-        .setOrganization(organization)
         .setProfile(profile)
         .setMembership(ANY)
         .build(),
@@ -193,7 +177,6 @@ public class QProfileEditGroupsDaoTest {
       .containsExactly(group3.getUuid());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
-        .setOrganization(organization)
         .setProfile(profile)
         .setMembership(ANY)
         .build(),
@@ -203,27 +186,21 @@ public class QProfileEditGroupsDaoTest {
   }
 
   @Test
-  public void selectQProfileUuidsByOrganizationAndGroups() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    QProfileDto profile1 = db.qualityProfiles().insert(organization);
-    QProfileDto profile2 = db.qualityProfiles().insert(organization);
-    QProfileDto anotherProfile = db.qualityProfiles().insert(anotherOrganization);
-    GroupDto group1 = db.users().insertGroup(organization, "group1");
-    GroupDto group2 = db.users().insertGroup(organization, "group2");
-    GroupDto group3 = db.users().insertGroup(organization, "group3");
+  public void selectQProfileUuidsByGroups() {
+    QProfileDto profile1 = db.qualityProfiles().insert();
+    QProfileDto profile2 = db.qualityProfiles().insert();
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
+    GroupDto group3 = db.users().insertGroup("group3");
     db.qualityProfiles().addGroupPermission(profile1, group1);
     db.qualityProfiles().addGroupPermission(profile1, group2);
     db.qualityProfiles().addGroupPermission(profile2, group2);
-    db.qualityProfiles().addGroupPermission(anotherProfile, group1);
-    db.qualityProfiles().addGroupPermission(anotherProfile, group3);
 
-    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), organization, asList(group1, group2)))
-      .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee())
-      .doesNotContain(anotherProfile.getKee());
-    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), organization, asList(group1, group2, group3)))
+    assertThat(underTest.selectQProfileUuidsByGroups(db.getSession(), asList(group1, group2)))
       .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee());
-    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), organization, emptyList())).isEmpty();
+    assertThat(underTest.selectQProfileUuidsByGroups(db.getSession(), asList(group1, group2, group3)))
+      .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee());
+    assertThat(underTest.selectQProfileUuidsByGroups(db.getSession(),emptyList())).isEmpty();
   }
 
   @Test
@@ -234,7 +211,8 @@ public class QProfileEditGroupsDaoTest {
       .setQProfileUuid("QPROFILE")
     );
 
-    assertThat(db.selectFirst(db.getSession(), "select uuid as \"uuid\", group_uuid as \"groupUuid\", qprofile_uuid as \"qProfileUuid\", created_at as \"createdAt\" from qprofile_edit_groups")).contains(
+    assertThat(db.selectFirst(db.getSession(),
+      "select uuid as \"uuid\", group_uuid as \"groupUuid\", qprofile_uuid as \"qProfileUuid\", created_at as \"createdAt\" from qprofile_edit_groups")).contains(
       entry("uuid", "ABCD"),
       entry("groupUuid", "100"),
       entry("qProfileUuid", "QPROFILE"),
@@ -243,9 +221,8 @@ public class QProfileEditGroupsDaoTest {
 
   @Test
   public void deleteByQProfileAndGroup() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
-    GroupDto group = db.users().insertGroup(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
+    GroupDto group = db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile, group);
     assertThat(underTest.exists(db.getSession(), profile, group)).isTrue();
 
@@ -256,48 +233,38 @@ public class QProfileEditGroupsDaoTest {
 
   @Test
   public void deleteByQProfiles() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    QProfileDto profile1 = db.qualityProfiles().insert(organization);
-    QProfileDto profile2 = db.qualityProfiles().insert(organization);
-    QProfileDto profile3 = db.qualityProfiles().insert(organization);
-    QProfileDto anotherProfile = db.qualityProfiles().insert(anotherOrganization);
-    GroupDto group1 = db.users().insertGroup(organization);
-    GroupDto group2 = db.users().insertGroup(organization);
+    QProfileDto profile1 = db.qualityProfiles().insert();
+    QProfileDto profile2 = db.qualityProfiles().insert();
+    QProfileDto profile3 = db.qualityProfiles().insert();
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile1, group1);
     db.qualityProfiles().addGroupPermission(profile2, group2);
     db.qualityProfiles().addGroupPermission(profile3, group1);
-    db.qualityProfiles().addGroupPermission(anotherProfile, group1);
 
     underTest.deleteByQProfiles(db.getSession(), asList(profile1, profile2));
 
     assertThat(underTest.exists(db.getSession(), profile1, group1)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile2, group2)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile3, group1)).isTrue();
-    assertThat(underTest.exists(db.getSession(), anotherProfile, group1)).isTrue();
   }
 
   @Test
   public void deleteByGroup() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    QProfileDto profile1 = db.qualityProfiles().insert(organization);
-    QProfileDto profile2 = db.qualityProfiles().insert(organization);
-    QProfileDto profile3 = db.qualityProfiles().insert(organization);
-    QProfileDto anotherProfile = db.qualityProfiles().insert(anotherOrganization);
-    GroupDto group1 = db.users().insertGroup(organization);
-    GroupDto group2 = db.users().insertGroup(organization);
+    QProfileDto profile1 = db.qualityProfiles().insert();
+    QProfileDto profile2 = db.qualityProfiles().insert();
+    QProfileDto profile3 = db.qualityProfiles().insert();
+    GroupDto group1 = db.users().insertGroup();
+    GroupDto group2 = db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile1, group1);
     db.qualityProfiles().addGroupPermission(profile2, group2);
     db.qualityProfiles().addGroupPermission(profile3, group1);
-    db.qualityProfiles().addGroupPermission(anotherProfile, group1);
 
     underTest.deleteByGroup(db.getSession(), group1);
 
     assertThat(underTest.exists(db.getSession(), profile1, group1)).isFalse();
     assertThat(underTest.exists(db.getSession(), profile2, group2)).isTrue();
     assertThat(underTest.exists(db.getSession(), profile3, group1)).isFalse();
-    assertThat(underTest.exists(db.getSession(), anotherProfile, group1)).isFalse();
   }
 
 }

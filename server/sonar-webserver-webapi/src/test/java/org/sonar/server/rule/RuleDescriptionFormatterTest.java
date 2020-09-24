@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;

@@ -27,7 +27,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
@@ -41,10 +40,12 @@ import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 public class QualityProfileDbTester {
   private final DbClient dbClient;
   private final DbSession dbSession;
+  private final DbTester dbTester;
 
   public QualityProfileDbTester(DbTester dbTester) {
     this.dbClient = dbTester.getDbClient();
     this.dbSession = dbTester.getSession();
+    this.dbTester = dbTester;
   }
 
   public Optional<QProfileDto> selectByUuid(String uuid) {
@@ -54,17 +55,17 @@ public class QualityProfileDbTester {
   /**
    * Create a profile with random field values on the specified organization.
    */
-  public QProfileDto insert(OrganizationDto organization) {
-    return insert(organization, c -> {
+  public QProfileDto insert() {
+    return insert(c -> {
     });
   }
 
+
   /**
-   * Create a profile with random field values on the specified organization.
+   * Create a profile with random field values
    */
-  public QProfileDto insert(OrganizationDto organization, Consumer<QProfileDto> consumer) {
-    QProfileDto profile = QualityProfileTesting.newQualityProfileDto()
-      .setOrganizationUuid(organization.getUuid());
+  public QProfileDto insert(Consumer<QProfileDto> consumer) {
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto();
     consumer.accept(profile);
 
     dbClient.qualityProfileDao().insert(dbSession, profile);
@@ -107,7 +108,7 @@ public class QualityProfileDbTester {
   public QualityProfileDbTester setAsDefault(QProfileDto profile, QProfileDto... others) {
     dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
     for (QProfileDto other : others) {
-      dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(other));
+      dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from( other));
     }
     dbSession.commit();
     return this;

@@ -145,10 +145,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
   render() {
     const { organization, profile } = this.props;
     const { compareToSonarWay } = this.state;
-    const activateMoreUrl = getRulesUrl(
-      { qprofile: profile.key, activation: 'false' },
-      organization
-    );
+    const activateMoreUrl = getRulesUrl({ qprofile: profile.key, activation: 'false' });
     const { actions = {} } = profile;
 
     return (

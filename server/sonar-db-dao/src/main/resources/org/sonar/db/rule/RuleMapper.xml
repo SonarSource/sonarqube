@@ -58,7 +58,6 @@
   <sql id="outerJoinRulesMetadata">
     left outer join rules_metadata rm on
       rm.rule_uuid = r.uuid
-      and rm.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </sql>
 
   <select id="selectAll" resultType="Rule">
@@ -152,13 +151,8 @@
     <include refid="sqlSelectIndexingRuleExtensions" />
     and
     <foreach collection="ruleExtensionIds" index="index" item="ruleExtId" open="" separator=" or " close="">
-      ( r.uuid = #{ruleExtId.ruleUuid, jdbcType=VARCHAR} and
-      rm.organization_uuid = #{ruleExtId.organizationUuid, jdbcType=VARCHAR} )
+      ( r.uuid = #{ruleExtId, jdbcType=VARCHAR} )
     </foreach>
-  </select>
-
-  <select id="scrollIndexingRuleExtensions" resultType="org.sonar.db.rule.RuleExtensionForIndexingDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-    <include refid="sqlSelectIndexingRuleExtensions" />
   </select>
 
   <sql id="sqlSelectIndexingRuleExtensions">
@@ -166,7 +160,6 @@
       r.uuid as "ruleUuid",
       r.plugin_name as "pluginName",
       r.plugin_rule_key as "pluginRuleKey",
-      rm.organization_uuid as "organizationUuid",
       rm.tags as "tags"
     from rules r
     inner join rules_metadata rm on rm.rule_uuid = r.uuid
@@ -180,7 +173,6 @@
       r.uuid as "ruleUuid",
       r.plugin_name as "pluginName",
       r.plugin_rule_key as "pluginRuleKey",
-      rm.organization_uuid as "organizationUuid",
       rm.tags as "tags"
     from rules r
     inner join rules_metadata rm on rm.rule_uuid = r.uuid
@@ -191,7 +183,6 @@
   <select id="selectMetadataByKey" parameterType="map" resultType="org.sonar.db.rule.RuleMetadataDto">
     select
       rm.rule_uuid as "ruleUuid",
-      rm.organization_uuid as "organizationUuid",
       rm.note_data as "noteData",
       rm.note_user_uuid as "noteUserUuid",
       rm.note_created_at as "noteCreatedAt",
@@ -212,7 +203,6 @@
     where
       r.plugin_name=#{ruleKey.repository,jdbcType=VARCHAR}
       and r.plugin_rule_key=#{ruleKey.rule,jdbcType=VARCHAR}
-      and rm.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectByKeys" parameterType="map" resultType="Rule">
@@ -272,9 +262,11 @@
       r.language as "language",
       r.rule_type as "type",
       r.created_at as "createdAt",
-      r.updated_at as "updatedAt"
+      r.updated_at as "updatedAt",
+      rm.tags as "tags"
     from rules r
     left outer join rules t on t.uuid = r.template_uuid
+    left outer join rules_metadata rm on r.uuid = rm.rule_uuid
   </sql>
 
   <select id="selectByQuery" parameterType="map" resultType="Rule">
@@ -403,13 +395,11 @@
       rules_metadata rm
     where
       rm.rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
-      and rm.organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </select>
 
   <insert id="insertMetadata" parameterType="org.sonar.db.rule.RuleMetadataDto">
     insert into rules_metadata (
       rule_uuid,
-      organization_uuid,
       note_data,
       note_user_uuid,
       note_created_at,
@@ -427,7 +417,6 @@
     )
     values (
       #{ruleUuid,jdbcType=VARCHAR},
-      #{organizationUuid,jdbcType=VARCHAR},
       #{noteData,jdbcType=CLOB},
       #{noteUserUuid,jdbcType=VARCHAR},
       #{noteCreatedAt,jdbcType=BIGINT},
@@ -462,7 +451,6 @@
       updated_at=#{updatedAt,jdbcType=BIGINT}
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
-      and organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteParams" parameterType="String">

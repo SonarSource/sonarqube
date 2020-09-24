@@ -32,7 +32,7 @@ public interface QProfileEditUsersMapper {
 
   List<UserMembershipDto> selectByQuery(@Param("query") SearchUsersQuery query, @Param("pagination") Pagination pagination);
 
-  List<String> selectQProfileUuidsByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
+  List<String> selectQProfileUuidsByUser(@Param("userUuid") String userUuid);
 
   void insert(@Param("dto") QProfileEditUsersDto dto, @Param("now") long now);
 
@@ -41,6 +41,4 @@ public interface QProfileEditUsersMapper {
   void deleteByQProfiles(@Param("qProfileUuids") Collection<String> qProfileUuids);
 
   void deleteByUser(@Param("userUuid") String userUuid);
-
-  void deleteByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
 }

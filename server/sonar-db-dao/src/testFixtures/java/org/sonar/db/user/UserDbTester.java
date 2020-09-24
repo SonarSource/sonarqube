@@ -146,6 +146,11 @@ public class UserDbTester {
     return insertGroup(group);
   }
 
+  public GroupDto insertGroup(String name) {
+    GroupDto group = GroupTesting.newGroupDto().setName(name).setOrganizationUuid(db.getDefaultOrganization().getUuid());
+    return insertGroup(group);
+  }
+
   /**
    * Create group in default organization
    */

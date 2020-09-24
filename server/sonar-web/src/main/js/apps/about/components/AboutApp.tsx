@@ -183,7 +183,7 @@ export class AboutApp extends React.PureComponent<Props, State> {
               <AboutQualityGates />
             </div>
             <div className="flex-column flex-column-half about-page-group-boxes">
-              <AboutStandards appState={this.props.appState} />
+              <AboutStandards />
             </div>
           </div>
 

@@ -49,7 +49,6 @@ it('should fetch issues and render', async () => {
   expect(wrapper).toMatchSnapshot();
   expect(getFacet).toBeCalledWith(
     {
-      organization: 'org',
       resolved: 'false',
       rules: 'foo'
     },
@@ -61,7 +60,6 @@ function shallowRender(props: Partial<RuleDetailsIssues['props']> = {}) {
   return shallow(
     <RuleDetailsIssues
       appState={{ branchesEnabled: false }}
-      organization="org"
       ruleDetails={{ key: 'foo', type: 'BUG' }}
       {...props}
     />

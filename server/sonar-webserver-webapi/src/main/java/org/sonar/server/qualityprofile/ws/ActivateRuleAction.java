@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.qualityprofile.QProfileRules;
@@ -101,8 +100,7 @@ public class ActivateRuleAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String profileKey = request.mandatoryParam(PARAM_KEY);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
-      wsSupport.checkCanEdit(dbSession, organization, profile);
+      wsSupport.checkCanEdit(dbSession, profile);
       RuleActivation activation = readActivation(dbSession, request);
       ruleActivator.activateAndCommit(dbSession, profile, singletonList(activation));
     }

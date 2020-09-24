@@ -20,7 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -30,7 +30,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
@@ -50,20 +49,17 @@ public class QProfileReference {
 
   private final Type type;
   private final String key;
-  private final String organizationKey;
   private final String language;
   private final String name;
 
-  private QProfileReference(Type type, @Nullable String key, @Nullable String organizationKey, @Nullable String language, @Nullable String name) {
+  private QProfileReference(Type type, @Nullable String key, @Nullable String language, @Nullable String name) {
     this.type = type;
     if (type == Type.KEY) {
       this.key = requireNonNull(key);
-      this.organizationKey = null;
       this.language = null;
       this.name = null;
     } else {
       this.key = null;
-      this.organizationKey = organizationKey;
       this.language = requireNonNull(language);
       this.name = requireNonNull(name);
     }
@@ -85,15 +81,6 @@ public class QProfileReference {
   public String getKey() {
     checkState(key != null, "Key is not defined. Please call hasKey().");
     return key;
-  }
-
-  /**
-   * @return key of organization. It is empty when {@link #hasKey()} is {@code true} or if {@link #hasKey()} is
-   * {@code false} and the default organization must be used.
-   */
-  public Optional<String> getOrganizationKey() {
-    checkState(type == Type.NAME, "Organization is not defined. Please call hasKey().");
-    return Optional.ofNullable(organizationKey);
   }
 
   /**
@@ -123,41 +110,26 @@ public class QProfileReference {
       return false;
     }
     QProfileReference that = (QProfileReference) o;
-    if (key != null ? !key.equals(that.key) : (that.key != null)) {
-      return false;
-    }
-    if (organizationKey != null ? !organizationKey.equals(that.organizationKey) : (that.organizationKey != null)) {
-      return false;
-    }
-    if (language != null ? !language.equals(that.language) : (that.language != null)) {
-      return false;
-    }
-    return name != null ? name.equals(that.name) : (that.name == null);
-
+    return Objects.equals(key, that.key) && Objects.equals(language, that.language) && Objects.equals(name, that.name);
   }
 
   @Override
   public int hashCode() {
-    int result = key != null ? key.hashCode() : 0;
-    result = 31 * result + (organizationKey != null ? organizationKey.hashCode() : 0);
-    result = 31 * result + (language != null ? language.hashCode() : 0);
-    result = 31 * result + (name != null ? name.hashCode() : 0);
-    return result;
+    return Objects.hash(key, language, name);
   }
 
   public static QProfileReference fromName(Request request) {
-    String organizationKey = request.param(PARAM_ORGANIZATION);
     String lang = request.mandatoryParam(PARAM_LANGUAGE);
     String name = request.mandatoryParam(PARAM_QUALITY_PROFILE);
-    return fromName(organizationKey, lang, name);
+    return fromName(lang, name);
   }
 
   public static QProfileReference fromKey(String key) {
-    return new QProfileReference(Type.KEY, key, null, null, null);
+    return new QProfileReference(Type.KEY, key, null, null);
   }
 
-  public static QProfileReference fromName(@Nullable String organizationKey, String lang, String name) {
-    return new QProfileReference(Type.NAME, null, organizationKey, requireNonNull(lang), requireNonNull(name));
+  public static QProfileReference fromName(String lang, String name) {
+    return new QProfileReference(Type.NAME, null, requireNonNull(lang), requireNonNull(name));
   }
 
   public static void defineParams(WebService.NewAction action, Languages languages) {

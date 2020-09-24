@@ -79,7 +79,6 @@ class ComparisonContainer extends React.PureComponent<Props, State> {
     const path = getProfileComparePath(
       this.props.profile.name,
       this.props.profile.language,
-      this.props.organization,
       withKey
     );
     this.props.router.push(path);

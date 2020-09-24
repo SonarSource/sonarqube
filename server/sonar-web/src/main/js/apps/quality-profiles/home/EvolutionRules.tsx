@@ -97,10 +97,7 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const newRulesUrl = getRulesUrl(
-      { available_since: this.periodStartDate },
-      this.props.organization
-    );
+    const newRulesUrl = getRulesUrl({ available_since: this.periodStartDate });
 
     return (
       <div className="boxed-group boxed-group-inner quality-profiles-evolution-rules">
@@ -111,9 +108,7 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
           {this.state.latestRules.map(rule => (
             <li className="spacer-top" key={rule.key}>
               <div className="text-ellipsis">
-                <Link
-                  className="link-no-underline"
-                  to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}>
+                <Link className="link-no-underline" to={getRulesUrl({ rule_key: rule.key })}>
                   {' '}
                   {rule.name}
                 </Link>

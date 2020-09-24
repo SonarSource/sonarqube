@@ -61,7 +61,7 @@ public class RuleIndexDefinitionTest {
       .isEqualTo(IndexType.main(Index.withRelations("rules"), "rule"));
     assertThat(ruleIndex.getRelationsStream())
       .extracting(IndexType.IndexRelationType::getName)
-      .containsOnly("activeRule", "ruleExtension");
+      .containsOnly("activeRule");
 
     // no cluster by default
     assertThat(ruleIndex.getSetting("index.number_of_shards")).isEqualTo("2");

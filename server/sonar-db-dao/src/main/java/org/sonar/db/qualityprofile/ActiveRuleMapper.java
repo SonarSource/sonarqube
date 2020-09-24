@@ -45,11 +45,11 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);
 
-  List<OrgActiveRuleDto> selectByRuleUuid(@Param("organizationUuid") String organizationUuid, @Param("ruleUuid") String ruleUuid);
+  List<OrgActiveRuleDto> selectOrgByRuleUuid(@Param("ruleUuid") String ruleUuid);
 
-  List<ActiveRuleDto> selectByRuleUuidOfAllOrganizations(String ruleUuid);
+  List<ActiveRuleDto> selectByRuleUuid(String ruleUuid);
 
-  List<OrgActiveRuleDto> selectByRuleUuids(@Param("organizationUuid") String organizationUuid, @Param("ruleUuids") List<String> partitionOfRuleUuids);
+  List<OrgActiveRuleDto> selectByRuleUuids(@Param("ruleUuids") List<String> partitionOfRuleUuids);
 
   List<OrgActiveRuleDto> selectByProfileUuid(String uuid);
 
@@ -77,7 +77,7 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleUuids(@Param("uuids") List<String> uuids);
 
-  List<KeyLongValue> countActiveRulesByQuery(@Param("organizationUuid") String organizationUuid, @Param("profileUuids") List<String> profileUuids,
+  List<KeyLongValue> countActiveRulesByQuery(@Param("profileUuids") List<String> profileUuids,
     @Nullable @Param("ruleStatus") RuleStatus ruleStatus, @Param("inheritance") String inheritance);
 
   void scrollAllForIndexing(ResultHandler<IndexedActiveRuleDto> handler);

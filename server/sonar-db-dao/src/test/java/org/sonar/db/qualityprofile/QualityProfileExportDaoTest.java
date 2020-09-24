@@ -75,15 +75,12 @@ public class QualityProfileExportDaoTest {
     RuleDefinitionDto customRule = createRule(language, RuleStatus.READY, ruleTemplate.getUuid());
     RuleMetadataDto customRuleMetadata = createRuleMetadata(new RuleMetadataDto()
       .setRuleUuid(customRule.getUuid())
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setNoteData("Extended description")
       .setTags(Sets.newHashSet("tag1", "tag2", "tag3")));
 
     RuleDefinitionDto rule = createRule(language, RuleStatus.READY, null);
     RuleMetadataDto ruleMetadata = createRuleMetadata(new RuleMetadataDto()
-      .setRuleUuid(rule.getUuid())
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid()));
-
+      .setRuleUuid(rule.getUuid()));
     QProfileDto profile = createProfile(language);
 
     List<ActiveRuleDto> activeRules = activate(profile, customRule, rule);
@@ -225,7 +222,7 @@ public class QualityProfileExportDaoTest {
   }
 
   private QProfileDto createProfile(String lanugage) {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(lanugage));
+    return db.qualityProfiles().insert(p -> p.setLanguage(lanugage));
   }
 
   private List<ActiveRuleDto> activate(QProfileDto profile, RuleDefinitionDto... rules) {

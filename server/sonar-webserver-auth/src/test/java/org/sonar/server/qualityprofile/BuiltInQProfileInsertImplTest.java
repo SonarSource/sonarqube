@@ -33,7 +33,6 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -41,7 +40,6 @@ import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.util.TypeValidations;
 
@@ -54,7 +52,7 @@ public class BuiltInQProfileInsertImplTest {
   @Rule
   public BuiltInQProfileRepositoryRule builtInQProfileRepository = new BuiltInQProfileRepositoryRule();
   @Rule
-  public DbTester db = DbTester.create().setDisableDefaultOrganization(true);
+  public DbTester db = DbTester.create();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -72,31 +70,7 @@ public class BuiltInQProfileInsertImplTest {
   }
 
   @Test
-  public void insert_single_row_in_RULES_PROFILES_and_reference_it_in_ORG_QPROFILES() {
-    OrganizationDto org1 = db.organizations().insert();
-    OrganizationDto org2 = db.organizations().insert();
-    BuiltInQProfile builtIn = builtInQProfileRepository.create(LanguageTesting.newLanguage("xoo"), "the name", false);
-
-    call(builtIn);
-
-    verifyTableSize("org_qprofiles", 2);
-    verifyTableSize("rules_profiles", 1);
-    verifyTableSize("active_rules", 0);
-    verifyTableSize("active_rule_parameters", 0);
-    verifyTableSize("qprofile_changes", 0);
-    verifyTableSize("project_qprofiles", 0);
-
-    QProfileDto profileOnOrg1 = verifyProfileInDb(org1, builtIn);
-    QProfileDto profileOnOrg2 = verifyProfileInDb(org2, builtIn);
-
-    // same row in table rules_profiles is used
-    assertThat(profileOnOrg1.getKee()).isNotEqualTo(profileOnOrg2.getKee());
-    assertThat(profileOnOrg1.getRulesProfileUuid()).isEqualTo(profileOnOrg2.getRulesProfileUuid());
-  }
-
-  @Test
   public void insert_active_rules_and_changelog() {
-    OrganizationDto org = db.organizations().insert();
     RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("xoo"));
     RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("xoo"));
 
@@ -115,14 +89,13 @@ public class BuiltInQProfileInsertImplTest {
     verifyTableSize("active_rule_parameters", 0);
     verifyTableSize("qprofile_changes", 2);
 
-    QProfileDto profile = verifyProfileInDb(org, builtIn);
+    QProfileDto profile = verifyProfileInDb(builtIn);
     verifyActiveRuleInDb(profile, rule1, Severity.CRITICAL);
     verifyActiveRuleInDb(profile, rule2, Severity.MAJOR);
   }
 
   @Test
-  public void flag_profile_as_default_on_organization_if_declared_as_default_by_api() {
-    OrganizationDto org = db.organizations().insert();
+  public void flag_profile_as_default_if_declared_as_default_by_api() {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo").setDefault(true);
     newQp.done();
@@ -131,31 +104,29 @@ public class BuiltInQProfileInsertImplTest {
 
     call(builtIn);
 
-    QProfileDto profile = verifyProfileInDb(org, builtIn);
-    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, org, "xoo");
+    QProfileDto profile = verifyProfileInDb(builtIn);
+    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, "xoo");
     assertThat(defaultProfile.getKee()).isEqualTo(profile.getKee());
   }
 
   @Test
-  public void existing_default_profile_in_organization_must_not_be_changed() {
+  public void existing_default_profile_must_not_be_changed() {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo").setDefault(true);
     newQp.done();
     BuiltInQProfile builtIn = builtInQProfileRepository.create(context.profile("xoo", "the name"));
 
-    OrganizationDto org = db.organizations().insert();
-    QProfileDto currentDefault = db.qualityProfiles().insert(org, p -> p.setLanguage("xoo"));
+    QProfileDto currentDefault = db.qualityProfiles().insert(p -> p.setLanguage("xoo"));
     db.qualityProfiles().setAsDefault(currentDefault);
 
     call(builtIn);
 
-    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, org, "xoo");
+    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, "xoo");
     assertThat(defaultProfile.getKee()).isEqualTo(currentDefault.getKee());
   }
 
   @Test
-  public void dont_flag_profile_as_default_on_organization_if_not_declared_as_default_by_api() {
-    OrganizationDto org = db.organizations().insert();
+  public void dont_flag_profile_as_default_if_not_declared_as_default_by_api() {
     BuiltInQualityProfilesDefinition.Context context = new BuiltInQualityProfilesDefinition.Context();
     NewBuiltInQualityProfile newQp = context.createBuiltInQualityProfile("the name", "xoo").setDefault(false);
     newQp.done();
@@ -163,7 +134,7 @@ public class BuiltInQProfileInsertImplTest {
 
     call(builtIn);
 
-    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, org, "xoo");
+    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, "xoo");
     assertThat(defaultProfile).isNull();
   }
 
@@ -197,11 +168,10 @@ public class BuiltInQProfileInsertImplTest {
     assertThat(change.getDataAsMap().get("severity")).isEqualTo(expectedSeverity);
   }
 
-  private QProfileDto verifyProfileInDb(OrganizationDto organization, BuiltInQProfile builtIn) {
-    QProfileDto profileOnOrg1 = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(dbSession, organization, builtIn.getName(), builtIn.getLanguage());
+  private QProfileDto verifyProfileInDb(BuiltInQProfile builtIn) {
+    QProfileDto profileOnOrg1 = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(dbSession, builtIn.getName(), builtIn.getLanguage());
     assertThat(profileOnOrg1.getLanguage()).isEqualTo(builtIn.getLanguage());
     assertThat(profileOnOrg1.getName()).isEqualTo(builtIn.getName());
-    assertThat(profileOnOrg1.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(profileOnOrg1.getParentKee()).isNull();
     assertThat(profileOnOrg1.getLastUsed()).isNull();
     assertThat(profileOnOrg1.getUserUpdatedAt()).isNull();

@@ -103,13 +103,13 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   @Override
-  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
+  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, @Nullable String overriddenProfileName) {
     return restore(dbSession, backup, nameInBackup -> {
       QProfileName targetName = nameInBackup;
       if (overriddenProfileName != null) {
         targetName = new QProfileName(nameInBackup.getLanguage(), overriddenProfileName);
       }
-      return profileFactory.getOrCreateCustom(dbSession, organization, targetName);
+      return profileFactory.getOrCreateCustom(dbSession, targetName);
     });
   }
 

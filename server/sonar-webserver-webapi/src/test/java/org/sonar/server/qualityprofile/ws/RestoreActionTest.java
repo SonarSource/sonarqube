@@ -34,7 +34,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -78,13 +77,10 @@ public class RestoreActionTest {
     assertThat(definition.description()).isNotEmpty();
 
     // parameters
-    assertThat(definition.params()).hasSize(2);
+    assertThat(definition.params()).hasSize(1);
     WebService.Param backupParam = definition.param("backup");
     assertThat(backupParam.isRequired()).isTrue();
     assertThat(backupParam.since()).isNull();
-    WebService.Param orgParam = definition.param("organization");
-    assertThat(orgParam.isRequired()).isFalse();
-    assertThat(orgParam.since()).isEqualTo("6.4");
   }
 
   @Test
@@ -96,7 +92,6 @@ public class RestoreActionTest {
     assertThat(backuper.restoredSummary.getProfile().getName()).isEqualTo("the-name-in-backup");
     JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
       "  \"profile\": {" +
-      "    \"organization\": \"" + db.getDefaultOrganization().getKey() + "\"," +
       "    \"name\": \"the-name-in-backup\"," +
       "    \"language\": \"xoo\"," +
       "    \"languageName\": \"Xoo\"," +
@@ -110,7 +105,7 @@ public class RestoreActionTest {
 
   @Test
   public void profile_is_restored_on_specified_organization_with_the_name_provided_in_backup() {
-    OrganizationDto org = db.organizations().insert();
+    OrganizationDto org = db.organizations().getDefaultOrganization();
     logInAsQProfileAdministrator(org);
     TestResponse response = restore("<backup/>", org.getKey());
 
@@ -118,7 +113,6 @@ public class RestoreActionTest {
     assertThat(backuper.restoredSummary.getProfile().getName()).isEqualTo("the-name-in-backup");
     JsonAssert.assertJson(response.getInput()).isSimilarTo("{" +
       "  \"profile\": {" +
-      "    \"organization\": \"" + org.getKey() + "\"," +
       "    \"name\": \"the-name-in-backup\"," +
       "    \"language\": \"xoo\"," +
       "    \"languageName\": \"Xoo\"," +
@@ -151,27 +145,6 @@ public class RestoreActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     restore("<backup/>", null);
-  }
-
-  @Test
-  public void throw_ForbiddenException_if_not_profile_administrator_of_specified_organization() {
-    OrganizationDto org = db.organizations().insert();
-    logInAsQProfileAdministrator(db.getDefaultOrganization());
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    restore("<backup/>", org.getKey());
-  }
-
-  @Test
-  public void throw_NotFoundException_if_specified_organization_does_not_exist() {
-    userSession.logIn();
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No organization with key 'missing'");
-
-    restore("<backup/>", "missing");
   }
 
   @Test
@@ -211,7 +184,7 @@ public class RestoreActionTest {
     }
 
     @Override
-    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, OrganizationDto organization, @Nullable String overriddenProfileName) {
+    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, @Nullable String overriddenProfileName) {
       if (restoredSummary != null) {
         throw new IllegalStateException("Already restored");
       }

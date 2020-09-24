@@ -82,7 +82,6 @@ public class QualityprofilesService extends BaseService {
         .setParam("inheritance", request.getInheritance() == null ? null : request.getInheritance().stream().collect(Collectors.joining(",")))
         .setParam("is_template", request.getIsTemplate())
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))
-        .setParam("organization", request.getOrganization())
         .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
         .setParam("q", request.getQ())
         .setParam("qprofile", request.getQprofile())
@@ -114,7 +113,6 @@ public class QualityprofilesService extends BaseService {
       new PostRequest(path("add_group"))
         .setParam("group", request.getGroup())
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
     ).content();
@@ -131,7 +129,6 @@ public class QualityprofilesService extends BaseService {
     call(
       new PostRequest(path("add_project"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
@@ -150,7 +147,6 @@ public class QualityprofilesService extends BaseService {
       new PostRequest(path("add_user"))
         .setParam("language", request.getLanguage())
         .setParam("login", request.getLogin())
-        .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
     ).content();
@@ -167,7 +163,6 @@ public class QualityprofilesService extends BaseService {
     return call(
       new GetRequest(path("backup"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
     ).content();
@@ -184,7 +179,6 @@ public class QualityprofilesService extends BaseService {
     call(
       new PostRequest(path("change_parent"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("parentQualityProfile", request.getParentQualityProfile())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
@@ -202,7 +196,6 @@ public class QualityprofilesService extends BaseService {
     return call(
       new GetRequest(path("changelog"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("qualityProfile", request.getQualityProfile())
@@ -254,8 +247,7 @@ public class QualityprofilesService extends BaseService {
     return call(
       new PostRequest(path("create"))
         .setParam("language", request.getLanguage())
-        .setParam("name", request.getName())
-        .setParam("organization", request.getOrganization()),
+        .setParam("name", request.getName()),
       CreateWsResponse.parser());
   }
 
@@ -294,7 +286,6 @@ public class QualityprofilesService extends BaseService {
         .setParam("inheritance", request.getInheritance() == null ? null : request.getInheritance().stream().collect(Collectors.joining(",")))
         .setParam("is_template", request.getIsTemplate())
         .setParam("languages", request.getLanguages() == null ? null : request.getLanguages().stream().collect(Collectors.joining(",")))
-        .setParam("organization", request.getOrganization())
         .setParam("owaspTop10", request.getOwaspTop10() == null ? null : request.getOwaspTop10().stream().collect(Collectors.joining(",")))
         .setParam("q", request.getQ())
         .setParam("qprofile", request.getQprofile())
@@ -324,7 +315,6 @@ public class QualityprofilesService extends BaseService {
     call(
       new PostRequest(path("delete"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
     ).content();
@@ -341,7 +331,6 @@ public class QualityprofilesService extends BaseService {
     return call(
       new GetRequest(path("export"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
     ).content();
@@ -386,7 +375,6 @@ public class QualityprofilesService extends BaseService {
     return call(
       new GetRequest(path("inheritance"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile()),
       Qualityprofiles.InheritanceWsResponse.parser());
   }
@@ -422,7 +410,6 @@ public class QualityprofilesService extends BaseService {
       new PostRequest(path("remove_group"))
         .setParam("group", request.getGroup())
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
     ).content();
@@ -439,7 +426,6 @@ public class QualityprofilesService extends BaseService {
     call(
       new PostRequest(path("remove_project"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
@@ -458,7 +444,6 @@ public class QualityprofilesService extends BaseService {
       new PostRequest(path("remove_user"))
         .setParam("language", request.getLanguage())
         .setParam("login", request.getLogin())
-        .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
     ).content();
@@ -491,7 +476,6 @@ public class QualityprofilesService extends BaseService {
     call(
       new PostRequest(path("restore"))
         .setParam("backup", request.getBackup())
-        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)
     ).content();
   }
@@ -508,7 +492,6 @@ public class QualityprofilesService extends BaseService {
       new GetRequest(path("search"))
         .setParam("defaults", request.getDefaults())
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject())
         .setParam("qualityProfile", request.getQualityProfile()),
       SearchWsResponse.parser());
@@ -525,7 +508,6 @@ public class QualityprofilesService extends BaseService {
     return call(
       new GetRequest(path("search_groups"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
@@ -545,7 +527,6 @@ public class QualityprofilesService extends BaseService {
     return call(
       new GetRequest(path("search_users"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
@@ -565,7 +546,6 @@ public class QualityprofilesService extends BaseService {
     call(
       new PostRequest(path("set_default"))
         .setParam("language", request.getLanguage())
-        .setParam("organization", request.getOrganization())
         .setParam("qualityProfile", request.getQualityProfile())
         .setMediaType(MediaTypes.JSON)
     ).content();

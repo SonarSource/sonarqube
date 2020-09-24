@@ -40,6 +40,10 @@ public class OrganizationDbTester {
     this.db = db;
   }
 
+  public OrganizationDto getDefaultOrganization() {
+    return db.getDefaultOrganization();
+  }
+
   /**
    * Insert an {@link OrganizationDto} and commit the session
    */

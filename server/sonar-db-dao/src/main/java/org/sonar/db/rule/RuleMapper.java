@@ -25,31 +25,30 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.db.es.RuleExtensionId;
 
 public interface RuleMapper {
 
-  List<RuleDto> selectAll(@Param("organizationUuid") String organizationUuid);
+  List<RuleDto> selectAll();
 
   List<RuleDefinitionDto> selectAllDefinitions();
 
   void selectEnabled(ResultHandler<RuleDefinitionDto> resultHandler);
 
-  RuleDto selectByUuid(@Param("organizationUuid") String organizationUuid, @Param("uuid") String uuid);
+  RuleDto selectByUuid(@Param("uuid") String uuid);
 
   RuleDefinitionDto selectDefinitionByUuid(String uuid);
 
-  List<RuleDto> selectByUuids(@Param("organizationUuid") String organizationUuid, @Param("uuids") List<String> uuids);
+  List<RuleDto> selectByUuids(@Param("uuids") List<String> uuids);
 
   List<RuleDefinitionDto> selectDefinitionByUuids(@Param("uuids") List<String> uuids);
 
-  RuleDto selectByKey(@Param("organizationUuid") String organizationUuid, @Param("ruleKey") RuleKey ruleKey);
+  RuleDto selectByKey(@Param("ruleKey") RuleKey ruleKey);
 
   RuleDefinitionDto selectDefinitionByKey(RuleKey ruleKey);
 
-  RuleMetadataDto selectMetadataByKey(@Param("ruleKey") RuleKey ruleKey, @Param("organizationUuid") String organizationUuid);
+  RuleMetadataDto selectMetadataByKey(@Param("ruleKey") RuleKey ruleKey);
 
-  List<RuleDto> selectByKeys(@Param("organizationUuid") String organizationUuid, @Param("ruleKeys") List<RuleKey> keys);
+  List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
   List<RuleDefinitionDto> selectDefinitionByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
@@ -57,13 +56,11 @@ public interface RuleMapper {
 
   List<RuleForIndexingDto> selectIndexingRulesByUuids(@Param("ruleUuids") List<String> ruleUuids);
 
-  void scrollIndexingRuleExtensions(ResultHandler<RuleExtensionForIndexingDto> handler);
+  List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<String> ruleExtensionIds);
 
-  List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<RuleExtensionId> ruleExtensionIds);
+  List<RuleDto> selectByQuery(@Param("query") RuleQuery ruleQuery);
 
-  List<RuleDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") RuleQuery ruleQuery);
-
-  List<RuleDto> selectByTypeAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("types") List<Integer> types, @Param("languages") List<String> languages);
+  List<RuleDto> selectByTypeAndLanguages(@Param("types") List<Integer> types, @Param("languages") List<String> languages);
 
   void insertDefinition(RuleDefinitionDto ruleDefinitionDto);
 

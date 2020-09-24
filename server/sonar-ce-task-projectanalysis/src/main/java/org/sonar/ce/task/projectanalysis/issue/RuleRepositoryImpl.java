@@ -50,14 +50,12 @@ public class RuleRepositoryImpl implements RuleRepository {
 
   private final AdHocRuleCreator creator;
   private final DbClient dbClient;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
 
   private Map<RuleKey, NewAdHocRule> adHocRulesPersist = new HashMap<>();
 
-  public RuleRepositoryImpl(AdHocRuleCreator creator, DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
+  public RuleRepositoryImpl(AdHocRuleCreator creator, DbClient dbClient) {
     this.creator = creator;
     this.dbClient = dbClient;
-    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   public void addOrUpdateAddHocRuleIfNeeded(RuleKey ruleKey, Supplier<NewAdHocRule> ruleSupplier) {
@@ -79,7 +77,7 @@ public class RuleRepositoryImpl implements RuleRepository {
   }
 
   private void persistAndIndex(DbSession dbSession, NewAdHocRule adHocRule) {
-    Rule rule = new RuleImpl(creator.persistAndIndex(dbSession, adHocRule, analysisMetadataHolder.getOrganization().toDto()));
+    Rule rule = new RuleImpl(creator.persistAndIndex(dbSession, adHocRule));
     rulesByUuid.put(rule.getUuid(), rule);
     rulesByKey.put(adHocRule.getKey(), rule);
   }
@@ -135,10 +133,9 @@ public class RuleRepositoryImpl implements RuleRepository {
   private void loadRulesFromDb(DbSession dbSession) {
     this.rulesByKey = new HashMap<>();
     this.rulesByUuid = new HashMap<>();
-    String organizationUuid = analysisMetadataHolder.getOrganization().getUuid();
     Multimap<String, DeprecatedRuleKeyDto> deprecatedRuleKeysByRuleUuid = dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
       .collect(MoreCollectors.index(DeprecatedRuleKeyDto::getRuleUuid));
-    for (RuleDto ruleDto : dbClient.ruleDao().selectAll(dbSession, organizationUuid)) {
+    for (RuleDto ruleDto : dbClient.ruleDao().selectAll(dbSession)) {
       Rule rule = new RuleImpl(ruleDto);
       rulesByKey.put(ruleDto.getKey(), rule);
       rulesByUuid.put(ruleDto.getUuid(), rule);

@@ -99,7 +99,7 @@ public class QProfileRulesImpl implements QProfileRules {
   public List<ActiveRuleChange> deleteRule(DbSession dbSession, RuleDefinitionDto rule) {
     List<ActiveRuleChange> changes = new ArrayList<>();
     List<String> activeRuleUuids = new ArrayList<>();
-    db.activeRuleDao().selectByRuleUuidOfAllOrganizations(dbSession, rule.getUuid()).forEach(ar -> {
+    db.activeRuleDao().selectByRuleUuid(dbSession, rule.getUuid()).forEach(ar -> {
       activeRuleUuids.add(ar.getUuid());
       changes.add(new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, ar, rule));
     });

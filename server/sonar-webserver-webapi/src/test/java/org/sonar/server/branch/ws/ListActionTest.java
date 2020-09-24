@@ -47,7 +47,6 @@ import org.sonarqube.ws.ProjectBranches.Branch;
 import org.sonarqube.ws.ProjectBranches.ListWsResponse;
 
 import static java.lang.String.format;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;

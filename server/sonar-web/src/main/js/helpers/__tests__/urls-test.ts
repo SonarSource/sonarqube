@@ -29,7 +29,6 @@ import {
 
 const SIMPLE_COMPONENT_KEY = 'sonarqube';
 const COMPLEX_COMPONENT_KEY = 'org.sonarsource.sonarqube:sonarqube';
-const COMPLEX_COMPONENT_KEY_ENCODED = encodeURIComponent(COMPLEX_COMPONENT_KEY);
 const METRIC = 'coverage';
 
 describe('#getComponentIssuesUrl', () => {
@@ -119,19 +118,6 @@ describe('#getComponentDrilldownUrl', () => {
 describe('#getQualityGate(s)Url', () => {
   it('should take organization key into account', () => {
     expect(getQualityGatesUrl()).toEqual({ pathname: '/quality_gates' });
-    expect(getQualityGatesUrl('foo')).toEqual({ pathname: '/organizations/foo/quality_gates' });
     expect(getQualityGateUrl('bar')).toEqual({ pathname: '/quality_gates/show/bar' });
-    expect(getQualityGateUrl('bar', 'foo')).toEqual({
-      pathname: '/organizations/foo/quality_gates/show/bar'
-    });
-  });
-
-  it('should encode keys', () => {
-    expect(getQualityGatesUrl(COMPLEX_COMPONENT_KEY)).toEqual({
-      pathname: '/organizations/' + COMPLEX_COMPONENT_KEY_ENCODED + '/quality_gates'
-    });
-    expect(getQualityGateUrl(COMPLEX_COMPONENT_KEY)).toEqual({
-      pathname: '/quality_gates/show/' + COMPLEX_COMPONENT_KEY_ENCODED
-    });
   });
 });

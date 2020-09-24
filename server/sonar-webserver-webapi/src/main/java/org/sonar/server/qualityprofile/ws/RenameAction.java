@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
@@ -33,8 +32,8 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.server.qualityprofile.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.qualityprofile.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
 
@@ -92,15 +91,14 @@ public class RenameAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto qualityProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, qualityProfile);
-      wsSupport.checkCanEdit(dbSession, organization, qualityProfile);
+      wsSupport.checkCanEdit(dbSession, qualityProfile);
 
       if (newName.equals(qualityProfile.getName())) {
         return;
       }
 
       String language = qualityProfile.getLanguage();
-      ofNullable(dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, newName, language))
+      ofNullable(dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, newName, language))
         .ifPresent(found -> {
           throw BadRequestException.create(format("Quality profile already exists: %s", newName));
         });

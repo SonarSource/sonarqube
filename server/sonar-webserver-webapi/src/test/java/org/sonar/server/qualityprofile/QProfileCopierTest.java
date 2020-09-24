@@ -59,8 +59,7 @@ public class QProfileCopierTest {
 
   @Test
   public void create_target_profile_and_copy_rules() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto source = db.qualityProfiles().insert(organization);
+    QProfileDto source = db.qualityProfiles().insert();
 
     QProfileDto target = underTest.copyToName(db.getSession(), source, "foo");
 
@@ -73,9 +72,8 @@ public class QProfileCopierTest {
 
   @Test
   public void create_target_profile_with_same_parent_than_source_profile() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto parent = db.qualityProfiles().insert(organization);
-    QProfileDto source = db.qualityProfiles().insert(organization, p -> p.setParentKee(parent.getKee()));
+    QProfileDto parent = db.qualityProfiles().insert();
+    QProfileDto source = db.qualityProfiles().insert(p -> p.setParentKee(parent.getKee()));
 
     QProfileDto target = underTest.copyToName(db.getSession(), source, "foo");
 
@@ -88,8 +86,7 @@ public class QProfileCopierTest {
 
   @Test
   public void fail_to_copy_on_self() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto source = db.qualityProfiles().insert(organization);
+    QProfileDto source = db.qualityProfiles().insert();
 
     try {
       underTest.copyToName(db.getSession(), source, source.getName());
@@ -102,9 +99,9 @@ public class QProfileCopierTest {
 
   @Test
   public void copy_to_existing_profile() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile1 = db.qualityProfiles().insert(organization);
-    QProfileDto profile2 = db.qualityProfiles().insert(organization, p -> p.setLanguage(profile1.getLanguage()));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile1 = db.qualityProfiles().insert();
+    QProfileDto profile2 = db.qualityProfiles().insert(p -> p.setLanguage(profile1.getLanguage()));
 
     QProfileDto target = underTest.copyToName(db.getSession(), profile1, profile2.getName());
 
@@ -119,18 +116,17 @@ public class QProfileCopierTest {
     private QProfileDto createdProfile;
 
     @Override
-    public QProfileDto getOrCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName key) {
+    public QProfileDto getOrCreateCustom(DbSession dbSession, QProfileName key) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public QProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName key) {
+    public QProfileDto checkAndCreateCustom(DbSession dbSession, QProfileName key) {
       throw new UnsupportedOperationException();
     }
 
-    @Override public QProfileDto createCustom(DbSession dbSession, OrganizationDto organization, QProfileName key, @Nullable String parentKey) {
+    @Override public QProfileDto createCustom(DbSession dbSession, QProfileName key, @Nullable String parentKey) {
       createdProfile = QualityProfileTesting.newQualityProfileDto()
-        .setOrganizationUuid(organization.getUuid())
         .setLanguage(key.getLanguage())
         .setParentKee(parentKey)
         .setName(key.getName());

@@ -31,7 +31,6 @@ public class RuleExtensionForIndexingDto {
   private String ruleUuid;
   private String pluginName;
   private String pluginRuleKey;
-  private String organizationUuid;
   private String tags;
 
   public String getPluginName() {
@@ -58,15 +57,6 @@ public class RuleExtensionForIndexingDto {
 
   public void setRuleUuid(String ruleUuid) {
     this.ruleUuid = ruleUuid;
-  }
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public RuleExtensionForIndexingDto setOrganizationUuid(String organizationUuid) {
-    this.organizationUuid = organizationUuid;
-    return this;
   }
 
   public String getTags() {

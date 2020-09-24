@@ -25,7 +25,6 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -39,7 +38,6 @@ public class SearchGroupsQuery {
   public static final String OUT = "OUT";
   public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
 
-  private final String organizationUuid;
   private final String qProfileUuid;
   private final String query;
   private final String membership;
@@ -48,15 +46,10 @@ public class SearchGroupsQuery {
   final String querySqlLowercase;
 
   private SearchGroupsQuery(Builder builder) {
-    this.organizationUuid = builder.organization.getUuid();
     this.qProfileUuid = builder.profile.getKee();
     this.query = builder.query;
     this.membership = builder.membership;
     this.querySqlLowercase = query == null ? null : buildLikeValue(query, BEFORE_AND_AFTER).toLowerCase(Locale.ENGLISH);
-  }
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
   }
 
   public String getQProfileUuid() {
@@ -77,17 +70,11 @@ public class SearchGroupsQuery {
   }
 
   public static class Builder {
-    private OrganizationDto organization;
     private QProfileDto profile;
     private String query;
     private String membership;
 
     private Builder() {
-    }
-
-    public Builder setOrganization(OrganizationDto organization) {
-      this.organization = organization;
-      return this;
     }
 
     public Builder setProfile(QProfileDto profile) {

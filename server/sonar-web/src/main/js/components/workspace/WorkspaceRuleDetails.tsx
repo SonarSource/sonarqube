@@ -24,12 +24,9 @@ import { getRuleDetails, getRulesApp } from '../../api/rules';
 import RuleDetailsDescription from '../../apps/coding-rules/components/RuleDetailsDescription';
 import RuleDetailsMeta from '../../apps/coding-rules/components/RuleDetailsMeta';
 import '../../apps/coding-rules/styles.css';
-import { withAppState } from '../hoc/withAppState';
 
 interface Props {
-  appState: Pick<T.AppState, 'organizationsEnabled'>;
   onLoad: (details: { name: string }) => void;
-  organizationKey: string | undefined;
   ruleKey: string;
 }
 
@@ -39,7 +36,7 @@ interface State {
   ruleDetails?: T.RuleDetails;
 }
 
-export class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
+export default class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
   mounted = false;
   state: State = { loading: true, referencedRepositories: {} };
 
@@ -49,10 +46,7 @@ export class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (
-      prevProps.ruleKey !== this.props.ruleKey ||
-      prevProps.organizationKey !== this.props.organizationKey
-    ) {
+    if (prevProps.ruleKey !== this.props.ruleKey) {
       this.fetchRuleDetails();
     }
   }
@@ -63,10 +57,7 @@ export class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
 
   fetchRuleDetails = () => {
     this.setState({ loading: true });
-    Promise.all([
-      getRulesApp(this.props.organizationKey),
-      getRuleDetails({ key: this.props.ruleKey, organization: this.props.organizationKey })
-    ]).then(
+    Promise.all([getRulesApp(), getRuleDetails({ key: this.props.ruleKey })]).then(
       ([{ repositories }, { rule }]) => {
         if (this.mounted) {
           this.setState({
@@ -88,10 +79,6 @@ export class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
   noOp = () => {};
 
   render() {
-    const { organizationKey } = this.props;
-    const { organizationsEnabled } = this.props.appState;
-    const organization = organizationsEnabled ? organizationKey : undefined;
-
     return (
       <DeferredSpinner loading={this.state.loading}>
         {this.state.ruleDetails && (
@@ -101,14 +88,12 @@ export class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
               hideSimilarRulesFilter={true}
               onFilterChange={this.noOp}
               onTagsChange={this.noOp}
-              organization={organization}
               referencedRepositories={this.state.referencedRepositories}
               ruleDetails={this.state.ruleDetails}
             />
             <RuleDetailsDescription
               canWrite={false}
               onChange={this.noOp}
-              organization={organization}
               ruleDetails={this.state.ruleDetails}
             />
           </>
@@ -117,5 +102,3 @@ export class WorkspaceRuleDetails extends React.PureComponent<Props, State> {
     );
   }
 }
-
-export default withAppState(WorkspaceRuleDetails);

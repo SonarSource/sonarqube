@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
@@ -32,8 +31,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.es.RuleExtensionId;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyList;
@@ -50,31 +47,24 @@ public class RuleDao implements Dao {
     this.uuidFactory = uuidFactory;
   }
 
-  public Optional<RuleDto> selectByKey(DbSession session, String organizationUuid, RuleKey key) {
-    RuleDto res = mapper(session).selectByKey(organizationUuid, key);
-    ensureOrganizationIsSet(organizationUuid, res);
+  public Optional<RuleDto> selectByKey(DbSession session, RuleKey key) {
+    RuleDto res = mapper(session).selectByKey(key);
     return ofNullable(res);
-  }
-
-  public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
-    RuleDefinitionDto ruleDefinitionDto = selectOrFailDefinitionByKey(session, key);
-    return new RuleDto(ruleDefinitionDto, new RuleMetadataDto());
   }
 
   public Optional<RuleDefinitionDto> selectDefinitionByKey(DbSession session, RuleKey key) {
     return ofNullable(mapper(session).selectDefinitionByKey(key));
   }
 
-  public Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key, String organizationUuid) {
-    return ofNullable(mapper(session).selectMetadataByKey(key, organizationUuid));
+  public Optional<RuleMetadataDto> selectMetadataByKey(DbSession session, RuleKey key) {
+    return ofNullable(mapper(session).selectMetadataByKey(key));
   }
 
-  public RuleDto selectOrFailByKey(DbSession session, OrganizationDto organization, RuleKey key) {
-    RuleDto rule = mapper(session).selectByKey(organization.getUuid(), key);
+  public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
+    RuleDto rule = mapper(session).selectByKey(key);
     if (rule == null) {
       throw new RowNotFoundException(String.format("Rule with key '%s' does not exist", key));
     }
-    ensureOrganizationIsSet(organization.getUuid(), rule);
     return rule;
   }
 
@@ -86,9 +76,8 @@ public class RuleDao implements Dao {
     return rule;
   }
 
-  public Optional<RuleDto> selectByUuid(String uuid, String organizationUuid, DbSession session) {
-    RuleDto res = mapper(session).selectByUuid(organizationUuid, uuid);
-    ensureOrganizationIsSet(organizationUuid, res);
+  public Optional<RuleDto> selectByUuid(String uuid, DbSession session) {
+    RuleDto res = mapper(session).selectByUuid(uuid);
     return ofNullable(res);
   }
 
@@ -96,13 +85,11 @@ public class RuleDao implements Dao {
     return ofNullable(mapper(session).selectDefinitionByUuid(uuid));
   }
 
-  public List<RuleDto> selectByUuids(DbSession session, String organizationUuid, List<String> uuids) {
+  public List<RuleDto> selectByUuids(DbSession session, List<String> uuids) {
     if (uuids.isEmpty()) {
       return emptyList();
     }
-    return ensureOrganizationIsSet(
-      organizationUuid,
-      executeLargeInputs(uuids, chunk -> mapper(session).selectByUuids(organizationUuid, chunk)));
+    return executeLargeInputs(uuids, chunk -> mapper(session).selectByUuids(chunk));
   }
 
   public List<RuleDefinitionDto> selectDefinitionByUuids(DbSession session, Collection<String> uuids) {
@@ -112,20 +99,11 @@ public class RuleDao implements Dao {
     return executeLargeInputs(uuids, mapper(session)::selectDefinitionByUuids);
   }
 
-  public List<RuleDto> selectByKeys(DbSession session, OrganizationDto organization, Collection<RuleKey> keys) {
+  public List<RuleDto> selectByKeys(DbSession session, Collection<RuleKey> keys) {
     if (keys.isEmpty()) {
       return emptyList();
     }
-    return ensureOrganizationIsSet(organization.getUuid(),
-      executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(organization.getUuid(), chunk)));
-  }
-
-  public List<RuleDto> selectByKeys(DbSession session, String organizationUuid, Collection<RuleKey> keys) {
-    if (keys.isEmpty()) {
-      return emptyList();
-    }
-    return ensureOrganizationIsSet(organizationUuid,
-      executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(organizationUuid, chunk)));
+    return executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(chunk));
   }
 
   public List<RuleDefinitionDto> selectDefinitionByKeys(DbSession session, Collection<RuleKey> keys) {
@@ -139,32 +117,20 @@ public class RuleDao implements Dao {
     mapper(session).selectEnabled(resultHandler);
   }
 
-  public List<RuleDto> selectAll(DbSession session, String organizationUuid) {
-    return ensureOrganizationIsSet(organizationUuid, mapper(session).selectAll(organizationUuid));
+  public List<RuleDto> selectAll(DbSession session) {
+    return mapper(session).selectAll();
   }
 
   public List<RuleDefinitionDto> selectAllDefinitions(DbSession session) {
     return mapper(session).selectAllDefinitions();
   }
 
-  public List<RuleDto> selectByTypeAndLanguages(DbSession session, String organizationUuid, List<Integer> types, List<String> languages) {
-    return ensureOrganizationIsSet(organizationUuid,
-      executeLargeInputs(languages, chunk -> mapper(session).selectByTypeAndLanguages(organizationUuid, types, chunk)));
+  public List<RuleDto> selectByTypeAndLanguages(DbSession session, List<Integer> types, List<String> languages) {
+    return executeLargeInputs(languages, chunk -> mapper(session).selectByTypeAndLanguages(types, chunk));
   }
 
-  public List<RuleDto> selectByQuery(DbSession session, String organizationUuid, RuleQuery ruleQuery) {
-    return ensureOrganizationIsSet(organizationUuid, mapper(session).selectByQuery(organizationUuid, ruleQuery));
-  }
-
-  private static void ensureOrganizationIsSet(String organizationUuid, @Nullable RuleDto res) {
-    if (res != null) {
-      res.setOrganizationUuid(organizationUuid);
-    }
-  }
-
-  private static List<RuleDto> ensureOrganizationIsSet(String organizationUuid, List<RuleDto> res) {
-    res.forEach(dto -> ensureOrganizationIsSet(organizationUuid, dto));
-    return res;
+  public List<RuleDto> selectByQuery(DbSession session, RuleQuery ruleQuery) {
+    return mapper(session).selectByQuery(ruleQuery);
   }
 
   public void insert(DbSession session, RuleDefinitionDto dto) {
@@ -189,20 +155,13 @@ public class RuleDao implements Dao {
     }
   }
 
-  public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<RuleExtensionId> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
+  public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<String> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
     RuleMapper mapper = mapper(dbSession);
 
     executeLargeInputsWithoutOutput(ruleExtensionIds,
       pageOfRuleExtensionIds -> mapper
         .selectIndexingRuleExtensionsByIds(pageOfRuleExtensionIds)
         .forEach(consumer));
-  }
-
-  public void scrollIndexingRuleExtensions(DbSession dbSession, Consumer<RuleExtensionForIndexingDto> consumer) {
-    mapper(dbSession).scrollIndexingRuleExtensions(context -> {
-      RuleExtensionForIndexingDto dto = context.getResultObject();
-      consumer.accept(dto);
-    });
   }
 
   public void scrollIndexingRulesByKeys(DbSession dbSession, Collection<String> ruleUuids, Consumer<RuleForIndexingDto> consumer) {

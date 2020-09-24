@@ -41,7 +41,6 @@ public class QualityProfileTesting {
     return new QProfileDto()
       .setKee(uuid)
       .setRulesProfileUuid(Uuids.createFast())
-      .setOrganizationUuid(randomAlphanumeric(40))
       .setName(uuid)
       .setLanguage(randomAlphanumeric(20))
       .setLastUsed(nextLong());

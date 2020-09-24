@@ -31,11 +31,9 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -67,7 +65,8 @@ public class RegisterQualityProfilesTest {
   private DbClient dbClient = db.getDbClient();
   private DummyBuiltInQProfileInsert insert = new DummyBuiltInQProfileInsert();
   private DummyBuiltInQProfileUpdate update = new DummyBuiltInQProfileUpdate();
-  private RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient, insert, update, mock(BuiltInQualityProfilesUpdateListener.class), system2);
+  private RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient, insert, update,
+    mock(BuiltInQualityProfilesUpdateListener.class), system2);
 
   @Test
   public void start_fails_if_BuiltInQProfileRepository_has_not_been_initialized() {
@@ -106,21 +105,15 @@ public class RegisterQualityProfilesTest {
 
   @Test
   public void rename_custom_outdated_profiles_if_same_name_than_built_in_profile() {
-    OrganizationDto org1 = db.organizations().insert(org -> org.setKey("org1"));
-    OrganizationDto org2 = db.organizations().insert(org -> org.setKey("org2"));
-
-    QProfileDto outdatedProfileInOrg1 = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false)
-      .setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
-    QProfileDto outdatedProfileInOrg2 = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false)
+    QProfileDto outdatedProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(false)
       .setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
     builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way", false);
     builtInQProfileRepositoryRule.initialize();
 
     underTest.start();
 
-    assertThat(selectPersistedName(outdatedProfileInOrg1)).isEqualTo("Sonar way (outdated copy)");
-    assertThat(selectPersistedName(outdatedProfileInOrg2)).isEqualTo("Sonar way (outdated copy)");
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)] in 2 organizations");
+    assertThat(selectPersistedName(outdatedProfile)).isEqualTo("Sonar way (outdated copy)");
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)]");
   }
 
   @Test
@@ -141,20 +134,16 @@ public class RegisterQualityProfilesTest {
 
   @Test
   public void update_default_built_in_quality_profile() {
-    String orgUuid = UuidFactoryFast.getInstance().create();
-
     RulesProfileDto ruleProfileWithoutRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Sonar way").setLanguage(FOO_LANGUAGE.getKey()));
     RulesProfileDto ruleProfileWithOneRule = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Sonar way 2").setLanguage(FOO_LANGUAGE.getKey()));
 
     QProfileDto qProfileWithoutRule = newQualityProfileDto()
       .setIsBuiltIn(true)
       .setLanguage(FOO_LANGUAGE.getKey())
-      .setOrganizationUuid(orgUuid)
       .setRulesProfileUuid(ruleProfileWithoutRule.getUuid());
     QProfileDto qProfileWithOneRule = newQualityProfileDto()
       .setIsBuiltIn(true)
       .setLanguage(FOO_LANGUAGE.getKey())
-      .setOrganizationUuid(orgUuid)
       .setRulesProfileUuid(ruleProfileWithOneRule.getUuid());
 
     db.qualityProfiles().insert(qProfileWithoutRule, qProfileWithOneRule);
@@ -200,8 +189,6 @@ public class RegisterQualityProfilesTest {
     dbClient.qualityProfileDao().insert(db.getSession(), dto);
     db.commit();
   }
-
-
 
   private static class DummyBuiltInQProfileInsert implements BuiltInQProfileInsert {
     private final List<BuiltInQProfile> callLogs = new ArrayList<>();

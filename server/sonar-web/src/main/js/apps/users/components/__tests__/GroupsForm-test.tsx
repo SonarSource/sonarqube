@@ -84,7 +84,6 @@ it('should render correctly', async () => {
   expect(getUserGroups).toHaveBeenCalledWith(
     expect.objectContaining({
       login: user.login,
-      organization: undefined,
       p: 1,
       ps: 100,
       q: undefined,

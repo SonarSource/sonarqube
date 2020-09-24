@@ -32,7 +32,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public class RuleMetadataDto {
   private String ruleUuid;
-  private String organizationUuid;
   private String noteData;
   private String noteUserUuid;
   private Long noteCreatedAt;
@@ -78,15 +77,6 @@ public class RuleMetadataDto {
 
   public RuleMetadataDto setRuleUuid(String ruleUuid) {
     this.ruleUuid = ruleUuid;
-    return this;
-  }
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public RuleMetadataDto setOrganizationUuid(String organizationUuid) {
-    this.organizationUuid = organizationUuid;
     return this;
   }
 
@@ -250,7 +240,6 @@ public class RuleMetadataDto {
   public String toString() {
     return "RuleMetadataDto{" +
       "ruleUuid=" + ruleUuid +
-      ", organizationUuid='" + organizationUuid + '\'' +
       ", noteData='" + noteData + '\'' +
       ", noteUserUuid='" + noteUserUuid + '\'' +
       ", noteCreatedAt=" + noteCreatedAt +

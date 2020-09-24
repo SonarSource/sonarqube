@@ -32,15 +32,12 @@ interface Props {
 }
 
 export default function ProfileRulesSonarWayComparison(props: Props) {
-  const url = getRulesUrl(
-    {
-      qprofile: props.profile,
-      activation: 'false',
-      compareToProfile: props.sonarway,
-      languages: props.language
-    },
-    props.organization
-  );
+  const url = getRulesUrl({
+    qprofile: props.profile,
+    activation: 'false',
+    compareToProfile: props.sonarway,
+    languages: props.language
+  });
 
   return (
     <div className="quality-profile-rules-sonarway-missing clearfix">

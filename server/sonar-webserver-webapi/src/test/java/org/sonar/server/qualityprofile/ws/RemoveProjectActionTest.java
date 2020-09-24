@@ -31,7 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -77,25 +76,22 @@ public class RemoveProjectActionTest {
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.key()).isEqualTo("remove_project");
 
-    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("qualityProfile", "project", "language", "organization");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("qualityProfile", "project", "language");
     WebService.Param languageParam = definition.param("language");
     assertThat(languageParam.possibleValues()).containsOnly(LANGUAGE_1, LANGUAGE_2);
     assertThat(languageParam.exampleValue()).isNull();
     assertThat(languageParam.deprecatedSince()).isNullOrEmpty();
-    WebService.Param organizationParam = definition.param("organization");
-    assertThat(organizationParam.since()).isEqualTo("6.4");
-    assertThat(organizationParam.isInternal()).isTrue();
     WebService.Param profileName = definition.param("qualityProfile");
     assertThat(profileName.deprecatedSince()).isNullOrEmpty();
   }
 
   @Test
-  public void remove_profile_from_project_in_default_organization() {
+  public void remove_profile_from_project() {
     logInAsProfileAdmin();
 
     ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
-    QProfileDto profileLang1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
-    QProfileDto profileLang2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_2));
+    QProfileDto profileLang1 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
+    QProfileDto profileLang2 = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_2));
     db.qualityProfiles().associateWithProject(project, profileLang1);
     db.qualityProfiles().associateWithProject(project, profileLang2);
 
@@ -110,10 +106,10 @@ public class RemoveProjectActionTest {
   public void removal_does_not_fail_if_profile_is_not_associated_to_project() {
     logInAsProfileAdmin();
 
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setLanguage("xoo"));
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
-    TestResponse response = call(db.getDefaultOrganization(), project, profile);
+    TestResponse response = call(project, profile);
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
     assertProjectIsNotAssociatedToProfile(project, profile);
@@ -122,26 +118,25 @@ public class RemoveProjectActionTest {
   @Test
   public void project_administrator_can_remove_profile() {
     ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setLanguage("xoo"));
+    QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
     db.qualityProfiles().associateWithProject(project, profile);
     userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
 
-    call(db.getDefaultOrganization(), project, profile);
+    call(project, profile);
 
     assertProjectIsNotAssociatedToProfile(project, profile);
   }
 
   @Test
   public void as_qprofile_editor() {
-    OrganizationDto organization = db.organizations().insert();
-    ProjectDto project = db.components().insertPrivateProjectDto(organization);
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(LANGUAGE_1));
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE_1));
     db.qualityProfiles().associateWithProject(project, profile);
     UserDto user = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user);
     userSession.logIn(user);
 
-    call(organization, project, profile);
+    call(project, profile);
 
     assertProjectIsNotAssociatedToProfile(project, profile);
   }
@@ -150,7 +145,7 @@ public class RemoveProjectActionTest {
   public void fail_if_not_enough_permissions() {
     userSession.logIn(db.users().insertUser());
     ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), qp -> qp.setLanguage("xoo"));
+    QProfileDto profile = db.qualityProfiles().insert(qp -> qp.setLanguage("xoo"));
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -161,8 +156,8 @@ public class RemoveProjectActionTest {
   @Test
   public void fail_if_not_logged_in() {
     userSession.anonymous();
-    ProjectDto project = db.components().insertPrivateProjectDto(db.getDefaultOrganization());
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    QProfileDto profile = db.qualityProfiles().insert();
 
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
@@ -173,7 +168,7 @@ public class RemoveProjectActionTest {
   @Test
   public void fail_if_project_does_not_exist() {
     logInAsProfileAdmin();
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Project 'unknown' not found");
@@ -187,7 +182,7 @@ public class RemoveProjectActionTest {
   @Test
   public void fail_if_profile_does_not_exist() {
     logInAsProfileAdmin();
-    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
@@ -201,11 +196,10 @@ public class RemoveProjectActionTest {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    QProfileDto profile = db.qualityProfiles().insert(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Project '%s' not found", branch.getDbKey()));
@@ -234,15 +228,6 @@ public class RemoveProjectActionTest {
   private TestResponse call(ProjectDto project, QProfileDto qualityProfile) {
     TestRequest request = ws.newRequest()
       .setParam("project", project.getKey())
-      .setParam("language", qualityProfile.getLanguage())
-      .setParam("qualityProfile", qualityProfile.getName());
-    return request.execute();
-  }
-
-  private TestResponse call(OrganizationDto organization, ProjectDto project, QProfileDto qualityProfile) {
-    TestRequest request = ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("organization", organization.getKey())
       .setParam("language", qualityProfile.getLanguage())
       .setParam("qualityProfile", qualityProfile.getName());
     return request.execute();

@@ -28,7 +28,6 @@ exports[`should render correctly 1`] = `
           className="link-no-underline"
           language="js"
           name="Quality Profile 5"
-          organization="foo"
         >
           Quality Profile 5
         </ProfileLink>
@@ -44,7 +43,7 @@ exports[`should render correctly 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/organizations/foo/rules",
+              "pathname": "/coding_rules",
               "query": Object {
                 "activation": "true",
                 "qprofile": "qp-5",
@@ -82,7 +81,6 @@ exports[`should render correctly 1`] = `
           className="link-no-underline"
           language="js"
           name="Quality Profile 4"
-          organization="foo"
         >
           Quality Profile 4
         </ProfileLink>
@@ -98,7 +96,7 @@ exports[`should render correctly 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/organizations/foo/rules",
+              "pathname": "/coding_rules",
               "query": Object {
                 "activation": "true",
                 "qprofile": "qp-4",
@@ -129,7 +127,6 @@ exports[`should render correctly 1`] = `
           className="link-no-underline"
           language="js"
           name="Quality Profile 2"
-          organization="foo"
         >
           Quality Profile 2
         </ProfileLink>
@@ -145,7 +142,7 @@ exports[`should render correctly 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/organizations/foo/rules",
+              "pathname": "/coding_rules",
               "query": Object {
                 "activation": "true",
                 "qprofile": "qp-2",
@@ -169,7 +166,6 @@ exports[`should render correctly 1`] = `
           className="link-no-underline"
           language="js"
           name="Quality Profile 3"
-          organization="foo"
         >
           Quality Profile 3
         </ProfileLink>
@@ -185,7 +181,7 @@ exports[`should render correctly 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/organizations/foo/rules",
+              "pathname": "/coding_rules",
               "query": Object {
                 "activation": "true",
                 "qprofile": "qp-3",

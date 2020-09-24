@@ -49,7 +49,6 @@ public class WebhookDaoTest {
   private final DbSession dbSession = dbTester.getSession();
   private final WebhookDao underTest = dbClient.webhookDao();
   private final WebhookDbTester webhookDbTester = dbTester.webhooks();
-  private final WebhookDeliveryDbTester webhookDeliveryDbTester = dbTester.webhookDelivery();
   private final ComponentDbTester componentDbTester = dbTester.components();
   private final OrganizationDbTester organizationDbTester = dbTester.organizations();
 

@@ -32,7 +32,6 @@ public class RemoveGroupRequest {
 
   private String group;
   private String language;
-  private String organization;
   private String qualityProfile;
 
   /**
@@ -58,19 +57,6 @@ public class RemoveGroupRequest {
 
   public String getLanguage() {
     return language;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public RemoveGroupRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

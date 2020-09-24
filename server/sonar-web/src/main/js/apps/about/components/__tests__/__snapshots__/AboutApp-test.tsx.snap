@@ -99,20 +99,7 @@ exports[`should render correctly 1`] = `
       <div
         className="flex-column flex-column-half about-page-group-boxes"
       >
-        <AboutStandards
-          appState={
-            Object {
-              "defaultOrganization": "foo",
-              "edition": "community",
-              "productionDatabase": true,
-              "qualifiers": Array [
-                "TRK",
-              ],
-              "settings": Object {},
-              "version": "1.0",
-            }
-          }
-        />
+        <AboutStandards />
       </div>
     </div>
     <AboutScanners />

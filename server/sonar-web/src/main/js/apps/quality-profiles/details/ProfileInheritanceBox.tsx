@@ -40,7 +40,6 @@ export default function ProfileInheritanceBox(props: Props) {
     depth,
     extendsBuiltIn,
     language,
-    organization,
     profile,
     displayLink = true,
     type = 'current'
@@ -52,11 +51,7 @@ export default function ProfileInheritanceBox(props: Props) {
       <td>
         <div style={{ paddingLeft: offset }}>
           {displayLink ? (
-            <ProfileLink
-              className="text-middle"
-              language={language}
-              name={profile.name}
-              organization={organization}>
+            <ProfileLink className="text-middle" language={language} name={profile.name}>
               {profile.name}
             </ProfileLink>
           ) : (

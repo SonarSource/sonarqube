@@ -29,7 +29,6 @@ import { getIssuesUrl } from '../../../helpers/urls';
 
 interface Props {
   appState: Pick<T.AppState, 'branchesEnabled'>;
-  organization: string | undefined;
   ruleDetails: Pick<T.RuleDetails, 'key' | 'type'>;
 }
 
@@ -66,16 +65,14 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
   fetchIssues = () => {
     const {
-      ruleDetails: { key },
-      organization
+      ruleDetails: { key }
     } = this.props;
 
     this.setState({ loading: true });
     getFacet(
       {
         resolved: 'false',
-        rules: key,
-        organization
+        rules: key
       },
       'projects'
     ).then(
@@ -102,15 +99,14 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
   renderTotal = () => {
     const {
-      ruleDetails: { key },
-      organization
+      ruleDetails: { key }
     } = this.props;
 
     const { total } = this.state;
     if (total === undefined) {
       return null;
     }
-    const path = getIssuesUrl({ resolved: 'false', rules: key }, organization);
+    const path = getIssuesUrl({ resolved: 'false', rules: key });
 
     const totalItem = (
       <span className="little-spacer-left">
@@ -131,14 +127,10 @@ export class RuleDetailsIssues extends React.PureComponent<Props, State> {
 
   renderProject = (project: Project) => {
     const {
-      ruleDetails: { key },
-      organization
+      ruleDetails: { key }
     } = this.props;
 
-    const path = getIssuesUrl(
-      { resolved: 'false', rules: key, projects: project.key },
-      organization
-    );
+    const path = getIssuesUrl({ resolved: 'false', rules: key, projects: project.key });
     return (
       <tr key={project.key}>
         <td className="coding-rules-detail-list-name">{project.name}</td>

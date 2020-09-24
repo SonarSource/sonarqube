@@ -205,7 +205,8 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     ComputationStep underTest = createStep(res);
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Compute Engine task main component key is null. Project with UUID main_prj_uuid must have been deleted since report was uploaded. Can not proceed.");
+    expectedException
+      .expectMessage("Compute Engine task main component key is null. Project with UUID main_prj_uuid must have been deleted since report was uploaded. Can not proceed.");
 
     underTest.execute(new TestComputationStepContext());
   }
@@ -355,49 +356,6 @@ public class LoadReportAnalysisMetadataHolderStepTest {
       {true},
       {false}
     };
-  }
-
-  @Test
-  public void execute_ensures_that_report_has_quality_profiles_matching_the_project_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
-    ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
-    metadataBuilder
-      .setOrganizationKey(organization.getKey())
-      .setProjectKey(project.getDbKey());
-    metadataBuilder.getMutableQprofilesPerLanguage().put("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("p1").setName("Sonar way").setLanguage("js").build());
-    reportReader.setMetadata(metadataBuilder.build());
-
-    db.qualityProfiles().insert(organization, p -> p.setLanguage("js").setKee("p1"));
-
-    ComputationStep underTest = createStep(createCeTask(project.getDbKey(), organization.getUuid()));
-
-    // no errors
-    underTest.execute(new TestComputationStepContext());
-  }
-
-  @Test
-  public void execute_fails_with_MessageException_when_report_has_quality_profiles_on_other_organizations() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto projectInOrg1 = db.components().insertPublicProject(organization1);
-    ScannerReport.Metadata.Builder metadataBuilder = newBatchReportBuilder();
-    metadataBuilder
-      .setOrganizationKey(organization1.getKey())
-      .setProjectKey(projectInOrg1.getDbKey());
-    metadataBuilder.putQprofilesPerLanguage("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("jsInOrg1").setName("Sonar way").setLanguage("js").build());
-    metadataBuilder.putQprofilesPerLanguage("php", ScannerReport.Metadata.QProfile.newBuilder().setKey("phpInOrg2").setName("PHP way").setLanguage("php").build());
-    reportReader.setMetadata(metadataBuilder.build());
-
-    db.qualityProfiles().insert(organization1, p -> p.setLanguage("js").setKee("jsInOrg1"));
-    db.qualityProfiles().insert(organization2, p -> p.setLanguage("php").setKee("phpInOrg2"));
-
-    ComputationStep underTest = createStep(createCeTask(projectInOrg1.getDbKey(), organization1.getUuid()));
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Quality profiles with following keys don't exist in organization [" + organization1.getKey() + "]: phpInOrg2");
-
-    underTest.execute(new TestComputationStepContext());
   }
 
   @Test

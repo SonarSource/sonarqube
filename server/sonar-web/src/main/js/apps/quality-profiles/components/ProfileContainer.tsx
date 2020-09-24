@@ -62,7 +62,7 @@ export default class ProfileContainer extends React.PureComponent<Props & WithRo
       // then we will be redirected in `componentDidMount`
       // otherwise show `ProfileNotFound`
       const profile = profiles.find(profile => profile.key === location.query.key);
-      return profile ? null : <ProfileNotFound organization={organization} />;
+      return profile ? null : <ProfileNotFound />;
     }
 
     const profile = profiles.find(
@@ -70,7 +70,7 @@ export default class ProfileContainer extends React.PureComponent<Props & WithRo
     );
 
     if (!profile) {
-      return <ProfileNotFound organization={organization} />;
+      return <ProfileNotFound />;
     }
 
     const child = React.cloneElement(this.props.children, {

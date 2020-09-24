@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class SearchGroupsRequest {
 
   private String language;
-  private String organization;
   private String p;
   private String ps;
   private String q;
@@ -48,19 +47,6 @@ public class SearchGroupsRequest {
 
   public String getLanguage() {
     return language;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public SearchGroupsRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

@@ -33,14 +33,16 @@ interface Props {
 }
 
 export default function ProfileRulesRowOfType(props: Props) {
-  const activeRulesUrl = getRulesUrl(
-    { qprofile: props.qprofile, activation: 'true', types: props.type },
-    props.organization
-  );
-  const inactiveRulesUrl = getRulesUrl(
-    { qprofile: props.qprofile, activation: 'false', types: props.type },
-    props.organization
-  );
+  const activeRulesUrl = getRulesUrl({
+    qprofile: props.qprofile,
+    activation: 'true',
+    types: props.type
+  });
+  const inactiveRulesUrl = getRulesUrl({
+    qprofile: props.qprofile,
+    activation: 'false',
+    types: props.type
+  });
   let inactiveCount = null;
   if (props.count != null && props.total != null) {
     inactiveCount = props.total - props.count;

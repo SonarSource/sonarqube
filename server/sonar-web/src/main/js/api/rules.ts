@@ -39,7 +39,7 @@ export interface SearchRulesResponse {
 }
 
 export function searchRules(data: {
-  organization: string | undefined;
+  organization?: string;
   [x: string]: any;
 }): Promise<SearchRulesResponse> {
   return getJSON('/api/rules/search', data).catch(throwGlobalError);
@@ -53,13 +53,13 @@ export function takeFacet(response: any, property: string) {
 export function getRuleDetails(parameters: {
   actives?: boolean;
   key: string;
-  organization: string | undefined;
+  organization?: string;
 }): Promise<{ actives?: T.RuleActivation[]; rule: T.RuleDetails }> {
   return getJSON('/api/rules/show', parameters).catch(throwGlobalError);
 }
 
 export function getRuleTags(parameters: {
-  organization: string | undefined;
+  organization?: string;
   ps?: number;
   q: string;
 }): Promise<string[]> {
@@ -70,7 +70,7 @@ export function createRule(data: {
   custom_key: string;
   markdown_description: string;
   name: string;
-  organization: string | undefined;
+  organization?: string;
   params?: string;
   prevent_reactivation?: boolean;
   severity?: string;
@@ -92,7 +92,7 @@ export function createRule(data: {
   );
 }
 
-export function deleteRule(parameters: { key: string; organization: string | undefined }) {
+export function deleteRule(parameters: { key: string; organization?: string }) {
   return post('/api/rules/delete', parameters).catch(throwGlobalError);
 }
 
@@ -101,7 +101,7 @@ export function updateRule(data: {
   markdown_description?: string;
   markdown_note?: string;
   name?: string;
-  organization: string | undefined;
+  organization?: string;
   params?: string;
   remediation_fn_base_effort?: string;
   remediation_fn_type?: string;

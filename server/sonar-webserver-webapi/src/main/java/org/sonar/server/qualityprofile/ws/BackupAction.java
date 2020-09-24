@@ -57,8 +57,6 @@ public class BackupAction implements QProfileWsAction {
       .setHandler(this);
 
     QProfileReference.defineParams(action, languages);
-
-    QProfileWsSupport.createOrganizationParam(action).setSince("6.4");
   }
 
   @Override

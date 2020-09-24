@@ -59,9 +59,9 @@ public class AdHocRuleCreator {
    * Persists a new add hoc rule in the DB and indexes it.
    * @return the rule that was inserted in the DB, which <b>includes the generated ID</b>. 
    */
-  public RuleDto persistAndIndex(DbSession dbSession, NewAdHocRule adHoc, OrganizationDto organizationDto) {
+  public RuleDto persistAndIndex(DbSession dbSession, NewAdHocRule adHoc) {
     RuleDao dao = dbClient.ruleDao();
-    Optional<RuleDto> existingRuleDtoOpt = dao.selectByKey(dbSession, organizationDto.getUuid(), adHoc.getKey());
+    Optional<RuleDto> existingRuleDtoOpt = dao.selectByKey(dbSession, adHoc.getKey());
     RuleMetadataDto metadata;
     long now = system2.now();
     if (!existingRuleDtoOpt.isPresent()) {
@@ -76,9 +76,7 @@ public class AdHocRuleCreator {
         .setCreatedAt(now)
         .setUpdatedAt(now);
       dao.insert(dbSession, dto);
-      metadata = new RuleMetadataDto()
-        .setRuleUuid(dto.getUuid())
-        .setOrganizationUuid(organizationDto.getUuid());
+      metadata = new RuleMetadataDto().setRuleUuid(dto.getUuid());
     } else {
       // No need to update the rule, only org specific metadata
       RuleDto ruleDto = existingRuleDtoOpt.get();
@@ -113,7 +111,7 @@ public class AdHocRuleCreator {
 
     }
 
-    RuleDto ruleDto = dao.selectOrFailByKey(dbSession, organizationDto, adHoc.getKey());
+    RuleDto ruleDto = dao.selectOrFailByKey(dbSession, adHoc.getKey());
     ruleIndexer.commitAndIndex(dbSession, ruleDto.getUuid());
     return ruleDto;
   }

@@ -33,7 +33,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -47,12 +46,10 @@ import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse.CompareToSonarWay;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse.QualityProfile;
 
-import static java.lang.String.format;
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
@@ -82,7 +79,7 @@ public class ShowActionTest {
 
   @Test
   public void profile_info() {
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
 
     ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
 
@@ -94,7 +91,7 @@ public class ShowActionTest {
 
   @Test
   public void default_profile() {
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     db.qualityProfiles().setAsDefault(profile);
 
     ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
@@ -104,8 +101,8 @@ public class ShowActionTest {
 
   @Test
   public void non_default_profile() {
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
-    QProfileDto defaultProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto defaultProfile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     db.qualityProfiles().setAsDefault(defaultProfile);
 
     ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
@@ -116,7 +113,7 @@ public class ShowActionTest {
   @Test
   public void map_dates() {
     long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p
+    QProfileDto profile = db.qualityProfiles().insert(p -> p
       .setLanguage(XOO1.getKey())
       .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
       .setLastUsed(time)
@@ -131,7 +128,7 @@ public class ShowActionTest {
 
   @Test
   public void statistics() {
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     // Active rules
     range(0, 10)
       .mapToObj(i -> db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition())
@@ -154,8 +151,8 @@ public class ShowActionTest {
 
   @Test
   public void compare_to_sonar_way_profile() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
     RuleDefinitionDto sonarWayRule1 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
     RuleDefinitionDto sonarWayRule2 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
@@ -184,8 +181,8 @@ public class ShowActionTest {
 
   @Test
   public void compare_to_sonar_way_profile_when_same_active_rules() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
     db.qualityProfiles().activateRule(profile, commonRule);
     db.qualityProfiles().activateRule(sonarWayProfile, commonRule);
@@ -204,9 +201,8 @@ public class ShowActionTest {
 
   @Test
   public void no_comparison_when_sonar_way_does_not_exist() {
-    QProfileDto anotherSonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(),
-      p -> p.setIsBuiltIn(true).setName("Another Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto anotherSonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Another Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
 
     ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
@@ -217,8 +213,8 @@ public class ShowActionTest {
 
   @Test
   public void no_comparison_when_profile_is_built_in() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto anotherBuiltInProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setLanguage(XOO1.getKey()));
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto anotherBuiltInProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setLanguage(XOO1.getKey()));
 
     ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_KEY, anotherBuiltInProfile.getKee())
@@ -229,8 +225,8 @@ public class ShowActionTest {
 
   @Test
   public void no_comparison_if_sonar_way_is_not_built_in() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(false).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(false).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
 
     ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
@@ -241,8 +237,8 @@ public class ShowActionTest {
 
   @Test
   public void no_comparison_when_param_is_false() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
 
     ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
@@ -253,8 +249,8 @@ public class ShowActionTest {
 
   @Test
   public void compare_to_sonarqube_way_profile() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("SonarQube way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("SonarQube way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
 
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
@@ -268,9 +264,9 @@ public class ShowActionTest {
 
   @Test
   public void compare_to_sonar_way_over_sonarqube_way() {
-    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
-    QProfileDto sonarQubeWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("SonarQube way").setLanguage(XOO1.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto sonarQubeWayProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setName("SonarQube way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
 
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_KEY, profile.getKee())
@@ -284,8 +280,8 @@ public class ShowActionTest {
 
   @Test
   public void show_on_paid_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     UserDto user = db.users().insertUser();
     db.organizations().addMember(organization, user);
     userSession.logIn(user);
@@ -299,7 +295,7 @@ public class ShowActionTest {
 
   @Test
   public void fail_if_profile_language_is_not_supported() {
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setKee("unknown-profile").setLanguage("kotlin"));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setKee("unknown-profile").setLanguage("kotlin"));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'unknown-profile' does not exist");
@@ -316,24 +312,13 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fail_on_paid_organization_when_not_member() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    call(ws.newRequest().setParam(PARAM_KEY, qualityProfile.getKee()));
-  }
-
-  @Test
   public void json_example() {
     Language cs = newLanguage("cs", "C#");
-    QProfileDto parentProfile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+    QProfileDto parentProfile = db.qualityProfiles().insert(
       p -> p.setKee("AU-TpxcA-iU5OvuD2FL1")
         .setName("Parent Company Profile")
         .setLanguage(cs.getKey()));
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p
+    QProfileDto profile = db.qualityProfiles().insert(p -> p
       .setKee("AU-TpxcA-iU5OvuD2FL3")
       .setName("My Company Profile")
       .setLanguage(cs.getKey())

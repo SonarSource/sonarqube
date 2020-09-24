@@ -75,8 +75,7 @@ public class RuleCreatorTest {
   private DbSession dbSession = dbTester.getSession();
   private UuidFactory uuidFactory = new SequenceUuidFactory();
 
-  private RuleCreator underTest = new RuleCreator(system2, new RuleIndexer(es.client(), dbTester.getDbClient()), dbTester.getDbClient(), newFullTypeValidations(),
-    TestDefaultOrganizationProvider.from(dbTester), uuidFactory);
+  private RuleCreator underTest = new RuleCreator(system2, new RuleIndexer(es.client(), dbTester.getDbClient()), dbTester.getDbClient(), newFullTypeValidations(), uuidFactory);
 
   @Test
   public void create_custom_rule() {
@@ -91,7 +90,7 @@ public class RuleCreatorTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
     RuleKey customRuleKey = underTest.create(dbSession, newRule);
 
-    RuleDto rule = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, dbTester.getDefaultOrganization(), customRuleKey);
+    RuleDto rule = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, customRuleKey);
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getPluginKey()).isEqualTo("sonarjava");
@@ -210,7 +209,7 @@ public class RuleCreatorTest {
 
     List<RuleKey> customRuleKeys = underTest.create(dbSession, Arrays.asList(firstRule, secondRule));
 
-    List<RuleDto> rules = dbTester.getDbClient().ruleDao().selectByKeys(dbSession, dbTester.getDefaultOrganization(), customRuleKeys);
+    List<RuleDto> rules = dbTester.getDbClient().ruleDao().selectByKeys(dbSession, customRuleKeys);
 
     assertThat(rules).hasSize(2);
     assertThat(rules).asList()
@@ -512,7 +511,7 @@ public class RuleCreatorTest {
   }
 
   private RuleDto createTemplateRule() {
-    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"))
       .setIsTemplate(true)
       .setLanguage("java")
       .setPluginKey("sonarjava")

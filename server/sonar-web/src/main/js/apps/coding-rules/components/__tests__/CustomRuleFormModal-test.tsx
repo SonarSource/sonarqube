@@ -43,7 +43,6 @@ function shallowRender(props: Partial<CustomRuleFormModal['props']> = {}) {
     <CustomRuleFormModal
       onClose={jest.fn()}
       onDone={jest.fn()}
-      organization={undefined}
       templateRule={{ ...mockRule(), createdAt: 'date', repo: 'squid' }}
       {...props}
     />

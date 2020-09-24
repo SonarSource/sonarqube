@@ -27,7 +27,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMetadataDto;
@@ -52,10 +51,9 @@ public class AdHocRuleCreatorTest {
 
   @Test
   public void create_ad_hoc_rule_from_issue() {
-    OrganizationDto organization = db.organizations().insert();
     NewAdHocRule addHocRule = new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build());
 
-    RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule, organization);
+    RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule);
 
     assertThat(rule).isNotNull();
     assertThat(rule.isExternal()).isTrue();
@@ -74,7 +72,6 @@ public class AdHocRuleCreatorTest {
 
   @Test
   public void create_ad_hoc_rule_from_scanner_report() {
-    OrganizationDto organization = db.organizations().insert();
     NewAdHocRule addHocRule = new NewAdHocRule(ScannerReport.AdHocRule.newBuilder()
       .setEngineId("eslint")
       .setRuleId("no-cond-assign")
@@ -84,7 +81,7 @@ public class AdHocRuleCreatorTest {
       .setType(ScannerReport.IssueType.BUG)
       .build());
 
-    RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule, organization);
+    RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule);
 
     assertThat(rule).isNotNull();
     assertThat(rule.isExternal()).isTrue();
@@ -103,7 +100,6 @@ public class AdHocRuleCreatorTest {
 
   @Test
   public void truncate_metadata_name_and_desc_if_longer_than_max_value() {
-    OrganizationDto organization = db.organizations().insert();
     NewAdHocRule addHocRule = new NewAdHocRule(ScannerReport.AdHocRule.newBuilder()
       .setEngineId("eslint")
       .setRuleId("no-cond-assign")
@@ -113,7 +109,7 @@ public class AdHocRuleCreatorTest {
       .setType(ScannerReport.IssueType.BUG)
       .build());
 
-    RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule, organization);
+    RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule);
 
     assertThat(rule.getMetadata().getAdHocName()).isEqualTo(repeat("a", 200));
     assertThat(rule.getMetadata().getAdHocDescription()).isEqualTo(repeat("a", 16_777_215));
@@ -121,7 +117,6 @@ public class AdHocRuleCreatorTest {
 
   @Test
   public void update_metadata_only() {
-    OrganizationDto organization = db.organizations().insert();
     NewAdHocRule addHocRule = new NewAdHocRule(ScannerReport.AdHocRule.newBuilder()
       .setEngineId("eslint")
       .setRuleId("no-cond-assign")
@@ -130,7 +125,7 @@ public class AdHocRuleCreatorTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .setType(ScannerReport.IssueType.BUG)
       .build());
-    RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule, organization);
+    RuleDto rule = underTest.persistAndIndex(dbSession, addHocRule);
     long creationDate = rule.getCreatedAt();
     NewAdHocRule addHocRuleUpdated = new NewAdHocRule(ScannerReport.AdHocRule.newBuilder()
       .setEngineId("eslint")
@@ -141,7 +136,7 @@ public class AdHocRuleCreatorTest {
       .setType(ScannerReport.IssueType.CODE_SMELL)
       .build());
 
-    RuleDto ruleUpdated = underTest.persistAndIndex(dbSession, addHocRuleUpdated, organization);
+    RuleDto ruleUpdated = underTest.persistAndIndex(dbSession, addHocRuleUpdated);
 
     assertThat(ruleUpdated).isNotNull();
     assertThat(ruleUpdated.isExternal()).isTrue();
@@ -163,9 +158,8 @@ public class AdHocRuleCreatorTest {
 
   @Test
   public void does_not_update_rule_when_no_change() {
-    OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule = db.rules().insert(r -> r.setRepositoryKey("external_eslint").setIsExternal(true).setIsAdHoc(true));
-    RuleMetadataDto ruleMetadata = db.rules().insertOrUpdateMetadata(rule, organization);
+    RuleMetadataDto ruleMetadata = db.rules().insertOrUpdateMetadata(rule);
 
     RuleDto ruleUpdated = underTest.persistAndIndex(dbSession, new NewAdHocRule(ScannerReport.AdHocRule.newBuilder()
       .setEngineId("eslint")
@@ -174,8 +168,7 @@ public class AdHocRuleCreatorTest {
       .setDescription(ruleMetadata.getAdHocDescription())
       .setSeverity(Constants.Severity.valueOf(ruleMetadata.getAdHocSeverity()))
       .setType(ScannerReport.IssueType.forNumber(ruleMetadata.getAdHocType()))
-      .build()),
-      organization);
+      .build()));
 
     assertThat(ruleUpdated).isNotNull();
     assertThat(ruleUpdated.isExternal()).isTrue();

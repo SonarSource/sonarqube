@@ -21,7 +21,6 @@ exports[`should render correctly: built-in profile 1`] = `
         <ProfileLink
           language="js"
           name="name"
-          organization={null}
         >
           name
         </ProfileLink>
@@ -144,7 +143,6 @@ exports[`should render correctly: default 1`] = `
         <ProfileLink
           language="js"
           name="name"
-          organization={null}
         >
           name
         </ProfileLink>
@@ -239,7 +237,6 @@ exports[`should render correctly: default profile 1`] = `
         <ProfileLink
           language="js"
           name="name"
-          organization={null}
         >
           name
         </ProfileLink>
@@ -365,7 +362,6 @@ exports[`should render correctly: with deprecated rules 1`] = `
         <ProfileLink
           language="js"
           name="name"
-          organization={null}
         >
           name
         </ProfileLink>

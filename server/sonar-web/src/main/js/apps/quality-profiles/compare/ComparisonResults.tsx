@@ -42,9 +42,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     return (
       <div>
         <SeverityIcon severity={severity} />{' '}
-        <Link to={getRulesUrl({ rule_key: rule.key, open: rule.key }, this.props.organization)}>
-          {rule.name}
-        </Link>
+        <Link to={getRulesUrl({ rule_key: rule.key, open: rule.key })}>{rule.name}</Link>
       </div>
     );
   }

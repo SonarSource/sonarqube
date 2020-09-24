@@ -51,7 +51,6 @@ public class QualityProfileWsParameters {
   public static final String PARAM_DEFAULTS = "defaults";
   public static final String PARAM_FROM_KEY = "fromKey";
   public static final String PARAM_GROUP = "group";
-  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_LOGIN = "login";
   public static final String PARAM_NAME = "name";

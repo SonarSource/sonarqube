@@ -32,7 +32,7 @@ public interface QProfileEditGroupsMapper {
 
   List<GroupMembershipDto> selectByQuery(@Param("query") SearchGroupsQuery query, @Param("pagination") Pagination pagination);
 
-  List<String> selectQProfileUuidsByOrganizationAndGroups(@Param("organizationUuid") String organizationUuid, @Param("groupUuids") List<String> groupUuids);
+  List<String> selectQProfileUuidsByGroups(@Param("groupUuids") List<String> groupUuids);
 
   void insert(@Param("dto") QProfileEditGroupsDto dto, @Param("now") long now);
 

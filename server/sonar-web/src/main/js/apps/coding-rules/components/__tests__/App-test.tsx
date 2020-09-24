@@ -22,7 +22,6 @@ import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getRulesApp } from '../../../../api/rules';
 import ScreenPositionHelper from '../../../../components/common/ScreenPositionHelper';
-import { isSonarCloud } from '../../../../helpers/system';
 import {
   mockAppState,
   mockCurrentUser,
@@ -84,15 +83,6 @@ describe('renderBulkButton', () => {
   it('should be null when the user is not logged in', () => {
     const wrapper = shallowRender({
       currentUser: mockCurrentUser()
-    });
-    expect(wrapper.instance().renderBulkButton()).toBeNull();
-  });
-
-  it('should be null when on SonarCloud and no organization is given', () => {
-    (isSonarCloud as jest.Mock).mockReturnValue(true);
-
-    const wrapper = shallowRender({
-      organization: undefined
     });
     expect(wrapper.instance().renderBulkButton()).toBeNull();
   });

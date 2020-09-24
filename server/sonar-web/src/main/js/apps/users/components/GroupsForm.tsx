@@ -66,7 +66,6 @@ export default class GroupsForm extends React.PureComponent<Props, State> {
   fetchUsers = (searchParams: SelectListSearchParams) =>
     getUserGroups({
       login: this.props.user.login,
-      organization: undefined,
       p: searchParams.page,
       ps: searchParams.pageSize,
       q: searchParams.query !== '' ? searchParams.query : undefined,

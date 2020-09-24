@@ -54,12 +54,10 @@ public class DefaultRuleFinder implements ServerRuleFinder {
 
   private final DbClient dbClient;
   private final RuleDao ruleDao;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DefaultRuleFinder(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public DefaultRuleFinder(DbClient dbClient) {
     this.dbClient = dbClient;
     this.ruleDao = dbClient.ruleDao();
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -78,10 +76,7 @@ public class DefaultRuleFinder implements ServerRuleFinder {
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-      OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
-        .orElseThrow(() -> new IllegalStateException(String.format("Cannot find default organization '%s'", defaultOrganizationUuid)));
-      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, defaultOrganization.getUuid(), key);
+      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, key);
       if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
         return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
       } else {
@@ -99,7 +94,7 @@ public class DefaultRuleFinder implements ServerRuleFinder {
   @Override
   public final org.sonar.api.rules.Rule find(org.sonar.api.rules.RuleQuery query) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, defaultOrganizationProvider.get().getUuid(), query);
+      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, query);
       if (!rules.isEmpty()) {
         RuleDto rule = rules.get(0);
         return toRule(rule, ruleDao.selectRuleParamsByRuleKey(dbSession, rule.getKey()));
@@ -111,7 +106,7 @@ public class DefaultRuleFinder implements ServerRuleFinder {
   @Override
   public final Collection<org.sonar.api.rules.Rule> findAll(org.sonar.api.rules.RuleQuery query) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, defaultOrganizationProvider.get().getUuid(), query);
+      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, query);
       if (rules.isEmpty()) {
         return Collections.emptyList();
       }

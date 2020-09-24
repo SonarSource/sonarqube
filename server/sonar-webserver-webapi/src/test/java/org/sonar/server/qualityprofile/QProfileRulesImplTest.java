@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
@@ -62,8 +61,7 @@ public class QProfileRulesImplTest {
 
   @Test
   public void activate_one_rule() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto qProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(qProfile.getLanguage()));
     RuleActivation ruleActivation = RuleActivation.create(rule.getUuid(), Severity.CRITICAL, Collections.emptyMap());
 
@@ -78,8 +76,7 @@ public class QProfileRulesImplTest {
   public void active_rule_change() {
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto qProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(qProfile.getLanguage()));
     RuleActivation ruleActivation = RuleActivation.create(rule.getUuid(), Severity.CRITICAL, Collections.emptyMap());
 

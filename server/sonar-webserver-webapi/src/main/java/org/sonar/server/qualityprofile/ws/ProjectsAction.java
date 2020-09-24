@@ -35,7 +35,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -52,12 +51,10 @@ public class ProjectsAction implements QProfileWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final QProfileWsSupport wsSupport;
 
-  public ProjectsAction(DbClient dbClient, UserSession userSession, QProfileWsSupport wsSupport) {
+  public ProjectsAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -93,7 +90,6 @@ public class ProjectsAction implements QProfileWsAction {
     String profileKey = request.mandatoryParam(PARAM_KEY);
 
     try (DbSession session = dbClient.openSession(false)) {
-      checkProfileExists(profileKey, session);
       String selected = request.param(Param.SELECTED);
       String query = request.param(Param.TEXT_QUERY);
       int page = request.mandatoryParamAsInt(Param.PAGE);
@@ -121,24 +117,20 @@ public class ProjectsAction implements QProfileWsAction {
     }
   }
 
-  private void checkProfileExists(String profileKey, DbSession session) {
-    if (dbClient.qualityProfileDao().selectByUuid(session, profileKey) == null) {
-      throw new NotFoundException(String.format("Could not find a quality profile with key '%s'", profileKey));
-    }
-  }
-
   private List<ProjectQprofileAssociationDto> loadAllProjects(String profileKey, DbSession session, String selected, String query) {
     QProfileDto profile = dbClient.qualityProfileDao().selectByUuid(session, profileKey);
-    OrganizationDto organization = wsSupport.getOrganization(session, profile);
+    if (profile == null) {
+      throw new NotFoundException("Quality profile not found: " + profileKey);
+    }
     List<ProjectQprofileAssociationDto> projects;
     SelectionMode selectionMode = SelectionMode.fromParam(selected);
 
     if (SelectionMode.SELECTED == selectionMode) {
-      projects = dbClient.qualityProfileDao().selectSelectedProjects(session, organization, profile, query);
+      projects = dbClient.qualityProfileDao().selectSelectedProjects(session, profile, query);
     } else if (SelectionMode.DESELECTED == selectionMode) {
-      projects = dbClient.qualityProfileDao().selectDeselectedProjects(session, organization, profile, query);
+      projects = dbClient.qualityProfileDao().selectDeselectedProjects(session, profile, query);
     } else {
-      projects = dbClient.qualityProfileDao().selectProjectAssociations(session, organization, profile, query);
+      projects = dbClient.qualityProfileDao().selectProjectAssociations(session, profile, query);
     }
 
     return projects;

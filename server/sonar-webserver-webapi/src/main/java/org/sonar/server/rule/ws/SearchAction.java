@@ -236,7 +236,7 @@ public class SearchAction implements RulesWsAction {
 
   private SearchResult doSearch(DbSession dbSession, RuleQuery query, SearchOptions context) {
     SearchIdResult<String> result = ruleIndex.search(query, context);
-    List<RuleDto> rules = dbClient.ruleDao().selectByUuids(dbSession, query.getOrganization().getUuid(), result.getUuids());
+    List<RuleDto> rules = dbClient.ruleDao().selectByUuids(dbSession, result.getUuids());
     List<String> ruleUuids = rules.stream().map(RuleDto::getUuid).collect(Collectors.toList());
     List<String> templateRuleUuids = rules.stream()
       .map(RuleDto::getTemplateUuid)
@@ -255,7 +255,7 @@ public class SearchAction implements RulesWsAction {
   private void doContextResponse(DbSession dbSession, SearchRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
     SearchOptions contextForResponse = loadCommonContext(request);
     writeRules(dbSession, response, result, contextForResponse);
-    if (contextForResponse.getFields().contains("actives") && ruleWsSupport.areActiveRulesVisible(query.getOrganization())) {
+    if (contextForResponse.getFields().contains("actives")) {
       activeRuleCompleter.completeSearch(dbSession, query, result.rules, response);
     }
   }

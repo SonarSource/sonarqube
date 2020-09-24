@@ -16,7 +16,6 @@ exports[`should render correctly 1`] = `
         className="text-middle"
         language="foo"
         name="Foo"
-        organization={null}
       >
         Foo
       </ProfileLink>
@@ -49,7 +48,6 @@ exports[`should render correctly 2`] = `
         className="text-middle"
         language="foo"
         name="Foo"
-        organization={null}
       >
         Foo
       </ProfileLink>
@@ -85,7 +83,6 @@ exports[`should render correctly 3`] = `
         className="text-middle"
         language="foo"
         name="Foo"
-        organization={null}
       >
         Foo
       </ProfileLink>
@@ -122,7 +119,6 @@ exports[`should render correctly 4`] = `
         className="text-middle"
         language="foo"
         name="Foo"
-        organization={null}
       >
         Foo
       </ProfileLink>

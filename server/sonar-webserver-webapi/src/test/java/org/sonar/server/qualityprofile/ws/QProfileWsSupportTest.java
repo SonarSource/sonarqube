@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -50,12 +49,11 @@ public class QProfileWsSupportTest {
 
   @Test
   public void getProfile_returns_the_profile_specified_by_key() {
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert();
 
     QProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromKey(profile.getKee()));
 
     assertThat(loaded.getKee()).isEqualTo(profile.getKee());
-    assertThat(loaded.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
     assertThat(loaded.getLanguage()).isEqualTo(profile.getLanguage());
     assertThat(loaded.getName()).isEqualTo(profile.getName());
   }
@@ -69,27 +67,26 @@ public class QProfileWsSupportTest {
   }
 
   @Test
-  public void getProfile_returns_the_profile_specified_by_name_and_default_organization() {
-    QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
+  public void getProfile_returns_the_profile_specified_by_name() {
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto();
     db.qualityProfiles().insert(profile);
 
-    QProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromName(null, profile.getLanguage(), profile.getName()));
+    QProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromName(profile.getLanguage(), profile.getName()));
 
     assertThat(loaded.getKee()).isEqualTo(profile.getKee());
-    assertThat(loaded.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
     assertThat(loaded.getLanguage()).isEqualTo(profile.getLanguage());
     assertThat(loaded.getName()).isEqualTo(profile.getName());
   }
 
   @Test
-  public void getProfile_throws_NotFoundException_if_specified_name_does_not_exist_on_default_organization() {
-    QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
+  public void getProfile_throws_NotFoundException_if_specified_name_does_not_exist() {
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto();
     db.qualityProfiles().insert(profile);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile for language 'java' and name 'missing' does not exist");
 
-    underTest.getProfile(db.getSession(), QProfileReference.fromName(null, "java", "missing"));
+    underTest.getProfile(db.getSession(), QProfileReference.fromName("java", "missing"));
   }
 
   @Test
@@ -100,27 +97,5 @@ public class QProfileWsSupportTest {
     expectedException.expectMessage(format("Operation forbidden for rule '%s' imported from an external rule engine.", rule.getKey()));
 
     underTest.getRule(db.getSession(), rule.getKey());
-  }
-
-  @Test
-  public void getProfile_throws_NotFoundException_if_specified_name_does_not_exist_on_specified_organization() {
-    OrganizationDto org1 = db.organizations().insert();
-    QProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(org1.getUuid());
-    db.qualityProfiles().insert(profile);
-    OrganizationDto org2 = db.organizations().insert();
-
-    expectedException.expect(NotFoundException.class);
-    expectedException
-      .expectMessage(format("Quality Profile for language '%s' and name '%s' does not exist in organization '%s'", profile.getLanguage(), profile.getName(), org2.getKey()));
-
-    underTest.getProfile(db.getSession(), QProfileReference.fromName(org2.getKey(), profile.getLanguage(), profile.getName()));
-  }
-
-  @Test
-  public void getProfile_throws_NotFoundException_if_specified_organization_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No organization with key 'the-org'");
-
-    underTest.getProfile(db.getSession(), QProfileReference.fromName("the-org", "java", "the-name"));
   }
 }

@@ -54,7 +54,6 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.RuleQueryFactory;
-import org.sonar.server.rule.ws.RuleWsSupport;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
@@ -91,8 +90,7 @@ public class QProfilesWsMediumTest {
   private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
-  private RuleWsSupport ruleWsSupport = new RuleWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
-  private RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbClient, ruleWsSupport);
+  private RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbClient);
   private OrganizationDto organization;
 
   private WsActionTester wsDeactivateRule = new WsActionTester(new DeactivateRuleAction(dbClient, qProfileRules, userSessionRule, qProfileWsSupport));
@@ -377,7 +375,7 @@ public class QProfilesWsMediumTest {
     dbSession.commit();
 
     // 2. Assert ActiveRule with MINOR severity
-    assertThat(dbClient.activeRuleDao().selectByRuleUuid(dbSession, organization, rule0.getUuid()).get(0).getSeverityString()).isEqualTo("MINOR");
+    assertThat(dbClient.activeRuleDao().selectByOrgRuleUuid(dbSession, rule0.getUuid()).get(0).getSeverityString()).isEqualTo("MINOR");
     assertThat(ruleIndex.searchAll(new RuleQuery()
       .setQProfile(profile)
       .setKey(rule0.getKey().toString())
@@ -410,8 +408,8 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void reset() {
-    QProfileDto profile = QProfileTesting.newXooP1(organization);
-    QProfileDto childProfile = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
+    QProfileDto profile = QProfileTesting.newXooP1();
+    QProfileDto childProfile = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
     dbClient.qualityProfileDao().insert(dbSession, profile, childProfile);
 
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "rule");
@@ -445,7 +443,7 @@ public class QProfilesWsMediumTest {
   }
 
   private QProfileDto createProfile(String lang) {
-    QProfileDto profile = QProfileTesting.newQProfileDto(organization, new QProfileName(lang, "P" + lang), "p" + lang);
+    QProfileDto profile = QProfileTesting.newQProfileDto(new QProfileName(lang, "P" + lang), "p" + lang);
     dbClient.qualityProfileDao().insert(dbSession, profile);
     return profile;
   }

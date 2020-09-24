@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -111,12 +110,6 @@ public class CompareAction implements QProfileWsAction {
       checkArgument(left != null, "Could not find left profile '%s'", leftKey);
       QProfileDto right = dbClient.qualityProfileDao().selectByUuid(dbSession, rightKey);
       checkArgument(right != null, "Could not find right profile '%s'", rightKey);
-
-      checkArgument(Objects.equals(left.getOrganizationUuid(), right.getOrganizationUuid()),
-        "Cannot compare quality profiles of different organizations. Quality profile left with key '%s' belongs to organization '%s', " +
-          "quality profile right with key '%s' belongs to organization '%s'.",
-        leftKey, left.getOrganizationUuid(), rightKey, right.getOrganizationUuid());
-      wsSupport.getOrganization(dbSession, left);
 
       QProfileComparisonResult result = comparator.compare(dbSession, left, right);
 

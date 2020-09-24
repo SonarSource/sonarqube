@@ -204,7 +204,7 @@ public class DeleteActionTest {
     addAdminToDefaultOrganization();
     insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert();
     db.qualityProfiles().addGroupPermission(profile, group);
     loginAsAdminOnDefaultOrganization();
 

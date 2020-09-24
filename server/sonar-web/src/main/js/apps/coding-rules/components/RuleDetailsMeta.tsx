@@ -40,7 +40,6 @@ interface Props {
   hideSimilarRulesFilter?: boolean;
   onFilterChange: (changes: Partial<Query>) => void;
   onTagsChange: (tags: string[]) => void;
-  organization: string | undefined;
   referencedRepositories: T.Dict<{ key: string; language: string; name: string }>;
   ruleDetails: T.RuleDetails;
 }
@@ -98,7 +97,6 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
             closeOnClickOutside={true}
             overlay={
               <RuleDetailsTagsPopup
-                organization={this.props.organization}
                 setTags={this.props.onTagsChange}
                 sysTags={sysTags}
                 tags={tags}
@@ -165,7 +163,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
       <li className="coding-rules-detail-property">
         {translate('coding_rules.custom_rule')}
         {' ('}
-        <Link to={getRuleUrl(ruleDetails.templateKey, this.props.organization)}>
+        <Link to={getRuleUrl(ruleDetails.templateKey)}>
           {translate('coding_rules.show_template')}
         </Link>
         {')'}
@@ -235,7 +233,7 @@ export default class RuleDetailsMeta extends React.PureComponent<Props> {
               <Link
                 className="coding-rules-detail-permalink link-no-underline spacer-left text-middle"
                 title={translate('permalink')}
-                to={getRuleUrl(ruleDetails.key, this.props.organization)}>
+                to={getRuleUrl(ruleDetails.key)}>
                 <LinkIcon />
               </Link>
             )}

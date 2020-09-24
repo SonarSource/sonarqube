@@ -31,9 +31,8 @@ exports[`should render 1`] = `
       }
     }
   >
-    <Connect(withAppState(WorkspaceRuleDetails))
+    <WorkspaceRuleDetails
       onLoad={[Function]}
-      organizationKey="org"
       ruleKey="foo"
     />
   </div>

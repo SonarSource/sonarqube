@@ -31,7 +31,6 @@ import javax.annotation.Generated;
 public class RestoreRequest {
 
   private String backup;
-  private String organization;
 
   /**
    * This is a mandatory parameter.
@@ -45,16 +44,4 @@ public class RestoreRequest {
     return backup;
   }
 
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public RestoreRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
 }

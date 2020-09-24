@@ -21,10 +21,12 @@ package org.sonar.server.rule.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -196,6 +198,15 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
+  public Set<String> getTags() {
+    return getField(RuleIndexDefinition.FIELD_RULE_TAGS);
+  }
+
+  public RuleDoc setTags(Set<String> tags) {
+    setField(RuleIndexDefinition.FIELD_RULE_TAGS, tags);
+    return this;
+  }
+
   @CheckForNull
   public RuleStatus status() {
     return RuleStatus.valueOf(getField(RuleIndexDefinition.FIELD_RULE_STATUS));
@@ -287,6 +298,7 @@ public class RuleDoc extends BaseDoc {
       .setStatus(dto.getStatus().toString())
       .setType(dto.getTypeAsRuleType())
       .setCreatedAt(dto.getCreatedAt())
+      .setTags(Sets.union(dto.getTags(), dto.getSystemTags()))
       .setUpdatedAt(dto.getUpdatedAt());
 
     if (dto.getTemplateRuleKey() != null && dto.getTemplateRepository() != null) {

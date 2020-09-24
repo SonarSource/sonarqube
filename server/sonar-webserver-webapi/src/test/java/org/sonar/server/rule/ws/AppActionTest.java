@@ -30,7 +30,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -52,11 +51,10 @@ public class AppActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private Languages languages = new Languages(LANG1, LANG2);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private RuleWsSupport wsSupport = new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
-  private AppAction underTest = new AppAction(languages, db.getDbClient(), userSession, wsSupport);
+  private AppAction underTest = new AppAction(languages, db.getDbClient(), userSession, defaultOrganizationProvider);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -65,11 +63,7 @@ public class AppActionTest {
 
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.key()).isEqualTo("app");
-    assertThat(definition.params()).hasSize(1);
-    assertThat(definition.param("organization"))
-      .matches(p -> p.isInternal())
-      .matches(p -> p.since().equals("6.4"))
-      .matches(p -> !p.isRequired());
+    assertThat(definition.params()).isEmpty();
   }
 
   @Test
@@ -106,7 +100,8 @@ public class AppActionTest {
   }
 
   @Test
-  public void canWrite_is_true_if_user_is_profile_administrator_of_default_organization() {
+  public void canWrite_is_true_if_user_is_profile_administrator() {
+    // TODO
     userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
 
     String json = ws.newRequest().execute().getInput();
@@ -115,48 +110,14 @@ public class AppActionTest {
   }
 
   @Test
-  public void canWrite_is_true_if_user_is_profile_administrator_of_specified_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-
-    String json = ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canWrite\": true }");
-  }
-
-  @Test
-  public void canWrite_is_false_if_user_is_not_profile_administrator_of_specified_organization() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization1);
-
-    String json = ws.newRequest()
-      .setParam("organization", organization2.getKey())
-      .execute().getInput();
-
-    assertJson(json).isSimilarTo("{ \"canWrite\": false }");
-  }
-
-  @Test
-  public void canWrite_is_false_if_user_is_not_profile_administrator_of_default_organization() {
+  public void canWrite_is_false_if_user_is_not_profile_administrator() {
+    // TODO
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
 
     String json = ws.newRequest().execute().getInput();
 
     assertJson(json).isSimilarTo("{ \"canWrite\": false }");
-  }
-
-  @Test
-  public void throw_NotFoundException_if_organization_does_not_exist() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No organization with key 'does_not_exist'");
-
-    ws.newRequest()
-      .setParam("organization", "does_not_exist")
-      .execute();
   }
 
   private void insertRules() {

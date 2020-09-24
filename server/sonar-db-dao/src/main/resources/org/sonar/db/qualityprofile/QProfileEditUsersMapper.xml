@@ -57,7 +57,6 @@
   <sql id="sqlSelectByQuery">
     FROM users u
     LEFT JOIN qprofile_edit_users qeu ON qeu.user_uuid=u.uuid AND qeu.qprofile_uuid=#{query.qProfileUuid, jdbcType=VARCHAR}
-    INNER JOIN organization_members om ON u.uuid=om.user_uuid AND om.organization_uuid=#{query.organizationUuid, jdbcType=VARCHAR}
     <where>
       <choose>
         <when test="query.getMembership() == 'IN'">
@@ -76,10 +75,9 @@
     </where>
   </sql>
 
-  <select id="selectQProfileUuidsByOrganizationAndUser" parameterType="map" resultType="string">
+  <select id="selectQProfileUuidsByUser" parameterType="map" resultType="string">
     SELECT qeu.qprofile_uuid as qProfileUuid
     FROM qprofile_edit_users qeu
-    INNER JOIN org_qprofiles oq ON qeu.qprofile_uuid=oq.uuid AND oq.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
     <where>
       qeu.user_uuid=#{userUuid, jdbcType=VARCHAR}
     </where>
@@ -113,18 +111,6 @@
   <delete id="deleteByUser" parameterType="map">
     delete from qprofile_edit_users
     where user_uuid = #{userUuid, jdbcType=VARCHAR}
-  </delete>
-
-  <delete id="deleteByOrganizationAndUser" parameterType="map">
-    delete from qprofile_edit_users
-    <where>
-      user_uuid=#{userUuid, jdbcType=VARCHAR}
-      and qprofile_uuid in (
-        select oq.uuid
-        from org_qprofiles oq
-        where oq.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
-      )
-    </where>
   </delete>
 
 </mapper>

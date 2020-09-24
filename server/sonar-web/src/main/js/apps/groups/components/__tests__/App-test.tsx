@@ -182,8 +182,8 @@ it('should refresh correctly', async () => {
   wrapper.instance().refresh();
   await waitAndUpdate(wrapper);
 
-  expect(searchUsersGroups).toHaveBeenNthCalledWith(1, { organization: undefined, q: query });
-  expect(searchUsersGroups).toHaveBeenNthCalledWith(2, { organization: undefined, q: query, p: 2 });
+  expect(searchUsersGroups).toHaveBeenNthCalledWith(1, { q: query });
+  expect(searchUsersGroups).toHaveBeenNthCalledWith(2, { q: query, p: 2 });
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {

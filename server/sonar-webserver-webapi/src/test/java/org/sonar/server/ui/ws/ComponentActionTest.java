@@ -256,8 +256,8 @@ public class ComponentActionTest {
   public void return_quality_profiles_and_supports_deleted_ones() {
     OrganizationDto organization = db.organizations().insert(o -> o.setKey("my-org"));
     ComponentDto project = insertProject(organization);
-    QProfileDto qp1 = db.qualityProfiles().insert(organization, t -> t.setKee("qp1").setName("Sonar Way Java").setLanguage("java"));
-    QProfileDto qp2 = db.qualityProfiles().insert(organization, t -> t.setKee("qp2").setName("Sonar Way Xoo").setLanguage("xoo"));
+    QProfileDto qp1 = db.qualityProfiles().insert(t -> t.setKee("qp1").setName("Sonar Way Java").setLanguage("java"));
+    QProfileDto qp2 = db.qualityProfiles().insert(t -> t.setKee("qp2").setName("Sonar Way Xoo").setLanguage("xoo"));
     addQualityProfiles(project,
       new QualityProfile(qp1.getKee(), qp1.getName(), qp1.getLanguage(), new Date()),
       new QualityProfile(qp2.getKee(), qp2.getName(), qp2.getLanguage(), new Date()));

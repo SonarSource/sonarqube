@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -39,13 +38,12 @@ public class ActiveRuleCompleterTest {
 
   @Test
   public void test_completeShow() {
-    OrganizationDto organization = dbTester.organizations().insert();
     ActiveRuleCompleter underTest = new ActiveRuleCompleter(dbTester.getDbClient(), new Languages());
     RuleDefinitionDto rule = dbTester.rules().insert();
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert();
     ActiveRuleDto activeRule = dbTester.qualityProfiles().activateRule(qualityProfile, rule);
 
-    List<Rules.Active> result = underTest.completeShow(dbTester.getSession(), organization, rule);
+    List<Rules.Active> result = underTest.completeShow(dbTester.getSession(), rule);
 
     assertThat(result).extracting(Rules.Active::getQProfile).containsExactlyInAnyOrder(qualityProfile.getKee());
     assertThat(result).extracting(Rules.Active::getSeverity).containsExactlyInAnyOrder(activeRule.getSeverityString());

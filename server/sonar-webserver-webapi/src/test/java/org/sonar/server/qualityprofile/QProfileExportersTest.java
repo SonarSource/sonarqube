@@ -68,8 +68,7 @@ public class QProfileExportersTest {
   @org.junit.Rule
   public DbTester db = DbTester.create(system2);
 
-  public DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private RuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider);
+  private RuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient());
   private ProfileExporter[] exporters = new ProfileExporter[] {
     new StandardExporter(), new XooExporter()};
   private ProfileImporter[] importers = new ProfileImporter[] {
@@ -131,7 +130,7 @@ public class QProfileExportersTest {
   @Test
   public void fail_to_import_xml_when_error_in_importer() {
     try {
-      underTest.importXml(QProfileTesting.newXooP1("org-123"), "XooProfileImporterWithError", toInputStream("<xml/>", UTF_8), db.getSession());
+      underTest.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithError", toInputStream("<xml/>", UTF_8), db.getSession());
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("error!");
@@ -141,7 +140,7 @@ public class QProfileExportersTest {
   @Test
   public void fail_to_import_xml_on_unknown_importer() {
     try {
-      underTest.importXml(QProfileTesting.newXooP1("org-123"), "Unknown", toInputStream("<xml/>", UTF_8), db.getSession());
+      underTest.importXml(QProfileTesting.newXooP1(), "Unknown", toInputStream("<xml/>", UTF_8), db.getSession());
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("No such importer : Unknown");
@@ -187,7 +186,7 @@ public class QProfileExportersTest {
   }
 
   private QProfileDto createProfile() {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(rule.getLanguage()));
+    return db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()));
   }
 
   public static class XooExporter extends ProfileExporter {

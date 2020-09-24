@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -40,7 +39,6 @@ import org.sonarqube.ws.Qualityprofiles.InheritanceWsResponse.QualityProfile;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
-import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class InheritanceAction implements QProfileWsAction {
@@ -63,8 +61,6 @@ public class InheritanceAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("inheritance-example.json"));
 
-    createOrganizationParam(inheritance)
-      .setSince("6.4");
     QProfileReference.defineParams(inheritance, languages);
   }
 
@@ -73,14 +69,13 @@ public class InheritanceAction implements QProfileWsAction {
     QProfileReference reference = QProfileReference.fromName(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, reference);
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       List<QProfileDto> ancestors = ancestors(profile, dbSession);
       List<QProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, singleton(profile));
       List<QProfileDto> allProfiles = new ArrayList<>();
       allProfiles.add(profile);
       allProfiles.addAll(ancestors);
       allProfiles.addAll(children);
-      Statistics statistics = new Statistics(dbSession, organization, allProfiles);
+      Statistics statistics = new Statistics(dbSession, allProfiles);
 
       writeProtobuf(buildResponse(profile, ancestors, children, statistics), request, response);
     }
@@ -146,9 +141,9 @@ public class InheritanceAction implements QProfileWsAction {
     private final Map<String, Long> countRulesByProfileKey;
     private final Map<String, Long> countOverridingRulesByProfileKey;
 
-    private Statistics(DbSession dbSession, OrganizationDto organization, List<QProfileDto> profiles) {
+    private Statistics(DbSession dbSession, List<QProfileDto> profiles) {
       ActiveRuleDao dao = dbClient.activeRuleDao();
-      ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder().setOrganization(organization);
+      ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder();
       countRulesByProfileKey = dao.countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).build());
       countOverridingRulesByProfileKey = dao.countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).setInheritance(OVERRIDES).build());
     }

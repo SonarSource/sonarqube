@@ -28,17 +28,14 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QProfileEditUsersDto;
 import org.sonar.db.user.UserDto;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LOGIN;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class AddUserAction implements QProfileWsAction {
@@ -86,16 +83,14 @@ public class AddUserAction implements QProfileWsAction {
       .setRequired(true)
       .setExampleValue("john.doe");
 
-    createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
-      QProfileDto profile = wsSupport.getProfile(dbSession, organization, request.mandatoryParam(PARAM_QUALITY_PROFILE), request.mandatoryParam(PARAM_LANGUAGE));
-      wsSupport.checkCanEdit(dbSession, organization, profile);
-      UserDto user = wsSupport.getUser(dbSession, organization, request.mandatoryParam(PARAM_LOGIN));
+      QProfileDto profile = wsSupport.getProfile(dbSession, request.mandatoryParam(PARAM_QUALITY_PROFILE), request.mandatoryParam(PARAM_LANGUAGE));
+      wsSupport.checkCanEdit(dbSession, profile);
+      UserDto user = wsSupport.getUser(dbSession, request.mandatoryParam(PARAM_LOGIN));
       addUser(dbSession, profile, user);
     }
     response.noContent();

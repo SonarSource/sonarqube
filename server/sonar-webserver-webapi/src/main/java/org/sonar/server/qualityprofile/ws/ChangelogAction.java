@@ -73,9 +73,6 @@ public class ChangelogAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("changelog-example.json"));
 
-    QProfileWsSupport.createOrganizationParam(wsAction)
-      .setSince("6.4");
-
     QProfileReference.defineParams(wsAction, languages);
 
     wsAction.addPagingParams(50, MAX_PAGE_SIZE);

@@ -44,7 +44,7 @@ public class DefaultOrganizationProviderImpl implements DefaultOrganizationProvi
     return cache;
   }
 
-  private static DefaultOrganization getDefaultOrganization(DbClient dbClient) {
+  public static DefaultOrganization getDefaultOrganization(DbClient dbClient) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<String> uuid = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_ORGANIZATION);
       checkState(uuid.isPresent() && !uuid.get().isEmpty(), "No Default organization uuid configured");

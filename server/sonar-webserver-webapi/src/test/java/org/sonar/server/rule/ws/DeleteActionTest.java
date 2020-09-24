@@ -57,12 +57,11 @@ public class DeleteActionTest {
   public EsTester es = EsTester.create();
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
   private RuleIndexer ruleIndexer = spy(new RuleIndexer(es.client(), dbClient));
   private QProfileRules qProfileRules = mock(QProfileRules.class);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
   private RuleWsSupport ruleWsSupport = new RuleWsSupport(mock(DbClient.class), userSession, defaultOrganizationProvider);
   private DeleteAction underTest = new DeleteAction(System2.INSTANCE, ruleIndexer, dbClient, qProfileRules, ruleWsSupport);
   private WsActionTester tester = new WsActionTester(underTest);

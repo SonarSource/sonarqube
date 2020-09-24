@@ -82,12 +82,6 @@ it('should add extra description', async () => {
 
 function getWrapper(props = {}) {
   return shallow(
-    <RuleDetailsDescription
-      canWrite={false}
-      onChange={jest.fn()}
-      organization={undefined}
-      ruleDetails={RULE}
-      {...props}
-    />
+    <RuleDetailsDescription canWrite={false} onChange={jest.fn()} ruleDetails={RULE} {...props} />
   );
 }

@@ -61,11 +61,10 @@ public class QProfileFactoryImpl implements QProfileFactory {
   }
 
   @Override
-  public QProfileDto getOrCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
-    requireNonNull(organization);
-    QProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name.getName(), name.getLanguage());
+  public QProfileDto getOrCreateCustom(DbSession dbSession, QProfileName name) {
+    QProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(dbSession, name.getName(), name.getLanguage());
     if (profile == null) {
-      profile = doCreate(dbSession, organization, name, null, false, false);
+      profile = doCreate(dbSession, name, null, false, false);
     } else {
       checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
     }
@@ -74,20 +73,18 @@ public class QProfileFactoryImpl implements QProfileFactory {
   }
 
   @Override
-  public QProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
-    requireNonNull(organization);
-    QProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name.getName(), name.getLanguage());
+  public QProfileDto checkAndCreateCustom(DbSession dbSession, QProfileName name) {
+    QProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(dbSession, name.getName(), name.getLanguage());
     checkRequest(dto == null, "Quality profile already exists: %s", name);
-    return doCreate(dbSession, organization, name, null,false, false);
+    return doCreate(dbSession, name, null, false, false);
   }
 
   @Override
-  public QProfileDto createCustom(DbSession dbSession, OrganizationDto organization, QProfileName name, @Nullable String parentKey) {
-    requireNonNull(organization);
-    return doCreate(dbSession, organization, name, parentKey,false, false);
+  public QProfileDto createCustom(DbSession dbSession, QProfileName name, @Nullable String parentKey) {
+    return doCreate(dbSession, name, parentKey, false, false);
   }
 
-  private QProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, @Nullable String parentKey, boolean isDefault, boolean isBuiltIn) {
+  private QProfileDto doCreate(DbSession dbSession, QProfileName name, @Nullable String parentKey, boolean isDefault, boolean isBuiltIn) {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
@@ -96,7 +93,6 @@ public class QProfileFactoryImpl implements QProfileFactory {
       .setKee(uuidFactory.create())
       .setRulesProfileUuid(uuidFactory.create())
       .setName(name.getName())
-      .setOrganizationUuid(organization.getUuid())
       .setLanguage(name.getLanguage())
       .setIsBuiltIn(isBuiltIn)
       .setParentKee(parentKey)

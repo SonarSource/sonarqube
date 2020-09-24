@@ -6,13 +6,11 @@
   <insert id="insert" useGeneratedKeys="false" parameterType="map">
     insert into default_qprofiles
     (
-      organization_uuid,
       language,
       qprofile_uuid,
       created_at,
       updated_at
     ) values (
-      #{dto.organizationUuid, jdbcType=VARCHAR},
       #{dto.language, jdbcType=VARCHAR},
       #{dto.qProfileUuid, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
@@ -26,8 +24,7 @@
       qprofile_uuid = #{dto.qProfileUuid, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=BIGINT}
     where
-      organization_uuid = #{dto.organizationUuid, jdbcType=VARCHAR}
-      and language = #{dto.language, jdbcType=VARCHAR}
+      language = #{dto.language, jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteByQProfileUuids" parameterType="String">
@@ -42,17 +39,14 @@
     select qprofile_uuid
     from default_qprofiles
     where
-      organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-      and qprofile_uuid in
+      qprofile_uuid in
       <foreach collection="qProfileUuids" open="(" close=")" item="qProfileUuid" separator=",">
         #{qProfileUuid, jdbcType=VARCHAR}
       </foreach>
   </select>
 
-  <select id="selectUuidsOfOrganizationsWithoutDefaultProfile" parameterType="String" resultType="String">
-    select uuid from organizations
-    where not exists
-    (select 1 from default_qprofiles dqp where dqp.organization_uuid = uuid and dqp.language = #{language, jdbcType=VARCHAR})
+  <select id="selectDefaultQProfileUuid" parameterType="String" resultType="String">
+    select qprofile_uuid from default_qprofiles where language = #{language, jdbcType=VARCHAR}
   </select>
 </mapper>
 

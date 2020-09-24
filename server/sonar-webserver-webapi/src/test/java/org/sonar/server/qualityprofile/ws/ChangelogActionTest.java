@@ -33,25 +33,19 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SINCE;
 
@@ -69,13 +63,11 @@ public class ChangelogActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db));
-  private WsActionTester ws = new WsActionTester(
-    new ChangelogAction(wsSupport, new Languages(), db.getDbClient()));
+  private WsActionTester ws = new WsActionTester(new ChangelogAction(wsSupport, new Languages(), db.getDbClient()));
 
   @Test
   public void return_change_with_all_fields() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
     RuleDefinitionDto rule = db.rules().insert(RuleKey.of("java", "S001"));
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user, ImmutableMap.of(
@@ -88,7 +80,6 @@ public class ChangelogActionTest {
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -116,8 +107,7 @@ public class ChangelogActionTest {
 
   @Test
   public void find_changelog_by_profile_key() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user,
@@ -128,7 +118,6 @@ public class ChangelogActionTest {
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -150,7 +139,7 @@ public class ChangelogActionTest {
 
   @Test
   public void find_changelog_by_language_and_name() {
-    QProfileDto qualityProfile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
@@ -182,8 +171,7 @@ public class ChangelogActionTest {
 
   @Test
   public void find_changelog_by_organization_and_language_and_name() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
@@ -194,7 +182,6 @@ public class ChangelogActionTest {
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -216,13 +203,11 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_empty() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
 
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -231,8 +216,7 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_filter_by_since() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
     RuleDefinitionDto rule = db.rules().insert();
     UserDto user = db.users().insertUser();
@@ -244,7 +228,6 @@ public class ChangelogActionTest {
     assertJson(ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_SINCE, "2011-04-25T01:15:42+0100")
       .execute()
       .getInput()).isSimilarTo("{\n" +
@@ -262,7 +245,6 @@ public class ChangelogActionTest {
     assertJson(ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_SINCE, "2011-04-25T01:15:43+0100")
       .execute()
       .getInput()).isSimilarTo("{\n" +
@@ -272,8 +254,7 @@ public class ChangelogActionTest {
 
   @Test
   public void sort_changelog_events_in_reverse_chronological_order() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
     system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
     RuleDefinitionDto rule1 = db.rules().insert();
     insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null,
@@ -289,7 +270,6 @@ public class ChangelogActionTest {
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -318,8 +298,7 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_on_no_more_existing_rule() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
     insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
       ImmutableMap.of("ruleUuid", "123"));
@@ -327,7 +306,6 @@ public class ChangelogActionTest {
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -345,8 +323,7 @@ public class ChangelogActionTest {
 
   @Test
   public void changelog_on_no_more_existing_user() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert();
     insertChange(c -> c.setRulesProfileUuid(qualityProfile.getRulesProfileUuid())
       .setUserUuid("UNKNOWN")
@@ -356,7 +333,6 @@ public class ChangelogActionTest {
     String response = ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute()
       .getInput();
 
@@ -375,73 +351,8 @@ public class ChangelogActionTest {
   }
 
   @Test
-  public void changelog_on_paid_organization() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addMembership(organization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-    RuleDefinitionDto rule = db.rules().insert();
-    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, db.users().insertUser(),
-      ImmutableMap.of(
-        "ruleUuid", rule.getUuid(),
-        "severity", "MINOR"));
-
-    String response = ws.newRequest()
-      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute()
-      .getInput();
-
-    assertJson(response).isSimilarTo("{\n" +
-      "  \"events\": [\n" +
-      "    {\n" +
-      "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}");
-  }
-
-  @Test
-  public void do_not_find_changelog_by_wrong_organization_and_language_and_name() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization1);
-    RuleDefinitionDto rule = db.rules().insert();
-    UserDto user = db.users().insertUser();
-    insertChange(qualityProfile, ActiveRuleChange.Type.ACTIVATED, user,
-      ImmutableMap.of(
-        "ruleUuid", rule.getUuid(),
-        "severity", "MINOR"));
-
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest()
-      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization2.getKey())
-      .execute();
-  }
-
-  @Test
-  public void fail_on_paid_organization_when_not_member() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
-      .setParam(PARAM_QUALITY_PROFILE, qualityProfile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
-  }
-
-  @Test
   public void example() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
     String profileUuid = profile.getRulesProfileUuid();
 
     system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:39+0100").getTime());
@@ -472,7 +383,6 @@ public class ChangelogActionTest {
       .setMethod("GET")
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam("ps", "10")
       .execute()
       .getInput();
@@ -487,7 +397,7 @@ public class ChangelogActionTest {
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("qualityProfile", "language", "organization", "since", "to", "p", "ps");
+      .containsExactlyInAnyOrder("qualityProfile", "language", "since", "to", "p", "ps");
     WebService.Param profileName = definition.param("qualityProfile");
     assertThat(profileName.deprecatedSince()).isNullOrEmpty();
     WebService.Param language = definition.param("language");

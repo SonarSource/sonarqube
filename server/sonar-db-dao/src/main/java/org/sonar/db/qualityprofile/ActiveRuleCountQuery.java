@@ -24,13 +24,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class ActiveRuleCountQuery {
 
-  private final OrganizationDto organization;
   private final List<String> profileUuids;
   private final RuleStatus ruleStatus;
   private final String inheritance;
@@ -39,11 +37,6 @@ public class ActiveRuleCountQuery {
     this.profileUuids = builder.profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toList());
     this.ruleStatus = builder.ruleStatus;
     this.inheritance = builder.inheritance;
-    this.organization = builder.organization;
-  }
-
-  public OrganizationDto getOrganization() {
-    return organization;
   }
 
   public List<String> getProfileUuids() {
@@ -68,15 +61,9 @@ public class ActiveRuleCountQuery {
   }
 
   public static class Builder {
-    private OrganizationDto organization;
     private List<QProfileDto> profiles;
     private RuleStatus ruleStatus;
     private String inheritance;
-
-    public Builder setOrganization(OrganizationDto organization) {
-      this.organization = organization;
-      return this;
-    }
 
     public Builder setProfiles(List<QProfileDto> profiles) {
       this.profiles = profiles;
@@ -94,7 +81,6 @@ public class ActiveRuleCountQuery {
     }
 
     public ActiveRuleCountQuery build() {
-      checkState(organization != null, "Organization cannot be null");
       checkState(profiles != null, "Profiles cannot be null");
       return new ActiveRuleCountQuery(this);
     }

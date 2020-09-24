@@ -192,7 +192,7 @@ public class DeactivateActionTest {
   public void deactivate_user_deletes_his_qprofiles_permissions() {
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert();
     db.qualityProfiles().addUserPermission(profile, user);
 
     deactivate(user.getLogin());

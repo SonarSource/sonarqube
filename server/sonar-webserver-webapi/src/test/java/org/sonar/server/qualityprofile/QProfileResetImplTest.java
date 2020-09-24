@@ -65,7 +65,7 @@ public class QProfileResetImplTest {
 
   @Test
   public void reset() {
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE));
     RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
     qProfileRules.activateAndCommit(db.getSession(), profile, singleton(RuleActivation.create(existingRule.getUuid())));
     RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
@@ -83,8 +83,8 @@ public class QProfileResetImplTest {
 
   @Test
   public void inherited_rules_are_not_disabled() {
-    QProfileDto parentProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE));
-    QProfileDto childProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE));
+    QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE));
+    QProfileDto childProfile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE));
     qProfileTree.setParentAndCommit(db.getSession(), childProfile, parentProfile);
     RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
     qProfileRules.activateAndCommit(db.getSession(), parentProfile, singleton(RuleActivation.create(existingRule.getUuid())));
@@ -100,7 +100,7 @@ public class QProfileResetImplTest {
 
   @Test
   public void fail_when_profile_is_built_in() {
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE).setIsBuiltIn(true));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(LANGUAGE).setIsBuiltIn(true));
     RuleDefinitionDto defaultRule = db.rules().insert(r -> r.setLanguage(LANGUAGE));
 
     expectedException.expect(IllegalArgumentException.class);

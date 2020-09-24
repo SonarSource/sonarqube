@@ -51,8 +51,7 @@ export default function EvolutionStagnant(props: Props) {
               <ProfileLink
                 className="link-no-underline"
                 language={profile.language}
-                name={profile.name}
-                organization={props.organization}>
+                name={profile.name}>
                 {profile.name}
               </ProfileLink>
             </div>

@@ -34,7 +34,6 @@ function shallowRender(props: Partial<ProfilesListHeader['props']> = {}) {
         { key: 'js', name: 'JavaScript' },
         { key: 'java', name: 'Java' }
       ]}
-      organization="foo"
       router={mockRouter()}
       {...props}
     />

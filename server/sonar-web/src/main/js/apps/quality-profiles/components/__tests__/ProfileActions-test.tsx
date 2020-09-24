@@ -36,7 +36,6 @@ const PROFILE = mockQualityProfile({
   activeDeprecatedRuleCount: 0,
   depth: 0,
   language: 'js',
-  organization: 'org',
   rulesUpdatedAt: '2017-06-28T12:58:44+0000'
 });
 
@@ -83,7 +82,7 @@ it('should copy profile', async () => {
   await waitAndUpdate(wrapper);
 
   expect(push).toBeCalledWith({
-    pathname: '/organizations/org/quality_profiles/show',
+    pathname: '/profiles/show',
     query: { language: 'js', name }
   });
   expect(wrapper.find('CopyProfileForm').exists()).toBe(false);
@@ -107,7 +106,7 @@ it('should extend profile', async () => {
   await waitAndUpdate(wrapper);
 
   expect(push).toBeCalledWith({
-    pathname: '/organizations/org/quality_profiles/show',
+    pathname: '/profiles/show',
     query: { language: 'js', name }
   });
   expect(wrapper.find('ExtendProfileForm').exists()).toBe(false);

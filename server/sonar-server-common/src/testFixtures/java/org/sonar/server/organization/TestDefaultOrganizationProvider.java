@@ -66,11 +66,11 @@ public class TestDefaultOrganizationProvider implements DefaultOrganizationProvi
     }
   }
 
-  private static final class DbTesterDefaultOrganizationProvider implements DefaultOrganizationProvider {
+  public static final class DbTesterDefaultOrganizationProvider implements DefaultOrganizationProvider {
     private final DbTester dbTester;
     private DefaultOrganization defaultOrganization = null;
 
-    private DbTesterDefaultOrganizationProvider(DbTester dbTester) {
+    public DbTesterDefaultOrganizationProvider(DbTester dbTester) {
       this.dbTester = dbTester;
     }
 

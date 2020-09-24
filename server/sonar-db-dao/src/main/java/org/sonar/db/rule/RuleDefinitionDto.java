@@ -104,12 +104,12 @@ public class RuleDefinitionDto {
     return deserializeStringSet(securityStandards);
   }
 
-  private static Set<String> deserializeStringSet(@Nullable String securityStandards) {
-    if (securityStandards == null || securityStandards.isEmpty()) {
+  private static Set<String> deserializeStringSet(@Nullable String str) {
+    if (str == null || str.isEmpty()) {
       return ImmutableSet.of();
     }
 
-    return ImmutableSet.copyOf(SPLITTER.split(securityStandards));
+    return ImmutableSet.copyOf(SPLITTER.split(str));
   }
 
   private static String serializeStringSet(@Nullable Set<String> strings) {

@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { WorkspaceRuleDetails } from '../WorkspaceRuleDetails';
+import WorkspaceRuleDetails from '../WorkspaceRuleDetails';
 
 jest.mock('../../../api/rules', () => ({
   getRulesApp: jest.fn(() =>
@@ -30,14 +30,7 @@ jest.mock('../../../api/rules', () => ({
 }));
 
 it('should render', async () => {
-  const wrapper = shallow(
-    <WorkspaceRuleDetails
-      appState={{ organizationsEnabled: false }}
-      onLoad={jest.fn()}
-      organizationKey={undefined}
-      ruleKey="foo"
-    />
-  );
+  const wrapper = shallowRender();
   expect(wrapper).toMatchSnapshot();
 
   await waitAndUpdate(wrapper);
@@ -46,14 +39,13 @@ it('should render', async () => {
 
 it('should call back on load', async () => {
   const onLoad = jest.fn();
-  const wrapper = shallow(
-    <WorkspaceRuleDetails
-      appState={{ organizationsEnabled: false }}
-      onLoad={onLoad}
-      organizationKey={undefined}
-      ruleKey="foo"
-    />
-  );
+  const wrapper = shallowRender({ onLoad });
   await waitAndUpdate(wrapper);
   expect(onLoad).toBeCalledWith({ name: 'Foo' });
 });
+
+function shallowRender(props?: Partial<WorkspaceRuleDetails['props']>) {
+  return shallow<WorkspaceRuleDetails>(
+    <WorkspaceRuleDetails onLoad={jest.fn()} ruleKey="foo" {...props} />
+  );
+}

@@ -23,8 +23,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 class SearchUsersRequest {
-
-  private String organization;
   private String qualityProfile;
   private String language;
   private String selected;
@@ -33,18 +31,12 @@ class SearchUsersRequest {
   private Integer pageSize;
 
   private SearchUsersRequest(Builder builder) {
-    this.organization = builder.organization;
     this.qualityProfile = builder.qualityProfile;
     this.language = builder.language;
     this.selected = builder.selected;
     this.query = builder.query;
     this.page = builder.page;
     this.pageSize = builder.pageSize;
-  }
-
-  @CheckForNull
-  public String getOrganization() {
-    return organization;
   }
 
   public String getQualityProfile() {
@@ -77,18 +69,12 @@ class SearchUsersRequest {
   }
 
   public static class Builder {
-    private String organization;
     private String qualityProfile;
     private String language;
     private String selected;
     private String query;
     private Integer page;
     private Integer pageSize;
-
-    public Builder setOrganization(@Nullable String organization) {
-      this.organization = organization;
-      return this;
-    }
 
     public Builder setQualityProfile(String qualityProfile) {
       this.qualityProfile = qualityProfile;

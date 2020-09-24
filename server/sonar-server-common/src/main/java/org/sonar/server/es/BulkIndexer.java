@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
@@ -288,21 +289,12 @@ public class BulkIndexer {
         return false;
       }
       BulkRequestKey that = (BulkRequestKey) o;
-      if (!docType.equals(that.docType)) {
-        return false;
-      }
-      if (!index.equals(that.index)) {
-        return false;
-      }
-      return requestType.equals(that.requestType);
+      return Objects.equals(docType, that.docType) && Objects.equals(index, that.index) && Objects.equals(requestType, that.requestType);
     }
 
     @Override
     public int hashCode() {
-      int result = requestType.hashCode();
-      result = 31 * result + index.hashCode();
-      result = 31 * result + docType.hashCode();
-      return result;
+      return Objects.hash(requestType, index, docType);
     }
 
     @Override

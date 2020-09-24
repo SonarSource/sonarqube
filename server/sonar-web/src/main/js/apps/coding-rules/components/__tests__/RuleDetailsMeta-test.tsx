@@ -91,7 +91,6 @@ function shallowRender(props: Partial<RuleDetailsMeta['props']> = {}) {
       canWrite={true}
       onFilterChange={jest.fn()}
       onTagsChange={jest.fn()}
-      organization={undefined}
       referencedRepositories={{}}
       ruleDetails={RULE}
       {...props}

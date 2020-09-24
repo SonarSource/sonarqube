@@ -31,10 +31,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleMetadataDto;
@@ -67,7 +65,6 @@ import static org.sonar.db.rule.RuleTesting.setIsExternal;
 import static org.sonar.db.rule.RuleTesting.setIsTemplate;
 import static org.sonar.db.rule.RuleTesting.setLanguage;
 import static org.sonar.db.rule.RuleTesting.setName;
-import static org.sonar.db.rule.RuleTesting.setOrganization;
 import static org.sonar.db.rule.RuleTesting.setRepositoryKey;
 import static org.sonar.db.rule.RuleTesting.setRuleKey;
 import static org.sonar.db.rule.RuleTesting.setSecurityStandards;
@@ -86,7 +83,6 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE_EXTENSION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_INSECURE_INTERACTION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_RISKY_RESOURCE;
 
@@ -293,21 +289,19 @@ public class RuleIndexTest {
 
   @Test
   public void filter_by_tags() {
-    OrganizationDto organization = db.organizations().insert();
-
     RuleDefinitionDto rule1 = createRule(setSystemTags("tag1s"));
-    createRuleMetadata(rule1, organization, setTags("tag1"));
+    createRuleMetadata(rule1, setTags("tag1"));
     RuleDefinitionDto rule2 = createRule(setSystemTags("tag2s"));
-    createRuleMetadata(rule2, organization, setTags("tag2"));
+    createRuleMetadata(rule2, setTags("tag2"));
     index();
 
-    assertThat(es.countDocuments(TYPE_RULE_EXTENSION)).isEqualTo(4);
+    assertThat(es.countDocuments(TYPE_RULE)).isEqualTo(2);
     // tag2s in filter
-    RuleQuery query = new RuleQuery().setOrganization(organization).setTags(of("tag2s"));
+    RuleQuery query = new RuleQuery().setTags(of("tag2s"));
     verifySearch(query, rule2);
 
     // tag2 in filter
-    query = new RuleQuery().setOrganization(organization).setTags(of("tag2"));
+    query = new RuleQuery().setTags(of("tag2"));
     verifySearch(query, rule2);
 
     // empty list => no filter
@@ -321,14 +315,11 @@ public class RuleIndexTest {
 
   @Test
   public void tags_facet_supports_selected_value_with_regexp_special_characters() {
-    OrganizationDto organization = db.organizations().insert();
-
     RuleDefinitionDto rule = createRule();
-    createRuleMetadata(rule, organization, setTags("misra++"));
+    createRuleMetadata(rule, setTags("misra++"));
     index();
 
     RuleQuery query = new RuleQuery()
-      .setOrganization(organization)
       .setTags(singletonList("misra["));
     SearchOptions options = new SearchOptions().addFacets(FACET_TAGS);
 
@@ -507,8 +498,8 @@ public class RuleIndexTest {
   @Test
   public void compare_to_another_profile() {
     String xoo = "xoo";
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(xoo));
-    QProfileDto anotherProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(xoo));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(xoo));
+    QProfileDto anotherProfile = db.qualityProfiles().insert(p -> p.setLanguage(xoo));
     RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
     RuleDefinitionDto profileRule1 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
     RuleDefinitionDto profileRule2 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
@@ -544,8 +535,8 @@ public class RuleIndexTest {
   }
 
   @SafeVarargs
-  private final RuleMetadataDto createRuleMetadata(RuleDefinitionDto rule, OrganizationDto organization, Consumer<RuleMetadataDto>... populaters) {
-    return db.rules().insertOrUpdateMetadata(rule, organization, populaters);
+  private final RuleMetadataDto createRuleMetadata(RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
+    return db.rules().insertOrUpdateMetadata(rule, populaters);
   }
 
   @Test
@@ -641,16 +632,16 @@ public class RuleIndexTest {
   }
 
   private void index() {
-    ruleIndexer.indexOnStartup(Sets.newHashSet(TYPE_RULE, TYPE_RULE_EXTENSION));
+    ruleIndexer.indexOnStartup(Sets.newHashSet(TYPE_RULE));
     activeRuleIndexer.indexOnStartup(Sets.newHashSet(TYPE_ACTIVE_RULE));
   }
 
   private RuleQuery newRuleQuery() {
-    return new RuleQuery().setOrganization(db.getDefaultOrganization());
+    return new RuleQuery();
   }
 
   private QProfileDto createJavaProfile() {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage("java"));
+    return db.qualityProfiles().insert(p -> p.setLanguage("java"));
   }
 
   @Test
@@ -733,46 +724,24 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void listTags_should_return_both_system_tags_and_organization_specific_tags() {
-    OrganizationDto organization = db.organizations().insert();
-
+  public void listTags_should_return_tags() {
     RuleDefinitionDto rule1 = createRule(setSystemTags("sys1", "sys2"));
-    createRuleMetadata(rule1, organization, setOrganization(organization), setTags("tag1"));
+    createRuleMetadata(rule1, setTags("tag1"));
 
     RuleDefinitionDto rule2 = createRule(setSystemTags());
-    createRuleMetadata(rule2, organization, setOrganization(organization), setTags("tag2"));
+    createRuleMetadata(rule2, setTags("tag2"));
 
     index();
 
-    assertThat(underTest.listTags(organization, null, 10)).containsOnly("tag1", "tag2", "sys1", "sys2");
-  }
-
-  @Test
-  public void listTags_must_not_return_tags_of_other_organizations() {
-    OrganizationDto organization1 = db.organizations().insert();
-    RuleDefinitionDto rule1 = createRule(setSystemTags("sys1"));
-    createRuleMetadata(rule1, organization1, setOrganization(organization1), setTags("tag1"));
-
-    OrganizationDto organization2 = db.organizations().insert();
-    RuleDefinitionDto rule2 = createRule(setSystemTags("sys2"));
-    createRuleMetadata(rule2, organization2, setOrganization(organization2), setTags("tag2"));
-
-    OrganizationDto organization3 = db.organizations().insert();
-    index();
-
-    assertThat(underTest.listTags(organization1, null, 10)).containsOnly("tag1", "sys1", "sys2");
-    assertThat(underTest.listTags(organization2, null, 10)).containsOnly("tag2", "sys1", "sys2");
-    assertThat(underTest.listTags(organization3, null, 10)).containsOnly("sys1", "sys2");
+    assertThat(underTest.listTags(null, 10)).containsOnly("tag1", "tag2", "sys1", "sys2");
   }
 
   @Test
   public void fail_to_list_tags_when_size_greater_than_500() {
-    OrganizationDto organization = db.organizations().insert();
-
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Page size must be lower than or equals to 500");
 
-    underTest.listTags(organization, null, 501);
+    underTest.listTags(null, 501);
   }
 
   @Test
@@ -795,17 +764,15 @@ public class RuleIndexTest {
 
   @Test
   public void global_facet_on_repositories_and_tags() {
-    OrganizationDto organization = db.organizations().insert();
-
     createRule(setRepositoryKey("php"), setSystemTags("sysTag"));
     RuleDefinitionDto rule1 = createRule(setRepositoryKey("php"), setSystemTags());
-    createRuleMetadata(rule1, organization, setTags("tag1"));
+    createRuleMetadata(rule1, setTags("tag1"));
     RuleDefinitionDto rule2 = createRule(setRepositoryKey("javascript"), setSystemTags());
-    createRuleMetadata(rule2, organization, setTags("tag1", "tag2"));
+    createRuleMetadata(rule2, setTags("tag1", "tag2"));
     index();
 
     // should not have any facet!
-    RuleQuery query = new RuleQuery().setOrganization(organization);
+    RuleQuery query = new RuleQuery();
     SearchIdResult result1 = underTest.search(query, new SearchOptions());
     assertThat(result1.getFacets().getAll()).isEmpty();
 
@@ -859,9 +826,7 @@ public class RuleIndexTest {
   @Test
   public void sticky_facets_no_filters() {
     setupStickyFacets();
-    OrganizationDto organization = db.organizations().insert();
-
-    RuleQuery query = new RuleQuery().setOrganization(organization);
+    RuleQuery query = new RuleQuery();
 
     SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES,
       FACET_TAGS, FACET_TYPES)));
@@ -880,12 +845,9 @@ public class RuleIndexTest {
   @Test
   public void sticky_facets_with_1_filter() {
     setupStickyFacets();
-    OrganizationDto organization = db.organizations().insert();
+    RuleQuery query = new RuleQuery().setLanguages(ImmutableList.of("cpp"));
 
-    RuleQuery query = new RuleQuery().setOrganization(organization).setLanguages(ImmutableList.of("cpp"));
-
-    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES,
-      FACET_REPOSITORIES, FACET_TAGS)));
+    SearchIdResult<String> result = underTest.search(query, new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS)));
     assertThat(result.getUuids()).hasSize(3);
     assertThat(result.getFacets().getAll()).hasSize(3);
     assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java", "cobol");
@@ -915,12 +877,11 @@ public class RuleIndexTest {
 
   @Test
   public void tags_facet_should_find_tags_of_specified_organization() {
-    OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule = createRule(setSystemTags());
-    createRuleMetadata(rule, organization, setTags("bla"));
+    createRuleMetadata(rule, setTags("bla"));
     index();
 
-    RuleQuery query = new RuleQuery().setOrganization(organization);
+    RuleQuery query = new RuleQuery();
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
 
     SearchIdResult<String> result = underTest.search(query, options);
@@ -934,8 +895,7 @@ public class RuleIndexTest {
     createRule(setSystemTags(tags));
     index();
 
-    RuleQuery query = new RuleQuery()
-      .setOrganization(db.getDefaultOrganization());
+    RuleQuery query = new RuleQuery();
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
     SearchIdResult<String> result = underTest.search(query, options);
     assertThat(result.getFacets().get(FACET_TAGS).size()).isEqualTo(100);
@@ -951,7 +911,6 @@ public class RuleIndexTest {
     index();
 
     RuleQuery query = new RuleQuery()
-      .setOrganization(db.getDefaultOrganization())
       .setTags(singletonList("tagA"));
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
     SearchIdResult<String> result = underTest.search(query, options);
@@ -965,39 +924,12 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void tags_facet_should_not_find_tags_of_any_other_organization() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    RuleDefinitionDto rule = createRule(setSystemTags());
-    createRuleMetadata(rule, organization1, setTags("bla1"));
-    createRuleMetadata(rule, organization2, setTags("bla2"));
-    index();
-
-    RuleQuery query = new RuleQuery().setOrganization(organization2);
-    SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
-
-    SearchIdResult<String> result = underTest.search(query, options);
-    assertThat(result.getFacets().get(FACET_TAGS).entrySet()).extracting(e -> entry(e.getKey(), e.getValue())).containsExactly(
-      entry("bla2", 1L));
-  }
-
-  @Test
   public void tags_facet_should_be_available_if_organization_is_specified() {
-    OrganizationDto organization = db.organizations().insert();
-    RuleQuery query = new RuleQuery().setOrganization(organization);
+    RuleQuery query = new RuleQuery();
     SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
 
     SearchIdResult<String> result = underTest.search(query, options);
     assertThat(result.getFacets().get(FACET_TAGS)).isNotNull();
-  }
-
-  @Test
-  public void tags_facet_should_be_unavailable_if_no_organization_is_specfified() {
-    RuleQuery query = new RuleQuery();
-    SearchOptions options = new SearchOptions().addFacets(singletonList(FACET_TAGS));
-
-    expectedException.expectMessage("Cannot use tags facet, if no organization is specified.");
-    underTest.search(query, options);
   }
 
   /**
@@ -1011,7 +943,6 @@ public class RuleIndexTest {
     setupStickyFacets();
 
     RuleQuery query = new RuleQuery()
-      .setOrganization(db.getDefaultOrganization())
       .setLanguages(ImmutableList.of("cpp"))
       .setTags(ImmutableList.of("T2"));
 
@@ -1037,7 +968,6 @@ public class RuleIndexTest {
     setupStickyFacets();
 
     RuleQuery query = new RuleQuery()
-      .setOrganization(db.getDefaultOrganization())
       .setLanguages(ImmutableList.of("cpp", "java"))
       .setTags(ImmutableList.of("T2"))
       .setTypes(asList(BUG, CODE_SMELL));

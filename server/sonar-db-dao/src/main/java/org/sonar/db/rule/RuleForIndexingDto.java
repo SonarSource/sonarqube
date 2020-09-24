@@ -37,6 +37,7 @@ public class RuleForIndexingDto {
   private RuleStatus status;
   private boolean isTemplate;
   private String systemTags;
+  private String tags;
   private String securityStandards;
   private String templateRuleKey;
   private String templateRepository;
@@ -89,6 +90,10 @@ public class RuleForIndexingDto {
 
   public Set<String> getSystemTags() {
     return RuleDefinitionDto.deserializeTagsString(systemTags);
+  }
+
+  public Set<String> getTags() {
+    return RuleDefinitionDto.deserializeTagsString(tags);
   }
 
   public Set<String> getSecurityStandards() {

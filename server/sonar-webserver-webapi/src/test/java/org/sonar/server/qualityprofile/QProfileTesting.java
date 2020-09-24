@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
 /**
@@ -40,11 +39,10 @@ public class QProfileTesting {
    * @deprecated provide organization as dto
    */
   @Deprecated
-  public static QProfileDto newQProfileDto(String organizationUuid, QProfileName name, String key) {
+  public static QProfileDto newQProfileDto(QProfileName name, String key) {
     return new QProfileDto()
       .setKee(key)
       .setRulesProfileUuid("rp-" + key)
-      .setOrganizationUuid(organizationUuid)
       .setName(name.getName())
       .setLanguage(name.getLanguage());
   }
@@ -53,44 +51,23 @@ public class QProfileTesting {
    * @deprecated provide organization as dto
    */
   @Deprecated
-  public static QProfileDto newXooP1(String organizationUuid) {
-    return newQProfileDto(organizationUuid, XOO_P1_NAME, XOO_P1_KEY);
+  public static QProfileDto newXooP1() {
+    return newQProfileDto(XOO_P1_NAME, XOO_P1_KEY);
   }
 
   /**
    * @deprecated provide organization as dto
    */
   @Deprecated
-  public static QProfileDto newXooP2(String organizationUuid) {
-    return newQProfileDto(organizationUuid, XOO_P2_NAME, XOO_P2_KEY);
+  public static QProfileDto newXooP2() {
+    return newQProfileDto(XOO_P2_NAME, XOO_P2_KEY);
   }
 
   /**
    * @deprecated provide organization as dto
    */
   @Deprecated
-  public static QProfileDto newXooP3(String organizationUuid) {
-    return newQProfileDto(organizationUuid, XOO_P3_NAME, XOO_P3_KEY);
-  }
-
-  public static QProfileDto newQProfileDto(OrganizationDto organization, QProfileName name, String uuid) {
-    return new QProfileDto()
-      .setKee(uuid)
-      .setRulesProfileUuid("rp-" + uuid)
-      .setOrganizationUuid(organization.getUuid())
-      .setName(name.getName())
-      .setLanguage(name.getLanguage());
-  }
-
-  public static QProfileDto newXooP1(OrganizationDto organization) {
-    return newQProfileDto(organization, XOO_P1_NAME, XOO_P1_KEY);
-  }
-
-  public static QProfileDto newXooP2(OrganizationDto organization) {
-    return newQProfileDto(organization, XOO_P2_NAME, XOO_P2_KEY);
-  }
-
-  public static QProfileDto newXooP3(OrganizationDto organization) {
-    return newQProfileDto(organization, XOO_P3_NAME, XOO_P3_KEY);
+  public static QProfileDto newXooP3() {
+    return newQProfileDto(XOO_P3_NAME, XOO_P3_KEY);
   }
 }

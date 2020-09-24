@@ -32,14 +32,12 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singleton;
-import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 
 public class DeleteAction implements QProfileWsAction {
 
@@ -71,8 +69,6 @@ public class DeleteAction implements QProfileWsAction {
       .setHandler(this);
 
     QProfileReference.defineParams(action, languages);
-    createOrganizationParam(action)
-      .setSince("6.4");
   }
 
   @Override
@@ -81,8 +77,7 @@ public class DeleteAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromName(request));
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
-      wsSupport.checkCanEdit(dbSession, organization, profile);
+      wsSupport.checkCanEdit(dbSession, profile);
 
       Collection<QProfileDto> descendants = selectDescendants(dbSession, profile);
       ensureNoneIsMarkedAsDefault(dbSession, profile, descendants);
@@ -102,7 +97,7 @@ public class DeleteAction implements QProfileWsAction {
     allUuids.add(profile.getKee());
     descendants.forEach(p -> allUuids.add(p.getKee()));
 
-    Set<String> uuidsOfDefaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, profile.getOrganizationUuid(), allUuids);
+    Set<String> uuidsOfDefaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, allUuids);
 
     checkArgument(!uuidsOfDefaultProfiles.contains(profile.getKee()), "Profile '%s' cannot be deleted because it is marked as default", profile.getName());
     descendants.stream()

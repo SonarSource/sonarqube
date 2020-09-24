@@ -20,18 +20,7 @@
 package org.sonar.db.qualityprofile;
 
 public class OrgActiveRuleDto extends ActiveRuleDto {
-
-  private String organizationUuid;
   private String orgProfileUuid;
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public OrgActiveRuleDto setOrganizationUuid(String s) {
-    this.organizationUuid = s;
-    return this;
-  }
 
   public String getOrgProfileUuid() {
     return orgProfileUuid;

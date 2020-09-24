@@ -39,7 +39,6 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileRules;
@@ -56,7 +55,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 
 public class DeactivateRuleActionTest {
@@ -74,13 +72,11 @@ public class DeactivateRuleActionTest {
   private DeactivateRuleAction underTest = new DeactivateRuleAction(dbClient, qProfileRules, userSession, wsSupport);
   private WsActionTester ws = new WsActionTester(underTest);
   private OrganizationDto defaultOrganization;
-  private OrganizationDto organization;
 
   @Before
   public void before() {
     MockitoAnnotations.initMocks(this);
     defaultOrganization = db.getDefaultOrganization();
-    organization = db.organizations().insert();
   }
 
   @Test
@@ -94,30 +90,10 @@ public class DeactivateRuleActionTest {
   @Test
   public void deactivate_rule_in_default_organization() {
     userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_RULE, rule.getKey().toString())
-      .setParam(PARAM_KEY, qualityProfile.getKee());
-
-    TestResponse response = request.execute();
-
-    assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    verify(qProfileRules).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleUuidsCaptor.capture());
-    assertThat(ruleUuidsCaptor.getValue()).containsExactly(rule.getUuid());
-    assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
-  }
-
-  @Test
-  public void deactivate_rule_in_specific_organization() {
-    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-    RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());
-    TestRequest request = ws.newRequest()
-      .setMethod("POST")
-      .setParam("organization", organization.getKey())
       .setParam(PARAM_RULE, rule.getKey().toString())
       .setParam(PARAM_KEY, qualityProfile.getKee());
 
@@ -133,7 +109,7 @@ public class DeactivateRuleActionTest {
   @Test
   public void as_qprofile_editor() {
     UserDto user = db.users().insertUser();
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     db.qualityProfiles().addUserPermission(qualityProfile, user);
     userSession.logIn(user);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
@@ -141,7 +117,6 @@ public class DeactivateRuleActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_RULE, ruleKey.toString())
       .setParam(PARAM_KEY, qualityProfile.getKee())
       .execute();
@@ -162,24 +137,9 @@ public class DeactivateRuleActionTest {
   }
 
   @Test
-  public void fail_if_not_organization_quality_profile_administrator() {
-    RuleDefinitionDto rule = db.rules().insert();
-    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-    TestRequest request = ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_RULE, rule.getKey().toString())
-      .setParam(PARAM_KEY, qualityProfile.getKee());
-
-    expectedException.expect(ForbiddenException.class);
-
-    request.execute();
-  }
-
-  @Test
   public void fail_activate_external_rule() {
     userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert(r -> r.setIsExternal(true));
 
     TestRequest request = ws.newRequest()
@@ -198,7 +158,7 @@ public class DeactivateRuleActionTest {
     RuleDefinitionDto rule = db.rules().insert();
     userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
 
-    QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization, profile -> profile.setIsBuiltIn(true));
+    QProfileDto qualityProfile = db.qualityProfiles().insert(profile -> profile.setIsBuiltIn(true));
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, rule.getKey().toString())

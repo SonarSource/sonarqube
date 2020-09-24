@@ -42,7 +42,6 @@ import FiltersHeader from '../../../components/common/FiltersHeader';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import '../../../components/search-navigator.css';
 import { hasPrivateAccess } from '../../../helpers/organizations';
-import { isSonarCloud } from '../../../helpers/system';
 import { isLoggedIn } from '../../../helpers/users';
 import {
   getAppState,
@@ -552,7 +551,7 @@ export class App extends React.PureComponent<Props, State> {
     const { canWrite, paging, query, referencedProfiles } = this.state;
     const organization = this.props.organization && this.props.organization.key;
 
-    if (!isLoggedIn(currentUser) || (isSonarCloud() && !organization) || !canWrite) {
+    if (!isLoggedIn(currentUser) || !canWrite) {
       return null;
     }
 
@@ -664,7 +663,6 @@ export class App extends React.PureComponent<Props, State> {
                   onDeactivate={this.handleRuleDeactivate}
                   onDelete={this.handleRuleDelete}
                   onFilterChange={this.handleFilterChange}
-                  organization={organization}
                   referencedProfiles={this.state.referencedProfiles}
                   referencedRepositories={this.state.referencedRepositories}
                   ruleKey={this.state.openRule.key}

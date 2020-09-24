@@ -37,7 +37,6 @@ interface Props {
   canWrite: boolean | undefined;
   onActivate: () => Promise<void>;
   onDeactivate: () => Promise<void>;
-  organization: string | undefined;
   referencedProfiles: T.Dict<Profile>;
   ruleDetails: T.RuleDetails;
 }
@@ -49,7 +48,6 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     if (key) {
       deactivateRule({
         key,
-        organization: this.props.organization,
         rule: this.props.ruleDetails.key
       }).then(this.props.onDeactivate, () => {});
     }
@@ -59,7 +57,6 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     if (key) {
       activateRule({
         key,
-        organization: this.props.organization,
         rule: this.props.ruleDetails.key,
         reset: true
       }).then(this.props.onActivate, () => {});
@@ -70,11 +67,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     if (!profile.parentName) {
       return null;
     }
-    const profilePath = getQualityProfileUrl(
-      profile.parentName,
-      profile.language,
-      this.props.organization
-    );
+    const profilePath = getQualityProfileUrl(profile.parentName, profile.language);
     return (
       <div className="coding-rules-detail-quality-profile-inheritance">
         {(activation.inherit === 'OVERRIDES' || activation.inherit === 'INHERITED') && (
@@ -149,7 +142,6 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
                 className="coding-rules-detail-quality-profile-change"
                 modalHeader={translate('coding_rules.change_details')}
                 onDone={this.handleActivate}
-                organization={this.props.organization}
                 profiles={[profile]}
                 rule={ruleDetails}
               />
@@ -209,9 +201,7 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
     return (
       <tr data-profile={profile.key} key={profile.key}>
         <td className="coding-rules-detail-quality-profile-name">
-          <Link to={getQualityProfileUrl(profile.name, profile.language, this.props.organization)}>
-            {profile.name}
-          </Link>
+          <Link to={getQualityProfileUrl(profile.name, profile.language)}>{profile.name}</Link>
           {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
           {this.renderInheritedProfile(activation, profile)}
         </td>
@@ -244,7 +234,6 @@ export default class RuleDetailsProfiles extends React.PureComponent<Props> {
               className="coding-rules-quality-profile-activate spacer-left"
               modalHeader={translate('coding_rules.activate_in_quality_profile')}
               onDone={this.handleActivate}
-              organization={this.props.organization}
               profiles={filter(
                 this.props.referencedProfiles,
                 profile => !activations.find(activation => activation.qProfile === profile.key)

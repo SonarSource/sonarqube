@@ -29,14 +29,12 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -61,7 +59,6 @@ import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_KEY;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_MARKDOWN_NOTE;
-import static org.sonar.server.rule.ws.UpdateAction.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_BASE_EFFORT;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_GAP_MULTIPLIER;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_TYPE;
@@ -83,11 +80,10 @@ public class UpdateActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
   private EsClient esClient = es.client();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private Languages languages = new Languages();
   private RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter());
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
@@ -155,11 +151,11 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void update_tags_for_default_organization() {
+  public void update_tags() {
     logInAsQProfileAdministrator();
 
     RuleDefinitionDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
-    db.rules().insertOrUpdateMetadata(rule, db.getDefaultOrganization(), setTags("tag1", "tag2"), m -> m.setNoteData(null).setNoteUserUuid(null));
+    db.rules().insertOrUpdateMetadata(rule, setTags("tag1", "tag2"), m -> m.setNoteData(null).setNoteUserUuid(null));
 
     Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
@@ -172,40 +168,11 @@ public class UpdateActionTest {
     assertThat(updatedRule.getKey()).isEqualTo(rule.getKey().toString());
     assertThat(updatedRule.getSysTags().getSysTagsList()).containsExactly(rule.getSystemTags().toArray(new String[0]));
     assertThat(updatedRule.getTags().getTagsList()).containsExactly("tag2", "tag3");
-  }
-
-  @Test
-  public void update_tags_for_specific_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    logInAsQProfileAdministrator(organization.getUuid());
-
-    RuleDefinitionDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
-    db.rules().insertOrUpdateMetadata(rule, organization, setTags("tagAlt1", "tagAlt2"), m -> m.setNoteData(null).setNoteUserUuid(null));
-
-    Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
-      .setParam(PARAM_KEY, rule.getKey().toString())
-      .setParam(PARAM_TAGS, "tag2,tag3")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .executeProtobuf(Rules.UpdateResponse.class);
-
-    Rules.Rule updatedRule = result.getRule();
-    assertThat(updatedRule).isNotNull();
-
-    // check response
-    assertThat(updatedRule.getKey()).isEqualTo(rule.getKey().toString());
-    assertThat(updatedRule.getSysTags().getSysTagsList()).containsExactly(rule.getSystemTags().toArray(new String[0]));
-    assertThat(updatedRule.getTags().getTagsList()).containsExactly("tag2", "tag3");
-
-    // check database
-    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization.getUuid())
-      .orElseThrow(() -> new IllegalStateException("Cannot load metadata"));
-    assertThat(metadataOfSpecificOrg.getTags()).containsExactly("tag2", "tag3");
   }
 
   @Test
   public void update_rule_remediation_function() {
-    OrganizationDto organization = db.organizations().insert();
-    logInAsQProfileAdministrator(organization.getUuid());
+    logInAsQProfileAdministrator();
 
     RuleDefinitionDto rule = db.rules().insert(
       r -> r.setDefRemediationFunction(LINEAR.toString()),
@@ -218,7 +185,6 @@ public class UpdateActionTest {
 
     Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam("key", rule.getKey().toString())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_REMEDIATION_FN_TYPE, newOffset)
       .setParam(PARAM_REMEDIATION_FN_GAP_MULTIPLIER, newMultiplier)
       .setParam(PARAM_REMEDIATION_FN_BASE_EFFORT, newEffort)
@@ -238,7 +204,7 @@ public class UpdateActionTest {
     assertThat(updatedRule.getRemFnBaseEffort()).isEqualTo(newEffort);
 
     // check database
-    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization.getUuid())
+    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey())
       .orElseThrow(() -> new IllegalStateException("Cannot load metadata"));
     assertThat(metadataOfSpecificOrg.getRemediationFunction()).isEqualTo(newOffset);
     assertThat(metadataOfSpecificOrg.getRemediationGapMultiplier()).isEqualTo(newMultiplier);
@@ -247,17 +213,15 @@ public class UpdateActionTest {
 
   @Test
   public void update_note() {
-    OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule = db.rules().insert();
     UserDto userHavingUpdatingNote = db.users().insertUser();
-    db.rules().insertOrUpdateMetadata(rule, userHavingUpdatingNote, organization, m -> m.setNoteData("old data"));
+    db.rules().insertOrUpdateMetadata(rule, userHavingUpdatingNote, m -> m.setNoteData("old data"));
     UserDto userAuthenticated = db.users().insertUser();
-    userSession.logIn(userAuthenticated).addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn(userAuthenticated).addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
 
     Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
       .setParam(PARAM_MARKDOWN_NOTE, "new data")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(Rules.UpdateResponse.class);
 
     Rules.Rule updatedRule = result.getRule();
@@ -267,7 +231,7 @@ public class UpdateActionTest {
     assertThat(updatedRule.getNoteLogin()).isEqualTo(userAuthenticated.getLogin());
 
     // check database
-    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization.getUuid()).get();
+    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey()).get();
     assertThat(metadataOfSpecificOrg.getNoteData()).isEqualTo("new data");
     assertThat(metadataOfSpecificOrg.getNoteUserUuid()).isEqualTo(userAuthenticated.getUuid());
   }
@@ -330,27 +294,10 @@ public class UpdateActionTest {
     ws.newRequest().setMethod("POST").execute();
   }
 
-  @Test
-  public void throw_NotFoundException_if_organization_cannot_be_found() {
-    logInAsQProfileAdministrator();
-    RuleDefinitionDto rule = db.rules().insert();
-
-    expectedException.expect(NotFoundException.class);
-
-    ws.newRequest().setMethod("POST")
-      .setParam("key", rule.getKey().toString())
-      .setParam("organization", "foo")
-      .execute();
-  }
-
   private void logInAsQProfileAdministrator() {
-    logInAsQProfileAdministrator(db.getDefaultOrganization().getUuid());
-  }
-
-  private void logInAsQProfileAdministrator(String orgUuid) {
     userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, orgUuid);
+      .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 
   private static MacroInterpreter createMacroInterpreter() {

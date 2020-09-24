@@ -35,7 +35,6 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 
@@ -62,7 +61,6 @@ public class ActiveRuleDaoTest {
 
   private static final long NOW = 10_000_000L;
 
-  private OrganizationDto organization;
   private QProfileDto profile1;
   private QProfileDto profile2;
   private RuleDefinitionDto rule1;
@@ -83,9 +81,8 @@ public class ActiveRuleDaoTest {
 
   @Before
   public void setUp() {
-    organization = db.organizations().insert();
-    profile1 = db.qualityProfiles().insert(organization);
-    profile2 = db.qualityProfiles().insert(organization);
+    profile1 = db.qualityProfiles().insert();
+    profile2 = db.qualityProfiles().insert();
     rule1 = db.rules().insert();
     rule2 = db.rules().insert();
     rule3 = db.rules().insert();
@@ -117,9 +114,9 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, activeRule2);
     dbSession.commit();
 
-    assertThat(underTest.selectByRuleUuid(dbSession, organization, rule1.getUuid())).extracting("key")
+    assertThat(underTest.selectByOrgRuleUuid(dbSession, rule1.getUuid())).extracting("key")
       .containsOnly(activeRule1.getKey(), activeRule2.getKey());
-    assertThat(underTest.selectByRuleUuid(dbSession, organization, rule3.getUuid())).isEmpty();
+    assertThat(underTest.selectByOrgRuleUuid(dbSession, rule3.getUuid())).isEmpty();
   }
 
   @Test
@@ -132,9 +129,9 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, activeRule3);
     dbSession.commit();
 
-    assertThat(underTest.selectByRuleUuids(dbSession, organization, singletonList(rule1.getUuid())))
+    assertThat(underTest.selectByRuleUuids(dbSession, singletonList(rule1.getUuid())))
       .extracting("key").containsOnly(activeRule1.getKey(), activeRule3.getKey());
-    assertThat(underTest.selectByRuleUuids(dbSession, organization, newArrayList(rule1.getUuid(), rule2.getUuid())))
+    assertThat(underTest.selectByRuleUuids(dbSession, newArrayList(rule1.getUuid(), rule2.getUuid())))
       .extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey(), activeRule3.getKey());
   }
 
@@ -148,8 +145,8 @@ public class ActiveRuleDaoTest {
     List<OrgActiveRuleDto> result = underTest.selectByProfile(dbSession, profile1);
     assertThat(result)
       .hasSize(2)
-      .extracting(OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getProfileUuid)
-      .containsOnly(tuple(organization.getUuid(), profile1.getKee(), profile1.getRulesProfileUuid()));
+      .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getProfileUuid)
+      .containsOnly(tuple(profile1.getKee(), profile1.getRulesProfileUuid()));
 
     assertThat(underTest.selectByProfile(dbSession, profile2)).isEmpty();
   }
@@ -170,8 +167,8 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, activeRule1);
 
     assertThat(underTest.selectByTypeAndProfileUuids(dbSession, singletonList(RuleType.VULNERABILITY.getDbConstant()), singletonList(profile1.getKee())))
-      .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getRuleUuid)
-      .contains(tuple(profile1.getKee(), profile1.getOrganizationUuid(), rule1.getUuid()));
+      .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getRuleUuid)
+      .contains(tuple(profile1.getKee(), rule1.getUuid()));
   }
 
   @Test
@@ -196,8 +193,8 @@ public class ActiveRuleDaoTest {
       underTest.selectByTypeAndProfileUuids(dbSession,
         singletonList(RuleType.VULNERABILITY.getDbConstant()),
         singletonList(profile1.getKee())))
-          .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getOrganizationUuid, OrgActiveRuleDto::getRuleUuid)
-          .contains(tuple(profile1.getKee(), profile1.getOrganizationUuid(), rule1.getUuid()));
+          .extracting(OrgActiveRuleDto::getOrgProfileUuid, OrgActiveRuleDto::getRuleUuid)
+          .contains(tuple(profile1.getKee(), rule1.getUuid()));
 
     assertThat(
       underTest.selectByTypeAndProfileUuids(dbSession,
@@ -579,7 +576,7 @@ public class ActiveRuleDaoTest {
     List<String> activeRuleUuids = asList(activeRule1.getUuid(), activeRule2.getUuid());
     assertThat(underTest.selectParamsByActiveRuleUuids(dbSession, activeRuleUuids)).hasSize(2);
 
-    underTest.deleteParamsByRuleParamOfAllOrganizations(dbSession, rule1Param1);
+    underTest.deleteParamsByRuleParam(dbSession, rule1Param1);
 
     assertThat(underTest.selectParamsByActiveRuleUuids(dbSession, activeRuleUuids)).isEmpty();
   }
@@ -606,9 +603,9 @@ public class ActiveRuleDaoTest {
     db.qualityProfiles().activateRule(profile1, rule2);
     db.qualityProfiles().activateRule(profile1, removedRule);
     db.qualityProfiles().activateRule(profile2, rule1);
-    QProfileDto profileWithoutActiveRule = db.qualityProfiles().insert(organization);
+    QProfileDto profileWithoutActiveRule = db.qualityProfiles().insert();
 
-    ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder().setOrganization(organization);
+    ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder();
     assertThat(underTest.countActiveRulesByQuery(dbSession, builder.setProfiles(asList(profile1, profile2)).build()))
       .containsOnly(entry(profile1.getKee(), 2L), entry(profile2.getKee(), 1L));
     assertThat(underTest.countActiveRulesByQuery(dbSession, builder.setProfiles(singletonList(profileWithoutActiveRule)).build())).isEmpty();
@@ -628,7 +625,7 @@ public class ActiveRuleDaoTest {
     db.qualityProfiles().activateRule(profile2, rule1);
     db.qualityProfiles().activateRule(profile2, betaRule);
 
-    ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder().setOrganization(organization);
+    ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder();
     assertThat(underTest.countActiveRulesByQuery(dbSession, builder.setProfiles(asList(profile1, profile2)).setRuleStatus(BETA).build()))
       .containsOnly(entry(profile1.getKee(), 1L), entry(profile2.getKee(), 1L));
     assertThat(underTest.countActiveRulesByQuery(dbSession, builder.setProfiles(singletonList(profile1)).setRuleStatus(READY).build()))
@@ -645,23 +642,11 @@ public class ActiveRuleDaoTest {
     db.qualityProfiles().activateRule(profile2, rule1, ar -> ar.setInheritance(OVERRIDES));
     db.qualityProfiles().activateRule(profile2, rule2, ar -> ar.setInheritance(INHERITED));
 
-    ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder().setOrganization(organization);
+    ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder();
     assertThat(underTest.countActiveRulesByQuery(dbSession, builder.setProfiles(asList(profile1, profile2)).setInheritance(OVERRIDES).build()))
       .containsOnly(entry(profile1.getKee(), 1L), entry(profile2.getKee(), 1L));
     assertThat(underTest.countActiveRulesByQuery(dbSession, builder.setProfiles(asList(profile1, profile2)).setInheritance(INHERITED).build()))
       .containsOnly(entry(profile2.getKee(), 1L));
-  }
-
-  @Test
-  public void countActiveRulesByQuery_filter_by_organization() {
-    db.qualityProfiles().activateRule(profile1, rule1);
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    QProfileDto profileOnAnotherOrganization = db.qualityProfiles().insert(anotherOrganization);
-    db.qualityProfiles().activateRule(profileOnAnotherOrganization, rule1);
-
-    assertThat(underTest.countActiveRulesByQuery(dbSession,
-      ActiveRuleCountQuery.builder().setOrganization(organization).setProfiles(asList(profile1, profileOnAnotherOrganization)).build()))
-        .containsOnly(entry(profile1.getKee(), 1L));
   }
 
   @Test

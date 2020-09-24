@@ -23,19 +23,11 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.UtcDateUtils;
-import org.sonar.db.organization.OrganizationDto;
 
 /**
  * Represents the join of "org_qprofiles" and "rules_profiles"
  */
 public class QProfileDto {
-
-  /**
-   * The organization, that this quality profile belongs to.
-   * Must not be null, but can be the default organization's uuid.
-   * Refers to {@link OrganizationDto#getUuid()}.
-   */
-  private String organizationUuid;
   private String kee;
   private String name;
   private String language;
@@ -45,15 +37,6 @@ public class QProfileDto {
   private Long userUpdatedAt;
   private boolean isBuiltIn;
   private String rulesProfileUuid;
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public QProfileDto setOrganizationUuid(String s) {
-    this.organizationUuid = s;
-    return this;
-  }
 
   public String getKee() {
     return kee;
@@ -149,7 +132,6 @@ public class QProfileDto {
       .setIsBuiltIn(rules.isBuiltIn())
       .setKee(org.getUuid())
       .setParentKee(org.getParentUuid())
-      .setOrganizationUuid(org.getOrganizationUuid())
       .setRulesProfileUuid(rules.getUuid())
       .setLanguage(rules.getLanguage())
       .setName(rules.getName())

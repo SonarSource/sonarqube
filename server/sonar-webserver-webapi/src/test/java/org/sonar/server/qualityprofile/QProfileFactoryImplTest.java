@@ -34,7 +34,6 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -81,61 +80,54 @@ public class QProfileFactoryImplTest {
 
   @Test
   public void checkAndCreateCustom() {
-    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = underTest.checkAndCreateCustom(dbSession, new QProfileName("xoo", "P1"));
 
-    QProfileDto profile = underTest.checkAndCreateCustom(dbSession, organization, new QProfileName("xoo", "P1"));
-
-    assertThat(profile.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(profile.getKee()).isNotEmpty();
     assertThat(profile.getName()).isEqualTo("P1");
     assertThat(profile.getLanguage()).isEqualTo("xoo");
     assertThat(profile.getRulesProfileUuid()).isNotNull();
     assertThat(profile.isBuiltIn()).isFalse();
 
-    QProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(dbSession, organization, profile.getName(), profile.getLanguage());
+    QProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(dbSession, profile.getName(), profile.getLanguage());
     assertEqual(profile, reloaded);
-    assertThat(db.getDbClient().qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization)).extracting(QProfileDto::getKee).containsExactly(profile.getKee());
+    assertThat(db.getDbClient().qualityProfileDao().selectAll(dbSession)).extracting(QProfileDto::getKee).containsExactly(profile.getKee());
   }
 
   @Test
   public void checkAndCreateCustom_throws_BadRequestException_if_name_null() {
     QProfileName name = new QProfileName("xoo", null);
-    OrganizationDto organization = db.organizations().insert();
 
     expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
 
-    underTest.checkAndCreateCustom(dbSession, organization, name);
+    underTest.checkAndCreateCustom(dbSession, name);
   }
 
   @Test
   public void checkAndCreateCustom_throws_BadRequestException_if_name_empty() {
     QProfileName name = new QProfileName("xoo", "");
-    OrganizationDto organization = db.organizations().insert();
 
     expectBadRequestException("quality_profiles.profile_name_cant_be_blank");
 
-    underTest.checkAndCreateCustom(dbSession, organization, name);
+    underTest.checkAndCreateCustom(dbSession, name);
   }
 
   @Test
   public void checkAndCreateCustom_throws_BadRequestException_if_already_exists() {
     QProfileName name = new QProfileName("xoo", "P1");
-    OrganizationDto organization = db.organizations().insert();
 
-    underTest.checkAndCreateCustom(dbSession, organization, name);
+    underTest.checkAndCreateCustom(dbSession, name);
     dbSession.commit();
 
     expectBadRequestException("Quality profile already exists: xoo/P1");
 
-    underTest.checkAndCreateCustom(dbSession, organization, name);
+    underTest.checkAndCreateCustom(dbSession, name);
   }
 
   @Test
   public void delete_custom_profiles() {
-    OrganizationDto org = db.organizations().insert();
-    QProfileDto profile1 = createCustomProfile(org);
-    QProfileDto profile2 = createCustomProfile(org);
-    QProfileDto profile3 = createCustomProfile(org);
+    QProfileDto profile1 = createCustomProfile();
+    QProfileDto profile2 = createCustomProfile();
+    QProfileDto profile3 = createCustomProfile();
 
     underTest.delete(dbSession, asList(profile1, profile2));
 
@@ -147,8 +139,7 @@ public class QProfileFactoryImplTest {
 
   @Test
   public void delete_removes_custom_profile_marked_as_default() {
-    OrganizationDto org = db.organizations().insert();
-    QProfileDto profile = createCustomProfile(org);
+    QProfileDto profile = createCustomProfile();
     db.qualityProfiles().setAsDefault(profile);
 
     underTest.delete(dbSession, asList(profile));
@@ -158,9 +149,8 @@ public class QProfileFactoryImplTest {
 
   @Test
   public void delete_removes_custom_profile_from_project_associations() {
-    OrganizationDto org = db.organizations().insert();
-    QProfileDto profile = createCustomProfile(org);
-    ProjectDto project = db.components().insertPrivateProjectDto(org);
+    QProfileDto profile = createCustomProfile();
+    ProjectDto project = db.components().insertPrivateProjectDto();
     db.qualityProfiles().associateWithProject(project, profile);
 
     underTest.delete(dbSession, asList(profile));
@@ -171,15 +161,14 @@ public class QProfileFactoryImplTest {
   @Test
   public void delete_builtin_profile() {
     RulesProfileDto builtInProfile = createBuiltInProfile();
-    OrganizationDto org = db.organizations().insert();
-    QProfileDto profile = associateBuiltInProfileToOrganization(builtInProfile, org);
+    QProfileDto profile = associateBuiltInProfile(builtInProfile);
 
     underTest.delete(dbSession, asList(profile));
 
     verifyNoCallsActiveRuleIndexerDelete();
 
     // remove only from org_qprofiles
-    assertThat(db.getDbClient().qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, org)).isEmpty();
+    assertThat(db.getDbClient().qualityProfileDao().selectAll(dbSession)).isEmpty();
 
     assertThatRulesProfileExists(builtInProfile);
   }
@@ -187,9 +176,8 @@ public class QProfileFactoryImplTest {
   @Test
   public void delete_builtin_profile_associated_to_project() {
     RulesProfileDto builtInProfile = createBuiltInProfile();
-    OrganizationDto org = db.organizations().insert();
-    ProjectDto project = db.components().insertPrivateProjectDto(org);
-    QProfileDto profile = associateBuiltInProfileToOrganization(builtInProfile, org);
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    QProfileDto profile = associateBuiltInProfile(builtInProfile);
     db.qualityProfiles().associateWithProject(project, profile);
     assertThat(db.getDbClient().qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage())).isNotNull();
 
@@ -198,16 +186,15 @@ public class QProfileFactoryImplTest {
     verifyNoCallsActiveRuleIndexerDelete();
 
     // remove only from org_qprofiles and project_qprofiles
-    assertThat(db.getDbClient().qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, org)).isEmpty();
+    assertThat(db.getDbClient().qualityProfileDao().selectAll(dbSession)).isEmpty();
     assertThat(db.getDbClient().qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage())).isNull();
     assertThatRulesProfileExists(builtInProfile);
   }
 
   @Test
-  public void delete_builtin_profile_marked_as_default_on_organization() {
+  public void delete_builtin_profile_marked_as_default() {
     RulesProfileDto builtInProfile = createBuiltInProfile();
-    OrganizationDto org = db.organizations().insert();
-    QProfileDto profile = associateBuiltInProfileToOrganization(builtInProfile, org);
+    QProfileDto profile = associateBuiltInProfile(builtInProfile);
     db.qualityProfiles().setAsDefault(profile);
 
     underTest.delete(dbSession, asList(profile));
@@ -215,15 +202,14 @@ public class QProfileFactoryImplTest {
     verifyNoCallsActiveRuleIndexerDelete();
 
     // remove only from org_qprofiles and default_qprofiles
-    assertThat(db.getDbClient().qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, org)).isEmpty();
-    assertThat(db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, org, profile.getLanguage())).isNull();
+    assertThat(db.getDbClient().qualityProfileDao().selectAll(dbSession)).isEmpty();
+    assertThat(db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, profile.getLanguage())).isNull();
     assertThatRulesProfileExists(builtInProfile);
   }
 
   @Test
   public void delete_accepts_empty_list_of_keys() {
-    OrganizationDto org = db.organizations().insert();
-    QProfileDto profile = createCustomProfile(org);
+    QProfileDto profile = createCustomProfile();
 
     underTest.delete(dbSession, Collections.emptyList());
 
@@ -233,11 +219,10 @@ public class QProfileFactoryImplTest {
 
   @Test
   public void delete_removes_qprofile_edit_permissions() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization);
+    QProfileDto profile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user);
-    GroupDto group = db.users().insertGroup(organization);
+    GroupDto group = db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile, group);
 
     underTest.delete(dbSession, asList(profile));
@@ -246,8 +231,8 @@ public class QProfileFactoryImplTest {
     assertThat(db.countRowsOfTable(dbSession, "qprofile_edit_groups")).isZero();
   }
 
-  private QProfileDto createCustomProfile(OrganizationDto org) {
-    QProfileDto profile = db.qualityProfiles().insert(org, p -> p.setLanguage("xoo").setIsBuiltIn(false));
+  private QProfileDto createCustomProfile() {
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("xoo").setIsBuiltIn(false));
     ActiveRuleDto activeRuleDto = db.qualityProfiles().activateRule(profile, rule);
 
     ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
@@ -290,11 +275,11 @@ public class QProfileFactoryImplTest {
     return rulesProfileDto;
   }
 
-  private QProfileDto associateBuiltInProfileToOrganization(RulesProfileDto rulesProfile, OrganizationDto organization) {
+  private QProfileDto associateBuiltInProfile(RulesProfileDto rulesProfile) {
     OrgQProfileDto orgQProfileDto = new OrgQProfileDto()
       .setUuid(Uuids.createFast())
-      .setRulesProfileUuid(rulesProfile.getUuid())
-      .setOrganizationUuid(organization.getUuid());
+      .setRulesProfileUuid(rulesProfile.getUuid());
+
     db.getDbClient().qualityProfileDao().insert(dbSession, orgQProfileDto);
     db.commit();
     return QProfileDto.from(orgQProfileDto, rulesProfile);
@@ -350,7 +335,6 @@ public class QProfileFactoryImplTest {
   }
 
   private static void assertEqual(QProfileDto p1, QProfileDto p2) {
-    assertThat(p2.getOrganizationUuid()).isEqualTo(p1.getOrganizationUuid());
     assertThat(p2.getName()).isEqualTo(p1.getName());
     assertThat(p2.getKee()).startsWith(p1.getKee());
     assertThat(p2.getLanguage()).isEqualTo(p1.getLanguage());

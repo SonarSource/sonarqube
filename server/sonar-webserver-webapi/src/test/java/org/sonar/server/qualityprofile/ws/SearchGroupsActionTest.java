@@ -50,11 +50,9 @@ import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchGroupsActionTest {
-
   private static final String XOO = "xoo";
   private static final String FOO = "foo";
   private static final Languages LANGUAGES = LanguageTesting.newLanguages(XOO, FOO);
@@ -77,20 +75,19 @@ public class SearchGroupsActionTest {
     assertThat(def.isPost()).isFalse();
     assertThat(def.isInternal()).isTrue();
     assertThat(def.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("organization", "qualityProfile", "language", "selected", "q", "p", "ps");
+      .containsExactlyInAnyOrder("qualityProfile", "language", "selected", "q", "p", "ps");
   }
 
   @Test
   public void test_example() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     GroupDto group1 = db.users().insertGroup(newGroupDto().setName("users").setDescription("Users").setOrganizationUuid(organization.getUuid()));
     GroupDto group2 = db.users().insertGroup(newGroupDto().setName("administrators").setDescription("Administrators").setOrganizationUuid(organization.getUuid()));
     db.qualityProfiles().addGroupPermission(profile, group1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
 
     String result = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "all")
@@ -103,15 +100,14 @@ public class SearchGroupsActionTest {
 
   @Test
   public void search_all_groups() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     GroupDto group1 = db.users().insertGroup(organization);
     GroupDto group2 = db.users().insertGroup(organization);
     db.qualityProfiles().addGroupPermission(profile, group1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
 
     SearchGroupsResponse response = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "all")
@@ -125,15 +121,14 @@ public class SearchGroupsActionTest {
 
   @Test
   public void search_selected_groups() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     GroupDto group1 = db.users().insertGroup(organization);
     GroupDto group2 = db.users().insertGroup(organization);
     db.qualityProfiles().addGroupPermission(profile, group1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
 
     SearchGroupsResponse response = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "selected")
@@ -146,15 +141,14 @@ public class SearchGroupsActionTest {
 
   @Test
   public void search_deselected_groups() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     GroupDto group1 = db.users().insertGroup(organization);
     GroupDto group2 = db.users().insertGroup(organization);
     db.qualityProfiles().addGroupPermission(profile, group1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
 
     SearchGroupsResponse response = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "deselected")
@@ -167,8 +161,8 @@ public class SearchGroupsActionTest {
 
   @Test
   public void search_by_name() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert( p -> p.setLanguage(XOO));
     GroupDto group1 = db.users().insertGroup(organization, "sonar-users-project");
     GroupDto group2 = db.users().insertGroup(organization, "sonar-users-qprofile");
     GroupDto group3 = db.users().insertGroup(organization, "sonar-admin");
@@ -178,7 +172,6 @@ public class SearchGroupsActionTest {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
 
     SearchGroupsResponse response = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(TEXT_QUERY, "UsErS")
@@ -191,14 +184,13 @@ public class SearchGroupsActionTest {
 
   @Test
   public void group_without_description() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert( p -> p.setLanguage(XOO));
     GroupDto group = db.users().insertGroup(newGroupDto().setDescription(null).setOrganizationUuid(organization.getUuid()));
     db.qualityProfiles().addGroupPermission(profile, group);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
 
     SearchGroupsResponse response = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "all")
@@ -210,8 +202,8 @@ public class SearchGroupsActionTest {
 
   @Test
   public void paging_search() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert( p -> p.setLanguage(XOO));
     GroupDto group3 = db.users().insertGroup(organization, "group3");
     GroupDto group1 = db.users().insertGroup(organization, "group1");
     GroupDto group2 = db.users().insertGroup(organization, "group2");
@@ -220,43 +212,40 @@ public class SearchGroupsActionTest {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
 
     assertThat(ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "all")
       .setParam(PAGE, "1")
       .setParam(PAGE_SIZE, "1")
       .executeProtobuf(SearchGroupsResponse.class).getGroupsList())
-      .extracting(SearchGroupsResponse.Group::getName)
-      .containsExactly(group1.getName());
+        .extracting(SearchGroupsResponse.Group::getName)
+        .containsExactly(group1.getName());
 
     assertThat(ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "all")
       .setParam(PAGE, "3")
       .setParam(PAGE_SIZE, "1")
       .executeProtobuf(SearchGroupsResponse.class).getGroupsList())
-      .extracting(SearchGroupsResponse.Group::getName)
-      .containsExactly(group3.getName());
+        .extracting(SearchGroupsResponse.Group::getName)
+        .containsExactly(group3.getName());
 
     assertThat(ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "all")
       .setParam(PAGE, "1")
       .setParam(PAGE_SIZE, "10")
       .executeProtobuf(SearchGroupsResponse.class).getGroupsList())
-      .extracting(SearchGroupsResponse.Group::getName)
-      .containsExactly(group1.getName(), group2.getName(), group3.getName());
+        .extracting(SearchGroupsResponse.Group::getName)
+        .containsExactly(group1.getName(), group2.getName(), group3.getName());
   }
 
   @Test
   public void uses_default_organization_when_no_organization() {
     OrganizationDto organization = db.getDefaultOrganization();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    QProfileDto profile = db.qualityProfiles().insert( p -> p.setLanguage(XOO));
     GroupDto group = db.users().insertGroup(organization);
     db.qualityProfiles().addGroupPermission(profile, group);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
@@ -272,14 +261,13 @@ public class SearchGroupsActionTest {
 
   @Test
   public void qp_administers_can_search_groups() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert( p -> p.setLanguage(XOO));
     GroupDto group = db.users().insertGroup(organization);
     db.qualityProfiles().addGroupPermission(profile, group);
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
 
     SearchGroupsResponse response = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "all")
@@ -290,8 +278,8 @@ public class SearchGroupsActionTest {
 
   @Test
   public void qp_editors_can_search_groups() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert( p -> p.setLanguage(XOO));
     GroupDto group = db.users().insertGroup(organization);
     db.qualityProfiles().addGroupPermission(profile, group);
     UserDto userAllowedToEditProfile = db.users().insertUser();
@@ -299,7 +287,6 @@ public class SearchGroupsActionTest {
     userSession.logIn(userAllowedToEditProfile);
 
     SearchGroupsResponse response = ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
       .setParam(SELECTED, "all")
@@ -310,47 +297,28 @@ public class SearchGroupsActionTest {
 
   @Test
   public void fail_when_qprofile_does_not_exist() {
-    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Quality Profile for language 'xoo' and name 'unknown' does not exist in organization '%s'", organization.getKey()));
+    expectedException.expectMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
 
     ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, "unknown")
       .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .execute();
-  }
-
-  @Test
-  public void fail_when_qprofile_does_not_belong_to_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(anotherOrganization, p -> p.setLanguage(XOO));
-    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Quality Profile for language 'xoo' and name '%s' does not exist in organization '%s'", profile.getName(), organization.getKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
-      .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_wrong_language() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert( p -> p.setLanguage(XOO));
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Quality Profile for language 'foo' and name '%s' does not exist in organization '%s'", profile.getName(), organization.getKey()));
+    expectedException.expectMessage(format("Quality Profile for language 'foo' and name '%s' does not exist", profile.getName(), organization.getKey()));
 
     ws.newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, FOO)
       .executeProtobuf(SearchGroupsResponse.class);
@@ -358,8 +326,8 @@ public class SearchGroupsActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    OrganizationDto organization = db.organizations().getDefaultOrganization();
+    QProfileDto profile = db.qualityProfiles().insert( p -> p.setLanguage(XOO));
     userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organization);
 
     expectedException.expect(ForbiddenException.class);
@@ -367,7 +335,6 @@ public class SearchGroupsActionTest {
     ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .setParam(PARAM_LANGUAGE, XOO)
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 }

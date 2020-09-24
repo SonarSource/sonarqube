@@ -36,9 +36,9 @@ public class WebServerRuleFinderImpl implements WebServerRuleFinder {
   @VisibleForTesting
   ServerRuleFinder delegate;
 
-  public WebServerRuleFinderImpl(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public WebServerRuleFinderImpl(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.defaultFinder = new DefaultRuleFinder(dbClient, defaultOrganizationProvider);
+    this.defaultFinder = new DefaultRuleFinder(dbClient);
     this.delegate = this.defaultFinder;
   }
 

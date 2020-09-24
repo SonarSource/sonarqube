@@ -21,24 +21,19 @@ import * as React from 'react';
 import Select from 'sonar-ui-common/components/controls/Select';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
-import { getProfilesForLanguagePath, getProfilesPath } from '../utils';
+import { getProfilesForLanguagePath, PROFILE_PATH } from '../utils';
 
 interface Props {
   currentFilter?: string;
   languages: Array<{ key: string; name: string }>;
-  organization: string | null;
   router: Pick<Router, 'replace'>;
 }
 
 export class ProfilesListHeader extends React.PureComponent<Props> {
   handleChange = (option: { value: string } | null) => {
-    const { organization, router } = this.props;
+    const { router } = this.props;
 
-    router.replace(
-      !option
-        ? getProfilesPath(organization)
-        : getProfilesForLanguagePath(option.value, organization)
-    );
+    router.replace(!option ? PROFILE_PATH : getProfilesForLanguagePath(option.value));
   };
 
   render() {

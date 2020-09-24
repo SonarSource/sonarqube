@@ -28,7 +28,6 @@
     rp.uuid as "ruleProfileUuid",
     a.created_at as "createdAt",
     a.updated_at as "updatedAt",
-    oqp.organization_uuid as "organizationUuid",
     oqp.uuid as "orgProfileUuid"
   </sql>
 
@@ -157,7 +156,7 @@
     and rp.uuid in <foreach collection="ruleProfileUuids" item="ruleProfileUuid" separator="," open="(" close=")">#{ruleProfileUuid, jdbcType=VARCHAR}</foreach>
   </select>
 
-  <select id="selectByRuleUuid" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+  <select id="selectOrgByRuleUuid" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
     select
     <include refid="orgActiveRuleColumns"/>
     from active_rules a
@@ -166,10 +165,9 @@
     inner join rules r on r.uuid = a.rule_uuid
     where
     a.rule_uuid = #{ruleUuid, jdbcType=VARCHAR}
-    and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByRuleUuidOfAllOrganizations" parameterType="String" resultType="ActiveRule">
+  <select id="selectByRuleUuid" parameterType="String" resultType="ActiveRule">
     select
     <include refid="activeRuleColumns"/>
     from active_rules a
@@ -190,7 +188,6 @@
     <foreach collection="ruleUuids" item="ruleUuid" separator="," open="(" close=")">
       #{ruleUuid, jdbcType=VARCHAR}
     </foreach>
-    and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <!-- Parameters -->
@@ -280,8 +277,7 @@
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
     inner join rules r on r.uuid = ar.rule_uuid
     <where>
-      oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-      and <foreach collection="profileUuids" item="profileUuid" open="(" separator=" or " close=")">
+      <foreach collection="profileUuids" item="profileUuid" open="(" separator=" or " close=")">
         oqp.uuid = #{profileUuid, jdbcType=VARCHAR}
       </foreach>
       <choose>

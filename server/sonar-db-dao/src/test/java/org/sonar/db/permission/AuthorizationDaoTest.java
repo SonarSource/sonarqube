@@ -245,16 +245,10 @@ public class AuthorizationDaoTest {
     db.users().insertPermissionOnUser(organization, user3, ADMINISTER);
     db.users().insertPermissionOnAnyone(organization, ADMINISTER);
 
-    // other organizations are ignored
-    OrganizationDto org2 = db.organizations().insert();
-    db.users().insertPermissionOnUser(org2, user1, ADMINISTER);
-
     assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), organization.getUuid(), ADMINISTER.getKey()))
       .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), user3.getUuid());
     assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), organization.getUuid(), PROVISION_PROJECTS.getKey()))
       .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid());
-    assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), org2.getUuid(), ADMINISTER.getKey()))
-      .containsExactlyInAnyOrder(user1.getUuid());
   }
 
   @Test

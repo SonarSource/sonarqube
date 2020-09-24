@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileTree;
 import org.sonar.server.user.UserSession;
@@ -65,14 +64,12 @@ public class ChangeParentAction implements QProfileWsAction {
         "</ul>")
       .setHandler(this);
 
-    QProfileWsSupport.createOrganizationParam(inheritance)
-      .setSince("6.4");
     QProfileReference.defineParams(inheritance, languages);
 
     inheritance.createParam(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE)
       .setDescription("New parent profile name. <br> " +
         "If no profile is provided, the inheritance link with current parent profile (if any) is broken, which deactivates all rules " +
-          "which come from the parent and are not overridden.")
+        "which come from the parent and are not overridden.")
       .setExampleValue("Sonar way");
   }
 
@@ -83,15 +80,14 @@ public class ChangeParentAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, reference);
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
-      wsSupport.checkCanEdit(dbSession, organization, profile);
+      wsSupport.checkCanEdit(dbSession, profile);
 
       String parentName = request.param(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE);
       if (isEmpty(parentName)) {
         ruleActivator.removeParentAndCommit(dbSession, profile);
       } else {
         String parentLanguage = request.mandatoryParam(PARAM_LANGUAGE);
-        QProfileReference parentRef = QProfileReference.fromName(organization.getKey(), parentLanguage, parentName);
+        QProfileReference parentRef = QProfileReference.fromName(parentLanguage, parentName);
         QProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
         ruleActivator.setParentAndCommit(dbSession, profile, parent);
       }

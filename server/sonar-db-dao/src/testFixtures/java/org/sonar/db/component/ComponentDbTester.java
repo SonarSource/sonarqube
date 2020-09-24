@@ -140,6 +140,12 @@ public class ComponentDbTester {
     return getProjectDto(componentDto);
   }
 
+  public ProjectDto insertPublicProjectDto(Consumer<ComponentDto> dtoPopulator) {
+    ComponentDto componentDto = insertPublicProject(dtoPopulator);
+    return getProjectDto(componentDto);
+  }
+
+
   public final ProjectDto insertPublicProjectDto(OrganizationDto organization, Consumer<ComponentDto> dtoPopulator) {
     ComponentDto componentDto = insertPublicProject(organization, dtoPopulator);
     return getProjectDto(componentDto);

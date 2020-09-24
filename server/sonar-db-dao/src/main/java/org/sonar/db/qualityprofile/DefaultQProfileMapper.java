@@ -21,7 +21,7 @@ package org.sonar.db.qualityprofile;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import org.apache.ibatis.annotations.Param;
 
 public interface DefaultQProfileMapper {
@@ -31,9 +31,7 @@ public interface DefaultQProfileMapper {
 
   void deleteByQProfileUuids(@Param("qProfileUuids") Collection<String> qProfileUuids);
 
-  List<String> selectExistingQProfileUuids(
-    @Param("organizationUuid") String organizationUuid,
-    @Param("qProfileUuids") Collection<String> qProfileUuids);
+  List<String> selectExistingQProfileUuids(@Param("qProfileUuids") Collection<String> qProfileUuids);
 
-  Set<String> selectUuidsOfOrganizationsWithoutDefaultProfile(@Param("language") String language);
+  Optional<String> selectDefaultQProfileUuid(@Param("language") String language);
 }

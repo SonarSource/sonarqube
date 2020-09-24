@@ -15,7 +15,6 @@ exports[`should render correctly 1`] = `
         },
       ]
     }
-    organization="foo"
   />
   <div
     className="boxed-group boxed-group-inner quality-profiles-table"
@@ -188,7 +187,6 @@ exports[`should render correctly 2`] = `
         },
       ]
     }
-    organization="foo"
   />
   <div
     className="boxed-group boxed-group-inner quality-profiles-table"
@@ -285,7 +283,6 @@ exports[`should render correctly 3`] = `
         },
       ]
     }
-    organization="foo"
   />
   <Alert
     className="spacer-top"

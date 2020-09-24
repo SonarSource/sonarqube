@@ -99,7 +99,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
-    dbTester.organizations().insertForUuid(ORGANIZATION_UUID);
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
     BranchPersister branchPersister = mock(BranchPersister.class);
     ProjectPersister projectPersister = mock(ProjectPersister.class);

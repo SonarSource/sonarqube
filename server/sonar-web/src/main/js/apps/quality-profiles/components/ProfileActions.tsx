@@ -28,7 +28,7 @@ import { Router, withRouter } from '../../../components/hoc/withRouter';
 import { getBaseUrl } from '../../../helpers/system';
 import { getRulesUrl } from '../../../helpers/urls';
 import { Profile } from '../types';
-import { getProfileComparePath, getProfilePath, getProfilesPath } from '../utils';
+import { getProfileComparePath, getProfilePath, PROFILE_PATH } from '../utils';
 import CopyProfileForm from './CopyProfileForm';
 import DeleteProfileForm from './DeleteProfileForm';
 import ExtendProfileForm from './ExtendProfileForm';
@@ -96,7 +96,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   handleProfileDelete = () => {
-    this.props.router.replace(getProfilesPath(this.props.organization));
+    this.props.router.replace(PROFILE_PATH);
     this.props.updateProfiles();
   };
 
@@ -110,9 +110,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
     this.props.updateProfiles().then(
       () => {
         if (!this.props.fromList) {
-          this.props.router.replace(
-            getProfilePath(name, this.props.profile.language, this.props.organization)
-          );
+          this.props.router.replace(getProfilePath(name, this.props.profile.language));
         }
       },
       () => {}
@@ -126,9 +124,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
   navigateToNewProfile = (name: string) => {
     this.props.updateProfiles().then(
       () => {
-        this.props.router.push(
-          getProfilePath(name, this.props.profile.language, this.props.organization)
-        );
+        this.props.router.push(getProfilePath(name, this.props.profile.language));
       },
       () => {}
     );
@@ -140,13 +136,10 @@ export class ProfileActions extends React.PureComponent<Props, State> {
 
     const backupUrl = `${getBaseUrl()}${getQualityProfileBackupUrl(profile)}`;
 
-    const activateMoreUrl = getRulesUrl(
-      {
-        qprofile: profile.key,
-        activation: 'false'
-      },
-      this.props.organization
-    );
+    const activateMoreUrl = getRulesUrl({
+      qprofile: profile.key,
+      activation: 'false'
+    });
 
     return (
       <>
@@ -165,8 +158,7 @@ export class ProfileActions extends React.PureComponent<Props, State> {
             </ActionsDropdownItem>
           )}
 
-          <ActionsDropdownItem
-            to={getProfileComparePath(profile.name, profile.language, this.props.organization)}>
+          <ActionsDropdownItem to={getProfileComparePath(profile.name, profile.language)}>
             <span data-test="quality-profiles__compare">{translate('compare')}</span>
           </ActionsDropdownItem>
 

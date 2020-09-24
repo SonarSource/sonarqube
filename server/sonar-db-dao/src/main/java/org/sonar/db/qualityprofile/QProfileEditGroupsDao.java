@@ -27,7 +27,6 @@ import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
@@ -59,9 +58,9 @@ public class QProfileEditGroupsDao implements Dao {
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 
-  public List<String> selectQProfileUuidsByOrganizationAndGroups(DbSession dbSession, OrganizationDto organization, Collection<GroupDto> groups) {
+  public List<String> selectQProfileUuidsByGroups(DbSession dbSession, Collection<GroupDto> groups) {
     return DatabaseUtils.executeLargeInputs(groups.stream().map(GroupDto::getUuid).collect(toList()),
-      g -> mapper(dbSession).selectQProfileUuidsByOrganizationAndGroups(organization.getUuid(), g));
+      g -> mapper(dbSession).selectQProfileUuidsByGroups(g));
   }
 
   public void insert(DbSession dbSession, QProfileEditGroupsDto dto) {

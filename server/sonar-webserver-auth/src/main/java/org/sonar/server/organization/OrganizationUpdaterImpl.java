@@ -104,7 +104,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getUuid());
     addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getUuid());
     try (DbSession batchDbSession = dbClient.openSession(true)) {
-      insertQualityProfiles(dbSession, batchDbSession, organization);
+      insertQualityProfiles(dbSession, batchDbSession);
       batchDbSession.commit();
 
       // Elasticsearch is updated when DB session is committed
@@ -186,14 +186,13 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group == null ? null : group.getUuid(), permission);
   }
 
-  private void insertQualityProfiles(DbSession dbSession, DbSession batchDbSession, OrganizationDto organization) {
+  private void insertQualityProfiles(DbSession dbSession, DbSession batchDbSession) {
     Map<QProfileName, BuiltInQProfile> builtInsPerName = builtInQProfileRepository.get().stream()
       .collect(uniqueIndex(BuiltInQProfile::getQProfileName));
 
     List<DefaultQProfileDto> defaults = new ArrayList<>();
     dbClient.qualityProfileDao().selectBuiltInRuleProfiles(dbSession).forEach(rulesProfile -> {
       OrgQProfileDto dto = new OrgQProfileDto()
-        .setOrganizationUuid(organization.getUuid())
         .setRulesProfileUuid(rulesProfile.getUuid())
         .setUuid(uuidFactory.create());
 
@@ -205,7 +204,6 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
         // in order to benefit from batch SQL inserts
         defaults.add(new DefaultQProfileDto()
           .setQProfileUuid(dto.getUuid())
-          .setOrganizationUuid(organization.getUuid())
           .setLanguage(rulesProfile.getLanguage()));
       }
 

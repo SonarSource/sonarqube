@@ -48,7 +48,6 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDto;
@@ -104,9 +103,7 @@ public class OrganizationDeleterTest {
   private final BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
   private final OrganizationDeleter underTest = new OrganizationDeleter(dbClient, componentCleanerService, userIndexer,
-    new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), new System2(), new ActiveRuleIndexer(dbClient, esClient)),
-    projectLifeCycleListeners,
-    billingValidations);
+    new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), new System2(), new ActiveRuleIndexer(dbClient, esClient)), projectLifeCycleListeners, billingValidations);
 
   @Test
   public void delete_specified_organization() {
@@ -275,21 +272,6 @@ public class OrganizationDeleterTest {
     assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(org.getUuid()).build(), new SearchOptions()).getTotal()).isEqualTo(0);
     assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(otherOrg.getUuid()).build(), new SearchOptions()).getTotal()).isEqualTo(1);
     verify(projectLifeCycleListeners).onProjectsDeleted(emptySet());
-  }
-
-  @Test
-  public void delete_quality_profiles() {
-    OrganizationDto org = db.organizations().insert();
-    OrganizationDto otherOrg = db.organizations().insert();
-    QProfileDto profileInOrg = db.qualityProfiles().insert(org);
-    QProfileDto profileInOtherOrg = db.qualityProfiles().insert(otherOrg);
-
-    underTest.delete(dbSession, org);
-
-    verifyOrganizationDoesNotExist(org);
-    assertThat(db.select("select uuid as \"profileKey\" from org_qprofiles"))
-      .extracting(row -> (String) row.get("profileKey"))
-      .containsOnly(profileInOtherOrg.getKee());
   }
 
   @Test

@@ -36,7 +36,6 @@ interface Props {
   customRule?: T.RuleDetails;
   onClose: () => void;
   onDone: (newRuleDetails: T.RuleDetails) => void;
-  organization: string | undefined;
   templateRule: T.RuleDetails;
 }
 
@@ -87,14 +86,13 @@ export default class CustomRuleFormModal extends React.PureComponent<Props, Stat
   }
 
   prepareRequest = () => {
-    const { customRule, organization, templateRule } = this.props;
+    const { customRule, templateRule } = this.props;
     const params = Object.keys(this.state.params)
       .map(key => `${key}=${csvEscape(this.state.params[key])}`)
       .join(';');
     const ruleData = {
       markdown_description: this.state.description,
       name: this.state.name,
-      organization,
       params,
       severity: this.state.severity,
       status: this.state.status

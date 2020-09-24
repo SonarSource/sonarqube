@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileRules;
@@ -89,8 +88,7 @@ public class ActivateRulesAction implements QProfileWsAction {
     BulkChangeResult result;
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, fromKey(qualityProfileKey));
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
-      wsSupport.checkCanEdit(dbSession, organization, profile);
+      wsSupport.checkCanEdit(dbSession, profile);
       wsSupport.checkNotBuiltIn(profile);
       RuleQuery ruleQuery = ruleQueryFactory.createRuleQuery(dbSession, request);
       ruleQuery.setIncludeExternal(false);

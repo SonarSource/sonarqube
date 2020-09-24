@@ -30,13 +30,7 @@ const owaspTags =
   'owasp-a1,owasp-a2,owasp-a3,owasp-a4,owasp-a5,owasp-a6,owasp-a7,owasp-a8,owasp-a9,owasp-a10';
 const sans25Tags = 'sans-top25-porous,sans-top25-risky,sans-top25-insecure';
 
-interface Props {
-  appState: Pick<T.AppState, 'defaultOrganization' | 'organizationsEnabled'>;
-}
-
-export default function AboutStandards({ appState }: Props) {
-  const organization = appState.organizationsEnabled ? appState.defaultOrganization : undefined;
-
+export default function AboutStandards() {
   return (
     <div className="boxed-group">
       <h2>{translate('about_page.standards')}</h2>
@@ -46,31 +40,31 @@ export default function AboutStandards({ appState }: Props) {
         <div className="spacer-top">
           <ul className="list-inline">
             <li>
-              <Link className="link-with-icon" to={getRulesUrl({ tags: 'misra' }, organization)}>
+              <Link className="link-with-icon" to={getRulesUrl({ tags: 'misra' })}>
                 <TagsIcon />
                 <span className="little-spacer-left">MISRA</span>
               </Link>
             </li>
             <li>
-              <Link className="link-with-icon" to={getRulesUrl({ tags: 'cert' }, organization)}>
+              <Link className="link-with-icon" to={getRulesUrl({ tags: 'cert' })}>
                 <TagsIcon />
                 <span className="little-spacer-left">CERT</span>
               </Link>
             </li>
             <li>
-              <Link className="link-with-icon" to={getRulesUrl({ tags: 'cwe' }, organization)}>
+              <Link className="link-with-icon" to={getRulesUrl({ tags: 'cwe' })}>
                 <TagsIcon />
                 <span className="little-spacer-left">CWE</span>
               </Link>
             </li>
             <li>
-              <Link className="link-with-icon" to={getRulesUrl({ tags: owaspTags }, organization)}>
+              <Link className="link-with-icon" to={getRulesUrl({ tags: owaspTags })}>
                 <TagsIcon />
                 <span className="little-spacer-left">OWASP Top 10</span>
               </Link>
             </li>
             <li>
-              <Link className="link-with-icon" to={getRulesUrl({ tags: sans25Tags }, organization)}>
+              <Link className="link-with-icon" to={getRulesUrl({ tags: sans25Tags })}>
                 <TagsIcon />
                 <span className="little-spacer-left">SANS Top 25</span>
               </Link>

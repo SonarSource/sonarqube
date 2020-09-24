@@ -38,14 +38,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
 
@@ -62,26 +60,20 @@ public class RuleCreator {
   private final RuleIndexer ruleIndexer;
   private final DbClient dbClient;
   private final TypeValidations typeValidations;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UuidFactory uuidFactory;
 
-  public RuleCreator(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, TypeValidations typeValidations,
-    DefaultOrganizationProvider defaultOrganizationProvider, UuidFactory uuidFactory) {
+  public RuleCreator(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, TypeValidations typeValidations, UuidFactory uuidFactory) {
     this.system2 = system2;
     this.ruleIndexer = ruleIndexer;
     this.dbClient = dbClient;
     this.typeValidations = typeValidations;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.uuidFactory = uuidFactory;
   }
 
   public RuleKey create(DbSession dbSession, NewCustomRule newRule) {
     RuleKey templateKey = newRule.templateKey();
     checkArgument(templateKey != null, "Rule template key should not be null");
-    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
-      .orElseThrow(() -> new IllegalStateException(format("Could not find default organization for uuid '%s'", defaultOrganizationUuid)));
-    RuleDto templateRule = dbClient.ruleDao().selectByKey(dbSession, defaultOrganization.getUuid(), templateKey)
+    RuleDto templateRule = dbClient.ruleDao().selectByKey(dbSession, templateKey)
       .orElseThrow(() -> new IllegalArgumentException(format(TEMPLATE_KEY_NOT_EXIST_FORMAT, templateKey)));
     checkArgument(templateRule.isTemplate(), "This rule is not a template rule: %s", templateKey.toString());
     checkArgument(templateRule.getStatus() != RuleStatus.REMOVED, TEMPLATE_KEY_NOT_EXIST_FORMAT, templateKey.toString());
@@ -97,12 +89,8 @@ public class RuleCreator {
   }
 
   public List<RuleKey> create(DbSession dbSession, List<NewCustomRule> newRules) {
-    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
-      .orElseThrow(() -> new IllegalStateException(format("Could not find default organization for uuid '%s'", defaultOrganizationUuid)));
-
     Set<RuleKey> templateKeys = newRules.stream().map(NewCustomRule::templateKey).collect(Collectors.toSet());
-    Map<RuleKey, RuleDto> templateRules = dbClient.ruleDao().selectByKeys(dbSession, defaultOrganization.getUuid(), templateKeys)
+    Map<RuleKey, RuleDto> templateRules = dbClient.ruleDao().selectByKeys(dbSession, templateKeys)
       .stream()
       .collect(Collectors.toMap(
         RuleDto::getKey,
@@ -223,7 +211,6 @@ public class RuleCreator {
     Set<String> tags = templateRuleDto.getTags();
     if (!tags.isEmpty()) {
       RuleMetadataDto ruleMetadata = new RuleMetadataDto()
-        .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .setRuleUuid(ruleDefinition.getUuid())
         .setTags(tags)
         .setCreatedAt(system2.now())

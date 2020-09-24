@@ -40,11 +40,6 @@ public class OrgQProfileDto {
   private String uuid;
 
   /**
-   * UUID of organization. Not null.
-   */
-  private String organizationUuid;
-
-  /**
    * UUID of referenced row in table "rules_profiles". Not null.
    */
   private String rulesProfileUuid;
@@ -52,15 +47,6 @@ public class OrgQProfileDto {
   private String parentUuid;
   private Long lastUsed;
   private Long userUpdatedAt;
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public OrgQProfileDto setOrganizationUuid(String organizationUuid) {
-    this.organizationUuid = organizationUuid;
-    return this;
-  }
 
   public String getUuid() {
     return uuid;
@@ -113,7 +99,6 @@ public class OrgQProfileDto {
   public static OrgQProfileDto from(QProfileDto qProfileDto) {
     return new OrgQProfileDto()
       .setUuid(qProfileDto.getKee())
-      .setOrganizationUuid(qProfileDto.getOrganizationUuid())
       .setRulesProfileUuid(qProfileDto.getRulesProfileUuid())
       .setParentUuid(qProfileDto.getParentKee())
       .setLastUsed(qProfileDto.getLastUsed())

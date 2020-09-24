@@ -41,7 +41,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -100,7 +99,7 @@ public class ActiveRuleCompleter {
     } else {
       // Load details of all active rules
       List<String> ruleUuids = Lists.transform(rules, RuleDto::getUuid);
-      List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleUuids(dbSession, query.getOrganization(), ruleUuids);
+      List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleUuids(dbSession, ruleUuids);
       Multimap<RuleKey, OrgActiveRuleDto> activeRulesByRuleKey = activeRules.stream()
         .collect(MoreCollectors.index(OrgActiveRuleDto::getRuleKey));
       ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = loadParams(dbSession, activeRules);
@@ -140,8 +139,8 @@ public class ActiveRuleCompleter {
     return activeRuleParamsByActiveRuleKey;
   }
 
-  List<Rules.Active> completeShow(DbSession dbSession, OrganizationDto organization, RuleDefinitionDto rule) {
-    List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleUuid(dbSession, organization, rule.getUuid());
+  List<Rules.Active> completeShow(DbSession dbSession, RuleDefinitionDto rule) {
+    List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByOrgRuleUuid(dbSession, rule.getUuid());
     Map<String, ActiveRuleKey> activeRuleUuidsByKey = new HashMap<>();
     for (OrgActiveRuleDto activeRuleDto : activeRules) {
       activeRuleUuidsByKey.put(activeRuleDto.getUuid(), activeRuleDto.getKey());

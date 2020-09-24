@@ -178,48 +178,39 @@ export function getComponentPermissionsUrl(componentKey: string): Location {
 /**
  * Generate URL for a quality profile
  */
-export function getQualityProfileUrl(
-  name: string,
-  language: string,
-  organization?: string | null
-): Location {
-  return getProfilePath(name, language, organization);
+export function getQualityProfileUrl(name: string, language: string): Location {
+  return getProfilePath(name, language);
 }
 
-export function getQualityGateUrl(key: string, organization?: string | null): Location {
+export function getQualityGateUrl(key: string): Location {
   return {
-    pathname: getQualityGatesUrl(organization).pathname + '/show/' + encodeURIComponent(key)
+    pathname: '/quality_gates/show/' + encodeURIComponent(key)
   };
 }
 
-export function getQualityGatesUrl(organization?: string | null): Location {
+export function getQualityGatesUrl(): Location {
   return {
-    pathname:
-      (organization ? '/organizations/' + encodeURIComponent(organization) : '') + '/quality_gates'
+    pathname: '/quality_gates'
   };
 }
 
 /**
  * Generate URL for the rules page
  */
-export function getRulesUrl(query: Query, organization: string | null | undefined): Location {
-  const pathname = organization ? `/organizations/${organization}/rules` : '/coding_rules';
-  return { pathname, query };
+export function getRulesUrl(query: Query): Location {
+  return { pathname: '/coding_rules', query };
 }
 
 /**
  * Generate URL for the rules page filtering only active deprecated rules
  */
-export function getDeprecatedActiveRulesUrl(
-  query: Query = {},
-  organization: string | null | undefined
-): Location {
+export function getDeprecatedActiveRulesUrl(query: Query = {}): Location {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
-  return getRulesUrl({ ...query, ...baseQuery }, organization);
+  return getRulesUrl({ ...query, ...baseQuery });
 }
 
-export function getRuleUrl(rule: string, organization: string | undefined) {
-  return getRulesUrl({ open: rule, rule_key: rule }, organization);
+export function getRuleUrl(rule: string) {
+  return getRulesUrl({ open: rule, rule_key: rule });
 }
 
 export function getMarkdownHelpUrl(): string {

@@ -60,10 +60,8 @@ public class WebIssueStorageTest {
 
   private DbClient dbClient = db.getDbClient();
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-
   private IssueIndexer issueIndexer = mock(IssueIndexer.class);
-  private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), issueIndexer,
+  private WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient()), issueIndexer,
     new SequenceUuidFactory());
 
   @Test

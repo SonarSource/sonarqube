@@ -23,10 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
@@ -34,7 +32,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -51,9 +48,7 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
@@ -63,7 +58,6 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INCLUDE_EXTERNAL;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
-import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_OWASP_TOP_10;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
@@ -95,24 +89,9 @@ public class RuleWsSupport {
       .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
   }
 
-  public OrganizationDto getOrganizationByKey(DbSession dbSession, @Nullable String organizationKey) {
-    String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
-      .orElseGet(defaultOrganizationProvider.get()::getKey);
-    return checkFoundWithOptional(
-      dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
-      "No organization with key '%s'", organizationOrDefaultKey);
-  }
-
   Map<String, UserDto> getUsersByUuid(DbSession dbSession, List<RuleDto> rules) {
     Set<String> userUuids = rules.stream().map(RuleDto::getNoteUserUuid).filter(Objects::nonNull).collect(toSet());
     return dbClient.userDao().selectByUuids(dbSession, userUuids).stream().collect(uniqueIndex(UserDto::getUuid));
-  }
-
-  boolean areActiveRulesVisible(OrganizationDto organization) {
-    if (!organization.getSubscription().equals(PAID)) {
-      return true;
-    }
-    return userSession.hasMembership(organization);
   }
 
   public static void defineGenericRuleSearchParameters(WebService.NewAction action) {
@@ -244,13 +223,6 @@ public class RuleWsSupport {
       .setDescription("Ascending sort")
       .setBooleanPossibleValues()
       .setDefaultValue(true);
-
-    action.createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
-      .setRequired(false)
-      .setInternal(true)
-      .setExampleValue("my-org")
-      .setSince("6.4");
   }
 
   static void defineIsExternalParam(WebService.NewAction action) {

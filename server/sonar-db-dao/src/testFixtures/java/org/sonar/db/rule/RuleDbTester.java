@@ -129,15 +129,15 @@ public class RuleDbTester {
   }
 
   @SafeVarargs
-  public final RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, OrganizationDto organization, Consumer<RuleMetadataDto>... populaters) {
-    RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule, organization);
+  public final RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
+    RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule);
     asList(populaters).forEach(populater -> populater.accept(dto));
     return insertOrUpdateMetadata(dto);
   }
 
   @SafeVarargs
-  public final RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, UserDto noteUser, OrganizationDto organization, Consumer<RuleMetadataDto>... populaters) {
-    RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule, noteUser, organization);
+  public final RuleMetadataDto insertOrUpdateMetadata(RuleDefinitionDto rule, UserDto noteUser, Consumer<RuleMetadataDto>... populaters) {
+    RuleMetadataDto dto = RuleTesting.newRuleMetadata(rule, noteUser);
     asList(populaters).forEach(populater -> populater.accept(dto));
     return insertOrUpdateMetadata(dto);
   }
@@ -169,10 +169,8 @@ public class RuleDbTester {
 
     insert(ruleDto.getDefinition());
     RuleMetadataDto metadata = ruleDto.getMetadata();
-    if (metadata.getOrganizationUuid() != null) {
-      db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), metadata.setRuleUuid(ruleDto.getUuid()));
-      db.commit();
-    }
+    db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), metadata.setRuleUuid(ruleDto.getUuid()));
+    db.commit();
     return ruleDto;
   }
 
@@ -185,8 +183,8 @@ public class RuleDbTester {
   }
 
   @SafeVarargs
-  public final RuleDto insertRule(OrganizationDto organization, Consumer<RuleDto>... populaters) {
-    RuleDto ruleDto = newRuleDto(organization);
+  public final RuleDto insertRule(Consumer<RuleDto>... populaters) {
+    RuleDto ruleDto = newRuleDto();
     asList(populaters).forEach(populater -> populater.accept(ruleDto));
     return insertRule(ruleDto);
   }

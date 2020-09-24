@@ -198,11 +198,11 @@ public class QProfileTreeImplTest {
   }
 
   private QProfileDto createProfile(RuleDefinitionDto rule) {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(rule.getLanguage()));
+    return db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()));
   }
 
   private QProfileDto createChildProfile(QProfileDto parent) {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p
+    return db.qualityProfiles().insert(p -> p
       .setLanguage(parent.getLanguage())
       .setParentKee(parent.getKee())
       .setName("Child of " + parent.getName()));

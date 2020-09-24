@@ -57,9 +57,7 @@ export class PageHeader extends React.PureComponent<Props, State> {
   handleCreate = (profile: Profile) => {
     this.props.updateProfiles().then(
       () => {
-        this.props.router.push(
-          getProfilePath(profile.name, profile.language, this.props.organization)
-        );
+        this.props.router.push(getProfilePath(profile.name, profile.language));
       },
       () => {}
     );

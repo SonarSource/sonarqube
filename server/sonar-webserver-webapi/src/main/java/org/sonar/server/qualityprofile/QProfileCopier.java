@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
 @ServerSide
@@ -38,19 +37,17 @@ public class QProfileCopier {
   }
 
   public QProfileDto copyToName(DbSession dbSession, QProfileDto sourceProfile, String toName) {
-    OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, sourceProfile.getOrganizationUuid())
-      .orElseThrow(() -> new IllegalStateException("Organization with UUID [" + sourceProfile.getOrganizationUuid() + "] does not exist"));
-    QProfileDto to = prepareTarget(dbSession, organization, sourceProfile, toName);
+    QProfileDto to = prepareTarget(dbSession, sourceProfile, toName);
     backuper.copy(dbSession, sourceProfile, to);
     return to;
   }
 
-  private QProfileDto prepareTarget(DbSession dbSession, OrganizationDto organization, QProfileDto sourceProfile, String toName) {
+  private QProfileDto prepareTarget(DbSession dbSession, QProfileDto sourceProfile, String toName) {
     verify(sourceProfile.getName(), toName);
     QProfileName toProfileName = new QProfileName(sourceProfile.getLanguage(), toName);
-    QProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, toProfileName.getName(), toProfileName.getLanguage());
+    QProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(dbSession, toProfileName.getName(), toProfileName.getLanguage());
     if (toProfile == null) {
-      toProfile = factory.createCustom(dbSession, organization, toProfileName, sourceProfile.getParentKee());
+      toProfile = factory.createCustom(dbSession, toProfileName, sourceProfile.getParentKee());
       dbSession.commit();
     }
     return toProfile;

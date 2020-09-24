@@ -78,8 +78,7 @@ public class CreateActionTest {
   private UuidFactory uuidFactory = new SequenceUuidFactory();
 
   private WsActionTester ws = new WsActionTester(new CreateAction(db.getDbClient(),
-    new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(),
-      TestDefaultOrganizationProvider.from(db), uuidFactory),
+    new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(), uuidFactory),
     new RuleMapper(new Languages(), createMacroInterpreter()),
     new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
 
@@ -95,7 +94,7 @@ public class CreateActionTest {
   public void create_custom_rule() {
     logInAsQProfileAdministrator();
     // Template rule
-    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"), db.getDefaultOrganization()).setType(CODE_SMELL);
+    RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001")).setType(CODE_SMELL);
     db.rules().insert(templateRule.getDefinition());
     db.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleUuid(templateRule.getUuid()));
     db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));

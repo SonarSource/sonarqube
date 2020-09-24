@@ -24,11 +24,10 @@ import { getQualityGateUrl } from '../../../helpers/urls';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 
 interface Props {
-  organization?: string;
   qualityGates: T.QualityGate[];
 }
 
-export default function List({ organization, qualityGates }: Props) {
+export default function List({ qualityGates }: Props) {
   return (
     <div className="list-group">
       {qualityGates.map(qualityGate => (
@@ -37,7 +36,7 @@ export default function List({ organization, qualityGates }: Props) {
           className="list-group-item display-flex-center"
           data-id={qualityGate.id}
           key={qualityGate.id}
-          to={getQualityGateUrl(String(qualityGate.id), organization)}>
+          to={getQualityGateUrl(String(qualityGate.id))}>
           <span className="flex-1">{qualityGate.name}</span>
           {qualityGate.isDefault && (
             <span className="badge little-spacer-left">{translate('default')}</span>

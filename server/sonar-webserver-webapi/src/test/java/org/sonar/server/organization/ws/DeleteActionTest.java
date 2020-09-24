@@ -45,7 +45,6 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.webhook.WebhookDto;
@@ -163,7 +162,7 @@ public class DeleteActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    UserDto userReloaded =  dbClient.userDao().selectByUuid(dbSession, user.getUuid());
+    UserDto userReloaded = dbClient.userDao().selectByUuid(dbSession, user.getUuid());
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
   }
@@ -182,7 +181,7 @@ public class DeleteActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    UserDto userReloaded =  dbClient.userDao().selectByUuid(dbSession, user.getUuid());
+    UserDto userReloaded = dbClient.userDao().selectByUuid(dbSession, user.getUuid());
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageParameter()).isNull();
     verify(projectLifeCycleListeners).onProjectsDeleted(ImmutableSet.of(Project.from(project)));
@@ -444,23 +443,6 @@ public class DeleteActionTest {
     assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(org.getUuid()).build(), new SearchOptions()).getTotal()).isEqualTo(0);
     assertThat(userIndex.search(UserQuery.builder().setOrganizationUuid(otherOrg.getUuid()).build(), new SearchOptions()).getTotal()).isEqualTo(1);
     verify(projectLifeCycleListeners).onProjectsDeleted(emptySet());
-  }
-
-  @Test
-  public void delete_quality_profiles_of_specified_organization() {
-    OrganizationDto org = db.organizations().insert();
-    OrganizationDto otherOrg = db.organizations().insert();
-    QProfileDto profileInOrg = db.qualityProfiles().insert(org);
-    QProfileDto profileInOtherOrg = db.qualityProfiles().insert(otherOrg);
-
-    logInAsAdministrator(org);
-
-    sendRequest(org);
-
-    verifyOrganizationDoesNotExist(org);
-    assertThat(db.select("select uuid as \"profileKey\" from org_qprofiles"))
-      .extracting(row -> (String) row.get("profileKey"))
-      .containsOnly(profileInOtherOrg.getKee());
   }
 
   @Test

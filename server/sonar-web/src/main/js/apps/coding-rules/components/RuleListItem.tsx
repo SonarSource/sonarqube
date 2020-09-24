@@ -158,7 +158,6 @@ export default class RuleListItem extends React.PureComponent<Props> {
                 className="coding-rules-detail-quality-profile-activate"
                 modalHeader={translate('coding_rules.activate_in_quality_profile')}
                 onDone={this.handleActivate}
-                organization={this.props.organization}
                 profiles={[selectedProfile]}
                 rule={rule}
               />
@@ -209,7 +208,7 @@ export default class RuleListItem extends React.PureComponent<Props> {
                   <Link
                     className="link-no-underline"
                     onClick={this.handleNameClick}
-                    to={getRuleUrl(rule.key, this.props.organization)}>
+                    to={getRuleUrl(rule.key)}>
                     {rule.name}
                   </Link>
                   {rule.isTemplate && (

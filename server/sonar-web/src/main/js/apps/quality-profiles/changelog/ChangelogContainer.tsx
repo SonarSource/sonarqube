@@ -114,24 +114,15 @@ export class ChangelogContainer extends React.PureComponent<Props, State> {
   }
 
   handleDateRangeChange = ({ from, to }: { from?: Date; to?: Date }) => {
-    const path = getProfileChangelogPath(
-      this.props.profile.name,
-      this.props.profile.language,
-      this.props.organization,
-      {
-        since: from && toShortNotSoISOString(from),
-        to: to && toShortNotSoISOString(to)
-      }
-    );
+    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language, {
+      since: from && toShortNotSoISOString(from),
+      to: to && toShortNotSoISOString(to)
+    });
     this.props.router.push(path);
   };
 
   handleReset = () => {
-    const path = getProfileChangelogPath(
-      this.props.profile.name,
-      this.props.profile.language,
-      this.props.organization
-    );
+    const path = getProfileChangelogPath(this.props.profile.name, this.props.profile.language);
     this.props.router.push(path);
   };
 

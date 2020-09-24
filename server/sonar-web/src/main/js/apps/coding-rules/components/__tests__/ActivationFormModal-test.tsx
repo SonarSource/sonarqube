@@ -29,7 +29,6 @@ it('render correctly', () => {
         modalHeader="title"
         onClose={jest.fn()}
         onDone={jest.fn()}
-        organization="foo"
         profiles={[mockQualityProfile()]}
         rule={mockRule()}
       />

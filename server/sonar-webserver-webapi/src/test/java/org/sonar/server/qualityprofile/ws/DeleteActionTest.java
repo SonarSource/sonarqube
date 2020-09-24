@@ -31,7 +31,6 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
@@ -52,7 +51,6 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class DeleteActionTest {
@@ -78,13 +76,12 @@ public class DeleteActionTest {
 
   @Test
   public void delete_profile_by_language_and_name_in_default_organization() {
-    OrganizationDto organization = db.getDefaultOrganization();
-    ProjectDto project = db.components().insertPrivateProjectDto(organization);
-    QProfileDto profile1 = createProfile(organization);
-    QProfileDto profile2 = createProfile(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    QProfileDto profile1 = createProfile();
+    QProfileDto profile2 = createProfile();
     db.qualityProfiles().associateWithProject(project, profile1);
 
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
 
     TestResponse response = ws.newRequest()
       .setMethod("POST")
@@ -94,61 +91,55 @@ public class DeleteActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
-    verifyProfileDoesNotExist(profile1, organization);
+    verifyProfileDoesNotExist(profile1);
     verifyProfileExists(profile2);
   }
 
   @Test
   public void delete_profile_by_language_and_name_in_specified_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    ProjectDto project = db.components().insertPrivateProjectDto(organization);
-    QProfileDto profile1 = createProfile(organization);
-    QProfileDto profile2 = createProfile(organization);
+    ProjectDto project = db.components().insertPrivateProjectDto();
+    QProfileDto profile1 = createProfile();
+    QProfileDto profile2 = createProfile();
     db.qualityProfiles().associateWithProject(project, profile1);
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
 
     TestResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_LANGUAGE, profile1.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile1.getName())
       .execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
-    verifyProfileDoesNotExist(profile1, organization);
+    verifyProfileDoesNotExist(profile1);
     verifyProfileExists(profile2);
   }
 
   @Test
   public void as_qprofile_editor() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = createProfile(organization);
+    QProfileDto profile = createProfile();
     UserDto user = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user);
     userSession.logIn(user);
 
     TestResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
-    verifyProfileDoesNotExist(profile, organization);
+    verifyProfileDoesNotExist(profile);
   }
 
   @Test
   public void fail_if_built_in_profile() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile1 = db.qualityProfiles().insert(organization, p -> p.setIsBuiltIn(true).setLanguage(A_LANGUAGE));
-    logInAsQProfileAdministrator(organization);
+    QProfileDto profile1 = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true).setLanguage(A_LANGUAGE));
+    logInAsQProfileAdministrator();
 
     expectedException.expect(BadRequestException.class);
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_LANGUAGE, profile1.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile1.getName())
       .execute();
@@ -156,8 +147,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_not_profile_administrator() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto qprofile = createProfile(organization);
+    QProfileDto qprofile = createProfile();
     userSession.logIn(db.users().insertUser());
 
     expectedException.expect(ForbiddenException.class);
@@ -165,7 +155,6 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_LANGUAGE, qprofile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, qprofile.getName())
       .execute();
@@ -173,7 +162,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_not_logged_in() {
-    QProfileDto profile = createProfile(db.getDefaultOrganization());
+    QProfileDto profile = createProfile();
 
     expectedException.expect(UnauthorizedException.class);
 
@@ -197,32 +186,28 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_missing_language_parameter() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = createProfile(organization);
-    logInAsQProfileAdministrator(organization);
+    QProfileDto profile = createProfile();
+    logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'language' parameter is missing");
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam("profileName", profile.getName())
       .execute();
   }
 
   @Test
   public void fail_if_missing_name_parameter() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = createProfile(organization);
-    logInAsQProfileAdministrator(organization);
+    QProfileDto profile = createProfile();
+    logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'qualityProfile' parameter is missing");
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .execute();
   }
@@ -243,17 +228,15 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_deleting_default_profile() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto profile = createProfile(organization);
+    QProfileDto profile = createProfile();
     db.qualityProfiles().setAsDefault(profile);
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Profile '" + profile.getName() + "' cannot be deleted because it is marked as default");
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
       .execute();
@@ -261,11 +244,10 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_a_descendant_is_marked_as_default() {
-    OrganizationDto organization = db.organizations().insert();
-    QProfileDto parentProfile = createProfile(organization);
-    QProfileDto childProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE).setParentKee(parentProfile.getKee()));
+    QProfileDto parentProfile = createProfile();
+    QProfileDto childProfile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE).setParentKee(parentProfile.getKee()));
     db.qualityProfiles().setAsDefault(childProfile);
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Profile '" + parentProfile.getName() + "' cannot be deleted because its descendant named '" + childProfile.getName() +
@@ -273,7 +255,6 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_LANGUAGE, parentProfile.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, parentProfile.getName())
       .execute();
@@ -284,25 +265,25 @@ public class DeleteActionTest {
     WebService.Action definition = ws.getDef();
 
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("language", "organization", "qualityProfile");
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("language", "qualityProfile");
   }
 
-  private void logInAsQProfileAdministrator(OrganizationDto organization) {
+  private void logInAsQProfileAdministrator() {
     userSession
       .logIn(db.users().insertUser())
-      .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
   }
 
-  private void verifyProfileDoesNotExist(QProfileDto profile, OrganizationDto organization) {
+  private void verifyProfileDoesNotExist(QProfileDto profile) {
     assertThat(dbClient.qualityProfileDao().selectByUuid(dbSession, profile.getKee())).isNull();
-    assertThat(dbClient.qualityProfileDao().selectSelectedProjects(dbSession, organization, profile, null)).isEmpty();
+    assertThat(dbClient.qualityProfileDao().selectSelectedProjects(dbSession, profile, null)).isEmpty();
   }
 
   private void verifyProfileExists(QProfileDto profile) {
     assertThat(dbClient.qualityProfileDao().selectByUuid(dbSession, profile.getKee())).isNotNull();
   }
 
-  private QProfileDto createProfile(OrganizationDto organization) {
-    return db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+  private QProfileDto createProfile() {
+    return db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
   }
 }

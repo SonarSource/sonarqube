@@ -25,7 +25,6 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -40,7 +39,6 @@ public class SearchUsersQuery {
   public static final String OUT = "OUT";
   public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
 
-  private final String organizationUuid;
   private final String qProfileUuid;
   private final String query;
   private final String membership;
@@ -50,16 +48,11 @@ public class SearchUsersQuery {
   final String querySqlLowercase;
 
   private SearchUsersQuery(Builder builder) {
-    this.organizationUuid = builder.organization.getUuid();
     this.qProfileUuid = builder.profile.getKee();
     this.query = builder.query;
     this.membership = builder.membership;
     this.querySql = query == null ? null : buildLikeValue(query, BEFORE_AND_AFTER);
     this.querySqlLowercase = querySql == null ? null : querySql.toLowerCase(Locale.ENGLISH);
-  }
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
   }
 
   public String getQProfileUuid() {
@@ -80,17 +73,11 @@ public class SearchUsersQuery {
   }
 
   public static class Builder {
-    private OrganizationDto organization;
     private QProfileDto profile;
     private String query;
     private String membership;
 
     private Builder() {
-    }
-
-    public Builder setOrganization(OrganizationDto organization) {
-      this.organization = organization;
-      return this;
     }
 
     public Builder setProfile(QProfileDto profile) {
@@ -115,7 +102,6 @@ public class SearchUsersQuery {
     }
 
     public SearchUsersQuery build() {
-      requireNonNull(organization, "Organization cannot be null");
       requireNonNull(profile, "Quality profile cant be null.");
       initMembership();
       return new SearchUsersQuery(this);

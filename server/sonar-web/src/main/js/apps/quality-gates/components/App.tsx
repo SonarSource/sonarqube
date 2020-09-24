@@ -93,10 +93,7 @@ class App extends React.PureComponent<Props, State> {
 
   openDefault(qualityGates: T.QualityGate[]) {
     const defaultQualityGate = qualityGates.find(gate => Boolean(gate.isDefault))!;
-    const { organization } = this.props;
-    this.props.router.replace(
-      getQualityGateUrl(String(defaultQualityGate.id), organization && organization.key)
-    );
+    this.props.router.replace(getQualityGateUrl(String(defaultQualityGate.id)));
   }
 
   handleSetDefault = (qualityGate: T.QualityGate) => {
@@ -135,7 +132,7 @@ class App extends React.PureComponent<Props, State> {
                       refreshQualityGates={this.fetchQualityGates}
                     />
                     <DeferredSpinner loading={this.state.loading}>
-                      <List organization={organization} qualityGates={qualityGates} />
+                      <List qualityGates={qualityGates} />
                     </DeferredSpinner>
                   </div>
                 </div>

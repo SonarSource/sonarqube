@@ -79,7 +79,7 @@ public class RegisterQualityProfiles implements Startable {
 
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
     try (DbSession dbSession = dbClient.openSession(false);
-         DbSession batchDbSession = dbClient.openSession(true)) {
+      DbSession batchDbSession = dbClient.openSession(true)) {
       long startDate = system2.now();
 
       Map<QProfileName, RulesProfileDto> persistedRuleProfiles = loadPersistedProfiles(dbSession);
@@ -148,7 +148,7 @@ public class RegisterQualityProfiles implements Startable {
     }
     Profiler profiler = Profiler.createIfDebug(Loggers.get(getClass())).start();
     String newName = profile.getName() + " (outdated copy)";
-    LOGGER.info("Rename Quality profiles [{}/{}] to [{}] in {} organizations", profile.getLanguage(), profile.getName(), newName, uuids.size());
+    LOGGER.info("Rename Quality profiles [{}/{}] to [{}]", profile.getLanguage(), profile.getName(), newName);
     dbClient.qualityProfileDao().renameRulesProfilesAndCommit(dbSession, uuids, newName);
     profiler.stopDebug(format("%d Quality profiles renamed to [%s]", uuids.size(), newName));
   }
@@ -170,17 +170,16 @@ public class RegisterQualityProfiles implements Startable {
           return;
         }
 
-        QProfileDto qualityProfile = dbClient.qualityProfileDao().selectByRuleProfileUuid(dbSession, qp.getOrganizationUuid(), rulesProfile.getUuid());
+        QProfileDto qualityProfile = dbClient.qualityProfileDao().selectByRuleProfileUuid(dbSession, rulesProfile.getUuid());
         if (qualityProfile == null) {
           return;
         }
 
-        Set<String> uuids = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, qp.getOrganizationUuid(), Collections.singleton(qp.getKee()));
+        Set<String> uuids = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, Collections.singleton(qp.getKee()));
         dbClient.defaultQProfileDao().deleteByQProfileUuids(dbSession, uuids);
         dbClient.defaultQProfileDao().insertOrUpdate(dbSession, new DefaultQProfileDto()
           .setQProfileUuid(qualityProfile.getKee())
           .setLanguage(qp.getLanguage())
-          .setOrganizationUuid(qp.getOrganizationUuid())
         );
 
         LOGGER.info("Default built-in quality profile for language [{}] has been updated from [{}] to [{}] since previous default does not have active rules.",

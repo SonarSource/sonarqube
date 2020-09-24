@@ -62,38 +62,25 @@ export function isStagnant(profile: Profile): boolean {
   return false;
 }
 
-export const getProfilesPath = (organization: string | null | undefined) =>
-  organization ? `/organizations/${organization}/quality_profiles` : '/profiles';
+export const PROFILE_PATH = '/profiles';
 
-export const getProfilesForLanguagePath = (
-  language: string,
-  organization: string | null | undefined
-) => ({
-  pathname: getProfilesPath(organization),
+export const getProfilesForLanguagePath = (language: string) => ({
+  pathname: PROFILE_PATH,
   query: { language }
 });
 
-export const getProfilePath = (
-  name: string,
-  language: string,
-  organization: string | null | undefined
-) => ({
-  pathname: getProfilesPath(organization) + '/show',
+export const getProfilePath = (name: string, language: string) => ({
+  pathname: `${PROFILE_PATH}/show`,
   query: { name, language }
 });
 
-export const getProfileComparePath = (
-  name: string,
-  language: string,
-  organization: string | null | undefined,
-  withKey?: string
-) => {
+export const getProfileComparePath = (name: string, language: string, withKey?: string) => {
   const query = { language, name };
   if (withKey) {
     Object.assign(query, { withKey });
   }
   return {
-    pathname: getProfilesPath(organization) + '/compare',
+    pathname: `${PROFILE_PATH}/compare`,
     query
   };
 };
@@ -101,7 +88,6 @@ export const getProfileComparePath = (
 export const getProfileChangelogPath = (
   name: string,
   language: string,
-  organization: string | null | undefined,
   filter?: { since?: string; to?: string }
 ) => {
   const query = { language, name };
@@ -114,7 +100,7 @@ export const getProfileChangelogPath = (
     }
   }
   return {
-    pathname: getProfilesPath(organization) + '/changelog',
+    pathname: `${PROFILE_PATH}/changelog`,
     query
   };
 };

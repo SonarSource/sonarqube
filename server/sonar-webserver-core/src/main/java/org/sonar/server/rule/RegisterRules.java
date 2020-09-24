@@ -62,7 +62,6 @@ import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.metadata.MetadataIndex;
-import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.QProfileRules;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -92,13 +91,12 @@ public class RegisterRules implements Startable {
   private final ActiveRuleIndexer activeRuleIndexer;
   private final Languages languages;
   private final System2 system2;
-  private final OrganizationFlags organizationFlags;
   private final WebServerRuleFinder webServerRuleFinder;
   private final UuidFactory uuidFactory;
   private final MetadataIndex metadataIndex;
 
   public RegisterRules(RuleDefinitionsLoader defLoader, QProfileRules qProfileRules, DbClient dbClient, RuleIndexer ruleIndexer,
-    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, OrganizationFlags organizationFlags,
+    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2,
     WebServerRuleFinder webServerRuleFinder, UuidFactory uuidFactory, MetadataIndex metadataIndex) {
     this.defLoader = defLoader;
     this.qProfileRules = qProfileRules;
@@ -107,7 +105,6 @@ public class RegisterRules implements Startable {
     this.activeRuleIndexer = activeRuleIndexer;
     this.languages = languages;
     this.system2 = system2;
-    this.organizationFlags = organizationFlags;
     this.webServerRuleFinder = webServerRuleFinder;
     this.uuidFactory = uuidFactory;
     this.metadataIndex = metadataIndex;
@@ -123,13 +120,9 @@ public class RegisterRules implements Startable {
 
       verifyRuleKeyConsistency(repositories, registerRulesContext);
 
-      boolean orgsEnabled = organizationFlags.isEnabled(dbSession);
       for (RulesDefinition.ExtendedRepository repoDef : repositories) {
         if (languages.get(repoDef.language()) != null) {
           for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
-            if (noTemplateRuleWithOrganizationsEnabled(registerRulesContext, orgsEnabled, ruleDef)) {
-              continue;
-            }
             registerRule(registerRulesContext, ruleDef, dbSession);
           }
           dbSession.commit();
@@ -179,22 +172,6 @@ public class RegisterRules implements Startable {
     return dbClient.ruleDao().selectAllDeprecatedRuleKeys(dbSession).stream()
       .map(SingleDeprecatedRuleKey::from)
       .collect(Collectors.groupingBy(SingleDeprecatedRuleKey::getRuleUuid, Collectors.toSet()));
-  }
-
-  private static boolean noTemplateRuleWithOrganizationsEnabled(RegisterRulesContext registerRulesContext, boolean orgsEnabled, RulesDefinition.Rule ruleDef) {
-    if (!ruleDef.template() || !orgsEnabled) {
-      return false;
-    }
-
-    Optional<RuleDefinitionDto> dbRule = registerRulesContext.getDbRuleFor(ruleDef);
-    if (dbRule.isPresent() && dbRule.get().getStatus() == RuleStatus.REMOVED) {
-      RuleDefinitionDto dto = dbRule.get();
-      LOG.debug("Template rule {} kept removed, because organizations are enabled.", dto.getKey());
-      registerRulesContext.removed(dto);
-    } else {
-      LOG.info("Template rule {} will not be imported, because organizations are enabled.", RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
-    }
-    return true;
   }
 
   private static class RegisterRulesContext {
@@ -553,7 +530,7 @@ public class RegisterRules implements Startable {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
         profiler.start();
-        dbClient.activeRuleDao().deleteParamsByRuleParamOfAllOrganizations(session, paramDto);
+        dbClient.activeRuleDao().deleteParamsByRuleParam(session, paramDto);
         profiler.stopDebug(format("Propagate deleted param with name %s to active rules of rule %s", paramDto.getName(), rule.getKey()));
         dbClient.ruleDao().deleteRuleParam(session, paramDto.getUuid());
       } else {
@@ -581,7 +558,7 @@ public class RegisterRules implements Startable {
       }
       // Propagate the default value to existing active rule parameters
       profiler.start();
-      for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRuleUuidOfAllOrganizations(session, rule.getUuid())) {
+      for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRuleUuid(session, rule.getUuid())) {
         ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
         dbClient.activeRuleDao().insertParam(session, activeRule, activeParam);
       }

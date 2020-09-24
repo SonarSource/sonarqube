@@ -19,9 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Joiner;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -34,12 +32,10 @@ import org.sonar.ce.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.ce.task.projectanalysis.component.BranchLoader;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.Plugin;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
@@ -51,7 +47,6 @@ import org.sonar.server.qualityprofile.QualityProfile;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 /**
  * Feed analysis metadata holder with metadata from the analysis report.
@@ -86,7 +81,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     loadMetadata(reportMetadata);
     Organization organization = loadOrganization(reportMetadata);
     Runnable projectValidation = loadProject(reportMetadata, organization);
-    loadQualityProfiles(reportMetadata, organization);
+    loadQualityProfiles(reportMetadata);
     branchLoader.load(reportMetadata);
     projectValidation.run();
   }
@@ -145,8 +140,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     }
   }
 
-  private void loadQualityProfiles(ScannerReport.Metadata reportMetadata, Organization organization) {
-    checkQualityProfilesConsistency(reportMetadata, organization);
+  private void loadQualityProfiles(ScannerReport.Metadata reportMetadata) {
     analysisMetadata.setQProfilesByLanguage(reportMetadata.getQprofilesPerLanguageMap().values().stream()
       .collect(toMap(
         QProfile::getLanguage,
@@ -165,25 +159,6 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
       return null;
     }
     return pluginRepository.getPluginInfo(p.getKey()).getBasePlugin();
-  }
-
-  /**
-   * Check that the Quality profiles sent by scanner correctly relate to the project organization.
-   */
-  private void checkQualityProfilesConsistency(ScannerReport.Metadata metadata, Organization organization) {
-    List<String> profileKeys = metadata.getQprofilesPerLanguageMap().values().stream()
-      .map(QProfile::getKey)
-      .collect(toList(metadata.getQprofilesPerLanguageMap().size()));
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<QProfileDto> profiles = dbClient.qualityProfileDao().selectByUuids(dbSession, profileKeys);
-      String badKeys = profiles.stream()
-        .filter(p -> !p.getOrganizationUuid().equals(organization.getUuid()))
-        .map(QProfileDto::getKee)
-        .collect(MoreCollectors.join(Joiner.on(", ")));
-      if (!badKeys.isEmpty()) {
-        throw MessageException.of(format("Quality profiles with following keys don't exist in organization [%s]: %s", organization.getKey(), badKeys));
-      }
-    }
   }
 
   private void checkOrganizationKeyConsistency(ScannerReport.Metadata reportMetadata, Organization organization) {

@@ -48,7 +48,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 
 public class ActivateRulesActionTest {
@@ -68,12 +67,10 @@ public class ActivateRulesActionTest {
   private WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, qProfileRules, wsSupport, dbClient));
 
   private OrganizationDto defaultOrganization;
-  private OrganizationDto organization;
 
   @Before
   public void before() {
     defaultOrganization = db.getDefaultOrganization();
-    organization = db.organizations().insert();
   }
 
   @Test
@@ -102,7 +99,6 @@ public class ActivateRulesActionTest {
       "available_since",
       "activation",
       "severities",
-      "organization",
       "cwe",
       "owaspTop10",
       "sansTop25",
@@ -111,12 +107,11 @@ public class ActivateRulesActionTest {
 
   @Test
   public void as_global_qprofile_admin() {
-    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES, organization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
@@ -126,15 +121,14 @@ public class ActivateRulesActionTest {
   @Test
   public void as_qprofile_editor() {
     UserDto user = db.users().insertUser();
-    GroupDto group = db.users().insertGroup(organization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
-    db.organizations().addMember(organization, user);
+    GroupDto group = db.users().insertGroup(defaultOrganization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
+    db.organizations().addMember(defaultOrganization, user);
     db.qualityProfiles().addGroupPermission(qualityProfile, group);
     userSession.logIn(user).setGroups(group);
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee())
       .execute();
 
@@ -155,7 +149,7 @@ public class ActivateRulesActionTest {
   @Test
   public void fail_if_built_in_profile() {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization, p -> p.setIsBuiltIn(true));
+    QProfileDto qualityProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true));
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TARGET_KEY, qualityProfile.getKee());
@@ -168,7 +162,7 @@ public class ActivateRulesActionTest {
   @Test
   public void fail_if_not_enough_permission() {
     userSession.logIn(db.users().insertUser());
-    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
 
     expectedException.expect(ForbiddenException.class);
 

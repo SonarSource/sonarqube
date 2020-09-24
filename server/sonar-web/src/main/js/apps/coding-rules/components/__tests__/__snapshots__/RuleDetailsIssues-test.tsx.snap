@@ -23,7 +23,7 @@ exports[`should fetch issues and render 1`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/organizations/org/issues",
+              "pathname": "/issues",
               "query": Object {
                 "resolved": "false",
                 "rules": "foo",
@@ -64,7 +64,7 @@ exports[`should fetch issues and render 1`] = `
               style={Object {}}
               to={
                 Object {
-                  "pathname": "/organizations/org/issues",
+                  "pathname": "/issues",
                   "query": Object {
                     "projects": "sample-key",
                     "resolved": "false",
@@ -93,7 +93,7 @@ exports[`should fetch issues and render 1`] = `
               style={Object {}}
               to={
                 Object {
-                  "pathname": "/organizations/org/issues",
+                  "pathname": "/issues",
                   "query": Object {
                     "projects": "example-key",
                     "resolved": "false",

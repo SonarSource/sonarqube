@@ -126,7 +126,8 @@ public class EsClient implements Closeable {
     return new ProxySearchRequestBuilder(nativeClient()).setIndices(index.getName());
   }
 
-  public SearchRequestBuilder prepareSearch(IndexMainType indexType) {
+  public SearchRequestBuilder
+  prepareSearch(IndexMainType indexType) {
     return new ProxySearchRequestBuilder(nativeClient())
       .setIndices(indexType.getIndex().getName())
       .setTypes(indexType.getType());

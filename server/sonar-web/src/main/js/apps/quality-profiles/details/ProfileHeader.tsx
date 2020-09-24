@@ -25,7 +25,7 @@ import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge
 import ProfileActions from '../components/ProfileActions';
 import ProfileLink from '../components/ProfileLink';
 import { Profile } from '../types';
-import { getProfileChangelogPath, getProfilesForLanguagePath, getProfilesPath } from '../utils';
+import { getProfileChangelogPath, getProfilesForLanguagePath, PROFILE_PATH } from '../utils';
 
 interface Props {
   profile: Profile;
@@ -40,23 +40,17 @@ export default class ProfileHeader extends React.PureComponent<Props> {
     return (
       <header className="page-header quality-profile-header">
         <div className="note spacer-bottom">
-          <IndexLink className="text-muted" to={getProfilesPath(organization)}>
+          <IndexLink className="text-muted" to={PROFILE_PATH}>
             {translate('quality_profiles.page')}
           </IndexLink>
           {' / '}
-          <Link
-            className="text-muted"
-            to={getProfilesForLanguagePath(profile.language, organization)}>
+          <Link className="text-muted" to={getProfilesForLanguagePath(profile.language)}>
             {profile.languageName}
           </Link>
         </div>
 
         <h1 className="page-title">
-          <ProfileLink
-            className="link-base-color"
-            language={profile.language}
-            name={profile.name}
-            organization={organization}>
+          <ProfileLink className="link-base-color" language={profile.language} name={profile.name}>
             <span>{profile.name}</span>
           </ProfileLink>
           {profile.isBuiltIn && (
@@ -73,9 +67,7 @@ export default class ProfileHeader extends React.PureComponent<Props> {
               {translate('quality_profiles.used_')} <DateFromNow date={profile.lastUsed} />
             </li>
             <li>
-              <Link
-                className="button"
-                to={getProfileChangelogPath(profile.name, profile.language, organization)}>
+              <Link className="button" to={getProfileChangelogPath(profile.name, profile.language)}>
                 {translate('changelog')}
               </Link>
             </li>

@@ -32,7 +32,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.es.SearchOptions;
@@ -96,13 +95,12 @@ public class ShowAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = qProfileWsSupport.getProfile(dbSession, QProfileReference.fromKey(request.mandatoryParam(PARAM_KEY)));
-      OrganizationDto organization = qProfileWsSupport.getOrganization(dbSession, profile);
-      boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, profile.getOrganizationUuid(), profile.getKee());
-      ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder().setOrganization(organization);
+      boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, profile.getKee());
+      ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder();
       long activeRuleCount = countActiveRulesByQuery(dbSession, profile, builder);
       long deprecatedActiveRuleCount = countActiveRulesByQuery(dbSession, profile, builder.setRuleStatus(DEPRECATED));
-      long projectCount = countProjectsByOrganizationAndProfiles(dbSession, organization, profile);
-      CompareToSonarWay compareToSonarWay = getSonarWay(request, dbSession, organization, profile);
+      long projectCount = countProjectsByProfiles(dbSession, profile);
+      CompareToSonarWay compareToSonarWay = getSonarWay(request, dbSession, profile);
       writeProtobuf(buildResponse(profile, isDefault, getLanguage(profile), activeRuleCount, deprecatedActiveRuleCount, projectCount, compareToSonarWay), request, response);
     }
   }
@@ -112,8 +110,8 @@ public class ShowAction implements QProfileWsAction {
     return result.getOrDefault(profile.getKee(), 0L);
   }
 
-  private long countProjectsByOrganizationAndProfiles(DbSession dbSession, OrganizationDto organization, QProfileDto profile) {
-    Map<String, Long> projects = dbClient.qualityProfileDao().countProjectsByOrganizationAndProfiles(dbSession, organization, singletonList(profile));
+  private long countProjectsByProfiles(DbSession dbSession, QProfileDto profile) {
+    Map<String, Long> projects = dbClient.qualityProfileDao().countProjectsByProfiles(dbSession, singletonList(profile));
     return projects.getOrDefault(profile.getKee(), 0L);
   }
 
@@ -124,12 +122,12 @@ public class ShowAction implements QProfileWsAction {
   }
 
   @CheckForNull
-  public CompareToSonarWay getSonarWay(Request request, DbSession dbSession, OrganizationDto organization, QProfileDto profile) {
+  public CompareToSonarWay getSonarWay(Request request, DbSession dbSession, QProfileDto profile) {
     if (!request.mandatoryParamAsBoolean(PARAM_COMPARE_TO_SONAR_WAY) || profile.isBuiltIn()) {
       return null;
     }
     QProfileDto sonarWay = Stream.of(SONAR_WAY, SONARQUBE_WAY)
-      .map(name -> dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name, profile.getLanguage()))
+      .map(name -> dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, name, profile.getLanguage()))
       .filter(Objects::nonNull)
       .filter(QProfileDto::isBuiltIn)
       .findFirst()

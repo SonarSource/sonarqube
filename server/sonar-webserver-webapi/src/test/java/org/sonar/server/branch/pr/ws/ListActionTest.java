@@ -55,7 +55,6 @@ import org.sonarqube.ws.ProjectPullRequests.ListWsResponse;
 import org.sonarqube.ws.ProjectPullRequests.PullRequest;
 
 import static java.lang.String.format;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;

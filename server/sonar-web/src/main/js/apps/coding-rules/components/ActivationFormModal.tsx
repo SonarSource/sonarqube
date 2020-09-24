@@ -35,7 +35,6 @@ interface Props {
   modalHeader: string;
   onClose: () => void;
   onDone: (severity: string) => Promise<void>;
-  organization: string | undefined;
   profiles: Profile[];
   rule: T.Rule | T.RuleDetails;
 }
@@ -106,7 +105,6 @@ export default class ActivationFormModal extends React.PureComponent<Props, Stat
     this.setState({ submitting: true });
     const data = {
       key: this.state.profile,
-      organization: this.props.organization,
       params: this.state.params,
       rule: this.props.rule.key,
       severity: this.state.severity

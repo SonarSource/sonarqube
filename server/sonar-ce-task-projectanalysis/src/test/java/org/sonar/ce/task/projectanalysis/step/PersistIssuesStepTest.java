@@ -81,9 +81,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setOrganizationUuid("org-1", "qg-uuid-1");
 
   private System2 system2 = mock(System2.class);
   private DbSession session = db.getSession();
@@ -104,7 +101,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
-    underTest = new PersistIssuesStep(dbClient, system2, conflictResolver, new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder), protoIssueCache,
+    underTest = new PersistIssuesStep(dbClient, system2, conflictResolver, new RuleRepositoryImpl(adHocRuleCreator, dbClient), protoIssueCache,
       new IssueStorage(), new SequenceUuidFactory());
   }
 

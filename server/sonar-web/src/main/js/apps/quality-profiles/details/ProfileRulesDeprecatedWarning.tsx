@@ -39,9 +39,7 @@ export default function ProfileRulesDeprecatedWarning(props: Props) {
           overlay={translate('quality_profiles.deprecated_rules_description')}
         />
       </span>
-      <Link
-        className="pull-right"
-        to={getDeprecatedActiveRulesUrl({ qprofile: props.profile }, props.organization)}>
+      <Link className="pull-right" to={getDeprecatedActiveRulesUrl({ qprofile: props.profile })}>
         {props.activeDeprecatedRules}
       </Link>
     </div>

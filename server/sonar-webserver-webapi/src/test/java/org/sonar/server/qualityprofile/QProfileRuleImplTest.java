@@ -327,7 +327,7 @@ public class QProfileRuleImplTest {
   @Test
   public void fail_to_activate_rule_if_profile_is_on_different_languages() {
     RuleDefinitionDto rule = createJavaRule();
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage("js"));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("js"));
     RuleActivation activation = RuleActivation.create(rule.getUuid());
 
     expectFailure("java rule " + rule.getKey() + " cannot be activated on js profile " + profile.getKee(), () -> activate(profile, activation));
@@ -710,7 +710,7 @@ public class QProfileRuleImplTest {
     int bulkSize = SearchOptions.MAX_PAGE_SIZE + 10 + new Random().nextInt(100);
     String language = randomAlphanumeric(10);
     String repositoryKey = randomAlphanumeric(10);
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(language));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(language));
 
     List<RuleDto> rules = new ArrayList<>();
     IntStream.rangeClosed(1, bulkSize).forEach(
@@ -737,7 +737,7 @@ public class QProfileRuleImplTest {
     int bulkSize = SearchOptions.MAX_PAGE_SIZE + 10 + new Random().nextInt(100);
     String language = randomAlphanumeric(10);
     String repositoryKey = randomAlphanumeric(10);
-    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(language));
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(language));
 
     List<RuleDto> rules = new ArrayList<>();
     IntStream.rangeClosed(1, bulkSize).forEach(
@@ -851,7 +851,7 @@ public class QProfileRuleImplTest {
   @Test
   public void activation_fails_when_profile_is_built_in() {
     RuleDefinitionDto rule = createRule();
-    QProfileDto builtInProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
+    QProfileDto builtInProfile = db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()).setIsBuiltIn(true));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The built-in profile " + builtInProfile.getName() + " is read-only and can't be updated");
@@ -873,11 +873,11 @@ public class QProfileRuleImplTest {
   }
 
   private QProfileDto createProfile(RuleDefinitionDto rule) {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(rule.getLanguage()));
+    return db.qualityProfiles().insert(p -> p.setLanguage(rule.getLanguage()));
   }
 
   private QProfileDto createChildProfile(QProfileDto parent) {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p
+    return db.qualityProfiles().insert(p -> p
       .setLanguage(parent.getLanguage())
       .setParentKee(parent.getKee())
       .setName("Child of " + parent.getName()));

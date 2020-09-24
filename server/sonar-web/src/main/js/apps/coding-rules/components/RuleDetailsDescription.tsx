@@ -28,7 +28,6 @@ import RemoveExtendedDescriptionModal from './RemoveExtendedDescriptionModal';
 interface Props {
   canWrite: boolean | undefined;
   onChange: (newRuleDetails: T.RuleDetails) => void;
-  organization: string | undefined;
   ruleDetails: T.RuleDetails;
 }
 
@@ -83,8 +82,7 @@ export default class RuleDetailsDescription extends React.PureComponent<Props, S
 
     updateRule({
       key: this.props.ruleDetails.key,
-      markdown_note: text,
-      organization: this.props.organization
+      markdown_note: text
     }).then(
       ruleDetails => {
         this.props.onChange(ruleDetails);

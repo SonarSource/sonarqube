@@ -33,28 +33,22 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 
 public class CompareActionTest {
 
@@ -149,20 +143,6 @@ public class CompareActionTest {
       .execute().assertJson(this.getClass(), "compare_param_on_right.json");
   }
 
-  @Test
-  public void do_not_fail_to_compare_on_paid_organization() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QProfileDto left = db.qualityProfiles().insert(organization);
-    QProfileDto right = db.qualityProfiles().insert(organization);
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addMembership(organization);
-
-    ws.newRequest()
-      .setParam("leftKey", left.getKee())
-      .setParam("rightKey", right.getKee())
-      .execute();
-  }
-
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_left_param() {
     ws.newRequest()
@@ -196,36 +176,6 @@ public class CompareActionTest {
   }
 
   @Test
-  public void fail_to_compare_quality_profiles_from_different_organizations() {
-    QProfileDto left = QualityProfileTesting.newQualityProfileDto();
-    QProfileDto right = QualityProfileTesting.newQualityProfileDto();
-    db.qualityProfiles().insert(left, right);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Cannot compare quality profiles of different organizations.");
-
-    ws.newRequest()
-      .setParam("leftKey", left.getKee())
-      .setParam("rightKey", right.getKee())
-      .execute();
-  }
-
-  @Test
-  public void fail_on_paid_organization_when_not_member() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QProfileDto left = db.qualityProfiles().insert(organization);
-    QProfileDto right = db.qualityProfiles().insert(organization);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    ws.newRequest()
-      .setParam("leftKey", left.getKee())
-      .setParam("rightKey", right.getKee())
-      .execute();
-  }
-
-  @Test
   public void definition() {
     WebService.Action definition = ws.getDef();
     assertThat(definition).isNotNull();
@@ -237,7 +187,7 @@ public class CompareActionTest {
   }
 
   private QProfileDto createProfile(String lang, String name, String key) {
-    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setKee(key).setName(name).setLanguage(lang));
+    return db.qualityProfiles().insert(p -> p.setKee(key).setName(name).setLanguage(lang));
   }
 
   private RuleDefinitionDto createRule(String lang, String id) {

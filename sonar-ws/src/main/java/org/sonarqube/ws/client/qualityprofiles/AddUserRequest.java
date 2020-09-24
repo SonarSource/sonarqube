@@ -32,7 +32,6 @@ public class AddUserRequest {
 
   private String language;
   private String login;
-  private String organization;
   private String qualityProfile;
 
   /**
@@ -58,19 +57,6 @@ public class AddUserRequest {
 
   public String getLogin() {
     return login;
-  }
-
-  /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public AddUserRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
   }
 
   /**

@@ -75,7 +75,6 @@ export class MetaQualityProfiles extends React.PureComponent<StateProps & OwnPro
   loadDeprecatedRulesForProfile(profileKey: string) {
     const data = {
       activation: 'true',
-      organization: undefined,
       ps: 1,
       qprofile: profileKey,
       statuses: 'DEPRECATED'

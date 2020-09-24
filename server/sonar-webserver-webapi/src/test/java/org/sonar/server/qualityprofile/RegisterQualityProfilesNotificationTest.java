@@ -42,7 +42,6 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
@@ -207,10 +206,9 @@ public class RegisterQualityProfilesNotificationTest {
   public void notification_does_not_include_inherited_profiles_when_rule_is_added() {
     String language = newLanguageKey();
     RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(language));
-    OrganizationDto organization = db.organizations().insert();
 
-    QProfileDto builtInQProfileDto = insertProfile(organization, orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
-    QProfileDto childQProfileDto = insertProfile(organization, orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
+    QProfileDto builtInQProfileDto = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
+    QProfileDto childQProfileDto = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
     addPluginProfile(builtInQProfileDto, newRule);
     builtInQProfileRepositoryRule.initialize();
 
@@ -231,11 +229,10 @@ public class RegisterQualityProfilesNotificationTest {
   public void notification_does_not_include_inherited_profiled_when_rule_is_changed() {
     String language = newLanguageKey();
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(language).setSeverity(Severity.MINOR));
-    OrganizationDto organization = db.organizations().insert();
 
-    QProfileDto builtInProfile = insertProfile(organization, orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
+    QProfileDto builtInProfile = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
     db.qualityProfiles().activateRule(builtInProfile, rule, ar -> ar.setSeverity(Severity.MINOR));
-    QProfileDto childProfile = insertProfile(organization, orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInProfile.getKee()));
+    QProfileDto childProfile = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInProfile.getKee()));
     db.qualityProfiles().activateRule(childProfile, rule, ar -> ar.setInheritance(ActiveRuleDto.INHERITED).setSeverity(Severity.MINOR));
     addPluginProfile(builtInProfile, rule);
     builtInQProfileRepositoryRule.initialize();
@@ -258,13 +255,10 @@ public class RegisterQualityProfilesNotificationTest {
   public void notification_does_not_include_inherited_profiles_when_rule_is_deactivated() {
     String language = newLanguageKey();
     RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(language).setSeverity(Severity.MINOR));
-    OrganizationDto organization = db.organizations().insert();
 
-    QProfileDto builtInQProfileDto = insertProfile(organization,
-      orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
+    QProfileDto builtInQProfileDto = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
     db.qualityProfiles().activateRule(builtInQProfileDto, rule);
-    QProfileDto childQProfileDto = insertProfile(organization,
-      orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
+    QProfileDto childQProfileDto = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
     qProfileRules.activateAndCommit(db.getSession(), childQProfileDto, singleton(RuleActivation.create(rule.getUuid())));
     db.commit();
 
@@ -353,8 +347,8 @@ public class RegisterQualityProfilesNotificationTest {
     db.commit();
   }
 
-  private QProfileDto insertProfile(OrganizationDto organization, Consumer<QProfileDto> consumer) {
-    QProfileDto builtInQProfileDto = db.qualityProfiles().insert(organization, consumer);
+  private QProfileDto insertProfile(Consumer<QProfileDto> consumer) {
+    QProfileDto builtInQProfileDto = db.qualityProfiles().insert(consumer);
     db.commit();
     return builtInQProfileDto;
   }

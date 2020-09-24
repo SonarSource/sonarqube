@@ -33,8 +33,7 @@ import static org.mockito.Mockito.when;
 public class WebServerRuleFinderImplTest {
 
   private DbClient dbClient = mock(DbClient.class);
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("1111");
-  private WebServerRuleFinderImpl underTest = new WebServerRuleFinderImpl(dbClient, defaultOrganizationProvider);
+  private WebServerRuleFinderImpl underTest = new WebServerRuleFinderImpl(dbClient);
 
   @Before
   public void setUp() {

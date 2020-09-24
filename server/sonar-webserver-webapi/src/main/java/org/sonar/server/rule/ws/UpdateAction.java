@@ -36,7 +36,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -50,7 +49,6 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.rule.ws.CreateAction.KEY_MAXIMUM_LENGTH;
 import static org.sonar.server.rule.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -67,7 +65,6 @@ public class UpdateAction implements RulesWsAction {
   public static final String PARAM_DESCRIPTION = "markdown_description";
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_STATUS = "status";
-  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAMS = "params";
 
   private final DbClient dbClient;
@@ -151,13 +148,6 @@ public class UpdateAction implements RulesWsAction {
       .setPossibleValues(RuleStatus.values())
       .setDescription("Rule status (Only when updating a custom rule)");
 
-    action.createParam(PARAM_ORGANIZATION)
-      .setRequired(false)
-      .setInternal(true)
-      .setDescription("Organization key")
-      .setExampleValue("my-org")
-      .setSince("6.4");
-
     action.createParam(PARAMS)
       .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2' (Only when updating a custom rule)");
   }
@@ -166,19 +156,18 @@ public class UpdateAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = ruleWsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
-      RuleUpdate update = readRequest(dbSession, request, organization);
-      ruleUpdater.update(dbSession, update, organization, userSession);
-      UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey(), organization);
+      ruleWsSupport.checkQProfileAdminPermissionOnDefaultOrganization();
+      RuleUpdate update = readRequest(dbSession, request);
+      ruleUpdater.update(dbSession, update, userSession);
+      UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey());
 
       writeProtobuf(updateResponse, request, response);
     }
   }
 
-  private RuleUpdate readRequest(DbSession dbSession, Request request, OrganizationDto organization) {
+  private RuleUpdate readRequest(DbSession dbSession, Request request) {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    RuleUpdate update = createRuleUpdate(dbSession, key, organization);
+    RuleUpdate update = createRuleUpdate(dbSession, key);
     readTags(request, update);
     readMarkdownNote(request, update);
     readDebt(request, update);
@@ -206,13 +195,12 @@ public class UpdateAction implements RulesWsAction {
     return update;
   }
 
-  private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key, OrganizationDto organization) {
-    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
+  private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key) {
+    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, key)
       .orElseThrow(() -> new NotFoundException(format("This rule does not exist: %s", key)));
     RuleUpdate ruleUpdate = ofNullable(rule.getTemplateUuid())
       .map(x -> RuleUpdate.createForCustomRule(key))
       .orElseGet(() -> RuleUpdate.createForPluginRule(key));
-    ruleUpdate.setOrganization(organization);
     return ruleUpdate;
   }
 
@@ -251,8 +239,8 @@ public class UpdateAction implements RulesWsAction {
     }
   }
 
-  private UpdateResponse buildResponse(DbSession dbSession, RuleKey key, OrganizationDto organization) {
-    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization.getUuid(), key)
+  private UpdateResponse buildResponse(DbSession dbSession, RuleKey key) {
+    RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, key)
       .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
     List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
     if (rule.getDefinition().isCustomRule()) {

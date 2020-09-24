@@ -48,10 +48,6 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setOrganizationUuid("org-1", "qg-uuid-1");
-
   private DbClient dbClient = db.getDbClient();
 
   private ComputationStep underTest;
@@ -70,13 +66,12 @@ public class PersistAdHocRulesStepTest extends BaseStepTest {
 
   @Before
   public void setup() {
-    ruleRepository = new RuleRepositoryImpl(adHocRuleCreator, dbClient, analysisMetadataHolder);
+    ruleRepository = new RuleRepositoryImpl(adHocRuleCreator, dbClient);
     underTest = new PersistAdHocRulesStep(dbClient, ruleRepository);
   }
 
   @Test
   public void persist_and_index_new_ad_hoc_rules() {
-
     RuleKey ruleKey = RuleKey.of("external_eslint", "no-cond-assign");
     ruleRepository.addOrUpdateAddHocRuleIfNeeded(ruleKey,
       () -> new NewAdHocRule(ScannerReport.ExternalIssue.newBuilder().setEngineId("eslint").setRuleId("no-cond-assign").build()));

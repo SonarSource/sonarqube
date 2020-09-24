@@ -21,6 +21,7 @@ package org.sonar.db.qualityprofile;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
@@ -50,16 +51,16 @@ public class DefaultQProfileDao implements Dao {
     DatabaseUtils.executeLargeUpdates(qProfileUuids, mapper::deleteByQProfileUuids);
   }
 
-  public Set<String> selectExistingQProfileUuids(DbSession dbSession, String organizationUuid, Collection<String> qProfileUuids) {
-    return new HashSet<>(DatabaseUtils.executeLargeInputs(qProfileUuids, uuids -> mapper(dbSession).selectExistingQProfileUuids(organizationUuid, uuids)));
+  public Set<String> selectExistingQProfileUuids(DbSession dbSession, Collection<String> qProfileUuids) {
+    return new HashSet<>(DatabaseUtils.executeLargeInputs(qProfileUuids, uuids -> mapper(dbSession).selectExistingQProfileUuids(uuids)));
   }
 
-  public boolean isDefault(DbSession dbSession, String organizationUuid, String qProfileUuid) {
-    return selectExistingQProfileUuids(dbSession, organizationUuid, singletonList(qProfileUuid)).contains(qProfileUuid);
+  public boolean isDefault(DbSession dbSession, String qProfileUuid) {
+    return selectExistingQProfileUuids(dbSession, singletonList(qProfileUuid)).contains(qProfileUuid);
   }
 
-  public Set<String> selectUuidsOfOrganizationsWithoutDefaultProfile(DbSession dbSession, String language) {
-    return mapper(dbSession).selectUuidsOfOrganizationsWithoutDefaultProfile(language);
+  public Optional<String> selectDefaultQProfileUuid(DbSession dbSession, String language) {
+    return mapper(dbSession).selectDefaultQProfileUuid(language);
   }
 
   private static DefaultQProfileMapper mapper(DbSession dbSession) {

@@ -97,7 +97,6 @@ export default class ComparisonResultActivation extends React.PureComponent<Prop
             modalHeader={translate('coding_rules.activate_in_quality_profile')}
             onClose={this.handleCloseModal}
             onDone={this.props.onDone}
-            organization={this.props.organization}
             profiles={[profile]}
             rule={this.state.rule}
           />
