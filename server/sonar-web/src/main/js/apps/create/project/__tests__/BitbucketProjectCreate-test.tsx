@@ -49,8 +49,8 @@ jest.mock('../../../../api/alm-integrations', () => {
     }),
     getBitbucketServerRepositories: jest.fn().mockResolvedValue({
       repositories: [
-        mockBitbucketRepository(),
-        mockBitbucketRepository({ id: 2, slug: 'project__repo2' })
+        mockBitbucketRepository({ projectKey: 'project1' }),
+        mockBitbucketRepository({ id: 2, projectKey: 'project1', slug: 'project__repo2' })
       ]
     }),
     importBitbucketServerProject: jest.fn().mockResolvedValue({ project: { key: 'baz' } }),
