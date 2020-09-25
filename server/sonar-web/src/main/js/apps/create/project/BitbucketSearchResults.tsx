@@ -44,17 +44,32 @@ export default function BitbucketSearchResults(props: BitbucketSearchResultsProp
     selectedRepository
   } = props;
 
+  if (searchResults.length === 0 && !searching) {
+    return (
+      <Alert className="big-spacer-top" variant="warning">
+        {translate('onboarding.create_project.no_bbs_repos.filter')}
+      </Alert>
+    );
+  }
+
   const filteredProjects = uniq(
     searchResults.map(r => projects.find(p => p.key === r.projectKey)).filter(isDefined)
   );
 
-  return filteredProjects.length === 0 && !searching ? (
-    <Alert className="big-spacer-top" variant="warning">
-      {translate('onboarding.create_project.no_bbs_repos.filter')}
-    </Alert>
-  ) : (
+  return (
     <div className="big-spacer-top">
       <DeferredSpinner loading={searching}>
+        {filteredProjects.length === 0 && searchResults.length > 0 && (
+          <BitbucketProjectAccordion
+            disableRepositories={disableRepositories}
+            onSelectRepository={props.onSelectRepository}
+            open={true}
+            repositories={searchResults}
+            selectedRepository={selectedRepository}
+            showingAllRepositories={true}
+          />
+        )}
+
         {filteredProjects.map(project => {
           const repositories = searchResults.filter(r => r.projectKey === project.key);
 

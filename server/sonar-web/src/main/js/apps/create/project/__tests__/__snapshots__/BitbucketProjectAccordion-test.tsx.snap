@@ -3,7 +3,6 @@
 exports[`should render correctly: closed 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom"
-  key="project"
   onClick={[MockFunction]}
   open={false}
   title={
@@ -17,7 +16,6 @@ exports[`should render correctly: closed 1`] = `
 exports[`should render correctly: default 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom open"
-  key="project"
   onClick={[MockFunction]}
   open={true}
   title={
@@ -90,7 +88,6 @@ exports[`should render correctly: default 1`] = `
 exports[`should render correctly: disable options 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom open"
-  key="project"
   onClick={[MockFunction]}
   open={true}
   title={
@@ -163,7 +160,6 @@ exports[`should render correctly: disable options 1`] = `
 exports[`should render correctly: no click handler 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom open not-clickable no-hover"
-  key="project"
   onClick={[Function]}
   open={true}
   title={
@@ -233,10 +229,81 @@ exports[`should render correctly: no click handler 1`] = `
 </BoxedGroupAccordion>
 `;
 
+exports[`should render correctly: no project info 1`] = `
+<BoxedGroupAccordion
+  className="big-spacer-bottom open"
+  onClick={[MockFunction]}
+  open={true}
+  title={
+    <h3>
+      search_results
+    </h3>
+  }
+>
+  <div
+    className="display-flex-wrap"
+  >
+    <Radio
+      checked={false}
+      className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden"
+      key="1"
+      onCheck={[Function]}
+      value="1"
+    >
+      <strong
+        className="text-ellipsis"
+        title="Repo"
+      >
+        Repo
+      </strong>
+    </Radio>
+    <div
+      className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
+      key="2"
+    >
+      <CheckIcon
+        className="spacer-right"
+        fill="#00aa00"
+        size={14}
+      />
+      <div
+        className="overflow-hidden"
+      >
+        <div
+          className="little-spacer-bottom text-ellipsis"
+        >
+          <strong
+            title="Bar"
+          >
+            <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
+                  "pathname": "/dashboard",
+                  "query": Object {
+                    "branch": undefined,
+                    "id": "bar",
+                  },
+                }
+              }
+            >
+              Bar
+            </Link>
+          </strong>
+        </div>
+        <em>
+          onboarding.create_project.repository_imported
+        </em>
+      </div>
+    </div>
+  </div>
+</BoxedGroupAccordion>
+`;
+
 exports[`should render correctly: no repos 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom open"
-  key="project"
   onClick={[MockFunction]}
   open={true}
   title={
@@ -282,7 +349,6 @@ exports[`should render correctly: no repos 1`] = `
 exports[`should render correctly: not showing all repos 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom open"
-  key="project"
   onClick={[MockFunction]}
   open={true}
   title={
@@ -348,19 +414,18 @@ exports[`should render correctly: not showing all repos 1`] = `
         </em>
       </div>
     </div>
-    <Alert
-      variant="warning"
-    >
-      onboarding.create_project.only_showing_X_first_repos.2
-    </Alert>
   </div>
+  <Alert
+    variant="warning"
+  >
+    onboarding.create_project.only_showing_X_first_repos.2
+  </Alert>
 </BoxedGroupAccordion>
 `;
 
 exports[`should render correctly: selected repo 1`] = `
 <BoxedGroupAccordion
   className="big-spacer-bottom open"
-  key="project"
   onClick={[MockFunction]}
   open={true}
   title={

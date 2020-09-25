@@ -39,6 +39,7 @@ it('should render correctly', () => {
     'selected repo'
   );
   expect(shallowRender({ showingAllRepositories: false })).toMatchSnapshot('not showing all repos');
+  expect(shallowRender({ project: undefined })).toMatchSnapshot('no project info');
 });
 
 it('should correctly handle selecting repos', () => {

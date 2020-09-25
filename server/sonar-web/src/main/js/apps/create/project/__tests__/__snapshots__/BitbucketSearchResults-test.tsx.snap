@@ -53,3 +53,30 @@ exports[`should render correctly: searching 1`] = `
   />
 </div>
 `;
+
+exports[`should render correctly: unknown project in search results 1`] = `
+<div
+  className="big-spacer-top"
+>
+  <DeferredSpinner
+    loading={false}
+  >
+    <BitbucketProjectAccordion
+      disableRepositories={false}
+      onSelectRepository={[MockFunction]}
+      open={true}
+      repositories={
+        Array [
+          Object {
+            "id": 1,
+            "name": "Repo",
+            "projectKey": "unknown",
+            "slug": "project__repo",
+          },
+        ]
+      }
+      showingAllRepositories={true}
+    />
+  </DeferredSpinner>
+</div>
+`;

@@ -34,6 +34,7 @@ import {
 } from '../../../types/alm-integration';
 import { AlmSettingsInstance } from '../../../types/alm-settings';
 import BitbucketCreateProjectRenderer from './BitbucketProjectCreateRenderer';
+import { DEFAULT_BBS_PAGE_SIZE } from './constants';
 
 interface Props extends Pick<WithRouterProps, 'location'> {
   canAdmin: boolean;
@@ -146,11 +147,31 @@ export default class BitbucketProjectCreate extends React.PureComponent<Props, S
     return Promise.all(
       projects.map(p => {
         return getBitbucketServerRepositories(bitbucketSetting.key, p.name).then(
-          ({ isLastPage, repositories }) => ({
-            isLastPage,
-            repositories,
-            projectKey: p.key
-          })
+          ({ isLastPage, repositories }) => {
+            // Because the WS uses the project name rather than its key to find
+            // repositories, we can match more repositories than we expect. For
+            // example, p.name = "A1" would find repositories for projects "A1",
+            // "A10", "A11", etc. This is a limitation of BBS. To make sure we
+            // don't display incorrect information, filter on the project key.
+            const filteredRepositories = repositories.filter(r => r.projectKey === p.key);
+
+            // And because of the above, the "isLastPage" cannot be relied upon
+            // either. This one is impossible to get 100% for now. We can only
+            // make some assumptions: by default, the page size for BBS is 25
+            // (this is not part of the payload, so we don't know the actual
+            // number; but changing this implies changing some advanced config,
+            // so it's not likely). If the filtered repos is larger than this
+            // number AND isLastPage is false, we'll keep it at false.
+            // Otherwise, we assume it's true.
+            const realIsLastPage =
+              isLastPage || filteredRepositories.length < DEFAULT_BBS_PAGE_SIZE;
+
+            return {
+              repositories: filteredRepositories,
+              isLastPage: realIsLastPage,
+              projectKey: p.key
+            };
+          }
         );
       })
     ).then(results => {

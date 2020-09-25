@@ -36,7 +36,7 @@ export interface BitbucketProjectAccordionProps {
   onClick?: () => void;
   onSelectRepository: (repo: BitbucketRepository) => void;
   open: boolean;
-  project: BitbucketProject;
+  project?: BitbucketProject;
   repositories: BitbucketRepository[];
   selectedRepository?: BitbucketRepository;
   showingAllRepositories: boolean;
@@ -54,6 +54,8 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
 
   const repositoryCount = repositories.length;
 
+  const title = project?.name ?? translate('search_results');
+
   return (
     <BoxedGroupAccordion
       className={classNames('big-spacer-bottom', {
@@ -61,7 +63,6 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
         'not-clickable': !props.onClick,
         'no-hover': !props.onClick
       })}
-      key={project.key}
       onClick={
         props.onClick
           ? props.onClick
@@ -70,64 +71,66 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
             }
       }
       open={open}
-      title={<h3>{project.name}</h3>}>
+      title={<h3>{title}</h3>}>
       {open && (
-        <div className="display-flex-wrap">
-          {repositoryCount === 0 && (
-            <Alert variant="warning">
-              <FormattedMessage
-                defaultMessage={translate('onboarding.create_project.no_bbs_repos')}
-                id="onboarding.create_project.no_bbs_repos"
-                values={{
-                  link: (
-                    <Link
-                      to={{
-                        pathname: '/projects/create',
-                        query: { mode: CreateProjectModes.BitbucketServer, resetPat: 1 }
-                      }}>
-                      {translate('onboarding.create_project.update_your_token')}
-                    </Link>
-                  )
-                }}
-              />
-            </Alert>
-          )}
+        <>
+          <div className="display-flex-wrap">
+            {repositoryCount === 0 && (
+              <Alert variant="warning">
+                <FormattedMessage
+                  defaultMessage={translate('onboarding.create_project.no_bbs_repos')}
+                  id="onboarding.create_project.no_bbs_repos"
+                  values={{
+                    link: (
+                      <Link
+                        to={{
+                          pathname: '/projects/create',
+                          query: { mode: CreateProjectModes.BitbucketServer, resetPat: 1 }
+                        }}>
+                        {translate('onboarding.create_project.update_your_token')}
+                      </Link>
+                    )
+                  }}
+                />
+              </Alert>
+            )}
 
-          {repositories.map(repo =>
-            repo.sqProjectKey ? (
-              <div
-                className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
-                key={repo.id}>
-                <CheckIcon className="spacer-right" fill={colors.green} size={14} />
-                <div className="overflow-hidden">
-                  <div className="little-spacer-bottom text-ellipsis">
-                    <strong title={repo.name}>
-                      <Link to={getProjectUrl(repo.sqProjectKey)}>{repo.name}</Link>
-                    </strong>
+            {repositories.map(repo =>
+              repo.sqProjectKey ? (
+                <div
+                  className="display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo"
+                  key={repo.id}>
+                  <CheckIcon className="spacer-right" fill={colors.green} size={14} />
+                  <div className="overflow-hidden">
+                    <div className="little-spacer-bottom text-ellipsis">
+                      <strong title={repo.name}>
+                        <Link to={getProjectUrl(repo.sqProjectKey)}>{repo.name}</Link>
+                      </strong>
+                    </div>
+                    <em>{translate('onboarding.create_project.repository_imported')}</em>
                   </div>
-                  <em>{translate('onboarding.create_project.repository_imported')}</em>
                 </div>
-              </div>
-            ) : (
-              <Radio
-                checked={selectedRepository?.id === repo.id}
-                className={classNames(
-                  'display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden',
-                  {
-                    disabled: disableRepositories,
-                    'text-muted': disableRepositories,
-                    'link-no-underline': disableRepositories
-                  }
-                )}
-                key={repo.id}
-                onCheck={() => props.onSelectRepository(repo)}
-                value={String(repo.id)}>
-                <strong className="text-ellipsis" title={repo.name}>
-                  {repo.name}
-                </strong>
-              </Radio>
-            )
-          )}
+              ) : (
+                <Radio
+                  checked={selectedRepository?.id === repo.id}
+                  className={classNames(
+                    'display-flex-start spacer-right spacer-bottom create-project-import-bbs-repo overflow-hidden',
+                    {
+                      disabled: disableRepositories,
+                      'text-muted': disableRepositories,
+                      'link-no-underline': disableRepositories
+                    }
+                  )}
+                  key={repo.id}
+                  onCheck={() => props.onSelectRepository(repo)}
+                  value={String(repo.id)}>
+                  <strong className="text-ellipsis" title={repo.name}>
+                    {repo.name}
+                  </strong>
+                </Radio>
+              )
+            )}
+          </div>
 
           {!showingAllRepositories && repositoryCount > 0 && (
             <Alert variant="warning">
@@ -137,7 +140,7 @@ export default function BitbucketProjectAccordion(props: BitbucketProjectAccordi
               )}
             </Alert>
           )}
-        </div>
+        </>
       )}
     </BoxedGroupAccordion>
   );

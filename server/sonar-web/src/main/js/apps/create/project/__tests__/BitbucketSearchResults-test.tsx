@@ -32,6 +32,9 @@ it('should render correctly', () => {
     shallowRender({ searching: true, projects: undefined, searchResults: undefined })
   ).toMatchSnapshot('searching');
   expect(shallowRender({ searchResults: undefined })).toMatchSnapshot('no results');
+  expect(
+    shallowRender({ searchResults: [mockBitbucketRepository({ projectKey: 'unknown' })] })
+  ).toMatchSnapshot('unknown project in search results');
 });
 
 function shallowRender(props: Partial<BitbucketSearchResultsProps> = {}) {
