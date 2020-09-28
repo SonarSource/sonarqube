@@ -7,10 +7,10 @@ You've heard about how [SonarQube](https://www.sonarqube.org/) can help you writ
 Once you're ready to set up a production instance, take a look at the [Install SonarQube](/setup/install-server/) documentation.
 
 ## Installing a local instance of SonarQube
-You can install SonarQube from either the [zip file](https://www.sonarqube.org/downloads/) or the [Docker image](https://hub.docker.com/_/sonarqube/). Click the method you prefer below to expand the installation instructions: 
+You can evaluate SonarQube using a traditional installation with the [zip file](https://www.sonarqube.org/downloads/) or you can spin up a Docker container using one of our [Docker images](https://hub.docker.com/_/sonarqube/). Click the method you prefer below to expand the installation instructions: 
 
 [[collapse]]
-| ## From a zip file
+| ## From the zip file
 |
 | 1. [Download](https://www.sonarqube.org/downloads/) the SonarQube Community Edition zip file.
 |
@@ -31,13 +31,13 @@ You can install SonarQube from either the [zip file](https://www.sonarqube.org/d
 | 4. Log in to [http://localhost:9000](http://localhost:9000) using System Administrator credentials (login=admin, password=admin).
 
 [[collapse]]
-| ## From a Docker image
+| ## From the Docker image
 | Find the Community Edition Docker image on [Docker Hub](https://hub.docker.com/_/sonarqube/).
 |
 | 1. Start the server by running:
 |
 | ```console
-| $ docker run -d --name sonarqube -p 9000:9000 <image_name>
+| $ docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
 | ```
 |
 | 2. Log in to [http://localhost:9000](http://localhost:9000) with System Administrator credentials (login=admin, password=admin).

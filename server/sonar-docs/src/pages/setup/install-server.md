@@ -187,11 +187,11 @@ Follow these steps for your first installation:
 	Create the volumes with the following commands:
 	```bash
 	$> docker volume create --name sonarqube_data
-	$> docker volume create --name sonarqube_extensions
 	$> docker volume create --name sonarqube_logs
+	$> docker volume create --name sonarqube_extensions
 	``` 
 	[[warning]]
-    | Make sure you're using [volumes](https://docs.docker.com/storage/volumes/) as shown with the above commands, and not [bind mounts](https://docs.docker.com/storage/bind-mounts/). Using bind mounts prevents plugins and languages from populating correctly.
+    | Make sure you're using [volumes](https://docs.docker.com/storage/volumes/) as shown with the above commands, and not [bind mounts](https://docs.docker.com/storage/bind-mounts/). Using bind mounts prevents plugins from populating correctly.
 
 2. Drivers for supported databases (except Oracle) are already provided. If you're using an Oracle database, you need to add the JDBC driver to the `sonar_extensions` volume. To do this:
 
@@ -226,6 +226,49 @@ Follow these steps for your first installation:
 	
 	[[warning]]
     | Use of the environment variables `SONARQUBE_JDBC_USERNAME`, `SONARQUBE_JDBC_PASSWORD`, and `SONARQUBE_JDBC_URL` is deprecated and will stop working in future releases.
+
+####**Example Docker Compose configuration**
+If you're using [Docker Compose](https://docs.docker.com/compose/), use the following example as a reference when configuring your `.yml` file. Click the heading below to expand the `.yml` file.
+
+[[collapse]]
+| ## Docker Compose .yml file example
+|
+| ```
+| version: "3"
+| 
+| services:
+|   sonarqube:
+|     image: sonarqube:8-community
+|     depends_on:
+|       - db
+|     environment:
+|       SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+|       SONAR_JDBC_USERNAME: sonar
+|       SONAR_JDBC_PASSWORD: sonar
+|     volumes:
+|       - sonarqube_data:/opt/sonarqube/data
+|       - sonarqube_extensions:/opt/sonarqube/extensions
+|       - sonarqube_logs:/opt/sonarqube/logs
+|       - sonarqube_temp:/opt/sonarqube/temp
+|     ports:
+|       - "9000:9000"
+|   db:
+|     image: postgres:12
+|     environment:
+|       POSTGRES_USER: sonar
+|       POSTGRES_PASSWORD: sonar
+|     volumes:
+|       - postgresql:/var/lib/postgresql
+|       - postgresql_data:/var/lib/postgresql/data
+| 
+| volumes:
+|   sonarqube_data:
+|   sonarqube_extensions:
+|   sonarqube_logs:
+|   sonarqube_temp:
+|   postgresql:
+|   postgresql_data:
+| ```
 
 ### SonarQube 7.9.x LTS
 
