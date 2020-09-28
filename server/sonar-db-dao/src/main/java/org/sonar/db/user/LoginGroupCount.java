@@ -17,19 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.organization.ws;
+package org.sonar.db.user;
 
-import javax.annotation.Nullable;
-import org.sonar.server.ws.TestRequest;
+public class LoginGroupCount {
+  private String login;
+  private int groupCount;
 
-public class OrganizationsWsTestSupport {
+  public String login() {
+    return login;
+  }
 
-  static final String STRING_65_CHARS_LONG = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz1234567890-ab";
-  static final String STRING_257_CHARS_LONG = String.format("%1$257.257s", "a").replace(" ", "a");
-
-  static void setParam(TestRequest request, String param, @Nullable String value) {
-    if (value != null) {
-      request.setParam(param, value);
-    }
+  public int groupCount() {
+    return groupCount;
   }
 }

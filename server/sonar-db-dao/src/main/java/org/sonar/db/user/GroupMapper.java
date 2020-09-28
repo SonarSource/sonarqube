@@ -32,31 +32,20 @@ public interface GroupMapper {
 
   List<GroupDto> selectByUserLogin(String userLogin);
 
-  List<GroupDto> selectByNames(@Param("organizationUuid") String organizationUuid, @Param("names") List<String> names);
+  List<GroupDto> selectByNames(@Param("names") List<String> names);
 
   void insert(GroupDto groupDto);
 
   void update(GroupDto item);
 
-  List<GroupDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Nullable @Param("query") String query, RowBounds rowBounds);
+  List<GroupDto> selectByQuery(@Nullable @Param("query") String query, RowBounds rowBounds);
 
-  int countByQuery(@Param("organizationUuid") String organizationUuid, @Nullable @Param("query") String query);
-
-  /**
-   * Counts the number of groups with the specified id belonging to the specified organization.
-   *
-   * @return 1 or 0. Either because the organization uuid is not the one of the group or because the group does not exist
-   */
-  int countGroupByOrganizationAndUuid(@Param("organizationUuid") String organizationUuid, @Param("groupUuid") String groupUuid);
+  int countByQuery(@Nullable @Param("query") String query);
 
   void deleteByUuid(String groupUuid);
 
-  void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
-
   @CheckForNull
-  GroupDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
-
-  List<GroupDto> selectByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
+  GroupDto selectByName(@Param("name") String name);
 
   List<GroupDto> selectByUuids(@Param("uuids") List<String> uuids);
 }

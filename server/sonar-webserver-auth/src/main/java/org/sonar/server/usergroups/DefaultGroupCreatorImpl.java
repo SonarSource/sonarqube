@@ -24,6 +24,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -32,23 +33,24 @@ public class DefaultGroupCreatorImpl implements DefaultGroupCreator {
   public static final String DEFAULT_GROUP_NAME = "Members";
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
+  private final DefaultOrganizationProvider organizationProvider;
 
-  public DefaultGroupCreatorImpl(DbClient dbClient, UuidFactory uuidFactory) {
+  public DefaultGroupCreatorImpl(DbClient dbClient, UuidFactory uuidFactory, DefaultOrganizationProvider organizationProvider) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
+    this.organizationProvider = organizationProvider;
   }
 
-  public GroupDto create(DbSession dbSession, String organizationUuid) {
-    Optional<GroupDto> existingMembersGroup = dbClient.groupDao().selectByName(dbSession, organizationUuid, DEFAULT_GROUP_NAME);
-    checkArgument(!existingMembersGroup.isPresent(), "The group '%s' already exist on organization '%s'", DEFAULT_GROUP_NAME, organizationUuid);
+  public GroupDto create(DbSession dbSession) {
+    Optional<GroupDto> existingMembersGroup = dbClient.groupDao().selectByName(dbSession, DEFAULT_GROUP_NAME);
+    checkArgument(!existingMembersGroup.isPresent(), "The group '%s' already exists", DEFAULT_GROUP_NAME);
 
     GroupDto defaultGroup = new GroupDto()
       .setUuid(uuidFactory.create())
       .setName(DEFAULT_GROUP_NAME)
-      .setDescription("All members of the organization")
-      .setOrganizationUuid(organizationUuid);
+      .setDescription("All members of the organization");
     dbClient.groupDao().insert(dbSession, defaultGroup);
-    dbClient.organizationDao().setDefaultGroupUuid(dbSession, organizationUuid, defaultGroup);
+    dbClient.organizationDao().setDefaultGroupUuid(dbSession, organizationProvider.get().getUuid(), defaultGroup);
     return defaultGroup;
   }
 

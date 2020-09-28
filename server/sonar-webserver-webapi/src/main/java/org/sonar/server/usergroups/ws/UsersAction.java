@@ -82,11 +82,10 @@ public class UsersAction implements UserGroupsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupUuid group = support.findGroup(dbSession, request);
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
+      userSession.checkPermission(OrganizationPermission.ADMINISTER);
 
       UserMembershipQuery query = UserMembershipQuery.builder()
         .groupUuid(group.getUuid())
-        .organizationUuid(group.getOrganizationUuid())
         .memberSearch(queryString)
         .membership(getMembership(selected))
         .pageIndex(page)

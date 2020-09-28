@@ -108,20 +108,6 @@ public class AssignActionTest {
   }
 
   @Test
-  public void does_not_assign_issue_when_assignee_is_not_member_of_project_issue_organization() {
-    OrganizationDto otherOrganizationDto = db.organizations().insert();
-    UserDto assignee = db.users().insertUser("john");
-    // User is not member of the organization of the issue
-    db.organizations().addMember(otherOrganizationDto, assignee);
-    Map<String, Object> properties = new HashMap<>(ImmutableMap.of("assignee", "john"));
-
-    underTest.verify(properties, Collections.emptyList(), userSession);
-    boolean executeResult = underTest.execute(properties, context);
-
-    assertThat(executeResult).isFalse();
-  }
-
-  @Test
   public void fail_if_assignee_is_not_verified() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Assignee is missing from the execution parameters");

@@ -113,7 +113,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto templateToUpdate = getAndBuildTemplateToUpdate(dbSession, uuid, nameParam, descriptionParam, projectPatternParam);
-      checkGlobalAdmin(userSession, templateToUpdate.getOrganizationUuid());
+      checkGlobalAdmin(userSession);
 
       validateTemplate(dbSession, templateToUpdate);
       PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);
@@ -124,13 +124,13 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   }
 
   private void validateTemplate(DbSession dbSession, PermissionTemplateDto templateToUpdate) {
-    validateTemplateNameForUpdate(dbSession, templateToUpdate.getOrganizationUuid(), templateToUpdate.getName(), templateToUpdate.getUuid());
+    validateTemplateNameForUpdate(dbSession, templateToUpdate.getName(), templateToUpdate.getUuid());
     RequestValidator.validateProjectPattern(templateToUpdate.getKeyPattern());
   }
 
   private PermissionTemplateDto getAndBuildTemplateToUpdate(DbSession dbSession, String uuid, @Nullable String newName, @Nullable String newDescription,
     @Nullable String newProjectKeyPattern) {
-    PermissionTemplateDto templateToUpdate = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(uuid, null, null));
+    PermissionTemplateDto templateToUpdate = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(uuid, null));
     templateToUpdate.setName(firstNonNull(newName, templateToUpdate.getName()));
     templateToUpdate.setDescription(firstNonNull(newDescription, templateToUpdate.getDescription()));
     templateToUpdate.setKeyPattern(firstNonNull(newProjectKeyPattern, templateToUpdate.getKeyPattern()));
@@ -143,10 +143,10 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     return dbClient.permissionTemplateDao().update(dbSession, templateToUpdate);
   }
 
-  private void validateTemplateNameForUpdate(DbSession dbSession, String organizationUuid, String name, String uuid) {
+  private void validateTemplateNameForUpdate(DbSession dbSession, String name, String uuid) {
     BadRequestException.checkRequest(!isBlank(name), "The template name must not be blank");
 
-    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, organizationUuid, name);
+    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, name);
     checkRequest(permissionTemplateWithSameName == null || Objects.equals(permissionTemplateWithSameName.getUuid(), uuid),
       format(MSG_TEMPLATE_WITH_SAME_NAME, name));
   }

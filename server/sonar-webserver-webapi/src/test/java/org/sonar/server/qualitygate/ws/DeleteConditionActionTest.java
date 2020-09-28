@@ -77,7 +77,7 @@ public class DeleteConditionActionTest {
   @Test
   public void delete_condition() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
@@ -92,7 +92,7 @@ public class DeleteConditionActionTest {
 
   @Test
   public void default_organization_is_used_when_no_organization_parameter() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
@@ -107,7 +107,7 @@ public class DeleteConditionActionTest {
   @Test
   public void no_content() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
@@ -123,7 +123,7 @@ public class DeleteConditionActionTest {
   @Test
   public void fail_if_built_in_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
@@ -140,7 +140,7 @@ public class DeleteConditionActionTest {
   @Test
   public void fail_if_not_quality_gate_administrator() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
@@ -156,7 +156,7 @@ public class DeleteConditionActionTest {
   @Test
   public void fail_if_condition_uuid_is_not_found() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
@@ -174,7 +174,7 @@ public class DeleteConditionActionTest {
   @Test
   public void fail_when_condition_match_unknown_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
     QualityGateConditionDto condition = new QualityGateConditionDto().setUuid("uuid").setMetricUuid("metric").setQualityGateUuid("123");
     db.getDbClient().gateConditionDao().insert(condition, db.getSession());
     db.commit();
@@ -191,7 +191,7 @@ public class DeleteConditionActionTest {
   @Test
   public void fail_when_condition_match_quality_gate_on_other_organization() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
     OrganizationDto otherOrganization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(otherOrganization);
     MetricDto metric = db.measures().insertMetric();

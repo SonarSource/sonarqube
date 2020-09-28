@@ -42,17 +42,17 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_
 public class AuthorizationDao implements Dao {
 
   /**
-  * Loads all the permissions granted to user for the specified organization
-  */
-  public Set<String> selectOrganizationPermissions(DbSession dbSession, String organizationUuid, String userUuid) {
-    return mapper(dbSession).selectOrganizationPermissions(organizationUuid, userUuid);
+   * Loads all the global permissions granted to user
+   */
+  public Set<String> selectGlobalPermissions(DbSession dbSession, String userUuid) {
+    return mapper(dbSession).selectGlobalPermissions(userUuid);
   }
 
   /**
    * Loads all the permissions granted to anonymous user for the specified organization
    */
-  public Set<String> selectOrganizationPermissionsOfAnonymous(DbSession dbSession, String organizationUuid) {
-    return mapper(dbSession).selectOrganizationPermissionsOfAnonymous(organizationUuid);
+  public Set<String> selectGlobalPermissionsOfAnonymous(DbSession dbSession) {
+    return mapper(dbSession).selectGlobalPermissionsOfAnonymous();
   }
 
   /**
@@ -81,59 +81,44 @@ public class AuthorizationDao implements Dao {
    * The number of users who will still have the permission if the group {@code excludedGroupUuid}
    * is deleted. The anyone virtual group is not taken into account.
    */
-  public int countUsersWithGlobalPermissionExcludingGroup(DbSession dbSession, String organizationUuid,
-    String permission, String excludedGroupUuid) {
-    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroup(organizationUuid, permission, excludedGroupUuid);
+  public int countUsersWithGlobalPermissionExcludingGroup(DbSession dbSession, String permission, String excludedGroupUuid) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroup(permission, excludedGroupUuid);
   }
 
   /**
    * The number of users who will still have the permission if the user {@code excludedUserId}
    * is deleted. The anyone virtual group is not taken into account.
    */
-  public int countUsersWithGlobalPermissionExcludingUser(DbSession dbSession, String organizationUuid,
-    String permission, String excludedUserUuid) {
-    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUser(organizationUuid, permission, excludedUserUuid);
+  public int countUsersWithGlobalPermissionExcludingUser(DbSession dbSession, String permission, String excludedUserUuid) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUser(permission, excludedUserUuid);
   }
 
   /**
    * The list of users who have the global permission.
    * The anyone virtual group is not taken into account.
    */
-  public List<String> selectUserUuidsWithGlobalPermission(DbSession dbSession, String organizationUuid, String permission) {
-    return mapper(dbSession).selectUserUuidsWithGlobalPermission(organizationUuid, permission);
+  public List<String> selectUserUuidsWithGlobalPermission(DbSession dbSession, String permission) {
+    return mapper(dbSession).selectUserUuidsWithGlobalPermission(permission);
   }
 
   /**
    * The number of users who will still have the permission if the user {@code userId}
    * is removed from group {@code groupUuid}. The anyone virtual group is not taken into account.
-   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, String)}, user
+   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String)}, user
    * still exists and may have the permission directly or through other groups.
    */
-  public int countUsersWithGlobalPermissionExcludingGroupMember(DbSession dbSession, String organizationUuid,
-    String permission, String groupUuid, String userUuid) {
-    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroupMember(organizationUuid, permission, groupUuid, userUuid);
+  public int countUsersWithGlobalPermissionExcludingGroupMember(DbSession dbSession, String permission, String groupUuid, String userUuid) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingGroupMember(permission, groupUuid, userUuid);
   }
 
   /**
    * The number of users who will still have the permission if the permission {@code permission}
    * is removed from user {@code userId}. The anyone virtual group is not taken into account.
-   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String, String)}, user
+   * Contrary to {@link #countUsersWithGlobalPermissionExcludingUser(DbSession, String, String)}, user
    * still exists and may have the permission through groups.
    */
-  public int countUsersWithGlobalPermissionExcludingUserPermission(DbSession dbSession, String organizationUuid,
-    String permission, String userUuid) {
-    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUserPermission(organizationUuid, permission, userUuid);
-  }
-
-  /**
-   * The UUIDs of all the organizations in which the specified user has the specified global permission. An empty
-   * set is returned if user or permission do not exist. An empty set is also returned if the user is not involved
-   * in any organization.
-   * <br/>
-   * Group membership is taken into account. Anonymous privileges are ignored.
-   */
-  public Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(DbSession dbSession, String userUuid, String permission) {
-    return mapper(dbSession).selectOrganizationUuidsOfUserWithGlobalPermission(userUuid, permission);
+  public int countUsersWithGlobalPermissionExcludingUserPermission(DbSession dbSession, String permission, String userUuid) {
+    return mapper(dbSession).countUsersWithGlobalPermissionExcludingUserPermission(permission, userUuid);
   }
 
   public Set<String> keepAuthorizedProjectUuids(DbSession dbSession, Collection<String> projectUuids, @Nullable String userUuid, String permission) {

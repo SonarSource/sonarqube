@@ -75,7 +75,7 @@ public class RenameActionTest {
   public void rename() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("old name"));
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
 
     ws.newRequest()
       .setParam("id", qualityGate.getUuid())
@@ -89,7 +89,7 @@ public class RenameActionTest {
   @Test
   public void response_contains_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("old name"));
 
     QualityGate result = ws.newRequest()
@@ -105,7 +105,7 @@ public class RenameActionTest {
   @Test
   public void rename_with_same_name() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("name"));
 
     ws.newRequest()
@@ -122,7 +122,7 @@ public class RenameActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     OrganizationDto otherOrganization = db.organizations().insert();
     QGateWithOrgDto otherQualityGate = db.qualityGates().insertQualityGate(otherOrganization);
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
 
     QualityGate result = ws.newRequest()
       .setParam("id", qualityGate.getUuid())
@@ -136,7 +136,7 @@ public class RenameActionTest {
   @Test
   public void fail_on_built_in_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -152,7 +152,7 @@ public class RenameActionTest {
   @Test
   public void fail_on_empty_name() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -168,7 +168,7 @@ public class RenameActionTest {
   @Test
   public void fail_when_using_existing_name() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate1 = db.qualityGates().insertQualityGate(organization);
     QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
 
@@ -185,7 +185,7 @@ public class RenameActionTest {
   @Test
   public void fail_on_unknown_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(NotFoundException.class);
 
@@ -199,7 +199,7 @@ public class RenameActionTest {
   @Test
   public void fail_when_not_quality_gates_administer() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("old name"));
 
     expectedException.expect(ForbiddenException.class);

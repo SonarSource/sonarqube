@@ -217,7 +217,7 @@ public class UpdateActionTest {
     UserDto userHavingUpdatingNote = db.users().insertUser();
     db.rules().insertOrUpdateMetadata(rule, userHavingUpdatingNote, m -> m.setNoteData("old data"));
     UserDto userAuthenticated = db.users().insertUser();
-    userSession.logIn(userAuthenticated).addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+    userSession.logIn(userAuthenticated).addPermission(ADMINISTER_QUALITY_PROFILES);
 
     Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
@@ -297,7 +297,7 @@ public class UpdateActionTest {
   private void logInAsQProfileAdministrator() {
     userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+      .addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
   private static MacroInterpreter createMacroInterpreter() {

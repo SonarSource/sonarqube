@@ -26,7 +26,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserPropertyDto;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.UserUpdater;
 
 import static java.util.Objects.requireNonNull;
 
@@ -59,9 +58,7 @@ public class SetSettingAction implements UsersWsAction {
       .setDescription("Setting key")
       .setPossibleValues(
         "tutorials.jenkins.skipBitbucketPreReqs",
-        "notifications.optOut",
-        UserUpdater.NOTIFICATIONS_READ_DATE
-      );
+        "notifications.optOut");
 
     action.createParam(PARAM_VALUE)
       .setRequired(true)

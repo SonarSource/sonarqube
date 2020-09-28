@@ -63,9 +63,8 @@ public class RestoreActionTest {
 
   private TestBackuper backuper = new TestBackuper();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
   private Languages languages = LanguageTesting.newLanguages(A_LANGUAGE);
-  private WsActionTester tester = new WsActionTester(new RestoreAction(db.getDbClient(), backuper, languages, userSession, wsSupport));
+  private WsActionTester tester = new WsActionTester(new RestoreAction(db.getDbClient(), backuper, languages, userSession));
 
   @Test
   public void test_definition() {
@@ -85,7 +84,7 @@ public class RestoreActionTest {
 
   @Test
   public void profile_is_restored_on_default_organization_with_the_name_provided_in_backup() {
-    logInAsQProfileAdministrator(db.getDefaultOrganization());
+    logInAsQProfileAdministrator();
     TestResponse response = restore("<backup/>", null);
 
     assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
@@ -105,8 +104,8 @@ public class RestoreActionTest {
 
   @Test
   public void profile_is_restored_on_specified_organization_with_the_name_provided_in_backup() {
-    OrganizationDto org = db.organizations().getDefaultOrganization();
-    logInAsQProfileAdministrator(org);
+    OrganizationDto org = db.organizations().insert();
+    logInAsQProfileAdministrator();
     TestResponse response = restore("<backup/>", org.getKey());
 
     assertThat(backuper.restoredBackup).isEqualTo("<backup/>");
@@ -127,7 +126,7 @@ public class RestoreActionTest {
 
   @Test
   public void throw_IAE_if_backup_is_missing() {
-    logInAsQProfileAdministrator(db.getDefaultOrganization());
+    logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("A backup file must be provided");
@@ -138,7 +137,7 @@ public class RestoreActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator_of_default_organization() {
+  public void throw_ForbiddenException_if_not_profile_administrator() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -157,10 +156,10 @@ public class RestoreActionTest {
     restore("<backup/>", null);
   }
 
-  private void logInAsQProfileAdministrator(OrganizationDto org) {
+  private void logInAsQProfileAdministrator() {
     userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, org);
+      .addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
   private TestResponse restore(String backupContent, @Nullable String organizationKey) {

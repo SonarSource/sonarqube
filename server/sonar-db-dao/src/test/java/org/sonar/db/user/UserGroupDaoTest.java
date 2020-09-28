@@ -25,7 +25,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,25 +65,6 @@ public class UserGroupDaoTest {
 
     assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user1.getUuid())).containsOnly(group2.getUuid());
     assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupUuidsByUserUuid(dbTester.getSession(), user2.getUuid())).containsOnly(group2.getUuid());
-  }
-
-  @Test
-  public void delete_organization_member() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    OrganizationDto anotherOrganization = dbTester.organizations().insert();
-    UserDto user = dbTester.users().insertUser();
-    UserDto anotherUser = dbTester.users().insertUser();
-    GroupDto group = dbTester.users().insertGroup(organization);
-    GroupDto anotherGroup = dbTester.users().insertGroup(anotherOrganization);
-    dbTester.users().insertMembers(group, user, anotherUser);
-    dbTester.users().insertMembers(anotherGroup, user, anotherUser);
-
-    underTest.deleteByOrganizationAndUser(dbSession, organization.getUuid(), user.getUuid());
-
-    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, user.getUuid()))
-      .containsOnly(anotherGroup.getUuid());
-    assertThat(dbClient.groupMembershipDao().selectGroupUuidsByUserUuid(dbSession, anotherUser.getUuid()))
-      .containsOnly(group.getUuid(), anotherGroup.getUuid());
   }
 
   @Test

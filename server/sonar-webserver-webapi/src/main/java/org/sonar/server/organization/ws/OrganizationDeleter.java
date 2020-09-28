@@ -92,13 +92,10 @@ public class OrganizationDeleter {
   }
 
   private void deletePermissions(DbSession dbSession, OrganizationDto organization) {
-    dbClient.permissionTemplateDao().deleteByOrganization(dbSession, organization.getUuid());
-    dbClient.userPermissionDao().deleteByOrganization(dbSession, organization.getUuid());
-    dbClient.groupPermissionDao().deleteByOrganization(dbSession, organization.getUuid());
+
   }
 
   private void deleteGroups(DbSession dbSession, OrganizationDto organization) {
-    dbClient.groupDao().deleteByOrganization(dbSession, organization.getUuid());
   }
 
   private void deleteQualityGates(DbSession dbSession, OrganizationDto organization) {

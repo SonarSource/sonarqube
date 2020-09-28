@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.user.UserSession;
@@ -65,9 +64,8 @@ public class SetDefaultAction implements QProfileWsAction {
     userSession.checkLoggedIn();
     QProfileReference reference = QProfileReference.fromName(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto defaultOrganization = qProfileWsSupport.getDefaultOrganization(dbSession);
       QProfileDto qualityProfile = qProfileWsSupport.getProfile(dbSession, reference);
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES);
       dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(qualityProfile));
       dbSession.commit();
     }

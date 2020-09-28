@@ -46,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -147,13 +146,10 @@ public class CurrentActionTest {
     userSession
       .logIn(user)
       // permissions on default organization
-      .addPermission(SCAN, db.getDefaultOrganization())
-      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization())
-      // permissions on other organizations are ignored
-      .addPermission(ADMINISTER, db.organizations().insert());
+      .addPermission(SCAN)
+      .addPermission(ADMINISTER_QUALITY_PROFILES);
 
     CurrentWsResponse response = call();
-
     assertThat(response.getPermissions().getGlobalList()).containsOnly("profileadmin", "scan");
   }
 
@@ -193,8 +189,8 @@ public class CurrentActionTest {
   public void anonymous() {
     userSession
       .anonymous()
-      .addPermission(SCAN, db.getDefaultOrganization())
-      .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+      .addPermission(SCAN)
+      .addPermission(PROVISION_PROJECTS);
 
     CurrentWsResponse response = call();
 
@@ -224,8 +220,8 @@ public class CurrentActionTest {
       .setHomepageParameter("UUID-of-the-death-star"));
     userSession
       .logIn(obiwan)
-      .addPermission(SCAN, db.getDefaultOrganization())
-      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization())
+      .addPermission(SCAN)
+      .addPermission(ADMINISTER_QUALITY_PROFILES)
       .addProjectPermission(USER, db.components().getProjectDto(componentDto));
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);

@@ -125,8 +125,7 @@ public class SetSettingActionTest {
 
     assertThat(definition.param("key").possibleValues()).containsExactlyInAnyOrder(
       "tutorials.jenkins.skipBitbucketPreReqs",
-      "notifications.optOut",
-      "notifications.readDate");
+      "notifications.optOut");
   }
 
 }

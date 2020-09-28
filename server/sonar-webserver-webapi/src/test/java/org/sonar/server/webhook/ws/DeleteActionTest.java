@@ -125,7 +125,7 @@ public class DeleteActionTest {
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
     webhookDeliveryDbTester.insert(newDto().setWebhookUuid(dto.getUuid()));
 
-    userSession.logIn().addPermission(ADMINISTER, organization.getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     TestResponse response = wsActionTester.newRequest()
       .setParam(KEY_PARAM, dto.getUuid())
@@ -142,7 +142,7 @@ public class DeleteActionTest {
   @Test
   public void fail_if_webhook_does_not_exist() {
 
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No webhook with key 'inexistent-webhook-uuid'");

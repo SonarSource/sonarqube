@@ -69,8 +69,8 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Before
   public void setUp() {
-    template = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
-    group = db.users().insertGroup(db.getDefaultOrganization(), "group-name");
+    template = db.permissionTemplates().insertTemplate();
+    group = db.users().insertGroup("group-name");
   }
 
   @Test
@@ -86,7 +86,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void add_group_to_template() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     newRequest(group.getName(), template.getUuid(), CODEVIEWER);
 
@@ -95,7 +95,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void add_group_to_template_by_name() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
@@ -108,7 +108,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void add_with_group_id() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -121,7 +121,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void does_not_add_a_group_twice() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     newRequest(group.getName(), template.getUuid(), ISSUE_ADMIN);
     newRequest(group.getName(), template.getUuid(), ISSUE_ADMIN);
@@ -131,7 +131,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void add_anyone_group_to_template() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     newRequest(ANYONE, template.getUuid(), CODEVIEWER);
 
@@ -140,7 +140,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void fail_if_add_anyone_group_to_admin_permission() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage(String.format("It is not possible to add the '%s' permission to the group 'Anyone'", UserRole.ADMIN));
@@ -150,7 +150,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void fail_if_not_a_project_permission() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -168,7 +168,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void fail_if_group_params_missing() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
 
@@ -177,7 +177,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void fail_if_permission_missing() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -186,7 +186,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void fail_if_template_uuid_and_name_missing() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
 
@@ -195,7 +195,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void fail_if_group_does_not_exist() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No group with name 'unknown-group-name'");
@@ -205,7 +205,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
 
   @Test
   public void fail_if_template_key_does_not_exist() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
@@ -229,7 +229,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
       .selectGroupNamesByQueryAndTemplate(db.getSession(), query, template.getUuid());
   }

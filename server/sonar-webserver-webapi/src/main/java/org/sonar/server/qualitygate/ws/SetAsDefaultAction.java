@@ -83,8 +83,8 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
     checkArgument(name != null ^ uuid != null, "One of 'id' or 'name' must be provided, and not both");
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
+      OrganizationDto organization = wsSupport.getDefaultOrganization(dbSession);
+      userSession.checkPermission(ADMINISTER_QUALITY_GATES);
       QualityGateDto qualityGate;
 
       if (uuid != null) {

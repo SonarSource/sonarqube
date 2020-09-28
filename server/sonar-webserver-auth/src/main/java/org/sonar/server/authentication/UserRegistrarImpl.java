@@ -37,21 +37,15 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.ALM;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
-import org.sonar.server.organization.DefaultOrganization;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.MemberUpdater;
-import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
@@ -66,19 +60,12 @@ public class UserRegistrarImpl implements UserRegistrar {
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
-  private final OrganizationFlags organizationFlags;
   private final DefaultGroupFinder defaultGroupFinder;
-  private final MemberUpdater memberUpdater;
 
-  public UserRegistrarImpl(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider, OrganizationFlags organizationFlags,
-    DefaultGroupFinder defaultGroupFinder, MemberUpdater memberUpdater) {
+  public UserRegistrarImpl(DbClient dbClient, UserUpdater userUpdater, DefaultGroupFinder defaultGroupFinder) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
-    this.organizationFlags = organizationFlags;
     this.defaultGroupFinder = defaultGroupFinder;
-    this.memberUpdater = memberUpdater;
   }
 
   @Override
@@ -131,7 +118,6 @@ public class UserRegistrarImpl implements UserRegistrar {
   private Consumer<UserDto> beforeCommit(DbSession dbSession, boolean isNewUser, UserRegistration authenticatorParameters) {
     return user -> {
       syncGroups(dbSession, authenticatorParameters.getUserIdentity(), user);
-      synchronizeOrganizationMembership(dbSession, user, authenticatorParameters, isNewUser);
     };
   }
 
@@ -187,8 +173,7 @@ public class UserRegistrarImpl implements UserRegistrar {
     Collection<String> groupsToRemove = Sets.difference(userGroups, identityGroups);
     Collection<String> allGroups = new ArrayList<>(groupsToAdd);
     allGroups.addAll(groupsToRemove);
-    DefaultOrganization defaultOrganization = defaultOrganizationProvider.get();
-    Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, defaultOrganization.getUuid(), allGroups)
+    Map<String, GroupDto> groupsByName = dbClient.groupDao().selectByNames(dbSession, allGroups)
       .stream()
       .collect(uniqueIndex(GroupDto::getName));
 
@@ -218,19 +203,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private Optional<GroupDto> getDefaultGroup(DbSession dbSession) {
-    return organizationFlags.isEnabled(dbSession) ? Optional.empty() : Optional.of(defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationProvider.get().getUuid()));
-  }
-
-  private void synchronizeOrganizationMembership(DbSession dbSession, UserDto userDto, UserRegistration authenticatorParameters, boolean isNewUser) {
-    Set<String> almOrganizationIds = authenticatorParameters.getOrganizationAlmIds();
-    if (almOrganizationIds == null || !isNewUser || !organizationFlags.isEnabled(dbSession)) {
-      return;
-    }
-    UserSession.IdentityProvider identityProvider = UserSession.IdentityProvider.getFromKey(authenticatorParameters.getProvider().getKey());
-    if (identityProvider != UserSession.IdentityProvider.GITHUB) {
-      return;
-    }
-    memberUpdater.synchronizeUserOrganizationMembership(dbSession, userDto, ALM.GITHUB, almOrganizationIds);
+    return Optional.of(defaultGroupFinder.findDefaultGroup(dbSession));
   }
 
   private static NewUser createNewUser(UserRegistration authenticatorParameters) {

@@ -123,20 +123,20 @@ public class RoleDaoTest {
     db.users().insertPermissionOnGroup(group1, "gateadmin");
     db.users().insertPermissionOnGroup(group2, "gateadmin");
     db.users().insertProjectPermissionOnGroup(group2, "admin", project);
-    db.users().insertPermissionOnAnyone(db.getDefaultOrganization(), "scan");
-    db.users().insertPermissionOnAnyone(db.getDefaultOrganization(), "provisioning");
+    db.users().insertPermissionOnAnyone("scan");
+    db.users().insertPermissionOnAnyone("provisioning");
 
     underTest.deleteGroupRolesByGroupUuid(db.getSession(), group1.getUuid());
     db.getSession().commit();
 
-    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group1.getUuid())).isEmpty();
-    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group1.getUuid(), project.uuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), group1.getUuid())).isEmpty();
+    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), group1.getUuid(), project.uuid()))
       .isEmpty();
-    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group2.getUuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), group2.getUuid()))
       .containsOnly("gateadmin");
-    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), group2.getUuid(), project.uuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectProjectPermissionsOfGroup(db.getSession(), group2.getUuid(), project.uuid()))
       .containsOnly("admin");
-    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), db.getDefaultOrganization().getUuid(), null)).containsOnly("scan",
+    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null)).containsOnly("scan",
       "provisioning");
   }
 }

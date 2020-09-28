@@ -37,11 +37,11 @@ public class OrganizationHelper {
 
   public List<OrganizationDto> selectOrganizationsWithLastAdmin(DbSession dbSession, String userUuid) {
     return dbClient.organizationDao().selectByPermission(dbSession, userUuid, ADMIN_PERMISSION).stream()
-      .filter(org -> isLastAdmin(dbSession, org, userUuid))
+      .filter(org -> isLastAdmin(dbSession, userUuid))
       .collect(Collectors.toList());
   }
 
-  private boolean isLastAdmin(DbSession dbSession, OrganizationDto org, String userUuid) {
-    return dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, org.getUuid(), ADMIN_PERMISSION, userUuid) == 0;
+  private boolean isLastAdmin(DbSession dbSession, String userUuid) {
+    return dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUser(dbSession, ADMIN_PERMISSION, userUuid) == 0;
   }
 }

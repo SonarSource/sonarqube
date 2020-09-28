@@ -93,7 +93,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
       Optional<ProjectUuid> project = wsSupport.findProjectUuid(dbSession, request);
 
-      checkProjectAdmin(userSession, group.getOrganizationUuid(), project);
+      checkProjectAdmin(userSession, project);
 
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.REMOVE,

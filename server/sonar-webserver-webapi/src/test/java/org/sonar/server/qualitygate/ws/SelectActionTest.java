@@ -61,7 +61,7 @@ public class SelectActionTest {
   @Test
   public void select_by_key() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
 
@@ -77,7 +77,7 @@ public class SelectActionTest {
   @Test
   public void change_quality_gate_for_project() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto initialQualityGate = db.qualityGates().insertQualityGate(organization);
     QGateWithOrgDto secondQualityGate = db.qualityGates().insertQualityGate(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
@@ -100,7 +100,7 @@ public class SelectActionTest {
   @Test
   public void select_same_quality_gate_for_project_twice() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto initialQualityGate = db.qualityGates().insertQualityGate(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
 
@@ -138,7 +138,7 @@ public class SelectActionTest {
   @Test
   public void gate_administrator_can_associate_a_gate_to_a_project() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
 
@@ -154,7 +154,7 @@ public class SelectActionTest {
   @Test
   public void default_organization_is_used_when_no_organization_parameter() {
     OrganizationDto organization = db.getDefaultOrganization();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
 
@@ -169,7 +169,7 @@ public class SelectActionTest {
   @Test
   public void fail_when_project_belongs_to_another_organization() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     OrganizationDto anotherOrganization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(anotherOrganization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
@@ -187,7 +187,7 @@ public class SelectActionTest {
   @Test
   public void fail_when_no_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     ComponentDto project = db.components().insertPrivateProject(organization);
 
     expectedException.expect(NotFoundException.class);
@@ -202,7 +202,7 @@ public class SelectActionTest {
   @Test
   public void fail_when_no_project_key() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
     expectedException.expect(NotFoundException.class);

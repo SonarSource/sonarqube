@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 
@@ -45,11 +44,8 @@ public class PermissionTemplateDbTester {
     return insertTemplate(newPermissionTemplateDto());
   }
 
-  public PermissionTemplateDto insertTemplate(OrganizationDto organizationDto) {
-    return insertTemplate(newPermissionTemplateDto().setOrganizationUuid(organizationDto.getUuid()));
-  }
-
   public PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
+    template.setOrganizationUuid(db.getDefaultOrganization().getUuid());
     PermissionTemplateDto templateInDb = dbClient.permissionTemplateDao().insert(dbSession, template);
     db.commit();
 

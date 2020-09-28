@@ -33,7 +33,6 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -155,7 +154,7 @@ public class ShowActionTest {
   @Test
   public void actions() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
     db.qualityGates().setDefaultQualityGate(organization, qualityGate2);
@@ -177,7 +176,7 @@ public class ShowActionTest {
   @Test
   public void actions_on_default() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     db.qualityGates().setDefaultQualityGate(organization, qualityGate);
 
@@ -198,7 +197,7 @@ public class ShowActionTest {
   @Test
   public void actions_on_built_in() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
     QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(false));
     db.qualityGates().setDefaultQualityGate(organization, qualityGate2);
@@ -220,7 +219,7 @@ public class ShowActionTest {
   @Test
   public void actions_when_not_quality_gate_administer() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
     db.qualityGates().setDefaultQualityGate(organization, qualityGate);
 
@@ -246,7 +245,6 @@ public class ShowActionTest {
     MetricDto metric = db.measures().insertMetric();
     db.qualityGates().addCondition(qualityGate, metric);
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addMembership(organization);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -376,23 +374,9 @@ public class ShowActionTest {
   }
 
   @Test
-  public void fail_on_paid_organization_when_not_member() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    ws.newRequest()
-      .setParam("name", qualityGate.getName())
-      .setParam("organization", organization.getKey())
-      .execute();
-  }
-
-  @Test
   public void json_example() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate"));
     QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate 2"));
     db.qualityGates().setDefaultQualityGate(organization, qualityGate2);

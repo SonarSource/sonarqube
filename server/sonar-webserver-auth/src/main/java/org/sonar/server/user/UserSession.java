@@ -27,7 +27,6 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
@@ -126,8 +125,7 @@ public interface UserSession {
         return false;
       }
       ExternalIdentity that = (ExternalIdentity) o;
-      return Objects.equals(id, that.id) &&
-        Objects.equals(login, that.login);
+      return Objects.equals(id, that.id) && Objects.equals(login, that.login);
     }
 
     @Override
@@ -171,17 +169,13 @@ public interface UserSession {
    * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
    * organization does not exist.
    */
-  boolean hasPermission(OrganizationPermission permission, OrganizationDto organization);
-
-  boolean hasPermission(OrganizationPermission permission, String organizationUuid);
+  boolean hasPermission(OrganizationPermission permission);
 
   /**
-   * Ensures that {@link #hasPermission(OrganizationPermission, OrganizationDto)} is {@code true},
+   * Ensures that {@link #hasPermission(OrganizationPermission)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
    */
-  UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization);
-
-  UserSession checkPermission(OrganizationPermission permission, String organizationUuid);
+  UserSession checkPermission(OrganizationPermission permission);
 
   /**
    * Returns {@code true} if the permission is granted to user on the component,
@@ -221,6 +215,7 @@ public interface UserSession {
   List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components);
 
   List<ProjectDto> keepAuthorizedProjects(String permission, Collection<ProjectDto> projects);
+
   /**
    * Ensures that {@link #hasComponentPermission(String, ComponentDto)} is {@code true},
    * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
@@ -259,21 +254,4 @@ public interface UserSession {
    * otherwise throws {@link org.sonar.server.exceptions.ForbiddenException}.
    */
   UserSession checkIsSystemAdministrator();
-
-  /**
-   * Returns {@code true} if the user is member of the organization, otherwise {@code false}.
-   *
-   * If the organization does not exist, then returns {@code false}.
-   *
-   * Always returns {@code true} if {@link #isRoot()} is {@code true}, even if
-   * organization does not exist.
-   */
-  boolean hasMembership(OrganizationDto organization);
-
-  /**
-   * Ensures that {@link #hasMembership(OrganizationDto)} is {@code true},
-   * otherwise throws a {@link org.sonar.server.exceptions.ForbiddenException}.
-   */
-  UserSession checkMembership(OrganizationDto organization);
-
 }

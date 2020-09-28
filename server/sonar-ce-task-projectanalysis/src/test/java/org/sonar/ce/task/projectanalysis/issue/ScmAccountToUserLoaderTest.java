@@ -24,10 +24,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.analysis.Organization;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.user.index.UserIndex;
@@ -49,21 +46,15 @@ public class ScmAccountToUserLoaderTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
 
   @Test
   public void load_login_for_scm_account() {
     UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("charlie", "jesuis@charlie.com")));
-    OrganizationDto organization = db.organizations().insert(o -> o.setUuid(ORGANIZATION_UUID));
-    analysisMetadataHolder.setOrganization(Organization.from(organization));
-    db.organizations().addMember(organization, user);
     userIndexer.indexOnStartup(null);
 
     UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
-    ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);
+    ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
 
     assertThat(underTest.load("missing")).isNull();
     assertThat(underTest.load("jesuis@charlie.com")).isEqualTo(user.getUuid());
@@ -71,15 +62,12 @@ public class ScmAccountToUserLoaderTest {
 
   @Test
   public void warn_if_multiple_users_share_the_same_scm_account() {
-    UserDto user1 = db.users().insertUser(u -> u.setLogin("charlie").setScmAccounts(asList("charlie", "jesuis@charlie.com")));
-    UserDto user2 = db.users().insertUser(u -> u.setLogin("another.charlie").setScmAccounts(asList("charlie")));
-    OrganizationDto organization = db.organizations().insert(o -> o.setUuid(ORGANIZATION_UUID));
-    analysisMetadataHolder.setOrganization(Organization.from(organization));
-    db.organizations().addMember(organization, user1, user2);
+    db.users().insertUser(u -> u.setLogin("charlie").setScmAccounts(asList("charlie", "jesuis@charlie.com")));
+    db.users().insertUser(u -> u.setLogin("another.charlie").setScmAccounts(asList("charlie")));
     userIndexer.indexOnStartup(null);
 
     UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
-    ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);
+    ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
 
     assertThat(underTest.load("charlie")).isNull();
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Multiple users share the SCM account 'charlie': another.charlie, charlie");
@@ -88,7 +76,7 @@ public class ScmAccountToUserLoaderTest {
   @Test
   public void load_by_multiple_scm_accounts_is_not_supported_yet() {
     UserIndex index = new UserIndex(es.client(), System2.INSTANCE);
-    ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index, analysisMetadataHolder);
+    ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
     try {
       underTest.loadAll(emptyList());
       fail();

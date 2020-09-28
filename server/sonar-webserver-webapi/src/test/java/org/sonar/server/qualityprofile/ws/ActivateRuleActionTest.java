@@ -76,12 +76,9 @@ public class ActivateRuleActionTest {
 
   private WsActionTester ws = new WsActionTester(new ActivateRuleAction(dbClient, qProfileRules, userSession, wsSupport));
 
-  private OrganizationDto defaultOrganization;
-
   @Before
   public void before() {
     MockitoAnnotations.initMocks(this);
-    defaultOrganization = db.getDefaultOrganization();
   }
 
   @Test
@@ -120,7 +117,7 @@ public class ActivateRuleActionTest {
 
   @Test
   public void fail_activate_if_built_in_profile() {
-    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
 
     QProfileDto qualityProfile = db.qualityProfiles().insert(profile -> profile.setIsBuiltIn(true).setName("Xoo profile").setLanguage("xoo"));
     TestRequest request = ws.newRequest()
@@ -136,7 +133,7 @@ public class ActivateRuleActionTest {
 
   @Test
   public void fail_activate_external_rule() {
-    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert(r -> r.setIsExternal(true));
 
@@ -153,7 +150,7 @@ public class ActivateRuleActionTest {
 
   @Test
   public void activate_rule() {
-    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());
     TestRequest request = ws.newRequest()

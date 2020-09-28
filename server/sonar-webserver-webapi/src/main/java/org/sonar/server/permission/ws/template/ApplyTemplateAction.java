@@ -39,7 +39,6 @@ import static org.sonar.server.permission.ws.ProjectWsRef.newWsProjectRef;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -64,8 +63,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
-      .setOrganization(request.param(PARAM_ORGANIZATION));
+      .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 
   @Override
@@ -92,10 +90,10 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   private void doHandle(ApplyTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
-        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
+        request.getTemplateId(), request.getTemplateName()));
 
       ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, newWsProjectRef(request.getProjectId(), request.getProjectKey()));
-      checkGlobalAdmin(userSession, template.getOrganizationUuid());
+      checkGlobalAdmin(userSession);
 
       permissionTemplateService.applyAndCommit(dbSession, template, Collections.singletonList(project));
     }
@@ -138,15 +136,6 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       return this;
     }
 
-    @CheckForNull
-    public String getOrganization() {
-      return organization;
-    }
-
-    public ApplyTemplateRequest setOrganization(@Nullable String s) {
-      this.organization = s;
-      return this;
-    }
     @CheckForNull
     public String getTemplateName() {
       return templateName;

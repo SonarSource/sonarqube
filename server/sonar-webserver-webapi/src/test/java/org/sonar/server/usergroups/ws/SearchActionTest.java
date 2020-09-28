@@ -38,7 +38,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.MediaTypes;
 
-import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -63,7 +62,8 @@ public class SearchActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, newGroupWsSupport(), new DefaultGroupFinder(db.getDbClient())));
+  private WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession,
+    new DefaultGroupFinder(db.getDbClient(), TestDefaultOrganizationProvider.from(db))));
 
   @Test
   public void define_search_action() {
@@ -85,7 +85,7 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer1", 0);
     insertGroup(db.getDefaultOrganization(), "customer2", 0);
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
-    loginAsDefaultOrgAdmin();
+    loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest());
 
@@ -104,7 +104,7 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer1", 0);
     insertGroup(db.getDefaultOrganization(), "customer2", 4);
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
-    loginAsDefaultOrgAdmin();
+    loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest());
 
@@ -123,7 +123,7 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer%_%/1", 0);
     insertGroup(db.getDefaultOrganization(), "customer%_%/2", 0);
     insertGroup(db.getDefaultOrganization(), "customer%_%/3", 0);
-    loginAsDefaultOrgAdmin();
+    loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest().setParam(TEXT_QUERY, "tomer%_%/"));
 
@@ -140,7 +140,7 @@ public class SearchActionTest {
     insertGroup(db.getDefaultOrganization(), "customer1", 0);
     insertGroup(db.getDefaultOrganization(), "customer2", 0);
     insertGroup(db.getDefaultOrganization(), "customer3", 0);
-    loginAsDefaultOrgAdmin();
+    loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest().setParam(PAGE_SIZE, "3"));
     assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 3, 5);
@@ -163,7 +163,7 @@ public class SearchActionTest {
   @Test
   public void search_with_fields() {
     insertDefaultGroup(db.getDefaultOrganization(), "sonar-users", 0);
-    loginAsDefaultOrgAdmin();
+    loginAsAdmin();
 
     assertThat(call(ws.newRequest()).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
       .containsOnly(tuple(true, true, true, true));
@@ -178,23 +178,9 @@ public class SearchActionTest {
   }
 
   @Test
-  public void search_in_organization() {
-    OrganizationDto org = db.organizations().insert();
-    GroupDto group = db.users().insertDefaultGroup(org, "users");
-    // the group in default org is not returned
-    db.users().insertDefaultGroup(db.getDefaultOrganization(), "users");
-    loginAsDefaultOrgAdmin();
-    userSession.addPermission(ADMINISTER, org);
-
-    SearchWsResponse response = call(ws.newRequest().setParam("organization", org.getKey()));
-
-    assertThat(response.getGroupsList()).extracting(Group::getId, Group::getName).containsOnly(tuple(group.getUuid(), "users"));
-  }
-
-  @Test
   public void return_default_group() {
-    db.users().insertDefaultGroup(db.getDefaultOrganization(), "default");
-    loginAsDefaultOrgAdmin();
+    db.users().insertDefaultGroup("default");
+    loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest());
 
@@ -203,11 +189,11 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_no_default_group() {
-    db.users().insertGroup(db.getDefaultOrganization(), "users");
-    loginAsDefaultOrgAdmin();
+    db.users().insertGroup("users");
+    loginAsAdmin();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Default group cannot be found on organization '%s'", db.getDefaultOrganization().getUuid()));
+    expectedException.expectMessage("Default group cannot be found");
 
     call(ws.newRequest());
   }
@@ -224,7 +210,7 @@ public class SearchActionTest {
   public void test_json_example() {
     insertDefaultGroup(db.getDefaultOrganization(), "users", 17);
     insertGroup(db.getDefaultOrganization(), "administrators", 2);
-    loginAsDefaultOrgAdmin();
+    loginAsAdmin();
 
     String response = ws.newRequest().setMediaType(MediaTypes.JSON).execute().getInput();
 
@@ -250,13 +236,13 @@ public class SearchActionTest {
   }
 
   private void insertDefaultGroup(OrganizationDto org, String name, int numberOfMembers) {
-    GroupDto group = newGroupDto().setName(name).setDescription(capitalize(name)).setOrganizationUuid(org.getUuid());
+    GroupDto group = newGroupDto().setName(name).setDescription(capitalize(name));
     db.users().insertDefaultGroup(group);
     addMembers(group, numberOfMembers);
   }
 
   private void insertGroup(OrganizationDto org, String name, int numberOfMembers) {
-    GroupDto group = newGroupDto().setName(name).setDescription(capitalize(name)).setOrganizationUuid(org.getUuid());
+    GroupDto group = newGroupDto().setName(name).setDescription(capitalize(name));
     db.users().insertGroup(group);
     addMembers(group, numberOfMembers);
   }
@@ -268,12 +254,7 @@ public class SearchActionTest {
     }
   }
 
-  private void loginAsDefaultOrgAdmin() {
-    userSession.logIn("user").addPermission(ADMINISTER, db.getDefaultOrganization());
+  private void loginAsAdmin() {
+    userSession.logIn("user").addPermission(ADMINISTER);
   }
-
-  private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), TestDefaultOrganizationProvider.from(db), new DefaultGroupFinder(db.getDbClient()));
-  }
-
 }

@@ -1379,7 +1379,6 @@ public class SearchActionTest {
     dbClient.groupPermissionDao().insert(session,
       new GroupPermissionDto()
         .setUuid(Uuids.createFast())
-        .setOrganizationUuid(project.getOrganizationUuid())
         .setGroupUuid(null)
         .setComponentUuid(project.uuid())
         .setRole(permission));

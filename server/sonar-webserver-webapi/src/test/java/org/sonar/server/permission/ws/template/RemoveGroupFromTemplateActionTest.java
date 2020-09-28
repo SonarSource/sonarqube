@@ -70,10 +70,10 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
   @Before
   public void setUp() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
-    group = db.users().insertGroup(db.getDefaultOrganization(), "group-name");
-    template = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
+    group = db.users().insertGroup("group-name");
+    template = db.permissionTemplates().insertTemplate();
     addGroupToTemplate(template, group.getUuid(), PERMISSION);
   }
 
@@ -143,7 +143,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
 
   @Test
   public void fail_if_insufficient_privileges() {
-    userSession.logIn().addPermission(SCAN, db.getDefaultOrganization());
+    userSession.logIn().addPermission(SCAN);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -216,7 +216,7 @@ public class RemoveGroupFromTemplateActionTest extends BasePermissionWsTest<Remo
   }
 
   private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
+    PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
       .selectGroupNamesByQueryAndTemplate(db.getSession(), permissionQuery, template.getUuid());
   }

@@ -168,8 +168,8 @@ public class ComponentAction implements NavigationWsAction {
         writeProfiles(json, session, component);
         writeQualityGate(json, session, org, rootProject);
         if (userSession.hasComponentPermission(ADMIN, component) ||
-          userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
-          userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
+          userSession.hasPermission(ADMINISTER_QUALITY_PROFILES) ||
+          userSession.hasPermission(ADMINISTER_QUALITY_GATES)) {
           writeConfiguration(json, component, org);
         }
         writeBreadCrumbs(json, session, component);
@@ -293,9 +293,9 @@ public class ComponentAction implements NavigationWsAction {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
     boolean showManualMeasures = isProjectAdmin && !Qualifiers.DIRECTORY.equals(component.qualifier());
     boolean showBackgroundTasks = isProjectAdmin && (isProject || Qualifiers.VIEW.equals(component.qualifier()) || Qualifiers.APP.equals(component.qualifier()));
-    boolean isQualityProfileAdmin = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, component.getOrganizationUuid());
-    boolean isQualityGateAdmin = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, component.getOrganizationUuid());
-    boolean isOrganizationAdmin = userSession.hasPermission(OrganizationPermission.ADMINISTER, component.getOrganizationUuid());
+    boolean isQualityProfileAdmin = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
+    boolean isQualityGateAdmin = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES);
+    boolean isOrganizationAdmin = userSession.hasPermission(OrganizationPermission.ADMINISTER);
     boolean canBrowseProject = userSession.hasComponentPermission(USER, component);
 
     json.prop("showSettings", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));

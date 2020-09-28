@@ -79,7 +79,7 @@ public class CreateAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organizationDto = wsSupport.getOrganization(dbSession, request);
 
-      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationDto.getUuid());
+      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES);
 
       String name = request.mandatoryParam(PARAM_NAME);
 

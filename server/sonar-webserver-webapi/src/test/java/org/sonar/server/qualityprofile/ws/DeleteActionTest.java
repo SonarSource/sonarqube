@@ -271,7 +271,7 @@ public class DeleteActionTest {
   private void logInAsQProfileAdministrator() {
     userSession
       .logIn(db.users().insertUser())
-      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+      .addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
   private void verifyProfileDoesNotExist(QProfileDto profile) {

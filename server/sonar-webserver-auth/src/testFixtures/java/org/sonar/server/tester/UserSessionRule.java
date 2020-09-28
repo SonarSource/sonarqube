@@ -29,7 +29,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
@@ -198,13 +197,8 @@ public class UserSessionRule implements TestRule, UserSession {
     return this;
   }
 
-  public UserSessionRule addPermission(OrganizationPermission permission, String organizationUuid) {
-    ensureAbstractMockUserSession().addPermission(permission, organizationUuid);
-    return this;
-  }
-
-  public UserSessionRule addPermission(OrganizationPermission permission, OrganizationDto organization) {
-    ensureAbstractMockUserSession().addPermission(permission, organization.getUuid());
+  public UserSessionRule addPermission(OrganizationPermission permission) {
+    ensureAbstractMockUserSession().addPermission(permission);
     return this;
   }
 
@@ -316,24 +310,13 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   @Override
-  public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
-    return currentUserSession.hasPermission(permission, organization);
+  public boolean hasPermission(OrganizationPermission permission) {
+    return currentUserSession.hasPermission(permission);
   }
 
   @Override
-  public boolean hasPermission(OrganizationPermission permission, String organizationUuid) {
-    return currentUserSession.hasPermission(permission, organizationUuid);
-  }
-
-  @Override
-  public UserSession checkPermission(OrganizationPermission permission, OrganizationDto organization) {
-    currentUserSession.checkPermission(permission, organization);
-    return this;
-  }
-
-  @Override
-  public UserSession checkPermission(OrganizationPermission permission, String organizationUuid) {
-    currentUserSession.checkPermission(permission, organizationUuid);
+  public UserSession checkPermission(OrganizationPermission permission) {
+    currentUserSession.checkPermission(permission);
     return this;
   }
 
@@ -363,22 +346,6 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public UserSession checkIsSystemAdministrator() {
     currentUserSession.checkIsSystemAdministrator();
-    return this;
-  }
-
-  @Override
-  public boolean hasMembership(OrganizationDto organization) {
-    return currentUserSession.hasMembership(organization);
-  }
-
-  @Override
-  public UserSession checkMembership(OrganizationDto organization) {
-    currentUserSession.checkMembership(organization);
-    return this;
-  }
-
-  public UserSessionRule addMembership(OrganizationDto organization) {
-    ensureAbstractMockUserSession().addOrganizationMembership(organization);
     return this;
   }
 }

@@ -264,7 +264,7 @@ public class CreateConditionActionTest {
   }
 
   private void logInAsQualityGateAdmin(OrganizationDto organization) {
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
   }
 
   private MetricDto insertMetric() {

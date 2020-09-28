@@ -37,10 +37,6 @@ public class UserGroupDao implements Dao {
     mapper(session).deleteByGroupUuid(groupUuid);
   }
 
-  public void deleteByOrganizationAndUser(DbSession dbSession, String organizationUuid, String userUuid) {
-    mapper(dbSession).deleteByOrganizationAndUser(organizationUuid, userUuid);
-  }
-
   public void deleteByUserUuid(DbSession dbSession, String userUuid) {
     mapper(dbSession).deleteByUserUuid(userUuid);
   }

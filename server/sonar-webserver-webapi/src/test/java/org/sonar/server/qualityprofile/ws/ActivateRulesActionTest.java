@@ -107,7 +107,7 @@ public class ActivateRulesActionTest {
 
   @Test
   public void as_global_qprofile_admin() {
-    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
 
     ws.newRequest()
@@ -121,7 +121,7 @@ public class ActivateRulesActionTest {
   @Test
   public void as_qprofile_editor() {
     UserDto user = db.users().insertUser();
-    GroupDto group = db.users().insertGroup(defaultOrganization);
+    GroupDto group = db.users().insertGroup();
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     db.organizations().addMember(defaultOrganization, user);
     db.qualityProfiles().addGroupPermission(qualityProfile, group);
@@ -148,7 +148,7 @@ public class ActivateRulesActionTest {
 
   @Test
   public void fail_if_built_in_profile() {
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert(p -> p.setIsBuiltIn(true));
     TestRequest request = ws.newRequest()
       .setMethod("POST")

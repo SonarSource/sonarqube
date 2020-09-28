@@ -25,8 +25,8 @@ import org.sonar.db.user.GroupDto;
 public interface DefaultGroupCreator {
 
   /**
-   * Create the default group on the given organization
+   * Create the default group
    */
-  GroupDto create(DbSession dbSession, String organizationUuid);
+  GroupDto create(DbSession dbSession);
 
 }

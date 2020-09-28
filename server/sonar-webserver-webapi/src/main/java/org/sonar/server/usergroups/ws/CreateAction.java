@@ -28,7 +28,6 @@ import org.sonar.api.user.UserGroupValidation;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserGroups;
@@ -92,29 +91,28 @@ public class CreateAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = support.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
-      userSession.checkPermission(ADMINISTER, organization);
+      userSession.checkPermission(ADMINISTER);
       GroupDto group = new GroupDto()
         .setUuid(uuidFactory.create())
-        .setOrganizationUuid(organization.getUuid())
         .setName(request.mandatoryParam(PARAM_GROUP_NAME))
         .setDescription(request.param(PARAM_GROUP_DESCRIPTION));
 
       // validations
       UserGroupValidation.validateGroupName(group.getName());
-      support.checkNameDoesNotExist(dbSession, group.getOrganizationUuid(), group.getName());
+      support.checkNameDoesNotExist(dbSession, group.getName());
 
       dbClient.groupDao().insert(dbSession, group);
       dbSession.commit();
 
-      writeResponse(request, response, organization, group);
+      writeResponse(request, response, group);
     }
   }
 
-  private void writeResponse(Request request, Response response, OrganizationDto organization, GroupDto group) {
+  private void writeResponse(Request request, Response response, GroupDto group) {
     UserGroups.CreateWsResponse.Builder respBuilder = UserGroups.CreateWsResponse.newBuilder();
     // 'default' is always false as it's not possible to create a default group
-    respBuilder.setGroup(toProtobuf(organization, group, 0, false));
+    // TODO
+    respBuilder.setGroup(toProtobuf("org", group, 0, false));
     writeProtobuf(respBuilder.build(), request, response);
   }
 }

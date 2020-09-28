@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,14 +37,12 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.QProfileRules;
@@ -66,6 +63,7 @@ import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
 
 public class CreateActionTest {
@@ -94,19 +92,11 @@ public class CreateActionTest {
   private RuleActivator ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, null, userSession);
   private QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, ruleIndex, activeRuleIndexer);
   private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null, qProfileRules, profileImporters);
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private CreateAction underTest = new CreateAction(dbClient, new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer),
-    qProfileExporters, newLanguages(XOO_LANGUAGE), new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider), userSession, activeRuleIndexer, profileImporters);
+    qProfileExporters, newLanguages(XOO_LANGUAGE), userSession, activeRuleIndexer, profileImporters);
 
   private WsActionTester ws = new WsActionTester(underTest);
-
-  private OrganizationDto organization;
-
-  @Before
-  public void setUp() {
-    organization = db.organizations().getDefaultOrganization();
-  }
 
   @Test
   public void definition() {
@@ -164,6 +154,20 @@ public class CreateActionTest {
   }
 
   @Test
+  public void fail_if_unsufficient_privileges() {
+    userSession
+      .logIn()
+      .addPermission(SCAN);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    executeRequest(ws.newRequest()
+      .setParam("name", "some Name")
+      .setParam("language", XOO_LANGUAGE));
+  }
+
+  @Test
   public void fail_if_import_generate_error() {
     logInAsQProfileAdministrator();
 
@@ -173,7 +177,7 @@ public class CreateActionTest {
 
   @Test
   public void test_json() {
-    logInAsQProfileAdministrator(db.getDefaultOrganization());
+    logInAsQProfileAdministrator();
 
     TestResponse response = ws.newRequest()
       .setMethod("POST")
@@ -260,12 +264,8 @@ public class CreateActionTest {
   }
 
   private void logInAsQProfileAdministrator() {
-    logInAsQProfileAdministrator(organization);
-  }
-
-  private void logInAsQProfileAdministrator(OrganizationDto organization) {
     userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+      .addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 }

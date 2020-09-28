@@ -163,7 +163,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void old_projects() {
-    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.logIn().addPermission(ADMINISTER);
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
     ComponentDto oldProject = db.components().insertPublicProject();
@@ -182,7 +182,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void provisioned_projects() {
-    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.logIn().addPermission(ADMINISTER);
     ComponentDto provisionedProject = db.components().insertPrivateProject();
     ComponentDto analyzedProject = db.components().insertPrivateProject();
     db.components().insertSnapshot(newAnalysis(analyzedProject));
@@ -195,7 +195,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void delete_more_than_50_projects() {
-    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.logIn().addPermission(ADMINISTER);
     ComponentDto[] projects = IntStream.range(0, 55).mapToObj(i -> db.components().insertPrivateProject()).toArray(ComponentDto[]::new);
 
     List<String> projectKeys = Stream.of(projects).map(ComponentDto::getKey).collect(Collectors.toList());
@@ -207,7 +207,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void projects_and_views() {
-    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.logIn().addPermission(ADMINISTER);
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto view = db.components().insertView();
 
@@ -222,7 +222,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void delete_by_key_query_with_partial_match_case_insensitive() {
-    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.logIn().addPermission(ADMINISTER);
     ComponentDto matchKeyProject = db.components().insertPrivateProject(p -> p.setDbKey("project-_%-key"));
     ComponentDto matchUppercaseKeyProject = db.components().insertPrivateProject(p -> p.setDbKey("PROJECT-_%-KEY"));
     ComponentDto noMatchProject = db.components().insertPrivateProject(p -> p.setDbKey("project-key-without-escaped-characters"));
@@ -233,30 +233,12 @@ public class BulkDeleteActionTest {
     verifyListenersOnProjectsDeleted(matchKeyProject, matchUppercaseKeyProject);
   }
 
-  @Test
-  public void throw_ForbiddenException_if_organization_administrator_does_not_set_organization_parameter() {
-    userSession.logIn().addPermission(ADMINISTER, org1);
-    ComponentDto project = db.components().insertPrivateProject(org1);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    try {
-      ws.newRequest()
-        .setParam("projects", project.getDbKey())
-        .execute();
-    } finally {
-      verifyNoDeletions();
-      verifyZeroInteractions(projectLifeCycleListeners);
-    }
-  }
-
   /**
    * SONAR-10356
    */
   @Test
   public void delete_only_the_1000_first_projects() {
-    userSession.logIn().addPermission(ADMINISTER, org1);
+    userSession.logIn().addPermission(ADMINISTER);
     List<String> keys = IntStream.range(0, 1_010).mapToObj(i -> "key" + i).collect(MoreCollectors.toArrayList());
     keys.forEach(key -> db.components().insertPrivateProject(org1, p -> p.setDbKey(key)));
 
@@ -273,7 +255,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void projectLifeCycleListeners_onProjectsDeleted_called_even_if_delete_fails() {
-    userSession.logIn().addPermission(ADMINISTER, org1);
+    userSession.logIn().addPermission(ADMINISTER);
     ComponentDto project1 = db.components().insertPrivateProject(org1);
     ComponentDto project2 = db.components().insertPrivateProject(org1);
     ComponentDto project3 = db.components().insertPrivateProject(org1);
@@ -297,7 +279,7 @@ public class BulkDeleteActionTest {
 
   @Test
   public void organization_administrator_deletes_projects_by_keys_in_his_organization() {
-    userSession.logIn().addPermission(ADMINISTER, org1);
+    userSession.logIn().addPermission(ADMINISTER);
     ComponentDto toDelete = db.components().insertPrivateProject(org1);
     ComponentDto cantBeDeleted = db.components().insertPrivateProject(org2);
 

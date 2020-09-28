@@ -87,7 +87,7 @@ public class CopyAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto sourceProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, wsSupport.getDefaultOrganization(dbSession));
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES);
 
       QProfileDto copiedProfile = profileCopier.copyToName(dbSession, sourceProfile, newName);
       boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, copiedProfile.getKee());

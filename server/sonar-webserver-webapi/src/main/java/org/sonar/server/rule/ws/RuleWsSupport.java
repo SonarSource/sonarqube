@@ -86,7 +86,7 @@ public class RuleWsSupport {
   public void checkQProfileAdminPermissionOnDefaultOrganization() {
     userSession
       .checkLoggedIn()
-      .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+      .checkPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
   Map<String, UserDto> getUsersByUuid(DbSession dbSession, List<RuleDto> rules) {

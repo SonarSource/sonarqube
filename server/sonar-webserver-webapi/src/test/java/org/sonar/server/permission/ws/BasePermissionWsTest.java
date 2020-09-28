@@ -28,7 +28,6 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
@@ -59,7 +58,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  protected TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   protected UserSessionRule userSession = UserSessionRule.standalone();
   protected WsActionTester wsTester;
 
@@ -71,7 +70,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   protected abstract A buildWsAction();
 
   protected GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
+    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider));
   }
 
   protected PermissionWsSupport newPermissionWsSupport() {
@@ -86,7 +85,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(
       new ProjectIndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
-      new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
+      new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory(), defaultOrganizationProvider),
       new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory()));
   }
 
@@ -94,26 +93,23 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
     return wsTester.newRequest().setMethod("POST");
   }
 
-  protected void loginAsAdmin(OrganizationDto org, OrganizationDto... otherOrgs) {
-    userSession.logIn().addPermission(ADMINISTER, org);
-    for (OrganizationDto otherOrg : otherOrgs) {
-      userSession.addPermission(ADMINISTER, otherOrg);
-    }
+  protected void loginAsAdmin() {
+    userSession.logIn().addPermission(ADMINISTER);
   }
 
   protected PermissionTemplateDto selectTemplateInDefaultOrganization(String name) {
-    return db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), db.getDefaultOrganization().getUuid(), name);
+    return db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), name);
   }
 
-  protected PermissionTemplateDto addTemplate(OrganizationDto organizationDto) {
-    PermissionTemplateDto dto = newPermissionTemplateDto()
-      .setOrganizationUuid(organizationDto.getUuid());
+  protected PermissionTemplateDto addTemplate() {
+    PermissionTemplateDto dto = newPermissionTemplateDto();
+    dto.setOrganizationUuid(db.getDefaultOrganization().getUuid());
     db.getDbClient().permissionTemplateDao().insert(db.getSession(), dto);
     db.commit();
     return dto;
   }
 
   protected PermissionTemplateDto addTemplateToDefaultOrganization() {
-    return addTemplate(db.getDefaultOrganization());
+    return addTemplate();
   }
 }

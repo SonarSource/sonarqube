@@ -32,23 +32,11 @@ public class GroupUuidOrAnyoneTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void from_fails_with_NPE_if_GroupDto_organizationUuid_is_null() {
-    GroupDto dto = new GroupDto();
-
-    expectOrganizationUuidNPE();
-
-    GroupUuidOrAnyone.from(dto);
-  }
-
-  @Test
   public void for_returns_isAnyone_if_id_is_null() {
-    String organizationUuid = randomAlphabetic(10);
     GroupDto dto = new GroupDto();
-    dto.setOrganizationUuid(organizationUuid);
 
     GroupUuidOrAnyone underTest = GroupUuidOrAnyone.from(dto);
 
-    assertThat(underTest.getOrganizationUuid()).isEqualTo(organizationUuid);
     assertThat(underTest.isAnyone()).isTrue();
     assertThat(underTest.getUuid()).isNull();
   }
@@ -56,38 +44,21 @@ public class GroupUuidOrAnyoneTest {
   @Test
   public void for_returns_isAnyone_false_if_id_is_not_null() {
     String uuid = randomAlphabetic(10);
-    String organizationUuid = randomAlphabetic(10);
     GroupDto dto = new GroupDto();
-    dto.setOrganizationUuid(organizationUuid);
     dto.setUuid(uuid);
 
     GroupUuidOrAnyone underTest = GroupUuidOrAnyone.from(dto);
 
-    assertThat(underTest.getOrganizationUuid()).isEqualTo(organizationUuid);
     assertThat(underTest.isAnyone()).isFalse();
     assertThat(underTest.getUuid()).isEqualTo(uuid);
   }
 
   @Test
-  public void forAnyone_fails_with_NPE_if_arg_is_null() {
-    expectOrganizationUuidNPE();
-
-    GroupUuidOrAnyone.forAnyone(null);
-  }
-
-  @Test
   public void forAnyone_returns_isAnyone_true() {
-    String organizationUuid = randomAlphabetic(12);
-
-    GroupUuidOrAnyone underTest = GroupUuidOrAnyone.forAnyone(organizationUuid);
+    GroupUuidOrAnyone underTest = GroupUuidOrAnyone.forAnyone();
 
     assertThat(underTest.isAnyone()).isTrue();
-    assertThat(underTest.getOrganizationUuid()).isEqualTo(organizationUuid);
     assertThat(underTest.getUuid()).isNull();
   }
 
-  private void expectOrganizationUuidNPE() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("organizationUuid can't be null");
-  }
 }

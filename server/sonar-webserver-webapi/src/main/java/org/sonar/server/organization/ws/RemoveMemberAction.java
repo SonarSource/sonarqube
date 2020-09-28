@@ -82,7 +82,7 @@ public class RemoveMemberAction implements OrganizationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey),
         "Organization '%s' is not found", organizationKey);
-      userSession.checkPermission(ADMINISTER, organization);
+      userSession.checkPermission(ADMINISTER);
       wsSupport.checkMemberSyncIsDisabled(dbSession, organization);
 
       UserDto user = checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, login), "User '%s' is not found", login);

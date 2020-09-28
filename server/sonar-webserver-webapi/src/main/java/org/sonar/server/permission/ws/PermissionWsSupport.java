@@ -20,7 +20,6 @@
 package org.sonar.server.permission.ws;
 
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -53,10 +52,6 @@ public class PermissionWsSupport {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.groupWsSupport = groupWsSupport;
-  }
-
-  public OrganizationDto findOrganization(DbSession dbSession, @Nullable String organizationKey) {
-    return groupWsSupport.findOrganizationByKey(dbSession, organizationKey);
   }
 
   public Optional<ProjectUuid> findProjectUuid(DbSession dbSession, Request request) {
@@ -98,10 +93,9 @@ public class PermissionWsSupport {
         dbClient.permissionTemplateDao().selectByUuid(dbSession, ref.uuid()),
         "Permission template with id '%s' is not found", ref.uuid());
     } else {
-      OrganizationDto org = findOrganization(dbSession, ref.getOrganization());
       return checkFound(
-        dbClient.permissionTemplateDao().selectByName(dbSession, org.getUuid(), ref.name()),
-        "Permission template with name '%s' is not found (case insensitive) in organization with key '%s'", ref.name(), org.getKey());
+        dbClient.permissionTemplateDao().selectByName(dbSession, ref.name()),
+        "Permission template with name '%s' is not found (case insensitive)", ref.name());
     }
   }
 

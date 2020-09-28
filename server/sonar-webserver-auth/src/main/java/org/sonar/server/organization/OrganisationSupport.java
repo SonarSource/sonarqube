@@ -76,9 +76,9 @@ public class OrganisationSupport {
   }
 
   private void createDefaultMembersGroup(DbSession dbSession, String defaultOrganizationUuid) {
-    GroupDto sonarUsersGroup = defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationUuid);
-    GroupDto members = defaultGroupCreator.create(dbSession, defaultOrganizationUuid);
-    copySonarUsersGroupPermissionsToMembersGroup(dbSession, defaultOrganizationUuid, sonarUsersGroup, members);
+    GroupDto sonarUsersGroup = defaultGroupFinder.findDefaultGroup(dbSession);
+    GroupDto members = defaultGroupCreator.create(dbSession);
+    copySonarUsersGroupPermissionsToMembersGroup(dbSession, sonarUsersGroup, members);
     copySonarUsersGroupPermissionTemplatesToMembersGroup(dbSession, sonarUsersGroup, members);
     associateMembersOfDefaultOrganizationToGroup(dbSession, defaultOrganizationUuid, members);
   }
@@ -88,14 +88,13 @@ public class OrganisationSupport {
     organizationMembers.forEach(member -> dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupUuid(membersGroup.getUuid()).setUserUuid(member)));
   }
 
-  private void copySonarUsersGroupPermissionsToMembersGroup(DbSession dbSession, String defaultOrganizationUuid, GroupDto sonarUsersGroup, GroupDto membersGroup) {
-    dbClient.groupPermissionDao().selectAllPermissionsByGroupUuid(dbSession, defaultOrganizationUuid, sonarUsersGroup.getUuid(),
+  private void copySonarUsersGroupPermissionsToMembersGroup(DbSession dbSession, GroupDto sonarUsersGroup, GroupDto membersGroup) {
+    dbClient.groupPermissionDao().selectAllPermissionsByGroupUuid(dbSession, sonarUsersGroup.getUuid(),
       context -> {
         GroupPermissionDto groupPermissionDto = (GroupPermissionDto) context.getResultObject();
         dbClient.groupPermissionDao().insert(dbSession,
           new GroupPermissionDto()
             .setUuid(uuidFactory.create())
-            .setOrganizationUuid(defaultOrganizationUuid)
             .setGroupUuid(membersGroup.getUuid())
             .setRole(groupPermissionDto.getRole())
             .setComponentUuid(groupPermissionDto.getComponentUuid()));

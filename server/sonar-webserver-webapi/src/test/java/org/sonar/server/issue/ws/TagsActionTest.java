@@ -227,7 +227,6 @@ public class TagsActionTest {
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
     indexIssues();
     viewIndexer.indexOnStartup(emptySet());
-    userSession.logIn().addMembership(organization);
 
     assertThat(tagListOf(ws.newRequest().setParam("project", portfolio.getKey()))).containsExactly("cwe");
   }
@@ -245,7 +244,6 @@ public class TagsActionTest {
     db.issues().insertIssue(issueRule, project, project, issue -> issue.setTags(singletonList("foo")));
     indexIssues();
     viewIndexer.indexOnStartup(emptySet());
-    userSession.logIn().addMembership(organization);
 
     assertThat(tagListOf(ws.newRequest().setParam("project", portfolio.getKey()))).containsExactly("foo");
   }
@@ -261,7 +259,6 @@ public class TagsActionTest {
     db.issues().insertIssue(rule, project, project, issue -> issue.setTags(singletonList("cwe")));
     indexIssues();
     viewIndexer.indexOnStartup(emptySet());
-    userSession.logIn().addMembership(organization);
 
     assertThat(tagListOf(ws.newRequest().setParam("project", application.getKey()))).containsExactly("cwe");
   }
@@ -279,7 +276,6 @@ public class TagsActionTest {
     db.issues().insertHotspot(hotspotRule, project, project, issue -> issue.setTags(singletonList("foo")));
     indexIssues();
     viewIndexer.indexOnStartup(emptySet());
-    userSession.logIn().addMembership(organization);
 
     assertThat(tagListOf(ws.newRequest().setParam("project", application.getKey()))).containsExactly("cwe");
   }

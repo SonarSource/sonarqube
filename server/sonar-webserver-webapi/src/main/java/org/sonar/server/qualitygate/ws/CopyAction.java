@@ -99,7 +99,7 @@ public class CopyAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
+      userSession.checkPermission(ADMINISTER_QUALITY_GATES);
       QualityGateDto qualityGate;
       if (uuid != null) {
         qualityGate = wsSupport.getByOrganizationAndUuid(dbSession, organization, uuid);

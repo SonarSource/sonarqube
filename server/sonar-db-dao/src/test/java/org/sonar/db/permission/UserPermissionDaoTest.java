@@ -45,7 +45,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
@@ -68,109 +67,103 @@ public class UserPermissionDaoTest {
 
   @Test
   public void select_global_permissions() {
-    OrganizationDto organization = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
-    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"), organization, org2);
-    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"), organization, org2);
-    UserDto user3 = insertUser(u -> u.setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com"), organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    UserPermissionDto global1 = addGlobalPermission(organization, SYSTEM_ADMIN, user1);
-    UserPermissionDto global2 = addGlobalPermission(organization, SYSTEM_ADMIN, user2);
-    UserPermissionDto global3 = addGlobalPermission(organization, PROVISIONING, user2);
-    UserPermissionDto project1Perm = addProjectPermission(organization, USER, user3, project);
-    // permissions on another organization, to be excluded
-    UserPermissionDto org2Global1 = addGlobalPermission(org2, SYSTEM_ADMIN, user1);
-    UserPermissionDto org2Global2 = addGlobalPermission(org2, PROVISIONING, user2);
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
+    UserDto user3 = insertUser(u -> u.setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com"));
+    ComponentDto project = db.components().insertPrivateProject();
+    UserPermissionDto global1 = addGlobalPermission(SYSTEM_ADMIN, user1);
+    UserPermissionDto global2 = addGlobalPermission(SYSTEM_ADMIN, user2);
+    UserPermissionDto global3 = addGlobalPermission(PROVISIONING, user2);
+    UserPermissionDto project1Perm = addProjectPermission(USER, user3, project);
 
     // global permissions of users who has at least one global permission, ordered by user name then permission
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().build();
+    PermissionQuery query = PermissionQuery.builder().withAtLeastOnePermission().build();
     expectPermissions(query, asList(user2.getUuid(), user1.getUuid()), global2, global3, global1);
 
     // default query returns all users, whatever their permissions nor organizations
     // (that's a non-sense, but still this is required for api/permissions/groups
     // when filtering users by name)
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
-    expectPermissions(query, asList(user2.getUuid(), user1.getUuid(), user3.getUuid()), global2, global3, org2Global2, global1, org2Global1, project1Perm);
+    query = PermissionQuery.builder().build();
+    expectPermissions(query, asList(user2.getUuid(), user1.getUuid(), user3.getUuid()), global2, global3, global1, project1Perm);
 
     // global permissions "admin"
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setPermission(SYSTEM_ADMIN).build();
+    query = PermissionQuery.builder().setPermission(SYSTEM_ADMIN).build();
     expectPermissions(query, asList(user2.getUuid(), user1.getUuid()), global2, global1);
 
     // empty if nobody has the specified global permission
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setPermission("missing").build();
+    query = PermissionQuery.builder().setPermission("missing").build();
     expectPermissions(query, emptyList());
 
     // search by user name (matches 2 users)
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().setSearchQuery("mari").build();
+    query = PermissionQuery.builder().withAtLeastOnePermission().setSearchQuery("mari").build();
     expectPermissions(query, asList(user2.getUuid(), user1.getUuid()), global2, global3, global1);
 
     // search by user login
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().setSearchQuery("ogin2").build();
+    query = PermissionQuery.builder().withAtLeastOnePermission().setSearchQuery("ogin2").build();
     expectPermissions(query, singletonList(user2.getUuid()), global2, global3);
 
     // search by user email
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().setSearchQuery("mail2").build();
+    query = PermissionQuery.builder().withAtLeastOnePermission().setSearchQuery("mail2").build();
     expectPermissions(query, singletonList(user2.getUuid()), global2, global3);
 
     // search by user name (matches 2 users) and global permission
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("Mari").setPermission(PROVISIONING).build();
+    query = PermissionQuery.builder().setSearchQuery("Mari").setPermission(PROVISIONING).build();
     expectPermissions(query, singletonList(user2.getUuid()), global3);
 
     // search by user name (no match)
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("Unknown").build();
+    query = PermissionQuery.builder().setSearchQuery("Unknown").build();
     expectPermissions(query, emptyList());
   }
 
   @Test
   public void select_project_permissions() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"), organization);
-    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"), organization);
-    UserDto user3 = insertUser(u -> u.setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com"), organization);
-    addGlobalPermission(organization, SYSTEM_ADMIN, user1);
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
-    UserPermissionDto perm1 = addProjectPermission(organization, USER, user1, project1);
-    UserPermissionDto perm2 = addProjectPermission(organization, ISSUE_ADMIN, user1, project1);
-    UserPermissionDto perm3 = addProjectPermission(organization, ISSUE_ADMIN, user2, project1);
-    addProjectPermission(organization, ISSUE_ADMIN, user3, project2);
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
+    UserDto user3 = insertUser(u -> u.setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com"));
+    addGlobalPermission(SYSTEM_ADMIN, user1);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    UserPermissionDto perm1 = addProjectPermission(USER, user1, project1);
+    UserPermissionDto perm2 = addProjectPermission(ISSUE_ADMIN, user1, project1);
+    UserPermissionDto perm3 = addProjectPermission(ISSUE_ADMIN, user2, project1);
+    addProjectPermission(ISSUE_ADMIN, user3, project2);
 
     // project permissions of users who has at least one permission on this project
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).withAtLeastOnePermission().setComponent(project1).build();
+    PermissionQuery query = PermissionQuery.builder().withAtLeastOnePermission().setComponent(project1).build();
     expectPermissions(query, asList(user2.getUuid(), user1.getUuid()), perm3, perm2, perm1);
 
     // empty if nobody has the specified global permission
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setPermission("missing").setComponent(project1).build();
+    query = PermissionQuery.builder().setPermission("missing").setComponent(project1).build();
     expectPermissions(query, emptyList());
 
     // search by user name (matches 2 users), users with at least one permission
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("Mari").withAtLeastOnePermission().setComponent(project1).build();
+    query = PermissionQuery.builder().setSearchQuery("Mari").withAtLeastOnePermission().setComponent(project1).build();
     expectPermissions(query, asList(user2.getUuid(), user1.getUuid()), perm3, perm2, perm1);
 
     // search by user name (matches 2 users) and project permission
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("Mari").setPermission(ISSUE_ADMIN).setComponent(project1).build();
+    query = PermissionQuery.builder().setSearchQuery("Mari").setPermission(ISSUE_ADMIN).setComponent(project1).build();
     expectPermissions(query, asList(user2.getUuid(), user1.getUuid()), perm3, perm2);
 
     // search by user name (no match)
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setSearchQuery("Unknown").setComponent(project1).build();
+    query = PermissionQuery.builder().setSearchQuery("Unknown").setComponent(project1).build();
     expectPermissions(query, emptyList());
 
     // permissions of unknown project
-    query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).setComponent(newPrivateProjectDto(organization)).withAtLeastOnePermission().build();
+    query = PermissionQuery.builder().setComponent(newPrivateProjectDto(db.getDefaultOrganization())).withAtLeastOnePermission().build();
     expectPermissions(query, emptyList());
   }
 
   @Test
   public void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Z").setEmail("email1@email.com"), organization);
-    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"), organization);
-    UserDto user3 = insertUser(u -> u.setLogin("login3").setName("Z").setEmail("zanother3@another.com"), organization);
-    UserDto user4 = insertUser(u -> u.setLogin("login4").setName("A").setEmail("zanother3@another.com"), organization);
-    addGlobalPermission(organization, SYSTEM_ADMIN, user1);
-    addGlobalPermission(organization, QUALITY_PROFILE_ADMIN, user2);
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Z").setEmail("email1@email.com"));
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"));
+    UserDto user3 = insertUser(u -> u.setLogin("login3").setName("Z").setEmail("zanother3@another.com"));
+    UserDto user4 = insertUser(u -> u.setLogin("login4").setName("A").setEmail("zanother3@another.com"));
+    addGlobalPermission(SYSTEM_ADMIN, user1);
+    addGlobalPermission(QUALITY_PROFILE_ADMIN, user2);
 
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+    PermissionQuery query = PermissionQuery.builder().build();
 
     assertThat(underTest.selectUserUuidsByQueryAndScope(dbSession, query))
       .containsExactly(user2.getUuid(), user1.getUuid(), user4.getUuid(), user3.getUuid());
@@ -178,18 +171,17 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase_when_high_number_of_users_for_global_permissions() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
-      UserDto user = insertUser(u -> u.setLogin("login" + i).setName("" + i), organization);
+      UserDto user = insertUser(u -> u.setLogin("login" + i).setName("" + i));
       // Add permission on project to be sure projects are excluded
       db.users().insertProjectPermissionOnUser(user, SCAN.getKey(), project);
     });
     String lastLogin = "login" + (DEFAULT_PAGE_SIZE + 1);
     UserDto lastUser = db.getDbClient().userDao().selectByLogin(dbSession, lastLogin);
-    addGlobalPermission(organization, SYSTEM_ADMIN, lastUser);
+    addGlobalPermission(SYSTEM_ADMIN, lastUser);
 
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+    PermissionQuery query = PermissionQuery.builder().build();
 
     assertThat(underTest.selectUserUuidsByQueryAndScope(dbSession, query))
       .hasSize(DEFAULT_PAGE_SIZE)
@@ -198,20 +190,19 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase_when_high_number_of_users_for_project_permissions() {
-    OrganizationDto organization = db.organizations().insert();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
-      UserDto user = insertUser(u -> u.setLogin("login" + i).setName("" + i), organization);
+      UserDto user = insertUser(u -> u.setLogin("login" + i).setName("" + i));
       // Add global permission to be sure they are excluded
-      addGlobalPermission(organization, SYSTEM_ADMIN, user);
+      addGlobalPermission(SYSTEM_ADMIN, user);
     });
     String lastLogin = "login" + (DEFAULT_PAGE_SIZE + 1);
     UserDto lastUser = db.getDbClient().userDao().selectByLogin(dbSession, lastLogin);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto project = db.components().insertPrivateProject();
     db.users().insertProjectPermissionOnUser(lastUser, SCAN.getKey(), project);
 
     PermissionQuery query = PermissionQuery.builder()
       .setComponent(project)
-      .setOrganizationUuid(organization.getUuid()).build();
+      .build();
 
     assertThat(underTest.selectUserUuidsByQueryAndScope(dbSession, query))
       .hasSize(DEFAULT_PAGE_SIZE)
@@ -220,16 +211,15 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectUserUuidsByQuery_is_not_ordering_by_number_of_permissions() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Z").setEmail("email1@email.com"), organization);
-    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"), organization);
-    addGlobalPermission(organization, SYSTEM_ADMIN, user1);
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    addProjectPermission(organization, USER, user2, project1);
-    addProjectPermission(organization, USER, user1, project1);
-    addProjectPermission(organization, ADMIN, user1, project1);
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Z").setEmail("email1@email.com"));
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("A").setEmail("email2@email.com"));
+    addGlobalPermission(SYSTEM_ADMIN, user1);
+    ComponentDto project1 = db.components().insertPrivateProject();
+    addProjectPermission(USER, user2, project1);
+    addProjectPermission(USER, user1, project1);
+    addProjectPermission(ADMIN, user1, project1);
 
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build();
+    PermissionQuery query = PermissionQuery.builder().build();
 
     // Even if user1 has 3 permissions, the name is used to order
     assertThat(underTest.selectUserUuidsByQuery(dbSession, query))
@@ -238,16 +228,15 @@ public class UserPermissionDaoTest {
 
   @Test
   public void countUsersByProjectPermission() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
-    addGlobalPermission(organization, SYSTEM_ADMIN, user1);
-    addProjectPermission(organization, USER, user1, project1);
-    addProjectPermission(organization, ISSUE_ADMIN, user1, project1);
-    addProjectPermission(organization, ISSUE_ADMIN, user2, project1);
-    addProjectPermission(organization, ISSUE_ADMIN, user2, project2);
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    addGlobalPermission(SYSTEM_ADMIN, user1);
+    addProjectPermission(USER, user1, project1);
+    addProjectPermission(ISSUE_ADMIN, user1, project1);
+    addProjectPermission(ISSUE_ADMIN, user2, project1);
+    addProjectPermission(ISSUE_ADMIN, user2, project2);
 
     // no projects -> return empty list
     assertThat(underTest.countUsersByProjectPermission(dbSession, emptyList())).isEmpty();
@@ -266,57 +255,47 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectUserUuidsByQuery() {
-    OrganizationDto org1 = db.organizations().insert();
-    OrganizationDto org2 = db.organizations().insert();
-    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"), org1, org2);
-    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"), org1, org2);
-    ComponentDto project1 = db.components().insertPrivateProject(org1);
-    ComponentDto project2 = db.components().insertPrivateProject(org2);
-    addProjectPermission(org1, USER, user1, project1);
-    addProjectPermission(org1, USER, user2, project1);
-    addProjectPermission(org2, USER, user1, project2);
-    addProjectPermission(org1, ISSUE_ADMIN, user2, project1);
-    addProjectPermission(org2, ISSUE_ADMIN, user2, project2);
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    addProjectPermission(USER, user1, project1);
+    addProjectPermission(USER, user2, project1);
+    addProjectPermission(ISSUE_ADMIN, user2, project1);
 
     // logins are ordered by user name: user2 ("Marie") then user1 ("Marius")
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project1.getOrganizationUuid()).setComponent(project1).withAtLeastOnePermission().build();
+    PermissionQuery query = PermissionQuery.builder().setComponent(project1).withAtLeastOnePermission().build();
     assertThat(underTest.selectUserUuidsByQuery(dbSession, query)).containsExactly(user2.getUuid(), user1.getUuid());
-    query = PermissionQuery.builder().setOrganizationUuid("anotherOrg").setComponent(project1).withAtLeastOnePermission().build();
+    query = PermissionQuery.builder().setComponent(project2).withAtLeastOnePermission().build();
     assertThat(underTest.selectUserUuidsByQuery(dbSession, query)).isEmpty();
 
     // on a project without permissions
-    query = PermissionQuery.builder().setOrganizationUuid(org1.getUuid()).setComponent(newPrivateProjectDto(org1)).withAtLeastOnePermission().build();
+    query = PermissionQuery.builder().setComponent(newPrivateProjectDto(db.getDefaultOrganization())).withAtLeastOnePermission().build();
     assertThat(underTest.selectUserUuidsByQuery(dbSession, query)).isEmpty();
 
     // search all users whose name matches "mar", whatever the permissions
-    query = PermissionQuery.builder().setOrganizationUuid(org1.getUuid()).setSearchQuery("mar").build();
+    query = PermissionQuery.builder().setSearchQuery("mar").build();
     assertThat(underTest.selectUserUuidsByQuery(dbSession, query)).containsExactly(user2.getUuid(), user1.getUuid());
 
     // search all users whose name matches "mariu", whatever the permissions
-    query = PermissionQuery.builder().setOrganizationUuid(org1.getUuid()).setSearchQuery("mariu").build();
+    query = PermissionQuery.builder().setSearchQuery("mariu").build();
     assertThat(underTest.selectUserUuidsByQuery(dbSession, query)).containsExactly(user1.getUuid());
 
     // search all users whose name matches "mariu", whatever the permissions
-    query = PermissionQuery.builder().setOrganizationUuid(org1.getUuid()).setSearchQuery("mariu").setComponent(project1).build();
+    query = PermissionQuery.builder().setSearchQuery("mariu").setComponent(project1).build();
     assertThat(underTest.selectUserUuidsByQuery(dbSession, query)).containsExactly(user1.getUuid());
-
-    // search all users whose name matches "mariu", whatever the organization
-    query = PermissionQuery.builder().setOrganizationUuid("missingOrg").setSearchQuery("mariu").build();
-    assertThat(underTest.selectUserUuidsByQuery(dbSession, query)).isEmpty();
   }
 
   @Test
   public void selectUserUuidsByQueryAndScope_with_organization_scope() {
-    OrganizationDto org1 = db.organizations().insert();
-    OrganizationDto org2 = db.organizations().insert();
-    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"), org1, org2);
-    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"), org1, org2);
-    ComponentDto project1 = db.components().insertPrivateProject(org1);
-    ComponentDto project2 = db.components().insertPrivateProject(org2);
-    addProjectPermission(org1, USER, user1, project1);
-    addGlobalPermission(org1, PROVISIONING, user1);
-    addProjectPermission(org2, ISSUE_ADMIN, user2, project2);
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(org1.getUuid()).build();
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    addProjectPermission(USER, user1, project1);
+    addGlobalPermission(PROVISIONING, user1);
+    addProjectPermission(ISSUE_ADMIN, user2, project2);
+    PermissionQuery query = PermissionQuery.builder().build();
 
     List<String> result = underTest.selectUserUuidsByQueryAndScope(dbSession, query);
 
@@ -326,17 +305,14 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectUserUuidsByQueryAndScope_with_project_scope() {
-    OrganizationDto org1 = db.organizations().insert();
-    OrganizationDto org2 = db.organizations().insert();
-    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"), org1, org2);
-    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"), org1, org2);
-    ComponentDto project1 = db.components().insertPrivateProject(org1);
-    ComponentDto project2 = db.components().insertPrivateProject(org2);
-    addProjectPermission(org1, USER, user1, project1);
-    addGlobalPermission(org1, PROVISIONING, user1);
-    addProjectPermission(org2, ISSUE_ADMIN, user2, project2);
+    UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
+    UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    addProjectPermission(USER, user1, project1);
+    addGlobalPermission(PROVISIONING, user1);
+    addProjectPermission(ISSUE_ADMIN, user2, project2);
     PermissionQuery query = PermissionQuery.builder()
-      .setOrganizationUuid(org1.getUuid())
       .setComponent(project1)
       .build();
 
@@ -348,87 +324,79 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectUserUuidsByQuery_is_paginated() {
-    OrganizationDto organization = db.organizations().insert();
     List<String> userUuids = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
       String name = "user-" + i;
-      UserDto user = insertUser(u -> u.setName(name), organization);
-      addGlobalPermission(organization, PROVISIONING, user);
-      addGlobalPermission(organization, SYSTEM_ADMIN, user);
+      UserDto user = insertUser(u -> u.setName(name));
+      addGlobalPermission(PROVISIONING, user);
+      addGlobalPermission(SYSTEM_ADMIN, user);
       userUuids.add(user.getUuid());
     }
 
-    assertThat(underTest.selectUserUuidsByQuery(dbSession, PermissionQuery.builder().setOrganizationUuid(organization.getUuid())
+    assertThat(underTest.selectUserUuidsByQuery(dbSession, PermissionQuery.builder()
       .setPageSize(3).setPageIndex(1).build()))
-        .containsExactly(userUuids.get(0), userUuids.get(1), userUuids.get(2));
-    assertThat(underTest.selectUserUuidsByQuery(dbSession, PermissionQuery.builder().setOrganizationUuid(organization.getUuid())
+      .containsExactly(userUuids.get(0), userUuids.get(1), userUuids.get(2));
+    assertThat(underTest.selectUserUuidsByQuery(dbSession, PermissionQuery.builder()
       .setPageSize(2).setPageIndex(3).build()))
-        .containsExactly(userUuids.get(4), userUuids.get(5));
-    assertThat(underTest.selectUserUuidsByQuery(dbSession, PermissionQuery.builder().setOrganizationUuid(organization.getUuid())
+      .containsExactly(userUuids.get(4), userUuids.get(5));
+    assertThat(underTest.selectUserUuidsByQuery(dbSession, PermissionQuery.builder()
       .setPageSize(50).setPageIndex(1).build()))
-        .hasSize(10);
+      .hasSize(10);
   }
 
   @Test
   public void selectUserUuidsByQuery_is_sorted_by_insensitive_name() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(u -> u.setName("user1"), organization);
-    addGlobalPermission(organization, PROVISIONING, user1);
-    UserDto user3 = insertUser(u -> u.setName("user3"), organization);
-    addGlobalPermission(organization, SYSTEM_ADMIN, user3);
-    UserDto user2 = insertUser(u -> u.setName("User2"), organization);
-    addGlobalPermission(organization, PROVISIONING, user2);
+    UserDto user1 = insertUser(u -> u.setName("user1"));
+    addGlobalPermission(PROVISIONING, user1);
+    UserDto user3 = insertUser(u -> u.setName("user3"));
+    addGlobalPermission(SYSTEM_ADMIN, user3);
+    UserDto user2 = insertUser(u -> u.setName("User2"));
+    addGlobalPermission(PROVISIONING, user2);
 
-    assertThat(underTest.selectUserUuidsByQuery(dbSession, PermissionQuery.builder().setOrganizationUuid(organization.getUuid()).build()))
+    assertThat(underTest.selectUserUuidsByQuery(dbSession, PermissionQuery.builder().build()))
       .containsExactly(user1.getUuid(), user2.getUuid(), user3.getUuid());
   }
 
   @Test
   public void deleteGlobalPermission() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
-    addGlobalPermission(organization, "perm1", user1);
-    addGlobalPermission(organization, "perm2", user1);
-    addProjectPermission(organization, "perm1", user1, project1);
-    addProjectPermission(organization, "perm3", user2, project1);
-    addProjectPermission(organization, "perm4", user2, project2);
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    addGlobalPermission("perm1", user1);
+    addGlobalPermission("perm2", user1);
+    addProjectPermission("perm1", user1, project1);
+    addProjectPermission("perm3", user2, project1);
+    addProjectPermission("perm4", user2, project2);
 
     // user2 does not have global permissions -> do nothing
-    underTest.deleteGlobalPermission(dbSession, user2.getUuid(), "perm1", db.getDefaultOrganization().getUuid());
+    underTest.deleteGlobalPermission(dbSession, user2.getUuid(), "perm1");
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
 
     // global permission is not granted -> do nothing
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "notGranted", db.getDefaultOrganization().getUuid());
+    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "notGranted");
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
 
     // permission is on project -> do nothing
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "perm3", db.getDefaultOrganization().getUuid());
-    assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
-
-    // global permission on another organization-> do nothing
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "notGranted", "anotherOrg");
+    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "perm3");
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(5);
 
     // global permission exists -> delete it, but not the project permission with the same name !
-    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "perm1", organization.getUuid());
+    underTest.deleteGlobalPermission(dbSession, user1.getUuid(), "perm1");
     assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where role='perm1' and component_uuid is null")).isEqualTo(0);
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(4);
   }
 
   @Test
   public void deleteProjectPermission() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
-    addGlobalPermission(organization, "perm", user1);
-    addProjectPermission(organization, "perm", user1, project1);
-    addProjectPermission(organization, "perm", user1, project2);
-    addProjectPermission(organization, "perm", user2, project1);
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    addGlobalPermission("perm", user1);
+    addProjectPermission("perm", user1, project1);
+    addProjectPermission("perm", user1, project2);
+    addProjectPermission("perm", user2, project1);
 
     // no such provision -> ignore
     underTest.deleteProjectPermission(dbSession, user1.getUuid(), "anotherPerm", project1.uuid());
@@ -441,15 +409,14 @@ public class UserPermissionDaoTest {
 
   @Test
   public void deleteProjectPermissions() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
-    addGlobalPermission(organization, "perm", user1);
-    addProjectPermission(organization, "perm", user1, project1);
-    addProjectPermission(organization, "perm", user2, project1);
-    addProjectPermission(organization, "perm", user1, project2);
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    addGlobalPermission("perm", user1);
+    addProjectPermission("perm", user1, project1);
+    addProjectPermission("perm", user2, project1);
+    addProjectPermission("perm", user1, project2);
 
     underTest.deleteProjectPermissions(dbSession, project1.uuid());
     assertThat(db.countRowsOfTable(dbSession, "user_roles")).isEqualTo(2);
@@ -458,37 +425,34 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectGlobalPermissionsOfUser() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
-    UserDto user3 = insertUser(organization);
-    OrganizationDto org = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    addGlobalPermission(db.getDefaultOrganization(), "perm1", user1);
-    addGlobalPermission(org, "perm2", user2);
-    addGlobalPermission(org, "perm3", user1);
-    addProjectPermission(organization, "perm4", user1, project);
-    addProjectPermission(organization, "perm5", user1, project);
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
+    UserDto user3 = insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
+    addGlobalPermission("perm1", user1);
+    addGlobalPermission("perm2", user2);
+    addGlobalPermission("perm3", user1);
+    addProjectPermission("perm4", user1, project);
+    addProjectPermission("perm5", user2, project);
 
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid(), org.getUuid())).containsOnly("perm3");
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid(), db.getDefaultOrganization().getUuid())).containsOnly("perm1");
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid(), "otherOrg")).isEmpty();
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user3.getUuid(), org.getUuid())).isEmpty();
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid())).containsOnly("perm1", "perm3");
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user2.getUuid())).containsOnly("perm2");
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user3.getUuid())).isEmpty();
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, "unknown")).isEmpty();
   }
 
   @Test
   public void selectProjectPermissionsOfUser() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
-    ComponentDto project1 = db.components().insertPrivateProject(organization);
-    ComponentDto project2 = db.components().insertPrivateProject(organization);
-    ComponentDto project3 = db.components().insertPrivateProject(organization);
-    addGlobalPermission(organization, "perm1", user1);
-    addProjectPermission(organization, "perm2", user1, project1);
-    addProjectPermission(organization, "perm3", user1, project1);
-    addProjectPermission(organization, "perm4", user1, project2);
-    addProjectPermission(organization, "perm5", user2, project1);
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject();
+    addGlobalPermission("perm1", user1);
+    addProjectPermission("perm2", user1, project1);
+    addProjectPermission("perm3", user1, project1);
+    addProjectPermission("perm4", user1, project2);
+    addProjectPermission("perm5", user2, project1);
 
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getUuid(), project1.uuid())).containsOnly("perm2", "perm3");
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getUuid(), project2.uuid())).containsOnly("perm4");
@@ -497,9 +461,8 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectGroupUuidsWithPermissionOnProjectBut_returns_empty_if_project_does_not_exist() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = randomPublicOrPrivateProject(organization);
-    UserDto user = insertUser(organization);
+    ComponentDto project = randomPublicOrPrivateProject();
+    UserDto user = insertUser();
     db.users().insertProjectPermissionOnUser(user, "foo", project);
 
     assertThat(underTest.selectUserUuidsWithPermissionOnProjectBut(dbSession, "1234", UserRole.USER))
@@ -508,10 +471,9 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectGroupUuidsWithPermissionOnProjectBut_returns_only_users_of_projects_which_do_not_have_permission() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = randomPublicOrPrivateProject(organization);
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
+    ComponentDto project = randomPublicOrPrivateProject();
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
     db.users().insertProjectPermissionOnUser(user1, "p1", project);
     db.users().insertProjectPermissionOnUser(user2, "p2", project);
 
@@ -525,10 +487,9 @@ public class UserPermissionDaoTest {
 
   @Test
   public void selectGroupUuidsWithPermissionOnProjectBut_does_not_return_groups_which_have_no_permission_at_all_on_specified_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = randomPublicOrPrivateProject(organization);
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
+    ComponentDto project = randomPublicOrPrivateProject();
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
     db.users().insertProjectPermissionOnUser(user1, "p1", project);
     db.users().insertProjectPermissionOnUser(user2, "p2", project);
 
@@ -539,84 +500,10 @@ public class UserPermissionDaoTest {
   }
 
   @Test
-  public void deleteByOrganization_does_not_fail_if_table_is_empty() {
-    underTest.deleteByOrganization(dbSession, "some uuid");
-    dbSession.commit();
-  }
-
-  @Test
-  public void deleteByOrganization_does_not_fail_if_organization_has_no_user_permission() {
-    OrganizationDto organization = db.organizations().insert();
-
-    underTest.deleteByOrganization(dbSession, organization.getUuid());
-    dbSession.commit();
-  }
-
-  @Test
-  public void deleteByOrganization_deletes_all_user_permission_of_specified_organization() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    OrganizationDto organization3 = db.organizations().insert();
-    UserDto user1 = insertUser(organization1, organization2, organization3);
-    UserDto user2 = insertUser(organization1, organization2, organization3);
-    UserDto user3 = insertUser(organization1, organization2, organization3);
-    db.users().insertPermissionOnUser(organization1, user1, "foo");
-    db.users().insertPermissionOnUser(organization1, user2, "foo");
-    db.users().insertPermissionOnUser(organization1, user2, "bar");
-    db.users().insertPermissionOnUser(organization2, user2, "foo");
-    db.users().insertPermissionOnUser(organization2, user3, "foo");
-    db.users().insertPermissionOnUser(organization2, user3, "bar");
-    db.users().insertPermissionOnUser(organization3, user3, "foo");
-    db.users().insertPermissionOnUser(organization3, user1, "foo");
-    db.users().insertPermissionOnUser(organization3, user1, "bar");
-
-    underTest.deleteByOrganization(dbSession, organization3.getUuid());
-    dbSession.commit();
-    verifyOrganizationUuidsInTable(organization1.getUuid(), organization2.getUuid());
-
-    underTest.deleteByOrganization(dbSession, organization2.getUuid());
-    dbSession.commit();
-    verifyOrganizationUuidsInTable(organization1.getUuid());
-
-    underTest.deleteByOrganization(dbSession, organization1.getUuid());
-    dbSession.commit();
-    verifyOrganizationUuidsInTable();
-  }
-
-  @Test
-  public void delete_permissions_of_an_organization_member() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization1);
-    UserDto user1 = insertUser(organization1, organization2);
-    UserDto user2 = insertUser(organization1, organization2);
-    // user 1 permissions
-    db.users().insertPermissionOnUser(organization1, user1, SCAN);
-    db.users().insertPermissionOnUser(organization1, user1, ADMINISTER);
-    db.users().insertProjectPermissionOnUser(user1, UserRole.CODEVIEWER, project);
-    db.users().insertPermissionOnUser(organization2, user1, SCAN);
-    // user 2 permission
-    db.users().insertPermissionOnUser(organization1, user2, SCAN);
-    db.users().insertProjectPermissionOnUser(user2, UserRole.CODEVIEWER, project);
-
-    underTest.deleteOrganizationMemberPermissions(dbSession, organization1.getUuid(), user1.getUuid());
-    dbSession.commit();
-
-    // user 1 permissions
-    assertOrgPermissionsOfUser(user1, organization1);
-    assertOrgPermissionsOfUser(user1, organization2, SCAN);
-    assertProjectPermissionsOfUser(user1, project);
-    // user 2 permissions
-    assertOrgPermissionsOfUser(user2, organization1, SCAN);
-    assertProjectPermissionsOfUser(user2, project, CODEVIEWER);
-  }
-
-  @Test
   public void deleteByUserId() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
+    ComponentDto project = db.components().insertPrivateProject();
     db.users().insertPermissionOnUser(user1, SCAN);
     db.users().insertPermissionOnUser(user1, ADMINISTER);
     db.users().insertProjectPermissionOnUser(user1, ADMINISTER_QUALITY_GATES.getKey(), project);
@@ -633,53 +520,49 @@ public class UserPermissionDaoTest {
 
   @Test
   public void deleteProjectPermissionOfAnyUser_has_no_effect_if_specified_component_does_not_exist() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user = insertUser(organization);
-    db.users().insertPermissionOnUser(organization, user, SCAN);
+    UserDto user = insertUser();
+    db.users().insertPermissionOnUser(user, SCAN);
 
     int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, "124", SCAN.getKey());
 
     assertThat(deletedCount).isEqualTo(0);
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid())).containsOnly(SCAN.getKey());
   }
 
   @Test
   public void deleteProjectPermissionOfAnyUser_has_no_effect_if_specified_component_has_no_permission_at_all() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user = insertUser(organization);
-    db.users().insertPermissionOnUser(organization, user, SCAN);
-    ComponentDto project = randomPublicOrPrivateProject(organization);
+    UserDto user = insertUser();
+    db.users().insertPermissionOnUser(user, SCAN);
+    ComponentDto project = randomPublicOrPrivateProject();
 
     int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.uuid(), SCAN.getKey());
 
     assertThat(deletedCount).isEqualTo(0);
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid())).containsOnly(SCAN.getKey());
   }
 
   @Test
   public void deleteProjectPermissionOfAnyUser_has_no_effect_if_specified_component_does_not_have_specified_permission() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user = insertUser(organization);
-    db.users().insertPermissionOnUser(organization, user, SCAN);
-    ComponentDto project = randomPublicOrPrivateProject(organization);
+    UserDto user = insertUser();
+    db.users().insertPermissionOnUser(user, SCAN);
+    ComponentDto project = randomPublicOrPrivateProject();
     db.users().insertProjectPermissionOnUser(user, SCAN.getKey(), project);
 
     int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.uuid(), "p1");
 
     assertThat(deletedCount).isEqualTo(0);
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid())).containsOnly(SCAN.getKey());
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user.getUuid(), project.uuid())).containsOnly(SCAN.getKey());
   }
 
   @Test
   public void deleteProjectPermissionOfAnyUser_deletes_specified_permission_for_any_user_on_the_specified_component() {
-    OrganizationDto organization = db.organizations().insert();
-    UserDto user1 = insertUser(organization);
-    UserDto user2 = insertUser(organization);
-    db.users().insertPermissionOnUser(organization, user1, SCAN);
-    db.users().insertPermissionOnUser(organization, user2, SCAN);
-    ComponentDto project1 = randomPublicOrPrivateProject(organization);
-    ComponentDto project2 = randomPublicOrPrivateProject(organization);
+    UserDto user1 = insertUser();
+    UserDto user2 = insertUser();
+    db.users().insertPermissionOnUser(user1, SCAN);
+    db.users().insertPermissionOnUser(user2, SCAN);
+    ComponentDto project1 = randomPublicOrPrivateProject();
+    ComponentDto project2 = randomPublicOrPrivateProject();
     db.users().insertProjectPermissionOnUser(user1, SCAN.getKey(), project1);
     db.users().insertProjectPermissionOnUser(user2, SCAN.getKey(), project1);
     db.users().insertProjectPermissionOnUser(user1, SCAN.getKey(), project2);
@@ -689,8 +572,8 @@ public class UserPermissionDaoTest {
     int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project1.uuid(), SCAN.getKey());
 
     assertThat(deletedCount).isEqualTo(2);
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid(), organization.getUuid())).containsOnly(SCAN.getKey());
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user2.getUuid(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user2.getUuid())).containsOnly(SCAN.getKey());
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getUuid(), project1.uuid())).isEmpty();
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user2.getUuid(), project1.uuid())).isEmpty();
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getUuid(), project2.uuid())).containsOnly(SCAN.getKey());
@@ -699,34 +582,26 @@ public class UserPermissionDaoTest {
     deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project2.uuid(), SCAN.getKey());
 
     assertThat(deletedCount).isEqualTo(2);
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid(), organization.getUuid())).containsOnly(SCAN.getKey());
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user2.getUuid(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user2.getUuid())).containsOnly(SCAN.getKey());
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getUuid(), project1.uuid())).isEmpty();
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user2.getUuid(), project1.uuid())).isEmpty();
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getUuid(), project2.uuid())).containsOnly();
     assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user2.getUuid(), project2.uuid())).containsOnly(PROVISION_PROJECTS.getKey());
   }
 
-  private ComponentDto randomPublicOrPrivateProject(OrganizationDto organization) {
-    return new Random().nextBoolean() ? db.components().insertPrivateProject(organization) : db.components().insertPublicProject(organization);
+  private ComponentDto randomPublicOrPrivateProject() {
+    return new Random().nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
   }
 
-  private UserDto insertUser(Consumer<UserDto> populateUserDto, OrganizationDto... organizations) {
+  private UserDto insertUser(Consumer<UserDto> populateUserDto) {
     UserDto user = db.users().insertUser(populateUserDto);
-    stream(organizations).forEach(organization -> db.organizations().addMember(organization, user));
     return user;
   }
 
-  private UserDto insertUser(OrganizationDto... organizations) {
+  private UserDto insertUser() {
     UserDto user = db.users().insertUser();
-    stream(organizations).forEach(organization -> db.organizations().addMember(organization, user));
     return user;
-  }
-
-  private void verifyOrganizationUuidsInTable(String... organizationUuids) {
-    assertThat(db.select("select organization_uuid as \"organizationUuid\" from user_roles"))
-      .extracting((row) -> (String) row.get("organizationUuid"))
-      .containsOnly(organizationUuids);
   }
 
   private void expectCount(List<String> projectUuids, CountPerProjectPermission... expected) {
@@ -746,11 +621,10 @@ public class UserPermissionDaoTest {
     List<UserPermissionDto> currentPermissions = underTest.selectUserPermissionsByQuery(dbSession, query, expectedUserUuids);
     assertThat(currentPermissions).hasSize(expectedPermissions.length);
     Tuple[] expectedPermissionsAsTuple = Arrays.stream(expectedPermissions)
-      .map(expectedPermission -> tuple(expectedPermission.getUserUuid(), expectedPermission.getPermission(), expectedPermission.getComponentUuid(),
-        expectedPermission.getOrganizationUuid()))
+      .map(expectedPermission -> tuple(expectedPermission.getUserUuid(), expectedPermission.getPermission(), expectedPermission.getComponentUuid()))
       .toArray(Tuple[]::new);
     assertThat(currentPermissions)
-      .extracting(UserPermissionDto::getUserUuid, UserPermissionDto::getPermission, UserPermissionDto::getComponentUuid, UserPermissionDto::getOrganizationUuid)
+      .extracting(UserPermissionDto::getUserUuid, UserPermissionDto::getPermission, UserPermissionDto::getComponentUuid)
       .containsOnly(expectedPermissionsAsTuple);
 
     // test method "countUsers()"
@@ -758,16 +632,16 @@ public class UserPermissionDaoTest {
     assertThat((long) underTest.countUsersByQuery(dbSession, query)).isEqualTo(distinctUsers);
   }
 
-  private UserPermissionDto addGlobalPermission(OrganizationDto org, String permission, UserDto user) {
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), org.getUuid(), permission, user.getUuid(), null);
-    underTest.insert(dbSession, dto);
+  private UserPermissionDto addGlobalPermission(String permission, UserDto user) {
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
+    underTest.insert(dbSession, dto, db.getDefaultOrganization().getUuid());
     db.commit();
     return dto;
   }
 
-  private UserPermissionDto addProjectPermission(OrganizationDto org, String permission, UserDto user, ComponentDto project) {
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), org.getUuid(), permission, user.getUuid(), project.uuid());
-    underTest.insert(dbSession, dto);
+  private UserPermissionDto addProjectPermission(String permission, UserDto user, ComponentDto project) {
+    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
+    underTest.insert(dbSession, dto, db.getDefaultOrganization().getUuid());
     db.commit();
     return dto;
   }
@@ -782,10 +656,10 @@ public class UserPermissionDaoTest {
     assertThat(db.countSql(dbSession, "select count(uuid) from user_roles where component_uuid='" + project.uuid() + "'")).isEqualTo(0);
   }
 
-  private void assertOrgPermissionsOfUser(UserDto user, OrganizationDto organization, OrganizationPermission... permissions) {
-    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid(), organization.getUuid()).stream()
+  private void assertGlobalPermissionsOfUser(UserDto user, OrganizationPermission... permissions) {
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user.getUuid()).stream()
       .map(OrganizationPermission::fromKey))
-        .containsOnly(permissions);
+      .containsOnly(permissions);
   }
 
   private void assertProjectPermissionsOfUser(UserDto user, ComponentDto project, String... permissions) {

@@ -30,7 +30,6 @@ import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -38,7 +37,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
@@ -144,7 +142,7 @@ public class ListActionTest {
   @Test
   public void actions_with_quality_gate_administer_permission() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Default").setBuiltIn(false));
     QualityGateDto builtInQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way").setBuiltIn(true));
     QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way - Without Coverage").setBuiltIn(false));
@@ -170,7 +168,7 @@ public class ListActionTest {
   @Test
   public void actions_without_quality_gate_administer_permission() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES);
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way").setBuiltIn(true));
     QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way - Without Coverage").setBuiltIn(false));
     db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);
@@ -197,7 +195,6 @@ public class ListActionTest {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
     db.qualityGates().setDefaultQualityGate(organization, qualityGate);
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addMembership(organization);
 
     ListWsResponse response = ws.newRequest()
       .setParam("organization", organization.getKey())
@@ -209,22 +206,9 @@ public class ListActionTest {
   }
 
   @Test
-  public void fail_on_paid_organization_when_not_member() {
-    OrganizationDto organization = db.organizations().insert(o -> o.setSubscription(PAID));
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage(format("You're not member of organization '%s'", organization.getKey()));
-
-    ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute();
-  }
-
-  @Test
   public void json_example() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization, qualityGate -> qualityGate.setName("Sonar way").setBuiltIn(true));
     db.qualityGates().insertQualityGate(organization, qualityGate -> qualityGate.setName("Sonar way - Without Coverage").setBuiltIn(false));
     db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);

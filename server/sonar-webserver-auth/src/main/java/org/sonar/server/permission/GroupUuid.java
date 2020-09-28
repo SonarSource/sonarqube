@@ -22,8 +22,6 @@ package org.sonar.server.permission;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.user.GroupDto;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * Reference to a user group, as used internally by the backend. It does
  * not support reference to virtual groups "anyone".
@@ -34,22 +32,16 @@ import static java.util.Objects.requireNonNull;
 public class GroupUuid {
 
   private final String uuid;
-  private final String organizationUuid;
 
-  private GroupUuid(String organizationUuid, String uuid) {
+  private GroupUuid(String uuid) {
     this.uuid = uuid;
-    this.organizationUuid = requireNonNull(organizationUuid);
   }
 
   public String getUuid() {
     return uuid;
   }
 
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
   public static GroupUuid from(GroupDto dto) {
-    return new GroupUuid(dto.getOrganizationUuid(), dto.getUuid());
+    return new GroupUuid(dto.getUuid());
   }
 }

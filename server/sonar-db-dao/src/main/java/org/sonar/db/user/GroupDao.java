@@ -46,16 +46,15 @@ public class GroupDao implements Dao {
 
   /**
    * @param dbSession
-   * @param organizationUuid non-null UUID of organization (no support of "default" organization)
    * @param name non-null group name
    * @return the group with the given organization key and name
    */
-  public Optional<GroupDto> selectByName(DbSession dbSession, String organizationUuid, String name) {
-    return Optional.ofNullable(mapper(dbSession).selectByName(organizationUuid, name));
+  public Optional<GroupDto> selectByName(DbSession dbSession, String name) {
+    return Optional.ofNullable(mapper(dbSession).selectByName(name));
   }
 
-  public List<GroupDto> selectByNames(DbSession dbSession, String organizationUuid, Collection<String> names) {
-    return executeLargeInputs(names, pageOfNames -> mapper(dbSession).selectByNames(organizationUuid, pageOfNames));
+  public List<GroupDto> selectByNames(DbSession dbSession, Collection<String> names) {
+    return executeLargeInputs(names, pageOfNames -> mapper(dbSession).selectByNames(pageOfNames));
   }
 
   @CheckForNull
@@ -71,16 +70,12 @@ public class GroupDao implements Dao {
     mapper(dbSession).deleteByUuid(groupUuid);
   }
 
-  public void deleteByOrganization(DbSession dbSession, String organizationUuid) {
-    mapper(dbSession).deleteByOrganization(organizationUuid);
+  public int countByQuery(DbSession session, @Nullable String query) {
+    return mapper(session).countByQuery(groupSearchToSql(query));
   }
 
-  public int countByQuery(DbSession session, String organizationUuid, @Nullable String query) {
-    return mapper(session).countByQuery(organizationUuid, groupSearchToSql(query));
-  }
-
-  public List<GroupDto> selectByQuery(DbSession session, String organizationUuid, @Nullable String query, int offset, int limit) {
-    return mapper(session).selectByQuery(organizationUuid, groupSearchToSql(query), new RowBounds(offset, limit));
+  public List<GroupDto> selectByQuery(DbSession session, @Nullable String query, int offset, int limit) {
+    return mapper(session).selectByQuery(groupSearchToSql(query), new RowBounds(offset, limit));
   }
 
   public GroupDto insert(DbSession session, GroupDto item) {
@@ -109,10 +104,6 @@ public class GroupDao implements Dao {
 
     String upperCasedNameQuery = StringUtils.upperCase(query, Locale.ENGLISH);
     return DaoUtils.buildLikeValue(upperCasedNameQuery, WildcardPosition.BEFORE_AND_AFTER);
-  }
-
-  public List<GroupDto> selectByOrganizationUuid(DbSession dbSession, String organizationUuid) {
-    return mapper(dbSession).selectByOrganizationUuid(organizationUuid);
   }
 
   private static GroupMapper mapper(DbSession session) {

@@ -355,7 +355,7 @@ public class SearchActionTest {
   @Test
   public void should_list_tags_ordered_by_count_then_by_name_in_tags_facet() {
     RuleDefinitionDto rule = db.rules().insert(setSystemTags("tag7", "tag5", "tag3", "tag1", "tag9"));
-    insertMetadata( rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
+    insertMetadata(rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
     db.rules().insert(setSystemTags("tag2"));
     indexRules();
 

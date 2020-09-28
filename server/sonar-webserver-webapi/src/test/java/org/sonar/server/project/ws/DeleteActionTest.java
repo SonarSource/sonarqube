@@ -87,7 +87,7 @@ public class DeleteActionTest {
   @Test
   public void organization_administrator_deletes_project_by_key() {
     ComponentDto project = componentDbTester.insertPrivateProject();
-    userSessionRule.logIn().addPermission(ADMINISTER, project.getOrganizationUuid());
+    userSessionRule.logIn().addPermission(ADMINISTER);
 
     call(tester.newRequest().setParam(PARAM_PROJECT, project.getDbKey()));
 

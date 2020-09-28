@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -57,25 +56,23 @@ public class CreateAction implements QProfileWsAction {
   private final QProfileExporters exporters;
   private final Languages languages;
   private final ProfileImporter[] importers;
-  private final QProfileWsSupport qProfileWsSupport;
   private final UserSession userSession;
   private final ActiveRuleIndexer activeRuleIndexer;
 
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages,
-    QProfileWsSupport qProfileWsSupport, UserSession userSession, ActiveRuleIndexer activeRuleIndexer, ProfileImporter... importers) {
+    UserSession userSession, ActiveRuleIndexer activeRuleIndexer, ProfileImporter... importers) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.exporters = exporters;
     this.languages = languages;
-    this.qProfileWsSupport = qProfileWsSupport;
     this.userSession = userSession;
     this.activeRuleIndexer = activeRuleIndexer;
     this.importers = importers;
   }
 
   public CreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages,
-    QProfileWsSupport qProfileWsSupport, UserSession userSession, ActiveRuleIndexer activeRuleIndexer) {
-    this(dbClient, profileFactory, exporters, languages, qProfileWsSupport, userSession, activeRuleIndexer, new ProfileImporter[0]);
+    UserSession userSession, ActiveRuleIndexer activeRuleIndexer) {
+    this(dbClient, profileFactory, exporters, languages, userSession, activeRuleIndexer, new ProfileImporter[0]);
   }
 
   @Override
@@ -110,8 +107,7 @@ public class CreateAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = qProfileWsSupport.getDefaultOrganization(dbSession);
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES);
       CreateRequest createRequest = toRequest(request);
       writeProtobuf(doHandle(dbSession, createRequest, request), request, response);
     }

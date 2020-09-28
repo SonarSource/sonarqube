@@ -31,11 +31,11 @@ import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -60,9 +60,7 @@ public class UserPermissionChangerTest {
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory());
-  private OrganizationDto org1;
-  private OrganizationDto org2;
+  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory(), TestDefaultOrganizationProvider.from(db));
   private UserDto user1;
   private UserDto user2;
   private ComponentDto privateProject;
@@ -70,48 +68,46 @@ public class UserPermissionChangerTest {
 
   @Before
   public void setUp() {
-    org1 = db.organizations().insert();
-    org2 = db.organizations().insert();
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
-    privateProject = db.components().insertPrivateProject(org1);
-    publicProject = db.components().insertPublicProject(org1);
+    privateProject = db.components().insertPrivateProject();
+    publicProject = db.components().insertPublicProject();
   }
 
   @Test
   public void apply_adds_any_organization_permission_to_user() {
     permissionService.getAllOrganizationPermissions().stream()
       .forEach(perm -> {
-        UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), perm.getKey(), null, UserId.from(user1), permissionService);
+        UserPermissionChange change = new UserPermissionChange(ADD, perm.getKey(), null, UserId.from(user1), permissionService);
 
         apply(change);
 
-        assertThat(db.users().selectPermissionsOfUser(user1, org1)).contains(perm);
+        assertThat(db.users().selectPermissionsOfUser(user1)).contains(perm);
       });
   }
 
   @Test
   public void apply_removes_any_organization_permission_to_user() {
     // give ADMIN perm to user2 so that user1 is not the only one with this permission and it can be removed from user1
-    db.users().insertPermissionOnUser(org1, user2, OrganizationPermission.ADMINISTER);
+    db.users().insertPermissionOnUser(user2, OrganizationPermission.ADMINISTER);
     permissionService.getAllOrganizationPermissions().stream()
-      .forEach(perm -> db.users().insertPermissionOnUser(org1, user1, perm));
-    assertThat(db.users().selectPermissionsOfUser(user1, org1))
+      .forEach(perm -> db.users().insertPermissionOnUser(user1, perm));
+    assertThat(db.users().selectPermissionsOfUser(user1))
       .containsOnly(permissionService.getAllOrganizationPermissions().toArray(new OrganizationPermission[0]));
 
     permissionService.getAllOrganizationPermissions().stream()
       .forEach(perm -> {
-        UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), perm.getKey(), null, UserId.from(user1), permissionService);
+        UserPermissionChange change = new UserPermissionChange(REMOVE, perm.getKey(), null, UserId.from(user1), permissionService);
 
         apply(change);
 
-        assertThat(db.users().selectPermissionsOfUser(user1, org1)).doesNotContain(perm);
+        assertThat(db.users().selectPermissionsOfUser(user1)).doesNotContain(perm);
       });
   }
 
   @Test
   public void apply_has_no_effect_when_adding_permission_USER_on_a_public_project() {
-    UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), USER, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(ADD, USER, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
 
     apply(change);
 
@@ -120,7 +116,7 @@ public class UserPermissionChangerTest {
 
   @Test
   public void apply_has_no_effect_when_adding_permission_CODEVIEWER_on_a_public_project() {
-    UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), CODEVIEWER, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(ADD, CODEVIEWER, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
 
     apply(change);
 
@@ -143,7 +139,7 @@ public class UserPermissionChangerTest {
   }
 
   private void applyAddsPermissionOnAPublicProject(String permission) {
-    UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), permission, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(ADD, permission, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
 
     apply(change);
 
@@ -152,7 +148,7 @@ public class UserPermissionChangerTest {
 
   @Test
   public void apply_fails_with_BadRequestException_when_removing_permission_USER_from_a_public_project() {
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), USER, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(REMOVE, USER, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Permission user can't be removed from a public component");
@@ -162,7 +158,7 @@ public class UserPermissionChangerTest {
 
   @Test
   public void apply_fails_with_BadRequestException_when_removing_permission_CODEVIEWER_from_a_public_project() {
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), CODEVIEWER, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(REMOVE, CODEVIEWER, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
@@ -187,7 +183,7 @@ public class UserPermissionChangerTest {
 
   private void applyRemovesPermissionFromPublicProject(String permission) {
     db.users().insertProjectPermissionOnUser(user1, permission, publicProject);
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), permission, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(REMOVE, permission, new ProjectUuid(publicProject), UserId.from(user1), permissionService);
 
     apply(change);
 
@@ -198,7 +194,7 @@ public class UserPermissionChangerTest {
   public void apply_adds_any_permission_to_a_private_project() {
     permissionService.getAllProjectPermissions()
       .forEach(permission -> {
-        UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), permission, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
+        UserPermissionChange change = new UserPermissionChange(ADD, permission, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
 
         apply(change);
 
@@ -213,7 +209,7 @@ public class UserPermissionChangerTest {
 
     permissionService.getAllProjectPermissions()
       .forEach(permission -> {
-        UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), permission, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
+        UserPermissionChange change = new UserPermissionChange(REMOVE, permission, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
 
         apply(change);
 
@@ -223,36 +219,35 @@ public class UserPermissionChangerTest {
 
   @Test
   public void add_global_permission_to_user() {
-    UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), SCAN_EXECUTION, null, UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(ADD, SCAN_EXECUTION, null, UserId.from(user1), permissionService);
 
     apply(change);
 
-    assertThat(db.users().selectPermissionsOfUser(user1, org1)).containsOnly(SCAN);
-    assertThat(db.users().selectPermissionsOfUser(user1, org2)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user1)).containsOnly(SCAN);
     assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).isEmpty();
-    assertThat(db.users().selectPermissionsOfUser(user2, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user2)).isEmpty();
     assertThat(db.users().selectProjectPermissionsOfUser(user2, privateProject)).isEmpty();
   }
 
   @Test
   public void add_project_permission_to_user() {
-    UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), ISSUE_ADMIN, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(ADD, ISSUE_ADMIN, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
     apply(change);
 
-    assertThat(db.users().selectPermissionsOfUser(user1, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user1)).isEmpty();
     assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).contains(ISSUE_ADMIN);
-    assertThat(db.users().selectPermissionsOfUser(user2, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user2)).isEmpty();
     assertThat(db.users().selectProjectPermissionsOfUser(user2, privateProject)).isEmpty();
   }
 
   @Test
   public void do_nothing_when_adding_global_permission_that_already_exists() {
-    db.users().insertPermissionOnUser(org1, user1, ADMINISTER_QUALITY_GATES);
+    db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_GATES);
 
-    UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), QUALITY_GATE_ADMIN, null, UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(ADD, QUALITY_GATE_ADMIN, null, UserId.from(user1), permissionService);
     apply(change);
 
-    assertThat(db.users().selectPermissionsOfUser(user1, org1)).containsOnly(ADMINISTER_QUALITY_GATES);
+    assertThat(db.users().selectPermissionsOfUser(user1)).containsOnly(ADMINISTER_QUALITY_GATES);
   }
 
   @Test
@@ -260,46 +255,44 @@ public class UserPermissionChangerTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Invalid project permission 'gateadmin'. Valid values are [" + StringUtils.join(permissionService.getAllProjectPermissions(), ", ") + "]");
 
-    UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), QUALITY_GATE_ADMIN, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(ADD, QUALITY_GATE_ADMIN, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
     apply(change);
   }
 
   @Test
-  public void fail_to_add_project_permission_on_organization() {
+  public void fail_to_add_project_permission() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Invalid global permission 'issueadmin'. Valid values are [admin, gateadmin, profileadmin, provisioning, scan]");
 
-    UserPermissionChange change = new UserPermissionChange(ADD, org1.getUuid(), ISSUE_ADMIN, null, UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(ADD, ISSUE_ADMIN, null, UserId.from(user1), permissionService);
     apply(change);
   }
 
   @Test
   public void remove_global_permission_from_user() {
-    db.users().insertPermissionOnUser(org1, user1, QUALITY_GATE_ADMIN);
-    db.users().insertPermissionOnUser(org1, user1, SCAN_EXECUTION);
-    db.users().insertPermissionOnUser(org2, user1, QUALITY_GATE_ADMIN);
-    db.users().insertPermissionOnUser(org1, user2, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(user1, QUALITY_GATE_ADMIN);
+    db.users().insertPermissionOnUser(user1, SCAN_EXECUTION);
+    db.users().insertPermissionOnUser(user2, QUALITY_GATE_ADMIN);
     db.users().insertProjectPermissionOnUser(user1, ISSUE_ADMIN, privateProject);
 
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), QUALITY_GATE_ADMIN, null, UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(REMOVE, QUALITY_GATE_ADMIN, null, UserId.from(user1), permissionService);
     apply(change);
 
-    assertThat(db.users().selectPermissionsOfUser(user1, org1)).containsOnly(SCAN);
-    assertThat(db.users().selectPermissionsOfUser(user1, org2)).containsOnly(ADMINISTER_QUALITY_GATES);
-    assertThat(db.users().selectPermissionsOfUser(user2, org1)).containsOnly(ADMINISTER_QUALITY_GATES);
+    assertThat(db.users().selectPermissionsOfUser(user1)).containsOnly(SCAN);
+    assertThat(db.users().selectPermissionsOfUser(user2)).containsOnly(ADMINISTER_QUALITY_GATES);
     assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).containsOnly(ISSUE_ADMIN);
   }
 
   @Test
   public void remove_project_permission_from_user() {
-    ComponentDto project2 = db.components().insertPrivateProject(org1);
+    ComponentDto project2 = db.components().insertPrivateProject();
     db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_GATES);
     db.users().insertProjectPermissionOnUser(user1, ISSUE_ADMIN, privateProject);
     db.users().insertProjectPermissionOnUser(user1, USER, privateProject);
     db.users().insertProjectPermissionOnUser(user2, ISSUE_ADMIN, privateProject);
     db.users().insertProjectPermissionOnUser(user1, ISSUE_ADMIN, project2);
 
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), ISSUE_ADMIN, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(REMOVE, ISSUE_ADMIN, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
     apply(change);
 
     assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).containsOnly(USER);
@@ -309,15 +302,15 @@ public class UserPermissionChangerTest {
 
   @Test
   public void do_not_fail_if_removing_a_global_permission_that_does_not_exist() {
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), QUALITY_GATE_ADMIN, null, UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(REMOVE, QUALITY_GATE_ADMIN, null, UserId.from(user1), permissionService);
     apply(change);
 
-    assertThat(db.users().selectPermissionsOfUser(user1, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user1)).isEmpty();
   }
 
   @Test
   public void do_not_fail_if_removing_a_project_permission_that_does_not_exist() {
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), ISSUE_ADMIN, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(REMOVE, ISSUE_ADMIN, new ProjectUuid(privateProject), UserId.from(user1), permissionService);
     apply(change);
 
     assertThat(db.users().selectProjectPermissionsOfUser(user1, privateProject)).isEmpty();
@@ -325,26 +318,26 @@ public class UserPermissionChangerTest {
 
   @Test
   public void fail_to_remove_admin_global_permission_if_no_more_admins() {
-    db.users().insertPermissionOnUser(org1, user1, SYSTEM_ADMIN);
+    db.users().insertPermissionOnUser(user1, SYSTEM_ADMIN);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Last user with permission 'admin'. Permission cannot be removed.");
 
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), SYSTEM_ADMIN, null, UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(REMOVE, SYSTEM_ADMIN, null, UserId.from(user1), permissionService);
     underTest.apply(db.getSession(), change);
   }
 
   @Test
   public void remove_admin_user_if_still_other_admins() {
-    db.users().insertPermissionOnUser(org1, user1, ADMINISTER);
-    GroupDto admins = db.users().insertGroup(org1, "admins");
+    db.users().insertPermissionOnUser(user1, ADMINISTER);
+    GroupDto admins = db.users().insertGroup("admins");
     db.users().insertMember(admins, user2);
     db.users().insertPermissionOnGroup(admins, ADMINISTER);
 
-    UserPermissionChange change = new UserPermissionChange(REMOVE, org1.getUuid(), ADMINISTER.getKey(), null, UserId.from(user1), permissionService);
+    UserPermissionChange change = new UserPermissionChange(REMOVE, ADMINISTER.getKey(), null, UserId.from(user1), permissionService);
     underTest.apply(db.getSession(), change);
 
-    assertThat(db.users().selectPermissionsOfUser(user1, org1)).isEmpty();
+    assertThat(db.users().selectPermissionsOfUser(user1)).isEmpty();
   }
 
   private void apply(UserPermissionChange change) {

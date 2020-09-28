@@ -522,7 +522,7 @@ public class PurgeCommandsTest {
   public void deletePermissions_deletes_permissions_of_public_project() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
-    addPermissions(organization, project);
+    addPermissions(project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deletePermissions(project.uuid());
@@ -535,7 +535,7 @@ public class PurgeCommandsTest {
   public void deletePermissions_deletes_permissions_of_private_project() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    addPermissions(organization, project);
+    addPermissions(project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deletePermissions(project.uuid());
@@ -548,7 +548,7 @@ public class PurgeCommandsTest {
   public void deletePermissions_deletes_permissions_of_view() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicPortfolio(organization);
-    addPermissions(organization, project);
+    addPermissions(project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deletePermissions(project.uuid());
@@ -642,13 +642,13 @@ public class PurgeCommandsTest {
     assertThat(dbTester.countRowsOfTable("user_dismissed_messages")).isEqualTo(1);
   }
 
-  private void addPermissions(OrganizationDto organization, ComponentDto root) {
+  private void addPermissions(ComponentDto root) {
     if (!root.isPrivate()) {
       dbTester.users().insertProjectPermissionOnAnyone("foo1", root);
-      dbTester.users().insertPermissionOnAnyone(organization, "not project level");
+      dbTester.users().insertPermissionOnAnyone("not project level");
     }
 
-    GroupDto group = dbTester.users().insertGroup(organization);
+    GroupDto group = dbTester.users().insertGroup();
     dbTester.users().insertProjectPermissionOnGroup(group, "bar", root);
     dbTester.users().insertPermissionOnGroup(group, "not project level");
 

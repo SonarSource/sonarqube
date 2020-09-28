@@ -25,7 +25,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateTesting;
 import org.sonar.server.exceptions.BadRequestException;
@@ -40,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -52,84 +50,78 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
 
   @Override
   protected SetDefaultTemplateAction buildWsAction() {
-    return new SetDefaultTemplateAction(db.getDbClient(), newPermissionWsSupport(), newRootResourceTypes(), userSession, i18n);
+    return new SetDefaultTemplateAction(db.getDbClient(), newPermissionWsSupport(), newRootResourceTypes(), userSession, i18n, defaultOrganizationProvider);
   }
 
   @Test
   public void update_project_default_template() {
-    PermissionTemplateDto portfolioDefaultTemplate = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
-    PermissionTemplateDto applicationDefaultTemplate = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()),
+    PermissionTemplateDto portfolioDefaultTemplate = db.permissionTemplates().insertTemplate();
+    PermissionTemplateDto applicationDefaultTemplate = db.permissionTemplates().insertTemplate();
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(),
       applicationDefaultTemplate, portfolioDefaultTemplate);
-    PermissionTemplateDto template = insertTemplate(db.getDefaultOrganization());
-    loginAsAdmin(db.getDefaultOrganization());
+    PermissionTemplateDto template = insertTemplate();
+    loginAsAdmin();
 
     newRequest(template.getUuid(), Qualifiers.PROJECT);
 
-    assertDefaultTemplates(db.getDefaultOrganization(), template.getUuid(), applicationDefaultTemplate.getUuid(), portfolioDefaultTemplate.getUuid());
+    assertDefaultTemplates(template.getUuid(), applicationDefaultTemplate.getUuid(), portfolioDefaultTemplate.getUuid());
   }
 
   @Test
   public void update_project_default_template_without_qualifier_param() {
-    OrganizationDto organization = db.organizations().insert();
-    db.organizations().setDefaultTemplates(organization, "any-project-template-uuid", "any-view-template-uuid", null);
-    PermissionTemplateDto template = insertTemplate(organization);
-    loginAsAdmin(organization);
+    db.organizations().setDefaultTemplates("any-project-template-uuid", "any-view-template-uuid", null);
+    PermissionTemplateDto template = insertTemplate();
+    loginAsAdmin();
 
     // default value is project qualifier's value
     newRequest(template.getUuid(), null);
 
-    assertDefaultTemplates(organization, template.getUuid(), "any-view-template-uuid", null);
+    assertDefaultTemplates(template.getUuid(), "any-view-template-uuid", null);
   }
 
   @Test
   public void update_project_default_template_by_template_name() {
-    OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto portfolioDefaultTemplate = db.permissionTemplates().insertTemplate(organization);
-    PermissionTemplateDto applicationDefaultTemplate = db.permissionTemplates().insertTemplate(organization);
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(organization), applicationDefaultTemplate, portfolioDefaultTemplate);
-    PermissionTemplateDto template = insertTemplate(organization);
-    loginAsAdmin(organization);
+    PermissionTemplateDto portfolioDefaultTemplate = db.permissionTemplates().insertTemplate();
+    PermissionTemplateDto applicationDefaultTemplate = db.permissionTemplates().insertTemplate();
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(), applicationDefaultTemplate, portfolioDefaultTemplate);
+    PermissionTemplateDto template = insertTemplate();
+    loginAsAdmin();
 
     newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_TEMPLATE_NAME, template.getName().toUpperCase())
       .execute();
     db.getSession().commit();
 
-    assertDefaultTemplates(organization, template.getUuid(), applicationDefaultTemplate.getUuid(), portfolioDefaultTemplate.getUuid());
+    assertDefaultTemplates(template.getUuid(), applicationDefaultTemplate.getUuid(), portfolioDefaultTemplate.getUuid());
   }
 
   @Test
   public void update_view_default_template() {
-    OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate();
     db.organizations().setDefaultTemplates(projectDefaultTemplate, null, null);
-    PermissionTemplateDto template = insertTemplate(organization);
-    loginAsAdmin(organization);
+    PermissionTemplateDto template = insertTemplate();
+    loginAsAdmin();
 
     newRequest(template.getUuid(), VIEW);
 
-    assertDefaultTemplates(organization, projectDefaultTemplate.getUuid(), null, template.getUuid());
+    assertDefaultTemplates(projectDefaultTemplate.getUuid(), null, template.getUuid());
   }
 
   @Test
   public void update_app_default_template() {
-    OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate();
     db.organizations().setDefaultTemplates(projectDefaultTemplate, null, null);
-    PermissionTemplateDto template = insertTemplate(organization);
-    loginAsAdmin(organization);
+    PermissionTemplateDto template = insertTemplate();
+    loginAsAdmin();
 
     newRequest(template.getUuid(), APP);
 
-    assertDefaultTemplates(organization, projectDefaultTemplate.getUuid(), template.getUuid(), null);
+    assertDefaultTemplates(projectDefaultTemplate.getUuid(), template.getUuid(), null);
   }
 
   @Test
   public void fail_if_anonymous() {
-    OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto template = insertTemplate(organization);
+    PermissionTemplateDto template = insertTemplate();
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
@@ -139,8 +131,7 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
 
   @Test
   public void fail_if_not_admin() {
-    OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto template = insertTemplate(organization);
+    PermissionTemplateDto template = insertTemplate();
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -164,9 +155,8 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
 
   @Test
   public void fail_if_qualifier_is_not_root() {
-    OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto template = insertTemplate(organization);
-    loginAsAdmin(organization);
+    PermissionTemplateDto template = insertTemplate();
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'qualifier' (FIL) must be one of: [APP, TRK, VW]");
@@ -175,13 +165,12 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
   }
 
   @Test
-  public void fail_if_organization_has_no_default_templates() {
-    OrganizationDto organization = db.organizations().insert();
-    PermissionTemplateDto template = insertTemplate(organization);
-    loginAsAdmin(organization);
+  public void fail_if_no_default_templates() {
+    PermissionTemplateDto template = insertTemplate();
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No Default templates for organization with uuid '" + organization.getUuid() + "'");
+    expectedException.expectMessage("No Default templates");
 
     newRequest(template.getUuid(), null);
   }
@@ -198,19 +187,18 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
     return request.execute().getInput();
   }
 
-  private PermissionTemplateDto insertTemplate(OrganizationDto organization) {
+  private PermissionTemplateDto insertTemplate() {
     PermissionTemplateDto res = dbClient.permissionTemplateDao().insert(db.getSession(), PermissionTemplateTesting.newPermissionTemplateDto()
-      .setOrganizationUuid(organization.getUuid())
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid("permission-template-uuid"));
     db.commit();
     return res;
   }
 
-  private void assertDefaultTemplates(OrganizationDto organizationDto, @Nullable String projectDefaultTemplateUuid,
-    @Nullable String applicationDefaultTemplateUuid, @Nullable String portfolioDefaultTemplateUuid) {
+  private void assertDefaultTemplates(@Nullable String projectDefaultTemplateUuid, @Nullable String applicationDefaultTemplateUuid, @Nullable String portfolioDefaultTemplateUuid) {
     DbSession dbSession = db.getSession();
-    DefaultTemplates defaultTemplates = db.getDbClient().organizationDao().getDefaultTemplates(dbSession, organizationDto.getUuid())
-      .orElseThrow(() -> new IllegalStateException("No default templates for organization with uuid '" + organizationDto.getUuid() + "'"));
+    DefaultTemplates defaultTemplates = db.getDbClient().organizationDao().getDefaultTemplates(dbSession, db.getDefaultOrganization().getUuid())
+      .orElseThrow(() -> new IllegalStateException("No default templates"));
 
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(projectDefaultTemplateUuid);
     assertThat(defaultTemplates.getApplicationsUuid()).isEqualTo(applicationDefaultTemplateUuid);

@@ -124,7 +124,7 @@ public class ShowAction implements NewCodePeriodsWsAction {
   private void checkPermission(ProjectDto project) {
     if (userSession.hasProjectPermission(UserRole.SCAN, project) ||
       userSession.hasProjectPermission(UserRole.ADMIN, project) ||
-      userSession.hasPermission(SCAN, project.getOrganizationUuid())) {
+      userSession.hasPermission(SCAN)) {
       return;
     }
     throw insufficientPrivilegesException();

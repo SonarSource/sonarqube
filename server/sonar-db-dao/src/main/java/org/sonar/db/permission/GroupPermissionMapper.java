@@ -33,24 +33,19 @@ public interface GroupPermissionMapper {
 
   int countGroupsByQuery(@Param("query") PermissionQuery query);
 
-  List<GroupPermissionDto> selectByGroupUuids(@Param("organizationUuid") String organizationUuid,
-    @Param("groupUuids") List<String> groupUuids, @Nullable @Param("projectUuid") String projectUuid);
+  List<GroupPermissionDto> selectByGroupUuids(@Param("groupUuids") List<String> groupUuids, @Nullable @Param("projectUuid") String projectUuid);
 
   void groupsCountByProjectUuidAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 
   void insert(GroupPermissionDto dto);
 
-  void delete(@Param("permission") String permission, @Param("organizationUuid") String organizationUuid,
-    @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("rootComponentUuid") String rootComponentUuid);
+  void delete(@Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid, @Nullable @Param("rootComponentUuid") String rootComponentUuid);
 
-  List<String> selectGlobalPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
-    @Nullable @Param("groupUuid") String groupUuid);
+  List<String> selectGlobalPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid);
 
-  List<String> selectProjectPermissionsOfGroup(@Param("organizationUuid") String organizationUuid,
-    @Nullable @Param("groupUuid") String groupUuid, @Param("projectUuid") String projectUuid);
+  List<String> selectProjectPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid, @Param("projectUuid") String projectUuid);
 
-  void selectAllPermissionsByGroupUuid(@Param("organizationUuid") String organizationUuid,
-    @Param("groupUuid") String groupUuid, ResultHandler resultHandler);
+  void selectAllPermissionsByGroupUuid(@Param("groupUuid") String groupUuid, ResultHandler resultHandler);
 
   /**
    * Lists uuid of groups with at least one permission on the specified root component but which do not have the specified
@@ -58,8 +53,6 @@ public interface GroupPermissionMapper {
    * {@code null}).
    */
   Set<String> selectGroupUuidsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("role") String permission);
-
-  void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
   void deleteByRootComponentUuid(@Param("rootComponentUuid") String rootComponentUuid);
 

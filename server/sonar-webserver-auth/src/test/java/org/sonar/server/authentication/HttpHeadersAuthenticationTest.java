@@ -34,7 +34,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -42,9 +41,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
@@ -97,17 +94,16 @@ public class HttpHeadersAuthenticationTest {
   private GroupDto sonarUsers;
 
   private System2 system2 = mock(System2.class);
-  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private UserRegistrarImpl userIdentityAuthenticator = new UserRegistrarImpl(
     db.getDbClient(),
-    new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider,
-      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
-    defaultOrganizationProvider, organizationFlags, new DefaultGroupFinder(db.getDbClient()), null);
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider),
+      settings.asConfig(),
+      localAuthentication),
+    new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider));
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
@@ -118,9 +114,9 @@ public class HttpHeadersAuthenticationTest {
   @Before
   public void setUp() {
     when(system2.now()).thenReturn(NOW);
-    group1 = db.users().insertGroup(db.getDefaultOrganization(), GROUP1);
-    group2 = db.users().insertGroup(db.getDefaultOrganization(), GROUP2);
-    sonarUsers = db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
+    group1 = db.users().insertGroup(GROUP1);
+    group2 = db.users().insertGroup(GROUP2);
+    sonarUsers = db.users().insertDefaultGroup("sonar-users");
   }
 
   @Test
@@ -433,7 +429,7 @@ public class HttpHeadersAuthenticationTest {
     if (expectedGroups.length == 0) {
       assertThat(db.users().selectGroupUuidsOfUser(userDto)).isEmpty();
     } else {
-      assertThat(db.users().selectGroupUuidsOfUser(userDto)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).collect(MoreCollectors.toList()).toArray(new String[] {}));
+      assertThat(db.users().selectGroupUuidsOfUser(userDto)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).toArray(String[]::new));
     }
   }
 
@@ -453,5 +449,4 @@ public class HttpHeadersAuthenticationTest {
   private void verifyTokenIsNotUpdated() {
     verify(jwtHttpHandler, never()).generateToken(any(UserDto.class), anyMap(), any(HttpServletRequest.class), any(HttpServletResponse.class));
   }
-
 }

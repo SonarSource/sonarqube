@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
@@ -33,39 +32,30 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
  * template name is provided, not both.
  */
 public class WsTemplateRef {
-
   private final String uuid;
-  private final String organization;
   private final String name;
 
-  private WsTemplateRef(@Nullable String uuid, @Nullable String organization, @Nullable String name) {
+  private WsTemplateRef(@Nullable String uuid, @Nullable String name) {
     checkRequest(uuid != null ^ name != null, "Template name or template id must be provided, not both.");
 
     this.uuid = uuid;
-    this.organization = organization;
     this.name = name;
   }
 
   public static WsTemplateRef fromRequest(Request wsRequest) {
     String uuid = wsRequest.param(PARAM_TEMPLATE_ID);
-    String organization = wsRequest.param(PARAM_ORGANIZATION);
     String name = wsRequest.param(PARAM_TEMPLATE_NAME);
 
-    return new WsTemplateRef(uuid, organization, name);
+    return new WsTemplateRef(uuid, name);
   }
 
-  public static WsTemplateRef newTemplateRef(@Nullable String uuid, @Nullable String organization, @Nullable String name) {
-    return new WsTemplateRef(uuid, organization, name);
+  public static WsTemplateRef newTemplateRef(@Nullable String uuid, @Nullable String name) {
+    return new WsTemplateRef(uuid, name);
   }
 
   @CheckForNull
   public String uuid() {
     return this.uuid;
-  }
-
-  @CheckForNull
-  public String getOrganization() {
-    return this.organization;
   }
 
   @CheckForNull

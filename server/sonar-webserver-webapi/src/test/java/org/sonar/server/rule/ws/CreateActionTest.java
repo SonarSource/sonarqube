@@ -89,7 +89,7 @@ public class CreateActionTest {
     assertThat(ws.getDef().responseExampleAsString()).isNotNull();
     assertThat(ws.getDef().description()).isNotNull();
   }
-  
+
   @Test
   public void create_custom_rule() {
     logInAsQProfileAdministrator();
@@ -237,7 +237,7 @@ public class CreateActionTest {
   private void logInAsQProfileAdministrator() {
     userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+      .addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
 }

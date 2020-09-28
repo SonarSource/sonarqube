@@ -30,10 +30,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.index.IssueIndex;
@@ -96,7 +94,7 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
     indexIssues();
-    userSession.logIn().addMembership(db.getDefaultOrganization());
+    userSession.logIn();
 
     AuthorsResponse result = ws.newRequest().executeProtobuf(AuthorsResponse.class);
 
@@ -114,7 +112,7 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
     indexIssues();
-    userSession.logIn().addMembership(db.getDefaultOrganization());
+    userSession.logIn();
 
     AuthorsResponse result = ws.newRequest()
       .setParam(TEXT_QUERY, "leia")
@@ -138,22 +136,22 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
     indexIssues();
-    userSession.logIn().addMembership(organization1);
+    userSession.logIn();
 
     assertThat(ws.newRequest()
       .setParam("organization", organization1.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
       .setParam("organization", organization1.getKey())
       .setParam(TEXT_QUERY, "eia")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
       .setParam("organization", organization1.getKey())
       .setParam(TEXT_QUERY, "luke")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .isEmpty();
+      .isEmpty();
   }
 
   @Test
@@ -168,25 +166,25 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
     indexIssues();
-    userSession.logIn().addMembership(organization);
+    userSession.logIn();
 
     assertThat(ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey())
       .setParam(TEXT_QUERY, "eia")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
     assertThat(ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam("project", project1.getKey())
       .setParam(TEXT_QUERY, "luke")
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .isEmpty();
+      .isEmpty();
 
     verify(issueIndexSyncProgressChecker, times(3)).checkIfComponentNeedIssueSync(any(), eq(project1.getKey()));
   }
@@ -203,12 +201,12 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     indexIssues();
     viewIndexer.indexOnStartup(emptySet());
-    userSession.logIn().addMembership(organization);
+    userSession.logIn();
 
     assertThat(ws.newRequest()
       .setParam("project", portfolio.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
   }
 
   @Test
@@ -223,12 +221,12 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     indexIssues();
     viewIndexer.indexOnStartup(emptySet());
-    userSession.logIn().addMembership(defaultOrganization);
+    userSession.logIn();
 
     assertThat(ws.newRequest()
       .setParam("project", application.getKey())
       .executeProtobuf(AuthorsResponse.class).getAuthorsList())
-        .containsExactlyInAnyOrder(leia);
+      .containsExactlyInAnyOrder(leia);
   }
 
   @Test
@@ -243,7 +241,7 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project1, project1, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project2, project2, issue -> issue.setAuthorLogin(luke));
     indexIssues();
-    userSession.logIn().addMembership(db.getDefaultOrganization());
+    userSession.logIn();
 
     AuthorsResponse result = ws.newRequest().executeProtobuf(AuthorsResponse.class);
 
@@ -264,7 +262,7 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
     indexIssues();
-    userSession.logIn().addMembership(db.getDefaultOrganization());
+    userSession.logIn();
 
     AuthorsResponse result = ws.newRequest()
       .setParam(PAGE_SIZE, "2")
@@ -276,26 +274,6 @@ public class AuthorsActionTest {
   }
 
   @Test
-  public void return_only_authors_from_issues_visible_by_current_user() {
-    String leia = "leia.organa";
-    String luke = "luke.skywalker";
-    RuleDefinitionDto rule = db.rules().insertIssueRule();
-    ComponentDto project = db.components().insertPrivateProject();
-    UserDto user = db.users().insertUser();
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(leia));
-    db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin(luke));
-    indexIssues();
-    userSession.logIn(user).addMembership(db.getDefaultOrganization());
-
-    // User has no permission on project
-    assertThat(ws.newRequest().executeProtobuf(AuthorsResponse.class).getAuthorsList()).isEmpty();
-
-    // User has no browse permission on project
-    permissionIndexer.allowOnlyUser(project, user);
-    assertThat(ws.newRequest().executeProtobuf(AuthorsResponse.class).getAuthorsList()).isNotEmpty();
-  }
-
-  @Test
   public void should_ignore_authors_of_hotspot() {
     String luke = "luke.skywalker";
     ComponentDto project = db.components().insertPrivateProject();
@@ -303,7 +281,7 @@ public class AuthorsActionTest {
     db.issues().insertHotspot(project, project, issue -> issue
       .setAuthorLogin(luke));
     indexIssues();
-    userSession.logIn().addMembership(db.getDefaultOrganization());
+    userSession.logIn();
 
     AuthorsResponse result = ws.newRequest().executeProtobuf(AuthorsResponse.class);
 
@@ -324,54 +302,9 @@ public class AuthorsActionTest {
   }
 
   @Test
-  public void fail_when_user_is_not_member_of_the_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto otherOrganization = db.organizations().insert();
-    userSession.logIn().addMembership(otherOrganization);
-
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .execute();
-  }
-
-  @Test
-  public void fail_when_organization_does_not_exist() {
-    userSession.logIn();
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No organization with key 'unknown'");
-
-    ws.newRequest()
-      .setParam("organization", "unknown")
-      .execute();
-  }
-
-  @Test
-  public void fail_when_project_does_not_belong_to_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto otherOrganization = db.organizations().insert();
-    userSession.logIn()
-      .addMembership(organization)
-      .addMembership(otherOrganization);
-    ComponentDto project = db.components().insertPrivateProject(otherOrganization);
-    permissionIndexer.allowOnlyAnyone(project);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("Project '%s' is not part of the organization '%s'", project.getKey(), organization.getKey()));
-
-    ws.newRequest()
-      .setParam("organization", organization.getKey())
-      .setParam("project", project.getKey())
-      .execute();
-  }
-
-  @Test
   public void fail_when_project_is_not_a_project() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.logIn().addMembership(organization);
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    userSession.logIn();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     permissionIndexer.allowOnlyAnyone(project);
 
@@ -379,7 +312,6 @@ public class AuthorsActionTest {
     expectedException.expectMessage(format("Component '%s' must be a project", file.getKey()));
 
     ws.newRequest()
-      .setParam("organization", organization.getKey())
       .setParam("project", file.getKey())
       .execute();
   }
@@ -387,7 +319,7 @@ public class AuthorsActionTest {
   @Test
   public void fail_when_project_does_not_exist() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn().addMembership(organization);
+    userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'unknown' not found");
@@ -406,7 +338,7 @@ public class AuthorsActionTest {
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("luke.skywalker"));
     db.issues().insertIssue(rule, project, project, issue -> issue.setAuthorLogin("leia.organa"));
     indexIssues();
-    userSession.logIn().addMembership(db.getDefaultOrganization());
+    userSession.logIn();
 
     String result = ws.newRequest().execute().getInput();
 

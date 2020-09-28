@@ -64,7 +64,7 @@ public class RegisterPermissionTemplatesTest {
   @Test
   public void fail_with_ISE_if_default_template_must_be_created_and_no_default_group_is_defined() {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Default group for organization " + db.getDefaultOrganization().getUuid() + " is not defined");
+    expectedException.expectMessage("Default group is not defined");
 
     underTest.start();
   }
@@ -74,7 +74,7 @@ public class RegisterPermissionTemplatesTest {
     setDefaultGroup(new GroupDto().setUuid("22"));
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Default group with id 22 for organization " + db.getDefaultOrganization().getUuid() + " doesn't exist");
+    expectedException.expectMessage("Default group with id 22 doesn't exist");
 
     underTest.start();
   }
@@ -82,7 +82,7 @@ public class RegisterPermissionTemplatesTest {
   @Test
   public void insert_default_permission_template_if_fresh_install_without_governance() {
     GroupDto defaultGroup = createAndSetDefaultGroup();
-    db.users().insertGroup(db.getDefaultOrganization(), DefaultGroups.ADMINISTRATORS);
+    db.users().insertGroup(DefaultGroups.ADMINISTRATORS);
 
     when(resourceTypes.isQualifierPresent(eq(Qualifiers.APP))).thenReturn(false);
     when(resourceTypes.isQualifierPresent(eq(Qualifiers.VIEW))).thenReturn(false);
@@ -109,7 +109,7 @@ public class RegisterPermissionTemplatesTest {
   @Test
   public void insert_default_permission_template_if_fresh_install_with_governance() {
     GroupDto defaultGroup = createAndSetDefaultGroup();
-    db.users().insertGroup(db.getDefaultOrganization(), DefaultGroups.ADMINISTRATORS);
+    db.users().insertGroup(DefaultGroups.ADMINISTRATORS);
 
     when(resourceTypes.isQualifierPresent(eq(Qualifiers.APP))).thenReturn(true);
     when(resourceTypes.isQualifierPresent(eq(Qualifiers.VIEW))).thenReturn(true);
@@ -168,8 +168,8 @@ public class RegisterPermissionTemplatesTest {
   @Test
   public void do_not_fail_if_default_template_exists_and_is_registered() {
     PermissionTemplateDto projectTemplate = db.permissionTemplates().insertTemplate(newPermissionTemplateDto()
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .setUuid(DEFAULT_TEMPLATE_UUID));
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .setUuid(DEFAULT_TEMPLATE_UUID));
     db.organizations().setDefaultTemplates(projectTemplate, null, null);
 
     underTest.start();
@@ -189,7 +189,7 @@ public class RegisterPermissionTemplatesTest {
     String expectedGroupName) {
     assertThat(
       groupPermissions.stream().anyMatch(gp -> gp.getPermission().equals(expectedPermission) && Objects.equals(gp.getGroupName(), expectedGroupName)))
-        .isTrue();
+      .isTrue();
   }
 
   private void verifyDefaultTemplates() {
@@ -205,7 +205,7 @@ public class RegisterPermissionTemplatesTest {
   }
 
   private GroupDto createAndSetDefaultGroup() {
-    GroupDto res = db.users().insertGroup(db.getDefaultOrganization());
+    GroupDto res = db.users().insertGroup();
     setDefaultGroup(res);
     return res;
   }

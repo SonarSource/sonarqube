@@ -96,10 +96,10 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       WsTemplateRef templateRef = WsTemplateRef.fromRequest(wsRequest);
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, templateRef);
-      checkGlobalAdmin(userSession, template.getOrganizationUuid());
+      checkGlobalAdmin(userSession);
 
-      PermissionQuery query = buildPermissionQuery(wsRequest, template);
-      int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getOrganizationUuid(), template.getUuid());
+      PermissionQuery query = buildPermissionQuery(wsRequest);
+      int total = dbClient.permissionTemplateDao().countGroupNamesByQueryAndTemplate(dbSession, query, template.getUuid());
       Paging paging = Paging.forPageIndex(wsRequest.mandatoryParamAsInt(PAGE)).withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE)).andTotal(total);
       List<GroupDto> groups = findGroups(dbSession, query, template);
       List<PermissionTemplateGroupDto> groupPermissions = findGroupPermissions(dbSession, groups, template);
@@ -108,11 +108,10 @@ public class TemplateGroupsAction implements PermissionsWsAction {
     }
   }
 
-  private PermissionQuery buildPermissionQuery(Request request, PermissionTemplateDto template) {
+  private PermissionQuery buildPermissionQuery(Request request) {
     String textQuery = request.param(TEXT_QUERY);
     String permission = request.param(PARAM_PERMISSION);
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
-      .setOrganizationUuid(template.getOrganizationUuid())
       .setPermission(permission != null ? requestValidator.validateProjectPermission(permission) : null)
       .setPageIndex(request.mandatoryParamAsInt(PAGE))
       .setPageSize(request.mandatoryParamAsInt(PAGE_SIZE))
@@ -144,7 +143,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
 
   private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery, PermissionTemplateDto template) {
     List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getUuid());
-    List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, template.getOrganizationUuid(), orderedNames);
+    List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, orderedNames);
     if (orderedNames.contains(DefaultGroups.ANYONE)) {
       groups.add(0, new GroupDto().setUuid(DefaultGroups.ANYONE).setName(DefaultGroups.ANYONE));
     }

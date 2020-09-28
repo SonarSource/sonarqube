@@ -120,7 +120,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-        "If no visibility is specified, the default project visibility of the organization will be used.",
+          "If no visibility is specified, the default project visibility of the organization will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -149,11 +149,11 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
   private void doHandle(BulkApplyTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
-        request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
-      checkGlobalAdmin(userSession, template.getOrganizationUuid());
+        request.getTemplateId(), request.getTemplateName()));
+      checkGlobalAdmin(userSession);
 
       ComponentQuery componentQuery = buildDbQuery(request);
-      List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, template.getOrganizationUuid(), componentQuery, 0, Integer.MAX_VALUE);
+      List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, componentQuery, 0, Integer.MAX_VALUE);
 
       permissionTemplateService.applyAndCommit(dbSession, template, projects);
     }

@@ -38,7 +38,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -80,19 +79,18 @@ public class CreateActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-  private GroupDto defaultGroupInDefaultOrg;
+  private GroupDto defaultGroup;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
   private WsActionTester tester = new WsActionTester(new CreateAction(
     db.getDbClient(),
-    new UserUpdater(system2, mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider,
-      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultOrganizationProvider,
+      new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider), settings.asConfig(), localAuthentication),
     userSessionRule));
 
   @Before
   public void setUp() {
-    defaultGroupInDefaultOrg = db.users().insertDefaultGroup(db.getDefaultOrganization(), DEFAULT_GROUP_NAME);
+    defaultGroup = db.users().insertDefaultGroup(DEFAULT_GROUP_NAME);
   }
 
   @Test
@@ -126,23 +124,7 @@ public class CreateActionTest {
     assertThat(dbUser.get().isRoot()).isFalse();
 
     // member of default group in default organization
-    assertThat(db.users().selectGroupUuidsOfUser(dbUser.get())).containsOnly(defaultGroupInDefaultOrg.getUuid());
-  }
-
-  @Test
-  public void create_user_associates_him_to_default_organization() {
-    logInAsSystemAdministrator();
-    enableCreatePersonalOrg(true);
-
-    call(CreateRequest.builder()
-      .setLogin("john")
-      .setName("John")
-      .setPassword("1234")
-      .build());
-
-    Optional<UserDto> dbUser = db.users().selectUserByLogin("john");
-    assertThat(dbUser).isPresent();
-    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dbUser.get().getUuid())).isPresent();
+    assertThat(db.users().selectGroupUuidsOfUser(dbUser.get())).containsOnly(defaultGroup.getUuid());
   }
 
   @Test

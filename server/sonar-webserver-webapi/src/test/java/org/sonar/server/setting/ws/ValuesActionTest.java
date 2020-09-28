@@ -522,7 +522,7 @@ public class ValuesActionTest {
 
   @Test
   public void return_global_secured_settings_when_not_authenticated_but_with_scan_permission() {
-    userSession.anonymous().addPermission(SCAN, db.getDefaultOrganization());
+    userSession.anonymous().addPermission(SCAN);
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build()));
@@ -803,13 +803,13 @@ public class ValuesActionTest {
 
     // organization administrator but not system administrator
     userSession.logIn()
-      .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization());
+      .addPermission(OrganizationPermission.SCAN);
     response = executeRequest(tester, null, securedDef.key(), standardDef.key());
     assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactly("standardValue");
 
     // organization administrator
     userSession.logIn()
-      .addPermission(OrganizationPermission.ADMINISTER, db.getDefaultOrganization());
+      .addPermission(OrganizationPermission.ADMINISTER);
     response = executeRequest(tester, null, securedDef.key(), standardDef.key());
     assertThat(response.getSettingsList()).extracting(Settings.Setting::getValue).containsExactly("standardValue");
 

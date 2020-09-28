@@ -24,16 +24,15 @@ import java.util.Collections;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.AbstractUserSession;
 
 @Immutable
 public class SafeModeUserSession extends AbstractUserSession {
-  
+
   @Override
-  protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
+  protected boolean hasPermissionImpl(OrganizationPermission permission) {
     return false;
   }
 
@@ -44,11 +43,6 @@ public class SafeModeUserSession extends AbstractUserSession {
 
   @Override
   protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
-    return false;
-  }
-
-  @Override
-  protected boolean hasMembershipImpl(OrganizationDto organizationDto) {
     return false;
   }
 

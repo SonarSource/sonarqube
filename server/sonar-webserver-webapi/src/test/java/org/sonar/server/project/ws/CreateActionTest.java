@@ -96,7 +96,7 @@ public class CreateActionTest {
 
   @Test
   public void create_project() {
-    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+    userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse response = call(CreateRequest.builder()
       .setProjectKey(DEFAULT_PROJECT_KEY)
@@ -114,7 +114,7 @@ public class CreateActionTest {
   @Test
   public void apply_project_visibility_public() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(PROVISION_PROJECTS, organization);
+    userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
@@ -129,7 +129,7 @@ public class CreateActionTest {
   @Test
   public void apply_project_visibility_private() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(PROVISION_PROJECTS, organization);
+    userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
@@ -145,7 +145,7 @@ public class CreateActionTest {
   public void apply_default_project_visibility_public() {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setNewProjectPrivate(organization, false);
-    userSession.addPermission(PROVISION_PROJECTS, organization);
+    userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
@@ -160,7 +160,7 @@ public class CreateActionTest {
   public void apply_default_project_visibility_private() {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setNewProjectPrivate(organization, true);
-    userSession.addPermission(PROVISION_PROJECTS, organization);
+    userSession.addPermission(PROVISION_PROJECTS);
 
     CreateWsResponse result = ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
@@ -174,7 +174,7 @@ public class CreateActionTest {
   @Test
   public void does_not_fail_to_create_public_projects_when_organization_is_not_allowed_to_use_private_projects() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(PROVISION_PROJECTS, organization);
+    userSession.addPermission(PROVISION_PROJECTS);
     doThrow(new BillingValidationsException("This organization cannot use project private")).when(billingValidations)
       .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
 
@@ -191,7 +191,7 @@ public class CreateActionTest {
   @Test
   public void abbreviate_project_name_if_very_long() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(PROVISION_PROJECTS, organization);
+    userSession.addPermission(PROVISION_PROJECTS);
     String longName = Strings.repeat("a", 1_000);
 
     ws.newRequest()
@@ -209,7 +209,7 @@ public class CreateActionTest {
     OrganizationDto organization = db.organizations().insert();
     UserDto user = db.users().insertUser();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS, organization);
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
     ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
@@ -227,7 +227,7 @@ public class CreateActionTest {
     UserDto user = db.users().insertUser();
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
     rangeClosed(1, 100).forEach(i -> db.favorites().add(db.components().insertPrivateProject(), user.getUuid()));
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS, organization);
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
 
     ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)
@@ -242,7 +242,7 @@ public class CreateActionTest {
   @Test
   public void fail_to_create_private_projects_when_organization_is_not_allowed_to_use_private_projects() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(PROVISION_PROJECTS, organization);
+    userSession.addPermission(PROVISION_PROJECTS);
     doThrow(new BillingValidationsException("This organization cannot use project private")).when(billingValidations)
       .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
 
@@ -261,7 +261,7 @@ public class CreateActionTest {
   public void fail_when_project_already_exists() {
     OrganizationDto organization = db.organizations().insert();
     db.components().insertPublicProject(project -> project.setDbKey(DEFAULT_PROJECT_KEY));
-    userSession.addPermission(PROVISION_PROJECTS, organization);
+    userSession.addPermission(PROVISION_PROJECTS);
 
     expectedException.expect(BadRequestException.class);
 
@@ -274,7 +274,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_invalid_project_key() {
-    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+    userSession.addPermission(PROVISION_PROJECTS);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Malformed key for Project: 'project%Key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
@@ -287,7 +287,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_project_parameter() {
-    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+    userSession.addPermission(PROVISION_PROJECTS);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'project' parameter is missing");
@@ -297,7 +297,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_name_parameter() {
-    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+    userSession.addPermission(PROVISION_PROJECTS);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'name' parameter is missing");
@@ -314,7 +314,7 @@ public class CreateActionTest {
 
   @Test
   public void test_example() {
-    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+    userSession.addPermission(PROVISION_PROJECTS);
 
     String result = ws.newRequest()
       .setParam("project", DEFAULT_PROJECT_KEY)

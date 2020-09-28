@@ -35,13 +35,14 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.DefaultTemplatesResolverRule;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -60,7 +61,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private PermissionTemplateDto template2;
 
   private PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-    new TestProjectIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory());
+    new TestProjectIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory(), defaultOrganizationProvider);
 
   @Override
   protected ApplyTemplateAction buildWsAction() {
@@ -77,13 +78,13 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     group2 = db.users().insertGroup();
 
     // template 1
-    template1 = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
+    template1 = db.permissionTemplates().insertTemplate();
     addUserToTemplate(user1, template1, UserRole.CODEVIEWER);
     addUserToTemplate(user2, template1, UserRole.ISSUE_ADMIN);
     addGroupToTemplate(group1, template1, UserRole.ADMIN);
     addGroupToTemplate(group2, template1, UserRole.USER);
     // template 2
-    template2 = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
+    template2 = db.permissionTemplates().insertTemplate();
     addUserToTemplate(user1, template2, UserRole.USER);
     addUserToTemplate(user2, template2, UserRole.USER);
     addGroupToTemplate(group1, template2, UserRole.USER);
@@ -98,7 +99,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void apply_template_with_project_uuid() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     newRequest(template1.getUuid(), project.uuid(), null);
 
@@ -107,7 +108,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void apply_template_with_project_uuid_by_template_name() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     newRequest()
       .setParam(PARAM_TEMPLATE_NAME, template1.getName().toUpperCase())
@@ -119,7 +120,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void apply_template_with_project_key() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     newRequest(template1.getUuid(), null, project.getDbKey());
 
@@ -128,7 +129,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_unknown_template() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-template-uuid' is not found");
@@ -138,7 +139,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_unknown_project_uuid() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Project id 'unknown-project-uuid' not found");
@@ -148,7 +149,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_unknown_project_key() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Project key 'unknown-project-key' not found");
@@ -158,7 +159,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_template_is_not_provided() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
 
@@ -167,7 +168,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
 
   @Test
   public void fail_when_project_uuid_and_key_not_provided() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Project id or project key can be provided, not both.");
@@ -176,8 +177,8 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   @Test
-  public void fail_when_not_admin_of_organization() {
-    userSession.logIn().addPermission(ADMINISTER, "otherOrg");
+  public void fail_when_not_admin() {
+    userSession.logIn().addPermission(SCAN);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -217,12 +218,12 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   }
 
   private List<String> selectProjectPermissionGroups(ComponentDto project, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project.getOrganizationUuid()).setPermission(permission).setComponent(project).build();
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponent(project).build();
     return db.getDbClient().groupPermissionDao().selectGroupNamesByQuery(db.getSession(), query);
   }
 
   private List<String> selectProjectPermissionUsers(ComponentDto project, String permission) {
-    PermissionQuery query = PermissionQuery.builder().setOrganizationUuid(project.getOrganizationUuid()).setPermission(permission).setComponent(project).build();
+    PermissionQuery query = PermissionQuery.builder().setPermission(permission).setComponent(project).build();
     return db.getDbClient().userPermissionDao().selectUserUuidsByQuery(db.getSession(), query);
   }
 }

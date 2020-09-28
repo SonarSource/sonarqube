@@ -297,7 +297,7 @@ public class SearchActionTest {
       ProjectDto project = db.components().insertPublicProjectDto(organization);
       db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     }
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     SearchResponse response = ws.newRequest()
       .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))
@@ -322,7 +322,7 @@ public class SearchActionTest {
       ProjectDto project = db.components().insertPublicProjectDto(organization);
       db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     }
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     SearchResponse response = ws.newRequest()
       .setParam(PARAM_GATE_ID, valueOf(qualityGate.getUuid()))

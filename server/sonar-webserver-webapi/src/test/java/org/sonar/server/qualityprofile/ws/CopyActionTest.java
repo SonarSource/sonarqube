@@ -94,8 +94,7 @@ public class CopyActionTest {
 
   @Test
   public void example() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
     QProfileDto parent = db.qualityProfiles().insert(p -> p.setKee("AU-TpxcA-iU5OvuD2FL2"));
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setKee("old")
       .setLanguage("Java")
@@ -114,8 +113,7 @@ public class CopyActionTest {
 
   @Test
   public void create_profile_with_specified_name_and_copy_rules_from_source_profile() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
 
     QProfileDto sourceProfile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
     TestResponse response = tester.newRequest()
@@ -146,8 +144,7 @@ public class CopyActionTest {
 
   @Test
   public void copy_rules_on_existing_profile_in_default_organization() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
     QProfileDto sourceProfile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
     QProfileDto targetProfile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
 
@@ -174,8 +171,7 @@ public class CopyActionTest {
 
   @Test
   public void create_profile_with_same_parent_as_source_profile() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
 
     QProfileDto parentProfile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
     QProfileDto sourceProfile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE).setParentKee(parentProfile.getKee()));
@@ -222,9 +218,8 @@ public class CopyActionTest {
 
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator_of_organization() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
-    userSession.logIn().addPermission(OrganizationPermission.SCAN, organization);
+    userSession.logIn().addPermission(OrganizationPermission.SCAN);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -238,9 +233,8 @@ public class CopyActionTest {
 
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(A_LANGUAGE));
-    userSession.logIn().addPermission(OrganizationPermission.SCAN, organization);
+    userSession.logIn().addPermission(OrganizationPermission.SCAN);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -254,8 +248,7 @@ public class CopyActionTest {
 
   @Test
   public void fail_if_parameter_fromKey_is_missing() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'fromKey' parameter is missing");
@@ -267,8 +260,7 @@ public class CopyActionTest {
 
   @Test
   public void fail_if_parameter_toName_is_missing() {
-    OrganizationDto organization = db.organizations().getDefaultOrganization();
-    logInAsQProfileAdministrator(organization);
+    logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'toName' parameter is missing");
@@ -278,10 +270,10 @@ public class CopyActionTest {
       .execute();
   }
 
-  private void logInAsQProfileAdministrator(OrganizationDto organization) {
+  private void logInAsQProfileAdministrator() {
     userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+      .addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
   private static class TestBackuper implements QProfileBackuper {

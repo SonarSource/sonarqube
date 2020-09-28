@@ -24,6 +24,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -38,10 +39,12 @@ public class UserPermissionChanger {
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UserPermissionChanger(DbClient dbClient, UuidFactory uuidFactory) {
+  public UserPermissionChanger(DbClient dbClient, UuidFactory uuidFactory, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public boolean apply(DbSession dbSession, UserPermissionChange change) {
@@ -93,9 +96,9 @@ public class UserPermissionChanger {
     if (loadExistingPermissions(dbSession, change).contains(change.getPermission())) {
       return false;
     }
-    UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getOrganizationUuid(), change.getPermission(), change.getUserId().getUuid(),
+    UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getPermission(), change.getUserId().getUuid(),
       change.getProjectUuid());
-    dbClient.userPermissionDao().insert(dbSession, dto);
+    dbClient.userPermissionDao().insert(dbSession, dto, defaultOrganizationProvider.get().getUuid());
     return true;
   }
 
@@ -108,7 +111,7 @@ public class UserPermissionChanger {
     if (projectUuid != null) {
       dbClient.userPermissionDao().deleteProjectPermission(dbSession, change.getUserId().getUuid(), change.getPermission(), projectUuid);
     } else {
-      dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getUuid(), change.getPermission(), change.getOrganizationUuid());
+      dbClient.userPermissionDao().deleteGlobalPermission(dbSession, change.getUserId().getUuid(), change.getPermission());
     }
     return true;
   }
@@ -118,15 +121,12 @@ public class UserPermissionChanger {
     if (projectUuid != null) {
       return dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, change.getUserId().getUuid(), projectUuid);
     }
-    return dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession,
-      change.getUserId().getUuid(),
-      change.getOrganizationUuid());
+    return dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, change.getUserId().getUuid());
   }
 
   private void checkOtherAdminsExist(DbSession dbSession, UserPermissionChange change) {
     if (SYSTEM_ADMIN.equals(change.getPermission()) && change.getProjectUuid() == null) {
-      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUserPermission(dbSession,
-        change.getOrganizationUuid(), change.getPermission(), change.getUserId().getUuid());
+      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingUserPermission(dbSession, change.getPermission(), change.getUserId().getUuid());
       checkRequest(remaining > 0, "Last user with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN);
     }
   }

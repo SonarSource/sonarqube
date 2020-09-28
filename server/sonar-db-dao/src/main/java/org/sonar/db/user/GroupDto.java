@@ -28,7 +28,6 @@ public class GroupDto {
   private String uuid;
   private String name;
   private String description;
-  private String organizationUuid;
   private Date createdAt;
   private Date updatedAt;
 
@@ -60,15 +59,6 @@ public class GroupDto {
     return this;
   }
 
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public GroupDto setOrganizationUuid(String s) {
-    this.organizationUuid = s;
-    return this;
-  }
-
   public GroupDto setCreatedAt(Date d) {
     this.createdAt = d;
     return this;
@@ -93,7 +83,6 @@ public class GroupDto {
     sb.append("id=").append(uuid);
     sb.append(", name='").append(name).append('\'');
     sb.append(", description='").append(description).append('\'');
-    sb.append(", organizationUuid='").append(organizationUuid).append('\'');
     sb.append(", createdAt=").append(createdAt);
     sb.append(", updatedAt=").append(updatedAt);
     sb.append('}');

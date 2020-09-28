@@ -117,6 +117,7 @@ public class SetDefaultActionTest {
 
     checkDefaultProfile(XOO_1_KEY, xoo1Profile.getKee());
     checkDefaultProfile(XOO_2_KEY, xoo2Profile.getKee());
+
   }
 
   @Test
@@ -162,7 +163,7 @@ public class SetDefaultActionTest {
   private void logInAsQProfileAdministrator() {
     userSessionRule
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
+      .addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
   private void checkDefaultProfile(String language, String key) {

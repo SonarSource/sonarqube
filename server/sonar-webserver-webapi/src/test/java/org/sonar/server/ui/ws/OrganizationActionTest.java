@@ -36,7 +36,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.AlmAppInstallDto;
 import org.sonar.db.alm.OrganizationAlmBindingDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -83,7 +82,7 @@ public class OrganizationActionTest {
       Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
     OrganizationDto organization = db.organizations().insert();
     userSession.logIn()
-      .addPermission(PROVISION_PROJECTS, organization);
+      .addPermission(PROVISION_PROJECTS);
 
     TestResponse response = executeRequest(organization);
 
@@ -96,7 +95,7 @@ public class OrganizationActionTest {
   public void returns_project_visibility_private() {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setNewProjectPrivate(organization, true);
-    userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
 
     TestResponse response = executeRequest(organization);
 
@@ -107,7 +106,7 @@ public class OrganizationActionTest {
   public void returns_project_visibility_public() {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setNewProjectPrivate(organization, false);
-    userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
 
     TestResponse response = executeRequest(organization);
 
@@ -122,11 +121,11 @@ public class OrganizationActionTest {
     when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(true);
     verifyCanUpdateProjectsVisibilityToPrivateResponse(executeRequest(db.getDefaultOrganization()), false);
 
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganization);
+    userSession.logIn().addPermission(ADMINISTER);
     when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(false);
     verifyCanUpdateProjectsVisibilityToPrivateResponse(executeRequest(db.getDefaultOrganization()), false);
 
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganization);
+    userSession.logIn().addPermission(ADMINISTER);
     when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(true);
     verifyCanUpdateProjectsVisibilityToPrivateResponse(executeRequest(db.getDefaultOrganization()), true);
   }
@@ -152,7 +151,6 @@ public class OrganizationActionTest {
   @Test
   public void return_PAID_subscription_flag() {
     OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
-    userSession.logIn().addMembership(paidOrganization);
 
     TestResponse response = executeRequest(paidOrganization);
 
@@ -168,17 +166,6 @@ public class OrganizationActionTest {
     TestResponse response = executeRequest(paidOrganization);
 
     assertJson(response.getInput()).isSimilarTo("{\"organization\": {\"subscription\": \"PAID\"}}");
-  }
-
-  @Test
-  public void throw_FE_when_not_member_on_private_organization_and_no_public_project() {
-    OrganizationDto paidOrganization = db.organizations().insert(o -> o.setSubscription(PAID));
-    db.components().insertPrivateProject(paidOrganization);
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("You're not member of organization");
-
-    executeRequest(paidOrganization);
   }
 
   @Test
@@ -216,8 +203,8 @@ public class OrganizationActionTest {
       Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
     OrganizationDto organization = db.organizations().insert();
     userSession.logIn()
-      .addPermission(ADMINISTER, organization)
-      .addPermission(PROVISION_PROJECTS, organization);
+      .addPermission(ADMINISTER)
+      .addPermission(PROVISION_PROJECTS);
 
     TestResponse response = executeRequest(organization);
 

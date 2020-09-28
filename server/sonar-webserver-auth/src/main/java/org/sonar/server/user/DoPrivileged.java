@@ -22,7 +22,6 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 
@@ -108,7 +107,7 @@ public final class DoPrivileged {
       }
 
       @Override
-      protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
+      protected boolean hasPermissionImpl(OrganizationPermission permission) {
         return true;
       }
 
@@ -128,10 +127,6 @@ public final class DoPrivileged {
         return true;
       }
 
-      @Override
-      public boolean hasMembershipImpl(OrganizationDto organizationDto) {
-        return true;
-      }
     }
 
     private void start() {

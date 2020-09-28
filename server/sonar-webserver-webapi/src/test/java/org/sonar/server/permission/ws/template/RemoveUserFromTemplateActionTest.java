@@ -59,7 +59,6 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   private WsParameters wsParameters = new WsParameters(permissionService);
   private RequestValidator requestValidator = new RequestValidator(permissionService);
 
-
   @Override
   protected RemoveUserFromTemplateAction buildWsAction() {
     return new RemoveUserFromTemplateAction(db.getDbClient(), newPermissionWsSupport(), userSession, wsParameters, requestValidator);
@@ -69,13 +68,13 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   public void setUp() {
     user = db.users().insertUser("user-login");
     db.organizations().addMember(db.getDefaultOrganization(), user);
-    template = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
+    template = db.permissionTemplates().insertTemplate();
     addUserToTemplate(user, template, DEFAULT_PERMISSION);
   }
 
   @Test
   public void remove_user_from_template() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(template, DEFAULT_PERMISSION)).isEmpty();
@@ -83,7 +82,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void remove_user_from_template_by_name_case_insensitive() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, DEFAULT_PERMISSION)
@@ -95,7 +94,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void remove_user_from_template_twice_without_failing() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
@@ -106,7 +105,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   public void keep_user_permission_not_removed() {
     addUserToTemplate(user, template, ISSUE_ADMIN);
 
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(template, DEFAULT_PERMISSION)).isEmpty();
@@ -119,7 +118,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
     db.organizations().addMember(db.getDefaultOrganization(), newUser);
     addUserToTemplate(newUser, template, DEFAULT_PERMISSION);
 
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
     newRequest(user.getLogin(), template.getUuid(), DEFAULT_PERMISSION);
 
     assertThat(getLoginsInTemplateAndPermission(template, DEFAULT_PERMISSION)).containsExactly("new-login");
@@ -127,7 +126,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void fail_if_not_a_project_permission() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -154,7 +153,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void fail_if_user_missing() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -163,7 +162,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void fail_if_permission_missing() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -172,7 +171,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void fail_if_template_missing() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
 
@@ -181,7 +180,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void fail_if_user_does_not_exist() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' is not found");
@@ -191,7 +190,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
 
   @Test
   public void fail_if_template_key_does_not_exist() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with id 'unknown-key' is not found");
@@ -215,7 +214,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   }
 
   private List<String> getLoginsInTemplateAndPermission(PermissionTemplateDto template, String permission) {
-    PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(template.getOrganizationUuid()).setPermission(permission).build();
+    PermissionQuery permissionQuery = PermissionQuery.builder().setPermission(permission).build();
     return db.getDbClient().permissionTemplateDao()
       .selectUserLoginsByQueryAndTemplate(db.getSession(), permissionQuery, template.getUuid());
   }

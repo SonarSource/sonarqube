@@ -63,7 +63,6 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -167,7 +166,7 @@ public class DeactivateActionTest {
 
     deactivate(user.getLogin());
 
-    assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getUuid(), db.getDefaultOrganization().getUuid())).isEmpty();
+    assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getUuid())).isEmpty();
     assertThat(db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getUuid(), project.uuid())).isEmpty();
   }
 
@@ -362,7 +361,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void fail_to_deactivate_last_administrator_of_default_organization() {
+  public void fail_to_deactivate_last_administrator() {
     UserDto admin = db.users().insertUser();
     db.users().insertPermissionOnUser(admin, ADMINISTER);
     logInAsSystemAdministrator();
@@ -371,27 +370,6 @@ public class DeactivateActionTest {
     expectedException.expectMessage("User is last administrator, and cannot be deactivated");
 
     deactivate(admin.getLogin());
-  }
-
-  @Test
-  public void fail_to_deactivate_last_administrator_of_organization() {
-    // user1 is the unique administrator of org1 and org2.
-    // user1 and user2 are both administrators of org3
-    UserDto user1 = db.users().insertUser(u -> u.setLogin("test"));
-    OrganizationDto org1 = db.organizations().insert(newOrganizationDto().setKey("org1"));
-    OrganizationDto org2 = db.organizations().insert(newOrganizationDto().setKey("org2"));
-    OrganizationDto org3 = db.organizations().insert(newOrganizationDto().setKey("org3"));
-    db.users().insertPermissionOnUser(org1, user1, ADMINISTER);
-    db.users().insertPermissionOnUser(org2, user1, ADMINISTER);
-    db.users().insertPermissionOnUser(org3, user1, ADMINISTER);
-    UserDto user2 = db.users().insertUser();
-    db.users().insertPermissionOnUser(org3, user2, ADMINISTER);
-    logInAsSystemAdministrator();
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("User 'test' is last administrator of organizations [org1, org2], and cannot be deactivated");
-
-    deactivate(user1.getLogin());
   }
 
   @Test

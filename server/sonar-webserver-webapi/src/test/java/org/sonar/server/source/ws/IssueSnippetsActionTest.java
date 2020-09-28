@@ -32,7 +32,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.protobuf.DbIssues;
@@ -49,7 +48,6 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -75,14 +73,12 @@ public class IssueSnippetsActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private FileSourceTester fileSourceTester = new FileSourceTester(db);
-  private OrganizationDto organization;
   private ComponentDto project;
   private WsActionTester actionTester;
 
   @Before
   public void setUp() {
-    organization = db.organizations().insert();
-    project = db.components().insertPrivateProject(organization, "projectUuid");
+    project = db.components().insertPrivateProject(db.getDefaultOrganization(), "projectUuid");
 
     HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
     when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString()))
@@ -207,9 +203,7 @@ public class IssueSnippetsActionTest {
 
     TestResponse response = actionTester.newRequest().setParam("issueKey", issueKey1).execute();
     JsonAssert.assertJson(response.getInput())
-      .ignoreFields(SCM_AUTHOR_JSON_FIELD)
       .isSimilarTo(toUrl("issue_snippets_multiple_locations.json"));
-    assertThat(response.getInput()).doesNotContain(SCM_AUTHOR_JSON_FIELD);
   }
 
   @Test
@@ -227,30 +221,7 @@ public class IssueSnippetsActionTest {
 
     TestResponse response = actionTester.newRequest().setParam("issueKey", issueKey1).execute();
     JsonAssert.assertJson(response.getInput())
-      .ignoreFields(SCM_AUTHOR_JSON_FIELD)
       .isSimilarTo(toUrl("issue_snippets_close_to_each_other.json"));
-    assertThat(response.getInput()).doesNotContain(SCM_AUTHOR_JSON_FIELD);
-  }
-
-  @Test
-  public void returns_scmAuthors_if_user_belongs_to_organization_of_project_of_issue() {
-    ComponentDto file1 = insertFile(project, "file1");
-    ComponentDto file2 = insertFile(project, "file2");
-
-    DbFileSources.Data fileSources = FileSourceTesting.newFakeData(10).build();
-    fileSourceTester.insertFileSource(file1, 10, dto -> dto.setSourceData(fileSources));
-    fileSourceTester.insertFileSource(file2, 10, dto -> dto.setSourceData(fileSources));
-
-    userSession.logIn()
-      .addProjectPermission(CODEVIEWER, project, file1, file2)
-      .addMembership(organization);
-
-    String issueKey1 = insertIssue(file1, newLocation(file1.uuid(), 5, 5),
-      newLocation(file1.uuid(), 9, 9), newLocation(file2.uuid(), 1, 5));
-
-    TestResponse response = actionTester.newRequest().setParam("issueKey", issueKey1).execute();
-    JsonAssert.assertJson(response.getInput())
-      .isSimilarTo(toUrl("issue_snippets_multiple_locations.json"));
   }
 
   private DbIssues.Location newLocation(String fileUuid, int startLine, int endLine) {
@@ -281,7 +252,7 @@ public class IssueSnippetsActionTest {
   }
 
   private URL toUrl(String fileName) {
-    Class clazz = getClass();
+    Class<?> clazz = getClass();
     String path = clazz.getSimpleName() + "/" + fileName;
     URL url = clazz.getResource(path);
     if (url == null) {

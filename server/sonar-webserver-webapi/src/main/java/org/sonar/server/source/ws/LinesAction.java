@@ -33,7 +33,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.source.SourceService;
@@ -41,11 +40,11 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
+import static org.sonar.server.exceptions.BadRequestException.checkRequest;
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_FILE_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 public class LinesAction implements SourcesWsAction {
 
@@ -150,14 +149,10 @@ public class LinesAction implements SourcesWsAction {
       Iterable<DbFileSources.Line> lines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "No source found for file '%s'", file.getDbKey());
       try (JsonWriter json = response.newJsonWriter()) {
         json.beginObject();
-        linesJsonWriter.writeSource(lines, json, isMemberOfOrganization(file), periodDateSupplier);
+        linesJsonWriter.writeSource(lines, json, periodDateSupplier);
         json.endObject();
       }
     }
-  }
-
-  private boolean isMemberOfOrganization(ComponentDto file) {
-    return userSession.hasMembership(new OrganizationDto().setUuid(file.getOrganizationUuid()));
   }
 
   private ComponentDto loadComponent(DbSession dbSession, Request wsRequest) {

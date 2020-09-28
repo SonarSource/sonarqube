@@ -344,7 +344,7 @@ public class TaskActionTest {
   @Test
   public void get_project_queue_task_with_scan_permission_on_organization_but_not_on_project() {
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(SCAN, privateProject.getOrganizationUuid());
+    userSession.logIn(user).addPermission(SCAN);
     CeQueueDto task = createAndPersistQueueTask(privateProject, user);
 
     call(task.getUuid());
@@ -401,7 +401,7 @@ public class TaskActionTest {
 
   @Test
   public void get_project_archived_task_with_scan_permission_on_organization_but_not_on_project() {
-    userSession.logIn().addPermission(SCAN, privateProject.getOrganizationUuid());
+    userSession.logIn().addPermission(SCAN);
     CeActivityDto task = createAndPersistArchivedTask(privateProject);
 
     call(task.getUuid());
@@ -469,7 +469,7 @@ public class TaskActionTest {
 
   @Test
   public void get_warnings_on_private_project_archived_task_if_scan_on_organization() {
-    userSession.logIn().addPermission(OrganizationPermission.SCAN, organization);
+    userSession.logIn().addPermission(OrganizationPermission.SCAN);
 
     getWarningsImpl(createAndPersistArchivedTask(privateProject));
   }

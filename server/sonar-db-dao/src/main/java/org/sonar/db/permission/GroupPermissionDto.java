@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 
 public class GroupPermissionDto {
   private String uuid;
-  private String organizationUuid;
   private String groupUuid;
   private String componentUuid;
   private String role;
@@ -39,15 +38,6 @@ public class GroupPermissionDto {
 
   public String getGroupUuid() {
     return groupUuid;
-  }
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public GroupPermissionDto setOrganizationUuid(String s) {
-    this.organizationUuid = s;
-    return this;
   }
 
   /**

@@ -22,7 +22,6 @@ package org.sonar.ce.task.projectanalysis.issue;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -41,15 +40,13 @@ public class DefaultAssignee {
 
   private final DbClient dbClient;
   private final ConfigurationRepository configRepository;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
 
   private boolean loaded = false;
   private String userUuid = null;
 
-  public DefaultAssignee(DbClient dbClient, ConfigurationRepository configRepository, AnalysisMetadataHolder analysisMetadataHolder) {
+  public DefaultAssignee(DbClient dbClient, ConfigurationRepository configRepository) {
     this.dbClient = dbClient;
     this.configRepository = configRepository;
-    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @CheckForNull
@@ -72,15 +69,8 @@ public class DefaultAssignee {
         LOG.info("Property {} is set with an unknown login: {}", DEFAULT_ISSUE_ASSIGNEE, login);
         return null;
       }
-      if (!isUserMemberOfOrganization(dbSession, user)) {
-        LOG.info("Property {} is set with a user which is not member of the organization of the project : {}", DEFAULT_ISSUE_ASSIGNEE, login);
-        return null;
-      }
       return user.getUuid();
     }
   }
 
-  private boolean isUserMemberOfOrganization(DbSession dbSession, UserDto user) {
-    return dbClient.organizationMemberDao().select(dbSession, analysisMetadataHolder.getOrganization().getUuid(), user.getUuid()).isPresent();
-  }
 }

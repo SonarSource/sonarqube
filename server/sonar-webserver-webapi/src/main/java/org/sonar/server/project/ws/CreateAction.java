@@ -106,18 +106,18 @@ public class CreateAction implements ProjectsWsAction {
   private CreateWsResponse doHandle(CreateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
-      userSession.checkPermission(PROVISION_PROJECTS, organization);
+      userSession.checkPermission(PROVISION_PROJECTS);
       String visibility = request.getVisibility();
       boolean changeToPrivate = visibility == null ? dbClient.organizationDao().getNewProjectPrivate(dbSession, organization) : "private".equals(visibility);
       support.checkCanUpdateProjectsVisibility(organization, changeToPrivate);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
-        .setOrganizationUuid(organization.getUuid())
-        .setKey(request.getProjectKey())
-        .setName(request.getName())
-        .setPrivate(changeToPrivate)
-        .setQualifier(PROJECT)
-        .build(),
+          .setOrganizationUuid(organization.getUuid())
+          .setKey(request.getProjectKey())
+          .setName(request.getName())
+          .setPrivate(changeToPrivate)
+          .setQualifier(PROJECT)
+          .build(),
         userSession.isLoggedIn() ? userSession.getUuid() : null);
       return toCreateResponse(componentDto);
     }

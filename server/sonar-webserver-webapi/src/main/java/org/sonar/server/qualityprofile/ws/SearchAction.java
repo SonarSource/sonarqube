@@ -137,28 +137,29 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private SearchWsResponse doHandle(SearchRequest request) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchData data = load(dbSession, request);
-      return buildResponse(dbSession, data);
-    }
+    SearchData data = load(request);
+    return buildResponse(data);
   }
 
-  private SearchData load(DbSession dbSession, SearchRequest request) {
-    ProjectDto project = findProject(dbSession, request);
-    List<QProfileDto> defaultProfiles = dbClient.qualityProfileDao().selectDefaultProfiles(dbSession, getLanguageKeys());
-    List<String> editableProfiles = searchEditableProfiles(dbSession);
-    List<QProfileDto> profiles = searchProfiles(dbSession, request, defaultProfiles, project);
+  private SearchData load(SearchRequest request) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
 
-    ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder();
-    return new SearchData()
-      .setProfiles(profiles)
-      .setActiveRuleCountByProfileKey(
-        dbClient.activeRuleDao().countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).build()))
-      .setActiveDeprecatedRuleCountByProfileKey(
-        dbClient.activeRuleDao().countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).setRuleStatus(DEPRECATED).build()))
-      .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfiles(dbSession, profiles))
-      .setDefaultProfileKeys(defaultProfiles)
-      .setEditableProfileKeys(editableProfiles);
+      ProjectDto project = findProject(dbSession, request);
+      List<QProfileDto> defaultProfiles = dbClient.qualityProfileDao().selectDefaultProfiles(dbSession, getLanguageKeys());
+      List<String> editableProfiles = searchEditableProfiles(dbSession);
+      List<QProfileDto> profiles = searchProfiles(dbSession, request, defaultProfiles, project);
+
+      ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder();
+      return new SearchData()
+        .setProfiles(profiles)
+        .setActiveRuleCountByProfileKey(
+          dbClient.activeRuleDao().countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).build()))
+        .setActiveDeprecatedRuleCountByProfileKey(
+          dbClient.activeRuleDao().countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).setRuleStatus(DEPRECATED).build()))
+        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfiles(dbSession, profiles))
+        .setDefaultProfileKeys(defaultProfiles)
+        .setEditableProfileKeys(editableProfiles);
+    }
   }
 
   @CheckForNull
@@ -233,10 +234,10 @@ public class SearchAction implements QProfileWsAction {
     return Arrays.stream(languages.all()).map(Language::getKey).collect(MoreCollectors.toSet());
   }
 
-  private SearchWsResponse buildResponse(DbSession dbSession, SearchData data) {
+  private SearchWsResponse buildResponse(SearchData data) {
     List<QProfileDto> profiles = data.getProfiles();
     Map<String, QProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(QProfileDto::getKee, identity()));
-    boolean isGlobalQProfileAdmin = userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, wsSupport.getDefaultOrganization(dbSession));
+    boolean isGlobalQProfileAdmin = userSession.hasPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
     response.setActions(SearchWsResponse.Actions.newBuilder().setCreate(isGlobalQProfileAdmin));

@@ -32,7 +32,6 @@ public class PermissionTemplateTesting {
     return new PermissionTemplateDto()
       .setName(randomAlphanumeric(60))
       .setDescription(randomAscii(500))
-      .setOrganizationUuid(randomAlphanumeric(40))
       .setUuid(Uuids.create())
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date());

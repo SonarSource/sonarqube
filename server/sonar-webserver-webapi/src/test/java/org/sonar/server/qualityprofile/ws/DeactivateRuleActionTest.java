@@ -71,12 +71,10 @@ public class DeactivateRuleActionTest {
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
   private DeactivateRuleAction underTest = new DeactivateRuleAction(dbClient, qProfileRules, userSession, wsSupport);
   private WsActionTester ws = new WsActionTester(underTest);
-  private OrganizationDto defaultOrganization;
 
   @Before
   public void before() {
     MockitoAnnotations.initMocks(this);
-    defaultOrganization = db.getDefaultOrganization();
   }
 
   @Test
@@ -89,7 +87,7 @@ public class DeactivateRuleActionTest {
 
   @Test
   public void deactivate_rule_in_default_organization() {
-    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert(RuleTesting.randomRuleKey());
     TestRequest request = ws.newRequest()
@@ -138,7 +136,7 @@ public class DeactivateRuleActionTest {
 
   @Test
   public void fail_activate_external_rule() {
-    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     RuleDefinitionDto rule = db.rules().insert(r -> r.setIsExternal(true));
 
@@ -156,7 +154,7 @@ public class DeactivateRuleActionTest {
   @Test
   public void fail_deactivate_if_built_in_profile() {
     RuleDefinitionDto rule = db.rules().insert();
-    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
 
     QProfileDto qualityProfile = db.qualityProfiles().insert(profile -> profile.setIsBuiltIn(true));
     TestRequest request = ws.newRequest()

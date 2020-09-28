@@ -26,7 +26,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentMapper;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
@@ -85,8 +84,8 @@ public class UserPermissionDao implements Dao {
    *
    * @return the global permissions. An empty list is returned if user or organization do not exist.
    */
-  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, String userUuid, String organizationUuid) {
-    return mapper(dbSession).selectGlobalPermissionsOfUser(userUuid, organizationUuid);
+  public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, String userUuid) {
+    return mapper(dbSession).selectGlobalPermissionsOfUser(userUuid);
   }
 
   /**
@@ -102,27 +101,15 @@ public class UserPermissionDao implements Dao {
     return mapper(session).selectUserUuidsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
-  public void insert(DbSession dbSession, UserPermissionDto dto) {
-    ensureComponentPermissionConsistency(dbSession, dto);
-    mapper(dbSession).insert(dto);
-  }
-
-  private static void ensureComponentPermissionConsistency(DbSession dbSession, UserPermissionDto dto) {
-    if (dto.getComponentUuid() == null) {
-      return;
-    }
-    ComponentMapper componentMapper = dbSession.getMapper(ComponentMapper.class);
-    checkArgument(
-      componentMapper.countComponentByOrganizationAndUuid(dto.getOrganizationUuid(), dto.getComponentUuid()) == 1,
-      "Can't insert permission '%s' for component with id '%s' in organization with uuid '%s' because this component does not belong to organization with uuid '%s'",
-      dto.getPermission(), dto.getComponentUuid(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
+  public void insert(DbSession dbSession, UserPermissionDto dto, String defaultOrgUuid) {
+    mapper(dbSession).insert(dto, defaultOrgUuid);
   }
 
   /**
    * Removes a single global permission from user
    */
-  public void deleteGlobalPermission(DbSession dbSession, String userUuid, String permission, String organizationUuid) {
-    mapper(dbSession).deleteGlobalPermission(userUuid, permission, organizationUuid);
+  public void deleteGlobalPermission(DbSession dbSession, String userUuid, String permission) {
+    mapper(dbSession).deleteGlobalPermission(userUuid, permission);
   }
 
   /**
@@ -144,14 +131,6 @@ public class UserPermissionDao implements Dao {
    */
   public int deleteProjectPermissionOfAnyUser(DbSession dbSession, String projectUuid, String permission) {
     return mapper(dbSession).deleteProjectPermissionOfAnyUser(projectUuid, permission);
-  }
-
-  public void deleteByOrganization(DbSession dbSession, String organizationUuid) {
-    mapper(dbSession).deleteByOrganization(organizationUuid);
-  }
-
-  public void deleteOrganizationMemberPermissions(DbSession dbSession, String organizationUuid, String userUuid) {
-    mapper(dbSession).deleteOrganizationMemberPermissions(organizationUuid, userUuid);
   }
 
   public void deleteByUserUuid(DbSession dbSession, String userUuid) {

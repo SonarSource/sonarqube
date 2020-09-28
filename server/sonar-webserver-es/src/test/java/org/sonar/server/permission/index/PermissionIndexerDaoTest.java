@@ -87,7 +87,7 @@ public class PermissionIndexerDaoTest {
     application = componentDbTester.insertPublicApplication(organization);
     user1 = userDbTester.insertUser();
     user2 = userDbTester.insertUser();
-    group = userDbTester.insertGroup(organization);
+    group = userDbTester.insertGroup();
   }
 
   @Test
@@ -174,7 +174,6 @@ public class PermissionIndexerDaoTest {
       projectUuids.add(project.uuid());
       GroupPermissionDto dto = new GroupPermissionDto()
         .setUuid(Uuids.createFast())
-        .setOrganizationUuid(group.getOrganizationUuid())
         .setGroupUuid(group.getUuid())
         .setRole(USER)
         .setComponentUuid(project.uuid());

@@ -32,13 +32,11 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserPropertyDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
@@ -54,10 +52,8 @@ public class UserUpdaterReactivateTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public EsTester es = EsTester.create();
-
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -66,11 +62,11 @@ public class UserUpdaterReactivateTest {
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-  private UserUpdater underTest = new UserUpdater(system2, newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider,
-    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, defaultOrganizationProvider,
+    new DefaultGroupFinder(dbClient, defaultOrganizationProvider),
+    settings.asConfig(), localAuthentication);
 
   @Test
   public void reactivate_user() {
@@ -220,10 +216,9 @@ public class UserUpdaterReactivateTest {
   }
 
   @Test
-  public void associate_default_groups_when_reactivating_user_and_organizations_are_disabled() {
+  public void associate_default_groups_when_reactivating_user() {
     UserDto userDto = db.users().insertDisabledUser();
-    db.organizations().insertForUuid("org1");
-    GroupDto groupDto = db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-devs").setOrganizationUuid("org1"));
+    GroupDto groupDto = db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-devs"));
     db.users().insertMember(groupDto, userDto);
     GroupDto defaultGroup = createDefaultGroup();
 
@@ -236,49 +231,6 @@ public class UserUpdaterReactivateTest {
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, singletonList(userDto.getLogin()));
     assertThat(groups.get(userDto.getLogin()).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isTrue();
-  }
-
-  @Test
-  public void does_not_associate_default_groups_when_reactivating_user_and_organizations_are_enabled() {
-    organizationFlags.setEnabled(true);
-    UserDto userDto = db.users().insertDisabledUser();
-    db.organizations().insertForUuid("org1");
-    GroupDto groupDto = db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-devs").setOrganizationUuid("org1"));
-    db.users().insertMember(groupDto, userDto);
-    GroupDto defaultGroup = createDefaultGroup();
-
-    underTest.reactivateAndCommit(db.getSession(), userDto, NewUser.builder()
-      .setLogin(userDto.getLogin())
-      .setName(userDto.getName())
-      .build(), u -> {
-      });
-    session.commit();
-
-    Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, singletonList(userDto.getLogin()));
-    assertThat(groups.get(userDto.getLogin()).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isFalse();
-  }
-
-  @Test
-  public void add_user_as_member_of_default_organization_when_reactivating_user_and_organizations_are_disabled() {
-    UserDto user = db.users().insertDisabledUser();
-    createDefaultGroup();
-
-    UserDto dto = underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder().setLogin(user.getLogin()).setName(user.getName()).build(), u -> {
-    });
-
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getUuid())).isPresent();
-  }
-
-  @Test
-  public void does_not_add_user_as_member_of_default_organization_when_reactivating_user_and_organizations_are_enabled() {
-    organizationFlags.setEnabled(true);
-    UserDto user = db.users().insertDisabledUser();
-    createDefaultGroup();
-
-    UserDto dto = underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder().setLogin(user.getLogin()).setName(user.getName()).build(), u -> {
-    });
-
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getUuid())).isNotPresent();
   }
 
   @Test
@@ -312,25 +264,7 @@ public class UserUpdaterReactivateTest {
   }
 
   @Test
-  public void set_notifications_readDate_setting_when_reactivating_user_on_sonar_cloud() {
-    long now = system2.now();
-    organizationFlags.setEnabled(true);
-    createDefaultGroup();
-    UserDto user = db.users().insertDisabledUser();
-
-    underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
-      .setLogin(user.getLogin())
-      .setName(user.getName())
-      .build(), u -> {
-      });
-
-    UserPropertyDto notificationReadDateSetting = dbClient.userPropertiesDao().selectByUser(session, user).get(0);
-    assertThat(notificationReadDateSetting.getKey()).isEqualTo("notifications.readDate");
-    assertThat(Long.parseLong(notificationReadDateSetting.getValue())).isGreaterThanOrEqualTo(now);
-  }
-
-  @Test
-  public void does_not_set_notifications_readDate_setting_when_reactivating_user_when_not_on_sonar_cloud() {
+  public void does_not_set_notifications_readDate_setting_when_reactivating_user() {
     createDefaultGroup();
     UserDto user = db.users().insertDisabledUser();
 
@@ -380,7 +314,7 @@ public class UserUpdaterReactivateTest {
   }
 
   private GroupDto createDefaultGroup() {
-    return db.users().insertDefaultGroup(db.getDefaultOrganization());
+    return db.users().insertDefaultGroup();
   }
 
 }

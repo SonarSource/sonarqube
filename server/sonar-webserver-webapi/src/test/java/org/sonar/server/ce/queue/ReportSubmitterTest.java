@@ -106,10 +106,10 @@ public class ReportSubmitterTest {
   @Test
   public void submit_with_characteristics_fails_with_ISE_when_no_branch_support_delegate() {
     userSession
-      .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
-      .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
     Map<String, String> nonEmptyCharacteristics = IntStream.range(0, 1 + new Random().nextInt(5))
       .boxed()
@@ -125,10 +125,10 @@ public class ReportSubmitterTest {
   @Test
   public void submit_stores_report() {
     userSession
-      .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
-      .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}", UTF_8));
@@ -157,10 +157,10 @@ public class ReportSubmitterTest {
   public void provision_project_if_does_not_exist() {
     OrganizationDto organization = db.organizations().insert();
     userSession
-      .addPermission(OrganizationPermission.SCAN, organization.getUuid())
-      .addPermission(PROVISION_PROJECTS, organization);
+      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(PROJECT_KEY))).thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
@@ -178,10 +178,10 @@ public class ReportSubmitterTest {
     OrganizationDto organization = db.organizations().insert();
     userSession
       .logIn(user)
-      .addPermission(OrganizationPermission.SCAN, organization.getUuid())
-      .addPermission(PROVISION_PROJECTS, organization);
+      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(PROJECT_KEY))).thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
@@ -193,9 +193,9 @@ public class ReportSubmitterTest {
   @Test
   public void do_no_add_favorite_when_no_project_creator_permission_on_permission_template() {
     userSession
-      .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
-      .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
+      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(PROVISION_PROJECTS);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(false);
     mockSuccessfulPrepareSubmitCall();
@@ -213,10 +213,10 @@ public class ReportSubmitterTest {
     OrganizationDto organization = db.organizations().insert();
     userSession
       .logIn(user)
-      .addPermission(OrganizationPermission.SCAN, organization.getUuid())
-      .addPermission(PROVISION_PROJECTS, organization);
+      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(PROJECT_KEY))).thenReturn(true);
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY))).thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), any(ComponentDto.class))).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
@@ -228,10 +228,10 @@ public class ReportSubmitterTest {
   @Test
   public void submit_a_report_on_new_project_with_scan_permission_on_organization() {
     userSession
-      .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
-      .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+      .addPermission(OrganizationPermission.SCAN)
+      .addPermission(PROVISION_PROJECTS);
     mockSuccessfulPrepareSubmitCall();
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), any(), eq(PROJECT_KEY)))
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(PROJECT_KEY)))
       .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, PROJECT_NAME, emptyMap(), IOUtils.toInputStream("{binary}"));
@@ -243,7 +243,7 @@ public class ReportSubmitterTest {
   public void user_with_scan_permission_on_organization_is_allowed_to_submit_a_report_on_existing_project() {
     OrganizationDto org = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(org);
-    userSession.addPermission(SCAN, org);
+    userSession.addPermission(SCAN);
     mockSuccessfulPrepareSubmitCall();
 
     underTest.submit(org.getKey(), project.getDbKey(), project.name(), emptyMap(), IOUtils.toInputStream("{binary}"));
@@ -305,7 +305,7 @@ public class ReportSubmitterTest {
     } catch (BadRequestException e) {
       assertThat(e.errors()).contains(
         format("The project '%s' is already defined in SonarQube but as a module of project '%s'. " +
-          "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+            "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
           module.getKey(), project.getKey(), project.getKey(), module.getKey()));
     }
   }

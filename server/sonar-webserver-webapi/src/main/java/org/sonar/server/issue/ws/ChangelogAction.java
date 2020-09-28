@@ -20,23 +20,19 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
-import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueChangeWSSupport.Load;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.singleton;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -84,23 +80,11 @@ public class ChangelogAction implements IssuesWsAction {
   }
 
   public ChangelogWsResponse handle(DbSession dbSession, IssueDto issue) {
-    if (!isMember(dbSession, issue)) {
-      return ChangelogWsResponse.newBuilder().build();
-    }
-
     IssueChangeWSSupport.FormattingContext formattingContext = issueChangeSupport.newFormattingContext(dbSession, singleton(issue), Load.CHANGE_LOG);
 
     ChangelogWsResponse.Builder builder = ChangelogWsResponse.newBuilder();
     issueChangeSupport.formatChangelog(issue, formattingContext)
       .forEach(builder::addChangelog);
     return builder.build();
-  }
-
-  private boolean isMember(DbSession dbSession, IssueDto issue) {
-    Optional<ComponentDto> project = dbClient.componentDao().selectByUuid(dbSession, issue.getProjectUuid());
-    checkState(project.isPresent(), "Cannot find the project with uuid %s from issue with key %s", issue.getProjectUuid(), issue.getKey());
-    Optional<OrganizationDto> organization = dbClient.organizationDao().selectByUuid(dbSession, project.get().getOrganizationUuid());
-    checkState(organization.isPresent(), "Cannot find the organization with uuid %s from issue with key %s", project.get().getOrganizationUuid(), issue.getKey());
-    return userSession.hasMembership(organization.get());
   }
 }

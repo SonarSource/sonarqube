@@ -44,8 +44,6 @@ public interface PermissionTemplateMapper {
 
   void deleteUserPermissionsByTemplateUuids(@Param("templateUuids") List<String> templateUuids);
 
-  void deleteUserPermissionsByOrganization(@Param("organizationUuid") String organizationUuid, @Param("userUuid") String userUuid);
-
   void deleteUserPermissionsByUserUuid(@Param("userUuid") String userUuid);
 
   void deleteUserPermission(PermissionTemplateUserDto permissionTemplateUser);
@@ -68,7 +66,7 @@ public interface PermissionTemplateMapper {
 
   void deleteByGroupUuid(String groupUuid);
 
-  PermissionTemplateDto selectByName(@Param("organizationUuid") String organizationUuid, @Param("name") String name);
+  PermissionTemplateDto selectByName(@Param("name") String name);
 
   List<String> selectUserLoginsByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid, RowBounds rowBounds);
 
@@ -76,9 +74,9 @@ public interface PermissionTemplateMapper {
 
   List<String> selectGroupNamesByQueryAndTemplate(@Param("templateUuid") String templateUuid, @Param("query") PermissionQuery query, RowBounds rowBounds);
 
-  int countGroupNamesByQueryAndTemplate(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid);
+  int countGroupNamesByQueryAndTemplate(@Param("query") PermissionQuery query, @Param("templateUuid") String templateUuid);
 
-  List<PermissionTemplateDto> selectAll(@Param("organizationUuid") String organizationUuid, @Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
+  List<PermissionTemplateDto> selectAll(@Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
 
   void usersCountByTemplateUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
 
@@ -88,7 +86,7 @@ public interface PermissionTemplateMapper {
 
   int countGroupsWithPermission(@Param("templateUuid") String templateUuid, @Param("permission") String permission, @Nullable @Param("groupUuid") String groupUuid);
 
-  List<String> selectTemplateUuidsByOrganization(@Param("organizationUuid") String organizationUuid);
+  List<String> selectTemplateUuids();
 
   List<PermissionTemplateGroupDto> selectAllGroupPermissionTemplatesByGroupUuid(@Param("groupUuid") String groupUuid);
 

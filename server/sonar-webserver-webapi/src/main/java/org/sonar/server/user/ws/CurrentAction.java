@@ -101,9 +101,9 @@ public class CurrentAction implements UsersWsAction {
       }
     } else {
       writeProtobuf(newBuilder()
-        .setIsLoggedIn(false)
-        .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
-        .build(),
+          .setIsLoggedIn(false)
+          .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+          .build(),
         request, response);
     }
   }
@@ -134,7 +134,7 @@ public class CurrentAction implements UsersWsAction {
   private List<String> getGlobalPermissions() {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     return permissionService.getAllOrganizationPermissions().stream()
-      .filter(permission -> userSession.hasPermission(permission, defaultOrganizationUuid))
+      .filter(permission -> userSession.hasPermission(permission))
       .map(OrganizationPermission::getKey)
       .collect(toList());
   }

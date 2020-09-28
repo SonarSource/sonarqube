@@ -52,8 +52,8 @@ public class DeleteAction implements UserGroupsWsAction {
   public void define(NewController context) {
     WebService.NewAction action = context.createAction("delete")
       .setDescription(format("Delete a group. The default groups cannot be deleted.<br/>" +
-        "'%s' or '%s' must be provided.<br />" +
-        "Requires the following permission: 'Administer System'.",
+          "'%s' or '%s' must be provided.<br />" +
+          "Requires the following permission: 'Administer System'.",
         PARAM_GROUP_ID, PARAM_GROUP_NAME))
       .setHandler(this)
       .setSince("5.2")
@@ -68,7 +68,7 @@ public class DeleteAction implements UserGroupsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GroupDto group = support.findGroupDto(dbSession, request);
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, group.getOrganizationUuid());
+      userSession.checkPermission(OrganizationPermission.ADMINISTER);
 
       support.checkGroupIsNotDefault(dbSession, group);
       checkNotTryingToDeleteLastAdminGroup(dbSession, group);
@@ -85,7 +85,7 @@ public class DeleteAction implements UserGroupsWsAction {
 
   private void checkNotTryingToDeleteLastAdminGroup(DbSession dbSession, GroupDto group) {
     int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession,
-      group.getOrganizationUuid(), OrganizationPermission.ADMINISTER.getKey(), group.getUuid());
+      OrganizationPermission.ADMINISTER.getKey(), group.getUuid());
 
     checkArgument(remaining > 0, "The last system admin group cannot be deleted");
   }

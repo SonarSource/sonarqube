@@ -26,10 +26,8 @@ import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -42,11 +40,9 @@ import org.sonar.server.ws.WsActionTester;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_LOGIN;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 
 public class AddUserActionTest {
 
@@ -73,11 +69,10 @@ public class AddUserActionTest {
 
   @Test
   public void add_user_to_group_referenced_by_its_id() {
-    insertDefaultGroupOnDefaultOrganization();
+    insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     newRequest()
       .setParam("id", group.getUuid())
@@ -89,31 +84,12 @@ public class AddUserActionTest {
 
   @Test
   public void add_user_to_group_referenced_by_its_name() {
-    insertDefaultGroupOnDefaultOrganization();
+    insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     newRequest()
-      .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .execute();
-
-    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(group.getUuid());
-  }
-
-  @Test
-  public void add_user_to_group_referenced_by_its_name_and_organization() {
-    OrganizationDto org = db.organizations().insert();
-    db.users().insertDefaultGroup(org);
-    GroupDto group = db.users().insertGroup(org, "a-group");
-    UserDto user = db.users().insertUser("user_login");
-    db.organizations().addMember(org, user);
-    loginAsAdmin(org);
-
-    newRequest()
-      .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_LOGIN, user.getLogin())
       .execute();
@@ -123,17 +99,15 @@ public class AddUserActionTest {
 
   @Test
   public void add_user_to_another_group() {
-    insertDefaultGroupOnDefaultOrganization();
-    OrganizationDto defaultOrg = db.getDefaultOrganization();
-    GroupDto admins = db.users().insertGroup(defaultOrg, "admins");
-    GroupDto users = db.users().insertGroup(defaultOrg, "users");
+    insertDefaultGroup();
+    GroupDto admins = db.users().insertGroup("admins");
+    GroupDto users = db.users().insertGroup("users");
     UserDto user = db.users().insertUser("my-admin");
-    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertMember(users, user);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     newRequest()
-      .setParam("id", admins.getUuid().toString())
+      .setParam("id", admins.getUuid())
       .setParam("login", user.getLogin())
       .execute();
 
@@ -142,15 +116,14 @@ public class AddUserActionTest {
 
   @Test
   public void do_not_fail_if_user_is_already_member_of_group() {
-    insertDefaultGroupOnDefaultOrganization();
+    insertDefaultGroup();
     GroupDto users = db.users().insertGroup();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertMember(users, user);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     newRequest()
-      .setParam("id", users.getUuid().toString())
+      .setParam("id", users.getUuid())
       .setParam("login", user.getLogin())
       .execute();
 
@@ -160,17 +133,15 @@ public class AddUserActionTest {
 
   @Test
   public void group_has_multiple_members() {
-    insertDefaultGroupOnDefaultOrganization();
+    insertDefaultGroup();
     GroupDto users = db.users().insertGroup();
     UserDto user1 = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user1);
     UserDto user2 = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user2);
     db.users().insertMember(users, user1);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     newRequest()
-      .setParam("id", users.getUuid().toString())
+      .setParam("id", users.getUuid())
       .setParam("login", user2.getLogin())
       .execute();
 
@@ -180,11 +151,10 @@ public class AddUserActionTest {
 
   @Test
   public void response_status_is_no_content() {
-    db.users().insertDefaultGroup(db.getDefaultOrganization());
+    db.users().insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     TestResponse response = newRequest()
       .setParam("id", group.getUuid())
@@ -197,8 +167,7 @@ public class AddUserActionTest {
   @Test
   public void fail_if_group_does_not_exist() {
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No group with id '42'");
@@ -211,8 +180,8 @@ public class AddUserActionTest {
 
   @Test
   public void fail_if_user_does_not_exist() {
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "admins");
-    loginAsAdminOnDefaultOrganization();
+    GroupDto group = db.users().insertGroup("admins");
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Could not find a user with login 'my-admin'");
@@ -227,7 +196,6 @@ public class AddUserActionTest {
   public void fail_if_not_administrator() {
     GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user);
 
     expectedException.expect(UnauthorizedException.class);
 
@@ -235,65 +203,10 @@ public class AddUserActionTest {
   }
 
   @Test
-  public void fail_if_administrator_of_another_organization() {
-    OrganizationDto org1 = db.organizations().insert();
-    GroupDto group = db.users().insertGroup(org1, "a-group");
-    UserDto user = db.users().insertUser("user_login");
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-    OrganizationDto org2 = db.organizations().insert();
-    loginAsAdmin(org2);
-
-    expectedException.expect(ForbiddenException.class);
-
-    newRequest()
-      .setParam(PARAM_ORGANIZATION_KEY, org1.getKey())
-      .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .execute();
-  }
-
-  @Test
-  public void fail_to_add_user_to_group_when_user_is_not_member_of_given_organization() {
-    OrganizationDto org = db.organizations().insert(organizationDto -> organizationDto.setKey("Organization key"));
-    GroupDto group = db.users().insertGroup(org, "a-group");
-    UserDto user = db.users().insertUser("user_login");
-    OrganizationDto otherOrganization = db.organizations().insert();
-    db.organizations().addMember(otherOrganization, user);
-    loginAsAdmin(org);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("User 'user_login' is not member of organization 'Organization key'");
-
-    newRequest()
-      .setParam(PARAM_ORGANIZATION_KEY, org.getKey())
-      .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .execute();
-  }
-
-  @Test
-  public void fail_to_add_user_to_anyone() {
-    OrganizationDto organization = db.organizations().insert(org -> org.setKey("org"));
-    UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    loginAsAdmin(organization);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No group with name 'Anyone' in organization 'org'");
-
-    newRequest()
-      .setParam(PARAM_GROUP_NAME, ANYONE)
-      .setParam(PARAM_LOGIN, user.getLogin())
-      .setParam(PARAM_ORGANIZATION_KEY, organization.getKey())
-      .execute();
-  }
-
-  @Test
   public void fail_to_add_user_to_default_group() {
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user);
-    GroupDto defaultGroup = db.users().insertDefaultGroup(db.getDefaultOrganization(), "default");
-    loginAsAdmin(db.getDefaultOrganization());
+    GroupDto defaultGroup = db.users().insertDefaultGroup("default");
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
@@ -306,18 +219,15 @@ public class AddUserActionTest {
 
   @Test
   public void fail_when_no_default_group() {
-    OrganizationDto organization = db.organizations().insert();
-    GroupDto group = db.users().insertGroup(organization);
+    GroupDto group = db.users().insertGroup();
     UserDto user = db.users().insertUser();
-    db.organizations().addMember(organization, user);
-    loginAsAdmin(organization);
+    loginAsAdmin();
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Default group cannot be found");
 
     newRequest()
       .setParam(PARAM_LOGIN, user.getLogin())
-      .setParam(PARAM_ORGANIZATION_KEY, organization.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
       .execute();
   }
@@ -333,20 +243,16 @@ public class AddUserActionTest {
     return ws.newRequest();
   }
 
-  private void loginAsAdminOnDefaultOrganization() {
-    loginAsAdmin(db.getDefaultOrganization());
+  private void loginAsAdmin() {
+    userSession.logIn().addPermission(ADMINISTER);
   }
 
-  private void loginAsAdmin(OrganizationDto org) {
-    userSession.logIn().addPermission(ADMINISTER, org);
-  }
-
-  private void insertDefaultGroupOnDefaultOrganization() {
-    db.users().insertDefaultGroup(db.getDefaultOrganization());
+  private void insertDefaultGroup() {
+    db.users().insertDefaultGroup();
   }
 
   private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
+    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider));
   }
 
 }

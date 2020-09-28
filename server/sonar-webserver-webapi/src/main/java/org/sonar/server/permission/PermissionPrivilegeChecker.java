@@ -31,21 +31,20 @@ public class PermissionPrivilegeChecker {
     // static methods only
   }
 
-  public static void checkGlobalAdmin(UserSession userSession, String organizationUuid) {
+  public static void checkGlobalAdmin(UserSession userSession) {
     userSession
       .checkLoggedIn()
-      .checkPermission(OrganizationPermission.ADMINISTER, organizationUuid);
+      .checkPermission(OrganizationPermission.ADMINISTER);
   }
 
   /**
-   * Checks that user is administrator of the specified project, or of the specified organization if project is not
-   * defined.
+   * Checks that user is administrator of the specified project
    * @throws org.sonar.server.exceptions.ForbiddenException if user is not administrator
    */
-  public static void checkProjectAdmin(UserSession userSession, String organizationUuid, Optional<ProjectUuid> projectUuid) {
+  public static void checkProjectAdmin(UserSession userSession, Optional<ProjectUuid> projectUuid) {
     userSession.checkLoggedIn();
 
-    if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organizationUuid)) {
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER)) {
       return;
     }
 

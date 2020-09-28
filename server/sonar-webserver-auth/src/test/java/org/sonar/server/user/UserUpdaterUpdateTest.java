@@ -41,7 +41,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -65,10 +64,8 @@ public class UserUpdaterUpdateTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public EsTester es = EsTester.create();
-
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -77,11 +74,10 @@ public class UserUpdaterUpdateTest {
   private DbSession session = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-  private UserUpdater underTest = new UserUpdater(system2, newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider,
-    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, defaultOrganizationProvider,
+    new DefaultGroupFinder(dbClient, defaultOrganizationProvider), settings.asConfig(), localAuthentication);
 
   @Test
   public void update_user() {
@@ -200,7 +196,7 @@ public class UserUpdaterUpdateTest {
 
     underTest.updateAndCommit(session, user, new UpdateUser()
       .setLogin("new_login"), u -> {
-    });
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN)).isNull();
     UserDto userReloaded = dbClient.userDao().selectByUuid(session, user.getUuid());
@@ -629,7 +625,7 @@ public class UserUpdaterUpdateTest {
   }
 
   private GroupDto createDefaultGroup() {
-    return db.users().insertDefaultGroup(db.getDefaultOrganization());
+    return db.users().insertDefaultGroup();
   }
 
 }

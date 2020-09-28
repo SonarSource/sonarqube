@@ -83,7 +83,7 @@ public class DeleteAction implements OrganizationsWsAction {
       preventDeletionOfDefaultOrganization(key, defaultOrganizationProvider.get());
 
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, key), "Organization with key '%s' not found", key);
-      userSession.checkPermission(ADMINISTER, organization);
+      userSession.checkPermission(ADMINISTER);
 
       organizationDeleter.delete(dbSession, organization);
 

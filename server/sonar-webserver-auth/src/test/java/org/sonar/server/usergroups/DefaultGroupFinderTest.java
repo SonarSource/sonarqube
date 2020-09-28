@@ -23,8 +23,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,39 +37,36 @@ public class DefaultGroupFinderTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private DefaultGroupFinder underTest = new DefaultGroupFinder(db.getDbClient());
+  private DefaultGroupFinder underTest = new DefaultGroupFinder(db.getDbClient(), TestDefaultOrganizationProvider.from(db));
 
   @Test
   public void find_default_group() {
-    OrganizationDto organization = db.organizations().insert();
-    GroupDto defaultGroup = db.users().insertDefaultGroup(organization, "default");
+    GroupDto defaultGroup = db.users().insertDefaultGroup("default");
 
-    GroupDto result = underTest.findDefaultGroup(db.getSession(), organization.getUuid());
+    GroupDto result = underTest.findDefaultGroup(db.getSession());
 
     assertThat(result.getUuid()).isEqualTo(defaultGroup.getUuid());
     assertThat(result.getName()).isEqualTo("default");
   }
 
   @Test
-  public void fail_with_ISE_when_no_default_group_on_org() {
-    OrganizationDto organization = db.organizations().insert();
-    db.users().insertGroup(organization);
+  public void fail_with_ISE_when_no_default_group() {
+    db.users().insertGroup();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Default group cannot be found on organization '%s'", organization.getUuid()));
+    expectedException.expectMessage(format("Default group cannot be found"));
 
-    underTest.findDefaultGroup(db.getSession(), organization.getUuid());
+    underTest.findDefaultGroup(db.getSession());
   }
 
   @Test
   public void fail_with_NPE_when_default_group_does_not_exist() {
-    OrganizationDto organization = db.organizations().insert();
-    GroupDto defaultGroup = db.users().insertDefaultGroup(organization, "default");
+    GroupDto defaultGroup = db.users().insertDefaultGroup("default");
     db.getDbClient().groupDao().deleteByUuid(db.getSession(), defaultGroup.getUuid());
 
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage(format("Group '%s' cannot be found", defaultGroup.getUuid()));
 
-    underTest.findDefaultGroup(db.getSession(), organization.getUuid());
+    underTest.findDefaultGroup(db.getSession());
   }
 }

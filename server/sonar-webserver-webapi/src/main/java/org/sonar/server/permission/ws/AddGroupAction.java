@@ -93,7 +93,7 @@ public class AddGroupAction implements PermissionsWsAction {
       GroupUuidOrAnyone group = wsSupport.findGroup(dbSession, request);
       Optional<ProjectUuid> projectUuid = wsSupport.findProjectUuid(dbSession, request);
 
-      checkProjectAdmin(userSession, group.getOrganizationUuid(), projectUuid);
+      checkProjectAdmin(userSession, projectUuid);
 
       PermissionChange change = new GroupPermissionChange(
         PermissionChange.Operation.ADD,

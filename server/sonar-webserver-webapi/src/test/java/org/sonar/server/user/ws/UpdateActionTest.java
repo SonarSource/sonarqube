@@ -37,7 +37,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
@@ -69,17 +68,16 @@ public class UpdateActionTest {
   private DbSession dbSession = db.getSession();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
   private WsActionTester ws = new WsActionTester(new UpdateAction(
-    new UserUpdater(system2, mock(NewUserNotifier.class), dbClient, userIndexer, organizationFlags, defaultOrganizationProvider,
-      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
+    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, defaultOrganizationProvider,
+      new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider), settings.asConfig(), localAuthentication),
     userSession, new UserJsonWriter(userSession), dbClient));
 
   @Before
   public void setUp() {
-    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
+    db.users().insertDefaultGroup("sonar-users");
   }
 
   @Test

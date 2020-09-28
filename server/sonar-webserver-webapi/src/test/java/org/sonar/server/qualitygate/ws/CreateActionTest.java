@@ -110,7 +110,7 @@ public class CreateActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(anOrganization);
     OrganizationDto anotherOrganization = db.organizations().insert();
 
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, anotherOrganization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     CreateResponse response = ws.newRequest()
       .setParam(PARAM_NAME, qualityGate.getName())
@@ -131,33 +131,10 @@ public class CreateActionTest {
     assertThat(action.params()).hasSize(2);
   }
 
-  @Test
-  public void throw_ForbiddenException_if_incorrect_organization() {
-    logInAsQualityGateAdmin(db.getDefaultOrganization());
-    OrganizationDto otherOrganization = organizationDbTester.insert();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    executeRequest(Optional.of(otherOrganization), "Default");
-  }
 
   @Test
   public void throw_ForbiddenException_if_not_gate_administrator() {
     userSession.logIn();
-
-    expectedException.expect(ForbiddenException.class);
-    expectedException.expectMessage("Insufficient privileges");
-
-    executeRequest(Optional.empty(), "Default");
-  }
-
-  @Test
-  public void throw_ForbiddenException_if_not_gate_administrator_of_own_organization() {
-    // as long as organizations don't support Quality gates, the global permission
-    // is defined on the default organization
-    OrganizationDto org = db.organizations().insert();
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, org);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -180,7 +157,7 @@ public class CreateActionTest {
   @Test
   public void throw_BadRequestException_if_name_is_already_used() {
     OrganizationDto org = db.organizations().insert();
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, org);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
 
     executeRequest(Optional.of(org), "Default");
 
@@ -194,7 +171,7 @@ public class CreateActionTest {
   @UseDataProvider("nullOrEmpty")
   public void fail_when_name_parameter_is_empty(@Nullable String nameParameter) {
     OrganizationDto org = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, org);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, org.getKey());
@@ -229,6 +206,6 @@ public class CreateActionTest {
   }
 
   private void logInAsQualityGateAdmin(OrganizationDto organizationDto) {
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, organizationDto);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
   }
 }

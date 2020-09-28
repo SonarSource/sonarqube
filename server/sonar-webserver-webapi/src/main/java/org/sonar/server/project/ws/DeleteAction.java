@@ -90,7 +90,7 @@ public class DeleteAction implements ProjectsWsAction {
 
   private void checkPermission(ProjectDto project) {
     if (!userSession.hasProjectPermission(UserRole.ADMIN, project)) {
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, project.getOrganizationUuid());
+      userSession.checkPermission(OrganizationPermission.ADMINISTER);
     }
   }
 }

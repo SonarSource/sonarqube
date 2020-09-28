@@ -41,7 +41,7 @@
 
   <select id="selectGroupNamesByQuery" parameterType="map" resultType="string">
     select sub.name, lower(sub.name), sub.groupUuid
-    <include refid="groupsByQuery" />
+    <include refid="groupsByQuery"/>
     group by sub.name, lower(sub.name), sub.groupUuid
     order by case when (count(sub.permission) > 0) then 1 else 2 end asc, lower(sub.name), sub.name, sub.groupUuid
   </select>
@@ -50,7 +50,7 @@
     select count(1)
     from (
       select distinct sub.groupUuid
-      <include refid="groupsByQuery" />) g
+      <include refid="groupsByQuery"/>) g
   </select>
 
   <sql id="groupsByQuery">
@@ -64,8 +64,6 @@
       <if test="query.componentUuid != null">
         and gr.component_uuid = #{query.componentUuid,jdbcType=VARCHAR}
       </if>
-      where
-        g.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR}
 
     union all
 
@@ -79,8 +77,7 @@
         and gr.component_uuid = #{query.componentUuid,jdbcType=VARCHAR}
       </if>
       <if test="query.withAtLeastOnePermission()">
-        and gr.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR} and
-        gr.group_uuid is null
+        and gr.group_uuid is null
       </if>
     </where>
 
@@ -107,22 +104,20 @@
   </sql>
 
   <select id="selectByGroupUuids" parameterType="map" resultType="GroupPermission">
-    select sub.groupUuid as groupUuid, sub.componentUuid as componentUuid, sub.permission as role, sub.organizationUuid as organizationUuid
+    select sub.groupUuid as groupUuid, sub.componentUuid as componentUuid, sub.permission as role
     from
       (
-      select gr.group_uuid as groupUuid, gr.component_uuid as componentUuid, gr.role as permission, g.name as name, gr.organization_uuid as organizationUuid
+      select gr.group_uuid as groupUuid, gr.component_uuid as componentUuid, gr.role as permission, g.name as name
       from group_roles gr
       inner join groups g ON g.uuid = gr.group_uuid
-      where gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
-      gr.group_uuid is not null
+      where gr.group_uuid is not null
 
       union all
 
-      select 'Anyone' as groupUuid, gr.component_uuid as componentUuid, gr.role as permission, 'Anyone' as name, gr.organization_uuid as organizationUuid
+      select 'Anyone' as groupUuid, gr.component_uuid as componentUuid, gr.role as permission, 'Anyone' as name
       from group_roles gr
       where
-      gr.group_uuid is null and
-      gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+      gr.group_uuid is null
       ) sub
     where
       sub.groupUuid in
@@ -141,7 +136,6 @@
     select gr.role
     from group_roles gr
     where
-    gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     gr.component_uuid is null and
     <choose>
       <when test="groupUuid != null">
@@ -157,7 +151,6 @@
     select gr.role
     from group_roles gr
     where
-    gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     gr.component_uuid = #{projectUuid,jdbcType=VARCHAR} and
     <choose>
       <when test="groupUuid != null">
@@ -170,10 +163,9 @@
   </select>
 
   <select id="selectAllPermissionsByGroupUuid" parameterType="map" resultType="GroupPermission">
-    select gr.group_uuid as groupUuid, gr.component_uuid as componentUuid, gr.role as role, gr.organization_uuid as organizationUuid
+    select gr.group_uuid as groupUuid, gr.component_uuid as componentUuid, gr.role as role
     from group_roles gr
-    where gr.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-    and gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
+    where gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectGroupUuidsWithPermissionOnProjectBut" resultType="string">
@@ -198,14 +190,14 @@
 
   <insert id="insert" parameterType="GroupPermission">
     insert into group_roles (
-    uuid,
     organization_uuid,
+    uuid,
     group_uuid,
     component_uuid,
     role
     ) values (
+    'asd',
     #{uuid,jdbcType=VARCHAR},
-    #{organizationUuid,jdbcType=VARCHAR},
     #{groupUuid,jdbcType=VARCHAR},
     #{componentUuid,jdbcType=BIGINT},
     #{role,jdbcType=VARCHAR}
@@ -244,7 +236,6 @@
     delete from group_roles
     where
     role=#{permission,jdbcType=VARCHAR} and
-    organization_uuid=#{organizationUuid,jdbcType=VARCHAR} and
     <choose>
       <when test="rootComponentUuid != null">
         component_uuid=#{rootComponentUuid,jdbcType=BIGINT}
@@ -263,12 +254,4 @@
       </otherwise>
     </choose>
   </delete>
-
-  <delete id="deleteByOrganization" parameterType="String">
-    delete from
-      group_roles
-    where
-      organization_uuid=#{organizationUuid,jdbcType=VARCHAR}
-  </delete>
-
 </mapper>

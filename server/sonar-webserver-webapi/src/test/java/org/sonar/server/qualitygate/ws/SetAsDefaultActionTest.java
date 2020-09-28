@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -66,15 +65,14 @@ public class SetAsDefaultActionTest {
 
   @Test
   public void set_default() {
-    OrganizationDto organization = db.organizations().insert();
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("name"));
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization(), qg -> qg.setName("name"));
 
     ws.newRequest()
       .setParam("name", "name")
-      .setParam("organization", organization.getKey())
       .execute();
 
-    assertThat(db.getDbClient().organizationDao().selectByKey(db.getSession(), organization.getKey()).get().getDefaultQualityGateUuid()).isEqualTo(qualityGate.getUuid());
+    assertThat(db.getDbClient().organizationDao().selectByKey(db.getSession(), db.getDefaultOrganization().getKey()).get()
+      .getDefaultQualityGateUuid()).isEqualTo(qualityGate.getUuid());
   }
 }

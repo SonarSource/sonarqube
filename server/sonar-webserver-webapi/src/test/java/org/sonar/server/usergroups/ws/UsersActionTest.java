@@ -56,7 +56,7 @@ public class UsersActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private WsActionTester ws = new WsActionTester(
-    new UsersAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()))));
+    new UsersAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider))));
 
   @Test
   public void verify_definition() {
@@ -71,7 +71,7 @@ public class UsersActionTest {
 
   @Test
   public void fail_if_unknown_group_uuid() {
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No group with id '42'");
@@ -82,7 +82,7 @@ public class UsersActionTest {
   }
 
   @Test
-  public void fail_if_not_admin_of_organization() {
+  public void fail_if_not_admin() {
     GroupDto group = db.users().insertGroup();
     userSession.logIn("not-admin");
 
@@ -94,23 +94,9 @@ public class UsersActionTest {
   }
 
   @Test
-  public void fail_if_admin_of_other_organization_only() {
-    OrganizationDto org1 = db.organizations().insert();
-    OrganizationDto org2 = db.organizations().insert();
-    GroupDto group = db.users().insertGroup(org1, "the-group");
-    loginAsAdmin(org2);
-
-    expectedException.expect(ForbiddenException.class);
-
-    newUsersRequest()
-      .setParam("id", group.getUuid())
-      .setParam("login", "john").execute();
-  }
-
-  @Test
   public void group_has_no_users() {
     GroupDto group = db.users().insertGroup();
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     String result = newUsersRequest()
       .setParam("login", "john")
@@ -133,7 +119,7 @@ public class UsersActionTest {
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     String result = newUsersRequest()
       .setParam("id", group.getUuid())
@@ -152,13 +138,13 @@ public class UsersActionTest {
   @Test
   public void references_group_by_its_name() {
     OrganizationDto org = db.organizations().insert();
-    GroupDto group = db.users().insertGroup(org, "the-group");
+    GroupDto group = db.users().insertGroup("the-group");
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
     db.organizations().addMember(org, lovelace);
     db.organizations().addMember(org, hopper);
-    loginAsAdmin(org);
+    loginAsAdmin();
 
     String result = newUsersRequest()
       .setParam("organization", org.getKey())
@@ -183,7 +169,7 @@ public class UsersActionTest {
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     String result = newUsersRequest()
       .setParam("name", group.getName())
@@ -201,14 +187,14 @@ public class UsersActionTest {
 
   @Test
   public void filter_members_by_name() {
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "a group");
+    GroupDto group = db.users().insertGroup("a group");
     UserDto adaLovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.organizations().addMember(db.getDefaultOrganization(), adaLovelace);
     UserDto graceHopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.organizations().addMember(db.getDefaultOrganization(), graceHopper);
     db.users().insertMember(group, adaLovelace);
     db.users().insertMember(group, graceHopper);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     String response = newUsersRequest().setParam(PARAM_GROUP_ID, group.getUuid()).execute().getInput();
 
@@ -217,32 +203,32 @@ public class UsersActionTest {
 
   @Test
   public void selected_users() {
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "a group");
+    GroupDto group = db.users().insertGroup("a group");
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
     db.organizations().addMember(db.getDefaultOrganization(), lovelace);
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     assertJson(newUsersRequest()
       .setParam("id", group.getUuid())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
-        "  ]\n" +
-        "}");
+      "  \"users\": [\n" +
+      "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
+      "  ]\n" +
+      "}");
 
     assertJson(newUsersRequest()
       .setParam("id", group.getUuid())
       .setParam(Param.SELECTED, SelectionMode.SELECTED.value())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
-        "  ]\n" +
-        "}");
+      "  \"users\": [\n" +
+      "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
+      "  ]\n" +
+      "}");
   }
 
   @Test
@@ -253,7 +239,7 @@ public class UsersActionTest {
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     String result = newUsersRequest()
       .setParam("id", group.getUuid())
@@ -276,7 +262,7 @@ public class UsersActionTest {
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     assertJson(newUsersRequest()
       .setParam("id", group.getUuid())
@@ -284,13 +270,13 @@ public class UsersActionTest {
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"p\": 1,\n" +
-        "  \"ps\": 1,\n" +
-        "  \"total\": 2,\n" +
-        "  \"users\": [\n" +
-        "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
-        "  ]\n" +
-        "}");
+      "  \"p\": 1,\n" +
+      "  \"ps\": 1,\n" +
+      "  \"total\": 2,\n" +
+      "  \"users\": [\n" +
+      "    {\"login\": \"ada\", \"name\": \"Ada Lovelace\", \"selected\": true}\n" +
+      "  ]\n" +
+      "}");
 
     assertJson(newUsersRequest()
       .setParam("id", group.getUuid())
@@ -299,13 +285,13 @@ public class UsersActionTest {
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"p\": 2,\n" +
-        "  \"ps\": 1,\n" +
-        "  \"total\": 2,\n" +
-        "  \"users\": [\n" +
-        "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-        "  ]\n" +
-        "}");
+      "  \"p\": 2,\n" +
+      "  \"ps\": 1,\n" +
+      "  \"total\": 2,\n" +
+      "  \"users\": [\n" +
+      "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
+      "  ]\n" +
+      "}");
   }
 
   @Test
@@ -316,7 +302,7 @@ public class UsersActionTest {
     UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper").setEmail("grace@hopper.com"));
     db.organizations().addMember(db.getDefaultOrganization(), hopper);
     db.users().insertMember(group, lovelace);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     assertJson(newUsersRequest()
       .setParam("id", group.getUuid())
@@ -324,50 +310,50 @@ public class UsersActionTest {
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\"login\": \"ada.login\", \"name\": \"Ada Lovelace\", \"selected\": true},\n" +
-        "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
-        "  ]\n" +
-        "}\n");
+      "  \"users\": [\n" +
+      "    {\"login\": \"ada.login\", \"name\": \"Ada Lovelace\", \"selected\": true},\n" +
+      "    {\"login\": \"grace\", \"name\": \"Grace Hopper\", \"selected\": false}\n" +
+      "  ]\n" +
+      "}\n");
 
     assertJson(newUsersRequest().setParam("id", group.getUuid())
       .setParam("q", ".logi")
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\n" +
-        "      \"login\": \"ada.login\",\n" +
-        "      \"name\": \"Ada Lovelace\",\n" +
-        "      \"selected\": true\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}\n");
+      "  \"users\": [\n" +
+      "    {\n" +
+      "      \"login\": \"ada.login\",\n" +
+      "      \"name\": \"Ada Lovelace\",\n" +
+      "      \"selected\": true\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}\n");
 
     assertJson(newUsersRequest().setParam("id", group.getUuid())
       .setParam("q", "OvE")
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\n" +
-        "      \"login\": \"ada.login\",\n" +
-        "      \"name\": \"Ada Lovelace\",\n" +
-        "      \"selected\": true\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}\n");
+      "  \"users\": [\n" +
+      "    {\n" +
+      "      \"login\": \"ada.login\",\n" +
+      "      \"name\": \"Ada Lovelace\",\n" +
+      "      \"selected\": true\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}\n");
 
     assertJson(newUsersRequest().setParam("id", group.getUuid())
       .setParam("q", "mail")
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"users\": [\n" +
-        "    {\n" +
-        "      \"login\": \"ada.login\",\n" +
-        "      \"name\": \"Ada Lovelace\",\n" +
-        "      \"selected\": true\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}\n");
+      "  \"users\": [\n" +
+      "    {\n" +
+      "      \"login\": \"ada.login\",\n" +
+      "      \"name\": \"Ada Lovelace\",\n" +
+      "      \"selected\": true\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}\n");
   }
 
   @Test
@@ -379,7 +365,7 @@ public class UsersActionTest {
     UserDto george = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell"));
     db.users().insertMember(group, george);
     db.organizations().addMember(db.getDefaultOrganization(), george);
-    loginAsAdminOnDefaultOrganization();
+    loginAsAdmin();
 
     String result = newUsersRequest()
       .setParam("id", group.getUuid())
@@ -394,11 +380,8 @@ public class UsersActionTest {
     return ws.newRequest();
   }
 
-  private void loginAsAdminOnDefaultOrganization() {
-    loginAsAdmin(db.getDefaultOrganization());
+  private void loginAsAdmin() {
+    userSession.logIn().addPermission(ADMINISTER);
   }
 
-  private void loginAsAdmin(OrganizationDto org) {
-    userSession.logIn().addPermission(ADMINISTER, org);
-  }
 }

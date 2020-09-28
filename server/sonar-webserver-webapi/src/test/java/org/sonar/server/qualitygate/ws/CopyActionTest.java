@@ -100,7 +100,7 @@ public class CopyActionTest {
   public void copy() {
 
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric();
@@ -124,9 +124,9 @@ public class CopyActionTest {
   }
 
   @Test
-  public void default_organization_is_used_when_no_organization_parameter(){
+  public void default_organization_is_used_when_no_organization_parameter() {
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(defaultOrganization);
 
     ws.newRequest()
@@ -142,7 +142,7 @@ public class CopyActionTest {
   @Test
   public void copy_of_builtin_should_not_be_builtin() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qualityGateDto -> qualityGateDto.setBuiltIn(true));
 
     ws.newRequest()
@@ -158,7 +158,7 @@ public class CopyActionTest {
 
   @Test
   public void response_contains_quality_gate() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
 
     QualityGate response = ws.newRequest()
@@ -174,11 +174,11 @@ public class CopyActionTest {
   @Test
   public void quality_gates_can_have_the_same_name_in_different_organization() {
     OrganizationDto organization1 = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization1);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(organization1);
 
     OrganizationDto organization2 = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization2);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(organization2);
 
     assertThat(qualityGate1.getName()).isNotEqualTo(qualityGate2.getName());
@@ -194,12 +194,12 @@ public class CopyActionTest {
   }
 
   @Test
-  public void quality_gate_from_external_organization_can_not_be_copied(){
+  public void quality_gate_from_external_organization_can_not_be_copied() {
     OrganizationDto organization1 = db.organizations().insert();
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(organization1);
 
     OrganizationDto organization2 = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization2);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("No quality gate has been found for id %s in organization %s", qualityGate1.getUuid(), organization2.getName()));
@@ -214,7 +214,7 @@ public class CopyActionTest {
   @Test
   public void fail_when_missing_administer_quality_gate_permission() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
 
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
@@ -230,7 +230,7 @@ public class CopyActionTest {
   @Test
   public void fail_when_id_parameter_is_missing() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'id' or 'sourceName' must be provided, and not both");
@@ -244,7 +244,7 @@ public class CopyActionTest {
   @Test
   public void fail_when_quality_gate_id_is_not_found() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format(
@@ -261,9 +261,8 @@ public class CopyActionTest {
   @UseDataProvider("nullOrEmpty")
   public void fail_when_name_parameter_is_missing(@Nullable String nameParameter) {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
-
 
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getUuid())
@@ -288,7 +287,7 @@ public class CopyActionTest {
   @Test
   public void fail_when_name_parameter_match_existing_quality_gate_in_the_same_organization() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QualityGateDto existingQualityGate = db.qualityGates().insertQualityGate(organization);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
 

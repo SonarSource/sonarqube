@@ -48,7 +48,7 @@ public class WebhookSupport {
   }
 
   void checkPermission(OrganizationDto organizationDto) {
-    userSession.checkPermission(ADMINISTER, organizationDto);
+    userSession.checkPermission(ADMINISTER);
   }
 
   void checkUrlPattern(String url, String message, Object... messageArguments) {

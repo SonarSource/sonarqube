@@ -70,13 +70,13 @@ public class DeselectAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       ProjectDto project = wsSupport.getProject(dbSession, organization, request.mandatoryParam(PARAM_PROJECT_KEY));
-      dissociateProject(dbSession, organization, project);
+      dissociateProject(dbSession, project);
       response.noContent();
     }
   }
 
-  private void dissociateProject(DbSession dbSession, OrganizationDto organization, ProjectDto project) {
-    wsSupport.checkCanAdminProject(organization, project);
+  private void dissociateProject(DbSession dbSession, ProjectDto project) {
+    wsSupport.checkCanAdminProject(project);
     dbClient.projectQgateAssociationDao().deleteByProjectUuid(dbSession, project.getUuid());
     dbSession.commit();
   }

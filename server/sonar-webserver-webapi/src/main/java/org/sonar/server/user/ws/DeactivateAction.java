@@ -131,6 +131,7 @@ public class DeactivateAction implements UsersWsAction {
   }
 
   private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
+    //TODO can this be removed?
     List<OrganizationDto> problematicOrgs = new OrganizationHelper(dbClient).selectOrganizationsWithLastAdmin(dbSession, user.getUuid());
     if (problematicOrgs.isEmpty()) {
       return;

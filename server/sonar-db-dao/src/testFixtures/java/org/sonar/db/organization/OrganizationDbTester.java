@@ -25,13 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.user.GroupMembershipDto;
-import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
 
 public class OrganizationDbTester {
   private final DbTester db;
@@ -77,15 +71,9 @@ public class OrganizationDbTester {
 
   public void setDefaultTemplates(PermissionTemplateDto projectDefaultTemplate, @Nullable PermissionTemplateDto applicationDefaultTemplate,
     @Nullable PermissionTemplateDto portfolioDefaultTemplate) {
-    checkArgument(portfolioDefaultTemplate == null
-      || portfolioDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
-      "default template for project and portfolio must belong to the same organization");
-    checkArgument(applicationDefaultTemplate == null
-      || applicationDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
-      "default template for project and application must belong to the same organization");
 
     DbSession dbSession = db.getSession();
-    db.getDbClient().organizationDao().setDefaultTemplates(dbSession, projectDefaultTemplate.getOrganizationUuid(),
+    db.getDbClient().organizationDao().setDefaultTemplates(dbSession, db.getDefaultOrganization().getUuid(),
       new DefaultTemplates()
         .setProjectUuid(projectDefaultTemplate.getUuid())
         .setPortfoliosUuid(portfolioDefaultTemplate == null ? null : portfolioDefaultTemplate.getUuid())
@@ -93,10 +81,9 @@ public class OrganizationDbTester {
     dbSession.commit();
   }
 
-  public void setDefaultTemplates(OrganizationDto defaultOrganization, String projectDefaultTemplateUuid,
-    @Nullable String applicationDefaultTemplateUuid, @Nullable String portfoliosDefaultTemplateUuid) {
+  public void setDefaultTemplates(String projectDefaultTemplateUuid, @Nullable String applicationDefaultTemplateUuid, @Nullable String portfoliosDefaultTemplateUuid) {
     DbSession dbSession = db.getSession();
-    db.getDbClient().organizationDao().setDefaultTemplates(dbSession, defaultOrganization.getUuid(),
+    db.getDbClient().organizationDao().setDefaultTemplates(dbSession, db.getDefaultOrganization().getUuid(),
       new DefaultTemplates()
         .setProjectUuid(projectDefaultTemplateUuid)
         .setApplicationsUuid(applicationDefaultTemplateUuid)
@@ -119,25 +106,4 @@ public class OrganizationDbTester {
   public boolean getNewProjectPrivate(OrganizationDto organization) {
     return db.getDbClient().organizationDao().getNewProjectPrivate(db.getSession(), organization);
   }
-
-  public void assertUserIsMemberOfOrganization(OrganizationDto organization, UserDto user) {
-    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getUuid())).as("User is not member of the organization").isPresent();
-    String defaultGroupUuid = db.getDbClient().organizationDao().getDefaultGroupUuid(db.getSession(), organization.getUuid()).get();
-    assertThat(db.getDbClient().groupMembershipDao().selectGroups(
-      db.getSession(),
-      GroupMembershipQuery.builder().membership(IN).organizationUuid(organization.getUuid()).build(),
-      user.getUuid(), 0, 10))
-        .extracting(GroupMembershipDto::getUuid)
-        .as("User is not member of the default group of the organization")
-        .containsOnly(defaultGroupUuid);
-  }
-
-  public void assertUserIsNotMemberOfOrganization(OrganizationDto organization, UserDto user) {
-    assertThat(db.getDbClient().organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getUuid())).as("User is still member of the organization")
-      .isNotPresent();
-    assertThat(db.getDbClient().groupMembershipDao().countGroups(db.getSession(),
-      GroupMembershipQuery.builder().membership(IN).organizationUuid(organization.getUuid()).build(),
-      user.getUuid())).isZero();
-  }
-
 }

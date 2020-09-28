@@ -43,7 +43,6 @@ public class UserMembershipQuery {
   public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
 
   private final String groupUuid;
-  private final String organizationUuid;
   private final String membership;
 
   private final String memberSearch;
@@ -60,7 +59,6 @@ public class UserMembershipQuery {
 
   private UserMembershipQuery(Builder builder) {
     this.groupUuid = builder.groupUuid;
-    this.organizationUuid = builder.organizationUuid;
     this.membership = builder.membership;
     this.memberSearch = builder.memberSearch;
     this.memberSearchSql = memberSearch == null ? null : buildLikeValue(memberSearch, BEFORE_AND_AFTER);
@@ -71,10 +69,6 @@ public class UserMembershipQuery {
 
   public String groupUuid() {
     return groupUuid;
-  }
-
-  public String organizationUuid() {
-    return organizationUuid;
   }
 
   @CheckForNull
@@ -104,7 +98,6 @@ public class UserMembershipQuery {
 
   public static class Builder {
     private String groupUuid;
-    private String organizationUuid;
     private String membership;
     private String memberSearch;
 
@@ -116,11 +109,6 @@ public class UserMembershipQuery {
 
     public Builder groupUuid(String groupUuid) {
       this.groupUuid = groupUuid;
-      return this;
-    }
-
-    public Builder organizationUuid(String organizationUuid) {
-      this.organizationUuid = organizationUuid;
       return this;
     }
 
@@ -161,7 +149,6 @@ public class UserMembershipQuery {
 
     public UserMembershipQuery build() {
       requireNonNull(groupUuid, "Group ID cant be null.");
-      requireNonNull(organizationUuid, "Organization UUID cannot be null");
       initMembership();
       initPageIndex();
       initPageSize();

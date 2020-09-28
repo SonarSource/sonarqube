@@ -21,16 +21,15 @@ package org.sonar.server.authentication;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.UserRegistration.ExistingEmailStrategy;
@@ -39,16 +38,12 @@ import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.exception.EmailAlreadyExistsRedirectionException;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.MemberUpdater;
-import org.sonar.server.organization.OrganizationUpdater;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -59,9 +54,6 @@ import static org.sonar.server.authentication.event.AuthenticationEvent.Method.B
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class UserRegistrarImplTest {
-
-  private System2 system2 = new AlwaysIncreasingSystem2();
-
   private static String USER_LOGIN = "johndoo";
 
   private static UserIdentity USER_IDENTITY = UserIdentity.builder()
@@ -87,29 +79,27 @@ public class UserRegistrarImplTest {
   public EsTester es = EsTester.create();
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private OrganizationUpdater organizationUpdater = mock(OrganizationUpdater.class);
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private DefaultGroupFinder groupFinder = new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider);
   private UserUpdater userUpdater = new UserUpdater(
-    system2,
     mock(NewUserNotifier.class),
     db.getDbClient(),
     userIndexer,
-    organizationFlags,
     defaultOrganizationProvider,
-    new DefaultGroupFinder(db.getDbClient()),
+    groupFinder,
     settings.asConfig(),
     localAuthentication);
 
-  private DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
+  private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, groupFinder);
+  private GroupDto defaultGroup;
 
-  private UserRegistrarImpl underTest = new UserRegistrarImpl(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
-    defaultGroupFinder, new MemberUpdater(db.getDbClient(), defaultGroupFinder, userIndexer));
+  @Before
+  public void setUp() {
+    defaultGroup = insertDefaultGroup();
+  }
 
   @Test
   public void authenticate_new_user() {
-    organizationFlags.setEnabled(true);
-
     UserDto createdUser = underTest.register(UserRegistration.builder()
       .setUserIdentity(USER_IDENTITY)
       .setProvider(IDENTITY_PROVIDER)
@@ -126,14 +116,11 @@ public class UserRegistrarImplTest {
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.getExternalId()).isEqualTo("ABCD");
     assertThat(user.isRoot()).isFalse();
-    checkGroupMembership(user);
+    checkGroupMembership(user, defaultGroup);
   }
 
   @Test
   public void authenticate_new_user_with_sq_identity() {
-    organizationFlags.setEnabled(false);
-    GroupDto defaultGroup = insertDefaultGroup();
-
     TestIdentityProvider sqIdentityProvider = new TestIdentityProvider()
       .setKey("sonarqube")
       .setName("sonarqube identity name")
@@ -163,8 +150,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_new_user_generate_login_when_no_login_provided() {
-    organizationFlags.setEnabled(true);
-
     underTest.register(UserRegistration.builder()
       .setUserIdentity(UserIdentity.builder()
         .setProviderId("ABCD")
@@ -189,22 +174,19 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_new_user_with_groups() {
-    organizationFlags.setEnabled(true);
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
-    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
 
     UserDto loggedInUser = authenticate(USER_LOGIN, "group1", "group2", "group3");
 
     Optional<UserDto> user = db.users().selectUserByLogin(loggedInUser.getLogin());
-    checkGroupMembership(user.get(), group1, group2);
+    checkGroupMembership(user.get(), group1, group2, defaultGroup);
   }
 
   @Test
-  public void authenticate_new_user_and_force_default_group_when_organizations_are_disabled() {
-    organizationFlags.setEnabled(false);
+  public void authenticate_new_user_and_force_default_group() {
     UserDto user = db.users().insertUser();
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
-    GroupDto defaultGroup = insertDefaultGroup();
+    GroupDto group1 = db.users().insertGroup("group1");
     db.users().insertMember(group1, user);
     db.users().insertMember(defaultGroup, user);
 
@@ -214,25 +196,7 @@ public class UserRegistrarImplTest {
   }
 
   @Test
-  public void does_not_force_default_group_when_authenticating_new_user_if_organizations_are_enabled() {
-    organizationFlags.setEnabled(true);
-    UserDto user = db.users().insertUser(newUserDto()
-      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-    );
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
-    GroupDto defaultGroup = insertDefaultGroup();
-    db.users().insertMember(group1, user);
-    db.users().insertMember(defaultGroup, user);
-
-    authenticate(user.getExternalLogin(), "group1");
-
-    checkGroupMembership(user, group1);
-  }
-
-  @Test
   public void authenticate_new_user_sets_onboarded_flag_to_false_when_onboarding_setting_is_set_to_true() {
-    organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), true);
 
     UserDto user = underTest.register(UserRegistration.builder()
@@ -247,7 +211,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_new_user_sets_onboarded_flag_to_true_when_onboarding_setting_is_set_to_false() {
-    organizationFlags.setEnabled(true);
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS.getKey(), false);
 
     UserDto user = underTest.register(UserRegistration.builder()
@@ -262,7 +225,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void external_id_is_set_to_provider_login_when_null() {
-    organizationFlags.setEnabled(true);
     UserIdentity newUser = UserIdentity.builder()
       .setProviderId(null)
       .setProviderLogin("johndoo")
@@ -283,7 +245,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_new_user_update_existing_user_email_when_strategy_is_ALLOW() {
-    organizationFlags.setEnabled(true);
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserIdentity newUser = UserIdentity.builder()
       .setProviderLogin("johndoo")
@@ -306,7 +267,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void throw_EmailAlreadyExistException_when_authenticating_new_user_when_email_already_exists_and_strategy_is_WARN() {
-    organizationFlags.setEnabled(true);
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserIdentity newUser = UserIdentity.builder()
       .setProviderLogin("johndoo")
@@ -387,7 +347,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_and_update_existing_user_matching_login() {
-    insertDefaultGroup();
     db.users().insertUser(u -> u
       .setName("Old name")
       .setEmail("Old email")
@@ -470,7 +429,7 @@ public class UserRegistrarImplTest {
       .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
       .build());
 
-    //no new user should be created
+    // no new user should be created
     assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(1);
     assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
@@ -554,7 +513,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_disabled_user() {
-    organizationFlags.setEnabled(true);
     db.users().insertUser(u -> u
       .setLogin(USER_LOGIN)
       .setActive(false)
@@ -583,7 +541,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_when_email_already_exists_and_strategy_is_ALLOW() {
-    organizationFlags.setEnabled(true);
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserDto currentUser = db.users().insertUser(u -> u.setExternalLogin("johndoo").setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()).setEmail(null));
 
@@ -610,7 +567,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void throw_EmailAlreadyExistException_when_authenticating_existing_user_when_email_already_exists_and_strategy_is_WARN() {
-    organizationFlags.setEnabled(true);
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
     UserIdentity userIdentity = UserIdentity.builder()
@@ -631,7 +587,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void throw_AuthenticationException_when_authenticating_existing_user_when_email_already_exists_and_strategy_is_FORBID() {
-    organizationFlags.setEnabled(true);
     UserDto existingUser = db.users().insertUser(u -> u.setEmail("john@email.com"));
     UserDto currentUser = db.users().insertUser(u -> u.setEmail(null));
     UserIdentity userIdentity = UserIdentity.builder()
@@ -656,7 +611,6 @@ public class UserRegistrarImplTest {
 
   @Test
   public void does_not_fail_to_authenticate_user_when_email_has_not_changed_and_strategy_is_FORBID() {
-    organizationFlags.setEnabled(true);
     UserDto currentUser = db.users().insertUser(u -> u.setEmail("john@email.com")
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey()));
     UserIdentity userIdentity = UserIdentity.builder()
@@ -679,14 +633,13 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_and_add_new_groups() {
-    organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser(newUserDto()
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
       .setExternalLogin(USER_IDENTITY.getProviderLogin())
       .setActive(true)
       .setName("John"));
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
-    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
 
     authenticate(USER_IDENTITY.getProviderLogin(), "group1", "group2", "group3");
 
@@ -695,14 +648,13 @@ public class UserRegistrarImplTest {
 
   @Test
   public void authenticate_existing_user_and_remove_groups() {
-    organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser(newUserDto()
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
       .setExternalLogin(USER_IDENTITY.getProviderLogin())
       .setActive(true)
       .setName("John"));
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
-    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
 
@@ -712,15 +664,12 @@ public class UserRegistrarImplTest {
   }
 
   @Test
-  public void authenticate_existing_user_and_remove_all_groups_expect_default_when_organizations_are_disabled() {
-    organizationFlags.setEnabled(false);
+  public void authenticate_existing_user_and_remove_all_groups_expect_default() {
     UserDto user = db.users().insertUser(newUserDto()
       .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-    );
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
-    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
-    GroupDto defaultGroup = insertDefaultGroup();
+      .setExternalLogin(USER_IDENTITY.getProviderLogin()));
+    GroupDto group1 = db.users().insertGroup("group1");
+    GroupDto group2 = db.users().insertGroup("group2");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
     db.users().insertMember(defaultGroup, user);
@@ -728,51 +677,6 @@ public class UserRegistrarImplTest {
     authenticate(user.getExternalLogin());
 
     checkGroupMembership(user, defaultGroup);
-  }
-
-  @Test
-  public void does_not_force_default_group_when_authenticating_existing_user_when_organizations_are_enabled() {
-    organizationFlags.setEnabled(true);
-    UserDto user = db.users().insertUser(newUserDto()
-      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-    );
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
-    GroupDto defaultGroup = insertDefaultGroup();
-    db.users().insertMember(group1, user);
-    db.users().insertMember(defaultGroup, user);
-
-    authenticate(user.getExternalLogin(), "group1");
-
-    checkGroupMembership(user, group1);
-  }
-
-  @Test
-  public void ignore_groups_on_non_default_organizations() {
-    organizationFlags.setEnabled(true);
-    OrganizationDto org = db.organizations().insert();
-    UserDto user = db.users().insertUser(newUserDto()
-      .setExternalIdentityProvider(IDENTITY_PROVIDER.getKey())
-      .setExternalLogin(USER_IDENTITY.getProviderLogin())
-      .setActive(true)
-      .setName("John"));
-    String groupName = "a-group";
-    GroupDto groupInDefaultOrg = db.users().insertGroup(db.getDefaultOrganization(), groupName);
-    GroupDto groupInOrg = db.users().insertGroup(org, groupName);
-
-    // adding a group with the same name than in non-default organization
-    underTest.register(UserRegistration.builder()
-      .setUserIdentity(UserIdentity.builder()
-        .setProviderLogin("johndoo")
-        .setName(user.getName())
-        .setGroups(newHashSet(groupName))
-        .build())
-      .setProvider(IDENTITY_PROVIDER)
-      .setSource(Source.local(BASIC))
-      .setExistingEmailStrategy(ExistingEmailStrategy.FORBID)
-      .build());
-
-    checkGroupMembership(user, groupInDefaultOrg);
   }
 
   private UserDto authenticate(String providerLogin, String... groups) {
@@ -790,11 +694,11 @@ public class UserRegistrarImplTest {
   }
 
   private void checkGroupMembership(UserDto user, GroupDto... expectedGroups) {
-    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).collect(Collectors.toList()).toArray(new String[]{}));
+    assertThat(db.users().selectGroupUuidsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getUuid).collect(Collectors.toList()).toArray(new String[] {}));
   }
 
   private GroupDto insertDefaultGroup() {
-    return db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
+    return db.users().insertDefaultGroup("sonar-users");
   }
 
 }

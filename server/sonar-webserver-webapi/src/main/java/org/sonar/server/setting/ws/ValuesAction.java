@@ -158,7 +158,7 @@ public class ValuesAction implements SettingsWsAction {
     ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
     if (!userSession.hasComponentPermission(USER, component) &&
       !userSession.hasComponentPermission(UserRole.SCAN, component) &&
-      !userSession.hasPermission(OrganizationPermission.SCAN, component.getOrganizationUuid())) {
+      !userSession.hasPermission(OrganizationPermission.SCAN)) {
       throw insufficientPrivilegesException();
     }
     return Optional.of(component);

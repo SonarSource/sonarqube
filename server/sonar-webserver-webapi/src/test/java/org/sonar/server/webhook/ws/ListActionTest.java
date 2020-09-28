@@ -114,7 +114,7 @@ public class ListActionTest {
     webhookDeliveryDbTester.insert(newDto("WH2-DELIVERY-1-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_1").setCreatedAt(BEFORE));
     webhookDeliveryDbTester.insert(newDto("WH2-DELIVERY-2-UUID", webhook2.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
 
-    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
 
@@ -137,7 +137,7 @@ public class ListActionTest {
     WebhookDto webhook1 = webhookDbTester.insert(newOrganizationWebhook("aaa", defaultOrganizationProvider.get().getUuid()));
     WebhookDto webhook2 = webhookDbTester.insert(newOrganizationWebhook("bbb", defaultOrganizationProvider.get().getUuid()));
 
-    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
 
@@ -162,7 +162,7 @@ public class ListActionTest {
     webhookDeliveryDbTester.insert(newDto("WH1-DELIVERY-2-UUID", webhook1.getUuid(), "COMPONENT_1", "TASK_2").setCreatedAt(NOW));
     WebhookDto webhook2 = webhookDbTester.insert(newOrganizationWebhook("bbb", db.getDefaultOrganization().getUuid(), t -> t.setUrl(url)));
 
-    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest().executeProtobuf(ListResponse.class);
 
@@ -177,7 +177,7 @@ public class ListActionTest {
   public void list_global_webhooks() {
     WebhookDto dto1 = webhookDbTester.insertWebhook(db.getDefaultOrganization());
     WebhookDto dto2 = webhookDbTester.insertWebhook(db.getDefaultOrganization());
-    userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest()
       .executeProtobuf(ListResponse.class);
@@ -213,7 +213,7 @@ public class ListActionTest {
     OrganizationDto organizationDto = organizationDbTester.insert();
     WebhookDto dto1 = webhookDbTester.insertWebhook(organizationDto);
     WebhookDto dto2 = webhookDbTester.insertWebhook(organizationDto);
-    userSession.logIn().addPermission(ADMINISTER, organizationDto.getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     ListResponse response = wsActionTester.newRequest()
       .setParam(ORGANIZATION_KEY_PARAM, organizationDto.getKey())

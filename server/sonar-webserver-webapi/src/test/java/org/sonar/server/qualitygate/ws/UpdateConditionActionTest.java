@@ -80,7 +80,7 @@ public class UpdateConditionActionTest {
   @Test
   public void update_error_condition() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -99,7 +99,7 @@ public class UpdateConditionActionTest {
 
   @Test
   public void default_organization_is_used_when_no_organization_parameter() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
@@ -117,7 +117,7 @@ public class UpdateConditionActionTest {
   @Test
   public void test_response() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -140,7 +140,7 @@ public class UpdateConditionActionTest {
   @Test
   public void fail_to_update_built_in_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
@@ -160,7 +160,7 @@ public class UpdateConditionActionTest {
   @Test
   public void fail_on_unknown_condition() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = insertMetric();
     db.qualityGates().addCondition(qualityGate, metric);
@@ -180,7 +180,7 @@ public class UpdateConditionActionTest {
   @Test
   public void fail_when_condition_match_unknown_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     MetricDto metric = insertMetric();
     QualityGateConditionDto condition = new QualityGateConditionDto().setUuid("uuid")
       .setMetricUuid("metric")
@@ -193,7 +193,7 @@ public class UpdateConditionActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam(PARAM_ID,condition.getUuid())
+      .setParam(PARAM_ID, condition.getUuid())
       .setParam(PARAM_METRIC, metric.getKey())
       .setParam(PARAM_OPERATOR, "LT")
       .setParam(PARAM_ERROR, "90")
@@ -203,7 +203,7 @@ public class UpdateConditionActionTest {
   @Test
   public void fail_with_unknown_operator() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(0));
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
@@ -225,7 +225,7 @@ public class UpdateConditionActionTest {
   @UseDataProvider("update_invalid_operators_and_direction")
   public void fail_with_invalid_operators_for_direction(String validOperator, String updateOperator, int direction) {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false).setDirection(direction));
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,

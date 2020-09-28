@@ -124,7 +124,7 @@ public class CreateActionTest {
 
   @Test
   public void create_a_webhook_with_secret() {
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
@@ -141,7 +141,7 @@ public class CreateActionTest {
 
   @Test
   public void create_a_webhook_on_default_organization() {
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
@@ -158,7 +158,7 @@ public class CreateActionTest {
   @Test
   public void create_a_webhook_on_specific_organization() {
     OrganizationDto organization = organizationDbTester.insert();
-    userSession.logIn().addPermission(ADMINISTER, organization.getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     CreateWsResponse response = wsActionTester.newRequest()
       .setParam("organization", organization.getKey())
@@ -274,7 +274,7 @@ public class CreateActionTest {
     for (int i = 0; i < 10; i++) {
       webhookDbTester.insertWebhook(organization);
     }
-    userSession.logIn().addPermission(ADMINISTER, organization.getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     wsActionTester.newRequest()
       .setParam(ORGANIZATION_KEY_PARAM, organization.getKey())
@@ -299,7 +299,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_url_is_not_valid() {
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -311,7 +311,7 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_credential_in_url_is_have_a_wrong_format() {
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -379,7 +379,7 @@ public class CreateActionTest {
   @Test
   public void throw_IllegalArgumentException_if_project_key_greater_than_400() {
     String longProjectKey = generateStringWithLength(401);
-    userSession.logIn().addPermission(ADMINISTER, defaultOrganizationProvider.get().getUuid());
+    userSession.logIn().addPermission(ADMINISTER);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("'project' length (401) is longer than the maximum authorized (400)");

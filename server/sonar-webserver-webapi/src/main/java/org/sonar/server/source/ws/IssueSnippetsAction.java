@@ -38,7 +38,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.protobuf.DbIssues;
@@ -57,7 +56,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
   private final LinesJsonWriter linesJsonWriter;
 
   public IssueSnippetsAction(DbClient dbClient, UserSession userSession, SourceService sourceService, LinesJsonWriter linesJsonWriter,
-                             ComponentViewerJsonWriter componentViewerJsonWriter) {
+    ComponentViewerJsonWriter componentViewerJsonWriter) {
     this.sourceService = sourceService;
     this.dbClient = dbClient;
     this.userSession = userSession;
@@ -102,11 +101,10 @@ public class IssueSnippetsAction implements SourcesWsAction {
         try (JsonWriter jsonWriter = response.newJsonWriter()) {
           jsonWriter.beginObject();
 
-          boolean showScmAuthors = userSession.hasMembership(new OrganizationDto().setUuid(project.getOrganizationUuid()));
           for (Map.Entry<String, TreeSet<Integer>> e : linesPerComponent.entrySet()) {
             ComponentDto componentDto = componentsByUuid.get(e.getKey());
             if (componentDto != null) {
-              writeSnippet(dbSession, jsonWriter, componentDto, e.getValue(), showScmAuthors);
+              writeSnippet(dbSession, jsonWriter, componentDto, e.getValue());
             }
           }
 
@@ -116,7 +114,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
     }
   }
 
-  private void writeSnippet(DbSession dbSession, JsonWriter writer, ComponentDto fileDto, Set<Integer> lines, boolean showScmAuthors) {
+  private void writeSnippet(DbSession dbSession, JsonWriter writer, ComponentDto fileDto, Set<Integer> lines) {
     Optional<Iterable<DbFileSources.Line>> lineSourcesOpt = sourceService.getLines(dbSession, fileDto.uuid(), lines);
     if (!lineSourcesOpt.isPresent()) {
       return;
@@ -134,7 +132,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
     componentViewerJsonWriter.writeComponentWithoutFav(writer, fileDto, dbSession, false);
     componentViewerJsonWriter.writeMeasures(writer, fileDto, dbSession);
     writer.endObject();
-    linesJsonWriter.writeSource(lineSources, writer, showScmAuthors, periodDateSupplier);
+    linesJsonWriter.writeSource(lineSources, writer, periodDateSupplier);
 
     writer.endObject();
   }
@@ -160,7 +158,7 @@ public class IssueSnippetsAction implements SourcesWsAction {
   }
 
   private static void addTextRange(Map<String, TreeSet<Integer>> linesPerComponent, String componentUuid,
-                                   DbCommons.TextRange textRange, int numLinesAfterIssue) {
+    DbCommons.TextRange textRange, int numLinesAfterIssue) {
     int start = textRange.getStartLine() - 5;
     int end = textRange.getEndLine() + numLinesAfterIssue;
 

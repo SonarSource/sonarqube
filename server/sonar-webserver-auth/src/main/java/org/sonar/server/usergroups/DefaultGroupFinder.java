@@ -22,6 +22,7 @@ package org.sonar.server.usergroups;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -29,14 +30,16 @@ import static java.util.Objects.requireNonNull;
 public class DefaultGroupFinder {
 
   private final DbClient dbClient;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public DefaultGroupFinder(DbClient dbClient) {
+  public DefaultGroupFinder(DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public GroupDto findDefaultGroup(DbSession dbSession, String organizationUuid) {
-    String defaultGroupUuid = dbClient.organizationDao().getDefaultGroupUuid(dbSession, organizationUuid)
-      .orElseThrow(() -> new IllegalStateException(format("Default group cannot be found on organization '%s'", organizationUuid)));
+  public GroupDto findDefaultGroup(DbSession dbSession) {
+    String defaultGroupUuid = dbClient.organizationDao().getDefaultGroupUuid(dbSession, defaultOrganizationProvider.get().getUuid())
+      .orElseThrow(() -> new IllegalStateException("Default group cannot be found "));
     return requireNonNull(dbClient.groupDao().selectByUuid(dbSession, defaultGroupUuid), format("Group '%s' cannot be found", defaultGroupUuid));
   }
 

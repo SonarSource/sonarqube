@@ -37,24 +37,12 @@ public class GroupMembershipQueryTest {
       .membership(GroupMembershipQuery.IN)
       .pageIndex(2)
       .pageSize(10)
-      .organizationUuid("organization_uuid")
       .build();
 
     assertThat(underTest.groupSearch()).isEqualTo("sonar-users");
     assertThat(underTest.membership()).isEqualTo("IN");
     assertThat(underTest.pageIndex()).isEqualTo(2);
     assertThat(underTest.pageSize()).isEqualTo(10);
-    assertThat(underTest.organizationUuid()).isEqualTo("organization_uuid");
-  }
-
-  @Test
-  public void fail_on_null_organization() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Organization uuid cant be null");
-
-    GroupMembershipQuery.builder()
-      .organizationUuid(null)
-      .build();
   }
 
   @Test
@@ -63,9 +51,7 @@ public class GroupMembershipQueryTest {
     expectedException.expectMessage("Membership is not valid (got unknwown). Availables values are [ANY, IN, OUT]");
 
     GroupMembershipQuery.builder()
-      .organizationUuid("organization_uuid")
       .membership("unknwown")
       .build();
   }
-
 }

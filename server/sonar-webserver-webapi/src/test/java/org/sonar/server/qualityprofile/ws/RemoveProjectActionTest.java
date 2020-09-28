@@ -222,7 +222,7 @@ public class RemoveProjectActionTest {
   }
 
   private void logInAsProfileAdmin() {
-    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
   private TestResponse call(ProjectDto project, QProfileDto qualityProfile) {

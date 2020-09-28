@@ -274,7 +274,7 @@ public class SearchActionTest {
     QProfileDto defaultProfile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
     db.qualityProfiles().setAsDefault(defaultProfile);
     UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn(user).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
 
     SearchWsResponse result = call(ws.newRequest());
 
@@ -296,7 +296,7 @@ public class SearchActionTest {
     QProfileDto profile3 = db.qualityProfiles().insert(p -> p.setLanguage(XOO2.getKey()));
     QProfileDto builtInProfile = db.qualityProfiles().insert(p -> p.setLanguage(XOO2.getKey()).setIsBuiltIn(true));
     UserDto user = db.users().insertUser();
-    GroupDto group = db.users().insertGroup(organization);
+    GroupDto group = db.users().insertGroup();
     db.qualityProfiles().addUserPermission(profile1, user);
     db.qualityProfiles().addGroupPermission(profile3, group);
     userSession.logIn(user).setGroups(group);

@@ -20,10 +20,7 @@
 package org.sonar.server.issue;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
@@ -42,7 +39,6 @@ public class AssignAction extends Action {
   public static final String ASSIGN_KEY = "assign";
   public static final String ASSIGNEE_PARAMETER = "assignee";
   private static final String VERIFIED_ASSIGNEE = "verifiedAssignee";
-  private static final String ASSIGNEE_ORGANIZATIONS = "assigneeOrganizationUuids";
 
   private final DbClient dbClient;
   private final IssueFieldsSetter issueFieldsSetter;
@@ -59,7 +55,6 @@ public class AssignAction extends Action {
     String assigneeLogin = getAssigneeValue(properties);
     UserDto assignee = isNullOrEmpty(assigneeLogin) ? null : getUser(assigneeLogin);
     properties.put(VERIFIED_ASSIGNEE, assignee);
-    properties.put(ASSIGNEE_ORGANIZATIONS, loadUserOrganizations(assignee));
     return true;
   }
 
@@ -73,28 +68,15 @@ public class AssignAction extends Action {
     }
   }
 
-  private Set<String> loadUserOrganizations(@Nullable UserDto assignee) {
-    if (assignee == null) {
-      return Collections.emptySet();
-    }
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.organizationMemberDao().selectOrganizationUuidsByUser(dbSession, assignee.getUuid());
-    }
-  }
-
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
     checkArgument(properties.containsKey(VERIFIED_ASSIGNEE), "Assignee is missing from the execution parameters");
     UserDto assignee = (UserDto) properties.get(VERIFIED_ASSIGNEE);
-    return isAssigneeMemberOfIssueOrganization(assignee, properties, context) && issueFieldsSetter.assign(context.issue(), assignee, context.issueChangeContext());
+    return issueFieldsSetter.assign(context.issue(), assignee, context.issueChangeContext());
   }
 
   @Override
   public boolean shouldRefreshMeasures() {
     return false;
-  }
-
-  private static boolean isAssigneeMemberOfIssueOrganization(@Nullable UserDto assignee, Map<String, Object> properties, Context context) {
-    return assignee == null || ((Set<String>) properties.get(ASSIGNEE_ORGANIZATIONS)).contains(context.project().getOrganizationUuid());
   }
 }

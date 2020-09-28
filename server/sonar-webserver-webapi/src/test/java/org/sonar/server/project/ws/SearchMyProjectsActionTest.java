@@ -213,7 +213,7 @@ public class SearchMyProjectsActionTest {
     ComponentDto jdk7 = insertJdk7(org);
     ComponentDto cLang = insertClang(org);
 
-    GroupDto group = db.users().insertGroup(org);
+    GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
 
     db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, jdk7);
@@ -231,7 +231,7 @@ public class SearchMyProjectsActionTest {
     ComponentDto cLang = insertClang(org);
     ComponentDto sonarqube = db.components().insertPrivateProject(org);
 
-    GroupDto group = db.users().insertGroup(org);
+    GroupDto group = db.users().insertGroup();
     db.users().insertMember(group, user);
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);

@@ -45,6 +45,7 @@ import org.sonar.server.ws.WsActionTester;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class RenameActionTest {
 
@@ -142,7 +143,8 @@ public class RenameActionTest {
 
   @Test
   public void fail_if_not_profile_administrator() {
-    userSession.logIn(db.users().insertUser());
+    userSession.logIn(db.users().insertUser())
+      .addPermission(SCAN);
 
     QProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto();
     db.qualityProfiles().insert(qualityProfile);
@@ -228,7 +230,7 @@ public class RenameActionTest {
   }
 
   private void logInAsQProfileAdministrator() {
-    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
   private void call(@Nullable String key, @Nullable String name) {

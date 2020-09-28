@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.AbstractUserSession;
@@ -41,24 +40,23 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
 
   private final Class<T> clazz;
   private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
-  private final HashMultimap<String, OrganizationPermission> permissionsByOrganizationUuid = HashMultimap.create();
+  private final Set<OrganizationPermission> permissions = new HashSet<>();
   private Map<String, String> projectUuidByComponentUuid = new HashMap<>();
   private Set<String> projectPermissions = new HashSet<>();
-  private Set<String> organizationMembership = new HashSet<>();
   private boolean systemAdministrator = false;
 
   protected AbstractMockUserSession(Class<T> clazz) {
     this.clazz = clazz;
   }
 
-  public T addPermission(OrganizationPermission permission, String organizationUuid) {
-    permissionsByOrganizationUuid.put(organizationUuid, permission);
+  public T addPermission(OrganizationPermission permission) {
+    permissions.add(permission);
     return clazz.cast(this);
   }
 
   @Override
-  protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
-    return permissionsByOrganizationUuid.get(organizationUuid).contains(permission);
+  protected boolean hasPermissionImpl(OrganizationPermission permission) {
+    return permissions.contains(permission);
   }
 
   /**
@@ -137,15 +135,6 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   @Override
   public boolean isSystemAdministrator() {
     return isRoot() || systemAdministrator;
-  }
-
-  @Override
-  protected boolean hasMembershipImpl(OrganizationDto organizationDto) {
-    return organizationMembership.contains(organizationDto.getUuid());
-  }
-
-  public void addOrganizationMembership(OrganizationDto organization) {
-    this.organizationMembership.add(organization.getUuid());
   }
 
 }

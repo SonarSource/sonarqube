@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -38,14 +37,13 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Users.GroupsWsResponse;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.SELECTED;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -63,9 +61,8 @@ public class GroupsActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-
-  private WsActionTester ws = new WsActionTester(new GroupsAction(db.getDbClient(), userSession, defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient())));
+  private WsActionTester ws = new WsActionTester(new GroupsAction(db.getDbClient(), userSession,
+    new DefaultGroupFinder(db.getDbClient(), TestDefaultOrganizationProvider.from(db))));
 
   @Test
   public void empty_groups() {
@@ -196,18 +193,13 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void return_groups_from_given_organization() {
+  public void return_groups() {
     UserDto user = insertUser();
-    OrganizationDto organizationDto = db.organizations().insert();
-    OrganizationDto otherOrganizationDto = db.organizations().insert();
-    GroupDto group = db.users().insertDefaultGroup(newGroupDto().setName("group1").setOrganizationUuid(organizationDto.getUuid()));
-    GroupDto otherGroup = db.users().insertDefaultGroup(newGroupDto().setName("group2").setOrganizationUuid(otherOrganizationDto.getUuid()));
+    GroupDto group = db.users().insertDefaultGroup(newGroupDto().setName("group1"));
     addUserToGroup(user, group);
-    addUserToGroup(user, otherGroup);
 
     GroupsWsResponse response = call(ws.newRequest()
       .setParam("login", USER_LOGIN)
-      .setParam("organization", organizationDto.getKey())
       .setParam(Param.SELECTED, ALL.value()));
 
     assertThat(response.getGroupsList())
@@ -217,16 +209,15 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_when_organization_has_no_default_group() {
+  public void fail_when_no_default_group() {
     UserDto user = insertUser();
-    OrganizationDto organizationDto = db.organizations().insert(organization -> organization.setKey("OrgKey"));
-    GroupDto group = db.users().insertGroup(organizationDto, "group1");
+    GroupDto group = db.users().insertGroup("group1");
     addUserToGroup(user, group);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Default group cannot be found on organization '%s'", organizationDto.getUuid()));
+    expectedException.expectMessage("Default group cannot be found");
 
-    call(ws.newRequest().setParam("login", USER_LOGIN).setParam("organization", organizationDto.getKey()));
+    call(ws.newRequest().setParam("login", USER_LOGIN));
   }
 
   @Test
@@ -251,16 +242,6 @@ public class GroupsActionTest {
   }
 
   @Test
-  public void fail_on_unknown_organization() {
-    insertUser();
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No organization with key 'unknown'");
-
-    call(ws.newRequest().setParam("login", USER_LOGIN).setParam("organization", "unknown"));
-  }
-
-  @Test
   public void fail_when_page_size_is_greater_than_500() {
     UserDto user = insertUser();
     insertDefaultGroup("sonar-users", "Sonar Users");
@@ -275,8 +256,7 @@ public class GroupsActionTest {
 
   @Test
   public void fail_on_missing_permission() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    userSession.logIn().addPermission(ADMINISTER, organizationDto);
+    userSession.logIn().addPermission(SCAN);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -332,11 +312,11 @@ public class GroupsActionTest {
   }
 
   private GroupDto insertGroup(String name, String description) {
-    return db.users().insertGroup(newGroupDto().setName(name).setDescription(description).setOrganizationUuid(db.getDefaultOrganization().getUuid()));
+    return db.users().insertGroup(newGroupDto().setName(name).setDescription(description));
   }
 
   private GroupDto insertDefaultGroup(String name, String description) {
-    return db.users().insertDefaultGroup(newGroupDto().setName(name).setDescription(description).setOrganizationUuid(db.getDefaultOrganization().getUuid()));
+    return db.users().insertDefaultGroup(newGroupDto().setName(name).setDescription(description));
   }
 
   private void addUserToGroup(UserDto user, GroupDto usersGroup) {

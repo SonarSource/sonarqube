@@ -58,13 +58,6 @@
     AND permission_reference = #{permission}
   </delete>
 
-  <delete id="deleteUserPermissionsByOrganization" parameterType="map">
-    delete from perm_templates_users
-    where
-    user_uuid = #{userUuid,jdbcType=VARCHAR}
-    and template_uuid in (select uuid from permission_templates where organization_uuid=#{organizationUuid,jdbcType=VARCHAR})
-  </delete>
-
   <delete id="deleteUserPermissionsByUserUuid" parameterType="String">
     delete from perm_templates_users
     where
@@ -140,10 +133,7 @@
 
   <sql id="userLoginsByQueryAndTemplate">
     FROM users u
-    LEFT JOIN perm_templates_users ptu ON ptu.user_uuid=u.uuid
-      AND ptu.template_uuid=#{templateUuid}
-    INNER JOIN organization_members om ON u.uuid=om.user_uuid
-      AND om.organization_uuid=#{query.organizationUuid}
+    LEFT JOIN perm_templates_users ptu ON ptu.user_uuid=u.uuid AND ptu.template_uuid=#{templateUuid}
     <where>
       u.active = ${_true}
       <if test="query.getSearchQueryToSql() != null">
@@ -160,7 +150,7 @@
 
   <select id="selectGroupNamesByQueryAndTemplate" parameterType="map" resultType="string">
     select groups.name, lower(groups.name), groups.group_uuid
-    <include refid="groupNamesByQueryAndTemplate" />
+    <include refid="groupNamesByQueryAndTemplate"/>
     group by groups.name, lower(groups.name), groups.group_uuid
     order by case when (count(groups.permission) > 0) then 1 else 2 end asc, lower(groups.name), groups.name, groups.group_uuid
   </select>
@@ -169,7 +159,7 @@
     SELECT COUNT(1)
     FROM (
       SELECT DISTINCT group_uuid
-      <include refid="groupNamesByQueryAndTemplate" />) g
+      <include refid="groupNamesByQueryAndTemplate"/>) g
   </select>
 
   <sql id="groupNamesByQueryAndTemplate">
@@ -183,8 +173,6 @@
     LEFT JOIN perm_templates_groups ptg ON
         ptg.group_uuid=g.uuid
       AND ptg.template_uuid=#{templateUuid}
-    where
-      g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
     UNION ALL
     SELECT
       'Anyone' AS group_uuid,
@@ -194,12 +182,11 @@
     FROM groups g
     LEFT JOIN perm_templates_groups ptg ON
       ptg.template_uuid=#{templateUuid}
+          <if test="query.withAtLeastOnePermission()">
     <where>
-      g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
-      <if test="query.withAtLeastOnePermission()">
-        AND ptg.group_uuid IS NULL
-      </if>
+      ptg.group_uuid IS NULL
     </where>
+          </if>
     ) groups
     <where>
       <if test="query.searchQueryToSql != null">
@@ -216,7 +203,7 @@
   </sql>
 
   <sql id="templateColumns">
-    organization_uuid as organizationUuid, name, uuid, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
+    name, uuid, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
   </sql>
 
   <select id="selectByUuid" parameterType="String" resultType="PermissionTemplate">
@@ -230,10 +217,8 @@
     select
     <include refid="templateColumns"/>
     from permission_templates
-    where
-    organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
     <if test="upperCaseNameLikeSql != null">
-        and upper(name) like #{upperCaseNameLikeSql} escape '/'
+        where upper(name) like #{upperCaseNameLikeSql} escape '/'
     </if>
     order by upper(name), name
   </select>
@@ -243,7 +228,6 @@
     <include refid="templateColumns"/>
     from permission_templates
     where
-    organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
     upper(name) = #{name,jdbcType=VARCHAR}
   </select>
 
@@ -404,13 +388,11 @@
     </if>
   </select>
 
-  <select id="selectTemplateUuidsByOrganization" resultType="String">
+  <select id="selectTemplateUuidsn" resultType="String">
     select
       uuid
     from
       permission_templates
-    where
-      organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectAllGroupPermissionTemplatesByGroupUuid" parameterType="string" resultType="PermissionTemplateGroup">

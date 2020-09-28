@@ -69,11 +69,11 @@ public class SettingsWsSupport {
     if (userSession.isSystemAdministrator()) {
       return true;
     }
-    if (userSession.hasPermission(orgPermission, defaultOrganizationProvider.get().getUuid())) {
+    if (userSession.hasPermission(orgPermission)) {
       return true;
     }
     return component
-      .map(c -> userSession.hasPermission(orgPermission, c.getOrganizationUuid()) || userSession.hasComponentPermission(projectPermission, c))
+      .map(c -> userSession.hasPermission(orgPermission) || userSession.hasComponentPermission(projectPermission, c))
       .orElse(false);
   }
 

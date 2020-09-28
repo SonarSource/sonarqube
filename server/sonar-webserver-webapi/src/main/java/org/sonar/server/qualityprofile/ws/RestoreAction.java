@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
@@ -48,14 +47,12 @@ public class RestoreAction implements QProfileWsAction {
   private final QProfileBackuper backuper;
   private final Languages languages;
   private final UserSession userSession;
-  private final QProfileWsSupport wsSupport;
 
-  public RestoreAction(DbClient dbClient, QProfileBackuper backuper, Languages languages, UserSession userSession, QProfileWsSupport wsSupport) {
+  public RestoreAction(DbClient dbClient, QProfileBackuper backuper, Languages languages, UserSession userSession) {
     this.dbClient = dbClient;
     this.backuper = backuper;
     this.languages = languages;
     this.userSession = userSession;
-    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -84,9 +81,7 @@ public class RestoreAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       reader = new InputStreamReader(backup, UTF_8);
-
-      OrganizationDto organization = wsSupport.getDefaultOrganization(dbSession);
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES);
 
       QProfileRestoreSummary summary = backuper.restore(dbSession, reader, (String) null);
       writeResponse(response.newJsonWriter(), summary);

@@ -65,7 +65,7 @@ public class DeselectActionTest {
   @Test
   public void deselect_by_key() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ProjectDto project = db.components().insertPrivateProjectDto(organization);
     associateProjectToQualityGate(project, qualityGate);
@@ -97,7 +97,7 @@ public class DeselectActionTest {
   @Test
   public void other_project_should_not_be_updated() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ProjectDto project = db.components().insertPrivateProjectDto(organization);
     associateProjectToQualityGate(project, qualityGate);
@@ -117,7 +117,7 @@ public class DeselectActionTest {
   @Test
   public void default_organization_is_used_when_no_organization_parameter() {
     OrganizationDto organization = db.getDefaultOrganization();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ProjectDto project = db.components().insertPrivateProjectDto(organization);
     associateProjectToQualityGate(project, qualityGate);
@@ -132,7 +132,7 @@ public class DeselectActionTest {
   @Test
   public void fail_when_project_belongs_to_another_organization() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     OrganizationDto anotherOrganization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(anotherOrganization);
 
@@ -148,7 +148,7 @@ public class DeselectActionTest {
   @Test
   public void fail_when_no_project_key() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(NotFoundException.class);
 
@@ -188,10 +188,10 @@ public class DeselectActionTest {
   @Test
   public void fail_when_not_quality_gates_admin() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    userSession.addPermission(ADMINISTER_QUALITY_GATES);
     ComponentDto project = db.components().insertPrivateProject(organization);
 
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, project.getOrganizationUuid());
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     expectedException.expect(ForbiddenException.class);
 

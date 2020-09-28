@@ -337,7 +337,6 @@ public class ShowActionTest {
     ComponentDto fileOfBranch4 = db.components().insertComponent(newFileDto(directoryOfBranch4));
     ComponentDto branch5 = db.components().insertProjectBranch(project3, b -> b.setBranchType(BRANCH).setNeedIssueSync(false));
 
-    userSession.addMembership(db.getDefaultOrganization());
     userSession.addProjectPermission(UserRole.USER, project1, project2, project3);
     userSession.registerComponents(portfolio1, portfolio2, subview, project1, project2, project3);
 

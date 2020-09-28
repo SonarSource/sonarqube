@@ -46,6 +46,7 @@ import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 import org.sonar.server.user.UserSession;
 
@@ -64,22 +65,24 @@ public class PermissionTemplateService {
   private final UserSession userSession;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
   private final UuidFactory uuidFactory;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public PermissionTemplateService(DbClient dbClient, ProjectIndexers projectIndexers, UserSession userSession,
-    DefaultTemplatesResolver defaultTemplatesResolver, UuidFactory uuidFactory) {
+    DefaultTemplatesResolver defaultTemplatesResolver, UuidFactory uuidFactory, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.projectIndexers = projectIndexers;
     this.userSession = userSession;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
     this.uuidFactory = uuidFactory;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession, String organizationUuid, @Nullable String userUuid, String projectKey) {
-    if (userSession.hasPermission(SCAN, organizationUuid)) {
+  public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession, @Nullable String userUuid, String projectKey) {
+    if (userSession.hasPermission(SCAN)) {
       return true;
     }
 
-    ComponentDto dto = new ComponentDto().setOrganizationUuid(organizationUuid).setDbKey(projectKey).setQualifier(Qualifiers.PROJECT);
+    ComponentDto dto = new ComponentDto().setDbKey(projectKey).setQualifier(Qualifiers.PROJECT);
     PermissionTemplateDto template = findTemplate(dbSession, dto);
     if (template == null) {
       return false;
@@ -131,15 +134,14 @@ public class PermissionTemplateService {
     dbClient.userPermissionDao().deleteProjectPermissions(dbSession, project.uuid());
 
     List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid());
-    String organizationUuid = template.getOrganizationUuid();
     Map<String, String> userDtoMap = dbClient.userDao().selectByUuids(dbSession, usersPermissions.stream().map(PermissionTemplateUserDto::getUserUuid).collect(Collectors.toSet()))
       .stream().collect(Collectors.toMap(UserDto::getUuid, UserDto::getUuid));
     usersPermissions
       .stream()
       .filter(up -> permissionValidForProject(project, up.getPermission()))
       .forEach(up -> {
-        UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), organizationUuid, up.getPermission(), userDtoMap.get(up.getUserUuid()), project.uuid());
-        dbClient.userPermissionDao().insert(dbSession, dto);
+        UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), up.getPermission(), userDtoMap.get(up.getUserUuid()), project.uuid());
+        dbClient.userPermissionDao().insert(dbSession, dto, defaultOrganizationProvider.get().getUuid());
       });
 
     List<PermissionTemplateGroupDto> groupsPermissions = dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateUuid(dbSession, template.getUuid());
@@ -150,7 +152,6 @@ public class PermissionTemplateService {
       .forEach(gp -> {
         GroupPermissionDto dto = new GroupPermissionDto()
           .setUuid(uuidFactory.create())
-          .setOrganizationUuid(organizationUuid)
           .setGroupUuid(isAnyone(gp.getGroupName()) ? null : gp.getGroupUuid())
           .setRole(gp.getPermission())
           .setComponentUuid(project.uuid());
@@ -170,8 +171,8 @@ public class PermissionTemplateService {
         .filter(up -> permissionValidForProject(project, up.getPermission()))
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
-          UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), organizationUuid, c.getPermission(), userDto.getUuid(), project.uuid());
-          dbClient.userPermissionDao().insert(dbSession, dto);
+          UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), c.getPermission(), userDto.getUuid(), project.uuid());
+          dbClient.userPermissionDao().insert(dbSession, dto, defaultOrganizationProvider.get().getUuid());
         });
     }
   }
@@ -190,8 +191,8 @@ public class PermissionTemplateService {
    */
   @CheckForNull
   private PermissionTemplateDto findTemplate(DbSession dbSession, ComponentDto component) {
-    String organizationUuid = component.getOrganizationUuid();
-    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(dbSession, organizationUuid, null);
+    String organizationUuid = defaultOrganizationProvider.get().getUuid();
+    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(dbSession, null);
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
       String keyPattern = permissionTemplateDto.getKeyPattern();
@@ -229,7 +230,7 @@ public class PermissionTemplateService {
   private static void checkAtMostOneMatchForComponentKey(String componentKey, List<PermissionTemplateDto> matchingTemplates) {
     if (matchingTemplates.size() > 1) {
       StringBuilder templatesNames = new StringBuilder();
-      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
+      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext(); ) {
         templatesNames.append("\"").append(it.next().getName()).append("\"");
         if (it.hasNext()) {
           templatesNames.append(", ");

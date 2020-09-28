@@ -173,8 +173,8 @@ public class BranchReportSubmitterTest {
     ComponentDto nonExistingProject = newPrivateProjectDto(organization);
     UserDto user = db.users().insertUser();
     userSession.logIn(user)
-      .addPermission(PROVISION_PROJECTS, organization)
-      .addPermission(SCAN, organization);
+      .addPermission(PROVISION_PROJECTS)
+      .addPermission(SCAN);
 
     Map<String, String> randomCharacteristics = randomNonEmptyMap();
     ComponentDto createdBranch = createButDoNotInsertBranch(nonExistingProject);
@@ -185,7 +185,7 @@ public class BranchReportSubmitterTest {
       .thenAnswer((Answer<ComponentDto>) invocation -> db.components().insertPrivateProject(nonExistingProject));
     when(branchSupportDelegate.createBranchComponent(any(DbSession.class), same(componentKey), eq(organization), eq(nonExistingProject), any()))
       .thenReturn(createdBranch);
-    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), any(), eq(nonExistingProject.getKey())))
+    when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), any(), eq(nonExistingProject.getKey())))
       .thenReturn(true);
     String taskUuid = mockSuccessfulPrepareSubmitCall();
     InputStream reportInput = IOUtils.toInputStream("{binary}", StandardCharsets.UTF_8);
@@ -227,7 +227,7 @@ public class BranchReportSubmitterTest {
     BiConsumer<OrganizationDto, UserSessionRule> noOrgPerm = (cpt, userSession) -> {
     };
     BiConsumer<ComponentDto, UserSessionRule> provisionOnProject = (cpt, userSession) -> userSession.addProjectPermission(PROVISIONING, cpt);
-    BiConsumer<OrganizationDto, UserSessionRule> provisionOnOrganization = (cpt, userSession) -> userSession.addPermission(PROVISION_PROJECTS, cpt);
+    BiConsumer<OrganizationDto, UserSessionRule> provisionOnOrganization = (cpt, userSession) -> userSession.addPermission(PROVISION_PROJECTS);
     return new Object[][] {
       {provisionOnProject, noOrgPerm},
       {noProjectPerm, provisionOnOrganization},

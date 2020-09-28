@@ -92,7 +92,7 @@ public class SearchUsersActionTest {
     db.organizations().addMember(organization, user1);
     db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     String result = ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -114,7 +114,7 @@ public class SearchUsersActionTest {
     db.organizations().addMember(organization, user1);
     db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchUsersResponse response = ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -138,7 +138,7 @@ public class SearchUsersActionTest {
     db.organizations().addMember(organization, user1);
     db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchUsersResponse response = ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -160,7 +160,7 @@ public class SearchUsersActionTest {
     db.organizations().addMember(organization, user1);
     db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchUsersResponse response = ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -182,7 +182,7 @@ public class SearchUsersActionTest {
     db.organizations().addMember(organization, user1);
     db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchUsersResponse response = ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -206,7 +206,7 @@ public class SearchUsersActionTest {
     db.organizations().addMember(organization, user2);
     db.organizations().addMember(organization, user3);
     db.qualityProfiles().addUserPermission(profile, user1);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchUsersResponse response = ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -226,7 +226,7 @@ public class SearchUsersActionTest {
     UserDto user = db.users().insertUser(u -> u.setEmail(null));
     db.organizations().addMember(organization, user);
     db.qualityProfiles().addUserPermission(profile, user);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchUsersResponse response = ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -250,7 +250,7 @@ public class SearchUsersActionTest {
     db.organizations().addMember(organization, user3);
     db.qualityProfiles().addUserPermission(profile, user1);
     db.qualityProfiles().addUserPermission(profile, user2);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     assertThat(ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -290,7 +290,7 @@ public class SearchUsersActionTest {
     UserDto user1 = db.users().insertUser();
     db.organizations().addMember(organization, user1);
     db.qualityProfiles().addUserPermission(profile, user1);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     SearchUsersResponse response = ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -307,7 +307,7 @@ public class SearchUsersActionTest {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
     db.organizations().addMember(organization, user);
-    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
 
     SearchUsersResponse response = ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
@@ -341,7 +341,7 @@ public class SearchUsersActionTest {
     OrganizationDto organization = db.organizations().getDefaultOrganization();
     UserDto user = db.users().insertUser();
     db.organizations().addMember(organization, user);
-    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile for language 'xoo' and name 'unknown' does not exist");
@@ -359,7 +359,7 @@ public class SearchUsersActionTest {
     UserDto user1 = db.users().insertUser();
     db.organizations().addMember(organization, user1);
     db.qualityProfiles().addUserPermission(profile, user1);
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Quality Profile for language 'foo' and name '%s' does not exist", profile.getName()));
@@ -376,7 +376,7 @@ public class SearchUsersActionTest {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();
     db.organizations().addMember(organization, user);
-    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organization);
+    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(ForbiddenException.class);
 

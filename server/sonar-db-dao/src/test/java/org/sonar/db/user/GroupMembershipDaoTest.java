@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -40,7 +39,6 @@ public class GroupMembershipDaoTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private OrganizationDto organizationDto;
   private UserDto user1;
   private UserDto user2;
   private UserDto user3;
@@ -52,15 +50,12 @@ public class GroupMembershipDaoTest {
 
   @Before
   public void setUp() {
-    organizationDto = db.organizations().insert();
     user1 = db.users().insertUser(u -> u.setLogin("admin login").setName("Admin name").setEmail("admin@email.com"));
     user2 = db.users().insertUser(u -> u.setLogin("not.admin").setName("Not Admin").setEmail("Not Admin"));
     user3 = db.users().insertUser(u -> u.setLogin("inactive").setActive(false));
-    group1 = db.users().insertGroup(organizationDto, "sonar-administrators");
-    group2 = db.users().insertGroup(organizationDto, "sonar-users");
-    group3 = db.users().insertGroup(organizationDto, "sonar-reviewers");
-    db.organizations().addMember(organizationDto, user1);
-    db.organizations().addMember(organizationDto, user2);
+    group1 = db.users().insertGroup("sonar-administrators");
+    group2 = db.users().insertGroup("sonar-users");
+    group3 = db.users().insertGroup("sonar-reviewers");
   }
 
   @Test
@@ -71,27 +66,17 @@ public class GroupMembershipDaoTest {
     db.users().insertMember(group2, user2);
 
     // user1 is member of 3 groups
-    assertThat(underTest.countGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), user1.getUuid())).isEqualTo(3);
-    assertThat(underTest.countGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(OUT).build(), user1.getUuid())).isZero();
+    assertThat(underTest.countGroups(db.getSession(), builder().membership(IN).build(), user1.getUuid())).isEqualTo(3);
+    assertThat(underTest.countGroups(db.getSession(), builder().membership(OUT).build(), user1.getUuid())).isZero();
     // user2 is member of 1 group on 3
-    assertThat(underTest.countGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), user2.getUuid())).isEqualTo(1);
-    assertThat(underTest.countGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(OUT).build(), user2.getUuid())).isEqualTo(2);
+    assertThat(underTest.countGroups(db.getSession(), builder().membership(IN).build(), user2.getUuid())).isEqualTo(1);
+    assertThat(underTest.countGroups(db.getSession(), builder().membership(OUT).build(), user2.getUuid())).isEqualTo(2);
     // user3 is member of 0 group
-    assertThat(underTest.countGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), user3.getUuid())).isZero();
-    assertThat(underTest.countGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(OUT).build(), user3.getUuid())).isEqualTo(3);
+    assertThat(underTest.countGroups(db.getSession(), builder().membership(IN).build(), user3.getUuid())).isZero();
+    assertThat(underTest.countGroups(db.getSession(), builder().membership(OUT).build(), user3.getUuid())).isEqualTo(3);
     // unknown user is member of 0 group
-    assertThat(underTest.countGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), "999")).isZero();
-    assertThat(underTest.countGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(OUT).build(), "999")).isEqualTo(3);
-  }
-
-  @Test
-  public void count_groups_only_from_given_organization() {
-    OrganizationDto otherOrganization = db.organizations().insert();
-    GroupDto otherGroup = db.users().insertGroup(otherOrganization, "sonar-administrators-other_orga");
-    db.users().insertMember(group1, user1);
-    db.users().insertMember(otherGroup, user1);
-
-    assertThat(underTest.countGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), user1.getUuid())).isEqualTo(1);
+    assertThat(underTest.countGroups(db.getSession(), builder().membership(IN).build(), "999")).isZero();
+    assertThat(underTest.countGroups(db.getSession(), builder().membership(OUT).build(), "999")).isEqualTo(3);
   }
 
   @Test
@@ -102,32 +87,22 @@ public class GroupMembershipDaoTest {
     db.users().insertMember(group2, user2);
 
     // user1 is member of 3 groups
-    assertThat(underTest.selectGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), user1.getUuid(), 0, 10)).hasSize(3);
-    assertThat(underTest.selectGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(OUT).build(), user1.getUuid(), 0, 10)).isEmpty();
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), user1.getUuid(), 0, 10)).hasSize(3);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), user1.getUuid(), 0, 10)).isEmpty();
     // user2 is member of 1 group on 3
-    assertThat(underTest.selectGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), user2.getUuid(), 0, 10)).hasSize(1);
-    assertThat(underTest.selectGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(OUT).build(), user2.getUuid(), 0, 10)).hasSize(2);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), user2.getUuid(), 0, 10)).hasSize(1);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), user2.getUuid(), 0, 10)).hasSize(2);
     // user3 is member of 0 group
-    assertThat(underTest.selectGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), user3.getUuid(), 0, 10)).isEmpty();
-    assertThat(underTest.selectGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(OUT).build(), user3.getUuid(), 0, 10)).hasSize(3);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), user3.getUuid(), 0, 10)).isEmpty();
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), user3.getUuid(), 0, 10)).hasSize(3);
     // unknown user is member of 0 group
-    assertThat(underTest.selectGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), "999", 0, 10)).isEmpty();
-    assertThat(underTest.selectGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(OUT).build(), "999", 0, 10)).hasSize(3);
-  }
-
-  @Test
-  public void select_groups_only_from_given_organization() {
-    OrganizationDto otherOrganization = db.organizations().insert();
-    GroupDto otherGroup = db.users().insertGroup(otherOrganization, "sonar-administrators-other_orga");
-    db.users().insertMember(group1, user1);
-    db.users().insertMember(otherGroup, user1);
-
-    assertThat(underTest.selectGroups(db.getSession(), builder().organizationUuid(organizationDto.getUuid()).membership(IN).build(), user1.getUuid(), 0, 10)).hasSize(1);
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(IN).build(), "999", 0, 10)).isEmpty();
+    assertThat(underTest.selectGroups(db.getSession(), builder().membership(OUT).build(), "999", 0, 10)).hasSize(3);
   }
 
   @Test
   public void count_users_by_group() {
-    GroupDto emptyGroup = db.users().insertGroup(organizationDto, "sonar-nobody");
+    GroupDto emptyGroup = db.users().insertGroup("sonar-nobody");
     db.users().insertMember(group1, user1);
     db.users().insertMember(group2, user1);
     db.users().insertMember(group3, user1);
@@ -155,7 +130,7 @@ public class GroupMembershipDaoTest {
 
   @Test
   public void count_members() {
-    GroupDto emptyGroup = db.users().insertGroup(organizationDto, "sonar-nobody");
+    GroupDto emptyGroup = db.users().insertGroup("sonar-nobody");
     db.users().insertMember(group1, user1);
     db.users().insertMember(group2, user1);
     db.users().insertMember(group3, user1);
@@ -177,7 +152,7 @@ public class GroupMembershipDaoTest {
 
   @Test
   public void select_group_members_by_query() {
-    GroupDto emptyGroup = db.users().insertGroup(organizationDto, "sonar-nobody");
+    GroupDto emptyGroup = db.users().insertGroup("sonar-nobody");
     db.users().insertMember(group1, user1);
     db.users().insertMember(group2, user1);
     db.users().insertMember(group3, user1);
@@ -195,7 +170,7 @@ public class GroupMembershipDaoTest {
 
   @Test
   public void select_users_not_affected_to_a_group_by_query() {
-    GroupDto emptyGroup = db.users().insertGroup(organizationDto, "sonar-nobody");
+    GroupDto emptyGroup = db.users().insertGroup("sonar-nobody");
     db.users().insertMember(group1, user1);
     db.users().insertMember(group2, user1);
     db.users().insertMember(group3, user1);
@@ -280,6 +255,6 @@ public class GroupMembershipDaoTest {
   }
 
   private UserMembershipQuery.Builder newQuery() {
-    return UserMembershipQuery.builder().organizationUuid(organizationDto.getUuid());
+    return UserMembershipQuery.builder();
   }
 }

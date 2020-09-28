@@ -31,7 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -46,8 +45,6 @@ import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotification;
 import org.sonar.server.issue.notification.IssuesChangesNotificationSerializer;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -259,24 +256,6 @@ public class AssignActionTest {
     ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "_me")
-      .execute();
-  }
-
-  @Test
-  public void fail_when_assignee_is_not_member_of_organization_of_project_issue() {
-    OrganizationDto org = db.organizations().insert(organizationDto -> organizationDto.setKey("Organization key"));
-    IssueDto issueDto = db.issues().insertIssue(org, i -> i.setType(CODE_SMELL));
-    setUserWithBrowsePermission(issueDto);
-    OrganizationDto otherOrganization = db.organizations().insert();
-    UserDto assignee = db.users().insertUser("arthur");
-    db.organizations().addMember(otherOrganization, assignee);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("User 'arthur' is not member of organization 'Organization key'");
-
-    ws.newRequest()
-      .setParam("issue", issueDto.getKey())
-      .setParam("assignee", "arthur")
       .execute();
   }
 

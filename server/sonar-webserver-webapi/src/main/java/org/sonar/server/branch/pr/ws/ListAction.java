@@ -127,7 +127,7 @@ public class ListAction implements PullRequestWsAction {
   private void checkPermission(ProjectDto project) {
     if (userSession.hasProjectPermission(USER, project) ||
       userSession.hasProjectPermission(UserRole.SCAN, project) ||
-      userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
+      userSession.hasPermission(OrganizationPermission.SCAN)) {
       return;
     }
     throw insufficientPrivilegesException();

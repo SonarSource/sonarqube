@@ -418,7 +418,7 @@ public class ComponentActionTest {
     ComponentDto project = insertOrganizationAndProject();
     userSession.logIn()
       .addProjectPermission(UserRole.USER, project)
-      .addPermission(ADMINISTER_QUALITY_PROFILES, project.getOrganizationUuid());
+      .addPermission(ADMINISTER_QUALITY_PROFILES);
     init();
 
     executeAndVerify(project.getDbKey(), "return_configuration_for_quality_profile_admin.json");
@@ -429,7 +429,7 @@ public class ComponentActionTest {
     ComponentDto project = insertOrganizationAndProject();
     userSession.logIn()
       .addProjectPermission(UserRole.USER, project)
-      .addPermission(ADMINISTER_QUALITY_GATES, project.getOrganizationUuid());
+      .addPermission(ADMINISTER_QUALITY_GATES);
     init();
 
     executeAndVerify(project.getDbKey(), "return_configuration_for_quality_gate_admin.json");
@@ -510,7 +510,7 @@ public class ComponentActionTest {
 
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)
-      .addPermission(OrganizationPermission.ADMINISTER, org);
+      .addPermission(OrganizationPermission.ADMINISTER);
     assertJson(execute(project.getDbKey())).isSimilarTo("{\"visibility\": \"private\"}");
   }
 
@@ -523,7 +523,7 @@ public class ComponentActionTest {
 
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)
-      .addPermission(OrganizationPermission.ADMINISTER, org);
+      .addPermission(OrganizationPermission.ADMINISTER);
     assertJson(execute(project.getDbKey())).isSimilarTo("{\"visibility\": \"public\"}");
   }
 
@@ -536,7 +536,7 @@ public class ComponentActionTest {
 
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)
-      .addPermission(OrganizationPermission.ADMINISTER, org);
+      .addPermission(OrganizationPermission.ADMINISTER);
     assertJson(execute(project.getDbKey())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": true}}");
 
     userSession.logIn()

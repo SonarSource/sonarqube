@@ -27,12 +27,9 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -51,10 +48,9 @@ public class AppActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private Languages languages = new Languages(LANG1, LANG2);
-  private AppAction underTest = new AppAction(languages, db.getDbClient(), userSession, defaultOrganizationProvider);
+  private AppAction underTest = new AppAction(languages, db.getDbClient(), userSession);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -101,8 +97,7 @@ public class AppActionTest {
 
   @Test
   public void canWrite_is_true_if_user_is_profile_administrator() {
-    // TODO
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
 
     String json = ws.newRequest().execute().getInput();
 
@@ -111,10 +106,7 @@ public class AppActionTest {
 
   @Test
   public void canWrite_is_false_if_user_is_not_profile_administrator() {
-    // TODO
-    OrganizationDto organization = db.organizations().insert();
-    userSession.addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-
+    userSession.addPermission(OrganizationPermission.SCAN);
     String json = ws.newRequest().execute().getInput();
 
     assertJson(json).isSimilarTo("{ \"canWrite\": false }");

@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
@@ -92,7 +91,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user1));
     addUserToTemplate(newPermissionTemplateUser(CODEVIEWER, template1, user2));
     addUserToTemplate(newPermissionTemplateUser(ADMIN, template1, user2));
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     String result = newRequest(null, template1.getUuid()).execute().getInput();
     assertJson(result).isSimilarTo(getClass().getResource("template_users-example.json"));
@@ -100,7 +99,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void search_for_users_by_template_name() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     UserDto user1 = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
@@ -127,7 +126,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void search_using_text_query() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     UserDto user1 = insertUser(newUserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
     UserDto user2 = insertUser(newUserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
@@ -165,7 +164,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
     Permissions.UsersWsResponse response = newRequest(USER, template.getUuid())
       .executeProtobuf(Permissions.UsersWsResponse.class);
     assertThat(response.getUsersList()).extracting("login").containsExactly("login-1", "login-2");
@@ -188,7 +187,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
     Permissions.UsersWsResponse response = newRequest(USER, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(WebService.Param.SELECTED, "all")
@@ -210,7 +209,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     addUserToTemplate(newPermissionTemplateUser(USER, template, user2));
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
     Permissions.UsersWsResponse response = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .executeProtobuf(Permissions.UsersWsResponse.class);
@@ -220,10 +219,9 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void search_ignores_other_template_and_is_ordered_by_users_with_permission_when_many_users() {
-    OrganizationDto defaultOrg = db.getDefaultOrganization();
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     // Add another template having some users with permission to make sure it's correctly ignored
-    PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate(defaultOrg);
+    PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       UserDto user = db.users().insertUser("User-" + i);
       db.organizations().addMember(db.getDefaultOrganization(), user);
@@ -231,7 +229,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     });
     String lastLogin = "User-" + (DEFAULT_PAGE_SIZE + 1);
     db.permissionTemplates().addUserToTemplate(template, db.users().selectUserByLogin(lastLogin).get(), UserRole.USER);
-    loginAsAdmin(defaultOrg);
+    loginAsAdmin();
 
     Permissions.UsersWsResponse response = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
@@ -246,7 +244,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   @Test
   public void fail_if_not_a_project_permission() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
 
@@ -256,7 +254,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_no_template_param() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
 
@@ -266,7 +264,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Test
   public void fail_if_template_does_not_exist() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
 
@@ -277,7 +275,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   @Test
   public void fail_if_template_uuid_and_name_provided() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
 
@@ -299,7 +297,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
   @Test
   public void fail_if_insufficient_privileges() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    userSession.logIn().addPermission(SCAN, db.getDefaultOrganization());
+    userSession.logIn().addPermission(SCAN);
 
     expectedException.expect(ForbiddenException.class);
 

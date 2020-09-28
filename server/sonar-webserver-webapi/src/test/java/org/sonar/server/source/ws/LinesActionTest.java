@@ -135,7 +135,6 @@ public class LinesActionTest {
     db.commit();
 
     userSession.logIn("login")
-      .addMembership(db.getDefaultOrganization())
       .addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     tester.newRequest()
@@ -159,7 +158,6 @@ public class LinesActionTest {
     db.commit();
 
     userSession.logIn("login")
-      .addMembership(db.getDefaultOrganization())
       .addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     tester.newRequest()
@@ -383,8 +381,7 @@ public class LinesActionTest {
     ComponentDto publicProject = db.components().insertPublicProject(org);
     UserDto user = db.users().insertUser();
     userSession.logIn(user)
-      .registerComponents(publicProject)
-      .addMembership(org);
+      .registerComponents(publicProject);
 
     DbFileSources.Data data = DbFileSources.Data.newBuilder()
       .addLines(newLineBuilder().setScmAuthor("isaac@asimov.com"))
@@ -411,8 +408,7 @@ public class LinesActionTest {
 
   private void setUserWithValidPermission(ComponentDto file) {
     userSession.logIn("login")
-      .addProjectPermission(UserRole.CODEVIEWER, privateProject, file)
-      .addMembership(organization);
+      .addProjectPermission(UserRole.CODEVIEWER, privateProject, file);
   }
 
   private ComponentDto insertFile(ComponentDto project) {

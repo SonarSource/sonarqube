@@ -62,7 +62,7 @@ public class ProjectDataLoader {
       ComponentDto project = componentFinder.getByKey(session, projectKey);
       checkRequest(project.isRootProject(), "Key '%s' belongs to a component which is not a Project", projectKey);
       boolean hasScanPerm = userSession.hasComponentPermission(UserRole.SCAN, project) ||
-        userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid());
+        userSession.hasPermission(OrganizationPermission.SCAN);
       checkPermission(hasScanPerm);
       ComponentDto branchOrMainModule = (branch == null && pullRequest == null) ? project
         : componentFinder.getByKeyAndOptionalBranchOrPullRequest(session, projectKey, branch, pullRequest);

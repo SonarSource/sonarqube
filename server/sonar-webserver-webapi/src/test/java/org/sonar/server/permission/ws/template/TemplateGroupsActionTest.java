@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
@@ -55,7 +54,6 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateGroupDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -94,7 +92,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     // Anyone group
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), null));
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getUuid(), null));
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     String response = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
@@ -109,49 +107,28 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   @Test
-  public void do_not_fail_when_group_name_exists_in_multiple_organizations() {
-    PermissionTemplateDto template = addTemplateToDefaultOrganization();
-
-    String groupName = "group-name";
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), groupName);
-    addGroupToTemplate(newPermissionTemplateGroup(CODEVIEWER, template.getUuid(), group1.getUuid()));
-    addGroupToTemplate(newPermissionTemplateGroup(ADMIN, template.getUuid(), group1.getUuid()));
-
-    OrganizationDto otherOrganization = db.organizations().insert();
-    db.users().insertGroup(otherOrganization, groupName);
-
-    loginAsAdmin(db.getDefaultOrganization());
-
-    newRequest()
-      .setMediaType(PROTOBUF)
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .setParam(TEXT_QUERY, "-nam")
-      .execute();
-  }
-
-  @Test
   public void return_all_permissions_of_matching_groups() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
 
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group-1-name");
+    GroupDto group1 = db.users().insertGroup("group-1-name");
     addGroupToTemplate(newPermissionTemplateGroup(CODEVIEWER, template.getUuid(), group1.getUuid()));
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, template.getUuid(), group1.getUuid()));
 
-    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group-2-name");
+    GroupDto group2 = db.users().insertGroup("group-2-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group2.getUuid()));
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, template.getUuid(), group2.getUuid()));
 
-    GroupDto group3 = db.users().insertGroup(db.getDefaultOrganization(), "group-3-name");
+    GroupDto group3 = db.users().insertGroup("group-3-name");
 
     // Anyone
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), null));
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getUuid(), null));
 
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
-    GroupDto group4 = db.users().insertGroup(db.getDefaultOrganization(), "group-4-name");
+    GroupDto group4 = db.users().insertGroup("group-4-name");
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getUuid(), group3.getUuid()));
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getUuid(), group4.getUuid()));
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -168,21 +145,21 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   public void search_by_permission() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
 
-    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group-1-name");
+    GroupDto group1 = db.users().insertGroup("group-1-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group1.getUuid()));
     addGroupToTemplate(newPermissionTemplateGroup(CODEVIEWER, template.getUuid(), group1.getUuid()));
 
-    GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group-2-name");
+    GroupDto group2 = db.users().insertGroup("group-2-name");
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, template.getUuid(), group2.getUuid()));
 
-    GroupDto group3 = db.users().insertGroup(db.getDefaultOrganization(), "group-3-name");
+    GroupDto group3 = db.users().insertGroup("group-3-name");
 
     // Anyone
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), null));
 
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getUuid(), group3.getUuid()));
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
       .setParam(PARAM_PERMISSION, USER)
@@ -196,10 +173,9 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void search_by_template_name() {
-    OrganizationDto defaultOrg = db.getDefaultOrganization();
-    GroupDto group1 = db.users().insertGroup(defaultOrg, "group-1-name");
-    GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
-    GroupDto group3 = db.users().insertGroup(defaultOrg, "group-3-name");
+    GroupDto group1 = db.users().insertGroup("group-1-name");
+    GroupDto group2 = db.users().insertGroup("group-2-name");
+    GroupDto group3 = db.users().insertGroup("group-3-name");
 
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group1.getUuid()));
@@ -208,7 +184,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addGroupToTemplate(newPermissionTemplateGroup(USER, anotherTemplate.getUuid(), group1.getUuid()));
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
@@ -219,13 +195,12 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void search_with_pagination() {
-    OrganizationDto defaultOrg = db.getDefaultOrganization();
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    GroupDto group1 = db.users().insertGroup(defaultOrg, "group-1-name");
+    GroupDto group1 = db.users().insertGroup("group-1-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group1.getUuid()));
-    GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
+    GroupDto group2 = db.users().insertGroup("group-2-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group2.getUuid()));
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
       .setParam(PARAM_PERMISSION, USER)
@@ -239,13 +214,12 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void search_with_text_query() {
-    OrganizationDto defaultOrg = db.getDefaultOrganization();
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    GroupDto group1 = db.users().insertGroup(defaultOrg, "group-1-name");
+    GroupDto group1 = db.users().insertGroup("group-1-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group1.getUuid()));
-    GroupDto group2 = db.users().insertGroup(defaultOrg, "group-2-name");
-    GroupDto group3 = db.users().insertGroup(defaultOrg, "group-3");
-    loginAsAdmin(db.getDefaultOrganization());
+    GroupDto group2 = db.users().insertGroup("group-2-name");
+    GroupDto group3 = db.users().insertGroup("group-3");
+    loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
@@ -257,12 +231,11 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void search_with_text_query_return_all_groups_even_when_no_permission_set() {
-    OrganizationDto defaultOrg = db.getDefaultOrganization();
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    db.users().insertGroup(defaultOrg, "group-1-name");
-    db.users().insertGroup(defaultOrg, "group-2-name");
-    db.users().insertGroup(defaultOrg, "group-3-name");
-    loginAsAdmin(db.getDefaultOrganization());
+    db.users().insertGroup("group-1-name");
+    db.users().insertGroup("group-2-name");
+    db.users().insertGroup("group-3-name");
+    loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -278,9 +251,9 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   @Test
   public void search_with_text_query_return_anyone_group_even_when_no_permission_set() {
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "group");
+    GroupDto group = db.users().insertGroup("group");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group.getUuid()));
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -293,16 +266,15 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void search_ignores_other_template_and_is_ordered_by_groups_with_permission_then_by_name_when_many_groups() {
-    OrganizationDto defaultOrg = db.getDefaultOrganization();
     PermissionTemplateDto template = addTemplateToDefaultOrganization();
-    PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate(defaultOrg);
+    PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
-      GroupDto group = db.users().insertGroup(defaultOrg, "Group-" + i);
+      GroupDto group = db.users().insertGroup("Group-" + i);
       db.permissionTemplates().addGroupToTemplate(otherTemplate, group, UserRole.USER);
     });
     String lastGroupName = "Group-" + (DEFAULT_PAGE_SIZE + 1);
-    db.permissionTemplates().addGroupToTemplate(template, db.users().selectGroup(defaultOrg, lastGroupName).get(), UserRole.USER);
-    loginAsAdmin(db.getDefaultOrganization());
+    db.permissionTemplates().addGroupToTemplate(template, db.users().selectGroup(lastGroupName).get(), UserRole.USER);
+    loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
@@ -343,7 +315,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   @Test
   public void fail_if_template_uuid_and_name_provided() {
     PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
 
@@ -356,7 +328,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_template_uuid_nor_name_provided() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
 
@@ -367,7 +339,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_template_is_not_found() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
 
     expectedException.expect(NotFoundException.class);
 
@@ -379,7 +351,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
 
   @Test
   public void fail_if_not_a_project_permission() {
-    loginAsAdmin(db.getDefaultOrganization());
+    loginAsAdmin();
     PermissionTemplateDto template1 = addTemplateToDefaultOrganization();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -391,7 +363,7 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
   }
 
   private GroupDto insertGroupOnDefaultOrganization(String name, String description) {
-    return db.users().insertGroup(newGroupDto().setName(name).setDescription(description).setOrganizationUuid(db.getDefaultOrganization().getUuid()));
+    return db.users().insertGroup(newGroupDto().setName(name).setDescription(description));
   }
 
   private void addGroupToTemplate(PermissionTemplateGroupDto permissionTemplateGroup) {

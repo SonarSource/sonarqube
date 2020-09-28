@@ -22,7 +22,6 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -103,7 +102,7 @@ public class TestUserSessionFactory implements UserSessionFactory {
     }
 
     @Override
-    protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
+    protected boolean hasPermissionImpl(OrganizationPermission permission) {
       throw notImplemented();
     }
 
@@ -119,11 +118,6 @@ public class TestUserSessionFactory implements UserSessionFactory {
 
     @Override
     public boolean isSystemAdministrator() {
-      throw notImplemented();
-    }
-
-    @Override
-    public boolean hasMembershipImpl(OrganizationDto organizationDto) {
       throw notImplemented();
     }
 

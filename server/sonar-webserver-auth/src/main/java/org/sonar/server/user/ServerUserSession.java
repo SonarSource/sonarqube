@@ -19,9 +19,6 @@
  */
 package org.sonar.server.user;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,15 +33,10 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationMemberDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.OrganizationFlags;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
@@ -57,20 +49,14 @@ public class ServerUserSession extends AbstractUserSession {
   @CheckForNull
   private final UserDto userDto;
   private final DbClient dbClient;
-  private final OrganizationFlags organizationFlags;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
-  private final Supplier<Collection<GroupDto>> groups = Suppliers.memoize(this::loadGroups);
-  private final Supplier<Boolean> isSystemAdministratorSupplier = Suppliers.memoize(this::loadIsSystemAdministrator);
   private final Map<String, String> projectUuidByComponentUuid = new HashMap<>();
-  private Map<String, Set<OrganizationPermission>> permissionsByOrganizationUuid;
+  private Collection<GroupDto> groups;
+  private Boolean isSystemAdministrator;
+  private Set<OrganizationPermission> permissions;
   private Map<String, Set<String>> permissionsByProjectUuid;
-  private Set<String> organizationMembership = new HashSet<>();
 
-  ServerUserSession(DbClient dbClient, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, @Nullable UserDto userDto) {
+  ServerUserSession(DbClient dbClient, @Nullable UserDto userDto) {
     this.dbClient = dbClient;
-    this.organizationFlags = organizationFlags;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.userDto = userDto;
   }
 
@@ -103,7 +89,10 @@ public class ServerUserSession extends AbstractUserSession {
 
   @Override
   public Collection<GroupDto> getGroups() {
-    return groups.get();
+    if (groups == null) {
+      groups = loadGroups();
+    }
+    return groups;
   }
 
   @Override
@@ -127,26 +116,11 @@ public class ServerUserSession extends AbstractUserSession {
   }
 
   @Override
-  protected boolean hasPermissionImpl(OrganizationPermission permission, String organizationUuid) {
-    if (permissionsByOrganizationUuid == null) {
-      permissionsByOrganizationUuid = new HashMap<>();
+  protected boolean hasPermissionImpl(OrganizationPermission permission) {
+    if (permissions == null) {
+      permissions = loadGlobalPermissions();
     }
-    Set<OrganizationPermission> permissions = permissionsByOrganizationUuid.computeIfAbsent(organizationUuid, this::loadOrganizationPermissions);
     return permissions.contains(permission);
-  }
-
-  private Set<OrganizationPermission> loadOrganizationPermissions(String organizationUuid) {
-    Set<String> permissionKeys;
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      if (userDto != null && userDto.getUuid() != null) {
-        permissionKeys = dbClient.authorizationDao().selectOrganizationPermissions(dbSession, organizationUuid, userDto.getUuid());
-      } else {
-        permissionKeys = dbClient.authorizationDao().selectOrganizationPermissionsOfAnonymous(dbSession, organizationUuid);
-      }
-    }
-    return permissionKeys.stream()
-      .map(OrganizationPermission::fromKey)
-      .collect(MoreCollectors.toSet(permissionKeys.size()));
   }
 
   @Override
@@ -189,11 +163,25 @@ public class ServerUserSession extends AbstractUserSession {
       if (component.get().isPrivate()) {
         return loadDbPermissions(dbSession, projectUuid);
       }
-      ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-      builder.addAll(PUBLIC_PERMISSIONS);
-      builder.addAll(loadDbPermissions(dbSession, projectUuid));
-      return builder.build();
+      Set<String> permissions = new HashSet<>();
+      permissions.addAll(PUBLIC_PERMISSIONS);
+      permissions.addAll(loadDbPermissions(dbSession, projectUuid));
+      return Collections.unmodifiableSet(permissions);
     }
+  }
+
+  private Set<OrganizationPermission> loadGlobalPermissions() {
+    Set<String> permissionKeys;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      if (userDto != null && userDto.getUuid() != null) {
+        permissionKeys = dbClient.authorizationDao().selectGlobalPermissions(dbSession, userDto.getUuid());
+      } else {
+        permissionKeys = dbClient.authorizationDao().selectGlobalPermissionsOfAnonymous(dbSession);
+      }
+    }
+    return permissionKeys.stream()
+      .map(OrganizationPermission::fromKey)
+      .collect(MoreCollectors.toSet(permissionKeys.size()));
   }
 
   private Set<String> loadDbPermissions(DbSession dbSession, String projectUuid) {
@@ -219,45 +207,16 @@ public class ServerUserSession extends AbstractUserSession {
 
   @Override
   public boolean isSystemAdministrator() {
-    return isSystemAdministratorSupplier.get();
+    if (isSystemAdministrator == null) {
+      isSystemAdministrator = loadIsSystemAdministrator();
+    }
+    return isSystemAdministrator;
   }
 
   private boolean loadIsSystemAdministrator() {
     if (isRoot()) {
       return true;
     }
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      if (!organizationFlags.isEnabled(dbSession)) {
-        String uuidOfDefaultOrg = defaultOrganizationProvider.get().getUuid();
-        return hasPermission(OrganizationPermission.ADMINISTER, uuidOfDefaultOrg);
-      }
-      // organization feature is enabled -> requires to be root
-      return false;
-    }
-  }
-
-  @Override
-  public boolean hasMembershipImpl(OrganizationDto organizationDto) {
-    return isMember(organizationDto.getUuid());
-  }
-
-  private boolean isMember(String organizationUuid) {
-    if (!isLoggedIn()) {
-      return false;
-    }
-    if (isRoot()) {
-      return true;
-    }
-
-    if (organizationMembership.contains(organizationUuid)) {
-      return true;
-    }
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<OrganizationMemberDto> organizationMemberDto = dbClient.organizationMemberDao().select(dbSession, organizationUuid, requireNonNull(getUuid()));
-      if (organizationMemberDto.isPresent()) {
-        organizationMembership.add(organizationUuid);
-      }
-      return organizationMembership.contains(organizationUuid);
-    }
+    return hasPermission(OrganizationPermission.ADMINISTER);
   }
 }

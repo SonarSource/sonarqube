@@ -37,6 +37,7 @@ import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
@@ -231,16 +232,16 @@ public class ChangelogActionTest {
       .setParam(PARAM_SINCE, "2011-04-25T01:15:42+0100")
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"events\": [\n" +
-        "    {\n" +
-        "      \"date\": \"2011-04-25T01:15:42+0100\",\n" +
-        "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
-        "      \"action\": \"ACTIVATED\",\n" +
-        "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
-        "      \"ruleName\": \"" + rule.getName() + "\",\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}");
+      "  \"events\": [\n" +
+      "    {\n" +
+      "      \"date\": \"2011-04-25T01:15:42+0100\",\n" +
+      "      \"authorLogin\": \"" + user.getLogin() + "\",\n" +
+      "      \"action\": \"ACTIVATED\",\n" +
+      "      \"ruleKey\": \"" + rule.getKey() + "\",\n" +
+      "      \"ruleName\": \"" + rule.getName() + "\",\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
 
     assertJson(ws.newRequest()
       .setParam(PARAM_LANGUAGE, qualityProfile.getLanguage())
@@ -248,8 +249,8 @@ public class ChangelogActionTest {
       .setParam(PARAM_SINCE, "2011-04-25T01:15:43+0100")
       .execute()
       .getInput()).isSimilarTo("{\n" +
-        "  \"events\": []\n" +
-        "}");
+      "  \"events\": []\n" +
+      "}");
   }
 
   @Test

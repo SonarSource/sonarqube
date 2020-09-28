@@ -34,18 +34,13 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
@@ -108,9 +103,6 @@ public class AssignAction implements IssuesWsAction {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
       DefaultIssue issue = issueDto.toDefaultIssue();
       UserDto user = getUser(dbSession, login);
-      if (user != null) {
-        checkMembership(dbSession, issueDto, user);
-      }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getUuid());
       if (issueFieldsSetter.assign(issue, user, context)) {
         return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context, false);
@@ -133,13 +125,4 @@ public class AssignAction implements IssuesWsAction {
     return checkFound(dbClient.userDao().selectActiveUserByLogin(dbSession, assignee), "Unknown user: %s", assignee);
   }
 
-  private void checkMembership(DbSession dbSession, IssueDto issueDto, UserDto user) {
-    String projectUuid = requireNonNull(issueDto.getProjectUuid());
-    ComponentDto project = dbClient.componentDao().selectByUuid(dbSession, projectUuid)
-      .orElseThrow(() -> new IllegalStateException(format("Unknown project %s", projectUuid)));
-    OrganizationDto organizationDto = dbClient.organizationDao().selectByUuid(dbSession, project.getOrganizationUuid())
-      .orElseThrow(() -> new IllegalStateException(format("Unknown organizationMember %s", project.getOrganizationUuid())));
-    checkArgument(dbClient.organizationMemberDao().select(dbSession, organizationDto.getUuid(), user.getUuid()).isPresent(),
-      "User '%s' is not member of organization '%s'", user.getLogin(), organizationDto.getKey());
-  }
 }

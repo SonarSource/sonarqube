@@ -99,7 +99,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     insertOrganizationMember(dbSession, organization, userCreator.getUuid());
     dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organization, builtInQualityGate);
     GroupDto ownerGroup = insertOwnersGroup(dbSession, organization);
-    GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
+    GroupDto defaultGroup = defaultGroupCreator.create(dbSession);
     insertDefaultTemplateOnGroups(dbSession, organization, ownerGroup, defaultGroup);
     addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getUuid());
     addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getUuid());
@@ -162,9 +162,9 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
     PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(
       dbSession,
       new PermissionTemplateDto()
-        .setOrganizationUuid(organizationDto.getUuid())
         .setUuid(uuidFactory.create())
         .setName(PERM_TEMPLATE_NAME)
+        .setOrganizationUuid(organizationDto.getUuid())
         .setDescription(format(PERM_TEMPLATE_DESCRIPTION_PATTERN, organizationDto.getName()))
         .setCreatedAt(now)
         .setUpdatedAt(now));
@@ -219,7 +219,6 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
   private GroupDto insertOwnersGroup(DbSession dbSession, OrganizationDto organization) {
     GroupDto group = dbClient.groupDao().insert(dbSession, new GroupDto()
       .setUuid(uuidFactory.create())
-      .setOrganizationUuid(organization.getUuid())
       .setName(OWNERS_GROUP_NAME)
       .setDescription(OWNERS_GROUP_DESCRIPTION));
     permissionService.getAllOrganizationPermissions().forEach(p -> addPermissionToGroup(dbSession, group, p));
@@ -231,7 +230,6 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       dbSession,
       new GroupPermissionDto()
         .setUuid(uuidFactory.create())
-        .setOrganizationUuid(group.getOrganizationUuid())
         .setGroupUuid(group.getUuid())
         .setRole(permission.getKey()));
   }

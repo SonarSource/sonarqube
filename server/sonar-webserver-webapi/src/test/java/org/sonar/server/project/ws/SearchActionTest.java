@@ -95,7 +95,7 @@ public class SearchActionTest {
 
   @Test
   public void search_by_key_query_with_partial_match_case_insensitive() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-_%-key"),
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("PROJECT-_%-KEY"),
@@ -108,7 +108,7 @@ public class SearchActionTest {
 
   @Test
   public void search_private_projects() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("private-key"),
       ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setDbKey("public-key"));
@@ -120,7 +120,7 @@ public class SearchActionTest {
 
   @Test
   public void search_public_projects() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("private-key"),
       ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setDbKey("public-key"));
@@ -132,7 +132,7 @@ public class SearchActionTest {
 
   @Test
   public void search_projects_when_no_qualifier_set() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey(PROJECT_KEY_1),
       newView(db.getDefaultOrganization()));
@@ -144,7 +144,7 @@ public class SearchActionTest {
 
   @Test
   public void search_projects() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey(PROJECT_KEY_1);
     ComponentDto module = newModuleDto(project);
     ComponentDto directory = newDirectory(module, "dir");
@@ -161,7 +161,7 @@ public class SearchActionTest {
 
   @Test
   public void search_views() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey(PROJECT_KEY_1),
       newView(db.getDefaultOrganization()).setDbKey("view1"));
@@ -173,7 +173,7 @@ public class SearchActionTest {
 
   @Test
   public void search_projects_and_views() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey(PROJECT_KEY_1),
       newView(db.getDefaultOrganization()).setDbKey("view1"));
@@ -185,7 +185,7 @@ public class SearchActionTest {
 
   @Test
   public void search_on_default_organization_when_no_organization_set() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     OrganizationDto otherOrganization = db.organizations().insert();
     db.components().insertComponents(
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey(PROJECT_KEY_1),
@@ -201,7 +201,7 @@ public class SearchActionTest {
   public void search_for_projects_on_given_organization() {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
-    userSession.addPermission(ADMINISTER, organization1);
+    userSession.addPermission(ADMINISTER);
     ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organization1);
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organization1);
     ComponentDto project3 = ComponentTesting.newPrivateProjectDto(organization2);
@@ -214,7 +214,7 @@ public class SearchActionTest {
 
   @Test
   public void search_for_old_projects() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     long aLongTimeAgo = 1_000_000_000L;
     long recentTime = 3_000_000_000L;
     ComponentDto oldProject = db.components().insertPublicProject();
@@ -234,7 +234,7 @@ public class SearchActionTest {
   public void does_not_return_branches_when_searching_by_key() {
     ComponentDto project = db.components().insertPublicProject();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
 
     SearchWsResponse response = call(SearchRequest.builder().build());
 
@@ -243,7 +243,7 @@ public class SearchActionTest {
 
   @Test
   public void result_is_paginated() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
       componentDtoList.add(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid-" + i).setDbKey("project-key-" + i).setName("Project Name " + i));
@@ -257,7 +257,7 @@ public class SearchActionTest {
 
   @Test
   public void provisioned_projects() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     ComponentDto provisionedProject = db.components().insertPrivateProject();
     ComponentDto analyzedProject = db.components().insertPrivateProject();
     db.components().insertSnapshot(newAnalysis(analyzedProject));
@@ -271,7 +271,7 @@ public class SearchActionTest {
 
   @Test
   public void search_by_component_keys() {
-    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER);
     ComponentDto jdk = db.components().insertPrivateProject();
     ComponentDto sonarqube = db.components().insertPrivateProject();
     ComponentDto sonarlint = db.components().insertPrivateProject();
@@ -297,7 +297,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_not_system_admin() {
-    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
     expectedException.expect(ForbiddenException.class);
 
     call(SearchRequest.builder().build());
@@ -312,7 +312,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_on_invalid_qualifier() {
-    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'qualifiers' (BRC) must be one of: [TRK, VW, APP]");
 
@@ -380,7 +380,7 @@ public class SearchActionTest {
   @Test
   public void json_example() {
     OrganizationDto organization = db.organizations().insertForKey("my-org-1");
-    userSession.addPermission(ADMINISTER, organization);
+    userSession.addPermission(ADMINISTER);
     ComponentDto publicProject = newPrivateProjectDto(organization, "project-uuid-1").setName("Project Name 1").setDbKey("project-key-1").setPrivate(false);
     ComponentDto privateProject = newPrivateProjectDto(organization, "project-uuid-2").setName("Project Name 1").setDbKey("project-key-2");
     db.components().insertComponents(

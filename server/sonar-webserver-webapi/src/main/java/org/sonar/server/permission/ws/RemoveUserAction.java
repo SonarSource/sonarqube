@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -39,7 +38,6 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjec
 import static org.sonar.server.permission.ws.WsParameters.createOrganizationParameter;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.permission.ws.WsParameters.createUserLoginParameter;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
@@ -89,13 +87,10 @@ public class RemoveUserAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       Optional<ProjectUuid> project = wsSupport.findProjectUuid(dbSession, request);
-      OrganizationDto org = wsSupport.findOrganization(dbSession, request.param(PARAM_ORGANIZATION));
-
-      checkProjectAdmin(userSession, org.getUuid(), project);
+      checkProjectAdmin(userSession, project);
 
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.REMOVE,
-        org.getUuid(),
         request.mandatoryParam(PARAM_PERMISSION),
         project.orElse(null),
         user, permissionService);

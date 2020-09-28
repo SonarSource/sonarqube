@@ -29,10 +29,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentMapper;
-import org.sonar.db.user.GroupMapper;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
@@ -61,16 +58,16 @@ public class GroupPermissionDao implements Dao {
    * Select global or project permission of given groups and organization. Anyone virtual group is supported
    * through the value "zero" (0L) in {@code groupUuids}.
    */
-  public List<GroupPermissionDto> selectByGroupUuids(DbSession dbSession, String organizationUuid, List<String> groupUuids, @Nullable String projectUuid) {
-    return executeLargeInputs(groupUuids, groups -> mapper(dbSession).selectByGroupUuids(organizationUuid, groups, projectUuid));
+  public List<GroupPermissionDto> selectByGroupUuids(DbSession dbSession, List<String> groupUuids, @Nullable String projectUuid) {
+    return executeLargeInputs(groupUuids, groups -> mapper(dbSession).selectByGroupUuids(groups, projectUuid));
   }
 
   /**
    * Select global and project permissions of a given group (Anyone group is NOT supported)
    * Each row returns a {@link GroupPermissionDto}
    */
-  public void selectAllPermissionsByGroupUuid(DbSession dbSession, String organizationUuid, String groupUuid, ResultHandler resultHandler) {
-    mapper(dbSession).selectAllPermissionsByGroupUuid(organizationUuid, groupUuid, resultHandler);
+  public void selectAllPermissionsByGroupUuid(DbSession dbSession, String groupUuid, ResultHandler resultHandler) {
+    mapper(dbSession).selectAllPermissionsByGroupUuid(groupUuid, resultHandler);
   }
 
   /**
@@ -92,16 +89,16 @@ public class GroupPermissionDao implements Dao {
    * Selects the global permissions granted to group. An empty list is returned if the
    * group does not exist.
    */
-  public List<String> selectGlobalPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable String groupUuid) {
-    return mapper(session).selectGlobalPermissionsOfGroup(organizationUuid, groupUuid);
+  public List<String> selectGlobalPermissionsOfGroup(DbSession session, @Nullable String groupUuid) {
+    return mapper(session).selectGlobalPermissionsOfGroup(groupUuid);
   }
 
   /**
    * Selects the permissions granted to group and project. An empty list is returned if the
    * group or project do not exist.
    */
-  public List<String> selectProjectPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable String groupUuid, String projectUuid) {
-    return mapper(session).selectProjectPermissionsOfGroup(organizationUuid, groupUuid, projectUuid);
+  public List<String> selectProjectPermissionsOfGroup(DbSession session, @Nullable String groupUuid, String projectUuid) {
+    return mapper(session).selectProjectPermissionsOfGroup(groupUuid, projectUuid);
   }
 
   /**
@@ -114,31 +111,7 @@ public class GroupPermissionDao implements Dao {
   }
 
   public void insert(DbSession dbSession, GroupPermissionDto dto) {
-    ensureComponentPermissionConsistency(dbSession, dto);
-    ensureGroupPermissionConsistency(dbSession, dto);
     mapper(dbSession).insert(dto);
-  }
-
-  private static void ensureComponentPermissionConsistency(DbSession dbSession, GroupPermissionDto dto) {
-    if (dto.getComponentUuid() == null) {
-      return;
-    }
-    ComponentMapper componentMapper = dbSession.getMapper(ComponentMapper.class);
-    checkArgument(
-      componentMapper.countComponentByOrganizationAndUuid(dto.getOrganizationUuid(), dto.getComponentUuid()) == 1,
-      "Can't insert permission '%s' for component with id '%s' in organization with uuid '%s' because this component does not belong to organization with uuid '%s'",
-      dto.getRole(), dto.getComponentUuid(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
-  }
-
-  private static void ensureGroupPermissionConsistency(DbSession dbSession, GroupPermissionDto dto) {
-    if (dto.getGroupUuid() == null) {
-      return;
-    }
-    GroupMapper groupMapper = dbSession.getMapper(GroupMapper.class);
-    checkArgument(
-      groupMapper.countGroupByOrganizationAndUuid(dto.getOrganizationUuid(), dto.getGroupUuid()) == 1,
-      "Can't insert permission '%s' for group with id '%s' in organization with uuid '%s' because this group does not belong to organization with uuid '%s'",
-      dto.getRole(), dto.getGroupUuid(), dto.getOrganizationUuid(), dto.getOrganizationUuid());
   }
 
   /**
@@ -173,16 +146,11 @@ public class GroupPermissionDao implements Dao {
    * </ul>
    * @param dbSession
    * @param permission the kind of permission
-   * @param organizationUuid UUID of organization, even if parameter {@code groupUuid} is not null
    * @param groupUuid if null, then anyone, else uuid of group
    * @param rootComponentUuid if null, then global permission, otherwise the uuid of root component (project)
    */
-  public void delete(DbSession dbSession, String permission, String organizationUuid, @Nullable String groupUuid, @Nullable String rootComponentUuid) {
-    mapper(dbSession).delete(permission, organizationUuid, groupUuid, rootComponentUuid);
-  }
-
-  public void deleteByOrganization(DbSession dbSession, String organizationUuid) {
-    mapper(dbSession).deleteByOrganization(organizationUuid);
+  public void delete(DbSession dbSession, String permission, @Nullable String groupUuid, @Nullable String rootComponentUuid) {
+    mapper(dbSession).delete(permission, groupUuid, rootComponentUuid);
   }
 
   private static GroupPermissionMapper mapper(DbSession session) {

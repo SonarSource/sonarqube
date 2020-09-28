@@ -26,7 +26,6 @@ import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class DoPrivilegedTest {
 
@@ -50,7 +49,6 @@ public class DoPrivilegedTest {
     assertThat(catcher.userSession.isLoggedIn()).isFalse();
     assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
     assertThat(catcher.userSession.isSystemAdministrator()).isTrue();
-    assertThat(catcher.userSession.hasMembership(newOrganizationDto())).isTrue();
 
     // verify session in place after task is done
     assertThat(threadLocalUserSession.get()).isSameAs(session);
@@ -76,7 +74,6 @@ public class DoPrivilegedTest {
       // verify the session used inside Privileged task
       assertThat(catcher.userSession.isLoggedIn()).isFalse();
       assertThat(catcher.userSession.hasComponentPermission("any permission", new ComponentDto())).isTrue();
-      assertThat(catcher.userSession.hasMembership(newOrganizationDto())).isTrue();
     }
   }
 

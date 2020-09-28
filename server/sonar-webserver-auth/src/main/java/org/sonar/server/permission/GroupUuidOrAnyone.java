@@ -24,8 +24,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.user.GroupDto;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * Reference to a user group, as used internally by the backend. Contrary to
  * {@link GroupUuid}, it supports reference to virtual groups "anyone". In these
@@ -37,11 +35,9 @@ import static java.util.Objects.requireNonNull;
 public class GroupUuidOrAnyone {
 
   private final String uuid;
-  private final String organizationUuid;
 
-  private GroupUuidOrAnyone(String organizationUuid, @Nullable String uuid) {
+  private GroupUuidOrAnyone(@Nullable String uuid) {
     this.uuid = uuid;
-    this.organizationUuid = requireNonNull(organizationUuid, "organizationUuid can't be null");
   }
 
   public boolean isAnyone() {
@@ -53,15 +49,11 @@ public class GroupUuidOrAnyone {
     return uuid;
   }
 
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
   public static GroupUuidOrAnyone from(GroupDto dto) {
-    return new GroupUuidOrAnyone(dto.getOrganizationUuid(), dto.getUuid());
+    return new GroupUuidOrAnyone(dto.getUuid());
   }
 
-  public static GroupUuidOrAnyone forAnyone(String organizationUuid) {
-    return new GroupUuidOrAnyone(organizationUuid, null);
+  public static GroupUuidOrAnyone forAnyone() {
+    return new GroupUuidOrAnyone(null);
   }
 }

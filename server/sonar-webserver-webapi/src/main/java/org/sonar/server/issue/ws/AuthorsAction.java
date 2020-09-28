@@ -85,7 +85,7 @@ public class AuthorsAction implements IssuesWsAction {
       .setSince("5.1")
       .setDescription("Search SCM accounts which match a given query.<br/>" +
         "Requires authentication."
-          + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
+        + "<br/>When issue indexation is in progress returns 503 service unavailable HTTP code.")
       .setResponseExample(Resources.getResource(this.getClass(), "authors-example.json"))
       .setChangelog(new Change("7.4", "The maximum size of 'ps' is set to 100"))
       .setHandler(this);
@@ -112,8 +112,6 @@ public class AuthorsAction implements IssuesWsAction {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = getOrganization(dbSession, request.param(PARAM_ORGANIZATION));
-      userSession.checkMembership(organization);
-
       checkIfComponentNeedIssueSync(dbSession, request.param(PARAM_PROJECT));
 
       Optional<ComponentDto> project = getProject(dbSession, organization, request.param(PARAM_PROJECT));

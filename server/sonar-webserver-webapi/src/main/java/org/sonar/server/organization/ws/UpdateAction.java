@@ -95,7 +95,7 @@ public class UpdateAction implements OrganizationsWsAction {
 
       OrganizationDto dto = getDto(dbSession, key);
 
-      userSession.checkPermission(ADMINISTER, dto);
+      userSession.checkPermission(ADMINISTER);
 
       dto.setName(updateRequest.getName().or(dto::getName))
         .setDescription(updateRequest.getDescription().or(dto::getDescription))

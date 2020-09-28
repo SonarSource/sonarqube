@@ -65,7 +65,7 @@ public class EnableSupportAction implements OrganizationsWsAction {
   }
 
   private void verifySystemAdministrator() {
-    userSession.checkLoggedIn().checkPermission(OrganizationPermission.ADMINISTER, defaultOrganizationProvider.get().getUuid());
+    userSession.checkLoggedIn().checkPermission(OrganizationPermission.ADMINISTER);
   }
 
 }

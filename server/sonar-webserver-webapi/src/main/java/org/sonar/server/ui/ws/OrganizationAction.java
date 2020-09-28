@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,7 +33,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.AlmAppInstallDto;
 import org.sonar.db.alm.OrganizationAlmBindingDto;
-import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.BillingValidations;
 import org.sonar.server.organization.BillingValidationsProxy;
@@ -43,10 +41,9 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.db.organization.OrganizationDto.Subscription.PAID;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 
 public class OrganizationAction implements NavigationWsAction {
 
@@ -91,17 +88,7 @@ public class OrganizationAction implements NavigationWsAction {
       OrganizationDto organization = checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, organizationKey),
         "No organization with key '%s'", organizationKey);
-      if (organization.getSubscription() == PAID) {
-        // If the organization is PAID without any public project then
-        // the organization is only visible to members
-        ComponentQuery query = ComponentQuery.builder()
-          .setQualifiers(Qualifiers.PROJECT)
-          .setPrivate(false)
-          .build();
-        if (dbClient.componentDao().countByQuery(dbSession, organization.getUuid(), query) == 0) {
-          userSession.checkMembership(organization);
-        }
-      }
+
       boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, organization);
       Optional<OrganizationAlmBindingDto> optOrganizationAlmBinding = dbClient.organizationAlmBindingDao().selectByOrganization(dbSession, organization);
 
@@ -129,7 +116,7 @@ public class OrganizationAction implements NavigationWsAction {
       .prop("projectVisibility", Visibility.getLabel(newProjectPrivate))
       .prop("subscription", organization.getSubscription().name())
       .prop("canUpdateProjectsVisibilityToPrivate",
-        userSession.hasPermission(ADMINISTER, organization) &&
+        userSession.hasPermission(ADMINISTER) &&
           billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid(), organization.getName())));
 
     if (organizationAlmBinding != null && almAppInstall != null) {
@@ -153,7 +140,7 @@ public class OrganizationAction implements NavigationWsAction {
   private void writeOrganizationPages(JsonWriter json, OrganizationDto organization) {
     json.name("pages");
     writePages(json, pageRepository.getOrganizationPages(false));
-    if (userSession.hasPermission(ADMINISTER, organization)) {
+    if (userSession.hasPermission(ADMINISTER)) {
       json.name("adminPages");
       writePages(json, pageRepository.getOrganizationPages(true));
     }

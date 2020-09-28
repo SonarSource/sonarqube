@@ -156,7 +156,7 @@ public class SearchAction implements ProjectsWsAction {
   private SearchWsResponse doHandle(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, request.getOrganization());
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+      userSession.checkPermission(OrganizationPermission.ADMINISTER);
 
       ComponentQuery query = buildDbQuery(request);
       Paging paging = buildPaging(dbSession, request, organization, query);

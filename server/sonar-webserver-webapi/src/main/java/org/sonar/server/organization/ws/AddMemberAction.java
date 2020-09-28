@@ -93,15 +93,12 @@ public class AddMemberAction implements OrganizationsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "Organization '%s' is not found",
         organizationKey);
-      userSession.checkPermission(OrganizationPermission.ADMINISTER, organization);
+      userSession.checkPermission(OrganizationPermission.ADMINISTER);
       wsSupport.checkMemberSyncIsDisabled(dbSession, organization);
       UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' is not found", login);
       memberUpdater.addMember(dbSession, organization, user);
 
-      int groups = dbClient.groupMembershipDao().countGroups(dbSession, GroupMembershipQuery.builder()
-        .organizationUuid(organization.getUuid())
-        .membership(IN)
-        .build(), user.getUuid());
+      int groups = dbClient.groupMembershipDao().countGroups(dbSession, GroupMembershipQuery.builder().membership(IN).build(), user.getUuid());
       AddMemberWsResponse wsResponse = buildResponse(user, groups);
       writeProtobuf(wsResponse, request, response);
     }

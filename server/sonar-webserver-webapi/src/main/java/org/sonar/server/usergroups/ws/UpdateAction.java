@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -28,7 +27,6 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.user.UserGroupValidation;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -40,7 +38,6 @@ import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_CURRENT_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
@@ -115,14 +112,11 @@ public class UpdateAction implements UserGroupsWsAction {
         group = dbClient.groupDao().selectByUuid(dbSession, groupUuid);
         checkFound(group, "Could not find a user group with id '%s'.", groupUuid);
       } else {
-        group = dbClient.groupDao().selectByName(dbSession, defaultOrganizationProvider.get().getUuid(), currentName).orElse(null);
+        group = dbClient.groupDao().selectByName(dbSession, currentName).orElse(null);
         checkFound(group, "Could not find a user group with name '%s'.", currentName);
       }
 
-      Optional<OrganizationDto> orgOpt = dbClient.organizationDao().selectByUuid(dbSession, group.getOrganizationUuid());
-      checkFoundWithOptional(orgOpt, "Could not find organization with id '%s'.", group.getOrganizationUuid());
-
-      userSession.checkPermission(ADMINISTER, orgOpt.get());
+      userSession.checkPermission(ADMINISTER);
       support.checkGroupIsNotDefault(dbSession, group);
 
       boolean changed = false;
@@ -130,7 +124,7 @@ public class UpdateAction implements UserGroupsWsAction {
       if (newName != null) {
         changed = true;
         UserGroupValidation.validateGroupName(newName);
-        support.checkNameDoesNotExist(dbSession, group.getOrganizationUuid(), newName);
+        support.checkNameDoesNotExist(dbSession, newName);
         group.setName(newName);
       }
 
@@ -145,21 +139,20 @@ public class UpdateAction implements UserGroupsWsAction {
         dbSession.commit();
       }
 
-      writeResponse(dbSession, request, response, orgOpt.get(), group);
+      writeResponse(dbSession, request, response, group);
     }
   }
 
-  private void writeResponse(DbSession dbSession, Request request, Response response, OrganizationDto organization, GroupDto group) {
+  private void writeResponse(DbSession dbSession, Request request, Response response, GroupDto group) {
     UserMembershipQuery query = UserMembershipQuery.builder()
       .groupUuid(group.getUuid())
-      .organizationUuid(organization.getUuid())
       .membership(UserMembershipQuery.IN)
       .build();
     int membersCount = dbClient.groupMembershipDao().countMembers(dbSession, query);
 
     UserGroups.UpdateWsResponse.Builder respBuilder = UserGroups.UpdateWsResponse.newBuilder();
     // 'default' is always false as it's not possible to update a default group
-    respBuilder.setGroup(toProtobuf(organization, group, membersCount, false));
+    respBuilder.setGroup(toProtobuf(defaultOrganizationProvider.get().getKey(), group, membersCount, false));
     writeProtobuf(respBuilder.build(), request, response);
   }
 

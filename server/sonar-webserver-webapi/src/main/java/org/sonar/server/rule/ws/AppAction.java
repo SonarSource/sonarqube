@@ -28,7 +28,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 public class AppAction implements RulesWsAction {
@@ -36,13 +35,11 @@ public class AppAction implements RulesWsAction {
   private final Languages languages;
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public AppAction(Languages languages, DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public AppAction(Languages languages, DbClient dbClient, UserSession userSession) {
     this.languages = languages;
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -68,7 +65,7 @@ public class AppAction implements RulesWsAction {
   }
 
   private void addPermissions(JsonWriter json) {
-    boolean canWrite = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+    boolean canWrite = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
     json.prop("canWrite", canWrite);
   }
 

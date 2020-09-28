@@ -104,7 +104,7 @@ public class SelectAction implements QualityGatesWsAction {
         qualityGate = wsSupport.getByOrganizationAndName(dbSession, organization, gateName);
       }
       ProjectDto project = wsSupport.getProject(dbSession, organization, projectKey);
-      wsSupport.checkCanAdminProject(organization, project);
+      wsSupport.checkCanAdminProject(project);
 
       QualityGateDto currentQualityGate = dbClient.qualityGateDao().selectByProjectUuid(dbSession, project.getUuid());
       if (currentQualityGate == null) {

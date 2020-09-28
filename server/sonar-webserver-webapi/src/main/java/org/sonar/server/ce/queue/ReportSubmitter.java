@@ -129,7 +129,7 @@ public class ReportSubmitter {
     // they don't have the direct permission on the project.
     // That means that dropping the permission on the project does not have any effects
     // if user has still the permission on the organization
-    if (!userSession.hasComponentPermission(UserRole.SCAN, project) && !userSession.hasPermission(OrganizationPermission.SCAN, project.getOrganizationUuid())) {
+    if (!userSession.hasComponentPermission(UserRole.SCAN, project) && !userSession.hasPermission(OrganizationPermission.SCAN)) {
       throw insufficientPrivilegesException();
     }
   }
@@ -164,11 +164,11 @@ public class ReportSubmitter {
   }
 
   private ComponentDto createProject(DbSession dbSession, OrganizationDto organization, BranchSupport.ComponentKey componentKey, @Nullable String projectName) {
-    userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS, organization);
+    userSession.checkPermission(OrganizationPermission.PROVISION_PROJECTS);
     String userUuid = userSession.getUuid();
 
     boolean wouldCurrentUserHaveScanPermission = permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(
-      dbSession, organization.getUuid(), userUuid, componentKey.getDbKey());
+      dbSession, userUuid, componentKey.getDbKey());
     if (!wouldCurrentUserHaveScanPermission) {
       throw insufficientPrivilegesException();
     }

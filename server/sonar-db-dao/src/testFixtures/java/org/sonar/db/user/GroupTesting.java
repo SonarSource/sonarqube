@@ -33,7 +33,6 @@ public class GroupTesting {
   public static GroupDto newGroupDto() {
     return new GroupDto()
       .setUuid(randomAlphanumeric(40))
-      .setOrganizationUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(255))
       .setDescription(randomAlphanumeric(200))
       .setCreatedAt(new Date(nextLong()))

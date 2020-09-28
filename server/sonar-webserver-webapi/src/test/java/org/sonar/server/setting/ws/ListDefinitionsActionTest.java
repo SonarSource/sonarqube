@@ -342,7 +342,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void return_secured_settings_when_not_authenticated_but_with_scan_permission() {
-    userSession.anonymous().addPermission(SCAN, db.getDefaultOrganization());
+    userSession.anonymous().addPermission(SCAN);
     propertyDefinitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("secret.secured").build()));
@@ -478,7 +478,7 @@ public class ListDefinitionsActionTest {
   }
 
   private void logInAsAdmin(OrganizationDto org) {
-    userSession.logIn().addPermission(ADMINISTER, org);
+    userSession.logIn().addPermission(ADMINISTER);
   }
 
   private void logInAsProjectAdmin() {

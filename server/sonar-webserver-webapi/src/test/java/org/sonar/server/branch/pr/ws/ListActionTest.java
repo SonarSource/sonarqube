@@ -387,7 +387,7 @@ public class ListActionTest {
   @Test
   public void does_not_fail_when_only_scan_permission_on_organization() {
     OrganizationDto organization = db.organizations().insert();
-    userSession.logIn().addPermission(OrganizationPermission.SCAN, organization);
+    userSession.logIn().addPermission(OrganizationPermission.SCAN);
     ComponentDto project = db.components().insertPublicProject(organization);
     db.components().insertProjectBranch(project,
       b -> b.setKey("123")

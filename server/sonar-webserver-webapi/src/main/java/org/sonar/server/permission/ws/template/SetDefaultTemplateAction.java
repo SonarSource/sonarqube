@@ -32,17 +32,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDao;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.ws.WsParameterBuilder.createDefaultTemplateQualifierParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.ws.WsParameterBuilder.createDefaultTemplateQualifierParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
@@ -54,14 +55,16 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
   private final ResourceTypes resourceTypes;
   private final UserSession userSession;
   private final I18n i18n;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public SetDefaultTemplateAction(DbClient dbClient, PermissionWsSupport wsSupport, ResourceTypes resourceTypes,
-    UserSession userSession, I18n i18n) {
+    UserSession userSession, I18n i18n, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.resourceTypes = resourceTypes;
     this.userSession = userSession;
     this.i18n = i18n;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   private static SetDefaultTemplateRequest toSetDefaultTemplateWsRequest(Request request) {
@@ -96,7 +99,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String qualifier = request.getQualifier();
       PermissionTemplateDto template = findTemplate(dbSession, request);
-      checkGlobalAdmin(userSession, template.getOrganizationUuid());
+      checkGlobalAdmin(userSession);
       RequestValidator.validateQualifier(qualifier, resourceTypes);
       setDefaultTemplateUuid(dbSession, template, qualifier);
       dbSession.commit();
@@ -104,17 +107,14 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
   }
 
   private PermissionTemplateDto findTemplate(DbSession dbSession, SetDefaultTemplateRequest request) {
-    return wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(),
-      request.getOrganization(), request.getTemplateName()));
+    return wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(), request.getTemplateName()));
   }
 
   private void setDefaultTemplateUuid(DbSession dbSession, PermissionTemplateDto permissionTemplateDto, String qualifier) {
-    String organizationUuid = permissionTemplateDto.getOrganizationUuid();
     OrganizationDao organizationDao = dbClient.organizationDao();
 
     DefaultTemplates defaultTemplates = checkFoundWithOptional(
-      organizationDao.getDefaultTemplates(dbSession, organizationUuid),
-      "No Default templates for organization with uuid '%s'", organizationUuid);
+      organizationDao.getDefaultTemplates(dbSession, defaultOrganizationProvider.get().getUuid()), "No Default templates");
 
     if (Qualifiers.PROJECT.equals(qualifier)) {
       defaultTemplates.setProjectUuid(permissionTemplateDto.getUuid());
@@ -123,7 +123,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     } else if (Qualifiers.APP.equals(qualifier)) {
       defaultTemplates.setApplicationsUuid(permissionTemplateDto.getUuid());
     }
-    organizationDao.setDefaultTemplates(dbSession, organizationUuid, defaultTemplates);
+    organizationDao.setDefaultTemplates(dbSession, defaultOrganizationProvider.get().getUuid(), defaultTemplates);
   }
 
   private static class SetDefaultTemplateRequest {

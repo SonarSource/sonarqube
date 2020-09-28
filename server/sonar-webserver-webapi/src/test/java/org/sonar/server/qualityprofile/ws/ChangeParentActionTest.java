@@ -90,7 +90,6 @@ public class ChangeParentActionTest {
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private WsActionTester ws;
-  private OrganizationDto defaultOrganization;
   private Language language = LanguageTesting.newLanguage(randomAlphanumeric(20));
   private String ruleRepository = randomAlphanumeric(5);
   private QProfileTreeImpl qProfileTree;
@@ -117,8 +116,7 @@ public class ChangeParentActionTest {
       userSession);
 
     ws = new WsActionTester(underTest);
-    defaultOrganization = db.getDefaultOrganization();
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganization.getUuid());
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
   }
 
   @Test
@@ -144,7 +142,6 @@ public class ChangeParentActionTest {
     // Set parent
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
       .setParam(PARAM_PARENT_QUALITY_PROFILE, parent1.getName())
@@ -177,7 +174,6 @@ public class ChangeParentActionTest {
     // Set parent 2 through WS
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
       .setParam(PARAM_PARENT_QUALITY_PROFILE, parent2.getName())
@@ -207,7 +203,6 @@ public class ChangeParentActionTest {
     // Remove parent through WS
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
       .execute();
@@ -233,15 +228,11 @@ public class ChangeParentActionTest {
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
-    System.out.println("org uuid: " + defaultOrganization.getUuid());
-    System.out.println("org key: " + defaultOrganization.getKey());
-
     // 1. Set parent 1
     ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(PARAM_PARENT_QUALITY_PROFILE, parent1.getName())
       .execute();
 
@@ -256,7 +247,6 @@ public class ChangeParentActionTest {
       .setMethod("POST")
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE, parent2.getName())
       .execute();
 
@@ -270,7 +260,6 @@ public class ChangeParentActionTest {
       .setMethod("POST")
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE, "")
       .execute();
 
@@ -298,7 +287,6 @@ public class ChangeParentActionTest {
     // Remove parent
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
       .setParam(PARAM_PARENT_QUALITY_PROFILE, "")
@@ -329,7 +317,6 @@ public class ChangeParentActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
       .setParam(PARAM_PARENT_QUALITY_PROFILE, parent2.getName())
@@ -353,7 +340,6 @@ public class ChangeParentActionTest {
 
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName())
       .setParam(PARAM_PARENT_QUALITY_PROFILE, "palap");
@@ -371,7 +357,6 @@ public class ChangeParentActionTest {
 
     TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_ORGANIZATION, defaultOrganization.getKey())
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_QUALITY_PROFILE, child.getName());
 

@@ -97,22 +97,20 @@ public class QProfileWsSupport {
   }
 
   GroupDto getGroup(DbSession dbSession, String groupName) {
-    OrganizationDto organization = getDefaultOrganization(dbSession);
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, organization.getUuid(), groupName);
-    checkFoundWithOptional(group, "No group with name '%s' in organization '%s'", groupName, organization.getKey());
+    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, groupName);
+    checkFoundWithOptional(group, "No group with name '%s'", groupName);
     return group.get();
   }
 
   public void checkPermission(DbSession dbSession) {
-    OrganizationDto organization = getDefaultOrganization(dbSession);
-    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES);
   }
 
   boolean canEdit(DbSession dbSession, QProfileDto profile) {
     if (profile.isBuiltIn() || !userSession.isLoggedIn()) {
       return false;
     }
-    if (userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid())) {
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES)) {
       return true;
     }
 
