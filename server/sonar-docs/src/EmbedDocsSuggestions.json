@@ -12,10 +12,6 @@
     {
       "link": "/documentation/instance-administration/quality-profiles/",
       "text": "Quality Profiles"
-    },
-    {
-      "link": "/documentation/user-guide/keyboard-shortcuts/",
-      "text": "Keyboard Shortcuts"
     }
   ],
   "component_measures": [
@@ -26,10 +22,6 @@
     {
       "link": "/documentation/user-guide/metric-definitions/",
       "text": "Metric Definitions"
-    },
-    {
-      "link": "/documentation/user-guide/keyboard-shortcuts/",
-      "text": "Keyboard Shortcuts"
     }
   ],
   "custom_measures": [
@@ -58,12 +50,7 @@
       "scope": "sonarcloud"
     }
   ],
-  "issues": [
-    {
-      "link": "/documentation/user-guide/keyboard-shortcuts/",
-      "text": "Keyboard Shortcuts"
-    }
-  ],
+  "issues": [],
   "marketplace": [],
   "organization_members": [
     {

@@ -34,24 +34,6 @@ export default class EmbedDocsPopupHelper extends React.PureComponent<{}, State>
   mounted = false;
   state: State = { helpOpen: false };
 
-  componentDidMount() {
-    window.addEventListener('keypress', this.onKeyPress);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keypress', this.onKeyPress);
-  }
-
-  onKeyPress = (event: KeyboardEvent) => {
-    const { tagName } = event.target as HTMLElement;
-    const code = event.keyCode || event.which;
-    const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
-    const isTriggerKey = code === 63;
-    if (!isInput && isTriggerKey) {
-      this.toggleHelp();
-    }
-  };
-
   setHelpDisplay = (helpOpen: boolean) => {
     this.setState({ helpOpen });
   };

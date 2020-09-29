@@ -20,11 +20,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { lazyLoadComponent } from 'sonar-ui-common/components/lazyLoadComponent';
-import { fetchMyOrganizations } from '../../apps/account/organizations/actions';
-import { isSonarCloud } from '../../helpers/system';
-import { isLoggedIn } from '../../helpers/users';
 import { fetchLanguages } from '../../store/rootActions';
 import { getAppState, getCurrentUser, getGlobalSettingValue, Store } from '../../store/rootReducer';
+import KeyboardShortcutsModal from './KeyboardShortcutsModal';
 
 const PageTracker = lazyLoadComponent(() => import('./PageTracker'));
 
@@ -37,7 +35,6 @@ interface StateProps {
 
 interface DispatchProps {
   fetchLanguages: () => Promise<void>;
-  fetchMyOrganizations: () => Promise<void>;
 }
 
 interface OwnProps {
@@ -53,10 +50,6 @@ class App extends React.PureComponent<Props> {
     this.mounted = true;
     this.props.fetchLanguages();
     this.setScrollbarWidth();
-    const { appState, currentUser } = this.props;
-    if (appState && isSonarCloud() && currentUser && isLoggedIn(currentUser)) {
-      this.props.fetchMyOrganizations();
-    }
   }
 
   componentWillUnmount() {
@@ -103,6 +96,7 @@ class App extends React.PureComponent<Props> {
       <>
         <PageTracker>{this.props.enableGravatar && this.renderPreconnectLink()}</PageTracker>
         {this.props.children}
+        <KeyboardShortcutsModal />
       </>
     );
   }
@@ -120,8 +114,7 @@ const mapStateToProps = (state: Store): StateProps => {
 };
 
 const mapDispatchToProps = ({
-  fetchLanguages,
-  fetchMyOrganizations
+  fetchLanguages
 } as any) as DispatchProps;
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
