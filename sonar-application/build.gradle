@@ -102,6 +102,7 @@ task zip(type: Zip, dependsOn: [configurations.compile]) {
       exclude 'elasticsearch/modules/lang-groovy/**'
       exclude 'elasticsearch/modules/lang-mustache/**'
       exclude 'elasticsearch/modules/rank-eval/**'
+      exclude 'elasticsearch/modules/reindex/**'
       exclude 'elasticsearch/modules/tribe/**'
       exclude 'elasticsearch/modules/x-pack-*/**'
   }
