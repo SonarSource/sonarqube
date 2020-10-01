@@ -460,7 +460,7 @@ public class IssueIndex {
         facet.getFilterScope(),
         boolQuery()
           .must(securityCategoryFilter)
-          .must(termQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name())));
+          .must(termsQuery(FIELD_ISSUE_TYPE, VULNERABILITY.name(), SECURITY_HOTSPOT.name())));
     }
   }
 
