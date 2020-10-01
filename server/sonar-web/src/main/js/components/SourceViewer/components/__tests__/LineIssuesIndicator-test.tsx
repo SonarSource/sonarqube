@@ -29,10 +29,13 @@ it('should render correctly', () => {
     shallowRender({
       issues: [
         mockIssue(false, { key: 'foo', type: 'VULNERABILITY' }),
-        mockIssue(false, { key: 'bar', type: 'SECURITY_HOTSPOT' })
+        mockIssue(false, { key: 'bar', type: 'VULNERABILITY' })
       ]
     })
-  ).toMatchSnapshot('diff issue types');
+  ).toMatchSnapshot('multiple issues, same type');
+  expect(
+    shallowRender({ issues: [mockIssue(false, { key: 'foo', type: 'VULNERABILITY' })] })
+  ).toMatchSnapshot('single issue');
   expect(shallowRender({ issues: [] })).toMatchSnapshot('no issues');
 });
 

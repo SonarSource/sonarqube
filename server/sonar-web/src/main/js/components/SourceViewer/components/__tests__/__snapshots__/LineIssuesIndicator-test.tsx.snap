@@ -11,9 +11,13 @@ exports[`should render correctly: default 1`] = `
     role="button"
     tabIndex={0}
   >
-    <IssueIcon
-      type="BUG"
-    />
+    <Tooltip
+      overlay="source_viewer.issues_on_line.multiple_issues"
+    >
+      <IssueIcon
+        type="BUG"
+      />
+    </Tooltip>
     <span
       className="source-line-issues-counter"
     >
@@ -23,7 +27,7 @@ exports[`should render correctly: default 1`] = `
 </td>
 `;
 
-exports[`should render correctly: diff issue types 1`] = `
+exports[`should render correctly: multiple issues, same type 1`] = `
 <td
   className="source-meta source-line-issues source-line-with-issues"
   data-line-number={3}
@@ -34,9 +38,13 @@ exports[`should render correctly: diff issue types 1`] = `
     role="button"
     tabIndex={0}
   >
-    <IssueIcon
-      type="VULNERABILITY"
-    />
+    <Tooltip
+      overlay="source_viewer.issues_on_line.X_issues_of_type_Y.2.issue.type.VULNERABILITY.plural"
+    >
+      <IssueIcon
+        type="VULNERABILITY"
+      />
+    </Tooltip>
     <span
       className="source-line-issues-counter"
     >
@@ -51,4 +59,26 @@ exports[`should render correctly: no issues 1`] = `
   className="source-meta source-line-issues"
   data-line-number={3}
 />
+`;
+
+exports[`should render correctly: single issue 1`] = `
+<td
+  className="source-meta source-line-issues source-line-with-issues"
+  data-line-number={3}
+>
+  <span
+    aria-label="source_viewer.issues_on_line.show"
+    onClick={[Function]}
+    role="button"
+    tabIndex={0}
+  >
+    <Tooltip
+      overlay="source_viewer.issues_on_line.issue_of_type_X.issue.type.VULNERABILITY"
+    >
+      <IssueIcon
+        type="VULNERABILITY"
+      />
+    </Tooltip>
+  </span>
+</td>
 `;

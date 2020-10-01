@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as classNames from 'classnames';
+import { uniq } from 'lodash';
 import * as React from 'react';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import IssueIcon from 'sonar-ui-common/components/icons/IssueIcon';
-import { translate } from 'sonar-ui-common/helpers/l10n';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { sortByType } from '../../../helpers/issues';
 
 export interface LineIssuesIndicatorProps {
@@ -36,26 +38,46 @@ export function LineIssuesIndicator(props: LineIssuesIndicatorProps) {
   const className = classNames('source-meta', 'source-line-issues', {
     'source-line-with-issues': hasIssues
   });
-  const mostImportantIssue = hasIssues ? sortByType(issues)[0] : null;
 
-  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.currentTarget.blur();
-    props.onClick();
-  };
+  if (!hasIssues) {
+    return <td className={className} data-line-number={line.line} />;
+  }
+
+  const mostImportantIssue = sortByType(issues)[0];
+  const issueTypes = uniq(issues.map(i => i.type));
+
+  let tooltipContent;
+  if (issueTypes.length > 1) {
+    tooltipContent = translate('source_viewer.issues_on_line.multiple_issues');
+  } else if (issues.length === 1) {
+    tooltipContent = translateWithParameters(
+      'source_viewer.issues_on_line.issue_of_type_X',
+      translate('issue.type', mostImportantIssue.type)
+    );
+  } else {
+    tooltipContent = translateWithParameters(
+      'source_viewer.issues_on_line.X_issues_of_type_Y',
+      issues.length,
+      translate('issue.type', mostImportantIssue.type, 'plural')
+    );
+  }
 
   return (
     <td className={className} data-line-number={line.line}>
-      {hasIssues && (
-        <span
-          aria-label={translate('source_viewer.issues_on_line', issuesOpen ? 'hide' : 'show')}
-          onClick={handleClick}
-          role="button"
-          tabIndex={0}>
-          {mostImportantIssue != null && <IssueIcon type={mostImportantIssue.type} />}
-          {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
-        </span>
-      )}
+      <span
+        aria-label={translate('source_viewer.issues_on_line', issuesOpen ? 'hide' : 'show')}
+        onClick={(e: React.MouseEvent<HTMLElement>) => {
+          e.preventDefault();
+          e.currentTarget.blur();
+          props.onClick();
+        }}
+        role="button"
+        tabIndex={0}>
+        <Tooltip overlay={tooltipContent}>
+          <IssueIcon type={mostImportantIssue.type} />
+        </Tooltip>
+        {issues.length > 1 && <span className="source-line-issues-counter">{issues.length}</span>}
+      </span>
     </td>
   );
 }
