@@ -24,6 +24,8 @@ exports[`should display the sq version 1`] = `
     >
       <a
         href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         footer.license
       </a>
@@ -32,7 +34,9 @@ exports[`should display the sq version 1`] = `
       className="page-footer-menu-item"
     >
       <a
-        href="http://www.sonarqube.org?referrer=sonarqube"
+        href="https://community.sonarsource.com/c/help/sq"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         footer.community
       </a>
@@ -52,16 +56,9 @@ exports[`should display the sq version 1`] = `
       className="page-footer-menu-item"
     >
       <a
-        href="https://redirect.sonarsource.com/doc/community.html"
-      >
-        footer.support
-      </a>
-    </li>
-    <li
-      className="page-footer-menu-item"
-    >
-      <a
         href="https://redirect.sonarsource.com/doc/plugin-library.html"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         footer.plugins
       </a>
@@ -106,6 +103,8 @@ exports[`should not render the only logged in information 1`] = `
     >
       <a
         href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         footer.license
       </a>
@@ -114,7 +113,9 @@ exports[`should not render the only logged in information 1`] = `
       className="page-footer-menu-item"
     >
       <a
-        href="http://www.sonarqube.org?referrer=sonarqube"
+        href="https://community.sonarsource.com/c/help/sq"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         footer.community
       </a>
@@ -134,16 +135,9 @@ exports[`should not render the only logged in information 1`] = `
       className="page-footer-menu-item"
     >
       <a
-        href="https://redirect.sonarsource.com/doc/community.html"
-      >
-        footer.support
-      </a>
-    </li>
-    <li
-      className="page-footer-menu-item"
-    >
-      <a
         href="https://redirect.sonarsource.com/doc/plugin-library.html"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         footer.plugins
       </a>
@@ -173,6 +167,8 @@ exports[`should render the only logged in information 1`] = `
     >
       <a
         href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         footer.license
       </a>
@@ -181,7 +177,9 @@ exports[`should render the only logged in information 1`] = `
       className="page-footer-menu-item"
     >
       <a
-        href="http://www.sonarqube.org?referrer=sonarqube"
+        href="https://community.sonarsource.com/c/help/sq"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         footer.community
       </a>
@@ -201,16 +199,9 @@ exports[`should render the only logged in information 1`] = `
       className="page-footer-menu-item"
     >
       <a
-        href="https://redirect.sonarsource.com/doc/community.html"
-      >
-        footer.support
-      </a>
-    </li>
-    <li
-      className="page-footer-menu-item"
-    >
-      <a
         href="https://redirect.sonarsource.com/doc/plugin-library.html"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         footer.plugins
       </a>

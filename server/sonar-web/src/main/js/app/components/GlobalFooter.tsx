@@ -70,21 +70,29 @@ export default function GlobalFooter({
           </li>
         )}
         <li className="page-footer-menu-item">
-          <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">{translate('footer.license')}</a>
+          <a
+            href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+            rel="noopener noreferrer"
+            target="_blank">
+            {translate('footer.license')}
+          </a>
         </li>
         <li className="page-footer-menu-item">
-          <a href="http://www.sonarqube.org?referrer=sonarqube">{translate('footer.community')}</a>
+          <a
+            href="https://community.sonarsource.com/c/help/sq"
+            rel="noopener noreferrer"
+            target="_blank">
+            {translate('footer.community')}
+          </a>
         </li>
         <li className="page-footer-menu-item">
           <Link to="/documentation">{translate('footer.documentation')}</Link>
         </li>
         <li className="page-footer-menu-item">
-          <a href="https://redirect.sonarsource.com/doc/community.html">
-            {translate('footer.support')}
-          </a>
-        </li>
-        <li className="page-footer-menu-item">
-          <a href="https://redirect.sonarsource.com/doc/plugin-library.html">
+          <a
+            href="https://redirect.sonarsource.com/doc/plugin-library.html"
+            rel="noopener noreferrer"
+            target="_blank">
             {translate('footer.plugins')}
           </a>
         </li>
