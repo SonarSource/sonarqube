@@ -149,7 +149,11 @@ export default class SourceViewerHeader extends React.PureComponent<Props, State
               <QualifierIcon qualifier={q} /> <span>{collapsedDirFromPath(path)}</span>
               <span className="component-name-file">{fileFromPath(path)}</span>
               <span className="nudged-up spacer-left">
-                <ClipboardIconButton className="button-link link-no-underline" copyValue={path} />
+                <ClipboardIconButton
+                  aria-label={translate('component_viewer.copy_path_to_clipboard')}
+                  className="button-link link-no-underline"
+                  copyValue={path}
+                />
               </span>
             </div>
           </div>
