@@ -30,13 +30,17 @@ exports[`should render available plugin correctly 1`] = `
       marketplace.terms_and_conditions
     </a>
   </p>
-  <Button
-    className="js-install"
-    disabled={true}
-    onClick={[Function]}
+  <Tooltip
+    overlay="marketplace.requires_restart"
   >
-    marketplace.install
-  </Button>
+    <Button
+      className="js-install"
+      disabled={true}
+      onClick={[Function]}
+    >
+      marketplace.install
+    </Button>
+  </Tooltip>
 </div>
 `;
 
@@ -64,20 +68,20 @@ exports[`should render installed plugin correctly 1`] = `
 <div
   className="js-actions"
 >
-  <div
-    className="display-inlin-block"
-  >
-    <PluginUpdateButton
-      disabled={false}
-      key="0"
-      onClick={[Function]}
-      update={
-        Object {
-          "requires": Array [],
-          "status": "COMPATIBLE",
-        }
+  <PluginUpdateButton
+    disabled={false}
+    key="0"
+    onClick={[Function]}
+    update={
+      Object {
+        "requires": Array [],
+        "status": "COMPATIBLE",
       }
-    />
+    }
+  />
+  <Tooltip
+    overlay="marketplace.requires_restart"
+  >
     <Button
       className="js-uninstall button-red little-spacer-left"
       disabled={false}
@@ -85,7 +89,7 @@ exports[`should render installed plugin correctly 1`] = `
     >
       marketplace.uninstall
     </Button>
-  </div>
+  </Tooltip>
 </div>
 `;
 

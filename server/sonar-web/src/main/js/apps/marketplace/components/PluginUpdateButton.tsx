@@ -19,7 +19,8 @@
  */
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
-import { translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
+import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 import { Update } from '../../../types/plugins';
 
 interface Props {
@@ -39,12 +40,14 @@ export default class PluginUpdateButton extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <Button
-        className="js-update little-spacer-bottom"
-        disabled={disabled}
-        onClick={this.handleClick}>
-        {translateWithParameters('marketplace.update_to_x', update.release.version)}
-      </Button>
+      <Tooltip overlay={translate('marketplace.requires_restart')}>
+        <Button
+          className="js-update little-spacer-bottom"
+          disabled={disabled}
+          onClick={this.handleClick}>
+          {translateWithParameters('marketplace.update_to_x', update.release.version)}
+        </Button>
+      </Tooltip>
     );
   }
 }

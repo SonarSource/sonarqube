@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import Checkbox from 'sonar-ui-common/components/controls/Checkbox';
+import Tooltip from 'sonar-ui-common/components/controls/Tooltip';
 import CheckIcon from 'sonar-ui-common/components/icons/CheckIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { installPlugin, uninstallPlugin, updatePlugin } from '../../../api/plugins';
@@ -139,7 +140,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
         )}
         {loading && <i className="spinner spacer-right little-spacer-top little-spacer-bottom" />}
         {isInstalledPlugin(plugin) && (
-          <div className="display-inlin-block">
+          <>
             {plugin.updates &&
               plugin.updates.map((update, idx) => (
                 <PluginUpdateButton
@@ -149,21 +150,27 @@ export default class PluginActions extends React.PureComponent<Props, State> {
                   update={update}
                 />
               ))}
-            <Button
-              className="js-uninstall button-red little-spacer-left"
-              disabled={loading}
-              onClick={this.handleUninstall}>
-              {translate('marketplace.uninstall')}
-            </Button>
-          </div>
+            <Tooltip overlay={translate('marketplace.requires_restart')}>
+              <Button
+                className="js-uninstall button-red little-spacer-left"
+                disabled={loading}
+                onClick={this.handleUninstall}>
+                {translate('marketplace.uninstall')}
+              </Button>
+            </Tooltip>
+          </>
         )}
         {isAvailablePlugin(plugin) && (
-          <Button
-            className="js-install"
-            disabled={loading || (plugin.termsAndConditionsUrl != null && !this.state.acceptTerms)}
-            onClick={this.handleInstall}>
-            {translate('marketplace.install')}
-          </Button>
+          <Tooltip overlay={translate('marketplace.requires_restart')}>
+            <Button
+              className="js-install"
+              disabled={
+                loading || (plugin.termsAndConditionsUrl != null && !this.state.acceptTerms)
+              }
+              onClick={this.handleInstall}>
+              {translate('marketplace.install')}
+            </Button>
+          </Tooltip>
         )}
       </div>
     );
