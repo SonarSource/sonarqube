@@ -5,23 +5,22 @@ url: /setup/operate-server/
 
 ## Running SonarQube as a Service on Windows
 
+### Installing SonarQube as a service
+
 [[warning]]
 | When installing SonarQube as a service on Windows, the path to the executable should be quoted to prevent unquoted service path attacks. 
 
-### Install or Uninstall NT Service (may have to run these files via Run As Administrator):
-
 ```
-%SONARQUBE_HOME%/bin/windows-x86-64/InstallNTService.bat
-%SONARQUBE_HOME%/bin/windows-x86-64/UninstallNTService.bat
+> sc create SonarQube binPath= "\"%SONARQUBE_HOME%\bin\windows-x86-64\wrapper.exe\" -s %SONARQUBE_HOME%\conf\wrapper.conf"
 ```
 
-### Start or Stop the Service:
+### Start or Stop the Service
 
 ```
-%SONARQUBE_HOME%/bin/windows-x86-64/StartNTService.bat
-%SONARQUBE_HOME%/bin/windows-x86-64/StopNTService.bat
+> SONARQUBE_HOME%/bin/windows-x86-64/StartNTService.bat
+> SONARQUBE_HOME%/bin/windows-x86-64/StopNTService.bat
 ```
-**Note:** `%SONARQUBE_HOME%/bin/windows-x86-64/StopNTService.bat` does a graceful shutdown where no new analysis report processing can start, but the tasks in progress are allowed to finish. The time a stop will take depends on the processing time of the tasks in progress. You'll need to kill all SonarQube processes manually to force a stop.
+**Note:** `> %SONARQUBE_HOME%/bin/windows-x86-64/StopNTService.bat` does a graceful shutdown where no new analysis report processing can start, but the tasks in progress are allowed to finish. The time a stop will take depends on the processing time of the tasks in progress. You'll need to kill all SonarQube processes manually to force a stop.
 
 ## Running SonarQube Manually on Linux
 
