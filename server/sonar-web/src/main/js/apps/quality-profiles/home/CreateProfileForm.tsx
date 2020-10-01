@@ -23,15 +23,18 @@ import { ResetButtonLink, SubmitButton } from 'sonar-ui-common/components/contro
 import Modal from 'sonar-ui-common/components/controls/Modal';
 import Select from 'sonar-ui-common/components/controls/Select';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { parseAsOptionalString } from 'sonar-ui-common/helpers/query';
 import {
   changeProfileParent,
   createQualityProfile,
   getImporters
 } from '../../../api/quality-profiles';
+import { Location } from '../../../components/hoc/withRouter';
 import { Profile } from '../types';
 
 interface Props {
   languages: Array<{ key: string; name: string }>;
+  location: Location;
   onClose: () => void;
   onCreate: Function;
   organization: string | null;
@@ -115,10 +118,11 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
 
   render() {
     const header = translate('quality_profiles.new_profile');
+    const languageQueryFilter = parseAsOptionalString(this.props.location.query.language);
     const languages = sortBy(this.props.languages, 'name');
     let profiles: Array<{ label: string; value: string }> = [];
 
-    const selectedLanguage = this.state.language || languages[0].key;
+    const selectedLanguage = this.state.language || languageQueryFilter || languages[0].key;
     const importers = this.state.importers.filter(importer =>
       importer.languages.includes(selectedLanguage)
     );
@@ -176,9 +180,9 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                   id="create-profile-language"
                   name="language"
                   onChange={this.handleLanguageChange}
-                  options={languages.map(language => ({
-                    label: language.name,
-                    value: language.key
+                  options={languages.map(l => ({
+                    label: l.name,
+                    value: l.key
                   }))}
                   value={selectedLanguage}
                 />

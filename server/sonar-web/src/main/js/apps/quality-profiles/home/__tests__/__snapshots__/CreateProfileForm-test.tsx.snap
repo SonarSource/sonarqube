@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render correctly 1`] = `
+exports[`should render correctly: default 1`] = `
 <Modal
   contentLabel="quality_profiles.new_profile"
   onRequestClose={[MockFunction]}
@@ -66,12 +66,16 @@ exports[`should render correctly 1`] = `
           options={
             Array [
               Object {
-                "label": "Hangeul",
-                "value": "kr",
+                "label": "CSS",
+                "value": "css",
+              },
+              Object {
+                "label": "JavaScript",
+                "value": "js",
               },
             ]
           }
-          value="kr"
+          value="css"
         />
       </div>
       <div
@@ -92,6 +96,142 @@ exports[`should render correctly 1`] = `
               Object {
                 "label": "none",
                 "value": "",
+              },
+              Object {
+                "label": "name",
+                "value": "key",
+              },
+            ]
+          }
+          value=""
+        />
+      </div>
+      <input
+        name="hello-ie11"
+        type="hidden"
+        value=""
+      />
+    </div>
+    <div
+      className="modal-foot"
+    >
+      <SubmitButton
+        disabled={false}
+        id="create-profile-submit"
+      >
+        create
+      </SubmitButton>
+      <ResetButtonLink
+        id="create-profile-cancel"
+        onClick={[MockFunction]}
+      >
+        cancel
+      </ResetButtonLink>
+    </div>
+  </form>
+</Modal>
+`;
+
+exports[`should render correctly: with query filter 1`] = `
+<Modal
+  contentLabel="quality_profiles.new_profile"
+  onRequestClose={[MockFunction]}
+  size="small"
+>
+  <form
+    id="create-profile-form"
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-head"
+    >
+      <h2>
+        quality_profiles.new_profile
+      </h2>
+    </div>
+    <div
+      className="modal-body"
+    >
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-profile-name"
+        >
+          name
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <input
+          autoFocus={true}
+          id="create-profile-name"
+          maxLength={100}
+          name="name"
+          onChange={[Function]}
+          required={true}
+          size={50}
+          type="text"
+          value=""
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-profile-language"
+        >
+          language
+          <em
+            className="mandatory"
+          >
+            *
+          </em>
+        </label>
+        <Select
+          clearable={false}
+          id="create-profile-language"
+          name="language"
+          onChange={[Function]}
+          options={
+            Array [
+              Object {
+                "label": "CSS",
+                "value": "css",
+              },
+              Object {
+                "label": "JavaScript",
+                "value": "js",
+              },
+            ]
+          }
+          value="js"
+        />
+      </div>
+      <div
+        className="modal-field"
+      >
+        <label
+          htmlFor="create-profile-parent"
+        >
+          quality_profiles.parent
+        </label>
+        <Select
+          clearable={true}
+          id="create-profile-parent"
+          name="parentKey"
+          onChange={[Function]}
+          options={
+            Array [
+              Object {
+                "label": "none",
+                "value": "",
+              },
+              Object {
+                "label": "name",
+                "value": "key",
               },
             ]
           }

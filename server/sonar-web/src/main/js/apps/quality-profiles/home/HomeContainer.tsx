@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Actions } from '../../../api/quality-profiles';
+import { Location } from '../../../components/hoc/withRouter';
 import { Profile } from '../types';
 import Evolution from './Evolution';
 import PageHeader from './PageHeader';
@@ -27,7 +28,7 @@ import ProfilesList from './ProfilesList';
 interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
-  location: { query: T.Dict<string> };
+  location: Location;
   organization: string | null;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;

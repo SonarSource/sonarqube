@@ -194,6 +194,17 @@ exports[`should show a create form 1`] = `
         },
       ]
     }
+    location={
+      Object {
+        "action": "PUSH",
+        "hash": "",
+        "key": "key",
+        "pathname": "/path",
+        "query": Object {},
+        "search": "",
+        "state": Object {},
+      }
+    }
     onClose={[Function]}
     onCreate={[Function]}
     organization="foo"

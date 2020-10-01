@@ -20,7 +20,12 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { click } from 'sonar-ui-common/helpers/testUtils';
-import { mockLanguage, mockQualityProfile, mockRouter } from '../../../../helpers/testMocks';
+import {
+  mockLanguage,
+  mockLocation,
+  mockQualityProfile,
+  mockRouter
+} from '../../../../helpers/testMocks';
 import { PageHeader } from '../PageHeader';
 
 it('should render correctly', () => {
@@ -46,6 +51,7 @@ function shallowRender(props: Partial<PageHeader['props']> = {}) {
     <PageHeader
       actions={{ create: false }}
       languages={[mockLanguage()]}
+      location={mockLocation()}
       organization="foo"
       profiles={[mockQualityProfile()]}
       router={mockRouter()}

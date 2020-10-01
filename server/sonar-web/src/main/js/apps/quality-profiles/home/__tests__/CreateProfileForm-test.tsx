@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { mockEvent, waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { changeProfileParent, createQualityProfile } from '../../../../api/quality-profiles';
-import { mockQualityProfile } from '../../../../helpers/testMocks';
+import { mockLocation, mockQualityProfile } from '../../../../helpers/testMocks';
 import CreateProfileForm from '../CreateProfileForm';
 
 beforeEach(() => jest.clearAllMocks());
@@ -32,7 +32,7 @@ jest.mock('../../../../api/quality-profiles', () => ({
   getImporters: jest.fn().mockResolvedValue([
     {
       key: 'key_importer',
-      languages: ['lang1_importer', 'lang2_importer', 'kr'],
+      languages: ['lang1_importer', 'lang2_importer', 'js'],
       name: 'name_importer'
     }
   ])
@@ -41,7 +41,11 @@ jest.mock('../../../../api/quality-profiles', () => ({
 it('should render correctly', async () => {
   const wrapper = shallowRender();
   await waitAndUpdate(wrapper);
-  expect(wrapper).toMatchSnapshot();
+
+  expect(wrapper).toMatchSnapshot('default');
+  expect(
+    wrapper.setProps({ location: mockLocation({ query: { language: 'js' } }) })
+  ).toMatchSnapshot('with query filter');
 });
 
 it('should handle form submit correctly', async () => {
@@ -72,11 +76,15 @@ it('should handle form submit without parent correctly', async () => {
 function shallowRender(props?: Partial<CreateProfileForm['props']>) {
   return shallow<CreateProfileForm>(
     <CreateProfileForm
-      languages={[{ key: 'kr', name: 'Hangeul' }]}
+      languages={[
+        { key: 'js', name: 'JavaScript' },
+        { key: 'css', name: 'CSS' }
+      ]}
+      location={mockLocation()}
       onClose={jest.fn()}
       onCreate={jest.fn()}
       organization="org"
-      profiles={[mockQualityProfile()]}
+      profiles={[mockQualityProfile(), mockQualityProfile({ language: 'css' })]}
       {...props}
     />
   );
