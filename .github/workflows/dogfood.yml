@@ -4,9 +4,6 @@ on:
     branches:
       - master
       - "dogfood/**"
-  delete:
-    branches:
-      - "dogfood/**"
 jobs:
   dogfood_merge:
     # prevent job to run on public repository sonarsource/sonarqube
