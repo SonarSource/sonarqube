@@ -200,7 +200,7 @@ subprojects {
       }
       dependency 'commons-codec:commons-codec:1.14'
       dependency 'commons-dbutils:commons-dbutils:1.7'
-      dependency 'commons-io:commons-io:2.7'
+      dependency 'commons-io:commons-io:2.8.0'
       dependency 'commons-lang:commons-lang:2.6'
       dependencySet(group: 'com.fasterxml.jackson.core', version: '2.10.4') {
         entry 'jackson-annotations'
