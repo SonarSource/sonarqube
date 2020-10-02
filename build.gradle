@@ -486,6 +486,11 @@ subprojects {
       yarnVersion = '1.22.0'
       download = true
     }
+
+    // the OWASP tool does not support yarn, and its yarn.lock files, so node modules
+    // should be explicitly installed (yarn task) before running the audit
+    // See https://github.com/jeremylong/DependencyCheck/issues/2393
+    dependencyCheckAggregate.dependsOn(yarn)
   }
 
   if (official) {
