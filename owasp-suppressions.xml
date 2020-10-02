@@ -187,4 +187,59 @@
     <packageUrl regex="true">pkg:maven/com\.jcraft/jsch\.agentproxy\..*@0.0.7</packageUrl>
     <cve>CVE-2016-5725</cve>
   </suppress>
+
+  <suppress>
+    <notes>
+      <![CDATA[
+        file name: alm-gallery-client-1.0.2.jar will be matched to a wrong cpe string
+      ]]>
+    </notes>
+    <packageUrl regex="true">^pkg:maven/com\.sonarsource\.vsts/alm\-gallery\-client@.*$</packageUrl>
+    <cpe>cpe:/a:gallery:gallery</cpe>
+  </suppress>
+  
+  <!-- False Positive: Version of kotlin lib is not vulnerable to this CVE -->
+  <suppress>
+   <notes><![CDATA[
+   file name: kotlin-stdlib-common-1.4.10.jar
+   ]]></notes>
+   <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin\-stdlib(\-common)?@1.4.10$</packageUrl>
+   <cve>CVE-2020-15824</cve>
+  </suppress>
+  
+  <!-- False Positive: The CVE is for hazelcast:1.8.0 not hazelcast-client-protocol -->
+  <suppress>
+   <notes><![CDATA[
+   file name: hazelcast-3.12.9.jar (shaded: com.hazelcast:hazelcast-client-protocol:1.8.0)
+   ]]></notes>
+   <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-client\-protocol@.*$</packageUrl>
+   <cve>CVE-2016-10750</cve>
+  </suppress>
+
+  <suppress>
+   <notes><![CDATA[
+   file name: d3-zoom:1.7.3
+   ]]></notes>
+   <packageUrl regex="true">^pkg:npm/d3\-zoom@.*$</packageUrl>
+   <cpe>cpe:/a:zoom:zoom</cpe>
+  </suppress>
+
+  <suppress>
+   <notes><![CDATA[
+   file name: dompurify:1.0.11
+   ]]></notes>
+   <packageUrl regex="true">^pkg:npm/dompurify@.*$</packageUrl>
+   <cve>CVE-2019-16728</cve>
+   <vulnerabilityName>CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+   <notes><![CDATA[
+   file name: lodash:4.17.11
+   ]]></notes>
+   <packageUrl regex="true">^pkg:npm/lodash@.*$</packageUrl>
+   <cve>CVE-2019-10744</cve>
+   <cve>CVE-2020-8203</cve>
+   <vulnerabilityName>CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')</vulnerabilityName>
+  </suppress>
 </suppressions>
