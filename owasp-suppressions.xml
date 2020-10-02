@@ -187,4 +187,14 @@
     <packageUrl regex="true">pkg:maven/com\.jcraft/jsch\.agentproxy\..*@0.0.7</packageUrl>
     <cve>CVE-2016-5725</cve>
   </suppress>
+
+  <suppress>
+    <notes>
+      <![CDATA[
+        file name: alm-gallery-client-1.0.2.jar will be matched to a wrong cpe string
+      ]]>
+    </notes>
+    <packageUrl regex="true">^pkg:maven/com\.sonarsource\.vsts/alm\-gallery\-client@.*$</packageUrl>
+    <cpe>cpe:/a:gallery:gallery</cpe>
+  </suppress>
 </suppressions>
