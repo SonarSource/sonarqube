@@ -50,6 +50,7 @@ import {
 } from '../../../helpers/branch-like';
 import { isSonarCloud } from '../../../helpers/system';
 import { BranchLike } from '../../../types/branch-like';
+import { SecurityStandard } from '../../../types/security';
 import * as actions from '../actions';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
@@ -156,8 +157,8 @@ export default class App extends React.PureComponent<Props, State> {
       locationsNavigator: false,
       myIssues: areMyIssuesSelected(props.location.query),
       openFacets: {
-        owaspTop10: shouldOpenStandardsChildFacet({}, query, 'owaspTop10'),
-        sansTop25: shouldOpenStandardsChildFacet({}, query, 'sansTop25'),
+        owaspTop10: shouldOpenStandardsChildFacet({}, query, SecurityStandard.OWASP_TOP10),
+        sansTop25: shouldOpenStandardsChildFacet({}, query, SecurityStandard.SANS_TOP25),
         severities: true,
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),

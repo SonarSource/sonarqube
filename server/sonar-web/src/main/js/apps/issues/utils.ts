@@ -33,6 +33,7 @@ import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import { get, save } from 'sonar-ui-common/helpers/storage';
 import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
+import { SecurityStandard, StandardType } from '../../types/security';
 
 export interface Query {
   assigned: boolean;
@@ -65,11 +66,11 @@ export interface Query {
 }
 
 export const STANDARDS = 'standards';
-export const STANDARD_TYPES: T.StandardType[] = [
-  'owaspTop10',
-  'sansTop25',
-  'cwe',
-  'sonarsourceSecurity'
+export const STANDARD_TYPES: StandardType[] = [
+  SecurityStandard.OWASP_TOP10,
+  SecurityStandard.SANS_TOP25,
+  SecurityStandard.CWE,
+  SecurityStandard.SONARSOURCE
 ];
 
 // allow sorting by CREATION_DATE only
@@ -288,13 +289,13 @@ export function shouldOpenStandardsFacet(
 export function shouldOpenStandardsChildFacet(
   openFacets: T.Dict<boolean>,
   query: Partial<Query>,
-  standardType: T.StandardType
+  standardType: SecurityStandard
 ): boolean {
   const filter = query[standardType];
   return (
     openFacets[STANDARDS] !== false &&
     (openFacets[standardType] ||
-      (standardType !== 'cwe' && filter !== undefined && filter.length > 0))
+      (standardType !== SecurityStandard.CWE && filter !== undefined && filter.length > 0))
   );
 }
 
@@ -304,7 +305,7 @@ export function shouldOpenSonarSourceSecurityFacet(
 ): boolean {
   // Open it by default if the parent is open, and no other standard is open.
   return (
-    shouldOpenStandardsChildFacet(openFacets, query, 'sonarsourceSecurity') ||
+    shouldOpenStandardsChildFacet(openFacets, query, SecurityStandard.SONARSOURCE) ||
     (shouldOpenStandardsFacet(openFacets, query) && !isOneStandardChildFacetOpen(openFacets, query))
   );
 }

@@ -21,7 +21,7 @@ import { shallow } from 'enzyme';
 import * as React from 'react';
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
+import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-hotspots';
 import { mockComponent } from '../../../helpers/testMocks';
 import { HotspotStatusFilter } from '../../../types/security-hotspots';
 import FilterBar from '../components/FilterBar';
@@ -126,6 +126,7 @@ function shallowRender(props: Partial<SecurityHotspotsAppRendererProps> = {}) {
       onUpdateHotspot={jest.fn()}
       securityCategories={{}}
       selectedHotspot={undefined}
+      standards={mockStandards()}
       {...props}
     />
   );

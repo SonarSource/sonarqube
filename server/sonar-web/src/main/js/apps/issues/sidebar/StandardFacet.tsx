@@ -34,6 +34,7 @@ import {
   renderSansTop25Category,
   renderSonarSourceSecurityCategory
 } from '../../../helpers/security-standard';
+import { SecurityStandard, Standards, StandardType } from '../../../types/security';
 import { Facet, formatFacetStat, Query, STANDARDS } from '../utils';
 
 interface Props {
@@ -61,11 +62,11 @@ interface Props {
 }
 
 interface State {
-  standards: T.Standards;
+  standards: Standards;
 }
 
 type StatsProp = 'owaspTop10Stats' | 'cweStats' | 'sansTop25Stats' | 'sonarsourceSecurityStats';
-type ValuesProp = T.StandardType;
+type ValuesProp = StandardType;
 
 export default class StandardFacet extends React.PureComponent<Props, State> {
   mounted = false;
@@ -101,7 +102,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
 
   loadStandards = () => {
     getStandards().then(
-      ({ owaspTop10, sansTop25, cwe, sonarsourceSecurity }: T.Standards) => {
+      ({ owaspTop10, sansTop25, cwe, sonarsourceSecurity }: Standards) => {
         if (this.mounted) {
           this.setState({ standards: { owaspTop10, sansTop25, cwe, sonarsourceSecurity } });
         }
@@ -166,15 +167,15 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   };
 
   handleOwaspTop10ItemClick = (itemValue: string, multiple: boolean) => {
-    this.handleItemClick('owaspTop10', itemValue, multiple);
+    this.handleItemClick(SecurityStandard.OWASP_TOP10, itemValue, multiple);
   };
 
   handleSansTop25ItemClick = (itemValue: string, multiple: boolean) => {
-    this.handleItemClick('sansTop25', itemValue, multiple);
+    this.handleItemClick(SecurityStandard.SANS_TOP25, itemValue, multiple);
   };
 
   handleSonarSourceSecurityItemClick = (itemValue: string, multiple: boolean) => {
-    this.handleItemClick('sonarsourceSecurity', itemValue, multiple);
+    this.handleItemClick(SecurityStandard.SONARSOURCE, itemValue, multiple);
   };
 
   handleCWESearch = (query: string) => {
@@ -197,7 +198,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   renderList = (
     statsProp: StatsProp,
     valuesProp: ValuesProp,
-    renderName: (standards: T.Standards, category: string) => string,
+    renderName: (standards: Standards, category: string) => string,
     onClick: (x: string, multiple?: boolean) => void
   ) => {
     const stats = this.props[statsProp];
@@ -214,8 +215,8 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
     stats: any,
     values: string[],
     categories: string[],
-    renderName: (standards: T.Standards, category: string) => React.ReactNode,
-    renderTooltip: (standards: T.Standards, category: string) => string,
+    renderName: (standards: Standards, category: string) => React.ReactNode,
+    renderTooltip: (standards: Standards, category: string) => string,
     onClick: (x: string, multiple?: boolean) => void
   ) => {
     if (!categories.length) {
@@ -256,46 +257,46 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
   renderOwaspTop10List() {
     return this.renderList(
       'owaspTop10Stats',
-      'owaspTop10',
+      SecurityStandard.OWASP_TOP10,
       renderOwaspTop10Category,
       this.handleOwaspTop10ItemClick
     );
   }
 
   renderOwaspTop10Hint() {
-    return this.renderHint('owaspTop10Stats', 'owaspTop10');
+    return this.renderHint('owaspTop10Stats', SecurityStandard.OWASP_TOP10);
   }
 
   renderSansTop25List() {
     return this.renderList(
       'sansTop25Stats',
-      'sansTop25',
+      SecurityStandard.SANS_TOP25,
       renderSansTop25Category,
       this.handleSansTop25ItemClick
     );
   }
 
   renderSansTop25Hint() {
-    return this.renderHint('sansTop25Stats', 'sansTop25');
+    return this.renderHint('sansTop25Stats', SecurityStandard.SANS_TOP25);
   }
 
   renderSonarSourceSecurityList() {
     return this.renderList(
       'sonarsourceSecurityStats',
-      'sonarsourceSecurity',
+      SecurityStandard.SONARSOURCE,
       renderSonarSourceSecurityCategory,
       this.handleSonarSourceSecurityItemClick
     );
   }
 
   renderSonarSourceSecurityHint() {
-    return this.renderHint('sonarsourceSecurityStats', 'sonarsourceSecurity');
+    return this.renderHint('sonarsourceSecurityStats', SecurityStandard.SONARSOURCE);
   }
 
   renderSubFacets() {
     return (
       <>
-        <FacetBox className="is-inner" property="sonarsourceSecurity">
+        <FacetBox className="is-inner" property={SecurityStandard.SONARSOURCE}>
           <FacetHeader
             fetching={this.props.fetchingSonarSourceSecurity}
             name={translate('issues.facet.sonarsourceSecurity')}
@@ -312,7 +313,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             </>
           )}
         </FacetBox>
-        <FacetBox className="is-inner" property="owaspTop10">
+        <FacetBox className="is-inner" property={SecurityStandard.OWASP_TOP10}>
           <FacetHeader
             fetching={this.props.fetchingOwaspTop10}
             name={translate('issues.facet.owaspTop10')}
@@ -329,7 +330,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
             </>
           )}
         </FacetBox>
-        <FacetBox className="is-inner" property="sansTop25">
+        <FacetBox className="is-inner" property={SecurityStandard.SANS_TOP25}>
           <FacetHeader
             fetching={this.props.fetchingSansTop25}
             name={translate('issues.facet.sansTop25')}
@@ -358,7 +359,7 @@ export default class StandardFacet extends React.PureComponent<Props, State> {
           onSearch={this.handleCWESearch}
           onToggle={this.props.onToggle}
           open={this.props.cweOpen}
-          property="cwe"
+          property={SecurityStandard.CWE}
           query={omit(this.props.query, 'cwe')}
           renderFacetItem={item => renderCWECategory(this.state.standards, item)}
           renderSearchResult={(item, query) =>

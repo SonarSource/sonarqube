@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function getStandards(): Promise<T.Standards> {
+import { Standards } from '../types/security';
+
+export function getStandards(): Promise<Standards> {
   return import('./standards.json').then(x => x.default);
 }
 
-export function renderCWECategory(standards: T.Standards, category: string): string {
+export function renderCWECategory(standards: Standards, category: string): string {
   const record = standards.cwe[category];
   if (!record) {
     return `CWE-${category}`;
@@ -33,7 +35,7 @@ export function renderCWECategory(standards: T.Standards, category: string): str
 }
 
 export function renderOwaspTop10Category(
-  standards: T.Standards,
+  standards: Standards,
   category: string,
   withPrefix = false
 ): string {
@@ -46,7 +48,7 @@ export function renderOwaspTop10Category(
 }
 
 export function renderSansTop25Category(
-  standards: T.Standards,
+  standards: Standards,
   category: string,
   withPrefix = false
 ): string {
@@ -55,7 +57,7 @@ export function renderSansTop25Category(
 }
 
 export function renderSonarSourceSecurityCategory(
-  standards: T.Standards,
+  standards: Standards,
   category: string,
   withPrefix = false
 ): string {

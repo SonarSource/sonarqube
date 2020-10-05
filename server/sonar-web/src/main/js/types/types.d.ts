@@ -824,12 +824,6 @@ declare namespace T {
 
   export type StandardSecurityCategories = T.Dict<{ title: string; description?: string }>;
 
-  export type Standards = {
-    [key in StandardType]: T.Dict<{ title: string; description?: string }>;
-  };
-
-  export type StandardType = 'owaspTop10' | 'sansTop25' | 'cwe' | 'sonarsourceSecurity';
-
   export type Status = 'ERROR' | 'OK';
 
   export interface SubscriptionPlan {

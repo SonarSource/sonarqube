@@ -29,7 +29,7 @@ export interface HotspotCategoryProps {
   expanded: boolean;
   hotspots: RawHotspot[];
   onHotspotClick: (hotspot: RawHotspot) => void;
-  onToggleExpand: (categoryKey: string, value: boolean) => void;
+  onToggleExpand?: (categoryKey: string, value: boolean) => void;
   selectedHotspot: RawHotspot;
   title: string;
   isLastAndIncomplete: boolean;
@@ -46,26 +46,32 @@ export default function HotspotCategory(props: HotspotCategoryProps) {
 
   return (
     <div className={classNames('hotspot-category', risk)}>
-      <a
-        className={classNames(
-          'hotspot-category-header display-flex-space-between display-flex-center',
-          { 'contains-selected-hotspot': selectedHotspot.securityCategory === categoryKey }
-        )}
-        href="#"
-        onClick={() => props.onToggleExpand(categoryKey, !expanded)}>
-        <strong className="flex-1 spacer-right break-word">{title}</strong>
-        <span>
-          <span className="counter-badge">
-            {hotspots.length}
-            {isLastAndIncomplete && '+'}
-          </span>
-          {expanded ? (
-            <ChevronUpIcon className="big-spacer-left" />
-          ) : (
-            <ChevronDownIcon className="big-spacer-left" />
+      {props.onToggleExpand ? (
+        <a
+          className={classNames(
+            'hotspot-category-header display-flex-space-between display-flex-center',
+            { 'contains-selected-hotspot': selectedHotspot.securityCategory === categoryKey }
           )}
-        </span>
-      </a>
+          href="#"
+          onClick={() => props.onToggleExpand && props.onToggleExpand(categoryKey, !expanded)}>
+          <strong className="flex-1 spacer-right break-word">{title}</strong>
+          <span>
+            <span className="counter-badge">
+              {hotspots.length}
+              {isLastAndIncomplete && '+'}
+            </span>
+            {expanded ? (
+              <ChevronUpIcon className="big-spacer-left" />
+            ) : (
+              <ChevronDownIcon className="big-spacer-left" />
+            )}
+          </span>
+        </a>
+      ) : (
+        <div className="hotspot-category-header">
+          <strong className="flex-1 spacer-right break-word">{title}</strong>
+        </div>
+      )}
       {expanded && (
         <ul>
           {hotspots.map(h => (

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { scrollToElement } from 'sonar-ui-common/helpers/scrolling';
+import { SecurityStandard } from '../../../types/security';
 import {
   scrollToIssue,
   shouldOpenSonarSourceSecurityFacet,
@@ -80,37 +81,57 @@ describe('shouldOpenStandardsFacet', () => {
 
 describe('shouldOpenStandardsChildFacet', () => {
   it('should open standard child facet', () => {
-    expect(shouldOpenStandardsChildFacet({ owaspTop10: true }, {}, 'owaspTop10')).toBe(true);
-    expect(shouldOpenStandardsChildFacet({ sansTop25: true }, {}, 'sansTop25')).toBe(true);
     expect(
-      shouldOpenStandardsChildFacet({ sansTop25: true }, { owaspTop10: ['A1'] }, 'owaspTop10')
+      shouldOpenStandardsChildFacet({ owaspTop10: true }, {}, SecurityStandard.OWASP_TOP10)
     ).toBe(true);
     expect(
-      shouldOpenStandardsChildFacet({ owaspTop10: false }, { owaspTop10: ['A1'] }, 'owaspTop10')
+      shouldOpenStandardsChildFacet({ sansTop25: true }, {}, SecurityStandard.SANS_TOP25)
     ).toBe(true);
     expect(
-      shouldOpenStandardsChildFacet({}, { sansTop25: ['insecure-interactions'] }, 'sansTop25')
+      shouldOpenStandardsChildFacet(
+        { sansTop25: true },
+        { owaspTop10: ['A1'] },
+        SecurityStandard.OWASP_TOP10
+      )
+    ).toBe(true);
+    expect(
+      shouldOpenStandardsChildFacet(
+        { owaspTop10: false },
+        { owaspTop10: ['A1'] },
+        SecurityStandard.OWASP_TOP10
+      )
+    ).toBe(true);
+    expect(
+      shouldOpenStandardsChildFacet(
+        {},
+        { sansTop25: ['insecure-interactions'] },
+        SecurityStandard.SANS_TOP25
+      )
     ).toBe(true);
     expect(
       shouldOpenStandardsChildFacet(
         {},
         { sansTop25: ['insecure-interactions'], sonarsourceSecurity: ['sql-injection'] },
-        'sonarsourceSecurity'
+        SecurityStandard.SONARSOURCE
       )
     ).toBe(true);
   });
 
   it('should NOT open standard child facet', () => {
-    expect(shouldOpenStandardsChildFacet({ standards: true }, {}, 'owaspTop10')).toBe(false);
-    expect(shouldOpenStandardsChildFacet({ sansTop25: true }, {}, 'owaspTop10')).toBe(false);
-    expect(shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, 'sansTop25')).toBe(
-      false
-    );
+    expect(
+      shouldOpenStandardsChildFacet({ standards: true }, {}, SecurityStandard.OWASP_TOP10)
+    ).toBe(false);
+    expect(
+      shouldOpenStandardsChildFacet({ sansTop25: true }, {}, SecurityStandard.OWASP_TOP10)
+    ).toBe(false);
+    expect(
+      shouldOpenStandardsChildFacet({}, { types: ['VULNERABILITY'] }, SecurityStandard.SANS_TOP25)
+    ).toBe(false);
     expect(
       shouldOpenStandardsChildFacet(
         {},
         { sansTop25: ['insecure-interactions'], sonarsourceSecurity: ['sql-injection'] },
-        'owaspTop10'
+        SecurityStandard.OWASP_TOP10
       )
     ).toBe(false);
   });

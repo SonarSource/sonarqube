@@ -24,7 +24,7 @@ import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
 import { getMeasures } from '../../../api/measures';
 import { getSecurityHotspotList, getSecurityHotspots } from '../../../api/security-hotspots';
 import { mockBranch, mockPullRequest } from '../../../helpers/mocks/branch-like';
-import { mockRawHotspot } from '../../../helpers/mocks/security-hotspots';
+import { mockRawHotspot, mockStandards } from '../../../helpers/mocks/security-hotspots';
 import { getStandards } from '../../../helpers/security-standard';
 import {
   mockComponent,
@@ -33,6 +33,7 @@ import {
   mockLoggedInUser,
   mockRouter
 } from '../../../helpers/testMocks';
+import { SecurityStandard } from '../../../types/security';
 import {
   HotspotResolution,
   HotspotStatus,
@@ -100,30 +101,26 @@ it('should load data correctly', async () => {
   expect(wrapper.state().loading).toBe(false);
   expect(wrapper.state().hotspots).toEqual(hotspots);
   expect(wrapper.state().selectedHotspot).toBe(hotspots[0]);
-  expect(wrapper.state().securityCategories).toEqual({
-    cat1: { title: 'cat 1' }
+  expect(wrapper.state().standards).toEqual({
+    sonarsourceSecurity: {
+      cat1: { title: 'cat 1' }
+    }
   });
   expect(wrapper.state().loadingMeasure).toBe(false);
   expect(wrapper.state().hotspotsReviewedMeasure).toBe('86.6');
 });
 
-it('should handle category request', async () => {
-  const hotspots = [mockRawHotspot(), mockRawHotspot({ securityCategory: 'log-injection' })];
-  (getSecurityHotspots as jest.Mock).mockResolvedValue({
-    hotspots,
-    paging: {
-      total: 1
-    }
-  });
+it('should handle category request', () => {
+  (getStandards as jest.Mock).mockResolvedValue(mockStandards());
   (getMeasures as jest.Mock).mockResolvedValue([{ value: '86.6' }]);
 
-  const wrapper = shallowRender({
-    location: mockLocation({ query: { category: hotspots[1].securityCategory } })
+  shallowRender({
+    location: mockLocation({ query: { [SecurityStandard.OWASP_TOP10]: 'a1' } })
   });
 
-  await waitAndUpdate(wrapper);
-
-  expect(wrapper.state().selectedHotspot).toBe(hotspots[1]);
+  expect(getSecurityHotspots).toBeCalledWith(
+    expect.objectContaining({ [SecurityStandard.OWASP_TOP10]: 'a1' })
+  );
 });
 
 it('should load data correctly when hotspot key list is forced', async () => {

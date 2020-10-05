@@ -52,5 +52,13 @@ exports[`should render correctly 1`] = `
   onShowAllHotspots={[Function]}
   onUpdateHotspot={[Function]}
   securityCategories={Object {}}
+  standards={
+    Object {
+      "cwe": Object {},
+      "owaspTop10": Object {},
+      "sansTop25": Object {},
+      "sonarsourceSecurity": Object {},
+    }
+  }
 />
 `;

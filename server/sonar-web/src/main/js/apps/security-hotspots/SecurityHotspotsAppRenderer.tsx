@@ -27,16 +27,22 @@ import Suggestions from '../../app/components/embed-docs-modal/Suggestions';
 import ScreenPositionHelper from '../../components/common/ScreenPositionHelper';
 import { isBranch } from '../../helpers/branch-like';
 import { BranchLike } from '../../types/branch-like';
+import { SecurityStandard, Standards } from '../../types/security';
 import { HotspotFilters, HotspotStatusFilter, RawHotspot } from '../../types/security-hotspots';
 import EmptyHotspotsPage from './components/EmptyHotspotsPage';
 import FilterBar from './components/FilterBar';
 import HotspotList from './components/HotspotList';
+import HotspotSimpleList from './components/HotspotSimpleList';
 import HotspotViewer from './components/HotspotViewer';
 import './styles.css';
 
 export interface SecurityHotspotsAppRendererProps {
   branchLike?: BranchLike;
   component: T.Component;
+  filterByCategory?: {
+    standard: SecurityStandard;
+    category: string;
+  };
   filters: HotspotFilters;
   hotspots: RawHotspot[];
   hotspotsReviewedMeasure?: string;
@@ -52,12 +58,15 @@ export interface SecurityHotspotsAppRendererProps {
   onUpdateHotspot: (hotspotKey: string) => Promise<void>;
   selectedHotspot: RawHotspot | undefined;
   securityCategories: T.StandardSecurityCategories;
+  standards: Standards;
 }
 
 export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRendererProps) {
   const {
     branchLike,
     component,
+    filterByCategory,
+    filters,
     hotspots,
     hotspotsReviewedMeasure,
     hotspotsTotal,
@@ -67,7 +76,7 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
     loadingMore,
     securityCategories,
     selectedHotspot,
-    filters
+    standards
   } = props;
 
   const scrollableRef = React.useRef(null);
@@ -116,17 +125,30 @@ export default function SecurityHotspotsAppRenderer(props: SecurityHotspotsAppRe
               {({ top }) => (
                 <div className="layout-page-side" ref={scrollableRef} style={{ top }}>
                   <div className="layout-page-side-inner">
-                    <HotspotList
-                      hotspots={hotspots}
-                      hotspotsTotal={hotspotsTotal}
-                      isStaticListOfHotspots={isStaticListOfHotspots}
-                      loadingMore={loadingMore}
-                      onHotspotClick={props.onHotspotClick}
-                      onLoadMore={props.onLoadMore}
-                      securityCategories={securityCategories}
-                      selectedHotspot={selectedHotspot}
-                      statusFilter={filters.status}
-                    />
+                    {filterByCategory ? (
+                      <HotspotSimpleList
+                        filterByCategory={filterByCategory}
+                        hotspots={hotspots}
+                        hotspotsTotal={hotspotsTotal}
+                        loadingMore={loadingMore}
+                        onHotspotClick={props.onHotspotClick}
+                        onLoadMore={props.onLoadMore}
+                        selectedHotspot={selectedHotspot}
+                        standards={standards}
+                      />
+                    ) : (
+                      <HotspotList
+                        hotspots={hotspots}
+                        hotspotsTotal={hotspotsTotal}
+                        isStaticListOfHotspots={isStaticListOfHotspots}
+                        loadingMore={loadingMore}
+                        onHotspotClick={props.onHotspotClick}
+                        onLoadMore={props.onLoadMore}
+                        securityCategories={securityCategories}
+                        selectedHotspot={selectedHotspot}
+                        statusFilter={filters.status}
+                      />
+                    )}
                   </div>
                 </div>
               )}

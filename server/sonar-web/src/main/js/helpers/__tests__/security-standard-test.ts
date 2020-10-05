@@ -1,3 +1,4 @@
+import { Standards } from '../../types/security';
 /*
  * SonarQube
  * Copyright (C) 2009-2020 SonarSource SA
@@ -25,7 +26,7 @@ import {
 } from '../security-standard';
 
 describe('renderCWECategory', () => {
-  const standards: T.Standards = {
+  const standards: Standards = {
     cwe: {
       '1004': {
         title: "Sensitive Cookie Without 'HttpOnly' Flag"
@@ -38,7 +39,7 @@ describe('renderCWECategory', () => {
     sansTop25: {},
     sonarsourceSecurity: {}
   };
-  it('should render categories correctly', () => {
+  it('should render cwe categories correctly', () => {
     expect(renderCWECategory(standards, '1004')).toEqual(
       "CWE-1004 - Sensitive Cookie Without 'HttpOnly' Flag"
     );
@@ -48,7 +49,7 @@ describe('renderCWECategory', () => {
 });
 
 describe('renderOwaspTop10Category', () => {
-  const standards: T.Standards = {
+  const standards: Standards = {
     cwe: {},
     owaspTop10: {
       a1: {
@@ -58,7 +59,7 @@ describe('renderOwaspTop10Category', () => {
     sansTop25: {},
     sonarsourceSecurity: {}
   };
-  it('should render categories correctly', () => {
+  it('should render owasp categories correctly', () => {
     expect(renderOwaspTop10Category(standards, 'a1')).toEqual('A1 - Injection');
     expect(renderOwaspTop10Category(standards, 'a1', true)).toEqual('OWASP A1 - Injection');
     expect(renderOwaspTop10Category(standards, 'a2')).toEqual('A2');
@@ -67,7 +68,7 @@ describe('renderOwaspTop10Category', () => {
 });
 
 describe('renderSansTop25Category', () => {
-  const standards: T.Standards = {
+  const standards: Standards = {
     cwe: {},
     owaspTop10: {},
     sansTop25: {
@@ -77,7 +78,7 @@ describe('renderSansTop25Category', () => {
     },
     sonarsourceSecurity: {}
   };
-  it('should render categories correctly', () => {
+  it('should render sans categories correctly', () => {
     expect(renderSansTop25Category(standards, 'insecure-interaction')).toEqual(
       'Insecure Interaction Between Components'
     );
@@ -90,7 +91,7 @@ describe('renderSansTop25Category', () => {
 });
 
 describe('renderSonarSourceSecurityCategory', () => {
-  const standards: T.Standards = {
+  const standards: Standards = {
     cwe: {},
     owaspTop10: {},
     sansTop25: {},
@@ -103,7 +104,7 @@ describe('renderSonarSourceSecurityCategory', () => {
       }
     }
   };
-  it('should render categories correctly', () => {
+  it('should render sonarsource categories correctly', () => {
     expect(renderSonarSourceSecurityCategory(standards, 'xss')).toEqual(
       'Cross-Site Scripting (XSS)'
     );

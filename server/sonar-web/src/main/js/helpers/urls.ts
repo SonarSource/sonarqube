@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 /*
  * SonarQube
  * Copyright (C) 2009-2020 SonarSource SA
@@ -22,6 +23,7 @@ import { getProfilePath } from '../apps/quality-profiles/utils';
 import { BranchLike, BranchParameters } from '../types/branch-like';
 import { ComponentQualifier, isPortfolioLike } from '../types/component';
 import { GraphType } from '../types/project-activity';
+import { SecurityStandard } from '../types/security';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
 
 type Query = Location['query'];
@@ -93,7 +95,7 @@ export function getComponentIssuesUrl(componentKey: string, query?: Query): Loca
  * Generate URL for a component's security hotspot page
  */
 export function getComponentSecurityHotspotsUrl(componentKey: string, query: Query = {}): Location {
-  const { branch, pullRequest, sinceLeakPeriod, hotspots, assignedToMe, category } = query;
+  const { branch, pullRequest, sinceLeakPeriod, hotspots, assignedToMe } = query;
   return {
     pathname: '/security_hotspots',
     query: {
@@ -103,7 +105,11 @@ export function getComponentSecurityHotspotsUrl(componentKey: string, query: Que
       sinceLeakPeriod,
       hotspots,
       assignedToMe,
-      category
+      ...pick(query, [
+        SecurityStandard.SONARSOURCE,
+        SecurityStandard.OWASP_TOP10,
+        SecurityStandard.SANS_TOP25
+      ])
     }
   };
 }

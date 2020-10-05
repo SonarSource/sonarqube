@@ -50,6 +50,7 @@ import {
   getMyOrganizations,
   Store
 } from '../../../store/rootReducer';
+import { SecurityStandard } from '../../../types/security';
 import {
   shouldOpenSonarSourceSecurityFacet,
   shouldOpenStandardsChildFacet,
@@ -121,8 +122,8 @@ export class App extends React.PureComponent<Props, State> {
       loading: true,
       openFacets: {
         languages: true,
-        owaspTop10: shouldOpenStandardsChildFacet({}, query, 'owaspTop10'),
-        sansTop25: shouldOpenStandardsChildFacet({}, query, 'sansTop25'),
+        owaspTop10: shouldOpenStandardsChildFacet({}, query, SecurityStandard.OWASP_TOP10),
+        sansTop25: shouldOpenStandardsChildFacet({}, query, SecurityStandard.SANS_TOP25),
         sonarsourceSecurity: shouldOpenSonarSourceSecurityFacet({}, query),
         standards: shouldOpenStandardsFacet({}, query),
         types: true

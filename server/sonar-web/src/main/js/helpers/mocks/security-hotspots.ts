@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { ComponentQualifier } from '../../types/component';
+import { Standards } from '../../types/security';
 import {
   Hotspot,
   HotspotResolution,
@@ -102,5 +103,51 @@ export function mockHotspotReviewHistoryElement(
     type: ReviewHistoryType.Creation,
     user: mockUser(),
     ...overrides
+  };
+}
+
+export function mockStandards(): Standards {
+  return {
+    cwe: {
+      unknown: {
+        title: 'No CWE associated'
+      },
+      '1004': {
+        title: "Sensitive Cookie Without 'HttpOnly' Flag"
+      }
+    },
+    owaspTop10: {
+      a1: {
+        title: 'Injection'
+      },
+      a2: {
+        title: 'Broken Authentication'
+      },
+      a3: {
+        title: 'Sensitive Data Exposure'
+      }
+    },
+    sansTop25: {
+      'insecure-interaction': {
+        title: 'Insecure Interaction Between Components'
+      },
+      'risky-resource': {
+        title: 'Risky Resource Management'
+      },
+      'porous-defenses': {
+        title: 'Porous Defenses'
+      }
+    },
+    sonarsourceSecurity: {
+      'buffer-overflow': {
+        title: 'Buffer Overflow'
+      },
+      'sql-injection': {
+        title: 'SQL Injection'
+      },
+      rce: {
+        title: 'Code Injection (RCE)'
+      }
+    }
   };
 }

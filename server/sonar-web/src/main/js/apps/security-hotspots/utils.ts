@@ -19,6 +19,13 @@
  */
 import { groupBy, sortBy } from 'lodash';
 import {
+  renderCWECategory,
+  renderOwaspTop10Category,
+  renderSansTop25Category,
+  renderSonarSourceSecurityCategory
+} from '../../helpers/security-standard';
+import { SecurityStandard } from '../../types/security';
+import {
   Hotspot,
   HotspotResolution,
   HotspotStatus,
@@ -30,6 +37,18 @@ import {
 } from '../../types/security-hotspots';
 
 export const RISK_EXPOSURE_LEVELS = [RiskExposure.HIGH, RiskExposure.MEDIUM, RiskExposure.LOW];
+export const SECURITY_STANDARDS = [
+  SecurityStandard.SONARSOURCE,
+  SecurityStandard.OWASP_TOP10,
+  SecurityStandard.SANS_TOP25
+];
+
+export const SECURITY_STANDARD_RENDERER = {
+  [SecurityStandard.OWASP_TOP10]: renderOwaspTop10Category,
+  [SecurityStandard.SANS_TOP25]: renderSansTop25Category,
+  [SecurityStandard.SONARSOURCE]: renderSonarSourceSecurityCategory,
+  [SecurityStandard.CWE]: renderCWECategory
+};
 
 export function mapRules(rules: Array<{ key: string; name: string }>): T.Dict<string> {
   return rules.reduce((ruleMap: T.Dict<string>, r) => {
