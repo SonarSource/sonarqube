@@ -81,6 +81,7 @@ import RuleDetails from './RuleDetails';
 import RuleListItem from './RuleListItem';
 
 const PAGE_SIZE = 100;
+const MAX_SEARCH_LENGTH = 200;
 const LIMIT_BEFORE_LOAD_MORE = 5;
 
 interface StateToProps {
@@ -600,6 +601,7 @@ export class App extends React.PureComponent<Props, State> {
                     <SearchBox
                       className="spacer-bottom"
                       id="coding-rules-search"
+                      maxLength={MAX_SEARCH_LENGTH}
                       minLength={2}
                       onChange={this.handleSearch}
                       placeholder={translate('search.search_for_rules')}

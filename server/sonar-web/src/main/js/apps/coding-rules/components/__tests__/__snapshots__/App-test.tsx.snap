@@ -66,6 +66,7 @@ exports[`should render correctly: loaded (ScreenPositionHelper) 1`] = `
       <SearchBox
         className="spacer-bottom"
         id="coding-rules-search"
+        maxLength={200}
         minLength={2}
         onChange={[Function]}
         placeholder="search.search_for_rules"
@@ -362,6 +363,7 @@ exports[`should render correctly: open rule (ScreenPositionHelper) 1`] = `
       <SearchBox
         className="spacer-bottom"
         id="coding-rules-search"
+        maxLength={200}
         minLength={2}
         onChange={[Function]}
         placeholder="search.search_for_rules"
