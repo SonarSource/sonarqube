@@ -410,7 +410,7 @@ owasp_check_task:
   gke_container:
     <<: *GKE_CONTAINER_TEMPLATE
     cpu: 1.7
-    memory: 2Gb
+    memory: 4Gb
   environment:
     # No need to clone the full history.
     # Depth of 1 is not enough because it would fail the build in case of consecutive pushes
