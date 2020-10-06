@@ -207,11 +207,11 @@ public class PermissionTemplateService {
         return dbClient.permissionTemplateDao().selectByUuid(dbSession, resolvedDefaultTemplates.getProject());
       case Qualifiers.VIEW:
         String portDefaultTemplateUuid = resolvedDefaultTemplates.getPortfolio().orElseThrow(
-          () -> new IllegalStateException("Attempt to create a view when Governance plugin is not installed"));
+          () -> new IllegalStateException("Failed to find default template for portfolios"));
         return dbClient.permissionTemplateDao().selectByUuid(dbSession, portDefaultTemplateUuid);
       case Qualifiers.APP:
         String appDefaultTemplateUuid = resolvedDefaultTemplates.getApplication().orElseThrow(
-          () -> new IllegalStateException("Attempt to create a view when Governance plugin is not installed"));
+          () -> new IllegalStateException("Failed to find default template for applications"));
         return dbClient.permissionTemplateDao().selectByUuid(dbSession, appDefaultTemplateUuid);
       default:
         throw new IllegalArgumentException(format("Qualifier '%s' is not supported", qualifier));

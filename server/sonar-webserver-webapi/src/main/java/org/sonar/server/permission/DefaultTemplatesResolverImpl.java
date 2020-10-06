@@ -54,7 +54,7 @@ public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
     return resourceTypes.getRoots()
       .stream()
       .map(ResourceType::getQualifier)
-      .anyMatch(Qualifiers.VIEW::equals);
+      .anyMatch(qualifier -> Qualifiers.VIEW.equals(qualifier) || Qualifiers.APP.equals(qualifier));
   }
 
 }
