@@ -17,20 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v85;
+package org.sonar.server.platform.db.migration.version.v86;
 
 import java.sql.SQLException;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropConstraintBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import java.sql.Types;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class DropDefaultQProfilesPk extends DdlChange {
-  public DropDefaultQProfilesPk(Database db) {
-    super(db);
-  }
+public class DropOrganizationFromDefaultQProfilesTest {
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropOrganizationFromDefaultQProfilesTest.class, "schema.sql");
 
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropConstraintBuilder(getDialect()).setName("pk_default_qprofiles").setTable("default_qprofiles").build());
+  private MigrationStep underTest = new DropOrganizationFromDefaultQProfiles(db.database());
+
+  @Test
+  public void execute() throws SQLException {
+    db.assertColumnDefinition("default_qprofiles", "organization_uuid", Types.VARCHAR, 40, false);
+    underTest.execute();
+    db.assertColumnDoesNotExist("default_qprofiles", "organization_uuid");
   }
 }

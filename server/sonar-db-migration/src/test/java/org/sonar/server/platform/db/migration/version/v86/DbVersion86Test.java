@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v85;
+package org.sonar.server.platform.db.migration.version.v86;
 
-import java.sql.SQLException;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.step.MigrationStep;
+import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.server.platform.db.migration.version.v85.DbVersion85;
 
-public class AddPrimaryKeyToDefaultQProfilesTest {
-  @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(AddPrimaryKeyToDefaultQProfilesTest.class, "schema.sql");
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-  private MigrationStep underTest = new AddPrimaryKeyToDefaultQProfiles(db.database());
+public class DbVersion86Test {
+
+  private DbVersion underTest = new DbVersion86();
 
   @Test
-  public void execute() throws SQLException {
-    db.assertNoPrimaryKey("default_qprofiles");
-    underTest.execute();
-    db.assertPrimaryKey("default_qprofiles", "pk_default_qprofiles", "language");
+  public void migrationNumber_starts_at_4100() {
+    verifyMinimumMigrationNumber(underTest, 4100);
   }
+
+  @Test
+  public void verify_migration_count() {
+    verifyMigrationNotEmpty(underTest);
+  }
+
 }

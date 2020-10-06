@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v85;
+package org.sonar.server.platform.db.migration.version.v86;
 
 import java.sql.SQLException;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class DropOrganizationFromQualityProfileTable extends DdlChange {
+public class DropDefaultQProfilesPkTest {
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropDefaultQProfilesPkTest.class, "schema.sql");
 
-  public DropOrganizationFromQualityProfileTable(Database db) {
-    super(db);
-  }
+  private MigrationStep underTest = new DropDefaultQProfilesPk(db.database());
 
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(getDialect(), "org_qprofiles", "organization_uuid").build());
+  @Test
+  public void execute() throws SQLException {
+    db.assertPrimaryKey("default_qprofiles", "pk_default_qprofiles", "organization_uuid", "language");
+
+    underTest.execute();
+    db.assertNoPrimaryKey("default_qprofiles");
   }
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v85;
+package org.sonar.server.platform.db.migration.version.v86;
 
 import java.sql.SQLException;
 import org.junit.Rule;
@@ -25,16 +25,33 @@ import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class DropOrganizationInRulesMetadataTest {
-  @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(DropOrganizationInRulesMetadataTest.class, "schema.sql");
+public class DropOrganizationUuidIndexFromQualityProfileTableTest {
 
-  private MigrationStep underTest = new DropOrganizationInRulesMetadata(dbTester.database());
+  private static final String TABLE_NAME = "org_qprofiles";
+
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropOrganizationUuidIndexFromQualityProfileTableTest.class, "schema.sql");
+
+  private MigrationStep underTest = new DropOrganizationUuidIndexFromQualityProfileTable(db.database());
 
   @Test
-  public void column_has_been_dropped() throws SQLException {
+  public void execute() throws SQLException {
+    db.assertTableExists(TABLE_NAME);
+    db.assertIndex(TABLE_NAME, "qprofiles_org_uuid", "organization_uuid");
+
     underTest.execute();
-    dbTester.assertColumnDoesNotExist("rules_metadata", "organization_uuid");
-    dbTester.assertPrimaryKey("rules_metadata", "pk_rules_metadata", "rule_uuid");
+
+    db.assertIndexDoesNotExist(TABLE_NAME, "qprofiles_org_uuid");
   }
+
+  @Test
+  public void migration_is_re_entrant() throws SQLException {
+    underTest.execute();
+
+    // re-entrant
+    underTest.execute();
+
+    db.assertIndexDoesNotExist(TABLE_NAME, "qprofiles_org_uuid");
+  }
+
 }

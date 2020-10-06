@@ -55,11 +55,6 @@ public class DbVersion85 implements DbVersion {
       .add(4024, "Populate 'branch_type' in 'project_branches'", FillProjectBranchesBranchType.class)
       .add(4025, "Make 'branch_type' in 'project_branches' not nullable", MakeProjectBranchesBranchTypeNotNullable.class)
       .add(4026, "Drop column 'key_type' in table 'project_branches'", DropProjectBranchesKeyType.class)
-      .add(4027, "Drop organization_uuid from 'quality_profile' table", DropOrganizationFromQualityProfileTable.class)
-      .add(4028, "Drop primary key of table 'default_qprofiles'", DropDefaultQProfilesPk.class)
-      .add(4029, "Drop organization_uuid from 'default_qprofiles' table", DropOrganizationFromDefaultQProfiles.class)
-      .add(4030, "Add primary key to the table 'default_qprofiles", AddPrimaryKeyToDefaultQProfiles.class)
-      .add(4031, "Drop 'organization_uuid' in 'rules_metadata'", DropOrganizationInRulesMetadata.class)
     ;
   }
 }

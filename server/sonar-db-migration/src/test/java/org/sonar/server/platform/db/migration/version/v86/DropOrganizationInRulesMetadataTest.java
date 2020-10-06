@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v85;
+package org.sonar.server.platform.db.migration.version.v86;
 
 import java.sql.SQLException;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class DropOrganizationFromDefaultQProfiles extends DdlChange {
-  public DropOrganizationFromDefaultQProfiles(Database db) {
-    super(db);
-  }
+public class DropOrganizationInRulesMetadataTest {
+  @Rule
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(DropOrganizationInRulesMetadataTest.class, "schema.sql");
 
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(getDialect(), "default_qprofiles", "organization_uuid").build());
+  private MigrationStep underTest = new DropOrganizationInRulesMetadata(dbTester.database());
+
+  @Test
+  public void column_has_been_dropped() throws SQLException {
+    underTest.execute();
+    dbTester.assertColumnDoesNotExist("rules_metadata", "organization_uuid");
+    dbTester.assertPrimaryKey("rules_metadata", "pk_rules_metadata", "rule_uuid");
   }
 }

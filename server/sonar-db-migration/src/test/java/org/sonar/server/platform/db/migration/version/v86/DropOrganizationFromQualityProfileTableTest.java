@@ -17,25 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v85;
+package org.sonar.server.platform.db.migration.version.v86;
 
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class DropDefaultQProfilesPkTest {
+public class DropOrganizationFromQualityProfileTableTest {
+
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(DropDefaultQProfilesPkTest.class, "schema.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(DropOrganizationFromQualityProfileTableTest.class, "schema.sql");
 
-  private MigrationStep underTest = new DropDefaultQProfilesPk(db.database());
+  private DropOrganizationFromQualityProfileTable underTest = new DropOrganizationFromQualityProfileTable(dbTester.database());
 
   @Test
-  public void execute() throws SQLException {
-    db.assertPrimaryKey("default_qprofiles", "pk_default_qprofiles", "organization_uuid", "language");
-
+  public void column_has_been_dropped() throws SQLException {
     underTest.execute();
-    db.assertNoPrimaryKey("default_qprofiles");
+    dbTester.assertColumnDoesNotExist("org_qprofiles", "organization_uuid");
   }
+
 }
