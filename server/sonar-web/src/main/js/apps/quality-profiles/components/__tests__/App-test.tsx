@@ -17,33 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { translate } from 'sonar-ui-common/helpers/l10n';
-import Header from './Header';
-import List from './List';
+import App from '../App';
 
-interface Props {
-  permissionTemplates: T.PermissionTemplate[];
-  permissions: T.Permission[];
-  ready: boolean;
-  refresh: () => Promise<void>;
-  topQualifiers: string[];
-}
+it('should render correctly', () => {
+  const wrapper = shallowRender();
+  expect(wrapper).toMatchSnapshot();
+});
 
-export default function Home(props: Props) {
-  return (
-    <div className="page page-limited">
-      <Helmet defer={false} title={translate('permission_templates.page')} />
-
-      <Header ready={props.ready} refresh={props.refresh} />
-
-      <List
-        permissionTemplates={props.permissionTemplates}
-        permissions={props.permissions}
-        refresh={props.refresh}
-        topQualifiers={props.topQualifiers}
-      />
-    </div>
+function shallowRender(props: Partial<App['props']> = {}) {
+  return shallow<App>(
+    <App languages={{}} organization={undefined} {...props}>
+      <div />
+    </App>
   );
 }

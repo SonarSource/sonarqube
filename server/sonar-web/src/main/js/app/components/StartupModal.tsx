@@ -28,7 +28,6 @@ import { showLicense } from '../../api/marketplace';
 import { Location, Router, withRouter } from '../../components/hoc/withRouter';
 import { isLoggedIn } from '../../helpers/users';
 import { getAppState, getCurrentUser, Store } from '../../store/rootReducer';
-import { skipOnboarding } from '../../store/users';
 import { EditionKey } from '../../types/editions';
 
 const LicensePromptModal = lazyLoadComponent(
@@ -42,10 +41,6 @@ interface StateProps {
   currentUser: T.CurrentUser;
 }
 
-interface DispatchProps {
-  skipOnboarding: () => void;
-}
-
 interface OwnProps {
   children?: React.ReactNode;
 }
@@ -55,7 +50,7 @@ interface WithRouterProps {
   router: Pick<Router, 'push'>;
 }
 
-type Props = StateProps & DispatchProps & OwnProps & WithRouterProps;
+type Props = StateProps & OwnProps & WithRouterProps;
 
 interface State {
   open?: boolean;
@@ -112,6 +107,4 @@ const mapStateToProps = (state: Store): StateProps => ({
   currentUser: getCurrentUser(state)
 });
 
-const mapDispatchToProps: DispatchProps = { skipOnboarding };
-
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(StartupModal));
+export default connect(mapStateToProps)(withRouter(StartupModal));

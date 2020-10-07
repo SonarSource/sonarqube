@@ -17,17 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { shallow } from 'enzyme';
 import * as React from 'react';
-import { Helmet } from 'react-helmet-async';
+import NameCell from '../NameCell';
 
-interface Props {
-  organization?: { name: string };
-  title: string;
-}
+it('render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
+});
 
-export default function OrganizationHelmet({ title, organization }: Props) {
-  const defaultTitle = title + (organization ? ' - ' + organization.name : '');
-  return (
-    <Helmet defaultTitle={defaultTitle} defer={false} titleTemplate={`%s - ${defaultTitle}`} />
+function shallowRender() {
+  return shallow(
+    <NameCell
+      template={{
+        id: '1',
+        createdAt: '2020-01-01',
+        name: 'test',
+        defaultFor: ['user'],
+        permissions: []
+      }}
+    />
   );
 }

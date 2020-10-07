@@ -130,7 +130,6 @@ function getWrapper(props: Partial<StartupModal['props']> = {}) {
       currentUser={LOGGED_IN_USER}
       location={{ pathname: 'foo/bar' }}
       router={{ push: jest.fn() }}
-      skipOnboarding={jest.fn()}
       {...props}>
       <div />
     </StartupModal>

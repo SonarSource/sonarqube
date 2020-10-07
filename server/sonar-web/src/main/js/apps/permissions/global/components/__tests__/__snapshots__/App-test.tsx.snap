@@ -14,12 +14,6 @@ exports[`should render correctly 1`] = `
   />
   <PageHeader
     loading={true}
-    organization={
-      Object {
-        "key": "foo",
-        "name": "Foo",
-      }
-    }
   />
   <Connect(AllHoldersList)
     filter="all"
@@ -53,12 +47,6 @@ exports[`should render correctly 2`] = `
   />
   <PageHeader
     loading={false}
-    organization={
-      Object {
-        "key": "foo",
-        "name": "Foo",
-      }
-    }
   />
   <Connect(AllHoldersList)
     filter="all"

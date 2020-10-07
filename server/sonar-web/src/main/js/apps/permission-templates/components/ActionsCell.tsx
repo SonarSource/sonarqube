@@ -30,12 +30,12 @@ import {
   updatePermissionTemplate
 } from '../../../api/permissions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import DeleteForm from './DeleteForm';
 import Form from './Form';
 
 interface Props {
   fromDetails?: boolean;
-  organization?: { isDefault?: boolean; key: string };
   permissionTemplate: T.PermissionTemplate;
   refresh: () => void;
   router: Pick<Router, 'replace'>;
@@ -91,10 +91,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
 
   handleDeleteSubmit = () => {
     return deletePermissionTemplate({ templateId: this.props.permissionTemplate.id }).then(() => {
-      const pathname = this.props.organization
-        ? `/organizations/${this.props.organization.key}/permission_templates`
-        : '/permission_templates';
-      this.props.router.replace(pathname);
+      this.props.router.replace(PERMISSION_TEMPLATES_PATH);
       this.props.refresh();
     });
   };
@@ -107,11 +104,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
   };
 
   getAvailableQualifiers() {
-    const topQualifiers =
-      this.props.organization && !this.props.organization.isDefault
-        ? ['TRK']
-        : this.props.topQualifiers;
-    return difference(topQualifiers, this.props.permissionTemplate.defaultFor);
+    return difference(this.props.topQualifiers, this.props.permissionTemplate.defaultFor);
   }
 
   renderSetDefaultsControl() {
@@ -160,11 +153,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { permissionTemplate: t, organization } = this.props;
-
-    const pathname = organization
-      ? `/organizations/${organization.key}/permission_templates`
-      : '/permission_templates';
+    const { permissionTemplate: t } = this.props;
 
     return (
       <>
@@ -172,7 +161,7 @@ export class ActionsCell extends React.PureComponent<Props, State> {
           {this.renderSetDefaultsControl()}
 
           {!this.props.fromDetails && (
-            <ActionsDropdownItem to={{ pathname, query: { id: t.id } }}>
+            <ActionsDropdownItem to={{ pathname: PERMISSION_TEMPLATES_PATH, query: { id: t.id } }}>
               {translate('edit_permissions')}
             </ActionsDropdownItem>
           )}

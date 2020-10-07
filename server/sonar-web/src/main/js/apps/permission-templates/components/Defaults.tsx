@@ -22,13 +22,11 @@ import * as React from 'react';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
-  organization: T.Organization | undefined;
   template: T.PermissionTemplate;
 }
 
-export default function Defaults({ organization, template }: Props) {
-  const qualifiersToDisplay =
-    organization && !organization.isDefault ? ['TRK'] : template.defaultFor;
+export default function Defaults({ template }: Props) {
+  const qualifiersToDisplay = template.defaultFor;
 
   const qualifiers = sortBy(qualifiersToDisplay)
     .map(qualifier => translate('qualifiers', qualifier))

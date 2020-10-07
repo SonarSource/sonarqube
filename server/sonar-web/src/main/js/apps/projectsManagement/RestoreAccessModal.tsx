@@ -65,8 +65,7 @@ export default class RestoreAccessModal extends React.PureComponent<Props, State
     grantPermissionToUser({
       projectKey: this.props.project.key,
       login: this.props.currentUser.login,
-      permission,
-      organization: this.props.project.organization
+      permission
     });
 
   render() {

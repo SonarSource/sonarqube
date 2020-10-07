@@ -60,7 +60,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
 
   loadPermissionTemplates() {
     this.setState({ loading: true });
-    getPermissionTemplates(this.props.organization).then(
+    getPermissionTemplates().then(
       ({ permissionTemplates }) => {
         if (this.mounted) {
           this.setState({

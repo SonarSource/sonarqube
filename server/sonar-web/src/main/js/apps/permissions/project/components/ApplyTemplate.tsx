@@ -54,7 +54,7 @@ export default class ApplyTemplate extends React.PureComponent<Props, State> {
   }
 
   fetchPermissionTemplates = () => {
-    getPermissionTemplates(this.props.organization).then(
+    getPermissionTemplates().then(
       ({ permissionTemplates }) => {
         if (this.mounted) {
           this.setState({ loading: false, permissionTemplates });

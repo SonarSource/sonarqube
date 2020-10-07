@@ -31,26 +31,12 @@ const SAMPLE: T.PermissionTemplate = {
 
 it('should render one qualifier', () => {
   const sample = { ...SAMPLE, defaultFor: ['DEV'] };
-  const output = shallow(<Defaults organization={undefined} template={sample} />);
+  const output = shallow(<Defaults template={sample} />);
   expect(output).toMatchSnapshot();
 });
 
 it('should render several qualifiers', () => {
   const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-  const output = shallow(<Defaults organization={undefined} template={sample} />);
-  expect(output).toMatchSnapshot();
-});
-
-it('should render several qualifiers for default organization', () => {
-  const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-  const organization: T.Organization = { isDefault: true, key: 'org', name: 'org' };
-  const output = shallow(<Defaults organization={organization} template={sample} />);
-  expect(output).toMatchSnapshot();
-});
-
-it('should render only projects for custom organization', () => {
-  const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
-  const organization: T.Organization = { isDefault: false, key: 'org', name: 'org' };
-  const output = shallow(<Defaults organization={organization} template={sample} />);
+  const output = shallow(<Defaults template={sample} />);
   expect(output).toMatchSnapshot();
 });

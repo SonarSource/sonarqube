@@ -27,7 +27,6 @@ export function grantPermissionToUser(data: {
   projectKey?: string;
   login: string;
   permission: string;
-  organization?: string;
 }) {
   return post('/api/permissions/add_user', data).catch(throwGlobalError);
 }
@@ -36,7 +35,6 @@ export function revokePermissionFromUser(data: {
   projectKey?: string;
   login: string;
   permission: string;
-  organization?: string;
 }) {
   return post('/api/permissions/remove_user', data).catch(throwGlobalError);
 }
@@ -45,7 +43,6 @@ export function grantPermissionToGroup(data: {
   projectKey?: string;
   groupName: string;
   permission: string;
-  organization?: string;
 }) {
   return post('/api/permissions/add_group', data).catch(throwGlobalError);
 }
@@ -54,7 +51,6 @@ export function revokePermissionFromGroup(data: {
   projectKey?: string;
   groupName: string;
   permission: string;
-  organization?: string;
 }) {
   return post('/api/permissions/remove_group', data).catch(throwGlobalError);
 }
@@ -65,11 +61,9 @@ interface GetPermissionTemplatesResponse {
   permissions: Array<{ key: string; name: string; description: string }>;
 }
 
-export function getPermissionTemplates(
-  organization?: string
-): Promise<GetPermissionTemplatesResponse> {
+export function getPermissionTemplates(): Promise<GetPermissionTemplatesResponse> {
   const url = '/api/permissions/search_templates';
-  return organization ? getJSON(url, { organization }) : getJSON(url);
+  return getJSON(url);
 }
 
 export function createPermissionTemplate(data: RequestData) {
@@ -103,7 +97,6 @@ export function grantTemplatePermissionToUser(data: {
   templateId: string;
   login: string;
   permission: string;
-  organization?: string;
 }): Promise<void> {
   return post('/api/permissions/add_user_to_template', data);
 }
@@ -112,7 +105,6 @@ export function revokeTemplatePermissionFromUser(data: {
   templateId: string;
   login: string;
   permission: string;
-  organization?: string;
 }): Promise<void> {
   return post('/api/permissions/remove_user_from_template', data);
 }
@@ -140,7 +132,6 @@ export function getPermissionsUsersForComponent(data: {
   projectKey: string;
   q?: string;
   permission?: string;
-  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: T.Paging; users: T.PermissionUser[] }> {
@@ -154,7 +145,6 @@ export function getPermissionsGroupsForComponent(data: {
   projectKey: string;
   q?: string;
   permission?: string;
-  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: T.Paging; groups: T.PermissionGroup[] }> {
@@ -167,7 +157,6 @@ export function getPermissionsGroupsForComponent(data: {
 export function getGlobalPermissionsUsers(data: {
   q?: string;
   permission?: string;
-  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: T.Paging; users: T.PermissionUser[] }> {
@@ -180,7 +169,6 @@ export function getGlobalPermissionsUsers(data: {
 export function getGlobalPermissionsGroups(data: {
   q?: string;
   permission?: string;
-  organization?: string;
   p?: number;
   ps?: number;
 }): Promise<{ paging: T.Paging; groups: T.PermissionGroup[] }> {
@@ -193,8 +181,7 @@ export function getGlobalPermissionsGroups(data: {
 export function getPermissionTemplateUsers(
   templateId: string,
   query?: string,
-  permission?: string,
-  organization?: string
+  permission?: string
 ): Promise<any> {
   const data: RequestData = { templateId, ps: PAGE_SIZE };
   if (query) {
@@ -202,9 +189,6 @@ export function getPermissionTemplateUsers(
   }
   if (permission) {
     data.permission = permission;
-  }
-  if (organization) {
-    Object.assign(data, { organization });
   }
   return getJSON('/api/permissions/template_users', data).then(r => r.users);
 }
@@ -212,8 +196,7 @@ export function getPermissionTemplateUsers(
 export function getPermissionTemplateGroups(
   templateId: string,
   query?: string,
-  permission?: string,
-  organization?: string
+  permission?: string
 ): Promise<any> {
   const data: RequestData = { templateId, ps: PAGE_SIZE };
   if (query) {
@@ -221,9 +204,6 @@ export function getPermissionTemplateGroups(
   }
   if (permission) {
     data.permission = permission;
-  }
-  if (organization) {
-    Object.assign(data, { organization });
   }
   return getJSON('/api/permissions/template_groups', data).then(r => r.groups);
 }

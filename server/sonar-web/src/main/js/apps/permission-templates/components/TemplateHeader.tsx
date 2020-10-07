@@ -20,27 +20,22 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import ActionsCell from './ActionsCell';
 
 interface Props {
   loading: boolean;
-  organization: T.Organization | undefined;
   refresh: () => void;
   template: T.PermissionTemplate;
   topQualifiers: string[];
 }
 
 export default function TemplateHeader(props: Props) {
-  const { template, organization } = props;
-
-  const pathname = organization
-    ? `/organizations/${organization.key}/permission_templates`
-    : '/permission_templates';
-
+  const { template } = props;
   return (
     <header className="page-header" id="project-permissions-header">
       <div className="note spacer-bottom">
-        <Link className="text-muted" to={pathname}>
+        <Link className="text-muted" to={PERMISSION_TEMPLATES_PATH}>
           {translate('permission_templates.page')}
         </Link>
       </div>
@@ -52,7 +47,6 @@ export default function TemplateHeader(props: Props) {
       <div className="pull-right">
         <ActionsCell
           fromDetails={true}
-          organization={organization}
           permissionTemplate={template}
           refresh={props.refresh}
           topQualifiers={props.topQualifiers}

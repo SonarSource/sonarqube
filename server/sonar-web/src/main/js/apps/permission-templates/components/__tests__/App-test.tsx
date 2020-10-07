@@ -20,7 +20,7 @@
 import { shallow } from 'enzyme';
 import * as React from 'react';
 import { waitAndUpdate } from 'sonar-ui-common/helpers/testUtils';
-import { mockLocation, mockOrganization } from '../../../../helpers/testMocks';
+import { mockLocation } from '../../../../helpers/testMocks';
 import { App } from '../App';
 
 jest.mock('../../../../api/permissions', () => ({
@@ -54,12 +54,5 @@ it('should render correctly', async () => {
 });
 
 function shallowRender(props: Partial<App['props']> = {}) {
-  return shallow(
-    <App
-      location={mockLocation()}
-      organization={mockOrganization()}
-      topQualifiers={['TRK']}
-      {...props}
-    />
-  );
+  return shallow(<App location={mockLocation()} topQualifiers={['TRK']} {...props} />);
 }

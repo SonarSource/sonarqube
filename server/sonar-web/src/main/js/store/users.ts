@@ -26,15 +26,13 @@ import { ActionType } from './utils/actions';
 const enum Actions {
   ReceiveCurrentUser = 'RECEIVE_CURRENT_USER',
   SetCurrentUserSetting = 'SET_CURRENT_USER_SETTING',
-  SkipOnboardingAction = 'SKIP_ONBOARDING',
   SetHomePageAction = 'SET_HOMEPAGE'
 }
 
 type Action =
   | ActionType<typeof receiveCurrentUser, Actions.ReceiveCurrentUser>
   | ActionType<typeof setCurrentUserSettingAction, Actions.SetCurrentUserSetting>
-  | ActionType<typeof setHomePageAction, Actions.SetHomePageAction>
-  | ActionType<typeof skipOnboardingAction, Actions.SkipOnboardingAction>;
+  | ActionType<typeof setHomePageAction, Actions.SetHomePageAction>;
 
 export interface State {
   usersByLogin: T.Dict<any>;
@@ -44,18 +42,6 @@ export interface State {
 
 export function receiveCurrentUser(user: T.CurrentUser) {
   return { type: Actions.ReceiveCurrentUser, user };
-}
-
-export function skipOnboardingAction() {
-  return { type: Actions.SkipOnboardingAction };
-}
-
-export function skipOnboarding() {
-  return (dispatch: Dispatch) =>
-    api.skipOnboarding().then(
-      () => dispatch(skipOnboardingAction()),
-      () => dispatch(skipOnboardingAction())
-    );
 }
 
 export function setHomePageAction(homepage: T.HomePage) {
@@ -112,9 +98,6 @@ function currentUser(
 ): State['currentUser'] {
   if (action.type === Actions.ReceiveCurrentUser) {
     return action.user;
-  }
-  if (action.type === Actions.SkipOnboardingAction && isLoggedIn(state)) {
-    return { ...state, showOnboardingTutorial: false } as T.LoggedInUser;
   }
   if (action.type === Actions.SetHomePageAction && isLoggedIn(state)) {
     return { ...state, homepage: action.homepage } as T.LoggedInUser;

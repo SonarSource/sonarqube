@@ -22,10 +22,10 @@ import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { createPermissionTemplate } from '../../../api/permissions';
 import { Router, withRouter } from '../../../components/hoc/withRouter';
+import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Form from './Form';
 
 interface Props {
-  organization?: { key: string };
   ready?: boolean;
   refresh: () => Promise<void>;
   router: Pick<Router, 'push'>;
@@ -62,13 +62,12 @@ class Header extends React.PureComponent<Props, State> {
     name: string;
     projectKeyPattern: string;
   }) => {
-    const organization = this.props.organization && this.props.organization.key;
-    return createPermissionTemplate({ ...data, organization }).then(response => {
+    return createPermissionTemplate({ ...data }).then(response => {
       this.props.refresh().then(() => {
-        const pathname = organization
-          ? `/organizations/${organization}/permission_templates`
-          : '/permission_templates';
-        this.props.router.push({ pathname, query: { id: response.permissionTemplate.id } });
+        this.props.router.push({
+          pathname: PERMISSION_TEMPLATES_PATH,
+          query: { id: response.permissionTemplate.id }
+        });
       });
     });
   };

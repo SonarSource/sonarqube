@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { Actions, getExporters, searchQualityProfiles } from '../../../api/quality-profiles';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import '../styles.css';
 import { Exporter, Profile } from '../types';
 import { sortProfiles } from '../utils';
@@ -109,10 +109,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <Suggestions suggestions="quality_profiles" />
-        <OrganizationHelmet
-          organization={this.props.organization}
-          title={translate('quality_profiles.page')}
-        />
+        <Helmet defer={false} title={translate('quality_profiles.page')} />
 
         {this.renderChild()}
       </div>

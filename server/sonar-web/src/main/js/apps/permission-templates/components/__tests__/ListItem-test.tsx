@@ -29,7 +29,6 @@ function shallowRender() {
   return shallow(
     <ListItem
       key="1"
-      organization={undefined}
       refresh={async () => {}}
       template={{
         id: '1',

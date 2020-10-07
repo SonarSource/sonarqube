@@ -212,7 +212,6 @@ declare namespace T {
   export interface CurrentUser {
     isLoggedIn: boolean;
     permissions?: { global: string[] };
-    showOnboardingTutorial?: boolean;
   }
 
   export interface CurrentUserSetting {

@@ -22,7 +22,6 @@ import ListHeader from './ListHeader';
 import ListItem from './ListItem';
 
 interface Props {
-  organization: T.Organization | undefined;
   permissionTemplates: T.PermissionTemplate[];
   permissions: T.Permission[];
   refresh: () => Promise<void>;
@@ -31,19 +30,13 @@ interface Props {
 
 export default function List(props: Props) {
   const permissionTemplates = props.permissionTemplates.map(p => (
-    <ListItem
-      key={p.id}
-      organization={props.organization}
-      refresh={props.refresh}
-      template={p}
-      topQualifiers={props.topQualifiers}
-    />
+    <ListItem key={p.id} refresh={props.refresh} template={p} topQualifiers={props.topQualifiers} />
   ));
 
   return (
     <div className="boxed-group boxed-group-inner">
       <table className="data zebra permissions-table" id="permission-templates">
-        <ListHeader organization={props.organization} permissions={props.permissions} />
+        <ListHeader permissions={props.permissions} />
         <tbody>{permissionTemplates}</tbody>
       </table>
     </div>

@@ -31,7 +31,6 @@ import TemplateDetails from './TemplateDetails';
 import TemplateHeader from './TemplateHeader';
 
 interface Props {
-  organization: T.Organization | undefined;
   refresh: () => void;
   template: T.PermissionTemplate;
   topQualifiers: string[];
@@ -85,12 +84,11 @@ export default class Template extends React.PureComponent<Props, State> {
     } else {
       requests.push(Promise.resolve([]));
     }
-
-    return Promise.all(requests).then(responses => {
+    return Promise.all(requests).then(([users, groups]) => {
       if (this.mounted) {
         this.setState({
-          users: responses[0],
-          groups: responses[1],
+          users,
+          groups,
           loading: false
         });
       }
@@ -101,16 +99,14 @@ export default class Template extends React.PureComponent<Props, State> {
     if (user.login === '<creator>') {
       return this.handleToggleProjectCreator(user, permission);
     }
-    const { template, organization } = this.props;
+    const { template } = this.props;
     const hasPermission = user.permissions.includes(permission);
-    const data: { templateId: string; login: string; permission: string; organization?: string } = {
+    const data: { templateId: string; login: string; permission: string } = {
       templateId: template.id,
       login: user.login,
       permission
     };
-    if (organization) {
-      data.organization = organization.key;
-    }
+
     const request = hasPermission
       ? api.revokeTemplatePermissionFromUser(data)
       : api.grantTemplatePermissionToUser(data);
@@ -127,16 +123,13 @@ export default class Template extends React.PureComponent<Props, State> {
   };
 
   handleToggleGroup = (group: T.PermissionGroup, permission: string) => {
-    const { template, organization } = this.props;
+    const { template } = this.props;
     const hasPermission = group.permissions.includes(permission);
     const data = {
       templateId: template.id,
       groupName: group.name,
       permission
     };
-    if (organization) {
-      Object.assign(data, { organization: organization.key });
-    }
     const request = hasPermission
       ? api.revokeTemplatePermissionFromGroup(data)
       : api.grantTemplatePermissionToGroup(data);
@@ -179,7 +172,6 @@ export default class Template extends React.PureComponent<Props, State> {
       PERMISSIONS_ORDER_FOR_PROJECT_TEMPLATE,
       'projects_role'
     );
-
     const allUsers = [...this.state.users];
 
     const creatorPermissions = this.props.template.permissions
@@ -202,13 +194,12 @@ export default class Template extends React.PureComponent<Props, State> {
 
         <TemplateHeader
           loading={this.state.loading}
-          organization={this.props.organization}
           refresh={this.props.refresh}
           template={this.props.template}
           topQualifiers={this.props.topQualifiers}
         />
 
-        <TemplateDetails organization={this.props.organization} template={this.props.template} />
+        <TemplateDetails template={this.props.template} />
 
         <HoldersList
           groups={this.state.groups}

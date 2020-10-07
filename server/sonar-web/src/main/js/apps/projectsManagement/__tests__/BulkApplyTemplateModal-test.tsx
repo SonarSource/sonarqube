@@ -39,7 +39,7 @@ beforeEach(() => {
 
 it('fetches permission templates on component mount', () => {
   shallow(render());
-  expect(getPermissionTemplates).toBeCalledWith('org');
+  expect(getPermissionTemplates).toBeCalled();
 });
 
 it('bulk applies template to all results', async () => {

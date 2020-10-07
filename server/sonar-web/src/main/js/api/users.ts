@@ -42,7 +42,6 @@ export interface UserGroup {
 
 export function getUserGroups(data: {
   login: string;
-  organization?: string;
   p?: number;
   ps?: number;
   q?: string;
@@ -89,10 +88,6 @@ export function updateUser(data: {
 
 export function deactivateUser(data: { login: string }): Promise<T.User> {
   return postJSON('/api/users/deactivate', data).catch(throwGlobalError);
-}
-
-export function skipOnboarding(): Promise<void | Response> {
-  return post('/api/users/skip_onboarding_tutorial').catch(throwGlobalError);
 }
 
 export function setHomePage(homepage: T.HomePage): Promise<void | Response> {

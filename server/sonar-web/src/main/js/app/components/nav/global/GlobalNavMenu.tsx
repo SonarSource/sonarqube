@@ -24,9 +24,8 @@ import Dropdown from 'sonar-ui-common/components/controls/Dropdown';
 import DropdownIcon from 'sonar-ui-common/components/icons/DropdownIcon';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { isMySet } from '../../../../apps/issues/utils';
-import { isSonarCloud } from '../../../../helpers/system';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
-import { isLoggedIn } from '../../../../helpers/users';
+import { ComponentQualifier } from '../../../../types/component';
 
 interface Props {
   appState: Pick<T.AppState, 'canAdmin' | 'globalPages' | 'organizationsEnabled' | 'qualifiers'>;
@@ -36,10 +35,6 @@ interface Props {
 
 export default class GlobalNavMenu extends React.PureComponent<Props> {
   renderProjects() {
-    if (isSonarCloud() && !isLoggedIn(this.props.currentUser)) {
-      return null;
-    }
-
     const active =
       this.props.location.pathname.startsWith('/projects') &&
       this.props.location.pathname !== '/projects/create';
@@ -47,7 +42,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
     return (
       <li>
         <Link className={classNames({ active })} to="/projects">
-          {isSonarCloud() ? translate('my_projects') : translate('projects.page')}
+          {translate('projects.page')}
         </Link>
       </li>
     );
@@ -64,23 +59,7 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   renderIssuesLink() {
-    if (isSonarCloud() && !isLoggedIn(this.props.currentUser)) {
-      return null;
-    }
-
     const active = this.props.location.pathname.startsWith('/issues');
-
-    if (isSonarCloud()) {
-      return (
-        <li>
-          <Link
-            className={classNames({ active })}
-            to={{ pathname: '/issues', query: { resolved: 'false' } }}>
-            {translate('my_issues')}
-          </Link>
-        </li>
-      );
-    }
 
     const query =
       this.props.currentUser.isLoggedIn && isMySet()
@@ -174,7 +153,9 @@ export default class GlobalNavMenu extends React.PureComponent<Props> {
   }
 
   render() {
-    const governanceInstalled = this.props.appState.qualifiers.includes('VW');
+    const governanceInstalled = this.props.appState.qualifiers.includes(
+      ComponentQualifier.Portfolio
+    );
     const { organizationsEnabled } = this.props.appState;
 
     return (

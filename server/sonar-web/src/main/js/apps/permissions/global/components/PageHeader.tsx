@@ -22,26 +22,17 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 
 interface Props {
   loading?: boolean;
-  organization?: {};
 }
 
 export default class PageHeader extends React.PureComponent<Props> {
   render() {
-    const title = this.props.organization
-      ? translate('permissions.page')
-      : translate('global_permissions.page');
-
-    const description = this.props.organization
-      ? translate('organization_permissions.page.description')
-      : translate('global_permissions.page.description');
-
     return (
       <header className="page-header">
-        <h1 className="page-title">{title}</h1>
+        <h1 className="page-title">{translate('global_permissions.page')}</h1>
 
         {this.props.loading && <i className="spinner" />}
 
-        <div className="page-description">{description}</div>
+        <div className="page-description">{translate('global_permissions.page.description')}</div>
       </header>
     );
   }

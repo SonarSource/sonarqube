@@ -21,16 +21,15 @@ import * as React from 'react';
 import Defaults from './Defaults';
 
 interface Props {
-  organization: T.Organization | undefined;
   template: T.PermissionTemplate;
 }
 
-export default function TemplateDetails({ organization, template }: Props) {
+export default function TemplateDetails({ template }: Props) {
   return (
     <div className="big-spacer-bottom">
       {template.defaultFor.length > 0 && (
         <div className="spacer-top js-defaults">
-          <Defaults organization={organization} template={template} />
+          <Defaults template={template} />
         </div>
       )}
 

@@ -19,11 +19,11 @@
  */
 import { Location } from 'history';
 import * as React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { connect } from 'react-redux';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import { getPermissionTemplates } from '../../../api/permissions';
 import Suggestions from '../../../app/components/embed-docs-modal/Suggestions';
-import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import { getAppState, Store } from '../../../store/rootReducer';
 import '../../permissions/styles.css';
 import { mergeDefaultsToTemplates, mergePermissionsToTemplates, sortPermissions } from '../utils';
@@ -32,7 +32,6 @@ import Template from './Template';
 
 interface Props {
   location: Location;
-  organization: T.Organization | undefined;
   topQualifiers: string[];
 }
 
@@ -59,21 +58,21 @@ export class App extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  requestPermissions = () => {
-    const { organization } = this.props;
-    const request = organization
-      ? getPermissionTemplates(organization.key)
-      : getPermissionTemplates();
-    return request.then(r => {
-      if (this.mounted) {
-        const permissions = sortPermissions(r.permissions);
-        const permissionTemplates = mergeDefaultsToTemplates(
-          mergePermissionsToTemplates(r.permissionTemplates, permissions),
-          r.defaultTemplates
-        );
-        this.setState({ ready: true, permissionTemplates, permissions });
-      }
-    });
+  requestPermissions = async () => {
+    const { permissions, defaultTemplates, permissionTemplates } = await getPermissionTemplates();
+
+    if (this.mounted) {
+      const sortedPerm = sortPermissions(permissions);
+      const permissionTemplatesMerged = mergeDefaultsToTemplates(
+        mergePermissionsToTemplates(permissionTemplates, sortedPerm),
+        defaultTemplates
+      );
+      this.setState({
+        ready: true,
+        permissionTemplates: permissionTemplatesMerged,
+        permissions: sortedPerm
+      });
+    }
   };
 
   renderTemplate(id: string) {
@@ -88,7 +87,6 @@ export class App extends React.PureComponent<Props, State> {
 
     return (
       <Template
-        organization={this.props.organization}
         refresh={this.requestPermissions}
         template={template}
         topQualifiers={this.props.topQualifiers}
@@ -99,7 +97,6 @@ export class App extends React.PureComponent<Props, State> {
   renderHome() {
     return (
       <Home
-        organization={this.props.organization}
         permissionTemplates={this.state.permissionTemplates}
         permissions={this.state.permissions}
         ready={this.state.ready}
@@ -114,10 +111,7 @@ export class App extends React.PureComponent<Props, State> {
     return (
       <div>
         <Suggestions suggestions="permission_templates" />
-        <OrganizationHelmet
-          organization={this.props.organization}
-          title={translate('permission_templates.page')}
-        />
+        <Helmet defer={false} title={translate('permission_templates.page')} />
 
         {id && this.renderTemplate(id)}
         {!id && this.renderHome()}

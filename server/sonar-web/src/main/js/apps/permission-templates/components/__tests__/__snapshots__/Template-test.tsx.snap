@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render correctly 1`] = `
+<div
+  className="page page-limited"
+>
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
+    title="test"
+  />
+  <TemplateHeader
+    loading={true}
+    refresh={[Function]}
+    template={
+      Object {
+        "createdAt": "2020-01-01",
+        "defaultFor": Array [],
+        "id": "1",
+        "name": "test",
+        "permissions": Array [],
+      }
+    }
+    topQualifiers={Array []}
+  />
+  <TemplateDetails
+    template={
+      Object {
+        "createdAt": "2020-01-01",
+        "defaultFor": Array [],
+        "id": "1",
+        "name": "test",
+        "permissions": Array [],
+      }
+    }
+  />
+  <HoldersList
+    groups={Array []}
+    onSelectPermission={[Function]}
+    onToggleGroup={[Function]}
+    onToggleUser={[Function]}
+    permissions={
+      Array [
+        Object {
+          "description": "projects_role.user.desc",
+          "key": "user",
+          "name": "projects_role.user",
+        },
+        Object {
+          "description": "projects_role.codeviewer.desc",
+          "key": "codeviewer",
+          "name": "projects_role.codeviewer",
+        },
+        Object {
+          "description": "projects_role.issueadmin.desc",
+          "key": "issueadmin",
+          "name": "projects_role.issueadmin",
+        },
+        Object {
+          "description": "projects_role.securityhotspotadmin.desc",
+          "key": "securityhotspotadmin",
+          "name": "projects_role.securityhotspotadmin",
+        },
+        Object {
+          "description": "projects_role.admin.desc",
+          "key": "admin",
+          "name": "projects_role.admin",
+        },
+        Object {
+          "description": "projects_role.scan.desc",
+          "key": "scan",
+          "name": "projects_role.scan",
+        },
+      ]
+    }
+    showPublicProjectsWarning={true}
+    users={
+      Array [
+        Object {
+          "login": "<creator>",
+          "name": "permission_templates.project_creators",
+          "permissions": Array [],
+        },
+      ]
+    }
+  >
+    <SearchForm
+      filter="all"
+      onFilter={[Function]}
+      onSearch={[Function]}
+      query=""
+    />
+  </HoldersList>
+</div>
+`;

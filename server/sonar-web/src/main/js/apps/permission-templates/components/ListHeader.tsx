@@ -24,7 +24,6 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import InstanceMessage from '../../../components/common/InstanceMessage';
 
 interface Props {
-  organization: T.Organization | undefined;
   permissions: T.Permission[];
 }
 

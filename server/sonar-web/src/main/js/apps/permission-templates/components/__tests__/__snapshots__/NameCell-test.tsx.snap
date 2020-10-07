@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render correctly 1`] = `
+<td
+  className="little-padded-left little-padded-right"
+>
+  <Link
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to={
+      Object {
+        "pathname": "/permission_templates",
+        "query": Object {
+          "id": "1",
+        },
+      }
+    }
+  >
+    <strong
+      className="js-name"
+    >
+      test
+    </strong>
+  </Link>
+  <div
+    className="spacer-top js-defaults"
+  >
+    <Defaults
+      template={
+        Object {
+          "createdAt": "2020-01-01",
+          "defaultFor": Array [
+            "user",
+          ],
+          "id": "1",
+          "name": "test",
+          "permissions": Array [],
+        }
+      }
+    />
+  </div>
+</td>
+`;

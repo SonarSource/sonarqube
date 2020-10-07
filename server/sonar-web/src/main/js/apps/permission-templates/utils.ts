@@ -28,6 +28,8 @@ export const PERMISSIONS_ORDER = [
   'scan'
 ];
 
+export const PERMISSION_TEMPLATES_PATH = '/permission_templates';
+
 export function sortPermissions(permissions: T.Permission[]) {
   return sortBy(permissions, p => PERMISSIONS_ORDER.indexOf(p.key));
 }

@@ -5,22 +5,12 @@ exports[`should render correctly 1`] = `
   <Suggestions
     suggestions="permission_templates"
   />
-  <OrganizationHelmet
-    organization={
-      Object {
-        "key": "foo",
-        "name": "Foo",
-      }
-    }
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
     title="permission_templates.page"
   />
   <Home
-    organization={
-      Object {
-        "key": "foo",
-        "name": "Foo",
-      }
-    }
     permissionTemplates={Array []}
     permissions={Array []}
     ready={false}
@@ -39,22 +29,12 @@ exports[`should render correctly 2`] = `
   <Suggestions
     suggestions="permission_templates"
   />
-  <OrganizationHelmet
-    organization={
-      Object {
-        "key": "foo",
-        "name": "Foo",
-      }
-    }
+  <Helmet
+    defer={false}
+    encodeSpecialCharacters={true}
     title="permission_templates.page"
   />
   <Home
-    organization={
-      Object {
-        "key": "foo",
-        "name": "Foo",
-      }
-    }
     permissionTemplates={
       Array [
         Object {

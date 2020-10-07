@@ -10,27 +10,7 @@ exports[`should render one qualifier 1`] = `
 </div>
 `;
 
-exports[`should render only projects for custom organization 1`] = `
-<div>
-  <span
-    className="badge spacer-right"
-  >
-    permission_template.default_for.qualifiers.TRK
-  </span>
-</div>
-`;
-
 exports[`should render several qualifiers 1`] = `
-<div>
-  <span
-    className="badge spacer-right"
-  >
-    permission_template.default_for.qualifiers.TRK, qualifiers.VW
-  </span>
-</div>
-`;
-
-exports[`should render several qualifiers for default organization 1`] = `
 <div>
   <span
     className="badge spacer-right"

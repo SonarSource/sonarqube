@@ -27,7 +27,6 @@ import reducer, {
   receiveCurrentUser,
   setCurrentUserSettingAction,
   setHomePageAction,
-  skipOnboardingAction,
   State
 } from '../users';
 
@@ -38,16 +37,6 @@ describe('reducer and actions', () => {
     const currentUser = mockCurrentUser();
     const newState = reducer(initialState, receiveCurrentUser(currentUser));
     expect(newState).toEqual(createState({ currentUser }));
-  });
-
-  it('should allow to skip the onboarding tutorials', () => {
-    const currentUser = mockLoggedInUser({ showOnboardingTutorial: true });
-    const initialState: State = createState({ currentUser });
-
-    const newState = reducer(initialState, skipOnboardingAction());
-    expect(newState).toEqual(
-      createState({ currentUser: { ...currentUser, showOnboardingTutorial: false } })
-    );
   });
 
   it('should allow to set the homepage', () => {

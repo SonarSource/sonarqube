@@ -19,17 +19,15 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { PERMISSION_TEMPLATES_PATH } from '../utils';
 import Defaults from './Defaults';
 
 interface Props {
-  organization: T.Organization | undefined;
   template: T.PermissionTemplate;
 }
 
-export default function NameCell({ template, organization }: Props) {
-  const pathname = organization
-    ? `/organizations/${organization.key}/permission_templates`
-    : '/permission_templates';
+export default function NameCell({ template }: Props) {
+  const pathname = PERMISSION_TEMPLATES_PATH;
 
   return (
     <td className="little-padded-left little-padded-right">
@@ -39,7 +37,7 @@ export default function NameCell({ template, organization }: Props) {
 
       {template.defaultFor.length > 0 && (
         <div className="spacer-top js-defaults">
-          <Defaults organization={organization} template={template} />
+          <Defaults template={template} />
         </div>
       )}
 

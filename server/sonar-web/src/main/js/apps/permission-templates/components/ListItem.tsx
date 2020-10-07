@@ -23,7 +23,6 @@ import NameCell from './NameCell';
 import PermissionCell from './PermissionCell';
 
 interface Props {
-  organization: T.Organization | undefined;
   refresh: () => Promise<void>;
   template: T.PermissionTemplate;
   topQualifiers: string[];
@@ -36,13 +35,12 @@ export default function ListItem(props: Props) {
 
   return (
     <tr data-id={props.template.id} data-name={props.template.name}>
-      <NameCell organization={props.organization} template={props.template} />
+      <NameCell template={props.template} />
 
       {permissions}
 
       <td className="nowrap thin text-right text-top little-padded-left little-padded-right">
         <ActionsCell
-          organization={props.organization}
           permissionTemplate={props.template}
           refresh={props.refresh}
           topQualifiers={props.topQualifiers}
