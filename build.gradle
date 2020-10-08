@@ -197,7 +197,7 @@ subprojects {
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.10.0.1880' // bundled_plugin:pli:sonar-pli
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.4.1.2576' // bundled_plugin:plsql:sonar-plsql
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.6.0.1875' // bundled_plugin:vb:sonar-vb
-      dependency 'com.sonarsource.rpg:sonar-rpg-plugin:2.4.0.2183' // bundled_plugin:rpg:sonar-rpg
+      dependency 'com.sonarsource.rpg:sonar-rpg-plugin:2.5.0.2338' // bundled_plugin:rpg:sonar-rpg
       dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:8.5.0.4829' // bundled_plugin::sonar-security
       dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:8.5.0.4829' // bundled_plugin::sonar-security
       dependency 'com.sonarsource.security:sonar-security-php-frontend-plugin:8.5.0.4829' // bundled_plugin::sonar-security
