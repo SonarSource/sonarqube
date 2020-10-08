@@ -16,7 +16,7 @@
     "emotion-theming": "10.0.27",
     "history": "3.3.0",
     "keymaster": "1.6.2",
-    "lodash": "4.17.15",
+    "lodash": "4.17.20",
     "lunr": "2.3.8",
     "mdast-util-toc": "5.0.2",
     "prop-types": "15.7.2",
