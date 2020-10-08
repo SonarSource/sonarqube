@@ -24,7 +24,7 @@
 #security_hotspots .filter-bar {
   position: fixed;
   background-color: var(--barBackgroundColor);
-  z-index: var(--pageSideZIndex);
+  z-index: var(--pageHeaderZIndex);
   left: 0;
   right: 0;
 }
