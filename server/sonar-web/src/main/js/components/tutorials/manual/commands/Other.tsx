@@ -23,31 +23,48 @@ import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
+import { OSs } from '../../types';
 import { quote } from '../../utils';
-import SQScanner from './SQScanner';
 
-export interface Props {
+export interface OtherProps {
   host: string;
-  organization?: string;
-  os: string;
+  os: OSs;
   projectKey: string;
   token: string;
 }
 
-export default function Other(props: Props) {
-  const q = quote(props.os);
+export default function Other(props: OtherProps) {
+  const { host, os, projectKey, token } = props;
+
+  const q = quote(os);
   const command = [
-    props.os === 'win' ? 'sonar-scanner.bat' : 'sonar-scanner',
-    '-D' + q(`sonar.projectKey=${props.projectKey}`),
-    props.organization && '-D' + q(`sonar.organization=${props.organization}`),
+    os === OSs.Windows ? 'sonar-scanner.bat' : 'sonar-scanner',
+    '-D' + q(`sonar.projectKey=${projectKey}`),
     '-D' + q('sonar.sources=.'),
-    '-D' + q(`sonar.host.url=${props.host}`),
-    '-D' + q(`sonar.login=${props.token}`)
+    '-D' + q(`sonar.host.url=${host}`),
+    '-D' + q(`sonar.login=${token}`)
   ];
 
   return (
     <div>
-      <SQScanner os={props.os} />
+      <div>
+        <h4 className="spacer-bottom">{translate('onboarding.analysis.sq_scanner.header', os)}</h4>
+        <p className="spacer-bottom markdown">
+          <FormattedMessage
+            defaultMessage={translate('onboarding.analysis.sq_scanner.text')}
+            id="onboarding.analysis.sq_scanner.text"
+            values={{
+              dir: <code>bin</code>,
+              env_var: <code>{os === OSs.Windows ? '%PATH%' : 'PATH'}</code>
+            }}
+          />
+        </p>
+        <p>
+          <Link className="button" to="/documentation/analysis/scan/sonarscanner/" target="_blank">
+            {translate('download_verb')}
+          </Link>
+        </p>
+      </div>
 
       <h4 className="huge-spacer-top spacer-bottom">
         {translate('onboarding.analysis.sq_scanner.execute')}
@@ -55,7 +72,7 @@ export default function Other(props: Props) {
       <InstanceMessage message={translate('onboarding.analysis.sq_scanner.execute.text')}>
         {transformedMessage => <p className="spacer-bottom markdown">{transformedMessage}</p>}
       </InstanceMessage>
-      <CodeSnippet isOneLine={props.os === 'win'} snippet={command} />
+      <CodeSnippet isOneLine={os === OSs.Windows} snippet={command} />
       <p className="big-spacer-top markdown">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.sq_scanner.docs')}

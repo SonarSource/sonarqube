@@ -24,22 +24,21 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
 
-export interface Props {
+export interface JavaGradleProps {
   host: string;
-  organization?: string;
-  projectKey?: string;
+  projectKey: string;
   token: string;
 }
 
-export default function JavaGradle(props: Props) {
-  const config = 'plugins {\n  id "org.sonarqube" version "2.7"\n}';
+export default function JavaGradle(props: JavaGradleProps) {
+  const { host, projectKey, token } = props;
+  const config = 'plugins {\n  id "org.sonarqube" version "3.0"\n}';
 
   const command = [
     './gradlew sonarqube',
-    props.projectKey && `-Dsonar.projectKey=${props.projectKey}`,
-    props.organization && `-Dsonar.organization=${props.organization}`,
-    `-Dsonar.host.url=${props.host}`,
-    `-Dsonar.login=${props.token}`
+    `-Dsonar.projectKey=${projectKey}`,
+    `-Dsonar.host.url=${host}`,
+    `-Dsonar.login=${token}`
   ];
 
   return (
@@ -60,6 +59,21 @@ export default function JavaGradle(props: Props) {
         )}
       </InstanceMessage>
       <CodeSnippet snippet={config} />
+      <p className="big-spacer-bottom markdown">
+        <em className="small text-muted">
+          <FormattedMessage
+            defaultMessage={translate('onboarding.analysis.java.gradle.latest_version')}
+            id="onboarding.analysis.java.gradle.latest_version"
+            values={{
+              link: (
+                <Link to="/documentation/analysis/scan/sonarscanner-for-gradle/" target="_blank">
+                  {translate('here')}
+                </Link>
+              )
+            }}
+          />
+        </em>
+      </p>
       <p className="spacer-top spacer-bottom markdown">
         {translate('onboarding.analysis.java.gradle.text.2')}
       </p>
@@ -78,9 +92,7 @@ export default function JavaGradle(props: Props) {
         />
       </p>
       <p className="big-spacer-top markdown">
-        {props.projectKey
-          ? translate('onboarding.analysis.auto_refresh_after_analysis')
-          : translate('onboarding.analysis.browse_url_after_analysis')}
+        {translate('onboarding.analysis.auto_refresh_after_analysis')}
       </p>
     </div>
   );

@@ -19,18 +19,17 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import Other from '../Other';
+import { OSs } from '../../../types';
+import Other, { OtherProps } from '../Other';
 
 it('renders correctly', () => {
-  expect(
-    shallow(<Other host="host" os="win" projectKey="projectKey" token="token" />)
-  ).toMatchSnapshot();
-
-  expect(
-    shallow(<Other host="host" os="linux" projectKey="projectKey" token="token" />)
-  ).toMatchSnapshot();
-
-  expect(
-    shallow(<Other host="host" os="linux" projectKey="projectKey" token="token" />)
-  ).toMatchSnapshot();
+  expect(shallowRender()).toMatchSnapshot('linux');
+  expect(shallowRender({ os: OSs.Windows })).toMatchSnapshot('windows');
+  expect(shallowRender({ os: OSs.MacOS })).toMatchSnapshot('macos');
 });
+
+function shallowRender(props: Partial<OtherProps> = {}) {
+  return shallow<OtherProps>(
+    <Other host="host" os={OSs.Linux} projectKey="projectKey" token="token" {...props} />
+  );
+}

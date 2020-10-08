@@ -1,32 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`display c# command 1`] = `
+exports[`renders correctly: .NET 1`] = `
 <DotNet
   host="HOST"
-  projectKey="project-foo"
+  projectKey="my-project"
   token="myToken"
 />
 `;
 
-exports[`display java command 1`] = `
+exports[`renders correctly: gradle 1`] = `
 <JavaGradle
   host="HOST"
+  projectKey="my-project"
   token="myToken"
 />
 `;
 
-exports[`display java command 2`] = `
+exports[`renders correctly: maven 1`] = `
 <JavaMaven
   host="HOST"
+  projectKey="my-project"
   token="myToken"
 />
 `;
 
-exports[`display others command 1`] = `
+exports[`renders correctly: other 1`] = `
 <Other
   host="HOST"
-  os="window"
-  projectKey="project-foo"
+  os="win"
+  projectKey="my-project"
   token="myToken"
 />
 `;

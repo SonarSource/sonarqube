@@ -23,7 +23,8 @@ import * as React from 'react';
 import { mockComponent } from '../../../../helpers/testMocks';
 import RenderOptions from '../../components/RenderOptions';
 import Step from '../../components/Step';
-import JenkinsfileStep, { BuildTools, JenkinsfileStepProps } from '../JenkinsfileStep';
+import { BuildTools } from '../../types';
+import JenkinsfileStep, { JenkinsfileStepProps } from '../JenkinsfileStep';
 import { renderStepContent } from '../test-utils';
 
 it('should render correctly', () => {
@@ -49,9 +50,9 @@ it('should render correctly for Gradle', () => {
   expect(renderStepContent(wrapper)).toMatchSnapshot();
 });
 
-it('should render correctly for MSBuild', () => {
+it('should render correctly for .NET', () => {
   const wrapper = shallowRender();
-  selectBuildTool(wrapper, BuildTools.MSBuild);
+  selectBuildTool(wrapper, BuildTools.DotNet);
   expect(renderStepContent(wrapper)).toMatchSnapshot();
 });
 

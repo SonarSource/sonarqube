@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly: default 1`] = `
+<Fragment>
+  <div>
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.build
+    </h4>
+    <RadioToggle
+      disabled={false}
+      name="language"
+      onCheck={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "onboarding.build.maven",
+            "value": "maven",
+          },
+          Object {
+            "label": "onboarding.build.gradle",
+            "value": "gradle",
+          },
+          Object {
+            "label": "onboarding.build.dotnet",
+            "value": "dotnet",
+          },
+          Object {
+            "label": "onboarding.build.other",
+            "value": "other",
+          },
+        ]
+      }
+      value={null}
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`renders correctly: with "maven" selected 1`] = `
+<Fragment>
+  <div>
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.build
+    </h4>
+    <RadioToggle
+      disabled={false}
+      name="language"
+      onCheck={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "onboarding.build.maven",
+            "value": "maven",
+          },
+          Object {
+            "label": "onboarding.build.gradle",
+            "value": "gradle",
+          },
+          Object {
+            "label": "onboarding.build.dotnet",
+            "value": "dotnet",
+          },
+          Object {
+            "label": "onboarding.build.other",
+            "value": "other",
+          },
+        ]
+      }
+      value="maven"
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`renders correctly: with "other" selected 1`] = `
+<Fragment>
+  <div>
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.build
+    </h4>
+    <RadioToggle
+      disabled={false}
+      name="language"
+      onCheck={[Function]}
+      options={
+        Array [
+          Object {
+            "label": "onboarding.build.maven",
+            "value": "maven",
+          },
+          Object {
+            "label": "onboarding.build.gradle",
+            "value": "gradle",
+          },
+          Object {
+            "label": "onboarding.build.dotnet",
+            "value": "dotnet",
+          },
+          Object {
+            "label": "onboarding.build.other",
+            "value": "other",
+          },
+        ]
+      }
+      value="other"
+    />
+  </div>
+  <RenderOptions
+    name="os"
+    onCheck={[Function]}
+    optionLabelKey="onboarding.build.other.os"
+    options={
+      Array [
+        "linux",
+        "win",
+        "mac",
+      ]
+    }
+    titleLabelKey="onboarding.build.other.os"
+  />
+</Fragment>
+`;

@@ -1,10 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DotNet renders correctly 1`] = `[Function]`;
-
-exports[`DotNet renders correctly 2`] = `
+exports[`DotNet renders correctly 1`] = `
 <div>
-  <MSBuildScanner />
+  <div>
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.analysis.msbuild.header
+    </h4>
+    <p
+      className="spacer-bottom markdown"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.analysis.msbuild.text"
+        id="onboarding.analysis.msbuild.text"
+        values={
+          Object {
+            "code": <code>
+              %PATH%
+            </code>,
+          }
+        }
+      />
+    </p>
+    <p>
+      <Link
+        className="button"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
+      >
+        download_verb
+      </Link>
+    </p>
+  </div>
   <h4
     className="huge-spacer-top spacer-bottom"
   >
@@ -21,7 +51,6 @@ exports[`DotNet renders correctly 2`] = `
       Array [
         "SonarScanner.MSBuild.exe begin",
         "/k:\\"projectKey\\"",
-        "/d:sonar.organization=\\"organization\\"",
         "/d:sonar.host.url=\\"host\\"",
         "/d:sonar.login=\\"token\\"",
       ]

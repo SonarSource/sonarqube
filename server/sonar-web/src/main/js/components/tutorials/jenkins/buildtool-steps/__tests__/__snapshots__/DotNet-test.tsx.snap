@@ -23,7 +23,7 @@ exports[`should render correctly 1`] = `
             "in_jenkins",
           ]
         }
-        translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.msbuild.step2.replace"
+        translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.replace"
       />
       <HelpTooltip
         className="little-spacer-left"
@@ -38,7 +38,7 @@ exports[`should render correctly 1`] = `
                     "path",
                   ]
                 }
-                translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.msbuild.step2.help1"
+                translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.help1"
               />
             </p>
             <p
@@ -51,7 +51,7 @@ exports[`should render correctly 1`] = `
                     "name",
                   ]
                 }
-                translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.msbuild.step2.help2"
+                translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.help2"
               />
             </p>
             <p>
@@ -62,7 +62,7 @@ exports[`should render correctly 1`] = `
                     "name",
                   ]
                 }
-                translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.msbuild.step2.help3"
+                translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.help3"
               />
             </p>
           </React.Fragment>

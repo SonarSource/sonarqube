@@ -18,21 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { GithubBindingDefinition, ProjectAlmBindingResponse } from '../../types/alm-settings';
-import { LanguageConfig } from './types';
-
-export function isLanguageConfigured(config?: LanguageConfig) {
-  if (!config) {
-    return false;
-  }
-  const { language, javaBuild, cFamilyCompiler, os, projectKey } = config;
-  const isJavaConfigured = language === 'java' && javaBuild != null;
-  const isDotNetConfigured = language === 'dotnet' && projectKey != null;
-  const isCFamilyConfigured =
-    language === 'c-family' && (cFamilyCompiler === 'msvc' || os != null) && projectKey != null;
-  const isOtherConfigured = language === 'other' && projectKey != null;
-
-  return isJavaConfigured || isDotNetConfigured || isCFamilyConfigured || isOtherConfigured;
-}
 
 export function quote(os: string): (s: string) => string {
   return os === 'win' ? (s: string) => `"${s}"` : (s: string) => s;

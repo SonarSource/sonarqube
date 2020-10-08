@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
-import { isVSTS } from '../../../helpers/almIntegrations';
 import InstanceMessage from '../../common/InstanceMessage';
 import ProjectAnalysisStep from './ProjectAnalysisStep';
 import TokenStep from './TokenStep';
@@ -54,7 +53,6 @@ export default class ManualTutorial extends React.PureComponent<Props, State> {
     const { component, currentUser } = this.props;
     const { step, token } = this.state;
 
-    const almKey = (component.alm && component.alm.key) || currentUser.externalProvider;
     return (
       <>
         <div className="page-header big-spacer-bottom">
@@ -64,27 +62,22 @@ export default class ManualTutorial extends React.PureComponent<Props, State> {
           </p>
         </div>
 
-        {!isVSTS(almKey) && (
-          <>
-            <TokenStep
-              currentUser={currentUser}
-              finished={Boolean(this.state.token)}
-              initialTokenName={`Analyze "${component.name}"`}
-              onContinue={this.handleTokenDone}
-              onOpen={this.handleTokenOpen}
-              open={step === Steps.TOKEN}
-              stepNumber={1}
-            />
+        <TokenStep
+          currentUser={currentUser}
+          finished={Boolean(this.state.token)}
+          initialTokenName={`Analyze "${component.name}"`}
+          onContinue={this.handleTokenDone}
+          onOpen={this.handleTokenOpen}
+          open={step === Steps.TOKEN}
+          stepNumber={1}
+        />
 
-            <ProjectAnalysisStep
-              component={component}
-              displayRowLayout={true}
-              open={step === Steps.ANALYSIS}
-              stepNumber={2}
-              token={token}
-            />
-          </>
-        )}
+        <ProjectAnalysisStep
+          component={component}
+          open={step === Steps.ANALYSIS}
+          stepNumber={2}
+          token={token}
+        />
       </>
     );
   }

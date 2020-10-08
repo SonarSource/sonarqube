@@ -1,10 +1,209 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders correctly 1`] = `
+exports[`renders correctly: linux 1`] = `
 <div>
-  <SQScanner
-    os="win"
+  <div>
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.analysis.sq_scanner.header.linux
+    </h4>
+    <p
+      className="spacer-bottom markdown"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.analysis.sq_scanner.text"
+        id="onboarding.analysis.sq_scanner.text"
+        values={
+          Object {
+            "dir": <code>
+              bin
+            </code>,
+            "env_var": <code>
+              PATH
+            </code>,
+          }
+        }
+      />
+    </p>
+    <p>
+      <Link
+        className="button"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to="/documentation/analysis/scan/sonarscanner/"
+      >
+        download_verb
+      </Link>
+    </p>
+  </div>
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.execute
+  </h4>
+  <InstanceMessage
+    message="onboarding.analysis.sq_scanner.execute.text"
+  >
+    <Component />
+  </InstanceMessage>
+  <CodeSnippet
+    isOneLine={false}
+    snippet={
+      Array [
+        "sonar-scanner",
+        "-Dsonar.projectKey=projectKey",
+        "-Dsonar.sources=.",
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
   />
+  <p
+    className="big-spacer-top markdown"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.sq_scanner.docs"
+      id="onboarding.analysis.sq_scanner.docs"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/scan/sonarscanner/"
+          >
+            onboarding.analysis.sq_scanner.docs_link
+          </Link>,
+        }
+      }
+    />
+  </p>
+</div>
+`;
+
+exports[`renders correctly: macos 1`] = `
+<div>
+  <div>
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.analysis.sq_scanner.header.mac
+    </h4>
+    <p
+      className="spacer-bottom markdown"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.analysis.sq_scanner.text"
+        id="onboarding.analysis.sq_scanner.text"
+        values={
+          Object {
+            "dir": <code>
+              bin
+            </code>,
+            "env_var": <code>
+              PATH
+            </code>,
+          }
+        }
+      />
+    </p>
+    <p>
+      <Link
+        className="button"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to="/documentation/analysis/scan/sonarscanner/"
+      >
+        download_verb
+      </Link>
+    </p>
+  </div>
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.execute
+  </h4>
+  <InstanceMessage
+    message="onboarding.analysis.sq_scanner.execute.text"
+  >
+    <Component />
+  </InstanceMessage>
+  <CodeSnippet
+    isOneLine={false}
+    snippet={
+      Array [
+        "sonar-scanner",
+        "-Dsonar.projectKey=projectKey",
+        "-Dsonar.sources=.",
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+  >
+    <FormattedMessage
+      defaultMessage="onboarding.analysis.sq_scanner.docs"
+      id="onboarding.analysis.sq_scanner.docs"
+      values={
+        Object {
+          "link": <Link
+            onlyActiveOnIndex={false}
+            style={Object {}}
+            target="_blank"
+            to="/documentation/analysis/scan/sonarscanner/"
+          >
+            onboarding.analysis.sq_scanner.docs_link
+          </Link>,
+        }
+      }
+    />
+  </p>
+</div>
+`;
+
+exports[`renders correctly: windows 1`] = `
+<div>
+  <div>
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.analysis.sq_scanner.header.win
+    </h4>
+    <p
+      className="spacer-bottom markdown"
+    >
+      <FormattedMessage
+        defaultMessage="onboarding.analysis.sq_scanner.text"
+        id="onboarding.analysis.sq_scanner.text"
+        values={
+          Object {
+            "dir": <code>
+              bin
+            </code>,
+            "env_var": <code>
+              %PATH%
+            </code>,
+          }
+        }
+      />
+    </p>
+    <p>
+      <Link
+        className="button"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        target="_blank"
+        to="/documentation/analysis/scan/sonarscanner/"
+      >
+        download_verb
+      </Link>
+    </p>
+  </div>
   <h4
     className="huge-spacer-top spacer-bottom"
   >
@@ -21,112 +220,9 @@ exports[`renders correctly 1`] = `
       Array [
         "sonar-scanner.bat",
         "-D\\"sonar.projectKey=projectKey\\"",
-        undefined,
         "-D\\"sonar.sources=.\\"",
         "-D\\"sonar.host.url=host\\"",
         "-D\\"sonar.login=token\\"",
-      ]
-    }
-  />
-  <p
-    className="big-spacer-top markdown"
-  >
-    <FormattedMessage
-      defaultMessage="onboarding.analysis.sq_scanner.docs"
-      id="onboarding.analysis.sq_scanner.docs"
-      values={
-        Object {
-          "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner/"
-          >
-            onboarding.analysis.sq_scanner.docs_link
-          </Link>,
-        }
-      }
-    />
-  </p>
-</div>
-`;
-
-exports[`renders correctly 2`] = `
-<div>
-  <SQScanner
-    os="linux"
-  />
-  <h4
-    className="huge-spacer-top spacer-bottom"
-  >
-    onboarding.analysis.sq_scanner.execute
-  </h4>
-  <InstanceMessage
-    message="onboarding.analysis.sq_scanner.execute.text"
-  >
-    <Component />
-  </InstanceMessage>
-  <CodeSnippet
-    isOneLine={false}
-    snippet={
-      Array [
-        "sonar-scanner",
-        "-Dsonar.projectKey=projectKey",
-        undefined,
-        "-Dsonar.sources=.",
-        "-Dsonar.host.url=host",
-        "-Dsonar.login=token",
-      ]
-    }
-  />
-  <p
-    className="big-spacer-top markdown"
-  >
-    <FormattedMessage
-      defaultMessage="onboarding.analysis.sq_scanner.docs"
-      id="onboarding.analysis.sq_scanner.docs"
-      values={
-        Object {
-          "link": <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            target="_blank"
-            to="/documentation/analysis/scan/sonarscanner/"
-          >
-            onboarding.analysis.sq_scanner.docs_link
-          </Link>,
-        }
-      }
-    />
-  </p>
-</div>
-`;
-
-exports[`renders correctly 3`] = `
-<div>
-  <SQScanner
-    os="linux"
-  />
-  <h4
-    className="huge-spacer-top spacer-bottom"
-  >
-    onboarding.analysis.sq_scanner.execute
-  </h4>
-  <InstanceMessage
-    message="onboarding.analysis.sq_scanner.execute.text"
-  >
-    <Component />
-  </InstanceMessage>
-  <CodeSnippet
-    isOneLine={false}
-    snippet={
-      Array [
-        "sonar-scanner",
-        "-Dsonar.projectKey=projectKey",
-        undefined,
-        "-Dsonar.sources=.",
-        "-Dsonar.host.url=host",
-        "-Dsonar.login=token",
       ]
     }
   />

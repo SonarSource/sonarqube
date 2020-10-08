@@ -22,14 +22,7 @@ import * as React from 'react';
 import JavaGradle from '../JavaGradle';
 
 it('renders correctly', () => {
-  expect(shallow(<JavaGradle host="host" token="token" />)).toMatchSnapshot();
   expect(
-    shallow(<JavaGradle host="host" organization="organization" token="token" />)
-  ).toMatchSnapshot();
-});
-
-it('renders with projectKey', () => {
-  expect(
-    shallow(<JavaGradle host="host" organization="organization" projectKey="foo" token="token" />)
+    shallow(<JavaGradle host="host" projectKey="projectKey" token="token" />)
   ).toMatchSnapshot();
 });

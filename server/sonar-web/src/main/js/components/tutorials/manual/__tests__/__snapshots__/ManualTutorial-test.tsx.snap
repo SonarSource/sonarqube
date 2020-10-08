@@ -59,7 +59,6 @@ exports[`renders correctly: default 1`] = `
         "tags": Array [],
       }
     }
-    displayRowLayout={true}
     open={false}
     stepNumber={2}
   />

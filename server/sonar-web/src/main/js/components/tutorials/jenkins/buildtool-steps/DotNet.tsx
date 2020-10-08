@@ -24,7 +24,7 @@ import CodeSnippet from '../../../common/CodeSnippet';
 import SentenceWithFilename from '../../components/SentenceWithFilename';
 import SentenceWithHighlights from '../../components/SentenceWithHighlights';
 
-export interface MSBuildProps {
+export interface DotNetProps {
   component: T.Component;
 }
 
@@ -44,7 +44,7 @@ const jenkinsfileSnippet = (key: string) => `node {
 }
 `;
 
-export default function MSBuild({ component }: MSBuildProps) {
+export default function DotNet({ component }: DotNetProps) {
   return (
     <li className="abs-width-600">
       <SentenceWithFilename
@@ -55,7 +55,7 @@ export default function MSBuild({ component }: MSBuildProps) {
         <p className="text-middle">
           <SentenceWithHighlights
             highlightKeys={['default_msbuild', 'default_scanner', 'in_jenkins']}
-            translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.msbuild.step2.replace"
+            translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.replace"
           />
           <HelpTooltip
             className="little-spacer-left"
@@ -64,19 +64,19 @@ export default function MSBuild({ component }: MSBuildProps) {
                 <p className="spacer-bottom">
                   <SentenceWithHighlights
                     highlightKeys={['path']}
-                    translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.msbuild.step2.help1"
+                    translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.help1"
                   />
                 </p>
                 <p className="spacer-bottom">
                   <SentenceWithHighlights
                     highlightKeys={['path', 'name']}
-                    translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.msbuild.step2.help2"
+                    translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.help2"
                   />
                 </p>
                 <p>
                   <SentenceWithHighlights
                     highlightKeys={['path', 'name']}
-                    translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.msbuild.step2.help3"
+                    translationKey="onboarding.tutorial.with.jenkins.jenkinsfile.dotnet.step2.help3"
                   />
                 </p>
               </>

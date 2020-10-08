@@ -19,97 +19,44 @@
  */
 import * as React from 'react';
 import { getHostUrl } from 'sonar-ui-common/helpers/urls';
-import { LanguageConfig } from '../../types';
-import { getProjectKey } from '../ProjectAnalysisStep';
+import { BuildTools, ManualTutorialConfig } from '../../types';
 import DotNet from './DotNet';
 import JavaGradle from './JavaGradle';
 import JavaMaven from './JavaMaven';
 import Other from './Other';
 
-interface Props {
-  component?: T.Component;
-  organization?: string;
-  languageConfig: LanguageConfig;
-  small?: boolean;
+export interface AnalysisCommandProps {
+  component: T.Component;
+  languageConfig: ManualTutorialConfig;
   token?: string;
 }
 
-export default class AnalysisCommand extends React.PureComponent<Props> {
-  renderCommandForMaven = () => {
-    const { component, token } = this.props;
-    if (!token) {
+export default function AnalysisCommand(props: AnalysisCommandProps) {
+  const { component, languageConfig, token } = props;
+
+  if (!token) {
+    return null;
+  }
+
+  const host = getHostUrl();
+  const projectKey = component.key;
+
+  switch (languageConfig.buildTool) {
+    case BuildTools.Maven:
+      return <JavaMaven host={host} projectKey={projectKey} token={token} />;
+
+    case BuildTools.Gradle:
+      return <JavaGradle host={host} projectKey={projectKey} token={token} />;
+
+    case BuildTools.DotNet:
+      return <DotNet host={host} projectKey={projectKey} token={token} />;
+
+    case BuildTools.Other:
+      return languageConfig.os !== undefined ? (
+        <Other host={host} os={languageConfig.os} projectKey={projectKey} token={token} />
+      ) : null;
+
+    default:
       return null;
-    }
-    return (
-      <JavaMaven
-        host={getHostUrl()}
-        organization={this.props.organization}
-        projectKey={component && component.key}
-        token={token}
-      />
-    );
-  };
-
-  renderCommandForGradle = () => {
-    const { component, token } = this.props;
-    if (!token) {
-      return null;
-    }
-    return (
-      <JavaGradle
-        host={getHostUrl()}
-        organization={this.props.organization}
-        projectKey={component && component.key}
-        token={token}
-      />
-    );
-  };
-
-  renderCommandForDotNet = () => {
-    const { component, languageConfig, small, token } = this.props;
-    const projectKey = getProjectKey(languageConfig, component);
-    if (!projectKey || !token) {
-      return null;
-    }
-    return (
-      <DotNet
-        host={getHostUrl()}
-        organization={this.props.organization}
-        projectKey={projectKey}
-        small={small}
-        token={token}
-      />
-    );
-  };
-
-  renderCommandForOther = () => {
-    const { component, languageConfig, token } = this.props;
-    const projectKey = getProjectKey(languageConfig, component);
-    if (!languageConfig || !projectKey || !languageConfig.os || !token) {
-      return null;
-    }
-    return (
-      <Other
-        host={getHostUrl()}
-        organization={this.props.organization}
-        os={languageConfig.os}
-        projectKey={projectKey}
-        token={token}
-      />
-    );
-  };
-
-  render() {
-    const { languageConfig } = this.props;
-
-    if (languageConfig.language === 'java') {
-      return languageConfig.javaBuild === 'maven'
-        ? this.renderCommandForMaven()
-        : this.renderCommandForGradle();
-    } else if (languageConfig.language === 'dotnet') {
-      return this.renderCommandForDotNet();
-    } else {
-      return this.renderCommandForOther();
-    }
   }
 }

@@ -23,9 +23,10 @@ import { getBaseUrl } from 'sonar-ui-common/helpers/urls';
 import RenderOptions from '../components/RenderOptions';
 import SentenceWithHighlights from '../components/SentenceWithHighlights';
 import Step from '../components/Step';
+import { BuildTools } from '../types';
+import DotNet from './buildtool-steps/DotNet';
 import Gradle from './buildtool-steps/Gradle';
 import Maven from './buildtool-steps/Maven';
-import MSBuild from './buildtool-steps/MSBuild';
 import Other from './buildtool-steps/Other';
 
 export interface JenkinsfileStepProps {
@@ -33,19 +34,12 @@ export interface JenkinsfileStepProps {
   open: boolean;
 }
 
-export enum BuildTools {
-  Maven = 'maven',
-  Gradle = 'gradle',
-  MSBuild = 'msbuild',
-  Other = 'other'
-}
-
 const BUILDTOOL_COMPONENT_MAP: {
   [x in BuildTools]: React.ComponentType<{ component: T.Component }>;
 } = {
   [BuildTools.Maven]: Maven,
   [BuildTools.Gradle]: Gradle,
-  [BuildTools.MSBuild]: MSBuild,
+  [BuildTools.DotNet]: DotNet,
   [BuildTools.Other]: Other
 };
 

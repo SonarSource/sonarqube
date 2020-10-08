@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import SQScanner from '../SQScanner';
+import { mockComponent } from '../../../../../helpers/testMocks';
+import DotNet, { DotNetProps } from '../DotNet';
 
-it('renders correctly', () => {
-  expect(shallow(<SQScanner os="win" />)).toMatchSnapshot();
-  expect(shallow(<SQScanner os="linux" />)).toMatchSnapshot();
-  expect(shallow(<SQScanner os="mac" />)).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallowRender()).toMatchSnapshot();
 });
+
+function shallowRender(props: Partial<DotNetProps> = {}) {
+  return shallow<DotNetProps>(<DotNet component={mockComponent()} {...props} />);
+}

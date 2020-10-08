@@ -20,82 +20,48 @@
 import * as React from 'react';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import Step from '../components/Step';
-import { LanguageConfig } from '../types';
+import { ManualTutorialConfig } from '../types';
+import BuildToolForm from './BuildToolForm';
 import AnalysisCommand from './commands/AnalysisCommand';
-import LanguageForm from './LanguageForm';
 
 interface Props {
   component: T.Component;
-  displayRowLayout?: boolean;
   onFinish?: (projectKey?: string) => void;
-  onReset?: VoidFunction;
   open: boolean;
-  organization?: string;
   stepNumber: number;
   token?: string;
 }
 
 interface State {
-  config?: LanguageConfig;
-}
-
-export function getProjectKey(config?: LanguageConfig, component?: T.Component) {
-  return (component && component.key) || (config && config.projectKey);
+  config?: ManualTutorialConfig;
 }
 
 export default class ProjectAnalysisStep extends React.PureComponent<Props, State> {
   state: State = {};
 
-  handleLanguageSelect = (config: LanguageConfig) => {
+  handleBuildToolSelect = (config: ManualTutorialConfig) => {
+    const { component } = this.props;
     this.setState({ config });
     if (this.props.onFinish) {
-      const projectKey = config.language !== 'java' ? getProjectKey(config) : undefined;
-      this.props.onFinish(projectKey);
-    }
-  };
-
-  handleLanguageReset = () => {
-    this.setState({ config: undefined });
-    if (this.props.onReset) {
-      this.props.onReset();
+      this.props.onFinish(component.key);
     }
   };
 
   renderForm = () => {
-    const languageComponent = (
-      <LanguageForm
-        component={this.props.component}
-        onDone={this.handleLanguageSelect}
-        onReset={this.handleLanguageReset}
-        organization={this.props.organization}
-      />
-    );
-    const analysisComponent = this.state.config && (
-      <AnalysisCommand
-        component={this.props.component}
-        languageConfig={this.state.config}
-        organization={this.props.organization}
-        small={true}
-        token={this.props.token}
-      />
-    );
-
-    if (this.props.displayRowLayout) {
-      return (
-        <div className="boxed-group-inner">
-          <div className="display-flex-column">
-            {languageComponent}
-            {analysisComponent && <div className="huge-spacer-top">{analysisComponent}</div>}
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="boxed-group-inner">
-        <div className="flex-columns">
-          <div className="flex-column flex-column-half bordered-right">{languageComponent}</div>
-          <div className="flex-column flex-column-half">{analysisComponent}</div>
+        <div className="display-flex-column">
+          <BuildToolForm component={this.props.component} onDone={this.handleBuildToolSelect} />
+
+          {this.state.config && (
+            <div className="huge-spacer-top">
+              <AnalysisCommand
+                component={this.props.component}
+                languageConfig={this.state.config}
+                token={this.props.token}
+              />
+            </div>
+          )}
         </div>
       </div>
     );

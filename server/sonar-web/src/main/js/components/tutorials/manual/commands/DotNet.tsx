@@ -23,32 +23,47 @@ import { Link } from 'react-router';
 import { translate } from 'sonar-ui-common/helpers/l10n';
 import CodeSnippet from '../../../common/CodeSnippet';
 import InstanceMessage from '../../../common/InstanceMessage';
-import MSBuildScanner from './MSBuildScanner';
 
-export interface Props {
+export interface DotNetProps {
   host: string;
-  organization?: string;
   projectKey: string;
-  small?: boolean;
   token: string;
 }
 
-export default function DotNet(props: Props) {
+export default function DotNet(props: DotNetProps) {
+  const { host, projectKey, token } = props;
+
   const command1 = [
     'SonarScanner.MSBuild.exe begin',
-    `/k:"${props.projectKey}"`,
-    props.organization && `/d:sonar.organization="${props.organization}"`,
-    `/d:sonar.host.url="${props.host}"`,
-    `/d:sonar.login="${props.token}"`
+    `/k:"${projectKey}"`,
+    `/d:sonar.host.url="${host}"`,
+    `/d:sonar.login="${token}"`
   ];
 
   const command2 = 'MsBuild.exe /t:Rebuild';
 
-  const command3 = ['SonarScanner.MSBuild.exe end', `/d:sonar.login="${props.token}"`];
+  const command3 = ['SonarScanner.MSBuild.exe end', `/d:sonar.login="${token}"`];
 
   return (
     <div>
-      <MSBuildScanner />
+      <div>
+        <h4 className="spacer-bottom">{translate('onboarding.analysis.msbuild.header')}</h4>
+        <p className="spacer-bottom markdown">
+          <FormattedMessage
+            defaultMessage={translate('onboarding.analysis.msbuild.text')}
+            id="onboarding.analysis.msbuild.text"
+            values={{ code: <code>%PATH%</code> }}
+          />
+        </p>
+        <p>
+          <Link
+            className="button"
+            to="/documentation/analysis/scan/sonarscanner-for-msbuild/"
+            target="_blank">
+            {translate('download_verb')}
+          </Link>
+        </p>
+      </div>
 
       <h4 className="huge-spacer-top spacer-bottom">
         {translate('onboarding.analysis.msbuild.execute')}
@@ -58,7 +73,7 @@ export default function DotNet(props: Props) {
       </InstanceMessage>
       <CodeSnippet isOneLine={true} snippet={command1} />
       <CodeSnippet isOneLine={true} snippet={command2} />
-      <CodeSnippet isOneLine={props.small} snippet={command3} />
+      <CodeSnippet isOneLine={true} snippet={command3} />
       <p className="big-spacer-top markdown">
         <FormattedMessage
           defaultMessage={translate('onboarding.analysis.docs')}

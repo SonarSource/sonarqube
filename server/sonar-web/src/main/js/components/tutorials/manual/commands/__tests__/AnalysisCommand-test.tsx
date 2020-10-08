@@ -19,35 +19,31 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
-import AnalysisCommand from '../AnalysisCommand';
+import { mockComponent } from '../../../../../helpers/testMocks';
+import { BuildTools, OSs } from '../../../types';
+import AnalysisCommand, { AnalysisCommandProps } from '../AnalysisCommand';
 
 jest.mock('sonar-ui-common/helpers/urls', () => ({
   getHostUrl: () => 'HOST'
 }));
 
-it('display java command', () => {
+it('renders correctly', () => {
+  expect(shallowRender({ languageConfig: { buildTool: BuildTools.Gradle } })).toMatchSnapshot(
+    'gradle'
+  );
+  expect(shallowRender({ languageConfig: { buildTool: BuildTools.Maven } })).toMatchSnapshot(
+    'maven'
+  );
+  expect(shallowRender({ languageConfig: { buildTool: BuildTools.DotNet } })).toMatchSnapshot(
+    '.NET'
+  );
   expect(
-    getWrapper({ languageConfig: { language: 'java', javaBuild: 'gradle' } })
-  ).toMatchSnapshot();
-  expect(
-    getWrapper({ languageConfig: { language: 'java', javaBuild: 'maven' } })
-  ).toMatchSnapshot();
+    shallowRender({ languageConfig: { buildTool: BuildTools.Other, os: OSs.Windows } })
+  ).toMatchSnapshot('other');
 });
 
-it('display c# command', () => {
-  expect(
-    getWrapper({ languageConfig: { language: 'dotnet', projectKey: 'project-foo' } })
-  ).toMatchSnapshot();
-});
-
-it('display others command', () => {
-  expect(
-    getWrapper({
-      languageConfig: { language: 'other', os: 'window', projectKey: 'project-foo' }
-    })
-  ).toMatchSnapshot();
-});
-
-function getWrapper(props = {}) {
-  return shallow(<AnalysisCommand languageConfig={{}} token="myToken" {...props} />);
+function shallowRender(props: Partial<AnalysisCommandProps> = {}) {
+  return shallow<AnalysisCommandProps>(
+    <AnalysisCommand component={mockComponent()} languageConfig={{}} token="myToken" {...props} />
+  );
 }
