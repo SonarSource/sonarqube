@@ -1,0 +1,7 @@
+{
+  "manual_metrics": {
+    "m1": "Metric 1",
+    "m3": "Metric 3"
+  },
+  "remote_servers": []
+}

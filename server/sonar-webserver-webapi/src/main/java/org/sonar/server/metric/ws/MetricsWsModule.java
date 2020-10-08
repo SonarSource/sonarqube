@@ -31,6 +31,7 @@ public class MetricsWsModule extends Module {
       DomainsAction.class,
       SearchAction.class,
       UpdateAction.class,
+      UserMetricsAction.class,
       TypesAction.class);
   }
 }
