@@ -98,12 +98,13 @@ public class HttpHeadersAuthenticationTest {
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-  private UserRegistrarImpl userIdentityAuthenticator = new UserRegistrarImpl(
+
+  private final DefaultGroupFinder defaultGroupFinder = new DefaultGroupFinder(db.getDbClient());
+  private final UserRegistrarImpl userIdentityAuthenticator = new UserRegistrarImpl(
     db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider),
-      settings.asConfig(),
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultOrganizationProvider, defaultGroupFinder, settings.asConfig(),
       localAuthentication),
-    new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider));
+    defaultGroupFinder);
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
@@ -116,7 +117,7 @@ public class HttpHeadersAuthenticationTest {
     when(system2.now()).thenReturn(NOW);
     group1 = db.users().insertGroup(GROUP1);
     group2 = db.users().insertGroup(GROUP2);
-    sonarUsers = db.users().insertDefaultGroup("sonar-users");
+    sonarUsers = db.users().insertDefaultGroup();
   }
 
   @Test

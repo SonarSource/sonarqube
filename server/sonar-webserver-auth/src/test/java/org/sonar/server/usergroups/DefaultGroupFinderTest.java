@@ -21,52 +21,48 @@ package org.sonar.server.usergroups;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class DefaultGroupFinderTest {
 
   @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Rule
   public DbTester db = DbTester.create();
 
-  private DefaultGroupFinder underTest = new DefaultGroupFinder(db.getDbClient(), TestDefaultOrganizationProvider.from(db));
+  private final DefaultGroupFinder underTest = new DefaultGroupFinder(db.getDbClient());
 
   @Test
   public void find_default_group() {
-    GroupDto defaultGroup = db.users().insertDefaultGroup("default");
+    GroupDto defaultGroup = db.users().insertDefaultGroup();
 
     GroupDto result = underTest.findDefaultGroup(db.getSession());
 
     assertThat(result.getUuid()).isEqualTo(defaultGroup.getUuid());
-    assertThat(result.getName()).isEqualTo("default");
+    assertThat(result.getName()).isEqualTo("sonar-users");
   }
 
   @Test
   public void fail_with_ISE_when_no_default_group() {
     db.users().insertGroup();
+    DbSession session = db.getSession();
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Default group cannot be found"));
-
-    underTest.findDefaultGroup(db.getSession());
+    assertThatThrownBy(() -> underTest.findDefaultGroup(session))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Default group cannot be found");
   }
 
   @Test
-  public void fail_with_NPE_when_default_group_does_not_exist() {
-    GroupDto defaultGroup = db.users().insertDefaultGroup("default");
+  public void fail_with_ISE_when_default_group_does_not_exist() {
+    GroupDto defaultGroup = db.users().insertDefaultGroup();
     db.getDbClient().groupDao().deleteByUuid(db.getSession(), defaultGroup.getUuid());
+    DbSession session = db.getSession();
 
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage(format("Group '%s' cannot be found", defaultGroup.getUuid()));
-
-    underTest.findDefaultGroup(db.getSession());
+    assertThatThrownBy(() -> underTest.findDefaultGroup(session))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Default group cannot be found");
   }
 }

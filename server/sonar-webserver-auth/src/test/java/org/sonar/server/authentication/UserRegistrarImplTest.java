@@ -80,7 +80,7 @@ public class UserRegistrarImplTest {
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-  private DefaultGroupFinder groupFinder = new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider);
+  private final DefaultGroupFinder groupFinder = new DefaultGroupFinder(db.getDbClient());
   private UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
     db.getDbClient(),
@@ -698,7 +698,7 @@ public class UserRegistrarImplTest {
   }
 
   private GroupDto insertDefaultGroup() {
-    return db.users().insertDefaultGroup("sonar-users");
+    return db.users().insertDefaultGroup();
   }
 
 }

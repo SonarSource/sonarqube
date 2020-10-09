@@ -65,7 +65,6 @@ import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS
 
 public class CreateActionTest {
 
-  private static final String DEFAULT_GROUP_NAME = "sonar-users";
   private MapSettings settings = new MapSettings();
   private System2 system2 = new AlwaysIncreasingSystem2();
 
@@ -85,12 +84,12 @@ public class CreateActionTest {
   private WsActionTester tester = new WsActionTester(new CreateAction(
     db.getDbClient(),
     new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, defaultOrganizationProvider,
-      new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider), settings.asConfig(), localAuthentication),
+      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
     userSessionRule));
 
   @Before
   public void setUp() {
-    defaultGroup = db.users().insertDefaultGroup(DEFAULT_GROUP_NAME);
+    defaultGroup = db.users().insertDefaultGroup();
   }
 
   @Test

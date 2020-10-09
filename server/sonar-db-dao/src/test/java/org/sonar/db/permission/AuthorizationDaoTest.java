@@ -137,7 +137,7 @@ public class AuthorizationDaoTest {
     db.users().insertMember(group2, user3);
 
     // group3 has the permission "perm1" but has no users
-    GroupDto group3 = db.users().insertGroup("g2");
+    GroupDto group3 = db.users().insertGroup("g3");
     db.users().insertPermissionOnGroup(group3, "perm1");
 
     db.users().insertPermissionOnUser(user4, "perm1");

@@ -31,8 +31,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.organization.DefaultOrganization;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsActionTester;
@@ -49,9 +47,8 @@ public class CreateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private CreateAction underTest = new CreateAction(db.getDbClient(), userSession, newGroupWsSupport(), new SequenceUuidFactory());
-  private WsActionTester tester = new WsActionTester(underTest);
+  private final CreateAction underTest = new CreateAction(db.getDbClient(), userSession, newGroupWsSupport(), new SequenceUuidFactory());
+  private final WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void define_create_action() {
@@ -60,7 +57,7 @@ public class CreateActionTest {
     assertThat(action.key()).isEqualTo("create");
     assertThat(action.isPost()).isTrue();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(3);
+    assertThat(action.params()).hasSize(2);
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
       tuple("8.4", "Field 'id' format in the response changes from integer to string."));
   }
@@ -165,10 +162,6 @@ public class CreateActionTest {
   }
 
   private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider));
-  }
-
-  private DefaultOrganization getDefaultOrganization() {
-    return defaultOrganizationProvider.get();
+    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()));
   }
 }

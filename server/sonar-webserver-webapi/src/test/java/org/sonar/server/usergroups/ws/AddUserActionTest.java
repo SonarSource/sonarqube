@@ -30,7 +30,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -53,16 +52,15 @@ public class AddUserActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws = new WsActionTester(new AddUserAction(db.getDbClient(), userSession, newGroupWsSupport()));
+  private final WsActionTester ws = new WsActionTester(new AddUserAction(db.getDbClient(), userSession, newGroupWsSupport()));
 
   @Test
   public void verify_definition() {
     Action wsDef = ws.getDef();
 
-    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.isInternal()).isFalse();
     assertThat(wsDef.since()).isEqualTo("5.2");
-    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }
@@ -205,11 +203,11 @@ public class AddUserActionTest {
   @Test
   public void fail_to_add_user_to_default_group() {
     UserDto user = db.users().insertUser();
-    GroupDto defaultGroup = db.users().insertDefaultGroup("default");
+    GroupDto defaultGroup = db.users().insertDefaultGroup();
     loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
+    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
 
     newRequest()
       .setParam("id", defaultGroup.getUuid())
@@ -252,7 +250,7 @@ public class AddUserActionTest {
   }
 
   private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider));
+    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()));
   }
 
 }

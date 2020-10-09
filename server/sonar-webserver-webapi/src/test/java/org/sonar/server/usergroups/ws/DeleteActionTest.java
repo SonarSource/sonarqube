@@ -36,7 +36,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -59,17 +58,16 @@ public class DeleteActionTest {
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
 
-  private ComponentDbTester componentTester = new ComponentDbTester(db);
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, newGroupWsSupport()));
+  private final ComponentDbTester componentTester = new ComponentDbTester(db);
+  private final WsActionTester ws = new WsActionTester(new DeleteAction(db.getDbClient(), userSession, newGroupWsSupport()));
 
   @Test
   public void verify_definition() {
     Action wsDef = ws.getDef();
 
-    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.isInternal()).isFalse();
     assertThat(wsDef.since()).isEqualTo("5.2");
-    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }
@@ -129,7 +127,7 @@ public class DeleteActionTest {
       .setParam("id", group.getUuid())
       .execute();
 
-    assertThat(db.countRowsOfTable("groups_users")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("groups_users")).isZero();
   }
 
   @Test
@@ -145,7 +143,7 @@ public class DeleteActionTest {
       .setParam("id", group.getUuid())
       .execute();
 
-    assertThat(db.countRowsOfTable("group_roles")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("group_roles")).isZero();
   }
 
   @Test
@@ -164,7 +162,7 @@ public class DeleteActionTest {
       .setParam("id", group.getUuid())
       .execute();
 
-    assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("perm_templates_groups")).isZero();
   }
 
   @Test
@@ -200,10 +198,10 @@ public class DeleteActionTest {
   @Test
   public void fail_to_delete_default_group() {
     loginAsAdmin();
-    GroupDto defaultGroup = db.users().insertDefaultGroup("default");
+    GroupDto defaultGroup = db.users().insertDefaultGroup();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
+    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
 
     newRequest()
       .setParam("id", defaultGroup.getUuid())
@@ -246,7 +244,7 @@ public class DeleteActionTest {
     db.users().insertDefaultGroup();
     GroupDto adminGroup1 = db.users().insertGroup("admins");
     db.users().insertPermissionOnGroup(adminGroup1, SYSTEM_ADMIN);
-    GroupDto adminGroup2 = db.users().insertGroup("admins");
+    GroupDto adminGroup2 = db.users().insertGroup("admins2");
     db.users().insertPermissionOnGroup(adminGroup2, SYSTEM_ADMIN);
     UserDto bigBoss = db.users().insertUser();
     db.users().insertMember(adminGroup2, bigBoss);
@@ -262,12 +260,12 @@ public class DeleteActionTest {
       .setParam(PARAM_GROUP_ID, adminGroup1.getUuid())
       .execute();
   }
-  
+
   private void addAdmin() {
     UserDto admin = db.users().insertUser();
     db.users().insertPermissionOnUser(admin, SYSTEM_ADMIN);
   }
-  
+
   private void loginAsAdmin() {
     userSession.logIn().addPermission(ADMINISTER);
   }
@@ -281,7 +279,7 @@ public class DeleteActionTest {
   }
 
   private GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider));
+    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()));
   }
 
 }

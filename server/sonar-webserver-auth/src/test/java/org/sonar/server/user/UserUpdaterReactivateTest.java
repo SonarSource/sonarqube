@@ -48,7 +48,7 @@ import static org.sonar.process.ProcessProperties.Property.ONBOARDING_TUTORIAL_S
 
 public class UserUpdaterReactivateTest {
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private final System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -57,15 +57,15 @@ public class UserUpdaterReactivateTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private DbClient dbClient = db.getDbClient();
-  private NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
-  private DbSession session = db.getSession();
-  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private MapSettings settings = new MapSettings();
-  private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, defaultOrganizationProvider,
-    new DefaultGroupFinder(dbClient, defaultOrganizationProvider),
+  private final DbClient dbClient = db.getDbClient();
+  private final NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
+  private final DbSession session = db.getSession();
+  private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
+  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private final MapSettings settings = new MapSettings();
+  private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
+  private final UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, defaultOrganizationProvider,
+    new DefaultGroupFinder(dbClient),
     settings.asConfig(), localAuthentication);
 
   @Test

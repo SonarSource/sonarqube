@@ -41,9 +41,8 @@ public class GroupWsRefTest {
 
   @Test
   public void test_ref_by_name() {
-    GroupWsRef ref = fromName("ORG1", "the-group");
+    GroupWsRef ref = fromName("the-group");
     assertThat(ref.hasUuid()).isFalse();
-    assertThat(ref.getOrganizationKey()).isEqualTo("ORG1");
     assertThat(ref.getName()).isEqualTo("the-group");
     assertThat(ref.isAnyone()).isFalse();
   }
@@ -52,37 +51,37 @@ public class GroupWsRefTest {
   public void test_equals_and_hashCode() {
     GroupWsRef refId1 = GroupWsRef.fromUuid("10");
     GroupWsRef refId2 = GroupWsRef.fromUuid("11");
-    assertThat(refId1.equals(refId1)).isTrue();
-    assertThat(refId1.equals(GroupWsRef.fromUuid("10"))).isTrue();
-    assertThat(refId1.hashCode()).isEqualTo(GroupWsRef.fromUuid("10").hashCode());
-    assertThat(refId1.equals(refId2)).isFalse();
+    assertThat(refId1)
+      .isEqualTo(refId1)
+      .isEqualTo(GroupWsRef.fromUuid("10"))
+      .hasSameHashCodeAs(GroupWsRef.fromUuid("10"))
+      .isNotEqualTo(refId2);
 
-    GroupWsRef refName1 = fromName("ORG1", "the-group");
-    GroupWsRef refName2 = fromName("ORG1", "the-group2");
-    GroupWsRef refName3 = fromName("ORG2", "the-group2");
-    assertThat(refName1.equals(refName1)).isTrue();
-    assertThat(refName1.equals(fromName("ORG1", "the-group"))).isTrue();
-    assertThat(refName1.hashCode()).isEqualTo(fromName("ORG1", "the-group").hashCode());
-    assertThat(refName1.equals(refName2)).isFalse();
-    assertThat(refName2.equals(refName3)).isFalse();
+    GroupWsRef refName1 = fromName("the-group");
+    GroupWsRef refName2 = fromName("the-group2");
+    GroupWsRef refName3 = fromName("the-group2");
+    assertThat(refName1)
+      .isEqualTo(refName1)
+      .isEqualTo(fromName("the-group"))
+      .hasSameHashCodeAs(fromName("the-group"))
+      .isNotEqualTo(refName2);
+    assertThat(refName2).isEqualTo(refName3);
   }
 
   @Test
   public void test_toString() {
     GroupWsRef refId = GroupWsRef.fromUuid("10");
-    assertThat(refId.toString()).isEqualTo("GroupWsRef{uuid=10, organizationKey='null', name='null'}");
+    assertThat(refId).hasToString("GroupWsRef{uuid=10, name='null'}");
   }
 
   @Test
   public void reference_anyone_by_its_name() {
-    GroupWsRef ref = GroupWsRef.fromName("my-org", "Anyone");
-    assertThat(ref.getOrganizationKey()).isEqualTo("my-org");
+    GroupWsRef ref = GroupWsRef.fromName("Anyone");
     assertThat(ref.getName()).isEqualTo("Anyone");
     assertThat(ref.isAnyone()).isTrue();
 
     // case-insensitive
-    ref = GroupWsRef.fromName("my-org", "anyone");
-    assertThat(ref.getOrganizationKey()).isEqualTo("my-org");
+    ref = GroupWsRef.fromName("anyone");
     assertThat(ref.getName()).isEqualTo("anyone");
     assertThat(ref.isAnyone()).isTrue();
   }

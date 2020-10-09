@@ -70,7 +70,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   protected abstract A buildWsAction();
 
   protected GroupWsSupport newGroupWsSupport() {
-    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider));
+    return new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()));
   }
 
   protected PermissionWsSupport newPermissionWsSupport() {

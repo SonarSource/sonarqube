@@ -32,7 +32,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -55,16 +54,16 @@ public class RemoveUserActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WsActionTester ws = new WsActionTester(
-    new RemoveUserAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient(), TestDefaultOrganizationProvider.from(db)))));
+  private final WsActionTester ws = new WsActionTester(
+    new RemoveUserAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()))));
 
   @Test
   public void verify_definition() {
     Action wsDef = ws.getDef();
 
-    assertThat(wsDef.isInternal()).isEqualTo(false);
+    assertThat(wsDef.isInternal()).isFalse();
     assertThat(wsDef.since()).isEqualTo("5.2");
-    assertThat(wsDef.isPost()).isEqualTo(true);
+    assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
       tuple("8.4", "Parameter 'id' is deprecated. Format changes from integer to string. Use 'name' instead."));
   }
@@ -225,12 +224,12 @@ public class RemoveUserActionTest {
   @Test
   public void fail_to_remove_user_from_default_group() {
     UserDto user = db.users().insertUser();
-    GroupDto defaultGroup = db.users().insertDefaultGroup("default");
+    GroupDto defaultGroup = db.users().insertDefaultGroup();
     db.users().insertMember(defaultGroup, user);
     loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
+    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
 
     newRequest()
       .setParam("id", defaultGroup.getUuid())

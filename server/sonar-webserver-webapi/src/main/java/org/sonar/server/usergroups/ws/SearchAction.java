@@ -27,7 +27,6 @@ import java.util.Set;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
@@ -44,7 +43,6 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
-import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_ORGANIZATION_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.UserGroups.Group;
 import static org.sonarqube.ws.UserGroups.SearchWsResponse;
@@ -68,7 +66,7 @@ public class SearchAction implements UserGroupsWsAction {
 
   @Override
   public void define(NewController context) {
-    WebService.NewAction action = context.createAction("search")
+    context.createAction("search")
       .setDescription("Search for user groups.<br>" +
         "Requires the following permission: 'Administer System'.")
       .setHandler(this)
@@ -81,12 +79,6 @@ public class SearchAction implements UserGroupsWsAction {
         new Change("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
         new Change("6.4", "Paging response fields moved to a Paging object"),
         new Change("6.4", "'default' response field has been added"));
-
-    action.createParam(PARAM_ORGANIZATION_KEY)
-      .setDescription("Key of organization. If not set then groups are searched in default organization.")
-      .setExampleValue("my-org")
-      .setSince("6.2")
-      .setInternal(true);
   }
 
   @Override

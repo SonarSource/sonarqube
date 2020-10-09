@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.usergroups;
+package org.sonar.server.platform.db.migration.version.v86;
 
-import org.sonar.api.security.DefaultGroups;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.user.GroupDto;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public class DefaultGroupFinder {
+public class AddUniqueIndexOnNameColumnOfGroupsTableTest {
 
-  private final DbClient dbClient;
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(AddUniqueIndexOnNameColumnOfGroupsTableTest.class, "schema.sql");
 
-  public DefaultGroupFinder(DbClient dbClient) {
-    this.dbClient = dbClient;
+  private final MigrationStep underTest = new AddUniqueIndexOnNameColumnOfGroupsTable(db.database());
+
+  @Test
+  public void execute() throws SQLException {
+    underTest.execute();
+
+    db.assertUniqueIndex("groups", "uniq_groups_name", "name");
   }
-
-  public GroupDto findDefaultGroup(DbSession dbSession) {
-    return dbClient.groupDao().selectByName(dbSession, DefaultGroups.USERS)
-      .orElseThrow(() -> new IllegalStateException("Default group cannot be found"));
-  }
-
 }

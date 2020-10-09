@@ -50,8 +50,6 @@ import static org.sonar.db.user.UserTesting.newLocalUser;
 
 public class ChangePasswordActionTest {
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -67,7 +65,7 @@ public class ChangePasswordActionTest {
 
   private UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), es.client()), testDefaultOrganizationProvider,
-    new DefaultGroupFinder(db.getDbClient(), testDefaultOrganizationProvider),
+    new DefaultGroupFinder(db.getDbClient()),
     new MapSettings().asConfig(),
     localAuthentication);
 
@@ -75,7 +73,7 @@ public class ChangePasswordActionTest {
 
   @Before
   public void setUp() {
-    db.users().insertDefaultGroup("sonar-users");
+    db.users().insertDefaultGroup();
   }
 
   @Test

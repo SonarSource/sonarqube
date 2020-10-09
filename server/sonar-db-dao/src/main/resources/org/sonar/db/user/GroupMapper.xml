@@ -68,14 +68,12 @@
   <insert id="insert" parameterType="Group" useGeneratedKeys="false">
     insert into groups (
     uuid,
-    organization_uuid,
     name,
     description,
     created_at,
     updated_at
     ) values (
     #{uuid,jdbcType=VARCHAR},
-    'asd',
     #{name,jdbcType=VARCHAR},
     #{description,jdbcType=VARCHAR},
     #{createdAt,jdbcType=TIMESTAMP},

@@ -38,6 +38,9 @@ public class DbVersion86 implements DbVersion {
       .add(4108, "Drop 'organization_uuid' in 'user_roles'", DropOrganizationInUserRoles.class)
       .add(4109, "Drop 'organization_uuid' in 'group_roles'", DropOrganizationInGroupRoles.class)
       .add(4110, "Drop 'organization_uuid' in 'permission_templates'", DropOrganizationInPermissionTemplates.class)
+      .add(4111, "Drop 'organization_uuid' in 'groups'", DropOrganizationInGroups.class)
+      .add(4112, "Make 'name' column in 'groups' table not nullable", MakeNameColumnInGroupsTableNotNullable.class)
+      .add(4113, "Make 'name' column in 'groups' table unique", AddUniqueIndexOnNameColumnOfGroupsTable.class)
     ;
   }
 }

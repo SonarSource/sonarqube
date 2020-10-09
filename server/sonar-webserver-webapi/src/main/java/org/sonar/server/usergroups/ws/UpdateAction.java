@@ -29,7 +29,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserMembershipQuery;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserGroups;
 
@@ -51,13 +50,11 @@ public class UpdateAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport support;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UpdateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public UpdateAction(DbClient dbClient, UserSession userSession, GroupWsSupport support) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   @Override
@@ -152,7 +149,7 @@ public class UpdateAction implements UserGroupsWsAction {
 
     UserGroups.UpdateWsResponse.Builder respBuilder = UserGroups.UpdateWsResponse.newBuilder();
     // 'default' is always false as it's not possible to update a default group
-    respBuilder.setGroup(toProtobuf(defaultOrganizationProvider.get().getKey(), group, membersCount, false));
+    respBuilder.setGroup(toProtobuf(group, membersCount, false));
     writeProtobuf(respBuilder.build(), request, response);
   }
 

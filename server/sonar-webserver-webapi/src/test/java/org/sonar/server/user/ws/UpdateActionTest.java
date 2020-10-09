@@ -72,12 +72,12 @@ public class UpdateActionTest {
 
   private WsActionTester ws = new WsActionTester(new UpdateAction(
     new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, defaultOrganizationProvider,
-      new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider), settings.asConfig(), localAuthentication),
+      new DefaultGroupFinder(db.getDbClient()), settings.asConfig(), localAuthentication),
     userSession, new UserJsonWriter(userSession), dbClient));
 
   @Before
   public void setUp() {
-    db.users().insertDefaultGroup("sonar-users");
+    db.users().insertDefaultGroup();
   }
 
   @Test

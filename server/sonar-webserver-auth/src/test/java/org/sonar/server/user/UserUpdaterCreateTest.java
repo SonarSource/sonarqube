@@ -81,7 +81,7 @@ public class UserUpdaterCreateTest {
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
 
   private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, defaultOrganizationProvider,
-    new DefaultGroupFinder(dbClient, defaultOrganizationProvider), settings.asConfig(), localAuthentication);
+    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test
   public void create_user() {
@@ -454,7 +454,7 @@ public class UserUpdaterCreateTest {
       .setName("Marius")
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .setScmAccounts(asList("jo"))
+      .setScmAccounts(singletonList("jo"))
       .build(), u -> {
       });
   }
@@ -487,7 +487,7 @@ public class UserUpdaterCreateTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(asList(DEFAULT_LOGIN))
+      .setScmAccounts(singletonList(DEFAULT_LOGIN))
       .build(), u -> {
       });
   }
@@ -502,7 +502,7 @@ public class UserUpdaterCreateTest {
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(asList("marius2@mail.com"))
+      .setScmAccounts(singletonList("marius2@mail.com"))
       .build(), u -> {
       });
   }
@@ -559,7 +559,7 @@ public class UserUpdaterCreateTest {
   }
 
   @Test
-  public void associate_default_group_when_creating_user_and_organizations_are_disabled() {
+  public void associate_default_group_when_creating_user() {
     GroupDto defaultGroup = createDefaultGroup();
 
     underTest.createAndCommit(db.getSession(), NewUser.builder()
@@ -570,7 +570,7 @@ public class UserUpdaterCreateTest {
       .build(), u -> {
       });
 
-    Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList("user"));
+    Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, singletonList("user"));
     assertThat(groups.get("user")).containsOnly(defaultGroup.getName());
   }
 

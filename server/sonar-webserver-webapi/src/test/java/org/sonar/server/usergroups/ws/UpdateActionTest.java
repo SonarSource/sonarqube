@@ -31,7 +31,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
@@ -50,10 +49,8 @@ public class UpdateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws = new WsActionTester(
-    new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient(), defaultOrganizationProvider)),
-      defaultOrganizationProvider));
+  private final WsActionTester ws = new WsActionTester(
+    new UpdateAction(db.getDbClient(), userSession, new GroupWsSupport(db.getDbClient(), new DefaultGroupFinder(db.getDbClient()))));
 
   @Test
   public void verify_definition() {
@@ -282,11 +279,11 @@ public class UpdateActionTest {
 
   @Test
   public void fail_to_update_default_group_name() {
-    GroupDto group = db.users().insertDefaultGroup("default");
+    GroupDto group = db.users().insertDefaultGroup();
     loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
+    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
 
     newRequest()
       .setParam("id", group.getUuid())
@@ -296,11 +293,11 @@ public class UpdateActionTest {
 
   @Test
   public void fail_to_update_default_group_description() {
-    GroupDto group = db.users().insertDefaultGroup("default");
+    GroupDto group = db.users().insertDefaultGroup();
     loginAsAdmin();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Default group 'default' cannot be used to perform this action");
+    expectedException.expectMessage("Default group 'sonar-users' cannot be used to perform this action");
 
     newRequest()
       .setParam("id", group.getUuid())

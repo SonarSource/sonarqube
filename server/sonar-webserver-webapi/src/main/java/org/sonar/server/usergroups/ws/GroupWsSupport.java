@@ -44,7 +44,6 @@ import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOption
 public class GroupWsSupport {
 
   static final String PARAM_GROUP_ID = "id";
-  static final String PARAM_ORGANIZATION_KEY = "organization";
   static final String PARAM_GROUP_NAME = "name";
   static final String PARAM_GROUP_DESCRIPTION = "description";
   static final String PARAM_LOGIN = "login";
@@ -63,8 +62,7 @@ public class GroupWsSupport {
   }
 
   /**
-   * Find a group by its id (parameter {@link #PARAM_GROUP_ID}) or couple organization key/group name
-   * (parameters {@link #PARAM_ORGANIZATION_KEY} and {@link #PARAM_GROUP_NAME}). The virtual
+   * Find a group by its id (parameter {@link #PARAM_GROUP_ID}) or group name (parameter {@link #PARAM_GROUP_NAME}). The virtual
    * group "Anyone" is not supported.
    *
    * @throws NotFoundException if parameters are missing/incorrect, if the requested group does not exist
@@ -76,9 +74,8 @@ public class GroupWsSupport {
 
   public GroupDto findGroupDto(DbSession dbSession, Request request) {
     String uuid = request.param(PARAM_GROUP_ID);
-    String organizationKey = request.param(PARAM_ORGANIZATION_KEY);
     String name = request.param(PARAM_GROUP_NAME);
-    return findGroupDto(dbSession, GroupWsRef.create(uuid, organizationKey, name));
+    return findGroupDto(dbSession, GroupWsRef.create(uuid, name));
   }
 
   public GroupDto findGroupDto(DbSession dbSession, GroupWsRef ref) {
@@ -121,10 +118,9 @@ public class GroupWsSupport {
     checkArgument(!defaultGroup.getUuid().equals(groupDto.getUuid()), "Default group '%s' cannot be used to perform this action", groupDto.getName());
   }
 
-  static UserGroups.Group.Builder toProtobuf(String org, GroupDto group, int membersCount, boolean isDefault) {
+  static UserGroups.Group.Builder toProtobuf(GroupDto group, int membersCount, boolean isDefault) {
     UserGroups.Group.Builder wsGroup = UserGroups.Group.newBuilder()
       .setId(group.getUuid())
-      .setOrganization(org)
       .setName(group.getName())
       .setMembersCount(membersCount)
       .setDefault(isDefault);
@@ -145,11 +141,6 @@ public class GroupWsSupport {
   }
 
   private static void defineGroupNameWsParameter(WebService.NewAction action) {
-    action.createParam(PARAM_ORGANIZATION_KEY)
-      .setDescription("Key of organization")
-      .setExampleValue("my-org")
-      .setInternal(true)
-      .setSince("6.2");
     action.createParam(PARAM_GROUP_NAME)
       .setDescription("Group name")
       .setExampleValue("sonar-administrators");

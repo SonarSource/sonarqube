@@ -62,8 +62,8 @@ public class SearchActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession,
-    new DefaultGroupFinder(db.getDbClient(), TestDefaultOrganizationProvider.from(db))));
+  private final WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession,
+    new DefaultGroupFinder(db.getDbClient())));
 
   @Test
   public void define_search_action() {
@@ -71,7 +71,7 @@ public class SearchActionTest {
     assertThat(action).isNotNull();
     assertThat(action.key()).isEqualTo("search");
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(5);
+    assertThat(action.params()).hasSize(4);
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
       tuple("8.4", "Field 'id' in the response is deprecated. Format changes from integer to string."),
       tuple("6.4", "Paging response fields moved to a Paging object"),
@@ -80,11 +80,11 @@ public class SearchActionTest {
 
   @Test
   public void search_without_parameters() {
-    insertDefaultGroup(db.getDefaultOrganization(), "users", 0);
-    insertGroup(db.getDefaultOrganization(), "admins", 0);
-    insertGroup(db.getDefaultOrganization(), "customer1", 0);
-    insertGroup(db.getDefaultOrganization(), "customer2", 0);
-    insertGroup(db.getDefaultOrganization(), "customer3", 0);
+    insertDefaultGroup(0);
+    insertGroup("admins", 0);
+    insertGroup("customer1", 0);
+    insertGroup("customer2", 0);
+    insertGroup("customer3", 0);
     loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest());
@@ -94,16 +94,16 @@ public class SearchActionTest {
       tuple("customer1", "Customer1", 0),
       tuple("customer2", "Customer2", 0),
       tuple("customer3", "Customer3", 0),
-      tuple("users", "Users", 0));
+      tuple("sonar-users", "Users", 0));
   }
 
   @Test
   public void search_with_members() {
-    insertDefaultGroup(db.getDefaultOrganization(), "users", 5);
-    insertGroup(db.getDefaultOrganization(), "admins", 1);
-    insertGroup(db.getDefaultOrganization(), "customer1", 0);
-    insertGroup(db.getDefaultOrganization(), "customer2", 4);
-    insertGroup(db.getDefaultOrganization(), "customer3", 0);
+    insertDefaultGroup(5);
+    insertGroup("admins", 1);
+    insertGroup("customer1", 0);
+    insertGroup("customer2", 4);
+    insertGroup("customer3", 0);
     loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest());
@@ -113,16 +113,16 @@ public class SearchActionTest {
       tuple("customer1", "Customer1", 0),
       tuple("customer2", "Customer2", 4),
       tuple("customer3", "Customer3", 0),
-      tuple("users", "Users", 5));
+      tuple("sonar-users", "Users", 5));
   }
 
   @Test
   public void search_with_query() {
-    insertDefaultGroup(db.getDefaultOrganization(), "users", 0);
-    insertGroup(db.getDefaultOrganization(), "admins", 0);
-    insertGroup(db.getDefaultOrganization(), "customer%_%/1", 0);
-    insertGroup(db.getDefaultOrganization(), "customer%_%/2", 0);
-    insertGroup(db.getDefaultOrganization(), "customer%_%/3", 0);
+    insertDefaultGroup(0);
+    insertGroup("admins", 0);
+    insertGroup("customer%_%/1", 0);
+    insertGroup("customer%_%/2", 0);
+    insertGroup("customer%_%/3", 0);
     loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest().setParam(TEXT_QUERY, "tomer%_%/"));
@@ -135,11 +135,11 @@ public class SearchActionTest {
 
   @Test
   public void search_with_paging() {
-    insertDefaultGroup(db.getDefaultOrganization(), "users", 0);
-    insertGroup(db.getDefaultOrganization(), "admins", 0);
-    insertGroup(db.getDefaultOrganization(), "customer1", 0);
-    insertGroup(db.getDefaultOrganization(), "customer2", 0);
-    insertGroup(db.getDefaultOrganization(), "customer3", 0);
+    insertDefaultGroup(0);
+    insertGroup("admins", 0);
+    insertGroup("customer1", 0);
+    insertGroup("customer2", 0);
+    insertGroup("customer3", 0);
     loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest().setParam(PAGE_SIZE, "3"));
@@ -153,7 +153,7 @@ public class SearchActionTest {
     assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(2, 3, 5);
     assertThat(response.getGroupsList()).extracting(Group::getName, Group::getDescription, Group::getMembersCount).containsOnly(
       tuple("customer3", "Customer3", 0),
-      tuple("users", "Users", 0));
+      tuple("sonar-users", "Users", 0));
 
     response = call(ws.newRequest().setParam(PAGE_SIZE, "3").setParam(PAGE, "3"));
     assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(3, 3, 5);
@@ -162,7 +162,7 @@ public class SearchActionTest {
 
   @Test
   public void search_with_fields() {
-    insertDefaultGroup(db.getDefaultOrganization(), "sonar-users", 0);
+    insertDefaultGroup(0);
     loginAsAdmin();
 
     assertThat(call(ws.newRequest()).getGroupsList()).extracting(Group::hasId, Group::hasName, Group::hasDescription, Group::hasMembersCount)
@@ -179,23 +179,12 @@ public class SearchActionTest {
 
   @Test
   public void return_default_group() {
-    db.users().insertDefaultGroup("default");
+    db.users().insertDefaultGroup();
     loginAsAdmin();
 
     SearchWsResponse response = call(ws.newRequest());
 
-    assertThat(response.getGroupsList()).extracting(Group::getName, Group::getDefault).containsOnly(tuple("default", true));
-  }
-
-  @Test
-  public void fail_when_no_default_group() {
-    db.users().insertGroup("users");
-    loginAsAdmin();
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Default group cannot be found");
-
-    call(ws.newRequest());
+    assertThat(response.getGroupsList()).extracting(Group::getName, Group::getDefault).containsOnly(tuple("sonar-users", true));
   }
 
   @Test
@@ -208,8 +197,8 @@ public class SearchActionTest {
 
   @Test
   public void test_json_example() {
-    insertDefaultGroup(db.getDefaultOrganization(), "users", 17);
-    insertGroup(db.getDefaultOrganization(), "administrators", 2);
+    insertDefaultGroup(17);
+    insertGroup("administrators", 2);
     loginAsAdmin();
 
     String response = ws.newRequest().setMediaType(MediaTypes.JSON).execute().getInput();
@@ -226,7 +215,7 @@ public class SearchActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
-    assertThat(action.params()).extracting(WebService.Param::key).containsOnly("p", "q", "ps", "f", "organization");
+    assertThat(action.params()).extracting(WebService.Param::key).containsOnly("p", "q", "ps", "f");
 
     assertThat(action.param("f").possibleValues()).containsOnly("name", "description", "membersCount");
   }
@@ -235,13 +224,12 @@ public class SearchActionTest {
     return request.executeProtobuf(SearchWsResponse.class);
   }
 
-  private void insertDefaultGroup(OrganizationDto org, String name, int numberOfMembers) {
-    GroupDto group = newGroupDto().setName(name).setDescription(capitalize(name));
-    db.users().insertDefaultGroup(group);
+  private void insertDefaultGroup(int numberOfMembers) {
+    GroupDto group = db.users().insertDefaultGroup();
     addMembers(group, numberOfMembers);
   }
 
-  private void insertGroup(OrganizationDto org, String name, int numberOfMembers) {
+  private void insertGroup(String name, int numberOfMembers) {
     GroupDto group = newGroupDto().setName(name).setDescription(capitalize(name));
     db.users().insertGroup(group);
     addMembers(group, numberOfMembers);

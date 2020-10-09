@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -40,10 +41,10 @@ import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.project.ProjectDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class UserDbTester {
   private static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER); // FIXME to check with Simon
@@ -141,12 +142,12 @@ public class UserDbTester {
   // GROUPS
 
   public GroupDto insertGroup(String name) {
-    GroupDto group = GroupTesting.newGroupDto().setName(name);
+    GroupDto group = newGroupDto().setName(name);
     return insertGroup(group);
   }
 
   public GroupDto insertGroup() {
-    GroupDto group = GroupTesting.newGroupDto();
+    GroupDto group = newGroupDto();
     return insertGroup(group);
   }
 
@@ -156,23 +157,10 @@ public class UserDbTester {
     return dto;
   }
 
-  public GroupDto insertDefaultGroup(GroupDto dto) {
-    db.getDbClient().organizationDao().getDefaultGroupUuid(db.getSession(), db.getDefaultOrganization().getUuid())
-      .ifPresent(groupUuid -> {
-        throw new IllegalArgumentException(format("Organization '%s' has already a default group", db.getDefaultOrganization().getUuid()));
-      });
-    db.getDbClient().groupDao().insert(db.getSession(), dto);
-    db.getDbClient().organizationDao().setDefaultGroupUuid(db.getSession(), db.getDefaultOrganization().getUuid(), dto);
+  public GroupDto insertDefaultGroup() {
+    GroupDto dto = db.getDbClient().groupDao().insert(db.getSession(), newGroupDto().setName(DefaultGroups.USERS).setDescription("Users"));
     db.commit();
     return dto;
-  }
-
-  public GroupDto insertDefaultGroup(String name) {
-    return insertDefaultGroup(GroupTesting.newGroupDto().setName(name));
-  }
-
-  public GroupDto insertDefaultGroup() {
-    return insertDefaultGroup(GroupTesting.newGroupDto());
   }
 
   @CheckForNull

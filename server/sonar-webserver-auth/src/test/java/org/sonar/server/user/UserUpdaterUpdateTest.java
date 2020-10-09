@@ -77,7 +77,7 @@ public class UserUpdaterUpdateTest {
   private MapSettings settings = new MapSettings();
   private CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient());
   private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, defaultOrganizationProvider,
-    new DefaultGroupFinder(dbClient, defaultOrganizationProvider), settings.asConfig(), localAuthentication);
+    new DefaultGroupFinder(dbClient), settings.asConfig(), localAuthentication);
 
   @Test
   public void update_user() {

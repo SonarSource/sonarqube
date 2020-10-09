@@ -15,7 +15,7 @@
     {
       "id": 2,
       "name": "sonar-users",
-      "description": "Sonar Users",
+      "description": "Users",
       "selected": true,
       "default": true
     }

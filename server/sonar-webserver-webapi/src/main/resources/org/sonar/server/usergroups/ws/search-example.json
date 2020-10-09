@@ -7,7 +7,7 @@
   "groups": [
     {
       "id": "AU-Tpxb--iU5OvuD2FLy",
-      "name": "users",
+      "name": "sonar-users",
       "description": "Users",
       "membersCount": 17,
       "default": true
