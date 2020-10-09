@@ -644,10 +644,11 @@ public class IssueIndex {
   private static void addCreatedAfterByProjectsFilter(AllFilters allFilters, IssueQuery query) {
     Map<String, PeriodStart> createdAfterByProjectUuids = query.createdAfterByProjectUuids();
     BoolQueryBuilder boolQueryBuilder = boolQuery();
-    createdAfterByProjectUuids.forEach((projectUuid, createdAfterDate) -> boolQueryBuilder.should(boolQuery()
-      .filter(termQuery(FIELD_ISSUE_PROJECT_UUID, projectUuid))
+    createdAfterByProjectUuids.forEach((projectOrProjectBranchUuid, createdAfterDate) -> boolQueryBuilder.should(boolQuery()
+      .filter(termQuery(FIELD_ISSUE_BRANCH_UUID, projectOrProjectBranchUuid))
       .filter(rangeQuery(FIELD_ISSUE_FUNC_CREATED_AT).from(BaseDoc.dateToEpochSeconds(createdAfterDate.date()), createdAfterDate.inclusive()))));
-    allFilters.addFilter("createdAfterByProjectUuids", new SimpleFieldFilterScope("TODO::???"), boolQueryBuilder);
+
+    allFilters.addFilter("__created_after_by_project_uuids", new SimpleFieldFilterScope("createdAfterByProjectUuids"), boolQueryBuilder);
   }
 
   private void validateCreationDateBounds(@Nullable Date createdBefore, @Nullable Date createdAfter) {

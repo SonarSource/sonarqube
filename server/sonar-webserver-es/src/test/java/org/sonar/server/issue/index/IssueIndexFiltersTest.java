@@ -456,6 +456,60 @@ public class IssueIndexFiltersTest {
   }
 
   @Test
+  public void filter_by_created_after_by_project_branches() {
+    Date now = new Date();
+    OrganizationDto organizationDto = newOrganizationDto();
+
+    ComponentDto project1 = newPrivateProjectDto(organizationDto);
+    IssueDoc project1Issue1 = newDoc(project1).setFuncCreationDate(addDays(now, -10));
+    IssueDoc project1Issue2 = newDoc(project1).setFuncCreationDate(addDays(now, -20));
+
+    ComponentDto project1Branch1 = db.components().insertProjectBranch(project1);
+    IssueDoc project1Branch1Issue1 = newDoc(project1Branch1).setFuncCreationDate(addDays(now, -10));
+    IssueDoc project1Branch1Issue2 = newDoc(project1Branch1).setFuncCreationDate(addDays(now, -20));
+
+    ComponentDto project2 = newPrivateProjectDto(organizationDto);
+
+    IssueDoc project2Issue1 = newDoc(project2).setFuncCreationDate(addDays(now, -15));
+    IssueDoc project2Issue2 = newDoc(project2).setFuncCreationDate(addDays(now, -30));
+
+    ComponentDto project2Branch1 = db.components().insertProjectBranch(project2);
+    IssueDoc project2Branch1Issue1 = newDoc(project2Branch1).setFuncCreationDate(addDays(now, -15));
+    IssueDoc project2Branch1Issue2 = newDoc(project2Branch1).setFuncCreationDate(addDays(now, -30));
+
+    indexIssues(project1Issue1, project1Issue2, project2Issue1, project2Issue2,
+      project1Branch1Issue1, project1Branch1Issue2, project2Branch1Issue1, project2Branch1Issue2);
+
+    // Search for issues of project 1 branch 1 having less than 15 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .mainBranch(false)
+      .createdAfterByProjectUuids(ImmutableMap.of(project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -15), true))),
+      project1Branch1Issue1.key());
+
+    // Search for issues of project 1 branch 1 having less than 14 days and project 2 branch 1 having less then 25 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .mainBranch(false)
+      .createdAfterByProjectUuids(ImmutableMap.of(
+        project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -14), true),
+        project2Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -25), true))),
+      project1Branch1Issue1.key(), project2Branch1Issue1.key());
+
+    // Search for issues of project 1 branch 1 having less than 30 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .mainBranch(false)
+      .createdAfterByProjectUuids(ImmutableMap.of(
+        project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -30), true))),
+      project1Branch1Issue1.key(), project1Branch1Issue2.key());
+
+    // Search for issues of project 1 branch 1 and project 2 branch 2 having less than 5 days
+    assertThatSearchReturnsOnly(IssueQuery.builder()
+      .mainBranch(false)
+      .createdAfterByProjectUuids(ImmutableMap.of(
+        project1Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true),
+        project2Branch1.uuid(), new IssueQuery.PeriodStart(addDays(now, -5), true))));
+  }
+
+  @Test
   public void filter_by_severities() {
     ComponentDto project = newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
