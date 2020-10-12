@@ -48,8 +48,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -77,25 +75,21 @@ public class DeactivateActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(system2);
-
   @Rule
   public EsTester es = EsTester.create();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private final DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private final DbClient dbClient = db.getDbClient();
   private final UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private final DbSession dbSession = db.getSession();
-  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession,
-    new UserJsonWriter(userSession), defaultOrganizationProvider));
+  private final WsActionTester ws = new WsActionTester(new DeactivateAction(dbClient, userIndexer, userSession, new UserJsonWriter(userSession)));
 
   @Test
   public void deactivate_user_and_delete_his_related_data() {
+    createAdminUser();
     UserDto user = db.users().insertUser(u -> u
       .setLogin("ada.lovelace")
       .setEmail("ada.lovelace@noteg.com")
@@ -115,6 +109,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_group_membership() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup();
@@ -128,6 +123,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_tokens() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     db.users().insertToken(user);
@@ -141,6 +137,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_properties() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
@@ -156,6 +153,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_permissions() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
@@ -172,6 +170,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_permission_templates() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
@@ -189,6 +188,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_qprofiles_permissions() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     QProfileDto profile = db.qualityProfiles().insert();
@@ -201,6 +201,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_default_assignee_settings() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     ComponentDto project = db.components().insertPrivateProject();
@@ -217,6 +218,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_organization_membership() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     OrganizationDto organization = db.organizations().insert();
@@ -232,6 +234,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_user_settings() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     db.users().insertUserSetting(user);
@@ -247,10 +250,9 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_alm_pat() {
+    createAdminUser();
     logInAsSystemAdministrator();
-
     AlmSettingDto almSettingDto = db.almSettings().insertBitbucketAlmSetting();
-
     UserDto user = db.users().insertUser();
     db.almPats().insert(p -> p.setUserUuid(user.getUuid()), p -> p.setAlmSettingUuid(almSettingDto.getUuid()));
     UserDto anotherUser = db.users().insertUser();
@@ -264,6 +266,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_session_tokens() {
+    createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
     SessionTokenDto sessionToken1 = db.users().insertSessionToken(user);
@@ -280,6 +283,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_dismissed_messages() {
+    createAdminUser();
     logInAsSystemAdministrator();
     ProjectDto project1 = db.components().insertPrivateProjectDto();
     ProjectDto project2 = db.components().insertPrivateProjectDto();
@@ -301,6 +305,7 @@ public class DeactivateActionTest {
 
   @Test
   public void user_cannot_deactivate_itself_on_sonarqube() {
+    createAdminUser();
     UserDto user = db.users().insertUser();
     userSession.logIn(user.getLogin()).setSystemAdministrator();
 
@@ -314,6 +319,8 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivation_requires_to_be_logged_in() {
+    createAdminUser();
+
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
@@ -322,6 +329,7 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivation_requires_administrator_permission_on_sonarqube() {
+    createAdminUser();
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -332,6 +340,7 @@ public class DeactivateActionTest {
 
   @Test
   public void fail_if_user_does_not_exist() {
+    createAdminUser();
     logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
@@ -342,6 +351,7 @@ public class DeactivateActionTest {
 
   @Test
   public void fail_if_login_is_blank() {
+    createAdminUser();
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -352,6 +362,7 @@ public class DeactivateActionTest {
 
   @Test
   public void fail_if_login_is_missing() {
+    createAdminUser();
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -374,11 +385,8 @@ public class DeactivateActionTest {
 
   @Test
   public void administrators_can_be_deactivated_if_there_are_still_other_administrators() {
-    UserDto admin = db.users().insertUser();
-    UserDto anotherAdmin = db.users().insertUser();
-    db.users().insertPermissionOnUser(admin, ADMINISTER);
-    db.users().insertPermissionOnUser(anotherAdmin, ADMINISTER);
-    db.commit();
+    UserDto admin = createAdminUser();;
+    UserDto anotherAdmin = createAdminUser();
     logInAsSystemAdministrator();
 
     deactivate(admin.getLogin());
@@ -396,6 +404,7 @@ public class DeactivateActionTest {
 
   @Test
   public void test_example() {
+    createAdminUser();
     UserDto user = db.users().insertUser(u -> u
       .setLogin("ada.lovelace")
       .setEmail("ada.lovelace@noteg.com")
@@ -434,6 +443,13 @@ public class DeactivateActionTest {
     assertThat(user.get().isActive()).isFalse();
     assertThat(user.get().getEmail()).isNull();
     assertThat(user.get().getScmAccountsAsList()).isEmpty();
+  }
+
+  private UserDto createAdminUser() {
+    UserDto admin = db.users().insertUser();
+    db.users().insertPermissionOnUser(admin, ADMINISTER);
+    db.commit();
+    return admin;
   }
 
 }

@@ -42,9 +42,8 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createDefaultTemplateQualifierParameter;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -71,7 +70,6 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     return new SetDefaultTemplateRequest()
       .setQualifier(request.param(PARAM_QUALIFIER))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 

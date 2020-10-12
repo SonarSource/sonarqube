@@ -38,7 +38,6 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.WsParameters.createUserLoginParameter;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -64,7 +63,6 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
-      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
   }
 

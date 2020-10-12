@@ -17,14 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
+package org.sonar.server.platform.db.migration.version.v86;
 
-import java.util.List;
-import org.sonar.db.permission.OrganizationPermission;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
+import org.sonar.server.platform.db.migration.step.MigrationStep;
 
-public interface PermissionService {
+public class DropOrganizationInUserRolesTest {
 
-  List<OrganizationPermission> getGlobalPermissions();
-  List<String> getAllProjectPermissions();
+  @Rule
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(DropOrganizationInUserRolesTest.class, "schema.sql");
+
+  private MigrationStep underTest = new DropOrganizationInUserRoles(dbTester.database());
+
+  @Test
+  public void column_has_been_dropped() throws SQLException {
+    underTest.execute();
+    dbTester.assertColumnDoesNotExist("user_roles", "organization_uuid");
+  }
 
 }

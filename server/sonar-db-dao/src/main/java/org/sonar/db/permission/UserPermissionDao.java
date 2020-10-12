@@ -80,9 +80,9 @@ public class UserPermissionDao implements Dao {
   }
 
   /**
-   * Gets all the global permissions granted to user for the specified organization.
+   * Gets all the global permissions granted to user
    *
-   * @return the global permissions. An empty list is returned if user or organization do not exist.
+   * @return the global permissions. An empty list is returned if user do not exist.
    */
   public List<String> selectGlobalPermissionsOfUser(DbSession dbSession, String userUuid) {
     return mapper(dbSession).selectGlobalPermissionsOfUser(userUuid);
@@ -101,8 +101,8 @@ public class UserPermissionDao implements Dao {
     return mapper(session).selectUserUuidsWithPermissionOnProjectBut(projectUuid, permission);
   }
 
-  public void insert(DbSession dbSession, UserPermissionDto dto, String defaultOrgUuid) {
-    mapper(dbSession).insert(dto, defaultOrgUuid);
+  public void insert(DbSession dbSession, UserPermissionDto dto) {
+    mapper(dbSession).insert(dto);
   }
 
   /**

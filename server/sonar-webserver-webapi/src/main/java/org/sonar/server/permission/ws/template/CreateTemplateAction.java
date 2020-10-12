@@ -47,7 +47,6 @@ import static org.sonar.server.permission.ws.template.PermissionTemplateDtoToPer
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY_PATTERN;
 
 public class CreateTemplateAction implements PermissionsWsAction {
@@ -67,8 +66,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
     return new CreateTemplateRequest()
       .setName(request.mandatoryParam(PARAM_NAME))
       .setDescription(request.param(PARAM_DESCRIPTION))
-      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN))
-      .setOrganization(request.param(PARAM_ORGANIZATION));
+      .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN));
   }
 
   private static CreateTemplateWsResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
@@ -93,7 +91,6 @@ public class CreateTemplateAction implements PermissionsWsAction {
 
     WsParameters.createTemplateProjectKeyPatternParameter(action);
     WsParameters.createTemplateDescriptionParameter(action);
-    WsParameters.createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override
@@ -124,7 +121,6 @@ public class CreateTemplateAction implements PermissionsWsAction {
   private PermissionTemplateDto insertTemplate(DbSession dbSession, CreateTemplateRequest request) {
     Date now = new Date(system.now());
     PermissionTemplateDto template = dbClient.permissionTemplateDao().insert(dbSession, new PermissionTemplateDto()
-      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setUuid(Uuids.create())
       .setName(request.getName())
       .setDescription(request.getDescription())

@@ -35,6 +35,9 @@ public class DbVersion86 implements DbVersion {
       .add(4105, "Drop 'organization_uuid' in 'rules_metadata'", DropOrganizationInRulesMetadata.class)
       .add(4106, "Update 'change_data' column of 'qprofile_changes' table to use ruleUuid", UpdateChangeDataOfQProfileChanges.class)
       .add(4107, "Drop 'organization_uuid' in 'users'", DropOrganizationInUsers.class)
+      .add(4108, "Drop 'organization_uuid' in 'user_roles'", DropOrganizationInUserRoles.class)
+      .add(4109, "Drop 'organization_uuid' in 'group_roles'", DropOrganizationInGroupRoles.class)
+      .add(4110, "Drop 'organization_uuid' in 'permission_templates'", DropOrganizationInPermissionTemplates.class)
     ;
   }
 }

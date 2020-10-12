@@ -44,9 +44,9 @@ public abstract class PermissionChange {
     this.projectUuid = projectUuid;
     this.permissionService = permissionService;
     if (projectUuid == null) {
-      checkRequest(permissionService.getAllOrganizationPermissions().stream().anyMatch(p -> p.getKey().equals(permission)),
+      checkRequest(permissionService.getGlobalPermissions().stream().anyMatch(p -> p.getKey().equals(permission)),
         "Invalid global permission '%s'. Valid values are %s", permission,
-        permissionService.getAllOrganizationPermissions().stream().map(OrganizationPermission::getKey).collect(toList()));
+        permissionService.getGlobalPermissions().stream().map(OrganizationPermission::getKey).collect(toList()));
     } else {
       checkRequest(permissionService.getAllProjectPermissions().contains(permission), "Invalid project permission '%s'. Valid values are %s", permission,
         permissionService.getAllProjectPermissions());

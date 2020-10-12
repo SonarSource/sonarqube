@@ -45,10 +45,8 @@ public class PermissionTemplateDbTester {
   }
 
   public PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
-    template.setOrganizationUuid(db.getDefaultOrganization().getUuid());
     PermissionTemplateDto templateInDb = dbClient.permissionTemplateDao().insert(dbSession, template);
     db.commit();
-
     return templateInDb;
   }
 

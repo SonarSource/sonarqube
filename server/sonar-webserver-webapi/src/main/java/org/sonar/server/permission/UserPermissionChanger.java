@@ -24,7 +24,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -39,12 +38,10 @@ public class UserPermissionChanger {
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public UserPermissionChanger(DbClient dbClient, UuidFactory uuidFactory, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public UserPermissionChanger(DbClient dbClient, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public boolean apply(DbSession dbSession, UserPermissionChange change) {
@@ -98,7 +95,7 @@ public class UserPermissionChanger {
     }
     UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), change.getPermission(), change.getUserId().getUuid(),
       change.getProjectUuid());
-    dbClient.userPermissionDao().insert(dbSession, dto, defaultOrganizationProvider.get().getUuid());
+    dbClient.userPermissionDao().insert(dbSession, dto);
     return true;
   }
 

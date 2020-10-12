@@ -31,7 +31,7 @@ public interface UserPermissionMapper {
   List<String> selectUserUuidsByQuery(@Param("query") PermissionQuery query);
 
   /**
-   * Fetch user ids based on permission query and only in a specific scope (global permissions only, organization permissions only or project permissions only)
+   * Fetch user ids based on permission query and only in a specific scope (global permissions only or project permissions only)
    */
   List<String> selectUserUuidsByQueryAndScope(@Param("query") PermissionQuery query);
 
@@ -52,7 +52,7 @@ public interface UserPermissionMapper {
    */
   Set<String> selectUserUuidsWithPermissionOnProjectBut(@Param("projectUuid") String projectUuid, @Param("permission") String permission);
 
-  void insert(@Param("dto")UserPermissionDto dto, @Param("defaultOrgUuid") String defaultOrgUuid);
+  void insert(@Param("dto")UserPermissionDto dto);
 
   void deleteGlobalPermission(@Param("userUuid") String userUuid, @Param("permission") String permission);
 

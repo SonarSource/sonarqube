@@ -4,9 +4,8 @@
 <mapper namespace="org.sonar.db.permission.template.PermissionTemplateMapper">
 
   <insert id="insert" parameterType="PermissionTemplate" useGeneratedKeys="false">
-    INSERT INTO permission_templates (organization_uuid, name, uuid, description, key_pattern, created_at, updated_at)
+    INSERT INTO permission_templates (name, uuid, description, key_pattern, created_at, updated_at)
     VALUES (
-    #{organizationUuid,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR},
     #{uuid,jdbcType=VARCHAR},
     #{description,jdbcType=VARCHAR},

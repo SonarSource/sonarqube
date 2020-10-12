@@ -224,7 +224,6 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       UserDto user = db.users().insertUser("User-" + i);
-      db.organizations().addMember(db.getDefaultOrganization(), user);
       db.permissionTemplates().addUserToTemplate(otherTemplate, user, UserRole.USER);
     });
     String lastLogin = "User-" + (DEFAULT_PAGE_SIZE + 1);
@@ -306,7 +305,6 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   private UserDto insertUser(UserDto userDto) {
     db.users().insertUser(userDto);
-    db.organizations().addMember(db.getDefaultOrganization(), userDto);
     return userDto;
   }
 

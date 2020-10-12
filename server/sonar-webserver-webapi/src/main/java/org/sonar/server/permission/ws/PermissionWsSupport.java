@@ -24,7 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
@@ -36,11 +35,9 @@ import org.sonar.server.usergroups.ws.GroupWsRef;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonarqube.ws.client.permission.PermissionsWsParameters;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 
 public class PermissionWsSupport {
 
@@ -75,9 +72,8 @@ public class PermissionWsSupport {
 
   public GroupUuidOrAnyone findGroup(DbSession dbSession, Request request) {
     String groupUuid = request.param(PARAM_GROUP_ID);
-    String orgKey = request.param(PARAM_ORGANIZATION);
     String groupName = request.param(PARAM_GROUP_NAME);
-    GroupWsRef groupRef = GroupWsRef.create(groupUuid, orgKey, groupName);
+    GroupWsRef groupRef = GroupWsRef.create(groupUuid, null, groupName);
     return groupWsSupport.findGroupOrAnyone(dbSession, groupRef);
   }
 
@@ -99,8 +95,4 @@ public class PermissionWsSupport {
     }
   }
 
-  public void checkMembership(DbSession dbSession, OrganizationDto organization, UserId user) {
-    checkArgument(dbClient.organizationMemberDao().select(dbSession, organization.getUuid(), user.getUuid()).isPresent(),
-      "User '%s' is not member of organization '%s'", user.getLogin(), organization.getKey());
-  }
 }

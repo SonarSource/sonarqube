@@ -189,7 +189,6 @@ public class SetDefaultTemplateActionTest extends BasePermissionWsTest<SetDefaul
 
   private PermissionTemplateDto insertTemplate() {
     PermissionTemplateDto res = dbClient.permissionTemplateDao().insert(db.getSession(), PermissionTemplateTesting.newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid("permission-template-uuid"));
     db.commit();
     return res;

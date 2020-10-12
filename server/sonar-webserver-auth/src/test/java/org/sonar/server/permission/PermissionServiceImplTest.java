@@ -32,7 +32,7 @@ public class PermissionServiceImplTest {
 
   @Test
   public void organizationPermissions_must_be_ordered() {
-    assertThat(underTest.getAllOrganizationPermissions())
+    assertThat(underTest.getGlobalPermissions())
       .extracting(OrganizationPermission::getKey)
       .containsExactly("admin", "gateadmin", "profileadmin", "provisioning", "scan", "applicationcreator", "portfoliocreator");
   }

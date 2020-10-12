@@ -109,7 +109,7 @@ public class UpdateVisibilityActionTest {
 
   private ProjectsWsSupport wsSupport = new ProjectsWsSupport(dbClient, TestDefaultOrganizationProvider.from(dbTester), billingValidations);
   private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester),
-    userSessionRule, projectIndexers, wsSupport, new SequenceUuidFactory(), TestDefaultOrganizationProvider.from(dbTester));
+    userSessionRule, projectIndexers, wsSupport, new SequenceUuidFactory());
   private WsActionTester ws = new WsActionTester(underTest);
 
   private final Random random = new Random();
@@ -677,7 +677,7 @@ public class UpdateVisibilityActionTest {
 
   private void unsafeInsertProjectPermissionOnUser(ComponentDto component, UserDto user, String permission) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), component.uuid());
-    dbTester.getDbClient().userPermissionDao().insert(dbTester.getSession(), dto, dbTester.getDefaultOrganization().getUuid());
+    dbTester.getDbClient().userPermissionDao().insert(dbTester.getSession(), dto);
     dbTester.commit();
   }
 

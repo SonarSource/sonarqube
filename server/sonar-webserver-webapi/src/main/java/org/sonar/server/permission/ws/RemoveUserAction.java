@@ -35,7 +35,6 @@ import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
-import static org.sonar.server.permission.ws.WsParameters.createOrganizationParameter;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.permission.ws.WsParameters.createUserLoginParameter;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -79,7 +78,6 @@ public class RemoveUserAction implements PermissionsWsAction {
     wsParameters.createPermissionParameter(action, "The permission you would like to revoke from the user.");
     createUserLoginParameter(action);
     createProjectParameters(action);
-    createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override

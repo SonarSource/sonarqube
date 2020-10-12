@@ -34,7 +34,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
@@ -57,21 +56,19 @@ public class GroupPermissionChangerTest {
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
   private GroupPermissionChanger underTest = new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory());
-  private OrganizationDto org;
   private GroupDto group;
   private ComponentDto privateProject;
   private ComponentDto publicProject;
 
   @Before
   public void setUp() {
-    org = db.organizations().insert();
     group = db.users().insertGroup("a-group");
-    privateProject = db.components().insertPrivateProject(org);
-    publicProject = db.components().insertPublicProject(org);
+    privateProject = db.components().insertPrivateProject();
+    publicProject = db.components().insertPublicProject();
   }
 
   @Test
-  public void apply_adds_organization_permission_to_group() {
+  public void apply_adds_global_permission_to_group() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, null, groupUuid, permissionService));
@@ -80,7 +77,7 @@ public class GroupPermissionChangerTest {
   }
 
   @Test
-  public void apply_adds_organization_permission_to_group_AnyOne() {
+  public void apply_adds_global_permission_to_group_AnyOne() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
     apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.QUALITY_GATE_ADMIN, null, groupUuid, permissionService));
@@ -318,7 +315,7 @@ public class GroupPermissionChangerTest {
   public void fail_to_add_global_permission_but_SCAN_and_ADMIN_on_private_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
-    permissionService.getAllOrganizationPermissions().stream()
+    permissionService.getGlobalPermissions().stream()
       .map(OrganizationPermission::getKey)
       .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermissions.SCAN_EXECUTION.equals(perm))
       .forEach(perm -> {
@@ -336,7 +333,7 @@ public class GroupPermissionChangerTest {
   public void fail_to_add_global_permission_but_SCAN_and_ADMIN_on_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
-    permissionService.getAllOrganizationPermissions().stream()
+    permissionService.getGlobalPermissions().stream()
       .map(OrganizationPermission::getKey)
       .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermissions.SCAN_EXECUTION.equals(perm))
       .forEach(perm -> {

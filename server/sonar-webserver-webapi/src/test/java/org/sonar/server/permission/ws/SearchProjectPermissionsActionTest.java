@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.ws;
 
+import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -28,7 +29,6 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -188,11 +188,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void has_projects_ordered_by_name() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    for (int i = 9; i >= 1; i--) {
-      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto)
-        .setName("project-name-" + i));
-    }
+    IntStream.rangeClosed(1, 9).forEach(i -> db.components().insertPrivateProject(p -> p.setName("project-name-" + i)));
 
     String result = newRequest()
       .setParam(PAGE, "1")
@@ -206,8 +202,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void search_by_query_on_name() {
-    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("project-name"));
-    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("another-name"));
+    db.components().insertPrivateProject(p -> p.setName("project-name"));
+    db.components().insertPrivateProject(p -> p.setName("another-name"));
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project")
@@ -219,9 +215,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void search_by_query_on_key_must_match_exactly() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("project-key"));
-    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("another-key"));
+    db.components().insertPrivateProject(p -> p.setDbKey("project-key"));
+    db.components().insertPrivateProject(p -> p.setDbKey("another-key"));
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project-key")
@@ -234,9 +229,9 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void handle_more_than_1000_projects() {
-    for (int i = 1; i <= 1001; i++) {
-      componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid-" + i));
-    }
+    IntStream.rangeClosed(1, 1001).forEach(i -> {
+      db.components().insertPrivateProject("project-uuid-" + i);
+    });
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project")
@@ -249,9 +244,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void filter_by_qualifier() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    db.components().insertComponent(newView(organizationDto, "view-uuid"));
-    db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    ComponentDto project = db.components().insertPrivateProject();
 
     Permissions.SearchProjectPermissionsWsResponse result = newRequest()
       .setParam(PARAM_QUALIFIER, Qualifiers.PROJECT)
@@ -259,8 +253,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
     assertThat(result.getProjectsList())
       .extracting("id")
-      .contains("project-uuid")
-      .doesNotContain("view-uuid");
+      .contains(project.uuid())
+      .doesNotContain(portfolio.uuid());
   }
 
   @Test

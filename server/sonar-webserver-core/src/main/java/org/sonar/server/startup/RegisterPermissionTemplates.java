@@ -79,7 +79,6 @@ public class RegisterPermissionTemplates implements Startable {
     }
 
     PermissionTemplateDto template = new PermissionTemplateDto()
-      .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setName("Default template")
       .setUuid(DEFAULT_TEMPLATE_UUID)
       .setDescription("This permission template will be used as default when no other permission configuration is available")

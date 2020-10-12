@@ -132,13 +132,11 @@
 
   <insert id="insert" parameterType="org.sonar.db.permission.UserPermissionDto" useGeneratedKeys="false">
     insert into user_roles (
-    organization_uuid,
     uuid,
     user_uuid,
     component_uuid,
     role
     ) values (
-    #{defaultOrgUuid,jdbcType=VARCHAR},
     #{dto.uuid,jdbcType=VARCHAR},
     #{dto.userUuid,jdbcType=VARCHAR},
     #{dto.componentUuid,jdbcType=VARCHAR},

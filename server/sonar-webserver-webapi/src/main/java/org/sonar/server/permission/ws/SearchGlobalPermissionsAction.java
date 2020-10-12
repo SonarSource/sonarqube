@@ -64,8 +64,6 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
       .setSince("5.2")
       .setDeprecatedSince("6.5")
       .setHandler(this);
-
-    WsParameters.createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override
@@ -82,7 +80,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     WsSearchGlobalPermissionsResponse.Builder response = WsSearchGlobalPermissionsResponse.newBuilder();
     Permission.Builder permission = newBuilder();
 
-    permissionService.getAllOrganizationPermissions().stream()
+    permissionService.getGlobalPermissions().stream()
       .map(OrganizationPermission::getKey)
       .forEach(permissionKey -> {
         PermissionQuery query = permissionQuery(permissionKey);

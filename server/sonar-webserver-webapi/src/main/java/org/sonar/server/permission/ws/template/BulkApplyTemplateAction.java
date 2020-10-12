@@ -56,7 +56,6 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
@@ -120,7 +119,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
-          "If no visibility is specified, the default project visibility of the organization will be used.",
+        "If no visibility is specified, the default project visibility of the organization will be used.",
         Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
       .setRequired(false)
       .setInternal(true)
@@ -161,7 +160,6 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
 
   private static BulkApplyTemplateRequest toBulkApplyTemplateWsRequest(Request request) {
     return new BulkApplyTemplateRequest()
-      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))

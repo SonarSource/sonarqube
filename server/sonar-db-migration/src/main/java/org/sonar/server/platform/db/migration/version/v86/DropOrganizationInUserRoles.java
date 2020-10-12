@@ -17,14 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.permission;
+package org.sonar.server.platform.db.migration.version.v86;
 
-import java.util.List;
-import org.sonar.db.permission.OrganizationPermission;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public interface PermissionService {
+public class DropOrganizationInUserRoles extends DdlChange {
 
-  List<OrganizationPermission> getGlobalPermissions();
-  List<String> getAllProjectPermissions();
+  private static final String TABLE_NAME = "user_roles";
 
+  public DropOrganizationInUserRoles(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "organization_uuid").build());
+  }
 }

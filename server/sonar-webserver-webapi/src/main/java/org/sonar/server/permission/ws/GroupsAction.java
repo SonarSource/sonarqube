@@ -49,7 +49,6 @@ import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
-import static org.sonar.server.permission.ws.WsParameters.createOrganizationParameter;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -91,7 +90,6 @@ public class GroupsAction implements PermissionsWsAction {
       .setDescription("Limit search to group names that contain the supplied string.")
       .setMinimumLength(SEARCH_QUERY_MIN_LENGTH);
 
-    createOrganizationParameter(action).setSince("6.2");
     wsParameters.createPermissionParameter(action).setRequired(false);
     createProjectParameters(action);
   }
@@ -103,7 +101,6 @@ public class GroupsAction implements PermissionsWsAction {
       checkProjectAdmin(userSession, project);
 
       PermissionQuery query = buildPermissionQuery(request, project);
-      // TODO validatePermission(groupsRequest.getPermission(), wsProjectRef);
       List<GroupDto> groups = findGroups(dbSession, query);
       int total = dbClient.groupPermissionDao().countGroupsByQuery(dbSession, query);
       List<GroupPermissionDto> groupsWithPermission = findGroupPermissions(dbSession, groups, project);

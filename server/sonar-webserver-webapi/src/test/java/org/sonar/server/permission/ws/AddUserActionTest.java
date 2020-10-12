@@ -25,9 +25,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -45,11 +43,9 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -65,7 +61,6 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   @Before
   public void setUp() {
     user = db.users().insertUser("ray.bradbury");
-    db.organizations().addMember(db.getDefaultOrganization(), user);
   }
 
   @Override
@@ -145,28 +140,32 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void fail_when_component_is_a_module() {
-    ComponentDto module = db.components().insertComponent(newModuleDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert())));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
 
     failIfComponentIsNotAProjectOrView(module);
   }
 
   @Test
   public void fail_when_component_is_a_directory() {
-    ComponentDto file = db.components().insertComponent(newDirectory(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), "A/B"));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newDirectory(project, "A/B"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
   public void fail_when_component_is_a_file() {
-    ComponentDto file = db.components().insertComponent(newFileDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), null, "file-uuid"));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "file-uuid"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
   public void fail_when_component_is_a_subview() {
-    ComponentDto file = db.components().insertComponent(newSubView(ComponentTesting.newView(db.organizations().insert())));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newSubView(project));
 
     failIfComponentIsNotAProjectOrView(file);
   }
@@ -198,7 +197,8 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void fail_when_component_is_not_a_project() {
-    db.components().insertComponent(newFileDto(newPrivateProjectDto(db.organizations().insert(), "project-uuid"), null, "file-uuid"));
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertComponent(newFileDto(project, null, "file-uuid"));
     loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
@@ -262,7 +262,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   }
 
   @Test
-  public void adding_global_permission_fails_if_not_administrator_of_organization() {
+  public void adding_global_permission_fails_if_not_system_administrator() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -351,8 +351,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -360,7 +359,6 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
     expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
 
     newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_PROJECT_ID, branch.uuid())
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)

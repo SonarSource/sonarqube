@@ -133,7 +133,7 @@ public class CurrentAction implements UsersWsAction {
 
   private List<String> getGlobalPermissions() {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    return permissionService.getAllOrganizationPermissions().stream()
+    return permissionService.getGlobalPermissions().stream()
       .filter(permission -> userSession.hasPermission(permission))
       .map(OrganizationPermission::getKey)
       .collect(toList());

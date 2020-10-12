@@ -85,7 +85,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(
       new ProjectIndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
-      new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory(), defaultOrganizationProvider),
+      new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
       new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory()));
   }
 
@@ -103,7 +103,6 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   protected PermissionTemplateDto addTemplate() {
     PermissionTemplateDto dto = newPermissionTemplateDto();
-    dto.setOrganizationUuid(db.getDefaultOrganization().getUuid());
     db.getDbClient().permissionTemplateDao().insert(db.getSession(), dto);
     db.commit();
     return dto;

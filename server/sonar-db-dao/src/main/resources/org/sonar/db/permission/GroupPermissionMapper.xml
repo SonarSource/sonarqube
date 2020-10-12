@@ -190,13 +190,11 @@
 
   <insert id="insert" parameterType="GroupPermission">
     insert into group_roles (
-    organization_uuid,
     uuid,
     group_uuid,
     component_uuid,
     role
     ) values (
-    'asd',
     #{uuid,jdbcType=VARCHAR},
     #{groupUuid,jdbcType=VARCHAR},
     #{componentUuid,jdbcType=BIGINT},

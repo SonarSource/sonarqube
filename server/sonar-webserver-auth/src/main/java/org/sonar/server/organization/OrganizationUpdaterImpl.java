@@ -164,7 +164,6 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       new PermissionTemplateDto()
         .setUuid(uuidFactory.create())
         .setName(PERM_TEMPLATE_NAME)
-        .setOrganizationUuid(organizationDto.getUuid())
         .setDescription(format(PERM_TEMPLATE_DESCRIPTION_PATTERN, organizationDto.getName()))
         .setCreatedAt(now)
         .setUpdatedAt(now));
@@ -221,7 +220,7 @@ public class OrganizationUpdaterImpl implements OrganizationUpdater {
       .setUuid(uuidFactory.create())
       .setName(OWNERS_GROUP_NAME)
       .setDescription(OWNERS_GROUP_DESCRIPTION));
-    permissionService.getAllOrganizationPermissions().forEach(p -> addPermissionToGroup(dbSession, group, p));
+    permissionService.getGlobalPermissions().forEach(p -> addPermissionToGroup(dbSession, group, p));
     return group;
   }
 

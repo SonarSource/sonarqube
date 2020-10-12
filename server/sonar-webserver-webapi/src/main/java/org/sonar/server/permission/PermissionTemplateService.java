@@ -141,7 +141,7 @@ public class PermissionTemplateService {
       .filter(up -> permissionValidForProject(project, up.getPermission()))
       .forEach(up -> {
         UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), up.getPermission(), userDtoMap.get(up.getUserUuid()), project.uuid());
-        dbClient.userPermissionDao().insert(dbSession, dto, defaultOrganizationProvider.get().getUuid());
+        dbClient.userPermissionDao().insert(dbSession, dto);
       });
 
     List<PermissionTemplateGroupDto> groupsPermissions = dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateUuid(dbSession, template.getUuid());
@@ -172,7 +172,7 @@ public class PermissionTemplateService {
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
           UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), c.getPermission(), userDto.getUuid(), project.uuid());
-          dbClient.userPermissionDao().insert(dbSession, dto, defaultOrganizationProvider.get().getUuid());
+          dbClient.userPermissionDao().insert(dbSession, dto);
         });
     }
   }
@@ -230,7 +230,7 @@ public class PermissionTemplateService {
   private static void checkAtMostOneMatchForComponentKey(String componentKey, List<PermissionTemplateDto> matchingTemplates) {
     if (matchingTemplates.size() > 1) {
       StringBuilder templatesNames = new StringBuilder();
-      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext(); ) {
+      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
         templatesNames.append("\"").append(it.next().getName()).append("\"");
         if (it.hasNext()) {
           templatesNames.append(", ");

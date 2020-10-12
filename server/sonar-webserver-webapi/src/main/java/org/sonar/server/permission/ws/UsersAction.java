@@ -51,7 +51,6 @@ import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.RequestValidator.validateGlobalPermission;
-import static org.sonar.server.permission.ws.WsParameters.createOrganizationParameter;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -99,7 +98,6 @@ public class UsersAction implements PermissionsWsAction {
       .setDescription("Limit search to user names that contain the supplied string. <br/>")
       .setExampleValue("eri");
 
-    createOrganizationParameter(action).setSince("6.2");
     wsParameters.createPermissionParameter(action).setRequired(false);
     createProjectParameters(action);
   }

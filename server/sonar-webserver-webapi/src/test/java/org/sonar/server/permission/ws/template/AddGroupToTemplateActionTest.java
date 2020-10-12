@@ -158,7 +158,7 @@ public class AddGroupToTemplateActionTest extends BasePermissionWsTest<AddGroupT
   }
 
   @Test
-  public void fail_if_not_admin_of_default_organization() {
+  public void fail_if_not_admin() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);

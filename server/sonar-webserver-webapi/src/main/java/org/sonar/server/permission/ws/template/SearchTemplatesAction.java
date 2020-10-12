@@ -43,7 +43,6 @@ import org.sonar.server.permission.DefaultTemplatesResolver;
 import org.sonar.server.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.Permission;
@@ -88,8 +87,6 @@ public class SearchTemplatesAction implements PermissionsWsAction {
       .setSince("5.2")
       .addSearchQuery("defau", "permission template names")
       .setHandler(this);
-
-    WsParameters.createOrganizationParameter(action).setSince("6.2");
   }
 
   @Override

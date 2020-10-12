@@ -27,9 +27,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -178,12 +176,11 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void search_groups_with_project_permissions() {
-    OrganizationDto organizationDto = db.getDefaultOrganization();
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
+    ComponentDto project = db.components().insertPrivateProject();
     GroupDto group = db.users().insertGroup("project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
-    ComponentDto anotherProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     GroupDto anotherGroup = db.users().insertGroup("another-project-group-name");
     db.users().insertProjectPermissionOnGroup(anotherGroup, ISSUE_ADMIN, anotherProject);
 
@@ -192,7 +189,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     userSession.logIn().addProjectPermission(ADMIN, project);
     String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
       .execute()
       .getInput();
 
@@ -203,8 +200,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void return_also_groups_without_permission_when_search_query() {
-    OrganizationDto organizationDto = db.getDefaultOrganization();
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
+    ComponentDto project = db.components().insertPrivateProject();
     GroupDto group = db.users().insertGroup("group-with-permission");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
@@ -214,7 +210,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
     loginAsAdmin();
     String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
-      .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(TEXT_QUERY, "group-with")
       .execute()
       .getInput();
@@ -245,8 +241,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void return_anyone_group_when_search_query_and_no_param_permission() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
+    ComponentDto project = db.components().insertPrivateProject();
     GroupDto group = db.users().insertGroup("group-with-permission");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
@@ -301,15 +296,15 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void fail_if_project_uuid_and_project_key_are_provided() {
-    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid").setDbKey("project-key"));
+    ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(BadRequestException.class);
 
     loginAsAdmin();
     newRequest()
       .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
-      .setParam(PARAM_PROJECT_ID, "project-uuid")
-      .setParam(PARAM_PROJECT_KEY, "project-key")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
       .execute();
   }
 

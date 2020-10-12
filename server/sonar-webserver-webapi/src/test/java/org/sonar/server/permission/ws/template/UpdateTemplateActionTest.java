@@ -35,8 +35,8 @@ import org.sonar.server.ws.TestRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_DESCRIPTION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ID;
@@ -57,7 +57,6 @@ public class UpdateTemplateActionTest extends BasePermissionWsTest<UpdateTemplat
   public void setUp() {
     when(system.now()).thenReturn(1_440_512_328_743L);
     template = db.getDbClient().permissionTemplateDao().insert(db.getSession(), newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setName("Permission Template Name")
       .setDescription("Permission Template Description")
       .setKeyPattern(".*\\.pattern\\..*")

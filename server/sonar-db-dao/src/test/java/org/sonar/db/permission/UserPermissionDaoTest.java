@@ -35,7 +35,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
 import static java.util.Arrays.asList;
@@ -67,7 +66,6 @@ public class UserPermissionDaoTest {
 
   @Test
   public void select_global_permissions() {
-    OrganizationDto org2 = db.organizations().insert();
     UserDto user1 = insertUser(u -> u.setLogin("login1").setName("Marius").setEmail("email1@email.com"));
     UserDto user2 = insertUser(u -> u.setLogin("login2").setName("Marie").setEmail("email2@email.com"));
     UserDto user3 = insertUser(u -> u.setLogin("zanother").setName("Zoe").setEmail("zanother3@another.com"));
@@ -634,14 +632,14 @@ public class UserPermissionDaoTest {
 
   private UserPermissionDto addGlobalPermission(String permission, UserDto user) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), null);
-    underTest.insert(dbSession, dto, db.getDefaultOrganization().getUuid());
+    underTest.insert(dbSession, dto);
     db.commit();
     return dto;
   }
 
   private UserPermissionDto addProjectPermission(String permission, UserDto user, ComponentDto project) {
     UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), project.uuid());
-    underTest.insert(dbSession, dto, db.getDefaultOrganization().getUuid());
+    underTest.insert(dbSession, dto);
     db.commit();
     return dto;
   }

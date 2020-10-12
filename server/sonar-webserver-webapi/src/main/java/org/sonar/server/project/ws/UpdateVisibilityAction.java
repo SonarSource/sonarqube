@@ -39,7 +39,6 @@ import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.ProjectsWsParameters;
@@ -61,17 +60,15 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final ProjectIndexers projectIndexers;
   private final ProjectsWsSupport projectsWsSupport;
   private final UuidFactory uuidFactory;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public UpdateVisibilityAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport, UuidFactory uuidFactory, DefaultOrganizationProvider defaultOrganizationProvider) {
+    ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
     this.projectsWsSupport = projectsWsSupport;
     this.uuidFactory = uuidFactory;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public void define(WebService.NewController context) {
@@ -155,7 +152,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   private void insertProjectPermissionOnUser(DbSession dbSession, ComponentDto component, String permission, String userUuid) {
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userUuid, component.uuid()), defaultOrganizationProvider.get().getUuid());
+    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(Uuids.create(), permission, userUuid, component.uuid()));
   }
 
   private void insertProjectPermissionOnGroup(DbSession dbSession, ComponentDto component, String permission, String groupUuid) {

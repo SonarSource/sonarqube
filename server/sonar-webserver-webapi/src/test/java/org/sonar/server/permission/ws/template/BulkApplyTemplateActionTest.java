@@ -30,7 +30,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -101,8 +100,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   @Test
   public void bulk_apply_template_by_template_uuid() {
     // this project should not be applied the template
-    OrganizationDto otherOrganization = db.organizations().insert();
-    db.components().insertPrivateProject(otherOrganization);
+    db.components().insertPrivateProject();
 
     ComponentDto privateProject = db.components().insertPrivateProject();
     ComponentDto publicProject = db.components().insertPublicProject();

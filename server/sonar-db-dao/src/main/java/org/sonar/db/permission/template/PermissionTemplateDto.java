@@ -24,7 +24,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public class PermissionTemplateDto {
-  private String organizationUuid;
   private String name;
   private String uuid;
   private String description;
@@ -38,11 +37,6 @@ public class PermissionTemplateDto {
 
   public PermissionTemplateDto setName(String name) {
     this.name = name;
-    return this;
-  }
-
-  public PermissionTemplateDto setOrganizationUuid(String uuid) {
-    this.organizationUuid = uuid;
     return this;
   }
 

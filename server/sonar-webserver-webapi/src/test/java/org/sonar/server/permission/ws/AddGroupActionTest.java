@@ -28,7 +28,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -51,7 +50,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
-import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
@@ -98,7 +96,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void reference_group_by_its_name_in_organization() {
+  public void reference_group_by_its_name() {
     GroupDto group = db.users().insertGroup("the-group");
     loginAsAdmin();
 
@@ -156,20 +154,19 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void add_with_view_uuid() {
-    OrganizationDto organizationDto = db.getDefaultOrganization();
+  public void add_with_portfolio_uuid() {
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto view = db.components().insertComponent(newView(organizationDto, "view-uuid").setDbKey("view-key"));
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
     loginAsAdmin();
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
-      .setParam(PARAM_PROJECT_ID, view.uuid())
+      .setParam(PARAM_PROJECT_ID, portfolio.uuid())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
-    assertThat(db.users().selectGroupPermissions(group, view)).containsOnly(SYSTEM_ADMIN);
+    assertThat(db.users().selectGroupPermissions(group, portfolio)).containsOnly(SYSTEM_ADMIN);
   }
 
   @Test
@@ -187,28 +184,32 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void fail_when_component_is_a_module() {
-    ComponentDto module = db.components().insertComponent(newModuleDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert())));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
 
     failIfComponentIsNotAProjectOrView(module);
   }
 
   @Test
   public void fail_when_component_is_a_directory() {
-    ComponentDto file = db.components().insertComponent(newDirectory(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), "A/B"));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newDirectory(project, "A/B"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
   public void fail_when_component_is_a_file() {
-    ComponentDto file = db.components().insertComponent(newFileDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), null, "file-uuid"));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "file-uuid"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
   public void fail_when_component_is_a_subview() {
-    ComponentDto file = db.components().insertComponent(newSubView(ComponentTesting.newView(db.organizations().insert())));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newSubView(project));
 
     failIfComponentIsNotAProjectOrView(file);
   }
@@ -239,9 +240,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void adding_a_project_permission_fails_if_component_is_not_a_project() {
-    OrganizationDto organizationDto = db.getDefaultOrganization();
     GroupDto group = db.users().insertGroup("sonar-administrators");
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, null, "file-uuid"));
     loginAsAdmin();
 
@@ -292,7 +292,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   }
 
   @Test
-  public void fail_if_not_administrator_of_organization() {
+  public void fail_if_not_global_administrator() {
     GroupDto group = db.users().insertGroup();
     loginAsAdmin();
 
@@ -306,7 +306,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   @Test
   public void fail_when_project_uuid_and_project_key_are_provided() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
+    ComponentDto project = db.components().insertPrivateProject();
     loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
@@ -388,8 +388,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void no_effect_when_adding_USER_permission_to_group_AnyOne_on_a_public_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -403,8 +402,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void no_effect_when_adding_CODEVIEWER_permission_to_group_AnyOne_on_a_public_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -418,9 +416,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void no_effect_when_adding_USER_permission_to_group_on_a_public_project() {
-    OrganizationDto organization = db.organizations().insert();
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -434,9 +431,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void no_effect_when_adding_CODEVIEWER_permission_to_group_on_a_public_project() {
-    OrganizationDto organization = db.organizations().insert();
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
@@ -450,9 +446,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -468,9 +463,8 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    OrganizationDto organization = db.organizations().insert();
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 

@@ -156,9 +156,7 @@ public class RegisterPermissionTemplatesTest {
 
   @Test
   public void do_not_create_default_template_if_already_exists_but_register_when_it_is_not() {
-    db.permissionTemplates().insertTemplate(newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-      .setUuid(DEFAULT_TEMPLATE_UUID));
+    db.permissionTemplates().insertTemplate(newPermissionTemplateDto().setUuid(DEFAULT_TEMPLATE_UUID));
 
     underTest.start();
 
@@ -168,7 +166,6 @@ public class RegisterPermissionTemplatesTest {
   @Test
   public void do_not_fail_if_default_template_exists_and_is_registered() {
     PermissionTemplateDto projectTemplate = db.permissionTemplates().insertTemplate(newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid(DEFAULT_TEMPLATE_UUID));
     db.organizations().setDefaultTemplates(projectTemplate, null, null);
 
@@ -189,7 +186,7 @@ public class RegisterPermissionTemplatesTest {
     String expectedGroupName) {
     assertThat(
       groupPermissions.stream().anyMatch(gp -> gp.getPermission().equals(expectedPermission) && Objects.equals(gp.getGroupName(), expectedGroupName)))
-      .isTrue();
+        .isTrue();
   }
 
   private void verifyDefaultTemplates() {

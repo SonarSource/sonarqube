@@ -35,7 +35,6 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ADMIN;
@@ -60,7 +59,7 @@ public class UserPermissionChangerTest {
 
   private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory(), TestDefaultOrganizationProvider.from(db));
+  private UserPermissionChanger underTest = new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory());
   private UserDto user1;
   private UserDto user2;
   private ComponentDto privateProject;
@@ -75,8 +74,8 @@ public class UserPermissionChangerTest {
   }
 
   @Test
-  public void apply_adds_any_organization_permission_to_user() {
-    permissionService.getAllOrganizationPermissions().stream()
+  public void apply_adds_any_global_permission_to_user() {
+    permissionService.getGlobalPermissions().stream()
       .forEach(perm -> {
         UserPermissionChange change = new UserPermissionChange(ADD, perm.getKey(), null, UserId.from(user1), permissionService);
 
@@ -90,12 +89,12 @@ public class UserPermissionChangerTest {
   public void apply_removes_any_organization_permission_to_user() {
     // give ADMIN perm to user2 so that user1 is not the only one with this permission and it can be removed from user1
     db.users().insertPermissionOnUser(user2, OrganizationPermission.ADMINISTER);
-    permissionService.getAllOrganizationPermissions().stream()
+    permissionService.getGlobalPermissions().stream()
       .forEach(perm -> db.users().insertPermissionOnUser(user1, perm));
     assertThat(db.users().selectPermissionsOfUser(user1))
-      .containsOnly(permissionService.getAllOrganizationPermissions().toArray(new OrganizationPermission[0]));
+      .containsOnly(permissionService.getGlobalPermissions().toArray(new OrganizationPermission[0]));
 
-    permissionService.getAllOrganizationPermissions().stream()
+    permissionService.getGlobalPermissions().stream()
       .forEach(perm -> {
         UserPermissionChange change = new UserPermissionChange(REMOVE, perm.getKey(), null, UserId.from(user1), permissionService);
 

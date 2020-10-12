@@ -154,7 +154,7 @@ public class DeleteActionTest {
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
     PermissionTemplateDto template = db.getDbClient().permissionTemplateDao().insert(db.getSession(),
-      PermissionTemplateTesting.newPermissionTemplateDto().setOrganizationUuid(db.getDefaultOrganization().getUuid()));
+      PermissionTemplateTesting.newPermissionTemplateDto());
     db.getDbClient().permissionTemplateDao().insertGroupPermission(db.getSession(), template.getUuid(), group.getUuid(), "perm");
     db.commit();
     loginAsAdmin();

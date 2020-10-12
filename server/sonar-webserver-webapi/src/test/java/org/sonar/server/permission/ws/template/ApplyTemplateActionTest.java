@@ -35,7 +35,6 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.DefaultTemplatesResolverRule;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
@@ -71,9 +70,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   @Before
   public void setUp() {
     user1 = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user1);
     user2 = db.users().insertUser();
-    db.organizations().addMember(db.getDefaultOrganization(), user2);
     group1 = db.users().insertGroup();
     group2 = db.users().insertGroup();
 

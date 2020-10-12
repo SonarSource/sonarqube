@@ -316,7 +316,6 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   private PermissionTemplateDto insertProjectTemplate(String uuid) {
     return insertTemplate(newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid(uuid)
       .setName("Default template for Projects")
       .setDescription("Template for new projects")
@@ -327,7 +326,6 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   private PermissionTemplateDto insertPortfoliosTemplate() {
     return insertTemplate(newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid(UUID_EXAMPLE_02)
       .setName("Default template for Portfolios")
       .setDescription("Template for new portfolios")
@@ -338,7 +336,6 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   private PermissionTemplateDto insertApplicationsTemplate() {
     return insertTemplate(newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid(UUID_EXAMPLE_10)
       .setName("Default template for Applications")
       .setDescription("Template for new applications")

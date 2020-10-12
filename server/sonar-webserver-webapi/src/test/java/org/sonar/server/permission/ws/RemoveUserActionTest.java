@@ -25,9 +25,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -48,13 +46,10 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
-import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -111,7 +106,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void remove_permission_from_project() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertPrivateProject();
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     loginAsAdmin();
@@ -127,7 +122,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void remove_with_project_key() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertPrivateProject();
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
     loginAsAdmin();
@@ -143,7 +138,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void remove_with_view_uuid() {
-    ComponentDto view = db.components().insertComponent(newView(db.organizations().insert(), "view-uuid").setDbKey("view-key"));
+    ComponentDto view = db.components().insertView();
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, view);
     db.users().insertProjectPermissionOnUser(user, ADMIN, view);
     loginAsAdmin();
@@ -184,28 +179,32 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_component_is_a_module() {
-    ComponentDto module = db.components().insertComponent(newModuleDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert())));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
 
     failIfComponentIsNotAProjectOrView(module);
   }
 
   @Test
   public void fail_when_component_is_a_directory() {
-    ComponentDto file = db.components().insertComponent(newDirectory(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), "A/B"));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newDirectory(project, "A/B"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
   public void fail_when_component_is_a_file() {
-    ComponentDto file = db.components().insertComponent(newFileDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), null, "file-uuid"));
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project, null, "file-uuid"));
 
     failIfComponentIsNotAProjectOrView(file);
   }
 
   @Test
   public void fail_when_component_is_a_subview() {
-    ComponentDto file = db.components().insertComponent(newSubView(ComponentTesting.newView(db.organizations().insert())));
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    ComponentDto file = db.components().insertComponent(newSubView(portfolio));
 
     failIfComponentIsNotAProjectOrView(file);
   }
@@ -260,7 +259,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_project_uuid_and_project_key_are_provided() {
-    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), A_PROJECT_UUID).setDbKey(A_PROJECT_KEY));
+    ComponentDto project = db.components().insertPrivateProject();
     loginAsAdmin();
 
     expectedException.expect(BadRequestException.class);
@@ -275,7 +274,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   }
 
   @Test
-  public void removing_global_permission_fails_if_not_administrator_of_organization() {
+  public void removing_global_permission_fails_if_not_system_administrator() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -321,8 +320,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_removing_USER_permission_on_a_public_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(BadRequestException.class);
@@ -337,8 +335,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_removing_CODEVIEWER_permission_on_a_public_project() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(BadRequestException.class);
@@ -353,8 +350,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_using_branch_db_key() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -362,7 +358,6 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     expectedException.expectMessage(format("Project key '%s' not found", branch.getDbKey()));
 
     newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -371,8 +366,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
 
   @Test
   public void fail_when_using_branch_uuid() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto project = db.components().insertPublicProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
 
@@ -380,7 +374,6 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     expectedException.expectMessage(format("Project id '%s' not found", branch.uuid()));
 
     newRequest()
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_PROJECT_ID, branch.uuid())
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)

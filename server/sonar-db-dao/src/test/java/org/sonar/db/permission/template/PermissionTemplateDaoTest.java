@@ -74,7 +74,6 @@ public class PermissionTemplateDaoTest {
   @Test
   public void create_permission_template() {
     PermissionTemplateDto permissionTemplate = underTest.insert(db.getSession(), newPermissionTemplateDto()
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
       .setUuid("ABCD")
       .setName("my template")
       .setDescription("my description")

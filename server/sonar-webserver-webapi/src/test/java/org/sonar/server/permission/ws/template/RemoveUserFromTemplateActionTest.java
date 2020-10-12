@@ -45,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
@@ -67,7 +68,6 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   @Before
   public void setUp() {
     user = db.users().insertUser("user-login");
-    db.organizations().addMember(db.getDefaultOrganization(), user);
     template = db.permissionTemplates().insertTemplate();
     addUserToTemplate(user, template, DEFAULT_PERMISSION);
   }
@@ -115,7 +115,6 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
   @Test
   public void keep_other_users_when_one_user_removed() {
     UserDto newUser = db.users().insertUser("new-login");
-    db.organizations().addMember(db.getDefaultOrganization(), newUser);
     addUserToTemplate(newUser, template, DEFAULT_PERMISSION);
 
     loginAsAdmin();
@@ -204,7 +203,7 @@ public class RemoveUserFromTemplateActionTest extends BasePermissionWsTest<Remov
       request.setParam(PARAM_USER_LOGIN, userLogin);
     }
     if (templateKey != null) {
-      request.setParam(org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID, templateKey);
+      request.setParam(PARAM_TEMPLATE_ID, templateKey);
     }
     if (permission != null) {
       request.setParam(PARAM_PERMISSION, permission);

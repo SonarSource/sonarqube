@@ -129,7 +129,7 @@ public class AddProjectCreatorToTemplateActionTest extends BasePermissionWsTest<
   }
 
   @Test
-  public void fail_if_not_admin_of_default_organization() {
+  public void fail_if_not_admin() {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
 
     expectedException.expect(ForbiddenException.class);

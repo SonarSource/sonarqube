@@ -38,7 +38,6 @@ import static java.util.Arrays.asList;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdmin;
 import static org.sonar.server.permission.ws.WsParameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
-import static org.sonar.server.permission.ws.WsParameters.createOrganizationParameter;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
@@ -81,7 +80,6 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setHandler(this);
 
     wsParameters.createPermissionParameter(action, "The permission you would like to revoke from the group.");
-    createOrganizationParameter(action).setSince("6.2");
     createGroupNameParameter(action);
     createGroupIdParameter(action);
     createProjectParameters(action);
