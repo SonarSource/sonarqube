@@ -19,6 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import * as React from 'react';
+import { deleteApplication } from '../../../api/application';
 import { deletePortfolio, deleteProject } from '../../../api/components';
 import { mockRouter } from '../../../helpers/testMocks';
 import { Form } from '../Form';
@@ -26,6 +27,10 @@ import { Form } from '../Form';
 jest.mock('../../../api/components', () => ({
   deleteProject: jest.fn().mockResolvedValue(undefined),
   deletePortfolio: jest.fn().mockResolvedValue(undefined)
+}));
+
+jest.mock('../../../api/application', () => ({
+  deleteApplication: jest.fn().mockResolvedValue(undefined)
 }));
 
 beforeEach(() => {
@@ -56,6 +61,19 @@ it('should delete portfolio', async () => {
   form.prop<Function>('onConfirm')();
   expect(deletePortfolio).toBeCalledWith('foo');
   expect(deleteProject).not.toBeCalled();
+  expect(deleteApplication).not.toBeCalled();
   await new Promise(setImmediate);
   expect(router.replace).toBeCalledWith('/portfolios');
+});
+
+it('should delete application', async () => {
+  const component = { key: 'foo', name: 'Foo', qualifier: 'APP' };
+  const router = mockRouter();
+  const form = shallow(<Form component={component} router={router} />);
+  form.prop<Function>('onConfirm')();
+  expect(deleteApplication).toBeCalledWith('foo');
+  expect(deleteProject).not.toBeCalled();
+  expect(deletePortfolio).not.toBeCalled();
+  await new Promise(setImmediate);
+  expect(router.replace).toBeCalledWith('/');
 });

@@ -31,6 +31,7 @@ import { ThemeProvider } from 'sonar-ui-common/components/theme';
 import getHistory from 'sonar-ui-common/helpers/getHistory';
 import aboutRoutes from '../../apps/about/routes';
 import accountRoutes from '../../apps/account/routes';
+import applicationConsoleRoutes from '../../apps/application-console/routes';
 import backgroundTasksRoutes from '../../apps/background-tasks/routes';
 import codeRoutes from '../../apps/code/routes';
 import codingRulesRoutes from '../../apps/coding-rules/routes';
@@ -200,6 +201,7 @@ function renderComponentRoutes() {
         <RouteWithChildRoutes path="project/branches" childRoutes={projectBranchesRoutes} />
         <RouteWithChildRoutes path="project/settings" childRoutes={settingsRoutes} />
         <RouteWithChildRoutes path="project_roles" childRoutes={projectPermissionsRoutes} />
+        <RouteWithChildRoutes path="application/console" childRoutes={applicationConsoleRoutes} />
         <RouteWithChildRoutes path="project/webhooks" childRoutes={webhooksRoutes} />
         <Route
           path="project/deletion"

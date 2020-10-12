@@ -26,7 +26,7 @@ import { translate } from 'sonar-ui-common/helpers/l10n';
 import DocumentationTooltip from '../../../../../components/common/DocumentationTooltip';
 import BranchLikeIcon from '../../../../../components/icons/BranchLikeIcon';
 import { getBranchLikeDisplayName } from '../../../../../helpers/branch-like';
-import { getPortfolioAdminUrl } from '../../../../../helpers/urls';
+import { getApplicationAdminUrl } from '../../../../../helpers/urls';
 import { BranchLike } from '../../../../../types/branch-like';
 import { ComponentQualifier } from '../../../../../types/component';
 import { colors } from '../../../../theme';
@@ -66,7 +66,7 @@ export function CurrentBranchLike(props: CurrentBranchLikeProps) {
               <>
                 <p>{translate('application.branches.help')}</p>
                 <hr className="spacer-top spacer-bottom" />
-                <Link to={getPortfolioAdminUrl(component.key, component.qualifier)}>
+                <Link to={getApplicationAdminUrl(component.key)}>
                   {translate('application.branches.link')}
                 </Link>
               </>

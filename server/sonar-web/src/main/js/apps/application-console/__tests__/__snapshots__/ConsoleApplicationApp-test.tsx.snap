@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should render correctly 1`] = `
+<div
+  className="page page-limited"
+>
+  <div
+    className="navigator-content"
+  >
+    <ApplicationView
+      applicationKey="my-project"
+      canRecompute={true}
+      onDelete={[Function]}
+      onEdit={[Function]}
+      pathname="/path"
+      router={
+        Object {
+          "createHref": [MockFunction],
+          "createPath": [MockFunction],
+          "go": [MockFunction],
+          "goBack": [MockFunction],
+          "goForward": [MockFunction],
+          "isActive": [MockFunction],
+          "push": [MockFunction],
+          "replace": [MockFunction],
+          "setRouteLeaveHook": [MockFunction],
+        }
+      }
+    />
+  </div>
+</div>
+`;

@@ -1095,6 +1095,23 @@ exports[`should work for all qualifiers 4`] = `
               style={Object {}}
               to={
                 Object {
+                  "pathname": "/application/console",
+                  "query": Object {
+                    "id": "foo",
+                  },
+                }
+              }
+            >
+              application_console.page
+            </Link>
+          </li>
+          <li>
+            <Link
+              activeClassName="active"
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to={
+                Object {
                   "pathname": "/project/deletion",
                   "query": Object {
                     "id": "foo",
@@ -1474,23 +1491,6 @@ exports[`should work with extensions 2`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/project/webhooks",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          webhooks.page
-        </Link>
-      </li>
-      <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
               "pathname": "/project/admin/extension/foo",
               "query": Object {
                 "id": "foo",
@@ -1500,6 +1500,23 @@ exports[`should work with extensions 2`] = `
           }
         >
           Foo
+        </Link>
+      </li>
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/webhooks",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          webhooks.page
         </Link>
       </li>
       <li>
@@ -1643,23 +1660,6 @@ exports[`should work with multiple extensions 2`] = `
           style={Object {}}
           to={
             Object {
-              "pathname": "/project/webhooks",
-              "query": Object {
-                "id": "foo",
-              },
-            }
-          }
-        >
-          webhooks.page
-        </Link>
-      </li>
-      <li>
-        <Link
-          activeClassName="active"
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
-            Object {
               "pathname": "/project/admin/extension/foo",
               "query": Object {
                 "id": "foo",
@@ -1687,6 +1687,23 @@ exports[`should work with multiple extensions 2`] = `
           }
         >
           Bar
+        </Link>
+      </li>
+      <li>
+        <Link
+          activeClassName="active"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/webhooks",
+              "query": Object {
+                "id": "foo",
+              },
+            }
+          }
+        >
+          webhooks.page
         </Link>
       </li>
       <li>

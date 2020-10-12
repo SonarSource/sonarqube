@@ -81,10 +81,9 @@ exports[`CurrentBranchLikeRenderer should render correctly for application when 
           style={Object {}}
           to={
             Object {
-              "pathname": "/project/admin/extension/governance/console",
+              "pathname": "/application/console",
               "query": Object {
                 "id": "my-project",
-                "qualifier": "APP",
               },
             }
           }

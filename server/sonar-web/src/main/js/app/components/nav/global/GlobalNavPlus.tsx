@@ -26,10 +26,11 @@ import { getComponentNavigation } from '../../../../api/nav';
 import CreateFormShim from '../../../../apps/portfolio/components/CreateFormShim';
 import { Router, withRouter } from '../../../../components/hoc/withRouter';
 import { getExtensionStart } from '../../../../helpers/extensions';
-import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../helpers/urls';
+import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../../helpers/urls';
 import { hasGlobalPermission } from '../../../../helpers/users';
 import { AlmKeys, AlmSettingsInstance } from '../../../../types/alm-settings';
 import { ComponentQualifier } from '../../../../types/component';
+import CreateApplicationForm from '../../extensions/CreateApplicationForm';
 import GlobalNavPlusMenu from './GlobalNavPlusMenu';
 
 interface Props {
@@ -65,7 +66,7 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
 
     this.fetchAlmBindings();
 
-    if (this.props.appState.qualifiers.includes('VW')) {
+    if (this.props.appState.qualifiers.includes(ComponentQualifier.Portfolio)) {
       getExtensionStart('governance/console').then(
         () => {
           if (this.mounted) {
@@ -121,17 +122,11 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
   };
 
   handleComponentCreate = ({ key, qualifier }: { key: string; qualifier: ComponentQualifier }) => {
-    return getComponentNavigation({ component: key }).then(data => {
-      if (
-        data.configuration &&
-        data.configuration.extensions &&
-        data.configuration.extensions.find(
-          (item: { key: string; name: string }) => item.key === 'governance/console'
-        )
-      ) {
-        this.props.router.push(getPortfolioAdminUrl(key, qualifier));
+    return getComponentNavigation({ component: key }).then(({ configuration }) => {
+      if (configuration && configuration.showSettings) {
+        this.props.router.push(getComponentAdminUrl(key, qualifier));
       } else {
-        this.props.router.push(getPortfolioUrl(key));
+        this.props.router.push(getComponentOverviewUrl(key, qualifier));
       }
       this.closeComponentCreationForm();
     });
@@ -140,11 +135,12 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
   render() {
     const { appState, currentUser } = this.props;
     const { boundAlms, governanceReady, creatingComponent } = this.state;
-    const governanceInstalled = appState.qualifiers.includes(ComponentQualifier.Portfolio);
     const canCreateApplication =
-      governanceInstalled && hasGlobalPermission(currentUser, 'applicationcreator');
+      appState.qualifiers.includes(ComponentQualifier.Application) &&
+      hasGlobalPermission(currentUser, 'applicationcreator');
     const canCreatePortfolio =
-      governanceInstalled && hasGlobalPermission(currentUser, 'portfoliocreator');
+      appState.qualifiers.includes(ComponentQualifier.Portfolio) &&
+      hasGlobalPermission(currentUser, 'portfoliocreator');
     const canCreateProject = hasGlobalPermission(currentUser, 'provisioning');
 
     if (!canCreateProject && !canCreateApplication && !canCreatePortfolio) {
@@ -172,7 +168,15 @@ export class GlobalNavPlus extends React.PureComponent<Props, State> {
             <PlusIcon />
           </a>
         </Dropdown>
-        {governanceReady && creatingComponent && (
+
+        {canCreateApplication && creatingComponent === ComponentQualifier.Application && (
+          <CreateApplicationForm
+            onClose={this.closeComponentCreationForm}
+            onCreate={this.handleComponentCreate}
+          />
+        )}
+
+        {governanceReady && creatingComponent === ComponentQualifier.Portfolio && (
           <CreateFormShim
             defaultQualifier={creatingComponent}
             onClose={this.closeComponentCreationForm}

@@ -33,13 +33,6 @@ export const PERMISSIONS_ORDER_GLOBAL = [
   'admin',
   { category: 'administer', permissions: ['gateadmin', 'profileadmin'] },
   'scan',
-  { category: 'creator', permissions: ['provisioning'] }
-];
-
-export const PERMISSIONS_ORDER_GLOBAL_GOV = [
-  'admin',
-  { category: 'administer', permissions: ['gateadmin', 'profileadmin'] },
-  'scan',
   { category: 'creator', permissions: ['provisioning', 'applicationcreator', 'portfoliocreator'] }
 ];
 
@@ -71,6 +64,28 @@ function convertToPermissionDefinition(permission: string, l10nPrefix: string) {
     name,
     description
   };
+}
+
+export function filterPermissions(
+  permissions: Array<string | { category: string; permissions: string[] }>,
+  hasApplicationsEnabled: boolean,
+  hasPortfoliosEnabled: boolean
+) {
+  return permissions.map(permission => {
+    if (typeof permission === 'object' && permission.category === 'creator') {
+      return {
+        ...permission,
+        permissions: permission.permissions.filter(p => {
+          return (
+            p === 'provisioning' ||
+            (p === 'portfoliocreator' && hasPortfoliosEnabled) ||
+            (p === 'applicationcreator' && hasApplicationsEnabled)
+          );
+        })
+      };
+    }
+    return permission;
+  });
 }
 
 export function convertToPermissionDefinitions(

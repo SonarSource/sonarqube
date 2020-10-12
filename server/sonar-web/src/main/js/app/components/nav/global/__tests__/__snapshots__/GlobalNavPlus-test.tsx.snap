@@ -62,7 +62,7 @@ exports[`should render correctly: no governance 1`] = `
     onOpen={[Function]}
     overlay={
       <GlobalNavPlusMenu
-        canCreateApplication={false}
+        canCreateApplication={true}
         canCreatePortfolio={false}
         canCreateProject={true}
         compatibleAlms={Array []}

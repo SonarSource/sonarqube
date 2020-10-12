@@ -21,10 +21,11 @@ import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import ConfirmButton from 'sonar-ui-common/components/controls/ConfirmButton';
 import { translate, translateWithParameters } from 'sonar-ui-common/helpers/l10n';
+import { deleteApplication } from '../../api/application';
 import { deletePortfolio, deleteProject } from '../../api/components';
 import addGlobalSuccessMessage from '../../app/utils/addGlobalSuccessMessage';
 import { Router, withRouter } from '../../components/hoc/withRouter';
-import { ComponentQualifier, isPortfolioLike } from '../../types/component';
+import { isApplication, isPortfolioLike } from '../../types/component';
 
 interface Props {
   component: Pick<T.Component, 'key' | 'name' | 'qualifier'>;
@@ -34,9 +35,14 @@ interface Props {
 export class Form extends React.PureComponent<Props> {
   handleDelete = async () => {
     const { component } = this.props;
-    const deleteMethod =
-      component.qualifier === ComponentQualifier.Project ? deleteProject : deletePortfolio;
-    const redirectTo = isPortfolioLike(component.qualifier) ? '/portfolios' : '/';
+    let deleteMethod = deleteProject;
+    let redirectTo = '/';
+    if (isPortfolioLike(component.qualifier)) {
+      deleteMethod = deletePortfolio;
+      redirectTo = '/portfolios';
+    } else if (isApplication(component.qualifier)) {
+      deleteMethod = deleteApplication;
+    }
 
     await deleteMethod(component.key);
 

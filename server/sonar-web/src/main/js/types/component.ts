@@ -56,7 +56,9 @@ export interface TreeComponentWithPath extends TreeComponent {
   path: string;
 }
 
-export function isPortfolioLike(componentQualifier?: string | ComponentQualifier) {
+export function isPortfolioLike(
+  componentQualifier?: string | ComponentQualifier
+): componentQualifier is ComponentQualifier.Portfolio | ComponentQualifier.SubPortfolio {
   return Boolean(
     componentQualifier &&
       [
@@ -64,4 +66,10 @@ export function isPortfolioLike(componentQualifier?: string | ComponentQualifier
         ComponentQualifier.SubPortfolio.toString()
       ].includes(componentQualifier)
   );
+}
+
+export function isApplication(
+  componentQualifier?: string | ComponentQualifier
+): componentQualifier is ComponentQualifier.Application {
+  return componentQualifier === ComponentQualifier.Application;
 }

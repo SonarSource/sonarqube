@@ -24,7 +24,7 @@ import { getAlmSettings } from '../../../../../api/alm-settings';
 import { getComponentNavigation } from '../../../../../api/nav';
 import CreateFormShim from '../../../../../apps/portfolio/components/CreateFormShim';
 import { mockLoggedInUser, mockRouter } from '../../../../../helpers/testMocks';
-import { getPortfolioAdminUrl, getPortfolioUrl } from '../../../../../helpers/urls';
+import { getComponentAdminUrl, getComponentOverviewUrl } from '../../../../../helpers/urls';
 import { AlmKeys } from '../../../../../types/alm-settings';
 import { ComponentQualifier } from '../../../../../types/component';
 import { GlobalNavPlus } from '../GlobalNavPlus';
@@ -32,6 +32,10 @@ import { GlobalNavPlus } from '../GlobalNavPlus';
 const PROJECT_CREATION_RIGHT = 'provisioning';
 const APP_CREATION_RIGHT = 'applicationcreator';
 const PORTFOLIO_CREATION_RIGHT = 'portfoliocreator';
+
+jest.mock('../../../../../helpers/extensions', () => ({
+  getExtensionStart: jest.fn().mockResolvedValue(null)
+}));
 
 jest.mock('../../../../../api/alm-settings', () => ({
   getAlmSettings: jest.fn().mockResolvedValue([])
@@ -42,8 +46,8 @@ jest.mock('../../../../../api/nav', () => ({
 }));
 
 jest.mock('../../../../../helpers/urls', () => ({
-  getPortfolioUrl: jest.fn(),
-  getPortfolioAdminUrl: jest.fn()
+  getComponentOverviewUrl: jest.fn(),
+  getComponentAdminUrl: jest.fn()
 }));
 
 beforeEach(() => {
@@ -64,7 +68,7 @@ it('should render correctly if branches not enabled', async () => {
   expect(getAlmSettings).not.toBeCalled();
 });
 
-it('should render correctly', () => {
+it('should render correctly', async () => {
   expect(
     shallowRender([APP_CREATION_RIGHT, PORTFOLIO_CREATION_RIGHT, PROJECT_CREATION_RIGHT], {})
   ).toMatchSnapshot('no governance');
@@ -73,6 +77,7 @@ it('should render correctly', () => {
     [APP_CREATION_RIGHT, PORTFOLIO_CREATION_RIGHT, PROJECT_CREATION_RIGHT],
     { enableGovernance: true }
   );
+  await waitAndUpdate(wrapper);
   wrapper.setState({ boundAlms: ['bitbucket'] });
   expect(wrapper).toMatchSnapshot('full rights and alms');
 });
@@ -116,7 +121,7 @@ it('should display component creation form', () => {
 describe('handleComponentCreate', () => {
   (getComponentNavigation as jest.Mock)
     .mockResolvedValueOnce({
-      configuration: { extensions: [{ key: 'governance/console', name: 'governance' }] }
+      configuration: { showSettings: true }
     })
     .mockResolvedValueOnce({});
 
@@ -127,7 +132,7 @@ describe('handleComponentCreate', () => {
   it('should redirect to admin', async () => {
     wrapper.instance().handleComponentCreate(portfolio);
     await waitAndUpdate(wrapper);
-    expect(getPortfolioAdminUrl).toBeCalledWith(portfolio.key, portfolio.qualifier);
+    expect(getComponentAdminUrl).toBeCalledWith(portfolio.key, portfolio.qualifier);
     expect(wrapper.state().creatingComponent).toBeUndefined();
   });
 
@@ -135,7 +140,7 @@ describe('handleComponentCreate', () => {
     wrapper.instance().handleComponentCreate(portfolio);
     await waitAndUpdate(wrapper);
 
-    expect(getPortfolioUrl).toBeCalledWith(portfolio.key);
+    expect(getComponentOverviewUrl).toBeCalledWith(portfolio.key, portfolio.qualifier);
   });
 });
 
@@ -143,11 +148,19 @@ function shallowRender(
   permissions: string[] = [],
   { enableGovernance = false, branchesEnabled = true }
 ) {
+  let qualifiers: ComponentQualifier[];
+  if (enableGovernance) {
+    qualifiers = [ComponentQualifier.Portfolio, ComponentQualifier.Application];
+  } else if (branchesEnabled) {
+    qualifiers = [ComponentQualifier.Application];
+  } else {
+    qualifiers = [];
+  }
   return shallow<GlobalNavPlus>(
     <GlobalNavPlus
       appState={{
         branchesEnabled,
-        qualifiers: enableGovernance ? [ComponentQualifier.Portfolio] : []
+        qualifiers
       }}
       currentUser={mockLoggedInUser({ permissions: { global: permissions } })}
       router={mockRouter()}

@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly in application mode 1`] = `
+<SelectList
+  disabledElements={Array []}
+  elements={
+    Array [
+      "test1",
+      "test2",
+      "test3",
+    ]
+  }
+  elementsTotalCount={55}
+  needToReload={false}
+  onSearch={[Function]}
+  onSelect={[Function]}
+  onUnselect={[Function]}
+  renderElement={[Function]}
+  selectedElements={
+    Array [
+      "test3",
+    ]
+  }
+  withPaging={true}
+/>
+`;
+
+exports[`should render correctly in application mode 2`] = `
+<div
+  className="views-project-item display-flex-center"
+>
+  <QualifierIcon
+    className="spacer-right"
+    qualifier="TRK"
+  />
+  <div>
+    <div
+      title="test1"
+    >
+      test1
+    </div>
+    <div
+      className="note"
+    >
+      test1
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render correctly in application mode 3`] = `
+<div
+  className="views-project-item display-flex-center"
+>
+  <QualifierIcon
+    className="spacer-right"
+    qualifier="TRK"
+  />
+  <div>
+    <div
+      title="test2"
+    >
+      test2
+    </div>
+    <div
+      className="note"
+    >
+      test2
+    </div>
+  </div>
+</div>
+`;

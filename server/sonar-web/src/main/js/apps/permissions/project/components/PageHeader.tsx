@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Button } from 'sonar-ui-common/components/controls/buttons';
 import { translate } from 'sonar-ui-common/helpers/l10n';
+import { isApplication, isPortfolioLike } from '../../../../types/component';
 import ApplyTemplate from './ApplyTemplate';
 
 interface Props {
@@ -60,9 +61,12 @@ export default class PageHeader extends React.PureComponent<Props, State> {
     const canApplyPermissionTemplate =
       configuration != null && configuration.canApplyPermissionTemplate;
 
-    const description = ['VW', 'SVW', 'APP'].includes(component.qualifier)
-      ? translate('roles.page.description_portfolio')
-      : translate('roles.page.description2');
+    let description = translate('roles.page.description2');
+    if (isPortfolioLike(component.qualifier)) {
+      description = translate('roles.page.description_portfolio');
+    } else if (isApplication(component.qualifier)) {
+      description = translate('roles.page.description_application');
+    }
 
     const visibilityDescription =
       component.qualifier === 'TRK' && component.visibility

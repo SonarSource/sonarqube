@@ -17,40 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Application, ApplicationPeriod, ApplicationProject } from '../../types/application';
-import { Visibility } from '../../types/component';
-import { mockBranch } from './branch-like';
+import { mockUser } from '../testMocks';
 
-export function mockApplication(overrides: Partial<Application> = {}): Application {
+export function mockPermissionGroup(overrides: Partial<T.PermissionGroup> = {}): T.PermissionGroup {
   return {
-    branches: [mockBranch()],
-    key: 'foo',
-    name: 'Foo',
-    projects: [mockApplicationProject()],
-    visibility: Visibility.Private,
+    name: 'sonar-admins',
+    permissions: ['provisioning'],
     ...overrides
   };
 }
 
-export function mockApplicationPeriod(
-  overrides: Partial<ApplicationPeriod> = {}
-): ApplicationPeriod {
+export function mockPermissionUser(overrides: Partial<T.PermissionUser> = {}): T.PermissionUser {
   return {
-    date: '2017-10-01',
-    project: 'foo',
-    projectName: 'Foo',
-    ...overrides
-  };
-}
-
-export function mockApplicationProject(
-  overrides: Partial<ApplicationProject> = {}
-): ApplicationProject {
-  return {
-    branch: 'master',
-    isMain: true,
-    key: 'bar',
-    name: 'Bar',
+    ...mockUser(),
+    active: true,
+    name: 'johndoe',
+    permissions: ['provisioning'],
     ...overrides
   };
 }

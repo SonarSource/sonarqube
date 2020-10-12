@@ -21,7 +21,7 @@ import { pick } from 'lodash';
 import { getBaseUrl, Location } from 'sonar-ui-common/helpers/urls';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { BranchLike, BranchParameters } from '../types/branch-like';
-import { ComponentQualifier, isPortfolioLike } from '../types/component';
+import { ComponentQualifier, isApplication, isPortfolioLike } from '../types/component';
 import { GraphType } from '../types/project-activity';
 import { SecurityStandard } from '../types/security';
 import { getBranchLikeQuery, isBranch, isMainBranch, isPullRequest } from './branch-like';
@@ -38,6 +38,19 @@ export function getComponentOverviewUrl(
     : getProjectQueryUrl(componentKey, branchParameters);
 }
 
+export function getComponentAdminUrl(
+  componentKey: string,
+  componentQualifier: ComponentQualifier | string
+) {
+  if (isPortfolioLike(componentQualifier)) {
+    return getPortfolioAdminUrl(componentKey);
+  } else if (isApplication(componentQualifier)) {
+    return getApplicationAdminUrl(componentKey);
+  } else {
+    return getProjectUrl(componentKey);
+  }
+}
+
 export function getProjectUrl(project: string, branch?: string): Location {
   return { pathname: '/dashboard', query: { id: project, branch } };
 }
@@ -50,8 +63,15 @@ export function getPortfolioUrl(key: string): Location {
   return { pathname: '/portfolio', query: { id: key } };
 }
 
-export function getPortfolioAdminUrl(key: string, qualifier: string) {
-  return { pathname: '/project/admin/extension/governance/console', query: { id: key, qualifier } };
+export function getPortfolioAdminUrl(key: string) {
+  return {
+    pathname: '/project/admin/extension/governance/console',
+    query: { id: key, qualifier: ComponentQualifier.Portfolio }
+  };
+}
+
+export function getApplicationAdminUrl(key: string) {
+  return { pathname: '/application/console', query: { id: key } };
 }
 
 export function getComponentBackgroundTaskUrl(componentKey: string, status?: string): Location {

@@ -1,0 +1,436 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly: applications available 1`] = `
+<Fragment>
+  <HoldersList
+    filter=""
+    groups={
+      Array [
+        Object {
+          "name": "sonar-admins",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+    onToggleGroup={[Function]}
+    onToggleUser={[Function]}
+    permissions={
+      Array [
+        Object {
+          "description": "global_permissions.admin.desc",
+          "key": "admin",
+          "name": "global_permissions.admin",
+        },
+        Object {
+          "category": "administer",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.gateadmin.desc",
+              "key": "gateadmin",
+              "name": "global_permissions.gateadmin",
+            },
+            Object {
+              "description": "global_permissions.profileadmin.desc",
+              "key": "profileadmin",
+              "name": "global_permissions.profileadmin",
+            },
+          ],
+        },
+        Object {
+          "description": "global_permissions.scan.desc",
+          "key": "scan",
+          "name": "global_permissions.scan",
+        },
+        Object {
+          "category": "creator",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.provisioning.desc",
+              "key": "provisioning",
+              "name": "global_permissions.provisioning",
+            },
+            Object {
+              "description": "global_permissions.applicationcreator.desc",
+              "key": "applicationcreator",
+              "name": "global_permissions.applicationcreator",
+            },
+          ],
+        },
+      ]
+    }
+    query=""
+    users={
+      Array [
+        Object {
+          "active": true,
+          "local": true,
+          "login": "john.doe",
+          "name": "johndoe",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+  >
+    <SearchForm
+      filter=""
+      onFilter={[MockFunction]}
+      onSearch={[MockFunction]}
+      query=""
+    />
+  </HoldersList>
+  <ListFooter
+    count={2}
+    loadMore={[MockFunction]}
+    total={2}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: default 1`] = `
+<Fragment>
+  <HoldersList
+    filter=""
+    groups={
+      Array [
+        Object {
+          "name": "sonar-admins",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+    onToggleGroup={[Function]}
+    onToggleUser={[Function]}
+    permissions={
+      Array [
+        Object {
+          "description": "global_permissions.admin.desc",
+          "key": "admin",
+          "name": "global_permissions.admin",
+        },
+        Object {
+          "category": "administer",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.gateadmin.desc",
+              "key": "gateadmin",
+              "name": "global_permissions.gateadmin",
+            },
+            Object {
+              "description": "global_permissions.profileadmin.desc",
+              "key": "profileadmin",
+              "name": "global_permissions.profileadmin",
+            },
+          ],
+        },
+        Object {
+          "description": "global_permissions.scan.desc",
+          "key": "scan",
+          "name": "global_permissions.scan",
+        },
+        Object {
+          "category": "creator",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.provisioning.desc",
+              "key": "provisioning",
+              "name": "global_permissions.provisioning",
+            },
+          ],
+        },
+      ]
+    }
+    query=""
+    users={
+      Array [
+        Object {
+          "active": true,
+          "local": true,
+          "login": "john.doe",
+          "name": "johndoe",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+  >
+    <SearchForm
+      filter=""
+      onFilter={[MockFunction]}
+      onSearch={[MockFunction]}
+      query=""
+    />
+  </HoldersList>
+  <ListFooter
+    count={2}
+    loadMore={[MockFunction]}
+    total={2}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: filter groups 1`] = `
+<Fragment>
+  <HoldersList
+    filter="groups"
+    groups={
+      Array [
+        Object {
+          "name": "sonar-admins",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+    onToggleGroup={[Function]}
+    onToggleUser={[Function]}
+    permissions={
+      Array [
+        Object {
+          "description": "global_permissions.admin.desc",
+          "key": "admin",
+          "name": "global_permissions.admin",
+        },
+        Object {
+          "category": "administer",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.gateadmin.desc",
+              "key": "gateadmin",
+              "name": "global_permissions.gateadmin",
+            },
+            Object {
+              "description": "global_permissions.profileadmin.desc",
+              "key": "profileadmin",
+              "name": "global_permissions.profileadmin",
+            },
+          ],
+        },
+        Object {
+          "description": "global_permissions.scan.desc",
+          "key": "scan",
+          "name": "global_permissions.scan",
+        },
+        Object {
+          "category": "creator",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.provisioning.desc",
+              "key": "provisioning",
+              "name": "global_permissions.provisioning",
+            },
+          ],
+        },
+      ]
+    }
+    query=""
+    users={
+      Array [
+        Object {
+          "active": true,
+          "local": true,
+          "login": "john.doe",
+          "name": "johndoe",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+  >
+    <SearchForm
+      filter="groups"
+      onFilter={[MockFunction]}
+      onSearch={[MockFunction]}
+      query=""
+    />
+  </HoldersList>
+  <ListFooter
+    count={1}
+    loadMore={[MockFunction]}
+    total={1}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: filter users 1`] = `
+<Fragment>
+  <HoldersList
+    filter="users"
+    groups={
+      Array [
+        Object {
+          "name": "sonar-admins",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+    onToggleGroup={[Function]}
+    onToggleUser={[Function]}
+    permissions={
+      Array [
+        Object {
+          "description": "global_permissions.admin.desc",
+          "key": "admin",
+          "name": "global_permissions.admin",
+        },
+        Object {
+          "category": "administer",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.gateadmin.desc",
+              "key": "gateadmin",
+              "name": "global_permissions.gateadmin",
+            },
+            Object {
+              "description": "global_permissions.profileadmin.desc",
+              "key": "profileadmin",
+              "name": "global_permissions.profileadmin",
+            },
+          ],
+        },
+        Object {
+          "description": "global_permissions.scan.desc",
+          "key": "scan",
+          "name": "global_permissions.scan",
+        },
+        Object {
+          "category": "creator",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.provisioning.desc",
+              "key": "provisioning",
+              "name": "global_permissions.provisioning",
+            },
+          ],
+        },
+      ]
+    }
+    query=""
+    users={
+      Array [
+        Object {
+          "active": true,
+          "local": true,
+          "login": "john.doe",
+          "name": "johndoe",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+  >
+    <SearchForm
+      filter="users"
+      onFilter={[MockFunction]}
+      onSearch={[MockFunction]}
+      query=""
+    />
+  </HoldersList>
+  <ListFooter
+    count={1}
+    loadMore={[MockFunction]}
+    total={1}
+  />
+</Fragment>
+`;
+
+exports[`should render correctly: portfolios available 1`] = `
+<Fragment>
+  <HoldersList
+    filter=""
+    groups={
+      Array [
+        Object {
+          "name": "sonar-admins",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+    onToggleGroup={[Function]}
+    onToggleUser={[Function]}
+    permissions={
+      Array [
+        Object {
+          "description": "global_permissions.admin.desc",
+          "key": "admin",
+          "name": "global_permissions.admin",
+        },
+        Object {
+          "category": "administer",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.gateadmin.desc",
+              "key": "gateadmin",
+              "name": "global_permissions.gateadmin",
+            },
+            Object {
+              "description": "global_permissions.profileadmin.desc",
+              "key": "profileadmin",
+              "name": "global_permissions.profileadmin",
+            },
+          ],
+        },
+        Object {
+          "description": "global_permissions.scan.desc",
+          "key": "scan",
+          "name": "global_permissions.scan",
+        },
+        Object {
+          "category": "creator",
+          "permissions": Array [
+            Object {
+              "description": "global_permissions.provisioning.desc",
+              "key": "provisioning",
+              "name": "global_permissions.provisioning",
+            },
+            Object {
+              "description": "global_permissions.portfoliocreator.desc",
+              "key": "portfoliocreator",
+              "name": "global_permissions.portfoliocreator",
+            },
+          ],
+        },
+      ]
+    }
+    query=""
+    users={
+      Array [
+        Object {
+          "active": true,
+          "local": true,
+          "login": "john.doe",
+          "name": "johndoe",
+          "permissions": Array [
+            "provisioning",
+          ],
+        },
+      ]
+    }
+  >
+    <SearchForm
+      filter=""
+      onFilter={[MockFunction]}
+      onSearch={[MockFunction]}
+      query=""
+    />
+  </HoldersList>
+  <ListFooter
+    count={2}
+    loadMore={[MockFunction]}
+    total={2}
+  />
+</Fragment>
+`;

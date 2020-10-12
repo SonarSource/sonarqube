@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should render correctly 1`] = `
+<tr
+  key="bar"
+>
+  <td
+    className="text-center"
+  >
+    <Checkbox
+      checked={true}
+      id="bar"
+      onCheck={[MockFunction]}
+      thirdState={false}
+    />
+  </td>
+  <td
+    className="nowrap hide-overflow branch-name-row"
+  >
+    <Tooltip
+      overlay="Bar"
+    >
+      <span>
+        <QualifierIcon
+          qualifier="TRK"
+        />
+         
+        Bar
+      </span>
+    </Tooltip>
+  </td>
+  <td>
+    <Select
+      className="width100"
+      clearable={false}
+      disabled={false}
+      onChange={[Function]}
+      onClose={[MockFunction]}
+      onFocus={[Function]}
+      onOpen={[Function]}
+      optionComponent={[Function]}
+      options={
+        Array [
+          Object {
+            "isMain": true,
+            "label": "master",
+            "value": "master",
+          },
+        ]
+      }
+      searchable={false}
+    />
+    <DeferredSpinner
+      className="project-branch-row-spinner"
+      loading={false}
+    />
+  </td>
+</tr>
+`;
