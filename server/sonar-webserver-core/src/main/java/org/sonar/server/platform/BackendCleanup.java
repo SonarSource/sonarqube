@@ -229,9 +229,12 @@ public class BackendCleanup {
    * Internal property {@link InternalProperties#DEFAULT_ORGANIZATION} must never be deleted.
    */
   private static void truncateInternalProperties(String tableName, Statement ddlStatement, Connection connection) throws SQLException {
-    try (PreparedStatement preparedStatement = connection.prepareStatement("delete from internal_properties where kee not in (?,?)")) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement("delete from internal_properties where kee not in (?,?,?,?,?)")) {
       preparedStatement.setString(1, InternalProperties.DEFAULT_ORGANIZATION);
       preparedStatement.setString(2, InternalProperties.SERVER_ID_CHECKSUM);
+      preparedStatement.setString(3, InternalProperties.DEFAULT_PROJECT_TEMPLATE);
+      preparedStatement.setString(4, InternalProperties.DEFAULT_PORTFOLIO_TEMPLATE);
+      preparedStatement.setString(5, InternalProperties.DEFAULT_APPLICATION_TEMPLATE);
       preparedStatement.execute();
       // commit is useless on some databases
       connection.commit();

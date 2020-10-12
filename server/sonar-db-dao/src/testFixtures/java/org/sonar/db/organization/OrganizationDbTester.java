@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
 
 public class OrganizationDbTester {
@@ -67,18 +66,6 @@ public class OrganizationDbTester {
     db.getDbClient().organizationDao().insert(dbSession, dto, false);
     dbSession.commit();
     return dto;
-  }
-
-  public void setDefaultTemplates(PermissionTemplateDto projectDefaultTemplate, @Nullable PermissionTemplateDto applicationDefaultTemplate,
-    @Nullable PermissionTemplateDto portfolioDefaultTemplate) {
-
-    DbSession dbSession = db.getSession();
-    db.getDbClient().organizationDao().setDefaultTemplates(dbSession, db.getDefaultOrganization().getUuid(),
-      new DefaultTemplates()
-        .setProjectUuid(projectDefaultTemplate.getUuid())
-        .setPortfoliosUuid(portfolioDefaultTemplate == null ? null : portfolioDefaultTemplate.getUuid())
-        .setApplicationsUuid(applicationDefaultTemplate == null ? null : applicationDefaultTemplate.getUuid()));
-    dbSession.commit();
   }
 
   public void setDefaultTemplates(String projectDefaultTemplateUuid, @Nullable String applicationDefaultTemplateUuid, @Nullable String portfoliosDefaultTemplateUuid) {

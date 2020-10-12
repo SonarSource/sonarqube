@@ -19,59 +19,74 @@
  */
 package org.sonar.server.permission;
 
-import java.util.stream.Stream;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypeTree;
-import org.sonar.api.resources.ResourceTypes;
-import org.sonar.db.organization.DefaultTemplates;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ResourceTypesRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 
 public class DefaultTemplatesResolverImplTest {
 
-  private static final ResourceTypes RESOURCE_TYPES_WITHOUT_VIEWS = new ResourceTypes(new ResourceTypeTree[] {
-    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()
-  });
-  private static final ResourceTypes RESOURCE_TYPES_WITH_VIEWS = new ResourceTypes(new ResourceTypeTree[] {
-    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build(),
-    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.VIEW).build()).build()
-  });
-  private DefaultTemplatesResolverImpl underTestWithoutViews = new DefaultTemplatesResolverImpl(RESOURCE_TYPES_WITHOUT_VIEWS);
-  private DefaultTemplatesResolverImpl underTestWithViews = new DefaultTemplatesResolverImpl(RESOURCE_TYPES_WITH_VIEWS);
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+
+  private ResourceTypesRule resourceTypesWithPortfoliosInstalled = new ResourceTypesRule().setRootQualifiers(PROJECT, APP, VIEW);
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
+
+  private DefaultTemplatesResolverImpl underTestWithPortfoliosInstalled = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesWithPortfoliosInstalled);
+  private DefaultTemplatesResolverImpl underTest = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypes);
 
   @Test
-  public void project_is_project_of_DefaultTemplates_no_matter_if_views_is_installed() {
-    Stream.of(
-      new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid(null),
-      new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid("bar")).forEach(
-        defaultTemplates -> {
-          assertThat(underTestWithoutViews.resolve(defaultTemplates).getProject()).isEqualTo("foo");
-          assertThat(underTestWithViews.resolve(defaultTemplates).getProject()).isEqualTo("foo");
-        });
+  public void get_default_templates_when_portfolio_not_installed() {
+    db.permissionTemplates().setDefaultTemplates("prj", null, null);
+
+    assertThat(underTest.resolve(db.getSession()).getProject()).contains("prj");
+    assertThat(underTest.resolve(db.getSession()).getApplication()).isEmpty();
+    assertThat(underTest.resolve(db.getSession()).getPortfolio()).isEmpty();
   }
 
   @Test
-  public void view_is_empty_no_matter_view_in_DefaultTemplates_if_views_is_not_installed() {
-    DefaultTemplates defaultTemplatesNoView = new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid(null);
-    DefaultTemplates defaultTemplatesView = new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid("bar");
+  public void get_default_templates_always_return_project_template_even_when_all_templates_are_defined_but_portfolio_not_installed() {
+    db.permissionTemplates().setDefaultTemplates("prj", "app", "port");
 
-    assertThat(underTestWithoutViews.resolve(defaultTemplatesNoView).getApplication()).isEmpty();
-    assertThat(underTestWithoutViews.resolve(defaultTemplatesView).getApplication()).isEmpty();
+    assertThat(underTest.resolve(db.getSession()).getProject()).contains("prj");
+    assertThat(underTest.resolve(db.getSession()).getApplication()).isEmpty();
+    assertThat(underTest.resolve(db.getSession()).getPortfolio()).isEmpty();
   }
 
   @Test
-  public void view_is_project_of_DefaultTemplates_if_view_in_DefaultTemplates_is_null_and_views_is_installed() {
-    DefaultTemplates defaultTemplates = new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid(null);
+  public void get_default_templates_always_return_project_template_when_only_project_template_and_portfolio_is_installed_() {
+    db.permissionTemplates().setDefaultTemplates("prj", null, null);
 
-    assertThat(underTestWithViews.resolve(defaultTemplates).getApplication()).contains("foo");
+    assertThat(underTestWithPortfoliosInstalled.resolve(db.getSession()).getProject()).contains("prj");
+    assertThat(underTestWithPortfoliosInstalled.resolve(db.getSession()).getApplication()).contains("prj");
+    assertThat(underTestWithPortfoliosInstalled.resolve(db.getSession()).getPortfolio()).contains("prj");
   }
 
   @Test
-  public void view_is_view_of_DefaultTemplates_if_view_in_DefaultTemplates_is_not_null_and_views_is_installed() {
-    DefaultTemplates defaultTemplates = new DefaultTemplates().setProjectUuid("foo").setApplicationsUuid("bar");
+  public void get_default_templates_for_all_components_when_portfolio_is_installed() {
+    db.permissionTemplates().setDefaultTemplates("prj", "app", "port");
 
-    assertThat(underTestWithViews.resolve(defaultTemplates).getApplication()).contains("bar");
+    assertThat(underTestWithPortfoliosInstalled.resolve(db.getSession()).getProject()).contains("prj");
+    assertThat(underTestWithPortfoliosInstalled.resolve(db.getSession()).getApplication()).contains("app");
+    assertThat(underTestWithPortfoliosInstalled.resolve(db.getSession()).getPortfolio()).contains("port");
   }
+
+  @Test
+  public void fail_when_default_template_for_project_is_missing() {
+    DbSession session = db.getSession();
+    assertThatThrownBy(() -> {
+      underTestWithPortfoliosInstalled.resolve(session);
+    })
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Default template for project is missing");
+  }
+
 }

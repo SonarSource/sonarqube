@@ -54,6 +54,13 @@ public interface InternalProperties {
   String INSTALLATION_VERSION = "installation.version";
 
   /**
+   * Default permission templates
+   */
+  String DEFAULT_PROJECT_TEMPLATE = "defaultTemplate.prj";
+  String DEFAULT_PORTFOLIO_TEMPLATE = "defaultTemplate.port";
+  String DEFAULT_APPLICATION_TEMPLATE = "defaultTemplate.app";
+
+  /**
    * Read the value of the specified property.
    *
    * @return {@link Optional#empty()} if the property does not exist, an empty string if the property is empty,

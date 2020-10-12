@@ -30,7 +30,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
@@ -53,13 +52,11 @@ public class CreateTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final System2 system;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public CreateTemplateAction(DbClient dbClient, UserSession userSession, System2 system, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public CreateTemplateAction(DbClient dbClient, UserSession userSession, System2 system) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system = system;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   private static CreateTemplateRequest toCreateTemplateWsRequest(Request request) {

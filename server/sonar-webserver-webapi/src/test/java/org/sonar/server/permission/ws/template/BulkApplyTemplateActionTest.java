@@ -30,6 +30,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -39,11 +40,15 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.l18n.I18nRule;
-import org.sonar.server.permission.DefaultTemplatesResolverRule;
+import org.sonar.server.permission.DefaultTemplatesResolver;
+import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -58,9 +63,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBIL
 
 public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyTemplateAction> {
 
-  @org.junit.Rule
-  public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withoutGovernance();
-
   private UserDto user1;
   private UserDto user2;
   private GroupDto group1;
@@ -69,10 +71,13 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   private PermissionTemplateDto template2;
   private ProjectIndexers projectIndexers = new TestProjectIndexers();
 
+  private ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
+  private DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesRule);
+
   @Override
   protected BulkApplyTemplateAction buildWsAction() {
     PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-      projectIndexers, userSession, defaultTemplatesResolver, new SequenceUuidFactory(), defaultOrganizationProvider);
+      projectIndexers, userSession, defaultTemplatesResolver, new SequenceUuidFactory());
     return new BulkApplyTemplateAction(db.getDbClient(), userSession, permissionTemplateService, newPermissionWsSupport(), new I18nRule(), newRootResourceTypes());
   }
 

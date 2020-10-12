@@ -26,7 +26,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -35,12 +37,16 @@ import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.DefaultTemplatesResolverRule;
+import org.sonar.server.permission.DefaultTemplatesResolver;
+import org.sonar.server.permission.DefaultTemplatesResolverImpl;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -50,7 +56,8 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateAction> {
 
   @Rule
-  public DefaultTemplatesResolverRule defaultTemplatesResolver = DefaultTemplatesResolverRule.withoutGovernance();
+  public DbTester dbTester = DbTester.create();
+
   private UserDto user1;
   private UserDto user2;
   private GroupDto group1;
@@ -59,8 +66,10 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
   private PermissionTemplateDto template1;
   private PermissionTemplateDto template2;
 
+  private ResourceTypesRule resourceTypesRule = new ResourceTypesRule().setRootQualifiers(PROJECT, VIEW, APP);
+  private DefaultTemplatesResolver defaultTemplatesResolver = new DefaultTemplatesResolverImpl(dbTester.getDbClient(), resourceTypesRule);
   private PermissionTemplateService permissionTemplateService = new PermissionTemplateService(db.getDbClient(),
-    new TestProjectIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory(), defaultOrganizationProvider);
+    new TestProjectIndexers(), userSession, defaultTemplatesResolver, new SequenceUuidFactory());
 
   @Override
   protected ApplyTemplateAction buildWsAction() {

@@ -25,30 +25,24 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.server.property.InternalProperties.DEFAULT_PROJECT_TEMPLATE;
 
 public class RegisterPermissionTemplatesTest {
-  private static final String DEFAULT_TEMPLATE_UUID = "default_template";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -57,35 +51,13 @@ public class RegisterPermissionTemplatesTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private ResourceTypes resourceTypes = mock(ResourceTypes.class);
-  private RegisterPermissionTemplates underTest = new RegisterPermissionTemplates(db.getDbClient(), defaultOrganizationProvider);
+  private RegisterPermissionTemplates underTest = new RegisterPermissionTemplates(db.getDbClient(), UuidFactoryFast.getInstance(), System2.INSTANCE, new DefaultGroupFinder(db.getDbClient()));
 
   @Test
-  public void fail_with_ISE_if_default_template_must_be_created_and_no_default_group_is_defined() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Default group is not defined");
-
-    underTest.start();
-  }
-
-  @Test
-  public void fail_with_ISE_if_default_template_must_be_created_and_default_group_does_not_exist() {
-    setDefaultGroup(new GroupDto().setUuid("22"));
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Default group with id 22 doesn't exist");
-
-    underTest.start();
-  }
-
-  @Test
-  public void insert_default_permission_template_if_fresh_install_without_governance() {
-    GroupDto defaultGroup = createAndSetDefaultGroup();
+  public void insert_default_permission_template_if_fresh_install() {
+    GroupDto defaultGroup = db.users().insertDefaultGroup();
     db.users().insertGroup(DefaultGroups.ADMINISTRATORS);
 
-    when(resourceTypes.isQualifierPresent(eq(Qualifiers.APP))).thenReturn(false);
-    when(resourceTypes.isQualifierPresent(eq(Qualifiers.VIEW))).thenReturn(false);
     underTest.start();
 
     PermissionTemplateDto defaultTemplate = selectTemplate();
@@ -101,41 +73,14 @@ public class RegisterPermissionTemplatesTest {
     expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
 
-    verifyDefaultTemplates();
-
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-  }
-
-  @Test
-  public void insert_default_permission_template_if_fresh_install_with_governance() {
-    GroupDto defaultGroup = createAndSetDefaultGroup();
-    db.users().insertGroup(DefaultGroups.ADMINISTRATORS);
-
-    when(resourceTypes.isQualifierPresent(eq(Qualifiers.APP))).thenReturn(true);
-    when(resourceTypes.isQualifierPresent(eq(Qualifiers.VIEW))).thenReturn(true);
-    underTest.start();
-
-    PermissionTemplateDto defaultTemplate = selectTemplate();
-    assertThat(defaultTemplate.getName()).isEqualTo("Default template");
-
-    List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
-    assertThat(groupPermissions).hasSize(7);
-    expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, OrganizationPermission.APPLICATION_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, OrganizationPermission.PORTFOLIO_CREATOR.getKey(), DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
-    expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
-    expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, defaultGroup.getName());
-    expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
-
-    verifyDefaultTemplates();
+    verifyDefaultTemplateForProject(defaultTemplate.getUuid());
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
 
   @Test
   public void ignore_administrators_permissions_if_group_does_not_exist() {
-    GroupDto defaultGroup = createAndSetDefaultGroup();
+    GroupDto defaultGroup = db.users().insertDefaultGroup();
 
     underTest.start();
 
@@ -149,33 +94,25 @@ public class RegisterPermissionTemplatesTest {
     expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, defaultGroup.getName());
     expectGroupPermission(groupPermissions, UserRole.SECURITYHOTSPOT_ADMIN, defaultGroup.getName());
 
-    verifyDefaultTemplates();
+    verifyDefaultTemplateForProject(defaultTemplate.getUuid());
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Cannot setup default permission for group: sonar-administrators");
   }
 
   @Test
-  public void do_not_create_default_template_if_already_exists_but_register_when_it_is_not() {
-    db.permissionTemplates().insertTemplate(newPermissionTemplateDto().setUuid(DEFAULT_TEMPLATE_UUID));
+  public void do_not_fail_if_default_template_exists() {
+    db.users().insertDefaultGroup();
+    PermissionTemplateDto projectTemplate = db.permissionTemplates().insertTemplate(newPermissionTemplateDto());
+    db.getDbClient().internalPropertiesDao().save(db.getSession(), DEFAULT_PROJECT_TEMPLATE, projectTemplate.getUuid());
+    db.commit();
 
     underTest.start();
 
-    verifyDefaultTemplates();
-  }
-
-  @Test
-  public void do_not_fail_if_default_template_exists_and_is_registered() {
-    PermissionTemplateDto projectTemplate = db.permissionTemplates().insertTemplate(newPermissionTemplateDto()
-      .setUuid(DEFAULT_TEMPLATE_UUID));
-    db.organizations().setDefaultTemplates(projectTemplate, null, null);
-
-    underTest.start();
-
-    verifyDefaultTemplates();
+    verifyDefaultTemplateForProject(projectTemplate.getUuid());
   }
 
   private PermissionTemplateDto selectTemplate() {
-    return db.getDbClient().permissionTemplateDao().selectByUuid(db.getSession(), DEFAULT_TEMPLATE_UUID);
+    return db.getDbClient().permissionTemplateDao().selectByName(db.getSession(), "Default template");
   }
 
   private List<PermissionTemplateGroupDto> selectGroupPermissions(PermissionTemplateDto template) {
@@ -189,21 +126,10 @@ public class RegisterPermissionTemplatesTest {
         .isTrue();
   }
 
-  private void verifyDefaultTemplates() {
-    Optional<DefaultTemplates> defaultTemplates = db.getDbClient().organizationDao().getDefaultTemplates(db.getSession(), db.getDefaultOrganization().getUuid());
-    assertThat(defaultTemplates)
-      .isPresent();
-    assertThat(defaultTemplates.get().getProjectUuid()).isEqualTo(DEFAULT_TEMPLATE_UUID);
+  private void verifyDefaultTemplateForProject(String expectedDefaultTemplateForProjectUuid) {
+    Optional<String> defaultPermissionTemplateForProject = db.getDbClient().internalPropertiesDao().selectByKey(db.getSession(), DEFAULT_PROJECT_TEMPLATE);
+    assertThat(defaultPermissionTemplateForProject).isPresent();
+    assertThat(defaultPermissionTemplateForProject).contains(expectedDefaultTemplateForProjectUuid);
   }
 
-  private void setDefaultGroup(GroupDto defaultGroup) {
-    db.getDbClient().organizationDao().setDefaultGroupUuid(db.getSession(), db.getDefaultOrganization().getUuid(), defaultGroup);
-    db.commit();
-  }
-
-  private GroupDto createAndSetDefaultGroup() {
-    GroupDto res = db.users().insertGroup();
-    setDefaultGroup(res);
-    return res;
-  }
 }

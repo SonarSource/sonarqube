@@ -57,23 +57,25 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   private I18nRule i18n = new I18nRule();
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
+
   private ResourceTypesRule resourceTypesWithViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.APP);
   private ResourceTypesRule resourceTypesWithoutViews = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private PermissionService permissionServiceWithViews = new PermissionServiceImpl(resourceTypesWithViews);
   private PermissionService permissionServiceWithoutViews = new PermissionServiceImpl(resourceTypesWithoutViews);
+  private DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(dbClient, resourceTypesWithViews);
+
   private WsActionTester underTestWithoutViews;
 
   @Override
   protected SearchTemplatesAction buildWsAction() {
-    DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithViews);
-    return new SearchTemplatesAction(dbClient, userSession, i18n, defaultTemplatesResolverWithViews, permissionServiceWithViews, defaultOrganizationProvider);
+    return new SearchTemplatesAction(dbClient, userSession, i18n, defaultTemplatesResolverWithViews, permissionServiceWithViews);
   }
 
   @Before
   public void setUp() {
-    DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithoutViews);
+    DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(dbClient, resourceTypesWithoutViews);
     underTestWithoutViews = new WsActionTester(
-      new SearchTemplatesAction(dbClient, userSession, i18n, defaultTemplatesResolverWithViews, permissionServiceWithoutViews, defaultOrganizationProvider));
+      new SearchTemplatesAction(dbClient, userSession, i18n, defaultTemplatesResolverWithViews, permissionServiceWithoutViews));
     i18n.setProjectPermissions();
     userSession.logIn().addPermission(ADMINISTER);
   }
@@ -97,7 +99,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     addGroupToTemplate(projectTemplate.getUuid(), group1.getUuid(), UserRole.ADMIN);
     addPermissionTemplateWithProjectCreator(projectTemplate.getUuid(), UserRole.ADMIN);
 
-    db.organizations().setDefaultTemplates(projectTemplate, null, null);
+    db.permissionTemplates().setDefaultTemplates(projectTemplate, null, null);
 
     String result = newRequest(underTestWithoutViews).execute().getInput();
 
@@ -133,7 +135,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     addGroupToTemplate(portfoliosTemplate.getUuid(), group2.getUuid(), UserRole.ISSUE_ADMIN);
     addGroupToTemplate(portfoliosTemplate.getUuid(), group3.getUuid(), UserRole.ISSUE_ADMIN);
 
-    db.organizations().setDefaultTemplates(projectTemplate, applicationsTemplate, portfoliosTemplate);
+    db.permissionTemplates().setDefaultTemplates(projectTemplate, applicationsTemplate, portfoliosTemplate);
 
     String result = newRequest().execute().getInput();
 
@@ -144,7 +146,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void empty_result() {
-    db.organizations().setDefaultTemplates("AU-Tpxb--iU5OvuD2FLy", "AU-Tpxb--iU5OvuD2FLz", "AU-TpxcA-iU5OvuD2FLx");
+    db.permissionTemplates().setDefaultTemplates("AU-Tpxb--iU5OvuD2FLy", "AU-Tpxb--iU5OvuD2FLz", "AU-TpxcA-iU5OvuD2FLx");
     String result = newRequest(wsTester).execute().getInput();
 
     assertJson(result)
@@ -171,7 +173,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void empty_result_without_views() {
-    db.organizations().setDefaultTemplates("AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz", "AU-TpxcA-iU5OvuD2FLx");
+    db.permissionTemplates().setDefaultTemplates("AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz", "AU-TpxcA-iU5OvuD2FLx");
     String result = newRequest(underTestWithoutViews).execute().getInput();
 
     assertJson(result)
@@ -190,7 +192,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void search_by_name() {
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
     insertProjectTemplate();
     insertPortfoliosTemplate();
 
@@ -214,7 +216,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void display_all_project_permissions() {
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
 
     String result = newRequest(underTestWithoutViews).execute().getInput();
 
@@ -263,7 +265,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void display_all_project_permissions_with_views() {
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
+    db.permissionTemplates().setDefaultTemplates(db.permissionTemplates().insertTemplate(), null, null);
 
     String result = newRequest().execute().getInput();
 

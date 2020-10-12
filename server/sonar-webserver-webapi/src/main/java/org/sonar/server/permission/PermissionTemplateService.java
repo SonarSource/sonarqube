@@ -36,7 +36,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
@@ -46,7 +45,6 @@ import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.ProjectIndexers;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.DefaultTemplatesResolver.ResolvedDefaultTemplates;
 import org.sonar.server.user.UserSession;
 
@@ -65,16 +63,14 @@ public class PermissionTemplateService {
   private final UserSession userSession;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
   private final UuidFactory uuidFactory;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
   public PermissionTemplateService(DbClient dbClient, ProjectIndexers projectIndexers, UserSession userSession,
-    DefaultTemplatesResolver defaultTemplatesResolver, UuidFactory uuidFactory, DefaultOrganizationProvider defaultOrganizationProvider) {
+    DefaultTemplatesResolver defaultTemplatesResolver, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.projectIndexers = projectIndexers;
     this.userSession = userSession;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
     this.uuidFactory = uuidFactory;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession, @Nullable String userUuid, String projectKey) {
@@ -191,7 +187,6 @@ public class PermissionTemplateService {
    */
   @CheckForNull
   private PermissionTemplateDto findTemplate(DbSession dbSession, ComponentDto component) {
-    String organizationUuid = defaultOrganizationProvider.get().getUuid();
     List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAll(dbSession, null);
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
@@ -205,12 +200,8 @@ public class PermissionTemplateService {
       return matchingTemplates.get(0);
     }
 
-    DefaultTemplates defaultTemplates = dbClient.organizationDao().getDefaultTemplates(dbSession, organizationUuid)
-      .orElseThrow(() -> new IllegalStateException(
-        format("No Default templates defined for organization with uuid '%s'", organizationUuid)));
-
     String qualifier = component.qualifier();
-    ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(defaultTemplates);
+    ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(dbSession);
     switch (qualifier) {
       case Qualifiers.PROJECT:
         return dbClient.permissionTemplateDao().selectByUuid(dbSession, resolvedDefaultTemplates.getProject());

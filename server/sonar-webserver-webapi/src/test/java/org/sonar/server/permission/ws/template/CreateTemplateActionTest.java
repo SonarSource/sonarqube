@@ -21,8 +21,8 @@ package org.sonar.server.permission.ws.template;
 
 import javax.annotation.Nullable;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.utils.System2;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -44,7 +44,7 @@ public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplat
 
   @Override
   protected CreateTemplateAction buildWsAction() {
-    return new CreateTemplateAction(db.getDbClient(), userSession, system, defaultOrganizationProvider);
+    return new CreateTemplateAction(db.getDbClient(), userSession, system);
   }
 
   @Test
