@@ -55,8 +55,7 @@ public class UsersService extends BaseService {
         .setParam("login", request.getLogin())
         .setParam("password", request.getPassword())
         .setParam("previousPassword", request.getPreviousPassword())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -103,8 +102,7 @@ public class UsersService extends BaseService {
     return call(
       new PostRequest(path("deactivate"))
         .setParam("login", request.getLogin())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -118,7 +116,6 @@ public class UsersService extends BaseService {
     return call(
       new GetRequest(path("groups"))
         .setParam("login", request.getLogin())
-        .setParam("organization", request.getOrganization())
         .setParam("p", request.getP())
         .setParam("ps", request.getPs())
         .setParam("q", request.getQ())
@@ -167,8 +164,7 @@ public class UsersService extends BaseService {
       new PostRequest(path("set_homepage"))
         .setParam("parameter", request.getParameter())
         .setParam("type", request.getType())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -183,8 +179,7 @@ public class UsersService extends BaseService {
       new PostRequest(path("set_setting"))
         .setParam("key", request.getKey())
         .setParam("value", request.getValue())
-        .setMediaType(MediaTypes.JSON)
-    ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -197,8 +192,7 @@ public class UsersService extends BaseService {
   public void skipOnboardingTutorial() {
     call(
       new PostRequest(path("skip_onboarding_tutorial"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -216,8 +210,7 @@ public class UsersService extends BaseService {
         .setParam("name", request.getName())
         .setParam("scmAccount", request.getScmAccount())
         .setParam("scmAccounts", request.getScmAccounts())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 
   /**
@@ -232,7 +225,6 @@ public class UsersService extends BaseService {
       new PostRequest(path("update_login"))
         .setParam("login", request.getLogin())
         .setParam("newLogin", request.getNewLogin())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setMediaType(MediaTypes.JSON)).content();
   }
 }

@@ -298,17 +298,10 @@ public class GroupsActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
-    assertThat(action.params()).extracting(Param::key).containsOnly("p", "q", "ps", "login", "selected", "organization");
+    assertThat(action.params()).extracting(Param::key).containsOnly("p", "q", "ps", "login", "selected");
 
     WebService.Param qualifiers = action.param("login");
     assertThat(qualifiers.isRequired()).isTrue();
-
-    WebService.Param organization = action.param("organization");
-    assertThat(organization.isRequired()).isFalse();
-    assertThat(organization.description()).isEqualTo("Organization key");
-    assertThat(organization.isInternal()).isTrue();
-    assertThat(organization.exampleValue()).isEqualTo("my-org");
-    assertThat(organization.since()).isEqualTo("6.4");
   }
 
   private GroupDto insertGroup(String name, String description) {

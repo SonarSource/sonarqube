@@ -51,19 +51,6 @@ public class GroupsRequest {
   }
 
   /**
-   * This is part of the internal API.
-   * Example value: "my-org"
-   */
-  public GroupsRequest setOrganization(String organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  public String getOrganization() {
-    return organization;
-  }
-
-  /**
    * Example value: "42"
    */
   public GroupsRequest setP(String p) {

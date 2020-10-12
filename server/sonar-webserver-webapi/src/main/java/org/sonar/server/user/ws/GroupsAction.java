@@ -52,7 +52,6 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
-import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_ORGANIZATION;
 
 public class GroupsAction implements UsersWsAction {
 
@@ -62,7 +61,7 @@ public class GroupsAction implements UsersWsAction {
   private final UserSession userSession;
   private final DefaultGroupFinder defaultGroupFinder;
 
-  public GroupsAction(DbClient dbClient, UserSession userSession,  DefaultGroupFinder defaultGroupFinder) {
+  public GroupsAction(DbClient dbClient, UserSession userSession, DefaultGroupFinder defaultGroupFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.defaultGroupFinder = defaultGroupFinder;
@@ -86,12 +85,6 @@ public class GroupsAction implements UsersWsAction {
       .setDescription("A user login")
       .setExampleValue("admin")
       .setRequired(true);
-
-    action.createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
-      .setExampleValue("my-org")
-      .setInternal(true)
-      .setSince("6.4");
   }
 
   @Override
@@ -125,7 +118,6 @@ public class GroupsAction implements UsersWsAction {
     checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", PAGE_SIZE, MAX_PAGE_SIZE);
     return GroupsRequest.builder()
       .setLogin(request.mandatoryParam(PARAM_LOGIN))
-      .setOrganization(request.param(PARAM_ORGANIZATION))
       .setSelected(request.mandatoryParam(SELECTED))
       .setQuery(request.param(TEXT_QUERY))
       .setPage(request.mandatoryParamAsInt(PAGE))
@@ -168,7 +160,6 @@ public class GroupsAction implements UsersWsAction {
   private static class GroupsRequest {
 
     private final String login;
-    private final String organization;
     private final String query;
     private final String selected;
     private final Integer page;
@@ -176,7 +167,6 @@ public class GroupsAction implements UsersWsAction {
 
     private GroupsRequest(Builder builder) {
       this.login = builder.login;
-      this.organization = builder.organization;
       this.query = builder.query;
       this.selected = builder.selected;
       this.page = builder.page;
@@ -185,11 +175,6 @@ public class GroupsAction implements UsersWsAction {
 
     public String getLogin() {
       return login;
-    }
-
-    @CheckForNull
-    public String getOrganization() {
-      return organization;
     }
 
     @CheckForNull
@@ -219,7 +204,6 @@ public class GroupsAction implements UsersWsAction {
 
   private static class Builder {
     private String login;
-    private String organization;
     private String query;
     private String selected;
     private Integer page;
@@ -231,11 +215,6 @@ public class GroupsAction implements UsersWsAction {
 
     public Builder setLogin(String login) {
       this.login = login;
-      return this;
-    }
-
-    public Builder setOrganization(@Nullable String organization) {
-      this.organization = organization;
       return this;
     }
 

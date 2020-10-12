@@ -45,7 +45,6 @@ public class SetHomepageAction implements UsersWsAction {
   private static final String ACTION = "set_homepage";
 
   public static final String PARAM_TYPE = "type";
-  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_BRANCH = "branch";
   private static final String PARAMETER_REQUIRED = "Type %s requires a parameter '%s'";
