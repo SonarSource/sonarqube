@@ -33,6 +33,6 @@ public class DbVersion86 implements DbVersion {
       .add(4103, "Drop organization_uuid from 'default_qprofiles' table", DropOrganizationFromDefaultQProfiles.class)
       .add(4104, "Add primary key to the table 'default_qprofiles", AddPrimaryKeyToDefaultQProfiles.class)
       .add(4105, "Drop 'organization_uuid' in 'rules_metadata'", DropOrganizationInRulesMetadata.class)
-    ;
+      .add(4106, "Update 'change_data' column of 'qprofile_changes' table to use ruleUuid", UpdateChangeDataOfQProfileChanges.class);
   }
 }
