@@ -197,4 +197,22 @@
     <packageUrl regex="true">^pkg:maven/com\.sonarsource\.vsts/alm\-gallery\-client@.*$</packageUrl>
     <cpe>cpe:/a:gallery:gallery</cpe>
   </suppress>
+  
+  <!-- False Positive: Version of kotlin lib is not vulnerable to this CVE -->
+  <suppress>
+   <notes><![CDATA[
+   file name: kotlin-stdlib-common-1.4.10.jar
+   ]]></notes>
+   <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin\-stdlib(\-common)?@1.4.10$</packageUrl>
+   <cve>CVE-2020-15824</cve>
+  </suppress>
+  
+  <!-- False Positive: The CVE is for hazelcast:1.8.0 not hazelcast-client-protocol -->
+  <suppress>
+   <notes><![CDATA[
+   file name: hazelcast-3.12.9.jar (shaded: com.hazelcast:hazelcast-client-protocol:1.8.0)
+   ]]></notes>
+   <packageUrl regex="true">^pkg:maven/com\.hazelcast/hazelcast\-client\-protocol@.*$</packageUrl>
+   <cve>CVE-2016-10750</cve>
+  </suppress>
 </suppressions>
