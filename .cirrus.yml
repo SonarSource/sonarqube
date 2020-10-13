@@ -400,8 +400,9 @@ owasp_check_task:
     reupload_on_changes: true
   script:
     - gradle dependencyCheckAggregate
-  always:
+  on_failure:
     slack_notification_script:
       - ./private/cirrus/cirrus-owasp-notification.sh
+  always:
     reports_artifacts:
       path: "build/reports/*"
