@@ -82,7 +82,8 @@ public class DropPrimaryKeySqlGenerator {
       statements.add(format("DROP SEQUENCE %s_SEQ", tableName));
     }
 
-    statements.add(format(GENERIC_DROP_CONSTRAINT_STATEMENT, tableName, constraintName));
+    // 'drop index' at the end ensures that associated index with primary key will be deleted
+    statements.add(format(GENERIC_DROP_CONSTRAINT_STATEMENT + " DROP INDEX", tableName, constraintName));
     return statements;
   }
 

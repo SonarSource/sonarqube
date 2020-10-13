@@ -80,7 +80,7 @@ public class DropPrimaryKeySqlGeneratorTest {
 
     assertThat(sqls).containsExactly("DROP TRIGGER issues_IDT",
       "DROP SEQUENCE issues_SEQ",
-      "ALTER TABLE issues DROP CONSTRAINT pk_id");
+      "ALTER TABLE issues DROP CONSTRAINT pk_id DROP INDEX");
   }
 
   @Test
