@@ -33,4 +33,6 @@ public interface TriggerViewRefreshDelegate {
    */
   OptionalInt triggerFrom(Project project);
 
+  String getQualifier();
+
 }

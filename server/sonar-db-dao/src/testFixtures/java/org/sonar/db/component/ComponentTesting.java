@@ -195,9 +195,17 @@ public class ComponentTesting {
     return newApplication(organizationDto.getUuid());
   }
 
+  public static ComponentDto newApplication(OrganizationDto organizationDto, String uuid) {
+    return newApplication(organizationDto.getUuid(), uuid);
+  }
+
+
   public static ComponentDto newApplication(String organizationUuid) {
-    return newView(organizationUuid, Uuids.createFast())
-      .setQualifier(Qualifiers.APP);
+    return newApplication(organizationUuid, Uuids.createFast());
+  }
+
+  public static ComponentDto newApplication(String organizationUuid, String uuid) {
+    return newView(organizationUuid, uuid).setQualifier(Qualifiers.APP);
   }
 
   public static ComponentDto newProjectCopy(ComponentDto project, ComponentDto view) {

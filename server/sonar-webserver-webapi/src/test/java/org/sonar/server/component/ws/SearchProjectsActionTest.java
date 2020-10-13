@@ -142,7 +142,7 @@ public class SearchProjectsActionTest {
   public static Object[][] component_qualifiers_for_valid_editions() {
     return new Object[][] {
       {new String[] {Qualifiers.PROJECT}, Edition.COMMUNITY},
-      {new String[] {Qualifiers.PROJECT}, Edition.DEVELOPER},
+      {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DEVELOPER},
       {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.ENTERPRISE},
       {new String[] {Qualifiers.APP, Qualifiers.PROJECT}, Edition.DATACENTER},
     };

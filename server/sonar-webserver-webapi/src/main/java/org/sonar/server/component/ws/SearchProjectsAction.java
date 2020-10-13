@@ -334,6 +334,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
     switch (edition.get()) {
       case ENTERPRISE:
       case DATACENTER:
+      case DEVELOPER:
         return Sets.newHashSet(Qualifiers.PROJECT, Qualifiers.APP);
       default:
         return Sets.newHashSet(Qualifiers.PROJECT);

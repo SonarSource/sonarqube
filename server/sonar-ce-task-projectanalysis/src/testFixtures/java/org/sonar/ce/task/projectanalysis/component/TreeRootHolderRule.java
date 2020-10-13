@@ -19,11 +19,21 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import org.junit.rules.ExternalResource;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 public class TreeRootHolderRule extends ExternalResource implements TreeRootHolder {
   protected TreeRootHolderImpl delegate = new TreeRootHolderImpl();
+
+  @CheckForNull
+  private Map<String, Component> componentsByKey;
 
   @Override
   protected void after() {
@@ -38,6 +48,34 @@ public class TreeRootHolderRule extends ExternalResource implements TreeRootHold
     delegate = new TreeRootHolderImpl();
     delegate.setRoots(root, reportRoot);
     return this;
+  }
+
+  public Component getComponentByKey(String key) {
+    checkKeyArgument(key);
+    ensureComponentByKeyIsPopulated();
+    Component component = componentsByKey.get(key);
+    checkArgument(component != null, "Component with key '%s' can't be found", key);
+    return component;
+  }
+
+  private static void checkKeyArgument(String key) {
+    requireNonNull(key, "key can not be null");
+  }
+
+  private void ensureComponentByKeyIsPopulated() {
+    if (componentsByKey != null) {
+      return;
+    }
+
+    final ImmutableMap.Builder<String, Component> builder = ImmutableMap.builder();
+    new DepthTraversalTypeAwareCrawler(
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, POST_ORDER) {
+        @Override
+        public void visitAny(Component component) {
+          builder.put(component.getDbKey(), component);
+        }
+      }).visit(getRoot());
+    this.componentsByKey = builder.build();
   }
 
   @Override

@@ -41,20 +41,31 @@ public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
     String defaultProjectTemplate = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_PROJECT_TEMPLATE).orElseThrow(() -> {
       throw new IllegalStateException("Default template for project is missing");
     });
-    if (!isPortfolioEnabled(resourceTypes)) {
-      return new ResolvedDefaultTemplates(defaultProjectTemplate, null, null);
-    } else {
-      String defaultPortfolioTemplate = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_PORTFOLIO_TEMPLATE).orElse(defaultProjectTemplate);
-      String defaultApplicationTemplate = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_APPLICATION_TEMPLATE).orElse(defaultProjectTemplate);
-      return new ResolvedDefaultTemplates(defaultProjectTemplate, defaultApplicationTemplate, defaultPortfolioTemplate);
+
+    String defaultPortfolioTemplate = null;
+    String defaultApplicationTemplate = null;
+
+    if (isPortfolioEnabled(resourceTypes)) {
+      defaultPortfolioTemplate = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_PORTFOLIO_TEMPLATE).orElse(defaultProjectTemplate);
     }
+    if (isApplicationEnabled(resourceTypes)) {
+      defaultApplicationTemplate = dbClient.internalPropertiesDao().selectByKey(dbSession, InternalProperties.DEFAULT_APPLICATION_TEMPLATE).orElse(defaultProjectTemplate);
+    }
+    return new ResolvedDefaultTemplates(defaultProjectTemplate, defaultApplicationTemplate, defaultPortfolioTemplate);
   }
 
   private static boolean isPortfolioEnabled(ResourceTypes resourceTypes) {
     return resourceTypes.getRoots()
       .stream()
       .map(ResourceType::getQualifier)
-      .anyMatch(qualifier -> Qualifiers.VIEW.equals(qualifier) || Qualifiers.APP.equals(qualifier));
+      .anyMatch(qualifier -> Qualifiers.VIEW.equals(qualifier));
+  }
+
+  private static boolean isApplicationEnabled(ResourceTypes resourceTypes) {
+    return resourceTypes.getRoots()
+            .stream()
+            .map(ResourceType::getQualifier)
+            .anyMatch(qualifier ->  Qualifiers.APP.equals(qualifier));
   }
 
 }

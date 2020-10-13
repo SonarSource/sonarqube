@@ -30,8 +30,8 @@ import org.sonar.ce.task.step.ComputationStep;
  */
 public class TriggerViewRefreshStep implements ComputationStep {
 
-  @Nullable
-  private final TriggerViewRefreshDelegate triggerViewRefreshDelegate;
+
+  private final TriggerViewRefreshDelegate[] triggerViewRefreshDelegates;
   private final AnalysisMetadataHolder analysisMetadata;
 
   /**
@@ -39,15 +39,15 @@ public class TriggerViewRefreshStep implements ComputationStep {
    */
   public TriggerViewRefreshStep(AnalysisMetadataHolder analysisMetadata) {
     this.analysisMetadata = analysisMetadata;
-    this.triggerViewRefreshDelegate = null;
+    this.triggerViewRefreshDelegates = new TriggerViewRefreshDelegate[0];
   }
 
   /**
    * Constructor used by Pico when an implementation of {@link TriggerViewRefreshDelegate} is available
    */
-  public TriggerViewRefreshStep(AnalysisMetadataHolder analysisMetadata, @Nullable TriggerViewRefreshDelegate triggerViewRefreshDelegate) {
+  public TriggerViewRefreshStep(AnalysisMetadataHolder analysisMetadata, TriggerViewRefreshDelegate[] triggerViewRefreshDelegates) {
     this.analysisMetadata = analysisMetadata;
-    this.triggerViewRefreshDelegate = triggerViewRefreshDelegate;
+    this.triggerViewRefreshDelegates = triggerViewRefreshDelegates;
   }
 
   @Override
@@ -57,9 +57,9 @@ public class TriggerViewRefreshStep implements ComputationStep {
 
   @Override
   public void execute(ComputationStep.Context context) {
-    if (triggerViewRefreshDelegate != null) {
+    for (TriggerViewRefreshDelegate triggerViewRefreshDelegate : this.triggerViewRefreshDelegates) {
       OptionalInt count = triggerViewRefreshDelegate.triggerFrom(analysisMetadata.getProject());
-      count.ifPresent(i -> context.getStatistics().add("refreshes", i));
+      count.ifPresent(i -> context.getStatistics().add("refreshes" + triggerViewRefreshDelegate.getQualifier(), i));
     }
   }
 }

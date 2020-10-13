@@ -38,9 +38,11 @@ public class DefaultTemplatesResolverImplTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private ResourceTypesRule resourceTypesWithPortfoliosInstalled = new ResourceTypesRule().setRootQualifiers(PROJECT, APP, VIEW);
+  private ResourceTypesRule resourceTypesWithApplicationInstalled = new ResourceTypesRule().setRootQualifiers(PROJECT, APP);
   private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(PROJECT);
 
   private DefaultTemplatesResolverImpl underTestWithPortfoliosInstalled = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesWithPortfoliosInstalled);
+  private DefaultTemplatesResolverImpl underTestWithApplicationInstalled = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypesWithApplicationInstalled);
   private DefaultTemplatesResolverImpl underTest = new DefaultTemplatesResolverImpl(db.getDbClient(), resourceTypes);
 
   @Test
@@ -77,6 +79,24 @@ public class DefaultTemplatesResolverImplTest {
     assertThat(underTestWithPortfoliosInstalled.resolve(db.getSession()).getProject()).contains("prj");
     assertThat(underTestWithPortfoliosInstalled.resolve(db.getSession()).getApplication()).contains("app");
     assertThat(underTestWithPortfoliosInstalled.resolve(db.getSession()).getPortfolio()).contains("port");
+  }
+
+  @Test
+  public void get_default_templates_always_return_project_template_when_only_project_template_and_application_is_installed_() {
+    db.permissionTemplates().setDefaultTemplates("prj", null, null);
+
+    assertThat(underTestWithApplicationInstalled.resolve(db.getSession()).getProject()).contains("prj");
+    assertThat(underTestWithApplicationInstalled.resolve(db.getSession()).getApplication()).contains("prj");
+    assertThat(underTestWithApplicationInstalled.resolve(db.getSession()).getPortfolio()).isEmpty();
+  }
+
+  @Test
+  public void get_default_templates_for_all_components_when_application_is_installed() {
+    db.permissionTemplates().setDefaultTemplates("prj", "app", null);
+
+    assertThat(underTestWithApplicationInstalled.resolve(db.getSession()).getProject()).contains("prj");
+    assertThat(underTestWithApplicationInstalled.resolve(db.getSession()).getApplication()).contains("app");
+    assertThat(underTestWithApplicationInstalled.resolve(db.getSession()).getPortfolio()).isEmpty();
   }
 
   @Test
