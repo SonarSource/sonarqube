@@ -21,19 +21,28 @@ package org.sonar.server.platform.db.migration.version.v85;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.MsSql;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.version.v85.util.DropMsSQLDefaultConstraintsBuilder;
 
 public class DropUnusedPeriodsInSnapshots extends DdlChange {
   private static final String TABLE_NAME = "snapshots";
+  private static final String[] COLUMNS = {"period2_mode", "period2_param", "period2_date",
+    "period3_mode", "period3_param", "period3_date", "period4_mode", "period4_param", "period4_date", "period5_mode",
+    "period5_param", "period5_date"};
+  private final Database db;
 
   public DropUnusedPeriodsInSnapshots(Database db) {
     super(db);
+    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "period2_mode", "period2_param", "period2_date",
-      "period3_mode", "period3_param", "period3_date", "period4_mode", "period4_param", "period4_date", "period5_mode", "period5_param", "period5_date").build());
+    if (MsSql.ID.equals(db.getDialect().getId())) {
+      context.execute(new DropMsSQLDefaultConstraintsBuilder(db).setTable(TABLE_NAME).setColumns(COLUMNS).build());
+    }
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, COLUMNS).build());
   }
 }
