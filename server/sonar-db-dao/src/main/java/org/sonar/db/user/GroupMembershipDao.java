@@ -33,24 +33,25 @@ import org.sonar.db.DbSession;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class GroupMembershipDao implements Dao {
+  private static final String QUERY_PARAM_KEY = "query";
 
   public List<GroupMembershipDto> selectGroups(DbSession session, GroupMembershipQuery query, String userUuid, int offset, int limit) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "userUuid", userUuid);
+    Map<String, Object> params = ImmutableMap.of(QUERY_PARAM_KEY, query, "userUuid", userUuid);
     return mapper(session).selectGroups(params, new RowBounds(offset, limit));
   }
 
   public int countGroups(DbSession session, GroupMembershipQuery query, String userUuid) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "userUuid", userUuid);
+    Map<String, Object> params = ImmutableMap.of(QUERY_PARAM_KEY, query, "userUuid", userUuid);
     return mapper(session).countGroups(params);
   }
 
   public List<UserMembershipDto> selectMembers(DbSession session, UserMembershipQuery query, int offset, int limit) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "groupUuid", query.groupUuid());
+    Map<String, Object> params = ImmutableMap.of(QUERY_PARAM_KEY, query, "groupUuid", query.groupUuid());
     return mapper(session).selectMembers(params, new RowBounds(offset, limit));
   }
 
   public int countMembers(DbSession session, UserMembershipQuery query) {
-    Map<String, Object> params = ImmutableMap.of("query", query, "groupUuid", query.groupUuid());
+    Map<String, Object> params = ImmutableMap.of(QUERY_PARAM_KEY, query, "groupUuid", query.groupUuid());
     return mapper(session).countMembers(params);
   }
 

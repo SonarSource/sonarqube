@@ -22,7 +22,6 @@ package org.sonar.server.user.ws;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
@@ -34,7 +33,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolverImpl;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.tester.UserSessionRule;
@@ -43,6 +41,7 @@ import org.sonarqube.ws.Users.CurrentWsResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.USER;
@@ -57,17 +56,13 @@ public class CurrentActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
-  private PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
-  private HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
-  private PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
+  private final PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
+  private final HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
+  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
     ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
-
-  private WsActionTester ws = new WsActionTester(
-    new CurrentAction(userSession, db.getDbClient(), TestDefaultOrganizationProvider.from(db), new AvatarResolverImpl(), homepageTypes, platformEditionProvider,
-      permissionService));
+  private final WsActionTester ws = new WsActionTester(
+    new CurrentAction(userSession, db.getDbClient(), new AvatarResolverImpl(), homepageTypes, platformEditionProvider, permissionService));
 
   @Test
   public void return_user_info() {
@@ -179,10 +174,9 @@ public class CurrentActionTest {
     db.users().insertUser(usert -> usert.setLogin("another"));
     userSession.logIn("obiwan.kenobi");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("User login 'obiwan.kenobi' cannot be found");
-
-    call();
+    assertThatThrownBy(this::call)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("User login 'obiwan.kenobi' cannot be found");
   }
 
   @Test

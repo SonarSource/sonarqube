@@ -59,8 +59,8 @@ public class GroupPermissionDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = db.getSession();
-  private GroupPermissionDao underTest = new GroupPermissionDao();
+  private final DbSession dbSession = db.getSession();
+  private final GroupPermissionDao underTest = new GroupPermissionDao();
 
   @Test
   public void group_count_by_permission_and_component_id_on_private_projects() {
@@ -80,7 +80,7 @@ public class GroupPermissionDaoTest {
 
     final List<CountPerProjectPermission> result = new ArrayList<>();
     underTest.groupsCountByComponentUuidAndPermission(dbSession, asList(project2.uuid(), project3.uuid(), "789"),
-      context -> result.add((CountPerProjectPermission) context.getResultObject()));
+      context -> result.add(context.getResultObject()));
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
@@ -108,7 +108,7 @@ public class GroupPermissionDaoTest {
 
     final List<CountPerProjectPermission> result = new ArrayList<>();
     underTest.groupsCountByComponentUuidAndPermission(dbSession, asList(project2.uuid(), project3.uuid(), "789"),
-      context -> result.add((CountPerProjectPermission) context.getResultObject()));
+      context -> result.add(context.getResultObject()));
 
     assertThat(result).hasSize(3);
     assertThat(result).extracting("permission").containsOnly("p2", "p3");
@@ -472,7 +472,7 @@ public class GroupPermissionDaoTest {
     db.users().insertProjectPermissionOnAnyone("perm6", project1);
 
     List<GroupPermissionDto> result = new ArrayList<>();
-    underTest.selectAllPermissionsByGroupUuid(dbSession, group1.getUuid(), context -> result.add((GroupPermissionDto) context.getResultObject()));
+    underTest.selectAllPermissionsByGroupUuid(dbSession, group1.getUuid(), context -> result.add(context.getResultObject()));
     assertThat(result).extracting(GroupPermissionDto::getComponentUuid, GroupPermissionDto::getRole).containsOnly(
       tuple(null, "perm2"),
       tuple(project1.uuid(), "perm3"), tuple(project1.uuid(), "perm4"), tuple(project2.uuid(), "perm5"));
@@ -490,7 +490,7 @@ public class GroupPermissionDaoTest {
     db.users().insertProjectPermissionOnGroup(group1, "perm5", project2);
 
     List<GroupPermissionDto> result = new ArrayList<>();
-    underTest.selectAllPermissionsByGroupUuid(dbSession, group1.getUuid(), context -> result.add((GroupPermissionDto) context.getResultObject()));
+    underTest.selectAllPermissionsByGroupUuid(dbSession, group1.getUuid(), context -> result.add(context.getResultObject()));
     assertThat(result).extracting(GroupPermissionDto::getComponentUuid, GroupPermissionDto::getRole).containsOnly(
       tuple(null, "perm2"),
       tuple(project1.uuid(), "perm3"), tuple(project1.uuid(), "perm4"), tuple(project2.uuid(), "perm5"));

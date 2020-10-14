@@ -19,7 +19,7 @@
  */
 package org.sonar.server.permission.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -27,7 +27,7 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
 /**
  * Reference to a project <b>as defined by web service callers</b>. It allows to reference a project
- * by its (functional) key or by its (technical) id. It's then converted to {@link org.sonar.server.permission.ProjectId}.
+ * by its (functional) key or by its (technical) uuid.
  *
  * <p>Factory methods guarantee that the project id and project key are not provided at the same time.</p>
  */
@@ -44,7 +44,7 @@ public class ProjectWsRef {
 
   public static Optional<ProjectWsRef> newOptionalWsProjectRef(@Nullable String uuid, @Nullable String key) {
     if (uuid == null && key == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     return Optional.of(new ProjectWsRef(uuid, key));

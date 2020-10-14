@@ -40,7 +40,7 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 public class CreateTemplateActionTest extends BasePermissionWsTest<CreateTemplateAction> {
 
   private static final long NOW = 1_440_512_328_743L;
-  private System2 system = new TestSystem2().setNow(NOW);
+  private final System2 system = new TestSystem2().setNow(NOW);
 
   @Override
   protected CreateTemplateAction buildWsAction() {

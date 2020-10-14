@@ -23,6 +23,10 @@ public class LoginGroupCount {
   private String login;
   private int groupCount;
 
+  public LoginGroupCount() {
+    // nothing to do here
+  }
+
   public String login() {
     return login;
   }

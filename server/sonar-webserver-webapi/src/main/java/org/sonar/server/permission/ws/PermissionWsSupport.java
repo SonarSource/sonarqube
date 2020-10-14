@@ -27,14 +27,17 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.GroupUuidOrAnyone;
-import org.sonar.server.permission.ProjectUuid;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.template.WsTemplateRef;
 import org.sonar.server.usergroups.ws.GroupWsRef;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonarqube.ws.client.permission.PermissionsWsParameters;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
@@ -49,11 +52,6 @@ public class PermissionWsSupport {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.groupWsSupport = groupWsSupport;
-  }
-
-  public Optional<ProjectUuid> findProjectUuid(DbSession dbSession, Request request) {
-    return findProject(dbSession, request)
-      .map(ProjectUuid::new);
   }
 
   public Optional<ComponentDto> findProject(DbSession dbSession, Request request) {
@@ -78,20 +76,23 @@ public class PermissionWsSupport {
   }
 
   public UserId findUser(DbSession dbSession, String login) {
-    UserDto dto = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
-    checkFound(dto, "User with login '%s' is not found'", login);
+    UserDto dto = ofNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, login))
+      .orElseThrow(() -> new NotFoundException(format("User with login '%s' is not found'", login)));
     return new UserId(dto.getUuid(), dto.getLogin());
   }
 
   public PermissionTemplateDto findTemplate(DbSession dbSession, WsTemplateRef ref) {
-    if (ref.uuid() != null) {
+    String uuid = ref.uuid();
+    String name = ref.name();
+    if (uuid != null) {
       return checkFound(
-        dbClient.permissionTemplateDao().selectByUuid(dbSession, ref.uuid()),
-        "Permission template with id '%s' is not found", ref.uuid());
+        dbClient.permissionTemplateDao().selectByUuid(dbSession, uuid),
+        "Permission template with id '%s' is not found", uuid);
     } else {
+      checkNotNull(name);
       return checkFound(
-        dbClient.permissionTemplateDao().selectByName(dbSession, ref.name()),
-        "Permission template with name '%s' is not found (case insensitive)", ref.name());
+        dbClient.permissionTemplateDao().selectByName(dbSession, name),
+        "Permission template with name '%s' is not found (case insensitive)", name);
     }
   }
 

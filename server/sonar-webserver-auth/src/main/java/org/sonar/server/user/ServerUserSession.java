@@ -147,8 +147,8 @@ public class ServerUserSession extends AbstractUserSession {
     if (permissionsByProjectUuid == null) {
       permissionsByProjectUuid = new HashMap<>();
     }
-    Set<String> permissions = permissionsByProjectUuid.computeIfAbsent(projectUuid, this::loadProjectPermissions);
-    return permissions.contains(permission);
+    Set<String> projectPermissions = permissionsByProjectUuid.computeIfAbsent(projectUuid, this::loadProjectPermissions);
+    return projectPermissions.contains(permission);
   }
 
   /**
@@ -163,10 +163,10 @@ public class ServerUserSession extends AbstractUserSession {
       if (component.get().isPrivate()) {
         return loadDbPermissions(dbSession, projectUuid);
       }
-      Set<String> permissions = new HashSet<>();
-      permissions.addAll(PUBLIC_PERMISSIONS);
-      permissions.addAll(loadDbPermissions(dbSession, projectUuid));
-      return Collections.unmodifiableSet(permissions);
+      Set<String> projectPermissions = new HashSet<>();
+      projectPermissions.addAll(PUBLIC_PERMISSIONS);
+      projectPermissions.addAll(loadDbPermissions(dbSession, projectUuid));
+      return Collections.unmodifiableSet(projectPermissions);
     }
   }
 

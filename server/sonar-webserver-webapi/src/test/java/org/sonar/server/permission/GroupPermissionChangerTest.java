@@ -53,9 +53,9 @@ public class GroupPermissionChangerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
-  private PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
-  private GroupPermissionChanger underTest = new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory());
+  private final ResourceTypes resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
+  private final PermissionService permissionService = new PermissionServiceImpl(resourceTypes);
+  private final GroupPermissionChanger underTest = new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory());
   private GroupDto group;
   private ComponentDto privateProject;
   private ComponentDto publicProject;
@@ -90,8 +90,9 @@ public class GroupPermissionChangerTest {
     GroupUuidOrAnyone anyOneGroup = GroupUuidOrAnyone.forAnyone();
     permissionService.getAllProjectPermissions()
       .forEach(perm -> {
+        GroupPermissionChange change = new GroupPermissionChange(PermissionChange.Operation.ADD, perm, privateProject, anyOneGroup, permissionService);
         try {
-          apply(new GroupPermissionChange(PermissionChange.Operation.ADD, perm, new ProjectUuid(privateProject), anyOneGroup, permissionService));
+          apply(change);
           fail("a BadRequestException should have been thrown");
         } catch (BadRequestException e) {
           assertThat(e).hasMessage("No permission can be granted to Anyone on a private component");
@@ -107,7 +108,7 @@ public class GroupPermissionChangerTest {
     GroupUuidOrAnyone anyOneGroup = GroupUuidOrAnyone.forAnyone();
     permissionService.getAllProjectPermissions()
       .forEach(perm -> {
-        apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, perm, new ProjectUuid(privateProject), anyOneGroup, permissionService));
+        apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, perm, privateProject, anyOneGroup, permissionService));
 
         assertThat(db.users().selectAnyonePermissions(privateProject)).contains(perm);
       });
@@ -141,7 +142,7 @@ public class GroupPermissionChangerTest {
   private void applyAddsPermissionToGroupOnPrivateProject(String permission) {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectUuid(privateProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, permission, privateProject, groupUuid, permissionService));
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
     assertThat(db.users().selectGroupPermissions(group, privateProject)).containsOnly(permission);
@@ -176,7 +177,7 @@ public class GroupPermissionChangerTest {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
     db.users().insertProjectPermissionOnGroup(group, permission, privateProject);
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectUuid(privateProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, permission, privateProject, groupUuid, permissionService));
 
     assertThat(db.users().selectGroupPermissions(group, privateProject)).containsOnly(permission);
   }
@@ -185,7 +186,7 @@ public class GroupPermissionChangerTest {
   public void apply_has_no_effect_when_adding_USER_permission_to_group_AnyOne_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, publicProject, groupUuid, permissionService));
 
     assertThat(db.users().selectAnyonePermissions(publicProject)).isEmpty();
   }
@@ -194,7 +195,7 @@ public class GroupPermissionChangerTest {
   public void apply_has_no_effect_when_adding_CODEVIEWER_permission_to_group_AnyOne_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.CODEVIEWER, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.CODEVIEWER, publicProject, groupUuid, permissionService));
 
     assertThat(db.users().selectAnyonePermissions(publicProject)).isEmpty();
   }
@@ -206,14 +207,14 @@ public class GroupPermissionChangerTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("It is not possible to add the 'admin' permission to group 'Anyone'");
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ADMIN, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ADMIN, publicProject, groupUuid, permissionService));
   }
 
   @Test
   public void apply_adds_permission_ISSUE_ADMIN_to_group_AnyOne_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.ISSUE_ADMIN, publicProject, groupUuid, permissionService));
 
     assertThat(db.users().selectAnyonePermissions(publicProject)).containsOnly(UserRole.ISSUE_ADMIN);
   }
@@ -222,7 +223,7 @@ public class GroupPermissionChangerTest {
   public void apply_adds_permission_SCAN_EXECUTION_to_group_AnyOne_on_a_public_project() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.SCAN_EXECUTION, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.ADD, GlobalPermissions.SCAN_EXECUTION, publicProject, groupUuid, permissionService));
 
     assertThat(db.users().selectAnyonePermissions(publicProject)).containsOnly(GlobalPermissions.SCAN_EXECUTION);
   }
@@ -234,7 +235,7 @@ public class GroupPermissionChangerTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Permission user can't be removed from a public component");
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.USER, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.USER, publicProject, groupUuid, permissionService));
   }
 
   @Test
@@ -244,7 +245,7 @@ public class GroupPermissionChangerTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.CODEVIEWER, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.CODEVIEWER, publicProject, groupUuid, permissionService));
   }
 
   @Test
@@ -266,7 +267,7 @@ public class GroupPermissionChangerTest {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.forAnyone();
     db.users().insertProjectPermissionOnAnyone(permission, publicProject);
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, permission, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, permission, publicProject, groupUuid, permissionService));
 
     assertThat(db.users().selectAnyonePermissions(publicProject)).isEmpty();
   }
@@ -278,7 +279,7 @@ public class GroupPermissionChangerTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Permission user can't be removed from a public component");
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.USER, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.USER, publicProject, groupUuid, permissionService));
   }
 
   @Test
@@ -288,7 +289,7 @@ public class GroupPermissionChangerTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.CODEVIEWER, new ProjectUuid(publicProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.CODEVIEWER, publicProject, groupUuid, permissionService));
   }
 
   @Test
@@ -320,7 +321,7 @@ public class GroupPermissionChangerTest {
       .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermissions.SCAN_EXECUTION.equals(perm))
       .forEach(perm -> {
         try {
-          apply(new GroupPermissionChange(PermissionChange.Operation.ADD, perm, new ProjectUuid(privateProject), groupUuid, permissionService));
+          new GroupPermissionChange(PermissionChange.Operation.ADD, perm, privateProject, groupUuid, permissionService);
           fail("a BadRequestException should have been thrown for permission " + perm);
         } catch (BadRequestException e) {
           assertThat(e).hasMessage("Invalid project permission '" + perm +
@@ -338,7 +339,7 @@ public class GroupPermissionChangerTest {
       .filter(perm -> !UserRole.ADMIN.equals(perm) && !GlobalPermissions.SCAN_EXECUTION.equals(perm))
       .forEach(perm -> {
         try {
-          apply(new GroupPermissionChange(PermissionChange.Operation.ADD, perm, new ProjectUuid(publicProject), groupUuid, permissionService));
+          new GroupPermissionChange(PermissionChange.Operation.ADD, perm, publicProject, groupUuid, permissionService);
           fail("a BadRequestException should have been thrown for permission " + perm);
         } catch (BadRequestException e) {
           assertThat(e).hasMessage("Invalid project permission '" + perm +
@@ -356,7 +357,7 @@ public class GroupPermissionChangerTest {
       .filter(perm -> !GlobalPermissions.SCAN_EXECUTION.equals(perm) && !GlobalPermission.ADMINISTER.getKey().equals(perm))
       .forEach(permission -> {
         try {
-          apply(new GroupPermissionChange(PermissionChange.Operation.ADD, permission, null, groupUuid, permissionService));
+          new GroupPermissionChange(PermissionChange.Operation.ADD, permission, null, groupUuid, permissionService);
           fail("a BadRequestException should have been thrown for permission " + permission);
         } catch (BadRequestException e) {
           assertThat(e).hasMessage("Invalid global permission '" + permission + "'. Valid values are [admin, gateadmin, profileadmin, provisioning, scan]");
@@ -382,7 +383,7 @@ public class GroupPermissionChangerTest {
     db.users().insertProjectPermissionOnGroup(group, UserRole.ISSUE_ADMIN, privateProject);
     db.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, privateProject);
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, new ProjectUuid(privateProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, privateProject, groupUuid, permissionService));
 
     assertThat(db.users().selectGroupPermissions(group, null)).containsOnly(ADMINISTER_QUALITY_GATES.getKey());
     assertThat(db.users().selectGroupPermissions(group, privateProject)).containsOnly(UserRole.CODEVIEWER);
@@ -392,7 +393,7 @@ public class GroupPermissionChangerTest {
   public void do_not_fail_if_removing_a_permission_that_does_not_exist() {
     GroupUuidOrAnyone groupUuid = GroupUuidOrAnyone.from(group);
 
-    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, new ProjectUuid(privateProject), groupUuid, permissionService));
+    apply(new GroupPermissionChange(PermissionChange.Operation.REMOVE, UserRole.ISSUE_ADMIN, privateProject, groupUuid, permissionService));
 
     assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
     assertThat(db.users().selectGroupPermissions(group, privateProject)).isEmpty();

@@ -35,7 +35,7 @@ public interface GroupPermissionMapper {
 
   List<GroupPermissionDto> selectByGroupUuids(@Param("groupUuids") List<String> groupUuids, @Nullable @Param("projectUuid") String projectUuid);
 
-  void groupsCountByProjectUuidAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
+  void groupsCountByProjectUuidAndPermission(Map<String, Object> parameters, ResultHandler<CountPerProjectPermission> resultHandler);
 
   void insert(GroupPermissionDto dto);
 
@@ -45,7 +45,7 @@ public interface GroupPermissionMapper {
 
   List<String> selectProjectPermissionsOfGroup(@Nullable @Param("groupUuid") String groupUuid, @Param("projectUuid") String projectUuid);
 
-  void selectAllPermissionsByGroupUuid(@Param("groupUuid") String groupUuid, ResultHandler resultHandler);
+  void selectAllPermissionsByGroupUuid(@Param("groupUuid") String groupUuid, ResultHandler<GroupPermissionDto> resultHandler);
 
   /**
    * Lists uuid of groups with at least one permission on the specified root component but which do not have the specified

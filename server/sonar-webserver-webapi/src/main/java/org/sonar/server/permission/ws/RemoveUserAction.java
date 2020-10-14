@@ -25,10 +25,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ProjectUuid;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
@@ -84,9 +84,8 @@ public class RemoveUserAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
-      Optional<ProjectUuid> project = wsSupport.findProjectUuid(dbSession, request);
-      checkProjectAdmin(userSession, project);
-
+      Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
+      checkProjectAdmin(userSession, project.orElse(null));
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.REMOVE,
         request.mandatoryParam(PARAM_PERMISSION),

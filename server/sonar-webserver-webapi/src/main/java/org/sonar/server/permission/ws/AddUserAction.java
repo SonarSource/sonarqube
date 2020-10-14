@@ -30,7 +30,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ProjectUuid;
 import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.UserPermissionChange;
 import org.sonar.server.user.UserSession;
@@ -89,13 +88,12 @@ public class AddUserAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserId user = wsSupport.findUser(dbSession, request.mandatoryParam(PARAM_USER_LOGIN));
       Optional<ComponentDto> project = wsSupport.findProject(dbSession, request);
-      Optional<ProjectUuid> projectUuid = project.map(ProjectUuid::new);
-      checkProjectAdmin(userSession, projectUuid);
+      checkProjectAdmin(userSession, project.orElse(null));
 
       PermissionChange change = new UserPermissionChange(
         PermissionChange.Operation.ADD,
         request.mandatoryParam(PARAM_PERMISSION),
-        projectUuid.orElse(null),
+        project.orElse(null),
         user, permissionService);
       permissionUpdater.apply(dbSession, singletonList(change));
     }

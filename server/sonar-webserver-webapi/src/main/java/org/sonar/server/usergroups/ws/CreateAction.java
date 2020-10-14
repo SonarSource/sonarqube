@@ -101,7 +101,7 @@ public class CreateAction implements UserGroupsWsAction {
     }
   }
 
-  private void writeResponse(Request request, Response response, GroupDto group) {
+  private static void writeResponse(Request request, Response response, GroupDto group) {
     UserGroups.CreateWsResponse.Builder respBuilder = UserGroups.CreateWsResponse.newBuilder();
     // 'default' is always false as it's not possible to create a default group
     respBuilder.setGroup(toProtobuf(group, 0, false));

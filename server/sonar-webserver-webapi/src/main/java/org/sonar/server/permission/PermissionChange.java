@@ -21,6 +21,7 @@ package org.sonar.server.permission;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GlobalPermission;
 
 import static java.util.Objects.requireNonNull;
@@ -35,15 +36,15 @@ public abstract class PermissionChange {
 
   private final Operation operation;
   private final String permission;
-  private final ProjectUuid projectUuid;
+  private final ComponentDto project;
   protected final PermissionService permissionService;
 
-  public PermissionChange(Operation operation, String permission, @Nullable ProjectUuid projectUuid, PermissionService permissionService) {
+  protected PermissionChange(Operation operation, String permission, @Nullable ComponentDto project, PermissionService permissionService) {
     this.operation = requireNonNull(operation);
     this.permission = requireNonNull(permission);
-    this.projectUuid = projectUuid;
+    this.project = project;
     this.permissionService = permissionService;
-    if (projectUuid == null) {
+    if (project == null) {
       checkRequest(permissionService.getGlobalPermissions().stream().anyMatch(p -> p.getKey().equals(permission)),
         "Invalid global permission '%s'. Valid values are %s", permission,
         permissionService.getGlobalPermissions().stream().map(GlobalPermission::getKey).collect(toList()));
@@ -62,12 +63,12 @@ public abstract class PermissionChange {
   }
 
   @CheckForNull
-  public ProjectUuid getProject() {
-    return projectUuid;
+  public ComponentDto getProject() {
+    return project;
   }
 
   @CheckForNull
   public String getProjectUuid() {
-    return projectUuid == null ? null : projectUuid.getUuid();
+    return project == null ? null : project.uuid();
   }
 }

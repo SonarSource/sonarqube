@@ -111,8 +111,7 @@ public class QualityGatesWsSupport {
 
   OrganizationDto getOrganization(DbSession dbSession, String key) {
     Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByKey(dbSession, key);
-    OrganizationDto organization = checkFoundWithOptional(organizationDto, "No organization with key '%s'", key);
-    return organization;
+    return checkFoundWithOptional(organizationDto, "No organization with key '%s'", key);
   }
 
   OrganizationDto getOrganization(DbSession dbSession, Request request) {

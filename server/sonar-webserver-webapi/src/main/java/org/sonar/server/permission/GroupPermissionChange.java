@@ -20,14 +20,15 @@
 package org.sonar.server.permission;
 
 import javax.annotation.Nullable;
+import org.sonar.db.component.ComponentDto;
 
 public class GroupPermissionChange extends PermissionChange {
 
   private final GroupUuidOrAnyone group;
 
-  public GroupPermissionChange(Operation operation, String permission, @Nullable ProjectUuid projectUuid,
+  public GroupPermissionChange(Operation operation, String permission, @Nullable ComponentDto project,
     GroupUuidOrAnyone group, PermissionService permissionService) {
-    super(operation, permission, projectUuid, permissionService);
+    super(operation, permission, project, permissionService);
     this.group = group;
   }
 

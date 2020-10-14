@@ -40,8 +40,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolverImpl;
-import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.tester.UserSessionRule;
@@ -63,16 +61,14 @@ public class CurrentActionHomepageTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = db.getDbClient();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private final DbClient dbClient = db.getDbClient();
 
-  private PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
-  private HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
-  private PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
+  private final PlatformEditionProvider platformEditionProvider = mock(PlatformEditionProvider.class);
+  private final HomepageTypesImpl homepageTypes = new HomepageTypesImpl();
+  private final PermissionService permissionService = new PermissionServiceImpl(new ResourceTypes(new ResourceTypeTree[] {
     ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()}));
-
-  private WsActionTester ws = new WsActionTester(
-    new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), homepageTypes, platformEditionProvider, permissionService));
+  private final WsActionTester ws = new WsActionTester(
+    new CurrentAction(userSessionRule, dbClient, new AvatarResolverImpl(), homepageTypes, platformEditionProvider, permissionService));
 
   @Test
   public void return_homepage_when_set_to_portfolios() {
@@ -247,7 +243,7 @@ public class CurrentActionHomepageTest {
 
     CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
 
-    assertThat(response.getHomepage().getType().toString()).isEqualTo("PROJECTS");
+    assertThat(response.getHomepage().getType()).hasToString("PROJECTS");
   }
 
   @Test
@@ -257,7 +253,7 @@ public class CurrentActionHomepageTest {
 
     CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
 
-    assertThat(response.getHomepage().getType().toString()).isEqualTo("PROJECTS");
+    assertThat(response.getHomepage().getType()).hasToString("PROJECTS");
   }
 
   private CurrentWsResponse call() {

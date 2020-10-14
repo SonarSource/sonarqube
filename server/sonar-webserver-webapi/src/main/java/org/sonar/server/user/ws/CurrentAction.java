@@ -37,7 +37,6 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.AvatarResolver;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CurrentWsResponse;
@@ -60,20 +59,17 @@ import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
-
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final AvatarResolver avatarResolver;
   private final HomepageTypes homepageTypes;
   private final PlatformEditionProvider editionProvider;
   private final PermissionService permissionService;
 
-  public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
-    AvatarResolver avatarResolver, HomepageTypes homepageTypes, PlatformEditionProvider editionProvider, PermissionService permissionService) {
+  public CurrentAction(UserSession userSession, DbClient dbClient, AvatarResolver avatarResolver, HomepageTypes homepageTypes,
+    PlatformEditionProvider editionProvider, PermissionService permissionService) {
     this.userSession = userSession;
     this.dbClient = dbClient;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.avatarResolver = avatarResolver;
     this.homepageTypes = homepageTypes;
     this.editionProvider = editionProvider;
@@ -101,9 +97,9 @@ public class CurrentAction implements UsersWsAction {
       }
     } else {
       writeProtobuf(newBuilder()
-          .setIsLoggedIn(false)
-          .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
-          .build(),
+        .setIsLoggedIn(false)
+        .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+        .build(),
         request, response);
     }
   }
@@ -132,9 +128,8 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private List<String> getGlobalPermissions() {
-    String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     return permissionService.getGlobalPermissions().stream()
-      .filter(permission -> userSession.hasPermission(permission))
+      .filter(userSession::hasPermission)
       .map(GlobalPermission::getKey)
       .collect(toList());
   }

@@ -43,7 +43,6 @@ import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.CountPerProjectPermission;
 import org.sonar.server.permission.PermissionPrivilegeChecker;
 import org.sonar.server.permission.PermissionService;
-import org.sonar.server.permission.ProjectUuid;
 import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
@@ -56,8 +55,8 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -138,10 +137,10 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   }
 
   private void checkAuthorized(DbSession dbSession, SearchProjectPermissionsRequest request) {
-    com.google.common.base.Optional<ProjectWsRef> projectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
+    Optional<ProjectWsRef> projectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
     if (projectRef.isPresent()) {
       ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, projectRef.get());
-      PermissionPrivilegeChecker.checkProjectAdmin(userSession, Optional.of(new ProjectUuid(project)));
+      PermissionPrivilegeChecker.checkProjectAdmin(userSession, project);
     } else {
       userSession.checkLoggedIn().checkIsSystemAdministrator();
     }
@@ -222,7 +221,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   }
 
   private List<ComponentDto> searchRootComponents(DbSession dbSession, SearchProjectPermissionsRequest request, Paging paging) {
-    com.google.common.base.Optional<ProjectWsRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
+    Optional<ProjectWsRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
 
     if (project.isPresent()) {
       return singletonList(wsSupport.getRootComponentOrModule(dbSession, project.get()));

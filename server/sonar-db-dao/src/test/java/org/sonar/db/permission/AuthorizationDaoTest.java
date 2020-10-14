@@ -158,7 +158,7 @@ public class AuthorizationDaoTest {
 
     // nobody has the permission
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
-      "missingPermission", group1.getUuid())).isEqualTo(0);
+      "missingPermission", group1.getUuid())).isZero();
   }
 
   @Test
@@ -191,7 +191,7 @@ public class AuthorizationDaoTest {
 
     // nobody has the permission
     assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
-      "missingPermission", user1.getUuid())).isEqualTo(0);
+      "missingPermission", user1.getUuid())).isZero();
   }
 
   @Test
@@ -695,7 +695,7 @@ public class AuthorizationDaoTest {
 
     // another permission
     count = underTest.countUsersWithGlobalPermissionExcludingGroupMember(dbSession, DOES_NOT_EXIST, group1.getUuid(), u2.getUuid());
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
   }
 
   @Test
@@ -719,7 +719,7 @@ public class AuthorizationDaoTest {
 
     // another permission
     count = underTest.countUsersWithGlobalPermissionExcludingUserPermission(dbSession, DOES_NOT_EXIST, u2.getUuid());
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
   }
 
   @Test

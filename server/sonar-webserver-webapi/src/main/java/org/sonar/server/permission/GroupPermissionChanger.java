@@ -24,8 +24,10 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.GroupPermissionDto;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.PUBLIC_PERMISSIONS;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -59,47 +61,49 @@ public class GroupPermissionChanger {
   }
 
   private static boolean isImplicitlyAlreadyDone(GroupPermissionChange change) {
-    if (change.getProject() != null) {
-      return isImplicitlyAlreadyDone(change.getProject(), change);
+    ComponentDto project = change.getProject();
+    if (project != null) {
+      return isImplicitlyAlreadyDone(project, change);
     }
     return false;
   }
 
-  private static boolean isImplicitlyAlreadyDone(ProjectUuid project, GroupPermissionChange change) {
+  private static boolean isImplicitlyAlreadyDone(ComponentDto project, GroupPermissionChange change) {
     return isAttemptToAddPublicPermissionToPublicComponent(change, project)
       || isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(change, project);
   }
 
-  private static boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, ProjectUuid project) {
+  private static boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, ComponentDto project) {
     return !project.isPrivate()
       && change.getOperation() == ADD
       && PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
-  private static boolean isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(GroupPermissionChange change, ProjectUuid project) {
+  private static boolean isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(GroupPermissionChange change, ComponentDto project) {
     return project.isPrivate()
       && change.getOperation() == REMOVE
       && change.getGroupUuidOrAnyone().isAnyone();
   }
 
   private static void ensureConsistencyWithVisibility(GroupPermissionChange change) {
-    if (change.getProject() != null) {
+    ComponentDto project = change.getProject();
+    if (project != null) {
       checkRequest(
-        !isAttemptToAddPermissionToAnyoneOnPrivateComponent(change, change.getProject()),
+        !isAttemptToAddPermissionToAnyoneOnPrivateComponent(change, project),
         "No permission can be granted to Anyone on a private component");
       checkRequest(
-        !isAttemptToRemovePublicPermissionFromPublicComponent(change, change.getProject()),
+        !isAttemptToRemovePublicPermissionFromPublicComponent(change, project),
         "Permission %s can't be removed from a public component", change.getPermission());
     }
   }
 
-  private static boolean isAttemptToAddPermissionToAnyoneOnPrivateComponent(GroupPermissionChange change, ProjectUuid project) {
+  private static boolean isAttemptToAddPermissionToAnyoneOnPrivateComponent(GroupPermissionChange change, ComponentDto project) {
     return project.isPrivate()
       && change.getOperation() == ADD
       && change.getGroupUuidOrAnyone().isAnyone();
   }
 
-  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, ProjectUuid project) {
+  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, ComponentDto project) {
     return !project.isPrivate()
       && change.getOperation() == REMOVE
       && PUBLIC_PERMISSIONS.contains(change.getPermission());
@@ -149,11 +153,13 @@ public class GroupPermissionChanger {
   }
 
   private void checkIfRemainingGlobalAdministrators(DbSession dbSession, GroupPermissionChange change) {
+    GroupUuidOrAnyone groupUuidOrAnyone = change.getGroupUuidOrAnyone();
     if (SYSTEM_ADMIN.equals(change.getPermission()) &&
-      !change.getGroupUuidOrAnyone().isAnyone() &&
+      !groupUuidOrAnyone.isAnyone() &&
       change.getProjectUuid() == null) {
+      String groupUuid = checkNotNull(groupUuidOrAnyone.getUuid());
       // removing global admin permission from group
-      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession, SYSTEM_ADMIN, change.getGroupUuidOrAnyone().getUuid());
+      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession, SYSTEM_ADMIN, groupUuid);
       checkRequest(remaining > 0, "Last group with permission '%s'. Permission cannot be removed.", SYSTEM_ADMIN);
     }
   }

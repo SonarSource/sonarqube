@@ -29,14 +29,15 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserMembershipQuery;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserGroups;
 
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_CURRENT_NAME;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupWsSupport.PARAM_GROUP_DESCRIPTION;
@@ -100,17 +101,17 @@ public class UpdateAction implements UserGroupsWsAction {
       String groupUuid = request.param(PARAM_GROUP_ID);
       String currentName = request.param(PARAM_CURRENT_NAME);
 
-      if ((groupUuid == null) == (currentName == null)) {
+      if ((groupUuid == null && currentName == null) || (groupUuid != null && currentName != null)) {
         throw new IllegalArgumentException(format("Need to specify one and only one of '%s' or '%s'", PARAM_GROUP_ID, PARAM_CURRENT_NAME));
       }
 
       GroupDto group;
       if (groupUuid != null) {
-        group = dbClient.groupDao().selectByUuid(dbSession, groupUuid);
-        checkFound(group, "Could not find a user group with id '%s'.", groupUuid);
+        group = ofNullable(dbClient.groupDao().selectByUuid(dbSession, groupUuid))
+          .orElseThrow(() -> new NotFoundException(format("Could not find a user group with id '%s'.", groupUuid)));
       } else {
-        group = dbClient.groupDao().selectByName(dbSession, currentName).orElse(null);
-        checkFound(group, "Could not find a user group with name '%s'.", currentName);
+        group = dbClient.groupDao().selectByName(dbSession, currentName)
+          .orElseThrow(() -> new NotFoundException(format("Could not find a user group with name '%s'.", currentName)));
       }
 
       userSession.checkPermission(ADMINISTER);
